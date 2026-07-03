@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Communicator">
+<meta name="theme-color" content="#0c0a12">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAIXklEQVR4nO3du49UVRzA8d9sNiYiNL4ggolQiJD4RisLH4nWmJXEAlskEmOy0lHa4SZISNRWCxJYpbbwUWjjAnbiWsxQyfAHqAnNWsyOc2fm3rnn3nsev/Pb74dMQebuzJmZL4ezZ+7O9h7f99yW1Hhi7/N1hwBR3L7728Lrewf2PlsbtAhRI726mEVEliKMA4iGoGHKcqgbvnL+77VQtw0bTpx9YNX3bXpdQxMx2nKJ22UN3TloIoZvVXE7flO4JW0vxIwQRl21a7J3YO8zjWfoK+f/qQ35xNld3tdHsKVpR45LDregRUZRLxoEEaOtuq5cYhZpGPSvXx0uvVNChi9VYb/83qZTY739jkFvVMT8DjHDs6sVUb/kELVT0GUxEzJCKwu7Lure/kefXhj0xtdPzcf88f3EjCiufvrvfNQn/6jsr/Fb38SMmJr2tjDostkZSG1Rl5VBl33RoqkeCKWsu6qonZccxIyUXPtrvIZ23eAGfGjaW+m5HLPT+Usnb61OHwPEMulu1OHEqNPpdjnBH6a0Cvr23Zu+xwHMadPZ0uyCY+PrI1PLjWMnb622P8GUCxe/l2Nzy44ja8XrWXLAlNZBs+xASG37Wh5N1Issur7ua4G2mrQ1OXa5U89AKO167raGvj1k2QH/unTFN4UwpXPQzNLwqWtPzNAwpeMuR5NjABdtWpp8zdw7hWWH1l0GLDvgwWB406m3WbxTCLO8Bc0sjS589cMMDVO8Bs0sjTZ8duNpl6PL8UDXZorncng2GN6Ug/te8H2z8GT903u1x6x8fF+EkYz4/l89zMlJTNLqrK/Vh/z/sYXoV1YDx+2jFV8nJ1VhLa1Lk5h9fm2dEJ0E2+Ug6vTW1+55CTJE1KH6YNsOTkLO1D4tbcn0n1mz1zf50x/eSP5DlTv1EiLA9bV7XsY26qL9n1nF64LP0IPhjdB3gRnfBJxNu9526B5YcsCUKEEzS8cTcnbueh8xOog2QxP1zhbr9WfJAVMCnMtRbTC8Lgf3vejt9pCSexfhZ+fJWKLP0Cw9dpbYr3eSJQdR7wwpXud0n5zECUx5c3n9Yr3GhftZTtVzf3iD9XTG6rqIOTsXx5J0l4Olh00pX9eouxxl2PnIVXkXaWJOuMtRhpnaBg2vo4qgRXQ8GWhPy+unJmgRPU8KmtH0uqkKWkTXk4N62l4vdUGL6HuSUE7j65R8l6MKux+6DYbXUw+hQNkuRxWNMwB0Ux20CFGjmWRvfTfR346aJYgeGroYK44lq1/rNriTx/kfF89ddjruw0/eDTySgBR1MXVyUrpRtDNQfFKTa8hlx2cdtyJL85+aMCv1J0zMX3R9hz3SNGbfXx9fygaqx6L+m8Iqg+F1FWFfPHfZW4z5Ra1PtkGPaYjaJ6LuJvugRdLN1qHiI+r2TAQ9FjPs0NERdTumgh6ztgyBuyx3Odx2QjZkMNwIctuxZs/R/XTdAQiFXY4ktOyGII4s3vr2ob8d9aF9xxKPxAZNXRTHkt07hV31C7M1cdtjfsmxSH94fSpw5C+rk5NC6d9RPGs7PP/T/ygj/Y5ITV0UxqL2J1ZS6Q83pv6ePvD551/H/yqaupiMZcetoZuajSdF4DoCzsOOXkO3ETsuYm6GoGEKQcMUgoYpy2W/mbOo7nqEpfX51zSu4liYoWEKQcMUgoYpBA1Tsn6n8ML7/dpjPvriUISRQItl2ar5brXu+gQunB64H1uI/qPPD4YYTlgKn38R0TWurYx3OZrE7PNrkYdsgr5weuAlSKK2LZugfSJqu7IIOkSARG3TkvsPiKe5hAzvwumBlx+iD0nr2HR+iAE/sSL6H5/W8WkaVya7HJ+dvm3iPhCP6qCBpggaphA0TCFomJLluRzeaX6MWsemaVw5n8sBLELQMGXHfJzuIpofo9axaRpXcSzM0DCFoGEK53KIiO7HqHVsmsbFLgeMImiYQtAwhaBhCkHDFHY5RET3Y9Q6Nk3jmoyF34Ilovsxah2bpnEVxsJb36L7MWodm6Zx8dY3zCJomELQMIVdDhHR/Ri1jk3TuDiXA0YRNEwhaJhC0DCFoGEKuxwiovsxah2bpnEVzuUgZ92PUevYNI1r+q3vJp8mHfly5tJ+Tw+52plL+xuP661T4cclsn0/Dcd2dOWX4OM6uvJL0i7mFK5jDQ1TCBqmqA865LKjy22HXnZ0uf2Qy44YS5oulhotUBJdzlx6zO+jFtm+zW7jeuuU/3GJyPbtdhvb0ZWfvY9rdJvpe5g3uU79DD3mM2qft+U7ap+35zPqEP9AQsgmaBE/IYaY7X1FGGLG9xFiLjGLZBa0SLcgQ8Q81jXGUMsXkW5B5hSziMhy6gG0MQ7z0pm/nI+NYRzld1/Wj6t4fAzjMH9ff8X52Bxl/U7hBxFjbeLNiKE2dSTjWKsUG+VcDhgwaTS7NTSwCEHDFD45CfkrNMoMDVMIGqawywED2OWAUQQNUwgapmT91jcgMt0oMzRMYZcDBrDLAaMIGqYQNEzh5CTkj5OTYBW7HDCAXQ4Y1dvzwCNzU/Dmt6+uFf9++O2fVuMNCahW1yYzNEwhaJhSGvTsND47zQMpuCyFHXY5xtjtgDbzTTovOTa/fY1ZGsm49lcZ9OG3f5ybzokaKZR1V9anSM0MXfVFQEqLumy8y8EsjZia9tbbs+vh2u/2Nq+VTPnHmb0RVpvuent2PeS0fbF57fXSfymHj/9A2PCqS2u93Y5Bi4j8WXFHTxI1POnaWKOgF91hkzsFZvnqqnHQdXfeZhDYmUJ01CroJgMC2mg7IXY6OYlZGCF06aq3e9eD3k7S+PPaG8zYaOXJ4997mRy9Bl1E3KjjK+KiYEEDKXCCP0whaJjyHzfMmguwfySBAAAAAElFTkSuQmCC">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAADuElEQVR4nO1bTU/UQBh+2mxMXOCiURA0EQ7gmmg0wt2PBM+QhcQDXpFgjMnCzaM3aIKGg3cOJkDgF/iRyG3Z9YjLYbu3LT9ATbyMh27baTttZ9ptt+3uk7xJZ2fe6TzvvPN0pptKt8YeEHRwe/Qh+gGti5/mdYEQkz/o6zyD5lkIary/9VuJdTQJYHlzqOJVJ90cvW+bdmMZ7G/9yTxxJ5Y3ixU6/QFAmmAE4IAiv7RZ9IxeVkDzmXvZsPGRJq7fswWgundHAYCljcuZJ+7EwfZfBQDmVn6Z3GS6QZ7JAxYvgycAyACBZflG66JOlXTOskG9uldSAGB25axChyRvNrty1smCkkIAFNwzn+dscHOVXXwJ0NLqyBtaWt09t8QzA4D8ZQGLD6UBdDMCQM1RFqhanSn1PhrAuk4HDrf/2crljUscXl48PDTAMLVdt5V7bU7yZkB8fJgcKK4y81dm697iUHGT56ljR8aq89QAw5pardcTH0DQCgLv2GmusrMjFlStxtMsVeAdM8cS0E3VTj3r4jde8I7Vai8TAtAvgowyy5rtmm99XMZNn3OMdHvuDOhtJvCBf2wWVy4NcN8oe5rgBeEM6E0m8EK0P4KCc42JrLlmu4bJsUcCA7Tj47vP5vWb9y9C92NA9KU2IYFb4WCo2ikmx2aFfGjizt+iBUIwAmE1wAlVO+0siewhtAawdaEKVav6tmHNPg29PkkNYHQRFc1ONkwJLo2oEF8AQMGlHF38e6zZrtrKvAFx+gGcQhtCBbuiAbxoplAnIj8F4kHYMYgvglg0ICqSo8/x7zAPdl41beW3n6a60W0ikJlHJAFzkgc6AYlytItyHBQ5XhKON0J+trOmeo5lZ00NvatPbhcQYSP0wYe8Ab1NukOQ6GMwjYh1IxS6v7BjCLERiv0xGKa/hB+D/R2CgQb0ewZEeiXGdYt0a+AgAwYa0O8Z0PcaEPos8Hp3PPAGehu73/NVfz+93u5zt3wSeC+9TcJnAb8g8ARIBH5B4AmQFyIdhwmAdQbR9d1xX5/51XHMOzLB+M3Pr8QgWiqfCI+Z5toVEVzfvSHsAwDzq+J+pfKPUPdig6AQ+0MgzUhmI5RmpPStcFJI6DicZgw0YJAB0sjQNZNx4+ixAgAzi99z+ckM4ObIyACgP7JA52jbCs8sfqsAQOPoSe6+GQQsXgZPAJBGildd0904fmoGYGbha+aXgx8faZgRAAA4p5zygmnGZErDxSu+C/78+FnmAzG98MX72+GgAOQd/wHIdxmuJ+lUQgAAAABJRU5ErkJggg==">
+<title>Master Communicator · Training Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
+  --text:#ece8f4; --muted:#9b93ad; --accent:#a479ff; --accent2:#c9a6ff;
+  --gold:#e6b955; --good:#54d6a4; --warn:#e6b955; --bad:#e0697e; --radius:14px;
+  --serif:'Cinzel',serif; --body:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; --mono:'Space Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1100px 560px at 50% -12%,rgba(164,121,255,.10),transparent 60%),var(--bg);color:var(--text);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
+header{padding:22px 24px 0;max-width:1080px;margin:0 auto;text-align:center}
+header,nav,main,footer{position:relative;z-index:1}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#stars span{position:absolute;border-radius:99px;background:#cfc6e8;opacity:.09;animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.06;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+@media(prefers-reduced-motion:reduce){#stars span{animation:none;display:none}}
+h1{font-family:var(--serif);font-weight:700;font-size:1.6rem;letter-spacing:1px}
+h1 span{background:linear-gradient(90deg,var(--accent),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);font-size:.9rem;margin-top:4px;font-weight:300}
+.season{font-family:var(--mono);font-size:.7rem;color:var(--gold);letter-spacing:.05em;margin-top:7px;text-transform:uppercase;opacity:.85}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:18px auto 0;max-width:1080px;padding:0 24px;justify-content:center}
+nav button{background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:9px 16px;border-radius:999px;cursor:pointer;font-size:.86rem;font-family:var(--body);font-weight:500;letter-spacing:.02em;transition:.15s}
+nav button:hover{color:var(--text);border-color:var(--accent)}
+nav button.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0c0a12;border-color:transparent;font-weight:600}
+#nav{position:sticky;top:0;z-index:30;background:var(--bg);padding-bottom:6px;box-shadow:0 10px 18px -14px rgba(0,0,0,.8)}
+main{max-width:1080px;margin:0 auto;padding:20px 24px 60px}
+.page{display:none}.page.active{display:block}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.015),transparent),var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h2{font-family:var(--serif);font-weight:600;font-size:1.12rem;margin-bottom:8px;letter-spacing:.4px}
+.card h3{font-family:var(--serif);font-weight:500;font-size:.98rem;margin:12px 0 6px;letter-spacing:.3px}
+.grid{display:grid;gap:16px}
+.grid2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.grid3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.muted{color:var(--muted);font-size:.88rem}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:3px 11px;font-size:.78rem;color:var(--muted);margin:2px 4px 2px 0}
+.pill.on{background:rgba(164,121,255,.18);border-color:var(--accent);color:var(--accent2)}
+button.btn{background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;color:#0c0a12;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:.9rem;font-weight:600;font-family:var(--body);letter-spacing:.02em}
+button.btn.ghost{background:var(--panel2);border:1px solid var(--border);color:var(--text);font-weight:500}
+button.btn:active{transform:scale(.98)}
+.statrow{display:flex;gap:14px;flex-wrap:wrap}
+.stat{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.stat .v{font-family:var(--mono);font-size:1.5rem;font-weight:700}
+.stat .l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.likert{display:flex;gap:6px;margin:6px 0 14px}
+.likert button{flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:8px 4px;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:var(--body)}
+.likert button.sel{background:rgba(164,121,255,.25);border-color:var(--accent);color:#fff}
+.q{font-size:.93rem;margin-top:10px}
+.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:4px 0 10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}
+.lesson{border:1px solid var(--border);border-radius:10px;margin:8px 0;overflow:hidden}
+.lesson>.lhead{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;background:var(--panel2)}
+.lesson>.lhead:hover{background:#252036}
+.lesson .lbody{display:none;padding:14px 16px;font-size:.92rem;border-top:1px solid var(--border)}
+.lesson.open .lbody{display:block}
+.lesson .lbody ul{margin:8px 0 8px 20px}
+.lesson .lbody li{margin:4px 0}
+.lesson .lbody p{margin:6px 0}
+.lesson .lbody em{color:var(--accent2);font-style:normal;font-weight:600}
+.check{width:18px;height:18px;border:2px solid var(--muted);border-radius:5px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.check.done{background:var(--good);border-color:var(--good);color:#08251a}
+.drillcard{border:1px solid var(--accent);border-radius:var(--radius);padding:20px;background:linear-gradient(135deg,rgba(164,121,255,.10),rgba(201,166,255,.05))}
+.drillcard .topic{font-family:var(--serif);font-size:1.2rem;font-weight:600;margin:8px 0;letter-spacing:.3px}
+.timer{font-family:var(--mono);font-size:2.4rem;font-weight:700;font-variant-numeric:tabular-nums;text-align:center;margin:10px 0}
+.rubric label{display:block;font-size:.88rem;margin-top:10px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text],select,textarea{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:.9rem;width:100%;font-family:var(--body)}
+.topicitem{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid var(--border);font-size:.9rem}
+.topicitem:last-child{border-bottom:none}
+.del{color:var(--bad);cursor:pointer;font-size:.85rem;background:none;border:none}
+canvas{max-width:100%}
+.flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.note{background:rgba(230,185,85,.08);border:1px solid rgba(230,185,85,.3);border-radius:10px;padding:10px 14px;font-size:.85rem;color:var(--gold);margin:10px 0}
+.tag{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent2);font-weight:700}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;overflow-x:auto;padding-bottom:6px}
+.heat .cell{width:13px;height:13px;border-radius:3px;background:var(--panel2);border:1px solid rgba(255,255,255,.02)}
+.heat .cell.l1{background:rgba(164,121,255,.30)}
+.heat .cell.l2{background:rgba(164,121,255,.55)}
+.heat .cell.l3{background:rgba(164,121,255,.88)}
+.heat .cell.future{opacity:.4}
+.heat .cell.today{outline:1.5px solid var(--gold);outline-offset:1px}
+.heatlabels{display:flex;gap:12px;font-family:var(--mono);font-size:.66rem;color:var(--muted);margin-top:8px;flex-wrap:wrap;align-items:center}
+.heatkey{display:inline-flex;align-items:center;gap:4px}
+.heatkey .cell{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid rgba(255,255,255,.04)}
+.records .rt{font-family:var(--mono);color:var(--gold);white-space:nowrap;font-size:.82rem}
+.overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(6,4,10,.85);backdrop-filter:blur(3px);padding:20px;overflow-y:auto}
+#toasts{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+.toast{background:linear-gradient(135deg,#1d1830,#241b3a);border:1px solid var(--accent);border-radius:12px;padding:13px 20px;min-width:240px;max-width:90vw;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:pop .35s ease both}
+.toast.fade{animation:fade .5s ease forwards}
+.toast .tt{font-family:var(--serif);font-weight:600;color:var(--gold);font-size:1rem;letter-spacing:.4px}
+.toast .ts{font-size:.84rem;color:var(--muted);margin-top:3px}
+@keyframes pop{0%{transform:translateY(16px) scale(.95);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes fade{to{opacity:0;transform:translateY(-8px)}}
+@media(max-width:640px){main,header,nav{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Master <span>Communicator</span></h1>
+  <div class="sub">Assess → Learn → Train daily on topics that matter to you and your network → Track growth</div>
+  <div class="season" id="seasonLine"></div>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<footer style="max-width:1080px;margin:0 auto;padding:10px 24px 42px;display:flex;gap:16px;justify-content:center;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase">
+  <a href="life-ledger.html" style="color:#6f6683;text-decoration:none">Life Ledger</a>
+  <a href="workout-forge.html" style="color:#6f6683;text-decoration:none">The Forge</a>
+  <span style="color:var(--accent)">◆ Communicator</span>
+</footer>
+<div id="toasts"></div>
+
+<script>
+'use strict';
+/* ============ STORAGE (localStorage with in-memory fallback + export/import) ============ */
+const Store = (()=>{
+  let mem = {}; let usable = true;
+  try { localStorage.setItem('__t','1'); localStorage.removeItem('__t'); } catch(e){ usable = false; }
+  return {
+    get(k,d){ try{ const v = usable? localStorage.getItem('mc_'+k) : mem[k]; return v? JSON.parse(v) : d; }catch(e){ return d; } },
+    set(k,v){ const s = JSON.stringify(v); if(usable){ try{ localStorage.setItem('mc_'+k,s); }catch(e){} } mem[k]=s; },
+    usable: ()=>usable,
+    dump(){ const keys=['assessments','reps','lessonsDone','topics','customTopics','catsEnabled','city','goalNote','prepNotes','refreshed','bankUpdated','assessDraft','quests','reviews']; const o={}; keys.forEach(k=>o[k]=this.get(k,null)); return o; },
+    load(o){ Object.entries(o).forEach(([k,v])=>{ if(v!==null) this.set(k,v); }); }
+  };
+})();
+
+/* ============ SKILL PILLARS ============ */
+const SKILLS = [
+ {id:'clarity',  name:'Clarity & Structure',     desc:'Getting to the point, organizing ideas so they land'},
+ {id:'story',    name:'Storytelling & Engagement',desc:'Hooks, narrative, vivid specifics that hold attention'},
+ {id:'persuade', name:'Persuasion & Influence',  desc:'Building arguments, reading motivations, moving people'},
+ {id:'listen',   name:'Listening & Empathy',     desc:'Active listening, questions, making others feel heard'},
+ {id:'delivery', name:'Delivery & Presence',     desc:'Voice, pace, pausing, body language, composure'},
+ {id:'adapt',    name:'Adaptability & Awareness', desc:'Reading the room, impromptu speaking, audience tailoring'},
+];
+
+/* ============ SELF-ASSESSMENT (behaviorally anchored, 4 per pillar) ============ */
+const ASSESS = [
+ {s:'clarity', t:'When I explain something complex, people rarely ask me to repeat or clarify.'},
+ {s:'clarity', t:'I state my main point first, then support it (rather than building up to it).'},
+ {s:'clarity', t:'My emails/messages get the response I wanted on the first try.'},
+ {s:'clarity', t:'I can summarize a 30-minute discussion in 2–3 sentences accurately.'},
+ {s:'story',   t:'I regularly use specific stories or examples instead of abstract statements.'},
+ {s:'story',   t:'People lean in or react visibly when I tell a story.'},
+ {s:'story',   t:'I can turn a dry topic into something a listener finds interesting.'},
+ {s:'story',   t:'I open talks/conversations with a hook, not background or throat-clearing.'},
+ {s:'persuade',t:'I can argue the other side’s position as well as they can.'},
+ {s:'persuade',t:'I tailor my argument to what the listener cares about, not what I care about.'},
+ {s:'persuade',t:'I change minds in meetings or debates more often than not.'},
+ {s:'persuade',t:'I use evidence, emotion, and credibility deliberately, not just one of them.'},
+ {s:'listen',  t:'I can repeat back someone’s point to their satisfaction before responding.'},
+ {s:'listen',  t:'I ask follow-up questions more than I make statements in conversations.'},
+ {s:'listen',  t:'People open up to me and tell me things they don’t tell others.'},
+ {s:'listen',  t:'I notice and respond to what’s NOT being said (tone, hesitation, body language).'},
+ {s:'delivery',t:'I speak without filler words (um, like, you know) under pressure.'},
+ {s:'delivery',t:'I use pauses deliberately rather than rushing to fill silence.'},
+ {s:'delivery',t:'My voice varies in pace, pitch, and volume to keep attention.'},
+ {s:'delivery',t:'I stay composed and articulate when challenged or put on the spot.'},
+ {s:'adapt',   t:'I can speak coherently for 60 seconds on almost any topic with no prep.'},
+ {s:'adapt',   t:'I adjust my style depending on who I’m talking to (exec vs. friend vs. stranger).'},
+ {s:'adapt',   t:'I can sense when I’m losing an audience and change course mid-stream.'},
+ {s:'adapt',   t:'I handle hostile or curveball questions without getting flustered.'},
+];
+const LIKERT = ['Rarely','Sometimes','Often','Usually','Almost always'];
+
+/* ============ CURRICULUM (best-practice frameworks) ============ */
+const CURRICULUM = [
+ {id:'m1', skill:'clarity', title:'Module 1 · Clarity & Structure', lessons:[
+   {id:'m1l1', title:'BLUF & the Pyramid Principle', body:`<p><em>Bottom Line Up Front:</em> lead with your conclusion, then support it. Barbara Minto's Pyramid Principle: answer first → grouped supporting arguments → data. Audiences retain the first and last things you say (primacy/recency), so spend them wisely.</p><ul><li>Before speaking/writing, complete: "My point is ___. It matters because ___."</li><li>If you can't state your point in one sentence, you don't have one yet.</li></ul><p><em>Drill:</em> rewrite your last 3 emails BLUF-style.</p>`},
+   {id:'m1l2', title:'PREP & the Rule of Three', body:`<p><em>PREP</em> = Point → Reason → Example → Point (restated). The fastest structure for any answer, toast, or comment. The <em>Rule of Three</em>: people remember triads ("blood, sweat, and tears"). Cap any list at three; if you have seven points, group them into three buckets.</p><ul><li>Use PREP for every opinion you give this week.</li><li>Signpost: "Three reasons. First… Second… Finally…", it makes you sound organized even when improvising.</li></ul>`},
+   {id:'m1l3', title:'Concision: cut the throat-clearing', body:`<p>Most communication fails from excess, not absence. Kill: "I just wanted to quickly say…", hedges ("sort of", "kind of"), and warm-up sentences. Strong verbs over adverbs. One idea per sentence.</p><ul><li>Test: delete every sentence of a draft that doesn't change the listener's mind or action. Usually 30–40% goes.</li><li>Spoken: end your sentence, then stop. Don't trail into "…so, yeah."</li></ul>`},
+ ]},
+ {id:'m2', skill:'story', title:'Module 2 · Storytelling & Engagement', lessons:[
+   {id:'m2l1', title:'The ABT framework (And, But, Therefore)', body:`<p>Randy Olson's ABT: "<em>[Setup] AND [more context], BUT [conflict/tension], THEREFORE [resolution/point]</em>." The "but" is where attention lives, no tension, no story. Compare: "We have data and dashboards" vs. "We have data AND dashboards, BUT nobody can find what they need, THEREFORE we're rebuilding search."</p><ul><li>Convert any update or anecdote into ABT before sharing it.</li></ul>`},
+   {id:'m2l2', title:'Hooks & specificity', body:`<p>Open with a question, a surprising fact, a moment in time ("Tuesday, 11pm, my phone rings"), or a stake ("This decision costs us $2M a year"). Never open with chronology or apology.</p><p>Specificity creates belief: "an old car" < "a rusted '94 Corolla with a coat-hanger antenna." Concrete nouns, sensory detail, real numbers.</p><ul><li>Build a personal "story bank": 10 moments from your life, each tagged with the lesson it illustrates.</li></ul>`},
+   {id:'m2l3', title:'Narrative arc in 60 seconds', body:`<p>Micro-story arc: <em>Context (1 line) → Goal → Obstacle → Choice → Outcome → Meaning.</em> The meaning is the handshake with the listener, connect it to THEM ("…and that's why I never skip the pre-mortem").</p><ul><li>Practice the same story at 30s, 60s, and 3min lengths. Editing teaches you what's essential.</li></ul>`},
+ ]},
+ {id:'m3', skill:'persuade', title:'Module 3 · Persuasion & Influence', lessons:[
+   {id:'m3l1', title:'Ethos, Pathos, Logos', body:`<p>Aristotle's triad: credibility (<em>ethos</em>), emotion (<em>pathos</em>), logic (<em>logos</em>). Most people over-index on logos. Audit any pitch: Why should they trust YOU on this? What do they FEEL about it? Does the logic hold?</p><ul><li>Establish ethos early ("I've sat on both sides of this") without bragging.</li><li>Pathos = consequences for humans, not adjectives. Show the person affected.</li></ul>`},
+   {id:'m3l2', title:'Monroe’s Motivated Sequence', body:`<p>The classic call-to-action structure: <em>Attention → Need (the problem) → Satisfaction (your solution) → Visualization (life with/without it) → Action (specific ask).</em> Visualization is the most-skipped and most powerful step.</p><ul><li>Use it for any proposal: budget asks, community petitions, pitching a restaurant to friends.</li></ul>`},
+   {id:'m3l3', title:'Steelmanning & both-sides fluency', body:`<p>Persuasion starts with understanding. <em>Steelman</em>: state the opposing view so well its holders say "exactly." Only then rebut. This builds ethos, lowers defenses, and exposes your own weak points first.</p><ul><li>Rapoport's rules: restate their position → list points of agreement → note what you learned → only then disagree.</li></ul>`},
+   {id:'m3l4', title:'Cialdini’s principles of influence', body:`<p>Reciprocity, commitment/consistency, social proof, authority, liking, scarcity, unity. Use ethically: cite who else supports an idea (social proof), get small agreements first (consistency), find shared identity (unity, "as parents/fans/neighbours, we…").</p><ul><li>Spot these in ads and political messaging this week, naming them builds immunity AND fluency.</li></ul>`},
+ ]},
+ {id:'m4', skill:'listen', title:'Module 4 · Listening & Conversation', lessons:[
+   {id:'m4l1', title:'Active listening: loop, label, validate', body:`<p>Chris Voss's toolkit: <em>mirroring</em> (repeat their last 3 words as a question), <em>labeling</em> ("It sounds like you're frustrated that…"), and looping ("So what I'm hearing is… did I get that right?"). People don't move until they feel heard.</p><ul><li>In your next disagreement, earn the right to respond by summarizing them first, to their satisfaction.</li></ul>`},
+   {id:'m4l2', title:'Questions that open people up', body:`<p>Open > closed. "What was that like?" beats "Was it good?" Follow-up questions are rated the single most likable conversational behavior in research. Go deeper, not wider: 2–3 follow-ups on one thread beats topic-hopping.</p><ul><li>The support-vs-shift test: a "shift response" turns the topic to you ("That reminds me of MY trip"); a "support response" stays with them. Track your ratio.</li></ul>`},
+   {id:'m4l3', title:'Small talk → real talk (ARE method)', body:`<p><em>Anchor</em> (shared context: "This venue's packed tonight") → <em>Reveal</em> (something about you: "First time here, I usually avoid downtown") → <em>Encourage</em> (hand it over: "What brought you out?"). Escalate gradually from facts → opinions → feelings.</p><ul><li>Current events are anchor gold: sports, local news, big cultural moments. That's why this app feeds you topics.</li></ul>`},
+   {id:'m4l4', title:'Hot topics without burns', body:`<p>For political/contentious topics: ask before asserting ("What's your read on it?"), find the shared value beneath the disagreement (safety, fairness, affordability), use "help me understand" instead of "you're wrong," and know your exit ramps ("Either way, it'll be interesting to watch, hey, did you catch the game?").</p>`},
+ ]},
+ {id:'m5', skill:'delivery', title:'Module 5 · Delivery & Presence', lessons:[
+   {id:'m5l1', title:'The pause is the power move', body:`<p>Pauses replace fillers, create emphasis, and signal confidence. Pause: before your main point, after a question, after a key number. A 2-second pause feels like 10 to you and like gravitas to them.</p><ul><li>Filler-word fix: it's not about suppressing "um", it's about being okay with silence. Record yourself; count fillers; repeat.</li></ul>`},
+   {id:'m5l2', title:'Vocal variety: pace, pitch, volume', body:`<p>Monotone kills good content. Vary <em>pace</em> (slow = important, fast = energy), <em>pitch</em> (downward inflection = authority; avoid uptalk on statements), <em>volume</em> (dropping quieter can command more attention than getting louder).</p><ul><li>Drill: read one paragraph 3 ways, as breaking news, as a bedtime story, as a courtroom closing. Feel the range.</li></ul>`},
+   {id:'m5l3', title:'Body language & nerves', body:`<p>Plant your feet, open posture, gesture from the shoulders (not T-rex elbows), eye contact in 3–5 second holds per person. Nerves: box breathing (4-4-4-4) beforehand; reframe arousal as excitement ("I'm ready"), research shows reappraisal beats suppression.</p><ul><li>The first 30 seconds memorized cold = composure for the rest.</li></ul>`},
+ ]},
+ {id:'m6', skill:'adapt', title:'Module 6 · Impromptu & Adaptability', lessons:[
+   {id:'m6l1', title:'Impromptu frameworks', body:`<p>Never blank again, grab a scaffold: <em>PREP</em> (point-reason-example-point), <em>Past/Present/Future</em>, <em>Problem/Solution/Benefit</em>, <em>Zoom out/Zoom in</em> (big picture → specific case). The framework buys your brain time while your mouth starts.</p><ul><li>Buy 3 seconds legally: "Great question, the way I think about it is…"</li></ul>`},
+   {id:'m6l2', title:'Bridging & handling curveballs', body:`<p>Media-training bridges: acknowledge → pivot → message. "That's one angle; what I think matters more is…" / "I can't speak to X, but what I do know is Y." Never repeat a hostile framing ("I'm not saying the project failed", now they heard "project failed").</p><ul><li>For questions you don't know: name it, commit to follow up, offer adjacent value. Confidence ≠ omniscience.</li></ul>`},
+   {id:'m6l3', title:'Reading & tailoring to the audience', body:`<p>Before any important conversation, answer: What do they already believe? What do they want? What's their attention budget? Execs want the decision and risk; peers want the how; skeptics need their objection named before they raise it.</p><ul><li>Mid-stream reads: glazed eyes = compress and ask a question; crossed arms + silence = surface the objection yourself.</li></ul>`},
+ ]},
+];
+
+/* ============ TOPIC BANK (seeded June 2026, refresh anytime by asking Claude) ============ */
+const SEED_DATE = 'July 2, 2026';
+const DEFAULT_TOPICS = {
+ municipal: {name:'Municipal issues', items:[
+  'Hosting World Cup matches: worth the cost to host cities?',
+  'Housing affordability: is zoning reform moving fast enough?',
+  'Homeless encampments: enforcement vs. supportive housing',
+  'Transit service cuts vs. fare hikes: which is worse?',
+  'Property tax increases vs. cutting city services',
+  'Downtown recovery: convert empty offices into housing?',
+ ]},
+ provincial: {name:'Provincial issues', items:[
+  'Alberta\u2019s October separation referendum: legitimate question or theatre?',
+  'Separatism support down to 18%: is the movement finished?',
+  'First Nations treaty rights vs. provincial referendum powers',
+  'Healthcare wait times: is private delivery the answer?',
+  'Quebec and Alberta separatism: same grievance, different movements?',
+ ]},
+ federal: {name:'Federal issues', items:[
+  'The US won\u2019t renew the trade deal: how should Canada respond?',
+  'Two-thirds say cost of living is the worst ever: who fixes it?',
+  'Immigration levels vs. housing and healthcare capacity',
+  'Two provinces flirting with separation: crisis or noise?',
+  'Collapsing trust in courts, police, schools: cause or symptom?',
+  'Can the federal government actually fix housing supply?',
+ ]},
+ sports: {name:'Sports', items:[
+  'Canada\u2019s first-ever World Cup knockout win: how far can they go?',
+  'Canada vs. Netherlands-or-Morocco on July 4: call it',
+  'Knicks champions after 53 years: greatest drought-breaker ever?',
+  'Hurricanes take the Cup: is Vegas\u2019s window closed?',
+  'Jordan Staal, Conn Smythe at 37: is age a myth?',
+  'Do host nations get World Cup refereeing favours?',
+ ]},
+ popculture: {name:'Pop culture', items:[
+  'Olivia Rodrigo\u2019s new album: instant classic or more of the same?',
+  'The Bear\u2019s final season: sticking the landing?',
+  'Nolan\u2019s Odyssey with Matt Damon: can Homer sell out theatres?',
+  'Taylor Swift\u2013Travis Kelce MSG rumours: why do we all care?',
+  'The Legally Blonde prequel: does every story need an origin?',
+  'Superhero fatigue vs. the new Spider-Man hype',
+ ]},
+ biztech: {name:'Business & tech', items:[
+  'Frontier AI models leapfrogging monthly: can anyone keep up?',
+  'Governments buying discounted AI for every agency: smart or reckless?',
+  'Tens of billions for AI data-centre power: build-out or bubble?',
+  'South Korea\u2019s $880B chips-and-AI bet: should Canada match that ambition?',
+  'AI firms testing rivals with fake child accounts: where\u2019s the line?',
+  'AI agents doing real work: which jobs change first?',
+ ]},
+ evergreen: {name:'Evergreen', items:[
+  'Is social media a net positive for society?',
+  'Remote vs. office work',
+  'Should voting be mandatory?',
+  'The best advice you ever ignored',
+  'What schools should teach but don\u2019t',
+  'Cash vs. cashless society',
+ ]},
+};
+
+/* ============ SOURCES FOR TOPIC PREP ============ */
+const CATEGORY_SOURCES = {
+ municipal: [['CBC Canada','https://www.cbc.ca/news/canada'],['Global News','https://globalnews.ca/canada/'],['CTV News','https://www.ctvnews.ca/canada/']],
+ provincial:[['CBC Politics','https://www.cbc.ca/news/politics'],['Global News Politics','https://globalnews.ca/politics/'],['Policy Options','https://policyoptions.irpp.org/']],
+ federal:   [['CBC Politics','https://www.cbc.ca/news/politics'],['Globe & Mail Politics','https://www.theglobeandmail.com/politics/'],['Policy Options','https://policyoptions.irpp.org/'],['National Post','https://nationalpost.com/category/news/politics/']],
+ sports:    [['TSN','https://www.tsn.ca/'],['Sportsnet','https://www.sportsnet.ca/'],['The Athletic','https://www.nytimes.com/athletic/']],
+ popculture:[['Variety','https://variety.com/'],['Vulture','https://www.vulture.com/'],['Billboard','https://www.billboard.com/']],
+ biztech:   [['BNN Bloomberg','https://www.bnnbloomberg.ca/'],['Financial Post','https://financialpost.com/'],['The Verge','https://www.theverge.com/']],
+ evergreen: [['Kialo (pro/con maps)','https://www.kialo.com/'],['Britannica ProCon','https://www.procon.org/'],['Wikipedia','https://en.wikipedia.org/']],
+};
+function searchLinks(topic){
+  const q=encodeURIComponent(topic.replace(/your city/gi, S.city||'my city'));
+  return [['Google News','https://news.google.com/search?q='+q],
+          ['Wikipedia','https://en.wikipedia.org/w/index.php?search='+q],
+          ['YouTube','https://www.youtube.com/results?search_query='+q],
+          ['Reddit','https://www.reddit.com/search/?q='+q]];
+}
+const PREP_TEMPLATE = `3 KEY FACTS / NUMBERS:
+1.
+2.
+3.
+
+STRONGEST CASE FOR:
+
+STRONGEST CASE AGAINST:
+
+MY TAKE (one sentence):
+
+A STORY / EXAMPLE I CAN USE:
+
+QUESTION I'D ASK SOMEONE ABOUT THIS:`;
+
+/* ============ DRILL LIBRARY ============ */
+const DRILLS = [
+ {id:'impromptu', skill:'adapt', name:'60-Second Impromptu', time:60,
+  steps:t=>[`Topic: <b>${t}</b>`,'Take 10 seconds. Pick a framework: PREP, Past/Present/Future, or Problem/Solution/Benefit.','Speak for 60 seconds, out loud. No restarts.','End with a clean closing line, don’t trail off.'],
+  rubric:['Used a clear structure','Spoke fluidly (few fillers/restarts)','Strong open and close']},
+ {id:'bothsides', skill:'persuade', name:'Both-Sides Rep', time:120,
+  steps:t=>[`Topic: <b>${t}</b>`,'60 seconds: argue FOR, as persuasively as you can (ethos + pathos + logos).','60 seconds: argue AGAINST, just as persuasively.','Notice which side felt harder, that’s your blind spot.'],
+  rubric:['Steelmanned both sides credibly','Used emotion AND logic, not just one','Equal conviction on both sides']},
+ {id:'story60', skill:'story', name:'Story Sprint', time:90,
+  steps:t=>[`Prompt: <b>${t}</b>`,'Connect this topic to a personal story or vivid example (real or about someone you know).','Tell it in 90 seconds using ABT: setup AND context, BUT tension, THEREFORE meaning.','Land the meaning: why should the listener care?'],
+  rubric:['Had a hook, not a warm-up','Specific details (names, numbers, senses)','Clear "therefore", the point landed']},
+ {id:'pitch', skill:'persuade', name:'Monroe Pitch', time:120,
+  steps:t=>[`Topic: <b>${t}</b>`,'2 minutes: pitch a position or solution using Monroe’s sequence.','Attention → Need → Satisfaction → Visualization → specific Ask.','Don’t skip Visualization: paint life with (and without) your solution.'],
+  rubric:['All 5 steps present','Visualization was vivid','The ask was specific and doable']},
+ {id:'headline', skill:'clarity', name:'Headline Drill', time:45,
+  steps:t=>[`Topic: <b>${t}</b>`,'State your take in ONE sentence (the headline). BLUF.','Then give exactly three supporting points: "First… Second… Finally…"','Restate the headline in different words. Stop.'],
+  rubric:['One-sentence point came first','Exactly three crisp supports','No rambling or trailing off']},
+ {id:'opener', skill:'listen', name:'Small-Talk Opener (ARE)', time:60,
+  steps:t=>[`Context: someone in your network mentions <b>${t}</b>.`,'Say your Anchor + Reveal + Encourage out loud, as if mid-conversation.','Then script your first TWO follow-up questions (open, support-response).','Bonus: script a graceful exit ramp if it gets heated.'],
+  rubric:['Opener felt natural, not scripted','Follow-ups were open questions','Stayed curious, didn’t topic-grab']},
+ {id:'loop', skill:'listen', name:'Loop & Label', time:90,
+  steps:t=>[`Imagine someone passionately argues a strong view on <b>${t}</b>, pick the view you disagree with most.`,'Out loud: mirror their key phrase, label their emotion ("Sounds like you’re worried that…").','Loop: summarize their position until an imaginary "that’s right."','Only then state your view in one sentence.'],
+  rubric:['Summary was charitable and accurate','Labeled the feeling, not just facts','Resisted rebutting too early']},
+ {id:'vocal', skill:'delivery', name:'Vocal Variety Rep', time:90,
+  steps:t=>[`Improvise 3–4 sentences about <b>${t}</b>, then deliver them three ways:`,'1) As urgent breaking news (fast, punchy).','2) As a bedtime story (slow, warm, soft).','3) As a closing argument (deliberate, pauses, downward inflection).'],
+  rubric:['Three distinctly different deliveries','Used deliberate pauses','No uptalk on statements']},
+ {id:'curveball', skill:'adapt', name:'Curveball Q&A', time:60,
+  steps:t=>[`Hostile question: "Isn’t it true that your position on <b>${t}</b> is completely out of touch?"`,'Answer in 45–60 seconds: acknowledge → bridge → message.','Do NOT repeat the hostile framing.','Finish composed, on your message.'],
+  rubric:['Didn’t echo the negative framing','Bridged smoothly to a message','Stayed composed, ended strong']},
+ {id:'summary', skill:'clarity', name:'Executive Summary', time:120,
+  steps:t=>[`Topic: <b>${t}</b>`,'Write (or speak) a 4-sentence executive brief: Bottom line / Why it matters / Key risk or counterpoint / Recommended next step.','Pretend the reader has 20 seconds and decision power.'],
+  rubric:['Bottom line was sentence #1','Included the counterpoint honestly','A real, specific next step']},
+ {id:'toast', skill:'story', name:'The Unexpected Toast', time:60,
+  steps:t=>[`You’re handed a mic and must give a 45-second toast/tribute loosely connected to <b>${t}</b>.`,'Structure: one specific moment → what it revealed → raise the glass.','Warmth over wit. Specific over general.'],
+  rubric:['One concrete moment, not generalities','Genuine warmth came through','Clean, confident ending']},
+ {id:'presence', skill:'delivery', name:'Camera Confidence', time:90,
+  steps:t=>[`Record yourself (phone, front camera) speaking 60–90s on <b>${t}</b>.`,'Watch it back once for content, once muted for body language, once eyes-closed for voice.','Count fillers. Note posture and eye line.'],
+  rubric:['Actually recorded and reviewed','Fillers counted (and fewer than last time)','Found one specific fix for next rep']},
+];
+
+/* ============ STATE ============ */
+let S = {
+  assessments: Store.get('assessments', []),     // [{date, scores:{skill:0-100}}]
+  reps: Store.get('reps', []),                   // [{date, drill, skill, topic, score:0-100}]
+  lessonsDone: Store.get('lessonsDone', {}),     // {lessonId:true}
+  customTopics: Store.get('customTopics', []),   // [{cat, text}]
+  catsEnabled: Store.get('catsEnabled', Object.keys(DEFAULT_TOPICS)),
+  city: Store.get('city',''),
+  prepNotes: Store.get('prepNotes', {}),         // {topicText: notes}
+  refreshed: Store.get('refreshed', {}),         // {cat:[topic,...]} merged-in fresh topics
+  bankUpdated: Store.get('bankUpdated', null),   // ISO date of last topic refresh
+  quests: Store.get('quests', []),               // [{date, note, skills}]
+  reviews: Store.get('reviews', {}),             // {lessonId:{n,c,last}} spaced repetition
+};
+let curAnswers = Store.get('assessDraft', {});   // assessment in progress (survives reloads)
+let curDrill = null;   // active drill {drill, topic}
+let timerInt = null, timerLeft = 0;
+
+function save(){ Store.set('assessments',S.assessments); Store.set('reps',S.reps); Store.set('lessonsDone',S.lessonsDone); Store.set('customTopics',S.customTopics); Store.set('catsEnabled',S.catsEnabled); Store.set('city',S.city); Store.set('prepNotes',S.prepNotes); Store.set('refreshed',S.refreshed); Store.set('bankUpdated',S.bankUpdated); Store.set('quests',S.quests); Store.set('reviews',S.reviews); }
+
+/* ============ HELPERS ============ */
+const $ = id=>document.getElementById(id);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const localKey = d=>{ d=(d instanceof Date)?d:new Date(d); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const todayStr = ()=>localKey(new Date());
+function latestScores(){ return S.assessments.length? S.assessments[S.assessments.length-1].scores : null; }
+function firstScores(){ return S.assessments.length? S.assessments[0].scores : null; }
+function weakestSkill(){
+  const sc = latestScores(); if(!sc) return SKILLS[Math.floor(Math.random()*SKILLS.length)].id;
+  return SKILLS.reduce((a,b)=> (sc[a.id]??100) <= (sc[b.id]??100) ? a : b).id;
+}
+function streak(){
+  const days = new Set(S.reps.map(r=>localKey(r.date)));
+  let n=0; let d=new Date();
+  if(!days.has(todayStr())) d.setDate(d.getDate()-1);
+  while(days.has(localKey(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function xp(){ return S.reps.length*10 + Object.keys(S.lessonsDone).length*15 + S.assessments.length*25 + (S.quests||[]).length*15 + reviewCount()*5; }
+function reviewCount(){ let n=0; Object.values(S.reviews||{}).forEach(r=>n+=(r.c||0)); return n; }
+function level(){ const x=xp(); return x<100?['Novice',x/100]:x<300?['Apprentice',(x-100)/200]:x<700?['Practitioner',(x-300)/400]:x<1500?['Orator',(x-700)/800]:['Master Communicator',1]; }
+function effectiveItems(cat){
+  const seed = DEFAULT_TOPICS[cat]?.items || [];
+  const fresh = S.refreshed[cat] || [];
+  const seen = new Set(); const out = [];
+  [...fresh, ...seed].forEach(t=>{ const k=t.trim().toLowerCase(); if(t.trim() && !seen.has(k)){ seen.add(k); out.push(t); } });
+  return out; // fresh topics surface first
+}
+function allTopics(){
+  const out=[];
+  S.catsEnabled.forEach(c=>{ effectiveItems(c).forEach(t=>out.push({cat:c,text:t})); });
+  S.customTopics.forEach(t=>{ if(S.catsEnabled.includes(t.cat)||t.cat==='custom') out.push(t); });
+  return out;
+}
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ============ SEASON · FORECAST · RECORDS (ported from Life Ledger & The Forge) ============ */
+const SEASON_START = new Date('2026-07-06T00:00:00');
+const SEASON_END = new Date('2026-12-31T23:59:59');
+function dstr(d){ return localKey(d); }
+function activityDates(){ return S.reps.map(r=>localKey(r.date)); }
+function seasonStart(){ return SEASON_START; }
+function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+function weeksLeft(){ return Math.max(0, Math.ceil((SEASON_END-new Date())/(7*86400000))); }
+function repsByDay(){ const m={}; S.reps.forEach(r=>{ const k=localKey(r.date); m[k]=(m[k]||0)+1; }); return m; }
+function longestStreak(){
+  const days=[...new Set(activityDates())].sort(); if(!days.length) return 0;
+  let best=1,cur=1;
+  for(let i=1;i<days.length;i++){
+    const p=new Date(days[i-1]+'T00:00:00'), d=new Date(days[i]+'T00:00:00');
+    if(daysBetween(p,d)===1){ cur++; best=Math.max(best,cur); } else cur=1;
+  }
+  return best;
+}
+function activeDays(){ return new Set(activityDates()).size; }
+function bestDay(){ const m=repsByDay(); let date=null,count=0; Object.entries(m).forEach(([k,n])=>{ if(n>count){count=n;date=k;} }); return {date,count}; }
+function repsThisWeek(){ const s=new Date(); s.setDate(s.getDate()-6); s.setHours(0,0,0,0); return S.reps.filter(r=> new Date(r.date)>=s).length; }
+function bestByDrill(){ const m={}; S.reps.forEach(r=>{ const c=m[r.drill]; if(!c||r.score>c.score) m[r.drill]={score:r.score,topic:r.topic,date:localKey(r.date),skill:r.skill}; }); return m; }
+function levelName(x){ return x<100?'Novice':x<300?'Apprentice':x<700?'Practitioner':x<1500?'Orator':'Master Communicator'; }
+function projectLevel(){
+  const start=seasonStart(), now=new Date();
+  const elapsed=Math.max(1, daysBetween(start, now));
+  const total=daysBetween(start, SEASON_END);
+  const perDay=xp()/elapsed;
+  const projXP=Math.round(xp()+perDay*Math.max(0,total-elapsed));
+  return {projXP, lvl:levelName(projXP)};
+}
+function weeklyTarget(){
+  const tiers=[100,300,700,1500], x=xp();
+  const next=tiers.find(t=>t>x)||(x+800);
+  const gapReps=Math.ceil((next-x)/10);
+  return Math.max(3, Math.min(20, Math.ceil(gapReps/Math.max(1,weeksLeft()))));
+}
+function projectedScores(){
+  if(S.assessments.length<2) return null;
+  const first=S.assessments[0], last=S.assessments[S.assessments.length-1];
+  const span=Math.max(1,(new Date(last.date)-new Date(first.date))/86400000);
+  const toEnd=(SEASON_END-new Date(last.date))/86400000;
+  const out={};
+  SKILLS.forEach(sk=>{ const a=first.scores[sk.id]??0, b=last.scores[sk.id]??0; const slope=(b-a)/span;
+    out[sk.id]=Math.max(0,Math.min(100,Math.round(b+slope*toEnd))); });
+  return out;
+}
+
+
+/* ============ DAILY QUEST ============ */
+let quest=null;
+function questDoneToday(){ return (S.quests||[]).some(q=>localKey(q.date)===todayStr()); }
+function startQuest(){
+  quest={stage:'drill', idx:1, total:2, startedAt:Date.now(), skills:[]};
+  const w=weakestSkill(); quest.skills.push(w);
+  startDrill(w);
+}
+function questReflect(){
+  const mins=Math.max(1,Math.round((Date.now()-quest.startedAt)/60000));
+  return `<div class="card" style="border-color:var(--gold);text-align:center;padding:30px 20px">
+    <div class="tag" style="color:var(--gold)">⚡ Daily Quest · final step</div>
+    <h2 style="margin:10px 0 6px;font-size:1.25rem">Lock it in</h2>
+    <p class="muted" style="max-width:440px;margin:0 auto">Two reps down in ~${mins} min. One line of reflection makes the practice stick:</p>
+    <input type="text" id="questNote" maxlength="140" placeholder="One thing I’ll do differently next time…" style="max-width:440px;margin:16px auto 0;display:block">
+    <div class="flex" style="justify-content:center;margin-top:16px">
+      <button class="btn" onclick="completeQuest()">Complete quest · +15 XP</button>
+      <button class="btn ghost" onclick="quest=null;render()">Skip reflection</button>
+    </div>
+  </div>`;
+}
+function completeQuest(){
+  if(!quest) return;
+  const before=achvSet();
+  const note=($('questNote')&&$('questNote').value.trim())||'';
+  S.quests.push({date:new Date().toISOString(), note, skills:quest.skills});
+  quest=null; save();
+  toast('⚡ Daily Quest complete!','+15 XP bonus — see you tomorrow.');
+  achvDiffToast(before);
+  render();
+}
+
+/* ============ ACHIEVEMENTS ============ */
+const ACHV=[
+ {id:'first',    icon:'🎙', name:'First Words',     desc:'Log your first drill',                          test:()=>S.reps.length>=1},
+ {id:'ten',      icon:'✦',  name:'Finding a Voice',  desc:'10 drills logged',                              test:()=>S.reps.length>=10},
+ {id:'fifty',    icon:'◈',  name:'Practiced',        desc:'50 drills logged',                              test:()=>S.reps.length>=50},
+ {id:'hundred',  icon:'♛',  name:'Centurion',        desc:'100 drills logged',                             test:()=>S.reps.length>=100},
+ {id:'streak3',  icon:'🔥', name:'Warming Up',       desc:'3-day training streak',                         test:()=>longestStreak()>=3},
+ {id:'streak7',  icon:'⚡', name:'Locked In',         desc:'7-day training streak',                         test:()=>longestStreak()>=7},
+ {id:'streak30', icon:'☄',  name:'Unbreakable',      desc:'30-day training streak',                        test:()=>longestStreak()>=30},
+ {id:'mic',      icon:'📡', name:'On the Record',    desc:'First mic-analyzed rep',                        test:()=>S.reps.some(r=>r.an)},
+ {id:'clean',    icon:'🧊', name:'Clean Take',       desc:'Mic rep under 2 fillers/min (80+ words)',       test:()=>S.reps.some(r=>r.an&&r.an.fpm<2&&r.an.words>=80)},
+ {id:'broadcast',icon:'📻', name:'Broadcast Ready',  desc:'Mic rep at 110–180 wpm with <3 fillers/min',    test:()=>S.reps.some(r=>r.an&&r.an.wpm>=110&&r.an.wpm<=180&&r.an.fpm<3)},
+ {id:'allpillars',icon:'⬡', name:'Well-Rounded',     desc:'Train all six pillars at least once',           test:()=>SKILLS.every(sk=>S.reps.some(r=>r.skill===sk.id))},
+ {id:'specialist',icon:'🎯',name:'Specialist',       desc:'20 reps in a single pillar',                    test:()=>SKILLS.some(sk=>S.reps.filter(r=>r.skill===sk.id).length>=20)},
+ {id:'perfect',  icon:'✨', name:'Flawless',         desc:'A perfect 100 self-score',                      test:()=>S.reps.some(r=>r.score===100)},
+ {id:'scholar5', icon:'📖', name:'Student',          desc:'5 lessons internalized',                        test:()=>Object.keys(S.lessonsDone).length>=5},
+ {id:'scholar',  icon:'🎓', name:'Scholar',          desc:'Every lesson internalized',                     test:()=>Object.keys(S.lessonsDone).length>=CURRICULUM.reduce((s,m)=>s+m.lessons.length,0)},
+ {id:'witness',  icon:'📈', name:'Progress Witness', desc:'Two assessments taken',                         test:()=>S.assessments.length>=2},
+ {id:'radar60',  icon:'🛡', name:'Balanced Blade',   desc:'Every pillar at 60+ on your latest radar',      test:()=>{const sc=latestScores(); return !!sc&&SKILLS.every(sk=>(sc[sk.id]??0)>=60);}},
+ {id:'quest1',   icon:'⚔',  name:'Quest Begins',     desc:'Complete a Daily Quest',                        test:()=>(S.quests||[]).length>=1},
+ {id:'quest10',  icon:'🏰', name:'Questmaster',      desc:'10 Daily Quests completed',                     test:()=>(S.quests||[]).length>=10},
+ {id:'reviewer', icon:'🧠', name:'Spaced & Sharp',   desc:'10 lesson reviews completed',                   test:()=>reviewCount()>=10},
+];
+function achvSet(){ const s=new Set(); ACHV.forEach(a=>{ try{ if(a.test()) s.add(a.id); }catch(e){} }); return s; }
+function achvDiffToast(before){
+  const after=achvSet();
+  [...after].filter(id=>!before.has(id)).slice(0,3).forEach(id=>{
+    const a=ACHV.find(x=>x.id===id); if(a) toast('🏆 '+a.name, a.desc);
+  });
+}
+function achvInner(){
+  const got=achvSet();
+  return `<div class="grid grid3" style="margin-top:14px">${ACHV.map(a=>{
+    const e=got.has(a.id);
+    return `<div class="stat" style="text-align:center;${e?'border-color:rgba(230,185,85,.5);background:rgba(230,185,85,.06)':'opacity:.38'}">
+      <div style="font-size:1.5rem;line-height:1;${e?'':'filter:grayscale(1)'}">${a.icon}</div>
+      <div style="font-size:.82rem;font-weight:600;margin-top:6px">${a.name}</div>
+      <div class="muted" style="font-size:.7rem;margin-top:2px;line-height:1.35">${a.desc}</div></div>`;}).join('')}</div>`;
+}
+
+/* ============ SPACED LESSON REVIEW ============ */
+const REVIEW_IVL=[7,21,45,90];
+let reviewReveal=false;
+function reviewsDue(){
+  const out=[];
+  CURRICULUM.forEach(m=>m.lessons.forEach(l=>{
+    if(!S.lessonsDone[l.id]) return;
+    const rv=(S.reviews||{})[l.id];
+    const doneVal=S.lessonsDone[l.id];
+    const baseIso=rv? rv.last : (typeof doneVal==='string'? doneVal : null);
+    const n=rv? (rv.n||0) : 0;
+    if(!baseIso){ out.push({l,m,n}); return; } // legacy checkmark → due now
+    const ivl=REVIEW_IVL[Math.min(n,REVIEW_IVL.length-1)];
+    if((Date.now()-new Date(baseIso).getTime())/86400000>=ivl) out.push({l,m,n});
+  }));
+  return out;
+}
+function reviewCard(){
+  const due=reviewsDue(); if(!due.length) return '';
+  const cur=due[0];
+  return `<div class="card" style="border-color:rgba(230,185,85,.45)">
+    <div class="flex" style="justify-content:space-between;align-items:center"><div class="tag" style="color:var(--gold)">🧠 Review due · ${due.length} framework${due.length===1?'':'s'}</div><span class="muted" style="font-size:.7rem;font-family:var(--mono)">spaced repetition</span></div>
+    <h3 style="margin-top:8px">${cur.l.title}</h3>
+    <p class="muted">From ${cur.m.title}. Say the core idea <b>out loud from memory</b>, then check yourself.</p>
+    ${reviewReveal?`<div class="lesson open" style="margin-top:10px"><div class="lbody" style="display:block">${cur.l.body}</div></div>`:''}
+    <div class="flex" style="margin-top:12px">
+      ${reviewReveal?'':`<button class="btn ghost" onclick="reviewReveal=true;render(true)">Show me</button>`}
+      <button class="btn" onclick="gradeReview('${cur.l.id}',true)">✓ Got it · +5 XP</button>
+      <button class="btn ghost" onclick="gradeReview('${cur.l.id}',false)">Needs work</button>
+    </div>
+  </div>`;
+}
+function gradeReview(id, ok){
+  const before=achvSet();
+  const rv=S.reviews[id]||{n:0,c:0,last:null};
+  rv.n = ok? (rv.n||0)+1 : 0;
+  rv.c = (rv.c||0)+1;
+  rv.last = new Date().toISOString();
+  S.reviews[id]=rv; reviewReveal=false; save();
+  toast(ok? '🧠 Reviewed · interval extended' : '🧠 No shame — scheduled again soon', '+5 XP');
+  achvDiffToast(before);
+  render(true);
+}
+
+/* ============ SEASON CARD ============ */
+let cardOpen=false;
+function cardOverlay(){
+  return `<div class="overlay" onclick="if(event.target===this){cardOpen=false;render(true)}">
+    <div style="max-width:430px;width:100%">
+      <canvas id="seasonCard" width="1080" height="1350" style="width:100%;height:auto;display:block;border-radius:14px;border:1px solid rgba(230,185,85,.4)"></canvas>
+      <div class="flex" style="margin-top:12px;justify-content:center">
+        <button class="btn" onclick="saveCommCard()">⤓ Save as image</button>
+        <button class="btn ghost" onclick="cardOpen=false;render(true)">Close</button>
+      </div>
+      <p class="muted" style="text-align:center;font-size:.72rem;margin-top:8px">Rendered fresh from today’s numbers · nothing leaves your device</p>
+    </div>
+  </div>`;
+}
+function saveCommCard(){
+  try{
+    const cv=$('seasonCard');
+    const a=document.createElement('a'); a.download='communicator-season-'+todayStr()+'.png'; a.href=cv.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Season Card saved ✓');
+  }catch(e){ toast('Couldn’t render the card in this browser'); }
+}
+function drawCommCard(){
+  const cv=$('seasonCard'); if(!cv||!cv.getContext) return;
+  let x=null; try{ x=cv.getContext('2d'); }catch(e){} if(!x) return;
+  const W=1080,H=1350;
+  const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#171227'); g.addColorStop(1,'#0a0812'); x.fillStyle=g; x.fillRect(0,0,W,H);
+  const rg=x.createRadialGradient(W/2,-120,60,W/2,-120,950); rg.addColorStop(0,'rgba(164,121,255,.28)'); rg.addColorStop(1,'rgba(164,121,255,0)'); x.fillStyle=rg; x.fillRect(0,0,W,H);
+  for(let i=0;i<100;i++){ const sx=((i*97+41)%1040)+20, sy=((i*211+67)%1290)+30, r0=(i%3)*0.7+0.5; x.fillStyle='rgba(236,232,244,'+(0.05+(i%5)*0.04)+')'; x.beginPath(); x.arc(sx,sy,r0,0,7); x.fill(); }
+  x.strokeStyle='rgba(230,185,85,.55)'; x.lineWidth=3; x.strokeRect(28,28,W-56,H-56);
+  x.strokeStyle='rgba(164,121,255,.35)'; x.lineWidth=1; x.strokeRect(42,42,W-84,H-84);
+  x.textAlign='center';
+  x.fillStyle='#9b93ad'; x.font='600 25px Outfit, sans-serif';
+  x.fillText('M A S T E R   C O M M U N I C A T O R', W/2, 112);
+  const [lvl]=level();
+  x.fillStyle='#e6b955'; x.font='700 64px Cinzel, Georgia, serif';
+  x.fillText(lvl, W/2, 200);
+  x.fillStyle='#a479ff'; x.font='700 30px "Space Mono", monospace';
+  x.fillText(xp()+' XP', W/2, 248);
+  // radar
+  const cx=W/2, cy=590, R=250, n=SKILLS.length, ang=i=>-Math.PI/2+i*2*Math.PI/n;
+  x.strokeStyle='rgba(155,147,173,.35)'; x.lineWidth=1.5;
+  for(let ring=1;ring<=4;ring++){ x.beginPath(); for(let i=0;i<=n;i++){ const a=ang(i%n),r=R*ring/4; const px=cx+r*Math.cos(a),py=cy+r*Math.sin(a); i?x.lineTo(px,py):x.moveTo(px,py); } x.stroke(); }
+  for(let i=0;i<n;i++){ const a=ang(i); x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a)); x.stroke();
+    const lx=cx+(R+42)*Math.cos(a), ly=cy+(R+42)*Math.sin(a)+8;
+    x.fillStyle='#c9a6ff'; x.font='600 26px Cinzel, Georgia, serif';
+    x.fillText(SKILLS[i].name.split(' & ')[0].toUpperCase(), lx, ly);
+  }
+  const sc=latestScores();
+  if(sc){
+    x.beginPath();
+    SKILLS.forEach((sk,i)=>{ const v=(sc[sk.id]??0)/100, a=ang(i); const px=cx+R*v*Math.cos(a), py=cy+R*v*Math.sin(a); i?x.lineTo(px,py):x.moveTo(px,py); });
+    x.closePath();
+    x.fillStyle='rgba(164,121,255,.28)'; x.fill();
+    x.strokeStyle='#a479ff'; x.lineWidth=4; x.stroke();
+  } else {
+    x.fillStyle='#9b93ad'; x.font='500 26px Outfit, sans-serif'; x.fillText('Take the assessment to chart your radar', cx, cy);
+  }
+  // stats row
+  const got=achvSet();
+  const cols=[[String(streak()),'STREAK'],[String(S.reps.length),'DRILLS'],[Object.keys(S.lessonsDone).length+'/'+CURRICULUM.reduce((s,m)=>s+m.lessons.length,0),'LESSONS'],[got.size+'/'+ACHV.length,'RELICS']];
+  cols.forEach((c,i)=>{
+    const colX=W/2+(i-1.5)*236;
+    x.fillStyle='#ece8f4'; x.font='700 52px "Space Mono", monospace'; x.fillText(c[0], colX, 1010);
+    x.fillStyle='#9b93ad'; x.font='600 18px Outfit, sans-serif'; x.fillText(c[1], colX, 1046);
+  });
+  // tier progress bar
+  const [,prog]=level();
+  const bx=110,bw=W-220,by=1110,bh=24;
+  x.fillStyle='rgba(255,255,255,.08)'; x.fillRect(bx,by,bw,bh);
+  const bg2=x.createLinearGradient(bx,0,bx+bw,0); bg2.addColorStop(0,'#a479ff'); bg2.addColorStop(1,'#e6b955');
+  x.fillStyle=bg2; x.fillRect(bx,by,bw*Math.max(0.02,Math.min(1,prog)),bh);
+  x.fillStyle='#9b93ad'; x.font='600 22px Outfit, sans-serif';
+  x.fillText(Math.round(prog*100)+'% to the next tier', W/2, by+bh+40);
+  const dn=new Date();
+  x.fillStyle='#6f6683'; x.font='500 22px Outfit, sans-serif';
+  x.fillText('Season: Jul 6 → Dec 31, 2026  ·  as of '+dn.toLocaleDateString(undefined,{month:'short',day:'numeric'}), W/2, 1250);
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&cardOpen){ cardOpen=false; render(true); } });
+
+/* ============ TOASTS ============ */
+function toast(title, sub){
+  const wrap=$('toasts'); if(!wrap) return;
+  const el=document.createElement('div'); el.className='toast';
+  el.innerHTML=`<div class="tt">${esc(title)}</div>${sub?`<div class="ts">${esc(sub)}</div>`:''}`;
+  wrap.appendChild(el);
+  try{ if(navigator.vibrate) navigator.vibrate([35,40,35]); }catch(e){}
+  setTimeout(()=>{ el.classList.add('fade'); setTimeout(()=>el.remove(),500); }, 3400);
+}
+
+/* ============ RADAR CHART (vanilla canvas) ============ */
+function drawRadar(canvasId, datasets){ // datasets: [{scores, color, fill}]
+  const cv=$(canvasId); if(!cv) return;
+  const dpr=window.devicePixelRatio||1; const W=cv.clientWidth||320, H=280;
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px';
+  let ctx=null; try{ ctx=cv.getContext('2d'); }catch(e){} if(!ctx) return; ctx.scale(dpr,dpr);
+  const cx=W/2, cy=H/2+6, R=Math.min(W,H)/2-44, n=SKILLS.length;
+  const ang=i=>-Math.PI/2 + i*2*Math.PI/n;
+  // grid
+  ctx.strokeStyle='#2c2440'; ctx.fillStyle='#9b93ad'; ctx.font='11px Outfit, sans-serif';
+  for(let ring=1;ring<=4;ring++){ ctx.beginPath();
+    for(let i=0;i<=n;i++){ const a=ang(i%n), r=R*ring/4; const x=cx+r*Math.cos(a), y=cy+r*Math.sin(a); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+    ctx.stroke();
+  }
+  for(let i=0;i<n;i++){ const a=ang(i);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*Math.cos(a), cy+R*Math.sin(a)); ctx.stroke();
+    const lx=cx+(R+18)*Math.cos(a), ly=cy+(R+18)*Math.sin(a);
+    ctx.textAlign = Math.abs(Math.cos(a))<.3?'center':(Math.cos(a)>0?'left':'right');
+    const label=SKILLS[i].name.split(' & ');
+    ctx.fillText(label[0]+(label[1]?' &':''), lx, ly-5);
+    if(label[1]) ctx.fillText(label[1], lx, ly+8);
+  }
+  // data
+  datasets.forEach(ds=>{
+    ctx.beginPath();
+    SKILLS.forEach((sk,i)=>{ const v=(ds.scores[sk.id]??0)/100, a=ang(i);
+      const x=cx+R*v*Math.cos(a), y=cy+R*v*Math.sin(a); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.closePath();
+    ctx.fillStyle=ds.fill; ctx.fill();
+    ctx.strokeStyle=ds.color; ctx.lineWidth=2; ctx.setLineDash(ds.dash||[]); ctx.stroke(); ctx.setLineDash([]);
+  });
+}
+
+/* ============ NAV / PAGES ============ */
+const PAGES=[['today','Today'],['library','Library'],['progress','Progress']];
+let curPage='today';
+let openSecs={};
+const NAV_ALIAS={dash:'today',train:'today',learn:'library',topics:'library'};
+function nav(p){ curPage=NAV_ALIAS[p]||p; render(); }
+function toggleSec(id){ openSecs[id]=!openSecs[id]; render(true); }
+function sec(id,title,teaser,contentFn,defOpen){
+  const isOpen = (id in openSecs)? openSecs[id] : !!defOpen;
+  if(!(id in openSecs)) openSecs[id]=isOpen;
+  return `<div class="card" style="padding:0;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;cursor:pointer" onclick="toggleSec('${id}')">
+      <div style="min-width:0"><div style="font-family:var(--serif);font-weight:600;font-size:1rem;letter-spacing:.3px">${title}</div>${teaser?`<div class="muted" style="font-size:.76rem;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${teaser}</div>`:''}</div>
+      <span style="color:var(--accent);font-size:1.15rem;flex-shrink:0;transform:rotate(${isOpen?90:0}deg);transition:transform .2s">›</span>
+    </div>
+    ${isOpen?`<div style="padding:2px 18px 16px;border-top:1px solid var(--border)">${contentFn()}</div>`:''}
+  </div>`;
+}
+function render(keepScroll){
+  const _y=window.scrollY||0;
+  const sl=$('seasonLine'); if(sl){ const w=weeksLeft(); sl.textContent='Season: Jul 6 → Dec 31, 2026 · '+w+' week'+(w===1?'':'s')+' left'; }
+  $('nav').innerHTML = '<nav>'+PAGES.map(([id,l])=>`<button class="${id===curPage?'active':''}" onclick="nav('${id}')">${l}</button>`).join('')+'</nav>';
+  $('main').innerHTML = ({today:pageToday,assess:pageAssess,library:pageLibrary,progress:pageProgress})[curPage]();
+  if(curPage==='today'&&latestScores()) drawRadar('radarDash',[{scores:latestScores(),color:'#a479ff',fill:'rgba(164,121,255,.20)'}]);
+  if(curPage==='progress'){
+    const ds=[];
+    if(firstScores()&&S.assessments.length>1) ds.push({scores:firstScores(),color:'#9b93ad',fill:'rgba(155,147,173,.12)'});
+    const proj=projectedScores();
+    if(proj) ds.push({scores:proj,color:'#e6b955',fill:'rgba(230,185,85,.05)',dash:[5,4]});
+    if(latestScores()) ds.push({scores:latestScores(),color:'#54d6a4',fill:'rgba(84,214,164,.2)'});
+    if(ds.length) drawRadar('radarProg',ds);
+    if(cardOpen) drawCommCard();
+  }
+  if(keepScroll) window.scrollTo(0,_y); else window.scrollTo(0,0);
+}
+
+/* ============ TODAY ============ */
+function paceInner(){
+  const tw=repsThisWeek(), tgt=weeklyTarget(), w=weeksLeft();
+  const proj=projectLevel(); const [curLvl]=level();
+  const pct=Math.min(100,Math.round(tw/tgt*100)); const onPace=tw>=tgt;
+  return `<p class="muted" style="margin-top:12px">Season: <b style="color:var(--gold)">Jul 6 → Dec 31, 2026</b> · ${w} week${w===1?'':'s'} left.</p>
+    <div style="margin-top:10px;font-size:.95rem"><b style="font-family:var(--mono)">${tw}</b> / ${tgt} drills this week ${onPace?'<span style="color:var(--good)">· on pace ✓</span>':`<span class="muted">· ${tgt-tw} to go</span>`}</div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <p class="muted" style="margin-top:8px">At your current rate you finish the season around <b style="color:var(--text)">${proj.lvl}</b> <span style="font-family:var(--mono)">(${proj.projXP} XP)</span>.${proj.lvl===curLvl?' Keep the streak alive to climb the next tier.':''}</p>`;
+}
+function pageToday(){
+  if(curDrill) return drillView();
+  if(quest && quest.stage==='reflect') return questReflect();
+  const [lvl]=level(); const sc=latestScores();
+  const weak = sc? SKILLS.find(s=>s.id===weakestSkill()) : null;
+  const tw=repsThisWeek(), tgt=weeklyTarget();
+  const doneToday=S.reps.filter(r=>localKey(r.date)===todayStr()).length;
+  let hero;
+  if(!sc){
+    hero=`<div class="card" style="border-color:var(--accent);text-align:center;padding:30px 20px">
+      <div class="tag">Step one</div>
+      <h2 style="margin:10px 0 6px;font-size:1.3rem">Find your baseline</h2>
+      <p class="muted" style="max-width:430px;margin:0 auto">24 quick statements build your skill radar. Every drill after that targets your weakest pillar automatically.</p>
+      <button class="btn" style="margin-top:16px;font-size:1rem;padding:13px 28px" onclick="nav('assess')">Take the 5-minute assessment</button>
+    </div>`;
+  } else {
+    const qDone=questDoneToday();
+    hero=`<div class="card" style="border-color:var(--accent);text-align:center;padding:28px 20px">
+      <div class="tag">${qDone? '⚡ Quest complete today ✓ — extra reps only help' : (doneToday? doneToday+' rep'+(doneToday>1?'s':'')+' logged today — keep rolling' : 'Today’s quest')}</div>
+      <h2 style="margin:10px 0 4px;font-size:1.35rem">Train ${weak.name}</h2>
+      <p class="muted">Your weakest pillar — ${weak.desc.toLowerCase()}</p>
+      <div class="flex" style="justify-content:center;margin-top:16px">
+        ${qDone? `<button class="btn" style="font-size:1rem;padding:14px 28px" onclick="startDrill('${weak.id}')">▶ Start drill · 2 min</button>`
+               : `<button class="btn" style="font-size:1rem;padding:14px 28px" onclick="startQuest()">⚡ Daily Quest · 2 drills, ~5 min</button>
+                  <button class="btn ghost" onclick="startDrill('${weak.id}')">Single drill</button>`}
+        <button class="btn ghost" onclick="startDrill()">🎲 Surprise me</button>
+      </div>
+      <div class="muted" style="margin-top:14px;font-size:.78rem;font-family:var(--mono)">${streak()}🔥 streak · ${tw}/${tgt} this week · ${xp()} XP · ${lvl}</div>
+    </div>`;
+  }
+  return hero
+    + reviewCard()
+    + (sc? sec('radar','Skill radar','Your six pillars at a glance',()=>`<canvas id="radarDash" style="margin-top:10px"></canvas>`,true) : '')
+    + sec('pick','Choose a specific drill','All '+DRILLS.length+' drills across 6 pillars',()=>pickContent())
+    + sec('how','How this works','Assess → Learn → Train → Track',()=>`<p class="muted" style="margin-top:12px">1) <b style="color:var(--text)">Assess</b> yourself across 6 communication pillars. 2) <b style="color:var(--text)">Learn</b> the frameworks in the Library (Pyramid Principle, ABT storytelling, Monroe’s sequence, Voss’s listening tools…). 3) <b style="color:var(--text)">Train</b> daily with 1–2 minute drills built on topics your network actually talks about. 4) Re-assess monthly in <b style="color:var(--text)">Progress</b> and watch the radar grow.</p>`);
+}
+
+/* ============ ASSESS ============ */
+function pageAssess(){
+  const done=Object.keys(curAnswers).length;
+  return `
+  <div class="card">
+    <div class="flex" style="justify-content:space-between;align-items:center"><h2>Self-Assessment</h2><button class="btn ghost" style="padding:6px 14px" onclick="nav('today')">‹ Back</button></div>
+    <p class="muted">Rate how true each statement is of you <i>today</i>, based on actual recent behavior, not intention. ${ASSESS.length} statements, ~5 minutes. Re-take monthly; your history is kept.</p>
+    <div class="bar" style="margin-top:10px"><i style="width:${Math.round(done/ASSESS.length*100)}%"></i></div>
+    <div class="muted">${done}/${ASSESS.length} answered</div>
+  </div>
+  ${SKILLS.map(sk=>`
+    <div class="card">
+      <div class="tag">${sk.name}</div>
+      ${ASSESS.map((q,i)=>({...q,i})).filter(q=>q.s===sk.id).map(q=>`
+        <div class="q">${q.t}</div>
+        <div class="likert">${LIKERT.map((l,v)=>`<button class="${curAnswers[q.i]===v+1?'sel':''}" onclick="ans(${q.i},${v+1})">${l}</button>`).join('')}</div>
+      `).join('')}
+    </div>`).join('')}
+  <div class="card flex">
+    <button class="btn" onclick="submitAssess()" ${done<ASSESS.length?'disabled style="opacity:.5"':''}>Submit assessment</button>
+    <span class="muted">${done<ASSESS.length? 'Answer all statements to submit.' : 'Ready!'}</span>
+  </div>`;
+}
+function ans(i,v){ curAnswers[i]=v; Store.set('assessDraft',curAnswers); render(true); }
+function submitAssess(){
+  if(Object.keys(curAnswers).length<ASSESS.length) return;
+  const scores={};
+  SKILLS.forEach(sk=>{
+    const qs=ASSESS.map((q,i)=>({...q,i})).filter(q=>q.s===sk.id);
+    const avg=qs.reduce((s,q)=>s+curAnswers[q.i],0)/qs.length;
+    scores[sk.id]=Math.round(avg*20);
+  });
+  S.assessments.push({date:new Date().toISOString(),scores});
+  const beforeA=achvSet();
+  curAnswers={}; Store.set('assessDraft',{}); save(); achvDiffToast(beforeA); nav('progress');
+}
+
+/* ============ LIBRARY ============ */
+function curriculumContent(){
+  return `<p class="muted" style="margin-top:12px">Six modules built on established best practices. Check off lessons as you internalize them (+15 XP each). Each lesson pairs with drills in Today.</p>`+
+  CURRICULUM.map(m=>{
+    const sk=SKILLS.find(s=>s.id===m.skill);
+    const done=m.lessons.filter(l=>S.lessonsDone[l.id]).length;
+    return `<div style="margin-top:16px">
+      <div class="tag">${sk.name}</div>
+      <h3 style="margin-top:4px">${m.title} <span class="muted" style="font-weight:400;font-size:.85rem">${done}/${m.lessons.length}</span></h3>
+      ${m.lessons.map(l=>`
+        <div class="lesson" id="ls_${l.id}">
+          <div class="lhead" onclick="toggleLesson('${l.id}')">
+            <span class="check ${S.lessonsDone[l.id]?'done':''}" onclick="event.stopPropagation();doneLesson('${l.id}')">${S.lessonsDone[l.id]?'✓':''}</span>
+            <span>${l.title}</span>
+          </div>
+          <div class="lbody">${l.body}<p style="margin-top:10px"><button class="btn ghost" onclick="startDrill('${m.skill}')">Train this skill →</button></p></div>
+        </div>`).join('')}
+    </div>`;}).join('');
+}
+function pageLibrary(){
+  const doneL=Object.keys(S.lessonsDone).length, totL=CURRICULUM.reduce((s,m)=>s+m.lessons.length,0);
+  return sec('cur','Curriculum',`${doneL}/${totL} lessons internalized · +15 XP each`,()=>curriculumContent(),true)
+   + sec('feeds','Topic feeds & bank',staleLine()+' Tap to browse.',()=>feedsContent())
+   + sec('mine','My topics & city',(S.customTopics.length? S.customTopics.length+' custom topic'+(S.customTopics.length===1?'':'s'):'Add what your circle talks about'),()=>myTopicsContent())
+   + sec('fresh','Refresh topics with Claude',(isStale()?'⚠ Bank is getting stale — refresh recommended':'Two-step refresh keeps drills current'),()=>refreshContent());
+}
+function toggleLesson(id){ $('ls_'+id).classList.toggle('open'); }
+function doneLesson(id){ const beforeA=achvSet(); if(S.lessonsDone[id]){ delete S.lessonsDone[id]; delete S.reviews[id]; } else { S.lessonsDone[id]=new Date().toISOString(); } save(); achvDiffToast(beforeA); render(true); }
+
+/* ============ DRILL PICKER ============ */
+function pickContent(){
+  return `<div class="grid grid3" style="margin-top:12px">
+      ${SKILLS.map(sk=>{
+        const n=S.reps.filter(r=>r.skill===sk.id).length;
+        return `<div class="stat" style="cursor:pointer;text-align:left" onclick="startDrill('${sk.id}')">
+          <b>${sk.name}</b><div class="muted" style="font-size:.8rem;margin:4px 0">${sk.desc}</div>
+          <div class="muted" style="font-size:.78rem">${n} reps done</div></div>`;}).join('')}
+    </div>
+    <h3 style="margin-top:16px">Drill library</h3>
+    ${DRILLS.map(d=>`<div class="topicitem"><span><b>${d.name}</b> <span class="muted">· ${SKILLS.find(s=>s.id===d.skill).name} · ${d.time}s</span></span><button class="btn ghost" style="padding:5px 12px" onclick="startDrillById('${d.id}')">Go</button></div>`).join('')}
+    <p class="muted" style="margin-top:10px;font-size:.8rem">Speak <b>out loud</b> — thinking it doesn’t count. Self-score honestly afterward; scores steer your recommendations.</p>`;
+}
+function startDrill(skillId){
+  const pool = skillId? DRILLS.filter(d=>d.skill===skillId) : DRILLS;
+  launchDrill(pick(pool));
+}
+function startDrillById(id){ launchDrill(DRILLS.find(d=>d.id===id)); }
+function launchDrill(drill){
+  if(rec){ const r0=rec; rec=null; try{ r0.stop(); }catch(e){} }
+  const topics=allTopics();
+  const topic = topics.length? pick(topics) : {cat:'evergreen',text:'Remote vs. office work'};
+  curDrill={drill, topic, scores:[3,3,3]};
+  stopTimer(); timerLeft=drill.time;
+  curPage='today'; render();
+}
+function drillView(){
+  const {drill,topic}=curDrill;
+  const sk=SKILLS.find(s=>s.id===drill.skill);
+  const catName = DEFAULT_TOPICS[topic.cat]?.name || 'Custom';
+  return `
+  <div class="drillcard">
+    <div class="tag">${sk.name} · ${drill.name}${quest?` · <span style="color:var(--gold)">⚡ quest ${quest.idx}/${quest.total}</span>`:''}</div>
+    <div class="topic">${esc(topic.text)}</div>
+    <div class="muted">Topic feed: ${catName}</div>
+    <ol style="margin:14px 0 0 20px;font-size:.95rem">${drill.steps(esc(topic.text)).map(s=>`<li style="margin:6px 0">${s}</li>`).join('')}</ol>
+    <div class="timer" id="timer">${fmtT(timerLeft)}</div>
+    <div class="flex" style="justify-content:center">
+      <button class="btn" id="tbtn" onclick="toggleTimer()">${timerInt?'Pause':(timerLeft<=0?'Restart':'Start timer')}</button>
+      ${SR? `<button class="btn ghost" onclick="toggleRec()">${rec?'\u25a0 Stop mic':'\ud83c\udf99 Mic analysis'}</button>`:''}
+      <button class="btn ghost" onclick="togglePrep()">${curDrill.prepOpen?'Hide prep':(S.prepNotes[topic.text]?'📝 Prep (notes saved)':'📚 Prep this topic (15 min)')}</button>
+      <button class="btn ghost" data-learn="${esc(topic.text)}">📋 Learn topic</button>
+      <button class="btn ghost" onclick="launchDrill(curDrill.drill)">New topic</button>
+      <button class="btn ghost" onclick="exitDrill()">Back</button>
+    </div>
+    ${rec? `<div id="reclive" class="muted" style="text-align:center;margin-top:10px;font-family:var(--mono);font-size:.8rem">Listening\u2026 speak your rep</div>`:''}
+  </div>
+  ${curDrill.analysis? recReport(curDrill.analysis) : ''}
+  ${curDrill.prepOpen? prepPanel(topic) : ''}
+  <div class="card rubric">
+    <h2>Self-score this rep</h2>
+    <p class="muted">Be honest, this calibrates your training plan.</p>
+    ${drill.rubric.map((r,i)=>`
+      <label>${r}, <b id="rv${i}">${curDrill.scores[i]}</b>/5
+      <input type="range" min="1" max="5" value="${curDrill.scores[i]}" oninput="curDrill.scores[${i}]=+this.value;document.getElementById('rv${i}').textContent=this.value"></label>`).join('')}
+    <div class="flex" style="margin-top:16px">
+      <button class="btn" onclick="finishDrill()">Log rep (+10 XP)</button>
+    </div>
+  </div>`;
+}
+function togglePrep(){ curDrill.prepOpen=!curDrill.prepOpen; render(true); }
+function prepInput(el){ S.prepNotes[curDrill.topic.text]=el.value; save(); }
+function prepPanel(topic){
+  const outlets = CATEGORY_SOURCES[topic.cat] || CATEGORY_SOURCES.evergreen;
+  const notes = S.prepNotes[topic.text] || PREP_TEMPLATE;
+  const lnk = ([n,u])=>`<a href="${u}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;cursor:pointer">${n} ↗</a>`;
+  return `
+  <div class="card">
+    <div class="tag">15-Minute Prep</div>
+    <h2 style="margin-top:4px">Build informed talking points first</h2>
+    <p class="muted"><b style="color:var(--text)">Protocol:</b> 5 min, scan 2–3 sources below for facts and numbers. 5 min, find the strongest argument on EACH side (steelman). 5 min, fill in the worksheet. Then run the drill from your own notes, not the articles.</p>
+    <h3>Go-to outlets for this category</h3>
+    <div>${outlets.map(lnk).join('')}</div>
+    <h3>Search this exact topic</h3>
+    <div>${searchLinks(topic.text).map(lnk).join('')}</div>
+    <h3>Talking-points worksheet <span class="muted" style="font-weight:400;font-size:.78rem">auto-saves, reappears whenever this topic comes up</span></h3>
+    <textarea rows="14" style="font-family:ui-monospace,monospace;font-size:.85rem;margin-top:6px" oninput="prepInput(this)">${esc(notes)}</textarea>
+    <div class="flex" style="margin-top:10px"><button class="btn ghost" data-learn="${esc(topic.text)}">Copy a prompt to learn this topic</button><span class="muted">Paste it to Claude for facts, both sides, an example, and a question.</span></div>
+  </div>`;
+}
+function fmtT(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function toggleTimer(){
+  if(timerInt){ stopTimer(); $('tbtn').textContent='Resume'; return; }
+  if(timerLeft<=0 && curDrill){ timerLeft=curDrill.drill.time; const tel=$('timer'); if(tel){ tel.style.color=''; tel.textContent=fmtT(timerLeft); } }
+  $('tbtn').textContent='Pause';
+  timerInt=setInterval(()=>{
+    timerLeft--; const el=$('timer'); if(el) el.textContent=fmtT(Math.max(0,timerLeft));
+    if(timerLeft<=0){ stopTimer(); const b=$('tbtn'); if(b) b.textContent='Done!'; if(el) el.style.color='var(--good)'; }
+  },1000);
+}
+function stopTimer(){ if(timerInt){ clearInterval(timerInt); timerInt=null; } }
+function finishDrill(){
+  const {drill,topic,scores}=curDrill;
+  if(rec){ const r0=rec; rec=null; try{ r0.stop(); }catch(e){} }
+  const beforeA=achvSet();
+  const score=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*20);
+  const prevBestDrill=S.reps.filter(r=>r.drill===drill.name).reduce((m,r)=>Math.max(m,r.score),0);
+  const hadToday=S.reps.some(r=>localKey(r.date)===todayStr());
+  const rep={date:new Date().toISOString(), drill:drill.name, skill:drill.skill, topic:topic.text, cat:topic.cat, score};
+  if(curDrill.analysis) rep.an={wpm:curDrill.analysis.wpm, fillers:curDrill.analysis.fillers, fpm:curDrill.analysis.fpm, words:curDrill.analysis.words};
+  S.reps.push(rep);
+  save(); stopTimer();
+  if(prevBestDrill>0 && score>prevBestDrill) toast('New personal best!', `${drill.name}: ${score}/100, beat ${prevBestDrill}`);
+  else if(score===100) toast('Flawless rep!', `${drill.name}: a perfect 100`);
+  const st=streak();
+  if(!hadToday && [3,7,14,30,50,100].includes(st)) toast(`${st}-day streak!`, 'Don\u2019t break the chain.');
+  achvDiffToast(beforeA);
+  curDrill=null;
+  if(quest && quest.stage==='drill'){
+    if(quest.idx<quest.total){
+      quest.idx++;
+      toast('⚡ Quest: drill 1 of '+quest.total+' logged','Next drill queued — keep the momentum.');
+      const others=SKILLS.filter(s=>s.id!==drill.skill).map(s=>s.id);
+      const nxt=pick(others); quest.skills.push(nxt);
+      startDrill(nxt);
+      return;
+    }
+    quest.stage='reflect';
+    render(); window.scrollTo(0,0);
+    return;
+  }
+  nav('today');
+}
+
+/* ============ TOPIC CONTENT (Library) ============ */
+const REFRESH_KEYS = ['municipal','provincial','federal','sports','popculture','biztech'];
+function refreshContent(){
+  const stale = isStale();
+  return `
+    <p class="muted" style="margin-top:12px">${staleLine()}</p>
+    ${stale? `<div class="note">It has been a while. Run the two-step refresh below to pull in what people are talking about now.</div>`:''}
+    <h3 style="margin-top:10px">Step 1 · Copy this prompt, paste it to Claude</h3>
+    <textarea id="refreshPrompt" rows="7" readonly style="font-family:var(--mono);font-size:.76rem;line-height:1.5">${esc(refreshPromptText())}</textarea>
+    <div class="flex" style="margin-top:8px"><button class="btn" onclick="copyRefreshPrompt()">Copy prompt</button><span class="muted">Send it in a new Claude chat, then copy the JSON Claude replies with.</span></div>
+    <h3 style="margin-top:18px">Step 2 · Paste Claude's reply, click add</h3>
+    <textarea id="pasteBox" rows="6" placeholder='Paste the JSON here, for example {"federal":["..."],"sports":["..."]}' style="font-family:var(--mono);font-size:.8rem"></textarea>
+    <div class="flex" style="margin-top:8px">
+      <button class="btn" onclick="applyTopicPaste()">Add these topics</button>
+      <button class="btn ghost" onclick="clearRefreshed()">Clear refreshed</button>
+    </div>
+    <p class="muted" style="margin-top:10px">Fresh topics merge into your bank and persist. Re-importing a category swaps out last time's fresh set. The built-in seeds always remain as backup.</p>`;
+}
+function myTopicsContent(){
+  return `
+    <div class="flex" style="margin-top:12px">
+      <input type="text" id="cityInput" placeholder="Your city (sharpens local topics)" value="${esc(S.city)}" style="flex:1;min-width:180px">
+      <button class="btn ghost" onclick="saveCity()">Save city</button>
+    </div>
+    <div class="flex" style="margin-top:10px">
+      <input type="text" id="newTopic" placeholder="e.g. The new transit line downtown" style="flex:2;min-width:200px">
+      <select id="newCat" style="flex:1;min-width:130px">${Object.entries(DEFAULT_TOPICS).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}<option value="custom">Custom (always on)</option></select>
+      <button class="btn" onclick="addTopic()">Add</button>
+    </div>
+    ${S.customTopics.length? `<div style="margin-top:12px">${S.customTopics.map((t,i)=>`<div class="topicitem"><span>${esc(t.text)} <span class="muted">· ${DEFAULT_TOPICS[t.cat]?.name||'Custom'}</span></span><span class="flex" style="gap:8px;flex-wrap:nowrap"><button class="btn ghost" style="padding:4px 11px;font-size:.74rem;white-space:nowrap" data-learn="${esc(t.text)}">Learn ↗</button><button class="del" onclick="delTopic(${i})">remove</button></span></div>`).join('')}</div>` : '<p class="muted" style="margin-top:10px">Nothing custom yet — add your city’s issues, your industry, your friend group’s obsessions.</p>'}`;
+}
+function feedsContent(){
+  return `
+    <p class="muted" style="margin-top:12px">Drills draw from the categories you enable. Tap to toggle.</p>
+    <div style="margin-top:8px">${Object.entries(DEFAULT_TOPICS).map(([k,v])=>`<span class="pill ${S.catsEnabled.includes(k)?'on':''}" style="cursor:pointer" onclick="toggleCat('${k}')">${v.name}</span>`).join('')}</div>
+    ${Object.entries(DEFAULT_TOPICS).map(([k,v])=>{
+      const freshArr=S.refreshed[k]||[]; const fresh=new Set(freshArr.map(t=>t.trim().toLowerCase()));
+      return `<div style="margin-top:16px;${S.catsEnabled.includes(k)?'':'opacity:.45'}">
+        <h3>${v.name} ${freshArr.length?`<span class="tag" style="color:var(--gold)">· ${freshArr.length} fresh</span>`:''}</h3>
+        <div style="margin:4px 0 8px">${(CATEGORY_SOURCES[k]||[]).map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;cursor:pointer">${n} ↗</a>`).join('')}</div>
+        ${effectiveItems(k).map(t=>`<div class="topicitem"><span>${esc(t)}${fresh.has(t.trim().toLowerCase())?' <span class="tag" style="font-size:.6rem;color:var(--gold)">fresh</span>':''}${S.prepNotes[t]?' <span class="tag" style="font-size:.62rem">prepped</span>':''}</span><button class="btn ghost" style="padding:4px 11px;font-size:.74rem;white-space:nowrap" data-learn="${esc(t)}">Learn ↗</button></div>`).join('')}
+      </div>`;}).join('')}`;
+}
+function daysSinceRefresh(){
+  const base = S.bankUpdated ? new Date(S.bankUpdated) : new Date('2026-07-02T00:00:00');
+  return Math.max(0, Math.floor((new Date()-base)/86400000));
+}
+function isStale(){ return daysSinceRefresh()>=30; }
+function staleLine(){
+  const d=daysSinceRefresh();
+  if(S.bankUpdated) return `Last refreshed ${S.bankUpdated.slice(0,10)} (${d} day${d===1?'':'s'} ago).`;
+  return `Using the built-in bank seeded ${SEED_DATE} (${d} days old).`;
+}
+function saveCity(){ S.city=($('cityInput').value||'').trim(); save(); render(true); toast('City saved', S.city||'cleared'); }
+function refreshPromptText(){
+  const date=new Date().toDateString();
+  const city=(S.city||'').trim();
+  const cityLine = city
+    ? `My city is ${city}. Weight the municipal topics toward there.`
+    : `For municipal topics, use generic "your city" phrasing.`;
+  return `Generate fresh communication-drill topics for the week of ${date}.
+Return ONLY a JSON object, no prose and no code fences, with these exact keys: ${REFRESH_KEYS.join(', ')}.
+Each key maps to an array of 5 topic strings reflecting what is actually being discussed right now in Canada and globally.
+Rules: each topic under 12 words, phrased as a discussion prompt (not a headline), and debate-worthy (it should have two real sides). ${cityLine}`;
+}
+function copyText(text, okTitle, okSub){
+  const done=()=>toast(okTitle||'Copied', okSub||'');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else fallbackCopy(text,done);
+}
+function fallbackCopy(text, done){
+  try{
+    const ta=document.createElement('textarea'); ta.value=text;
+    ta.style.position='fixed'; ta.style.top='-1000px'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); ta.remove(); done();
+  }catch(e){ toast('Copy unavailable','Select the text and copy it manually.'); }
+}
+function copyRefreshPrompt(){ copyText(refreshPromptText(),'Prompt copied','Paste it into a Claude chat.'); }
+function learnPrompt(topic){
+  return `Brief me so I can discuss this topic well in conversation: "${topic}".
+Cover, concisely: (1) the 3 to 5 most important current facts and numbers, (2) the strongest honest case on each side, (3) one concrete example, analogy, or short story I could use, and (4) one sharp open question I could ask someone to start a good exchange. Search anything time-sensitive so it stays current.`;
+}
+function parseTopicPaste(raw){
+  if(!raw) return null;
+  let s=raw.trim().replace(/```(json)?/gi,'').trim();
+  const a=s.indexOf('{'), b=s.lastIndexOf('}');
+  if(a!==-1 && b!==-1 && b>a){
+    try{
+      const obj=JSON.parse(s.slice(a,b+1));
+      const out={};
+      Object.entries(obj).forEach(([k,v])=>{
+        if(REFRESH_KEYS.includes(k) && Array.isArray(v)){
+          const items=v.map(x=>String(x).trim()).filter(Boolean);
+          if(items.length) out[k]=items;
+        }
+      });
+      return Object.keys(out).length? out : null;
+    }catch(e){ /* fall through */ }
+  }
+  return null;
+}
+function applyTopicPaste(){
+  const raw=$('pasteBox') ? $('pasteBox').value : '';
+  const parsed=parseTopicPaste(raw);
+  if(!parsed){ toast('Could not read that','Expecting a JSON object of categories. Try copying Claude\u2019s reply again.'); return; }
+  let total=0;
+  Object.entries(parsed).forEach(([k,items])=>{
+    const seen=new Set(); const clean=[];
+    items.forEach(t=>{ const key=t.toLowerCase(); if(!seen.has(key)){ seen.add(key); clean.push(t); } });
+    S.refreshed[k]=clean; total+=clean.length;
+  });
+  S.bankUpdated=new Date().toISOString();
+  save(); render(true);
+  toast('Topics refreshed', `${total} fresh topics across ${Object.keys(parsed).length} categories.`);
+}
+function clearRefreshed(){
+  S.refreshed={}; S.bankUpdated=null; save(); render(true);
+  toast('Refreshed topics cleared','Back to the built-in bank.');
+}
+function toggleCat(k){
+  S.catsEnabled = S.catsEnabled.includes(k)? S.catsEnabled.filter(c=>c!==k) : [...S.catsEnabled,k];
+  if(!S.catsEnabled.length) S.catsEnabled=['evergreen'];
+  save(); render(true);
+}
+function addTopic(){
+  const v=$('newTopic').value.trim(); if(!v) return;
+  S.customTopics.push({cat:$('newCat').value, text:v}); $('newTopic').value=''; save(); render(true);
+}
+function delTopic(i){ S.customTopics.splice(i,1); save(); render(true); }
+
+/* ============ PROGRESS ============ */
+function heatmapHTML(){
+  const m=repsByDay(); const start=seasonStart(); start.setHours(0,0,0,0);
+  const grid=new Date(start); grid.setDate(start.getDate()-start.getDay()); // back to Sunday
+  const today=todayStr(); const startK=dstr(start);
+  let cells='';
+  for(let d=new Date(grid); d<=SEASON_END; d.setDate(d.getDate()+1)){
+    const k=dstr(d), n=m[k]||0;
+    const lvl=n>=3?' l3':n===2?' l2':n===1?' l1':'';
+    const fut=k>today?' future':''; const td=k===today?' today':'';
+    const hide=k<startK?'visibility:hidden':'';
+    cells+=`<div class="cell${lvl}${fut}${td}" title="${k}: ${n} drill${n===1?'':'s'}" style="${hide}"></div>`;
+  }
+  return `<div class="heat">${cells}</div>
+    <div class="heatlabels">
+      <span class="heatkey">Fewer <span class="cell" style="background:var(--panel2)"></span><span class="cell" style="background:rgba(164,121,255,.30)"></span><span class="cell" style="background:rgba(164,121,255,.55)"></span><span class="cell" style="background:rgba(164,121,255,.88)"></span> more</span>
+      <span class="heatkey"><span class="cell" style="background:var(--panel2);outline:1.5px solid var(--gold);outline-offset:1px"></span> today</span>
+    </div>`;
+}
+function consistInner(){
+  const bd=bestDay();
+  return `<div class="statrow" style="margin-top:12px">
+      <div class="stat"><div class="v">${streak()}🔥</div><div class="l">Current streak</div></div>
+      <div class="stat"><div class="v">${longestStreak()}</div><div class="l">Longest streak</div></div>
+      <div class="stat"><div class="v">${activeDays()}</div><div class="l">Active days</div></div>
+      <div class="stat"><div class="v">${bd.count||0}</div><div class="l">Best day</div></div>
+    </div>
+    <h3 style="margin-top:16px">Season heatmap</h3>
+    <p class="muted" style="margin-bottom:8px">Every square is a day. Darker means more drills. Don't break the chain.</p>
+    ${heatmapHTML()}`;
+}
+function bestsInner(){
+  const rows=Object.entries(bestByDrill()).sort((a,c)=>c[1].score-a[1].score);
+  if(!rows.length) return '';
+  return `<p class="muted" style="margin-top:12px">Your top self-score on each drill. Beat one and you'll get a fanfare.</p>
+    <div style="margin-top:8px" class="records">${rows.map(([name,r])=>`<div class="topicitem"><span><b>${esc(name)}</b> <span class="muted">· ${esc(r.topic.slice(0,40))}${r.topic.length>40?'…':''}</span></span><span class="rt">${r.score}/100 · ${r.date}</span></div>`).join('')}</div>`;
+}
+function volInner(){
+  const repsBySkill = SKILLS.map(sk=>{
+    const rs=S.reps.filter(r=>r.skill===sk.id);
+    const avg=rs.length? Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length) : null;
+    return {sk,n:rs.length,avg};
+  });
+  return repsBySkill.map(r=>`
+      <div style="margin-top:10px;font-size:.9rem"><b>${r.sk.name}</b> <span class="muted">· ${r.n} reps${r.avg!==null?` · avg self-score ${r.avg}/100`:''}</span></div>
+      <div class="bar"><i style="width:${Math.min(100,r.n*8)}%"></i></div>`).join('')
+    + (S.reps.length===0?'<p class="muted">No drills logged yet — head to Today.</p>':'');
+}
+function recentInner(){
+  const recent=[...S.reps].reverse().slice(0,8);
+  return `<div style="margin-top:8px">${recent.map(r=>`<div class="topicitem"><span><b>${r.drill}</b> <span class="muted">· ${esc(r.topic.slice(0,60))}${r.topic.length>60?'…':''}</span></span><span class="muted">${r.an?`${r.an.wpm}wpm · ${r.an.fillers}f · `:''}${r.score}/100 · ${localKey(r.date)}</span></div>`).join('')}</div>`;
+}
+function backupInner(){
+  return `<p class="muted" style="margin-top:12px">${Store.usable()? 'Progress saves automatically in this browser.' : '⚠ This environment can’t persist data between sessions — export your progress below and import it next time.'} Export periodically to be safe, or to move between devices.</p>
+    <div class="flex" style="margin-top:10px">
+      <button class="btn ghost" onclick="exportData()">Export progress</button>
+      <button class="btn ghost" onclick="$('importFile').click()">Import progress</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+    </div>`;
+}
+function pageProgress(){
+  const sc=latestScores();
+  const radarCard=`<div class="card">
+    <h2>Skill radar ${S.assessments.length>1?'<span class="muted" style="font-weight:400;font-size:.8rem">(grey = first, gold dashes = projected Dec 31, green = latest)</span>':''}</h2>
+    ${sc? `<canvas id="radarProg"></canvas>` : `<p class="muted">Take the assessment to see your radar.</p><button class="btn" onclick="nav('assess')" style="margin-top:8px">Take assessment</button>`}
+    ${sc? `<div class="flex" style="margin-top:8px"><button class="btn ghost" onclick="nav('assess')">Re-take assessment</button><button class="btn ghost" onclick="cardOpen=true;render(true)">🃏 Season Card</button><span class="muted">${S.assessments.length} assessment${S.assessments.length>1?'s':''} · last: ${localKey(S.assessments[S.assessments.length-1].date)}</span></div>`:''}
+  </div>`;
+  const coach=coachRead(), curves=skillCurves();
+  const nBests=Object.keys(bestByDrill()).length;
+  return radarCard
+    + (coach? sec('coach','Coach’s read','What your data says about your growth',()=>coach,true):'')
+    + sec('achv','Achievements',achvSet().size+'/'+ACHV.length+' unlocked',()=>achvInner())
+    + (curves? sec('curves','Skill curves','Self-score trend per pillar · gold = new best',()=>curves):'')
+    + sec('pace','Pace & projection',`${repsThisWeek()}/${weeklyTarget()} drills this week · season ends Dec 31`,()=>paceInner())
+    + sec('consist','Consistency',`${streak()}🔥 current · longest ${longestStreak()} · ${activeDays()} active days`,()=>consistInner())
+    + (nBests? sec('bests','Personal bests',nBests+' drill'+(nBests===1?'':'s')+' ranked',()=>bestsInner()):'')
+    + sec('vol','Training volume & self-scores',S.reps.length+' total rep'+(S.reps.length===1?'':'s'),()=>volInner())
+    + (S.reps.length? sec('recent','Recent reps','Your last '+Math.min(8,S.reps.length)+' drills',()=>recentInner()):'')
+    + sec('backup','Backup & restore',Store.usable()? 'Auto-saves in this browser':'⚠ Export needed in this environment',()=>backupInner())
+    + (cardOpen? cardOverlay():'');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(Store.dump(),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='communication-trainer-progress.json'; a.click();
+}
+function importData(inp){
+  const f=inp.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{ try{
+    Store.load(JSON.parse(e.target.result));
+    S.assessments=Store.get('assessments',[]); S.reps=Store.get('reps',[]);
+    S.lessonsDone=Store.get('lessonsDone',{}); S.customTopics=Store.get('customTopics',[]);
+    S.catsEnabled=Store.get('catsEnabled',Object.keys(DEFAULT_TOPICS)); S.prepNotes=Store.get('prepNotes',{});
+    S.refreshed=Store.get('refreshed',{}); S.bankUpdated=Store.get('bankUpdated',null); S.city=Store.get('city','');
+    S.quests=Store.get('quests',[]); S.reviews=Store.get('reviews',{});
+    render(); toast('Progress imported','Welcome back.');
+  }catch(err){ toast('Import failed','Could not read that file.'); } };
+  rd.readAsText(f);
+}
+
+
+/* ============ MIC ANALYSIS (browser speech engine; transcript stays on this page) ============ */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+let rec=null, recStart=0, recTranscript='';
+function analyzeTranscript(t, secs){
+  const words=(t.trim().match(/\S+/g)||[]).length;
+  const fillers=(t.match(/\b(um+|uh+|erm+|hmm+|like|you know|sort of|kind of|i mean|basically|literally|actually)\b/gi)||[]).length;
+  const wpm=secs>0? Math.round(words/(secs/60)) : 0;
+  const fpm=secs>0? Math.round(fillers/(secs/60)*10)/10 : 0;
+  return {words, fillers, wpm, fpm, secs:Math.round(secs)};
+}
+function toggleRec(){
+  if(rec){ try{ rec.stop(); }catch(e){} return; }
+  if(!SR) return;
+  const r=new SR(); r.continuous=true; r.interimResults=true; r.lang='en-CA';
+  recTranscript=''; recStart=Date.now();
+  r.onresult=ev=>{
+    let full=''; for(let i=0;i<ev.results.length;i++) full+=ev.results[i][0].transcript+' ';
+    recTranscript=full;
+    const lv=$('reclive'); if(lv){ const n=(full.trim().match(/\S+/g)||[]).length; lv.textContent='Listening… '+n+' words captured'; }
+  };
+  r.onerror=()=>{ if(rec){ rec=null; toast('Mic stopped','Speech recognition ended or was blocked.'); render(true); } };
+  r.onend=()=>finishRec();
+  try{ r.start(); }catch(e){ toast('Mic unavailable','Enable microphone permissions and try again.'); return; }
+  rec=r;
+  if(!timerInt && timerLeft>0) toggleTimer();
+  render(true);
+}
+function finishRec(){
+  if(!rec) return;
+  rec=null;
+  const secs=(Date.now()-recStart)/1000;
+  if(curDrill && recTranscript.trim() && secs>=3) curDrill.analysis=analyzeTranscript(recTranscript, secs);
+  render(true);
+}
+function exitDrill(){
+  if(rec){ const r0=rec; rec=null; try{ r0.stop(); }catch(e){} }
+  if(quest){ quest=null; toast('Quest paused','Any logged reps still count.'); }
+  curDrill=null; stopTimer(); render();
+}
+function recReport(a){
+  const wpmOk=a.wpm>=110&&a.wpm<=180;
+  const wpmCol=wpmOk?'var(--good)':'var(--warn)';
+  const fCol=a.fpm<3?'var(--good)':a.fpm<6?'var(--warn)':'var(--bad)';
+  const wpmNote=a.wpm<110?'slow and deliberate — fine for gravitas, add energy for stories':(wpmOk?'the conversational sweet spot (110–180)':'racing — trade speed for pauses');
+  const fNote=a.fpm<3?'clean — broadcast standard':(a.fpm<6?'noticeable — replace fillers with silence':'heavy — slow down and embrace the pause');
+  return `<div class="card" style="border-color:var(--accent)">
+    <div class="tag">Mic analysis · this rep (${a.secs}s)</div>
+    <div class="statrow" style="margin-top:10px">
+      <div class="stat"><div class="v">${a.words}</div><div class="l">Words</div></div>
+      <div class="stat"><div class="v" style="color:${wpmCol}">${a.wpm}</div><div class="l">Words / min</div></div>
+      <div class="stat"><div class="v" style="color:${fCol}">${a.fillers}</div><div class="l">Fillers</div></div>
+      <div class="stat"><div class="v" style="color:${fCol}">${a.fpm}</div><div class="l">Fillers / min</div></div>
+    </div>
+    <p class="muted" style="margin-top:10px">Pace: ${wpmNote}. Fillers: ${fNote}.</p>
+    <p class="muted" style="font-size:.74rem;margin-top:6px">Counted: um, uh, like, you know, sort of, kind of, I mean, basically, literally, actually. Transcription uses your browser’s speech engine; the transcript never leaves this page. Log the rep to keep these numbers in your history.</p>
+  </div>`;
+}
+
+/* ============ SKILL CURVES ============ */
+let curveSkill=null;
+function skillCurves(){
+  const opts=SKILLS.map(sk=>({sk,rs:S.reps.filter(r=>r.skill===sk.id)})).filter(o=>o.rs.length>=2);
+  if(!opts.length) return '';
+  const sel=opts.some(o=>o.sk.id===curveSkill)? curveSkill : opts[0].sk.id;
+  const rs=opts.find(o=>o.sk.id===sel).rs;
+  const W=340,H=120,p=16;
+  const X=i=>rs.length<=1?W/2:p+i*(W-2*p)/(rs.length-1);
+  const Y=v=>H-p-(v/100)*(H-2*p);
+  const line=rs.map((r,i)=>X(i).toFixed(1)+','+Y(r.score).toFixed(1)).join(' ');
+  const area=`${p},${H-p} ${line} ${W-p},${H-p}`;
+  let run=0, dots='';
+  rs.forEach((r,i)=>{
+    const pr=r.score>run; if(pr) run=r.score;
+    dots+= pr? `<circle cx="${X(i).toFixed(1)}" cy="${Y(r.score).toFixed(1)}" r="3.4" fill="#e6b955" stroke="#0c0a12" stroke-width="1"><title>new best · ${r.score}/100 · ${localKey(r.date)}</title></circle>`
+             : `<circle cx="${X(i).toFixed(1)}" cy="${Y(r.score).toFixed(1)}" r="2" fill="#a479ff"><title>${r.score}/100 · ${localKey(r.date)}</title></circle>`;
+  });
+  const k=Math.max(1,Math.min(5,Math.floor(rs.length/2)));
+  const avg=a=>Math.round(a.reduce((s,r)=>s+r.score,0)/a.length);
+  const delta=avg(rs.slice(-k))-avg(rs.slice(0,k));
+  return `<div style="margin:12px 0 4px">${opts.map(o=>`<span class="pill ${o.sk.id===sel?'on':''}" style="cursor:pointer" onclick="curveSkill='${o.sk.id}';render(true)">${o.sk.name.split(' & ')[0]} · ${o.rs.length}</span>`).join('')}</div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+      <defs><linearGradient id="skc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(164,121,255,.35)"/><stop offset="100%" stop-color="rgba(164,121,255,0)"/></linearGradient></defs>
+      <polygon points="${area}" fill="url(#skc)"/>
+      <polyline points="${line}" fill="none" stroke="#a479ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      <text x="${p-2}" y="12" font-family="Space Mono" font-size="8" fill="#9b93ad">100</text>
+      <text x="${p-2}" y="${H-4}" font-family="Space Mono" font-size="8" fill="#9b93ad">0</text>
+    </svg>
+    <div class="flex" style="justify-content:space-between;margin-top:6px"><span class="muted" style="font-family:var(--mono);font-size:.72rem">${rs.length} reps · ${localKey(rs[0].date)} → ${localKey(rs[rs.length-1].date)}</span><b style="font-family:var(--mono);color:${delta>=0?'var(--good)':'var(--bad)'}">${delta>=0?'+':''}${delta} avg</b></div>`;
+}
+
+/* ============ COACH'S READ ============ */
+function coachRead(){
+  const lines=[];
+  if(S.assessments.length>=2){
+    const f=firstScores(), l=latestScores();
+    let up=null,upD=-1,down=null,downD=1;
+    SKILLS.forEach(sk=>{ const d=(l[sk.id]??0)-(f[sk.id]??0); if(d>upD){upD=d;up=sk;} if(d<downD){downD=d;down=sk;} });
+    if(up&&upD>0) lines.push(`<b style="color:var(--good)">${up.name}</b> is your biggest climb — up ${upD} points since your first assessment.`);
+    if(down&&downD<0) lines.push(`<b style="color:var(--bad)">${down.name}</b> slid ${Math.abs(downD)} points — worth a targeted week of drills.`);
+  }
+  if(S.reps.length>=10){
+    const k=Math.min(10,Math.floor(S.reps.length/2));
+    const avg=a=>a.reduce((s,r)=>s+r.score,0)/a.length;
+    const d=Math.round(avg(S.reps.slice(-k))-avg(S.reps.slice(0,k)));
+    if(d>=3) lines.push(`Your recent self-scores run <b style="color:var(--good)">${d} points above</b> your early reps — the training is compounding.`);
+    else if(d<=-3) lines.push(`Recent self-scores sit <b style="color:var(--warn)">${Math.abs(d)} points below</b> your early reps — harder topics, or honester scoring? Both are progress.`);
+  }
+  const anReps=S.reps.filter(r=>r.an&&r.an.fpm!=null);
+  if(anReps.length>=4){
+    const k2=Math.max(1,Math.min(5,Math.floor(anReps.length/2)));
+    const avgF=a=>a.reduce((s,r)=>s+r.an.fpm,0)/a.length;
+    const d2=Math.round((avgF(anReps.slice(0,k2))-avgF(anReps.slice(-k2)))*10)/10;
+    if(d2>0.4) lines.push(`Mic analysis: your filler rate has fallen <b style="color:var(--good)">${d2}/min</b> since you started measuring. The pauses are winning.`);
+    else if(d2<-0.4) lines.push(`Mic analysis: fillers are creeping up (<b style="color:var(--warn)">+${Math.abs(d2)}/min</b> recently). Re-run the pause drill.`);
+  }
+  if(S.reps.length>=5 && latestScores()){
+    const counts={}; S.reps.forEach(r=>counts[r.skill]=(counts[r.skill]||0)+1);
+    const most=SKILLS.reduce((a,b)=>(counts[a.id]||0)>=(counts[b.id]||0)?a:b);
+    const weak=SKILLS.find(s=>s.id===weakestSkill());
+    if(weak && most.id!==weak.id && (counts[weak.id]||0) < (counts[most.id]||0)/2)
+      lines.push(`You train <b>${most.name}</b> most, but <b style="color:var(--warn)">${weak.name}</b> is your weakest pillar with only ${counts[weak.id]||0} rep${(counts[weak.id]||0)===1?'':'s'} — point the next few drills there.`);
+  }
+  if(!lines.length) return '';
+  return lines.map(l=>`<p style="font-size:.92rem;margin-top:11px;line-height:1.6">◆ ${l}</p>`).join('');
+}
+
+/* ============ RESIZE: keep radar crisp ============ */
+let _rsz=null;
+window.addEventListener('resize',()=>{ clearTimeout(_rsz); _rsz=setTimeout(()=>{ if(curPage==='today'||curPage==='progress') render(true); },200); });
+
+document.addEventListener('click', e=>{
+  const b = e.target.closest ? e.target.closest('[data-learn]') : null;
+  if(!b) return;
+  copyText(learnPrompt(b.getAttribute('data-learn')), 'Learn-prompt copied', 'Paste it into a Claude chat to dig in.');
+});
+
+(function(){
+  try{
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const c=document.createElement('div'); c.id='stars'; c.setAttribute('aria-hidden','true');
+    let s='';
+    for(let i=0;i<56;i++){
+      const x=(i*61)%100, y=(i*37+13)%100, sz=(i%3)+1, dl=((i%9)*0.7).toFixed(1), du=(2.8+(i%5)*0.9).toFixed(1);
+      s+=`<span style="left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;animation-delay:${dl}s;animation-duration:${du}s"></span>`;
+    }
+    c.innerHTML=s; document.body.appendChild(c);
+  }catch(e){}
+})();
+render();
+</script>
+</body>
+</html>
