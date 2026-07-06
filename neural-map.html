@@ -123,6 +123,8 @@
         <stop offset="0%" stop-color="#fff3d6"/><stop offset="48%" stop-color="#e6b450"/><stop offset="100%" stop-color="#7c5cff"/>
       </radialGradient>
       <radialGradient id="g-work" cx="50%" cy="38%" r="66%"><stop offset="0%" stop-color="#ffe6a8"/><stop offset="100%" stop-color="#e6b450"/></radialGradient>
+      <radialGradient id="g-clients" cx="50%" cy="38%" r="66%"><stop offset="0%" stop-color="#ffd4da"/><stop offset="100%" stop-color="#fb7185"/></radialGradient>
+      <radialGradient id="g-practice" cx="50%" cy="38%" r="66%"><stop offset="0%" stop-color="#ffe3c8"/><stop offset="100%" stop-color="#fb923c"/></radialGradient>
       <radialGradient id="g-ent" cx="50%" cy="38%" r="66%"><stop offset="0%" stop-color="#b8f6ff"/><stop offset="100%" stop-color="#22d3ee"/></radialGradient>
       <radialGradient id="g-bfc" cx="50%" cy="38%" r="66%"><stop offset="0%" stop-color="#c9f7d1"/><stop offset="100%" stop-color="#4ade80"/></radialGradient>
       <radialGradient id="g-personal" cx="50%" cy="38%" r="66%"><stop offset="0%" stop-color="#dcd0ff"/><stop offset="100%" stop-color="#a78bfa"/></radialGradient>
@@ -156,7 +158,7 @@ const VAULT="file:///Users/quintonchambers/Documents/Claude/Projects/Tool%20Vaul
 
 const CATS=[
   { key:"work", title:"Work", color:"#e6b450", grad:"g-work", dir:270, groups:[
-    { title:"Growth", dir:232, spread:28, ring:[-50,4,58], tools:[
+    { title:"Growth", color:"#e6b450", grad:"g-work", dir:227, spread:55, tools:[
       {label:"COI Checklists", full:"COI Checklist Series", file:"Zip, 10 files, 5 professions",
         doors:[{k:"chat",url:CHAT+"1058edd3-0a8e-4a30-825c-63c69e38915a"}]},
       {label:"Prospects", full:"Nonprofit Prospecting Tracker", file:"Five-sheet Excel, 241 organizations",
@@ -172,7 +174,7 @@ const CATS=[
       {label:"Relationships", full:"Relationship Development System", file:"Single file HTML board, cadences per person, bridge phrase library, Today's Rocks",
         doors:[], note:"Built in the Cowork project Relationship development system. Re-download the newest file there."}
     ]},
-    { title:"Clients", dir:287, spread:23, ring:[-50,4,58], tools:[
+    { title:"Clients", color:"#fb7185", grad:"g-clients", dir:275, spread:52, tools:[
       {label:"Client IPS", full:"Client IPS", file:"IPS_Dimensional.jsx plus fillable PDF",
         doors:[{k:"chat",url:CHAT+"79cdb6c4-a0f3-499c-8519-3eaa3ddb7358"}]},
       {label:"Physician Comp", full:"Physician Compensation Planner", file:"Excel workbook plus 2-page PDF",
@@ -186,7 +188,7 @@ const CATS=[
       {label:"Performance", full:"Portfolio Performance Comparison", file:"Performance_Comparison_vs_Dimensional.html, Chart.js dashboard",
         doors:[], note:"Built in the Cowork project Portfolio performance comparison dashboard. Re-download the newest file there."}
     ]},
-    { title:"Practice", dir:326, spread:13, ring:[-46,8,62], tools:[
+    { title:"Practice", color:"#fb923c", grad:"g-practice", dir:323, spread:30, tools:[
       {label:"Wealth Letter", full:"Total Wealth Letter", file:"Total_Wealth_Letter_June_2026.docx and .html",
         doors:[{k:"chat",url:CHAT+"d501b0f8-0e9e-460c-a1f0-ff12a49d6f6c"}]},
       {label:"Ops Cadence", full:"Operations Cadence", file:"Back office admin checklist app, cadence rails and insights",
@@ -195,7 +197,7 @@ const CATS=[
         doors:[], note:"youtube-studio.html sits in Downloads. Commit it to my-dashboards to light its Live door."}
     ]}
   ]},
-  { key:"ent", title:"Entrepreneurship", color:"#22d3ee", grad:"g-ent", dir:2, spread:20, tools:[
+  { key:"ent", title:"Entrepreneurship", color:"#22d3ee", grad:"g-ent", dir:9, spread:19, tools:[
     {label:"NorthPlan", full:"NorthPlan", file:"Local folder ~/Downloads/northplan-full/, Canadian planning app",
       doors:[{k:"chat",url:CHAT+"2928f5ba-87cd-43dd-8edd-939d2b39e25c"}]},
     {label:"Payday", full:"Payday Playbook", file:"money-plan.html, three bucket cash flow",
@@ -307,17 +309,22 @@ CATS.forEach(cat=>{
     cat.groups.forEach((grp,gi)=>{
       const gx=C.x+SUB_R*Math.cos(rad(grp.dir)), gy=C.y+SUB_R*Math.sin(rad(grp.dir));
       const gid="g-"+cat.key+"-"+gi;
-      addEdge(hx,hy,gx,gy,cat.color,hubId,gid);
+      const gcol=grp.color||cat.color, ggrad=grp.grad||cat.grad;
+      addEdge(hx,hy,gx,gy,gcol,hubId,gid);
       cat._pts.push([gx,gy]);
       grp._pts=[[gx,gy]];
       const n=grp.tools.length;
       grp.tools.forEach((tool,i)=>{
-        const a=n===1?grp.dir:grp.dir-grp.spread+(2*grp.spread)*(i/(n-1));
-        const ring=grp.ring||[-18,22];
-        const pt=layTool(tool,cat,a,TOOL_R+ring[i%ring.length],gx,gy,gid,"t-"+cat.key+"-"+gi+"-"+i,grp.title);
-        grp._pts.push(pt);
+        const la=n===1?grp.dir:grp.dir-grp.spread+(2*grp.spread)*(i/(n-1));
+        const arm=grp.arm||[115,170];
+        const rl=arm[i%arm.length];
+        const tx=gx+rl*Math.cos(rad(la)), ty=gy+rl*Math.sin(rad(la));
+        tool.id="t-"+cat.key+"-"+gi+"-"+i; tool.cat=cat; tool.sub=grp.title; tool.color=gcol;
+        cat._pts.push([tx,ty]); grp._pts.push([tx,ty]);
+        addEdge(gx,gy,tx,ty,gcol,gid,tool.id);
+        addNode(tx,ty,15,ggrad,gcol,tool.label,"tool",tool,la)._tool=tool;
       });
-      addNode(gx,gy,19,cat.grad,cat.color,grp.title,"hub sub",{id:gid})._hub=grp;
+      addNode(gx,gy,19,ggrad,gcol,grp.title,"hub sub",{id:gid})._hub=grp;
     });
   } else {
     const n=cat.tools.length;
@@ -374,7 +381,8 @@ function openPop(node){
     doors+=`<a class="door ${d.k}" href="${d.url}" target="_blank" rel="noopener"><span class="d"></span>${lab}</a>`;
   });
   if(!doors) doors=`<div class="none">${tool.note||"No links yet."}</div>`;
-  pop.innerHTML=`<div class="cat" style="color:${cat.color}">${cat.title}${tool.sub?" · "+tool.sub:""}</div><h3>${tool.full}</h3><div class="file">${tool.file}</div><div class="doors">${doors}</div>`;
+  const col=tool.color||cat.color;
+  pop.innerHTML=`<div class="cat" style="color:${col}">${cat.title}${tool.sub?" · "+tool.sub:""}</div><h3>${tool.full}</h3><div class="file">${tool.file}</div><div class="doors">${doors}</div>`;
   pop.classList.add("show");
   const r=node.getBoundingClientRect(), pw=pop.offsetWidth, ph=pop.offsetHeight;
   let left=r.left+r.width/2-pw/2; left=Math.max(12,Math.min(left,window.innerWidth-pw-12));
@@ -397,7 +405,7 @@ window.addEventListener("keydown",e=>{ if(e.key==="Escape") closePop(); });
 let scale=1,tx=0,ty=0,panning=false,sx=0,sy=0,moved=false,animId=null;
 function applyT(){
   viewport.setAttribute("transform",`translate(${tx} ${ty}) scale(${scale})`);
-  const lz=Math.min(2.5,Math.max(1,11/(11.5*scale)));
+  const lz=Math.min(1.9,Math.max(1,11/(11.5*scale)));
   graph.style.setProperty("--lz",lz.toFixed(3));
 }
 function fitTarget(){
