@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
+<title>The Climb — $40M → $100M</title>
+<meta name="theme-color" content="#0c0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Climb">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEVElEQVR4nOWby08TQRzHv20aY0vCQQ3hldZS3g9FCC9pER8cOBm0aCRqTEiA/gEknjyY8B+YgAcTD0YTHzfECwY1vi8GBeRiwIPCwZuKxpiMhzJlH9Ptzu7Mdrd+yIbt7m9mft/Z+f12dtr1VUa7Cf5jAoT81/oRAIw7YHl697RDvkijKfU7le2cryLSyeyB5RnvC9fSNKHvCF95pEPXASszwYz4xolfWXvPKxjp0XUANS4E4VpY2vwgBHTLGIxvpZTH8729f/MEKzNB2/U0jm+lMh2xfSxAGEmQdcwNrFwPZfYbxn/aqotq9JWF2wkAfLxeNL1dseuG/oe3zxB4N2how9MhSq0BaOcBHpsXNIz9sF6YEATEueIctkRr0OUAt8Y/ANSPfRdaHwGBZ0Lg76FHAOkVWykh8Iut0XvoHobc/HAk2jfilREQ2phEaGMSa7OCQwDMp0H3joA0Iv0j8BNCVEOLfnbLtjYbx5/NJfzZXAIArM3Gbdep1Or6EKDCtfui8KeHlHJYEelbuOqgKbv1hwmm0+njdnzY0ep3Wn+4qtV8OwB2lTZnXFPuC9IPPwFRzf6I5D9KONZqaLc+16cSrhIPYH2uz7YPBMTZu0Ak1ia4LfvlnQ0BDZFYG9Pu81w/AKiyf3KqWFf+81y/d0IgUq29+tnbS04V58z+yalihAcXLPmibDvvt8H91e2mbekooP874ydtt7+zJkiRsKaXU6TClooauXE4c1q5rwsFKz4pykpfD4jWdOS0ydamUjhvWTOkQ0B2EjRBtKYDIEBXYggAcHv0JW6PvjRVtisxZC8JMo8K2qK1ua++ul2ohJvtBDs9kPckSOnqO5WXstKeBqO1nZYcypb8cmH1adAVq8IlpZWqzzzCKd1HTuP10wfc5aRMhavqui2Vu3Jp3ycAuHrzW8xay7y+S1gQ4RVPrz4Vr93nklOICyI89PQPc5cRehuM1fdwNa6MfeWwtx4CZv3fsQ1ISAGWsSc8TU//GbxauGvOmAj8aqy6gW/JWhv7IsRTzGrYngrrHxB4N17xFBGJj8Xho2eNfabkKwlq7/v5xPaCSHVj3HLj4hKfHrMLIo4nQe3VFy2c0nvsHF48vmNsRGzOBGua+nIbMZCR+Njk0kLshQAvJaWV0hIfi97jI/JCoLb5iDhPZWKkx+qCiBXxNPZlJj42uWaCecAZ4WniJ87j+fytrOe5fyFS13KU24lrl1sdSnpssmnafhrkDQE+qHhAftLLRmLgAoSsCda1HBPplyvgWhCxgvNJj01i4KK9NcH6A8e5G2Vlfrdh+oeSq4vz3JWvLlpxyUGc+GrMzRDeJFiIeOa3wlJQLohUDK+mAODLvfqCe1tMCdVH9XrqlRmRUI2+UNE+ldqv9xunAaA8ueK6V2fswtKm6wClodbYqxjp8QWL9jLH+8b9poLLBWXJZf2bo8EQuwMoGw+83xFlp/XCKb5gaE/hZzwD/gH36gc/OBo9twAAAABJRU5ErkJggg==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+:root { color-scheme: dark; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#090a12}
+body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
+  background:radial-gradient(1200px 700px at 50% -10%,#1c2138 0%,transparent 60%),
+  radial-gradient(900px 600px at 90% 10%,#1a1f33 0%,transparent 55%),
+  linear-gradient(180deg,#0c0e1a 0%,#090a12 100%);min-height:100vh}
+.cinzel{font-family:'Cinzel',Georgia,serif;letter-spacing:.04em}
+.mono{font-family:'Space Mono',ui-monospace,Menlo,monospace}
+.wrap{max-width:620px;margin:0 auto;padding:26px 16px 60px;position:relative;z-index:1}
+.panel{background:linear-gradient(180deg,rgba(28,32,52,.92),rgba(20,23,38,.92));
+  border:1px solid rgba(120,130,180,.16);border-radius:18px;
+  box-shadow:0 18px 40px -28px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.04)}
+.eyebrow{font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:#7c84a8;font-weight:600}
+.row{border-radius:11px;transition:background .18s}
+.row:hover{background:rgba(255,255,255,.025)}
+.btn{transition:transform .12s,filter .18s;cursor:pointer;border:none;font-family:inherit;border-radius:12px}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px) scale(.99)}
+.bartrack{position:relative;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+.fill{height:100%;border-radius:99px;position:relative;overflow:hidden;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.fill::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.5) 50%,transparent 70%);transform:translateX(-120%);animation:shimmer 2.8s infinite}
+@keyframes shimmer{to{transform:translateX(220%)}}
+.tick{position:absolute;top:-2px;bottom:-2px;width:2px;border-radius:2px;background:#f6f1e0;box-shadow:0 0 5px rgba(255,255,255,.6)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fadeUp{animation:fadeUp .5s ease both}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+@media(max-width:480px){.grid3{grid-template-columns:1fr 1fr}}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#stars span{position:absolute;border-radius:99px;background:#cfd6f2;opacity:.1;animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.07;transform:scale(1)}50%{opacity:.45;transform:scale(1.3)}}
+.statbig{font-family:'Space Mono',ui-monospace,monospace;font-size:22px;font-weight:700;color:#eef0fb}
+.statsm{font-size:11px;color:#8089a8;margin-top:2px}
+.gold{color:#f0b73e}.goldl{color:#f6cf6a}.green{color:#2fd180}.mint{color:#9af0c6}
+.dim{color:#6f7798}.dim2{color:#8089a8}.bright{color:#eef0fb}.pink{color:#f0628a}.blue{color:#4ea3e0}.purple{color:#9d7bff}
+input,select{background:rgba(10,12,22,.7);color:#eef0fb;border:1px solid rgba(120,130,180,.25);
+  border-radius:10px;font-family:'Space Mono',monospace;font-size:13px;padding:8px 10px;outline:none;width:100%}
+input:focus,select:focus{border-color:rgba(240,183,62,.55)}
+input[type=date]{color-scheme:dark}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7c84a8;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#7c84a8;padding:6px 8px;border-bottom:1px solid rgba(120,130,180,.16);white-space:nowrap;font-weight:600}
+td{padding:7px 8px;border-bottom:1px solid rgba(120,130,180,.08);white-space:nowrap}
+.num{text-align:right;font-family:'Space Mono',monospace} th.num{text-align:right}
+.pill{font-size:9.5px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:99px;border:1px solid}
+.pill.ext{color:#9af0c6;background:rgba(47,209,128,.14);border-color:rgba(47,209,128,.4)}
+.pill.ref{color:#f6d28a;background:rgba(240,183,62,.14);border-color:rgba(240,183,62,.4)}
+.pill.paid{color:#9af0c6;background:rgba(47,209,128,.14);border-color:rgba(47,209,128,.4)}
+.pill.pend{color:#aab2d0;background:rgba(120,130,180,.14);border-color:rgba(120,130,180,.35)}
+.seg{display:flex;border:1px solid rgba(120,130,180,.25);border-radius:12px;overflow:hidden}
+.seg button{flex:1;background:transparent;color:#8089a8;border:none;padding:8px 0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.06em}
+.seg button.on{background:rgba(240,183,62,.16);color:#f6cf6a}
+.hl td{background:rgba(240,183,62,.07)}
+.gRow{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:12.5px}
+.gRow .k{color:#8089a8}.gRow .v{font-family:'Space Mono',monospace;color:#eef0fb}
+.chartbox{position:relative;height:230px}
+.del{cursor:pointer;color:#5f667f;font-size:14px;border:none;background:none;font-family:inherit}
+.del:hover{color:#f0628a}
+.section{margin-top:24px}
+.reward-done{color:#2fd180}.reward-next{color:#f6cf6a}.reward-lock{color:#5d647f}
+@media(prefers-reduced-motion:reduce){#stars span,.fill::after,.fadeUp{animation:none}}
+#ctoast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:rgba(20,23,38,.96);border:1px solid rgba(240,183,62,.5);color:#f6e2ad;padding:10px 18px;border-radius:12px;font-size:13px;display:none}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="wrap" id="app"></div>
+
+<script>
+"use strict";
+/* ===================== config & state ===================== */
+var DEF = {startDate:'2026-07-08', startAUM:40000000, goal:100000000, years:3,
+  fee:1.0, hh:500000, ro:100, close:80, mtr:50.4};
+var REWARDS = [[50,'New Suit'],[60,'New shoes / boots'],[70,'Family vacation'],[80,'New car'],[90,'Something for Jo'],[100,'Rolex Datejust']];
+var A = {}, hhs = [], draftType = 'ext';
+function load(){
+  A = Object.assign({}, DEF);
+  try{ Object.assign(A, JSON.parse(localStorage.getItem('climb_a')||'{}')); }catch(e){}
+  try{ hhs = JSON.parse(localStorage.getItem('climb_h'))||[]; }catch(e){ hhs=[]; }
+}
+function saveA(){ localStorage.setItem('climb_a', JSON.stringify(A)); }
+function saveH(){ localStorage.setItem('climb_h', JSON.stringify(hhs)); }
+load();
+
+/* ===================== model ===================== */
+var GLO=.35, GHI=.45, TH=650000;
+function bonusOf(sz){ return sz>=2e6?15000 : sz>=1e6?10000 : sz>=750000?7500 : sz>=5e5?5000 : 0; }
+function fmt(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
+function fmtK(n){ return '$'+(Math.round(n/100)/10).toLocaleString('en-US')+'K'; }
+function fmtM(n){ return '$'+(n/1e6).toLocaleString('en-US',{maximumFractionDigits:2})+'M'; }
+function net(x){ return x*(1-A.mtr/100); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function addMonths(dstr,m){ var d=new Date(dstr+'T12:00'); d.setMonth(d.getMonth()+m); return d.toISOString().slice(0,10); }
+function daysBetween(a,b){ return Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/864e5); }
+function niceDate(dstr){ var d=new Date(dstr+'T12:00'); return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}); }
+
+function compute(){
+  var extSum=0, refSum=0, extN=0, refN=0;
+  hhs.forEach(function(h){ if(h.type==='ref'){refSum+=h.amt;refN++;} else {extSum+=h.amt;extN++;} });
+  var added = extSum+refSum;
+  var cur = A.startAUM + added;
+  var revFull = cur*A.fee/100;                          // full revenue (sets grid tier)
+  var grid = revFull>=TH ? GHI : GLO;
+  var compBase = (A.startAUM+extSum)*A.fee/100 + refSum*A.fee/100*0.75;  // referral haircut
+  var grossInc = compBase*grid;
+  var startInc = (A.startAUM*A.fee/100)*(A.startAUM*A.fee/100>=TH?GHI:GLO);
+
+  // bonuses (external only)
+  var bonPaid=0, bonPend=0, bonRows=[];
+  hhs.forEach(function(h){
+    if(h.type!=='ext') return;
+    var b=bonusOf(h.amt); if(!b) return;
+    var pay=addMonths(h.d,6), paid=pay<=today();
+    if(paid) bonPaid+=b; else bonPend+=b;
+    bonRows.push({d:h.d,pay:pay,b:b,paid:paid,amt:h.amt});
+  });
+  bonRows.sort(function(a,b){return a.pay<b.pay?-1:1;});
+
+  // pace vs plan
+  var elapsed = Math.max(0, daysBetween(A.startDate, today()));
+  var span = A.years*365.25;
+  var planAdded = Math.min(A.goal-A.startAUM, (A.goal-A.startAUM)*(elapsed/span));
+  var paceAUM = A.startAUM + planAdded;
+  var onPace = cur>=paceAUM-1;
+  var behindAUM = paceAUM-cur;
+
+  // trend from actual log
+  var months = Math.max(elapsed/30.44, 0.25);
+  var perMonth = added/months;
+  var trend = {perMonth:perMonth, hhPerMonth:hhs.length/months, avgSize:hhs.length?added/hhs.length:0};
+  var cliffAUM = TH/(A.fee/100);
+  function etaAt(targetAUM){
+    if(perMonth<=0||cur>=targetAUM) return null;
+    var m=(targetAUM-cur)/perMonth; var d=new Date(); d.setDate(d.getDate()+Math.round(m*30.44));
+    return {months:m, date:d.toISOString().slice(0,10)};
+  }
+  return {extSum:extSum,refSum:refSum,extN:extN,refN:refN,added:added,cur:cur,revFull:revFull,grid:grid,
+    compBase:compBase,grossInc:grossInc,startInc:startInc,bonPaid:bonPaid,bonPend:bonPend,bonRows:bonRows,
+    elapsed:elapsed,paceAUM:paceAUM,onPace:onPace,behindAUM:behindAUM,months:months,trend:trend,
+    cliffAUM:cliffAUM,etaCliff:etaAt(cliffAUM),etaGoal:etaAt(A.goal)};
+}
+function grossAt(aum){ var r=aum*A.fee/100; return r*(r>=TH?GHI:GLO); }
+
+/* ===================== ui helpers ===================== */
+function bar(pct,target,color,glow,h){
+  h=h||9;
+  var t = target!=null ? Math.max(0,Math.min(100,target*100)) : null;
+  var w = Math.max(1.5,Math.min(100,pct*100));
+  return '<div class="bartrack" style="height:'+h+'px">'
+    +'<div class="fill" style="width:'+w+'%;background:'+color+';box-shadow:0 0 12px '+glow+'"></div>'
+    +(t!=null?'<div class="tick" style="left:calc('+t+'% - 1px)"></div>':'')+'</div>';
+}
+function paceTag(onPace,txt){
+  var col=onPace?"#9af0c6":"#f6d28a", bg=onPace?"rgba(47,209,128,.14)":"rgba(240,183,62,.14)", bd=onPace?"rgba(47,209,128,.4)":"rgba(240,183,62,.4)";
+  return '<span style="font-size:9.5px;font-weight:600;letter-spacing:.04em;padding:2px 7px;border-radius:99px;color:'+col+';background:'+bg+';border:1px solid '+bd+'">'+txt+'</span>';
+}
+function stat(label,val,sub,cls){
+  return '<div><div class="eyebrow" style="font-size:9px;letter-spacing:.2em">'+label+'</div>'
+    +'<div class="statbig '+(cls||'')+'">'+val+'</div>'+(sub?'<div class="statsm">'+sub+'</div>':'')+'</div>';
+}
+
+/* ===================== render ===================== */
+function render(){
+  var D=compute();
+  var h='';
+
+  /* header */
+  h+='<div class="fadeUp" style="text-align:center;margin-bottom:8px">'
+    +'<div class="eyebrow" style="color:#8089a8">Chambers Wealth · The Climb · '+niceDate(A.startDate)+' → '+fmtM(A.goal)+'</div>'
+    +'<h1 class="cinzel" style="font-size:26px;margin:6px 0 2px;color:#f3f4fb;font-weight:700;line-height:1.1">Quinton · <span class="gold">'+fmtM(D.cur)+'</span></h1>'
+    +'<div style="font-size:12px;color:#8089a8;font-style:italic">Every reach-out is priced. Every household compounds. The grid reprices at '+fmtM(D.cliffAUM)+'.</div></div>';
+
+  /* hero progress */
+  var pct=(D.cur-A.startAUM)/(A.goal-A.startAUM);
+  var tickPos=(D.paceAUM-A.startAUM)/(A.goal-A.startAUM);
+  var paceTxt = D.onPace ? 'on pace' : fmtM(Math.abs(D.behindAUM))+' behind';
+  h+='<div class="panel fadeUp" style="padding:16px;margin-top:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">'
+    +'<span class="eyebrow">Book '+fmtM(D.cur)+' / '+fmtM(A.goal)+'</span>'+paceTag(D.onPace,paceTxt)+'</div>'
+    +bar(Math.max(pct,0.004),tickPos,"#f0b73e","rgba(240,183,62,.55)",11)
+    +'<div style="font-size:11px;color:#6f7798;margin-top:9px;text-align:center">Day '+D.elapsed+' of the '+A.years+'-year climb · white tick = on-pace book today · '
+    +(D.etaGoal?('trending to '+fmtM(A.goal)+' by <span class="goldl">'+niceDate(D.etaGoal.date)+'</span>'):'log households to project your arrival')+'</div>'
+    +'<div class="grid3" style="margin-top:14px">'
+    +stat('Gross / yr',fmtK(D.grossInc),Math.round(D.grid*100)+'% grid on '+fmtK(D.compBase)+' base','gold')
+    +stat('Net / yr',fmtK(net(D.grossInc)),fmt(net(D.grossInc)/26)+' biweekly','mint')
+    +stat('At '+fmtM(A.goal),fmtK(grossAt(A.goal)),fmtK(net(grossAt(A.goal)))+' net · '+fmt(net(grossAt(A.goal))/26)+' biwk','bright')
+    +'</div></div>';
+
+  /* log a household */
+  h+='<div class="section fadeUp"><div class="eyebrow" style="margin:0 4px 11px">Log a new household · this is how the mountain moves</div>'
+    +'<div class="panel" style="padding:16px">'
+    +'<div class="grid2" style="margin-bottom:11px">'
+    +'<label class="f">Assets<input type="number" id="hhAmt" step="50000" placeholder="500000"></label>'
+    +'<label class="f">Date opened<input type="date" id="hhDate" value="'+today()+'"></label></div>'
+    +'<div class="grid2" style="align-items:end">'
+    +'<div><div class="eyebrow" style="font-size:9px;letter-spacing:.2em;margin-bottom:4px">Source</div>'
+    +'<div class="seg"><button id="segExt" class="'+(draftType==='ext'?'on':'')+'">External</button>'
+    +'<button id="segRef" class="'+(draftType==='ref'?'on':'')+'">Referral −25%</button></div></div>'
+    +'<button class="btn" id="hhAdd" style="background:linear-gradient(135deg,#f0b73e,#e2a32f);color:#131420;font-weight:700;font-size:14px;padding:10px 0;letter-spacing:.04em">Add to the Book ▸</button></div>'
+    +'<div id="hhPreview" style="font-size:11.5px;color:#8089a8;margin-top:10px;min-height:16px"></div>'
+    +'</div></div>';
+
+  /* trajectory chart */
+  h+='<div class="section fadeUp"><div class="eyebrow" style="margin:0 4px 11px">Trajectory · logged vs the pace line</div>'
+    +'<div class="panel" style="padding:16px"><div class="chartbox"><canvas id="trajChart"></canvas></div></div></div>';
+
+  /* trends */
+  var t=D.trend;
+  h+='<div class="section fadeUp"><div class="eyebrow" style="margin:0 4px 11px">Trending · since '+niceDate(A.startDate)+'</div>'
+    +'<div class="panel" style="padding:16px">'
+    +'<div class="grid3">'
+    +stat('AUM / month',t.perMonth>0?fmtM(t.perMonth):'—',hhs.length?'avg over '+D.months.toFixed(1)+' mo':'nothing logged yet','gold')
+    +stat('Households',D.extN+D.refN+' <span style="font-size:12px;color:#8089a8">('+D.extN+' ext · '+D.refN+' ref)</span>',t.avgSize?'avg '+fmtK(t.avgSize):'','bright')
+    +stat('Income added',(D.grossInc-D.startInc>=0?'+':'')+fmtK(D.grossInc-D.startInc),'gross run-rate vs day 1','mint')
+    +'</div>'
+    +'<div style="border-top:1px solid rgba(120,130,180,.12);margin:13px 0 9px"></div>'
+    +'<div class="gRow"><span class="k">Avg take-home right now</span><span class="v">'+fmt(net(D.grossInc)/26)+' biweekly · '+fmtK(net(D.grossInc)/12)+'/mo net</span></div>'
+    +'<div class="gRow"><span class="k">NPH bonuses collected</span><span class="v green">'+fmt(D.bonPaid)+'</span></div>'
+    +'<div class="gRow"><span class="k">NPH bonuses in flight (pay T+6mo)</span><span class="v goldl">'+fmt(D.bonPend)+'</span></div>'
+    +'<div class="gRow"><span class="k">ETA · grid cliff '+fmtM(D.cliffAUM)+'</span><span class="v">'+(D.cur>=D.cliffAUM?'<span class="green">crossed ✦</span>':(D.etaCliff?niceDate(D.etaCliff.date)+' at trend':'—'))+'</span></div>'
+    +'<div class="gRow"><span class="k">ETA · '+fmtM(A.goal)+'</span><span class="v">'+(D.etaGoal?niceDate(D.etaGoal.date)+' ('+(D.etaGoal.months/12).toFixed(1)+'y)':'—')+'</span></div>'
+    +(t.perMonth>0?'<div style="font-size:11px;color:#6f7798;margin-top:8px">At this trend you add <span class="goldl">'+fmtK(t.perMonth*12*A.fee/100*D.grid)+'</span> of gross income per year of climbing.</div>':'')
+    +'</div></div>';
+
+  /* household ledger */
+  if(hhs.length){
+    var sorted=hhs.slice().sort(function(a,b){return a.d<b.d?1:-1;});
+    h+='<div class="section fadeUp"><div class="eyebrow" style="margin:0 4px 11px">The Ledger · '+hhs.length+' household'+(hhs.length>1?'s':'')+' logged</div>'
+      +'<div class="panel" style="padding:10px 12px"><div style="overflow-x:auto"><table><thead><tr>'
+      +'<th>Date</th><th>Source</th><th class="num">Assets</th><th class="num">To you / yr</th><th class="num">NPH</th><th>Bonus pays</th><th></th></tr></thead><tbody>';
+    sorted.forEach(function(x){
+      var i=hhs.indexOf(x);
+      var toYou=x.amt*A.fee/100*(x.type==='ref'?0.75:1)*D.grid;
+      var b=x.type==='ext'?bonusOf(x.amt):0;
+      var pay=x.type==='ext'&&b?addMonths(x.d,6):null;
+      h+='<tr class="row"><td>'+niceDate(x.d)+'</td>'
+        +'<td><span class="pill '+(x.type==='ref'?'ref':'ext')+'">'+(x.type==='ref'?'referral':'external')+'</span></td>'
+        +'<td class="num">'+fmt(x.amt)+'</td><td class="num goldl">'+fmt(toYou)+'</td>'
+        +'<td class="num '+(b?'green':'dim')+'">'+(b?fmt(b):'—')+'</td>'
+        +'<td>'+(pay?('<span class="pill '+(pay<=today()?'paid':'pend')+'">'+(pay<=today()?'paid':niceDate(pay))+'</span>'):'<span class="dim">n/a</span>')+'</td>'
+        +'<td><button class="del" data-del="'+i+'">✕</button></td></tr>';
+    });
+    h+='</tbody></table></div></div></div>';
+  }
+
+  /* value of activity */
+  var pCli=(A.close/100)/A.ro;
+  var recY=A.hh*A.fee/100*D.grid;              // recurring grid income per avg client
+  var cY1=recY+bonusOf(A.hh);                   // year-1 cash incl NPH
+  h+='<div class="section fadeUp"><div class="eyebrow" style="margin:0 4px 11px">The exchange rate · activity → dollars</div>'
+    +'<div class="panel" style="padding:16px">'
+    +'<div style="font-size:12px;color:#8089a8;text-align:center;margin-bottom:12px">'
+    +A.ro+' reach-outs → 1 qualified meeting → '+(A.close/100).toFixed(1)+' clients → '+fmtK(A.hh*(A.close/100))+' expected AUM</div>'
+    +'<div class="grid3">'
+    +stat('1 reach-out',fmt(pCli*cY1),fmt(net(pCli*cY1))+' net · yr-1 cash','gold')
+    +stat('1 qual meeting',fmtK((A.close/100)*cY1),fmtK(net((A.close/100)*cY1))+' net · yr-1 cash','goldl')
+    +stat('1 avg client',fmt(cY1)+' <span style="font-size:12px;color:#8089a8">yr 1</span>',fmt(recY)+'/yr recurring + '+fmt(bonusOf(A.hh))+' NPH','bright')
+    +'</div>'
+    +'<div style="border-top:1px solid rgba(120,130,180,.12);margin:13px 0 9px"></div>';
+  var toCliff=Math.max(0,D.cliffAUM-D.cur);
+  if(toCliff>0){
+    var roToCliff=(toCliff/A.hh)/(A.close/100)*A.ro;
+    var kick=(D.cliffAUM*A.fee/100*(GHI-GLO))/roToCliff;
+    h+='<div class="gRow"><span class="k">Cliff kicker per reach-out</span><span class="v goldl">+'+fmt(kick)+'/yr, permanent</span></div>'
+      +'<div class="gRow"><span class="k">Work remaining to the cliff</span><span class="v">'+Math.ceil(toCliff/A.hh)+' clients · '+Math.ceil((toCliff/A.hh)/(A.close/100))+' mtgs · '+Math.ceil(roToCliff).toLocaleString()+' reach-outs</span></div>'
+      +'<div style="font-size:11px;color:#6f7798;margin-top:8px">Crossing '+fmtM(D.cliffAUM)+' reprices your whole book 35→45%: an instant, permanent <span class="goldl">+'+fmtK(D.cliffAUM*A.fee/100*(GHI-GLO))+'/yr</span> raise. Split across the '+Math.ceil(roToCliff).toLocaleString()+' reach-outs it takes to get there, every one adds the kicker above to your annual income on top of its face value.</div>';
+  } else {
+    h+='<div class="gRow"><span class="k">Grid status</span><span class="v green">45% — cliff crossed ✦</span></div>';
+  }
+  var gapWork=Math.max(0,A.goal-D.cur);
+  h+='<div class="gRow" style="margin-top:2px"><span class="k">Work remaining to '+fmtM(A.goal)+'</span><span class="v">'+Math.ceil(gapWork/A.hh)+' clients · '+Math.ceil((gapWork/A.hh)/(A.close/100))+' mtgs · '+Math.ceil((gapWork/A.hh)/(A.close/100)*A.ro).toLocaleString()+' reach-outs</span></div>'
+    +'</div></div>';
+
+  /* milestones */
+  h+='<div class="section fadeUp"><div class="eyebrow" style="margin:0 4px 11px">Milestones · income at every camp on the mountain</div>'
+    +'<div class="panel" style="padding:10px 12px"><div style="overflow-x:auto"><table><thead><tr>'
+    +'<th>Book</th><th class="num">Gross/yr</th><th class="num">Net/yr</th><th class="num">Net biwk</th><th>Reward</th></tr></thead><tbody>';
+  [40,50,60,65,70,80,90,100].forEach(function(m){
+    var aum=m*1e6, gi=grossAt(aum), rev=aum*A.fee/100;
+    var isCliff=rev>=TH&&rev<TH+15000;
+    var rw=REWARDS.filter(function(r){return r[0]===m;})[0];
+    var rwTxt=rw?rw[1]:(m===65?'⚡ 45% grid unlocks':'—');
+    var rwCls = aum<=D.cur?'reward-done':(rw&&rw[0]*1e6===([50,60,70,80,90,100].map(function(x){return x*1e6;}).filter(function(x){return x>D.cur;})[0])?'reward-next':'reward-lock');
+    var curMark=Math.abs(aum-D.cur)<2.5e6&&aum<=D.cur;
+    h+='<tr class="'+(isCliff?'hl':'')+'"><td class="mono '+(curMark?'gold':'')+'">'+(curMark?'▸ ':'')+'$'+m+'M</td>'
+      +'<td class="num">'+fmtK(gi)+'</td><td class="num">'+fmtK(net(gi))+'</td><td class="num">'+fmt(net(gi)/26)+'</td>'
+      +'<td class="'+rwCls+'">'+(aum<=D.cur&&rw?rwTxt+' ✦':rwTxt)+'</td></tr>';
+  });
+  h+='</tbody></table></div>'
+    +'<div style="font-size:11px;color:#6f7798;padding:9px 8px 4px">Gold row = the $650K revenue cliff. Rewards are your milestone list — each $5M also unlocks the 10%-of-incremental-net splurge rule.</div>'
+    +'</div></div>';
+
+  /* settings */
+  h+='<div class="section fadeUp"><div class="eyebrow" style="margin:0 4px 11px">The rules · edit to stress-test</div>'
+    +'<div class="panel" style="padding:16px">'
+    +'<div class="grid3" style="gap:10px">'
+    +'<label class="f">Start date<input type="date" id="sStart" value="'+A.startDate+'"></label>'
+    +'<label class="f">Start AUM<input type="number" id="sSA" step="1000000" value="'+A.startAUM+'"></label>'
+    +'<label class="f">Goal<input type="number" id="sGoal" step="1000000" value="'+A.goal+'"></label>'
+    +'<label class="f">Timeline yrs<input type="number" id="sYears" step="0.5" value="'+A.years+'"></label>'
+    +'<label class="f">Fee %<input type="number" id="sFee" step="0.01" value="'+A.fee+'"></label>'
+    +'<label class="f">Avg client<input type="number" id="sHH" step="50000" value="'+A.hh+'"></label>'
+    +'<label class="f">RO per mtg<input type="number" id="sRO" step="10" value="'+A.ro+'"></label>'
+    +'<label class="f">Close %<input type="number" id="sClose" step="5" value="'+A.close+'"></label>'
+    +'<label class="f">MTR %<input type="number" id="sMTR" step="0.1" value="'+A.mtr+'"></label>'
+    +'</div>'
+    +'<div style="display:flex;gap:10px;margin-top:13px">'
+    +'<button class="btn" id="resetA" style="background:rgba(120,130,180,.15);color:#aab2d0;padding:8px 14px;font-size:11px">Reset rules</button>'
+    +'<button class="btn" id="clearH" style="background:rgba(240,98,138,.12);color:#f0628a;padding:8px 14px;font-size:11px">Clear ledger</button>'
+    +'<button class="btn" id="bkup" style="background:rgba(120,130,180,.15);color:#aab2d0;padding:8px 14px;font-size:11px">\u2913 Backup</button>'
+    +'<button class="btn" id="rstr" style="background:rgba(120,130,180,.15);color:#aab2d0;padding:8px 14px;font-size:11px">\u2911 Restore</button>'
+    +'<input type="file" id="rstrF" accept=".json" style="display:none"></div>'
+    +'<div style="font-size:10.5px;color:#5f667f;line-height:1.6;margin-top:12px">'
+    +'Grid 35% below $650K gross revenue, 45% at or above (whole book reprices — tier set by full revenue; referral haircut hits your comp base only). '
+    +'NPH bonus — external households only: $500–750K→$5K · $750K–1M→$7.5K · $1–2M→$10K · $2M+→$15K, paid 6 months after open. '
+    +'Referral = 25% comp-base reduction, no NPH. Net = after 50.4% MB top MTR. '
+    +'Every +0.10% of fee on a $100M book = +$45K/yr gross at 45%. Data lives in this browser.</div>'
+    +'</div></div>';
+
+  h+='<div class="mono" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase">'
+    +'<span class="gold">\u25b2 The Climb</span>'
+    +'<a href="chambers-hq.html" style="color:#5d647f;text-decoration:none">Chambers HQ</a>'
+    +'<a href="life-ledger.html" style="color:#5d647f;text-decoration:none">Life Ledger</a>'
+    +'<a href="workout-forge.html" style="color:#5d647f;text-decoration:none">The Forge</a>'
+    +'<a href="communication-trainer.html" style="color:#5d647f;text-decoration:none">Communicator</a>'
+    +'<a href="neural-map.html" style="color:#5d647f;text-decoration:none">Neural Map</a>'
+    +'</div>';
+  document.getElementById('app').innerHTML=h;
+  wire(D);
+  drawChart(D);
+}
+
+/* ===================== chart ===================== */
+var chart;
+function drawChart(D){
+  var el=document.getElementById('trajChart'); if(!el||typeof Chart==='undefined')return;
+  var start=A.startDate;
+  // actual cumulative
+  var pts=[{x:0,y:A.startAUM/1e6}];
+  hhs.slice().sort(function(a,b){return a.d<b.d?-1:1;}).forEach(function(x){
+    var d=Math.max(0,daysBetween(start,x.d));
+    pts.push({x:d,y:(pts[pts.length-1].y*1e6+x.amt)/1e6});
+  });
+  pts.push({x:Math.max(0,daysBetween(start,today())),y:D.cur/1e6});
+  // pace line
+  var span=A.years*365.25;
+  var pace=[{x:0,y:A.startAUM/1e6},{x:span,y:A.goal/1e6}];
+  // trend projection
+  var proj=null;
+  if(D.trend.perMonth>0&&D.cur<A.goal){
+    var mLeft=(A.goal-D.cur)/D.trend.perMonth;
+    proj=[{x:daysBetween(start,today()),y:D.cur/1e6},{x:daysBetween(start,today())+mLeft*30.44,y:A.goal/1e6}];
+  }
+  var ds=[
+    {label:'Pace required',data:pace,borderColor:'rgba(120,130,180,.5)',borderDash:[6,5],pointRadius:0,borderWidth:1.5},
+    {label:'The Book',data:pts,borderColor:'#f0b73e',backgroundColor:'rgba(240,183,62,.09)',fill:true,pointRadius:3,pointBackgroundColor:'#f6cf6a',borderWidth:2.5,stepped:true}
+  ];
+  if(proj) ds.push({label:'Your trend',data:proj,borderColor:'#2fd180',borderDash:[3,4],pointRadius:0,borderWidth:1.5});
+  if(chart)chart.destroy();
+  var maxX=Math.max(span,proj?proj[1].x:0)*1.02;
+  chart=new Chart(el,{type:'line',data:{datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{type:'linear',min:0,max:maxX,ticks:{color:'#6f7798',font:{family:"'Space Mono',monospace",size:9},maxTicksLimit:7,
+          callback:function(v){var d=new Date(start+'T12:00');d.setDate(d.getDate()+v);return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});}},
+          grid:{color:'rgba(120,130,180,.08)'}},
+        y:{ticks:{color:'#6f7798',font:{family:"'Space Mono',monospace",size:9},callback:function(v){return '$'+v+'M';}},grid:{color:'rgba(120,130,180,.08)'}}},
+      plugins:{legend:{labels:{color:'#8089a8',boxWidth:10,font:{family:"'Outfit',sans-serif",size:10}}},
+        tooltip:{callbacks:{title:function(i){var d=new Date(start+'T12:00');d.setDate(d.getDate()+i[0].parsed.x);return d.toLocaleDateString();},
+          label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(2)+'M';}}}}}});
+}
+
+/* ===================== wiring ===================== */
+function preview(){
+  var amt=parseFloat(document.getElementById('hhAmt').value)||0;
+  var el=document.getElementById('hhPreview');
+  if(!amt){el.innerHTML='';return;}
+  var D=compute();
+  var newCur=D.cur+amt, newRev=newCur*A.fee/100;
+  var newGrid=newRev>=TH?GHI:GLO;
+  var toYou=amt*A.fee/100*(draftType==='ref'?0.75:1)*newGrid;
+  var b=draftType==='ext'?bonusOf(amt):0;
+  var crosses=D.grid<GHI&&newGrid===GHI;
+  el.innerHTML='This household: <span class="goldl">'+fmt(toYou)+'/yr</span> to you'
+    +(b?' + <span class="green">'+fmt(b)+' NPH</span> paying '+niceDate(addMonths(document.getElementById('hhDate').value||today(),6)):(draftType==='ref'?' · <span class="dim2">referral: −25% comp, no NPH</span>':' · below $500K — no NPH'))
+    +(crosses?' · <span class="gold">⚡ this one crosses the cliff — whole book reprices to 45%</span>':'');
+}
+function wire(D){
+  document.getElementById('segExt').onclick=function(){draftType='ext';this.classList.add('on');document.getElementById('segRef').classList.remove('on');preview();};
+  document.getElementById('segRef').onclick=function(){draftType='ref';this.classList.add('on');document.getElementById('segExt').classList.remove('on');preview();};
+  document.getElementById('hhAmt').addEventListener('input',preview);
+  document.getElementById('hhDate').addEventListener('change',preview);
+  document.getElementById('hhAdd').onclick=function(){
+    var amt=parseFloat(document.getElementById('hhAmt').value)||0;
+    var d=document.getElementById('hhDate').value||today();
+    if(amt<=0)return;
+    hhs.push({d:d,amt:amt,type:draftType});
+    saveH(); render();
+  };
+  document.querySelectorAll('[data-del]').forEach(function(b){
+    b.onclick=function(){ hhs.splice(+b.dataset.del,1); saveH(); render(); };
+  });
+  var smap={sStart:['startDate',1],sSA:['startAUM',0],sGoal:['goal',0],sYears:['years',0],sFee:['fee',0],sHH:['hh',0],sRO:['ro',0],sClose:['close',0],sMTR:['mtr',0]};
+  Object.keys(smap).forEach(function(id){
+    document.getElementById(id).addEventListener('change',function(){
+      var k=smap[id][0], isStr=smap[id][1];
+      A[k]=isStr?this.value:(parseFloat(this.value)||DEF[k]);
+      saveA(); render();
+    });
+  });
+  document.getElementById('resetA').onclick=function(){ if(confirm('Reset all rules to defaults?')){A=Object.assign({},DEF);saveA();render();} };
+  document.getElementById('bkup').onclick=function(){
+    try{
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'climb',version:1,exportedAt:new Date().toISOString(),rules:A,households:hhs})],{type:'application/json'}));
+      a.download='climb_backup_'+today()+'.json'; a.click(); ctoast('Backup exported \u2713');
+    }catch(e){ ctoast('Export failed'); }
+  };
+  document.getElementById('rstr').onclick=function(){ document.getElementById('rstrF').click(); };
+  document.getElementById('rstrF').onchange=function(){
+    var f=this.files[0]; if(!f) return;
+    var rd=new FileReader();
+    rd.onload=function(e){ try{
+      var o=JSON.parse(e.target.result);
+      if(o&&o.rules&&Array.isArray(o.households)){ A=Object.assign({},DEF,o.rules); hhs=o.households; saveA(); saveH(); render(); ctoast('Backup restored \u2713'); }
+      else ctoast('Not a Climb backup');
+    }catch(err){ ctoast('Could not read that file'); } };
+    rd.readAsText(f); this.value='';
+  };
+  document.getElementById('clearH').onclick=function(){ if(confirm('Clear every logged household?')){hhs=[];saveH();render();} };
+}
+
+function ctoast(m){ var t=document.getElementById('ctoast'); if(!t){ t=document.createElement('div'); t.id='ctoast'; document.body.appendChild(t);} t.textContent=m; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(function(){t.style.display='none';},2200); }
+
+/* ===================== stars ===================== */
+(function(){
+  try{ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch(e){}
+  var s=document.getElementById('stars'), h='';
+  for(var i=0;i<40;i++){
+    h+='<span style="left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;width:'+(1+Math.random()*2)+'px;height:'+(1+Math.random()*2)+'px;animation-delay:'+(Math.random()*4)+'s"></span>';
+  }
+  s.innerHTML=h;
+})();
+
+render();
+</script>
+</body>
+</html>
