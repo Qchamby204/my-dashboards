@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Life Map — The Board</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Life Map"/>
+<meta name="theme-color" content="#0c0e1a"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%230c0e1a%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2221%22%20fill%3D%22none%22%20stroke%3D%22%23f0b73e%22%20stroke-opacity%3D%22.45%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M32%208%20L37%2027%20L56%2032%20L37%2037%20L32%2056%20L27%2037%20L8%2032%20L27%2027%20Z%22%20fill%3D%22%23f0b73e%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%224%22%20fill%3D%22%230c0e1a%22%2F%3E%3C%2Fsvg%3E"/>
+<link rel="apple-touch-icon" href="data:image/png;base64,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"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e1a; --card:#141830; --card2:#1a1f3a; --line:rgba(120,130,180,.16);
+  --gold:#f0b73e; --gold2:#f6cf6a; --green:#2fd180; --rose:#f0628a; --blue:#4ea3e0; --violet:#9d7bff; --amber:#f0683e;
+  --txt:#eef0fb; --muted:#8089a8; --dim:#6f7798;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:
+   radial-gradient(1100px 600px at 50% -10%,rgba(240,183,62,.07),transparent 60%),
+   var(--bg);
+  color:var(--txt);font-family:'Outfit',system-ui,sans-serif;min-height:100vh;
+  padding:0;-webkit-font-smoothing:antialiased}
+#app{max-width:640px;margin:0 auto;
+  padding:0 max(14px,env(safe-area-inset-left)) calc(40px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-right))}
+
+/* App chrome. The blurred fill runs up under the Dynamic Island so the clock,
+   signal, wifi and battery never sit on top of content. */
+.homebtn{display:grid;place-items:center;width:33px;height:33px;border-radius:10px;flex-shrink:0;
+  border:1px solid rgba(240,183,62,.35);background:rgba(240,183,62,.10);color:#f0b73e;
+  font-size:15px;line-height:1;text-decoration:none;margin-right:9px}
+.homebtn:active{transform:scale(.93)}
+.appbar{position:sticky;top:0;z-index:50;
+  margin:0 calc(-1 * max(14px,env(safe-area-inset-left))) 12px;
+  padding:calc(env(safe-area-inset-top,0px) + 11px) max(14px,env(safe-area-inset-left)) 11px max(14px,env(safe-area-inset-right));
+  background:rgba(12,14,26,.90);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+.appbar-title{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:#f3f4fb;letter-spacing:.04em;white-space:nowrap;line-height:1.1}
+.appbar-sub{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:2px;white-space:nowrap}
+.appbar-pill{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;
+  background:rgba(240,183,62,.1);border:1px solid rgba(240,183,62,.35);
+  font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap;flex-shrink:0}
+.cinzel{font-family:'Cinzel',serif}
+.mono{font-family:'Space Mono',monospace}
+.eyebrow{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:linear-gradient(180deg,rgba(26,31,58,.9),rgba(20,24,48,.9));border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(8px)}
+.btn{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+.tap{transition:transform .1s,filter .15s}
+.tap:active{transform:scale(.94)}
+.row{border-radius:10px;transition:background .15s}
+.row:active{background:rgba(255,255,255,.03)}
+.bartrack{width:100%;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.22,.61,.36,1)}
+input,select,textarea{font-family:inherit;outline:none;color-scheme:dark}
+.num{width:56px;background:transparent;border:none;color:var(--txt);text-align:center;font-family:'Space Mono',monospace;font-size:13px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll-x::-webkit-scrollbar{display:none}
+.overlay{position:fixed;inset:0;background:rgba(6,7,14,.86);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:60;animation:fade .2s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.fadeUp{animation:fu .28s cubic-bezier(.22,.61,.36,1)}
+@keyframes fu{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+#toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(80px);
+  background:rgba(20,23,38,.97);border:1px solid rgba(240,183,62,.45);color:var(--txt);padding:11px 18px;border-radius:99px;
+  font-size:12.5px;z-index:80;opacity:0;transition:.28s;white-space:nowrap;box-shadow:0 12px 32px rgba(0,0,0,.5);pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:600;white-space:nowrap}
+a{color:inherit}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<script>
+const AREAS=[
+ ["Family & Baby","👶","Baby prep, Johanna, parenting, family time"],
+ ["House — Interior","🏠","Room-by-room: nursery, kitchen, bedrooms, basement"],
+ ["House — Exterior & Landscaping","🌿","Yard, garden, deck, fence, gutters, seasonal prep"],
+ ["Garage & Storage","🧰","Declutter, shelving, workbench, seasonal storage"],
+ ["Vehicles","🚗","Maintenance, tires, insurance, car seat"],
+ ["Chores & Upkeep","🔄","Recurring rhythm — see Chores tab"],
+ ["Food System","🍳","Meal prep, recipe bank, grocery — one consistent system"],
+ ["Wardrobe & Laundry","👔","Closet, clothes, laundry system, seasonal swaps"],
+ ["Health & Fitness","💪","Strength, habits, nutrition, sleep"],
+ ["Work — Growth","📈","Prospecting, Chambers HQ, pipeline, COIs"],
+ ["Work — Service","🤝","Clients, reviews, deliverables"],
+ ["Work — Admin & Ops","🗂","Ops cadence, compliance, systems"],
+ ["Work — Content","🎬","Video scripts, LinkedIn, posts"],
+ ["Entrepreneurship","🚀","NorthPlan, dashboard suite, Jo's business"],
+ ["Personal Finances","💰","Savings, TFSA/RRSP/RESP, budget, insurance, estate"],
+ ["Community & Causes","🌍","Biz for Climate, Black History Manitoba"],
+ ["Self-Development","📚","Communication drills, learning, reading"],
+ ["Relationships & Social","☕","Friends, extended family, network coffees"],
+ ["Travel & Experiences","✈️","Trips, babymoon, local experiences"],
+ ["Gifts & Celebrations","🎁","Birthdays, anniversaries, holidays"],
+ ["Tech & Digital Life","💻","Devices, backups, photos, passwords, subscriptions"],
+ ["Life Admin & Documents","📄","Paperwork, IDs, wills, appointments, errands"]
+].map(a=>({name:a[0],icon:a[1],desc:a[2]}));
+
+const SEED_P=[
+["Family & Baby","Baby prep","Master baby to-do list — pull from claude.ai chat","High","Not started","","Everything left before due date"],
+["Family & Baby","Baby prep","Registry finalized / gear bought (stroller, car seat, monitor)","High","Not started","",""],
+["Family & Baby","Baby prep","Hospital bag + birth plan","High","Not started","",""],
+["Family & Baby","Baby prep","Prenatal classes / hospital tour","Med","Not started","",""],
+["Family & Baby","Finances","Open RESP; review life & disability insurance","High","Not started","",""],
+["Family & Baby","Finances","Parental leave plan — income + cash flow","High","Not started","",""],
+["Family & Baby","Johanna","Regular date nights protected on calendar","Med","Not started","",""],
+["Family & Baby","Admin","Daycare waitlists (they fill early)","High","Not started","","Hypothetical — refine"],
+["House — Interior","Nursery","Paint + furniture (crib, dresser, glider)","High","Not started","",""],
+["House — Interior","Nursery","Blackout curtains, monitor, anchor furniture","High","Not started","",""],
+["House — Interior","Whole house","Baby-proofing pass — outlets, gates, locks","Med","Not started","","Closer to mobility"],
+["House — Interior","Kitchen","Declutter counters + reorganize pantry","Med","Not started","","Hypothetical — refine"],
+["House — Interior","Kitchen","Fix / upgrade (faucet, hardware, backsplash?)","Low","Not started","","Hypothetical — refine"],
+["House — Interior","Primary bedroom","Declutter + closet reset","Low","Not started","","Hypothetical — refine"],
+["House — Interior","Bathrooms","Re-caulk tub/shower, grout touch-up","Low","Not started","","Hypothetical — refine"],
+["House — Interior","Living room","Layout / furniture / cable tidy","Low","Not started","","Hypothetical — refine"],
+["House — Interior","Office","Desk setup + filing system","Med","Not started","","Hypothetical — refine"],
+["House — Interior","Basement","Declutter / organize / finish plans","Low","Not started","","Hypothetical — refine"],
+["House — Interior","Entry / mudroom","Coat, boot, stroller landing zone","Med","Not started","","Stroller parking matters soon"],
+["House — Interior","Whole house","Paint touch-ups + fill nail holes","Low","Not started","","Hypothetical — refine"],
+["House — Interior","Whole house","Declutter purge — donate / sell / toss","Med","Not started","","Room per weekend"],
+["House — Exterior & Landscaping","Lawn","Season plan — fertilize, weed, overseed","Med","Not started","","Hypothetical — refine"],
+["House — Exterior & Landscaping","Garden beds","Edge, mulch, plant / cleanup","Low","Not started","","Hypothetical — refine"],
+["House — Exterior & Landscaping","Trees & shrubs","Trim back from house / prune","Low","Not started","","Hypothetical — refine"],
+["House — Exterior & Landscaping","Deck / patio","Wash + stain or seal","Med","Not started","","Hypothetical — refine"],
+["House — Exterior & Landscaping","Fence","Repair loose boards + stain","Low","Not started","","Hypothetical — refine"],
+["House — Exterior & Landscaping","Gutters","Clean + check downspout drainage","Med","Not started","","Spring + fall"],
+["House — Exterior & Landscaping","Driveway / walks","Crack fill / seal","Low","Not started","","Hypothetical — refine"],
+["House — Exterior & Landscaping","Winter prep","Winterize hose bibs, snow gear, ice melt","High","Not started","","Manitoba non-negotiable"],
+["House — Exterior & Landscaping","Exterior shell","Caulk windows/doors, roof + siding check","Med","Not started","","Hypothetical — refine"],
+["Garage & Storage","Garage","Full purge — donate / sell / toss","Med","Not started","","Hypothetical — refine"],
+["Garage & Storage","Garage","Wall storage + shelving system","Med","Not started","","Get things off the floor"],
+["Garage & Storage","Garage","Workbench + tool organization","Low","Not started","","Hypothetical — refine"],
+["Garage & Storage","Garage","Seasonal zones — tires, bikes, holiday bins","Low","Not started","","Hypothetical — refine"],
+["Garage & Storage","Garage","Garage door tune-up (lube, safety test)","Low","Not started","","Hypothetical — refine"],
+["Vehicles","Vehicle 1","Oil change + maintenance schedule on calendar","Med","Not started","","Refine per vehicle"],
+["Vehicles","Vehicle 1","Winter/summer tire swaps booked","High","Not started","","Manitoba — book early"],
+["Vehicles","Vehicle 1","Car seat installed + inspected","High","Not started","","Before due date"],
+["Vehicles","All","Registration + insurance renewals on calendar","Med","Not started","",""],
+["Vehicles","All","Interior detail + winter emergency kit","Med","Not started","","Hypothetical — refine"],
+["Vehicles","All","Windshield chips / wipers / fluids","Low","Not started","","Hypothetical — refine"],
+["Chores & Upkeep","System","Review Chores tab — edit to reality, assign who","Med","Not started","","See Chores tab"],
+["Food System","System","Build the weekly system: menu template + shop day + prep day","High","Not started","","The consistency goal"],
+["Food System","Recipes","Recipe bank — 10-12 proven weeknight meals","Med","Not started","",""],
+["Food System","Grocery","Master grocery list keyed to recipe bank","Med","Not started","",""],
+["Food System","Prep","Sunday batch-prep routine","Med","Not started","",""],
+["Food System","Freezer","Stock freezer meals pre-baby","High","Not started","","Future you will be grateful"],
+["Food System","Pantry","Staples list + restock threshold","Low","Not started","","Hypothetical — refine"],
+["Wardrobe & Laundry","Closet","Full closet purge","Med","Not started","","Hypothetical — refine"],
+["Wardrobe & Laundry","Wardrobe","Core work wardrobe defined","Low","Not started","","Hypothetical — refine"],
+["Wardrobe & Laundry","Laundry","Laundry schedule that holds (wash/fold/away days)","Med","Not started","",""],
+["Wardrobe & Laundry","Seasonal","Winter/summer swap + storage bins","Low","Not started","","Hypothetical — refine"],
+["Wardrobe & Laundry","Refresh","Replace worn basics","Low","Not started","","Hypothetical — refine"],
+["Wardrobe & Laundry","Care","Shoe care + mending pile cleared","Low","Not started","","Hypothetical — refine"],
+["Health & Fitness","Training","Define new routine — strength, baby-compatible","Med","Not started","","No running plan currently"],
+["Health & Fitness","Habits","Keep habit tracker streaks alive","Med","In progress","",""],
+["Health & Fitness","Medical","Annual checkup, dental, eyes booked","Med","Not started","","Hypothetical — refine"],
+["Health & Fitness","Sleep","Sleep protected pre-baby","Low","Not started","",""],
+["Work — Growth","Chambers HQ","Daily 20-send prospecting rhythm","High","In progress","","278 positive responders queued"],
+["Work — Growth","COIs","Steady coffee/lunch cadence","Med","In progress","",""],
+["Work — Growth","Pipeline","Weekly pipeline review (The Climb)","Med","In progress","",""],
+["Work — Service","Clients","Review cadence current for all households","High","In progress","",""],
+["Work — Service","Clients","Outstanding deliverables cleared","High","Not started","","Refine with real names"],
+["Work — Admin & Ops","Ops","Weekly Ops Cadence checklist run","Med","In progress","",""],
+["Work — Admin & Ops","Compliance","Notes / documentation current","Med","Not started","","Hypothetical — refine"],
+["Work — Admin & Ops","Systems","Inbox + CRM hygiene","Low","Not started","","Hypothetical — refine"],
+["Work — Content","Video","Script pipeline — next 4 videos","Med","In progress","",""],
+["Work — Content","LinkedIn","Posting cadence (2x/week?)","Med","Not started","",""],
+["Work — Content","Ideas","Content idea bank maintained","Low","In progress","",""],
+["Entrepreneurship","NorthPlan","Next build milestone","Med","In progress","",""],
+["Entrepreneurship","Dashboard suite","Maintenance / enhancements","Low","In progress","","8-tool family now"],
+["Entrepreneurship","Jo's business","Website + fitness tracker support","Med","In progress","",""],
+["Personal Finances","Cash flow","Mid-year check — spending vs budget","Med","Not started","",""],
+["Personal Finances","Savings","TFSA top-up plan for 2026","Med","Not started","",""],
+["Personal Finances","Protection","Wills + beneficiaries updated for baby","High","Not started","",""],
+["Personal Finances","Insurance","Home/auto reviewed at renewal","Low","Not started","","Hypothetical — refine"],
+["Community & Causes","Biz for Climate","Next commitment defined","Low","Not started","",""],
+["Community & Causes","Black History Manitoba","Next commitment defined","Low","Not started","",""],
+["Self-Development","Communication","Regular drills in Communicator","Low","In progress","",""],
+["Self-Development","Reading","Current book + next two queued","Low","Not started","","Hypothetical — refine"],
+["Relationships & Social","Network","One coffee/lunch per week","Low","Not started","",""],
+["Relationships & Social","Friends","Standing thing with the guys (monthly?)","Low","Not started","","Hypothetical — refine"],
+["Relationships & Social","Family","Grandparents-to-be visit/call cadence","Low","Not started","","Hypothetical — refine"],
+["Travel & Experiences","Babymoon","One last trip before baby?","Med","Not started","","Hypothetical — refine"],
+["Travel & Experiences","Local","Summer list — patios, lake days, festivals","Low","Not started","","Hypothetical — refine"],
+["Gifts & Celebrations","Calendar","Birthday/anniversary master list + reminders","Low","Not started","","Hypothetical — refine"],
+["Gifts & Celebrations","Ideas","Running gift-idea note per person","Low","Not started","","Hypothetical — refine"],
+["Tech & Digital Life","Backups","Photo library backed up automatically","Med","Not started","","Baby photos incoming"],
+["Tech & Digital Life","Security","Move stray credentials to password manager","Med","Not started","",""],
+["Tech & Digital Life","Subscriptions","Audit + cancel unused","Low","Not started","","Hypothetical — refine"],
+["Life Admin & Documents","Documents","IDs, passports, SIN — current + one folder","Med","Not started","","Baby paperwork joins soon"],
+["Life Admin & Documents","Filing","One home for all paper + digital docs","Low","Not started","","Hypothetical — refine"],
+["Life Admin & Documents","Errands","Standing errand list, batched on one day","Low","Not started","","Hypothetical — refine"]
+];
+
+const SEED_C=[
+["Daily","Kitchen reset — dishes, counters, sink","Kitchen","",""],
+["Daily","10-minute evening tidy","Whole house","",""],
+["Daily","Mail / packages dealt with","Admin","",""],
+["Weekly","Laundry — wash, fold, PUT AWAY","Wardrobe","","Pick fixed days"],
+["Weekly","Vacuum + floors","Whole house","",""],
+["Weekly","Bathrooms — toilets, sinks, mirrors","Bathrooms","",""],
+["Weekly","Sheets + towels","Bedrooms","",""],
+["Weekly","Garbage / recycling out","Whole house","","Night before pickup"],
+["Weekly","Grocery shop (master list)","Food","","Same day every week"],
+["Weekly","Meal prep session","Food","","Sunday batch"],
+["Weekly","Plan the week — calendar + Life Map","Admin","","Sunday review"],
+["Weekly","Lawn mow / snow clear (seasonal)","Exterior","",""],
+["Monthly","Deep-clean one room (rotates)","Whole house","",""],
+["Monthly","Furnace filter check","Utilities","","Replace every 1-3 months"],
+["Monthly","Fridge / freezer clean-out + inventory","Food","",""],
+["Monthly","Budget + spending review","Finances","",""],
+["Monthly","Car wash + interior tidy","Vehicles","",""],
+["Monthly","Maintenance walk — drips, cracks, squeaks","Whole house","",""],
+["Quarterly","Wardrobe pass — mend, purge, swap","Wardrobe","",""],
+["Quarterly","Gutter / downspout check","Exterior","","Spring + fall heavy"],
+["Quarterly","Test smoke + CO detectors","Safety","",""],
+["Quarterly","Declutter one storage zone","Storage","",""],
+["Annual","Furnace / HVAC service","Utilities","","Book fall"],
+["Annual","Tire swaps ×2 (spring + fall)","Vehicles","","Manitoba"],
+["Annual","Smoke/CO detector batteries","Safety","","Fixed date"],
+["Annual","Winterize — hose bibs, weatherstrip, snow gear","Exterior","","October"],
+["Annual","Insurance policies review","Finances","",""],
+["Annual","Taxes filed (Apr 30) + doc purge","Finances","",""],
+["Annual","Eaves / roof / caulking inspection","Exterior","",""],
+["Annual","Deep clean — windows, baseboards, vents","Whole house","",""]
+];
+
+
+/* ===================== storage ===================== */
+var KEY="lifemap_v1";
+var store=(function(){
+  var mem={};
+  function ok(){ try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); return true; }catch(e){ return false; } }
+  var has=ok();
+  return {
+    get:function(k){ try{ return Promise.resolve(has?localStorage.getItem(k):(mem[k]||null)); }catch(e){ return Promise.resolve(mem[k]||null); } },
+    set:function(k,v){ try{ if(has) localStorage.setItem(k,v); else mem[k]=v; }catch(e){ mem[k]=v; } }
+  };
+})();
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(m){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]; }); }
+
+var S={projects:[],chores:[],checks:{},log:[]};
+function seedState(){
+  return {
+    projects:SEED_P.map(function(p){ return {id:uid(),area:p[0],sub:p[1],task:p[2],pri:p[3],status:p[4],due:p[5],notes:p[6]}; }),
+    chores:SEED_C.map(function(c){ return {id:uid(),cad:c[0],chore:c[1],zone:c[2],who:c[3],notes:c[4]}; }),
+    checks:{}, log:[]
+  };
+}
+function save(){ store.set(KEY,JSON.stringify(S)); }
+
+/* ===================== dates + periods ===================== */
+function todayISO(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function isoToTs(iso){ if(!iso) return NaN; var p=String(iso).split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0); return d.getTime(); }
+function todayTs(){ var d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function daysUntil(iso){ var t=isoToTs(iso); if(isNaN(t)) return null; return Math.round((t-todayTs())/86400000); }
+function fmtDay(iso){ var t=isoToTs(iso); if(isNaN(t)) return ""; return new Date(t).toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+function periodKey(cad){
+  var d=new Date(), y=d.getFullYear();
+  if(cad==="Daily") return d.toDateString();
+  if(cad==="Weekly"){ var t=new Date(d); t.setHours(0,0,0,0); t.setDate(t.getDate()-((t.getDay()+6)%7)); return "W"+t.toDateString(); }
+  if(cad==="Monthly") return "M"+y+"-"+d.getMonth();
+  if(cad==="Quarterly") return "Q"+y+"-"+Math.floor(d.getMonth()/3);
+  return "Y"+y;
+}
+function isChecked(c){ return S.checks[c.id]===periodKey(c.cad); }
+
+/* ===================== model helpers ===================== */
+var STATUSES=["Not started","In progress","Done"];
+var PRIS=["High","Med","Low"];
+var CADS=["Daily","Weekly","Monthly","Quarterly","Annual"];
+function priColor(p){ return p==="High"?"var(--rose)":p==="Med"?"var(--gold)":"var(--muted)"; }
+function statusColor(s){ return s==="Done"?"var(--green)":s==="In progress"?"var(--blue)":"var(--muted)"; }
+function areaBy(name){ for(var i=0;i<AREAS.length;i++){ if(AREAS[i].name===name) return AREAS[i]; } return {name:name,icon:"\u2727",desc:""}; }
+function openProjects(){ return S.projects.filter(function(p){ return p.status!=="Done"; }); }
+function isOverdue(p){ var d=daysUntil(p.due); return p.status!=="Done" && d!==null && d<0; }
+function isDueSoon(p){ var d=daysUntil(p.due); return p.status!=="Done" && d!==null && d>=0 && d<=14; }
+function choresDue(){ return S.chores.filter(function(c){ return !isChecked(c); }); }
+function choresDueByCad(cad){ return S.chores.filter(function(c){ return c.cad===cad && !isChecked(c); }); }
+
+/* Focus = what actually deserves attention right now, ranked. */
+function focusItems(){
+  var out=[];
+  S.projects.forEach(function(p){
+    if(p.status==="Done") return;
+    var d=daysUntil(p.due), score=0, why="";
+    /* Anything due today or already overdue lives in the Today panel, so Focus
+       shows what is coming next instead of repeating the same rows. */
+    if(d!==null && d<=0) return;
+    if(d!==null && d<=14){ score=70-d; why=(d===1?"due tomorrow":"due in "+d+"d"); }
+    else if(p.pri==="High"){ score=50; why="high priority"; }
+    else return;
+    if(p.pri==="High") score+=12; else if(p.pri==="Med") score+=4;
+    if(p.status==="In progress") score+=6;
+    out.push({p:p,score:score,why:why});
+  });
+  out.sort(function(a,b){ return b.score-a.score; });
+  return out;
+}
+
+/* ===================== stats ===================== */
+function stats(){
+  var total=S.projects.length;
+  var done=S.projects.filter(function(p){ return p.status==="Done"; }).length;
+  var prog=S.projects.filter(function(p){ return p.status==="In progress"; }).length;
+  var open=total-done;
+  var hi=S.projects.filter(function(p){ return p.status!=="Done" && p.pri==="High"; }).length;
+  var over=S.projects.filter(isOverdue).length;
+  var soon=S.projects.filter(isDueSoon).length;
+  var ck=S.chores.filter(isChecked).length;
+  return {total:total,done:done,open:open,prog:prog,hi:hi,over:over,soon:soon,
+          pct: total?Math.round(done/total*100):0, choreDone:ck, choreTotal:S.chores.length,
+          chorePct: S.chores.length?Math.round(ck/S.chores.length*100):0};
+}
+function doneInLastDays(n){
+  var cut=todayTs()-(n-1)*86400000;
+  return (S.log||[]).filter(function(e){ return e.t==="proj" && isoToTs(e.d)>=cut; }).length;
+}
+
+/* ===================== UI: sections ===================== */
+function section(key,title,accent,teaser,content){
+  var open=!!(view.open[key]);
+  var h='<div class="panel" style="padding:0;overflow:hidden;margin-top:12px">';
+  h+='<button class="btn tap" data-act="section" data-key="'+key+'" style="width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px">';
+  h+='<div style="min-width:0;flex:1"><div class="eyebrow" style="color:'+accent+'">'+title+'</div>'+(teaser?'<div style="font-size:11px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+teaser+'</div>':'')+'</div>';
+  h+='<span style="color:'+accent+';font-size:19px;flex-shrink:0;display:inline-block;transform:rotate('+(open?"90":"0")+'deg);transition:transform .22s">\u203a</span>';
+  h+='</button>';
+  if(open) h+='<div class="fadeUp" style="padding:14px 16px 16px;border-top:1px solid var(--line)">'+content+'</div>';
+  h+='</div>';
+  return h;
+}
+
+/* ===================== UI: hero ===================== */
+function hero(st){
+  var h='<div class="appbar">';
+  h+='<a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">\u2302</a>';
+  h+='<div style="min-width:0"><div class="appbar-title">Life Map</div><div class="appbar-sub">Every Area, One Board</div></div>';
+  h+='<div class="appbar-pill">'+st.pct+'%<span style="width:6px;height:6px;border-radius:99px;background:'+(st.over?"var(--amber)":"var(--green)")+'"></span></div>';
+  h+='</div>';
+
+  return h;
+}
+function boardPanel(st){
+  var h='';
+  h+='<div style="text-align:center;margin-bottom:12px;padding-top:2px">';
+  h+='<div style="font-size:12px;color:var(--muted);font-style:italic;line-height:1.4">The whole life, in view. Nothing quietly rotting in a corner.</div></div>';
+
+  h+='<div class="panel" style="padding:16px">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">';
+  h+='<div><div class="eyebrow">The Board</div><div class="mono" style="font-size:27px;font-weight:700;color:var(--txt);margin-top:2px">'+st.pct+'<span style="font-size:14px;color:var(--dim)">%</span></div><div style="font-size:10.5px;color:var(--muted)">'+st.done+' of '+st.total+' complete</div></div>';
+  h+='<div style="text-align:right"><div class="mono" style="font-size:20px;font-weight:700;color:'+(st.over?"var(--amber)":"var(--green)")+'">'+st.open+'</div><div class="eyebrow" style="font-size:8.5px">still open</div></div>';
+  h+='</div>';
+  h+='<div class="bartrack" style="height:7px;margin-top:12px"><div class="fill" style="width:'+st.pct+'%;background:linear-gradient(90deg,#e2a32f,#f6cf6a)"></div></div>';
+  function tile(v,l,c){ return '<div style="flex:1;text-align:center;padding:9px 4px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid rgba(120,130,180,.1)"><div class="mono" style="font-size:16px;font-weight:700;color:'+(c||"var(--txt)")+'">'+v+'</div><div class="eyebrow" style="font-size:8px;margin-top:3px">'+l+'</div></div>'; }
+  h+='<div style="display:flex;gap:7px;margin-top:12px">'
+    + tile(st.over,"Overdue", st.over?"var(--amber)":"var(--dim)")
+    + tile(st.hi,"High Pri", st.hi?"var(--rose)":"var(--dim)")
+    + tile(st.prog,"Active","var(--blue)")
+    + tile(st.choreDone+"/"+st.choreTotal,"Chores","var(--green)")
+    + '</div>';
+  h+='</div>';
+  return h;
+}
+
+/* ===================== UI: today =====================
+   The board is a map of everything; this is the part of it that is actually
+   yours today. Daily chores plus anything the calendar says is due now, all
+   tickable from the top so the first screen is a to-do list, not an inventory. */
+function niceToday(){
+  try{ return new Date().toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"}); }
+  catch(e){ return todayISO(); }
+}
+function todayItems(){
+  var daily=S.chores.filter(function(c){ return c.cad==="Daily"; });
+  var dueNow=S.projects.filter(function(p){
+    if(p.status==="Done") return false;
+    var d=daysUntil(p.due);
+    return d!==null && d<=0;
+  }).sort(function(a,b){ return (daysUntil(a.due)||0)-(daysUntil(b.due)||0); });
+  var otherDue=S.chores.filter(function(c){ return c.cad!=="Daily" && !isChecked(c); });
+  return {daily:daily, dueNow:dueNow, otherDue:otherDue};
+}
+function todayPanel(){
+  var T=todayItems();
+  var dailyDone=T.daily.filter(isChecked).length;
+  var totalOpen=T.daily.length - dailyDone + T.dueNow.length;
+  var allClear=(totalOpen===0);
+
+  var h='<div class="panel" style="padding:16px;margin-top:12px;border-color:'+(allClear?"rgba(47,209,128,.35)":"rgba(69,200,216,.34)")+'">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:9px">';
+  h+='<div><div class="eyebrow" style="color:'+(allClear?"var(--green)":"var(--blue)")+'">Today</div>';
+  h+='<div style="font-size:11px;color:var(--dim);margin-top:2px">'+esc(niceToday())+'</div></div>';
+  h+='<div class="mono" style="font-size:11px;color:var(--dim);text-align:right">'
+    +(T.daily.length?dailyDone+'/'+T.daily.length+' chores':'')
+    +(T.dueNow.length?'<br><span style="color:var(--amber)">'+T.dueNow.length+' due</span>':'')+'</div>';
+  h+='</div>';
+
+  if(allClear){
+    h+='<div style="font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.5">'
+      +'Daily chores ticked, nothing due. Today is genuinely clear.</div>';
+  }
+
+  if(T.dueNow.length){
+    h+='<div style="margin-top:12px">';
+    T.dueNow.slice(0,6).forEach(function(p){
+      var a=areaBy(p.area), over=isOverdue(p), d=daysUntil(p.due);
+      h+='<div class="row" data-act="edit" data-id="'+p.id+'" style="display:flex;align-items:center;gap:11px;padding:8px 4px;border-bottom:1px solid rgba(120,130,180,.07);cursor:pointer">';
+      h+='<button class="btn tap" data-act="advance" data-stop="1" data-id="'+p.id+'" aria-label="advance" style="width:40px;height:40px;flex-shrink:0;border-radius:11px;border:1.5px solid '+(p.status==="In progress"?"var(--blue)":"var(--line)")+';background:'+(p.status==="In progress"?"rgba(88,150,240,.16)":"rgba(255,255,255,.03)")+';color:var(--blue);font-size:15px">'+(p.status==="In progress"?"\u25d0":"")+'</button>';
+      h+='<div style="flex:1;min-width:0">';
+      h+='<div style="font-size:13px;color:var(--txt);font-weight:500;line-height:1.3">'+esc(p.task)+'</div>';
+      h+='<div style="display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap">';
+      h+='<span style="font-size:10px;color:var(--dim)">'+a.icon+' '+esc(p.area)+'</span>';
+      h+='<span class="chip" style="color:'+(over?"var(--amber)":"var(--gold)")+';background:'+(over?"rgba(240,104,62,.12)":"rgba(240,183,62,.1)")+';border:1px solid '+(over?"rgba(240,104,62,.35)":"rgba(240,183,62,.28)")+'">'+(over?Math.abs(d)+"d overdue":"due today")+'</span>';
+      h+='</div></div></div>';
+    });
+    if(T.dueNow.length>6) h+='<div style="font-size:10.5px;color:var(--dim);margin-top:7px;text-align:center">and '+(T.dueNow.length-6)+' more due below</div>';
+    h+='</div>';
+  }
+
+  if(T.daily.length){
+    h+='<div style="margin-top:'+(T.dueNow.length?"14px;padding-top:13px;border-top:1px solid var(--line)":"12px")+'">';
+    h+='<div class="eyebrow" style="color:var(--green);font-size:9px;margin-bottom:7px">The daily rhythm</div>';
+    var sorted=T.daily.slice().sort(function(a,b){ return (isChecked(a)?1:0)-(isChecked(b)?1:0); });
+    sorted.forEach(function(c){
+      var on=isChecked(c);
+      h+='<div style="display:flex;align-items:center;gap:11px;padding:7px 4px;border-bottom:1px solid rgba(120,130,180,.06);opacity:'+(on?".5":"1")+'">';
+      h+='<button class="btn tap" data-act="tick" data-id="'+c.id+'" aria-label="tick" style="width:40px;height:40px;flex-shrink:0;border-radius:11px;border:1.5px solid '+(on?"var(--green)":"var(--line)")+';background:'+(on?"rgba(47,209,128,.16)":"rgba(255,255,255,.03)")+';color:var(--green);font-size:15px">'+(on?"\u2713":"")+'</button>';
+      h+='<div style="flex:1;min-width:0"><div style="font-size:12.5px;color:var(--txt);line-height:1.35;'+(on?"text-decoration:line-through":"")+'">'+esc(c.chore)+'</div>';
+      if(c.zone) h+='<div style="font-size:10px;color:var(--dim);margin-top:2px">'+esc(c.zone)+'</div>';
+      h+='</div></div>';
+    });
+    h+='</div>';
+  }
+
+  if(T.otherDue.length){
+    var byC={}; T.otherDue.forEach(function(c){ byC[c.cad]=(byC[c.cad]||0)+1; });
+    h+='<div style="margin-top:13px;padding-top:12px;border-top:1px solid var(--line)">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">';
+    h+='<span class="eyebrow" style="font-size:9px;color:var(--dim)">Still open this cycle</span>';
+    h+='<button class="btn tap" data-act="jumpChores" style="padding:5px 10px;border-radius:8px;font-size:10.5px;color:var(--green);background:rgba(47,209,128,.09);border:1px solid rgba(47,209,128,.28)">Open chores</button>';
+    h+='</div>';
+    h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">';
+    CADS.forEach(function(cad){ if(cad==="Daily"||!byC[cad]) return;
+      h+='<span class="chip" style="color:var(--dim);background:rgba(255,255,255,.03);border:1px solid var(--line)">'+cad+' '+byC[cad]+'</span>';
+    });
+    h+='</div></div>';
+  }
+
+  h+='</div>';
+  return h;
+}
+
+/* ===================== UI: focus ===================== */
+function focusPanel(){
+  var items=focusItems(), cd=[];   /* chores now live in the Today panel */
+  var showN=view.focusAll?items.length:5;
+  var h='<div class="panel" style="padding:16px;margin-top:12px;border-color:rgba(240,183,62,.3)">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline"><div class="eyebrow" style="color:var(--gold)">Coming up \u00b7 Next 14 days and high priority</div><span class="mono" style="font-size:10px;color:var(--dim)">'+items.length+'</span></div>';
+  if(!items.length && !cd.length){
+    h+='<div style="font-size:12px;color:var(--muted);margin-top:11px;line-height:1.5">Nothing due in the next two weeks and nothing flagged high priority. Everything live is in Today.</div></div>';
+    return h;
+  }
+  if(items.length){
+    h+='<div style="display:flex;flex-direction:column;gap:2px;margin-top:9px">';
+    items.slice(0,showN).forEach(function(f){
+      var p=f.p, a=areaBy(p.area), overdue=isOverdue(p);
+      h+='<div class="row" style="display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid rgba(120,130,180,.07)">';
+      h+='<button class="btn tap" data-act="advance" data-id="'+p.id+'" aria-label="advance" style="width:22px;height:22px;flex-shrink:0;margin-top:2px;border-radius:7px;border:1.5px solid '+statusColor(p.status)+';background:'+(p.status==="In progress"?"rgba(78,163,224,.18)":"rgba(255,255,255,.04)")+';display:grid;place-items:center;font-size:10px;color:'+statusColor(p.status)+'">'+(p.status==="In progress"?"\u25b6":"")+'</button>';
+      h+='<div style="flex:1;min-width:0">';
+      h+='<div style="font-size:13px;color:var(--txt);font-weight:500;line-height:1.3">'+esc(p.task)+'</div>';
+      h+='<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:4px">';
+      h+='<span style="font-size:10px;color:var(--dim)">'+a.icon+' '+esc(p.area)+'</span>';
+      h+='<span class="chip" style="color:'+(overdue?"var(--amber)":"var(--gold)")+';background:'+(overdue?"rgba(240,104,62,.12)":"rgba(240,183,62,.1)")+';border:1px solid '+(overdue?"rgba(240,104,62,.35)":"rgba(240,183,62,.28)")+'">'+esc(f.why)+'</span>';
+      if(p.pri==="High") h+='<span class="chip" style="color:var(--rose);background:rgba(240,98,138,.1);border:1px solid rgba(240,98,138,.3)">High</span>';
+      h+='</div></div>';
+      h+='<button class="btn tap" data-act="edit" data-stop="1" data-id="'+p.id+'" aria-label="Edit project" style="flex-shrink:0;width:38px;height:38px;margin:-2px -4px 0 0;border-radius:9px;display:grid;place-items:center;color:var(--muted);font-size:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)">\u270e</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+    if(items.length>5) h+='<button class="btn tap" data-act="focusAll" style="width:100%;margin-top:9px;padding:7px;border-radius:9px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--line)">'+(view.focusAll?"Show top 5":"Show all "+items.length)+'</button>';
+  }
+  if(cd.length){
+    var byC={}; cd.forEach(function(c){ byC[c.cad]=(byC[c.cad]||0)+1; });
+    h+='<div style="margin-top:13px;padding-top:12px;border-top:1px solid var(--line)">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow" style="color:var(--green);font-size:9px">Chores due this cycle</span><span class="mono" style="font-size:10px;color:var(--dim)">'+cd.length+' left</span></div>';
+    h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">';
+    CADS.forEach(function(cad){ if(!byC[cad]) return;
+      h+='<span class="chip" style="color:var(--green);background:rgba(47,209,128,.1);border:1px solid rgba(47,209,128,.28)">'+cad+' '+byC[cad]+'</span>';
+    });
+    h+='</div>';
+    var daily=choresDueByCad("Daily");
+    if(daily.length){
+      h+='<div style="margin-top:9px;display:flex;flex-direction:column;gap:2px">';
+      daily.forEach(function(c){
+        h+='<div class="row" style="display:flex;align-items:center;gap:9px;padding:7px 6px">';
+        h+='<button class="btn tap" data-act="tick" data-id="'+c.id+'" aria-label="tick" style="width:20px;height:20px;flex-shrink:0;border-radius:6px;border:1.5px solid rgba(150,160,200,.35);background:rgba(255,255,255,.04)"></button>';
+        h+='<span style="flex:1;min-width:0;font-size:12.5px;color:var(--txt)">'+esc(c.chore)+'</span>';
+        h+='<span style="font-size:9.5px;color:var(--dim)">'+esc(c.zone||"")+'</span></div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ===================== UI: the map ===================== */
+function mapView(){
+  var h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px">';
+  AREAS.forEach(function(a){
+    var ps=S.projects.filter(function(p){ return p.area===a.name; });
+    var done=ps.filter(function(p){ return p.status==="Done"; }).length;
+    var open=ps.length-done;
+    var over=ps.filter(isOverdue).length;
+    var hi=ps.filter(function(p){ return p.status!=="Done"&&p.pri==="High"; }).length;
+    var pct=ps.length?Math.round(done/ps.length*100):0;
+    var clear=ps.length&&open===0;
+    h+='<button class="btn tap" data-act="area" data-area="'+esc(a.name)+'" style="text-align:left;padding:12px;border-radius:13px;background:rgba(255,255,255,.025);border:1px solid '+(over?"rgba(240,104,62,.4)":clear?"rgba(47,209,128,.3)":"var(--line)")+'">';
+    h+='<div style="display:flex;align-items:center;gap:7px"><span style="font-size:17px">'+a.icon+'</span><span style="flex:1;min-width:0;font-size:12px;color:var(--txt);font-weight:600;line-height:1.2">'+esc(a.name)+'</span></div>';
+    h+='<div class="bartrack" style="height:4px;margin-top:9px"><div class="fill" style="width:'+pct+'%;background:'+(clear?"var(--green)":"linear-gradient(90deg,#e2a32f,#f6cf6a)")+'"></div></div>';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px">';
+    h+='<span class="mono" style="font-size:10px;color:'+(clear?"var(--green)":"var(--muted)")+'">'+(clear?"\u2713 clear":open+" open")+'</span>';
+    h+='<span style="display:flex;gap:3px">';
+    if(over) h+='<span class="chip" style="color:var(--amber);background:rgba(240,104,62,.12)">'+over+' late</span>';
+    else if(hi) h+='<span class="chip" style="color:var(--rose);background:rgba(240,98,138,.1)">'+hi+' hi</span>';
+    h+='</span></div>';
+    h+='</button>';
+  });
+  h+='</div>';
+  return h;
+}
+
+/* ===================== UI: projects ===================== */
+function projectsView(){
+  var inp='background:rgba(255,255,255,.05);border:1px solid rgba(150,160,200,.2);color:var(--txt);border-radius:9px;padding:7px 9px;font-size:12px';
+  var h='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+  h+='<input data-act="q" value="'+esc(view.q)+'" placeholder="Search tasks\u2026" style="flex:1;min-width:120px;'+inp+'"/>';
+  h+='<select data-act="fArea" style="'+inp+'"><option value="">All areas</option>'+AREAS.map(function(a){ return '<option'+(view.fArea===a.name?" selected":"")+'>'+esc(a.name)+'</option>'; }).join("")+'</select>';
+  h+='</div><div style="display:flex;gap:6px;margin-top:7px">';
+  h+='<select data-act="fStatus" style="flex:1;'+inp+'"><option value="_open"'+(view.fStatus==="_open"?" selected":"")+'>Open only</option><option value=""'+(view.fStatus===""?" selected":"")+'>Any status</option>'+STATUSES.map(function(s){ return '<option'+(view.fStatus===s?" selected":"")+'>'+s+'</option>'; }).join("")+'</select>';
+  h+='<select data-act="fPri" style="flex:1;'+inp+'"><option value="">Any priority</option>'+PRIS.map(function(p){ return '<option'+(view.fPri===p?" selected":"")+'>'+p+'</option>'; }).join("")+'</select>';
+  h+='</div>';
+
+  var list=S.projects.filter(function(p){
+    if(view.fArea && p.area!==view.fArea) return false;
+    if(view.fStatus==="_open"){ if(p.status==="Done") return false; }
+    else if(view.fStatus && p.status!==view.fStatus) return false;
+    if(view.fPri && p.pri!==view.fPri) return false;
+    if(view.q){ var q=view.q.toLowerCase(); if((p.task+" "+p.sub+" "+p.area+" "+(p.notes||"")).toLowerCase().indexOf(q)<0) return false; }
+    return true;
+  });
+  var pw={High:0,Med:1,Low:2};
+  list.sort(function(a,b){
+    var ao=isOverdue(a)?0:1, bo=isOverdue(b)?0:1; if(ao!==bo) return ao-bo;
+    var ad=daysUntil(a.due), bd=daysUntil(b.due);
+    if(ad!==null&&bd!==null&&ad!==bd) return ad-bd;
+    if(ad!==null&&bd===null) return -1;
+    if(bd!==null&&ad===null) return 1;
+    return (pw[a.pri]==null?3:pw[a.pri])-(pw[b.pri]==null?3:pw[b.pri]);
+  });
+
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 6px"><span class="mono" style="font-size:10.5px;color:var(--dim)">'+list.length+' shown</span>';
+  h+='<button class="btn tap" data-act="add" data-kind="proj" style="padding:6px 12px;border-radius:9px;font-size:11px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,var(--gold2),#e2a32f)">+ Project</button></div>';
+
+  if(!list.length){ h+='<div style="font-size:12px;color:var(--dim);font-style:italic;padding:14px 4px;text-align:center">Nothing matches. Loosen a filter.</div>'; return h; }
+
+  var cur=null;
+  list.forEach(function(p){
+    if(p.area!==cur){ cur=p.area; var a=areaBy(cur);
+      h+='<div style="display:flex;align-items:center;gap:6px;margin:13px 2px 5px"><span style="font-size:12px">'+a.icon+'</span><span class="eyebrow" style="font-size:9px;color:var(--muted)">'+esc(cur)+'</span></div>';
+    }
+    var over=isOverdue(p), d=daysUntil(p.due);
+    h+='<div class="row" data-act="edit" data-id="'+p.id+'" style="display:flex;align-items:flex-start;gap:9px;padding:9px 6px;border-bottom:1px solid rgba(120,130,180,.07);cursor:pointer;opacity:'+(p.status==="Done"?".55":"1")+'">';
+    h+='<button class="btn tap" data-act="advance" data-stop="1" data-id="'+p.id+'" aria-label="status" style="width:21px;height:21px;flex-shrink:0;margin-top:2px;border-radius:6px;border:1.5px solid '+statusColor(p.status)+';background:'+(p.status==="Done"?"var(--green)":p.status==="In progress"?"rgba(78,163,224,.18)":"rgba(255,255,255,.04)")+';display:grid;place-items:center">'+(p.status==="Done"?'<svg width="11" height="11" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7" fill="none" stroke="#0c0e1a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>':(p.status==="In progress"?'<span style="font-size:8px;color:var(--blue)">\u25b6</span>':''))+'</button>';
+    h+='<div style="flex:1;min-width:0">';
+    h+='<div style="font-size:12.5px;color:var(--txt);line-height:1.35;'+(p.status==="Done"?"text-decoration:line-through;color:var(--muted)":"")+'">'+esc(p.task)+'</div>';
+    h+='<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:4px">';
+    if(p.sub) h+='<span style="font-size:9.5px;color:var(--dim)">'+esc(p.sub)+'</span>';
+    if(p.pri) h+='<span class="chip" style="color:'+priColor(p.pri)+';background:rgba(255,255,255,.04);border:1px solid var(--line)">'+esc(p.pri)+'</span>';
+    if(p.due) h+='<span class="chip" style="color:'+(over?"var(--amber)":"var(--muted)")+';background:'+(over?"rgba(240,104,62,.12)":"rgba(255,255,255,.04)")+';border:1px solid '+(over?"rgba(240,104,62,.3)":"var(--line)")+'">'+(over?"\u26a0 ":"")+fmtDay(p.due)+'</span>';
+    if(p.notes) h+='<span style="font-size:9.5px;color:var(--dim);font-style:italic">'+esc(p.notes)+'</span>';
+    h+='</div></div>';
+    h+='<button class="btn tap" data-act="edit" data-id="'+p.id+'" aria-label="edit" style="flex-shrink:0;color:var(--dim);font-size:13px;padding:3px 5px">\u270e</button>';
+    h+='</div>';
+  });
+  return h;
+}
+
+/* ===================== UI: chores ===================== */
+function choresView(){
+  var h='';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+  h+='<span style="font-size:10.5px;color:var(--muted)">Ticks clear themselves when the period rolls over.</span>';
+  h+='<button class="btn tap" data-act="add" data-kind="chore" style="padding:6px 12px;border-radius:9px;font-size:11px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,var(--gold2),#e2a32f);white-space:nowrap">+ Chore</button></div>';
+  CADS.forEach(function(cad){
+    var cs=S.chores.filter(function(c){ return c.cad===cad; });
+    if(!cs.length) return;
+    var done=cs.filter(isChecked).length;
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 2px 6px"><span class="eyebrow" style="font-size:9px;color:'+(done===cs.length?"var(--green)":"var(--muted)")+'">'+cad+(done===cs.length?" \u2713":"")+'</span><span class="mono" style="font-size:9.5px;color:var(--dim)">'+done+'/'+cs.length+'</span></div>';
+    cs.forEach(function(c){
+      var on=isChecked(c);
+      h+='<div class="row" style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid rgba(120,130,180,.07)">';
+      h+='<button class="btn tap" data-act="tick" data-id="'+c.id+'" aria-label="tick" style="width:38px;height:38px;flex-shrink:0;border-radius:10px;border:1.5px solid '+(on?"var(--green)":"rgba(150,160,200,.32)")+';background:'+(on?"var(--green)":"rgba(255,255,255,.04)")+';display:grid;place-items:center">'+(on?'<svg width="11" height="11" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7" fill="none" stroke="#0c0e1a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+'</button>';
+      h+='<div style="flex:1;min-width:0"><div style="font-size:12.5px;color:'+(on?"var(--muted)":"var(--txt)")+';'+(on?"text-decoration:line-through":"")+'">'+esc(c.chore)+'</div>';
+      var meta=[c.zone,c.who,c.notes].filter(Boolean).join(" \u00b7 ");
+      if(meta) h+='<div style="font-size:9.5px;color:var(--dim);margin-top:2px">'+esc(meta)+'</div>';
+      h+='</div>';
+      h+='<button class="btn tap" data-act="editc" data-stop="1" data-id="'+c.id+'" aria-label="Edit chore" style="flex-shrink:0;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--muted);font-size:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)">\u270e</button>';
+      h+='</div>';
+    });
+  });
+  return h;
+}
+
+/* ===================== UI: momentum ===================== */
+function momentumView(st){
+  var h='';
+  var w4=doneInLastDays(28), w1=doneInLastDays(7);
+  function tile(v,l,c){ return '<div style="flex:1;text-align:center;padding:10px 4px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid rgba(120,130,180,.1)"><div class="mono" style="font-size:17px;font-weight:700;color:'+(c||"var(--txt)")+'">'+v+'</div><div class="eyebrow" style="font-size:8px;margin-top:3px">'+l+'</div></div>'; }
+  h+='<div style="display:flex;gap:7px">'+tile(w1,"Done (7d)","var(--green)")+tile(w4,"Done (28d)","var(--green)")+tile(st.chorePct+"%","Chores cycle","var(--gold)")+'</div>';
+
+  // 12-week bars of completions
+  var weeks=12, buckets=new Array(weeks).fill(0), t0=todayTs();
+  (S.log||[]).forEach(function(e){
+    if(e.t!=="proj") return;
+    var ts=isoToTs(e.d); if(isNaN(ts)) return;
+    var wk=Math.floor((t0-ts)/(7*86400000));
+    if(wk>=0 && wk<weeks) buckets[weeks-1-wk]++;
+  });
+  var mx=Math.max.apply(null,buckets.concat([1]));
+  h+='<div style="margin-top:14px"><div class="eyebrow" style="font-size:9px;color:var(--muted);margin-bottom:7px">Completions \u00b7 last 12 weeks</div>';
+  h+='<div style="display:flex;align-items:flex-end;gap:3px;height:56px">';
+  buckets.forEach(function(b,i){
+    var pct=Math.max(3,Math.round(b/mx*100));
+    h+='<div title="'+b+'" style="flex:1;height:'+pct+'%;border-radius:4px 4px 2px 2px;background:'+(b?"linear-gradient(180deg,#f6cf6a,#e2a32f)":"rgba(255,255,255,.05)")+'"></div>';
+  });
+  h+='</div><div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:8.5px;color:var(--dim)">12 wks ago</span><span style="font-size:8.5px;color:var(--dim)">this week</span></div></div>';
+
+  if(!(S.log||[]).length) h+='<div style="font-size:10.5px;color:var(--dim);margin-top:10px;line-height:1.5;font-style:italic">Mark projects Done and this fills in. It only counts completions from here forward, so the first bars start now.</div>';
+
+  // area leaderboard: most open
+  var rows=AREAS.map(function(a){
+    var ps=S.projects.filter(function(p){ return p.area===a.name && p.status!=="Done"; });
+    return {a:a,n:ps.length};
+  }).filter(function(r){ return r.n>0; }).sort(function(x,y){ return y.n-x.n; }).slice(0,5);
+  if(rows.length){
+    h+='<div style="margin-top:16px"><div class="eyebrow" style="font-size:9px;color:var(--muted);margin-bottom:7px">Heaviest areas \u00b7 most open</div>';
+    var top=rows[0].n;
+    rows.forEach(function(r){
+      h+='<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--txt)">'+r.a.icon+' '+esc(r.a.name)+'</span><span class="mono" style="color:var(--muted);font-size:10px">'+r.n+'</span></div>';
+      h+='<div class="bartrack" style="height:4px;margin-top:3px"><div class="fill" style="width:'+Math.round(r.n/top*100)+'%;background:linear-gradient(90deg,#e2a32f,#f6cf6a)"></div></div></div>';
+    });
+    h+='</div>';
+  }
+  return h;
+}
+
+/* ===================== UI: editor modal ===================== */
+function editorView(){
+  var e=view.editor; if(!e) return '';
+  var inp='width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(150,160,200,.22);color:var(--txt);border-radius:9px;padding:9px 10px;font-size:13px;margin-top:6px';
+  var isC=e.kind==="chore", isNew=!e.id;
+  var h='<div class="overlay" style="align-items:flex-start;overflow-y:auto"><div class="panel" style="max-width:460px;width:100%;margin:32px 0;padding:20px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><div class="eyebrow" style="color:var(--gold)">'+(isNew?"New":"Edit")+' '+(isC?"chore":"project")+'</div><div class="cinzel" style="font-size:18px;color:var(--txt);margin-top:2px">'+(isNew?"Add to the board":"Refine it")+'</div></div>';
+  h+='<button class="btn tap" data-act="closeEditor" style="padding:8px 14px;border-radius:10px;font-size:12px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line)">Cancel</button></div>';
+  if(isC){
+    h+='<label class="eyebrow" style="font-size:8.5px">Chore</label><input data-act="f" data-k="chore" value="'+esc(e.chore||"")+'" placeholder="What needs doing" style="'+inp+'"/>';
+    h+='<label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Cadence</label><select data-act="f" data-k="cad" style="'+inp+'">'+CADS.map(function(c){ return '<option'+((e.cad||"Weekly")===c?" selected":"")+'>'+c+'</option>'; }).join("")+'</select>';
+    h+='<div style="display:flex;gap:8px"><div style="flex:1"><label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Zone</label><input data-act="f" data-k="zone" value="'+esc(e.zone||"")+'" style="'+inp+'"/></div>';
+    h+='<div style="flex:1"><label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Who</label><input data-act="f" data-k="who" value="'+esc(e.who||"")+'" style="'+inp+'"/></div></div>';
+    h+='<label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Notes</label><input data-act="f" data-k="notes" value="'+esc(e.notes||"")+'" style="'+inp+'"/>';
+  } else {
+    h+='<label class="eyebrow" style="font-size:8.5px">Task</label><textarea data-act="f" data-k="task" rows="2" placeholder="What needs doing" style="'+inp+';resize:vertical">'+esc(e.task||"")+'</textarea>';
+    h+='<label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Area</label><select data-act="f" data-k="area" style="'+inp+'">'+AREAS.map(function(a){ return '<option'+((e.area||AREAS[0].name)===a.name?" selected":"")+'>'+esc(a.name)+'</option>'; }).join("")+'</select>';
+    h+='<label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Sub-area</label><input data-act="f" data-k="sub" value="'+esc(e.sub||"")+'" placeholder="e.g. Nursery" style="'+inp+'"/>';
+    h+='<div style="display:flex;gap:8px">';
+    h+='<div style="flex:1"><label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Priority</label><select data-act="f" data-k="pri" style="'+inp+'">'+PRIS.map(function(p){ return '<option'+((e.pri||"Med")===p?" selected":"")+'>'+p+'</option>'; }).join("")+'</select></div>';
+    h+='<div style="flex:1"><label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Status</label><select data-act="f" data-k="status" style="'+inp+'">'+STATUSES.map(function(s){ return '<option'+((e.status||"Not started")===s?" selected":"")+'>'+s+'</option>'; }).join("")+'</select></div>';
+    h+='</div>';
+    h+='<label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Due date</label><input type="date" data-act="f" data-k="due" value="'+esc(e.due||"")+'" style="'+inp+'"/>';
+    h+='<label class="eyebrow" style="font-size:8.5px;display:block;margin-top:10px">Notes</label><input data-act="f" data-k="notes" value="'+esc(e.notes||"")+'" style="'+inp+'"/>';
+  }
+  h+='<button class="btn cinzel tap" data-act="saveEditor" style="width:100%;margin-top:16px;padding:12px;border-radius:11px;font-size:13.5px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,var(--gold2),#e2a32f)">Save</button>';
+  if(!isNew) h+='<button class="btn tap" data-act="delEditor" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;font-size:11.5px;color:var(--rose);background:rgba(240,98,138,.08);border:1px solid rgba(240,98,138,.3)">Delete</button>';
+  h+='</div></div>';
+  return h;
+}
+
+/* ===================== render ===================== */
+var view={open:{},editor:null,q:"",fArea:"",fStatus:"_open",fPri:"",focusAll:false};
+var app=document.getElementById("app");
+function render(){
+  var st=stats();
+  var h='';
+  h+=hero(st);
+  h+=todayPanel();
+  h+=boardPanel(st);
+  h+=focusPanel();
+
+  var clear=AREAS.filter(function(a){ var ps=S.projects.filter(function(p){return p.area===a.name;}); return ps.length && ps.every(function(p){return p.status==="Done";}); }).length;
+  h+=section("map","The Board \u00b7 "+AREAS.length+" areas","var(--gold)",st.open+" open across the map"+(clear?" \u00b7 "+clear+" area"+(clear===1?"":"s")+" clear":""),mapView());
+  h+=section("proj","Projects","var(--blue)",st.open+" open \u00b7 "+st.done+" done \u00b7 "+st.hi+" high priority",projectsView());
+  h+=section("chores","Chores \u00b7 the rhythm","var(--green)",st.choreDone+" of "+st.choreTotal+" ticked this cycle",choresView());
+  h+=section("mom","Momentum","var(--violet)",doneInLastDays(7)+" completed in the last 7 days",momentumView(st));
+
+  var bs='padding:9px 14px;border-radius:10px;font-size:11px;color:#aab2d0;background:rgba(255,255,255,.03);border:1px solid var(--line);cursor:pointer';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px">'
+    +'<button class="btn tap" data-act="export" style="'+bs+'">\u2913 Export backup</button>'
+    +'<button class="btn tap" data-act="import" style="'+bs+'">\u2911 Import backup</button>'
+    +'<button class="btn tap" data-act="reset" style="'+bs+'">\u21ba Reset board</button>'
+    +'<input type="file" id="importFile" accept="application/json,.json" style="display:none"/></div>';
+  h+='<div class="mono" style="text-align:center;margin-top:13px;font-size:10.5px;color:#4e5573">saved in this browser</div>';
+  h+='<div class="mono" style="display:flex;gap:14px;justify-content:center;margin-top:15px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;flex-wrap:wrap"><a href="life-ledger.html" style="color:#5d647f;text-decoration:none">Life Ledger</a><a href="workout-forge.html" style="color:#5d647f;text-decoration:none">The Forge</a><span style="color:var(--gold)">\u25c8 Life Map</span></div>';
+
+  h+=editorView();
+  app.innerHTML=h;
+}
+
+/* ===================== actions ===================== */
+
+/* Destructive actions were one-way. Snapshot first, then keep Undo on screen. */
+var __undoT=null;
+function undoToast(msg, restore){
+  var t=document.getElementById('undoToast');
+  if(!t){ t=document.createElement('div'); t.id='undoToast'; document.body.appendChild(t); }
+  t.style.cssText="position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:95;"
+   +"background:rgba(20,23,38,.97);border:1px solid rgba(240,183,62,.5);color:#f6e2ad;padding:10px 16px;border-radius:12px;"
+   +"font-family:'Outfit',sans-serif;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.55);display:flex;align-items:center;gap:12px;max-width:92vw";
+  t.textContent='';
+  var s=document.createElement('span'); s.textContent=msg; t.appendChild(s);
+  var b=document.createElement('button'); b.textContent='Undo';
+  b.style.cssText="background:rgba(240,183,62,.16);border:1px solid rgba(240,183,62,.5);color:#f0b73e;font-family:inherit;"
+   +"font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;cursor:pointer;flex-shrink:0";
+  b.onclick=function(){ try{ restore(); }catch(e){} t.remove(); };
+  t.appendChild(b);
+  clearTimeout(__undoT); __undoT=setTimeout(function(){ if(t&&t.parentNode) t.remove(); },7000);
+}
+
+function toast(m){ var t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(toast._t); toast._t=setTimeout(function(){ t.classList.remove("on"); },2200); }
+
+function advance(id){
+  var p=S.projects.find(function(x){ return x.id===id; }); if(!p) return;
+  var i=STATUSES.indexOf(p.status); if(i<0) i=0;
+  var next=STATUSES[(i+1)%STATUSES.length];
+  p.status=next;
+  if(next==="Done"){ p.doneAt=todayISO(); S.log=S.log||[]; S.log.push({t:"proj",id:p.id,d:todayISO()}); toast("\u2713 Done: "+p.task.slice(0,38)); }
+  else { delete p.doneAt; S.log=(S.log||[]).filter(function(e){ return !(e.t==="proj"&&e.id===p.id); }); }
+  save(); render();
+}
+function tick(id){
+  var c=S.chores.find(function(x){ return x.id===id; }); if(!c) return;
+  var k=periodKey(c.cad);
+  if(S.checks[c.id]===k){ delete S.checks[c.id]; }
+  else { S.checks[c.id]=k; toast("\u2713 "+c.chore.slice(0,38)); }
+  save(); render();
+}
+
+app.addEventListener("click",function(ev){
+  var el=ev.target.closest("[data-act]"); if(!el) return;
+  var act=el.dataset.act, id=el.dataset.id, key=el.dataset.key;
+  if(act==="f") return;
+  if(act==="jumpChores"){
+    view.open["chores"]=true; render();
+    setTimeout(function(){
+      var t=document.querySelector('[data-act="section"][data-key="chores"]');
+      if(t) t.scrollIntoView({behavior:"smooth",block:"start"});
+    },70);
+    return;
+  }
+  if(act==="section"){ view.open[key]=!view.open[key]; render(); }
+  else if(act==="advance"){ advance(id); }
+  else if(act==="tick"){ tick(id); }
+  else if(act==="focusAll"){ view.focusAll=!view.focusAll; render(); }
+  else if(act==="area"){ view.fArea=el.dataset.area; view.fStatus="_open"; view.open.proj=true; render();
+    var pc=document.querySelector('[data-act="section"][data-key="proj"]'); if(pc) pc.scrollIntoView({behavior:"smooth",block:"start"}); }
+  else if(act==="edit"){ var p=S.projects.find(function(x){ return x.id===id; }); if(p){ view.editor=Object.assign({kind:"proj"},p); render(); } }
+  else if(act==="editc"){ var c=S.chores.find(function(x){ return x.id===id; }); if(c){ view.editor=Object.assign({kind:"chore"},c); render(); } }
+  else if(act==="add"){ view.editor=(el.dataset.kind==="chore")?{kind:"chore",cad:"Weekly"}:{kind:"proj",area:(view.fArea||AREAS[0].name),pri:"Med",status:"Not started"}; render(); }
+  else if(act==="closeEditor"){ view.editor=null; render(); }
+  else if(act==="saveEditor"){ saveEditor(); }
+  else if(act==="delEditor"){ delEditor(); }
+  else if(act==="export"){ exportData(); }
+  else if(act==="import"){ var f=document.getElementById("importFile"); if(f) f.click(); }
+  else if(act==="reset"){
+    uiConfirm("Reset the whole board?","Everything goes back to the seeded defaults. Export a backup first if you want a way back.","Reset board",function(){
+      var snap=JSON.stringify(S); S=seedState(); save(); render();
+      undoToast("Board reset to defaults", function(){ try{ S=JSON.parse(snap); save(); render(); }catch(e){} });
+    },true);
+  }
+});
+app.addEventListener("input",function(ev){
+  var el=ev.target.closest("[data-act]"); if(!el) return;
+  var act=el.dataset.act;
+  if(act==="f"){ if(view.editor) view.editor[el.dataset.k]=el.value; return; }
+  if(act==="q"){ view.q=el.value; var pos=el.selectionStart; render();
+    var q2=document.querySelector('[data-act="q"]'); if(q2){ q2.focus(); try{ q2.setSelectionRange(pos,pos); }catch(e){} } }
+});
+app.addEventListener("change",function(ev){
+  var el=ev.target.closest("[data-act]"); if(!el) return;
+  var act=el.dataset.act;
+  if(act==="f"){ if(view.editor) view.editor[el.dataset.k]=el.value; return; }
+  if(act==="fArea"){ view.fArea=el.value; render(); }
+  else if(act==="fStatus"){ view.fStatus=el.value; render(); }
+  else if(act==="fPri"){ view.fPri=el.value; render(); }
+  else if(el.id==="importFile"){ if(el.files&&el.files[0]) importData(el.files[0]); }
+});
+
+function saveEditor(){
+  var e=view.editor; if(!e) return;
+  if(e.kind==="chore"){
+    if(!(e.chore||"").trim()){ toast("Name the chore first"); return; }
+    if(e.id){ var c=S.chores.find(function(x){ return x.id===e.id; }); if(c){ c.chore=e.chore.trim(); c.cad=e.cad||"Weekly"; c.zone=e.zone||""; c.who=e.who||""; c.notes=e.notes||""; } }
+    else { S.chores.push({id:uid(),cad:e.cad||"Weekly",chore:e.chore.trim(),zone:e.zone||"",who:e.who||"",notes:e.notes||""}); }
+  } else {
+    if(!(e.task||"").trim()){ toast("Describe the task first"); return; }
+    if(e.id){ var p=S.projects.find(function(x){ return x.id===e.id; });
+      if(p){ var wasDone=p.status==="Done";
+        p.task=e.task.trim(); p.area=e.area||AREAS[0].name; p.sub=e.sub||""; p.pri=e.pri||"Med"; p.status=e.status||"Not started"; p.due=e.due||""; p.notes=e.notes||"";
+        if(p.status==="Done" && !wasDone){ p.doneAt=todayISO(); S.log=S.log||[]; S.log.push({t:"proj",id:p.id,d:todayISO()}); }
+        if(p.status!=="Done" && wasDone){ delete p.doneAt; S.log=(S.log||[]).filter(function(x){ return !(x.t==="proj"&&x.id===p.id); }); }
+      } }
+    else { var np={id:uid(),area:e.area||AREAS[0].name,sub:e.sub||"",task:e.task.trim(),pri:e.pri||"Med",status:e.status||"Not started",due:e.due||"",notes:e.notes||""};
+      if(np.status==="Done"){ np.doneAt=todayISO(); S.log=S.log||[]; S.log.push({t:"proj",id:np.id,d:todayISO()}); }
+      S.projects.push(np); }
+  }
+  view.editor=null; save(); render(); toast("Saved");
+}
+function delEditor(){
+  var e=view.editor; if(!e||!e.id) return;
+  var isC=e.kind==="chore";
+  var what=isC?(e.chore||"this chore"):(e.task||"this project");
+  uiConfirm("Delete "+(isC?"chore":"project")+"?", what, "Delete", function(){
+    var snap=JSON.stringify(isC?S.chores:S.projects);
+    if(isC) S.chores=S.chores.filter(function(x){ return x.id!==e.id; });
+    else S.projects=S.projects.filter(function(x){ return x.id!==e.id; });
+    view.editor=null; save(); render();
+    undoToast("Deleted", function(){ try{ if(isC) S.chores=JSON.parse(snap); else S.projects=JSON.parse(snap); save(); render(); }catch(er){} });
+  }, true);
+}
+
+function exportData(){
+  try{
+    var payload={app:"life-map",version:2,exportedAt:new Date().toISOString(),projects:S.projects,chores:S.chores,checks:S.checks,log:S.log||[]};
+    var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download="life-map-"+todayISO()+".json"; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },500);
+    toast("\u2713 Backup exported");
+  }catch(e){ toast("Export failed"); }
+}
+function importData(file){
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var o=JSON.parse(r.result);
+      if(!o || !Array.isArray(o.projects)){ toast("No board in that file"); return; }
+      S.projects=o.projects; 
+      if(Array.isArray(o.chores)) S.chores=o.chores;
+      if(o.checks && typeof o.checks==="object") S.checks=o.checks;
+      S.log=Array.isArray(o.log)?o.log:[];
+      save(); render(); toast("\u2713 Imported ("+S.projects.length+" projects)");
+    }catch(e){ toast("Couldn\u2019t read that file"); }
+  };
+  r.onerror=function(){ toast("Couldn\u2019t read that file"); };
+  r.readAsText(file);
+}
+
+/* Chores reset by period, so a page left open across a rollover would show
+   stale ticks. Re-render when the day changes or the app is resumed. */
+var lastDay=todayISO();
+function dayRollCheck(){ var t=todayISO(); if(t!==lastDay){ lastDay=t; render(); } }
+document.addEventListener("visibilitychange",function(){ if(!document.hidden) dayRollCheck(); });
+window.addEventListener("pageshow",function(e){ if(e && e.persisted) dayRollCheck(); });
+window.addEventListener("focus",dayRollCheck);
+setInterval(dayRollCheck,60000);
+
+/* ===================== boot ===================== */
+store.get(KEY).then(function(v){
+  var parsed=null;
+  if(v){ try{ parsed=JSON.parse(v); }catch(e){ parsed=null; } }
+  if(parsed && Array.isArray(parsed.projects)){
+    S=parsed;
+    if(!Array.isArray(S.chores)) S.chores=[];
+    if(!S.checks || typeof S.checks!=="object") S.checks={};
+    if(!Array.isArray(S.log)) S.log=[];   // migrate older saves
+  } else {
+    S=seedState(); save();
+  }
+  render();
+});
+render();
+
+/* Ask the browser to treat this data as persistent. Browsers evict storage from
+   sites you have not visited recently, and all eight tools live in that storage.
+   This is a request, not a guarantee, which is why the Vault backup still matters. */
+(function(){
+  try{
+    if(navigator.storage && navigator.storage.persist && navigator.storage.persisted){
+      navigator.storage.persisted().then(function(already){
+        if(!already) navigator.storage.persist();
+      }).catch(function(){});
+    }
+  }catch(e){}
+})();
+
+
+/* ---------- in-page dialogs ----------
+   iOS blocks confirm(), prompt() and alert() inside home-screen web apps: they
+   return instantly as if cancelled, so any button behind one silently does
+   nothing. Everything here renders in the page instead. */
+function uiClose(){ var o=document.getElementById("uiDlg"); if(o) o.remove(); }
+function uiShell(inner){
+  uiClose();
+  var w=document.createElement("div");
+  w.id="uiDlg";
+  w.style.cssText="position:fixed;inset:0;z-index:9000;background:rgba(6,7,14,.72);backdrop-filter:blur(3px);"
+   +"display:flex;align-items:center;justify-content:center;padding:18px";
+  w.innerHTML='<div style="max-width:420px;width:100%;background:#141830;border:1px solid rgba(120,130,180,.28);'
+   +'border-radius:16px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6);font-family:inherit;color:#eef0fb;'
+   +'max-height:86vh;overflow-y:auto">'+inner+'</div>';
+  w.addEventListener("click",function(e){ if(e.target===w) uiClose(); });
+  document.body.appendChild(w);
+  return w;
+}
+function uiNote(msg){
+  uiShell('<div style="font-size:13.5px;line-height:1.55;margin-bottom:14px">'+msg+'</div>'
+   +'<button id="uiOk" style="width:100%;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;'
+   +'font-size:13px;font-weight:700;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f)">OK</button>');
+  document.getElementById("uiOk").onclick=uiClose;
+}
+function uiConfirm(title, body, okLabel, onOk, danger){
+  var col=danger?"linear-gradient(180deg,#f6889e,#e2456a)":"linear-gradient(180deg,#f6cf6a,#e2a32f)";
+  uiShell('<div style="font-size:15px;font-weight:700;margin-bottom:6px">'+title+'</div>'
+   +(body?'<div style="font-size:12.5px;line-height:1.55;color:#9aa2c0;margin-bottom:14px">'+body+'</div>':'<div style="height:8px"></div>')
+   +'<div style="display:flex;gap:8px">'
+   +'<button id="uiCancel" style="flex:1;padding:11px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;'
+   +'font-weight:600;color:#9aa2c0;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">Cancel</button>'
+   +'<button id="uiOk" style="flex:1;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;'
+   +'font-size:12.5px;font-weight:700;color:#0c0e1a;background:'+col+'">'+(okLabel||"Confirm")+'</button></div>');
+  document.getElementById("uiCancel").onclick=uiClose;
+  document.getElementById("uiOk").onclick=function(){ uiClose(); try{ onOk(); }catch(e){} };
+}
+/* fields: [{k,label,type:'text'|'number'|'date'|'select',value,options:[[val,label]]}]
+   onOk receives an object keyed by k. Returning false keeps the sheet open. */
+function uiAsk(title, fields, onOk, okLabel){
+  var body='<div style="font-size:15px;font-weight:700;margin-bottom:12px">'+title+'</div>';
+  fields.forEach(function(f){
+    var st="width:100%;background:rgba(10,12,22,.7);color:#eef0fb;border:1px solid rgba(120,130,180,.28);"
+      +"border-radius:10px;padding:10px 11px;font-size:14px;outline:none;margin-top:5px;-webkit-appearance:none;min-height:44px";
+    body+='<div style="margin-bottom:11px"><label style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;'
+      +'color:#8089a8;font-weight:600">'+f.label+'</label>';
+    if(f.type==="select"){
+      body+='<select id="uiF_'+f.k+'" style="'+st+'">'+(f.options||[]).map(function(o){
+        return '<option value="'+String(o[0]).replace(/"/g,"&quot;")+'"'+(String(f.value)===String(o[0])?" selected":"")+'>'+o[1]+'</option>';
+      }).join("")+'</select>';
+    } else {
+      body+='<input id="uiF_'+f.k+'" type="'+(f.type||"text")+'"'
+        +(f.type==="number"?' inputmode="decimal"':'')
+        +' value="'+String(f.value==null?"":f.value).replace(/"/g,"&quot;")+'" style="'+st+'"/>';
+    }
+    body+='</div>';
+  });
+  body+='<div id="uiErr" style="font-size:11.5px;color:#f0683e;min-height:14px;margin-bottom:8px"></div>';
+  body+='<div style="display:flex;gap:8px">'
+   +'<button id="uiCancel" style="flex:1;padding:11px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;'
+   +'font-weight:600;color:#9aa2c0;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">Cancel</button>'
+   +'<button id="uiOk" style="flex:1;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;'
+   +'font-size:12.5px;font-weight:700;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f)">'+(okLabel||"Save")+'</button></div>';
+  uiShell(body);
+  document.getElementById("uiCancel").onclick=uiClose;
+  document.getElementById("uiOk").onclick=function(){
+    var out={};
+    fields.forEach(function(f){ var el=document.getElementById("uiF_"+f.k); out[f.k]=el?el.value:""; });
+    var res;
+    try{ res=onOk(out); }catch(e){ res=undefined; }
+    if(res===false){ return; }
+    uiClose();
+  };
+  var first=document.getElementById("uiF_"+fields[0].k);
+  if(first){ first.focus(); if(first.select) first.select(); }
+}
+function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent=msg; }
+
+</script>
+</body>
+</html>
