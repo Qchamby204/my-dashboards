@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ops Cadence">
+<meta name="theme-color" content="#0c0e1a">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%230c0e1a%22%2F%3E%3Cpath%20d%3D%22M32%2014%20a18%2018%200%201%201%20-14%206.7%22%20fill%3D%22none%22%20stroke%3D%22%232fd180%22%20stroke-width%3D%224.5%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M27%2013%20L34%2010%20L34.5%2018%20Z%22%20fill%3D%22%232fd180%22%2F%3E%3Cpath%20d%3D%22M24%2033%20l6%206%2012%20-14%22%20fill%3D%22none%22%20stroke%3D%22%234fe0a0%22%20stroke-width%3D%224.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E"/>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAHwElEQVR4nO3dMXbUSBCA4Ro/Qj8fgNQ5e4KJOMgS+RBERBxiIl+EyCdY8kl9AD/nbACCtmhJ3a1udVX1/6WwY430u6bG1iwnUeKf/7782/sYUO56vjy+vjyfeh9HtwMgYN96BX7oF1yL+Hq+PB54KKjs/unh09KfHRl38y+yFDEB+7YUeOu4mz1wLGQiHlMs7lZhV3/AechEjNA87tphVw06jJmQsSYMu2bUVR6EqYwSLab17qCZytir5rS+2XMgxIwawnbunx4+3d69/1H6WEXfCYSMVvZO6+wJTcxoae+0zgqamHGEPVEnB03MOFJp1NkrBzHjKCWtJQU9TWdixtGm5lKn9GbQxIzecqJeDZp7lqHNVtRJKwfTGb2lNrgYNKsGtElZPaJBs2pAu6WoV1cOpjO02Wryr6BZNaDd2uqx6247QJs3QTOdYcXSlGZCwxWChiu/g2bdgDWxtYMJDVcIGq6cRFg3YNv0OcTr+fLIhIYrBG3I/dND70NQj6CNuX96IOwVJ/ZnW+YxX8+XTkeiy7RHv+t8HNgpDJy4WTlcYR0haJdGDpugjclZK0YMm6AHMFLYvCkcyAhvIJnQG7xONq9Tmwkdof1CX8+Xasc4PY6Xic2EDixNLe2B7+UlZhEmtIj4D3aNp5hFCHrYmL2FPBl25ch9U6Qt/D1Beo1ZZNCgtcV5JM8xiwy2cowcsoj/mEUGCnpPzCOE4MUQK0dpzNfzRXXMucc2wiuU+6BLLqL2kPfwHrXblaM05BF4++1gyOWEJuY0Hqe1u6BzL5L19SI89pLn4i1qd0HnsBzy3DzsUbkKOmfaeLroseeS+8kWL9wEnXpRrK8YOXKeq5eoXQSdE/OIRorafNDEnGaUqM0HnWL0mCcjnAfTQVufJlpZPq9mg2bVKON99TAbdApijvN8XkwGnTI9PF+0GlLOj8UpbS5oiyfZMmvn21zQKZjOaTyeJ1NBs2rU5231MBU0/vj4/WvvQ1DJTNBM5z+mmGtF7WlKmwkaP80j/vj9K9M64CboUabzkr1Rezl/JoK28nLX2la0rae1hetgIugtXqbLmpxQS6P2cB5dBO1dbqDfPnxudCT6qQ/awstcS9pi1n491Ae9xcPLpCbWz6f5oD3TNp0tUB209pe3ljTHrPm6qA56i/WXxyW9Y7Z8Xk0HDdaMOYJWhl9j70PQivReNTxQG7TmNx4tWItZ6/VRG/QWy29c5jTGbPX8mg0aiCHozjROZ8sIuiNiro+gOyHmNgh6Q4ufCxNzOwS9ovaHUdEeQS+IfRi1xeNuYTrnIeiIpej2Rk3M7RH0TMoHUVs87hwxlyHoQGp0uXES83EI+pfWkeIYBC1t1wim87HMBl3zbq89Ea0FazlmrXfTbVEb9NF3e9WO2nLMKbTejac26B5aTeqWXxdvEfRMjah5w9gPQUccOamZznWZDrrlG5cjQtMas9U3hCLKg+79xqNlcFpjTtH7uqxRHbQGlsMbkfmgj3h5rB215m8Sy+uGiIGgtby81YpQc8wptFyPJeqD1mRvjNZjtsBF0Ee+TJZGaSFm6+uGiJGgtb3MWYizBW3XIcZE0CmOni45UVv4BvAwnUUcBd1DSqgWYvbETNBa//neKdh5uN8+fDYTs6d/dvpd7wPwYClqHM/MhBbRO6Ut8zSdRYwFnYqo03g8T+aCtjQtPLB2vs0FLcLqUYO3VWNiMuhURB3n+byYDTp1eni+eCVSz4fF6SxiOGgRuyddO8vn1XTQqZjSP41wHswHzeqRxvuqMTEftAhRbxklZhEnQYvkRT1K2DnP1UPMIo6CFsm7KN6jznl+XmIWcRZ0Lq9Re31eKdwFnTttPK0gJc/F03QWcRi0SNlFsh51yfF7i1nE8f3Q08XKudDT37V0oQn5LZcTOlQ6rbVP7NJj9ByzyABBi5RfRI1h7zkm7zGLOF455q7nS3EI4X/XI4oa31QjxCwyUNAiZXv13FFx13plGCXkyVBBT/ZM61DsMTT9hGW0mEUGDVqkzrSO0bBzjxjyZIg3hWu8XXxvzyfXsBM61GpaH2n0kCcEHbAYNiG/RdARYSQa4ybiZQS9QUvcRJyGoDMcHTcR5yPoQrHY9kROvHUQdEVE2d/wP4eGLwQNV26u58ujiMj908OnvocClJnavZ4vjzevL8+nzscDVMPKAVcIGq7ciPzcPUTYo2FPuD+L/AqaPRoevL48n1g54MrvoFk7YM183RAJgmbtgGVTv6wccOVN0KwdsCK2bojMgmbtgEVht3+tHExpaLc0nUUiQYe1EzW0mTc53yqibwpj5QOaLDUaDfr15fnE6gFt5qtG7D3f4o/tWD2gydaqMVn9OTSrB7TZanI1aFYPaJCyakw2f1NI1OgpJ2aRxF99s0+jh9S9OZR8L0e4uxA1Wgsby3kvlxx0uHrMvyBQUyzm1Nsysu62I2q0tidmEZGim5Fu797/WPriQImllnJvmNt1d93t3fsfRI299k7l0O7bRedRhwcFrFnqZs9tzFXuf2YFQa5aK8Zc1Rv6mdbY0mIqh6p/QiU2rSfEPaatFmp+UqrZR67WwhYhbu9SrnuLj/w1/wzhFLbI+s+tCdy2nGvb8rOrh34oNjVu2HdkxKFun/IO4xYhcOtir7A9/i8C/wMPdTTg+yF89wAAAABJRU5ErkJggg=="/>
+<title>Operations Cadence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1424;
+    --ink-2: #1b2739;
+    --surface: #0c0e1a;
+    --card: #141830;
+    --card-done: #12241d;
+    --accent: #2fd180;
+    --accent-bright: #4fe0a0;
+    --accent-soft: rgba(47, 209, 128, 0.14);
+    --amber: #f0b73e;
+    --amber-soft: rgba(240, 183, 62, 0.14);
+    --text: #eef0fb;
+    --muted: #8089a8;
+    --faint: #6f7798;
+    --line: rgba(120, 130, 180, 0.18);
+    --line-soft: rgba(120, 130, 180, 0.10);
+    --rail-line: rgba(255, 255, 255, 0.12);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px -18px rgba(0,0,0,0.8);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 450;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono {
+    font-family: 'Space Mono', monospace;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .shell {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left)) calc(2rem + env(safe-area-inset-bottom)) max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-right));
+  }
+
+  /* App chrome. The blurred fill runs up under the Dynamic Island so the clock,
+     signal, wifi and battery never sit on top of content. */
+.homebtn{display:grid;place-items:center;width:33px;height:33px;border-radius:10px;flex-shrink:0;
+  border:1px solid rgba(240,183,62,.35);background:rgba(240,183,62,.10);color:#f0b73e;
+  font-size:15px;line-height:1;text-decoration:none;margin-right:9px}
+.homebtn:active{transform:scale(.93)}
+  .appbar {
+    position: sticky; top: 0; z-index: 50;
+    margin: 0 calc(-1 * max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left)));
+    padding: calc(env(safe-area-inset-top, 0px) + 11px) max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left)) 11px max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-right));
+    background: rgba(12, 14, 26, 0.90);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .appbar-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.01em; white-space: nowrap; line-height: 1.1; }
+  .appbar-sub { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); margin-top: 2px; white-space: nowrap; }
+  .appbar-pill {
+    display: flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 999px;
+    background: var(--accent-soft); border: 1px solid rgba(47, 209, 128, 0.4);
+    font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: var(--accent-bright);
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    padding: clamp(2rem, 5vw, 3.25rem) 0 1.75rem;
+  }
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.7rem;
+  }
+  .title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5.5vw, 3.15rem);
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+    color: var(--text);
+  }
+  .sub {
+    color: var(--muted);
+    font-size: 0.98rem;
+    margin-top: 0.55rem;
+    max-width: 40ch;
+  }
+
+  .overall {
+    text-align: right;
+    min-width: 210px;
+  }
+  .overall-nums {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 2rem;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .overall-nums span { color: var(--faint); font-weight: 500; }
+  .overall-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.45rem;
+  }
+  .overall-bar {
+    height: 5px;
+    background: var(--line);
+    border-radius: 99px;
+    margin-top: 0.65rem;
+    overflow: hidden;
+  }
+  .overall-bar > i {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+    border-radius: 99px;
+    transition: width 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 236px 1fr;
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+    padding-bottom: 4rem;
+    align-items: start;
+  }
+
+  /* ---------- CADENCE RAIL ---------- */
+  .rail {
+    position: sticky;
+    top: 1.25rem;
+    background: var(--ink);
+    border-radius: 18px;
+    padding: 0.6rem;
+    box-shadow: var(--shadow);
+  }
+  .rail-head {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    padding: 0.65rem 0.75rem 0.55rem;
+  }
+  .rail-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.62);
+    padding: 0.7rem 0.7rem;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .rail-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+  .rail-btn.active { background: var(--ink-2); color: #fff; }
+  .rail-btn.active .ring-track { stroke: rgba(255,255,255,0.16); }
+
+  .ring { flex: 0 0 auto; }
+  .ring-track { stroke: rgba(255,255,255,0.12); }
+  .ring-fill {
+    stroke: var(--accent-bright);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s cubic-bezier(.2,.7,.2,1);
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+  .rail-txt { flex: 1 1 auto; min-width: 0; }
+  .rail-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    font-size: 0.94rem;
+    letter-spacing: -0.01em;
+    display: block;
+  }
+  .rail-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.66rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.04em;
+  }
+  .rail-btn.active .rail-count { color: rgba(255,255,255,0.6); }
+  .rail-btn.complete .rail-count { color: var(--accent-bright); }
+
+  /* ---------- PANEL ---------- */
+  .panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding-bottom: 1.35rem;
+    margin-bottom: 1.35rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .panel-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .panel-eyebrow b { color: var(--accent); font-weight: 700; }
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3.5vw, 1.95rem);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.05;
+  }
+  .panel-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .panel-prog { text-align: right; }
+  .panel-prog .big {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--text);
+    line-height: 1;
+  }
+  .panel-prog .big span { color: var(--faint); font-weight: 500; }
+  .panel-prog .lbl {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+  .reset {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+  .reset:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-soft); }
+
+  /* ---------- TASK LIST ---------- */
+  .tasks { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .task {
+    background: var(--card);
+    border: 1px solid var(--line-soft);
+    border-left: 3px solid transparent;
+    border-radius: 14px;
+    padding: 0.95rem 1.05rem;
+    box-shadow: 0 1px 2px rgba(20,29,43,0.03);
+    transition: border-color 0.2s, background 0.25s, box-shadow 0.2s, transform 0.15s;
+  }
+  .task:hover { box-shadow: var(--shadow); }
+  .task.done {
+    background: var(--card-done);
+    border-left-color: var(--accent);
+  }
+
+  .task-row { display: flex; align-items: flex-start; gap: 0.9rem; }
+
+  .check {
+    flex: 0 0 auto;
+    width: 24px; height: 24px;
+    margin-top: 1px;
+    border-radius: 7px;
+    border: 1.75px solid rgba(150,160,200,0.35);
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: border-color 0.2s, background 0.2s;
+    padding: 0;
+  }
+  .check:hover { border-color: var(--accent); }
+  .check svg { width: 14px; height: 14px; }
+  .check .tick {
+    stroke: #fff; stroke-width: 3; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 22; stroke-dashoffset: 22;
+    transition: stroke-dashoffset 0.28s ease 0.02s;
+  }
+  .task.done .check { background: var(--accent); border-color: var(--accent); }
+  .task.done .check .tick { stroke-dashoffset: 0; }
+
+  .task-body { flex: 1 1 auto; min-width: 0; }
+  .task-text {
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.45;
+    transition: color 0.2s;
+  }
+  .task.done .task-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
+  .chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 6px;
+    padding: 0.16rem 0.44rem;
+  }
+  .chip.due { color: var(--amber); background: var(--amber-soft); border-color: transparent; }
+
+  .note-btn {
+    flex: 0 0 auto;
+    border: none; background: transparent; cursor: pointer;
+    color: var(--faint);
+    padding: 0.25rem; border-radius: 8px;
+    display: grid; place-items: center;
+    transition: color 0.2s, background 0.2s;
+    margin-top: -1px;
+  }
+  .note-btn:hover { color: var(--accent); background: var(--accent-soft); }
+  .note-btn.has-note { color: var(--accent); }
+  .note-btn svg { width: 18px; height: 18px; }
+
+  .edit-btn {
+    flex: 0 0 auto;
+    border: none; background: transparent; cursor: pointer;
+    color: var(--faint);
+    padding: 0.25rem; border-radius: 8px;
+    display: grid; place-items: center;
+    transition: color 0.2s, background 0.2s;
+    margin-top: -1px;
+  }
+  .edit-btn:hover { color: var(--accent); background: var(--accent-soft); }
+  .edit-btn svg { width: 17px; height: 17px; }
+  .edit-input {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.3rem 0.5rem;
+    outline: none;
+    background: var(--ink);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .note-wrap {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.28s ease;
+  }
+  .note-wrap.open { max-height: 200px; }
+  textarea {
+    width: 100%;
+    margin-top: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 0.6rem 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    resize: vertical;
+    min-height: 62px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea::placeholder { color: var(--faint); }
+  textarea:focus { border-color: var(--accent); }
+
+  .all-clear {
+    text-align: center;
+    padding: 1.4rem;
+    margin-top: 0.6rem;
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .all-clear.show { opacity: 1; }
+
+  /* ---------- PANEL NAV ---------- */
+  .panel-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--line);
+  }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.7rem 0.95rem;
+    cursor: pointer;
+    color: var(--text);
+    font-family: inherit;
+    box-shadow: 0 1px 2px rgba(20,29,43,0.03);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.12s, background 0.2s;
+    min-width: 0;
+  }
+  .nav-btn:hover:not(:disabled) { border-color: var(--accent); box-shadow: var(--shadow); }
+  .nav-btn:active:not(:disabled) { transform: translateY(1px); }
+  .nav-btn:disabled { opacity: 0.4; cursor: default; }
+  .nav-btn.next { margin-left: auto; }
+  .nav-arrow {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .nav-btn:disabled .nav-arrow { color: var(--faint); }
+  .nav-txt { text-align: left; min-width: 0; }
+  .nav-btn.next .nav-txt { text-align: right; }
+  .nav-kicker {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+  }
+  .nav-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+    display: block;
+  }
+
+  /* ---------- RAIL DIVIDER + LOG BUTTON ---------- */
+  .rail-div {
+    height: 1px;
+    background: var(--rail-line);
+    margin: 0.5rem 0.5rem;
+  }
+  .rail-btn .rail-icon {
+    flex: 0 0 auto;
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    color: rgba(255,255,255,0.55);
+  }
+  .rail-btn.active .rail-icon { color: var(--accent-bright); }
+  .rail-btn .rail-icon svg { width: 18px; height: 18px; }
+  .rail-badge {
+    display: inline-block;
+    min-width: 18px;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: #0c0e1a;
+    background: var(--accent-bright);
+    border-radius: 99px;
+    padding: 0.05rem 0.35rem;
+    margin-left: 0.1rem;
+  }
+  .rail-badge.zero { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.5); }
+
+  /* ---------- LOG VIEW ---------- */
+  .log-sub { color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; max-width: 46ch; }
+
+  .log-add {
+    display: flex;
+    gap: 0.55rem;
+    margin-bottom: 1.35rem;
+    flex-wrap: wrap;
+  }
+  .log-add input[type="text"] {
+    flex: 1 1 260px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.75rem 0.9rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--card);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .log-add input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .log-add input[type="date"] {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.7rem 0.8rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: var(--card);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .log-add input[type="date"]:focus { border-color: var(--accent); }
+  .log-add-btn {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    letter-spacing: 0.01em;
+    border-radius: 12px;
+    padding: 0.75rem 1.35rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.12s;
+  }
+  .log-add-btn:hover { background: var(--accent-bright); }
+  .log-add-btn:active { transform: translateY(1px); }
+
+  .log-list { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+
+  .log-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    background: var(--card);
+    border: 1px solid var(--line-soft);
+    border-left: 3px solid transparent;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    box-shadow: 0 1px 2px rgba(20,29,43,0.03);
+    animation: rise 0.3s cubic-bezier(.2,.7,.2,1) both;
+    transition: background 0.25s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .log-item:hover { box-shadow: var(--shadow); }
+  .log-item.done { background: var(--card-done); border-left-color: var(--accent); }
+
+  .log-item .check { margin-top: 0; }
+  .log-body { flex: 1 1 auto; min-width: 0; }
+  .log-text { font-size: 0.95rem; color: var(--text); line-height: 1.45; word-break: break-word; }
+  .log-item.done .log-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+
+  .log-due {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .log-due.overdue { color: var(--amber); font-weight: 700; }
+  .log-due.today { color: var(--accent); font-weight: 700; }
+
+  .log-del {
+    flex: 0 0 auto;
+    border: none; background: transparent; cursor: pointer;
+    color: var(--faint);
+    padding: 0.25rem; border-radius: 8px;
+    display: grid; place-items: center;
+    transition: color 0.2s, background 0.2s;
+  }
+  .log-del:hover { color: var(--amber); background: var(--amber-soft); }
+  .log-del svg { width: 17px; height: 17px; }
+
+  .log-divider {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 1rem 0 0.3rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .log-empty {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .log-add select {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.7rem 0.8rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    color: var(--muted);
+    background: var(--card);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .log-add select:focus { border-color: var(--accent); }
+
+  .cat-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 0.14rem 0.44rem;
+    margin-top: 0.4rem;
+    display: inline-block;
+  }
+  .cat-chip.uncat { color: var(--amber); background: var(--amber-soft); }
+
+  /* ---------- INSIGHTS ---------- */
+  #insightsView h2 { margin-bottom: 0.4rem; }
+  .insights-sub { color: var(--muted); font-size: 0.9rem; max-width: 52ch; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.7rem;
+    margin: 1.5rem 0;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 1px 2px rgba(20,29,43,0.03);
+  }
+  .stat .num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 1.85rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat .lbl {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  .module {
+    background: var(--card);
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    padding: 1.25rem 1.35rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(20,29,43,0.03);
+  }
+  .module-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    margin-bottom: 1.1rem;
+  }
+  .module-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 1.08rem;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .module-note { font-size: 0.8rem; color: var(--muted); max-width: 30ch; text-align: right; }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 0.9rem;
+    align-items: center;
+    padding: 0.4rem 0;
+  }
+  .bar-row + .bar-row { border-top: 1px solid var(--line-soft); }
+  .bar-label { font-size: 0.88rem; color: var(--text); min-width: 0; }
+  .bar-label .meta { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--faint); display: block; margin-top: 0.15rem; }
+  .bar-track {
+    grid-column: 1 / -1;
+    height: 7px;
+    background: var(--surface);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.2,.7,.2,1);
+  }
+  .bar-fill.amber { background: linear-gradient(90deg, var(--amber), #d29456); }
+  .bar-count {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .freq-table { width: 100%; border-collapse: collapse; }
+  .freq-table th {
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0.6rem 0.55rem 0;
+    font-weight: 400;
+  }
+  .freq-table th.n, .freq-table td.n { text-align: right; white-space: nowrap; }
+  .freq-table td {
+    padding: 0.55rem 0.6rem 0.55rem 0;
+    border-top: 1px solid var(--line-soft);
+    font-size: 0.86rem;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .freq-table td.n { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--text); }
+  .freq-table td .cad {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    display: block;
+    margin-top: 0.15rem;
+  }
+  .flag { color: var(--amber); font-weight: 700; }
+
+  .spark {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 90px;
+    margin-top: 0.4rem;
+  }
+  .spark-bar {
+    flex: 1 1 0;
+    background: linear-gradient(180deg, var(--accent-bright), var(--accent));
+    border-radius: 4px 4px 0 0;
+    min-height: 3px;
+    transition: height 0.5s ease;
+  }
+  .spark-axis {
+    display: flex; justify-content: space-between;
+    font-family: 'Space Mono', monospace; font-size: 0.56rem; color: var(--faint);
+    margin-top: 0.4rem;
+  }
+
+  .bin-list { display: flex; flex-direction: column; }
+  .bin-row {
+    display: grid;
+    grid-template-columns: 84px 1fr auto;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding: 0.6rem 0;
+    font-size: 0.88rem;
+  }
+  .bin-row + .bin-row { border-top: 1px solid var(--line-soft); }
+  .bin-date { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+  .bin-text { color: var(--text); min-width: 0; }
+  .candidate {
+    background: var(--amber-soft);
+    border-radius: 10px;
+    padding: 0.7rem 0.85rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.86rem;
+    color: var(--text);
+    display: flex; justify-content: space-between; gap: 0.8rem; align-items: baseline;
+  }
+  .candidate b { font-family: 'Space Grotesk', sans-serif; }
+  .candidate .times { font-family: 'Space Mono', monospace; font-size: 0.66rem; color: var(--amber); white-space: nowrap; }
+
+  .export-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.3rem; }
+  .export-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 1.4rem 0 2.5rem;
+    color: var(--faint);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+  footer a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+  footer a:hover { color: var(--accent); }
+
+  /* entrance animation */
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .task { animation: rise 0.34s cubic-bezier(.2,.7,.2,1) both; }
+
+  :focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 780px) {
+    .layout { grid-template-columns: 1fr; }
+    .rail {
+      position: sticky;
+      top: calc(env(safe-area-inset-top, 0px) + 56px);
+      z-index: 40;
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding: 0.5rem;
+      scrollbar-width: none;
+    }
+    .rail::-webkit-scrollbar { display: none; }
+    .rail-head { display: none; }
+    /* The base rule sets width:100%, which made every cadence button full-width
+       so only "Daily" was visible and the rest were hidden off-screen. */
+    .rail-btn { flex: 0 0 auto; width: auto; flex-direction: column; align-items: center; gap: 0.3rem; padding: 0.5rem 0.55rem; min-width: 64px; }
+    .rail-txt { text-align: center; }
+    .rail-label { font-size: 0.72rem; }
+    .overall { text-align: left; min-width: 0; width: 100%; }
+    .overall-bar { max-width: 260px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="appbar">
+    <a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">&#8962;</a>
+    <div style="min-width:0">
+      <div class="appbar-title">Operations Cadence</div>
+      <div class="appbar-sub">Practice Admin Workflow</div>
+    </div>
+    <div class="appbar-pill" id="barPill">0 / 0</div>
+  </div>
+
+  <header>
+    <div class="title-row">
+      <div>
+        <p class="sub">Your back-office responsibilities, organized by the rhythm they actually run on.</p>
+      </div>
+      <div class="overall">
+        <div class="overall-nums" id="ovNums">0<span> / 0</span></div>
+        <div class="overall-label">Tasks checked today</div>
+        <div class="overall-bar"><i id="ovBar"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="rail" id="rail" aria-label="Cadence">
+      <div class="rail-head">Cadence</div>
+    </nav>
+
+    <main>
+      <!-- TODAY VIEW -->
+      <section id="todayView" hidden>
+        <div class="panel-head">
+          <div>
+            <div class="panel-eyebrow" id="tEyebrow"></div>
+            <h2 id="tTitle">Today</h2>
+          </div>
+          <div class="panel-meta">
+            <div class="panel-prog">
+              <div class="big" id="tBig">0<span>/0</span></div>
+              <div class="lbl">Done today</div>
+            </div>
+          </div>
+        </div>
+        <div id="todayBody"></div>
+      </section>
+
+      <!-- CADENCE VIEW -->
+      <section id="cadenceView">
+        <div class="panel-head">
+          <div>
+            <div class="panel-eyebrow" id="pEyebrow"></div>
+            <h2 id="pTitle"></h2>
+          </div>
+          <div class="panel-meta">
+            <div class="panel-prog">
+              <div class="big" id="pBig">0<span>/0</span></div>
+              <div class="lbl">Complete</div>
+            </div>
+            <button class="reset" id="pReset">Clear checks</button>
+          </div>
+        </div>
+
+        <ul class="tasks" id="taskList"></ul>
+        <div class="all-clear" id="allClear">All clear for this cadence</div>
+
+        <div class="panel-nav">
+          <button class="nav-btn prev" id="navPrev">
+            <span class="nav-arrow">&lsaquo;</span>
+            <span class="nav-txt"><span class="nav-kicker">Previous</span><span class="nav-name" id="navPrevName"></span></span>
+          </button>
+          <button class="nav-btn next" id="navNext">
+            <span class="nav-txt"><span class="nav-kicker">Next</span><span class="nav-name" id="navNextName"></span></span>
+            <span class="nav-arrow">&rsaquo;</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- LOG VIEW -->
+      <section id="logView" hidden>
+        <div class="panel-head">
+          <div>
+            <div class="panel-eyebrow"><b>Task log</b> &nbsp;·&nbsp; logged as it comes up</div>
+            <h2>Running task log</h2>
+            <p class="log-sub">One-off tasks and events that fall outside your set cadences. Add them here, set a due date, check them off.</p>
+          </div>
+          <div class="panel-meta">
+            <div class="panel-prog">
+              <div class="big" id="logBig">0<span> open</span></div>
+              <div class="lbl">To do</div>
+            </div>
+            <button class="reset" id="logClear">Clear done</button>
+          </div>
+        </div>
+
+        <div class="log-add">
+          <input type="text" id="logInput" placeholder="Log a task or event" aria-label="Task description" autocomplete="off">
+          <select id="logCat" aria-label="Category"></select>
+          <input type="date" id="logDate" aria-label="Due date">
+          <button class="log-add-btn" id="logAddBtn">Add</button>
+        </div>
+
+        <ul class="log-list" id="logList"></ul>
+        <div class="log-empty" id="logEmpty">Nothing logged yet. Add the first thing that came up.</div>
+      </section>
+
+      <!-- INSIGHTS VIEW -->
+      <section id="insightsView" hidden>
+        <div class="panel-head" style="border-bottom:none; padding-bottom:0.4rem; margin-bottom:0.4rem;">
+          <div>
+            <div class="panel-eyebrow"><b>Insights</b> &nbsp;·&nbsp; refine your workflow</div>
+            <h2>What actually gets done</h2>
+            <p class="insights-sub">Every completed task is recorded with a timestamp. Over time this shows real frequency, so you can promote recurring ad-hoc tasks into set cadences and retire what you never touch.</p>
+          </div>
+        </div>
+        <div id="insightsBody"></div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <span>Operations Cadence</span>
+    <span>Saved in this browser</span>
+  </footer>
+</div>
+
+<script>
+const STORE_KEY = 'operationsCadence.v1';
+
+const DATA = [
+  { id:'daily', label:'Daily', cadence:'Resets each day', tasks:[
+    { t:"Read Daily Commission Sheet on SharePoint and understand restricted account commission details", sys:"SharePoint" },
+    { t:"Review previous day's transactions in Charles River (cash movement, transfers, fees, trades, commissions)", sys:"Charles River" },
+    { t:"Review debits, credits, and debit interest in Charles River, confirming interest-covering policies", sys:"Charles River" },
+    { t:"Check Trigger Reports on SharePoint and document notes and Salesforce follow-up", sys:"SharePoint" },
+    { t:"Review all SharePoint reports for required actions", sys:"SharePoint" },
+    { t:"Review and action tasks in Salesforce", sys:"Salesforce" },
+    { t:"Check Open Orders in Charles River and Host on Demand", sys:"Charles River" },
+    { t:"Check for Reorg Reports on SharePoint and set Salesforce reminders where needed", sys:"SharePoint" },
+    { t:"Call clients on rotation list and add notes in Salesforce", sys:"Salesforce" },
+    { t:"Read research and GPAG communications and document the research process", sys:"Research" },
+    { t:"Call prospects on rotation list and add notes in Salesforce", sys:"Salesforce" },
+    { t:"Follow up on WealthOne approvals for new accounts and maintenance", sys:"WealthOne" }
+  ]},
+  { id:'weekly', label:'Weekly', cadence:'Resets each week', tasks:[
+    { t:"Correct DTR and DPR rejections from rejection emails", sys:"DTR / DPR" },
+    { t:"Check for restricted accounts and documentation in ADTS (HOD), tracking commissions when restrictions are removed", sys:"ADTS / HOD" },
+    { t:"Check maturities and expiries in Charles River", sys:"Charles River" },
+    { t:"Follow up on outstanding client account transfer-ins", sys:"Transfers" },
+    { t:"Business development: call a COI to schedule a meeting", sys:"Business Dev" },
+    { t:"Read the SM Weekly Communication email", sys:"Email" },
+    { t:"Prepare weekly client meetings (agendas, reports, risk ratings, missing KYC, CASL and consent)", sys:"Client Prep" },
+    { t:"Business development: attend an event (networking, prospecting, or client focused)", sys:"Business Dev" },
+    { t:"Ensure all filing and records are organized for the week", sys:"Records" },
+    { t:"Check PA360 for open inquiries and follow up immediately", sys:"PA360" }
+  ]},
+  { id:'monthly', label:'Monthly', cadence:'Resets each month', tasks:[
+    { t:"Manage the External Household Program Report on SharePoint", sys:"SharePoint" },
+    { t:"Review Scorecard and household accuracy in PriceMetrix", sys:"PriceMetrix" },
+    { t:"Review Fee Calc reports (linked accounts, free trades, restricted accounts, and similar)", sys:"Fee Calc" },
+    { t:"Review updates on Practice Excellence", sys:"Practice Excellence" },
+    { t:"Review the Family ID Report on SharePoint", sys:"SharePoint" },
+    { t:"Review RRIF Payment Exceptions and ensure cash is available for payments", sys:"RRIF" }
+  ]},
+  { id:'quarterly', label:'Quarterly', cadence:'Resets each quarter', tasks:[
+    { t:"Check fees prior to the billing cycle in PureFees and verify cash availability", sys:"PureFees" },
+    { t:"Run fee calc reports in advance to avoid debit positions", sys:"Fee Calc" },
+    { t:"Review low-revenue relationships in PriceMetrix for growth opportunities", sys:"PriceMetrix" },
+    { t:"Review and update CASL and Consent to Share lists in Salesforce", sys:"Salesforce" }
+  ]},
+  { id:'annually', label:'Annually', cadence:'Resets each year', tasks:[
+    { t:"Send RESP contribution reminders", sys:"RESP", due:"November" },
+    { t:"Send RRSP and TFSA contribution reminders", sys:"RRSP / TFSA", due:"January" },
+    { t:"Check FundServ for DSC fees", sys:"FundServ", due:"January" },
+    { t:"Renew insurance license and set an annual reminder in Salesforce", sys:"Licensing" },
+    { t:"Prepare and send client tax packages", sys:"Tax", due:"February" },
+    { t:"Check PureFees annual summaries for accuracy and send to clients", sys:"PureFees" },
+    { t:"Plan business development activities and the annual marketing budget", sys:"Business Dev" },
+    { t:"Update me@scotiabank profile", sys:"Profile" },
+    { t:"Review maturing accounts and convert RRSP to RRIF as appropriate", sys:"RRIF" },
+    { t:"Review relief from discount sharing dates and process, setting recurring reminders", sys:"Compliance" },
+    { t:"Use the Fee Absorb App to cover annual registered account fees where appropriate", sys:"Fee Absorb" }
+  ]},
+  { id:'adhoc', label:'Ad-Hoc', cadence:'As it comes up', tasks:[
+    { t:"Check continuing education and compliance credit requirements", sys:"CE / Compliance" },
+    { t:"Follow the New Issue process and job aids", sys:"New Issue" },
+    { t:"Set up new households in Charles River (accounts, benchmarks, INFO tab)", sys:"Charles River" },
+    { t:"Update the advisor team website", sys:"Website" },
+    { t:"Document estate account details in Salesforce", sys:"Salesforce" },
+    { t:"Check client account statements on SCORE for accuracy", sys:"SCORE" },
+    { t:"Complete all me@scotiabank learning on time", sys:"Learning" },
+    { t:"Review zero-balance accounts for annual purge, ensuring documents are saved", sys:"Purge" },
+    { t:"Review the PureFacts cover page and team information, updating via BA", sys:"PureFacts" },
+    { t:"Manage new client onboarding (accounts, rotations, NPS, fees, Heritage, profile details)", sys:"Onboarding" },
+    { t:"Ensure CASL and preferred contact details are current in Salesforce", sys:"Salesforce" },
+    { t:"Manage the client account closing process (fees, statements, balances, RGL reports, list removals)", sys:"Account Closing" },
+    { t:"Track additional team-specific tasks (marketing, birthdays, newsletters, courses, partner meetings)", sys:"Team" }
+  ]}
+];
+
+// ---------- state ----------
+const LOG_CATEGORIES = ['Client Service','Compliance','Operations','Business Development','Planning','Insurance','Estate','Onboarding','Tech & Tools','Admin','Other'];
+const chartIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+let state = load();
+let active = 'today';
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return {};
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function keyFor(sid, i) { return sid + ':' + i; }
+
+/* ---------- periods ----------
+   "Resets each day" used to be a label, not behaviour: a tick stayed ticked
+   forever, so nothing could truthfully answer "what do I need to do today".
+   Completions now carry the period they happened in, and a tick from a past
+   period simply stops counting. Notes are reference material and always stay. */
+function isoDay(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function periodFor(sid) {
+  const d = new Date(), y = d.getFullYear();
+  if (sid === 'daily')     return isoDay(d);
+  if (sid === 'weekly')  { const t = new Date(d); t.setHours(0,0,0,0); t.setDate(t.getDate() - ((t.getDay()+6)%7)); return 'W' + isoDay(t); }
+  if (sid === 'monthly')   return 'M' + y + '-' + d.getMonth();
+  if (sid === 'quarterly') return 'Q' + y + '-' + Math.floor(d.getMonth()/3);
+  if (sid === 'annually')  return 'Y' + y;
+  return 'perm';                       /* ad-hoc never auto-resets */
+}
+function get(sid, i) {
+  const raw = state[keyFor(sid,i)];
+  if (!raw) return { done:false, note:'' };
+  const fresh = (raw.p === undefined) || (raw.p === periodFor(sid));
+  return { done: fresh ? !!raw.done : false, note: raw.note || '' };
+}
+function set(sid, i, obj) {
+  const k = keyFor(sid,i);
+  const base = Object.assign({ done:false, note:'' }, state[k], obj);
+  if (obj && obj.done !== undefined) base.p = obj.done ? periodFor(sid) : undefined;
+  state[k] = base;
+  save();
+}
+/* One-time: stamp completions made before periods existed as belonging to the
+   current period, so upgrading does not appear to wipe today's work. */
+function migratePeriods() {
+  if (state.__periodsV1) return;
+  DATA.forEach(sec => sec.tasks.forEach((_, i) => {
+    const k = keyFor(sec.id, i), raw = state[k];
+    if (raw && raw.done && raw.p === undefined) raw.p = periodFor(sec.id);
+  }));
+  state.__periodsV1 = true;
+  save();
+}
+
+/* ---------- pinning a cadence task to a date ----------
+   A weekly or annual item often has a real day it belongs on. Pin it and it
+   turns up in Today on that date instead of living in a list you must remember
+   to open. */
+function getSched() { if (!state.sched) state.sched = {}; return state.sched; }
+function schedFor(sid, i) { return getSched()[keyFor(sid,i)] || ''; }
+function setSched(sid, i, iso) {
+  const g = getSched();
+  if (iso) g[keyFor(sid,i)] = iso; else delete g[keyFor(sid,i)];
+  save();
+}
+
+// ---------- editable task names (overrides) ----------
+function getOverrides() { if (!state.overrides) state.overrides = {}; return state.overrides; }
+function labelFor(sid, i, task) {
+  const o = getOverrides()[keyFor(sid, i)];
+  return o || (task ? task.t : DATA.find(s => s.id === sid).tasks[i].t);
+}
+function setOverride(sid, i, label, orig) {
+  const o = getOverrides();
+  label = (label || '').trim();
+  if (!label || label === orig) delete o[keyFor(sid, i)];
+  else o[keyFor(sid, i)] = label;
+  save();
+}
+
+// ---------- completion event log (analysis backbone) ----------
+function getEvents() { if (!Array.isArray(state.events)) state.events = []; return state.events; }
+function addEvent(ev) {
+  getEvents().push(Object.assign({
+    id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    ts: Date.now()
+  }, ev));
+  save();
+}
+function removeLastEvent(pred) {
+  const e = getEvents();
+  for (let i = e.length - 1; i >= 0; i--) {
+    if (pred(e[i])) { e.splice(i, 1); save(); return; }
+  }
+}
+
+function sectionStats(sec) {
+  let done = 0;
+  sec.tasks.forEach((_, i) => { if (get(sec.id,i).done) done++; });
+  return { done, total: sec.tasks.length };
+}
+
+// ---------- rail ----------
+const rail = document.getElementById('rail');
+function buildRail() {
+  const todayBtn = document.createElement('button');
+  todayBtn.className = 'rail-btn';
+  todayBtn.dataset.id = 'today';
+  todayBtn.setAttribute('aria-label', 'Today');
+  todayBtn.innerHTML = `
+    <span class="rail-icon">${sunIcon}</span>
+    <span class="rail-txt">
+      <span class="rail-label">Today</span>
+      <span class="rail-count mono" id="railTodayCount">0 left</span>
+    </span>`;
+  todayBtn.addEventListener('click', () => { active = 'today'; render(); });
+  rail.appendChild(todayBtn);
+
+  const d0 = document.createElement('div');
+  d0.className = 'rail-div';
+  rail.appendChild(d0);
+
+  DATA.forEach(sec => {
+    const btn = document.createElement('button');
+    btn.className = 'rail-btn';
+    btn.dataset.id = sec.id;
+    btn.setAttribute('aria-label', sec.label + ' tasks');
+    btn.innerHTML = `
+      <svg class="ring" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+        <circle class="ring-track" cx="15" cy="15" r="12" fill="none" stroke-width="3"></circle>
+        <circle class="ring-fill" cx="15" cy="15" r="12" fill="none" stroke-width="3"
+          stroke-dasharray="75.4" stroke-dashoffset="75.4"></circle>
+      </svg>
+      <span class="rail-txt">
+        <span class="rail-label">${sec.label}</span>
+        <span class="rail-count mono"></span>
+      </span>`;
+    btn.addEventListener('click', () => { active = sec.id; render(); });
+    rail.appendChild(btn);
+  });
+
+  const div = document.createElement('div');
+  div.className = 'rail-div';
+  rail.appendChild(div);
+
+  const logBtn = document.createElement('button');
+  logBtn.className = 'rail-btn';
+  logBtn.dataset.id = 'log';
+  logBtn.setAttribute('aria-label', 'Task log');
+  logBtn.innerHTML = `
+    <span class="rail-icon">${inboxIcon}</span>
+    <span class="rail-txt">
+      <span class="rail-label">Log</span>
+      <span class="rail-count mono">0 open</span>
+    </span>`;
+  logBtn.addEventListener('click', () => { active = 'log'; render(); });
+  rail.appendChild(logBtn);
+
+  const insBtn = document.createElement('button');
+  insBtn.className = 'rail-btn';
+  insBtn.dataset.id = 'insights';
+  insBtn.setAttribute('aria-label', 'Insights');
+  insBtn.innerHTML = `
+    <span class="rail-icon">${chartIcon}</span>
+    <span class="rail-txt">
+      <span class="rail-label">Insights</span>
+      <span class="rail-count mono">0 done</span>
+    </span>`;
+  insBtn.addEventListener('click', () => { active = 'insights'; render(); });
+  rail.appendChild(insBtn);
+}
+
+function updateRail() {
+  DATA.forEach(sec => {
+    const btn = rail.querySelector(`.rail-btn[data-id="${sec.id}"]`);
+    const { done, total } = sectionStats(sec);
+    const frac = total ? done/total : 0;
+    const circ = 2 * Math.PI * 12;
+    btn.querySelector('.ring-fill').setAttribute('stroke-dashoffset', (circ * (1 - frac)).toFixed(2));
+    btn.querySelector('.rail-count').textContent = `${done}/${total}`;
+    btn.classList.toggle('active', sec.id === active);
+    btn.classList.toggle('complete', done === total && total > 0);
+  });
+
+  const tBtn = rail.querySelector('.rail-btn[data-id="today"]');
+  if (tBtn) {
+    const C = todayCounts();
+    tBtn.querySelector('.rail-count').textContent = C.left ? C.left + ' left' : 'clear';
+    tBtn.classList.toggle('active', active === 'today');
+    tBtn.classList.toggle('complete', C.left === 0);
+  }
+
+  const logBtn = rail.querySelector('.rail-btn[data-id="log"]');
+  if (logBtn) {
+    const open = logOpenCount();
+    logBtn.querySelector('.rail-count').textContent = (open === 1 ? '1 open' : open + ' open');
+    logBtn.classList.toggle('active', active === 'log');
+    logBtn.classList.toggle('complete', open === 0 && getLog().length > 0);
+  }
+
+  const insBtn = rail.querySelector('.rail-btn[data-id="insights"]');
+  if (insBtn) {
+    const n = getEvents().length;
+    insBtn.querySelector('.rail-count').textContent = (n === 1 ? '1 done' : n + ' done');
+    insBtn.classList.toggle('active', active === 'insights');
+  }
+}
+
+// ---------- panel ----------
+const taskList = document.getElementById('taskList');
+const allClear = document.getElementById('allClear');
+
+const noteIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H15l5 5v9.5A1.5 1.5 0 0 1 18.5 20h-13A1.5 1.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.6"/><path d="M14 4v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const tickSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="tick" d="M5 12.5l4.2 4.2L19 6.5"/></svg>`;
+const sunIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+const calIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 10h17M8 3.5v4M16 3.5v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+const inboxIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 13l2.2-6.6A2 2 0 0 1 8.1 5h7.8a2 2 0 0 1 1.9 1.4L20 13v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 13h4l1.2 2h5.6L16 13h4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const trashIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 7V5.5A1.5 1.5 0 0 1 11.5 4h1A1.5 1.5 0 0 1 14 5.5V7M6.5 7l.7 11a2 2 0 0 0 2 1.9h5.6a2 2 0 0 0 2-1.9l.7-11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const pencilIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.6"/></svg>`;
+
+/* ---------- TODAY ----------
+   One screen that answers the only question that matters in the morning: what
+   is actually mine today. Daily cadence, anything pinned to today or earlier,
+   ad-hoc items with a due date, and annual items whose month has arrived. */
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function todayBundle() {
+  const todayISO = isoDay();
+  const monthName = MONTHS[new Date().getMonth()];
+
+  const daily = DATA.find(s => s.id === 'daily');
+  const dailyRows = daily ? daily.tasks.map((task, i) => ({
+    sid: daily.id, i, task, label: labelFor(daily.id, i, task), st: get(daily.id, i), kind: 'daily'
+  })) : [];
+
+  const pinned = [];
+  DATA.forEach(sec => {
+    if (sec.id === 'daily') return;
+    sec.tasks.forEach((task, i) => {
+      const iso = schedFor(sec.id, i);
+      if (!iso || iso > todayISO) return;
+      const st = get(sec.id, i);
+      if (st.done) return;
+      pinned.push({ sid: sec.id, i, task, label: labelFor(sec.id, i, task), st,
+        kind: 'pinned', iso, overdue: iso < todayISO, sec });
+    });
+  });
+  pinned.sort((a,b) => a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0);
+
+  const annual = DATA.find(s => s.id === 'annually');
+  const seasonal = annual ? annual.tasks.map((task, i) => ({ task, i }))
+    .filter(x => x.task.due === monthName && !get('annually', x.i).done && !schedFor('annually', x.i))
+    .map(x => ({ sid:'annually', i:x.i, task:x.task, label: labelFor('annually', x.i, x.task),
+      st: get('annually', x.i), kind:'seasonal' })) : [];
+
+  const logDue = getLog().filter(t => !t.done && t.due && t.due <= todayISO)
+    .sort((a,b) => a.due < b.due ? -1 : a.due > b.due ? 1 : 0);
+
+  const openBy = {};
+  DATA.forEach(sec => {
+    if (sec.id === 'daily' || sec.id === 'adhoc') return;
+    let n = 0;
+    sec.tasks.forEach((_, i) => { if (!get(sec.id, i).done) n++; });
+    if (n) openBy[sec.id] = { n, label: sec.label };
+  });
+
+  return { dailyRows, pinned, seasonal, logDue, openBy, todayISO, monthName };
+}
+
+function todayCounts() {
+  const B = todayBundle();
+  const dailyLeft = B.dailyRows.filter(r => !r.st.done).length;
+  const total = B.dailyRows.length + B.pinned.length + B.seasonal.length + B.logDue.length;
+  const left = dailyLeft + B.pinned.length + B.seasonal.length + B.logDue.length;
+  return { left, total, done: total - left };
+}
+
+function todayTaskRow(r) {
+  const li = document.createElement('li');
+  li.className = 'task' + (r.st.done ? ' done' : '');
+  const chips = [];
+  if (r.kind === 'pinned') {
+    chips.push(`<span class="chip due">${r.overdue ? 'Overdue · ' + fmtDate(parseDate(r.iso)) : 'Pinned today'}</span>`);
+    chips.push(`<span class="chip">${r.sec.label}</span>`);
+  }
+  if (r.kind === 'seasonal') chips.push(`<span class="chip due">${r.task.due}</span>`);
+  if (r.task.sys) chips.push(`<span class="chip">${r.task.sys}</span>`);
+  li.innerHTML = `
+    <div class="task-row">
+      <button class="check" role="checkbox" aria-checked="${r.st.done}" aria-label="Mark complete">${tickSvg}</button>
+      <div class="task-body">
+        <div class="task-text"></div>
+        <div class="chips">${chips.join('')}</div>
+      </div>
+    </div>`;
+  li.querySelector('.task-text').textContent = r.label;
+  li.querySelector('.check').addEventListener('click', () => {
+    const now = !get(r.sid, r.i).done;
+    set(r.sid, r.i, { done: now });
+    if (now) addEvent({ kind:'cadence', cadence: r.sid, key: keyFor(r.sid, r.i), label: r.label });
+    else removeLastEvent(ev => ev.kind === 'cadence' && ev.key === keyFor(r.sid, r.i));
+    if (now && r.kind === 'pinned') setSched(r.sid, r.i, '');   /* pin is spent once done */
+    render();
+  });
+  return li;
+}
+
+function todayGroup(title, accentVar, rows, builder) {
+  if (!rows.length) return '';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'margin-top:1.35rem';
+  const head = document.createElement('div');
+  head.className = 'panel-eyebrow';
+  head.style.cssText = 'margin-bottom:.55rem;color:' + accentVar;
+  head.innerHTML = title;
+  wrap.appendChild(head);
+  const ul = document.createElement('ul');
+  ul.className = 'tasks';
+  rows.forEach(r => ul.appendChild(builder(r)));
+  wrap.appendChild(ul);
+  return wrap;
+}
+
+function renderToday() {
+  const B = todayBundle();
+  const C = todayCounts();
+  const body = document.getElementById('todayBody');
+  body.innerHTML = '';
+
+  const d = new Date();
+  document.getElementById('tEyebrow').innerHTML =
+    '<b>' + d.toLocaleDateString('en-CA', { weekday:'long' }) + '</b> &nbsp;·&nbsp; ' +
+    d.toLocaleDateString('en-CA', { month:'long', day:'numeric' });
+  document.getElementById('tBig').innerHTML = C.done + '<span>/' + C.total + '</span>';
+
+  if (!C.left) {
+    const ac = document.createElement('div');
+    ac.className = 'all-clear';
+    ac.style.display = 'block';
+    ac.textContent = 'Daily cadence done, nothing pinned, nothing overdue. Today is clear.';
+    body.appendChild(ac);
+  }
+
+  const overdueP = B.pinned.filter(r => r.overdue), todayP = B.pinned.filter(r => !r.overdue);
+  [
+    ['Overdue &middot; pinned earlier', 'var(--amber)', overdueP],
+    ['Pinned to today', 'var(--accent)', todayP],
+    [B.monthName + ' &middot; annual work due this month', 'var(--amber)', B.seasonal]
+  ].forEach(([t, c, rows]) => { const g = todayGroup(t, c, rows, todayTaskRow); if (g) body.appendChild(g); });
+
+  if (B.logDue.length) {
+    const g = todayGroup('Ad-hoc &middot; due or overdue', 'var(--amber)', B.logDue, t => {
+      const li = document.createElement('li');
+      li.className = 'task';
+      const di = dueInfo(t);
+      li.innerHTML = `
+        <div class="task-row">
+          <button class="check" role="checkbox" aria-checked="false" aria-label="Mark done">${tickSvg}</button>
+          <div class="task-body">
+            <div class="task-text"></div>
+            <div class="chips"><span class="chip due">${di.txt}</span>${t.category ? '<span class="chip">' + t.category + '</span>' : ''}</div>
+          </div>
+        </div>`;
+      li.querySelector('.task-text').textContent = t.text || '';
+      li.querySelector('.check').addEventListener('click', () => {
+        t.done = true; t.completed = Date.now();
+        addEvent({ kind:'log', key:'log:' + t.id, label: t.text, category: t.category || '' });
+        save(); render();
+      });
+      return li;
+    });
+    if (g) body.appendChild(g);
+  }
+
+  const g = todayGroup('The daily cadence', 'var(--accent)', B.dailyRows, todayTaskRow);
+  if (g) body.appendChild(g);
+
+  const openIds = Object.keys(B.openBy);
+  if (openIds.length) {
+    const foot = document.createElement('div');
+    foot.style.cssText = 'margin-top:1.5rem;padding-top:1.1rem;border-top:1px solid var(--line)';
+    foot.innerHTML = '<div class="panel-eyebrow" style="margin-bottom:.55rem">Still open in the wider cadence</div>';
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:.5rem;flex-wrap:wrap';
+    openIds.forEach(id => {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.style.cssText = 'cursor:pointer;border:1px solid var(--line);background:transparent;font:inherit;font-size:.72rem;padding:.3rem .6rem;border-radius:999px;color:var(--muted)';
+      b.textContent = B.openBy[id].label + ' ' + B.openBy[id].n;
+      b.addEventListener('click', () => { active = id; render(); });
+      row.appendChild(b);
+    });
+    foot.appendChild(row);
+    body.appendChild(foot);
+  }
+}
+
+function render() {
+  const cadenceView = document.getElementById('cadenceView');
+  const logView = document.getElementById('logView');
+  const insightsView = document.getElementById('insightsView');
+
+  const todayView = document.getElementById('todayView');
+
+  if (active === 'today') {
+    cadenceView.hidden = true; insightsView.hidden = true; logView.hidden = true;
+    todayView.hidden = false;
+    renderToday();
+    updateRail(); updateOverall();
+    return;
+  }
+  todayView.hidden = true;
+
+  if (active === 'log') {
+    cadenceView.hidden = true; insightsView.hidden = true;
+    logView.hidden = false;
+    renderLog();
+    updateRail(); updateOverall();
+    return;
+  }
+  if (active === 'insights') {
+    cadenceView.hidden = true; logView.hidden = true;
+    insightsView.hidden = false;
+    renderInsights();
+    updateRail(); updateOverall();
+    return;
+  }
+  cadenceView.hidden = false;
+  logView.hidden = true;
+  insightsView.hidden = true;
+
+  const sec = DATA.find(s => s.id === active);
+  document.getElementById('pEyebrow').innerHTML = `<b>${sec.label}</b> &nbsp;·&nbsp; ${sec.cadence}`;
+  document.getElementById('pTitle').textContent = titleFor(sec);
+  document.getElementById('pReset').textContent = 'Clear ' + sec.label.toLowerCase();
+
+  taskList.innerHTML = '';
+  sec.tasks.forEach((task, i) => {
+    const st = get(sec.id, i);
+    const li = document.createElement('li');
+    li.className = 'task' + (st.done ? ' done' : '');
+    li.style.animationDelay = (i * 22) + 'ms';
+
+    const chips = [];
+    if (task.due) chips.push(`<span class="chip due">${task.due}</span>`);
+    if (task.sys) chips.push(`<span class="chip">${task.sys}</span>`);
+
+    li.innerHTML = `
+      <div class="task-row">
+        <button class="check" role="checkbox" aria-checked="${st.done}" aria-label="Mark complete">${tickSvg}</button>
+        <div class="task-body">
+          <div class="task-text"></div>
+          <div class="chips">${chips.join('')}</div>
+          <div class="note-wrap${st.note ? ' open' : ''}">
+            <textarea placeholder="Notes or follow-up">${st.note || ''}</textarea>
+          </div>
+        </div>
+        ${sec.id === 'daily' ? '' : `<button class="edit-btn pin-btn" aria-label="Pin to a date" title="Pin to a date"${schedFor(sec.id,i) ? ' style="color:var(--accent)"' : ''}>${calIcon}</button>`}
+        <button class="edit-btn" aria-label="Edit task name">${pencilIcon}</button>
+        <button class="note-btn${st.note ? ' has-note' : ''}" aria-label="Toggle note">${noteIcon}</button>
+      </div>`;
+
+    const textDiv = li.querySelector('.task-text');
+    textDiv.textContent = labelFor(sec.id, i, task);
+
+    const check = li.querySelector('.check');
+    check.addEventListener('click', () => {
+      const now = !get(sec.id,i).done;
+      set(sec.id, i, { done: now });
+      li.classList.toggle('done', now);
+      check.setAttribute('aria-checked', now);
+      if (now) addEvent({ kind:'cadence', cadence: sec.id, key: keyFor(sec.id,i), label: labelFor(sec.id,i,task) });
+      else removeLastEvent(ev => ev.kind === 'cadence' && ev.key === keyFor(sec.id,i));
+      updateRail(); updateOverall(); updatePanelProg(sec);
+    });
+
+    const pinBtn = li.querySelector('.pin-btn');
+    if (pinBtn) pinBtn.addEventListener('click', () => {
+      const cur = schedFor(sec.id, i);
+      uiAsk('Pin to a date', [
+        { k:'d', label:'Show this in Today on', type:'date', value: cur || isoDay() }
+      ], v => {
+        setSched(sec.id, i, v.d || '');
+        render();
+      }, cur ? 'Update pin' : 'Pin it');
+    });
+
+    const chipRow = li.querySelector('.chips');
+    if (chipRow && schedFor(sec.id, i)) {
+      const iso = schedFor(sec.id, i);
+      const c = document.createElement('span');
+      c.className = 'chip due';
+      c.textContent = 'Pinned ' + fmtDate(parseDate(iso));
+      chipRow.prepend(c);
+    }
+
+    const editBtn = li.querySelector('.edit-btn:not(.pin-btn)');
+    editBtn.addEventListener('click', () => {
+      if (li.querySelector('.edit-input')) return;
+      const input = document.createElement('input');
+      input.className = 'edit-input';
+      input.value = textDiv.textContent;
+      textDiv.replaceWith(input);
+      input.focus(); input.select();
+      let done = false;
+      const commit = (keep) => {
+        if (done) return; done = true;
+        if (keep) {
+          setOverride(sec.id, i, input.value, task.t);
+          textDiv.textContent = labelFor(sec.id, i, task);
+        }
+        if (input.isConnected) input.replaceWith(textDiv);
+      };
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); commit(true); }
+        if (e.key === 'Escape') { e.preventDefault(); commit(false); }
+      });
+      input.addEventListener('blur', () => commit(true));
+    });
+
+    const noteBtn = li.querySelector('.note-btn');
+    const noteWrap = li.querySelector('.note-wrap');
+    const ta = li.querySelector('textarea');
+    noteBtn.addEventListener('click', () => {
+      noteWrap.classList.toggle('open');
+      if (noteWrap.classList.contains('open')) ta.focus();
+    });
+    ta.addEventListener('input', () => {
+      set(sec.id, i, { note: ta.value });
+      noteBtn.classList.toggle('has-note', ta.value.trim().length > 0);
+    });
+
+    taskList.appendChild(li);
+  });
+
+  updateRail();
+  updateOverall();
+  updatePanelProg(sec);
+  updateNav();
+}
+
+function updateNav() {
+  const idx = DATA.findIndex(s => s.id === active);
+  const prev = DATA[idx - 1], next = DATA[idx + 1];
+  const prevBtn = document.getElementById('navPrev');
+  const nextBtn = document.getElementById('navNext');
+  prevBtn.disabled = !prev;
+  nextBtn.disabled = !next;
+  document.getElementById('navPrevName').textContent = prev ? prev.label : 'Start';
+  document.getElementById('navNextName').textContent = next ? next.label : 'End';
+}
+
+function step(dir) {
+  const idx = DATA.findIndex(s => s.id === active);
+  if (idx === -1) return;
+  const target = DATA[idx + dir];
+  if (!target) return;
+  active = target.id;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function titleFor(sec) {
+  const map = {
+    daily:'Daily desk routine',
+    weekly:'Weekly operating review',
+    monthly:'Monthly close',
+    quarterly:'Quarterly fee and billing pass',
+    annually:'Annual calendar',
+    adhoc:'Ad-hoc and event driven'
+  };
+  return map[sec.id] || sec.label;
+}
+
+function updatePanelProg(sec) {
+  const { done, total } = sectionStats(sec);
+  document.getElementById('pBig').innerHTML = `${done}<span>/${total}</span>`;
+  allClear.classList.toggle('show', done === total && total > 0);
+}
+
+function updateOverall() {
+  let done = 0, total = 0;
+  DATA.forEach(sec => { const s = sectionStats(sec); done += s.done; total += s.total; });
+  document.getElementById('ovNums').innerHTML = `${done}<span> / ${total}</span>`;
+  const _bp = document.getElementById('barPill');
+  if (_bp) _bp.textContent = `${done} / ${total}`;
+  document.getElementById('ovBar').style.width = (total ? (done/total*100) : 0) + '%';
+}
+
+document.getElementById('pReset').addEventListener('click', () => {
+  const sec = DATA.find(s => s.id === active);
+  uiConfirm('Clear the checkmarks?', `All ${sec.label.toLowerCase()} tasks reset to unticked. Your notes are kept.`, 'Clear', function(){
+    sec.tasks.forEach((_, i) => set(sec.id, i, { done:false }));
+    render();
+  }, true);
+});
+
+document.getElementById('navPrev').addEventListener('click', () => step(-1));
+document.getElementById('navNext').addEventListener('click', () => step(1));
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') step(1);
+  if (e.key === 'ArrowLeft') step(-1);
+});
+
+// ---------- task log ----------
+function getLog() { if (!Array.isArray(state.log)) state.log = []; return state.log; }
+function logOpenCount() { return getLog().filter(t => !t.done).length; }
+
+function parseDate(s) { const p = s.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); }
+function fmtDate(d) {
+  const opts = { month:'short', day:'numeric' };
+  if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+  return d.toLocaleDateString('en-CA', opts);
+}
+function dueInfo(t) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = parseDate(t.due);
+  const diff = Math.round((d - today) / 86400000);
+  if (t.done) return { cls:'', txt: fmtDate(d) };
+  if (diff < 0) return { cls:'overdue', txt: 'Overdue · ' + fmtDate(d) };
+  if (diff === 0) return { cls:'today', txt: 'Due today' };
+  if (diff === 1) return { cls:'', txt: 'Due tomorrow' };
+  return { cls:'', txt: 'Due ' + fmtDate(d) };
+}
+
+function sortLog(a, b) {
+  if (a.due && b.due) return a.due < b.due ? -1 : a.due > b.due ? 1 : a.created - b.created;
+  if (a.due) return -1;
+  if (b.due) return 1;
+  return a.created - b.created;
+}
+
+function logRow(t) {
+  const li = document.createElement('li');
+  li.className = 'log-item' + (t.done ? ' done' : '');
+  let dueHtml = '';
+  if (t.due) { const di = dueInfo(t); dueHtml = `<div class="log-due ${di.cls}">${di.txt}</div>`; }
+  const cat = t.category || 'Uncategorized';
+  const catHtml = `<span class="cat-chip ${t.category ? '' : 'uncat'}"></span>`;
+  li.innerHTML = `
+    <button class="check" role="checkbox" aria-checked="${t.done}" aria-label="Mark done">${tickSvg}</button>
+    <div class="log-body">
+      <div class="log-text"></div>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        ${catHtml}
+        ${dueHtml}
+      </div>
+    </div>
+    <button class="edit-btn" aria-label="Edit task">${pencilIcon}</button>
+    <button class="log-del" aria-label="Delete task">${trashIcon}</button>`;
+  const textDiv = li.querySelector('.log-text');
+  textDiv.textContent = t.text;
+  li.querySelector('.cat-chip').textContent = cat;
+  li.querySelector('.check').addEventListener('click', () => toggleLog(t.id));
+  li.querySelector('.log-del').addEventListener('click', () => deleteLog(t.id));
+  li.querySelector('.edit-btn').addEventListener('click', () => {
+    if (li.querySelector('.edit-input')) return;
+    const input = document.createElement('input');
+    input.className = 'edit-input';
+    input.value = textDiv.textContent;
+    textDiv.replaceWith(input);
+    input.focus(); input.select();
+    let done = false;
+    const commit = (keep) => {
+      if (done) return; done = true;
+      if (keep) editLog(t.id, input.value);
+      if (input.isConnected) input.replaceWith(textDiv);
+      textDiv.textContent = t.text;
+    };
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); commit(true); }
+      if (e.key === 'Escape') { e.preventDefault(); commit(false); }
+    });
+    input.addEventListener('blur', () => commit(true));
+  });
+  return li;
+}
+
+function renderLog() {
+  const list = document.getElementById('logList');
+  const empty = document.getElementById('logEmpty');
+  document.getElementById('logBig').innerHTML = `${logOpenCount()}<span> open</span>`;
+
+  const items = getLog().slice();
+  list.innerHTML = '';
+  if (items.length === 0) { empty.hidden = false; return; }
+  empty.hidden = true;
+
+  const open = items.filter(t => !t.done).sort(sortLog);
+  const done = items.filter(t => t.done).sort((a,b) => b.doneAt - a.doneAt);
+
+  open.forEach(t => list.appendChild(logRow(t)));
+  if (done.length) {
+    const d = document.createElement('div');
+    d.className = 'log-divider';
+    d.textContent = 'Completed (' + done.length + ')';
+    list.appendChild(d);
+    done.forEach(t => list.appendChild(logRow(t)));
+  }
+}
+
+function addLog(text, due, category) {
+  text = (text || '').trim();
+  if (!text) return;
+  getLog().push({
+    id: 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    text, due: due || null, category: category || null, done: false, created: Date.now(), doneAt: 0
+  });
+  save(); renderLog(); updateRail();
+}
+function toggleLog(id) {
+  const t = getLog().find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done; t.doneAt = t.done ? Date.now() : 0;
+  if (t.done) addEvent({ kind:'log', category: t.category || null, label: t.text, logId: t.id });
+  else removeLastEvent(ev => ev.kind === 'log' && ev.logId === t.id);
+  save(); renderLog(); updateRail();
+}
+function deleteLog(id) {
+  state.log = getLog().filter(x => x.id !== id);
+  save(); renderLog(); updateRail();
+}
+function editLog(id, text) {
+  const t = getLog().find(x => x.id === id);
+  if (!t) return;
+  text = (text || '').trim();
+  if (text) { t.text = text; save(); }
+}
+function clearDoneLog() {
+  const n = getLog().filter(t => t.done).length;
+  if (!n) return;
+  uiConfirm('Clear completed items?', `${n} finished ${n === 1 ? 'item leaves' : 'items leave'} the log.`, 'Remove', function(){
+    state.log = getLog().filter(t => !t.done);
+    save(); renderLog(); updateRail();
+  }, true);
+}
+
+function submitLog() {
+  const inp = document.getElementById('logInput');
+  const dt = document.getElementById('logDate');
+  const cat = document.getElementById('logCat');
+  addLog(inp.value, dt.value, cat.value || null);
+  inp.value = ''; dt.value = ''; cat.value = ''; inp.focus();
+}
+function populateCategories() {
+  const sel = document.getElementById('logCat');
+  sel.innerHTML = '<option value="">Category</option>' +
+    LOG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+document.getElementById('logAddBtn').addEventListener('click', submitLog);
+document.getElementById('logInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitLog(); });
+document.getElementById('logClear').addEventListener('click', clearDoneLog);
+
+// ---------- insights / analysis ----------
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function cadLabel(id) { const s = DATA.find(x => x.id === id); return s ? s.label : id; }
+function fmtDateShort(ts) { return new Date(ts).toLocaleDateString('en-CA', { month:'short', day:'numeric' }); }
+function stat(num, lbl) { return `<div class="stat"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`; }
+function moduleWrap(title, note, inner) {
+  return `<div class="module"><div class="module-head"><div class="module-title">${title}</div><div class="module-note">${note || ''}</div></div>${inner}</div>`;
+}
+
+function renderInsights() {
+  const body = document.getElementById('insightsBody');
+  const events = getEvents();
+  if (events.length === 0) {
+    body.innerHTML = `<div class="log-empty">No completions recorded yet. As you check tasks off across your cadences and the log, this page fills in with real frequency data. Give it a few weeks and patterns will surface.</div>`;
+    return;
+  }
+
+  const cadEvents = events.filter(e => e.kind === 'cadence');
+  const logEvents = events.filter(e => e.kind === 'log');
+  const firstTs = Math.min.apply(null, events.map(e => e.ts));
+  const days = Math.max(1, Math.round((Date.now() - firstTs) / 86400000) + 1);
+  const weeks = Math.max(1, days / 7);
+
+  let html = `<div class="stat-grid">
+    ${stat(events.length, 'Total completions')}
+    ${stat(cadEvents.length, 'Cadence tasks')}
+    ${stat(logEvents.length, 'Logged tasks')}
+    ${stat(days, days === 1 ? 'Day tracked' : 'Days tracked')}
+    ${stat((events.length / weeks).toFixed(1), 'Per week avg')}
+  </div>`;
+
+  html += moduleCadenceMix(cadEvents, logEvents);
+  html += moduleSpark(events);
+  html += moduleFrequency(cadEvents);
+  html += moduleCategories(logEvents);
+  html += moduleCandidates(logEvents);
+  html += moduleBin(logEvents);
+  html += moduleExport();
+
+  body.innerHTML = html;
+  document.getElementById('expEvents').addEventListener('click', exportEventsCSV);
+  document.getElementById('expBin').addEventListener('click', exportBinCSV);
+}
+
+function moduleCadenceMix(cadEvents, logEvents) {
+  const counts = {};
+  DATA.forEach(s => counts[s.id] = 0);
+  cadEvents.forEach(e => { counts[e.cadence] = (counts[e.cadence] || 0) + 1; });
+  const rows = DATA.map(s => ({ label: s.label, n: counts[s.id] || 0 }));
+  rows.push({ label: 'Log', n: logEvents.length, amber: true });
+  const max = Math.max(1, ...rows.map(r => r.n));
+  const inner = rows.map(r => `
+    <div class="bar-row">
+      <div class="bar-label">${r.label}</div>
+      <div class="bar-count">${r.n}</div>
+      <div class="bar-track"><div class="bar-fill ${r.amber ? 'amber' : ''}" style="width:${(r.n/max*100).toFixed(1)}%"></div></div>
+    </div>`).join('');
+  return moduleWrap('Where the work lands', 'Completions by cadence', inner);
+}
+
+function moduleSpark(events) {
+  const N = 12, msWeek = 7 * 86400000;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const buckets = new Array(N).fill(0);
+  events.forEach(e => {
+    const dw = Math.floor((now.getTime() - e.ts) / msWeek);
+    if (dw >= 0 && dw < N) buckets[N - 1 - dw]++;
+  });
+  const max = Math.max(1, ...buckets);
+  const bars = buckets.map(v => `<div class="spark-bar" style="height:${Math.max(3, v/max*100).toFixed(1)}%" title="${v}"></div>`).join('');
+  const inner = `<div class="spark">${bars}</div><div class="spark-axis"><span>${N} weeks ago</span><span>this week</span></div>`;
+  return moduleWrap('Flow over time', 'Completions per week', inner);
+}
+
+function labelByKey(key) {
+  const idx = key.lastIndexOf(':');
+  const sid = key.slice(0, idx), i = parseInt(key.slice(idx + 1), 10);
+  const sec = DATA.find(s => s.id === sid);
+  if (!sec || !sec.tasks[i]) return null;
+  return labelFor(sid, i, sec.tasks[i]);
+}
+
+function moduleFrequency(cadEvents) {
+  const agg = {};
+  cadEvents.forEach(e => {
+    if (!agg[e.key]) agg[e.key] = { key: e.key, label: e.label, cadence: e.cadence, count: 0, last: 0 };
+    agg[e.key].count++; agg[e.key].last = Math.max(agg[e.key].last, e.ts);
+  });
+  const rows = Object.values(agg).sort((a,b) => b.count - a.count);
+  if (!rows.length) return '';
+  const rowHtml = rows.map(r => `
+    <tr>
+      <td>${escapeHtml(labelByKey(r.key) || r.label)}<span class="cad">${cadLabel(r.cadence)} · last ${fmtDateShort(r.last)}</span></td>
+      <td class="n">${r.count}</td>
+    </tr>`).join('');
+  const inner = `<table class="freq-table"><thead><tr><th>Task</th><th class="n">Done</th></tr></thead><tbody>${rowHtml}</tbody></table>`;
+  return moduleWrap('Cadence task frequency', 'Sorted by how often you actually complete each one', inner);
+}
+
+function moduleCategories(logEvents) {
+  if (!logEvents.length) return '';
+  const counts = {};
+  logEvents.forEach(e => { const c = e.category || 'Uncategorized'; counts[c] = (counts[c] || 0) + 1; });
+  const rows = Object.entries(counts).map(([label, n]) => ({ label, n, amber: label === 'Uncategorized' })).sort((a,b) => b.n - a.n);
+  const max = Math.max(1, ...rows.map(r => r.n));
+  const inner = rows.map(r => `
+    <div class="bar-row">
+      <div class="bar-label">${escapeHtml(r.label)}</div>
+      <div class="bar-count">${r.n}</div>
+      <div class="bar-track"><div class="bar-fill ${r.amber ? 'amber' : ''}" style="width:${(r.n/max*100).toFixed(1)}%"></div></div>
+    </div>`).join('');
+  return moduleWrap('Logged tasks by category', 'Uncategorized items are your refinement signal', inner);
+}
+
+function moduleCandidates(logEvents) {
+  if (!logEvents.length) return '';
+  const norm = {};
+  logEvents.forEach(e => {
+    const key = e.label.trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!norm[key]) norm[key] = { label: e.label.trim(), count: 0 };
+    norm[key].count++;
+  });
+  const reps = Object.values(norm).filter(x => x.count >= 2).sort((a,b) => b.count - a.count).slice(0, 8);
+  let inner;
+  if (!reps.length) {
+    inner = `<div style="color:var(--muted); font-size:0.88rem;">No repeats yet. When the same ad-hoc task shows up two or more times, it appears here as a candidate to promote into a set cadence.</div>`;
+  } else {
+    inner = reps.map(r => `<div class="candidate"><span><b>${escapeHtml(r.label)}</b></span><span class="times">${r.count}&times;</span></div>`).join('');
+  }
+  return moduleWrap('Promote to a cadence?', 'Ad-hoc tasks completed more than once', inner);
+}
+
+function moduleBin(logEvents) {
+  const rows = logEvents.slice().sort((a,b) => b.ts - a.ts).slice(0, 50);
+  let inner;
+  if (!rows.length) {
+    inner = `<div style="color:var(--muted); font-size:0.88rem;">Completed log tasks collect here for review.</div>`;
+  } else {
+    inner = '<div class="bin-list">' + rows.map(r => `
+      <div class="bin-row">
+        <span class="bin-date">${fmtDateShort(r.ts)}</span>
+        <span class="bin-text">${escapeHtml(r.label)}</span>
+        <span class="cat-chip ${r.category ? '' : 'uncat'}">${escapeHtml(r.category || 'Uncategorized')}</span>
+      </div>`).join('') + '</div>';
+  }
+  const note = logEvents.length > 50 ? `Latest 50 of ${logEvents.length}` : 'Everything logged and completed';
+  return moduleWrap('Collection bin', note, inner);
+}
+
+function moduleExport() {
+  const inner = `<div style="color:var(--muted); font-size:0.88rem; margin-bottom:0.85rem;">Download your full history to analyze in Excel after a few months of use.</div>
+    <div class="export-row">
+      <button class="export-btn" id="expEvents">Export all completions</button>
+      <button class="export-btn" id="expBin">Export collection bin</button>
+    </div>`;
+  return moduleWrap('Export for analysis', '', inner);
+}
+
+function downloadCSV(filename, rows) {
+  const csv = rows.map(r => r.map(cell => {
+    const s = String(cell == null ? '' : cell);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function exportEventsCSV() {
+  const rows = [['Date','Time','Type','Cadence or Category','Task']];
+  getEvents().slice().sort((a,b) => a.ts - b.ts).forEach(e => {
+    const d = new Date(e.ts);
+    rows.push([
+      d.toISOString().slice(0,10),
+      d.toTimeString().slice(0,5),
+      e.kind,
+      e.kind === 'cadence' ? cadLabel(e.cadence) : (e.category || 'Uncategorized'),
+      e.label
+    ]);
+  });
+  downloadCSV('operations-cadence-completions.csv', rows);
+}
+function exportBinCSV() {
+  const rows = [['Date','Category','Task']];
+  getEvents().filter(e => e.kind === 'log').sort((a,b) => a.ts - b.ts).forEach(e => {
+    rows.push([new Date(e.ts).toISOString().slice(0,10), e.category || 'Uncategorized', e.label]);
+  });
+  downloadCSV('operations-cadence-collection-bin.csv', rows);
+}
+
+populateCategories();
+migratePeriods();
+buildRail();
+render();
+
+/* Ask the browser to treat this data as persistent. Browsers evict storage from
+   sites you have not visited recently, and all eight tools live in that storage.
+   This is a request, not a guarantee, which is why the Vault backup still matters. */
+(function(){
+  try{
+    if(navigator.storage && navigator.storage.persist && navigator.storage.persisted){
+      navigator.storage.persisted().then(function(already){
+        if(!already) navigator.storage.persist();
+      }).catch(function(){});
+    }
+  }catch(e){}
+})();
+
+
+/* ---------- in-page dialogs ----------
+   iOS blocks confirm(), prompt() and alert() inside home-screen web apps: they
+   return instantly as if cancelled, so any button behind one silently does
+   nothing. Everything here renders in the page instead. */
+function uiClose(){ var o=document.getElementById("uiDlg"); if(o) o.remove(); }
+function uiShell(inner){
+  uiClose();
+  var w=document.createElement("div");
+  w.id="uiDlg";
+  w.style.cssText="position:fixed;inset:0;z-index:9000;background:rgba(6,7,14,.72);backdrop-filter:blur(3px);"
+   +"display:flex;align-items:center;justify-content:center;padding:18px";
+  w.innerHTML='<div style="max-width:420px;width:100%;background:#141830;border:1px solid rgba(120,130,180,.28);'
+   +'border-radius:16px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6);font-family:inherit;color:#eef0fb;'
+   +'max-height:86vh;overflow-y:auto">'+inner+'</div>';
+  w.addEventListener("click",function(e){ if(e.target===w) uiClose(); });
+  document.body.appendChild(w);
+  return w;
+}
+function uiNote(msg){
+  uiShell('<div style="font-size:13.5px;line-height:1.55;margin-bottom:14px">'+msg+'</div>'
+   +'<button id="uiOk" style="width:100%;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;'
+   +'font-size:13px;font-weight:700;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f)">OK</button>');
+  document.getElementById("uiOk").onclick=uiClose;
+}
+function uiConfirm(title, body, okLabel, onOk, danger){
+  var col=danger?"linear-gradient(180deg,#f6889e,#e2456a)":"linear-gradient(180deg,#f6cf6a,#e2a32f)";
+  uiShell('<div style="font-size:15px;font-weight:700;margin-bottom:6px">'+title+'</div>'
+   +(body?'<div style="font-size:12.5px;line-height:1.55;color:#9aa2c0;margin-bottom:14px">'+body+'</div>':'<div style="height:8px"></div>')
+   +'<div style="display:flex;gap:8px">'
+   +'<button id="uiCancel" style="flex:1;padding:11px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;'
+   +'font-weight:600;color:#9aa2c0;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">Cancel</button>'
+   +'<button id="uiOk" style="flex:1;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;'
+   +'font-size:12.5px;font-weight:700;color:#0c0e1a;background:'+col+'">'+(okLabel||"Confirm")+'</button></div>');
+  document.getElementById("uiCancel").onclick=uiClose;
+  document.getElementById("uiOk").onclick=function(){ uiClose(); try{ onOk(); }catch(e){} };
+}
+/* fields: [{k,label,type:'text'|'number'|'date'|'select',value,options:[[val,label]]}]
+   onOk receives an object keyed by k. Returning false keeps the sheet open. */
+function uiAsk(title, fields, onOk, okLabel){
+  var body='<div style="font-size:15px;font-weight:700;margin-bottom:12px">'+title+'</div>';
+  fields.forEach(function(f){
+    var st="width:100%;background:rgba(10,12,22,.7);color:#eef0fb;border:1px solid rgba(120,130,180,.28);"
+      +"border-radius:10px;padding:10px 11px;font-size:14px;outline:none;margin-top:5px;-webkit-appearance:none;min-height:44px";
+    body+='<div style="margin-bottom:11px"><label style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;'
+      +'color:#8089a8;font-weight:600">'+f.label+'</label>';
+    if(f.type==="select"){
+      body+='<select id="uiF_'+f.k+'" style="'+st+'">'+(f.options||[]).map(function(o){
+        return '<option value="'+String(o[0]).replace(/"/g,"&quot;")+'"'+(String(f.value)===String(o[0])?" selected":"")+'>'+o[1]+'</option>';
+      }).join("")+'</select>';
+    } else {
+      body+='<input id="uiF_'+f.k+'" type="'+(f.type||"text")+'"'
+        +(f.type==="number"?' inputmode="decimal"':'')
+        +' value="'+String(f.value==null?"":f.value).replace(/"/g,"&quot;")+'" style="'+st+'"/>';
+    }
+    body+='</div>';
+  });
+  body+='<div id="uiErr" style="font-size:11.5px;color:#f0683e;min-height:14px;margin-bottom:8px"></div>';
+  body+='<div style="display:flex;gap:8px">'
+   +'<button id="uiCancel" style="flex:1;padding:11px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;'
+   +'font-weight:600;color:#9aa2c0;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">Cancel</button>'
+   +'<button id="uiOk" style="flex:1;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;'
+   +'font-size:12.5px;font-weight:700;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f)">'+(okLabel||"Save")+'</button></div>';
+  uiShell(body);
+  document.getElementById("uiCancel").onclick=uiClose;
+  document.getElementById("uiOk").onclick=function(){
+    var out={};
+    fields.forEach(function(f){ var el=document.getElementById("uiF_"+f.k); out[f.k]=el?el.value:""; });
+    var res;
+    try{ res=onOk(out); }catch(e){ res=undefined; }
+    if(res===false){ return; }
+    uiClose();
+  };
+  var first=document.getElementById("uiF_"+fields[0].k);
+  if(first){ first.focus(); if(first.select) first.select(); }
+}
+function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent=msg; }
+
+</script>
+</body>
+</html>
