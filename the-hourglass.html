@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>The Hourglass · Your Time</title>
+<meta name="description" content="The Hourglass, a memento mori. Your life in weeks, the runway to what matters, and an honest look at how much time is left so you spend it well.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hourglass">
+<meta name="theme-color" content="#0c0e1a">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c0e1a'/%3E%3Cpath d='M18 12 h28 M18 52 h28 M20 12 c0 12 24 16 24 20 c0 4 -24 8 -24 20 M44 12 c0 12 -24 16 -24 20 c0 4 24 8 24 20' fill='none' stroke='%23f0b73e' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M26 44 h12 l-6 -8 z' fill='%23f0b73e'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAGf0lEQVR4nO3dTXbbVgxAYdAnQx8vQCfD7ilr7J4y7D7UQc1UlkUS7z28HwD3G6axTFK3EELb8vb+cZNF3GcfAJpssw9AROTHxM9NwLE8P59TAh8dNBHn8fhcD4t7RNBEjGFx9wyakPHK3kWXsHsETcjQ6BL2m+WDCTGjnGkzVhOakNHCbFpbTGhihpXmllqDJmZYa2qqduUgZPRUvYLUTGhixijFrZUGTcwYrai5kqCJGbOo27O+Dw1MpQ2a6YzZVA1qgiZmrOKyxaugiRmrOW2SHRqhnAXNdMaqDts8CpqYsbqXjbJyIJRXQTOd4cW3VpnQCOU5aKYzvPnSLBMaoRA0QnkMmnUDXv1plwmNUAgaoexBs27Au7sIExrBEDRCmfn+0E3++fuv2YcQ3s9fv2cfQrE3YX9GHHdWDoRC0Ahle/+4uVs52J/H8rRLu5vQxDyep2vuLmhP0yIKT9fcXdDAGZc7tIjuZdDTZJkh4jV0O6E1F9rT7jdaxJhFHAct4vOCe+H12roOWoMp/V3ka+I+aFaPMlFXjZ37oEV8PwGr8X4tQwStwZTOcQ3CBM3qcS76qrELE7QIUR/JErNIsKCBcEEzpb/KNJ1FAgYtQtS7bDGLBA1aJN4T1UPEaxQ2aI3IUzryuZ0JHXTW1SPjqrELHbRI3CeuReRrEj5ojUhTOtK51EgRdJbVI/OqsUsRtEj8qIn5P2mCRg6pgo46pZnO/0sVtEi8qIn5q3RBi+R6gjOdq0jSoDU8TGkPxzha2qC9rx6sGq+lDVrEb9TEfCx10IgnfdDepjTT+Vz6oEX8RE3M1wj6U4QQIpxDK4IuMHNKr/AK4QFBP1h19WDV0CPoJx7D8HjMvRB0hZFTmlWjDEG/sMrqwapRjqAPzI6amOsQNEIh6BOzpjTTuR5BXxgdNTG3IWiFlQJa6VhWRNBGLKY0t+jaEbRS79WDVcMGQReYGRQx6xC0sZopzaphh6ALWa8erBq2CLqCVdTEbI+gEQpBV2qd0kznPgi6wVVwZ/+95WNxjKA7+PnrtyrIo79DzPUIusHR2qC9y9H68fhue/+43WcfhEfa6F5N25aPxTkmdEesFOMRdIVRKwGrRzmCLmS1LminNFGXIegOtLGyetgj6AKzpiVTWo+glXrdmWD1sEXQhmpXCFYPOwStsMp0XOU4VkbQF0Z9EYTVwwZBG7BaGVg92hH0iVWn4arHtQKCbmQ9VZnSbQj6wMxvwJ/9RpGeEfQLXmLxcpwjEXSl3qsBq0cdgn7ibep5O97eCPrBat94z73pcgRdqDbm2uhYPcoQ9KcRv15i9q+wyICgpe+q8fzYNeGxeugRtJJFzFd/bv35M0ofdK+pdvW4sz5vdKmD7rVqtL4vR+txZI46ddAavWKu/fusHufSBj3r17FZftzox/QgZdCrfQGlFKvHsZRBa/ReNVo/ftX/2WZLF/TKL+8rH5sXqYLusWpYB1PyeKwe36UKWmNmzDWPy+rxVZqgZ07SFR4/y5ROEbT1qrHau4+udtwzpQhaY9UovN9iHC180JYBRnizxuhTOnTQltNtdgiWP4U++1x6Ch20hoeYd/xuw2thg175ix0top6XlZBBW60aqz7pV8eVefUIGbSG15h3VlFHEy5oixBXj3mX6Vy1wgWtkWV6ZTnPR6GCtrgL4G1iWawe3s75TJigM7/8Zj73Z2GC1jibVt6f0LPjz7R6hAh69E+LrIrrECDo1nvOEZ7ER0fnk+XetPugNbLEvGuN2jPXQbcEGTXmXdZrs71/3O6zD6IG3ydcL/K1cz2hr3h8QkaIfF1cBu35JdETj9fZXdCRXy5HinrX48fsA+jF2xMBG28iss0+CC0incPRdd+294+biIirOx2OLrB7zla3zd0OLeLuIrvl8Tq7DBo4sgftZo8GDmwiTGgEQ9AIZb/LsXN1twP49GdlZkIjFIJGKM9Bc7cD3nxplgmNUF4FzZSGF99aZUIjlKOgmdJY3ctGzyY0UWNVh22yciCUq6CZ0ljNaZOaCU3UWMVli9qVg6gxm6pBdmiEUhI0UxqzqNsrndBEjdGKmqtZOYgaoxS3VvtGM/sn4gcC0EP10Gz9RyHTGtaamrK4y0HUsNLcktV727GCoIXZULS+D820RinTZnq8+yjTGhpdhl/Pt9MlbLzS9VV8xPtDP54Acec0bBUd/YbnxJ3HlH9PzXwH/+cTJnDflrgh8C/iJWVcKCaHwgAAAABJRU5ErkJggg=="/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0e1a;--panel:#141830;--panel2:#1a1f3a;--txt:#eef0fb;--muted:#8089a8;--dim:#6f7798;
+  --line:rgba(120,130,180,.16);--gold:#f0b73e;--gold2:#f6cf6a;--green:#2fd180;--green2:#9af0c6;
+  --blue:#4ea3e0;--violet:#9d7bff;--rose:#f0628a;--amber:#f0683e;--cyan:#45c8d8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:
+  radial-gradient(1100px 600px at 50% -10%,rgba(240,183,62,.06),transparent 60%),
+  radial-gradient(900px 500px at 85% 8%,rgba(69,200,216,.05),transparent 55%),
+  var(--bg);
+  color:var(--txt);font-family:'Outfit',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.5}
+#app{max-width:640px;margin:0 auto;
+  padding:0 max(14px,env(safe-area-inset-left)) calc(96px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-right))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;
+  background:rgba(12,14,26,.92);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-top:1px solid var(--line);
+  padding:7px max(10px,env(safe-area-inset-left)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-right))}
+.tabbar button{flex:1;background:none;border:none;cursor:pointer;padding:5px 2px;border-radius:11px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;color:#5a627e;font-family:'Outfit',sans-serif}
+.tabbar button .tglyph{font-size:16px;line-height:1}
+.tabbar button .tlbl{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.tabbar button.on{color:var(--gold)}
+.tabbar button.on .tglyph{text-shadow:0 0 12px rgba(240,183,62,.6)}
+.cinzel{font-family:'Cinzel',serif}
+.mono{font-family:'Space Mono',monospace}
+.appbar{position:sticky;top:0;z-index:50;
+  margin:0 calc(-1 * max(14px,env(safe-area-inset-left))) 12px;
+  padding:calc(env(safe-area-inset-top,0px) + 11px) max(14px,env(safe-area-inset-left)) 11px max(14px,env(safe-area-inset-right));
+  background:rgba(12,14,26,.90);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:9px}
+.appbar-title{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--txt);letter-spacing:.04em;white-space:nowrap;line-height:1.1}
+.appbar-sub{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:2px;white-space:nowrap}
+.appbar-pill{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;
+  background:rgba(240,183,62,.1);border:1px solid rgba(240,183,62,.35);
+  font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--gold2);white-space:nowrap;flex-shrink:0}
+.homebtn{display:grid;place-items:center;width:33px;height:33px;border-radius:10px;flex-shrink:0;
+  border:1px solid rgba(240,183,62,.35);background:rgba(240,183,62,.10);color:#f0b73e;
+  font-size:15px;line-height:1;text-decoration:none;margin-right:9px}
+.homebtn:active{transform:scale(.93)}
+.panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+  border-radius:16px;padding:15px;margin-bottom:12px;position:relative}
+.eyebrow{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:700}
+h2{font-family:'Cinzel',serif;font-size:16px;font-weight:700;letter-spacing:.02em}
+.f{display:flex;flex-direction:column;min-width:0}
+.f label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:4px}
+input,select{width:100%;background:rgba(10,12,22,.7);color:var(--txt);border:1px solid rgba(120,130,180,.25);
+  border-radius:10px;padding:10px 11px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;min-height:44px;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--gold)}
+.row{display:grid;gap:9px;margin-bottom:9px}
+.row.two{grid-template-columns:1fr 1fr}
+.btn{border:none;border-radius:11px;padding:11px 15px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#f0b73e);min-height:44px}
+.btn:active{transform:scale(.985)}
+.btn.line{background:none;border:1px solid var(--line);color:var(--muted);font-weight:600}
+.btn.sm{padding:7px 11px;font-size:11.5px;min-height:38px}
+.addbtn{width:100%;padding:11px;border-radius:11px;border:1px dashed rgba(120,130,180,.32);background:none;
+  color:var(--dim);font-family:'Outfit',sans-serif;font-size:12.5px;cursor:pointer;min-height:44px}
+.xbtn{width:38px;height:38px;flex-shrink:0;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03);
+  color:var(--dim);font-size:13px;cursor:pointer;display:grid;place-items:center}
+.chip{display:inline-block;font-size:10px;letter-spacing:.06em;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
+.bar{height:11px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px}
+/* the weeks grid */
+.grid-wrap{overflow-x:auto}
+.grid-row{display:flex;align-items:center;gap:2px;margin-bottom:1.6px}
+.gut{width:16px;font-size:7px;line-height:1;color:var(--dim);text-align:right;flex-shrink:0;font-family:'Space Mono',monospace}
+.cells{display:flex;gap:1.6px;flex:1}
+.cell{flex:1;aspect-ratio:1;border-radius:1px;background:rgba(255,255,255,.045)}
+.cell.lived{background:var(--gold)}
+.cell.build{background:rgba(69,200,216,.28)}
+.cell.free{background:rgba(47,209,128,.24)}
+.cell.now{background:#fff;box-shadow:0 0 5px rgba(255,255,255,.9);animation:pulse 1.6s ease-in-out infinite}
+.cell.mile{background:var(--violet);box-shadow:0 0 4px rgba(157,123,255,.7)}
+.cell.goal{background:var(--amber);box-shadow:0 0 6px rgba(240,104,62,.9);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.fadeUp{animation:fadeUp .4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:120;
+  background:rgba(20,23,38,.97);border:1px solid rgba(240,183,62,.45);color:#f6e2ad;padding:10px 15px;border-radius:12px;
+  font-size:13px;display:flex;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:92vw}
+.toast button{background:rgba(240,183,62,.16);border:1px solid rgba(240,183,62,.5);color:var(--gold2);
+  font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ===================== THE HOURGLASS =====================
+   A memento mori. Not a countdown to dread, a mirror for attention. It takes
+   three honest numbers, when you were born, how long you intend to stay healthy,
+   and when you mean to be free, and it shows the time between here and there as
+   something you can see all at once. The point is not the arithmetic. The point
+   is that a life looks small on a screen, and small things get protected.
+
+   Single file, localStorage, no dependencies, no native dialogs, same
+   conventions as the rest of the suite. */
+
+var KEY="hourglass:v1";
+function J(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+
+var MS_DAY=86400000, MS_WEEK=604800000, DAYS_YR=365.2425, WEEKS_YR=52.1775;
+
+var DEF={
+  birth:"1994-02-24",
+  healthyAge:90,
+  retireAge:50,
+  milestones:[
+    {id:"m1", label:"First child arrives", date:"2026-12-01", emoji:"👶"}
+  ],
+  fin:{ currentAUM:"", pace:"", paceUnit:"month", growthPct:6, target:100000000 },
+  companions:[
+    {id:"c1", label:"Marriage", start:"2022-07-29", end:"", color:"#f0628a", emoji:"💍"},
+    {id:"c2", label:"Hudson", start:"2018-11-27", end:"2033-11-27", color:"#4ea3e0", emoji:"🐕"}
+  ],
+  tab:null, created:null
+};
+function guessEmoji(label, isBond){
+  var l=(label||"").toLowerCase();
+  if(/child|baby|born|\bson\b|daughter|\bkid/.test(l)) return "👶";
+  if(/marria|wedding|\bwife\b|husband|spouse|\bring\b|engaged/.test(l)) return "💍";
+  if(/hudson|\bdog\b|\bpup|hound|\bpuppy/.test(l)) return "🐕";
+  if(/\bcat\b|kitten/.test(l)) return "🐈";
+  if(/house|home|mortgage/.test(l)) return "🏡";
+  if(/job|work|business|career|firm/.test(l)) return "💼";
+  if(/graduat|degree|school/.test(l)) return "🎓";
+  return isBond?"🤝":"📌";
+}
+var S=J(KEY,null)||JSON.parse(JSON.stringify(DEF));
+(function migrate(){
+  Object.keys(DEF).forEach(function(k){ if(S[k]===undefined) S[k]=JSON.parse(JSON.stringify(DEF[k])); });
+  if(!Array.isArray(S.milestones)) S.milestones=[];
+  S.milestones.forEach(function(m){ if(!m.emoji) m.emoji=guessEmoji(m.label,false); });
+  if(!Array.isArray(S.companions)) S.companions=JSON.parse(JSON.stringify(DEF.companions));
+  S.companions.forEach(function(c){ if(!c.emoji) c.emoji=guessEmoji(c.label,true); });
+  if(!S.fin||typeof S.fin!=="object") S.fin=JSON.parse(JSON.stringify(DEF.fin));
+  Object.keys(DEF.fin).forEach(function(k){ if(S.fin[k]===undefined) S.fin[k]=DEF.fin[k]; });
+  if(!S.created) S.created=new Date().toISOString().slice(0,10);
+  /* v2: the Johanna relationship starts in 2017, not at the wedding, and the
+     practice deserves its own mark. Runs once, and only touches the seeded
+     marriage bond if it has not been customised, so nothing hand-edited is lost. */
+  if(!S.__v2){
+    var mar=(S.companions||[]).filter(function(c){ return c.id==="c1"; })[0];
+    if(mar && mar.label==="Marriage" && mar.start==="2022-07-29"){
+      mar.label="Johanna"; mar.start="2017-01-15"; mar.emoji="❤️";
+    }
+    if(!S.milestones.some(function(m){ return /met johanna|dating/i.test(m.label||""); }))
+      S.milestones.push({id:uid(), label:"Met Johanna", date:"2017-01-15", emoji:"✨"});
+    if(!S.milestones.some(function(m){ return /married|wedding/i.test(m.label||""); }))
+      S.milestones.push({id:uid(), label:"Married Johanna", date:"2022-07-29", emoji:"💍"});
+    if(!S.milestones.some(function(m){ return /practice/i.test(m.label||""); }))
+      S.milestones.push({id:uid(), label:"Started my practice", date:"2023-05-01", emoji:"💼"});
+    S.__v2=true;
+  }
+})();
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+/* persist the seeded defaults on first load so the Atlas card is live from the
+   start, not blank until the first edit */
+try{ if(localStorage.getItem(KEY)==null) save(); }catch(e){}
+
+var __tt=null;
+function toast(msg, actionLabel, action){
+  var t=document.getElementById("toast");
+  if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; document.body.appendChild(t); }
+  t.className="toast"; t.textContent="";
+  var sp=document.createElement("span"); sp.textContent=msg; t.appendChild(sp);
+  if(action){
+    var b=document.createElement("button"); b.textContent=actionLabel||"Undo";
+    b.onclick=function(){ t.remove(); try{ action(); }catch(e){} };
+    t.appendChild(b);
+  }
+  clearTimeout(__tt); __tt=setTimeout(function(){ if(t&&t.parentNode) t.remove(); },6000);
+}
+function uiClose(){ var o=document.getElementById("uiDlg"); if(o) o.remove(); }
+function uiConfirm(title, body, okLabel, onOk, danger){
+  uiClose();
+  var col=danger?"linear-gradient(180deg,#f6889e,#e2456a)":"linear-gradient(180deg,#f6cf6a,#f0b73e)";
+  var w=document.createElement("div"); w.id="uiDlg";
+  w.style.cssText="position:fixed;inset:0;z-index:9000;background:rgba(6,7,14,.72);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px";
+  w.innerHTML='<div style="max-width:400px;width:100%;background:#141830;border:1px solid rgba(120,130,180,.28);border-radius:16px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6)">'
+    +'<div style="font-size:15px;font-weight:700;margin-bottom:6px">'+title+'</div>'
+    +(body?'<div style="font-size:12.5px;line-height:1.55;color:#9aa2c0;margin-bottom:14px">'+body+'</div>':'<div style="height:8px"></div>')
+    +'<div style="display:flex;gap:8px">'
+    +'<button id="uiCancel" style="flex:1;padding:11px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;color:#9aa2c0;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">Cancel</button>'
+    +'<button id="uiOk" style="flex:1;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:#0c0e1a;background:'+col+'">'+(okLabel||"Confirm")+'</button></div></div>';
+  w.addEventListener("click",function(e){ if(e.target===w) uiClose(); });
+  document.body.appendChild(w);
+  document.getElementById("uiCancel").onclick=uiClose;
+  document.getElementById("uiOk").onclick=function(){ uiClose(); try{ onOk(); }catch(e){} };
+}
+
+/* ---------- formatting ---------- */
+function comma(n){ return Math.round(+n||0).toLocaleString("en-CA"); }
+function esc(t){ return String(t==null?"":t).replace(/[<>&"]/g,function(c){ return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]; }); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function toNum(v){ if(v===""||v==null) return ""; v=String(v).replace(/[^0-9.]/g,""); if(v===""||v===".") return ""; var n=parseFloat(v); return isNaN(n)?"":n; }
+function niceDate(d){ try{ return d.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"}); }catch(e){ return ""; } }
+function monthYear(d){ try{ return d.toLocaleDateString("en-CA",{month:"long",year:"numeric"}); }catch(e){ return ""; } }
+function fmtMoney(n){ n=+n||0;
+  if(Math.abs(n)>=1e6) return "$"+(n/1e6).toFixed(Math.abs(n)>=1e7?0:1)+"M";
+  if(Math.abs(n)>=1e3) return "$"+Math.round(n/1e3)+"K";
+  return "$"+comma(n);
+}
+
+/* ---------- the climb ----------
+   Current book, a steady gathering pace, and whatever the market adds, walked
+   forward one month at a time until it crosses the target. Iterating rather than
+   using a closed form keeps it honest when growth is zero (pure gathering) and
+   when it is not. */
+function projFin(){
+  var F=S.fin||{}, cur=+F.currentAUM||0, target=+F.target||0;
+  if(target<=0||!(cur>0||(+F.pace||0)>0)) return null;
+  var perMonth=(F.paceUnit==="week") ? (+F.pace||0)*WEEKS_YR/12 : (+F.pace||0);
+  var gM=Math.pow(1+(+F.growthPct||0)/100, 1/12)-1;
+  if(cur>=target) return {reached:true, already:true, months:0};
+  var aum=cur, months=0, cap=1200;
+  while(aum<target && months<cap){ aum=aum*(1+gM)+perMonth; months++; }
+  if(aum<target) return {reached:false, perMonth:perMonth};
+  var date=new Date(); date.setMonth(date.getMonth()+months);
+  var age=ageNow()+months/12;
+  var gathered=perMonth*months;
+  var fromGrowth=Math.max(0,(target-cur)-gathered);
+  var gatheredNet=Math.min(gathered, target-cur);
+  return {reached:true, months:months, date:date, age:age, perMonth:perMonth,
+          gathered:gatheredNet, fromGrowth:fromGrowth, target:target, cur:cur};
+}
+/* ---------- companions ----------
+   A bond has a start and, sometimes, an end. Marriage runs to the edge of your
+   own life if you let it. A dog does not. Seeing the shared span against the
+   whole grid is the point: some windows are wide open, and some are closing. */
+function companionInfo(c){
+  if(!c||!c.start) return null;
+  var b=birthDate().getTime(), H=healthyAge();
+  var sd=new Date(c.start+"T00:00:00"); if(isNaN(sd.getTime())) return null;
+  var startAge=(sd.getTime()-b)/(DAYS_YR*MS_DAY);
+  var ongoing=!c.end;
+  var ed = ongoing ? deathDate() : new Date(c.end+"T00:00:00");
+  if(isNaN(ed.getTime())) ed=deathDate();
+  var endAge=(ed.getTime()-b)/(DAYS_YR*MS_DAY);
+  var nowA=ageNow();
+  var ended=!ongoing && ed.getTime()<=Date.now();
+  var yearsSoFar=Math.max(0, Math.min(nowA,endAge)-Math.max(0,startAge));
+  var yearsLeft=Math.max(0, endAge-Math.max(nowA,startAge));
+  return {
+    label:c.label||"Bond", color:c.color||"var(--rose)", ongoing:ongoing, ended:ended,
+    startDate:sd, endDate:ed, startAge:startAge, endAge:Math.min(endAge,H), rawEndAge:endAge,
+    nowA:nowA, yearsSoFar:yearsSoFar, yearsLeft:yearsLeft,
+    startWeek:Math.floor(startAge*52), endWeek:Math.floor(endAge*52)
+  };
+}
+function companionCells(){
+  var cells={}, H=healthyAge();
+  (S.companions||[]).forEach(function(c){
+    var ci=companionInfo(c); if(!ci) return;
+    if(ci.startWeek>=0 && ci.startWeek<H*52 && ci.startAge>=0) cells[ci.startWeek]={color:ci.color, label:ci.label+" begins"};
+    if(!ci.ongoing && ci.endWeek>=0 && ci.endWeek<H*52) cells[ci.endWeek]={color:ci.color, label:ci.label+" ends", end:true};
+  });
+  return cells;
+}
+function goalWeekIdx(){
+  var pf=projFin();
+  if(!pf||!pf.reached||pf.already||!pf.date) return null;
+  var wk=Math.floor(pf.age*52);
+  return (wk>=0 && wk < healthyAge()*52) ? wk : null;
+}
+
+/* ---------- the math ---------- */
+function birthDate(){ var d=new Date((S.birth||"1994-02-24")+"T00:00:00"); return isNaN(d.getTime())?new Date("1994-02-24T00:00:00"):d; }
+function plusYears(base, yrs){ var d=new Date(base.getTime()); d.setFullYear(d.getFullYear()+Math.round(yrs)); return d; }
+function healthyAge(){ return Math.max(1, +S.healthyAge||90); }
+function retireAge(){ return Math.max(0, +S.retireAge||50); }
+function deathDate(){ return plusYears(birthDate(), healthyAge()); }
+function retireDate(){ return plusYears(birthDate(), retireAge()); }
+function ageNow(){ return (Date.now()-birthDate().getTime())/(DAYS_YR*MS_DAY); }
+function span(){ return deathDate().getTime()-birthDate().getTime(); }
+function lived(){ return Date.now()-birthDate().getTime(); }
+function pctLived(){ return Math.max(0, Math.min(1, lived()/span())); }
+function daysLeft(){ return Math.max(0, (deathDate().getTime()-Date.now())/MS_DAY); }
+function weeksLeft(){ return Math.max(0, (deathDate().getTime()-Date.now())/MS_WEEK); }
+function yearsLeft(){ return daysLeft()/DAYS_YR; }
+function weeksToRetire(){ return (retireDate().getTime()-Date.now())/MS_WEEK; }
+function yearsToRetire(){ return (retireDate().getTime()-Date.now())/(DAYS_YR*MS_DAY); }
+
+/* ---------- wallpaper ----------
+   The single biggest lever is how often you see this. A tool you have to open
+   loses every day you forget. On the lock screen it finds you. Drawn at phone
+   resolution so it is crisp, and laid out low enough that the clock does not
+   sit on the grid. */
+function markerEmojis(){
+  /* one emoji per special week, drawn on top of the grid so it reads at a glance */
+  var m={}, H=healthyAge(), gWeek=goalWeekIdx(), aN=ageNow();
+  (S.milestones||[]).forEach(function(ml){
+    if(!ml.date) return;
+    var d=new Date(ml.date+"T00:00:00"); if(isNaN(d.getTime())) return;
+    var wk=Math.floor((d.getTime()-birthDate().getTime())/MS_WEEK);
+    if(wk>=0 && wk<H*52) m[wk]=ml.emoji||"📌";
+  });
+  (S.companions||[]).forEach(function(c){
+    var ci=companionInfo(c); if(!ci) return;
+    if(ci.startAge>=0 && ci.startWeek<H*52) m[ci.startWeek]=c.emoji||"🤝";
+    if(!ci.ongoing && ci.endWeek>=0 && ci.endWeek<H*52) m[ci.endWeek]="🌈";
+  });
+  if(gWeek!=null) m[gWeek]="💰";
+  m[Math.floor(aN*52)]="📍";
+  return m;
+}
+function buildWallpaperCanvas(){
+  var W=1170, Hh=2532, cv=document.createElement("canvas"); cv.width=W; cv.height=Hh;
+  var x=cv.getContext("2d");
+  var g=x.createLinearGradient(0,0,0,Hh);
+  g.addColorStop(0,"#0b0d18"); g.addColorStop(.5,"#0c0e1a"); g.addColorStop(1,"#090a12");
+  x.fillStyle=g; x.fillRect(0,0,W,Hh);
+
+  var H=healthyAge(), R=retireAge(), aN=ageNow(), nowWeek=Math.floor(aN*52);
+  var emo=markerEmojis();
+  var EMOJI_FONT="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+
+  /* header */
+  x.textAlign="center"; x.textBaseline="alphabetic";
+  x.fillStyle="#f0b73e"; x.font="600 40px 'Cinzel', Georgia, serif";
+  x.fillText("THE HOURGLASS", W/2, 250);
+  x.fillStyle="#f6cf6a"; x.font="700 120px 'Space Mono', monospace";
+  x.fillText(comma(weeksLeft()), W/2, 388);
+  x.fillStyle="#8089a8"; x.font="400 32px 'Outfit', sans-serif";
+  x.fillText("weeks remaining, "+Math.round(pctLived()*100)+" percent of a life lived", W/2, 442);
+
+  /* grid: phase colours underneath, emoji markers on top */
+  var gap=4, cell=14, pitch=cell+gap, marg=(W-(52*cell+51*gap))/2, gridY=520, rowsCap=Math.min(H,120);
+  for(var yy=0; yy<rowsCap; yy++){
+    for(var w=0; w<52; w++){
+      var idx=yy*52+w, cellAge=yy+w/52, col;
+      if(cellAge<aN) col="#f0b73e";
+      else if(cellAge<R) col="rgba(69,200,216,.30)";
+      else col="rgba(47,209,128,.26)";
+      x.fillStyle=col;
+      var cx=marg+w*pitch, cy=gridY+yy*pitch;
+      x.beginPath();
+      if(x.roundRect) x.roundRect(cx,cy,cell,cell,1.5); else x.rect(cx,cy,cell,cell);
+      x.fill();
+    }
+  }
+  /* emoji markers, drawn oversized and centred on their week */
+  x.textAlign="center"; x.textBaseline="middle"; x.font="26px "+EMOJI_FONT;
+  Object.keys(emo).forEach(function(k){
+    var idx=+k, yy=Math.floor(idx/52), w=idx%52;
+    if(yy>=rowsCap) return;
+    var cx=marg+w*pitch+cell/2, cy=gridY+yy*pitch+cell/2;
+    x.fillText(emo[k], cx, cy);
+  });
+  var gridBottom=gridY+rowsCap*pitch;
+
+  /* legend, two columns, so nothing needs decoding */
+  x.textBaseline="alphabetic";
+  var ly=gridBottom+66, step=46;
+  var colL=marg+6, colR=W/2+40;
+  function swatchRow(cx0, yy, color, label){
+    x.fillStyle=color; x.beginPath();
+    if(x.roundRect) x.roundRect(cx0, yy-24, 30, 30, 4); else x.rect(cx0,yy-24,30,30);
+    x.fill();
+    x.fillStyle="#c9cee6"; x.textAlign="left"; x.font="400 29px 'Outfit', sans-serif";
+    x.fillText(label, cx0+46, yy);
+  }
+  function emojiRow(cx0, yy, emoji, label){
+    x.textAlign="left"; x.font="32px "+EMOJI_FONT; x.fillStyle="#fff";
+    x.fillText(emoji, cx0, yy);
+    x.fillStyle="#c9cee6"; x.font="400 29px 'Outfit', sans-serif";
+    x.fillText(label, cx0+52, yy);
+  }
+  /* left column: the phases */
+  swatchRow(colL, ly,        "#f0b73e", "Lived so far");
+  swatchRow(colL, ly+step,   "#3f8fb0", "Years to retiring at "+R);
+  swatchRow(colL, ly+step*2, "#2f9d6a", "Free years, "+R+" to "+H);
+  emojiRow (colL, ly+step*3, "📍", "This week");
+  /* right column: the people and the marks */
+  var rightItems=[];
+  (S.milestones||[]).forEach(function(ml){ if(ml.date) rightItems.push([ml.emoji||"📌", ml.label||"Milestone"]); });
+  (S.companions||[]).forEach(function(c){
+    var ci=companionInfo(c); if(!ci) return;
+    rightItems.push([c.emoji||"🤝", c.label||"Bond"]);
+    if(!ci.ongoing) rightItems.push(["🌈", "Goodbye to "+(c.label||"them")]);
+  });
+  if(goalWeekIdx()!=null) rightItems.push(["💰", "Reach "+fmtMoney((S.fin&&S.fin.target)||0)]);
+  rightItems.slice(0,7).forEach(function(it, i){ emojiRow(colR, ly+step*i, it[0], it[1]); });
+
+  /* tagline, clear of the legend */
+  var legendBottom=ly+step*Math.max(4, Math.min(7,rightItems.length));
+  x.textAlign="center"; x.fillStyle="#f6cf6a"; x.font="italic 600 34px 'Outfit', sans-serif";
+  x.fillText("Spend them on purpose.", W/2, Math.max(legendBottom+58, Hh-90));
+  return cv;
+}
+function showWallpaper(){
+  uiClose();
+  var drawn=false;
+  var draw=function(){
+    if(drawn) return; drawn=true;
+    var cv; try{ cv=buildWallpaperCanvas(); }catch(e){ toast("Could not build the image"); return; }
+    var url=cv.toDataURL("image/png");
+    var w=document.createElement("div"); w.id="uiDlg";
+    w.style.cssText="position:fixed;inset:0;z-index:9000;background:rgba(4,5,10,.92);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px;overflow:auto";
+    w.innerHTML='<img src="'+url+'" alt="Your life in weeks" style="max-width:78%;max-height:64vh;border-radius:14px;border:1px solid rgba(120,130,180,.3);box-shadow:0 20px 60px rgba(0,0,0,.6)">'
+      +'<div style="font-size:12.5px;color:#9aa2c0;text-align:center;line-height:1.5;max-width:330px">On iPhone, press and hold the image, then Save to Photos, and set it as your lock screen. On a computer, use Download.</div>'
+      +'<div style="display:flex;gap:9px">'
+      +'<button id="wallDl" style="padding:11px 18px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#f0b73e);border:none">Download</button>'
+      +'<button id="wallClose" style="padding:11px 18px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:#9aa2c0;background:rgba(255,255,255,.06);border:1px solid rgba(120,130,180,.25)">Close</button>'
+      +'</div>';
+    w.addEventListener("click",function(e){ if(e.target===w) uiClose(); });
+    document.body.appendChild(w);
+    document.getElementById("wallClose").onclick=uiClose;
+    document.getElementById("wallDl").onclick=function(){ downloadCanvas(cv); };
+  };
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(draw); setTimeout(draw,650); }
+  else draw();
+}
+/* A Blob and an object URL download far more reliably than a giant data-URI
+   anchor, which iOS ignores outright. On a phone that blocks the download we
+   open the image in a new tab so it can still be saved to Photos. */
+function downloadCanvas(cv){
+  var name="hourglass-"+(new Date().toISOString().slice(0,10))+".png";
+  var handoff=function(url, revoke){
+    var a=document.createElement("a"); a.href=url; a.download=name;
+    a.style.display="none"; document.body.appendChild(a);
+    var clicked=false;
+    try{ a.click(); clicked=true; }catch(e){}
+    setTimeout(function(){
+      document.body.removeChild(a);
+      if(revoke) try{ URL.revokeObjectURL(url); }catch(e){}
+    }, 4000);
+    /* standalone iOS home-screen apps ignore download: fall back to opening it */
+    if(navigator.standalone || (!clicked)){
+      try{ window.open(url,"_blank"); }catch(e){}
+    }
+  };
+  if(cv.toBlob){
+    cv.toBlob(function(blob){
+      if(!blob){ handoff(cv.toDataURL("image/png"), false); return; }
+      handoff(URL.createObjectURL(blob), true);
+    }, "image/png");
+  } else {
+    handoff(cv.toDataURL("image/png"), false);
+  }
+}
+
+/* ===================== RENDER ===================== */
+var TICKER=null;
+function clearTicker(){ if(TICKER){ clearInterval(TICKER); TICKER=null; } }
+
+function render(){
+  clearTicker();
+  var activeTab=S.tab||"weeks";
+  var h='';
+
+  h+='<div class="appbar">';
+  h+='<div style="display:flex;align-items:center;min-width:0">'
+    +'<a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">\u2302</a>'
+    +'<div style="min-width:0"><div class="appbar-title">The Hourglass</div><div class="appbar-sub">Your Time</div></div></div>';
+  h+='<span class="appbar-pill">'+comma(weeksLeft())+' <span style="font-size:9px;color:var(--dim);font-weight:400">weeks left</span></span>';
+  h+='</div>';
+
+  if(activeTab==="weeks")   h+=viewWeeks();
+  if(activeTab==="reckon")  h+=viewReckon();
+  if(activeTab==="climb")   h+=viewClimb();
+  if(activeTab==="setup")   h+=viewSetup();
+
+  var TABS=[["weeks","\u25a6","Weeks"],["reckon","\u29d7","Reckoning"],["climb","\u25b2","The Climb"],["setup","\u2699","Setup"]];
+  h+='<div class="tabbar">'+TABS.map(function(t){
+    return '<button class="'+(activeTab===t[0]?"on":"")+'" data-tab="'+t[0]+'"><span class="tglyph">'+t[1]+'</span><span class="tlbl">'+t[2]+'</span></button>';
+  }).join('')+'</div>';
+
+  document.getElementById("app").innerHTML=h;
+  wire();
+  if(activeTab==="reckon") startTicker();
+}
+
+/* ---------- THE WEEKS ---------- */
+function milestoneWeeks(){
+  var set={}, b=birthDate().getTime();
+  (S.milestones||[]).forEach(function(m){
+    if(!m.date) return;
+    var d=new Date(m.date+"T00:00:00"); if(isNaN(d.getTime())) return;
+    var wk=Math.floor((d.getTime()-b)/MS_WEEK);
+    if(wk>=0) set[wk]=m.label||"Milestone";
+  });
+  return set;
+}
+function viewWeeks(){
+  var h='', H=healthyAge(), R=retireAge(), aN=ageNow();
+  var nowWeek=Math.floor(aN*52);
+  var miles=milestoneWeeks();
+  var gWeek=goalWeekIdx();
+  var pf=projFin();
+  var comp=companionCells();
+
+  h+='<div class="panel fadeUp" style="text-align:center;border-color:rgba(240,183,62,.3)">';
+  h+='<div class="eyebrow" style="color:var(--gold)">Your life in weeks</div>';
+  h+='<div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px">'
+    +'Every square is one week. Each row is a year. The gold is spent, and the rest is everything you have not lived yet.</div>';
+  h+='<div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:12px;font-size:10px;color:var(--dim)">';
+  h+=legendDot("var(--gold)","Lived");
+  h+=legendDot("#fff","This week");
+  h+=legendDot("rgba(69,200,216,.7)","To retirement");
+  h+=legendDot("rgba(47,209,128,.6)","Free years");
+  if(Object.keys(miles).length) h+=legendDot("var(--violet)","A milestone");
+  if(gWeek!=null) h+=legendDot("var(--amber)",fmtMoney(pf.target));
+  if((S.companions||[]).length) h+=legendDot("var(--rose)","A bond");
+  h+='</div>';
+  h+='</div>';
+
+  h+='<div class="panel fadeUp" style="padding:13px 11px">';
+  h+='<div class="grid-wrap">';
+  var rowsCap=Math.min(H,120);
+  for(var y=0;y<rowsCap;y++){
+    h+='<div class="grid-row"><div class="gut">'+((y%10===0)?y:"")+'</div><div class="cells">';
+    for(var w=0;w<52;w++){
+      var idx=y*52+w, cellAge=y+w/52, cls="cell", style="";
+      if(idx===nowWeek) cls+=" now";
+      else if(gWeek!=null && idx===gWeek) cls+=" goal";
+      else if(comp[idx]) { style=' style="background:'+comp[idx].color+';box-shadow:0 0 5px '+comp[idx].color+'"'; }
+      else if(miles[idx]!=null) cls+=" mile";
+      else if(cellAge<aN) cls+=" lived";
+      else if(cellAge<R) cls+=" build";
+      else cls+=" free";
+      h+='<div class="'+cls+'"'+style+'></div>';
+    }
+    h+='</div></div>';
+  }
+  h+='</div>';
+  h+='<div style="font-size:10px;color:var(--dim);text-align:center;margin-top:10px">Age '+Math.floor(aN)+' of '+H+'. The bright square is right now.</div>';
+  h+='<button class="btn" id="makeWall" style="width:100%;margin-top:13px">Make a wallpaper</button>';
+  h+='<div style="font-size:10px;color:var(--dim);text-align:center;line-height:1.5;margin-top:8px">Set it as your lock screen and you meet the grid a hundred times a day, no discipline required. That frequency is what actually changes anything.</div>';
+  h+='</div>';
+
+  /* milestones on the grid, named */
+  var ms=(S.milestones||[]).filter(function(m){ return m.date; }).map(function(m){
+    var d=new Date(m.date+"T00:00:00"); return {label:m.label,emoji:m.emoji,d:d,age:(d.getTime()-birthDate().getTime())/(DAYS_YR*MS_DAY)};
+  }).filter(function(m){ return !isNaN(m.d.getTime()); }).sort(function(a,b){ return a.d-b.d; });
+  var compList=[];
+  (S.companions||[]).forEach(function(c){
+    var ci=companionInfo(c); if(!ci) return;
+    if(ci.startAge>=0) compList.push({d:ci.startDate, label:(c.emoji||"")+" "+ci.label+" begins", age:ci.startAge, color:ci.color});
+    if(!ci.ongoing) compList.push({d:ci.endDate, label:"🌈 "+ci.label+" ends", age:ci.rawEndAge, color:ci.color, end:true});
+  });
+  compList.sort(function(a,b){ return a.d-b.d; });
+  if(ms.length || gWeek!=null || compList.length){
+    h+='<div class="panel fadeUp"><div class="eyebrow" style="margin-bottom:9px">Marked on the grid</div>';
+    compList.forEach(function(m){
+      var future=m.d.getTime()>Date.now();
+      h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid rgba(120,130,180,.08)">'
+        +'<span style="width:8px;height:8px;border-radius:2px;background:'+m.color+';flex-shrink:0;align-self:center"></span>'
+        +'<span style="flex:1;min-width:0;font-size:12.5px;color:var(--txt)">'+esc(m.label)+'</span>'
+        +'<span class="mono" style="font-size:10.5px;color:var(--dim);flex-shrink:0">'+niceDate(m.d)+' \u00b7 age '+Math.round(m.age)+(future?"":" (past)")+'</span></div>';
+    });
+    if(gWeek!=null){
+      h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid rgba(120,130,180,.08)">'
+        +'<span style="width:8px;height:8px;border-radius:2px;background:var(--amber);flex-shrink:0;align-self:center;box-shadow:0 0 4px rgba(240,104,62,.7)"></span>'
+        +'<span style="flex:1;min-width:0;font-size:12.5px;color:var(--txt);font-weight:600">Reach '+fmtMoney(pf.target)+' AUM</span>'
+        +'<span class="mono" style="font-size:10.5px;color:var(--amber);flex-shrink:0">'+niceDate(pf.date)+' \u00b7 age '+Math.round(pf.age)+'</span></div>';
+    }
+    ms.forEach(function(m){
+      var future=m.d.getTime()>Date.now();
+      h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid rgba(120,130,180,.08)">'
+        +'<span style="flex-shrink:0;align-self:center;font-size:14px">'+(m.emoji||"📌")+'</span>'
+        +'<span style="flex:1;min-width:0;font-size:12.5px;color:var(--txt)">'+esc(m.label||"Milestone")+'</span>'
+        +'<span class="mono" style="font-size:10.5px;color:var(--dim);flex-shrink:0">'+niceDate(m.d)+' \u00b7 age '+Math.round(m.age)+(future?"":" (past)")+'</span></div>';
+    });
+    h+='</div>';
+  }
+  return h;
+}
+function legendDot(c,label){
+  return '<span style="display:inline-flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:'+c+'"></span>'+label+'</span>';
+}
+
+/* ---------- THE RECKONING ---------- */
+function viewReckon(){
+  var h='', aN=ageNow(), H=healthyAge(), R=retireAge();
+  var pl=pctLived();
+
+  /* the live hero */
+  h+='<div class="panel fadeUp" style="text-align:center;border-color:rgba(240,183,62,.32);padding:20px 16px">';
+  h+='<div class="eyebrow" style="color:var(--gold)">Time remaining, if you reach '+H+'</div>';
+  h+='<div class="mono" style="font-size:34px;font-weight:700;color:var(--gold2);line-height:1.05;margin-top:8px"><span id="tickDays">'+comma(daysLeft())+'</span><span style="font-size:14px;color:var(--dim)"> days</span></div>';
+  h+='<div class="mono" id="tickClock" style="font-size:15px;color:var(--muted);margin-top:4px">00:00:00</div>';
+  h+='<div style="font-size:11px;color:var(--dim);line-height:1.5;margin-top:9px">That is about '+comma(weeksLeft())+' weeks, or '+Math.round(yearsLeft())+' years. It is enough to do something that matters, and not enough to waste.</div>';
+  h+='</div>';
+
+  /* life progress */
+  h+='<div class="panel fadeUp">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">'
+    +'<span class="eyebrow">The life so far</span>'
+    +'<span class="mono" style="font-size:13px;font-weight:700;color:var(--gold2)">'+(pl*100).toFixed(1)+'%</span></div>';
+  h+='<div class="bar"><i style="width:'+(pl*100).toFixed(1)+'%;background:linear-gradient(90deg,#f0b73e,#f6cf6a)"></i></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);margin-top:6px">'
+    +'<span>born '+niceDate(birthDate())+'</span><span>age '+H+' in '+niceDate(deathDate()).slice(-4)+'</span></div>';
+  h+='<div style="font-size:12px;color:var(--muted);line-height:1.55;margin-top:10px">You are '+aN.toFixed(1)+' years in. Roughly '+(pl*100).toFixed(0)
+    +' percent of a healthy life is behind you, which means the larger share is still ahead, and still yours to spend.</div>';
+  h+='</div>';
+
+  /* the two runways */
+  var ytr=yearsToRetire(), retired=ytr<=0;
+  h+='<div class="panel fadeUp">';
+  h+='<div class="eyebrow" style="margin-bottom:10px">The two runways</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">';
+  h+='<div style="padding:11px;border-radius:12px;background:rgba(69,200,216,.07);border:1px solid rgba(69,200,216,.28)">'
+    +'<div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);font-weight:700">'+(retired?"Retirement":"To retire at "+R)+'</div>'
+    +'<div class="mono" style="font-size:19px;font-weight:700;color:var(--cyan);margin-top:3px">'+(retired?"here":Math.round(Math.max(0,ytr))+"y")+'</div>'
+    +'<div style="font-size:9.5px;color:var(--dim);margin-top:2px">'+(retired?"already free":comma(Math.max(0,weeksToRetire()))+" weeks, "+comma(Math.max(0,weeksToRetire()))+" weekends")+'</div></div>';
+  var freeYears=Math.max(0,H-R);
+  h+='<div style="padding:11px;border-radius:12px;background:rgba(47,209,128,.07);border:1px solid rgba(47,209,128,.28)">'
+    +'<div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:700">Free years</div>'
+    +'<div class="mono" style="font-size:19px;font-weight:700;color:var(--green2);margin-top:3px">'+freeYears+'y</div>'
+    +'<div style="font-size:9.5px;color:var(--dim);margin-top:2px">from '+R+' to '+H+', healthy</div></div>';
+  h+='</div>';
+  if(!retired){
+    var buildYears=Math.max(0.1, ytr);
+    h+='<div style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:12px">'
+      +'The math that should focus you: about <b style="color:var(--cyan)">'+Math.round(buildYears)+' years</b> of building buys <b style="color:var(--green2)">'+freeYears+' years</b> of freedom. '
+      +'The window that decides the whole back half is the smaller one, and it is running right now.</div>';
+  }
+  h+='<div style="font-size:10.5px;color:var(--dim);line-height:1.5;margin-top:10px">Whether the numbers behind retirement actually hold is a question for The Summit and The Aqueduct. This tool only counts the time.</div>';
+  h+='</div>';
+
+  /* what is left, in things you can feel */
+  var summers=Math.max(0, Math.round(H-aN));
+  var kidMile=(S.milestones||[]).filter(function(m){ return m.date && /child|baby|born|son|daughter|kid/i.test(m.label||""); })[0];
+  h+='<div class="panel fadeUp">';
+  h+='<div class="eyebrow" style="margin-bottom:4px">What is left, in things you can feel</div>';
+  h+='<div style="font-size:11px;color:var(--dim);line-height:1.5;margin-bottom:11px">Weeks are abstract. These are not.</div>';
+  h+=feelRow(comma(summers), "summers", "if the leaves changing is something you want to be awake for");
+  h+=feelRow(comma(Math.round(daysLeft())), "days", "each one a decision about where your attention goes");
+  if(!retired) h+=feelRow(comma(Math.max(0,Math.round(weeksToRetire()))), "weekends until you are free", "the count between now and retiring at "+R);
+  if(kidMile && kidMile.date){
+    var kb=new Date(kidMile.date+"T00:00:00");
+    if(!isNaN(kb.getTime())){
+      var kidLeavesHome=plusYears(kb,18);
+      var yrsAtHome=(kidLeavesHome.getTime()-Math.max(Date.now(),kb.getTime()))/(DAYS_YR*MS_DAY);
+      if(yrsAtHome>0) h+=feelRow(Math.max(0,Math.round(yrsAtHome)), "years with your child at home", "before they are grown and the house is quieter");
+    }
+  }
+  h+='</div>';
+
+  /* the people, and the time with them */
+  var comps=(S.companions||[]).map(companionInfo).filter(function(x){ return x; });
+  if(comps.length){
+    var H=healthyAge();
+    h+='<div class="panel fadeUp">';
+    h+='<div class="eyebrow" style="margin-bottom:4px">The time you have with them</div>';
+    h+='<div style="font-size:11px;color:var(--dim);line-height:1.5;margin-bottom:13px">Each bar is a life laid over yours. The solid part is shared already, the faint part is what remains if the years hold.</div>';
+    comps.forEach(function(ci){
+      var s0=Math.max(0,ci.startAge)/H*100, e0=Math.min(H,ci.endAge)/H*100, nowP=Math.min(H,ci.nowA)/H*100;
+      var sharedEnd=Math.min(nowP,e0);
+      h+='<div style="margin-bottom:14px">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">'
+        +'<span style="font-size:13px;color:var(--txt);font-weight:600">'+esc(ci.label)+'</span>'
+        +'<span class="mono" style="font-size:11px;color:'+ci.color+'">'+(ci.ended?"complete":Math.round(ci.yearsLeft)+" years left")+'</span></div>';
+      h+='<div style="position:relative;height:14px;border-radius:99px;background:rgba(255,255,255,.04);overflow:hidden">';
+      /* remaining (faint) */
+      h+='<div style="position:absolute;left:'+s0+'%;width:'+Math.max(0,e0-s0)+'%;top:0;bottom:0;background:'+ci.color+';opacity:.22"></div>';
+      /* shared (solid) */
+      h+='<div style="position:absolute;left:'+s0+'%;width:'+Math.max(0,sharedEnd-s0)+'%;top:0;bottom:0;background:'+ci.color+'"></div>';
+      h+='</div>';
+      /* now marker line */
+      h+='<div style="position:relative;height:0">'
+        +'<div style="position:absolute;left:'+nowP+'%;top:-16px;width:2px;height:16px;background:#fff;opacity:.7"></div></div>';
+      h+='<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:7px">'+companionLine(ci)+'</div>';
+      h+='</div>';
+    });
+    h+='<div style="font-size:10px;color:var(--dim);line-height:1.5;margin-top:2px">The white tick on each bar is now. Marriage is capped at your own healthy years here, since only your date is set.</div>';
+    h+='</div>';
+  }
+
+  /* the reframe */
+  h+='<div class="panel fadeUp" style="border-color:rgba(240,183,62,.25);background:linear-gradient(180deg,rgba(240,183,62,.05),rgba(20,24,48,.4))">';
+  h+='<div style="font-size:12.5px;color:var(--gold2);line-height:1.65;font-style:italic">'
+    +'"You could leave life right now. Let that determine what you do and say and think." The point of counting is not fear. It is that a finite thing, seen clearly, gets spent on purpose. This is the tool that answers the question you started with.</div>';
+  h+='</div>';
+  return h;
+}
+function companionLine(ci){
+  if(ci.ended) return "That window has closed. "+Math.round(ci.yearsSoFar)+" years shared.";
+  var soFar=Math.round(ci.yearsSoFar), left=Math.round(ci.yearsLeft), ageEnd=Math.round(ci.rawEndAge);
+  var weekendsLeft=Math.round(ci.yearsLeft*52);
+  if(ci.ongoing){
+    var possible=Math.round(ci.endAge-Math.max(0,ci.startAge));
+    var pctAhead=possible>0?Math.round(ci.yearsLeft/possible*100):0;
+    return "Begun at age "+Math.round(ci.startAge)+". Up to about "+possible+" years together if you reach "+healthyAge()+", and you are roughly "+soFar+" in. Close to "+pctAhead+" percent of it is still ahead.";
+  }
+  return "About "+soFar+" years in already. Around "+left+" years remain, and you will be about "+ageEnd+" at the end. That is close to "+comma(weekendsLeft)+" weekends left, so spend them outside.";
+}
+function feelRow(big, unit, sub){
+  return '<div style="display:flex;align-items:baseline;gap:9px;padding:9px 0;border-bottom:1px solid rgba(120,130,180,.08)">'
+    +'<span class="mono" style="font-size:17px;font-weight:700;color:var(--gold2);flex-shrink:0;min-width:58px">'+big+'</span>'
+    +'<div style="min-width:0"><div style="font-size:12.5px;color:var(--txt)">'+unit+'</div>'
+    +'<div style="font-size:10.5px;color:var(--dim);line-height:1.4">'+sub+'</div></div></div>';
+}
+
+function startTicker(){
+  clearTicker();
+  TICKER=setInterval(function(){
+    var dd=document.getElementById("tickDays"), tc=document.getElementById("tickClock");
+    if(!dd||!tc){ clearTicker(); return; }
+    var msLeft=Math.max(0, deathDate().getTime()-Date.now());
+    var days=Math.floor(msLeft/MS_DAY);
+    var rem=msLeft-days*MS_DAY;
+    var hh=Math.floor(rem/3600000), mm=Math.floor((rem%3600000)/60000), ss=Math.floor((rem%60000)/1000);
+    dd.textContent=comma(days);
+    tc.textContent=String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0")+" of today's turn";
+  },1000);
+  /* prime it immediately */
+  var tc=document.getElementById("tickClock");
+  if(tc){ var msLeft=Math.max(0,deathDate().getTime()-Date.now()); var rem=msLeft-Math.floor(msLeft/MS_DAY)*MS_DAY;
+    var hh=Math.floor(rem/3600000),mm=Math.floor((rem%3600000)/60000),ss=Math.floor((rem%60000)/1000);
+    tc.textContent=String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0")+" of today's turn"; }
+}
+
+/* ---------- THE CLIMB ---------- */
+function viewClimb(){
+  var F=S.fin, h='', cur=+F.currentAUM||0, target=+F.target||0, pf=projFin();
+
+  h+='<div class="panel fadeUp">';
+  h+='<div class="eyebrow" style="color:var(--amber);margin-bottom:9px">The climb to your number</div>';
+  h+='<div class="row two">'
+    +'<div class="f"><label>Current AUM</label><input type="text" inputmode="decimal" data-f="currentAUM" value="'+(F.currentAUM||"")+'" placeholder="40000000"></div>'
+    +'<div class="f"><label>Target AUM</label><input type="text" inputmode="decimal" data-f="target" value="'+(F.target||"")+'" placeholder="100000000"></div>'
+    +'</div>';
+  h+='<div class="row two">'
+    +'<div class="f"><label>New assets you gather</label><input type="text" inputmode="decimal" data-f="pace" value="'+(F.pace||"")+'" placeholder="200000"></div>'
+    +'<div class="f"><label>Per</label><select data-f="paceUnit"><option value="week"'+(F.paceUnit==="week"?" selected":"")+'>Per week</option><option value="month"'+(F.paceUnit==="month"?" selected":"")+'>Per month</option></select></div>'
+    +'</div>';
+  h+='<div class="f" style="margin-bottom:2px"><label>Assumed market growth on the book, % a year</label><input type="text" inputmode="decimal" data-f="growthPct" value="'+(F.growthPct===""||F.growthPct==null?"":F.growthPct)+'" placeholder="6"></div>';
+  h+='<div style="font-size:10px;color:var(--dim);line-height:1.5;margin-top:7px">The book grows two ways: the assets you bring in, and what the market does to what is already there. Set growth to zero to see the pace alone.</div>';
+  h+='</div>';
+
+  if(!(cur>0) && !(+F.pace>0)){
+    h+='<div class="panel fadeUp" style="text-align:center;padding:20px 16px">'
+      +'<div style="font-size:28px;margin-bottom:8px">\u25b2</div>'
+      +'<div style="font-size:12.5px;color:var(--muted);line-height:1.6">Put in where the book stands today and the pace you are adding, and this lands the day you cross '+fmtMoney(target)+' on the grid.</div></div>';
+    return h;
+  }
+
+  if(pf && pf.already){
+    h+='<div class="panel fadeUp" style="text-align:center;border-color:rgba(47,209,128,.4);padding:20px 16px">'
+      +'<div class="eyebrow" style="color:var(--green)">Already there</div>'
+      +'<div style="font-size:16px;color:var(--green2);font-weight:700;margin-top:8px">You are past '+fmtMoney(target)+'.</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-top:6px">Set a higher target, or let this one stand as done.</div></div>';
+    return h;
+  }
+  if(pf && !pf.reached){
+    h+='<div class="panel fadeUp" style="text-align:center;border-color:rgba(240,104,62,.35);padding:20px 16px">'
+      +'<div class="eyebrow" style="color:var(--amber)">Out of reach at this pace</div>'
+      +'<div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px">Gathering '+fmtMoney(pf.perMonth)+' a month with '+(F.growthPct||0)+'% growth does not cross '+fmtMoney(target)+' inside a lifetime. Raise the pace or the growth assumption.</div></div>';
+    return h;
+  }
+
+  /* the answer */
+  var retired=pf.age>=retireAge(), beforeRetire=pf.age<retireAge();
+  h+='<div class="panel fadeUp" style="text-align:center;border-color:rgba(240,104,62,.4);padding:20px 16px">';
+  h+='<div class="eyebrow" style="color:var(--amber)">You reach '+fmtMoney(target)+' around</div>';
+  h+='<div class="cinzel" style="font-size:27px;font-weight:700;color:var(--gold2);line-height:1.1;margin-top:8px">'+monthYear(pf.date)+'</div>';
+  h+='<div style="font-size:12.5px;color:var(--muted);margin-top:6px">at age '+Math.round(pf.age)+', about '+Math.round(pf.months/12)+' years and '+(pf.months%12)+' months from now</div>';
+  h+='<div style="font-size:11.5px;color:var(--amber);line-height:1.5;margin-top:10px">It is marked in amber on the grid. Go look at where it falls in your life.</div>';
+  h+='</div>';
+
+  /* progress */
+  var prog=Math.max(0,Math.min(1,cur/target));
+  h+='<div class="panel fadeUp">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">'
+    +'<span class="eyebrow">The book today</span>'
+    +'<span class="mono" style="font-size:13px;font-weight:700;color:var(--amber)">'+Math.round(prog*100)+'%</span></div>';
+  h+='<div class="bar"><i style="width:'+(prog*100).toFixed(1)+'%;background:linear-gradient(90deg,#f0683e,#f6cf6a)"></i></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);margin-top:6px">'
+    +'<span>'+fmtMoney(cur)+' now</span><span>'+fmtMoney(target)+' target</span></div>';
+  h+='</div>';
+
+  /* where it lands in the life */
+  h+='<div class="panel fadeUp">';
+  h+='<div class="eyebrow" style="margin-bottom:10px">Where it lands in your life</div>';
+  var yrsToRet=retireAge()-pf.age;
+  if(beforeRetire && yrsToRet>0){
+    h+='<div style="font-size:12.5px;color:var(--muted);line-height:1.6">You cross '+fmtMoney(target)+' about <b style="color:var(--gold2)">'+Math.round(yrsToRet)+' years</b> before you planned to retire at '+retireAge()+'. '
+      +'The number arrives ahead of the deadline, which is the whole point of watching both at once.</div>';
+  } else {
+    var yrsPast=pf.age-retireAge();
+    h+='<div style="font-size:12.5px;color:var(--muted);line-height:1.6">At this pace you cross '+fmtMoney(target)+' around age '+Math.round(pf.age)+', about <b style="color:var(--amber)">'+Math.round(yrsPast)+' years after</b> your planned retirement at '+retireAge()+'. Either the pace lifts or the retirement age flexes.</div>';
+  }
+  h+='<div style="display:flex;gap:9px;margin-top:12px">';
+  h+='<div style="flex:1;padding:10px;border-radius:11px;background:rgba(240,183,62,.06);border:1px solid rgba(240,183,62,.25)">'
+    +'<div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700">From gathering</div>'
+    +'<div class="mono" style="font-size:15px;font-weight:700;color:var(--gold2);margin-top:3px">'+fmtMoney(pf.gathered)+'</div></div>';
+  h+='<div style="flex:1;padding:10px;border-radius:11px;background:rgba(47,209,128,.06);border:1px solid rgba(47,209,128,.25)">'
+    +'<div style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:700">From the market</div>'
+    +'<div class="mono" style="font-size:15px;font-weight:700;color:var(--green2);margin-top:3px">'+fmtMoney(pf.fromGrowth)+'</div></div>';
+  h+='</div>';
+  h+='<div style="font-size:10px;color:var(--dim);line-height:1.5;margin-top:9px">Rough split of the '+fmtMoney(target-cur)+' you still need. The market share compounds, so it grows the longer the climb runs. This counts the time, not the tax or the fees, which live in The Aqueduct.</div>';
+  h+='</div>';
+  return h;
+}
+
+/* ---------- SETUP ---------- */
+function viewSetup(){
+  var h='';
+  h+='<div class="panel fadeUp">';
+  h+='<div class="eyebrow" style="margin-bottom:10px">The three numbers</div>';
+  h+='<div class="f" style="margin-bottom:9px"><label>Date of birth</label><input type="date" data-s="birth" value="'+(S.birth||"")+'"></div>';
+  h+='<div class="row two">'
+    +'<div class="f"><label>Healthy until age</label><input type="text" inputmode="numeric" data-s="healthyAge" value="'+(S.healthyAge||"")+'"></div>'
+    +'<div class="f"><label>Retire at age</label><input type="text" inputmode="numeric" data-s="retireAge" value="'+(S.retireAge||"")+'"></div>'
+    +'</div>';
+  h+='<div style="font-size:10.5px;color:var(--dim);line-height:1.55;margin-top:4px">'
+    +'Healthspan is the honest target, not lifespan. Ninety is optimistic and worth aiming at. The retirement age sets the runway that matters most.</div>';
+  h+='</div>';
+
+  h+='<div class="panel fadeUp">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'
+    +'<span class="eyebrow">Milestones</span></div>';
+  h+='<div style="font-size:10.5px;color:var(--dim);line-height:1.5;margin-bottom:11px">Moments to mark on the grid. A child arriving, a date you are working toward. They show up as violet squares and anchor the years.</div>';
+  if(!S.milestones.length){
+    h+='<div style="font-size:12px;color:var(--dim);text-align:center;padding:10px 0">None yet.</div>';
+  } else {
+    S.milestones.forEach(function(m){
+      h+='<div style="display:flex;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(120,130,180,.07)">'
+        +'<input data-m="'+m.id+'" data-k="emoji" value="'+esc(m.emoji||"")+'" placeholder="📌" style="width:52px;flex-shrink:0;text-align:center;font-size:18px">'
+        +'<input data-m="'+m.id+'" data-k="label" value="'+esc(m.label||"")+'" placeholder="What happened" style="flex:1;min-width:0">'
+        +'<input type="date" data-m="'+m.id+'" data-k="date" value="'+(m.date||"")+'" style="width:130px;flex-shrink:0">'
+        +'<button class="xbtn" data-delm="'+m.id+'">\u2715</button></div>';
+    });
+  }
+  h+='<button class="addbtn" id="addMile" style="margin-top:11px">+ Add a milestone</button>';
+  h+='</div>';
+
+  /* companions */
+  h+='<div class="panel fadeUp">';
+  h+='<div class="eyebrow" style="margin-bottom:4px">Bonds</div>';
+  h+='<div style="font-size:10.5px;color:var(--dim);line-height:1.5;margin-bottom:11px">People and companions with a span. Leave the end blank for a bond that runs as long as you do. Give it an end date for one that will not, like a dog.</div>';
+  if(!S.companions.length){
+    h+='<div style="font-size:12px;color:var(--dim);text-align:center;padding:10px 0">None yet.</div>';
+  } else {
+    S.companions.forEach(function(c){
+      h+='<div style="padding:9px 0;border-bottom:1px solid rgba(120,130,180,.07)">';
+      h+='<div style="display:flex;gap:7px;align-items:center;margin-bottom:6px">'
+        +'<input data-c="'+c.id+'" data-k="emoji" value="'+esc(c.emoji||"")+'" placeholder="🤝" style="width:52px;flex-shrink:0;text-align:center;font-size:18px">'
+        +'<input data-c="'+c.id+'" data-k="label" value="'+esc(c.label||"")+'" placeholder="Name" style="flex:1;min-width:0">'
+        +'<button class="xbtn" data-delc="'+c.id+'">\u2715</button></div>';
+      h+='<div style="display:flex;gap:7px">'
+        +'<div class="f" style="flex:1"><label>Began</label><input type="date" data-c="'+c.id+'" data-k="start" value="'+(c.start||"")+'"></div>'
+        +'<div class="f" style="flex:1"><label>Ends (blank = with you)</label><input type="date" data-c="'+c.id+'" data-k="end" value="'+(c.end||"")+'"></div>'
+        +'</div>';
+      h+='</div>';
+    });
+  }
+  h+='<button class="addbtn" id="addComp" style="margin-top:11px">+ Add a bond</button>';
+  h+='</div>';
+
+  h+='<div class="panel fadeUp" style="border-color:rgba(240,98,138,.25)">';
+  h+='<button class="btn line sm" id="resetAll" style="width:100%;color:var(--rose);border-color:rgba(240,98,138,.35)">Reset everything</button>';
+  h+='</div>';
+  return h;
+}
+
+/* ===================== WIRING ===================== */
+function wire(){
+  var app=document.getElementById("app");
+  app.querySelectorAll("[data-tab]").forEach(function(b){
+    b.onclick=function(){ S.tab=b.dataset.tab; save(); window.scrollTo(0,0); render(); };
+  });
+
+  /* text fields do not rebuild while typing; date/select reconcile on change */
+  app.querySelectorAll("[data-s]").forEach(function(el){
+    var k=el.dataset.s;
+    if(el.type==="date"){ el.onchange=function(){ S[k]=el.value; save(); render(); }; }
+    else {
+      el.oninput=function(){ S[k]=toNum(el.value); save(); refreshPill(); };
+      el.onchange=function(){ save(); render(); };
+    }
+  });
+  app.querySelectorAll("[data-m]").forEach(function(el){
+    var m=S.milestones.filter(function(x){ return x.id===el.dataset.m; })[0]; if(!m) return;
+    if(el.type==="date"){ el.onchange=function(){ m.date=el.value; save(); render(); }; }
+    else { el.oninput=function(){ m.label=el.value; save(); }; el.onchange=function(){ save(); render(); }; }
+  });
+  app.querySelectorAll("[data-f]").forEach(function(el){
+    var k=el.dataset.f;
+    if(el.tagName==="SELECT"){ el.onchange=function(){ S.fin[k]=el.value; save(); render(); }; }
+    else {
+      el.oninput=function(){ S.fin[k]=(k==="growthPct")?toNum(el.value):toNum(el.value); save(); };
+      el.onchange=function(){ save(); render(); };
+    }
+  });
+  app.querySelectorAll("[data-c]").forEach(function(el){
+    var c=S.companions.filter(function(x){ return x.id===el.dataset.c; })[0]; if(!c) return;
+    var k=el.dataset.k;
+    if(el.type==="date"){ el.onchange=function(){ c[k]=el.value; save(); render(); }; }
+    else { el.oninput=function(){ c[k]=el.value; save(); }; el.onchange=function(){ save(); render(); }; }
+  });
+  var addC=document.getElementById("addComp");
+  if(addC) addC.onclick=function(){ S.companions.push({id:uid(),label:"",start:"",end:"",color:"#9d7bff"}); save(); render(); };
+  app.querySelectorAll("[data-delc]").forEach(function(b){
+    b.onclick=function(){
+      var snap=JSON.stringify(S.companions);
+      S.companions=S.companions.filter(function(x){ return x.id!==b.dataset.delc; });
+      save(); render(); toast("Bond removed","Undo",function(){ S.companions=JSON.parse(snap); save(); render(); });
+    };
+  });
+  var mw=document.getElementById("makeWall");
+  if(mw) mw.onclick=showWallpaper;
+  var am=document.getElementById("addMile");
+  if(am) am.onclick=function(){ S.milestones.push({id:uid(),label:"",date:""}); save(); render(); };
+  app.querySelectorAll("[data-delm]").forEach(function(b){
+    b.onclick=function(){
+      var snap=JSON.stringify(S.milestones);
+      S.milestones=S.milestones.filter(function(x){ return x.id!==b.dataset.delm; });
+      save(); render(); toast("Milestone removed","Undo",function(){ S.milestones=JSON.parse(snap); save(); render(); });
+    };
+  });
+  var ra=document.getElementById("resetAll");
+  if(ra) ra.onclick=function(){
+    uiConfirm("Reset the Hourglass?","This clears your dates and milestones back to the defaults.","Reset",function(){
+      var snap=JSON.stringify(S);
+      S=JSON.parse(JSON.stringify(DEF)); S.created=new Date().toISOString().slice(0,10); save(); render();
+      toast("Reset","Undo",function(){ S=JSON.parse(snap); save(); render(); });
+    }, true);
+  };
+}
+function refreshPill(){
+  var pill=document.querySelector(".appbar-pill");
+  if(pill) pill.innerHTML=comma(weeksLeft())+' <span style="font-size:9px;color:var(--dim);font-weight:400">weeks left</span>';
+}
+
+render();
+(function(){
+  try{
+    if(navigator.storage && navigator.storage.persist && navigator.storage.persisted){
+      navigator.storage.persisted().then(function(a){ if(!a) navigator.storage.persist(); });
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
