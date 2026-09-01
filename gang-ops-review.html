@@ -1,0 +1,1841 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>The Gang Ops Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Fraunces:opsz,wght@9..144,400..800&display=swap">
+<style>
+/* ============================================================
+   THE GANG OPERATIONS HUB
+   Palette and type pulled from thegangfitness.com
+   ============================================================ */
+:root{
+  /* brand */
+  --cream:#FFFAF3;
+  --ink:#0F0B09;
+  --wine:#840728;
+  --red:#E40224;
+  --pink:#FF54BF;
+  --sky:#D9E7FF;
+
+  /* warm neutrals biased toward the wine */
+  --paper:#FFFFFF;
+  --sand:#F6EEE3;
+  --shell:#F0E4D5;
+  --line:#E6D8C7;
+  --line-soft:#F0E6DA;
+  --stone:#8B7A6D;
+  --stone-dk:#5E4F45;
+
+  /* semantic */
+  --ok:#2E6B4F;
+  --warn:#C25E00;
+  --crit:var(--red);
+
+  --r-sm:8px;
+  --r-md:14px;
+  --r-lg:20px;
+  --r-pill:999px;
+
+  --shadow:0 1px 2px rgba(15,11,9,.04), 0 8px 24px -16px rgba(15,11,9,.22);
+  --shadow-lift:0 2px 6px rgba(15,11,9,.06), 0 20px 44px -24px rgba(15,11,9,.32);
+
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --ui:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  --rail:230px;
+  color-scheme: light;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background:var(--cream);
+  color:var(--ink);
+  font-family:var(--ui);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+button,input,select,textarea{font:inherit;color:inherit;}
+button{cursor:pointer;background:none;border:none;padding:0;}
+a{color:var(--red);}
+
+:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:4px;}
+
+h1,h2,h3,h4{margin:0;font-family:var(--display);font-weight:600;text-wrap:balance;letter-spacing:-.01em;}
+
+summary{list-style:none;cursor:pointer;}
+summary::-webkit-details-marker{display:none;}
+summary::marker{content:"";}
+
+.eyebrow{
+  font-family:var(--ui);
+  font-stretch:118%;
+  font-size:.66rem;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--stone);
+}
+
+.num{font-variant-numeric:tabular-nums;}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+.app{display:flex;min-height:100vh;}
+
+.rail{
+  width:var(--rail);
+  flex:0 0 var(--rail);
+  border-right:1px solid var(--line);
+  background:var(--cream);
+  padding:26px 18px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:26px;
+  position:sticky;
+  top:0;
+  height:100vh;
+}
+
+.brand{display:flex;align-items:center;gap:11px;padding:0 6px;}
+.brand-mark{
+  width:38px;height:38px;flex:0 0 38px;
+  border-radius:var(--r-pill);
+  background:var(--wine);
+  color:var(--cream);
+  display:grid;place-items:center;
+  font-family:var(--ui);
+  font-stretch:120%;
+  font-weight:700;
+  font-size:.74rem;
+  letter-spacing:.06em;
+}
+.brand-name{
+  font-family:var(--display);
+  font-size:1.02rem;
+  font-weight:600;
+  line-height:1.12;
+  letter-spacing:-.015em;
+}
+.brand-name small{display:block;font-family:var(--ui);font-size:.6rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--stone);margin-top:3px;font-stretch:115%;}
+
+.nav{display:flex;flex-direction:column;gap:2px;}
+.nav-item{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:9px 12px;
+  border-radius:var(--r-pill);
+  text-align:left;
+  font-size:.9rem;
+  font-weight:500;
+  color:var(--stone-dk);
+  transition:background .13s ease,color .13s ease;
+}
+.nav-item:hover{background:var(--sand);color:var(--ink);}
+.nav-item[aria-current="page"]{background:var(--wine);color:var(--cream);font-weight:600;}
+.nav-item[aria-current="page"] .nav-count{background:rgba(255,250,243,.22);color:var(--cream);}
+.nav-count{
+  font-size:.68rem;font-weight:700;
+  background:var(--shell);color:var(--stone-dk);
+  border-radius:var(--r-pill);
+  padding:1px 7px;
+  font-variant-numeric:tabular-nums;
+}
+.nav-count--alert{background:var(--red);color:#fff;}
+
+.rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px;}
+.who{
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  padding:10px 12px;
+  background:var(--paper);
+}
+.who label{display:block;margin-bottom:5px;}
+.who select{
+  width:100%;
+  border:none;background:none;
+  font-family:var(--display);
+  font-size:1rem;font-weight:600;
+  padding:0;
+}
+.rail-link{
+  font-size:.8rem;color:var(--stone);
+  padding:6px 12px;border-radius:var(--r-pill);text-align:left;
+}
+.rail-link:hover{color:var(--ink);background:var(--sand);}
+.rail-link[aria-current="page"]{color:var(--ink);background:var(--sand);font-weight:600;}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.wrap{width:100%;max-width:1100px;margin:0 auto;padding:0 34px 90px;}
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.pagehead{
+  border-bottom:1px solid var(--line);
+  background:var(--cream);
+  padding:26px 0 20px;
+  margin-bottom:26px;
+}
+.pagehead .wrap{padding-bottom:0;}
+.pagehead-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.pagehead h1{font-size:2.1rem;line-height:1.1;}
+.pagehead .sub{color:var(--stone-dk);font-size:.92rem;margin-top:6px;}
+
+.status-line{
+  display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  font-family:var(--display);
+  font-size:2.6rem;
+  font-weight:600;
+  line-height:1.04;
+  letter-spacing:-.025em;
+}
+.status-line .of{
+  font-family:var(--ui);
+  font-stretch:118%;
+  font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--red);
+  border:1px solid currentColor;
+  border-radius:var(--r-pill);
+  padding:5px 12px;
+  align-self:center;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  border-radius:var(--r-pill);
+  padding:9px 17px;
+  font-size:.82rem;font-weight:600;
+  font-stretch:106%;
+  border:1px solid transparent;
+  transition:background .13s ease,color .13s ease,border-color .13s ease,transform .08s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:translateY(1px);}
+.btn--primary{background:var(--wine);color:var(--cream);}
+.btn--primary:hover{background:#6C0620;}
+.btn--red{background:var(--red);color:#fff;}
+.btn--red:hover{background:#C10120;}
+.btn--ghost{border-color:var(--line);color:var(--stone-dk);background:var(--paper);}
+.btn--ghost:hover{border-color:var(--ink);color:var(--ink);}
+.btn--quiet{color:var(--stone-dk);padding:7px 12px;}
+.btn--quiet:hover{background:var(--sand);color:var(--ink);}
+.btn--danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 34%,transparent);background:var(--paper);}
+.btn--danger:hover{background:color-mix(in srgb,var(--red) 9%,var(--paper));}
+.btn--sm{padding:6px 13px;font-size:.75rem;}
+.btn[disabled]{opacity:.42;pointer-events:none;}
+
+/* ============================================================
+   CYCLE RIBBON  (Between Programs -> Week 1..14)
+   ============================================================ */
+.ribbon{
+  display:flex;align-items:stretch;gap:4px;
+  margin-top:20px;
+  overflow-x:auto;
+  padding-bottom:6px;
+  scrollbar-width:thin;
+}
+.seg{
+  flex:1 1 0;
+  min-width:30px;
+  height:38px;
+  border-radius:var(--r-sm);
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--stone);
+  font-size:.72rem;font-weight:600;
+  font-variant-numeric:tabular-nums;
+  display:grid;place-items:center;
+  position:relative;
+  transition:border-color .13s ease,background .13s ease,color .13s ease;
+}
+.seg--bp{flex:0 0 118px;min-width:118px;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;font-stretch:112%;}
+.seg:hover{border-color:var(--ink);color:var(--ink);}
+.seg--past{background:var(--shell);border-color:var(--shell);color:var(--stone-dk);}
+.seg--now{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 6px 16px -8px var(--red);}
+.seg--sel{border-color:var(--ink);color:var(--ink);border-width:2px;}
+.seg--now.seg--sel{border-color:var(--ink);}
+.seg .dot{
+  position:absolute;top:5px;right:5px;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--red);
+}
+.seg--now .dot{background:#fff;}
+.ribbon-legend{display:flex;gap:16px;margin-top:8px;}
+.ribbon-legend span{font-size:.68rem;color:var(--stone);display:flex;align-items:center;gap:6px;}
+.ribbon-legend i{width:9px;height:9px;border-radius:3px;display:block;}
+
+/* ============================================================
+   STAT TILES
+   ============================================================ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:30px;}
+.stat{
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:var(--paper);
+  padding:15px 16px 14px;
+  position:relative;
+  overflow:hidden;
+}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--stone);opacity:.28;}
+.stat--done::before{background:var(--ok);opacity:1;}
+.stat--left::before{background:var(--wine);opacity:1;}
+.stat--over::before{background:var(--red);opacity:1;}
+.stat-n{font-family:var(--display);font-size:2.1rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;}
+.stat--over .stat-n{color:var(--red);}
+.stat-l{margin-top:7px;}
+
+/* ============================================================
+   SECTIONS + CARDS
+   ============================================================ */
+.section{margin-bottom:34px;}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-bottom:9px;margin-bottom:12px;
+  border-bottom:1px solid var(--line);
+}
+.section-head h2{font-size:1.22rem;}
+.section-head .count{color:var(--stone);font-size:.8rem;font-variant-numeric:tabular-nums;}
+.section--alert .section-head{border-bottom-color:color-mix(in srgb,var(--red) 40%,transparent);}
+.section--alert .section-head h2{color:var(--red);}
+
+.card{
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:var(--paper);
+  overflow:hidden;
+}
+
+.empty{
+  border:1px dashed var(--line);
+  border-radius:var(--r-md);
+  padding:26px 22px;
+  text-align:center;
+  color:var(--stone);
+  font-size:.88rem;
+  background:color-mix(in srgb,var(--sand) 50%,transparent);
+}
+.empty strong{display:block;font-family:var(--display);font-size:1.05rem;color:var(--stone-dk);margin-bottom:4px;font-weight:600;}
+
+/* ============================================================
+   TASK ROW
+   ============================================================ */
+.tasklist{display:flex;flex-direction:column;}
+.task{
+  display:flex;align-items:flex-start;gap:13px;
+  padding:13px 15px;
+  border-bottom:1px solid var(--line-soft);
+  background:var(--paper);
+  transition:background .12s ease;
+}
+.tasklist .task:last-child{border-bottom:none;}
+.task:hover{background:var(--sand);}
+.task--done{background:color-mix(in srgb,var(--sand) 55%,var(--paper));}
+.task--done:hover{background:var(--sand);}
+.task--over{box-shadow:inset 3px 0 0 var(--red);}
+
+.check{
+  flex:0 0 21px;width:21px;height:21px;margin-top:1px;
+  border:1.5px solid var(--stone);
+  border-radius:6px;
+  display:grid;place-items:center;
+  transition:background .12s ease,border-color .12s ease;
+}
+.check:hover{border-color:var(--wine);background:color-mix(in srgb,var(--wine) 8%,transparent);}
+.check svg{width:13px;height:13px;opacity:0;transition:opacity .12s ease;}
+.task--done .check{background:var(--wine);border-color:var(--wine);}
+.task--done .check svg{opacity:1;stroke:var(--cream);}
+
+.task-main{flex:1;min-width:0;}
+.task-title{
+  font-size:.94rem;font-weight:500;line-height:1.35;
+  cursor:pointer;
+  word-break:break-word;
+}
+.task--done .task-title{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--stone) 70%,transparent);color:var(--stone);}
+.task-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px;}
+.task-note{margin-top:6px;font-size:.8rem;color:var(--stone);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+.task-open{
+  flex:0 0 auto;align-self:center;
+  color:var(--stone);font-size:1rem;
+  padding:4px 6px;border-radius:var(--r-sm);
+}
+.task-open:hover{background:var(--shell);color:var(--ink);}
+
+/* chips */
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.68rem;font-weight:600;
+  padding:3px 9px;
+  border-radius:var(--r-pill);
+  white-space:nowrap;
+  font-stretch:104%;
+}
+.chip--cat{background:color-mix(in srgb,var(--c) 11%,transparent);color:var(--c);}
+.chip--cat i{width:6px;height:6px;border-radius:50%;background:var(--c);}
+.chip--owner{background:var(--shell);color:var(--stone-dk);}
+.chip--owner[data-owner="Unassigned"]{background:transparent;border:1px dashed var(--line);color:var(--stone);}
+.chip--owner[data-owner="Shared"]{background:var(--sky);color:#1E3D6B;}
+.chip--due{background:transparent;color:var(--stone);border:1px solid var(--line);font-variant-numeric:tabular-nums;}
+.chip--due.is-over{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent);background:color-mix(in srgb,var(--red) 7%,transparent);}
+.chip--st{border:1px solid transparent;}
+.chip--st[data-st="not_started"]{background:transparent;border-color:var(--line);color:var(--stone);}
+.chip--st[data-st="in_progress"]{background:color-mix(in srgb,var(--pink) 15%,transparent);color:#B0117A;}
+.chip--st[data-st="waiting"]{background:var(--sky);color:#1E3D6B;}
+.chip--st[data-st="complete"]{background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok);}
+.chip--recur{background:color-mix(in srgb,var(--wine) 9%,transparent);color:var(--wine);}
+.chip--hand{background:color-mix(in srgb,var(--warn) 13%,transparent);color:var(--warn);}
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+.filters{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:20px;}
+.filter{
+  padding:6px 14px;border-radius:var(--r-pill);
+  border:1px solid var(--line);background:var(--paper);
+  font-size:.78rem;font-weight:600;color:var(--stone-dk);
+  transition:all .12s ease;
+}
+.filter:hover{border-color:var(--ink);color:var(--ink);}
+.filter[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--cream);}
+.filter-label{margin-right:3px;}
+
+/* ============================================================
+   WEEK GROUPS (Program view)
+   ============================================================ */
+.stage{border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper);margin-bottom:11px;overflow:hidden;}
+.stage--now{border-color:var(--red);box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 10%,transparent);}
+.stage--bp{background:color-mix(in srgb,var(--sand) 60%,var(--paper));}
+.stage-head{
+  display:flex;align-items:center;gap:14px;
+  width:100%;padding:14px 16px;text-align:left;
+}
+.stage-head:hover{background:var(--sand);}
+.stage-num{
+  flex:0 0 auto;min-width:74px;
+  font-family:var(--ui);font-stretch:116%;
+  font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--stone);
+}
+.stage--now .stage-num{color:var(--red);}
+.stage-title{flex:1;font-family:var(--display);font-size:1.06rem;font-weight:600;}
+.stage-bar{flex:0 0 92px;height:5px;border-radius:var(--r-pill);background:var(--shell);overflow:hidden;}
+.stage-bar i{display:block;height:100%;background:var(--wine);border-radius:var(--r-pill);}
+.stage-meta{flex:0 0 auto;font-size:.76rem;color:var(--stone);font-variant-numeric:tabular-nums;min-width:56px;text-align:right;}
+.stage-caret{color:var(--stone);transition:transform .16s ease;}
+.stage[open] .stage-caret{transform:rotate(90deg);}
+.stage-body{border-top:1px solid var(--line-soft);}
+.stage-add{padding:10px 15px;border-top:1px solid var(--line-soft);}
+.runup{padding:11px 15px 8px;background:var(--sand);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);}
+.stage-body > .runup:first-child{border-top:none;}
+
+/* ============================================================
+   PEOPLE / RESPONSIBILITIES
+   ============================================================ */
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:30px;}
+.person{
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper);
+  padding:17px 17px 15px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.person-top{display:flex;align-items:center;gap:11px;}
+.avatar{
+  width:40px;height:40px;flex:0 0 40px;border-radius:var(--r-pill);
+  display:grid;place-items:center;
+  font-family:var(--ui);font-stretch:118%;
+  font-weight:700;font-size:.82rem;
+  background:var(--wine);color:var(--cream);
+}
+.avatar[data-owner="Shared"]{background:var(--sky);color:#1E3D6B;}
+.avatar[data-owner="Unassigned"]{background:transparent;border:1.5px dashed var(--line);color:var(--stone);}
+.person-name{font-family:var(--display);font-size:1.16rem;font-weight:600;}
+.person-sub{font-size:.76rem;color:var(--stone);}
+.load{height:7px;border-radius:var(--r-pill);background:var(--shell);overflow:hidden;display:flex;}
+.load i{display:block;height:100%;}
+.person-nums{display:flex;gap:16px;}
+.person-nums div{flex:1;}
+.person-nums b{display:block;font-family:var(--display);font-size:1.5rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;}
+.person-nums span{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);font-weight:600;}
+.person-nums .over b{color:var(--red);}
+.catbars{display:flex;flex-direction:column;gap:5px;}
+.catbar{display:flex;align-items:center;gap:9px;font-size:.76rem;}
+.catbar-n{margin-left:auto;color:var(--stone);font-variant-numeric:tabular-nums;}
+.catbar-t{flex:1;height:6px;border-radius:var(--r-pill);background:var(--shell);overflow:hidden;}
+.catbar-t i{display:block;height:100%;background:var(--c);border-radius:var(--r-pill);}
+
+/* ============================================================
+   MODAL / DRAWER
+   ============================================================ */
+.scrim{
+  position:fixed;inset:0;background:rgba(15,11,9,.32);
+  backdrop-filter:blur(2px);
+  z-index:60;
+  display:flex;justify-content:flex-end;
+  animation:fade .16s ease;
+}
+.scrim--center{align-items:center;justify-content:center;padding:22px;}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slidein{from{transform:translateX(26px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes popin{from{transform:translateY(10px) scale(.99);opacity:0}to{transform:none;opacity:1}}
+
+.drawer{
+  width:min(520px,100%);
+  background:var(--cream);
+  height:100%;
+  overflow-y:auto;
+  border-left:1px solid var(--line);
+  animation:slidein .18s ease;
+  display:flex;flex-direction:column;
+}
+.modal{
+  width:min(560px,100%);
+  max-height:calc(100vh - 44px);
+  overflow-y:auto;
+  background:var(--cream);
+  border-radius:var(--r-lg);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-lift);
+  animation:popin .16s ease;
+}
+@media (prefers-reduced-motion:reduce){
+  .scrim,.drawer,.modal{animation:none;}
+  *{transition-duration:.01ms !important;}
+}
+.dhead{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  padding:20px 22px 16px;
+  border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--cream);z-index:2;
+}
+.dhead h2{font-size:1.35rem;line-height:1.22;}
+.dbody{padding:20px 22px;display:flex;flex-direction:column;gap:18px;flex:1;}
+.dfoot{
+  padding:15px 22px;border-top:1px solid var(--line);
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  position:sticky;bottom:0;background:var(--cream);
+}
+.dfoot .spacer{flex:1;}
+.x{width:32px;height:32px;border-radius:var(--r-pill);display:grid;place-items:center;color:var(--stone);flex:0 0 32px;}
+.x:hover{background:var(--shell);color:var(--ink);}
+
+/* ============================================================
+   FORM
+   ============================================================ */
+.field{display:flex;flex-direction:column;gap:6px;}
+.field > label{font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);font-stretch:112%;}
+.inp,.sel,.ta{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:var(--r-sm);
+  background:var(--paper);
+  padding:9px 11px;
+  font-size:.9rem;
+  transition:border-color .12s ease,box-shadow .12s ease;
+}
+.inp:focus,.sel:focus,.ta:focus{
+  outline:none;border-color:var(--wine);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--wine) 12%,transparent);
+}
+.ta{resize:vertical;min-height:76px;line-height:1.45;}
+.sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238B7A6D' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.hint{font-size:.75rem;color:var(--stone);line-height:1.4;}
+
+.segmented{display:flex;gap:5px;flex-wrap:wrap;}
+.segmented button{
+  flex:1 1 auto;min-width:92px;
+  padding:8px 11px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--paper);
+  font-size:.78rem;font-weight:600;color:var(--stone-dk);
+}
+.segmented button:hover{border-color:var(--ink);color:var(--ink);}
+.segmented button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--cream);}
+
+.scope{display:flex;flex-direction:column;gap:8px;}
+.scope button{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:12px 14px;border-radius:var(--r-md);
+  border:1px solid var(--line);background:var(--paper);text-align:left;
+}
+.scope button:hover{border-color:var(--stone);}
+.scope button[aria-pressed="true"]{border-color:var(--wine);background:color-mix(in srgb,var(--wine) 5%,var(--paper));box-shadow:0 0 0 2px color-mix(in srgb,var(--wine) 14%,transparent);}
+.scope .radio{
+  flex:0 0 16px;width:16px;height:16px;margin-top:2px;
+  border:1.5px solid var(--stone);border-radius:50%;
+}
+.scope button[aria-pressed="true"] .radio{border-color:var(--wine);border-width:5px;}
+.scope b{display:block;font-size:.86rem;font-weight:600;}
+.scope small{display:block;color:var(--stone);font-size:.76rem;line-height:1.4;margin-top:2px;}
+
+/* detail panel bits */
+.kv{display:grid;grid-template-columns:104px 1fr;gap:10px 14px;align-items:center;}
+.kv > span{font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);font-stretch:112%;}
+.notebox{
+  border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--sand);padding:11px 13px;font-size:.86rem;line-height:1.5;white-space:pre-wrap;
+}
+.handoff{
+  border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);
+  background:color-mix(in srgb,var(--warn) 7%,transparent);
+  border-radius:var(--r-md);padding:13px 14px;
+}
+.handoff .arrow{color:var(--warn);font-weight:700;}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:24px;overflow-x:auto;}
+.tab{
+  padding:9px 15px;font-size:.84rem;font-weight:600;color:var(--stone);
+  border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;
+}
+.tab:hover{color:var(--ink);}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--red);}
+
+.rows{display:flex;flex-direction:column;}
+.rw{
+  display:flex;align-items:center;gap:13px;
+  padding:12px 15px;border-bottom:1px solid var(--line-soft);
+}
+.rows .rw:last-child{border-bottom:none;}
+.rw:hover{background:var(--sand);}
+.rw-main{flex:1;min-width:0;}
+.rw-title{font-size:.92rem;font-weight:500;}
+.rw-sub{font-size:.76rem;color:var(--stone);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.rw-actions{display:flex;gap:5px;flex:0 0 auto;}
+.rw--archived .rw-title{color:var(--stone);text-decoration:line-through;}
+
+.prog{
+  display:flex;align-items:center;gap:15px;
+  padding:15px;border-bottom:1px solid var(--line-soft);
+}
+.rows .prog:last-child{border-bottom:none;}
+.prog-name{font-family:var(--display);font-size:1.1rem;font-weight:600;}
+.prog-dates{font-size:.78rem;color:var(--stone);font-variant-numeric:tabular-nums;margin-top:2px;}
+.badge{
+  font-size:.62rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  padding:4px 9px;border-radius:var(--r-pill);font-stretch:112%;
+}
+.badge--active{background:var(--red);color:#fff;}
+.badge--upcoming{background:var(--sky);color:#1E3D6B;}
+.badge--complete{background:var(--shell);color:var(--stone-dk);}
+
+.swatch{width:22px;height:22px;border-radius:6px;flex:0 0 22px;border:1px solid rgba(15,11,9,.12);}
+
+/* ============================================================
+   SETUP + TOAST
+   ============================================================ */
+.setup{
+  min-height:100vh;display:grid;place-items:center;padding:36px 22px;
+}
+.setup-card{
+  max-width:560px;width:100%;text-align:center;
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  background:var(--paper);padding:44px 38px 38px;
+  box-shadow:var(--shadow);
+}
+.setup-card h1{font-size:2.4rem;line-height:1.05;margin:18px 0 12px;}
+.setup-card p{color:var(--stone-dk);font-size:.94rem;line-height:1.6;margin:0 auto 24px;max-width:44ch;}
+.setup-card .brand-mark{margin:0 auto;width:52px;height:52px;flex-basis:52px;font-size:.95rem;}
+
+.progress{
+  height:8px;border-radius:var(--r-pill);background:var(--shell);
+  overflow:hidden;margin-top:22px;
+}
+.progress i{
+  display:block;height:100%;background:var(--wine);border-radius:var(--r-pill);
+  transition:width .3s ease;min-width:2%;
+}
+.diag{margin-top:26px;text-align:left;border-top:1px solid var(--line);padding-top:14px;}
+.diag summary{font-size:.75rem;color:var(--stone);}
+.diag summary:hover{color:var(--ink);}
+.diag-body{margin-top:10px;font-size:.75rem;color:var(--stone-dk);display:flex;flex-direction:column;gap:4px;}
+.diag pre{
+  margin:6px 0 0;padding:10px 12px;
+  background:var(--sand);border:1px solid var(--line);border-radius:var(--r-sm);
+  font-size:.7rem;line-height:1.5;color:var(--stone-dk);
+  max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-word;
+}
+
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);
+  background:var(--ink);color:var(--cream);
+  padding:11px 19px;border-radius:var(--r-pill);
+  font-size:.83rem;font-weight:500;
+  opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+  z-index:90;box-shadow:var(--shadow-lift);
+}
+#toast.on{opacity:1;transform:translateX(-50%);}
+
+.banner{
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--sand);padding:11px 15px;margin-bottom:22px;
+  font-size:.83rem;color:var(--stone-dk);
+}
+.banner b{color:var(--ink);}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:860px){
+  .app{flex-direction:column;}
+  .rail{
+    width:100%;flex:none;height:auto;position:sticky;top:0;z-index:40;
+    border-right:none;border-bottom:1px solid var(--line);
+    flex-direction:row;align-items:center;gap:14px;
+    padding:11px 14px;overflow-x:auto;
+  }
+  .brand-name{display:none;}
+  .nav{flex-direction:row;gap:3px;}
+  .nav-item{padding:7px 12px;font-size:.82rem;white-space:nowrap;}
+  .rail-foot{margin-top:0;flex-direction:row;align-items:center;gap:7px;margin-left:auto;}
+  .who{padding:5px 10px;}
+  .who label{display:none;}
+  .who select{font-size:.85rem;}
+  .wrap{padding:0 18px 80px;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .status-line{font-size:2rem;}
+  .pagehead h1{font-size:1.7rem;}
+  .kv{grid-template-columns:1fr;gap:5px;}
+  .kv > span{margin-top:6px;}
+}
+@media (max-width:560px){
+  .row2{grid-template-columns:1fr;}
+  .seg--bp{flex:0 0 92px;min-width:92px;}
+}
+</style><style>
+/* ============================================================
+   REVIEW COPY — layout on top of the shared brand tokens
+   ============================================================ */
+.page{max-width:1000px;margin:0 auto;padding:0 26px 120px;}
+.page--top{padding-bottom:0;}
+
+.masthead{
+  border-bottom:1px solid var(--line);
+  padding:34px 0 24px;margin-bottom:0;
+}
+.masthead .eyebrow{margin-bottom:9px;}
+.masthead h1{font-size:2.5rem;line-height:1.04;letter-spacing:-.025em;}
+.masthead .lede{
+  margin:14px 0 0;max-width:62ch;
+  font-size:.95rem;line-height:1.6;color:var(--stone-dk);
+}
+.masthead .lede b{color:var(--ink);font-weight:600;}
+
+.whobar{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-top:22px;padding:14px 16px;
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper);
+}
+.whobar .field{flex:0 0 auto;}
+.whobar .sel{min-width:180px;}
+.whobar .spacer{flex:1;}
+
+.meter{display:flex;align-items:center;gap:11px;min-width:210px;}
+.meter-track{flex:1;height:7px;border-radius:var(--r-pill);background:var(--shell);overflow:hidden;}
+.meter-track i{display:block;height:100%;background:var(--wine);border-radius:var(--r-pill);transition:width .3s ease;}
+.meter-n{font-size:.74rem;color:var(--stone-dk);font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+.toolbar{
+  position:sticky;top:0;z-index:30;
+  background:var(--cream);
+  border-bottom:1px solid var(--line);
+  padding:12px 0;margin-bottom:26px;
+}
+.toolbar-in{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.search{
+  flex:1 1 220px;min-width:180px;
+  border:1px solid var(--line);border-radius:var(--r-pill);
+  background:var(--paper);padding:8px 15px;font-size:.85rem;
+}
+.search:focus{outline:none;border-color:var(--wine);box-shadow:0 0 0 3px color-mix(in srgb,var(--wine) 12%,transparent);}
+
+.stagegroup{margin-bottom:30px;scroll-margin-top:78px;}
+/* Deliberately not sticky. Groups are short (the run-up is split by how
+   many weeks out it is), and a second sticky bar would sit on top of the
+   first item's title in every group. */
+.stagebar{
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  padding:9px 0;margin-bottom:10px;
+  border-bottom:1px solid var(--line);
+  background:var(--cream);
+}
+.stagebar h2{font-size:1.2rem;}
+.stagebar .when{font-size:.76rem;color:var(--stone);font-variant-numeric:tabular-nums;}
+.stagebar .tally{margin-left:auto;font-size:.72rem;color:var(--stone);font-variant-numeric:tabular-nums;}
+
+.item{
+  border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--paper);margin-bottom:8px;overflow:hidden;
+  transition:border-color .13s ease;
+  scroll-margin-top:78px;          /* clears the sticky toolbar when scrolled to */
+}
+.item[data-flag="keep"]  {border-left:4px solid var(--ok);}
+.item[data-flag="change"]{border-left:4px solid var(--warn);}
+.item[data-flag="drop"]  {border-left:4px solid var(--red);}
+.item[data-flag="unsure"]{border-left:4px solid var(--stone);}
+.item--new{border-style:dashed;background:color-mix(in srgb,var(--sand) 55%,var(--paper));}
+
+.item-head{display:flex;align-items:flex-start;gap:12px;padding:12px 15px;width:100%;text-align:left;}
+.item-head:hover{background:var(--sand);}
+.item-title{flex:1;min-width:0;font-size:.93rem;font-weight:500;line-height:1.4;word-break:break-word;}
+.item-chips{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.item-note{margin-top:6px;font-size:.79rem;color:var(--stone);line-height:1.45;}
+.item-caret{color:var(--stone);flex:0 0 auto;align-self:center;transition:transform .16s ease;}
+.item[open] .item-caret{transform:rotate(90deg);}
+.item-mine{
+  flex:0 0 auto;align-self:center;font-size:.66rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;font-stretch:110%;
+  padding:3px 9px;border-radius:var(--r-pill);
+}
+.item-mine[data-f="keep"]  {background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok);}
+.item-mine[data-f="change"]{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn);}
+.item-mine[data-f="drop"]  {background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);}
+.item-mine[data-f="unsure"]{background:var(--shell);color:var(--stone-dk);}
+
+.review{border-top:1px solid var(--line-soft);padding:15px;background:color-mix(in srgb,var(--sand) 45%,var(--paper));}
+.review .row{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:13px;}
+.review .row > *{flex:1 1 190px;}
+.flags{display:flex;gap:6px;flex-wrap:wrap;}
+.flag{
+  padding:7px 14px;border-radius:var(--r-pill);
+  border:1px solid var(--line);background:var(--paper);
+  font-size:.78rem;font-weight:600;color:var(--stone-dk);
+  transition:all .12s ease;
+}
+.flag:hover{border-color:var(--ink);color:var(--ink);}
+.flag[aria-pressed="true"][data-f="keep"]  {background:var(--ok);border-color:var(--ok);color:#fff;}
+.flag[aria-pressed="true"][data-f="change"]{background:var(--warn);border-color:var(--warn);color:#fff;}
+.flag[aria-pressed="true"][data-f="drop"]  {background:var(--red);border-color:var(--red);color:#fff;}
+.flag[aria-pressed="true"][data-f="unsure"]{background:var(--stone-dk);border-color:var(--stone-dk);color:var(--cream);}
+
+.addbox{margin:4px 0 16px;}
+
+/* ---------- merged view ---------- */
+.mergehead{
+  border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--paper);padding:18px 20px;margin-bottom:24px;
+}
+.mergehead h2{font-size:1.3rem;margin-bottom:6px;}
+.who-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;}
+.who-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--line);border-radius:var(--r-pill);
+  padding:5px 6px 5px 12px;font-size:.79rem;background:var(--sand);
+}
+.who-pill b{font-weight:600;}
+.who-pill span{color:var(--stone);font-variant-numeric:tabular-nums;}
+.who-pill button{color:var(--stone);padding:2px 6px;border-radius:var(--r-pill);}
+.who-pill button:hover{background:var(--shell);color:var(--red);}
+
+.verdict{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  font-stretch:110%;padding:4px 10px;border-radius:var(--r-pill);
+}
+.verdict--split {background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);}
+.verdict--change{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn);}
+.verdict--drop  {background:color-mix(in srgb,var(--red) 10%,transparent);color:var(--red);}
+.verdict--keep  {background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok);}
+.verdict--owner {background:var(--sky);color:#1E3D6B;}
+.verdict--new   {background:color-mix(in srgb,var(--pink) 15%,transparent);color:#B0117A;}
+
+.voices{display:flex;flex-direction:column;gap:9px;margin-top:11px;}
+.voice{display:flex;gap:11px;align-items:flex-start;font-size:.85rem;line-height:1.5;}
+.voice .av{
+  flex:0 0 30px;width:30px;height:30px;border-radius:var(--r-pill);
+  background:var(--wine);color:var(--cream);display:grid;place-items:center;
+  font-size:.68rem;font-weight:700;font-stretch:112%;
+}
+.voice .said{flex:1;min-width:0;}
+.voice .said em{font-style:normal;color:var(--stone);}
+.voice .suggest{display:block;margin-top:3px;font-size:.78rem;color:var(--stone-dk);}
+
+.filedrop{
+  border:1.5px dashed var(--line);border-radius:var(--r-md);
+  padding:22px;text-align:center;color:var(--stone);
+  background:color-mix(in srgb,var(--sand) 45%,transparent);
+  transition:border-color .13s ease,background .13s ease;
+}
+.filedrop.over{border-color:var(--wine);background:color-mix(in srgb,var(--wine) 6%,transparent);color:var(--ink);}
+.filedrop b{display:block;font-family:var(--display);font-size:1.02rem;color:var(--stone-dk);margin-bottom:4px;font-weight:600;}
+.filedrop input{display:none;}
+
+.modes{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-pill);overflow:hidden;background:var(--paper);}
+.modes button{padding:7px 16px;font-size:.79rem;font-weight:600;color:var(--stone-dk);}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--cream);}
+
+.outbox{
+  margin-top:14px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--sand);padding:12px 14px;
+  font-size:.76rem;line-height:1.55;white-space:pre-wrap;word-break:break-word;
+  max-height:320px;overflow:auto;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+@media (max-width:640px){
+  .page{padding:0 16px 100px;}
+  .masthead h1{font-size:1.85rem;}
+  .stagebar{top:49px;}
+  .review .row > *{flex:1 1 100%;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+/* ============================================================
+   SEED DATA — categories, people and the starter Master Template
+   Everything here is a starting point. Edit it in Settings.
+   ============================================================ */
+
+const SEED_CATEGORIES = [
+  { id:"ce",     name:"Client Experience",            color:"#E40224" },
+  { id:"tx",     name:"Trainer Experience + Support", color:"#840728" },
+  { id:"pay",    name:"Payments + Client Admin",      color:"#1F5D50" },
+  { id:"sales",  name:"Sales + Registration",         color:"#C25E00" },
+  { id:"plan",   name:"Program Planning",             color:"#2C4A8C" },
+  { id:"edu",    name:"Trainer Education",            color:"#6B3FA0" },
+  { id:"events", name:"Events",                       color:"#FF54BF" },
+  { id:"mkt",    name:"Marketing + Ads",              color:"#A8761A" },
+  { id:"gym",    name:"Gym Operations",               color:"#4A5A46" },
+  { id:"byob",   name:"BYOB",                         color:"#0E7C86" },
+  { id:"feed",   name:"Feedback + Retention",         color:"#8C3B2E" },
+  { id:"web",    name:"Website + Systems",            color:"#3C3A47" }
+];
+
+const SEED_PEOPLE = ["Jo","Sam","Stacey"];
+
+/* [ title, categoryId, week (0 = Between Programs), weeksBefore, notes ] */
+const SEED_TEMPLATE = [
+  /* ---------- BETWEEN PROGRAMS ---------- */
+  ["Review the last program's feedback survey results","feed",0,5,"Pull the themes out before the leadership debrief so the conversation starts from evidence rather than memory."],
+  ["Leadership debrief: what worked, what changes","feed",0,5,"Jo, Sam and Stacey sit down together. Decide what changes for next program and write it down."],
+  ["Update the Master Template from the debrief","plan",0,4,"Anything the debrief decided should happen every program goes into the Master Template so it is never lost."],
+  ["Update the website with new program dates and pricing","web",0,5,"Dates, price, start week, session times, registration open date."],
+  ["Post trainer hiring ad if there are roster gaps","tx",0,5,"Only needed if the roster will not cover the schedule. Check headcount first."],
+  ["Open early registration for returning clients","sales",0,5,"Returning clients get first access before the public list."],
+  ["Send the returning client re-registration email","ce",0,5,"Personal tone. Include dates, price, deposit deadline and the link."],
+  ["Set the registration target and start tracking it","sales",0,3,"One number everyone can see. Check it daily once registration opens."],
+  ["Reconcile last program's payments and chase balances","pay",0,4,"Close the books on the previous program before the new one starts."],
+  ["Collect deposits from returning clients","pay",0,4,"Deposit confirms the spot. Follow up on anyone who registered without paying."],
+  ["Open public registration","sales",0,4,"Release remaining spots publicly once the returning client window closes."],
+  ["Launch the registration ad campaign","mkt",0,4,"Creative, budget, audience and start date. Check spend twice a week."],
+  ["Confirm the trainer roster for the next program","tx",0,4,"Who is coming back, who is not, and where the gaps are."],
+  ["Interview and hire new trainers","tx",0,4,"Do not leave this to the last two weeks. New trainers need shadow time."],
+  ["Build the class schedule and time slots","plan",0,4,"Match slots to trainer availability and to what sold last program."],
+  ["Write the 14 week training program","plan",0,4,"The full block: progressions, deloads, testing weeks."],
+  ["Update the registration form and payment links","web",0,4,"Test the whole flow yourself end to end before it goes live."],
+  ["Reach out to clients who did not return","feed",0,3,"A short personal message. The point is to learn why, not to sell."],
+  ["Order supplements, apparel and program swag","gym",0,3,"Lead times are the risk here. Order early enough to arrive before week 1."],
+  ["Equipment inventory: repair or replace","gym",0,3,"Walk the floor with a list. Anything broken gets fixed or removed."],
+  ["Plan the BYOB schedule for the next program","byob",0,3,"Times, room setup, capacity and which trainers are covering."],
+  ["Refresh website photos and testimonials","mkt",0,3,"Swap in results and quotes from the program that just finished, with permission."],
+  ["Book and plan the kickoff event","events",0,2,"Venue, date, format, who is running it, what clients need to bring."],
+  ["Finalise week 1 workouts and print materials","plan",0,2,"Everything trainers need in hand on day one."],
+  ["Run new trainer onboarding and shadowing","edu",0,2,"Expectations, coaching standards, the program, and time on the floor before week 1."],
+  ["Assign clients to groups and time slots","ce",0,1,"Balance group sizes and keep friends together where it works."],
+  ["Send the welcome email with start details","ce",0,1,"Start date, their time slot, what to bring, where to park, who to ask."],
+  ["Confirm payment plans and recurring billing","pay",0,1,"Every client should be on a plan that is set up and tested before week 1."],
+  ["Update the client management system with the new roster","web",0,1,"Names, groups, contact details, payment status."],
+  ["Confirm BYOB registrations and space setup","byob",0,1,"Confirm the list and make sure the room is ready for babies and gear."],
+  ["Host the pre-program trainer meeting","tx",0,1,"Walk the whole team through the program, the schedule and the standard."],
+  ["Deep clean the gym","gym",0,1,"Floors, equipment, bathrooms, entry. First impression week is coming."],
+
+  /* ---------- WEEK 1 ---------- */
+  ["Greet every new client personally in week 1","ce",1,null,"Name, handshake, five minutes. This is the single highest return thing we do all program."],
+  ["Take starting measurements and photos","ce",1,null,"Consistent method, consistent lighting, consistent language about what they mean."],
+  ["Confirm every week 1 payment processed","pay",1,null,"Catch failed cards in week 1, not week 4."],
+  ["Check in with every trainer after their first sessions","tx",1,null,"What went well, what they need, anything about a client we should know."],
+  ["Fix schedule and group placement problems","ce",1,null,"Week 1 is when the wrong time slots surface. Move people quickly."],
+  ["Post week 1 energy content","mkt",1,null,"Show the room full. This is the best selling content of the whole cycle."],
+
+  /* ---------- WEEK 2 ---------- */
+  ["Two week check-in with every new client","ce",2,null,"How are they finding it, is the intensity right, do they feel looked after."],
+  ["Trainer education session 1","edu",2,null,"Set the topic in program planning. Coaching standard, not just programming."],
+  ["Follow up on failed or missed payments","pay",2,null,""],
+  ["BYOB week 2 check on attendance and setup","byob",2,null,"Is the room working, is the timing working, is anyone struggling to attend."],
+
+  /* ---------- WEEK 3 ---------- */
+  ["Attendance review: flag clients who are slipping","feed",3,null,"Two missed sessions is the trigger for a personal message, not an automated one."],
+  ["Trainer floor observation","tx",3,null,"Watch a session end to end and give the trainer specific feedback."],
+
+  /* ---------- WEEK 4 ---------- */
+  ["Month 1 client check-in conversations","ce",4,null,"Short, structured, everyone gets one."],
+  ["Trainer one on one check-ins","tx",4,null,"Workload, pay, how they are finding the group, what they want to learn."],
+  ["Equipment and facility walkthrough","gym",4,null,""],
+  ["Post client progress and wins","mkt",4,null,"Real people, with permission, with specifics."],
+  ["Month 1 payment reconciliation","pay",4,null,""],
+
+  /* ---------- WEEK 5 ---------- */
+  ["Trainer education session 2","edu",5,null,""],
+  ["Set the next program dates","plan",5,null,"Lock start and end dates now so marketing and registration can be planned properly."],
+
+  /* ---------- WEEK 6 ---------- */
+  ["Mid program measurements and progress review","ce",6,null,"Same method as week 1 so the comparison is honest."],
+  ["Plan the mid program social event","events",6,null,""],
+  ["Draft the next program marketing plan","mkt",6,null,"Channels, budget, creative, timeline back from registration open."],
+
+  /* ---------- WEEK 7 ---------- */
+  ["Mid program client feedback pulse","feed",7,null,"Three questions, two minutes. Enough to catch a problem while there is time to fix it."],
+  ["Halfway celebration in class","ce",7,null,"Mark the halfway point in every session. It matters more than it sounds."],
+  ["Trainer mid program check-in and workload review","tx",7,null,"Week 7 is where trainer burnout starts. Ask directly."],
+
+  /* ---------- WEEK 8 ---------- */
+  ["Review the pulse survey and act on the themes","feed",8,null,"Pick two things to change this program and tell clients you changed them."],
+  ["Trainer education session 3","edu",8,null,""],
+  ["Begin next program planning properly","plan",8,null,"Program design, schedule shape, staffing needs."],
+
+  /* ---------- WEEK 9 ---------- */
+  ["Host the mid program social event","events",9,null,""],
+  ["Month 2 payment reconciliation","pay",9,null,""],
+  ["Confirm trainer availability for next program","tx",9,null,"Ask early enough that a no gives us time to hire."],
+  ["BYOB mid program check-in with parents","byob",9,null,""],
+
+  /* ---------- WEEK 10 ---------- */
+  ["Announce next program dates to current clients","sales",10,null,"They hear it first, always."],
+  ["Retention conversations with at-risk clients","feed",10,null,"Anyone whose attendance has dropped gets a real conversation, not an email."],
+  ["Book the finale event venue and date","events",10,null,""],
+
+  /* ---------- WEEK 11 ---------- */
+  ["Open returning client early registration","sales",11,null,""],
+  ["Collect returning client deposits","pay",11,null,""],
+  ["Trainer education session 4","edu",11,null,""],
+
+  /* ---------- WEEK 12 ---------- */
+  ["Registration progress check against target","sales",12,null,"If we are behind here, marketing spend and outreach change this week, not next."],
+  ["Schedule final measurements","ce",12,null,""],
+  ["Order equipment and supplies for next program","gym",12,null,""],
+  ["Plan the program finale","events",12,null,""],
+
+  /* ---------- WEEK 13 ---------- */
+  ["Final measurements and progress photos","ce",13,null,""],
+  ["Send the end of program feedback survey","feed",13,null,"Send while they are still in it. Response rates collapse after the last session."],
+  ["Confirm finale event logistics","events",13,null,""],
+  ["Public registration opens for the next program","sales",13,null,""],
+  ["Prepare individual client results summaries","ce",13,null,"Week 1 to week 14, in their hands, in plain language."],
+
+  /* ---------- WEEK 14 ---------- */
+  ["Host the program finale","events",14,null,""],
+  ["Share transformations with permission","mkt",14,null,"Ask permission properly. Never assume it."],
+  ["Thank you and next steps email to every client","ce",14,null,"What they achieved, what happens next, when the next program starts."],
+  ["Trainer thank you and end of program pay review","tx",14,null,""],
+  ["Final payment reconciliation and outstanding balances","pay",14,null,""],
+  ["BYOB wrap up and re-registration","byob",14,null,""],
+  ["Archive program materials and notes","web",14,null,"Programming, schedules, client lists, what we changed mid-program."],
+  ["Book the leadership end of program debrief","feed",14,null,"Put it in the calendar before everyone scatters."],
+
+  /* ============================================================
+     FROM THE REAL SOPs
+     Jo's SOP Doc, the 14 Week Task Calendar and Stacey's Program
+     Calendar. Timing is theirs. Everything lands Unassigned.
+     ============================================================ */
+
+  /* ---------- ONGOING, EVERY DAY ---------- */
+  ["Check all inboxes for client change requests and log them in the changes doc","ce",99,null,"Every day."],
+  ["Tell the client once their change request is done in the main program doc","ce",99,null,"Close the loop rather than leaving them wondering."],
+  ["Stay on top of payments","pay",99,null,"Every day."],
+  ["Check Instagram DMs and respond","mkt",99,null,"Every day."],
+
+  /* ---------- BETWEEN PROGRAMS: 8 WEEKS OUT ---------- */
+  ["Email the entire waitlist about registration","sales",0,8,"Waitlist first. The wider list follows 24 hours later."],
+  ["Email the full list 24 hours after the waitlist, when registration opens to the public","sales",0,8,"Order is waitlist, then clients, then everyone else 24 hours later."],
+  ["Have Bryna announce and link registration on stories","mkt",0,8,""],
+  ["Confirm site links and copy with Kar","web",0,8,""],
+
+  /* ---------- 6 WEEKS OUT ---------- */
+  ["Finalize new support trainer education hires","tx",0,6,""],
+  ["Create the trainers in training group chat","tx",0,6,""],
+  ["Plan the date and time for new trainer education lesson 1","edu",0,6,"The remaining lesson dates get planned at Jo's house."],
+  ["Create the free client session schedule with lead trainers for between programs","plan",0,6,""],
+  ["Email the full schedule to all current clients","ce",0,6,"The schedule itself, not the booking link."],
+  ["Update Sean on spots and gyms remaining","mkt",0,6,""],
+  ["Confirm ad copy and where we want leads sent","mkt",0,6,""],
+
+  /* ---------- 5 WEEKS OUT ---------- */
+  ["Returning client deposit email goes out","pay",0,5,""],
+  ["New trainer education lesson 1","edu",0,5,""],
+  ["Confirm the equipment list to buy for each gym and agree the budget","gym",0,5,""],
+
+  /* ---------- 4 WEEKS OUT ---------- */
+  ["Send returning clients an extra reminder to tell us if they no longer want their spot","ce",0,4,""],
+  ["New trainer education lesson 2","edu",0,4,""],
+  ["Start lead trainer one on ones","tx",0,4,"Aim for one or two 30 to 40 minute meetings a week."],
+  ["Check whether any lead trainers need CPR renewed and book it","tx",0,4,""],
+  ["Book Archie and any other specialists for small gym renovations and updates","gym",0,4,""],
+  ["Send Sam every CPR update as it comes in","tx",0,4,"Jo flagged wanting a more formal system for this."],
+
+  /* ---------- 3 WEEKS OUT ---------- */
+  ["New trainer education lesson 3","edu",0,3,""],
+  ["Continue lead trainer one on ones","tx",0,3,""],
+  ["Lead trainer education night: plan the topics and run it","edu",0,3,""],
+  ["Take the book a call option off the site and link straight to self registration","web",0,3,"Both BYOB and regular go to self registration."],
+  ["Check continuing client deposits and create the reminder tag","pay",0,3,"Stacey's calendar puts this two weeks after the previous program ends."],
+  ["Email continuing clients that the deposit secures their spot","pay",0,3,"Stacey's calendar puts this two weeks after the previous program ends."],
+
+  /* ---------- 2 WEEKS OUT ---------- */
+  ["Support trainer education: plan the topics and run it","edu",0,2,""],
+  ["New trainer education lesson 4","edu",0,2,""],
+  ["All new lead trainer exams should be done","edu",0,2,""],
+  ["Send the deposit reminder email to all returning clients","pay",0,2,"The task calendar lists this again at week minus one. One send, chase after."],
+  ["Design all documents in Canva","mkt",0,2,"Event schedule, training schedule, consistency charts."],
+  ["Order from Staples","gym",0,2,"Order this week. There have been delays."],
+  ["Sales calls stop, unless we are already sold out","sales",0,2,""],
+  ["Plan the program dates and send them out","events",0,2,"Lifting seminar, wrap up party, workshops."],
+  ["Make sure every lead has sent their video to all clients","tx",0,2,"Now a video with no dates in it so it lasts a full year."],
+  ["Make sure leads have contacted all their clients","tx",0,2,""],
+  ["Send program winners the email about payment options","pay",0,2,"Includes moving their deposit."],
+
+  /* ---------- 1 WEEK OUT ---------- */
+  ["New trainer education lesson 5","edu",0,1,"The Saturday before the program begins. Invite new clients beforehand."],
+  ["Take self registration down","web",0,1,""],
+  ["Make all tags for individual teams and all program clients","web",0,1,""],
+  ["Send the program details email early in the week","ce",0,1,"Program, lifting seminar, waiver."],
+  ["Edit and send out all separate team emails","ce",0,1,""],
+  ["First payment email goes out","pay",0,1,"Payment plan, two part and lump sum options. Covers continuing clients, new clients and BYOB."],
+  ["Send out the Gang screening doc","ce",0,1,"Stacey's calendar: sent the Sunday evening of the lifting seminar."],
+  ["Send the Gang waiver to the all clients tag","ce",0,1,"Process change with ZenPlanner."],
+  ["Check in with leads that they are on top of client calls","tx",0,1,"All new client calls done this week, returning clients by week 3."],
+  ["Check the payments that came in from the initial email","pay",0,1,""],
+
+  /* ---------- WEEK 1 ---------- */
+  ["Check outstanding deposits and send the Kajabi reminder email","pay",1,null,""],
+  ["Send out the client platform","ce",1,null,"Stacey's calendar pairs this with the Gang Tracker."],
+  ["Send out the first nutrition podcast","ce",1,null,""],
+  ["Send weekly workout schedules to all client group chats","ce",1,null,""],
+  ["Send out the tracking doc","ce",1,null,"The Gang Tracker."],
+
+  /* ---------- WEEK 2 ---------- */
+  ["Check remaining outstanding deposits and send individual emails","pay",2,null,"Individual reach outs to continuing clients who have not paid a deposit."],
+  ["Check outstanding first payments and send the Kajabi reminder email","pay",2,null,""],
+  ["Put end dates on all client subscriptions","pay",2,null,""],
+  ["Check the payments that come in after the reminder email","pay",2,null,""],
+
+  /* ---------- WEEK 3 ---------- */
+  ["Check outstanding first payments and send individual emails","pay",3,null,"Anyone who has paid nothing yet, or who has an agreed extension."],
+
+  /* ---------- WEEK 4 ---------- */
+  ["Start planning Wellness Day: plan, guests and food","events",4,null,""],
+  ["Start planning joyful movement day: plan, location and activity","events",4,null,""],
+  ["Start brainstorming the wrap up party: location and theme","events",4,null,""],
+
+  /* ---------- WEEK 5 ---------- */
+  ["Finalize Wellness Day details","events",5,null,"Space, panel, food."],
+  ["Start inquiring with locations for the wrap up party","events",5,null,""],
+  ["Make sure every outstanding payment is paid or has a plan","pay",5,null,""],
+
+  /* ---------- WEEK 6 ---------- */
+  ["Email the second half payment tag","pay",6,null,"Stacey's calendar puts this in week 7."],
+  ["Start working on the feedback forms","feed",6,null,""],
+  ["Send the Wellness Day email by Monday","events",6,null,""],
+
+  /* ---------- WEEK 7 ---------- */
+  ["Review the feedback forms, launching end of next week","feed",7,null,""],
+  ["Check outstanding second payments","pay",7,null,"And check the ones coming in."],
+  ["Send the second payment email out","pay",7,null,""],
+  ["Finalize all Wellness Day logistics","events",7,null,"Cutlery, napkins, microphone. Do it over the weekend."],
+  ["Send the Wellness Day reminder email and group chat reminder","events",7,null,""],
+  ["Update the links in the feedback forms to the correct link","feed",7,null,""],
+
+  /* ---------- WEEK 8 ---------- */
+  ["Plan sales calls: check in with the sales team and set schedules","sales",8,null,""],
+  ["Send Sam availability for sales calls","sales",8,null,""],
+  ["Lock in the wrap up party venue and theme","events",8,null,"Then start on partners and food."],
+  ["Individually email clients who have not made their second payment","pay",8,null,""],
+  ["Repost fitness testing videos on The Gang's Instagram","mkt",8,null,""],
+
+  /* ---------- WEEK 9 ---------- */
+  ["Input all clients into the new program doc","plan",9,null,""],
+  ["Close the feedback forms on the deadline","feed",9,null,""],
+  ["Start the changes doc for the next program","plan",9,null,"Anyone who filled the feedback form in incorrectly, plus client change requests."],
+  ["Check self reg and sales call payments daily and add them to the new program doc","sales",9,null,""],
+
+  /* ---------- WEEK 10 ---------- */
+  ["Self registration opens and sales calls start","sales",10,null,""],
+  ["Email the waitlist about next program registration","sales",10,null,""],
+  ["Switch the ads from waitlist to self registration","mkt",10,null,""],
+  ["Send the welcome email to all self reg and BYOB self reg","ce",10,null,""],
+  ["Send programs to prospective clients from sales calls","sales",10,null,""],
+
+  /* ---------- WEEK 11 ---------- */
+  ["First wrap up email goes out","events",11,null,"Location and time, vague on the rest."],
+
+  /* ---------- WEEK 12 ---------- */
+  ["Book all the important dates for the next program","plan",12,null,""],
+  ["Follow up on all payment emails and payment plans","pay",12,null,"Everything should be on top by this point."],
+  ["Double check subscriptions are going through","pay",12,null,""],
+
+  /* ---------- WEEK 13 ---------- */
+  ["Send the BYOB photoshoot booking link to BYOB clients","byob",13,null,""],
+  ["Send the reminder email about training with your own team during fitness testing","ce",13,null,""],
+  ["Organise something special for clients during fitness testing week","events",13,null,"Polaroids, shot glasses, photobooth, t shirts."],
+
+  /* ---------- WEEK 14 ---------- */
+  ["Add returning client emails to the upcoming program client doc","plan",14,null,""],
+  ["Repost fitness testing videos on The Gang's Instagram again","mkt",14,null,""],
+  ["Create the Kajabi tag for continuing clients","pay",14,null,""],
+  ["Send the first deposit email for continuing clients","pay",14,null,""],
+  ["Add phone numbers for clients who switched teams in the client doc","plan",14,null,""]
+];
+
+/* Corrections applied to items already in the Hub, so the real SOP
+   timing wins without creating a second copy of the same job. */
+const SEED_CORRECTIONS = [
+  { match:"Open public registration", weeksBefore:8,
+    note:"Jo's SOP: open new client registration for the remaining spots at week minus 8, alongside the waitlist email." },
+  { match:"Send the end of program feedback survey", week:8,
+    note:"The task calendar sends the forms late in week 8, with a group chat and email about it. Built in week 6, reviewed week 7, closed week 9." }
+];
+</script>
+<script>
+/* ============================================================
+   THE GANG OPERATIONS HUB — review copy
+   Read the whole operating system, mark it up, send your notes.
+   Everything is stored in your own browser. Nothing is shared
+   until someone exports and hands the file over.
+   ============================================================ */
+(function(){
+"use strict";
+
+const SLUG = "gangreview";
+const SCHEMA = 1;
+const WEEKS = 14;
+const ONGOING = 99;
+const PEOPLE = ["Jo","Sam","Stacey","Quinton"];
+const OWNERS = ["Jo","Sam","Stacey","Shared","Unassigned"];
+const FLAGS = [
+  {id:"keep",   label:"Keep as is"},
+  {id:"change", label:"Needs changing"},
+  {id:"drop",   label:"Drop it"},
+  {id:"unsure", label:"Not sure"}
+];
+
+/* ------------------------------------------------------------
+   utilities
+   ------------------------------------------------------------ */
+const $ = s=>document.querySelector(s);
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function normTitle(s){ return String(s==null?"":s).toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
+function uid(p){ return (p||"n")+"-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7); }
+function initials(n){ const p=String(n).trim().split(/\s+/); return (p.length>1?p[0][0]+p[1][0]:String(n).slice(0,2)).toUpperCase(); }
+function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function plural(n,one,many){ return n+" "+(n===1?one:(many||one+"s")); }
+
+function toast(m){
+  const t=$("#toast"); if(!t) return;
+  t.textContent=m; t.classList.add("on");
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("on"),2600);
+}
+
+/* localStorage, namespaced to this tool. Degrades to memory if blocked. */
+const mem={};
+const LS={
+  get(k,d){
+    try{ const v=localStorage.getItem(SLUG+":"+k); return v==null?(k in mem?mem[k]:d):JSON.parse(v); }
+    catch(e){ return (k in mem)?mem[k]:d; }
+  },
+  set(k,v){
+    mem[k]=v;
+    try{ localStorage.setItem(SLUG+":"+k, JSON.stringify(v)); }catch(e){}
+  },
+  del(k){ delete mem[k]; try{ localStorage.removeItem(SLUG+":"+k); }catch(e){} }
+};
+
+function cat(id){
+  return SEED_CATEGORIES.find(c=>c.id===id) || {id:id,name:"Uncategorised",color:"#8B7A6D"};
+}
+function stageName(w){ return w===ONGOING ? "Ongoing" : (w===0 ? "Between Programs" : "Week "+w); }
+function stageOrder(w){ return w===ONGOING ? -1 : Number(w||0); }
+function timingText(week, weeksBefore){
+  if(week===ONGOING) return "Every day, all program";
+  if(week===0) return weeksBefore==null ? "Between programs, no fixed timing" : weeksBefore+" week"+(weeksBefore===1?"":"s")+" before the program starts";
+  return "Week "+week+" of "+WEEKS;
+}
+
+/* ------------------------------------------------------------
+   state
+   ------------------------------------------------------------ */
+const ITEMS = SEED_TEMPLATE.map((r,i)=>({
+  key:normTitle(r[0]), title:r[0], cat:r[1], week:r[2],
+  weeksBefore:(r[3]==null?null:r[3]), notes:r[4]||"", order:i
+}));
+
+let mine = LS.get("mine", null);
+if(!mine || mine.schema!==SCHEMA){
+  mine = { schema:SCHEMA, reviewer:"", updated:null, items:{}, additions:[] };
+}
+let merged = LS.get("merged", {});          /* reviewer name -> their whole review */
+
+const UI = {
+  mode: "review",                            /* review | merge */
+  q: "", cat:"all", stage:"all", flag:"all",
+  open: {},                                  /* item key -> expanded */
+  out: ""                                    /* text shown in the export box */
+};
+
+function saveMine(){
+  mine.updated = new Date().toISOString();
+  LS.set("mine", mine);
+}
+function entry(key){
+  if(!mine.items[key]) mine.items[key]={};
+  return mine.items[key];
+}
+function hasReview(e){
+  return !!(e && (e.flag || (e.note&&e.note.trim()) || e.owner || e.timing));
+}
+function reviewedCount(){
+  let n=0;
+  Object.keys(mine.items).forEach(k=>{ if(hasReview(mine.items[k])) n++; });
+  return n;
+}
+
+/* ------------------------------------------------------------
+   filtering + grouping
+   ------------------------------------------------------------ */
+function visibleItems(){
+  const q=UI.q.trim().toLowerCase();
+  const all = ITEMS.concat(mine.additions.map(a=>Object.assign({}, a, {isNew:true, key:a.id})));
+  return all.filter(it=>{
+    if(UI.cat!=="all" && it.cat!==UI.cat) return false;
+    if(UI.stage!=="all" && String(it.week)!==UI.stage) return false;
+    const e=mine.items[it.key];
+    if(UI.flag==="todo" && (hasReview(e)||it.isNew)) return false;
+    if(UI.flag==="done" && !hasReview(e) && !it.isNew) return false;
+    if(UI.flag!=="all" && UI.flag!=="todo" && UI.flag!=="done"){
+      if(!e || e.flag!==UI.flag) return false;
+    }
+    if(q){
+      const hay=(it.title+" "+(it.notes||"")+" "+cat(it.cat).name+" "+((e&&e.note)||"")).toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    return true;
+  });
+}
+function groupByStage(list){
+  const groups={};
+  list.forEach(it=>{
+    const k = it.week===ONGOING ? "ongoing" : (it.week===0 ? "b"+(it.weeksBefore==null?"x":it.weeksBefore) : "w"+it.week);
+    (groups[k]=groups[k]||{week:it.week, weeksBefore:it.weeksBefore, items:[]}).items.push(it);
+  });
+  return Object.keys(groups).map(k=>groups[k]).sort((a,b)=>{
+    const ao=stageOrder(a.week), bo=stageOrder(b.week);
+    if(ao!==bo) return ao-bo;
+    const av=a.weeksBefore==null?-1:a.weeksBefore, bv=b.weeksBefore==null?-1:b.weeksBefore;
+    return bv-av;                              /* furthest out first */
+  });
+}
+function groupLabel(g){
+  if(g.week===ONGOING) return "Ongoing";
+  if(g.week===0) return g.weeksBefore==null ? "Between programs" : g.weeksBefore+" week"+(g.weeksBefore===1?"":"s")+" out";
+  return "Week "+g.week;
+}
+function groupWhen(g){
+  if(g.week===ONGOING) return "every day, the whole program";
+  if(g.week===0) return g.weeksBefore==null ? "no fixed timing" : "before the program starts";
+  return "of the 14 week program";
+}
+
+/* ------------------------------------------------------------
+   rendering — review mode
+   ------------------------------------------------------------ */
+function chip(text, style){
+  return '<span class="chip '+(style||"")+'">'+text+'</span>';
+}
+function catChip(id){
+  const c=cat(id);
+  return '<span class="chip chip--cat" style="--c:'+esc(c.color)+'"><i></i>'+esc(c.name)+'</span>';
+}
+
+function itemBlock(it){
+  const e = mine.items[it.key] || {};
+  const open = !!UI.open[it.key];
+  return '<details class="item'+(it.isNew?" item--new":"")+'"'+(e.flag?' data-flag="'+esc(e.flag)+'"':"")+
+      ' data-key="'+esc(it.key)+'"'+(open?" open":"")+'>'+
+    '<summary class="item-head">'+
+      '<span class="item-caret">&rsaquo;</span>'+
+      '<span class="item-title">'+esc(it.title)+
+        (it.isNew?' <span class="chip chip--recur">You added this</span>':"")+
+        '<span class="item-chips">'+catChip(it.cat)+
+          '<span class="chip chip--due">'+esc(timingText(it.week,it.weeksBefore))+'</span>'+
+        '</span>'+
+        (it.notes?'<span class="item-note">'+esc(it.notes)+'</span>':"")+
+      '</span>'+
+      (e.flag?'<span class="item-mine" data-f="'+esc(e.flag)+'">'+esc((FLAGS.find(f=>f.id===e.flag)||{}).label||"")+'</span>':
+       (e.note||e.owner||e.timing?'<span class="item-mine" data-f="unsure">Noted</span>':""))+
+    '</summary>'+
+    '<div class="review">'+
+      '<div class="flags" style="margin-bottom:13px">'+
+        FLAGS.map(f=>'<button class="flag" data-act="flag" data-key="'+esc(it.key)+'" data-f="'+f.id+'" aria-pressed="'+(e.flag===f.id)+'">'+f.label+'</button>').join("")+
+        (e.flag?'<button class="btn btn--quiet btn--sm" data-act="clearflag" data-key="'+esc(it.key)+'">Clear</button>':"")+
+      '</div>'+
+      '<div class="row">'+
+        '<div class="field"><label>Who should own this</label>'+
+          '<select class="sel" data-act="setowner" data-key="'+esc(it.key)+'">'+
+            '<option value="">No suggestion</option>'+
+            OWNERS.map(o=>'<option value="'+esc(o)+'"'+(e.owner===o?" selected":"")+'>'+esc(o)+'</option>').join("")+
+          '</select></div>'+
+        '<div class="field"><label>Different timing?</label>'+
+          '<input class="inp" data-act="settiming" data-key="'+esc(it.key)+'" placeholder="e.g. week 5, not week 8" value="'+esc(e.timing||"")+'"></div>'+
+      '</div>'+
+      '<div class="field"><label>Your note</label>'+
+        '<textarea class="ta" data-act="setnote" data-key="'+esc(it.key)+'" placeholder="What would you change, and why? Anything the others need to know?">'+esc(e.note||"")+'</textarea></div>'+
+      (it.isNew?'<div style="margin-top:11px"><button class="btn btn--danger btn--sm" data-act="delnew" data-key="'+esc(it.key)+'">Remove this suggestion</button></div>':"")+
+    '</div>'+
+  '</details>';
+}
+
+function reviewBody(){
+  if(!mine.reviewer){
+    return '<div class="empty" style="margin-top:30px"><strong>Say who you are first</strong>'+
+      'Pick your name above and the list opens up. Your notes are saved as you type, in this browser only.</div>';
+  }
+  const list=visibleItems();
+  if(!list.length){
+    return '<div class="empty" style="margin-top:22px"><strong>Nothing matches</strong>Clear the filters to see the rest.</div>';
+  }
+  const groups=groupByStage(list);
+  return groups.map(g=>{
+    const done=g.items.filter(it=>hasReview(mine.items[it.key])||it.isNew).length;
+    return '<section class="stagegroup">'+
+      '<div class="stagebar"><h2>'+esc(groupLabel(g))+'</h2>'+
+        '<span class="when">'+esc(groupWhen(g))+'</span>'+
+        '<span class="tally">'+done+' of '+g.items.length+' marked</span></div>'+
+      g.items.map(itemBlock).join("")+
+      '<div class="addbox"><button class="btn btn--ghost btn--sm" data-act="addnew" data-week="'+g.week+'" data-wb="'+(g.weeksBefore==null?"":g.weeksBefore)+'">+ Something is missing from '+esc(groupLabel(g).toLowerCase())+'</button></div>'+
+    '</section>';
+  }).join("");
+}
+
+/* ------------------------------------------------------------
+   rendering — merge mode
+   ------------------------------------------------------------ */
+function mergedItemKeys(){
+  const keys={};
+  Object.keys(merged).forEach(who=>{
+    const r=merged[who];
+    Object.keys(r.items||{}).forEach(k=>{ if(hasReview(r.items[k])) keys[k]=true; });
+  });
+  return Object.keys(keys);
+}
+function verdictFor(key){
+  const flags=[];
+  Object.keys(merged).forEach(who=>{
+    const e=(merged[who].items||{})[key];
+    if(e && e.flag) flags.push(e.flag);
+  });
+  const uniq=flags.filter((f,i)=>flags.indexOf(f)===i);
+  if(uniq.length>1) return {id:"split", label:"They disagree", rank:0};
+  if(uniq[0]==="drop")   return {id:"drop",   label:"Drop it", rank:1};
+  if(uniq[0]==="change") return {id:"change", label:"Needs changing", rank:2};
+  if(uniq[0]==="unsure") return {id:"split",  label:"Nobody is sure", rank:3};
+  const anyOwner=Object.keys(merged).some(w=>{ const e=(merged[w].items||{})[key]; return e&&e.owner; });
+  if(uniq[0]==="keep") return anyOwner ? {id:"owner",label:"Keep, owner suggested",rank:5} : {id:"keep",label:"Everyone says keep",rank:6};
+  return {id:"owner", label:"Comments only", rank:4};
+}
+function voicesFor(key){
+  return Object.keys(merged).map(who=>{
+    const e=(merged[who].items||{})[key];
+    if(!hasReview(e)) return "";
+    const bits=[];
+    if(e.flag) bits.push('<em>'+esc((FLAGS.find(f=>f.id===e.flag)||{}).label||e.flag)+'</em>');
+    if(e.note) bits.push(esc(e.note));
+    const sug=[];
+    if(e.owner) sug.push("owner &rarr; "+esc(e.owner));
+    if(e.timing) sug.push("timing &rarr; "+esc(e.timing));
+    return '<div class="voice"><span class="av">'+esc(initials(who))+'</span>'+
+      '<span class="said">'+(bits.join(" &middot; ")||"<em>no comment</em>")+
+      (sug.length?'<span class="suggest">'+sug.join(" &middot; ")+'</span>':"")+'</span></div>';
+  }).join("");
+}
+
+function mergeBody(){
+  const who=Object.keys(merged);
+  const head = '<div class="mergehead">'+
+    '<h2>Everyone&rsquo;s notes in one place</h2>'+
+    '<p class="hint">Load each person&rsquo;s exported file. Items where they disagree come first, then anything marked to change or drop, then the rest. Work down it and make the edits in the real Hub as you go.</p>'+
+    (who.length?'<div class="who-pills">'+who.map(w=>{
+      const n=Object.keys(merged[w].items||{}).filter(k=>hasReview(merged[w].items[k])).length;
+      const adds=(merged[w].additions||[]).length;
+      return '<span class="who-pill"><b>'+esc(w)+'</b><span>'+n+' marked'+(adds?", "+adds+" added":"")+'</span>'+
+        '<button data-act="dropwho" data-who="'+esc(w)+'" title="Remove">&times;</button></span>';
+    }).join("")+'</div>':"")+
+    '<div class="filedrop" id="drop" style="margin-top:16px">'+
+      '<b>Drop their exported files here</b>'+
+      'or <button class="btn btn--ghost btn--sm" data-act="pickfiles">choose files</button>'+
+      '<input type="file" id="fileInput" accept="application/json,.json" multiple>'+
+    '</div>'+
+    (who.length?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">'+
+      '<button class="btn btn--primary btn--sm" data-act="buildsummary">Build the decision list</button>'+
+      '<button class="btn btn--ghost btn--sm" data-act="clearmerge">Clear everyone</button>'+
+    '</div>':"")+
+    (UI.out?'<div class="outbox">'+esc(UI.out)+'</div>'+
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+      '<button class="btn btn--ghost btn--sm" data-act="copyout">Copy it</button>'+
+      '<button class="btn btn--ghost btn--sm" data-act="downloadout">Download as .md</button></div>':"")+
+  '</div>';
+
+  if(!who.length) return head+'<div class="empty"><strong>No notes loaded yet</strong>Ask Jo, Sam and Stacey to hit Export in their own copy and send you the file.</div>';
+
+  const keys=mergedItemKeys();
+  const byKey={};
+  ITEMS.forEach(it=>byKey[it.key]=it);
+  Object.keys(merged).forEach(w=>{
+    (merged[w].additions||[]).forEach(a=>{ if(!byKey[a.id]) byKey[a.id]=Object.assign({},a,{key:a.id,isNew:true,by:w}); });
+  });
+
+  const rows=keys.map(k=>({key:k, item:byKey[k], v:verdictFor(k)}))
+                 .filter(r=>r.item)
+                 .sort((a,b)=> a.v.rank-b.v.rank || stageOrder(a.item.week)-stageOrder(b.item.week));
+
+  const adds=[];
+  Object.keys(merged).forEach(w=>{
+    (merged[w].additions||[]).forEach(a=>adds.push(Object.assign({},a,{by:w})));
+  });
+
+  let out=head;
+
+  if(adds.length){
+    out+='<section class="stagegroup"><div class="stagebar"><h2>Proposed additions</h2>'+
+      '<span class="tally">'+adds.length+'</span></div>'+
+      adds.map(a=>'<div class="item item--new"><div class="item-head">'+
+        '<span class="item-title">'+esc(a.title)+
+          '<span class="item-chips">'+catChip(a.cat)+
+          '<span class="chip chip--due">'+esc(timingText(a.week,a.weeksBefore))+'</span>'+
+          '<span class="verdict verdict--new">from '+esc(a.by)+'</span></span>'+
+          (a.note?'<span class="item-note">'+esc(a.note)+'</span>':"")+
+        '</span></div></div>').join("")+
+    '</section>';
+  }
+
+  out+='<section class="stagegroup"><div class="stagebar"><h2>Everything they marked</h2>'+
+    '<span class="tally">'+rows.length+'</span></div>'+
+    rows.map(r=>'<div class="item"><div class="item-head">'+
+      '<span class="item-title">'+esc(r.item.title)+
+        '<span class="item-chips">'+
+          '<span class="verdict verdict--'+r.v.id+'">'+esc(r.v.label)+'</span>'+
+          catChip(r.item.cat)+
+          '<span class="chip chip--due">'+esc(stageName(r.item.week))+'</span>'+
+        '</span>'+
+        '<div class="voices">'+voicesFor(r.key)+'</div>'+
+      '</span></div></div>').join("")+
+  '</section>';
+
+  return out;
+}
+
+/* ------------------------------------------------------------
+   the decision list, as plain markdown
+   ------------------------------------------------------------ */
+function buildSummary(){
+  const who=Object.keys(merged);
+  const byKey={}; ITEMS.forEach(it=>byKey[it.key]=it);
+  const keys=mergedItemKeys();
+  const rows=keys.map(k=>({key:k,item:byKey[k],v:verdictFor(k)})).filter(r=>r.item)
+                 .sort((a,b)=>a.v.rank-b.v.rank || stageOrder(a.item.week)-stageOrder(b.item.week));
+
+  const L=[];
+  L.push("# The Gang Operations Hub — review decisions");
+  L.push("");
+  L.push("Notes from " + who.join(", ") + ", pulled together " + today() + ".");
+  L.push(rows.length + " of " + ITEMS.length + " responsibilities were marked.");
+  L.push("");
+
+  const buckets=[
+    ["They disagree", r=>r.v.id==="split"],
+    ["Marked to drop", r=>r.v.id==="drop"],
+    ["Needs changing", r=>r.v.id==="change"],
+    ["Keep, with an owner suggested", r=>r.v.id==="owner"],
+    ["Agreed keep as is", r=>r.v.id==="keep"]
+  ];
+
+  buckets.forEach(b=>{
+    const set=rows.filter(b[1]);
+    if(!set.length) return;
+    L.push("## "+b[0]+" ("+set.length+")");
+    L.push("");
+    set.forEach(r=>{
+      L.push("### "+r.item.title);
+      L.push("_"+cat(r.item.cat).name+" · "+timingText(r.item.week,r.item.weeksBefore)+"_");
+      who.forEach(w=>{
+        const e=(merged[w].items||{})[r.key];
+        if(!hasReview(e)) return;
+        const bits=[];
+        if(e.flag) bits.push((FLAGS.find(f=>f.id===e.flag)||{}).label||e.flag);
+        if(e.note) bits.push(e.note);
+        if(e.owner) bits.push("owner → "+e.owner);
+        if(e.timing) bits.push("timing → "+e.timing);
+        L.push("- **"+w+":** "+bits.join(" · "));
+      });
+      L.push("");
+    });
+  });
+
+  const adds=[];
+  who.forEach(w=>(merged[w].additions||[]).forEach(a=>adds.push(Object.assign({},a,{by:w}))));
+  if(adds.length){
+    L.push("## Proposed additions ("+adds.length+")");
+    L.push("");
+    adds.forEach(a=>{
+      L.push("### "+a.title);
+      L.push("_"+cat(a.cat).name+" · "+timingText(a.week,a.weeksBefore)+" · from "+a.by+"_");
+      if(a.note) L.push("- "+a.note);
+      if(a.owner) L.push("- owner → "+a.owner);
+      L.push("");
+    });
+  }
+  return L.join("\n");
+}
+
+/* ------------------------------------------------------------
+   export / import
+   ------------------------------------------------------------ */
+function download(name, text, type){
+  try{
+    const b=new Blob([text],{type:type||"application/json"});
+    const u=URL.createObjectURL(b);
+    const a=document.createElement("a");
+    a.href=u; a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(u); a.remove(); },1500);
+    return true;
+  }catch(e){ return false; }
+}
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }catch(e){ return false; }
+}
+
+function exportMine(){
+  if(!mine.reviewer){ toast("Pick your name first"); return; }
+  const n=reviewedCount();
+  if(!n && !mine.additions.length){ toast("Nothing marked yet"); return; }
+  const body=JSON.stringify(Object.assign({}, mine, {tool:"gang-ops-review", exported:new Date().toISOString()}), null, 2);
+  const name = SLUG+"-"+mine.reviewer.toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+today()+".json";
+  if(download(name, body)) toast("Saved "+name);
+  else { UI.out=body; render(); toast("Download blocked. Copy the text instead."); }
+}
+
+function loadFiles(files){
+  let added=0, bad=0;
+  const jobs=[...files].map(f=>new Promise(res=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const d=JSON.parse(r.result);
+        if(!d || !d.items || !d.reviewer) throw new Error("not a review file");
+        merged[d.reviewer]=d; added++;
+      }catch(e){ bad++; }
+      res();
+    };
+    r.onerror=()=>{ bad++; res(); };
+    r.readAsText(f);
+  }));
+  Promise.all(jobs).then(()=>{
+    LS.set("merged", merged);
+    UI.out="";
+    render();
+    toast(added?("Loaded "+plural(added,"review")+(bad?", "+bad+" skipped":"")):"Those files did not look like review exports");
+  });
+}
+
+/* ------------------------------------------------------------
+   shell
+   ------------------------------------------------------------ */
+function head(){
+  const n=reviewedCount(), total=ITEMS.length;
+  const pct=total?Math.round(n/total*100):0;
+  return '<header class="masthead">'+
+    '<div class="eyebrow">The Gang Fitness &middot; leadership review</div>'+
+    '<h1>The operating system,<br>up for review</h1>'+
+    '<p class="lede">Every recurring responsibility we have written down, '+total+' of them, laid out across the run-up to a program and its fourteen weeks. '+
+    'Go through it and say what you would <b>keep</b>, <b>change</b> or <b>drop</b>, who you think should own it, and anything missing. '+
+    'When you are done, hit Export and send Quinton the file. He merges everyone&rsquo;s notes and we make the changes in one pass.</p>'+
+
+    '<div class="whobar">'+
+      '<div class="field"><label>You are</label>'+
+        '<select class="sel" data-act="setwho">'+
+          '<option value="">Choose&hellip;</option>'+
+          PEOPLE.map(p=>'<option value="'+esc(p)+'"'+(mine.reviewer===p?" selected":"")+'>'+esc(p)+'</option>').join("")+
+        '</select></div>'+
+      (mine.reviewer?'<div class="meter"><span class="meter-track"><i style="width:'+pct+'%"></i></span>'+
+        '<span class="meter-n">'+n+' of '+total+' marked</span></div>':"")+
+      '<span class="spacer"></span>'+
+      '<div class="modes">'+
+        '<button data-act="mode" data-m="review" aria-pressed="'+(UI.mode==="review")+'">Review</button>'+
+        '<button data-act="mode" data-m="merge" aria-pressed="'+(UI.mode==="merge")+'">Merge notes</button>'+
+      '</div>'+
+      (UI.mode==="review"?'<button class="btn btn--primary btn--sm" data-act="export">Export my notes</button>':"")+
+    '</div>'+
+    (UI.mode==="review"&&UI.out?'<div class="outbox">'+esc(UI.out)+'</div>'+
+      '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn--ghost btn--sm" data-act="copyout">Copy it</button>'+
+      '<button class="btn btn--quiet btn--sm" data-act="closeout">Hide</button></div>':"")+
+  '</header>';
+}
+
+function toolbar(){
+  if(UI.mode!=="review" || !mine.reviewer) return "";
+  const stages=[["all","Every stage"],[String(ONGOING),"Ongoing"],["0","Between programs"]]
+    .concat(Array.from({length:WEEKS},(_,i)=>[String(i+1),"Week "+(i+1)]));
+  return '<div class="toolbar"><div class="toolbar-in">'+
+    '<input class="search" data-act="search" placeholder="Search the list&hellip;" value="'+esc(UI.q)+'">'+
+    '<select class="sel" data-act="fcat" style="width:auto;min-width:150px"><option value="all">Every category</option>'+
+      SEED_CATEGORIES.map(c=>'<option value="'+esc(c.id)+'"'+(UI.cat===c.id?" selected":"")+'>'+esc(c.name)+'</option>').join("")+
+    '</select>'+
+    '<select class="sel" data-act="fstage" style="width:auto;min-width:150px">'+
+      stages.map(s=>'<option value="'+s[0]+'"'+(UI.stage===s[0]?" selected":"")+'>'+s[1]+'</option>').join("")+
+    '</select>'+
+    '<select class="sel" data-act="fflag" style="width:auto;min-width:150px">'+
+      [["all","Everything"],["todo","Not looked at yet"],["done","Marked"],["keep","Keep"],["change","Change"],["drop","Drop"],["unsure","Not sure"]]
+        .map(f=>'<option value="'+f[0]+'"'+(UI.flag===f[0]?" selected":"")+'>'+f[1]+'</option>').join("")+
+    '</select>'+
+    '<button class="btn btn--quiet btn--sm" data-act="reset">Start over</button>'+
+  '</div></div>';
+}
+
+function render(){
+  const y=window.scrollY;
+  $("#root").innerHTML =
+    '<div class="page page--top">'+head()+'</div>'+
+    toolbar()+
+    '<div class="page">'+(UI.mode==="merge" ? mergeBody() : reviewBody())+'</div>';
+  window.scrollTo(0,y);
+  wireDrop();
+}
+
+function wireDrop(){
+  const d=document.getElementById("drop");
+  if(!d) return;
+  ["dragenter","dragover"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.add("over"); }));
+  ["dragleave","drop"].forEach(ev=>d.addEventListener(ev,e=>{ e.preventDefault(); d.classList.remove("over"); }));
+  d.addEventListener("drop",e=>{ if(e.dataTransfer&&e.dataTransfer.files.length) loadFiles(e.dataTransfer.files); });
+  const inp=document.getElementById("fileInput");
+  if(inp) inp.addEventListener("change",e=>{ if(e.target.files.length) loadFiles(e.target.files); });
+}
+
+/* ------------------------------------------------------------
+   events
+   ------------------------------------------------------------ */
+document.addEventListener("click",async function(ev){
+  const el=ev.target.closest("[data-act]");
+  if(!el) return;
+  const act=el.getAttribute("data-act");
+  const tag=el.tagName;
+  if(tag==="SELECT"||tag==="INPUT"||tag==="TEXTAREA") return;
+
+  const key=el.getAttribute("data-key");
+
+  if(act==="flag"){
+    ev.preventDefault();
+    const e=entry(key);
+    e.flag = e.flag===el.getAttribute("data-f") ? null : el.getAttribute("data-f");
+    UI.open[key]=true; saveMine(); render(); return;
+  }
+  if(act==="clearflag"){ ev.preventDefault(); const e=entry(key); e.flag=null; UI.open[key]=true; saveMine(); render(); return; }
+  if(act==="delnew"){
+    ev.preventDefault();
+    mine.additions=mine.additions.filter(a=>a.id!==key);
+    delete mine.items[key]; saveMine(); render(); toast("Removed"); return;
+  }
+  if(act==="addnew"){
+    ev.preventDefault();
+    const week=Number(el.getAttribute("data-week"));
+    const wbRaw=el.getAttribute("data-wb");
+    const title=window.prompt("What is missing?");
+    if(!title || !title.trim()) return;
+    const a={ id:uid("add"), title:title.trim(), cat:SEED_CATEGORIES[0].id,
+              week:week, weeksBefore:(wbRaw===""?null:Number(wbRaw)), note:"", owner:"" };
+    mine.additions.push(a);
+    UI.open[a.id]=true;
+    saveMine(); render(); toast("Added. Open it to say more."); return;
+  }
+  if(act==="mode"){ ev.preventDefault(); UI.mode=el.getAttribute("data-m"); UI.out=""; render(); return; }
+  if(act==="export"){ ev.preventDefault(); exportMine(); return; }
+  if(act==="pickfiles"){ ev.preventDefault(); const i=document.getElementById("fileInput"); if(i) i.click(); return; }
+  if(act==="dropwho"){
+    ev.preventDefault();
+    const w=el.getAttribute("data-who");
+    delete merged[w]; LS.set("merged",merged); UI.out=""; render(); return;
+  }
+  if(act==="clearmerge"){
+    ev.preventDefault();
+    if(!window.confirm("Remove everyone's loaded notes? Their exported files are untouched.")) return;
+    merged={}; LS.set("merged",merged); UI.out=""; render(); return;
+  }
+  if(act==="buildsummary"){ ev.preventDefault(); UI.out=buildSummary(); render(); return; }
+  if(act==="copyout"){
+    ev.preventDefault();
+    const ok=await copyText(UI.out);
+    toast(ok?"Copied":"Could not copy. Select the text and copy it by hand.");
+    return;
+  }
+  if(act==="downloadout"){
+    ev.preventDefault();
+    download(SLUG+"-decisions-"+today()+".md", UI.out, "text/markdown");
+    return;
+  }
+  if(act==="closeout"){ ev.preventDefault(); UI.out=""; render(); return; }
+  if(act==="reset"){
+    ev.preventDefault();
+    if(!window.confirm("Clear your own notes and start over? This does not touch anyone else's.")) return;
+    mine={ schema:SCHEMA, reviewer:mine.reviewer, updated:null, items:{}, additions:[] };
+    saveMine(); render(); toast("Cleared"); return;
+  }
+});
+
+/* keep track of which items are expanded, so a re-render does not close them */
+document.addEventListener("toggle",function(ev){
+  const d=ev.target;
+  if(d && d.tagName==="DETAILS" && d.classList.contains("item")){
+    UI.open[d.getAttribute("data-key")]=d.open;
+  }
+},true);
+
+document.addEventListener("change",function(ev){
+  const el=ev.target.closest("[data-act]");
+  if(!el) return;
+  const act=el.getAttribute("data-act");
+  const key=el.getAttribute("data-key");
+  if(act==="setwho"){ mine.reviewer=el.value; saveMine(); render(); return; }
+  if(act==="fcat"){ UI.cat=el.value; render(); return; }
+  if(act==="fstage"){ UI.stage=el.value; render(); return; }
+  if(act==="fflag"){ UI.flag=el.value; render(); return; }
+  if(act==="setowner"){ entry(key).owner=el.value||null; saveMine(); render(); return; }
+});
+
+/* typing: save quietly without redrawing under the cursor */
+document.addEventListener("input",function(ev){
+  const el=ev.target.closest("[data-act]");
+  if(!el) return;
+  const act=el.getAttribute("data-act");
+  const key=el.getAttribute("data-key");
+  if(act==="search"){
+    UI.q=el.value;
+    clearTimeout(render._q);
+    render._q=setTimeout(()=>{ const v=el.value; render(); const s=document.querySelector(".search"); if(s){ s.focus(); s.value=v; s.setSelectionRange(v.length,v.length); } },260);
+    return;
+  }
+  if(act==="setnote"){ entry(key).note=el.value; clearTimeout(render._n); render._n=setTimeout(saveMine,400); return; }
+  if(act==="settiming"){ entry(key).timing=el.value; clearTimeout(render._t); render._t=setTimeout(saveMine,400); return; }
+});
+
+window.addEventListener("beforeunload",saveMine);
+
+render();
+})();
+</script>
+</body>
+</html>
