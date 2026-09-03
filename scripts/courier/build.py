@@ -134,34 +134,44 @@ def claude(prompt, max_tokens, web_searches=0):
     raise RuntimeError("Anthropic API kept pausing")
 
 
-def parse_json(text):
-    """Parse the model's JSON. If it came back wrapped in prose, or with a stray control character,
-    ask the model once to repair it rather than failing the whole run."""
-    def attempt(t):
-        t = re.sub(r"^```(?:json)?|```$", "", t.strip(), flags=re.M).strip()
-        start, end = t.find("{"), t.rfind("}")
-        if start < 0 or end < 0:
-            raise ValueError("no JSON object in response")
-        return json.loads(t[start:end + 1], strict=False)
-    try:
-        data = attempt(text)
-    except (ValueError, json.JSONDecodeError) as e:
-        log(f"JSON parse failed ({e}); response starts: {text[:300]!r}. Asking the model to repair it.")
-        repaired = claude("Return the following as valid JSON only, no code fence, no commentary. Keep the same "
-                          "keys and the full text of every value; fix only the formatting.\n\n" + text, 8000)
-        data = attempt(repaired)
-    if "script" in data:
-        data["script"] = data["script"].replace("\u2014", ", ").replace("\u2013", ", ")
-    return data
+def parse_fields(text, *fields):
+    """Parse a response written as labelled sections: TITLE: ..., SCRIPT: ..., SOURCES: ...
+    Plain text cannot be broken by quotes or newlines the way JSON can."""
+    if "max_tokens" in text[-40:]:
+        log("response was cut off at max_tokens")
+    out = {}
+    pattern = "|".join(re.escape(f) for f in fields)
+    parts = re.split(rf"^\s*({pattern}):\s*", text, flags=re.M)
+    # parts: [preamble, FIELD, value, FIELD, value, ...]
+    for i in range(1, len(parts) - 1, 2):
+        out[parts[i].lower()] = parts[i + 1].strip()
+    if "script" not in out or len(out["script"]) < 200:
+        raise ValueError(f"no usable SCRIPT section; response starts: {text[:200]!r}")
+    out["script"] = out["script"].replace("\u2014", ", ").replace("\u2013", ", ")
+    if "sources" in out:
+        srcs = []
+        for ln in out["sources"].splitlines():
+            bits = [b.strip() for b in ln.strip().lstrip("-* ").split("|")]
+            if len(bits) >= 3 and bits[2].startswith("http"):
+                srcs.append({"outlet": bits[0], "title": bits[1], "url": bits[2]})
+        out["sources"] = srcs
+    return out
 
 
+FORMAT_SCRIPT = """Write your answer as plain text in exactly this layout, with these three labels on their own
+lines and nothing before the first label:
+
+TITLE: a six to ten word headline
+SCRIPT:
+the full spoken script, paragraphs separated by blank lines, ending with the Talking points section
+SOURCES:
+- outlet | article title | url
+- outlet | article title | url
+"""
 def write_script(category, spec, items):
     if DRY_RUN:
-        return {
-            "title": f"{spec['label']} (dry run)",
-            "script": "Dry run. No script generated.\n\nTalking points\n- none",
-            "sources": [{"outlet": i["outlet"], "title": i["title"], "url": i["url"]} for i in items[:5]],
-        }
+        return {"title": f"{spec['label']} (dry run)", "script": "Dry run. " * 40 + "\n\nTalking points\n- none",
+                "sources": [{"outlet": i["outlet"], "title": i["title"], "url": i["url"]} for i in items[:5]]}
 
     feed_text = "\n".join(
         f"- [{i['outlet']}] {i['title']} :: {i['summary']} ({i['url']})" for i in items[:80]
@@ -183,10 +193,7 @@ evidence-based advisor says to a client who asks. Rank by how much coverage they
 Feed items:
 {feed_text}
 
-Return only JSON, no code fence:
-{{"title": "six to ten word headline naming the top company",
-  "script": "the full spoken script, one paragraph block per company, ending with the Talking points section",
-  "sources": [{{"outlet": "...", "title": "...", "url": "..."}}]}}"""
+{FORMAT_SCRIPT}"""
     else:
         prompt = f"""Today is {TODAY}. Write the daily 15 minute spoken briefing for the category
 "{spec['label']}" for a wealth advisor in Winnipeg who wants to be informed and have talking
@@ -205,17 +212,14 @@ reputable sources. Skip anything you cannot attribute.
 Feed items:
 {feed_text}
 
-Return only JSON with this shape and nothing else, no code fence:
-{{"title": "a six to ten word headline for today's block",
-  "script": "the full spoken script, paragraphs separated by blank lines, ending with the Talking points section",
-  "sources": [{{"outlet": "...", "title": "...", "url": "..."}}]}}"""
+{FORMAT_SCRIPT}"""
 
-    return parse_json(claude(prompt, 8000, web_searches=8))
+    return parse_fields(claude(prompt, 12000, web_searches=8), "TITLE", "SCRIPT", "SOURCES")
 
 
 def write_front_page(blocks):
     if DRY_RUN:
-        return {"title": "Front page (dry run)", "script": "Dry run. No front page generated."}
+        return {"title": "Front page (dry run)", "script": "Dry run front page. " * 20}
     digest = "\n\n".join(f"### {b['label']}: {b['title']}\n{b['script']}" for b in blocks if b["id"] != "lessons")
     prompt = f"""Today is {TODAY}. Below are today's briefing scripts. Write a spoken front page
 of 420 to 480 words, about three minutes, that tells the listener what actually matters today
@@ -227,8 +231,15 @@ block order. Name the block when you point to it. No talking points section.
 Scripts:
 {digest}
 
-Return only JSON, no code fence: {{"title": "six to ten word headline for the day", "script": "..."}}"""
-    return parse_json(claude(prompt, 3000, web_searches=3))
+Write your answer as plain text in exactly this layout, labels on their own lines, nothing before the first:
+
+TITLE: six to ten word headline for the day
+SCRIPT:
+the front page"""
+    data = parse_fields(claude(prompt, 4000, web_searches=3), "TITLE", "SCRIPT", "TASK", "DRILL")
+    if data.get("drill", "").strip().lower() == "none":
+        data["drill"] = ""
+    return data
 
 
 def write_lesson(track, spec, seq_label, index, lessons):
@@ -237,7 +248,7 @@ def write_lesson(track, spec, seq_label, index, lessons):
     prev = [lessons[(index - k) % len(lessons)] for k in (3, 2, 1) if index - k >= 0]
     nxt = lessons[(index + 1) % len(lessons)]
     if DRY_RUN:
-        return {"title": title, "script": f"Dry run lesson: {title}", "task": "none", "drill": ""}
+        return {"title": title, "script": f"Dry run lesson: {title}. " * 20, "task": "none", "drill": ""}
     prompt = f"""Today is {TODAY}. Write lesson {index + 1} (cycle {cycle}) in a progressive daily learning
 track called "{spec['label']}"{f', sequence "{seq_label}"' if seq_label else ''}.
 Framing: {spec['framing']}
@@ -254,10 +265,16 @@ Be current and precise; if a figure depends on the tax year, state the year.
 
 {STYLE_RULES.replace('Finish with a section headed exactly "Talking points" containing five short lines a person', 'Do not add a talking points section.').replace('could say in a meeting or at a dinner table today.', '')}
 
-Return only JSON, no code fence:
-{{"title": "{title}", "script": "the lesson", "task": "today's practice task in one or two sentences",
-  "drill": "for the communication track only: a scoreable drill, what to do and what good looks like; else empty string"}}"""
-    return parse_json(claude(prompt, 2000))
+Write your answer as plain text in exactly this layout, labels on their own lines, nothing before the first:
+
+TITLE: {title}
+SCRIPT:
+the lesson
+TASK:
+today's practice task in one or two sentences
+DRILL:
+for the communication track only, a scoreable drill: what to do and what good looks like. Otherwise the word none."""
+    return parse_fields(claude(prompt, 3000), "TITLE", "SCRIPT")
 
 
 def write_lessons():
@@ -277,7 +294,11 @@ def write_lessons():
         else:
             key, lessons, seq_label = track, spec["lessons"], None
         index = progress.get(key, 0)
-        data = write_lesson(track, spec, seq_label, index, lessons)
+        try:
+            data = write_lesson(track, spec, seq_label, index, lessons)
+        except Exception as e:
+            log(f"lesson {track} failed, skipping that track today: {e}")
+            continue
         out.append({"track": track, "label": spec["label"], "sequence": seq_label, "index": index + 1,
                     "title": data["title"], "script": data["script"], "task": data.get("task", ""),
                     "drill": data.get("drill", "")})
@@ -425,7 +446,11 @@ def main():
         raise RuntimeError("every block failed")
 
     log("== Lessons")
-    lessons = write_lessons()
+    try:
+        lessons = write_lessons()
+    except Exception as e:
+        log(f"lessons failed, skipping today: {e}")
+        lessons, failed = None, failed + ["lessons"]
     if lessons:
         body = "\n\n".join(f"{l['label']}{', ' + l['sequence'] if l['sequence'] else ''}, lesson {l['index']}: {l['title']}.\n\n{l['script']}" for l in lessons)
         block = make_block("lessons", "Lessons", " / ".join(l["title"] for l in lessons), body,
@@ -434,8 +459,12 @@ def main():
         blocks.insert(0, block)
 
     log("== Front page")
-    fp = write_front_page(blocks)
-    blocks.insert(0, make_block("frontpage", "Front page", fp["title"], fp["script"], [], [], day_dir, release))
+    try:
+        fp = write_front_page(blocks)
+        blocks.insert(0, make_block("frontpage", "Front page", fp["title"], fp["script"], [], [], day_dir, release))
+    except Exception as e:
+        log(f"front page failed, skipping today: {e}")
+        failed.append("frontpage")
 
     manifest = load_manifest()
     manifest["days"] = [d for d in manifest["days"] if d["date"] != TODAY]
