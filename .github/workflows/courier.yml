@@ -1,0 +1,53 @@
+name: The Courier daily briefing
+
+on:
+  schedule:
+    - cron: "0 10 * * *"   # 10:00 UTC = 5:00 CDT / 4:00 CST Winnipeg
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install feedparser requests
+
+      - name: Build today's briefing
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ID: ${{ secrets.ELEVENLABS_VOICE_ID }}
+          ELEVENLABS_STABILITY: ${{ vars.ELEVENLABS_STABILITY }}
+          ELEVENLABS_STYLE: ${{ vars.ELEVENLABS_STYLE }}
+          ELEVENLABS_MODEL: ${{ vars.ELEVENLABS_MODEL }}
+          REPO: ${{ github.repository }}
+        run: python scripts/courier/build.py
+
+      - name: Publish audio as a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DAY=$(ls out | grep -E '^[0-9]{4}-' | sort | tail -1)
+          TAG="courier-$DAY"
+          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$TAG" out/$DAY/*.mp3 --title "The Courier $DAY" --notes "Daily briefing audio" --latest=false
+          # prune releases the manifest no longer references
+          for r in $(gh release list --limit 100 --json tagName -q '.[].tagName' | grep '^courier-'); do
+            grep -qx "$r" out/keep-releases.txt || gh release delete "$r" --yes --cleanup-tag
+          done
+
+      - name: Commit manifest
+        run: |
+          git config user.name "courier-bot"
+          git config user.email "courier-bot@users.noreply.github.com"
+          git add courier/manifest.json courier/feed.xml courier/progress.json
+          git diff --cached --quiet || git commit -m "Courier: $(date -u +%F)"
+          git push
