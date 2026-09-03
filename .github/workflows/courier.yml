@@ -33,6 +33,8 @@ jobs:
           ELEVENLABS_STABILITY: ${{ vars.ELEVENLABS_STABILITY }}
           ELEVENLABS_STYLE: ${{ vars.ELEVENLABS_STYLE }}
           ELEVENLABS_MODEL: ${{ vars.ELEVENLABS_MODEL }}
+          COURIER_MAIL_USER: ${{ secrets.COURIER_MAIL_USER }}
+          COURIER_MAIL_PASSWORD: ${{ secrets.COURIER_MAIL_PASSWORD }}
           REPO: ${{ github.repository }}
         run: python scripts/courier/build.py
 
