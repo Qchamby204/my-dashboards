@@ -1,7 +1,10 @@
 """
 Audition narrator voices before committing to one.
 
-    ELEVENLABS_API_KEY=... python scripts/courier/voice_test.py VOICE_ID [VOICE_ID ...]
+    OPENAI_API_KEY=... python scripts/courier/voice_test.py cedar marin onyx ash
+    ELEVENLABS_API_KEY=... TTS_PROVIDER=elevenlabs python scripts/courier/voice_test.py VOICE_ID ...
+
+OpenAI voices: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer, verse, marin, cedar.
 
 Renders the same sample paragraph in each voice with the Courier's current settings and writes
 out/voice-test/<voice_id>.mp3. Costs about 600 characters of quota per voice. Set
@@ -26,7 +29,20 @@ settings = {
     "style": float(os.environ.get("ELEVENLABS_STYLE") or 0.35),
 }
 model = os.environ.get("ELEVENLABS_MODEL") or "eleven_multilingual_v2"
+provider = os.environ.get("TTS_PROVIDER") or "openai"
 for vid in sys.argv[1:]:
+    if provider == "openai":
+        r = requests.post("https://api.openai.com/v1/audio/speech",
+                          headers={"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"},
+                          json={"model": os.environ.get("OPENAI_TTS_MODEL") or "gpt-4o-mini-tts", "voice": vid,
+                                "input": SAMPLE, "response_format": "mp3",
+                                "instructions": os.environ.get("OPENAI_TTS_INSTRUCTIONS") or
+                                "Warm, unhurried, natural; vary pace and pitch like a person; slow on numbers."},
+                          timeout=120)
+        r.raise_for_status()
+        (out / f"{vid}.mp3").write_bytes(r.content)
+        print("wrote", out / f"{vid}.mp3")
+        continue
     r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{vid}",
                       params={"output_format": "mp3_44100_64"},
                       headers={"xi-api-key": os.environ["ELEVENLABS_API_KEY"]},
