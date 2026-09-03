@@ -32,18 +32,21 @@ jobs:
           REPO: ${{ github.repository }}
         run: python scripts/courier/build.py
 
-      - name: Publish audio as a release
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Publish audio to the courier-audio branch
         run: |
-          DAY=$(ls out | grep -E '^[0-9]{4}-' | sort | tail -1)
-          TAG="courier-$DAY"
-          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
-          gh release create "$TAG" out/$DAY/*.mp3 --title "The Courier $DAY" --notes "Daily briefing audio" --latest=false
-          # prune releases the manifest no longer references
-          for r in $(gh release list --limit 100 --json tagName -q '.[].tagName' | grep '^courier-'); do
-            grep -qx "$r" out/keep-releases.txt || gh release delete "$r" --yes --cleanup-tag
-          done
+          git config user.name "courier-bot"
+          git config user.email "courier-bot@users.noreply.github.com"
+          rm -rf /tmp/audio && mkdir -p /tmp/audio
+          # keep the previous days that the manifest still references
+          if git fetch origin courier-audio 2>/dev/null; then
+            git --work-tree=/tmp/audio checkout origin/courier-audio -- . 2>/dev/null || true
+          fi
+          for d in $(ls out | grep -E '^[0-9]{4}-'); do rm -rf /tmp/audio/$d; cp -r out/$d /tmp/audio/$d; done
+          for d in $(ls /tmp/audio); do grep -qx "$d" out/keep-days.txt || rm -rf /tmp/audio/$d; done
+          cd /tmp/audio && git init -q && git checkout -q --orphan courier-audio && git add -A
+          git -c user.name=courier-bot -c user.email=courier-bot@users.noreply.github.com commit -q -m "Courier audio $(date -u +%F)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" courier-audio
+          cd "$GITHUB_WORKSPACE" && git reset -q
 
       - name: Commit manifest
         run: |

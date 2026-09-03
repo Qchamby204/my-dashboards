@@ -9,8 +9,8 @@ Runs in GitHub Actions. For each category in sources.json:
 
 Then writes a three minute front page across all blocks, merges today into
 courier/manifest.json and courier/feed.xml (podcast RSS, last 7 days), and
-prunes the audio for anything older. Audio is uploaded as GitHub Release
-assets by the workflow, not committed, so the repo stays small.
+prunes the audio for anything older. Audio is pushed by the workflow to an orphan branch, courier-audio, rewritten
+daily with only the last 7 days, and served through jsDelivr with a proper audio MIME type.
 
 Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked), ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
 REPO (owner/name), DRY_RUN=1 to skip both APIs and write a placeholder day.
@@ -366,7 +366,7 @@ def make_block(slug, label, title, body, points, sources, day_dir, release):
     words = len(body.split())
     return {
         "id": slug, "label": label, "title": title,
-        "audio": f"https://github.com/{REPO}/releases/download/{release}/{slug}.mp3",
+        "audio": f"https://cdn.jsdelivr.net/gh/{REPO}@courier-audio/{TODAY}/{slug}.mp3",
         "bytes": path.stat().st_size,
         "script": body, "talkingPoints": points, "sources": sources,
         "words": words, "minutes": round(words / 150, 1),
@@ -479,9 +479,8 @@ def main():
     MANIFEST.write_text(json.dumps(manifest, indent=1, ensure_ascii=False))
     write_feed(manifest)
 
-    # tell the workflow which releases to delete
-    keep = {d["release"] for d in manifest["days"]}
-    (OUT / "keep-releases.txt").write_text("\n".join(sorted(keep)))
+    # tell the workflow which days of audio to keep on the courier-audio branch
+    (OUT / "keep-days.txt").write_text("\n".join(sorted(d["date"] for d in manifest["days"])))
     log(f"done: {len(blocks)} blocks, manifest holds {len(manifest['days'])} days"
         + (f"; FAILED blocks: {', '.join(failed)}" if failed else ""))
 
