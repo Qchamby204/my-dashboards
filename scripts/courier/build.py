@@ -134,8 +134,21 @@ def claude(prompt, max_tokens, web_searches=0):
 
 
 def parse_json(text):
-    text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
-    data = json.loads(text[text.find("{"):text.rfind("}") + 1])
+    """Parse the model's JSON. If it came back wrapped in prose, or with a stray control character,
+    ask the model once to repair it rather than failing the whole run."""
+    def attempt(t):
+        t = re.sub(r"^```(?:json)?|```$", "", t.strip(), flags=re.M).strip()
+        start, end = t.find("{"), t.rfind("}")
+        if start < 0 or end < 0:
+            raise ValueError("no JSON object in response")
+        return json.loads(t[start:end + 1], strict=False)
+    try:
+        data = attempt(text)
+    except (ValueError, json.JSONDecodeError) as e:
+        log(f"JSON parse failed ({e}); response starts: {text[:300]!r}. Asking the model to repair it.")
+        repaired = claude("Return the following as valid JSON only, no code fence, no commentary. Keep the same "
+                          "keys and the full text of every value; fix only the formatting.\n\n" + text, 8000)
+        data = attempt(repaired)
     if "script" in data:
         data["script"] = data["script"].replace("\u2014", ", ").replace("\u2013", ", ")
     return data
@@ -385,13 +398,20 @@ def main():
     release = f"courier-{TODAY}"
     blocks = []
 
+    failed = []
     for slug, spec in sources.items():
         log(f"== {spec['label']}")
-        items = fetch_items(spec["feeds"])
-        data = write_script(slug, spec, items)
-        body, points = split_talking_points(data["script"])
-        blocks.append(make_block(slug, spec["label"], data.get("title", spec["label"]), body,
-                                 points, data.get("sources", [])[:20], day_dir, release))
+        try:
+            items = fetch_items(spec["feeds"])
+            data = write_script(slug, spec, items)
+            body, points = split_talking_points(data["script"])
+            blocks.append(make_block(slug, spec["label"], data.get("title", spec["label"]), body,
+                                     points, data.get("sources", [])[:20], day_dir, release))
+        except Exception as e:
+            log(f"block {slug} failed, skipping it today: {e}")
+            failed.append(slug)
+    if not blocks:
+        raise RuntimeError("every block failed")
 
     log("== Lessons")
     lessons = write_lessons()
@@ -422,7 +442,8 @@ def main():
     # tell the workflow which releases to delete
     keep = {d["release"] for d in manifest["days"]}
     (OUT / "keep-releases.txt").write_text("\n".join(sorted(keep)))
-    log(f"done: {len(blocks)} blocks, manifest holds {len(manifest['days'])} days")
+    log(f"done: {len(blocks)} blocks, manifest holds {len(manifest['days'])} days"
+        + (f"; FAILED blocks: {', '.join(failed)}" if failed else ""))
 
 
 if __name__ == "__main__":
