@@ -28,6 +28,19 @@ https://qchamby204.github.io/my-dashboards/courier/feed.xml
 The feed is marked private so directories will not index it. Each day publishes ten
 episodes: a three minute front page that ranks the day, then the nine blocks.
 
+## Newsletters (the premium sources)
+
+1. Make a dedicated Gmail address for the Courier and subscribe to newsletters with it.
+2. In that Gmail: Settings, See all settings, Forwarding and POP/IMAP, enable IMAP.
+3. Google Account, Security, turn on 2-Step Verification, then search "App passwords", create
+   one named courier, copy the 16 characters.
+4. GitHub secrets: COURIER_MAIL_USER (the address) and COURIER_MAIL_PASSWORD (the app password).
+
+Each run reads the last day of that inbox and routes each newsletter to blocks using
+scripts/courier/newsletters.json (sender domain to block list). Newsletters become the primary
+source for a block; RSS and web search are the backstop. Senders that are not in the map are listed
+in the run log as "unmapped senders" so you can add them.
+
 ## Voice provider
 
 Default is OpenAI (gpt-4o-mini-tts, voice cedar), about US$1.50 to $3 a day at full length with no

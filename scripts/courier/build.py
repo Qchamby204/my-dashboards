@@ -13,7 +13,8 @@ prunes the audio for anything older. Audio is pushed by the workflow to an orpha
 daily with only the last 7 days, and served through jsDelivr with a proper audio MIME type.
 
 Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked),
-TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
+COURIER_MAIL_USER and COURIER_MAIL_PASSWORD (Gmail address and app password for the
+newsletter inbox, optional), TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
 REPO (owner/name), DRY_RUN=1 to skip both APIs and write a placeholder day.
 """
 
@@ -28,6 +29,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 import feedparser
 import requests
+import email
+import imaplib
+from email.header import decode_header
+from html.parser import HTMLParser
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent.parent
@@ -116,6 +121,77 @@ def fetch_items(feeds, since_hours=26):
     return items
 
 
+# ---------- 1b. newsletters ----------
+
+class _Text(HTMLParser):
+    def __init__(self):
+        super().__init__(); self.out = []; self.skip = 0
+    def handle_starttag(self, tag, attrs):
+        if tag in ("style", "script", "head"): self.skip += 1
+        if tag in ("p", "br", "div", "tr", "li", "h1", "h2", "h3"): self.out.append("\n")
+    def handle_endtag(self, tag):
+        if tag in ("style", "script", "head"): self.skip -= 1
+    def handle_data(self, d):
+        if not self.skip: self.out.append(d)
+
+
+def html_to_text(html):
+    p = _Text(); p.feed(html)
+    text = "".join(p.out)
+    text = re.sub(r"https?://\S+", "", text)            # tracking links add nothing for the model
+    text = re.sub(r"[ \t]+", " ", text)
+    return re.sub(r"\n\s*\n+", "\n\n", text).strip()
+
+
+def _decode(v):
+    return "".join(b.decode(c or "utf-8", "replace") if isinstance(b, bytes) else b for b, c in decode_header(v or ""))
+
+
+def fetch_newsletters(since_hours=26):
+    """Pull the last day of mail from the Courier inbox and bucket it by block via newsletters.json.
+    Returns {block: [ {outlet, subject, text} ]}. Skipped entirely if no mailbox is configured."""
+    user, pw = os.environ.get("COURIER_MAIL_USER"), os.environ.get("COURIER_MAIL_PASSWORD")
+    if not (user and pw) or DRY_RUN:
+        return {}
+    routes = {k: v for k, v in json.loads((HERE / "newsletters.json").read_text()).items() if not k.startswith("_")}
+    by_block, unmapped = {}, set()
+    try:
+        box = imaplib.IMAP4_SSL(os.environ.get("COURIER_MAIL_HOST") or "imap.gmail.com")
+        box.login(user, pw)
+        box.select("INBOX", readonly=True)
+        since = (datetime.now(timezone.utc) - timedelta(hours=since_hours)).strftime("%d-%b-%Y")
+        _, ids = box.search(None, f'(SINCE "{since}")')
+        for mid in ids[0].split()[-150:]:
+            _, data = box.fetch(mid, "(RFC822)")
+            msg = email.message_from_bytes(data[0][1])
+            sender = email.utils.parseaddr(msg.get("From", ""))[1].lower()
+            blocks = next((v for k, v in routes.items() if sender == k or sender.endswith("@" + k) or sender.endswith("." + k)), None)
+            if not blocks:
+                unmapped.add(sender); continue
+            body = ""
+            for part in msg.walk():
+                ctype = part.get_content_type()
+                if ctype in ("text/html", "text/plain") and not part.get("Content-Disposition"):
+                    payload = part.get_payload(decode=True).decode(part.get_content_charset() or "utf-8", "replace")
+                    body = html_to_text(payload) if ctype == "text/html" else payload
+                    if ctype == "text/html": break
+            item = {"outlet": _decode(msg.get("From", "")).split("<")[0].strip(' "'),
+                    "subject": _decode(msg.get("Subject", "")), "text": body[:12000]}
+            for b in blocks:
+                by_block.setdefault(b, []).append(item)
+        box.logout()
+    except Exception as e:
+        log(f"mailbox read failed, continuing on feeds only: {e}")
+        return by_block
+    log("newsletters: " + ", ".join(f"{k} {len(v)}" for k, v in by_block.items()) or "none")
+    if unmapped:
+        log("unmapped senders (add to newsletters.json): " + ", ".join(sorted(unmapped)))
+    return by_block
+
+
+NEWSLETTERS = None  # filled once in main()
+
+
 # ---------- 2. script ----------
 
 def claude(prompt, max_tokens, web_searches=0):
@@ -187,6 +263,11 @@ def write_script(category, spec, items):
     feed_text = "\n".join(
         f"- [{i['outlet']}] {i['title']} :: {i['summary']} ({i['url']})" for i in items[:80]
     ) or "(no feed items today)"
+    mail = (NEWSLETTERS or {}).get(category, [])
+    mail_text = "\n\n".join(f"### {m['outlet']}: {m['subject']}\n{m['text']}" for m in mail[:12])
+    if mail_text:
+        feed_text = ("Subscriber newsletters received today. These are the primary source; the feed items "
+                     "below are the backstop.\n\n" + mail_text + "\n\nFeed items:\n" + feed_text)
 
     if spec.get("mode") == "companies":
         prompt = f"""Today is {TODAY}. Identify the ten companies most talked about in business, markets and
@@ -449,6 +530,8 @@ def load_manifest():
 
 def main():
     sources = json.loads((HERE / "sources.json").read_text())
+    global NEWSLETTERS
+    NEWSLETTERS = fetch_newsletters()
     day_dir = OUT / TODAY
     day_dir.mkdir(parents=True, exist_ok=True)
     release = f"courier-{TODAY}"
