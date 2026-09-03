@@ -21,11 +21,11 @@ SAMPLE = ("The Bank of Canada held its policy rate at 2.75 percent this morning,
 
 out = Path("out/voice-test"); out.mkdir(parents=True, exist_ok=True)
 settings = {
-    "stability": float(os.environ.get("ELEVENLABS_STABILITY", 0.45)),
+    "stability": float(os.environ.get("ELEVENLABS_STABILITY") or 0.45),
     "similarity_boost": 0.8,
-    "style": float(os.environ.get("ELEVENLABS_STYLE", 0.35)),
+    "style": float(os.environ.get("ELEVENLABS_STYLE") or 0.35),
 }
-model = os.environ.get("ELEVENLABS_MODEL", "eleven_multilingual_v2")
+model = os.environ.get("ELEVENLABS_MODEL") or "eleven_multilingual_v2"
 for vid in sys.argv[1:]:
     r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{vid}",
                       params={"output_format": "mp3_44100_64"},
