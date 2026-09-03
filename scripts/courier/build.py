@@ -12,7 +12,8 @@ courier/manifest.json and courier/feed.xml (podcast RSS, last 7 days), and
 prunes the audio for anything older. Audio is pushed by the workflow to an orphan branch, courier-audio, rewritten
 daily with only the last 7 days, and served through jsDelivr with a proper audio MIME type.
 
-Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked), ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
+Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked),
+TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
 REPO (owner/name), DRY_RUN=1 to skip both APIs and write a placeholder day.
 """
 
@@ -46,6 +47,16 @@ ELEVEN_SETTINGS = {
     "style": float(os.environ.get("ELEVENLABS_STYLE") or 0.35),           # higher = more performative
 }
 ELEVEN_CHUNK = 4000  # characters per TTS request
+
+TTS_PROVIDER = os.environ.get("TTS_PROVIDER") or "openai"   # openai | elevenlabs
+OPENAI_VOICE = os.environ.get("OPENAI_TTS_VOICE") or "cedar"
+OPENAI_MODEL = os.environ.get("OPENAI_TTS_MODEL") or "gpt-4o-mini-tts"
+OPENAI_CHUNK = 3800  # hard API limit is 4096 characters
+OPENAI_INSTRUCTIONS = os.environ.get("OPENAI_TTS_INSTRUCTIONS") or (
+    "You are reading a private morning briefing to one listener, like a trusted colleague talking "
+    "across a desk. Warm, unhurried, natural. Vary pace and pitch the way a person does: slow down "
+    "on numbers and names, lift slightly on the lead story, ease off at the end of a paragraph. "
+    "No radio-announcer polish, no monotone.")
 
 # Winnipeg date. CDT in September, CST in winter. Good enough for a date stamp.
 TODAY = (datetime.now(timezone.utc) - timedelta(hours=5)).date().isoformat()
@@ -337,6 +348,8 @@ def voice(text, path):
     if DRY_RUN:
         path.write_bytes(b"")
         return
+    if TTS_PROVIDER == "openai":
+        return voice_openai(text, path)
     audio = b""
     for i, chunk in enumerate(chunk_text(text)):
         for attempt in range(3):
@@ -355,6 +368,27 @@ def voice(text, path):
             time.sleep(5)
         else:
             raise RuntimeError("ElevenLabs failed three times")
+    path.write_bytes(audio)
+
+
+def voice_openai(text, path):
+    audio = b""
+    for i, chunk in enumerate(chunk_text(text, OPENAI_CHUNK)):
+        for attempt in range(3):
+            r = requests.post(
+                "https://api.openai.com/v1/audio/speech",
+                headers={"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}", "content-type": "application/json"},
+                json={"model": OPENAI_MODEL, "voice": OPENAI_VOICE, "input": chunk,
+                      "instructions": OPENAI_INSTRUCTIONS, "response_format": "mp3"},
+                timeout=300,
+            )
+            if r.ok:
+                audio += r.content
+                break
+            log(f"openai tts chunk {i} attempt {attempt} failed: {r.status_code} {r.text[:200]}")
+            time.sleep(5)
+        else:
+            raise RuntimeError("OpenAI TTS failed three times")
     path.write_bytes(audio)
 
 

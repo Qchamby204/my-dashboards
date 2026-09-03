@@ -24,6 +24,10 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
+          TTS_PROVIDER: ${{ vars.TTS_PROVIDER }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_TTS_VOICE: ${{ vars.OPENAI_TTS_VOICE }}
+          OPENAI_TTS_INSTRUCTIONS: ${{ vars.OPENAI_TTS_INSTRUCTIONS }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           ELEVENLABS_VOICE_ID: ${{ secrets.ELEVENLABS_VOICE_ID }}
           ELEVENLABS_STABILITY: ${{ vars.ELEVENLABS_STABILITY }}

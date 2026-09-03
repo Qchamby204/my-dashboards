@@ -28,7 +28,19 @@ https://qchamby204.github.io/my-dashboards/courier/feed.xml
 The feed is marked private so directories will not index it. Each day publishes ten
 episodes: a three minute front page that ranks the day, then the nine blocks.
 
-## Choosing and tuning the narrator
+## Voice provider
+
+Default is OpenAI (gpt-4o-mini-tts, voice cedar), about US$1.50 to $3 a day at full length with no
+plan to buy. Secret: OPENAI_API_KEY. Change the voice with a repository variable OPENAI_TTS_VOICE
+(cedar, marin, onyx, ash, echo, sage and others) and the delivery with OPENAI_TTS_INSTRUCTIONS, a
+sentence or two describing how to read. Audition with:
+
+    OPENAI_API_KEY=... python scripts/courier/voice_test.py cedar marin onyx
+
+ElevenLabs sounds better but bills one credit per character, and a full day is about 100,000, so it
+needs the Scale plan. To use it anyway, set the repository variable TTS_PROVIDER to elevenlabs.
+
+## Choosing and tuning the narrator (ElevenLabs)
 
 The voice is the whole product, so spend twenty minutes here before the first run.
 
