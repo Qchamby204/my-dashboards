@@ -23,6 +23,7 @@ import sys
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 import feedparser
 import requests
@@ -399,17 +400,27 @@ def main():
     blocks = []
 
     failed = []
-    for slug, spec in sources.items():
-        log(f"== {spec['label']}")
+
+    def build_block(slug):
+        spec = sources[slug]
+        log(f"== {spec['label']} start")
         try:
             items = fetch_items(spec["feeds"])
             data = write_script(slug, spec, items)
             body, points = split_talking_points(data["script"])
-            blocks.append(make_block(slug, spec["label"], data.get("title", spec["label"]), body,
-                                     points, data.get("sources", [])[:20], day_dir, release))
+            block = make_block(slug, spec["label"], data.get("title", spec["label"]), body,
+                               points, data.get("sources", [])[:20], day_dir, release)
+            log(f"== {spec['label']} done, {block['minutes']} min")
+            return block
         except Exception as e:
             log(f"block {slug} failed, skipping it today: {e}")
             failed.append(slug)
+            return None
+
+    # four blocks at a time; each is a long Claude call followed by a long ElevenLabs call
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        results = list(pool.map(build_block, list(sources)))
+    blocks.extend(b for b in results if b)   # keeps sources.json order
     if not blocks:
         raise RuntimeError("every block failed")
 
