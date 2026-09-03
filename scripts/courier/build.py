@@ -106,6 +106,39 @@ def fetch_items(feeds, since_hours=26):
 
 # ---------- 2. script ----------
 
+def claude(prompt, max_tokens, web_searches=0):
+    """Call the Messages API and return the concatenated text. Logs the API's error body on failure."""
+    headers = {"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01",
+               "content-type": "application/json"}
+    body = {"model": CLAUDE_MODEL, "max_tokens": max_tokens,
+            "messages": [{"role": "user", "content": prompt}]}
+    if web_searches:
+        body["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": web_searches}]
+    for _ in range(6):  # pause_turn continuations
+        r = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=body, timeout=600)
+        if r.status_code == 400 and "tools" in body and "web search" in r.text.lower():
+            log("web search is not enabled for this API org; retrying without it. Enable it at platform.claude.com/settings/privacy")
+            body.pop("tools")
+            continue
+        if not r.ok:
+            log(f"Anthropic API {r.status_code}: {r.text[:800]}")
+            r.raise_for_status()
+        data = r.json()
+        if data.get("stop_reason") == "pause_turn":
+            body["messages"] = body["messages"][:1] + [{"role": "assistant", "content": data["content"]}]
+            continue
+        return "".join(b.get("text", "") for b in data["content"] if b.get("type") == "text")
+    raise RuntimeError("Anthropic API kept pausing")
+
+
+def parse_json(text):
+    text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
+    data = json.loads(text[text.find("{"):text.rfind("}") + 1])
+    if "script" in data:
+        data["script"] = data["script"].replace("\u2014", ", ").replace("\u2013", ", ")
+    return data
+
+
 def write_script(category, spec, items):
     if DRY_RUN:
         return {
@@ -161,28 +194,7 @@ Return only JSON with this shape and nothing else, no code fence:
   "script": "the full spoken script, paragraphs separated by blank lines, ending with the Talking points section",
   "sources": [{{"outlet": "...", "title": "...", "url": "..."}}]}}"""
 
-    r = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": os.environ["ANTHROPIC_API_KEY"],
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
-        json={
-            "model": CLAUDE_MODEL,
-            "max_tokens": 8000,
-            "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 8}],
-            "messages": [{"role": "user", "content": prompt}],
-        },
-        timeout=600,
-    )
-    r.raise_for_status()
-    text = "".join(b.get("text", "") for b in r.json()["content"] if b.get("type") == "text")
-    text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
-    start, end = text.find("{"), text.rfind("}")
-    data = json.loads(text[start:end + 1])
-    data["script"] = data["script"].replace("\u2014", ", ").replace("\u2013", ", ")
-    return data
+    return parse_json(claude(prompt, 8000, web_searches=8))
 
 
 def write_front_page(blocks):
@@ -200,19 +212,7 @@ Scripts:
 {digest}
 
 Return only JSON, no code fence: {{"title": "six to ten word headline for the day", "script": "..."}}"""
-    r = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01",
-                 "content-type": "application/json"},
-        json={"model": CLAUDE_MODEL, "max_tokens": 2000, "messages": [{"role": "user", "content": prompt}]},
-        timeout=300,
-    )
-    r.raise_for_status()
-    text = "".join(b.get("text", "") for b in r.json()["content"] if b.get("type") == "text")
-    text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
-    data = json.loads(text[text.find("{"):text.rfind("}") + 1])
-    data["script"] = data["script"].replace("\u2014", ", ").replace("\u2013", ", ")
-    return data
+    return parse_json(claude(prompt, 3000, web_searches=3))
 
 
 def write_lesson(track, spec, seq_label, index, lessons):
@@ -241,21 +241,7 @@ Be current and precise; if a figure depends on the tax year, state the year.
 Return only JSON, no code fence:
 {{"title": "{title}", "script": "the lesson", "task": "today's practice task in one or two sentences",
   "drill": "for the communication track only: a scoreable drill, what to do and what good looks like; else empty string"}}"""
-    r = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01",
-                 "content-type": "application/json"},
-        json={"model": CLAUDE_MODEL, "max_tokens": 3000,
-              "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],
-              "messages": [{"role": "user", "content": prompt}]},
-        timeout=300,
-    )
-    r.raise_for_status()
-    text = "".join(b.get("text", "") for b in r.json()["content"] if b.get("type") == "text")
-    text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
-    data = json.loads(text[text.find("{"):text.rfind("}") + 1])
-    data["script"] = data["script"].replace("\u2014", ", ").replace("\u2013", ", ")
-    return data
+    return parse_json(claude(prompt, 2000))
 
 
 def write_lessons():
