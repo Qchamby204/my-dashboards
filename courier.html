@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Courier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0c0b10; --parchment: #1a1822; --vellum: #24212e; --edge: #3a3548;
+    --bone: #e8e2d4; --dust: #9b9484; --gold: #c9a24d; --ember: #b8542f; --sage: #6f9a7a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--bone); font-family: Outfit, sans-serif; font-weight: 300; line-height: 1.5; }
+  header { padding: 28px 24px 12px; border-bottom: 1px solid var(--edge); display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  h1 { font-family: Cinzel, serif; font-weight: 700; font-size: 28px; letter-spacing: .06em; margin: 0; color: var(--gold); }
+  h1 small { font-family: Outfit; font-weight: 300; letter-spacing: 0; color: var(--dust); font-size: 14px; margin-left: 12px; }
+  .mono { font-family: "Space Mono", monospace; }
+  main { max-width: 980px; margin: 0 auto; padding: 18px 24px 120px; }
+  .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0 22px; }
+  select, button, input[type=file] { font: inherit; }
+  select, button { background: var(--vellum); color: var(--bone); border: 1px solid var(--edge); border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+  button:hover, select:hover { border-color: var(--gold); }
+  button.primary { border-color: var(--gold); color: var(--gold); }
+  button.ghost { border-color: transparent; color: var(--dust); }
+  .notice { background: var(--parchment); border: 1px solid var(--edge); border-left: 3px solid var(--ember); padding: 12px 16px; border-radius: 6px; margin: 12px 0; color: var(--dust); }
+  .block { background: var(--parchment); border: 1px solid var(--edge); border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+  .block.active { border-color: var(--gold); }
+  .block.done .label::after { content: " ✓"; color: var(--sage); }
+  .head { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; cursor: pointer; }
+  .play { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--gold); background: none; color: var(--gold); font-size: 18px; display: grid; place-items: center; }
+  .play:hover { background: var(--gold); color: var(--ink); }
+  .label { font-family: Cinzel, serif; font-size: 13px; letter-spacing: .12em; color: var(--dust); text-transform: uppercase; }
+  .title { font-weight: 400; font-size: 18px; margin-top: 2px; }
+  .meta { font-size: 12px; color: var(--dust); text-align: right; }
+  .body { display: none; border-top: 1px solid var(--edge); padding: 16px; }
+  .block.open .body { display: block; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tabs button { padding: 5px 10px; font-size: 13px; }
+  .tabs button.on { border-color: var(--gold); color: var(--gold); }
+  .pane { display: none; } .pane.on { display: block; }
+  .script p { margin: 0 0 14px; max-width: 70ch; }
+  ul.points { padding-left: 18px; } ul.points li { margin-bottom: 8px; }
+  ul.sources { list-style: none; padding: 0; } ul.sources li { margin-bottom: 6px; font-size: 14px; }
+  ul.sources a { color: var(--bone); text-decoration: none; border-bottom: 1px dotted var(--dust); }
+  ul.sources span { color: var(--dust); font-size: 12px; margin-left: 8px; }
+  #player { position: fixed; bottom: 0; left: 0; right: 0; background: var(--vellum); border-top: 1px solid var(--edge); padding: 12px 24px; display: none; }
+  #player.on { display: block; }
+  .pwrap { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px; align-items: center; }
+  .pnow { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  input[type=range] { width: 100%; accent-color: var(--gold); }
+  .ptime { font-size: 12px; color: var(--dust); white-space: nowrap; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--edge); display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--dust); align-items: center; }
+  @media (max-width: 600px) { .head { grid-template-columns: 44px 1fr; } .meta { display: none; } .pwrap { grid-template-columns: 1fr auto; } .pnow { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>The Courier <small>Daily briefing, front page, lessons, and ten blocks</small></h1>
+</header>
+<main>
+  <div class="bar">
+    <select id="day"></select>
+    <button class="primary" id="playAll">▶ Play all</button>
+    <label>Speed <select id="rate">
+      <option value="0.9">0.9×</option><option value="1">1×</option><option value="1.1">1.1×</option>
+      <option value="1.25">1.25×</option><option value="1.5">1.5×</option>
+    </select></label>
+    <span id="stamp" class="mono" style="color:var(--dust);font-size:12px"></span>
+  </div>
+  <div id="notices"></div>
+  <div id="blocks"></div>
+  <footer>
+    <span>Listening history</span>
+    <button class="ghost" id="export">Export</button>
+    <button class="ghost" id="importBtn">Import</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+    <button class="ghost" id="reset">Reset</button>
+  </footer>
+</main>
+<div id="player">
+  <div class="pwrap">
+    <button class="play" id="pToggle">▶</button>
+    <div>
+      <div class="pnow" id="pNow"></div>
+      <input type="range" id="pSeek" min="0" max="1000" value="0">
+    </div>
+    <span class="ptime mono" id="pTime">0:00 / 0:00</span>
+    <button class="ghost" id="pNext">Next ›</button>
+  </div>
+</div>
+<audio id="audio" preload="none"></audio>
+
+<script>
+// ---------- constants ----------
+const TOOL = 'courier';
+const SCHEMA_VERSION = 1;
+const MANIFEST_URL = 'courier/manifest.json';
+
+// ---------- state and storage ----------
+const store = {
+  key(n) { return `${TOOL}:${n}`; },
+  get(n, fallback = null) { try { const r = localStorage.getItem(this.key(n)); return r === null ? fallback : JSON.parse(r); } catch (e) { return fallback; } },
+  set(n, v) { try { localStorage.setItem(this.key(n), JSON.stringify(v)); return true; } catch (e) { return false; } },
+  keys() { try { return Object.keys(localStorage).filter(k => k.startsWith(`${TOOL}:`)); } catch (e) { return []; } },
+  clearTool() { this.keys().forEach(k => localStorage.removeItem(k)); },
+  available() { try { localStorage.setItem(this.key('probe'), '1'); localStorage.removeItem(this.key('probe')); return true; } catch (e) { return false; } }
+};
+
+const migrations = {};
+
+function defaultState() { return { rate: 1, listened: {}, positions: {} }; }
+
+function loadState() {
+  const stored = store.get('state');
+  if (stored === null) return defaultState();
+  let version = store.get('schema-version', 1);
+  let data = stored;
+  while (version < SCHEMA_VERSION) {
+    const m = migrations[version];
+    if (!m) return defaultState();
+    data = m(data); version += 1;
+  }
+  store.set('state', data); store.set('schema-version', SCHEMA_VERSION);
+  return data;
+}
+
+let state = loadState();
+let manifest = null;           // fetched, never stored
+let ui = { day: null, current: null, queue: false }; // transient
+
+function setState(patch) { state = { ...state, ...patch }; store.set('state', state); store.set('schema-version', SCHEMA_VERSION); render(); }
+
+function exportState() {
+  const payload = { tool: TOOL, schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), state };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${TOOL}-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function importState(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let p;
+    try { p = JSON.parse(reader.result); } catch (e) { notice('That file is not valid JSON.'); return; }
+    if (p.tool !== TOOL) { notice(`That file is from ${p.tool || 'another tool'}, not ${TOOL}.`); return; }
+    if (!confirm('This replaces everything currently saved in this tool. Continue?')) return;
+    store.set('state', p.state); store.set('schema-version', p.schemaVersion || 1);
+    state = loadState(); render();
+  };
+  reader.readAsText(file);
+}
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const fmt = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00';
+const posKey = (date, id) => `${date}/${id}`;
+function notice(msg) { $('notices').innerHTML = `<div class="notice">${msg}</div>`; }
+function day() { return manifest && manifest.days.find(d => d.date === ui.day); }
+
+// ---------- rendering ----------
+function render() {
+  $('rate').value = String(state.rate);
+  $('audio').playbackRate = state.rate;
+  const d = day();
+  if (!d) return;
+  $('stamp').textContent = `generated ${d.generatedAt.replace('T', ' ').slice(0, 16)} UTC`;
+  $('blocks').innerHTML = d.blocks.map(b => {
+    const done = (state.listened[d.date] || []).includes(b.id);
+    const pos = state.positions[posKey(d.date, b.id)] || 0;
+    const open = ui.open === b.id ? 'open' : '';
+    const active = ui.current === b.id ? 'active' : '';
+    return `<section class="block ${done ? 'done' : ''} ${open} ${active}" data-id="${b.id}">
+      <div class="head" data-act="toggle">
+        <button class="play" data-act="play" title="Play">${ui.current === b.id && !$('audio').paused ? '❚❚' : '▶'}</button>
+        <div><div class="label">${b.label}</div><div class="title">${b.title}</div></div>
+        <div class="meta mono">${b.minutes} min · ${b.words.toLocaleString()} words${pos > 5 ? `<br>at ${fmt(pos)}` : ''}</div>
+      </div>
+      <div class="body">
+        <div class="tabs">
+          <button class="on" data-pane="points">Talking points</button>
+          <button data-pane="script">Script</button>
+          <button data-pane="sources">Sources</button>
+          <button class="ghost" data-act="copy">Copy talking points</button>
+        </div>
+        <div class="pane on" data-pane="points"><ul class="points">${b.talkingPoints.map(p => `<li>${p}</li>`).join('')}</ul></div>
+        <div class="pane script" data-pane="script">${b.script.split(/\n\s*\n/).map(p => `<p>${p}</p>`).join('')}</div>
+        <div class="pane" data-pane="sources"><ul class="sources">${b.sources.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.title}</a><span>${s.outlet}</span></li>`).join('')}</ul></div>
+      </div>
+    </section>`;
+  }).join('');
+}
+
+function renderDays() {
+  $('day').innerHTML = manifest.days.map(d => `<option value="${d.date}">${d.date}</option>`).join('');
+  $('day').value = ui.day;
+}
+
+// ---------- playback ----------
+function play(id) {
+  const d = day(); const b = d.blocks.find(x => x.id === id);
+  const a = $('audio');
+  if (ui.current === id) { a.paused ? a.play() : a.pause(); render(); return; }
+  ui.current = id; ui.open = id;
+  a.src = b.audio;
+  a.playbackRate = state.rate;
+  const pos = state.positions[posKey(d.date, id)] || 0;
+  a.addEventListener('loadedmetadata', () => { if (pos > 5 && pos < a.duration - 10) a.currentTime = pos; }, { once: true });
+  a.play().catch(() => notice('Could not play this block. The audio may not be published yet for this day.'));
+  $('player').classList.add('on');
+  $('pNow').textContent = `${b.label}: ${b.title}`;
+  render();
+}
+
+function next() {
+  const d = day(); const i = d.blocks.findIndex(b => b.id === ui.current);
+  if (i >= 0 && i < d.blocks.length - 1) play(d.blocks[i + 1].id); else { $('audio').pause(); ui.queue = false; render(); }
+}
+
+let lastSave = 0;
+function onTick() {
+  const a = $('audio'); const d = day(); if (!d || !ui.current) return;
+  $('pTime').textContent = `${fmt(a.currentTime)} / ${fmt(a.duration)}`;
+  $('pSeek').value = a.duration ? Math.round(a.currentTime / a.duration * 1000) : 0;
+  $('pToggle').textContent = a.paused ? '▶' : '❚❚';
+  if (Date.now() - lastSave > 5000) {
+    lastSave = Date.now();
+    state.positions[posKey(d.date, ui.current)] = a.currentTime;
+    store.set('state', state);
+  }
+}
+
+function onEnded() {
+  const d = day();
+  const listened = { ...state.listened, [d.date]: Array.from(new Set([...(state.listened[d.date] || []), ui.current])) };
+  const positions = { ...state.positions }; delete positions[posKey(d.date, ui.current)];
+  setState({ listened, positions });
+  if (ui.queue) next();
+}
+
+// ---------- event wiring ----------
+function wireEvents() {
+  $('blocks').addEventListener('click', e => {
+    const sec = e.target.closest('.block'); if (!sec) return;
+    const id = sec.dataset.id; const act = e.target.dataset.act; const pane = e.target.dataset.pane;
+    if (act === 'play') { e.stopPropagation(); play(id); return; }
+    if (act === 'copy') {
+      const b = day().blocks.find(x => x.id === id);
+      navigator.clipboard.writeText(b.talkingPoints.map(p => `• ${p}`).join('\n'));
+      e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy talking points', 1500); return;
+    }
+    if (pane) {
+      sec.querySelectorAll('.tabs [data-pane]').forEach(x => x.classList.toggle('on', x.dataset.pane === pane));
+      sec.querySelectorAll('.pane').forEach(x => x.classList.toggle('on', x.dataset.pane === pane)); return;
+    }
+    if (e.target.closest('.head')) { ui.open = ui.open === id ? null : id; render(); }
+  });
+  $('day').addEventListener('change', e => { ui.day = e.target.value; ui.open = null; render(); });
+  $('rate').addEventListener('change', e => setState({ rate: Number(e.target.value) }));
+  $('playAll').addEventListener('click', () => { ui.queue = true; play(day().blocks[0].id); });
+  $('pToggle').addEventListener('click', () => { const a = $('audio'); a.paused ? a.play() : a.pause(); render(); });
+  $('pNext').addEventListener('click', next);
+  $('pSeek').addEventListener('input', e => { const a = $('audio'); if (a.duration) a.currentTime = e.target.value / 1000 * a.duration; });
+  const a = $('audio');
+  a.addEventListener('timeupdate', onTick); a.addEventListener('ended', onEnded);
+  a.addEventListener('play', render); a.addEventListener('pause', render);
+  $('export').addEventListener('click', exportState);
+  $('importBtn').addEventListener('click', () => $('importFile').click());
+  $('importFile').addEventListener('change', e => { if (e.target.files[0]) importState(e.target.files[0]); e.target.value = ''; });
+  $('reset').addEventListener('click', () => { if (confirm('Clear all Courier listening history on this browser?')) { store.clearTool(); state = defaultState(); render(); } });
+}
+
+// ---------- init ----------
+async function init() {
+  wireEvents();
+  if (!store.available()) notice('Storage is unavailable in this browser, so positions and listened marks will not be saved.');
+  try {
+    const r = await fetch(MANIFEST_URL, { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    manifest = await r.json();
+  } catch (e) {
+    notice(`Could not load ${MANIFEST_URL}. This tool needs to be served from the Pages URL, and the daily workflow must have run at least once.`);
+    return;
+  }
+  if (!manifest.days.length) { notice('No briefings published yet. Run the Courier workflow.'); return; }
+  ui.day = manifest.days[0].date;
+  renderDays(); render();
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

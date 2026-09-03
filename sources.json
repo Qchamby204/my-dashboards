@@ -1,0 +1,309 @@
+{
+  "markets": {
+    "label": "Markets & Economy",
+    "brief": "Canadian and global markets, rates, the economy, and what an advisor should be able to speak to with clients today. Bank of Canada, StatCan releases, TSX and US markets, currency, energy, housing, fiscal and trade policy.",
+    "feeds": [
+      {
+        "outlet": "Globe and Mail Report on Business",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/"
+      },
+      {
+        "outlet": "Globe and Mail Investing",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/investing/"
+      },
+      {
+        "outlet": "CBC Business",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-business"
+      },
+      {
+        "outlet": "BBC Business",
+        "url": "https://feeds.bbci.co.uk/news/business/rss.xml"
+      }
+    ],
+    "prefer_web": [
+      "Bank of Canada",
+      "Statistics Canada",
+      "Reuters",
+      "Bloomberg",
+      "Financial Times",
+      "Wall Street Journal",
+      "Financial Post"
+    ]
+  },
+  "companies": {
+    "label": "The Ten",
+    "mode": "companies",
+    "brief": "The ten most talked about companies of the last 48 hours across business, markets and technology news, worldwide with a Canadian tilt. Watch list companies in the news lead. For each: who they are in two sentences, why they are in the news right now, the tailwinds, the headwinds, and one sentence on what an evidence-based advisor would say to a client who asks about them.",
+    "feeds": [
+      {
+        "outlet": "Globe and Mail Report on Business",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/"
+      },
+      {
+        "outlet": "CBC Business",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-business"
+      },
+      {
+        "outlet": "BBC Business",
+        "url": "https://feeds.bbci.co.uk/news/business/rss.xml"
+      },
+      {
+        "outlet": "TechCrunch AI",
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/"
+      }
+    ],
+    "prefer_web": [
+      "Reuters",
+      "Bloomberg",
+      "Financial Times",
+      "Wall Street Journal",
+      "Financial Post",
+      "CNBC"
+    ]
+  },
+  "practice": {
+    "label": "Practice: Tax, Regulatory & Industry",
+    "brief": "What a Canadian wealth advisor needs today: CRA and Department of Finance tax changes, CCPC and passive income rules, TFSA, RRSP, FHSA and RESP updates, CIRO and provincial securities regulator notices, Manitoba tax measures, industry news from the major bank wealth arms and independents, fee and product trends, and estate, insurance, and incorporated professional planning developments. Flag anything that changes advice for incorporated business owners, physicians, or people in a life transition.",
+    "feeds": [
+      {
+        "outlet": "Wealth Professional",
+        "url": "https://www.wealthprofessional.ca/rss"
+      },
+      {
+        "outlet": "CIRO",
+        "url": "https://www.ciro.ca/rss.xml"
+      },
+      {
+        "outlet": "Globe and Mail Personal Finance",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/investing/personal-finance/"
+      },
+      {
+        "outlet": "MoneySense",
+        "url": "https://www.moneysense.ca/feed/"
+      }
+    ],
+    "prefer_web": [
+      "Canada Revenue Agency",
+      "Department of Finance Canada",
+      "Investment Executive",
+      "Advisor.ca",
+      "Manitoba Securities Commission",
+      "Ontario Securities Commission",
+      "Canadian Tax Foundation",
+      "Manitoba Finance"
+    ]
+  },
+  "manitoba": {
+    "label": "Manitoba & Winnipeg",
+    "brief": "Provincial and civic news for a Winnipeg professional: Manitoba government, City of Winnipeg, Manitoba Hydro, the provincial economy, business openings and closures, health and education policy, and anything a client or board colleague in Winnipeg would be talking about.",
+    "feeds": [
+      {
+        "outlet": "CBC Manitoba",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-canada-manitoba"
+      },
+      {
+        "outlet": "Manitoba Government News",
+        "url": "https://news.gov.mb.ca/news/index.rss"
+      },
+      {
+        "outlet": "Global News Winnipeg",
+        "url": "https://globalnews.ca/winnipeg/feed/"
+      },
+      {
+        "outlet": "Globe and Mail Canada",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/canada/"
+      }
+    ],
+    "prefer_web": [
+      "Winnipeg Free Press",
+      "Winnipeg Sun",
+      "City of Winnipeg",
+      "Manitoba Hydro",
+      "Manitoba Public Utilities Board"
+    ]
+  },
+  "politics": {
+    "label": "Canadian Politics",
+    "brief": "Federal politics with a Manitoba lens: Parliament, cabinet, budgets and fiscal updates, trade and US relations, housing and tax policy, the provincial legislature, and the polling and personalities behind them. Keep it factual and balanced across parties; the listener wants to understand positions, not be told which is right.",
+    "feeds": [
+      {
+        "outlet": "Globe and Mail Politics",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/politics/"
+      },
+      {
+        "outlet": "CBC Politics",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-politics"
+      }
+    ],
+    "prefer_web": [
+      "The Hill Times",
+      "iPolitics",
+      "Parliamentary Budget Officer",
+      "Angus Reid",
+      "Abacus Data",
+      "Winnipeg Free Press"
+    ]
+  },
+  "climate": {
+    "label": "Climate Policy & Nonprofit Governance",
+    "brief": "Canadian and Manitoba climate and energy policy, carbon pricing, building retrofits, clean electricity, business climate commitments, and the charitable and nonprofit sector: CRA charity rules, governance practice, philanthropy trends, United Way and community foundation news.",
+    "feeds": [
+      {
+        "outlet": "Canada's National Observer",
+        "url": "https://www.nationalobserver.com/front/rss"
+      },
+      {
+        "outlet": "The Narwhal",
+        "url": "https://thenarwhal.ca/feed/"
+      },
+      {
+        "outlet": "Clean Energy Canada",
+        "url": "https://cleanenergycanada.org/feed/"
+      },
+      {
+        "outlet": "The Philanthropist Journal",
+        "url": "https://thephilanthropist.ca/feed/"
+      }
+    ],
+    "prefer_web": [
+      "Pembina Institute",
+      "Canadian Climate Institute",
+      "Imagine Canada",
+      "CRA Charities Directorate",
+      "Efficiency Manitoba",
+      "Carbon Brief"
+    ]
+  },
+  "tech": {
+    "label": "AI & Technology",
+    "brief": "AI and technology for a professional who uses these tools daily and advises clients exposed to them: frontier model releases and capability changes, Anthropic, OpenAI, Google and Microsoft, agentic tools, AI regulation in Canada and abroad, Canadian tech and startup news, cybersecurity and fraud trends that touch clients, and the market and productivity implications. Skip gadget reviews.",
+    "feeds": [
+      {
+        "outlet": "TechCrunch AI",
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/"
+      },
+      {
+        "outlet": "MIT Technology Review",
+        "url": "https://www.technologyreview.com/feed/"
+      },
+      {
+        "outlet": "BetaKit",
+        "url": "https://betakit.com/feed/"
+      },
+      {
+        "outlet": "CBC Technology",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-technology"
+      },
+      {
+        "outlet": "BBC Technology",
+        "url": "https://feeds.bbci.co.uk/news/technology/rss.xml"
+      },
+      {
+        "outlet": "Globe and Mail Technology",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/technology/"
+      }
+    ],
+    "prefer_web": [
+      "Anthropic",
+      "OpenAI",
+      "The Verge",
+      "Ars Technica",
+      "Reuters Technology",
+      "The Logic",
+      "Canadian Centre for Cyber Security"
+    ]
+  },
+  "health": {
+    "label": "Health & Fitness",
+    "brief": "Evidence-based health, training, nutrition, sleep and longevity for an active adult who lifts and trains regularly, plus notable Canadian health system news. Favour peer-reviewed findings and reputable practitioner sources over trends, and say when a study is small or preliminary.",
+    "feeds": [
+      {
+        "outlet": "Stronger by Science",
+        "url": "https://www.strongerbyscience.com/feed/"
+      },
+      {
+        "outlet": "ScienceDaily Fitness",
+        "url": "https://www.sciencedaily.com/rss/health_medicine/fitness.xml"
+      },
+      {
+        "outlet": "Outside",
+        "url": "https://www.outsideonline.com/feed/"
+      },
+      {
+        "outlet": "CBC Health",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-health"
+      },
+      {
+        "outlet": "Globe and Mail Health and Fitness",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/life/health-and-fitness/"
+      }
+    ],
+    "prefer_web": [
+      "Examine.com",
+      "Peter Attia",
+      "Andrew Huberman",
+      "Precision Nutrition",
+      "Runner's World",
+      "Men's Health",
+      "Mayo Clinic"
+    ]
+  },
+  "parenting": {
+    "label": "Parenting",
+    "brief": "Pregnancy, newborn and early childhood: developmental milestones, sleep, feeding, safety, paediatric guidance, Manitoba and Canadian benefits and programs for new parents (EI parental leave, Canada Child Benefit, RESP), childcare, and research on child development. Practical and calm, sourced from paediatric bodies and peer-reviewed work, not parenting influencers.",
+    "feeds": [
+      {
+        "outlet": "ScienceDaily Child Development",
+        "url": "https://www.sciencedaily.com/rss/mind_brain/child_development.xml"
+      },
+      {
+        "outlet": "Globe and Mail Life",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/life/"
+      }
+    ],
+    "prefer_web": [
+      "Canadian Paediatric Society",
+      "Caring for Kids",
+      "HealthyChildren.org",
+      "Today's Parent",
+      "Emily Oster ParentData",
+      "Government of Canada parental benefits",
+      "Manitoba Health"
+    ]
+  },
+  "sports": {
+    "label": "Sports",
+    "brief": "NHL, NFL, CFL and NBA. Lead with the Winnipeg Jets and Blue Bombers, then the league-wide stories, scores from the last 24 hours, injuries, trades, and what is on tonight. Assume the listener wants to hold his own in any sports conversation in Winnipeg.",
+    "feeds": [
+      {
+        "outlet": "Globe and Mail Hockey",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/hockey/"
+      },
+      {
+        "outlet": "Globe and Mail Football",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/football/"
+      },
+      {
+        "outlet": "Globe and Mail Basketball",
+        "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/basketball/"
+      },
+      {
+        "outlet": "CBC Sports",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-sports"
+      },
+      {
+        "outlet": "CBC NHL",
+        "url": "https://www.cbc.ca/webfeed/rss/rss-sports-nhl"
+      }
+    ],
+    "prefer_web": [
+      "TSN",
+      "Sportsnet",
+      "ESPN",
+      "NHL.com",
+      "CFL.ca",
+      "The Athletic",
+      "Winnipeg Free Press"
+    ]
+  }
+}
