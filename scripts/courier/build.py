@@ -37,12 +37,12 @@ DRY_RUN = os.environ.get("DRY_RUN") == "1"
 KEEP_DAYS = 7
 TARGET_WORDS = "2,000 to 2,200"
 CLAUDE_MODEL = "claude-sonnet-5"
-ELEVEN_VOICE = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
-ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL", "eleven_multilingual_v2")
+ELEVEN_VOICE = os.environ.get("ELEVENLABS_VOICE_ID") or "21m00Tcm4TlvDq8ikWAM"
+ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL") or "eleven_multilingual_v2"
 ELEVEN_SETTINGS = {
-    "stability": float(os.environ.get("ELEVENLABS_STABILITY", 0.45)),   # lower = more expressive, less consistent
+    "stability": float(os.environ.get("ELEVENLABS_STABILITY") or 0.45),   # lower = more expressive, less consistent
     "similarity_boost": 0.8,
-    "style": float(os.environ.get("ELEVENLABS_STYLE", 0.35)),           # higher = more performative
+    "style": float(os.environ.get("ELEVENLABS_STYLE") or 0.35),           # higher = more performative
 }
 ELEVEN_CHUNK = 4000  # characters per TTS request
 
