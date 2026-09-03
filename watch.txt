@@ -1,0 +1,10 @@
+# The Courier watch list. One entry per line, plain text. Blank lines and # lines are ignored.
+# Anything here gets surfaced in any block where it comes up, and companies here lead The Ten.
+# Examples: tickers, employers of clients, board topics, people, teams, prospects.
+Bank of Canada rate decision
+Dimensional Fund Advisors
+Scotia Wealth Management
+Manitoba Hydro
+United Way Winnipeg
+Winnipeg Jets
+Winnipeg Blue Bombers
