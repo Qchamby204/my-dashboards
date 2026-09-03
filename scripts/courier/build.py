@@ -12,7 +12,7 @@ courier/manifest.json and courier/feed.xml (podcast RSS, last 7 days), and
 prunes the audio for anything older. Audio is uploaded as GitHub Release
 assets by the workflow, not committed, so the repo stays small.
 
-Env: ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
+Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked), ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
 REPO (owner/name), DRY_RUN=1 to skip both APIs and write a placeholder day.
 """
 
@@ -110,6 +110,8 @@ def claude(prompt, max_tokens, web_searches=0):
     """Call the Messages API and return the concatenated text. Logs the API's error body on failure."""
     headers = {"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01",
                "content-type": "application/json"}
+    if os.environ.get("ANTHROPIC_WORKSPACE_ID"):  # needed for identity-linked keys
+        headers["anthropic-workspace-id"] = os.environ["ANTHROPIC_WORKSPACE_ID"]
     body = {"model": CLAUDE_MODEL, "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}]}
     if web_searches:
