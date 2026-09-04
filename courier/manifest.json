@@ -2,6 +2,155 @@
  "schemaVersion": 1,
  "days": [
   {
+   "date": "2026-09-04",
+   "generatedAt": "2026-09-04T16:09:55+00:00",
+   "release": "courier-2026-09-04",
+   "budgetMinutes": 60,
+   "plannedMinutes": 60,
+   "projectedMinutes": 16.6,
+   "voiceless": [],
+   "plan": [],
+   "blocks": [
+    {
+     "id": "frontpage",
+     "label": "Front page",
+     "title": "Jobs Shock Overshadows a Bank Hold",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/frontpage.mp3",
+     "bytes": 2710656,
+     "script": "The number that matters most today: Canada lost 41,700 jobs in August. Economists polled by Reuters expected a gain of about 15,000. Instead the economy shed jobs, almost all of it full-time work, down 35,900, right after a blowout July that added 75,100 positions. The unemployment rate held at 6.4 percent, but the Globe and Mail calls this one of the last clean reads on the labour market before new US tariffs of 50 percent start hitting the numbers. That's the Markets and Economy block, 2.3 minutes, and it's your top listen today.\n\nNext, the Manitoba and Winnipeg block, 0.9 minutes. The Bank of Canada held its key rate at 2.25 percent on Wednesday, the seventh straight hold. It came off second quarter GDP growth of 3.3 percent, but the Bank flagged that US tariffs, Canadian counter-tariffs, and high oil prices could push inflation higher rather than toward its 2 percent target. Next decision is October 28. If you've got mortgage clients renewing this fall, that's your cue.\n\nThird, Climate Policy and Nonprofit Governance, the longest block at 3.3 minutes, and it's worth your attention for two separate reasons. Alberta just exempted Suncor's tailings discharge from environmental review, a real flag if you've got ESG-minded clients, ESG meaning environmental, social, and governance investing. Separately, the Canada Revenue Agency no longer pre-approves charity purpose changes, so nonprofit boards now carry that compliance risk directly instead of leaning on government sign-off. On a brighter note, United Way Winnipeg posted a record 23.3 million dollar campaign, so local giving still has legs heading into fall.\n\nLast, Health and Fitness, 2.6 minutes. Peter Attia is stepping back from chasing an exact Zone 2 heart rate number, arguing consistent easy cardio matters more than precision. There's also a small new study suggesting light weights build muscle about as well as heavy ones. Lower priority today, but worth the four minutes if you lift or run.\n\nSo the order for your attention: jobs numbers first, they change the tariff and rate conversation. The Manitoba rate hold second, because it's local and time-sensitive for clients. Climate and nonprofit governance third, for anyone touching ESG or charity boards. Health and fitness last, good information, no urgency.\n\nTalking points\nThe August jobs loss was the worst surprise of the year, not the tariffs yet, just the setup for them.\nBank of Canada held again, but it's watching oil and tariffs push inflation the wrong way.\nAlberta waiving environmental review for Suncor's tailings is going to come up with ESG clients.\nCharity boards now own compliance on purpose changes, CRA stepped back from pre-approval.\nUnited Way Winnipeg's record campaign says local giving isn't slowing down yet.",
+     "talkingPoints": [],
+     "sources": [],
+     "words": 446,
+     "minutes": 3.0
+    },
+    {
+     "id": "lessons",
+     "label": "Lessons",
+     "title": "The Fama French factors: what they are and what the evidence supports / Federal and Manitoba tax brackets for the current year and how marginal rates combine",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/lessons.mp3",
+     "bytes": 4270080,
+     "script": "Company & Economy Analysis, Evidence arsenal, lesson 1: The Fama French factors: what they are and what the evidence supports.\n\nThe biggest story in factor investing isn't that stock picking works or doesn't, it's that a large chunk of what looks like manager skill is actually just exposure to a small number of factors. Eugene Fama and Kenneth French published this in 1992 and 1993. They found that a single market factor, the one from the Capital Asset Pricing Model, doesn't explain the spread of stock returns on its own. Two more do a lot of the work: size, meaning small companies versus big ones, and value, meaning stocks with a high book to market ratio versus low. They built portfolios called SMB, small minus big, and HML, high minus low, and ran the regression against thousands of stocks. In 2015 they added two more factors, profitability and investment, making it a five factor model.\n\nHere's the worked example. Using the Fama French data library at Dartmouth, since 1926 the size factor, SMB, has averaged close to two and a half percent a year. That sounds like free money. But look at 2010 through 2020: SMB averaged near zero, some years sharply negative, because large cap growth, especially mega cap technology names, dominated. The value factor, HML, tells a similar story. Value beat growth for decades, then underperformed for roughly thirteen straight years, until a sharp reversal in 2022, when rising rates hit expensive growth stocks hard.\n\nThe mistake people make is treating these factors as a timing tool or a guarantee, chasing whichever one just outperformed. The evidence supports a different reading. These are risk premia, compensation for holding something uncomfortable, and they can underperform for a decade or more, with no promise of paying off inside your investing lifetime.\n\nIn Thomson ONE, you can find a stock's market cap and its book to market ratio on the company snapshot or estimates tab, which is the raw material behind this whole model.\n\nTASK:\nPick one holding you know well, find its size and value standing against its sector in Thomson ONE, and write one sentence stating whether it behaves like a small value stock or a large growth stock, with no trade attached.\nDRILL:\nnone\n\nFinancial Planning Facts, lesson 1: Federal and Manitoba tax brackets for the current year and how marginal rates combine.\n\nThe biggest thing to understand today is that you never pay one flat rate on your total income in Canada. You pay different rates on different slices of income, federal and provincial, and those slices stack on top of each other.\n\nFor 2026, the Canada Revenue Agency indexes federal brackets to inflation every year. This year the federal brackets are: 15 percent on income up to $58,800, 20.5 percent on the next slice up to $117,600, 26 percent up to $182,300, 29 percent up to $259,700, and 33 percent on anything above that.\n\nManitoba is different. Manitoba Finance began indexing its brackets to inflation starting in 2025, after years of fixed thresholds. For 2026, Manitoba tax runs 10.8 percent up to $48,857, 12.75 percent up to $103,932, and 17.4 percent above $103,932.\n\nHere's a worked example. Say you're an incorporated business owner paying yourself a $150,000 salary. Your next dollar earned falls in the federal 26 percent bracket, because $150,000 sits between $117,600 and $182,300. On the Manitoba side, $150,000 is above $103,932, so that dollar also falls in Manitoba's top bracket, 17.4 percent. Add the two: 26 plus 17.4 equals 43.4 percent. That's your marginal rate, the tax on your next dollar, not on the whole $150,000.\n\nHere's the mistake people make. They assume Manitoba's top bracket only hits high earners the way the federal top bracket does. It doesn't. Manitoba's top rate starts at $103,932 for 2026, far below the $259,700 where the federal 33 percent rate kicks in. That means a lot of professionals and business owners hit Manitoba's ceiling years before they ever reach the federal one. It matters when you're advising on a bonus, an inc",
+     "talkingPoints": [
+      "Company & Economy Analysis: ",
+      "Financial Planning Facts: "
+     ],
+     "sources": [],
+     "words": 676,
+     "minutes": 4.5,
+     "lessons": [
+      {
+       "track": "analysis",
+       "label": "Company & Economy Analysis",
+       "sequence": "Evidence arsenal",
+       "index": 1,
+       "title": "The Fama French factors: what they are and what the evidence supports",
+       "script": "The biggest story in factor investing isn't that stock picking works or doesn't, it's that a large chunk of what looks like manager skill is actually just exposure to a small number of factors. Eugene Fama and Kenneth French published this in 1992 and 1993. They found that a single market factor, the one from the Capital Asset Pricing Model, doesn't explain the spread of stock returns on its own. Two more do a lot of the work: size, meaning small companies versus big ones, and value, meaning stocks with a high book to market ratio versus low. They built portfolios called SMB, small minus big, and HML, high minus low, and ran the regression against thousands of stocks. In 2015 they added two more factors, profitability and investment, making it a five factor model.\n\nHere's the worked example. Using the Fama French data library at Dartmouth, since 1926 the size factor, SMB, has averaged close to two and a half percent a year. That sounds like free money. But look at 2010 through 2020: SMB averaged near zero, some years sharply negative, because large cap growth, especially mega cap technology names, dominated. The value factor, HML, tells a similar story. Value beat growth for decades, then underperformed for roughly thirteen straight years, until a sharp reversal in 2022, when rising rates hit expensive growth stocks hard.\n\nThe mistake people make is treating these factors as a timing tool or a guarantee, chasing whichever one just outperformed. The evidence supports a different reading. These are risk premia, compensation for holding something uncomfortable, and they can underperform for a decade or more, with no promise of paying off inside your investing lifetime.\n\nIn Thomson ONE, you can find a stock's market cap and its book to market ratio on the company snapshot or estimates tab, which is the raw material behind this whole model.\n\nTASK:\nPick one holding you know well, find its size and value standing against its sector in Thomson ONE, and write one sentence stating whether it behaves like a small value stock or a large growth stock, with no trade attached.\nDRILL:\nnone",
+       "task": "",
+       "drill": ""
+      },
+      {
+       "track": "planning",
+       "label": "Financial Planning Facts",
+       "sequence": null,
+       "index": 1,
+       "title": "Federal and Manitoba tax brackets for the current year and how marginal rates combine",
+       "script": "The biggest thing to understand today is that you never pay one flat rate on your total income in Canada. You pay different rates on different slices of income, federal and provincial, and those slices stack on top of each other.\n\nFor 2026, the Canada Revenue Agency indexes federal brackets to inflation every year. This year the federal brackets are: 15 percent on income up to $58,800, 20.5 percent on the next slice up to $117,600, 26 percent up to $182,300, 29 percent up to $259,700, and 33 percent on anything above that.\n\nManitoba is different. Manitoba Finance began indexing its brackets to inflation starting in 2025, after years of fixed thresholds. For 2026, Manitoba tax runs 10.8 percent up to $48,857, 12.75 percent up to $103,932, and 17.4 percent above $103,932.\n\nHere's a worked example. Say you're an incorporated business owner paying yourself a $150,000 salary. Your next dollar earned falls in the federal 26 percent bracket, because $150,000 sits between $117,600 and $182,300. On the Manitoba side, $150,000 is above $103,932, so that dollar also falls in Manitoba's top bracket, 17.4 percent. Add the two: 26 plus 17.4 equals 43.4 percent. That's your marginal rate, the tax on your next dollar, not on the whole $150,000.\n\nHere's the mistake people make. They assume Manitoba's top bracket only hits high earners the way the federal top bracket does. It doesn't. Manitoba's top rate starts at $103,932 for 2026, far below the $259,700 where the federal 33 percent rate kicks in. That means a lot of professionals and business owners hit Manitoba's ceiling years before they ever reach the federal one. It matters when you're advising on a bonus, an inc",
+       "task": "",
+       "drill": ""
+      }
+     ]
+    },
+    {
+     "id": "markets",
+     "label": "Markets & Economy",
+     "title": "Jobs Shock, Rate Bets, and Oil's Iran-Driven Surge",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/markets.mp3",
+     "bytes": 2078592,
+     "script": "Start with the number that matters most for you this morning. Canada lost 41,700 jobs in August. The unemployment rate held at 6.4 percent, but that headline number hides how bad this was. Economists polled by Reuters had expected a gain of around 15,000 positions. Instead you got a big loss, and it followed a blowout July where the economy added 75,100 jobs. Nearly all of the damage was in full-time work, down 35,900, with part-time down another 5,800. The Globe and Mail is calling this one of the last clean reads on the labour market before the new 50 percent US tariffs start showing up in the data, so brace clients for more volatility in this number through the fall.\n\nNow the contrast, because it's a big one. The US jobs report landed the same morning and went the other way entirely. Nonfarm payrolls jumped 162,000 in August, nearly triple the consensus call of around 55,000 to 56,000. Total nonfarm payroll employment increased by 162,000 in August, and the unemployment rate was unchanged at 4.1 percent. Average hourly earnings climbed 3.1% year over year, topping the 3.0% forecast. That is a genuinely hot print, and it changes the conversation in Washington.\n\nOn rates, here's where you stand. The Bank of Canada already met this week, on September 2, and it's on your watch list for a reason. The Bank of Canada held its target for the overnight rate at 2.25%, with the Bank Rate at 2.5% and the deposit rate at 2.20%. That's the seventh straight hold. The next scheduled date for announcing the overnight rate target is October 28, 2026. The Bank flagged Middle East energy prices and the breakdown in trade talks with the US as the two big swing factors keeping it on hold rather than cutting further.\n\nSouth of the border, it's a different story. Going into Friday, markets had pared back bets on a Fed rate hike after Governor Christopher Waller talked up a wait-and-see approach on Thursday. The blowout payrolls number reversed that fast.",
+     "talkingPoints": [],
+     "sources": [],
+     "words": 341,
+     "minutes": 2.3
+    },
+    {
+     "id": "manitoba",
+     "label": "Manitoba & Winnipeg",
+     "title": "Rate Hold, Tariffs, Hydro Costs, Klein Runs Again",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/manitoba.mp3",
+     "bytes": 840192,
+     "script": "The Bank of Canada held its key interest rate at 2.25 percent on Wednesday. That's the seventh straight hold, and it's on your watch list for good reason. The decision came fresh off the latest GDP numbers, which grew 3.3% in the second quarter of 2026, and unemployment edged down to 6.4% in July. But the Bank also warned that new US tariffs and Canadian counter-tariffs, as well as elevated oil prices, are raising the risk that inflation moves higher rather than settling near the Bank's 2% target. The next scheduled rate announcement is October 28. For clients renewing mortgages this fall, tell them not to expect relief before then, and don't rule out a hike if tariff costs start showing up at the checkout.\n\nSpeaking of tariffs, Manitoba businesses have five days to prepare.",
+     "talkingPoints": [],
+     "sources": [],
+     "words": 135,
+     "minutes": 0.9
+    },
+    {
+     "id": "climate",
+     "label": "Climate Policy & Nonprofit Governance",
+     "title": "Climate Policy Retreat Meets Charity Sector Modernization",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/climate.mp3",
+     "bytes": 3020928,
+     "script": "The biggest story today: a new federal government report finds that the effects of climate change in Canada are now largely irreversible, with average temperatures on track to rise by at least 3.5 degrees Celsius by the end of the century. That's per Canada's National Observer, and it lands the same week Canada's National Observer separately argues that Ottawa's trade war footing with Washington is quietly pushing climate policy down the priority list.\n\nOn the watch list: the Bank of Canada. On Wednesday it held its overnight rate at 2.25 percent for a seventh straight decision. The bank warned that new US tariffs and Canadian counter-tariffs, along with elevated oil prices, are raising the risk that inflation moves higher rather than settling near its 2 percent target. For your clients, that means borrowing costs hold steady for now, but the bank left the door open to a hike, not a cut, if tariff costs spread into everyday prices.\n\nAlso on the watch list, Manitoba Hydro. CBC News reports the Canada-US trade war has complicated Manitoba Hydro's plan to buy gas turbines from a Massachusetts manufacturer for its three billion dollar Brandon generating station expansion. That's a direct line from tariff politics to Manitoba's electricity supply plans.\n\nIn Alberta, two governance stories worth flagging. The provincial regulator has exempted Suncor's oil sands tailings pond discharge into the Athabasca River from an environmental review, angering downstream communities, per Canada's National Observer. And starting October 1st, Alberta is bringing in a 14 dollar recycling fee on new solar panels along with a landfill ban, which critics say puts renewables at a disadvantage.\n\nOn the clean electricity side, construction has begun on British Columbia's North Coast Transmission Line, linking Prince George to Terrace and set to more than double electricity supply to the northwest. Clean Energy Canada's Evan Pivnick called clean electricity central to a competitive Canadian economy.\n\nTurning to the charitable sector. The CRA's Charities Directorate is deep into a modernization push. As of this spring, charities can no longer submit documents by fax, and the agency will no longer pre-approve changes to a charity's stated purposes, shifting that responsibility onto boards and directors. The Open Government Data Portal now hosts T3010 public charity data going back to 1990, giving donors and advisors far more transparency into any charity's financial history before you recommend a gift.\n\nCloser to home, United Way Winnipeg is on the watch list. Winnipeggers raised a record-breaking 23.3 million dollars for the 2025 campaign, with Anne Mahon and Paul Mahon set to co-chair the 2026 campaign. That's a strong signal for local philanthropy heading into fall campaign season, and worth mentioning to clients weighing year-end giving.\n\nOne more for the building retrofit file: Efficiency Manitoba's monthly household energy reports are now reaching 100,000 homes, comparing usage against similar residences, and the Crown corporation says usage is dropping among households that get the reports. That's a low-cost nudge worth flagging to clients thinking about retrofit incentives this fall.",
+     "talkingPoints": [
+      "Bank of Canada held at 2.25 percent, but flagged inflation risk from tariffs and oil prices, not a rate cut signal.",
+      "Manitoba Hydro's Brandon expansion is getting tangled in Trump tariffs on US-made turbines.",
+      "Alberta just exempted Suncor's tailings discharge from environmental review, a governance flag for ESG-minded clients.",
+      "CRA no longer pre-approves charity purpose changes, boards now own that compliance risk directly.",
+      "United Way Winnipeg's record 23.3 million dollar campaign shows local giving still has momentum into fall."
+     ],
+     "sources": [
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Changes to Canada's climate now 'irreversible,' federal report says",
+       "url": "https://www.nationalobserver.com/2026/09/04/news/changes-canadas-climate-now-irreversible-federal-report-says"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Donald Trump's trade war is accelerating Canada's retreat from climate policy",
+       "url": "https://www.nationalobserver.com/2026/09/03/opinion/donald-trumps-trade-war-accelerating-canadas-retreat-climate-policy"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Alberta exempts Suncor's tailings pond dump from review, angering downstream communities",
+       "url": "https://www.nationalobserver.com/2026/09/04/news/alberta-oilsands-tailings-suncor-regulator"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Alberta government touts the Oct. 1 launch of $14 solar panel recycling fee, landfill ban",
+       "url": "https://www.nationalobserver.com/2026/09/04/news/alberta-government-touts-oct-1-launch-14-solar-panel-recycling-fee-landfill-ban"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Construction begins on major BC transmission line aimed at powering northwest",
+       "url": "https://www.nationalobserver.com/2026/09/03/news/construction-begins-major-bc-transmission-line-aimed-powering-northwest"
+      },
+      {
+       "outlet": "Clean Energy Canada",
+       "title": "Response: North Coast Transmission Line builds Canada's competitive advantage",
+       "url": "https://cleanenergyc"
+      }
+     ],
+     "words": 498,
+     "minutes": 3.3
+    },
+    {
+     "id": "health",
+     "label": "Health & Fitness",
+     "title": "Zone 2 Rethink, Load Debate, and a Rate Hold",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/health.mp3",
+     "bytes": 2162688,
+     "script": "The biggest health story this week comes from Peter Attia, the longevity physician raised in Toronto. In a newsletter dated August 29th, he walks back some of his own messaging on Zone 2 training, the steady aerobic pace he has championed for years. Attia admits he has been too prescriptive, defining Zone 2 the way elite endurance coaches do, by keeping blood lactate under two millimoles per liter. His updated take: precision matters less than consistency. Get your heart working at a sustainable, conversational effort several times a week, and do not get hung up on hitting an exact number on a chest strap or watch. For someone who lifts and also does cardio, that is useful. You do not need a lab test to get the mitochondrial benefit, you need repeated, easy effort logged over time.\n\nOn the resistance training side, Examine dot com's most recent roundup of study summaries highlighted a ten week trial where twenty young men with no lifting background were split between heavy loads and light loads, both taken to muscular failure. Muscle growth came out similar either way. Examine flags this as useful but preliminary. Twenty people is a small sample, and it only tracked beginners for ten weeks, so it does not settle the load debate for anyone with years of training behind them. Still, it lines up with a decade of other research: proximity to failure and total volume seem to matter more than the specific weight on the bar.\n\nOn the Canadian health system, CBC reports that hiring across Alberta and Ontario's health care sector has been propping up the national job market this year, and health reporters there caution that this says more about a sluggish broader economy than about better patient outcomes. Separately, CBC's Calgary bureau reports that front line workers are flagging a gap in social and addiction supports more than two months after the city's only supervised consumption site closed.\n\nOn the financial side, the Bank of Canada held its overnight rate at 2.25 percent this week, its seventh straight hold, citing tariff related inflation risk. That is on your watch list. Worth flagging to clients asking about mortgage renewals: the Bank signaled it is now more likely to raise than cut from here if tariff costs spread into consumer prices.",
+     "talkingPoints": [
+      "Attia is easing off strict Zone 2 targets, consistency of easy cardio beats chasing a precise number.",
+      "A small new study suggests light and heavy weights build similar musc"
+     ],
+     "sources": [],
+     "words": 384,
+     "minutes": 2.6
+    }
+   ]
+  },
+  {
    "date": "2026-09-03",
    "generatedAt": "2026-09-03T16:38:55+00:00",
    "release": "courier-2026-09-03",
