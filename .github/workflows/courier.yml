@@ -3,8 +3,8 @@ name: The Courier daily briefing
 on:
   schedule:
     # GitHub drops on-the-hour schedules under load, so both of these sit off the hour.
-    - cron: "17 10 * * *"   # 10:17 UTC = 5:17 CDT / 4:17 CST Winnipeg
-    - cron: "43 11 * * *"   # backstop 90 min later, skips itself if the first one worked
+  - cron: "17 10 * * 1-5"
+  - cron: "43 11 * * 1-5"  # backstop 90 min later, skips itself if the first one worked
   workflow_dispatch:
 
 permissions:
