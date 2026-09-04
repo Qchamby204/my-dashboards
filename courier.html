@@ -100,6 +100,10 @@
   .block.active .eyebrow .n{ color:var(--ember); opacity:.55; }
   .tag{ margin-left:auto; color:var(--jade); letter-spacing:.13em; }
   .tag.resume{ margin-left:0; color:var(--ember); }
+  .tag.textonly{ margin-left:0; color:var(--mute); }
+  .block.mute .play{ opacity:.32; cursor:default; }
+  .block.mute .play:hover{ background:transparent; color:var(--bone); border-color:rgba(236,231,222,.22); }
+  .rail-cap b{ color:rgba(236,231,222,.55); font-weight:400; }
 
   .title{ margin:9px 0 0; max-width:22em; font-family:var(--ed); font-optical-sizing:auto;
           font-weight:400; font-size:27px; line-height:1.24; letter-spacing:-.012em;
@@ -216,7 +220,7 @@
   <aside class="rail">
     <div>
       <div class="rail-total" id="railTotal">0:00</div>
-      <div class="rail-cap">Total run time</div>
+      <div class="rail-cap" id="railCap">Total run time</div>
     </div>
     <div class="axis" id="axis"><ol class="ladder" id="ladder"></ol></div>
     <div class="rail-now" id="railNow"></div>
@@ -348,13 +352,15 @@ function render() {
     const open = ui.open === b.id ? 'open' : '';
     const active = ui.current === b.id ? 'active' : '';
     const s = plan.by[b.id];
-    return `<section class="block ${done ? 'done' : ''} ${open} ${active}" data-id="${b.id}">
+    const mute = b.audio ? '' : 'mute';
+    return `<section class="block ${done ? 'done' : ''} ${open} ${active} ${mute}" data-id="${b.id}">
       <div class="head" data-act="toggle">
-        <div class="seat"><button class="play" data-act="play" title="Play">${ui.current === b.id && !$('audio').paused ? '❚❚' : '▶'}</button></div>
+        <div class="seat"><button class="play" data-act="play" title="${b.audio ? 'Play' : 'No audio for this block today'}">${ui.current === b.id && !$('audio').paused ? '❚❚' : '▶'}</button></div>
         <div>
           <div class="eyebrow">
             <span class="n">${String(i + 1).padStart(2, '0')}</span>
             <span>${b.label}</span>
+            ${b.audio ? '' : '<span class="tag textonly">Text only</span>'}
             ${pos > 5 ? `<span class="tag resume">Resume ${fmt(pos)}</span>` : ''}
             ${done ? '<span class="tag">Heard</span>' : ''}
           </div>
@@ -386,6 +392,9 @@ function render() {
 
 function renderRail(d, plan, listened) {
   $('railTotal').textContent = hm(plan.total);
+  $('railCap').innerHTML = d.budgetMinutes
+    ? `Run time <b>· cap ${hm(d.budgetMinutes)}</b>`
+    : 'Total run time';
 
   const axis = $('axis');
   axis.querySelectorAll('.tick').forEach(t => t.remove());
@@ -420,6 +429,11 @@ function renderDays() {
 function play(id) {
   const d = day(); const b = d.blocks.find(x => x.id === id);
   const a = $('audio');
+  if (!b.audio) {                       // published as text only (voice failed that morning)
+    ui.open = id; render();
+    if (ui.queue) { ui.current = id; next(); }
+    return;
+  }
   if (ui.current === id) { a.paused ? a.play() : a.pause(); render(); return; }
   ui.current = id; ui.open = id;
   a.src = b.audio;
