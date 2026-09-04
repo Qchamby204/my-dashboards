@@ -17,7 +17,9 @@ rewritten daily with only the last 7 days, and served through jsDelivr with a pr
 
 Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked),
 COURIER_MAIL_USER and COURIER_MAIL_PASSWORD (Gmail address and app password for the
-newsletter inbox, optional), COURIER_MINUTES (total run time cap, default 60), TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
+newsletter inbox, optional), COURIER_MINUTES (total run time cap, default 60), COURIER_SEARCHES, COURIER_MAIL_PER_BLOCK,
+COURIER_MAIL_CHARS, COURIER_FEED_ITEMS (what each block is allowed to read), COURIER_PRICE_* (rates
+for the cost estimate in the log), TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
 REPO (owner/name), DRY_RUN=1 to skip both APIs and write a placeholder day.
 """
 
@@ -29,6 +31,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
+import threading
 
 import feedparser
 import requests
@@ -60,6 +63,41 @@ DEFAULT_MINUTES = {
     "climate": 4, "tech": 4, "health": 3, "parenting": 2, "sports": 4,
 }
 OVERRUN_TOLERANCE = 1.15     # a block this far over its word ceiling gets one tightening pass
+
+# ---- cost controls ----
+# What Claude reads is the bill, not what it writes. Each of these trims the reading.
+SEARCHES_PER_BLOCK = int(os.environ.get("COURIER_SEARCHES") or 2)     # web searches a block may spend
+MAIL_PER_BLOCK = int(os.environ.get("COURIER_MAIL_PER_BLOCK") or 8)   # newsletters handed to a block
+MAIL_CHARS = int(os.environ.get("COURIER_MAIL_CHARS") or 5000)        # characters kept per newsletter
+FEED_ITEMS = int(os.environ.get("COURIER_FEED_ITEMS") or 40)          # feed headlines handed to a block
+
+# Assumed rates for the cost estimate printed in the log. USD per million tokens, and per
+# thousand searches. Set the COURIER_PRICE_* variables to match your plan; the token counts
+# themselves are exact either way.
+PRICE = {
+    "input":       float(os.environ.get("COURIER_PRICE_IN") or 3.00),
+    "output":      float(os.environ.get("COURIER_PRICE_OUT") or 15.00),
+    "cache_read":  float(os.environ.get("COURIER_PRICE_CACHE_READ") or 0.30),
+    "cache_write": float(os.environ.get("COURIER_PRICE_CACHE_WRITE") or 3.75),
+    "search":      float(os.environ.get("COURIER_PRICE_SEARCH") or 10.00),
+}
+USAGE = {"calls": 0, "input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "searches": 0}
+_USAGE_LOCK = threading.Lock()
+
+
+def estimate_cost(u):
+    return (u["input"] * PRICE["input"] + u["output"] * PRICE["output"]
+            + u["cache_read"] * PRICE["cache_read"] + u["cache_write"] * PRICE["cache_write"]) / 1e6 \
+        + u["searches"] * PRICE["search"] / 1000
+
+
+def record_usage(label, u):
+    with _USAGE_LOCK:
+        USAGE["calls"] += 1
+        for k in ("input", "output", "cache_read", "cache_write", "searches"):
+            USAGE[k] += u[k]
+    log(f"usage {label or 'call'}: in {u['input']:,} (cache read {u['cache_read']:,}, write {u['cache_write']:,}) "
+        f"out {u['output']:,}, searches {u['searches']}, est ${estimate_cost(u):.2f}")
 ELEVEN_VOICE = os.environ.get("ELEVENLABS_VOICE_ID") or "21m00Tcm4TlvDq8ikWAM"
 ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL") or "eleven_multilingual_v2"
 ELEVEN_SETTINGS = {
@@ -199,7 +237,7 @@ def fetch_newsletters(since_hours=26):
                     body = html_to_text(payload) if ctype == "text/html" else payload
                     if ctype == "text/html": break
             item = {"outlet": _decode(msg.get("From", "")).split("<")[0].strip(' "'),
-                    "subject": _decode(msg.get("Subject", "")), "text": body[:12000]}
+                    "subject": _decode(msg.get("Subject", "")), "text": body[:MAIL_CHARS]}
             for b in blocks:
                 by_block.setdefault(b, []).append(item)
         box.logout()
@@ -217,16 +255,23 @@ NEWSLETTERS = None  # filled once in main()
 
 # ---------- 2. script ----------
 
-def claude(prompt, max_tokens, web_searches=0):
-    """Call the Messages API and return the concatenated text. Logs the API's error body on failure."""
+def claude(prompt, max_tokens, web_searches=0, label=""):
+    """Call the Messages API and return the concatenated text. Logs the API's error body on failure.
+
+    The prompt goes up as a single cached block. A call that uses web search re-reads its prompt
+    on every search iteration and every pause_turn continuation; with the cache breakpoint those
+    re-reads bill at the cache-read rate instead of full price. Token usage is accumulated per
+    call and logged with a cost estimate, so the run reports what it spent."""
     headers = {"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01",
                "content-type": "application/json"}
     if os.environ.get("ANTHROPIC_WORKSPACE_ID"):  # needed for identity-linked keys
         headers["anthropic-workspace-id"] = os.environ["ANTHROPIC_WORKSPACE_ID"]
+    content = [{"type": "text", "text": prompt, "cache_control": {"type": "ephemeral"}}]
     body = {"model": CLAUDE_MODEL, "max_tokens": max_tokens,
-            "messages": [{"role": "user", "content": prompt}]}
+            "messages": [{"role": "user", "content": content}]}
     if web_searches:
         body["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": web_searches}]
+    used = {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "searches": 0}
     for _ in range(6):  # pause_turn continuations
         r = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=body, timeout=600)
         if r.status_code == 400 and "tools" in body and "web search" in r.text.lower():
@@ -237,9 +282,16 @@ def claude(prompt, max_tokens, web_searches=0):
             log(f"Anthropic API {r.status_code}: {r.text[:800]}")
             r.raise_for_status()
         data = r.json()
+        u = data.get("usage") or {}
+        used["input"] += u.get("input_tokens", 0) or 0
+        used["output"] += u.get("output_tokens", 0) or 0
+        used["cache_read"] += u.get("cache_read_input_tokens", 0) or 0
+        used["cache_write"] += u.get("cache_creation_input_tokens", 0) or 0
+        used["searches"] += ((u.get("server_tool_use") or {}).get("web_search_requests", 0) or 0)
         if data.get("stop_reason") == "pause_turn":
             body["messages"] = body["messages"][:1] + [{"role": "assistant", "content": data["content"]}]
             continue
+        record_usage(label, used)
         return "".join(b.get("text", "") for b in data["content"] if b.get("type") == "text")
     raise RuntimeError("Anthropic API kept pausing")
 
@@ -354,7 +406,7 @@ Answer as JSON and nothing else:
   "line": "the one line other blocks may assume was already said",
   "callbacks": [{{"block": "block slug", "angle": "the different angle that block has"}}]}}]}}"""
 
-    raw = claude(prompt, 6000)
+    raw = claude(prompt, 6000, label="story plan")
     m = re.search(r"\{.*\}", raw, flags=re.S)
     if not m:
         raise ValueError(f"no JSON in plan; response starts: {raw[:200]!r}")
@@ -417,7 +469,7 @@ def length_rule(minutes):
             f"{words} is a hard ceiling; going over it is a failure, cut a story before you exceed it.")
 
 
-def enforce_length(data, minutes):
+def enforce_length(data, minutes, label=""):
     """One tightening pass if a script blew through its ceiling. Cheap: no web search, short output."""
     words = words_for(minutes)
     body, _ = split_talking_points(data["script"])
@@ -439,7 +491,7 @@ SOURCES:
 
 {FORMAT_SCRIPT}"""
     try:
-        tightened = parse_fields(claude(prompt, min(12000, words * 3 + 2000)), "TITLE", "SCRIPT", "SOURCES")
+        tightened = parse_fields(claude(prompt, min(12000, words * 3 + 2000), label=f"tighten {label}"), "TITLE", "SCRIPT", "SOURCES")
         body2, _ = split_talking_points(tightened["script"])
         log(f"tightened to {len(body2.split())} words")
         if not tightened.get("sources"):
@@ -468,10 +520,10 @@ def write_script(category, spec, items, minutes, block_plan=None):
     own_rules = ownership_rules(block_plan)
 
     feed_text = "\n".join(
-        f"- [{i['outlet']}] {i['title']} :: {i['summary']} ({i['url']})" for i in items[:80]
+        f"- [{i['outlet']}] {i['title']} :: {i['summary']} ({i['url']})" for i in items[:FEED_ITEMS]
     ) or "(no feed items today)"
     mail = (NEWSLETTERS or {}).get(category, [])
-    mail_text = "\n\n".join(f"### {m['outlet']}: {m['subject']}\n{m['text']}" for m in mail[:12])
+    mail_text = "\n\n".join(f"### {m['outlet']}: {m['subject']}\n{m['text']}" for m in mail[:MAIL_PER_BLOCK])
     if mail_text:
         feed_text = ("Subscriber newsletters received today. These are the primary source; the feed items "
                      "below are the backstop.\n\n" + mail_text + "\n\nFeed items:\n" + feed_text)
@@ -479,8 +531,9 @@ def write_script(category, spec, items, minutes, block_plan=None):
     if spec.get("mode") == "companies":
         prompt = f"""Today is {TODAY}. Identify the ten companies most talked about in business, markets and
 technology news over the last 48 hours, worldwide with a Canadian tilt. Scope: {spec['brief']}
-Use the feed items below to see what is being covered, then use web search to confirm the
-ranking and get the specifics. Watch list companies that appear in the news go first.
+Use the feed items below to see what is being covered. You have at most {SEARCHES_PER_BLOCK} web
+searches; spend them confirming the ranking, not researching companies the sources already cover.
+Watch list companies that appear in the news go first.
 {WATCH_RULE}
 
 Write it as a spoken {minutes} minute segment. Ten sections, one per company, each about
@@ -506,10 +559,10 @@ points. Scope: {spec['brief']}
 
 {length_rule(minutes)}
 
-Below are items pulled from feeds in the last day. Use them as the base. Use web search to
-fill gaps, check anything that looks stale, and pull in coverage from these preferred
-outlets where they have something today: {", ".join(spec['prefer_web'])}. Prefer original and
-reputable sources. Skip anything you cannot attribute.
+Below are items pulled from feeds in the last day. Use them as the base. You have at most
+{SEARCHES_PER_BLOCK} web searches: spend them on the largest gap in the sources, not on confirming
+what they already say. Preferred outlets when you do search: {", ".join(spec['prefer_web'])}.
+Prefer original and reputable sources. Skip anything you cannot attribute.
 {WATCH_RULE}
 
 {STYLE_RULES}
@@ -519,8 +572,9 @@ Feed items:
 
 {FORMAT_SCRIPT}"""
 
-    data = parse_fields(claude(prompt, min(12000, words * 3 + 2000), web_searches=8), "TITLE", "SCRIPT", "SOURCES")
-    return enforce_length(data, minutes)
+    data = parse_fields(claude(prompt, min(12000, words * 3 + 2000), web_searches=SEARCHES_PER_BLOCK, label=category),
+                        "TITLE", "SCRIPT", "SOURCES")
+    return enforce_length(data, minutes, label=category)
 
 
 def write_front_page(blocks, minutes):
@@ -552,7 +606,7 @@ Write your answer as plain text in exactly this layout, labels on their own line
 TITLE: six to ten word headline for the day
 SCRIPT:
 the front page"""
-    return parse_fields(claude(prompt, 3000, web_searches=0), "TITLE", "SCRIPT")
+    return parse_fields(claude(prompt, 3000, web_searches=0, label="front page"), "TITLE", "SCRIPT")
 
 
 def write_lesson(track, spec, seq_label, index, lessons, words):
@@ -588,7 +642,7 @@ TASK:
 today's practice task in one or two sentences
 DRILL:
 for the communication track only, a scoreable drill: what to do and what good looks like. Otherwise the word none."""
-    return parse_fields(claude(prompt, 3000), "TITLE", "SCRIPT")
+    return parse_fields(claude(prompt, 3000, label=f"lesson {track}"), "TITLE", "SCRIPT")
 
 
 def write_lessons(minutes):
@@ -839,6 +893,10 @@ def main():
         failed.append("frontpage")
 
     total = round(sum(b["minutes"] for b in blocks), 1)
+    cost = estimate_cost(USAGE)
+    log(f"usage total: {USAGE['calls']} calls, input {USAGE['input']:,} + cache read {USAGE['cache_read']:,} "
+        f"+ cache write {USAGE['cache_write']:,}, output {USAGE['output']:,}, {USAGE['searches']} searches; "
+        f"est ${cost:.2f} at assumed rates (set COURIER_PRICE_* to match your plan)")
     if total > TOTAL_MINUTES:
         log(f"WARNING: projected run time {total} min exceeds the {TOTAL_MINUTES} min cap")
     else:
@@ -854,6 +912,7 @@ def main():
         "plannedMinutes": sum(minutes.values()),
         "projectedMinutes": total,
         "voiceless": list(VOICELESS),
+        "usage": {**USAGE, "estimatedCost": round(cost, 2)},
         "plan": [{"event": s["event"], "owner": slug} for slug, v in story_plan.items() for s in v["owns"]],
         "blocks": blocks,
     })
