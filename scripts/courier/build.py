@@ -2,19 +2,22 @@
 The Courier: daily briefing builder.
 
 Runs in GitHub Actions. For each category in sources.json:
-  1. pull the last 24 hours of items from the listed feeds
-  2. ask Claude to write a 15 minute spoken script, with web search to fill gaps
-  3. voice it with ElevenLabs
-  4. write audio to out/<date>/<category>.mp3 and the day's manifest entry
+1. pull the last 24 hours of items from the listed feeds
+2. ask Claude to write a spoken script sized to that block's share of the day's time budget,
+   with web search to fill gaps
+3. voice it (OpenAI by default); if the voice fails the text is still published
+4. write audio to out/<date>/<category>.mp3 and the day's manifest entry
 
-Then writes a three minute front page across all blocks, merges today into
+Before any block is written, one planning call collapses the day's headlines into distinct
+stories and gives each exactly one owner block, so the same event is not explained in five
+places. Then writes a three minute front page across all blocks, merges today into
 courier/manifest.json and courier/feed.xml (podcast RSS, last 7 days), and
-prunes the audio for anything older. Audio is pushed by the workflow to an orphan branch, courier-audio, rewritten
-daily with only the last 7 days, and served through jsDelivr with a proper audio MIME type.
+prunes the audio for anything older. Audio is pushed by the workflow to an orphan branch, courier-audio,
+rewritten daily with only the last 7 days, and served through jsDelivr with a proper audio MIME type.
 
 Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked),
 COURIER_MAIL_USER and COURIER_MAIL_PASSWORD (Gmail address and app password for the
-newsletter inbox, optional), TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
+newsletter inbox, optional), COURIER_MINUTES (total run time cap, default 60), TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
 REPO (owner/name), DRY_RUN=1 to skip both APIs and write a placeholder day.
 """
 
@@ -42,8 +45,21 @@ MANIFEST = ROOT / "courier" / "manifest.json"
 REPO = os.environ.get("REPO", "Qchamby204/my-dashboards")
 DRY_RUN = os.environ.get("DRY_RUN") == "1"
 KEEP_DAYS = 7
-TARGET_WORDS = "2,000 to 2,200"
 CLAUDE_MODEL = "claude-sonnet-5"
+
+# ---- time budget ----
+# The whole day must fit inside TOTAL_MINUTES. Word targets are derived from minutes at WPM,
+# which is set a little under a real narration rate so the finished audio lands under the cap
+# rather than on it. Per-category minutes can be overridden with a "minutes" key in sources.json.
+TOTAL_MINUTES = int(os.environ.get("COURIER_MINUTES") or 60)
+WPM = 140
+FRONT_MINUTES = 3
+LESSONS_MINUTES = 8          # weekdays only; the three tracks share it
+DEFAULT_MINUTES = {
+    "markets": 8, "practice": 7, "companies": 7, "manitoba": 5, "politics": 5,
+    "climate": 4, "tech": 4, "health": 3, "parenting": 2, "sports": 4,
+}
+OVERRUN_TOLERANCE = 1.15     # a block this far over its word ceiling gets one tightening pass
 ELEVEN_VOICE = os.environ.get("ELEVENLABS_VOICE_ID") or "21m00Tcm4TlvDq8ikWAM"
 ELEVEN_MODEL = os.environ.get("ELEVENLABS_MODEL") or "eleven_multilingual_v2"
 ELEVEN_SETTINGS = {
@@ -153,8 +169,13 @@ def fetch_newsletters(since_hours=26):
     user, pw = os.environ.get("COURIER_MAIL_USER"), os.environ.get("COURIER_MAIL_PASSWORD")
     if not (user and pw) or DRY_RUN:
         return {}
-    routes = {k: v for k, v in json.loads((HERE / "newsletters.json").read_text()).items() if not k.startswith("_")}
+    cfg = json.loads((HERE / "newsletters.json").read_text())
+    routes = {k: v for k, v in cfg.items() if not k.startswith("_")}
+    ignore = [s.lower() for s in cfg.get("_ignore", [])]
     by_block, unmapped = {}, set()
+
+    def matches(sender, key):
+        return sender == key or sender.endswith("@" + key) or sender.endswith("." + key)
     try:
         box = imaplib.IMAP4_SSL(os.environ.get("COURIER_MAIL_HOST") or "imap.gmail.com")
         box.login(user, pw)
@@ -165,7 +186,9 @@ def fetch_newsletters(since_hours=26):
             _, data = box.fetch(mid, "(RFC822)")
             msg = email.message_from_bytes(data[0][1])
             sender = email.utils.parseaddr(msg.get("From", ""))[1].lower()
-            blocks = next((v for k, v in routes.items() if sender == k or sender.endswith("@" + k) or sender.endswith("." + k)), None)
+            if any(matches(sender, k) for k in ignore):
+                continue                                   # receipts, account mail, known noise
+            blocks = next((v for k, v in routes.items() if matches(sender, k)), None)
             if not blocks:
                 unmapped.add(sender); continue
             body = ""
@@ -183,7 +206,7 @@ def fetch_newsletters(since_hours=26):
     except Exception as e:
         log(f"mailbox read failed, continuing on feeds only: {e}")
         return by_block
-    log("newsletters: " + ", ".join(f"{k} {len(v)}" for k, v in by_block.items()) or "none")
+    log("newsletters: " + (", ".join(f"{k} {len(v)}" for k, v in by_block.items()) or "none"))
     if unmapped:
         log("unmapped senders (add to newsletters.json): " + ", ".join(sorted(unmapped)))
     return by_block
@@ -234,7 +257,7 @@ def parse_fields(text, *fields):
         out[parts[i].lower()] = parts[i + 1].strip()
     if "script" not in out or len(out["script"]) < 200:
         raise ValueError(f"no usable SCRIPT section; response starts: {text[:200]!r}")
-    out["script"] = out["script"].replace("\u2014", ", ").replace("\u2013", ", ")
+    out["script"] = out["script"].replace("—", ", ").replace("–", ", ")
     if "sources" in out:
         srcs = []
         for ln in out["sources"].splitlines():
@@ -243,6 +266,188 @@ def parse_fields(text, *fields):
                 srcs.append({"outlet": bits[0], "title": bits[1], "url": bits[2]})
         out["sources"] = srcs
     return out
+
+
+def budget(sources):
+    """Minutes per block for today, fitting inside TOTAL_MINUTES.
+
+    Fixed slots (front page, lessons on weekdays) come off the top; the categories share the rest.
+    If the category minutes in sources.json add up to more than what is left, they are scaled
+    down proportionally so the cap holds no matter what is configured."""
+    weekday = WEEKDAY not in ("sat", "sun")
+    fixed = FRONT_MINUTES + (LESSONS_MINUTES if weekday else 0)
+    wanted = {slug: max(1, int(spec.get("minutes", DEFAULT_MINUTES.get(slug, 4)))) for slug, spec in sources.items()}
+    available = max(len(wanted), TOTAL_MINUTES - fixed)
+    total_wanted = sum(wanted.values())
+    if total_wanted > available:
+        # scale proportionally, then hand the rounding leftovers to the largest remainders
+        # so the cap is met exactly instead of undershot by a minute per block
+        scale = available / total_wanted
+        exact = {k: v * scale for k, v in wanted.items()}
+        wanted = {k: max(1, int(x)) for k, x in exact.items()}
+        spare = available - sum(wanted.values())
+        for k in sorted(exact, key=lambda k: exact[k] - int(exact[k]), reverse=True)[:max(0, spare)]:
+            wanted[k] += 1
+        log(f"category minutes ({total_wanted}) exceed the {available} available; scaled to {sum(wanted.values())}")
+    plan = {"frontpage": FRONT_MINUTES, **wanted}
+    if weekday:
+        plan["lessons"] = LESSONS_MINUTES
+    log(f"time budget: {sum(plan.values())} of {TOTAL_MINUTES} min; " + ", ".join(f"{k} {v}" for k, v in plan.items()))
+    return plan
+
+
+def words_for(minutes):
+    return int(minutes * WPM)
+
+
+def plan_stories(sources, items_by_block):
+    """Decide once, before any script is written, who covers what.
+
+    Collapses the day's headlines and newsletter subjects into distinct stories and gives each
+    exactly one owner block. Blocks are generated in parallel, so this has to happen up front:
+    nothing downstream can see what a sibling block wrote. Summary surfaces (The Ten) get the
+    stories as context rather than as a ban, since covering the same ground is their job.
+
+    Returns {slug: {"owns": [...], "callbacks": [...], "elsewhere": [...], "context": [...]}}."""
+    if DRY_RUN:
+        return {}
+
+    catalogue = []
+    for slug in sources:
+        lines = [f"  - [{i['outlet']}] {i['title']}" for i in items_by_block.get(slug, [])[:40]]
+        lines += [f"  - [newsletter: {m['outlet']}] {m['subject']}" for m in (NEWSLETTERS or {}).get(slug, [])[:12]]
+        catalogue.append(f"{slug} ({sources[slug]['label']}):\n" + ("\n".join(lines) or "  (nothing today)"))
+    blocks_desc = "\n".join(f"- {slug}: {spec['label']}. {spec['brief']}" for slug, spec in sources.items())
+    summary_blocks = [slug for slug, spec in sources.items() if spec.get("mode") == "companies"]
+    owners = [slug for slug in sources if slug not in summary_blocks]
+
+    prompt = f"""Today is {TODAY}. Below are today's candidate headlines, grouped by the briefing block
+whose feeds produced them. The same event often shows up under several blocks. Decide, once, who
+covers what, so the finished briefing never explains the same event twice.
+
+1. Collapse the headlines into distinct STORIES. One underlying event is one story however many
+   outlets or blocks carry it. Drop anything trivial. Aim for 12 to 25 stories.
+
+2. Give every story exactly one owner block. Apply in order and stop at the first rule that settles it:
+   a. Specificity wins. The most specific block that covers it owns it. A Manitoba budget measure
+      goes to the Manitoba block, not Canadian politics. A CIRO rule change goes to practice, not markets.
+   b. Then origin, not effect. The owner is where the story happens, not where its consequences land.
+      A Bank of Canada rate decision is a monetary policy event, so markets owns it and practice
+      does not, even though practice feels it.
+   c. Then this order: {" > ".join(owners)}
+   One owner. Never two. {"Never " + ", ".join(summary_blocks) + ": that block summarises by nature and is handled separately." if summary_blocks else ""}
+
+3. For each story, name any other block with a genuinely different angle on it. At most two, and
+   only if that block's listener could not get the point from the owner block. Otherwise none.
+
+4. Write the single line other blocks may assume the listener already heard.
+
+Blocks:
+{blocks_desc}
+
+Headlines:
+{chr(10).join(catalogue)}
+
+Answer as JSON and nothing else:
+{{"stories": [{{"event": "one sentence, what happened",
+  "owner": "block slug",
+  "line": "the one line other blocks may assume was already said",
+  "callbacks": [{{"block": "block slug", "angle": "the different angle that block has"}}]}}]}}"""
+
+    raw = claude(prompt, 6000)
+    m = re.search(r"\{.*\}", raw, flags=re.S)
+    if not m:
+        raise ValueError(f"no JSON in plan; response starts: {raw[:200]!r}")
+    stories = json.loads(m.group(0)).get("stories", [])
+
+    summary = set(summary_blocks)
+    plan = {slug: {"owns": [], "callbacks": [], "elsewhere": [], "context": []} for slug in sources}
+    for s in stories:
+        owner = s.get("owner")
+        if owner not in plan or owner in summary or not s.get("event"):
+            continue
+        s.setdefault("line", s["event"])
+        plan[owner]["owns"].append(s)
+        named = set()
+        for cb in (s.get("callbacks") or [])[:2]:
+            b = cb.get("block")
+            if b in plan and b != owner and b not in summary:
+                named.add(b)
+                plan[b]["callbacks"].append({**s, "angle": cb.get("angle", "")})
+        for slug in plan:
+            if slug != owner and slug not in named:
+                plan[slug]["context" if slug in summary else "elsewhere"].append(s)
+
+    log(f"story plan: {len(stories)} stories; " + ", ".join(f"{k} owns {len(v['owns'])}" for k, v in plan.items() if k not in summary))
+    return plan
+
+
+def ownership_rules(block_plan):
+    """Render one block's slice of the story plan into prompt text."""
+    if not block_plan:
+        return ""
+    out = ["", "Story ownership for today. Already decided, follow it exactly.", ""]
+    if block_plan["owns"]:
+        out.append("Yours, and the spine of this block. Cover these properly:")
+        out += [f"- {s['event']}" for s in block_plan["owns"]]
+    else:
+        out.append("Nothing is assigned to you today, so lead with the strongest of the source material "
+                   "below that no other block owns.")
+    if block_plan["callbacks"]:
+        out += ["", "Owned by another block. You may refer to each of these ONCE, in a single clause,",
+                "then go straight to your own angle. Never restate the event, the figure or the",
+                "reasoning behind it. Write as though the listener heard it twenty minutes ago:"]
+        out += [f"- already said: \"{s['line']}\"\n  your angle, and the only reason to mention it: {s['angle']}"
+                for s in block_plan["callbacks"]]
+    if block_plan.get("elsewhere"):
+        out += ["", "Covered by another block, with no angle for you. Do not mention these at all:"]
+        out += [f"- {s['line']}" for s in block_plan["elsewhere"]]
+    if block_plan.get("context"):
+        out += ["", "Covered in full by another block. You summarise, so you may touch these, but only",
+                "through your own lens: one clause of orientation, then your own point. Never",
+                "re-explain the event itself:"]
+        out += [f"- {s['line']}" for s in block_plan["context"]]
+    return "\n".join(out) + "\n"
+
+
+def length_rule(minutes):
+    words = words_for(minutes)
+    return (f"Length: this is a fixed {minutes} minute slot in a one hour programme. Aim for "
+            f"{int(words * 0.9)} to {words} words in the spoken script, not counting the Talking points. "
+            f"{words} is a hard ceiling; going over it is a failure, cut a story before you exceed it.")
+
+
+def enforce_length(data, minutes):
+    """One tightening pass if a script blew through its ceiling. Cheap: no web search, short output."""
+    words = words_for(minutes)
+    body, _ = split_talking_points(data["script"])
+    n = len(body.split())
+    if DRY_RUN or n <= words * OVERRUN_TOLERANCE:
+        return data
+    log(f"script is {n} words against a {words} ceiling; tightening")
+    prompt = f"""Cut the spoken script below to no more than {words} words. Keep the lead story, keep every
+attribution, keep the Talking points section exactly as it is, and keep the SOURCES list exactly as
+it is. Cut whole stories from the bottom before trimming the top. Do not add anything.
+
+{STYLE_RULES}
+
+TITLE: {data.get('title', '')}
+SCRIPT:
+{data['script']}
+SOURCES:
+{chr(10).join(f"- {s['outlet']} | {s['title']} | {s['url']}" for s in data.get('sources', []))}
+
+{FORMAT_SCRIPT}"""
+    try:
+        tightened = parse_fields(claude(prompt, min(12000, words * 3 + 2000)), "TITLE", "SCRIPT", "SOURCES")
+        body2, _ = split_talking_points(tightened["script"])
+        log(f"tightened to {len(body2.split())} words")
+        if not tightened.get("sources"):
+            tightened["sources"] = data.get("sources", [])
+        return tightened
+    except Exception as e:
+        log(f"tightening failed, keeping the long version: {e}")
+        return data
 
 
 FORMAT_SCRIPT = """Write your answer as plain text in exactly this layout, with these three labels on their own
@@ -255,10 +460,12 @@ SOURCES:
 - outlet | article title | url
 - outlet | article title | url
 """
-def write_script(category, spec, items):
+def write_script(category, spec, items, minutes, block_plan=None):
+    words = words_for(minutes)
     if DRY_RUN:
-        return {"title": f"{spec['label']} (dry run)", "script": "Dry run. " * 40 + "\n\nTalking points\n- none",
+        return {"title": f"{spec['label']} (dry run)", "script": "Dry run. " * (words // 2) + "\n\nTalking points\n- none",
                 "sources": [{"outlet": i["outlet"], "title": i["title"], "url": i["url"]} for i in items[:5]]}
+    own_rules = ownership_rules(block_plan)
 
     feed_text = "\n".join(
         f"- [{i['outlet']}] {i['title']} :: {i['summary']} ({i['url']})" for i in items[:80]
@@ -276,22 +483,28 @@ Use the feed items below to see what is being covered, then use web search to co
 ranking and get the specifics. Watch list companies that appear in the news go first.
 {WATCH_RULE}
 
-Write it as a spoken 15 minute segment of {TARGET_WORDS} words. Ten sections, one per company,
-each about 200 words: who they are, why they are in the news, tailwinds, headwinds, and what an
-evidence-based advisor says to a client who asks. Rank by how much coverage they received.
+Write it as a spoken {minutes} minute segment. Ten sections, one per company, each about
+{words // 10} words, one sharp paragraph: who they are in a clause, why they are in the news, the
+tailwind, the headwind, and what an evidence-based advisor says to a client who asks. Rank by how
+much coverage they received.
+{length_rule(minutes)}
 
 {STYLE_RULES}
 
+You are a summary surface, so companies whose news another block owns will appear here. That is
+fine. Cover them through the company lens only: one clause of orientation, then straight to what
+it means for the company. Never re-explain an event another block owns.
+{own_rules}
 Feed items:
 {feed_text}
 
 {FORMAT_SCRIPT}"""
     else:
-        prompt = f"""Today is {TODAY}. Write the daily 15 minute spoken briefing for the category
+        prompt = f"""Today is {TODAY}. Write today's {minutes} minute spoken briefing for the category
 "{spec['label']}" for a wealth advisor in Winnipeg who wants to be informed and have talking
 points. Scope: {spec['brief']}
 
-Target length {TARGET_WORDS} words, which reads aloud in about fifteen minutes.
+{length_rule(minutes)}
 
 Below are items pulled from feeds in the last day. Use them as the base. Use web search to
 fill gaps, check anything that looks stale, and pull in coverage from these preferred
@@ -300,27 +513,38 @@ reputable sources. Skip anything you cannot attribute.
 {WATCH_RULE}
 
 {STYLE_RULES}
-
+{own_rules}
 Feed items:
 {feed_text}
 
 {FORMAT_SCRIPT}"""
 
-    return parse_fields(claude(prompt, 12000, web_searches=8), "TITLE", "SCRIPT", "SOURCES")
+    data = parse_fields(claude(prompt, min(12000, words * 3 + 2000), web_searches=8), "TITLE", "SCRIPT", "SOURCES")
+    return enforce_length(data, minutes)
 
 
-def write_front_page(blocks):
+def write_front_page(blocks, minutes):
+    words = words_for(minutes)
     if DRY_RUN:
-        return {"title": "Front page (dry run)", "script": "Dry run front page. " * 20}
-    digest = "\n\n".join(f"### {b['label']}: {b['title']}\n{b['script']}" for b in blocks if b["id"] != "lessons")
-    prompt = f"""Today is {TODAY}. Below are today's briefing scripts. Write a spoken front page
-of 420 to 480 words, about three minutes, that tells the listener what actually matters today
-across all of them and which blocks are worth his full fifteen minutes. Rank by importance, not by
-block order. Name the block when you point to it. No talking points section.
+        return {"title": "Front page (dry run)", "script": "Dry run front page. " * (words // 4)}
+    # Blocks are summarised from their talking points, not their scripts, so the long versions
+    # cannot leak back in. The script is only there as a fallback when a block has no points.
+    digest = "\n\n".join(
+        f"### {b['label']} ({b['minutes']} min): {b['title']}\n"
+        + ("\n".join("- " + p for p in b["talkingPoints"]) or b["script"][:600])
+        for b in blocks if b["id"] != "lessons")
+    prompt = f"""Today is {TODAY}. Below is what each block of today's briefing covers. Write a spoken front
+page of {int(words * 0.9)} to {words} words, about {minutes} minutes, that tells the listener what actually matters
+today and which blocks deserve his full attention. Rank by importance, not by block order. Name
+the block and its length when you point to it.
+
+You are summarising blocks the listener is about to hear in full. Give each story one line and
+move on. Do not rebuild context, re-quote figures, or explain reasoning the owning block covers
+properly. Your job is to rank and point, not to brief. No talking points section.
 
 {STYLE_RULES}
 
-Scripts:
+Blocks:
 {digest}
 
 Write your answer as plain text in exactly this layout, labels on their own lines, nothing before the first:
@@ -328,19 +552,16 @@ Write your answer as plain text in exactly this layout, labels on their own line
 TITLE: six to ten word headline for the day
 SCRIPT:
 the front page"""
-    data = parse_fields(claude(prompt, 4000, web_searches=3), "TITLE", "SCRIPT", "TASK", "DRILL")
-    if data.get("drill", "").strip().lower() == "none":
-        data["drill"] = ""
-    return data
+    return parse_fields(claude(prompt, 3000, web_searches=0), "TITLE", "SCRIPT")
 
 
-def write_lesson(track, spec, seq_label, index, lessons):
+def write_lesson(track, spec, seq_label, index, lessons, words):
     title = lessons[index % len(lessons)]
     cycle = index // len(lessons) + 1
     prev = [lessons[(index - k) % len(lessons)] for k in (3, 2, 1) if index - k >= 0]
     nxt = lessons[(index + 1) % len(lessons)]
     if DRY_RUN:
-        return {"title": title, "script": f"Dry run lesson: {title}. " * 20, "task": "none", "drill": ""}
+        return {"title": title, "script": f"Dry run lesson: {title}. " * (words // 5), "task": "none", "drill": ""}
     prompt = f"""Today is {TODAY}. Write lesson {index + 1} (cycle {cycle}) in a progressive daily learning
 track called "{spec['label']}"{f', sequence "{seq_label}"' if seq_label else ''}.
 Framing: {spec['framing']}
@@ -349,9 +570,10 @@ Today's lesson: {title}
 Previous lessons, assume they were covered: {"; ".join(prev) or "none, this is the first"}
 Next lesson: {nxt}
 
-Write 650 to 750 words to be read aloud, about five minutes. Teach one thing properly: the concept,
-a worked example with real numbers, the mistake people make, and a single practice task for today
-that takes under fifteen minutes. If the track asks for a drill, add one that could be scored.
+Write {int(words * 0.85)} to {words} words to be read aloud, roughly {max(1, round(words / WPM))} minutes. {words} is a hard
+ceiling. Teach one thing properly and nothing else: the concept, one worked example with real
+numbers, the one mistake people make, and a single practice task for today that takes under
+fifteen minutes. If the track asks for a drill, add one that could be scored.
 Be current and precise; if a figure depends on the tax year, state the year.
 {"Cycle " + str(cycle) + ": this topic was covered before, so go deeper or take a different angle." if cycle > 1 else ""}
 
@@ -369,11 +591,12 @@ for the communication track only, a scoreable drill: what to do and what good lo
     return parse_fields(claude(prompt, 3000), "TITLE", "SCRIPT")
 
 
-def write_lessons():
-    """One 15 minute block: three five minute lessons, one per track. Weekdays only."""
+def write_lessons(minutes):
+    """One block, three lessons, one per track, sharing the lessons budget. Weekdays only."""
     if WEEKDAY in ("sat", "sun"):
         return None
     curriculum = json.loads((HERE / "curriculum.json").read_text())
+    per_lesson = words_for(minutes) // max(1, len(curriculum))
     progress = json.loads(PROGRESS.read_text()) if PROGRESS.exists() else {}
     if progress.get("lastAdvanced") == TODAY:
         log("lessons already advanced today; reusing indices")
@@ -387,7 +610,7 @@ def write_lessons():
             key, lessons, seq_label = track, spec["lessons"], None
         index = progress.get(key, 0)
         try:
-            data = write_lesson(track, spec, seq_label, index, lessons)
+            data = write_lesson(track, spec, seq_label, index, lessons, per_lesson)
         except Exception as e:
             log(f"lesson {track} failed, skipping that track today: {e}")
             continue
@@ -475,14 +698,31 @@ def voice_openai(text, path):
 
 # ---------- 4. manifest and feed ----------
 
+VOICELESS = []   # blocks published as text only because the voice step failed
+
+
 def make_block(slug, label, title, body, points, sources, day_dir, release):
+    """Voice the block and build its manifest entry.
+
+    The script has already been paid for by the time this runs, so a voice failure must not
+    throw it away. On failure the block is published with an empty audio field and the
+    dashboard shows it as readable but not playable."""
     path = day_dir / f"{slug}.mp3"
-    voice(body, path)
+    audio, size = "", 0
+    try:
+        voice(body, path)
+        size = path.stat().st_size
+        audio = f"https://cdn.jsdelivr.net/gh/{REPO}@courier-audio/{TODAY}/{slug}.mp3"
+    except Exception as e:
+        log(f"voice failed for {slug}, publishing text only: {e}")
+        VOICELESS.append(slug)
+        if path.exists():
+            path.unlink()
     words = len(body.split())
     return {
         "id": slug, "label": label, "title": title,
-        "audio": f"https://cdn.jsdelivr.net/gh/{REPO}@courier-audio/{TODAY}/{slug}.mp3",
-        "bytes": path.stat().st_size,
+        "audio": audio,
+        "bytes": size,
         "script": body, "talkingPoints": points, "sources": sources,
         "words": words, "minutes": round(words / 150, 1),
     }
@@ -496,6 +736,8 @@ def write_feed(manifest):
     for d in manifest["days"]:
         pub = datetime.fromisoformat(d["generatedAt"])
         for n, b in enumerate(d["blocks"]):
+            if not b.get("audio"):
+                continue                                   # text-only block, nothing for a podcast app to play
             secs = int(b["words"] / 150 * 60)
             when = (pub - timedelta(seconds=n)).strftime("%a, %d %b %Y %H:%M:%S +0000")
             items.append(f"""  <item>
@@ -538,13 +780,26 @@ def main():
     blocks = []
 
     failed = []
+    minutes = budget(sources)
+
+    # Feeds first, all of them, so the story plan can see the whole day before any block is written.
+    log("== Feeds")
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        items_by_block = dict(zip(sources, pool.map(lambda s: fetch_items(sources[s]["feeds"]), list(sources))))
+
+    log("== Story plan")
+    try:
+        story_plan = plan_stories(sources, items_by_block)
+    except Exception as e:
+        log(f"story planning failed, blocks will run unplanned: {e}")
+        story_plan = {}
 
     def build_block(slug):
         spec = sources[slug]
-        log(f"== {spec['label']} start")
+        log(f"== {spec['label']} start, {minutes[slug]} min")
         try:
-            items = fetch_items(spec["feeds"])
-            data = write_script(slug, spec, items)
+            items = items_by_block.get(slug, [])
+            data = write_script(slug, spec, items, minutes[slug], story_plan.get(slug))
             body, points = split_talking_points(data["script"])
             block = make_block(slug, spec["label"], data.get("title", spec["label"]), body,
                                points, data.get("sources", [])[:20], day_dir, release)
@@ -555,7 +810,7 @@ def main():
             failed.append(slug)
             return None
 
-    # four blocks at a time; each is a long Claude call followed by a long ElevenLabs call
+    # four blocks at a time; each is a long Claude call followed by a long voice call
     with ThreadPoolExecutor(max_workers=4) as pool:
         results = list(pool.map(build_block, list(sources)))
     blocks.extend(b for b in results if b)   # keeps sources.json order
@@ -564,7 +819,7 @@ def main():
 
     log("== Lessons")
     try:
-        lessons = write_lessons()
+        lessons = write_lessons(minutes.get("lessons", 0)) if "lessons" in minutes else None
     except Exception as e:
         log(f"lessons failed, skipping today: {e}")
         lessons, failed = None, failed + ["lessons"]
@@ -577,11 +832,17 @@ def main():
 
     log("== Front page")
     try:
-        fp = write_front_page(blocks)
+        fp = write_front_page(blocks, minutes["frontpage"])
         blocks.insert(0, make_block("frontpage", "Front page", fp["title"], fp["script"], [], [], day_dir, release))
     except Exception as e:
         log(f"front page failed, skipping today: {e}")
         failed.append("frontpage")
+
+    total = round(sum(b["minutes"] for b in blocks), 1)
+    if total > TOTAL_MINUTES:
+        log(f"WARNING: projected run time {total} min exceeds the {TOTAL_MINUTES} min cap")
+    else:
+        log(f"projected run time {total} min of {TOTAL_MINUTES}")
 
     manifest = load_manifest()
     manifest["days"] = [d for d in manifest["days"] if d["date"] != TODAY]
@@ -589,6 +850,11 @@ def main():
         "date": TODAY,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "release": release,
+        "budgetMinutes": TOTAL_MINUTES,
+        "plannedMinutes": sum(minutes.values()),
+        "projectedMinutes": total,
+        "voiceless": list(VOICELESS),
+        "plan": [{"event": s["event"], "owner": slug} for slug, v in story_plan.items() for s in v["owns"]],
         "blocks": blocks,
     })
     manifest["days"] = manifest["days"][:KEEP_DAYS]
@@ -598,8 +864,9 @@ def main():
 
     # tell the workflow which days of audio to keep on the courier-audio branch
     (OUT / "keep-days.txt").write_text("\n".join(sorted(d["date"] for d in manifest["days"])))
-    log(f"done: {len(blocks)} blocks, manifest holds {len(manifest['days'])} days"
-        + (f"; FAILED blocks: {', '.join(failed)}" if failed else ""))
+    log(f"done: {len(blocks)} blocks, {total} min, manifest holds {len(manifest['days'])} days"
+        + (f"; FAILED blocks: {', '.join(failed)}" if failed else "")
+        + (f"; TEXT ONLY (voice failed): {', '.join(VOICELESS)}" if VOICELESS else ""))
 
 
 if __name__ == "__main__":
