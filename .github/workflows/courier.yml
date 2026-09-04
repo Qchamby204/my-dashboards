@@ -2,7 +2,9 @@ name: The Courier daily briefing
 
 on:
   schedule:
-    - cron: "0 10 * * *"   # 10:00 UTC = 5:00 CDT / 4:00 CST Winnipeg
+    # GitHub drops on-the-hour schedules under load, so both of these sit off the hour.
+    - cron: "17 10 * * *"   # 10:17 UTC = 5:17 CDT / 4:17 CST Winnipeg
+    - cron: "43 11 * * *"   # backstop 90 min later, skips itself if the first one worked
   workflow_dispatch:
 
 permissions:
@@ -14,13 +16,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The backstop must not rebuild a day the first run already produced. A manual
+      # dispatch always rebuilds, so running it by hand still overwrites today.
+      - name: Has today already been built?
+        id: today
+        run: |
+          TODAY=$(date -u -d '5 hours ago' +%F)
+          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+          if grep -q "\"date\": \"$TODAY\"" courier/manifest.json 2>/dev/null; then
+            echo "built=yes" >> "$GITHUB_OUTPUT"
+            echo "$TODAY is already in the manifest, this run will skip."
+          else
+            echo "built=no" >> "$GITHUB_OUTPUT"
+            echo "$TODAY not built yet, proceeding."
+          fi
+
       - uses: actions/setup-python@v5
+        if: steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch'
         with:
           python-version: "3.12"
 
       - run: pip install feedparser requests
+        if: steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch'
 
       - name: Build today's briefing
+        if: steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
@@ -39,6 +59,7 @@ jobs:
         run: python scripts/courier/build.py
 
       - name: Publish audio to the courier-audio branch
+        if: steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch'
         run: |
           git config user.name "courier-bot"
           git config user.email "courier-bot@users.noreply.github.com"
@@ -55,6 +76,7 @@ jobs:
           cd "$GITHUB_WORKSPACE" && git reset -q
 
       - name: Commit manifest
+        if: steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch'
         run: |
           git config user.name "courier-bot"
           git config user.email "courier-bot@users.noreply.github.com"
