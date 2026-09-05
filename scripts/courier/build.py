@@ -272,6 +272,7 @@ def claude(prompt, max_tokens, web_searches=0, label=""):
     if web_searches:
         body["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": web_searches}]
     used = {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "searches": 0}
+    texts = []   # everything written across pauses; a pause_turn must not lose the opening of the script
     for _ in range(6):  # pause_turn continuations
         r = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=body, timeout=600)
         if r.status_code == 400 and "tools" in body and "web search" in r.text.lower():
@@ -288,11 +289,16 @@ def claude(prompt, max_tokens, web_searches=0, label=""):
         used["cache_read"] += u.get("cache_read_input_tokens", 0) or 0
         used["cache_write"] += u.get("cache_creation_input_tokens", 0) or 0
         used["searches"] += ((u.get("server_tool_use") or {}).get("web_search_requests", 0) or 0)
+        texts.extend(b.get("text", "") for b in data["content"] if b.get("type") == "text")
         if data.get("stop_reason") == "pause_turn":
-            body["messages"] = body["messages"][:1] + [{"role": "assistant", "content": data["content"]}]
+            # resume with everything so far in the assistant turn; the model continues from here
+            prior = body["messages"][1]["content"] if len(body["messages"]) > 1 else []
+            body["messages"] = body["messages"][:1] + [{"role": "assistant", "content": prior + data["content"]}]
             continue
+        if data.get("stop_reason") == "max_tokens":
+            log(f"{label or 'call'}: response hit max_tokens ({max_tokens}) and is cut off")
         record_usage(label, used)
-        return "".join(b.get("text", "") for b in data["content"] if b.get("type") == "text")
+        return "".join(texts)
     raise RuntimeError("Anthropic API kept pausing")
 
 
@@ -400,17 +406,23 @@ Blocks:
 Headlines:
 {chr(10).join(catalogue)}
 
-Answer as JSON and nothing else:
-{{"stories": [{{"event": "one sentence, what happened",
-  "owner": "block slug",
-  "line": "the one line other blocks may assume was already said",
-  "callbacks": [{{"block": "block slug", "angle": "the different angle that block has"}}]}}]}}"""
+Answer as plain text, one story per record, in exactly this layout and nothing else. Headlines
+contain quotes and odd characters, so do not use JSON:
+
+STORY: one sentence, what happened
+OWNER: block slug
+LINE: the one line other blocks may assume was already said
+CALLBACK: block slug | the different angle that block has
+CALLBACK: block slug | the different angle that block has
+---
+STORY: ...
+
+Use as many CALLBACK lines as apply, zero to two. End every record with a line of three dashes."""
 
     raw = claude(prompt, 6000, label="story plan")
-    m = re.search(r"\{.*\}", raw, flags=re.S)
-    if not m:
-        raise ValueError(f"no JSON in plan; response starts: {raw[:200]!r}")
-    stories = json.loads(m.group(0)).get("stories", [])
+    stories = parse_plan(raw)
+    if not stories:
+        raise ValueError(f"no stories parsed from plan; response starts: {raw[:200]!r}")
 
     summary = set(summary_blocks)
     plan = {slug: {"owns": [], "callbacks": [], "elsewhere": [], "context": []} for slug in sources}
@@ -432,6 +444,37 @@ Answer as JSON and nothing else:
 
     log(f"story plan: {len(stories)} stories; " + ", ".join(f"{k} owns {len(v['owns'])}" for k, v in plan.items() if k not in summary))
     return plan
+
+
+def parse_plan(raw):
+    """Parse STORY / OWNER / LINE / CALLBACK records separated by --- lines. Tolerant of noise."""
+    stories, cur = [], {}
+    def flush():
+        if cur.get("event") and cur.get("owner"):
+            stories.append({"event": cur["event"], "owner": cur["owner"],
+                            "line": cur.get("line") or cur["event"], "callbacks": cur.get("callbacks", [])})
+    for ln in raw.splitlines():
+        s = ln.strip().lstrip("-* ").strip()
+        if not s:
+            continue
+        up = s.upper()
+        if s.startswith("---") or up == "---":
+            flush(); cur = {}
+        elif up.startswith("STORY:"):
+            if cur.get("event"):
+                flush(); cur = {}
+            cur["event"] = s[6:].strip()
+        elif up.startswith("OWNER:"):
+            cur["owner"] = s[6:].strip().strip("`\"'").lower()
+        elif up.startswith("LINE:"):
+            cur["line"] = s[5:].strip()
+        elif up.startswith("CALLBACK:"):
+            bits = [b.strip() for b in s[9:].split("|", 1)]
+            if bits and bits[0] and bits[0].lower() != "none":
+                cur.setdefault("callbacks", []).append({"block": bits[0].strip("`\"'").lower(),
+                                                        "angle": bits[1] if len(bits) > 1 else ""})
+    flush()
+    return stories
 
 
 def ownership_rules(block_plan):
@@ -464,9 +507,10 @@ def ownership_rules(block_plan):
 
 def length_rule(minutes):
     words = words_for(minutes)
-    return (f"Length: this is a fixed {minutes} minute slot in a one hour programme. Aim for "
+    return (f"Length: this is a fixed {minutes} minute slot in a one hour programme. Write "
             f"{int(words * 0.9)} to {words} words in the spoken script, not counting the Talking points. "
-            f"{words} is a hard ceiling; going over it is a failure, cut a story before you exceed it.")
+            f"Do not exceed {words}; cut a story before you do. Coming in under {int(words * 0.85)} means "
+            f"you have cut too much, the slot is yours to fill.")
 
 
 def enforce_length(data, minutes, label=""):
@@ -572,7 +616,7 @@ Feed items:
 
 {FORMAT_SCRIPT}"""
 
-    data = parse_fields(claude(prompt, min(12000, words * 3 + 2000), web_searches=SEARCHES_PER_BLOCK, label=category),
+    data = parse_fields(claude(prompt, 12000, web_searches=SEARCHES_PER_BLOCK, label=category),
                         "TITLE", "SCRIPT", "SOURCES")
     return enforce_length(data, minutes, label=category)
 
@@ -642,7 +686,10 @@ TASK:
 today's practice task in one or two sentences
 DRILL:
 for the communication track only, a scoreable drill: what to do and what good looks like. Otherwise the word none."""
-    return parse_fields(claude(prompt, 3000, label=f"lesson {track}"), "TITLE", "SCRIPT")
+    data = parse_fields(claude(prompt, 3000, label=f"lesson {track}"), "TITLE", "SCRIPT", "TASK", "DRILL")
+    if data.get("drill", "").strip().lower() == "none":
+        data["drill"] = ""
+    return data
 
 
 def write_lessons(minutes):
