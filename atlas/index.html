@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Atlas OS</title><meta name="description" content="Your private workspace for a deliberate day and a realistic week.">
+  <meta name="theme-color" content="#0d111b"><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to workspace</a>
+<aside class="sidebar">
+  <a class="brand" href="#today" aria-label="Atlas home"><span class="brand-mark" aria-hidden="true">✳</span><span>ATLAS <small>OS</small></span></a>
+  <span class="eyebrow nav-caption">Your workspace</span>
+  <nav aria-label="Workspace">
+    <a href="#today" data-view="today"><span aria-hidden="true">◉</span> Today</a>
+    <a href="#week" data-view="week"><span aria-hidden="true">▦</span> This week</a>
+    <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Projects</a>
+    <a href="#review" data-view="review"><span aria-hidden="true">↺</span> Weekly review</a>
+    <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> All apps</a>
+  </nav>
+  <div class="sidebar-bottom"><span class="workspace-label">Private workspace</span><span id="save-state">Connecting…</span><button id="export" class="text-button">Export my Atlas data</button></div>
+</aside>
+<main id="main" tabindex="-1">
+  <header class="topbar"><span id="date-label"></span><div><button class="text-button" id="refresh">Refresh</button><button class="primary" id="capture">＋ Capture</button></div></header>
+  <div id="error" class="error" role="alert" hidden></div>
+  <div id="content" aria-live="polite"><div class="loading"><span class="eyebrow">Atlas OS</span><h1>Opening your workspace.</h1><p>Your commitments will appear here.</p></div></div>
+</main>
+<dialog id="task-dialog" aria-labelledby="task-dialog-title">
+  <form id="task-form">
+    <div class="dialog-heading"><div><span class="eyebrow">Make room for what matters</span><h2 id="task-dialog-title">Capture a commitment</h2></div><button type="button" class="icon-button" data-close="task-dialog" aria-label="Close capture">×</button></div>
+    <label>What will you do?<input name="title" maxlength="300" required placeholder="Name the next concrete action" autocomplete="off"></label>
+    <div class="form-grid"><label>Connected app<select name="app_id" id="app-select"></select></label><label>Project<select name="project_id" id="project-select"><option value="">No project</option></select></label></div>
+    <div class="form-grid"><label>Plan for<select name="week_start" id="week-select"></select></label><label>Time estimate<select name="minutes"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">1 hour</option><option value="90">90 minutes</option><option value="120">2 hours</option><option value="180">3 hours</option></select></label></div>
+    <label>Due date <span class="optional">optional</span><input name="due_date" type="date"></label>
+    <p id="task-error" class="form-error" role="alert"></p>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close="task-dialog">Cancel</button><button class="primary" type="submit">Save commitment</button></div>
+  </form>
+</dialog>
+<dialog id="import-dialog" aria-labelledby="import-title">
+  <div class="dialog-heading"><div><span class="eyebrow">Connect your existing work</span><h2 id="import-title">Bring in Life Map</h2></div><button class="icon-button" data-close="import-dialog" aria-label="Close import">×</button></div>
+  <p>Choose a Life Map export or your Atlas backup. Review the projects below before saving them to this private workspace.</p>
+  <label class="file-picker">Choose a JSON file<input id="import-file" type="file" accept=".json,application/json"></label>
+  <p class="small">Only project titles, areas, dates, status, and IDs are imported. Other app data and credentials are excluded. Existing Life Map records stay in their original app.</p>
+  <div id="import-preview"></div><p id="import-error" class="form-error" role="alert"></p>
+  <div class="dialog-actions"><button class="secondary" data-close="import-dialog">Cancel</button><button class="primary" id="import-confirm" disabled>Import projects</button></div>
+</dialog>
+<div id="toast" class="toast" role="status" hidden><span></span><button class="text-button" id="undo" hidden>Undo</button><button class="icon-button" id="dismiss-toast" aria-label="Dismiss notification">×</button></div>
+<noscript><p class="error">Enable JavaScript to use your Atlas workspace.</p></noscript>
+<script type="module" src="/app.js"></script>
+</body></html>

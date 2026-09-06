@@ -1,0 +1,16 @@
+import { readFile, mkdir, writeFile, cp, rm } from 'node:fs/promises';
+const root = new URL('../', import.meta.url);
+const out = new URL('dist/', root);
+await rm(out, { recursive: true, force: true });
+await mkdir(new URL('server/', out), { recursive: true });
+await mkdir(new URL('.openai/', out), { recursive: true });
+const html = await readFile(new URL('atlas/index.html', root), 'utf8');
+const css = await readFile(new URL('atlas/style.css', root), 'utf8');
+const js = await readFile(new URL('atlas/app.js', root), 'utf8');
+const model = await readFile(new URL('atlas/model.mjs', root), 'utf8');
+await writeFile(new URL('server/assets.mjs', out), `export const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const model=${JSON.stringify(model)};\n`);
+await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
+await cp(new URL('atlas/model.mjs', root), new URL('server/model.mjs', out));
+await cp(new URL('.openai/hosting.json', root), new URL('.openai/hosting.json', out));
+await cp(new URL('drizzle/', root), new URL('.openai/drizzle/', out), { recursive: true });
+console.log('Atlas Worker and schema migrations prepared.');
