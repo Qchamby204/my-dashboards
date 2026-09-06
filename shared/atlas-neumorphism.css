@@ -83,6 +83,7 @@ html.atlas-neumo, .atlas-neumo body {
   box-shadow: var(--neo-well); padding: 11px 13px; font-size: 1rem;
 }
 .atlas-neumo :is(input,textarea)::placeholder { color: var(--neo-faint) !important; opacity: 1; }
+.atlas-neumo input.num { padding: 8px 4px !important; min-height: 44px; }
 .atlas-neumo :is(input[type="checkbox"],input[type="radio"],input[type="range"],progress) { accent-color: var(--neo-blue); }
 .atlas-neumo :is(input[type="range"],progress) { box-shadow: var(--neo-well); background: var(--neo-inset) !important; border-radius: 99px; }
 .atlas-neumo :is(.panel,.card,.tool,.drillcard,.rail-card,.next-card,.qcard,.runcard,.module,.candidate,.vcard,.rescard,.notice) {
@@ -180,7 +181,7 @@ html.atlas-neumo, .atlas-neumo body {
 .atlas-neumo :is(.grid3>div,.stat,.scell) { background: var(--neo-inset) !important; border: 1px solid #cad4e1 !important; border-radius: 14px; box-shadow: var(--neo-well); padding: 14px; }
 .atlas-neumo :is(.tick,.tickbox) { box-shadow: none; }
 .atlas-neumo[data-atlas-app="workout-forge"] #ttime { color: var(--neo-cyan) !important; }
-.atlas-neumo[data-atlas-app="workout-forge"] [style*="color: rgb(47, 209, 128)" i] { color: var(--neo-green) !important; }
+.atlas-neumo[data-atlas-app="workout-forge"] :is(#ttime,[style])[style*="color: rgb(47, 209, 128)" i] { color: var(--neo-green) !important; }
 .atlas-neumo[data-atlas-app="workout-forge"] [style*="color: rgb(240, 98, 138)" i] { color: var(--neo-rose) !important; }
 .atlas-neumo[data-atlas-app="the-aqueduct"] .wf-bar { box-shadow: none; border-radius: 7px; }
 .atlas-neumo[data-atlas-app="the-aqueduct"] .disc { border: 1px solid #b6c4d6; background: var(--neo-inset); box-shadow: var(--neo-well); }
