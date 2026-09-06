@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="atlas-neumo" data-atlas-app="life-ledger" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
@@ -90,6 +90,8 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 @keyframes sparkfly{0%{opacity:0;transform:rotate(var(--a)) translateY(0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1)}}
 @media(prefers-reduced-motion:reduce){.fill,.orb{transition:none;animation:none}.fill::after,.levelup,.fadeUp{animation:none}#stars span,.spark{animation:none;display:none}}
 </style>
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css">
 </head>
 <body>
 <div class="wrap" id="app"></div>

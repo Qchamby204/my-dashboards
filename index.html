@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="atlas-neumo" data-atlas-app="index" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -44,6 +44,8 @@ body{background:radial-gradient(1100px 600px at 50% -10%,rgba(240,183,62,.07),tr
 .stat{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap}
 .chev{color:var(--dim);font-size:17px;flex-shrink:0}
 </style>
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css">
 </head>
 <body>
 <div id="app"></div>
@@ -373,7 +375,7 @@ function render(){
   var lg=readLedger();
   h+='<div class="appbar-pill">'+esc(lg.v)+'</div></div>';
 
-  h+='<div style="text-align:center;margin-bottom:16px"><div style="font-size:12px;color:var(--muted);font-style:italic;line-height:1.45">Eight tools, one life. Tap in.</div></div>';
+  h+='<a href="https://atlas-os-quinton.qchambers123018.chatgpt.site" target="_blank" rel="noopener" class="tool" style="margin-bottom:16px;border-color:rgba(240,183,62,.5)"><div style="flex:1"><div style="font-size:16px;color:var(--gold);font-weight:600">Open Atlas OS</div><div style="font-size:14px;color:var(--muted);margin-top:5px">Your priorities, commitments, and weekly review.</div></div><span class="chev" aria-hidden="true">&#8599;</span></a>';
 
   h+=backupBanner(st);
 

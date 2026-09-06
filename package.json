@@ -1,0 +1,14 @@
+{
+  "name": "atlas-os",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node atlas/build.mjs",
+    "db:generate": "drizzle-kit generate",
+    "test": "node --test atlas/tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.4",
+    "drizzle-orm": "0.44.5"
+  }
+}
