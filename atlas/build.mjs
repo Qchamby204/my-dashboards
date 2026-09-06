@@ -5,7 +5,7 @@ await rm(out, { recursive: true, force: true });
 await mkdir(new URL('server/', out), { recursive: true });
 await mkdir(new URL('.openai/', out), { recursive: true });
 const html = await readFile(new URL('atlas/index.html', root), 'utf8');
-const css = await readFile(new URL('atlas/style.css', root), 'utf8');
+const css = (await Promise.all(['atlas/style.css', 'shared/atlas-neumorphism.css'].map(path => readFile(new URL(path, root), 'utf8')))).join('\n');
 const js = await readFile(new URL('atlas/app.js', root), 'utf8');
 const model = await readFile(new URL('atlas/model.mjs', root), 'utf8');
 await writeFile(new URL('server/assets.mjs', out), `export const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const model=${JSON.stringify(model)};\n`);
