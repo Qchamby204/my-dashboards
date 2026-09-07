@@ -62,3 +62,9 @@ export const checkpointChunks = sqliteTable('atlas_checkpoint_chunks', {
 export const restoreGuards = sqliteTable('atlas_restore_guards', {
   id:text('id').primaryKey(), valid:integer('valid').notNull(),
 },t=>[check('atlas_restore_guard_valid',sql`${t.valid} = 1`)]);
+
+export const herald = sqliteTable('atlas_herald', {
+  owner: text('owner').primaryKey(), items: text('items').notNull(),
+  revision: integer('revision').notNull().default(1), updatedAt: text('updated_at').notNull(),
+  importedAt: text('imported_at'), sourceExportedAt: text('source_exported_at'),
+});

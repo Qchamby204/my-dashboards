@@ -96,3 +96,10 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 @media(max-width:640px){.communication-rep{flex-direction:column;gap:8px}.communication-rep .review-actions{align-self:stretch}}
 @media(min-width:721px){.sidebar{overflow-y:auto;max-height:100dvh}.sidebar-bottom{flex-shrink:0}.page-heading>.primary{flex-shrink:0}}
 @media(max-width:720px){.page-heading>.primary{margin-top:18px}}
+
+/* Content planning shares the suite's light, dark and system materials. */
+.herald-item{display:flex;justify-content:space-between;gap:20px;padding:22px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.herald-item:last-child{border-bottom:0}.herald-item h3{margin:0 0 8px;font-size:17px}
+.herald-item>div:first-child{min-width:0;flex:1}.herald-item .review-actions{align-self:flex-start;flex-shrink:0}
+.herald-week{justify-content:flex-start;margin:18px 0}.herald-week span{white-space:normal}
+@media(max-width:640px){.herald-item{flex-direction:column;gap:8px}.herald-item .review-actions{align-self:stretch}}
