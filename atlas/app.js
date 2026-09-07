@@ -1,3 +1,4 @@
+import { createAgendaUI } from './agenda-ui.mjs';
 import { createSearchUI } from './search-ui.mjs';
 import { createHeraldUI } from './herald-ui.mjs';
 import { createCommunicationUI } from './communication-ui.mjs';
@@ -23,7 +24,8 @@ const communicationUI=createCommunicationUI({api,getData:()=>data,getWeek:()=>we
 const heraldUI=createHeraldUI({api,getData:()=>data,getWeek:()=>week,load,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const reflectionUI=createReflectionUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,capture:seed=>openCapture(null,null,seed),blocked:()=>busy||reviewDirty||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving});
 const hasDraft=()=>reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving;
-const searchUI=createSearchUI({api,resolveResult:resolveSearchResult,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft(),error,esc});
+const searchUI=createSearchUI({api,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft(),error,esc});
+const agendaUI=createAgendaUI({getData:()=>data,getWeek:()=>week,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft()||!!document.querySelector('dialog[open]'),error,esc});
 const project=id=>data.projects.find(p=>p.id===id);
 const open=()=>data.tasks.filter(t=>t.status==='open');
 const weekTasks=()=>data.tasks.filter(t=>t.status!=='archived' && t.week_start===week);
@@ -51,12 +53,12 @@ async function load({renderPage=true}={}) {
     if(renderPage) render();
   } catch(e){if(requestNumber!==loadNumber||requestedWeek!==week)return;error(e.message);$('#save-state').textContent='Connection needs attention';if($('#briefing-freshness'))$('#briefing-freshness').textContent='Refresh failed. Showing the last loaded records.';if(!loaded)$('#content').innerHTML='<div class="empty"><h1>Your workspace could not load.</h1><p>Reconnect, then choose Refresh. Capture will be available when your saved records are ready.</p></div>';}
 }
-async function resolveSearchResult(result,signal){
-  const destinations={task:'today',project:'projects',lesson:'practice',habit:'ledger',day:'ledger',speaking:'communication',content:'herald',review:'review'};
-  if(!Object.hasOwn(destinations,result.kind)||typeof result.id!=='string')throw Error('This search result is unavailable.');
+async function resolveSavedRecord(result,signal,{taskView='today',taskWeek=monday(today)}={}){
+  const destinations={task:taskView,project:'projects',lesson:'practice',habit:'ledger',day:'ledger',speaking:'communication',content:'herald',review:'review'};
+  if(!Object.hasOwn(destinations,result.kind)||typeof result.id!=='string')throw Error('This record is unavailable.');
   const blocked=()=>busy||hasDraft()||!!document.querySelector('dialog[open]:not(#workspace-search-dialog)');
   if(blocked())throw Error('Save or discard your current draft before opening a record.');
-  const targetWeek=result.kind==='review'?result.id:result.kind==='task'?monday(today):week;
+  const targetWeek=result.kind==='review'?result.id:result.kind==='task'?taskWeek:week;
   const next=await api('/api/state?week='+encodeURIComponent(targetWeek),'GET',undefined,signal);
   if(signal?.aborted)throw Error('Opening cancelled.');
   if(blocked())throw Error('Your draft is still here. Close it before opening a record.');
@@ -64,8 +66,8 @@ async function resolveSearchResult(result,signal){
   const key=result.kind==='day'?'date':result.kind==='review'?'week_start':'id';
   const record=candidates[result.kind]?.find(r=>r[key]===result.id);
   if(!record)throw Error('This record is no longer in your saved workspace.');
-  // Search closes its dialog and invokes this synchronously only while its
-  // request is still current. No workspace state changes during the fetch.
+  // Each caller invokes this synchronously only while its navigation request
+  // remains current. No workspace state changes during the fetch.
   return ()=>{
     if(blocked())throw Error('Your draft is still here. Close it before opening a record.');
     ++loadNumber;data=next;loaded=true;week=targetWeek;loadedWeek=targetWeek;loadedAt=new Date();
@@ -122,7 +124,7 @@ function weekControls(){return `<div class="week-switch"><button class="icon-but
 function weekView(){
   const tasks=weekTasks(), minutes=tasks.reduce((s,t)=>s+t.minutes,0),capacity=data.week?.capacity??600;
   const carried=open().filter(t=>t.week_start&&t.week_start<week),unplanned=open().filter(t=>!t.week_start);
-  return pageHeading('Make a realistic plan','A week with room.','Set a time budget for the commitments you track here.',weekControls())+
+  return pageHeading('Make a realistic plan','A week with room.','See your dated work and shape a realistic commitment plan.',weekControls())+agendaUI.panel()+
   `<div class="columns"><div><section class="panel"><div class="budget"><div><strong>${duration(minutes)} planned <span class="muted">/ ${duration(capacity)} available</span></strong><p>${minutes>capacity?`${duration(minutes-capacity)} over your budget. Move or resize a commitment.`:'Keep space for the parts of your week that are not on this list.'}</p><progress value="${Math.min(minutes,Math.max(capacity,1))}" max="${Math.max(capacity,1)}" aria-label="Planned time against weekly budget"></progress></div><label>Hours available<input id="capacity" type="number" min="0" max="168" step="0.5" value="${capacity/60}"></label><button class="secondary" id="save-capacity">Save</button></div><div class="section-heading"><h2>Planned commitments</h2><button class="text-button" data-capture>＋ Add</button></div>${tasks.length?tasks.map(t=>taskRow(t)).join(''):empty('Decide what this week can hold.','Add a commitment, or bring one forward from an earlier week.','<button class="secondary" data-capture>Plan a commitment</button>')}</section></div>
   <aside><section class="panel"><div class="section-heading"><h2>Needs a decision</h2></div>${carried.length?carried.map(t=>taskRow(t)).join(''):empty('No earlier commitments waiting.','Unfinished work from earlier weeks will appear here so you can deliberately replan it.')}</section><section class="panel"><div class="section-heading"><h2>Unscheduled</h2><span>${unplanned.length}</span></div>${unplanned.length?unplanned.map(t=>taskRow(t)).join(''):empty('A place to hold an idea.','Choose “Unscheduled” when capturing something that does not need a place in the week yet.')}</section></aside></div>`;
 }

@@ -9,6 +9,8 @@ const css = (await Promise.all(['atlas/style.css', 'shared/atlas-palette.css', '
 const js = await readFile(new URL('atlas/app.js', root), 'utf8');
 const theme = await readFile(new URL('shared/atlas-theme.js', root), 'utf8');
 const model = await readFile(new URL('atlas/model.mjs', root), 'utf8');
+const agendaModel = await readFile(new URL('atlas/agenda.mjs', root), 'utf8');
+const agendaUI = await readFile(new URL('atlas/agenda-ui.mjs', root), 'utf8');
 const searchModel = await readFile(new URL('atlas/search.mjs', root), 'utf8');
 const searchUI = await readFile(new URL('atlas/search-ui.mjs', root), 'utf8');
 const heraldModel = await readFile(new URL('atlas/herald.mjs', root), 'utf8');
@@ -19,7 +21,7 @@ const ledgerModel = await readFile(new URL('atlas/ledger.mjs', root), 'utf8');
 const reflectionUI = await readFile(new URL('atlas/reflection-ui.mjs', root), 'utf8');
 const editionUI = await readFile(new URL('atlas/edition-refresh-ui.mjs', root), 'utf8');
 const ledgerUI = await readFile(new URL('atlas/ledger-ui.mjs', root), 'utf8');
-await writeFile(new URL('server/assets.mjs', out), `export const searchModel=${JSON.stringify(searchModel)};\nexport const searchUI=${JSON.stringify(searchUI)};\nexport const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\nexport const reflectionUI=${JSON.stringify(reflectionUI)};\nexport const communicationModel=${JSON.stringify(communicationModel)};\nexport const communicationUI=${JSON.stringify(communicationUI)};\nexport const heraldModel=${JSON.stringify(heraldModel)};\nexport const heraldUI=${JSON.stringify(heraldUI)};\n`);
+await writeFile(new URL('server/assets.mjs', out), `export const agendaModel=${JSON.stringify(agendaModel)};\nexport const agendaUI=${JSON.stringify(agendaUI)};\nexport const searchModel=${JSON.stringify(searchModel)};\nexport const searchUI=${JSON.stringify(searchUI)};\nexport const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\nexport const reflectionUI=${JSON.stringify(reflectionUI)};\nexport const communicationModel=${JSON.stringify(communicationModel)};\nexport const communicationUI=${JSON.stringify(communicationUI)};\nexport const heraldModel=${JSON.stringify(heraldModel)};\nexport const heraldUI=${JSON.stringify(heraldUI)};\n`);
 await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
 // Sites registers Worker modules from the server directory. Flatten this shared
 // dependency into that directory while keeping a single source for both apps.
