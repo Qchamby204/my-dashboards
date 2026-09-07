@@ -1,0 +1,32 @@
+/* Courier transport: fixed areas keep controls aligned at every width. */
+.atlas-neumo[data-atlas-app="courier"] .pwrap {
+  grid-template-columns:auto minmax(0,1fr) minmax(190px,auto);
+  grid-template-areas:"transport track options" "status status status";
+  gap:10px 20px;
+}
+.ptransport{grid-area:transport;display:flex;align-items:center;gap:12px}
+.ptrack{grid-area:track;min-width:0}
+.poptions{grid-area:options;display:grid;gap:8px;min-width:0}
+.poptions label{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.4}
+.atlas-neumo[data-atlas-app="courier"] .poptions input{width:20px;height:20px;min-height:20px;flex:none;padding:0;accent-color:var(--neo-accent)}
+.atlas-neumo[data-atlas-app="courier"] .play{padding:0;line-height:1;display:grid;place-items:center;flex:none}
+.play svg{width:22px;height:22px;display:block;pointer-events:none}
+.atlas-neumo[data-atlas-app="courier"] #pNext{grid-row:auto;min-height:44px;white-space:nowrap;font-size:14px}
+.atlas-neumo[data-atlas-app="courier"] #player{z-index:50}
+.atlas-neumo[data-atlas-app="courier"] #pSeek{box-sizing:border-box;min-height:24px;margin:6px 0;padding:0}
+.ptime{display:flex;justify-content:space-between;gap:6px 12px;flex-wrap:wrap;white-space:normal;font-size:12px;line-height:1.5;letter-spacing:0}
+#pStatus{grid-area:status;margin:0;font-size:14px;line-height:1.4;color:var(--neo-muted)}
+#pStatus:empty{display:none}
+.atlas-neumo[data-atlas-app="courier"] main{padding-bottom:260px}
+@media(max-width:900px){
+  .atlas-neumo[data-atlas-app="courier"] .pwrap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"track track" "transport options" "status status";padding:14px 18px;gap:10px}
+  .poptions{justify-items:end;max-width:240px}
+  .poptions label{font-size:12px}
+  .pnow{font-size:16px}
+}
+@media(max-width:420px){
+  .atlas-neumo[data-atlas-app="courier"] .pwrap{grid-template-columns:minmax(0,1fr);grid-template-areas:"track" "transport" "options" "status";padding:14px}
+  .ptransport{justify-content:space-between}
+  .poptions{justify-items:start;max-width:none}
+  .atlas-neumo[data-atlas-app="courier"] main{padding-bottom:340px}
+}
