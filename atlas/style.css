@@ -9,6 +9,18 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 /* Recovery uses the same shared light, dark, and system palette. */
 .recovery-table{overflow-x:auto;margin:1rem 0}
 .daily-briefing{margin-bottom:26px}
+.practice-status{display:flex;align-items:center;gap:24px;justify-content:space-between}
+.practice-status>div{min-width:0}.practice-status button{flex:none}
+.practice-controls{display:flex;align-items:flex-end;gap:20px;margin:24px 0}
+.practice-controls form{display:flex;align-items:flex-end;gap:12px;flex:1}
+.practice-controls label{flex:1;margin:0}.practice-controls>label{max-width:220px}
+.practice-lessons{display:grid;gap:16px}.practice-lessons .panel{margin:0}
+.practice-lesson summary{display:flex;justify-content:space-between;gap:16px;align-items:center;cursor:pointer;min-height:44px}
+.practice-lesson summary>span:first-child{min-width:0;overflow-wrap:anywhere}.practice-lesson strong{display:block;margin-top:6px;font-size:1rem}
+.practice-lesson .badge{flex:none}.practice-lesson-body{padding-top:20px}.lesson-instructions{white-space:pre-line;overflow-wrap:anywhere;line-height:1.65}
+.connection-status{margin-bottom:28px}.connection-status dl{margin-bottom:0}.connection-status dl>div{display:grid;grid-template-columns:minmax(160px,1fr) minmax(0,3fr);gap:20px;border-top:1px solid var(--line);padding:14px 0;font-size:.9375rem;line-height:1.6}
+.connection-status dt{font-weight:550}.connection-status dd{margin:0;color:var(--muted)}
+@media(max-width:720px){.practice-status,.practice-controls{flex-direction:column;align-items:stretch}.practice-controls form{flex-wrap:wrap}.practice-controls>label{max-width:none}.practice-lesson summary{align-items:flex-start;flex-direction:column}.connection-status dl>div{grid-template-columns:minmax(0,1fr);gap:6px}}
 .briefing-lead{font-size:1rem;line-height:1.6;margin:0 0 20px}
 .briefing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
 .briefing-grid p{font-size:.9375rem;line-height:1.6;margin:8px 0}

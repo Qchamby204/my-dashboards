@@ -15,6 +15,7 @@
     <a href="#week" data-view="week"><span aria-hidden="true">▦</span> This week</a>
     <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Life Map</a>
     <a href="#review" data-view="review"><span aria-hidden="true">↺</span> Weekly review</a>
+    <a href="#practice" data-view="practice"><span aria-hidden="true">◇</span> Practice</a>
     <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> All apps</a>
     <a href="#history" data-view="history"><span aria-hidden="true">◷</span> History & recovery</a>
   </nav>
@@ -61,12 +62,20 @@
   <div class="dialog-actions"><button class="secondary" data-close="project-confirm-dialog">Cancel</button><button class="primary" id="project-confirm">Continue</button></div>
 </dialog>
 <dialog id="practice-dialog" aria-labelledby="practice-import-title">
-  <div class="dialog-heading"><h2 id="practice-import-title">Refresh Courier practice</h2><button class="icon-button" data-close="practice-dialog" aria-label="Close practice import">×</button></div>
-  <p>Choose an Atlas Vault backup. Only recorded Courier practice will be saved to your private weekly review.</p>
+  <div class="dialog-heading"><h2 id="practice-import-title">Bring in Courier practice</h2><button class="icon-button" data-close="practice-dialog" aria-label="Close practice import">×</button></div>
+  <p>In Courier, choose Download practice pack. Import that file here to bring in lessons, tasks, and recorded completions. An Atlas Vault backup can also bring in completion records.</p>
   <label>Choose a JSON backup<input type="file" id="practice-file" accept=".json,application/json"></label>
-  <p class="small">This replaces the previous practice snapshot, including removed completions. Courier remains the source. Other app records, listening history, and credentials are excluded.</p>
+  <p class="small">Snapshot mode replaces the previous import. Synced mode adds new lessons and preserves existing workspace choices, including reopened lessons. Listening history and other app data are excluded.</p>
   <div id="practice-preview"></div><p id="practice-error" class="form-error" role="alert"></p>
-  <div class="dialog-actions"><button class="secondary" data-close="practice-dialog">Cancel</button><button class="primary" id="practice-confirm" disabled>Save reviewed snapshot</button></div>
+  <label class="restore-consent"><input type="checkbox" id="practice-consent">I reviewed the additions, replacements, and removals.</label>
+  <div class="dialog-actions"><button class="secondary" data-close="practice-dialog">Cancel</button><button class="primary" id="practice-confirm" disabled>Apply reviewed import</button></div>
+</dialog>
+<dialog id="practice-connect-dialog" aria-labelledby="practice-connect-title">
+  <h2 id="practice-connect-title">Use synced practice</h2>
+  <p>Record practice in this private workspace to use it across devices. Your imported lessons and completion dates are kept. Future Courier imports add new lessons and protect the choices already made here.</p>
+  <p>The original Courier page keeps a separate browser copy. Use Practice here as your record of completion from now on.</p>
+  <p id="practice-connect-error" class="form-error" role="alert"></p>
+  <div class="dialog-actions"><button class="secondary" data-close="practice-connect-dialog">Cancel</button><button class="primary" id="practice-connect">Use synced practice</button></div>
 </dialog>
 <dialog id="restore-dialog" aria-labelledby="restore-title">
   <div class="dialog-heading"><h2 id="restore-title">Restore your workspace</h2><button class="icon-button" data-close="restore-dialog" aria-label="Close workspace restore">×</button></div>

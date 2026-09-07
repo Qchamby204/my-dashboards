@@ -1,5 +1,5 @@
 import { html, css, js, theme, model } from './assets.mjs';
-import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems } from './model.mjs';
+import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan } from './model.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
 
 const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'same-origin' };
@@ -8,7 +8,7 @@ class HttpError extends Error { constructor(message,status=400){super(message);t
 async function bodyOf(request) {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError('Send JSON.');
   const body=await request.text(),path=new URL(request.url).pathname;
-  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:path==='/api/practice'?1500000:350000)) throw new HttpError('This request is too large.',413);
+  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:path.startsWith('/api/practice')?1800000:350000)) throw new HttpError('This request is too large.',413);
   try { const value=JSON.parse(body); if(!value || typeof value!=='object' || Array.isArray(value)) throw new Error(); return value; }
   catch { throw new HttpError('This request could not be read.'); }
 }
@@ -16,6 +16,25 @@ async function ownedProject(db,owner,id) {
   if(!id) return null;
   const row=await db.prepare('SELECT id FROM atlas_projects WHERE id=? AND owner=?').bind(id,owner).first();
   if(!row) throw new HttpError('That project is unavailable.',404); return row.id;
+}
+function practiceRow(row){
+  if(!row)return null;
+  const items=practiceItems(JSON.parse(row.items));
+  return {items,catalog:practiceCatalog(JSON.parse(row.catalog||'[]'),items),mode:row.mode||'snapshot',revision:row.revision,
+    imported_at:row.imported_at,source_exported_at:row.source_exported_at,updated_at:row.updated_at||null};
+}
+async function currentPractice(db,owner){return practiceRow(await db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner).first());}
+async function writePractice(db,owner,current,next,now,imported=false){
+  practicePayloadSize(next);
+  const items=JSON.stringify(next.items),catalog=JSON.stringify(next.catalog);
+  if(current){
+    const result=await db.prepare('UPDATE atlas_practice_snapshots SET items=?,catalog=?,mode=?,imported_at=?,source_exported_at=?,updated_at=?,revision=revision+1 WHERE owner=? AND revision=?')
+      .bind(items,catalog,next.mode,imported?now:current.imported_at,imported?next.source_exported_at:current.source_exported_at,now,owner,current.revision).run();
+    if(!result.meta.changes)throw new HttpError('Practice changed on another device. Refresh and review before trying again.',409);
+  }else{
+    try{await db.prepare('INSERT INTO atlas_practice_snapshots (owner,items,catalog,mode,imported_at,source_exported_at,updated_at) VALUES (?,?,?,?,?,?,?)').bind(owner,items,catalog,next.mode,now,next.source_exported_at??null,now).run();}
+    catch(error){if(String(error.message).includes('UNIQUE'))throw new HttpError('Practice was created on another device. Refresh before trying again.',409);throw error;}
+  }
 }
 async function state(db,owner,week) {
   const result=await db.batch([
@@ -26,7 +45,7 @@ async function state(db,owner,week) {
   ]);
   const practice=result[3].results[0];
   return { tasks:result[0].results, projects:result[1].results, week:result[2].results[0]||null,
-    practice:practice?{items:JSON.parse(practice.items),revision:practice.revision,imported_at:practice.imported_at,source_exported_at:practice.source_exported_at}:null };
+    practice:practiceRow(practice) };
 }
 async function api(request,env,url,owner) {
   const db=env.DB;
@@ -112,20 +131,47 @@ async function api(request,env,url,owner) {
     if(!result.meta.changes)throw new HttpError('This project changed on another device. Refresh before trying again.',409);
     return json({id});
   }
-  if(path==='/api/practice' && request.method==='PUT') {
-    const b=await bodyOf(request),items=JSON.stringify(practiceItems(b.items));
-    const exported=b.source_exported_at===null?null:textValue(b.source_exported_at,50);
-    if(exported&&!Number.isFinite(Date.parse(exported)))throw new HttpError('The backup date is invalid.');
-    const existing=await db.prepare('SELECT revision FROM atlas_practice_snapshots WHERE owner=?').bind(owner).first();
-    if(!Number.isInteger(b.revision)||b.revision!==(existing?.revision||0))throw new HttpError('Practice was refreshed on another device. Review the latest snapshot before replacing it.',409);
-    if(existing){
-      const r=await db.prepare('UPDATE atlas_practice_snapshots SET items=?,source_exported_at=?,imported_at=?,revision=revision+1 WHERE owner=? AND revision=?').bind(items,exported,now,owner,b.revision).run();
-      if(!r.meta.changes)throw new HttpError('Practice changed on another device. Refresh and try again.',409);
-    }else{
-      try{await db.prepare('INSERT INTO atlas_practice_snapshots (owner,items,source_exported_at,imported_at) VALUES (?,?,?,?)').bind(owner,items,exported,now).run();}
-      catch(error){if(String(error.message).includes('UNIQUE'))throw new HttpError('Practice changed on another device. Refresh and try again.',409);throw error;}
+  if(path.startsWith('/api/practice')&&['POST','PATCH','PUT'].includes(request.method)){
+    const b=await bodyOf(request),current=await currentPractice(db,owner),revision=current?.revision||0;
+    if(path==='/api/practice/import/preview'&&request.method==='POST'){
+      const pack=parsePracticeTransfer(b.pack),plan=practiceImportPlan(current,pack);
+      return json({pack,digest:await digest(pack),revision,rows:plan.rows,added:plan.added,kept:plan.kept,removed:plan.removed,replaced:plan.replaced,mode:plan.next.mode});
     }
-    return json({count:JSON.parse(items).length});
+    if(!Number.isSafeInteger(b.revision)||b.revision!==revision)throw new HttpError('Practice changed on another device. Refresh and review before trying again.',409);
+    if(path==='/api/practice/import'&&request.method==='POST'){
+      const pack=parsePracticeTransfer(b.pack);
+      if(b.digest!==await digest(pack))throw new HttpError('The practice pack changed. Review it again.',409);
+      const plan=practiceImportPlan(current,pack);
+      await writePractice(db,owner,current,{...plan.next,source_exported_at:pack.exportedAt},now,true);
+      return json({saved:true,added:plan.added,kept:plan.kept});
+    }
+    if(path==='/api/practice/manage'&&request.method==='POST'){
+      if(!current?.catalog.length)throw new HttpError('Import lessons before using synced practice.');
+      if(current.mode==='managed')return json({saved:true});
+      await writePractice(db,owner,current,{...current,mode:'managed'},now);return json({saved:true});
+    }
+    if(path==='/api/practice/lesson'&&request.method==='PATCH'){
+      if(current?.mode!=='managed')throw new HttpError('Choose synced practice before recording work here.',409);
+      const lesson=current.catalog.find(x=>x.id===b.id);
+      if(!lesson)throw new HttpError('This lesson is unavailable in your workspace.',404);
+      if(!['complete','reopen'].includes(b.action))throw new HttpError('Choose a valid practice action.');
+      const done=current.items.find(x=>x.id===b.id);
+      if(b.action==='complete'&&done||b.action==='reopen'&&!done)return json({saved:true});
+      let items=current.items.filter(x=>x.id!==b.id);
+      if(b.action==='complete'){
+        if(!validDate(b.day)||b.day<lesson.day)throw new HttpError('Choose a valid completion day on or after the lesson edition.');
+        items.push({id:lesson.id,title:lesson.title,track:lesson.track,day:lesson.day,completedDay:b.day,completedAt:now});
+      }
+      await writePractice(db,owner,current,{...current,items:practiceItems(items)},now);return json({saved:true});
+    }
+    // Old clients can replace only snapshot-mode records; native work is protected.
+    if(path==='/api/practice'&&request.method==='PUT'){
+      if(current?.mode==='managed')throw new HttpError('Synced practice is protected. Use the reviewed practice import to add new lessons.',409);
+      const items=practiceItems(b.items),exported=b.source_exported_at;
+      if(exported!==null&&(typeof exported!=='string'||!Number.isFinite(Date.parse(exported))))throw new HttpError('The backup date is invalid.');
+      await writePractice(db,owner,current,{items,catalog:practiceCatalog([],items),mode:'snapshot',source_exported_at:exported},now,true);
+      return json({count:items.length});
+    }
   }
   if(path==='/api/tasks' && request.method==='POST') {
     const b=await bodyOf(request), id=textValue(b.id,80,true), title=textValue(b.title,300,true), app=appValue(b.app_id);
