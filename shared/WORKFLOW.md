@@ -39,3 +39,8 @@ Home refreshes source projections on focus, visibility changes, relevant storage
 ## Validation
 
 `atlas/tests/workflow.test.mjs` covers explicit completion/undo, publication and listening separation, stable identity, stale writes, malformed data, write failures, date boundaries, current activity, source failures, actual Home card readers, and Vault restore/recovery. It uses synthetic records. Browser interaction and visual QA have not been performed.
+
+
+## Private Practice edition refresh
+
+Private Atlas Practice can check the published Courier manifest directly, then review and save new lessons. Both original and private surfaces use `shared/courier-lessons.mjs` for stable lesson IDs. A direct refresh keeps all existing lesson metadata and completion choices, including lessons no longer in the publication window. It transfers no browser-local completions; use a practice pack for those. Latest publication and lesson dates are separate from the last saved refresh timestamp. See `ATLAS-OS.md` for the request, concurrency, and recovery contract.
