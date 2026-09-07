@@ -1,7 +1,8 @@
+import { searchOptions, searchWorkspace } from './search.mjs';
 import { heraldContent, heraldRecord, heraldItem, parseHeraldTransfer, heraldImportPlan } from './herald.mjs';
 import { communicationContent, communicationRecord, communicationRep, parseCommunicationTransfer, communicationImportPlan } from './communication.mjs';
 import { fetchEditions, editionRefreshPlan, editionSignature } from './courier-editions.mjs';
-import { html, css, js, theme, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
+import { html, css, js, theme, searchModel, searchUI, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan, practiceEditionRefresh } from './model.mjs';
 import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
@@ -100,6 +101,11 @@ async function api(request,env,url,owner) {
   const db=env.DB;
   if(!db) throw new HttpError('Your saved workspace is temporarily unavailable. Please try again.',503);
   const path=url.pathname, now=new Date().toISOString();
+  if(path==='/api/search'&&request.method==='POST'){
+    const options=searchOptions(await bodyOf(request));
+    const saved=await workspace(db,owner);
+    return json(searchWorkspace(saved.data,options));
+  }
   if(path.startsWith('/api/communication/')&&['POST','PATCH'].includes(request.method)){
     const b=await bodyOf(request),current=await currentCommunication(db,owner);
     if(path==='/api/communication/import/preview'&&request.method==='POST'){
@@ -428,7 +434,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
+      const assets={'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
