@@ -3,7 +3,6 @@ const root = new URL('../', import.meta.url);
 const out = new URL('dist/', root);
 await rm(out, { recursive: true, force: true });
 await mkdir(new URL('server/', out), { recursive: true });
-await mkdir(new URL('shared/', out), { recursive: true });
 await mkdir(new URL('.openai/', out), { recursive: true });
 const html = await readFile(new URL('atlas/index.html', root), 'utf8');
 const css = (await Promise.all(['atlas/style.css', 'shared/atlas-palette.css', 'shared/atlas-neumorphism.css', 'shared/atlas-appearance.css'].map(path => readFile(new URL(path, root), 'utf8')))).join('\n');
@@ -15,8 +14,12 @@ const editionUI = await readFile(new URL('atlas/edition-refresh-ui.mjs', root), 
 const ledgerUI = await readFile(new URL('atlas/ledger-ui.mjs', root), 'utf8');
 await writeFile(new URL('server/assets.mjs', out), `export const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\n`);
 await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
-await cp(new URL('atlas/courier-editions.mjs', root), new URL('server/courier-editions.mjs', out));
-await cp(new URL('shared/courier-lessons.mjs', root), new URL('shared/courier-lessons.mjs', out));
+// Sites registers Worker modules from the server directory. Flatten this shared
+// dependency into that directory while keeping a single source for both apps.
+const editions = await readFile(new URL('atlas/courier-editions.mjs', root), 'utf8');
+if(!editions.includes("from '../shared/courier-lessons.mjs'")) throw Error('Courier module import changed; update its staging path.');
+await writeFile(new URL('server/courier-editions.mjs', out), editions.replace("from '../shared/courier-lessons.mjs'", "from './courier-lessons.mjs'"));
+await cp(new URL('shared/courier-lessons.mjs', root), new URL('server/courier-lessons.mjs', out));
 await cp(new URL('atlas/model.mjs', root), new URL('server/model.mjs', out));
 await cp(new URL('atlas/ledger.mjs', root), new URL('server/ledger.mjs', out));
 await cp(new URL('atlas/recovery.mjs', root), new URL('server/recovery.mjs', out));
