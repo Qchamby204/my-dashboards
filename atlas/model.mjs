@@ -61,3 +61,33 @@ export function parseLifeMap(raw) {
       status:p.status==='Done'?'done':'open', due_date:validDate(p.due)?p.due:null };
   });
 }
+
+export function practiceItems(items) {
+  if(!Array.isArray(items)||items.length>10000)throw new Error('Choose up to 10,000 practice records.');
+  const seen=new Set();
+  return items.map(item=>{
+    if(!item||typeof item!=='object')throw new Error('A practice record is invalid.');
+    const id=textValue(item.id,1000,true);if(!id.startsWith('lesson/')||seen.has(id))throw new Error('Practice IDs are invalid or repeated.');seen.add(id);
+    const day=dateValue(item.day),completedDay=dateValue(item.completedDay);
+    if(!day||!completedDay||typeof item.completedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(item.completedAt)||!Number.isFinite(Date.parse(item.completedAt)))throw new Error('A practice date is invalid.');
+    return {id,day,title:textValue(item.title,500,true),track:textValue(item.track,120),completedDay,completedAt:new Date(item.completedAt).toISOString()};
+  }).sort((a,b)=>a.id.localeCompare(b.id));
+}
+export function parsePracticeSnapshot(raw) {
+  const envelope=typeof raw==='string'?JSON.parse(raw):raw;
+  const entry=envelope?.data?.['courier:practice:v1']??envelope?.['courier:practice:v1'];
+  if(entry===undefined)throw new Error('Choose an Atlas Vault backup containing Courier practice.');
+  const value=typeof entry==='string'?JSON.parse(entry):entry;
+  if(value?.version!==1||!value.completions||typeof value.completions!=='object'||Array.isArray(value.completions))throw new Error('The practice backup has an unsupported format.');
+  const rows=Object.entries(value.completions).map(([id,item])=>{if(item?.id!==id)throw new Error('A practice ID does not match its record.');return item;});
+  return {items:practiceItems(rows),source_exported_at:typeof envelope.exportedAt==='string'&&Number.isFinite(Date.parse(envelope.exportedAt))?new Date(envelope.exportedAt).toISOString():null};
+}
+export function weeklySummary(data,week) {
+  const end=addDays(week,6),inWeek=d=>validDate(d)&&d>=week&&d<=end;
+  const done=data.tasks.filter(t=>t.status==='done'&&t.completed_at&&inWeek(localDay(new Date(t.completed_at))));
+  const unfinished=data.tasks.filter(t=>t.status==='open'&&t.week_start&&t.week_start<=week);
+  const deadlines=data.projects.filter(p=>!p.archived_at&&p.status!=='done'&&p.due_date&&p.due_date>=addDays(week,7)&&p.due_date<=addDays(week,13));
+  const projects=data.projects.filter(p=>!p.archived_at&&p.status==='done'&&p.completed_at&&inWeek(localDay(new Date(p.completed_at))));
+  const practice=(data.practice?.items||[]).filter(p=>inWeek(p.completedDay));
+  return {done,unfinished,deadlines,projects,practice};
+}

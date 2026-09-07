@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, readdirSync } from 'node:fs';
 import worker from '../../dist/server/index.js';
-import { parseLifeMap, validDate, monday, APPS } from '../model.mjs';
+import { parseLifeMap, validDate, monday, APPS, parsePracticeSnapshot, weeklySummary } from '../model.mjs';
 
 function database(){
   const sqlite=new DatabaseSync(':memory:');
@@ -102,4 +102,66 @@ test('invalid input and database outages return useful errors instead of success
   assert.equal((await request(db,'/api/tasks','POST',task('b',{due_date:'2026-02-30'}))).status,400);
   assert.equal((await request(null,'/api/tasks','POST',task('c'))).status,503);
   assert.equal((await request(db,'/api/state?week=2026-09-08')).status,400);db.close();
+});
+
+test('synced projects persist across requests, reject stale edits, and keep task completion independent',async()=>{
+  const db=database(),p={id:'synced',title:'Shared project',area:'Learning',due_date:'2026-09-16'};
+  assert.equal((await request(db,'/api/projects','POST',p)).status,201);
+  assert.equal((await request(db,'/api/projects','POST',p)).status,200);
+  assert.equal((await request(db,'/api/projects','POST',{...p,title:'Changed retry'})).status,409);
+  assert.equal((await snapshot(db)).data.projects[0].mode,'managed');
+  await request(db,'/api/tasks','POST',task('linked',{project_id:'synced'}));
+  assert.equal((await request(db,'/api/projects/synced','PATCH',{action:'edit',revision:1,title:'Edited project',area:'Learning',due_date:null})).status,200);
+  assert.equal((await request(db,'/api/projects/synced','PATCH',{action:'complete',revision:1})).status,409);
+  assert.equal((await request(db,'/api/projects/synced','PATCH',{action:'complete',revision:2})).status,200);
+  let saved=(await snapshot(db)).data;assert.equal(saved.tasks[0].status,'open');assert.equal(saved.projects[0].status,'done');assert.ok(saved.projects[0].completed_at);
+  await request(db,'/api/projects/synced','PATCH',{action:'archive',revision:3});
+  saved=(await snapshot(db)).data;assert.ok(saved.projects[0].archived_at);assert.equal(saved.tasks[0].project_id,'synced');
+  await request(db,'/api/projects/synced','PATCH',{action:'restore',revision:4});
+  await request(db,'/api/projects/synced','PATCH',{action:'reopen',revision:5});
+  saved=(await snapshot(db)).data;assert.equal(saved.projects[0].archived_at,null);assert.equal(saved.projects[0].completed_at,null);
+  assert.equal((await request(db,'/api/projects/synced','PATCH',{action:'complete',revision:6},'bob')).status,404);
+  assert.equal((await request(db,'/api/projects','POST',{...p,id:'csrf'},'alice','https://other.test')).status,403);
+  db.close();
+});
+
+test('adopting an imported project protects it from reimport and reversing mode preserves identity and links',async()=>{
+  const db=database(),row={source_id:'map-sync',title:'Original',area:'Projects',status:'open',due_date:null};
+  await request(db,'/api/import','POST',{projects:[row]});const p=(await snapshot(db)).data.projects[0];
+  await request(db,'/api/tasks','POST',task('linked',{project_id:p.id}));
+  assert.equal((await request(db,'/api/projects/'+p.id,'PATCH',{action:'edit',revision:1,title:'No',area:'',due_date:null})).status,409);
+  await request(db,'/api/projects/'+p.id,'PATCH',{action:'connect',revision:1});
+  const imported=await request(db,'/api/import','POST',{projects:[{...row,title:'Old local copy'}]});
+  assert.equal(imported.data.count,0);assert.equal(imported.data.protected,1);
+  let saved=(await snapshot(db)).data;assert.equal(saved.projects[0].title,'Original');assert.equal(saved.projects[0].revision,2);assert.equal(saved.tasks[0].project_id,p.id);
+  await request(db,'/api/projects/'+p.id,'PATCH',{action:'disconnect',revision:2});
+  await request(db,'/api/import','POST',{projects:[{...row,title:'Reviewed local update'}]});
+  saved=(await snapshot(db)).data;assert.equal(saved.projects[0].id,p.id);assert.equal(saved.projects[0].title,'Reviewed local update');assert.equal(saved.projects[0].mode,'snapshot');db.close();
+});
+
+test('practice snapshots whitelist fields, replace removed completions, and reject another owner or stale revision',async()=>{
+  const db=database(),item={id:'lesson/one',day:'2026-09-07',completedDay:'2026-09-08',completedAt:'2026-09-08T17:00:00Z',title:'Clear explanation',track:'Communication',privateNotes:'excluded',apiKey:'excluded'};
+  const parsed=parsePracticeSnapshot({exportedAt:'2026-09-08T18:00:00Z',data:{'courier:practice:v1':JSON.stringify({version:1,completions:{'lesson/one':item}}),'babybrain.tts':'secret'}});
+  assert.equal(JSON.stringify(parsed).includes('excluded'),false);assert.equal(JSON.stringify(parsed).includes('secret'),false);
+  assert.equal((await request(db,'/api/practice','PUT',{...parsed,revision:0})).status,200);
+  assert.equal((await request(db,'/api/state?week=2026-09-07','GET',null,'bob')).data.practice,null);
+  assert.equal((await request(db,'/api/practice','PUT',{items:[],source_exported_at:null,revision:0})).status,409);
+  assert.equal((await snapshot(db)).data.practice.items.length,1);
+  assert.equal((await request(db,'/api/practice','PUT',{items:[{...item,day:'bad'}],source_exported_at:null,revision:1})).status,400);
+  assert.equal((await snapshot(db)).data.practice.items.length,1);
+  assert.equal((await request(db,'/api/practice','PUT',{items:[],source_exported_at:null,revision:1})).status,200);
+  const saved=(await request(db,'/api/export')).data;assert.equal(saved.version,2);assert.deepEqual(saved.practice[0].items,[]);assert.equal(saved.practice[0].owner,undefined);db.close();
+});
+
+test('weekly review combines actual completion dates, carryover, future deadlines and dated practice',()=>{
+  const data={tasks:[{status:'done',completed_at:'2026-09-08T12:00:00Z'},{status:'open',week_start:'2026-08-31'},{status:'open',week_start:'2026-09-21'}],projects:[{id:'closed',status:'done',completed_at:'2026-09-09T12:00:00Z'},{id:'next',status:'open',due_date:'2026-09-15'},{id:'archived',status:'open',due_date:'2026-09-15',archived_at:'2026-09-07'}],practice:{items:[{completedDay:'2026-09-08'},{completedDay:'2026-09-21'}]}};
+  const summary=weeklySummary(data,'2026-09-07');assert.equal(summary.done.length,1);assert.equal(summary.unfinished.length,1);assert.deepEqual(summary.deadlines.map(p=>p.id),['next']);assert.equal(summary.projects.length,1);assert.equal(summary.practice.length,1);
+});
+
+test('schema upgrade preserves previously saved projects and commitments with conservative snapshot defaults',()=>{
+  const sqlite=new DatabaseSync(':memory:');
+  sqlite.exec(readFileSync(new URL('../../drizzle/0000_massive_grey_gargoyle.sql',import.meta.url),'utf8'));
+  sqlite.prepare('INSERT INTO atlas_projects (id,owner,source_id,title,area,status,imported_at) VALUES (?,?,?,?,?,?,?)').run('p','alice','local-p','Keep me','Projects','done','2026-09-01');
+  sqlite.exec(readFileSync(new URL('../../drizzle/0001_tidy_hairball.sql',import.meta.url),'utf8'));
+  const p=sqlite.prepare('SELECT * FROM atlas_projects').get();assert.equal(p.title,'Keep me');assert.equal(p.mode,'snapshot');assert.equal(p.revision,1);assert.equal(p.completed_at,null);sqlite.close();
 });

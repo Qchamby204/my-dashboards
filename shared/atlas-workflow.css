@@ -40,3 +40,5 @@
   .atlas-neumo .practice-list summary { gap: 10px; padding: 14px; }
   .atlas-neumo .workflow-list li { gap: 10px; }
 }
+
+.atlas-neumo .project-transfer{width:calc(100% - 32px);max-width:1100px;margin:24px auto}.atlas-neumo .project-transfer summary{font-size:1rem;cursor:pointer}.atlas-neumo .transfer-rows{max-height:320px;overflow:auto}.atlas-neumo .transfer-rows label{display:flex;gap:12px;padding:12px 0;align-items:center;border-bottom:1px solid var(--neo-line)}.atlas-neumo .transfer-rows input[type=checkbox]{width:20px;height:20px;flex:0 0 20px}.atlas-neumo .transfer-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.atlas-neumo .project-transfer>button{margin-top:16px}
