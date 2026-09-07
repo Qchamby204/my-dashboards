@@ -8,6 +8,20 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 .project-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}.connected-project{border-bottom:1px solid var(--line)}.connected-project>summary{display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;padding:20px 0}.connected-project>summary strong{display:block;font-size:1rem;font-weight:550;overflow-wrap:anywhere}.connected-project>summary .small{display:block;margin-top:6px}.connected-project>summary .badge{flex-shrink:0}.project-body{padding:0 0 20px}.project-body .task{padding-left:8px}.project-toolbar .text-button{font-size:.875rem}.project-body>.small{font-size:.875rem}#practice-preview .import-list:empty{display:none}
 /* Recovery uses the same shared light, dark, and system palette. */
 .recovery-table{overflow-x:auto;margin:1rem 0}
+.daily-briefing{margin-bottom:26px}
+.briefing-lead{font-size:1rem;line-height:1.6;margin:0 0 20px}
+.briefing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.briefing-grid p{font-size:.9375rem;line-height:1.6;margin:8px 0}
+.briefing-next h3{margin-top:8px;overflow-wrap:anywhere}
+.briefing-deadlines{border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+.briefing-deadlines summary{min-height:44px;cursor:pointer;font-size:.9375rem}
+.briefing-deadlines ul{list-style:none;padding:0;margin:0}
+.briefing-deadlines li{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.briefing-deadlines li>div{min-width:0;overflow-wrap:anywhere}
+.briefing-deadlines p{font-size:.875rem;margin:6px 0}
+.briefing-deadlines button,.briefing-deadlines a{flex:none}
+.briefing-freshness{margin:20px 0 0}
+@media(max-width:720px){.briefing-grid{grid-template-columns:minmax(0,1fr);gap:20px}.briefing-deadlines li{align-items:flex-start;flex-direction:column;gap:4px}}
 @media(max-width:420px){.statline{grid-template-columns:minmax(0,1fr)}.statline>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);align-items:center;gap:12px}.statline strong,.statline span{min-width:0;overflow-wrap:anywhere}}
 .recovery-table table{width:100%;border-collapse:collapse;font-size:.875rem;text-align:left}
 .recovery-table th,.recovery-table td{padding:.75rem;vertical-align:top;border-bottom:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;min-width:5rem}
