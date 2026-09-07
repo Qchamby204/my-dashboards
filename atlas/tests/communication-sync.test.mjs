@@ -85,7 +85,7 @@ test('stale and edited import previews and simultaneous native writes cannot rep
   assert.deepEqual((await state(db)).communication,unchanged);db.close();
 });
 test('version 5 recovery retains notes and archive choices, while versions 1–4 retain current speaking practice',async()=>{
-  const db=previewDatabase();await create(db);await edit(db,'atlas:one','archive');const before=await backup(db);assert.equal(before.version,5);
+  const db=previewDatabase();await create(db);await edit(db,'atlas:one','archive');const before=await backup(db);assert.equal(before.version,6);
   await edit(db,'atlas:one','restore');await create(db,rep('atlas:two'));
   const p=(await req(db,'/api/restore/preview','POST',{backup:before})).data;assert.equal(p.changes.find(x=>x.key==='communication').replace,1);
   const restored=await req(db,'/api/restore','POST',p);assert.equal(restored.status,200);assert.deepEqual((await state(db)).communication.reps,before.communication[0].reps);
