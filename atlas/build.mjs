@@ -41,7 +41,7 @@ const editions = await readFile(new URL('atlas/courier-editions.mjs', root), 'ut
 if(!editions.includes("from '../shared/courier-lessons.mjs'")) throw Error('Courier module import changed; update its staging path.');
 await writeFile(new URL('server/courier-editions.mjs', out), editions.replace("from '../shared/courier-lessons.mjs'", "from './courier-lessons.mjs'"));
 await cp(new URL('shared/courier-lessons.mjs', root), new URL('server/courier-lessons.mjs', out));
-for(const name of ['life-map-records.mjs','connected-api.mjs','connected-model.mjs','priorities-api.mjs','cadence.mjs','cadence-api.mjs','cadence-catalog.mjs'])await cp(new URL('atlas/'+name,root),new URL('server/'+name,out));
+for(const name of ['herald-records.mjs','life-map-records.mjs','connected-api.mjs','connected-model.mjs','priorities-api.mjs','cadence.mjs','cadence-api.mjs','cadence-catalog.mjs'])await cp(new URL('atlas/'+name,root),new URL('server/'+name,out));
 await cp(new URL('atlas/model.mjs', root), new URL('server/model.mjs', out));
 await cp(new URL('atlas/search.mjs', root), new URL('server/search.mjs', out));
 await cp(new URL('atlas/herald.mjs', root), new URL('server/herald.mjs', out));

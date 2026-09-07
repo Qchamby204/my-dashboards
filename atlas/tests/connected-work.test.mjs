@@ -18,6 +18,17 @@ const project=(id='project-one')=>({id,task:'Finish the room plan',area:'Home',d
 const video=(id='video-one')=>({id,title:'Write a story',fmt:'long',vert:'General',status:'scheduled',sched:day,script:'The complete script stays here.',opt:{title:{t:'An alternate title',d:true}},metrics:{ctr:6},pub:{p1:true}});
 const mapRaw=(...projects)=>({...emptyAppState('life-map'),projects,chores:[{id:'chore-one',chore:'Tidy the desk',cad:'Weekly'}]});
 const heraldRaw=(...videos)=>({...emptyAppState('herald'),videos});
+
+test('full Herald API keeps actual dates independent from plans and preserves writing through later edits',async()=>{
+  const db=previewDatabase();try{
+    await save(db,'herald',heraldRaw({...video(),status:'published',sched:'2026-09-12',publishedDay:'2026-09-02'}));
+    let full=await app(db,'herald'),s=await state(db);
+    assert.equal(full.state.videos[0].publishedDay,'2026-09-02');assert.equal(s.herald.items[0].published_day,'2026-09-02');assert.equal(full.state.videos[0].sched,'2026-09-12');
+    full.state.videos[0].title='An updated title';full.state.videos[0].script='A revised script';await save(db,'herald',full.state,full.version);
+    full=await app(db,'herald');assert.equal(full.state.videos[0].publishedDay,'2026-09-02');assert.equal(full.state.videos[0].script,'A revised script');assert.equal(full.state.videos[0].opt.title.d,true);
+    full.state.videos[0].publishedDay='';await save(db,'herald',full.state,full.version);assert.equal((await state(db)).herald.items[0].published_day,null);
+  }finally{db.close();}
+});
 const transfer=(...apps)=>({app:'atlas-connected-transfer',version:1,apps});
 async function connect(db,pack){const preview=await ok(db,'/api/connected/import/preview','POST',{pack});return ok(db,'/api/connected/import','POST',{pack:preview.pack,digest:preview.digest,seq:preview.seq});}
 

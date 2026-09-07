@@ -50,7 +50,8 @@
     }catch(e){failure=true;status(e.message);controls();return false;}finally{refreshing=false;}
   }
   window.AtlasConnected={raw:()=>JSON.stringify(state),save,flush,clearInputDraft(){inputDirty=!!window.connectedDraftOpen?.();if(!inputDirty&&!active&&!queued&&!failure)status('Saved across devices');},get pending(){return pending();}};
-  document.addEventListener('input',e=>{if(e.target.closest('#connected-app')&&!e.target.closest('#atlas-appearance-dialog')&&!e.target.closest('[data-ui-only]')){inputDirty=true;generation++;status('Unsaved changes');}});
+  // Observe before app handlers: an input handler may itself queue a save.
+  document.addEventListener('input',e=>{if(e.target.closest('#connected-app')&&!e.target.closest('#atlas-appearance-dialog')&&!e.target.closest('[data-ui-only]')){inputDirty=true;generation++;status('Unsaved changes');}},true);
   document.addEventListener('click',async e=>{
     const a=e.target.closest('a[href]');if(!a||!pending()||!loaded||a.hasAttribute('download')||a.target==='_blank')return;
     const url=new URL(a.href,location.href);if(url.origin===location.origin&&url.pathname===location.pathname&&url.hash)return;
@@ -62,7 +63,8 @@
   $('#connected-retry').addEventListener('click',()=>{if(!loaded){failure=false;refresh(true);return;}failure=false;controls();if(queued)flush();else refresh();});
   $('#connected-download').addEventListener('click',()=>{
     if(!state)return;
-    const url=URL.createObjectURL(new Blob([JSON.stringify({app:'atlas-connected-transfer',version:1,apps:[{kind,state}]},null,2)],{type:'application/json'}));
+    const draft=window.connectedDraftState?.()||state;
+    const url=URL.createObjectURL(new Blob([JSON.stringify({app:'atlas-connected-transfer',version:1,apps:[{kind,state:draft}]},null,2)],{type:'application/json'}));
     const a=document.createElement('a');a.href=url;a.download=kind+'-unsaved-draft.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
   $('#connected-reload').addEventListener('click',()=>{
