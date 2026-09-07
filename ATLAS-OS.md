@@ -4,6 +4,8 @@ Atlas has a private, server-backed workspace for synced Life Map projects, Couri
 
 ## What works
 
+- Review a shared weekly agenda of explicit deadlines, content plans, and recorded activity, with source filters and direct record links.
+
 - Capture and edit a commitment with a connected app, optional project, due date, week, and time estimate.
 - Choose up to three priorities for the current local day. Complete, reopen, or archive commitments; undo completion and archiving.
 - Plan across weeks, see earlier unfinished work, and compare estimates with an editable weekly time budget.
@@ -31,6 +33,7 @@ This release uses deterministic planning and user choices. It does not call a la
 
 - `atlas/index.html`, `atlas/style.css`, `atlas/app.js`: accessible, responsive, dependency-free client.
 - `atlas/model.mjs`: shared validation, date helpers, safe Life Map projection, and one app registry.
+- `atlas/agenda.mjs` and `atlas/agenda-ui.mjs`: explicit weekly dates, source filters, and guarded navigation to saved records.
 - `atlas/communication.mjs` and `atlas/communication-ui.mjs`: bounded speaking records, reviewed legacy imports, editing, and weekly summaries.
 - `atlas/herald.mjs` and `atlas/herald-ui.mjs`: content metadata, reviewed imports, planning dates, stages, and publication summaries.
 - `atlas/worker.mjs`: Cloudflare Worker serving the interface and authenticated JSON routes.
@@ -223,3 +226,18 @@ Search uses an authenticated, same-origin POST endpoint. It reads only the curre
 Requests are debounced and superseded queries are aborted. Request counters also ignore late responses when cancellation does not stop a server response. Opening a record freezes search controls while fetching; Escape can cancel that read. A failed refresh or removed record keeps the search dialog available with an error. Unsaved editor drafts block navigation, and a successful result activation invalidates older workspace refreshes. Search uses native modal, form and button semantics, labelled filters, live status, keyboard focus, and the existing Light/Dark/System materials. No database migration or workspace-format change is required; format 6 and all eight applied migrations remain unchanged.
 
 Validation: all 115 automated tests pass. Nine new tests cover normalized literal matching, source and archive boundaries, result limits and excerpts, excluded fields, owner isolation, authentication and origin checks, read-only history and backups, invalid requests, deployed client module resolution, late query responses, cancellation and navigation failures, escaped text, keyboard controls, actual app navigation for every record type, hidden archives, old lessons/reviews, draft guards, and superseded refreshes. Production build, JavaScript syntax, markup references, CSS, and migration bytes are checked. No browser, physical-device, or live personal-data QA was performed in this batch. Courier publication and notification behavior are unchanged.
+
+
+## Completed: shared weekly agenda
+
+This week now opens with a dated agenda across commitments, Life Map, Herald content, Courier practice, speaking sessions, and Life Ledger. Seven day groups show the selected week, with today identified when it falls inside that week. Filter by source, plans and deadlines, recorded activity, or both. Dense days show 20 entries initially and reveal 20 more on request. Counts describe matching entries across the full week, including entries beyond the current display limit. A project, its commitment, and its content item remain distinct records, so those counts do not represent unique pieces of work or time spent.
+
+Open commitments and projects appear on explicit due dates. Unpublished content appears on its planned date and retains its stage label. Completed commitments and projects appear on the date of their recorded completion timestamp; an imported completed project without a timestamp receives no invented date. Published content appears only on its recorded actual publication date. Its planned date does not become publication evidence. Courier activity uses explicit practice completions, never listening history or an edition's publication date. Speaking sessions use their saved day. Ledger entries indicate a saved day, check-in count, and whether reflection exists; the agenda does not duplicate the reflection's text. Archives are omitted.
+
+A commitment assigned to a week without a due date stays in the commitment list below the agenda. A due date outside that planning week also remains outside the seven day groups. The agenda explains both cases when showing commitments or all sources. Week assignment does not reserve a day or a time slot, and no event is automatically created, scheduled, completed, or published. Existing weekly time estimates still belong to the commitment plan; the agenda does not add estimates across unrelated record types.
+
+Opening an entry reads the latest saved workspace and resolves the exact record ID before navigation. Commitment links keep the selected planning week and open the ordinary editor, including completed records. The shared record resolver also continues serving workspace search. Unsaved drafts block entry navigation. A cancel action, changed filter, changed week, replaced panel, or page navigation invalidates an in-flight read. Removed records and failed reads leave an explicit retry message. Existing editor revision checks govern any subsequent save.
+
+The agenda reads the authenticated workspace already loaded for the selected week. It adds no database table, migration, backup format, background job, external request, or browser-local persistence. Completion timestamps are displayed in the viewing device's timezone, consistently with existing Atlas reviews; dates already stored as calendar days retain that day. Original specialist apps and Courier publication/status behavior remain unchanged. The interface uses the existing Light/Dark/System materials.
+
+Validation: all 123 automated tests pass. Eight new tests cover explicit dates versus week-only planning, archived and completed records, actual publication dates, practice completion evidence, filters, empty and dense weeks, year boundaries, local dates across daylight-saving changes, escaped labels, cancellation, stale navigation, retry behavior, draft protection, and retention of the selected week when opening a commitment. The production output was built with the repository's local build after the standard launcher encountered a cancelled network approval. JavaScript syntax, client/server module resolution, static markup references, CSS, original HTML, and unchanged migration bytes are checked. No browser, physical-device, or live personal-data QA was performed in this batch.
