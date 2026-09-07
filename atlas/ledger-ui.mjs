@@ -19,6 +19,10 @@ export function createLedgerUI({api,getData,load,render,error,toast,esc,download
   }
   function habitRow(h){return `<div class="ledger-habit"><span>${esc(h.title)}</span><div><button class="text-button" data-ledger-edit="${esc(h.id)}">Rename</button><button class="text-button" data-ledger-habit="${esc(h.id)}" data-ledger-action="${h.archived?'restore':'archive'}">${h.archived?'Restore':'Archive'}</button></div></div>`;}
   function weekly(week){const days=ledgerWeek(saved(),week);return `<section class="panel"><h2>Daily reflection</h2><p class="small">${days.length} saved days this week. From your private Life Ledger.</p>${days.filter(d=>d.note||d.tomorrow).map(d=>`<details class="ledger-reflection"><summary>${esc(pretty(d.date))}</summary>${d.note?`<p class="lesson-instructions">${esc(d.note)}</p>`:''}${d.tomorrow?`<p class="small">For tomorrow</p><p class="lesson-instructions">${esc(d.tomorrow)}</p>`:''}</details>`).join('')||'<p class="quiet-message">Your daily notes will appear here to help with the weekly review.</p>'}<a class="inline-link" href="#ledger">Open Life Ledger</a></section>`;}
+  function openHabitEditor(h=null){
+    editing={id:h?.id||'atlas:'+newId(),revision:saved()?.revision||0,existing:!!h};
+    $('#ledger-habit-title').textContent=h?'Rename habit':'A habit of your own';$('#ledger-habit-form').elements.title.value=h?.title||'';$('#ledger-habit-error').textContent='';$('#ledger-habit-dialog').showModal();$('#ledger-habit-form').elements.title.focus();
+  }
   function forbid(){if(saving||blocked()){error('Save or discard your current draft before changing other records.');return true;}return false;}
   document.addEventListener('input',e=>{
     if(e.target.closest('#ledger-day-form')){
@@ -34,8 +38,7 @@ export function createLedgerUI({api,getData,load,render,error,toast,esc,download
     if(forbid())return;
     if(target.hasAttribute('data-ledger-date')){selected=target.dataset.ledgerDate;reset();if(location.hash!=='#ledger')location.hash='ledger';else render();return;}
     if(target.hasAttribute('data-ledger-new')||target.hasAttribute('data-ledger-edit')){
-      const h=saved()?.habits.find(h=>h.id===target.dataset.ledgerEdit);editing={id:h?.id||'atlas:'+newId(),revision:saved()?.revision||0,existing:!!h};
-      $('#ledger-habit-title').textContent=h?'Rename habit':'A habit of your own';$('#ledger-habit-form').elements.title.value=h?.title||'';$('#ledger-habit-error').textContent='';$('#ledger-habit-dialog').showModal();return;
+      openHabitEditor(saved()?.habits.find(h=>h.id===target.dataset.ledgerEdit));return;
     }
     if(target.hasAttribute('data-ledger-habit')){
       saving=true;target.disabled=true;
@@ -73,5 +76,5 @@ export function createLedgerUI({api,getData,load,render,error,toast,esc,download
   });
   for(const id of ['#ledger-import-dialog','#ledger-habit-dialog'])$(id).addEventListener('cancel',e=>{if(saving)e.preventDefault();});
   $('#ledger-import-dialog').addEventListener('close',()=>{ticket++;plan=null;});
-  return {daily,weekly,get dirty(){return dirty;},get saving(){return saving;},get editorDirty(){return $('#ledger-habit-dialog').open&&!!$('#ledger-habit-form').elements.title.value.trim();}};
+  return {daily,weekly,selectDay(date){if(forbid()||!validDate(date))return false;selected=date;reset();return true;},openHabit(id){if(forbid())return false;const h=saved()?.habits.find(h=>h.id===id);if(!h)return false;openHabitEditor(h);return true;},get dirty(){return dirty;},get saving(){return saving;},get editorDirty(){return $('#ledger-habit-dialog').open&&!!$('#ledger-habit-form').elements.title.value.trim();}};
 }

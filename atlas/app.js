@@ -1,3 +1,4 @@
+import { createSearchUI } from './search-ui.mjs';
 import { createHeraldUI } from './herald-ui.mjs';
 import { createCommunicationUI } from './communication-ui.mjs';
 import { createReflectionUI } from './reflection-ui.mjs';
@@ -14,7 +15,7 @@ let today=localDay(), week=monday(today), data={tasks:[],projects:[],week:null};
 let loadedAt=null,loadedWeek=null;
 let loaded=false,view='today',editing=null,draftId=null,imports=[],undoAction=null,busy=false,reviewDirty=false,loadNumber=0;
 let historyData=null,historyRequest=0,restorePlan=null,restoreRequest=0,recoveryAction=null;
-let practiceFileRequest=0,practiceFilter='pending',practiceSearch='',practiceLimit=60;
+let practiceFileRequest=0,practiceFilter='pending',practiceSearch='',practiceLimit=60,practiceSelected=null;
 let editingProject=null,projectDraftId=null,projectConfirmation=null,practiceImport=null,practiceRevision=0;
 const ledgerUI=createLedgerUI({api,getData:()=>data,load,render,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const editionUI=createEditionRefreshUI({api,getPractice:()=>data.practice,esc,formatDay,dateTime:value=>new Date(value).toLocaleString(),load,toast,blocked:()=>hasDraft()||busy});
@@ -22,15 +23,16 @@ const communicationUI=createCommunicationUI({api,getData:()=>data,getWeek:()=>we
 const heraldUI=createHeraldUI({api,getData:()=>data,getWeek:()=>week,load,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const reflectionUI=createReflectionUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,capture:seed=>openCapture(null,null,seed),blocked:()=>busy||reviewDirty||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving});
 const hasDraft=()=>reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving;
+const searchUI=createSearchUI({api,resolveResult:resolveSearchResult,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft(),error,esc});
 const project=id=>data.projects.find(p=>p.id===id);
 const open=()=>data.tasks.filter(t=>t.status==='open');
 const weekTasks=()=>data.tasks.filter(t=>t.status!=='archived' && t.week_start===week);
 const completedThisWeek=()=>data.tasks.filter(t=>t.status==='done' && t.completed_at && localDay(new Date(t.completed_at))>=week && localDay(new Date(t.completed_at))<=addDays(week,6));
 
-async function api(path,method='GET',body) {
+async function api(path,method='GET',body,signal) {
   let response;
-  try {response=await fetch(path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});}
-  catch {throw new Error('You appear to be offline. Your draft is still here. Reconnect and try again.');}
+  try {response=await fetch(path,{method,signal,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});}
+  catch(e) {if(signal?.aborted)throw e;throw new Error('You appear to be offline. Your draft is still here. Reconnect and try again.');}
   let value;try{value=await response.json();}catch{throw new Error('Your workspace is unavailable. Please try again.');}
   if(!response.ok) throw new Error(value.error||'That could not be saved. Please try again.');
   return value;
@@ -48,6 +50,40 @@ async function load({renderPage=true}={}) {
     data=next;loaded=true;loadedWeek=requestedWeek;loadedAt=new Date();error('');$('#save-state').textContent='Saved across devices';
     if(renderPage) render();
   } catch(e){if(requestNumber!==loadNumber||requestedWeek!==week)return;error(e.message);$('#save-state').textContent='Connection needs attention';if($('#briefing-freshness'))$('#briefing-freshness').textContent='Refresh failed. Showing the last loaded records.';if(!loaded)$('#content').innerHTML='<div class="empty"><h1>Your workspace could not load.</h1><p>Reconnect, then choose Refresh. Capture will be available when your saved records are ready.</p></div>';}
+}
+async function resolveSearchResult(result,signal){
+  const destinations={task:'today',project:'projects',lesson:'practice',habit:'ledger',day:'ledger',speaking:'communication',content:'herald',review:'review'};
+  if(!Object.hasOwn(destinations,result.kind)||typeof result.id!=='string')throw Error('This search result is unavailable.');
+  const blocked=()=>busy||hasDraft()||!!document.querySelector('dialog[open]:not(#workspace-search-dialog)');
+  if(blocked())throw Error('Save or discard your current draft before opening a record.');
+  const targetWeek=result.kind==='review'?result.id:result.kind==='task'?monday(today):week;
+  const next=await api('/api/state?week='+encodeURIComponent(targetWeek),'GET',undefined,signal);
+  if(signal?.aborted)throw Error('Opening cancelled.');
+  if(blocked())throw Error('Your draft is still here. Close it before opening a record.');
+  const candidates={task:next.tasks,project:next.projects,lesson:next.practice?.catalog,habit:next.ledger?.habits,day:next.ledger?.days,speaking:next.communication?.reps,content:next.herald?.items,review:next.week?[next.week]:[]};
+  const key=result.kind==='day'?'date':result.kind==='review'?'week_start':'id';
+  const record=candidates[result.kind]?.find(r=>r[key]===result.id);
+  if(!record)throw Error('This record is no longer in your saved workspace.');
+  // Search closes its dialog and invokes this synchronously only while its
+  // request is still current. No workspace state changes during the fetch.
+  return ()=>{
+    if(blocked())throw Error('Your draft is still here. Close it before opening a record.');
+    ++loadNumber;data=next;loaded=true;week=targetWeek;loadedWeek=targetWeek;loadedAt=new Date();
+    error('');$('#save-state').textContent='Saved across devices';view=destinations[result.kind];
+    history.pushState(null,'','#'+view);
+    if(result.kind==='day')ledgerUI.selectDay(record.date);
+    if(result.kind==='lesson'){practiceSelected=record.id;practiceFilter='all';practiceSearch='';practiceLimit=60;}
+    render();
+    const reveal=(selector,field)=>{const el=[...document.querySelectorAll(selector)].find(e=>e.dataset[field]===record.id);if(el){el.open=true;el.scrollIntoView({block:'center'});el.querySelector('summary')?.focus();}};
+    if(result.kind==='task')openCapture(null,record);
+    if(result.kind==='project'){$('#project-filter').value=record.archived_at?'archived':record.status==='done'?'done':'open';$('#project-search').value=record.title;$('#project-list').innerHTML=projectList(record.title,$('#project-filter').value);reveal('[data-project-id]','projectId');}
+    if(result.kind==='lesson')reveal('[data-lesson-id]','lessonId');
+    if(result.kind==='habit')ledgerUI.openHabit(record.id);
+    if(result.kind==='speaking')communicationUI.openRecord(record.id);
+    if(result.kind==='content')heraldUI.openRecord(record.id);
+    if(result.kind==='day')$('#ledger-day-form').elements.note.focus();
+    if(result.kind==='review')$('#review-form').elements.worked.focus();
+  };
 }
 function pageHeading(label,title,description,extra=''){return `<div class="page-heading"><div><span class="eyebrow">${label}</span><h1>${title}</h1><p>${description}</p></div>${extra}</div>`;}
 function empty(title,description,button=''){return `<div class="empty"><h3>${title}</h3><p>${description}</p>${button}</div>`;}
@@ -99,7 +135,7 @@ function projectList(query='',status='open'){
   return rows.length?rows.map(p=>{
     const tasks=data.tasks.filter(t=>t.project_id===p.id&&t.status!=='archived'),done=tasks.filter(t=>t.status==='done').length;
     const action=(label,act)=>`<button class="text-button" data-project-action="${act}" data-id="${esc(p.id)}">${label}</button>`;
-    return `<details class="connected-project"><summary><span><strong>${esc(p.title)}</strong><span class="small">${esc(p.area)}${p.due_date?' · Due '+formatDay(p.due_date):''} · ${p.status==='done'?'Completed':'Open'}</span></span><span class="badge">${p.mode==='managed'?'Synced':'Snapshot'}</span></summary><div class="project-body"><p class="small">${done} of ${tasks.length} linked commitments completed. Project status is a separate decision.</p><div class="project-toolbar">${!p.archived_at?`<button class="secondary" data-project="${esc(p.id)}">Add next action</button>`:''}${p.mode==='managed'?p.archived_at?action('Restore project','restore'):action('Edit project','edit')+action(p.status==='done'?'Reopen project':'Complete project',p.status==='done'?'reopen':'complete')+action('Archive','archive')+action('Return to import mode','disconnect'):action('Use synced project','connect')}</div>${tasks.map(t=>taskRow(t)).join('')}</div></details>`;
+    return `<details class="connected-project" data-project-id="${esc(p.id)}"><summary><span><strong>${esc(p.title)}</strong><span class="small">${esc(p.area)}${p.due_date?' · Due '+formatDay(p.due_date):''} · ${p.status==='done'?'Completed':'Open'}</span></span><span class="badge">${p.mode==='managed'?'Synced':'Snapshot'}</span></summary><div class="project-body"><p class="small">${done} of ${tasks.length} linked commitments completed. Project status is a separate decision.</p><div class="project-toolbar">${!p.archived_at?`<button class="secondary" data-project="${esc(p.id)}">Add next action</button>`:''}${p.mode==='managed'?p.archived_at?action('Restore project','restore'):action('Edit project','edit')+action(p.status==='done'?'Reopen project':'Complete project',p.status==='done'?'reopen':'complete')+action('Archive','archive')+action('Return to import mode','disconnect'):action('Use synced project','connect')}</div>${tasks.map(t=>taskRow(t)).join('')}</div></details>`;
   }).join(''):empty('No matching projects.','Create a synced project or import your existing Life Map project list.','<button class="secondary" data-new-project>New project</button>');
 }
 function reviewView(){
@@ -110,12 +146,12 @@ function reviewView(){
 function practiceView(){
   const p=data.practice,managed=p?.mode==='managed',completed=new Map((p?.items||[]).map(x=>[x.id,x]));
   const all=p?.catalog||[],query=practiceSearch.toLowerCase();
-  const lessons=all.filter(x=>(practiceFilter==='all'||(practiceFilter==='completed')===completed.has(x.id))&&(!query||(x.title+' '+x.track).toLowerCase().includes(query)));
+  const lessons=all.filter(x=>(!practiceSelected||x.id===practiceSelected)&&(practiceFilter==='all'||(practiceFilter==='completed')===completed.has(x.id))&&(!query||(x.title+' '+x.track).toLowerCase().includes(query)));
   return pageHeading('Learning you have used','Practice, carried forward.','Work through a lesson, then record the practice you completed.','<button class="secondary" data-practice-import>Import lessons</button>')+
     `<section class="panel practice-status"><div><h2>${managed?'Synced practice':p?'Reviewed snapshot':'Begin your practice'}</h2><p>${managed?'Completions and reopened lessons save privately across devices. Later imports protect your existing choices.':p?'Choose synced practice to record your work here. Check for editions to add published lessons.':'Check published Courier editions to begin, or import a practice pack.'}</p><p class="small">${p?`Connected or imported ${esc(dateTime(p.imported_at))}.${p.source_exported_at?' Source export '+esc(dateTime(p.source_exported_at))+'.':''}${p.updated_at?' Last workspace change '+esc(dateTime(p.updated_at))+'.':''}`:'No practice has been imported yet.'}</p></div>${!managed&&all.length?'<button class="primary" data-practice-manage>Use synced practice</button>':''}</section>${editionUI.panel()}
     <p class="small">${all.length} lessons · ${completed.size} completed. Use Check for editions to add published lessons. The original Courier page keeps its own browser copy.</p>
     <div class="practice-controls"><form id="practice-search-form"><label>Search lessons<input name="query" value="${esc(practiceSearch)}" maxlength="200" placeholder="Title or track"></label><button class="secondary" type="submit">Search</button></form><label>Show<select id="practice-filter"><option value="pending" ${practiceFilter==='pending'?'selected':''}>To practise</option><option value="completed" ${practiceFilter==='completed'?'selected':''}>Completed</option><option value="all" ${practiceFilter==='all'?'selected':''}>All lessons</option></select></label></div>
-    <div class="practice-lessons">${lessons.length?lessons.slice(0,practiceLimit).map(x=>{const done=completed.get(x.id);return `<details class="panel practice-lesson"><summary><span><span class="small">${esc(x.track)} · Edition ${formatDay(x.day)}</span><strong>${esc(x.title)}</strong></span><span class="badge">${done?'Completed':'To practise'}</span></summary><div class="practice-lesson-body">${x.task&&x.task.toLowerCase()!=='none'?`<h3>Practice task</h3><p class="lesson-instructions">${esc(x.task)}</p>`:'<p>This import contains the lesson title only. Open the Courier edition to review its practice task.</p>'}${x.drill&&x.drill.toLowerCase()!=='none'?`<h3>Drill</h3><p class="lesson-instructions">${esc(x.drill)}</p>`:''}<p class="small">${done?'Completed '+formatDay(done.completedDay)+'.':'Listening alone does not mark this lesson complete.'}</p><div class="project-toolbar">${managed?`<button class="${done?'secondary':'primary'}" data-lesson-action="${done?'reopen':'complete'}" data-id="${esc(x.id)}">${done?'Reopen lesson':'Mark practice complete'}</button>`:''}<a class="inline-link" href="${LEGACY_ORIGIN}courier.html?day=${encodeURIComponent(x.day)}#courier-practice" target="_blank" rel="noopener">Open Courier edition</a></div></div></details>`;}).join(''):empty(all.length?'No lessons match this view.':'Bring your learning into Atlas.',all.length?'Try another filter or search.':'Choose Check for editions above, or bring a practice pack from the original Courier app.','<a class="inline-link" href="'+LEGACY_ORIGIN+'courier.html#courier-practice" target="_blank" rel="noopener">Open Courier practice</a>')}</div>${lessons.length>practiceLimit?'<button class="secondary" data-practice-more>Show more lessons</button>':''}`;
+    ${practiceSelected?'<p class="small">Showing the lesson opened from workspace search. <button class="text-button" data-practice-clear>Show all lessons</button></p>':''}<div class="practice-lessons">${lessons.length?lessons.slice(0,practiceLimit).map(x=>{const done=completed.get(x.id);return `<details class="panel practice-lesson" data-lesson-id="${esc(x.id)}"><summary><span><span class="small">${esc(x.track)} · Edition ${formatDay(x.day)}</span><strong>${esc(x.title)}</strong></span><span class="badge">${done?'Completed':'To practise'}</span></summary><div class="practice-lesson-body">${x.task&&x.task.toLowerCase()!=='none'?`<h3>Practice task</h3><p class="lesson-instructions">${esc(x.task)}</p>`:'<p>This import contains the lesson title only. Open the Courier edition to review its practice task.</p>'}${x.drill&&x.drill.toLowerCase()!=='none'?`<h3>Drill</h3><p class="lesson-instructions">${esc(x.drill)}</p>`:''}<p class="small">${done?'Completed '+formatDay(done.completedDay)+'.':'Listening alone does not mark this lesson complete.'}</p><div class="project-toolbar">${managed?`<button class="${done?'secondary':'primary'}" data-lesson-action="${done?'reopen':'complete'}" data-id="${esc(x.id)}">${done?'Reopen lesson':'Mark practice complete'}</button>`:''}<a class="inline-link" href="${LEGACY_ORIGIN}courier.html?day=${encodeURIComponent(x.day)}#courier-practice" target="_blank" rel="noopener">Open Courier edition</a></div></div></details>`;}).join(''):empty(all.length?'No lessons match this view.':'Bring your learning into Atlas.',all.length?'Try another filter or search.':'Choose Check for editions above, or bring a practice pack from the original Courier app.','<a class="inline-link" href="'+LEGACY_ORIGIN+'courier.html#courier-practice" target="_blank" rel="noopener">Open Courier practice</a>')}</div>${lessons.length>practiceLimit?'<button class="secondary" data-practice-more>Show more lessons</button>':''}`;
 }
 function connectionsView(){
   const managed=data.projects.filter(p=>p.mode==='managed'&&!p.archived_at).length,snapshots=data.projects.filter(p=>p.mode==='snapshot'&&!p.archived_at).length;
@@ -184,6 +220,7 @@ $('#history-confirm').addEventListener('click',async()=>{
   catch(e){$('#history-error').textContent=e.message;}finally{button.disabled=false;}
 });
 function render(){
+  if(view!=='practice')practiceSelected=null;
   document.querySelectorAll('[data-view]').forEach(a=>{if(a.dataset.view===view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   $('#date-label').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
   if(!loaded)return;
@@ -197,6 +234,7 @@ function openCapture(projectId=null,task=null,seed=null){
   editing=task;draftId=task?.id||newId();
   const form=$('#task-form');form.reset();$('#task-error').textContent='';
   $('#task-dialog-title').textContent=task?'Edit commitment':'Capture a commitment';
+  $('#task-record-status').hidden=!task||task.status==='open';$('#task-record-status').textContent=task&&task.status!=='open'?`${task.status==='done'?'Completed':'Archived'} commitment. Saving details keeps this status.`:'';
   $('#app-select').innerHTML=APPS.filter(a=>a.group!=='Archive').map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');
   if(task?.app_id==='chambers-wealth-hq')$('#app-select').insertAdjacentHTML('beforeend','<option value="chambers-wealth-hq">Chambers Wealth HQ (legacy)</option>');
   $('#project-select').innerHTML='<option value="">No project</option>'+data.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
@@ -286,8 +324,9 @@ $('#project-form').addEventListener('submit',async event=>{
   try{if(editingProject)await api('/api/projects/'+encodeURIComponent(editingProject.id),'PATCH',{...values,revision:editingProject.revision,action:'edit'});else await api('/api/projects','POST',{...values,id:projectDraftId});$('#project-dialog').close();await load();toast('Project saved privately across devices.');}
   catch(e){$('#project-error').textContent=e.message;}finally{button.disabled=false;}
 });
-document.addEventListener('change',event=>{if(event.target.id==='practice-filter'){practiceFilter=event.target.value;practiceLimit=60;render();}});
-document.addEventListener('submit',event=>{if(event.target.id==='practice-search-form'){event.preventDefault();practiceSearch=new FormData(event.target).get('query').trim();practiceLimit=60;render();}});
+document.addEventListener('click',event=>{if(event.target.closest('[data-practice-clear]')){practiceSelected=null;practiceFilter='all';practiceSearch='';practiceLimit=60;render();}});
+document.addEventListener('change',event=>{if(event.target.id==='practice-filter'){practiceSelected=null;practiceFilter=event.target.value;practiceLimit=60;render();}});
+document.addEventListener('submit',event=>{if(event.target.id==='practice-search-form'){event.preventDefault();practiceSelected=null;practiceSearch=new FormData(event.target).get('query').trim();practiceLimit=60;render();}});
 $('#practice-file').addEventListener('change',async event=>{
   const ticket=++practiceFileRequest;practiceImport=null;$('#practice-confirm').disabled=true;$('#practice-consent').checked=false;$('#practice-preview').innerHTML='';$('#practice-error').textContent='';const file=event.target.files[0];if(!file)return;
   try{

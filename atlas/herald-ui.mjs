@@ -71,5 +71,5 @@ export function createHeraldUI({api,getData,getWeek,load,error,toast,esc,downloa
   for(const id of ['#herald-dialog','#herald-import-dialog'])$(id).addEventListener('cancel',e=>{if(saving)e.preventDefault();});
   $('#herald-dialog').addEventListener('close',()=>{editing=null;});
   $('#herald-import-dialog').addEventListener('close',()=>{ticket++;plan=null;});
-  return {page,weekly,get dirty(){return !!editing||$('#herald-import-dialog').open;},get saving(){return saving;}};
+  return {page,weekly,openRecord(id){if(saving||blocked())return false;const item=saved()?.items.find(r=>r.id===id);if(!item)return false;openEditor(item);return true;},get dirty(){return !!editing||$('#herald-import-dialog').open;},get saving(){return saving;}};
 }

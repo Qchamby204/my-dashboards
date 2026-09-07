@@ -9,6 +9,8 @@ const css = (await Promise.all(['atlas/style.css', 'shared/atlas-palette.css', '
 const js = await readFile(new URL('atlas/app.js', root), 'utf8');
 const theme = await readFile(new URL('shared/atlas-theme.js', root), 'utf8');
 const model = await readFile(new URL('atlas/model.mjs', root), 'utf8');
+const searchModel = await readFile(new URL('atlas/search.mjs', root), 'utf8');
+const searchUI = await readFile(new URL('atlas/search-ui.mjs', root), 'utf8');
 const heraldModel = await readFile(new URL('atlas/herald.mjs', root), 'utf8');
 const heraldUI = await readFile(new URL('atlas/herald-ui.mjs', root), 'utf8');
 const communicationModel = await readFile(new URL('atlas/communication.mjs', root), 'utf8');
@@ -17,7 +19,7 @@ const ledgerModel = await readFile(new URL('atlas/ledger.mjs', root), 'utf8');
 const reflectionUI = await readFile(new URL('atlas/reflection-ui.mjs', root), 'utf8');
 const editionUI = await readFile(new URL('atlas/edition-refresh-ui.mjs', root), 'utf8');
 const ledgerUI = await readFile(new URL('atlas/ledger-ui.mjs', root), 'utf8');
-await writeFile(new URL('server/assets.mjs', out), `export const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\nexport const reflectionUI=${JSON.stringify(reflectionUI)};\nexport const communicationModel=${JSON.stringify(communicationModel)};\nexport const communicationUI=${JSON.stringify(communicationUI)};\nexport const heraldModel=${JSON.stringify(heraldModel)};\nexport const heraldUI=${JSON.stringify(heraldUI)};\n`);
+await writeFile(new URL('server/assets.mjs', out), `export const searchModel=${JSON.stringify(searchModel)};\nexport const searchUI=${JSON.stringify(searchUI)};\nexport const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\nexport const reflectionUI=${JSON.stringify(reflectionUI)};\nexport const communicationModel=${JSON.stringify(communicationModel)};\nexport const communicationUI=${JSON.stringify(communicationUI)};\nexport const heraldModel=${JSON.stringify(heraldModel)};\nexport const heraldUI=${JSON.stringify(heraldUI)};\n`);
 await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
 // Sites registers Worker modules from the server directory. Flatten this shared
 // dependency into that directory while keeping a single source for both apps.
@@ -26,6 +28,7 @@ if(!editions.includes("from '../shared/courier-lessons.mjs'")) throw Error('Cour
 await writeFile(new URL('server/courier-editions.mjs', out), editions.replace("from '../shared/courier-lessons.mjs'", "from './courier-lessons.mjs'"));
 await cp(new URL('shared/courier-lessons.mjs', root), new URL('server/courier-lessons.mjs', out));
 await cp(new URL('atlas/model.mjs', root), new URL('server/model.mjs', out));
+await cp(new URL('atlas/search.mjs', root), new URL('server/search.mjs', out));
 await cp(new URL('atlas/herald.mjs', root), new URL('server/herald.mjs', out));
 await cp(new URL('atlas/communication.mjs', root), new URL('server/communication.mjs', out));
 await cp(new URL('atlas/ledger.mjs', root), new URL('server/ledger.mjs', out));
