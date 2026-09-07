@@ -22,7 +22,7 @@ function harness(){
   form.querySelectorAll=()=>controls;
   const document={querySelector:node,querySelectorAll:()=>[],getElementById:id=>node('#'+id),visibilityState:'visible',addEventListener(t,f){if(!documentEvents.has(t))documentEvents.set(t,[]);documentEvents.get(t).push(f);}};
   const context=vm.createContext({...model,
-    createBudgetUI:()=>({dirty:false,saving:false,panel:()=>''}),createCommitmentsUI:()=>({page:()=>''}),createAgendaUI:()=>({panel:()=>''}),createSearchUI:()=>({}),createReflectionUI:()=>({dirty:false,saving:false}),createLedgerUI:()=>({dirty:false,saving:false}),createHeraldUI:()=>({dirty:false,saving:false}),createCommunicationUI:()=>({dirty:false,saving:false}),createEditionRefreshUI:()=>({saving:false}),
+    createCadenceUI:()=>({dirty:false,saving:false,home:()=>'',page:()=>''}),createBudgetUI:()=>({dirty:false,saving:false,panel:()=>''}),createCommitmentsUI:()=>({page:()=>''}),createAgendaUI:()=>({panel:()=>''}),createSearchUI:()=>({}),createReflectionUI:()=>({dirty:false,saving:false}),createLedgerUI:()=>({dirty:false,saving:false}),createHeraldUI:()=>({dirty:false,saving:false}),createCommunicationUI:()=>({dirty:false,saving:false}),createEditionRefreshUI:()=>({saving:false}),
     document,window:{addEventListener:(t,f)=>windowEvents.set(t,f)},location:{hash:'#projects'},Date,structuredClone,setInterval(){},setTimeout(){},localDay:()=>week,
     FormData:class{constructor(f){this.fields=Object.entries(f.elements).filter(([,e])=>!e.disabled).map(([k,e])=>[k,e.value]);} [Symbol.iterator](){return this.fields[Symbol.iterator]();}},
     fetch:(path,options)=>new Promise((resolve,reject)=>pending.push({path,options,resolve,reject}))

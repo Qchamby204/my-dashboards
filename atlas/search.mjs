@@ -1,7 +1,7 @@
 import { APPS } from './model.mjs';
 import { HERALD_STAGES, HERALD_FORMATS } from './herald.mjs';
 
-export const SEARCH_SOURCES={all:'Everything',tasks:'Commitments',projects:'Life Map',practice:'Courier lessons',ledger:'Life Ledger',communication:'Speaking practice',herald:'Content plan',weeks:'Weekly reviews'};
+export const SEARCH_SOURCES={all:'Everything',tasks:'Commitments',projects:'Life Map',practice:'Courier lessons',ledger:'Life Ledger',communication:'Speaking practice',herald:'Content plan',cadence:'Operations routines',weeks:'Weekly reviews'};
 const fold=value=>String(value??'').normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase();
 export function searchOptions(raw){
   if(!raw||typeof raw.query!=='string'||raw.query.length>160)throw Error('Search with up to 160 characters.');
@@ -33,6 +33,7 @@ export function searchWorkspace(data,options){
   for(const t of data.tasks||[])add('tasks','task',t.id,t.title,[t.due_date,t.week_start],`${app(t.app_id)} · ${t.status==='done'?'Completed':t.status==='archived'?'Archived':'Open'}${t.due_date?' · Due '+t.due_date:''}`,t.status==='archived');
   for(const p of data.projects||[])add('projects','project',p.id,p.title,[p.area,p.due_date],`${p.mode==='managed'?'Synced project':'Imported project'} · ${p.status==='done'?'Completed':'Open'}${p.due_date?' · Due '+p.due_date:''}`,!!p.archived_at);
   for(const w of data.weeks||[])add('weeks','review',w.week_start,'Week of '+w.week_start,[w.worked,w.change], 'Weekly reflection');
+  for(const r of data.cadence?.[0]?.routines||[])add('cadence','routine',r.id,r.title,[r.start_date],`${r.frequency} · ${r.paused?'Paused':'Active'} · ${r.minutes} min`);
   const practice=data.practice?.[0],completed=new Set((practice?.items||[]).map(x=>x.id));
   for(const l of practice?.catalog||[])add('practice','lesson',l.id,l.title,[l.task,l.drill,l.track,l.day],`${l.track||'Courier'} · ${l.day} · ${completed.has(l.id)?'Completed':'To practise'}`);
   const ledger=data.ledger?.[0];

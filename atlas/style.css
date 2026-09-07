@@ -161,3 +161,11 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 
 .budget-draft-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}
 .budget-draft-actions button{min-height:44px}
+
+/* Recurring operations share the workspace material and appearance tokens. */
+.routine-occurrence,.routine-definition{padding:1rem 0;border-bottom:1px solid var(--line)}
+.routine-occurrence:last-child,.routine-definition:last-child{border-bottom:0}
+.routine-occurrence .task-actions{margin-top:.5rem;flex-wrap:wrap}
+.routine-definition h3{margin:0;overflow-wrap:anywhere}
+.routine-definition details{margin-top:.6rem}
+.routine-definition summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
