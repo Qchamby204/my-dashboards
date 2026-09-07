@@ -1,6 +1,7 @@
+import { heraldContent, heraldRecord, heraldItem, parseHeraldTransfer, heraldImportPlan } from './herald.mjs';
 import { communicationContent, communicationRecord, communicationRep, parseCommunicationTransfer, communicationImportPlan } from './communication.mjs';
 import { fetchEditions, editionRefreshPlan, editionSignature } from './courier-editions.mjs';
-import { html, css, js, theme, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI } from './assets.mjs';
+import { html, css, js, theme, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan, practiceEditionRefresh } from './model.mjs';
 import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
@@ -11,7 +12,7 @@ class HttpError extends Error { constructor(message,status=400){super(message);t
 async function bodyOf(request) {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError('Send JSON.');
   const body=await request.text(),path=new URL(request.url).pathname;
-  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:(path.startsWith('/api/practice')||path.startsWith('/api/ledger')||path.startsWith('/api/communication'))?1800000:350000)) throw new HttpError('This request is too large.',413);
+  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:(path.startsWith('/api/practice')||path.startsWith('/api/ledger')||path.startsWith('/api/communication')||path.startsWith('/api/herald'))?1800000:350000)) throw new HttpError('This request is too large.',413);
   try { const value=JSON.parse(body); if(!value || typeof value!=='object' || Array.isArray(value)) throw new Error(); return value; }
   catch { throw new HttpError('This request could not be read.'); }
 }
@@ -40,6 +41,19 @@ async function writeCommunication(db,owner,current,next,now,source=undefined){
   }else{
     try{await db.prepare('INSERT INTO atlas_communication (owner,reps,updated_at,imported_at,source_exported_at) VALUES (?,?,?,?,?)').bind(owner,reps,now,imported?now:null,source??null).run();}
     catch(e){if(String(e.message).includes('UNIQUE'))throw new HttpError('Speaking practice was saved on another device. Reload before trying again.',409);throw e;}
+  }
+}
+function heraldRow(row){return row?heraldRecord({...row,items:JSON.parse(row.items)}):null;}
+async function currentHerald(db,owner){return heraldRow(await db.prepare('SELECT * FROM atlas_herald WHERE owner=?').bind(owner).first());}
+async function writeHerald(db,owner,current,next,now,source=undefined){
+  const items=JSON.stringify(heraldContent(next).items),imported=source!==undefined;
+  if(current){
+    const r=await db.prepare('UPDATE atlas_herald SET items=?,revision=revision+1,updated_at=?,imported_at=?,source_exported_at=? WHERE owner=? AND revision=?')
+      .bind(items,now,imported?now:current.imported_at,imported?source:current.source_exported_at,owner,current.revision).run();
+    if(!r.meta.changes)throw new HttpError('Content planning changed on another device. Keep your draft, then reload before trying again.',409);
+  }else{
+    try{await db.prepare('INSERT INTO atlas_herald (owner,items,updated_at,imported_at,source_exported_at) VALUES (?,?,?,?,?)').bind(owner,items,now,imported?now:null,source??null).run();}
+    catch(e){if(String(e.message).includes('UNIQUE'))throw new HttpError('Content planning was saved on another device. Reload before trying again.',409);throw e;}
   }
 }
 async function writeLedger(db,owner,current,next,now,source=undefined){
@@ -75,11 +89,12 @@ async function state(db,owner,week) {
     db.prepare('SELECT * FROM atlas_weeks WHERE owner=? AND week_start=?').bind(owner,week),
     db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner),
     db.prepare('SELECT * FROM atlas_ledger WHERE owner=?').bind(owner),
-    db.prepare('SELECT * FROM atlas_communication WHERE owner=?').bind(owner)
+    db.prepare('SELECT * FROM atlas_communication WHERE owner=?').bind(owner),
+    db.prepare('SELECT * FROM atlas_herald WHERE owner=?').bind(owner)
   ]);
   const practice=result[3].results[0];
   return { tasks:result[0].results, projects:result[1].results, week:result[2].results[0]||null,
-    practice:practiceRow(practice),ledger:ledgerRow(result[4].results[0]),communication:communicationRow(result[5].results[0]) };
+    practice:practiceRow(practice),ledger:ledgerRow(result[4].results[0]),communication:communicationRow(result[5].results[0]),herald:heraldRow(result[6].results[0]) };
 }
 async function api(request,env,url,owner) {
   const db=env.DB;
@@ -117,6 +132,38 @@ async function api(request,env,url,owner) {
     }else throw new HttpError('This practice action is unavailable.',404);
     await writeCommunication(db,owner,current,next,now);return json({saved:true});
   }
+  if(path.startsWith('/api/herald/')&&['POST','PATCH'].includes(request.method)){
+    const b=await bodyOf(request),current=await currentHerald(db,owner);
+    if(path==='/api/herald/import/preview'&&request.method==='POST'){
+      if(b.pack?.app!=='atlas-herald-transfer')throw new HttpError('Review the original export in The Herald first.');
+      const pack=await parseHeraldTransfer(b.pack),plan=heraldImportPlan(current,pack);
+      return json({pack,digest:await digest(pack),revision:current?.revision||0,rows:plan.rows,added:plan.added,kept:plan.kept});
+    }
+    if(path==='/api/herald/item'&&request.method==='POST'){
+      const rep=heraldItem({...b.item,archived:false,source_id:null});
+      if(!rep.id.startsWith('atlas:'))throw new HttpError('Choose a new Atlas content ID.');
+      const saved=current?.items.find(r=>r.id===rep.id);
+      if(saved){if(JSON.stringify(saved)!==JSON.stringify(rep))throw new HttpError('This content item was already saved with different details. Reload to review it.',409);return json({saved:true});}
+    }
+    if(!Number.isSafeInteger(b.revision)||b.revision!==(current?.revision||0))throw new HttpError('Content planning changed on another device. Download your draft, then reload or review the import again.',409);
+    if(path==='/api/herald/import'&&request.method==='POST'){
+      if(b.pack?.app!=='atlas-herald-transfer')throw new HttpError('Choose a reviewed content planning transfer.');
+      const pack=await parseHeraldTransfer(b.pack);
+      if(b.digest!==await digest(pack))throw new HttpError('This import changed after review. Choose the file again.',409);
+      const plan=heraldImportPlan(current,pack);await writeHerald(db,owner,current,plan.next,now,pack.exportedAt);
+      return json({saved:true,added:plan.added,kept:plan.kept});
+    }
+    const next={items:[...(current?.items||[])]};
+    if(path==='/api/herald/item'&&request.method==='POST')next.items.push(heraldItem({...b.item,archived:false,source_id:null}));
+    else if(path==='/api/herald/item'&&request.method==='PATCH'){
+      const index=next.items.findIndex(r=>r.id===b.id);if(index<0)throw new HttpError('This content item is unavailable.',404);
+      const rep=next.items[index];
+      if(b.action==='archive'||b.action==='restore')next.items[index]={...rep,archived:b.action==='archive'};
+      else if(b.action==='edit')next.items[index]=heraldItem({...b.item,id:rep.id,archived:rep.archived,source_id:rep.source_id});
+      else throw new HttpError('Choose a content action.');
+    }else throw new HttpError('This content action is unavailable.',404);
+    await writeHerald(db,owner,current,next,now);return json({saved:true});
+  }
   if(path.startsWith('/api/ledger/')&&['POST','PATCH','PUT'].includes(request.method)){
     const b=await bodyOf(request),current=await currentLedger(db,owner);
     if(path==='/api/ledger/import/preview'&&request.method==='POST'){
@@ -152,11 +199,11 @@ async function api(request,env,url,owner) {
     await writeLedger(db,owner,current,next,now);return json({saved:true});
   }
   if(path==='/api/restore/preview'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication);
-    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1,legacyLedger:b.backup.version<4,legacyCommunication:b.backup.version<5});
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald);
+    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1,legacyLedger:b.backup.version<4,legacyCommunication:b.backup.version<5,legacyHerald:b.backup.version<6});
   }
   if(path==='/api/restore'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication);
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald);
     if(!Number.isSafeInteger(b.seq)||b.seq!==current.seq||b.digest!==await digest(backup))throw new HttpError('The workspace or backup changed. Review the restore again.',409);
     const id=await replaceWorkspace(db,owner,backup,current.data,b.seq,'Before workspace restore');
     return json({saved:true,checkpoint:id});
@@ -193,7 +240,7 @@ async function api(request,env,url,owner) {
     if(path.endsWith('/undo')&&request.method==='POST'){
       const b=await bodyOf(request),current=await workspace(db,owner);
       if(b.seq!==current.seq||current.seq!==checkpoint.after_seq)throw new HttpError('The workspace changed after this restore. Download the recovery copy and review it before applying it.',409);
-      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data,current.data.practice,current.data.ledger,current.data.communication),current.data,current.seq,'Before reversing workspace restore');
+      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data,current.data.practice,current.data.ledger,current.data.communication,current.data.herald),current.data,current.seq,'Before reversing workspace restore');
       return json({saved:true,checkpoint:recovery});
     }
   }
@@ -381,7 +428,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
+      const assets={'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});

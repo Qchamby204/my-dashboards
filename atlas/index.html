@@ -18,6 +18,7 @@
     <a href="#practice" data-view="practice"><span aria-hidden="true">◇</span> Practice</a>
     <a href="#ledger" data-view="ledger"><span aria-hidden="true">▤</span> Life Ledger</a>
     <a href="#communication" data-view="communication"><span aria-hidden="true">◌</span> Speaking practice</a>
+    <a href="#herald" data-view="herald"><span aria-hidden="true">⚑</span> Content plan</a>
     <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> All apps</a>
     <a href="#history" data-view="history"><span aria-hidden="true">◷</span> History & recovery</a>
   </nav>
@@ -132,12 +133,36 @@
   <label class="restore-consent"><input type="checkbox" id="communication-consent">I reviewed the sessions to add and keep.</label>
   <div class="dialog-actions"><button class="secondary" data-close="communication-import-dialog">Cancel</button><button class="primary" id="communication-import-confirm" disabled>Import reviewed sessions</button></div>
 </dialog>
+<dialog id="herald-dialog" aria-labelledby="herald-edit-title">
+  <form id="herald-form">
+    <div class="dialog-heading"><h2 id="herald-edit-title">New content</h2><button type="button" class="icon-button" data-close="herald-dialog" aria-label="Close content editor">×</button></div>
+    <label>Title<input name="title" required maxlength="500" placeholder="An idea worth sharing" autocomplete="off"></label>
+    <div class="form-grid"><label>Format<select name="format"><option value="long">Long form</option><option value="short">Short</option></select></label><label>Audience (optional)<input name="audience" maxlength="120" autocomplete="off"></label></div>
+    <label>Production stage<select name="stage"><option value="draft">Draft</option><option value="approved">Approved</option><option value="produced">Filmed / edited</option><option value="scheduled">Scheduled</option><option value="published">Published</option></select></label>
+    <div class="form-grid"><label>Planned date (optional)<input name="scheduled_day" type="date"></label><label>Actual publication date (optional)<input name="published_day" type="date" aria-describedby="herald-publication-help"></label></div>
+    <p class="small" id="herald-publication-help">For published content, record the date it actually went live. Leaving Published clears that date when you save. Stages and dates record your choices; saving does not publish, schedule, or approve content on another service.</p>
+    <label>Planning note (optional)<textarea name="note" rows="4" maxlength="3000" placeholder="What is the next step for this piece?"></textarea></label>
+    <p class="small">Keep full scripts in the original vault. This note is part of your private content plan.</p><p id="herald-error" class="form-error" role="alert"></p>
+    <div class="review-actions"><button type="button" class="text-button" data-herald-download>Download draft</button><button type="button" class="text-button" data-herald-reload>Discard draft & reload</button></div>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close="herald-dialog">Cancel</button><button type="submit" class="primary">Save content plan</button></div>
+  </form>
+</dialog>
+<dialog id="herald-import-dialog" aria-labelledby="herald-import-title">
+  <div class="dialog-heading"><h2 id="herald-import-title">Bring in your content plan</h2><button class="icon-button" data-close="herald-import-dialog" aria-label="Close Herald import">×</button></div>
+  <p>In the original Herald, choose Export backup, then select that JSON file here.</p>
+  <p class="small">Imports video IDs, titles, formats, audiences, production stages, and planned dates. Scripts, lead records, analytics, keywords, checklists, and content strategy stay in the original vault.</p>
+  <label>Herald backup<input id="herald-file" type="file" accept=".json,application/json"></label>
+  <p class="small">The original Herald does not record an actual publication date. Imported Published items remain undated until you add that date. Existing saved items keep their details and archive choices on later imports.</p>
+  <div id="herald-import-preview"></div><p id="herald-import-error" class="form-error" role="alert"></p>
+  <label class="restore-consent"><input type="checkbox" id="herald-consent">I reviewed the items to add and keep.</label>
+  <div class="dialog-actions"><button class="secondary" data-close="herald-import-dialog">Cancel</button><button class="primary" id="herald-import-confirm" disabled>Import reviewed content</button></div>
+</dialog>
 <dialog id="restore-dialog" aria-labelledby="restore-title">
   <div class="dialog-heading"><h2 id="restore-title">Restore your workspace</h2><button class="icon-button" data-close="restore-dialog" aria-label="Close workspace restore">×</button></div>
   <p>Choose an Atlas OS export. Review every addition, replacement, and removal before applying it.</p>
   <label>Choose a JSON export<input id="restore-file" type="file" accept=".json,application/json"></label>
   <details><summary>Or paste an export</summary><label>Atlas OS backup JSON<textarea id="restore-json" rows="5" spellcheck="false"></textarea></label><button id="restore-paste" class="secondary">Review pasted export</button></details>
-  <p class="small">Up to 8 MB. This restores the private workspace. Original app records and appearance preferences stay in their own apps. Version 1 exports retain current practice. Versions 1–3 retain current Life Ledger records. Versions 1–4 retain current speaking practice.</p>
+  <p class="small">Up to 8 MB. This restores the private workspace. Original app records and appearance preferences stay in their own apps. Version 1 exports retain current practice. Versions 1–3 retain current Life Ledger records. Versions 1–4 retain current speaking practice. Versions 1–5 retain the current Herald content plan.</p>
   <div id="restore-preview"></div><p id="restore-error" class="form-error" role="alert"></p>
   <div class="dialog-actions"><button class="secondary" data-close="restore-dialog">Cancel</button><button class="primary" id="restore-confirm" disabled>Apply reviewed restore</button></div>
 </dialog>
