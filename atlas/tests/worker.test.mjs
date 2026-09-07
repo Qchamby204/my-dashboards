@@ -150,7 +150,7 @@ test('practice snapshots whitelist fields, replace removed completions, and reje
   assert.equal((await request(db,'/api/practice','PUT',{items:[{...item,day:'bad'}],source_exported_at:null,revision:1})).status,400);
   assert.equal((await snapshot(db)).data.practice.items.length,1);
   assert.equal((await request(db,'/api/practice','PUT',{items:[],source_exported_at:null,revision:1})).status,200);
-  const saved=(await request(db,'/api/export')).data;assert.equal(saved.version,3);assert.deepEqual(saved.practice[0].items,[]);assert.equal(saved.practice[0].owner,undefined);db.close();
+  const saved=(await request(db,'/api/export')).data;assert.equal(saved.version,4);assert.deepEqual(saved.practice[0].items,[]);assert.equal(saved.practice[0].owner,undefined);db.close();
 });
 
 test('weekly review combines actual completion dates, carryover, future deadlines and dated practice',()=>{

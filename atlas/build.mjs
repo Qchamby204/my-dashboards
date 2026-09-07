@@ -9,9 +9,12 @@ const css = (await Promise.all(['atlas/style.css', 'shared/atlas-palette.css', '
 const js = await readFile(new URL('atlas/app.js', root), 'utf8');
 const theme = await readFile(new URL('shared/atlas-theme.js', root), 'utf8');
 const model = await readFile(new URL('atlas/model.mjs', root), 'utf8');
-await writeFile(new URL('server/assets.mjs', out), `export const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\n`);
+const ledgerModel = await readFile(new URL('atlas/ledger.mjs', root), 'utf8');
+const ledgerUI = await readFile(new URL('atlas/ledger-ui.mjs', root), 'utf8');
+await writeFile(new URL('server/assets.mjs', out), `export const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\n`);
 await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
 await cp(new URL('atlas/model.mjs', root), new URL('server/model.mjs', out));
+await cp(new URL('atlas/ledger.mjs', root), new URL('server/ledger.mjs', out));
 await cp(new URL('atlas/recovery.mjs', root), new URL('server/recovery.mjs', out));
 await cp(new URL('.openai/hosting.json', root), new URL('.openai/hosting.json', out));
 await cp(new URL('drizzle/', root), new URL('.openai/drizzle/', out), { recursive: true });

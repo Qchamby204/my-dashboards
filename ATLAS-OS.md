@@ -1,6 +1,6 @@
 # Atlas OS: reliable planning and recovery
 
-Atlas has a private, server-backed workspace for synced Life Map projects and the daily and weekly commitment loop. The original GitHub Pages apps retain their URLs and storage. Gang Ops and both test booking dashboards remain outside this work.
+Atlas has a private, server-backed workspace for synced Life Map projects, Courier practice, Life Ledger habits and reflection, and the daily and weekly commitment loop. The original GitHub Pages apps retain their URLs and storage. Gang Ops and both test booking dashboards remain outside this work.
 
 ## What works
 
@@ -16,9 +16,9 @@ Atlas has a private, server-backed workspace for synced Life Map projects and th
 
 ## Scope of the connection
 
-Projects, commitments, reviews, and practice records are saved in D1 and scoped to the authenticated user. Imported projects begin in snapshot mode. Choosing “Use synced project” makes Atlas the place to manage that project and protects it from later imports. Existing task links and IDs are retained. The original Life Map browser copy is separate: the migration uses reviewed file transfers, not background synchronization between origins.
+Projects, commitments, reviews, practice, and Life Ledger records are saved in D1 and scoped to the authenticated user. Imported projects begin in snapshot mode. Choosing “Use synced project” makes Atlas the place to manage that project and protects it from later imports. Existing task links and IDs are retained. The original Life Map browser copy is separate: the migration uses reviewed file transfers, not background synchronization between origins.
 
-The project importer sends only source ID, title, area, due date, and open/completed status after review. Local notes, chores, contact records, and credentials stay out of the request. Imports update eligible snapshot projects and never delete absent projects. Courier practice can be imported as a reviewed snapshot or adopted into native synced practice. Practice packs include lesson IDs, titles, track labels, publication days, tasks, drills, and explicit completion records. Snapshot imports replace the earlier snapshot; synced imports add new lessons and preserve existing choices. Atlas export version 3 includes the complete private workspace, including the practice catalog and management mode. History & recovery accepts earlier exports and normalizes their missing fields conservatively.
+The project importer sends only source ID, title, area, due date, and open/completed status after review. Local notes, chores, contact records, and credentials stay out of the request. Imports update eligible snapshot projects and never delete absent projects. Courier practice can be imported as a reviewed snapshot or adopted into native synced practice. Practice packs include lesson IDs, titles, track labels, publication days, tasks, drills, and explicit completion records. Snapshot imports replace the earlier snapshot; synced imports add new lessons and preserve existing choices. Atlas export version 4 includes the complete private workspace, including the practice catalog, management mode, and Life Ledger. Versions 1–3 retain the current Life Ledger when restored. History & recovery accepts earlier exports and normalizes their missing fields conservatively.
 
 Cross-device saving applies inside the private workspace. The UI refreshes on return or through Refresh, rejects stale writes, and keeps unsaved form input on save failure. This is not real-time push or offline editing. Completing a commitment never automatically completes its project. Returning a synced project to import mode retains its saved values and allows later reviewed source imports again.
 
@@ -42,8 +42,8 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 
 ## Next implementation priorities
 
-1. Bring Life Ledger habits and reflection into the private workspace using the same reviewed-import and ownership model.
-2. Add direct edition refresh for practice with clear freshness and failure states, while preserving native completion choices.
+1. Add direct edition refresh for practice with clear freshness and failure states, while preserving native completion choices.
+2. Add a reviewed way to bring selected reflection into weekly planning without creating commitments automatically.
 
 ## Completed: daily workflow batch
 
@@ -74,9 +74,9 @@ User records were not migrated during development. All validation uses synthetic
 
 ## Completed: workspace recovery and persistent history
 
-History & recovery accepts Atlas OS exports up to 8 MB. The browser and server validate the format, record types, unique IDs, project links, dates, statuses, and priority slots. Version 1 files preserve current practice. Version 2 explicitly restores legacy snapshot practice. Version 3 restores the lesson catalog, native completion choices, and management mode. The practice payload is limited to 1.5 MB to remain within D1 row limits. Atlas Vault exports belong to the original Home app and are rejected by workspace restore.
+History & recovery accepts Atlas OS exports up to 8 MB. The browser and server validate the format, record types, unique IDs, project links, dates, statuses, and priority slots. Version 1 files preserve current practice. Version 2 explicitly restores legacy snapshot practice. Version 3 restores the lesson catalog, native completion choices, and management mode. Version 4 also restores Life Ledger. Versions 1–3 retain the current Life Ledger. The practice payload is limited to 1.5 MB to remain within D1 row limits. Atlas Vault exports belong to the original Home app and are rejected by workspace restore.
 
-The preview lists additions, replacements, removals, and unchanged values for each record type. Applying it requires review acknowledgement. Restore is a full replacement of the owner's projects, commitments, reviews, and practice snapshot. It does not change browser-local app records, appearance, history, or previous recovery copies.
+The preview lists additions, replacements, removals, and unchanged values for each record type. Applying it requires review acknowledgement. Restore is a full replacement of the owner's projects, commitments, reviews, practice, and Life Ledger (when included in version 4). It does not change browser-local app records, appearance, history, or previous recovery copies.
 
 Before replacement, Atlas stores the current workspace in bounded recovery chunks. A D1 batch contains a workspace-generation guard, the recovery copy, replacement records, history entries, and a restore marker. A failed guard or any failed statement rolls back the whole batch. Row revisions advance so already-open editors cannot overwrite restored records. Project identity and commitment links remain intact. A network-uncertain retry must refresh and review again.
 
@@ -122,3 +122,20 @@ Native completion and reopening use owner-scoped revision checks. Concurrent wri
 Practice payloads remain limited to 1.5 MB, including their catalog. The public pack is a file transfer; it does not send local records to the private Site automatically. Existing Sites authentication, same-origin writes, and owner isolation apply to all practice endpoints.
 
 Validation: 64 tests pass, including six new tests covering migration preservation, pack whitelisting, native completion/reopening, owner isolation, import protection, concurrent writes, failure handling, and versioned recovery. Script syntax, markup IDs, CSS, migration immutability, and excluded dashboards also pass checks. This batch has no new browser or physical-device QA; the earlier browser results describe the earlier build.
+
+
+## Completed: synced Life Ledger
+
+Life Ledger now opens inside the private workspace from the navigation, Today, and All apps. Create, rename, archive, and restore a habit; record simple daily checkmarks; and save two optional reflections. The date picker revisits any date, recent saved days provide shortcuts, and the weekly review includes that week's saved notes. All surfaces inherit Light/Dark/System appearance and the shared neumorphism styling. The original Life Ledger remains available at its existing GitHub Pages address.
+
+The original app's Export Backup file is projected locally before upload. Supported habit names, custom labels, hidden/archive choices, dated positive check-ins, and notes transfer after review. Quantities become checkmarks; numeric totals, goals, criteria, supplement routines, mood ratings, achievements, and outcome metrics are not imported. Unsupported habit keys are named in the preview. The source file and browser records are untouched. Atlas Vault files and draft downloads are not Life Ledger import files.
+
+Imports are additive. An existing habit ID keeps its saved name and archive choice. An existing date keeps its entire saved record, even an intentionally empty day or cleared reflection; later imports never merge into it. New dates and habit IDs can be added. Review displays every Add/Keep decision, then requires acknowledgement. A canonical payload digest and expected revision bind application to the preview. This deliberately preserves existing dates even when the source file is newer; use the native editor to change a saved day.
+
+`atlas/ledger.mjs` owns shared validation and migration; `atlas/ledger-ui.mjs` owns the daily editor and import UI. `0004_overjoyed_madripoor.sql` appends one owner-scoped D1 aggregate and three atomic history triggers. Migrations 0000–0003 are unchanged. Habit and day mutations use a single compare-and-swap revision across the Ledger, so simultaneous edits to different days may conflict instead of silently combining. Limits are 100 habits, 5,000 saved days, 4,000 characters per reflection prompt, and 1.5 MB for the combined record. There is no default target, streak penalty, automated completion, or background transfer from the original app.
+
+Unsaved daily input blocks navigation, refresh, date changes, and unrelated writes. A save freezes its form until completion and retains its original revision on failure. Download draft provides a human-readable JSON copy for manually recovering notes after a conflict; it is not a workspace restore file. Discard draft & reload day explicitly replaces the unsaved draft with the saved view. Native browser unload warnings also cover daily drafts and an open habit editor. Offline data is not queued, and a tab or device failure can still lose an undownloaded draft.
+
+Workspace export version 4 includes full habits, archive choices, daily checkmarks, and reflection. Restores and recovery-copy reversals preserve them transactionally. Earlier workspace formats retain the current Ledger instead of deleting it. Compact history records counts and provenance, without duplicating reflection text; individual Ledger history entries are not reversible. Use the daily editor or a reviewed full-workspace backup. A workspace restore replaces the entire Ledger aggregate and can remove later entries after review.
+
+Validation: all 72 automated tests pass. New tests cover the additive schema migration, import filtering and limits, owner isolation, native saves and weekly dates, cleared-day and archive protection, stale/tampered imports, simultaneous writes, legacy backup compatibility, full recovery reversal, atomic history failure, and draft retention after a rejected save. Static markup, script, and CSS checks complement the tests. This batch has not received new browser or physical-device QA; previous browser results above apply to their named releases only. No live personal records were imported during development.
