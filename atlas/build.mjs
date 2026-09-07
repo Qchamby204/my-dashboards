@@ -12,6 +12,7 @@ const model = await readFile(new URL('atlas/model.mjs', root), 'utf8');
 await writeFile(new URL('server/assets.mjs', out), `export const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\n`);
 await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
 await cp(new URL('atlas/model.mjs', root), new URL('server/model.mjs', out));
+await cp(new URL('atlas/recovery.mjs', root), new URL('server/recovery.mjs', out));
 await cp(new URL('.openai/hosting.json', root), new URL('.openai/hosting.json', out));
 await cp(new URL('drizzle/', root), new URL('.openai/drizzle/', out), { recursive: true });
 console.log('Atlas Worker and schema migrations prepared.');

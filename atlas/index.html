@@ -16,6 +16,7 @@
     <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Life Map</a>
     <a href="#review" data-view="review"><span aria-hidden="true">↺</span> Weekly review</a>
     <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> All apps</a>
+    <a href="#history" data-view="history"><span aria-hidden="true">◷</span> History & recovery</a>
   </nav>
   <div class="sidebar-bottom"><span class="workspace-label">Private workspace</span><span id="save-state">Connecting…</span><button id="export" class="text-button">Export my Atlas data</button></div>
 </aside>
@@ -66,6 +67,19 @@
   <p class="small">This replaces the previous practice snapshot, including removed completions. Courier remains the source. Other app records, listening history, and credentials are excluded.</p>
   <div id="practice-preview"></div><p id="practice-error" class="form-error" role="alert"></p>
   <div class="dialog-actions"><button class="secondary" data-close="practice-dialog">Cancel</button><button class="primary" id="practice-confirm" disabled>Save reviewed snapshot</button></div>
+</dialog>
+<dialog id="restore-dialog" aria-labelledby="restore-title">
+  <div class="dialog-heading"><h2 id="restore-title">Restore your workspace</h2><button class="icon-button" data-close="restore-dialog" aria-label="Close workspace restore">×</button></div>
+  <p>Choose an Atlas OS export. Review every addition, replacement, and removal before applying it.</p>
+  <label>Choose a JSON export<input id="restore-file" type="file" accept=".json,application/json"></label>
+  <details><summary>Or paste an export</summary><label>Atlas OS backup JSON<textarea id="restore-json" rows="5" spellcheck="false"></textarea></label><button id="restore-paste" class="secondary">Review pasted export</button></details>
+  <p class="small">Up to 8 MB. This restores the private workspace. Original app records and appearance preferences stay in their own apps. Version 1 exports retain the current practice snapshot.</p>
+  <div id="restore-preview"></div><p id="restore-error" class="form-error" role="alert"></p>
+  <div class="dialog-actions"><button class="secondary" data-close="restore-dialog">Cancel</button><button class="primary" id="restore-confirm" disabled>Apply reviewed restore</button></div>
+</dialog>
+<dialog id="history-dialog" aria-labelledby="history-title">
+  <h2 id="history-title">Review recovery</h2><div id="history-preview"></div><p id="history-error" class="form-error" role="alert"></p>
+  <div class="dialog-actions"><button class="secondary" data-close="history-dialog">Cancel</button><button class="primary" id="history-confirm">Restore previous values</button></div>
 </dialog>
 <div id="toast" class="toast" role="status" hidden><span></span><button class="text-button" id="undo" hidden>Undo</button><button class="icon-button" id="dismiss-toast" aria-label="Dismiss notification">×</button></div>
 <noscript><p class="error">Enable JavaScript to use your Atlas workspace.</p></noscript>

@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, index, uniqueIndex, check } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 export const projects = sqliteTable('atlas_projects', {
@@ -30,3 +30,20 @@ export const practiceSnapshots = sqliteTable('atlas_practice_snapshots', {
   revision: integer('revision').notNull().default(1), importedAt: text('imported_at').notNull(),
   sourceExportedAt: text('source_exported_at'),
 });
+
+export const history = sqliteTable('atlas_history', {
+  seq: integer('seq').primaryKey({autoIncrement:true}), owner:text('owner').notNull(),
+  entity:text('entity').notNull(), recordId:text('record_id').notNull(), action:text('action').notNull(),
+  before:text('before_json'), after:text('after_json'), createdAt:text('created_at').notNull(),
+}, t=>[index('atlas_history_owner_seq').on(t.owner,t.seq)]);
+export const checkpoints = sqliteTable('atlas_checkpoints', {
+  id:text('id').primaryKey(), owner:text('owner').notNull(), createdAt:text('created_at').notNull(),
+  afterSeq:integer('after_seq').notNull(), label:text('label').notNull(),
+},t=>[index('atlas_checkpoints_owner').on(t.owner)]);
+export const checkpointChunks = sqliteTable('atlas_checkpoint_chunks', {
+  id:text('id').primaryKey(), checkpointId:text('checkpoint_id').notNull(), content:text('content').notNull(), position:integer('position').notNull(),
+},t=>[uniqueIndex('atlas_checkpoint_chunk_position').on(t.checkpointId,t.position)]);
+// A failed guard aborts the entire D1 batch before any restore writes.
+export const restoreGuards = sqliteTable('atlas_restore_guards', {
+  id:text('id').primaryKey(), valid:integer('valid').notNull(),
+},t=>[check('atlas_restore_guard_valid',sql`${t.valid} = 1`)]);
