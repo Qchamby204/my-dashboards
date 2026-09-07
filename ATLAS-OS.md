@@ -43,8 +43,8 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 
 ## Next implementation priorities
 
-1. Add a reviewed way to bring selected reflection into weekly planning without creating commitments automatically.
-2. Extend the shared connection model to the next specialist app after validating its source records and ownership boundaries.
+1. Extend the shared connection model to the next specialist app after validating its source records and ownership boundaries.
+2. Validate unattended Courier publication and implement independent deadline recovery; the separate ChatGPT status check reports availability but does not repair the publisher.
 
 ## Completed: daily workflow batch
 
@@ -157,3 +157,16 @@ Direct refresh is additive in both snapshot and synced modes. Existing lesson me
 Migration `0005_great_wraith.sql` appends nullable practice refresh metadata and updates the compact practice history triggers. Migrations 0000–0004 are unchanged. Optional `edition_refresh` metadata is included in version 4 workspace exports and validated during restore; older exports default it to null. It records the successful refresh timestamp, first and latest edition dates, latest lesson edition date, and publication counts. A snapshot-replacing file import clears this metadata; normal completions and additive synced file imports retain it. History keeps the refresh date, not duplicate lesson content.
 
 Validation: all 81 automated tests pass. New coverage includes identity parity with the existing Courier manifest, field projection, fixed outbound requests, malformed/oversized feeds, timeouts, owner isolation, read-only previews, absent and title-only lessons, retention across shrinking publication windows, snapshot mode, feed changes during review, private writes during a fetch, backup compatibility, migration integrity, and cancelled/failed review behavior. Static markup references, module resolution, JavaScript syntax, and CSS checks also pass. External responses are simulated for Worker integration tests; this batch has no new browser, physical-device, or live authenticated refresh QA. No personal records were imported during development.
+
+
+## Completed: reflection into weekly planning
+
+Weekly review now shows the selected week’s saved Life Ledger notes beside the review editor. Select notes, review and shorten each excerpt, and choose “What worked?” or “What will you change?” as its destination. Add to review draft appends dated excerpts after existing text. It makes no request and changes no Ledger records. Save review remains a separate action. Exact repeated excerpts are skipped; combined answers beyond 4,000 characters are rejected as a group without truncation or partial edits. Cancelling the excerpt dialog retains the selected notes so they can be reviewed again or explicitly cleared.
+
+Plan an action from this note opens the ordinary commitment editor, connected to Life Ledger and initially scheduled for the week after the reviewed week. The source note appears as a reference while drafting. Notes at most 300 characters prefill an editable title; longer notes leave the title blank for a concrete action. The user can change the week, app, project, estimate, and due date. Only Save commitment creates a record; the reference itself is not a persistent source link or a second saved copy of the note. Nothing is automatically scheduled, prioritized, or completed.
+
+Review drafts retain their original week and revision. Late refresh responses cannot replace typed review text or pending note selections. Saves freeze the editor and reject repeated submission. A conflict keeps the draft, and Download draft provides a human-readable JSON copy, including selected notes. This draft file is not a workspace restore format. Discard draft & reload review deliberately drops the draft and reloads saved values. Standard workspace exports, recovery copies, and review history already include saved review text, so this batch adds no database schema or backup-format changes. A tab/device loss can still lose an undownloaded draft.
+
+The next-week planning link now advances the selected week. While changing weeks, Atlas waits for that week’s saved state before exposing editors; it does not show the previous week’s review under a new date. Commitment controls are also frozen during save and cannot be closed until the request resolves. The existing light, dark, and system appearance materials are retained.
+
+Validation: all 86 automated tests pass. Five new tests cover weekly source boundaries, excerpt editing and cancellation, all-or-nothing length limits, duplicate excerpt protection, no automatic writes, draft revision retention, failed saves, next-week capture preparation, and the actual app’s late-refresh and week-switch behavior. The authenticated Worker serves the new client module and retains its existing owner-scoped save, history, and recovery routes. JavaScript syntax, static markup, module availability, and the production build are checked. No new browser, physical-device, or live personal-data QA was performed. Courier publication files are brought forward unchanged from current GitHub main; its workflow and notification schedule are unchanged.
