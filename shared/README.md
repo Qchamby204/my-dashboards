@@ -1,14 +1,16 @@
 # Atlas material system
 
-Atlas uses a light neumorphic material: a mineral-grey canvas, soft directional shadows, inset controls, dark ink, and bronze primary actions. Meaningful status colours remain available alongside their existing labels.
+Atlas offers Light, Dark, and System appearance. Light uses mineral-grey surfaces; Dark uses graphite surfaces and softer highlights. Both retain directional shadows, inset controls, bronze primary actions, and labelled status colours.
 
 ## Integration
 
 `atlas-neumorphism.css` owns the shared tokens, component states, responsive refinements, and app-specific treatments. `atlas-neumorphism-compat.css` adapts the legacy hardcoded palettes, including styles emitted by the existing application scripts. Its selectors are scoped with `:where()` so the shared component layer can override them without increasing specificity.
 
-The fourteen root HTML interfaces opt in with `class="atlas-neumo"` and `data-atlas-app="<filename without extension>"`. Load the compatibility stylesheet first and the material stylesheet second, after the original styles. The new Atlas OS workspace opts in as `atlas-os`; its build combines its base CSS with the shared material stylesheet and serves both at `/style.css`.
+The fourteen root HTML interfaces opt in with `class="atlas-neumo"` and `data-atlas-app="<filename without extension>"`. Load `atlas-theme.js` synchronously in the head before styles. After the original CSS, load `atlas-palette.css`, `atlas-neumorphism-compat.css`, `atlas-neumorphism.css`, and `atlas-appearance.css`, in that order. Palette definitions provide a light/dark pair for each legacy shade; component declarations use those tokens instead of hardcoded light values. The new Atlas OS workspace opts in as `atlas-os`; its build serves the shared script at `/theme.js` and combines the palette, material, and appearance CSS with its base CSS at `/style.css`.
 
-Gang Ops and the two test booking dashboards are intentionally outside this theme. No application data, storage keys, calculations, or event handlers change.
+The ◐ button opens the Appearance dialog. System is the default and responds to device changes. A validated `light`, `dark`, or `system` preference is stored under `atlas.appearance.v1`; storage failure falls back to an in-memory choice. Same-origin tabs synchronize through the storage event. Cross-origin navigation between the Atlas suite and private workspace carries only this preference in a validated `atlas-theme` URL parameter, then removes it from the destination URL. This is a browser preference, not account or device synchronization.
+
+Gang Ops and the two test booking dashboards are intentionally outside this theme and its navigation handoff. Existing application data, storage keys, calculations, and event handlers are preserved.
 
 ## Material and interaction rules
 
@@ -18,7 +20,7 @@ Gang Ops and the two test booking dashboards are intentionally outside this them
 | Cards and work areas | `--neo-raised`; lighter edge; 22px radius |
 | Small controls | `--neo-small`; visible boundary |
 | Inputs and selected states | `--neo-inset`, `--neo-well` or `--neo-pressed` |
-| Primary actions | Bronze fill; warm-white text |
+| Primary actions | Bronze fill with a contrasting foreground in each mode |
 | Keyboard focus | 3px blue outline with offset |
 | Graphs and dense charts | Retain semantic colour and topology; avoid shadows on every data mark |
 | Reduced motion | Disable animation and transitions |
