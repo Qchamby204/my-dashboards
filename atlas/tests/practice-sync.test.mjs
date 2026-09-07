@@ -69,7 +69,7 @@ test('stale and tampered imports or concurrent completion writes cannot overwrit
 });
 test('practice history is atomic and full workspace restore preserves native choices and lesson instructions',async()=>{
   const db=previewDatabase();await apply(db,pack([lesson('a'),lesson('b')],[completion('a')]));await connect(db);await act(db,'a','reopen');await act(db,'b','complete');
-  const before=await backup(db);assert.equal(before.version,7);assert.equal(before.practice[0].mode,'managed');
+  const before=await backup(db);assert.equal(before.version,8);assert.equal(before.practice[0].mode,'managed');
   const old={...before,version:2,practice:before.practice.map(({catalog,mode,updated_at,...r})=>r)};const compatible=await req(db,'/api/restore/preview','POST',{backup:old});assert.equal(compatible.status,200);assert.equal(compatible.data.backup.practice[0].mode,'snapshot');
   assert.equal((await req(db,'/api/restore/preview','POST',{backup:{...old,version:3}})).status,400);
   await act(db,'a','complete');const plan=(await req(db,'/api/restore/preview','POST',{backup:before})).data;

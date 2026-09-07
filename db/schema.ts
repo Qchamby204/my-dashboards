@@ -76,3 +76,23 @@ export const cadence = sqliteTable('atlas_cadence', {
   revision: integer('revision').notNull().default(1), updatedAt: text('updated_at').notNull(),
   importedAt: text('imported_at'), sourceExportedAt: text('source_exported_at'),
 });
+
+// These rows hold a selection, never a copy of the selected work.
+// Commitment selections retain their existing columns for older clients.
+export const priorities = sqliteTable('atlas_priorities', {
+  id:text('id').primaryKey(),owner:text('owner').notNull(),kind:text('kind').notNull(),
+  recordId:text('record_id').notNull(),day:text('day').notNull(),slot:integer('slot').notNull(),
+  revision:integer('revision').notNull().default(1),updatedAt:text('updated_at').notNull(),
+},t=>[uniqueIndex('atlas_priorities_owner_record').on(t.owner,t.kind,t.recordId),
+  uniqueIndex('atlas_priorities_owner_slot').on(t.owner,t.day,t.slot),
+  check('atlas_priorities_kind',sql`${t.kind} IN ('project','content')`),
+  check('atlas_priorities_slot',sql`${t.slot} BETWEEN 1 AND 3`)]);
+
+// Original app details (scripts, notes, chores and settings). Shared project
+// and content fields are read from their canonical tables when an app opens.
+export const appStates = sqliteTable('atlas_app_states', {
+  id:text('id').primaryKey(),owner:text('owner').notNull(),kind:text('kind').notNull(),
+  state:text('state_json').notNull(),revision:integer('revision').notNull().default(1),
+  updatedAt:text('updated_at').notNull(),
+},t=>[uniqueIndex('atlas_app_states_owner_kind').on(t.owner,t.kind),
+  check('atlas_app_states_kind',sql`${t.kind} IN ('life-map','herald')`)]);

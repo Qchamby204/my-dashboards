@@ -26,7 +26,7 @@ export function atlasPreview(){
           res.setHeader('Content-Type','text/html; charset=utf-8');res.setHeader('Cache-Control','no-store');
           res.end(`<!doctype html><html lang="en"><head><title>Atlas responsive QA</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#20252e;color:white;font:16px system-ui"><nav style="padding:12px">Isolated test workspace · ${viewport}px <a href="/" style="color:#b9d4ff;margin-left:16px">Desktop preview</a> <a href="/?viewport=390" style="color:#b9d4ff;margin-left:16px">390px preview</a> <a href="/?viewport=320" style="color:#b9d4ff;margin-left:16px">320px preview</a></nav><iframe title="Atlas mobile workspace" src="/?preview=frame" style="display:block;border:0;margin:auto;width:${viewport}px;height:844px"></iframe></body></html>`);return;
         }
-        const chunks=[];let length=0;for await(const chunk of req){length+=chunk.length;if(length>8500000){res.statusCode=413;res.end('Preview request too large.');return;}chunks.push(chunk);}
+        const chunks=[];let length=0;for await(const chunk of req){length+=chunk.length;if(length>13000000){res.statusCode=413;res.end('Preview request too large.');return;}chunks.push(chunk);}
         const headers=new Headers();for(const [k,v]of Object.entries(req.headers))if(typeof v==='string')headers.set(k,v);
         headers.set('oai-authenticated-user-id','atlas-preview-only');
         const method=req.method||'GET',body=['GET','HEAD'].includes(method)?undefined:Buffer.concat(chunks);
