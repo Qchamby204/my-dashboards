@@ -71,6 +71,13 @@
   <label class="restore-consent"><input type="checkbox" id="practice-consent">I reviewed the additions, replacements, and removals.</label>
   <div class="dialog-actions"><button class="secondary" data-close="practice-dialog">Cancel</button><button class="primary" id="practice-confirm" disabled>Apply reviewed import</button></div>
 </dialog>
+<dialog id="edition-refresh-dialog" aria-labelledby="edition-refresh-title">
+  <div class="dialog-heading"><h2 id="edition-refresh-title">Review Courier editions</h2><button class="icon-button" data-close="edition-refresh-dialog" aria-label="Close edition refresh">×</button></div>
+  <p>Only published lesson titles, dates, tracks, tasks, and drills enter Practice. Your saved lessons and completion choices are kept.</p>
+  <div id="edition-refresh-preview"></div><p id="edition-refresh-error" class="form-error" role="alert"></p>
+  <label class="restore-consent"><input id="edition-refresh-consent" type="checkbox">I reviewed the lessons to add and the publication dates.</label>
+  <div class="dialog-actions"><button class="secondary" data-close="edition-refresh-dialog">Cancel</button><button class="secondary" id="edition-refresh-retry">Check again</button><button class="primary" id="edition-refresh-confirm" disabled>Save new lessons</button></div>
+</dialog>
 <dialog id="practice-connect-dialog" aria-labelledby="practice-connect-title">
   <h2 id="practice-connect-title">Use synced practice</h2>
   <p>Record practice in this private workspace to use it across devices. Your imported lessons and completion dates are kept. Future Courier imports add new lessons and protect the choices already made here.</p>
