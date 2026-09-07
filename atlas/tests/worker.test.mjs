@@ -26,6 +26,18 @@ async function request(db,path,method='GET',body,user='alice',origin='https://at
 const task=(id,extra={})=>({id,title:'Prepare a project outline',app_id:'life-map',project_id:null,week_start:'2026-09-07',due_date:null,minutes:30,...extra});
 const snapshot=db=>request(db,'/api/state?week=2026-09-07');
 
+test('project routes decode IDs once, retain owner isolation and reject stale retries',async()=>{
+  const db=database(),id='project / %20',path='/api/projects/'+encodeURIComponent(id);
+  try{
+    assert.equal((await request(db,'/api/projects','POST',{id,title:'Outline',area:'Learning',due_date:null})).status,201);
+    const patch={action:'edit',revision:1,title:'Revised outline',area:'Learning',due_date:'2026-09-18'};
+    assert.equal((await request(db,path,'PATCH',patch,'bob')).status,404);
+    assert.equal((await request(db,path,'PATCH',patch)).status,200);
+    assert.equal((await request(db,path,'PATCH',patch)).status,409);
+    const saved=(await snapshot(db)).data.projects[0];assert.equal(saved.id,id);assert.equal(saved.title,'Revised outline');assert.equal(saved.revision,2);
+  }finally{db.close();}
+});
+
 test('Life Map projection excludes all other backup data and validates source IDs',()=>{
   const file={app:'atlas',data:{lifemap_v1:JSON.stringify({projects:[{id:'p1',task:'Write an outline',area:'Projects',status:'Not started',due:'2026-09-08',notes:'private notes'}]}),'babybrain.tts':'sensitive configuration','unrelated':'other data'}};
   const rows=parseLifeMap(file);assert.deepEqual(rows,[{source_id:'p1',title:'Write an outline',area:'Projects',status:'open',due_date:'2026-09-08'}]);
