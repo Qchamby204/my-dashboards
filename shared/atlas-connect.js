@@ -1,0 +1,16 @@
+(()=>{
+  const atlasOrigin='https://atlas-os-quinton.qchambers123018.chatgpt.site',nonce=decodeURIComponent(location.hash.slice(1)),apps=[{kind:'life-map',key:'lifemap_v1',name:'Life Map',list:'projects'},{kind:'herald',key:'herald:v1',name:'The Herald',list:'videos'}];
+  const $=id=>document.getElementById(id),available=[];
+  for(const app of apps){
+    try{
+      const raw=localStorage.getItem(app.key);if(!raw)continue;const state=JSON.parse(raw);if(!Array.isArray(state[app.list]))continue;
+      available.push(app);const label=document.createElement('label');label.className='app-choice';const input=document.createElement('input');input.type='checkbox';input.checked=true;input.value=app.kind;
+      const text=document.createElement('span'),title=document.createElement('strong'),detail=document.createElement('span');title.textContent=app.name;detail.textContent=state[app.list].length+' saved records, with their app details';text.append(title,detail);label.append(input,text);$('connection-apps').append(label);
+    }catch{$('transfer-error').textContent='Some browser records could not be read. Open the original app in the browser where you use it.';}
+  }
+  if(!available.length){$('connection-apps').textContent='No Life Map or Herald records were found here. Open this page in the browser where you use those apps.';$('send-records').disabled=true;$('download-records').disabled=true;}
+  function pack(){const selected=[...document.querySelectorAll('.app-choice input:checked')].map(x=>x.value);if(!selected.length)throw Error('Choose at least one app.');return {app:'atlas-connected-transfer',version:1,apps:available.filter(a=>selected.includes(a.kind)).map(a=>{const raw=JSON.parse(localStorage.getItem(a.key)),keys=a.kind==='herald'?['videos','cadence','weeks','capture','roadmap','sys','goals']:['projects','chores','checks','log','planned'];const state=Object.fromEntries(keys.filter(k=>Object.hasOwn(raw,k)).map(k=>[k,raw[k]]));if(a.kind==='herald')state.leads=[];return {kind:a.kind,state};})};}
+  $('send-records').addEventListener('click',()=>{try{if(!window.opener||!nonce){$('transfer-status').textContent='This browser cannot pass records between the pages. Download the transfer, then choose that file in Atlas → Connect existing records.';return;}window.opener.postMessage({type:'atlas-connected-transfer',nonce,pack:pack()},atlasOrigin);$('transfer-status').textContent='Sent for review. Return to Atlas and select Connect these apps.';}catch(e){$('transfer-error').textContent=e.message;}});
+  $('download-records').addEventListener('click',()=>{try{const url=URL.createObjectURL(new Blob([JSON.stringify(pack())],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='atlas-app-connection.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('transfer-status').textContent='Choose this transfer file in Atlas → Connect existing records.';}catch(e){$('transfer-error').textContent=e.message;}});
+  window.addEventListener('message',e=>{if(e.origin!==atlasOrigin||e.source!==window.opener||e.data?.type!=='atlas-connected-saved'||e.data?.nonce!==nonce||!nonce)return;for(const kind of e.data.kinds||[])if(apps.some(a=>a.kind===kind))try{localStorage.setItem('atlas:connected:'+kind,'1');}catch{}$('transfer-status').textContent='Connected. Use the apps inside Atlas for future edits.';});
+})();

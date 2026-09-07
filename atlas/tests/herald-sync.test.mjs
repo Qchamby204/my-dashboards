@@ -76,7 +76,7 @@ test('stale or altered import previews and simultaneous content edits preserve n
   assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);assert.equal((await state(db)).herald.revision,revision+1);db.close();
 });
 test('format 6 backup and recovery reverse content changes; formats 1–5 retain the current content plan',async()=>{
-  const db=previewDatabase();await create(db);await edit(db,'atlas:one','archive');const before=await backup(db);assert.equal(before.version,7);
+  const db=previewDatabase();await create(db);await edit(db,'atlas:one','archive');const before=await backup(db);assert.equal(before.version,8);
   await edit(db,'atlas:one','restore');await create(db,item('atlas:two',{stage:'published',published_day:day}));const current=(await state(db)).herald;
   const p=(await req(db,'/api/restore/preview','POST',{backup:before})).data;assert.equal(p.changes.find(x=>x.key==='herald').replace,1);
   const restored=await req(db,'/api/restore','POST',p);assert.equal(restored.status,200);assert.deepEqual((await state(db)).herald.items,before.herald[0].items);

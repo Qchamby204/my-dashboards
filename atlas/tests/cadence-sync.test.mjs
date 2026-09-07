@@ -87,7 +87,7 @@ test('Operations import projects only supported names and schedules, starts paus
 test('format 7 restore and recovery preserve routine links; older exports retain new routine records',async()=>{
  const db=previewDatabase();try{
   const old=await backup(db);old.version=6;delete old.cadence;
-  await create(db);await plan(db);const before=await backup(db);assert.equal(before.version,7);const first=before.tasks[0];
+  await create(db);await plan(db);const before=await backup(db);assert.equal(before.version,8);const first=before.tasks[0];
   await request(db,'/api/tasks/'+first.id,'PATCH',{action:'complete',revision:1});const p=(await restorePreview(db,before)).data;assert.equal((await apply(db,p)).status,200);
   let s=await state(db);assert.equal(s.tasks[0].status,'open');assert.equal(s.tasks[0].routine_id,'routine-one');
   const h=(await request(db,'/api/history')).data;assert.equal((await request(db,'/api/checkpoints/'+h.checkpoints[0].id+'/undo','POST',{seq:h.seq})).status,200);assert.equal((await state(db)).tasks[0].status,'done');
