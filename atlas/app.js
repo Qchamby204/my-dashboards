@@ -1,3 +1,4 @@
+import { createBudgetUI } from './budget-ui.mjs';
 import { createCommitmentsUI } from './commitments-ui.mjs';
 import { createAgendaUI } from './agenda-ui.mjs';
 import { createSearchUI } from './search-ui.mjs';
@@ -23,8 +24,9 @@ const ledgerUI=createLedgerUI({api,getData:()=>data,load,render,error,toast,esc,
 const editionUI=createEditionRefreshUI({api,getPractice:()=>data.practice,esc,formatDay,dateTime:value=>new Date(value).toLocaleString(),load,toast,blocked:()=>hasDraft()||busy});
 const communicationUI=createCommunicationUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const heraldUI=createHeraldUI({api,getData:()=>data,getWeek:()=>week,load,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
-const reflectionUI=createReflectionUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,capture:seed=>openCapture(null,null,seed),blocked:()=>busy||reviewDirty||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving});
-const hasDraft=()=>reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving;
+const reflectionUI=createReflectionUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,capture:seed=>openCapture(null,null,seed),blocked:()=>busy||budgetUI.dirty||budgetUI.saving||reviewDirty||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving});
+const budgetUI=createBudgetUI({api,getData:()=>data,getWeek:()=>week,load,error,toast,esc,duration,blocked:()=>!loaded||loadedWeek!==week||busy||reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving||!!document.querySelector('dialog[open]')});
+const hasDraft=()=>budgetUI.dirty||budgetUI.saving||reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving;
 const searchUI=createSearchUI({api,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft(),error,esc});
 const agendaUI=createAgendaUI({getData:()=>data,getWeek:()=>week,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft()||!!document.querySelector('dialog[open]'),error,esc});
 const commitmentsUI=createCommitmentsUI({getData:()=>data,getWeek:()=>week,resolveResult:resolveSavedRecord,mutate,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft()||!!document.querySelector('dialog[open]'),error,esc});
@@ -50,9 +52,10 @@ async function load({renderPage=true}={}) {
   try {
     const next=await api('/api/state?week='+requestedWeek);
     if(requestNumber!==loadNumber || requestedWeek!==week) return;
-    if(ledgerUI.dirty||reviewDirty||reflectionUI.dirty||communicationUI.dirty||heraldUI.dirty){$('#save-state').textContent='Unsaved draft';return;}
+    if(budgetUI.dirty||ledgerUI.dirty||reviewDirty||reflectionUI.dirty||communicationUI.dirty||heraldUI.dirty){$('#save-state').textContent='Unsaved draft';return;}
     data=next;loaded=true;loadedWeek=requestedWeek;loadedAt=new Date();error('');$('#save-state').textContent='Saved across devices';
     if(renderPage) render();
+    return true;
   } catch(e){if(requestNumber!==loadNumber||requestedWeek!==week)return;error(e.message);$('#save-state').textContent='Connection needs attention';if($('#briefing-freshness'))$('#briefing-freshness').textContent='Refresh failed. Showing the last loaded records.';if(!loaded)$('#content').innerHTML='<div class="empty"><h1>Your workspace could not load.</h1><p>Reconnect, then choose Refresh. Capture will be available when your saved records are ready.</p></div>';}
 }
 async function resolveSavedRecord(result,signal,{taskView='today',taskWeek=monday(today)}={}){
@@ -124,10 +127,10 @@ function todayView(){
 }
 function weekControls(){return `<div class="week-switch"><button class="icon-button" data-week="-7" aria-label="Previous week">‹</button><span>${formatDay(week)} – ${formatDay(addDays(week,6))}</span><button class="icon-button" data-week="7" aria-label="Next week">›</button></div>`;}
 function weekView(){
-  const tasks=weekTasks(), minutes=tasks.reduce((s,t)=>s+t.minutes,0),capacity=data.week?.capacity??600;
+  const tasks=weekTasks(), minutes=tasks.reduce((s,t)=>s+t.minutes,0);
   const carried=open().filter(t=>t.week_start&&t.week_start<week),unplanned=open().filter(t=>!t.week_start);
   return pageHeading('Make a realistic plan','A week with room.','See your dated work and shape a realistic commitment plan.',weekControls())+agendaUI.panel()+
-  `<div class="columns"><div><section class="panel"><div class="budget"><div><strong>${duration(minutes)} planned <span class="muted">/ ${duration(capacity)} available</span></strong><p>${minutes>capacity?`${duration(minutes-capacity)} over your budget. Move or resize a commitment.`:'Keep space for the parts of your week that are not on this list.'}</p><progress value="${Math.min(minutes,Math.max(capacity,1))}" max="${Math.max(capacity,1)}" aria-label="Planned time against weekly budget"></progress></div><label>Hours available<input id="capacity" type="number" min="0" max="168" step="0.5" value="${capacity/60}"></label><button class="secondary" id="save-capacity">Save</button></div><div class="section-heading"><h2>Planned commitments</h2><button class="text-button" data-capture>＋ Add</button></div>${tasks.length?tasks.map(t=>taskRow(t)).join(''):empty('Decide what this week can hold.','Add a commitment, or bring one forward from an earlier week.','<button class="secondary" data-capture>Plan a commitment</button>')}</section></div>
+  `<div class="columns"><div><section class="panel">${budgetUI.panel(minutes)}<div class="section-heading"><h2>Planned commitments</h2><button class="text-button" data-capture>＋ Add</button></div>${tasks.length?tasks.map(t=>taskRow(t)).join(''):empty('Decide what this week can hold.','Add a commitment, or bring one forward from an earlier week.','<button class="secondary" data-capture>Plan a commitment</button>')}</section></div>
   <aside><section class="panel"><div class="section-heading"><h2>Needs a decision</h2></div>${carried.length?carried.map(t=>taskRow(t)).join(''):empty('No earlier commitments waiting.','Unfinished work from earlier weeks will appear here so you can deliberately replan it.')}</section><section class="panel"><div class="section-heading"><h2>Unscheduled</h2><span>${unplanned.length}</span></div>${unplanned.length?unplanned.map(t=>taskRow(t)).join(''):empty('A place to hold an idea.','Choose “Unscheduled” when capturing something that does not need a place in the week yet.')}</section></aside></div>`;
 }
 function projectsView(){
@@ -264,9 +267,7 @@ async function mutate(task,action){
   }catch(e){error(e.message);$('#save-state').textContent='Change not saved';}
   finally{busy=false;}
 }
-async function saveWeek(values){
-  await api('/api/week','PUT',{week_start:week,capacity:data.week?.capacity??600,worked:data.week?.worked||'',change:data.week?.change||'',revision:data.week?.revision??0,...values});
-}
+
 function openProjectEditor(p=null){
   editingProject=p;projectDraftId=p?.id||newId();
   const form=$('#project-form');form.reset();form.elements.title.value=p?.title||'';form.elements.area.value=p?.area||'';form.elements.due_date.value=p?.due_date||'';
@@ -316,10 +317,7 @@ document.addEventListener('click',async event=>{
   if(event.target.closest('[data-next-week]')){event.preventDefault();if(hasDraft()){error('Save or discard your draft before planning next week.');return;}week=addDays(week,7);view='week';location.hash='week';await load();return;}
   const action=event.target.closest('[data-action]');if(action){const task=data.tasks.find(t=>t.id===action.dataset.id);if(!task)return;if(action.dataset.action==='edit')openCapture(null,task);else await mutate(task,action.dataset.action);return;}
   const shift=event.target.closest('[data-week]');if(shift){if(hasDraft()){error('Save or discard your draft before changing weeks.');return;}week=addDays(week,Number(shift.dataset.week));await load();return;}
-  if(event.target.closest('#save-capacity')){
-    const hours=Number($('#capacity').value),button=$('#save-capacity');button.disabled=true;
-    try{await saveWeek({capacity:Math.round(hours*60)});reviewDirty=false;await load();toast('Weekly time budget saved.');}catch(e){error(e.message);}finally{button.disabled=false;}
-  }
+
 });
 $('#project-confirm').addEventListener('click',async()=>{const button=$('#project-confirm');button.disabled=true;try{if(projectConfirmation&&await mutateProject(projectConfirmation.project,projectConfirmation.action))$('#project-confirm-dialog').close();}finally{button.disabled=false;}});
 $('#project-form').addEventListener('submit',async event=>{
@@ -364,7 +362,6 @@ $('#task-form').addEventListener('submit',async event=>{
 });
 $('#task-dialog').addEventListener('cancel',event=>{if(busy)event.preventDefault();});
 document.addEventListener('input',event=>{
-  if(event.target.id==='capacity')reviewDirty=true;
   if(['project-search','project-filter'].includes(event.target.id))$('#project-list').innerHTML=projectList($('#project-search').value,$('#project-filter').value);
 });
 $('#import-file').addEventListener('change',async event=>{
