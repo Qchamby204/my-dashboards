@@ -40,6 +40,12 @@ export const ledger = sqliteTable('atlas_ledger', {
   importedAt: text('imported_at'), sourceExportedAt: text('source_exported_at'),
 });
 
+export const communication = sqliteTable('atlas_communication', {
+  owner: text('owner').primaryKey(), reps: text('reps').notNull(),
+  revision: integer('revision').notNull().default(1), updatedAt: text('updated_at').notNull(),
+  importedAt: text('imported_at'), sourceExportedAt: text('source_exported_at'),
+});
+
 export const history = sqliteTable('atlas_history', {
   seq: integer('seq').primaryKey({autoIncrement:true}), owner:text('owner').notNull(),
   entity:text('entity').notNull(), recordId:text('record_id').notNull(), action:text('action').notNull(),
