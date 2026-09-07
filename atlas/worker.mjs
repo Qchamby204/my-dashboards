@@ -2,7 +2,7 @@ import { searchOptions, searchWorkspace } from './search.mjs';
 import { heraldContent, heraldRecord, heraldItem, parseHeraldTransfer, heraldImportPlan } from './herald.mjs';
 import { communicationContent, communicationRecord, communicationRep, parseCommunicationTransfer, communicationImportPlan } from './communication.mjs';
 import { fetchEditions, editionRefreshPlan, editionSignature } from './courier-editions.mjs';
-import { html, css, js, theme, searchModel, searchUI, agendaModel, agendaUI, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
+import { html, css, js, theme, searchModel, searchUI, agendaModel, agendaUI, commitmentsModel, commitmentsUI, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan, practiceEditionRefresh } from './model.mjs';
 import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
@@ -355,7 +355,7 @@ async function api(request,env,url,owner) {
     return json({id},201);
   }
   if(path.startsWith('/api/tasks/') && request.method==='PATCH') {
-    const id=path.slice('/api/tasks/'.length), b=await bodyOf(request);
+    const id=decodeURIComponent(path.slice('/api/tasks/'.length)), b=await bodyOf(request);
     const task=await db.prepare('SELECT * FROM atlas_tasks WHERE id=? AND owner=?').bind(id,owner).first();
     if(!task) throw new HttpError('That commitment is unavailable.',404);
     if(!Number.isInteger(b.revision) || b.revision!==task.revision) throw new HttpError('This commitment changed on another device. Refresh and try again.',409);
@@ -367,6 +367,10 @@ async function api(request,env,url,owner) {
     } else if(b.action==='complete') { status='done'; completed_at=now; focus_date=null; focus_slot=null; }
     else if(b.action==='reopen') {status='open';completed_at=null;focus_date=null;focus_slot=null;}
     else if(b.action==='archive') {status='archived';focus_date=null;focus_slot=null;}
+    else if(b.action==='restore') {
+      if(status!=='archived')throw new HttpError('Only archived commitments can be restored.');
+      status=completed_at?'done':'open';focus_date=null;focus_slot=null;
+    }
     else if(b.action==='plan') {week_start=dateValue(b.week_start);if(week_start && monday(week_start)!==week_start) throw new HttpError('Choose a valid week.');}
     else if(b.action==='focus') {
       if(status!=='open') throw new HttpError('Reopen this commitment before choosing it for today.');
@@ -434,7 +438,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
+      const assets={'/commitments.mjs':[commitmentsModel,'text/javascript; charset=utf-8'],'/commitments-ui.mjs':[commitmentsUI,'text/javascript; charset=utf-8'],'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});

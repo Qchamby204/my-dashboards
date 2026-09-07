@@ -4,6 +4,8 @@ Atlas has a private, server-backed workspace for synced Life Map projects, Couri
 
 ## What works
 
+- Browse all commitments, filter completed and archived work, and restore an archive while preserving its earlier completion.
+
 - Review a shared weekly agenda of explicit deadlines, content plans, and recorded activity, with source filters and direct record links.
 
 - Capture and edit a commitment with a connected app, optional project, due date, week, and time estimate.
@@ -33,6 +35,7 @@ This release uses deterministic planning and user choices. It does not call a la
 
 - `atlas/index.html`, `atlas/style.css`, `atlas/app.js`: accessible, responsive, dependency-free client.
 - `atlas/model.mjs`: shared validation, date helpers, safe Life Map projection, and one app registry.
+- `atlas/commitments.mjs` and `atlas/commitments-ui.mjs`: filtered commitment management and status-specific actions.
 - `atlas/agenda.mjs` and `atlas/agenda-ui.mjs`: explicit weekly dates, source filters, and guarded navigation to saved records.
 - `atlas/communication.mjs` and `atlas/communication-ui.mjs`: bounded speaking records, reviewed legacy imports, editing, and weekly summaries.
 - `atlas/herald.mjs` and `atlas/herald-ui.mjs`: content metadata, reviewed imports, planning dates, stages, and publication summaries.
@@ -241,3 +244,18 @@ Opening an entry reads the latest saved workspace and resolves the exact record 
 The agenda reads the authenticated workspace already loaded for the selected week. It adds no database table, migration, backup format, background job, external request, or browser-local persistence. Completion timestamps are displayed in the viewing device's timezone, consistently with existing Atlas reviews; dates already stored as calendar days retain that day. Original specialist apps and Courier publication/status behavior remain unchanged. The interface uses the existing Light/Dark/System materials.
 
 Validation: all 123 automated tests pass. Eight new tests cover explicit dates versus week-only planning, archived and completed records, actual publication dates, practice completion evidence, filters, empty and dense weeks, year boundaries, local dates across daylight-saving changes, escaped labels, cancellation, stale navigation, retry behavior, draft protection, and retention of the selected week when opening a commitment. The production output was built with the repository's local build after the standard launcher encountered a cancelled network approval. JavaScript syntax, client/server module resolution, static markup references, CSS, original HTML, and unchanged migration bytes are checked. No browser, physical-device, or live personal-data QA was performed in this batch.
+
+
+## Completed: commitment management and archive restoration
+
+Commitments is a dedicated workspace view for open, completed, and archived work. Filter by status, connected app, or planning assignment; search titles, linked project names, and app names; sort by due date, recent change, or title. Search treats words literally, ignores case and accents, and requires every term to match. Lists begin with 50 records and reveal 50 more on request. Matching counts cover the full filtered set, while the separate open/completed/archived counts describe the whole saved workspace. Clear filters shows all statuses and apps. Filters and search text stay in the open tab and are not written to browser storage or sent to another service.
+
+Every row shows its saved status, app, project when present, due date, planning week, and earlier completion date when recorded. Open work can be completed or archived. Completed work can be reopened or archived. Archived work offers Restore as completed when it retains a completion timestamp, or Restore as open otherwise. Edit details reads the latest saved record before opening the existing commitment editor, keeps the selected planning week, and returns to the Commitments view. Cancellation, filter changes, replaced views, and pending drafts invalidate an unfinished read. Save controls freeze during status changes and reject repeated clicks; failures retain the view and surface the error.
+
+The new restore action is owner scoped and requires the current revision. It only accepts archived commitments. Restoration derives the prior open/completed status from the existing completion timestamp, preserves that timestamp, project, planning week, due date, and estimate, and leaves daily priority fields empty. No completion time is invented. Reopen remains a separate deliberate action that clears the completion timestamp. Task routes now decode record IDs exactly once, allowing restored IDs containing spaces, percent signs, slashes, or Unicode to be addressed safely through encoded URLs.
+
+Archive undo now uses restore rather than reopen, so archiving and undoing a completed item no longer loses its completion record. Undo is offered only when the refreshed record has the exact revision produced by that save and the expected status. An intervening newer edit suppresses the shortcut. Database revision checks still protect a change made after the shortcut appears. Each successful restore uses the existing atomic task update and history trigger; a history failure rolls the restore back as well.
+
+This batch adds no migration or backup-format change. Workspace format 6 already preserves archived tasks and their completion timestamps. Shared search and the weekly agenda continue using their existing status boundaries, so restored completed work reappears on its earlier recorded completion day. Original specialist dashboards, publication workflows, and the Courier status notification are unchanged. The new view uses the existing Light/Dark/System materials.
+
+Validation: all 132 automated tests pass. Nine new tests cover combined filters, literal matching, exact counts and pagination, status-specific actions, completion-preserving restore, encoded IDs, authentication and owner/origin boundaries, stale revisions, atomic rollback, frozen/repeated saves, cancellation and retry, draft guards, selected-view navigation, and archive undo after an intervening edit. The local production build, client/server module resolution, JavaScript syntax, markup references, CSS, and unchanged migration/original-HTML bytes pass. No browser, physical-device, or live personal-data QA was performed in this batch.

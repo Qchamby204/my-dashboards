@@ -1,3 +1,4 @@
+import { createCommitmentsUI } from './commitments-ui.mjs';
 import { createAgendaUI } from './agenda-ui.mjs';
 import { createSearchUI } from './search-ui.mjs';
 import { createHeraldUI } from './herald-ui.mjs';
@@ -26,6 +27,7 @@ const reflectionUI=createReflectionUI({api,getData:()=>data,getWeek:()=>week,loa
 const hasDraft=()=>reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving;
 const searchUI=createSearchUI({api,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft(),error,esc});
 const agendaUI=createAgendaUI({getData:()=>data,getWeek:()=>week,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft()||!!document.querySelector('dialog[open]'),error,esc});
+const commitmentsUI=createCommitmentsUI({getData:()=>data,getWeek:()=>week,resolveResult:resolveSavedRecord,mutate,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft()||!!document.querySelector('dialog[open]'),error,esc});
 const project=id=>data.projects.find(p=>p.id===id);
 const open=()=>data.tasks.filter(t=>t.status==='open');
 const weekTasks=()=>data.tasks.filter(t=>t.status!=='archived' && t.week_start===week);
@@ -227,7 +229,7 @@ function render(){
   $('#date-label').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
   if(!loaded)return;
   if(loadedWeek!==week){$('#capture').disabled=true;$('#content').innerHTML='<div class="empty"><h2>Loading the selected week.</h2><p>If this takes a moment, use Refresh to try again.</p></div>';return;}
-  $('#content').innerHTML=({today:todayView,week:weekView,projects:projectsView,review:reviewView,practice:practiceView,ledger:ledgerUI.daily,communication:communicationUI.page,herald:heraldUI.page,apps:appsView,history:historyView}[view]||todayView)();
+  $('#content').innerHTML=({today:todayView,week:weekView,commitments:commitmentsUI.page,projects:projectsView,review:reviewView,practice:practiceView,ledger:ledgerUI.daily,communication:communicationUI.page,herald:heraldUI.page,apps:appsView,history:historyView}[view]||todayView)();
   $('#capture').disabled=false;
   if(view==='history')refreshHistory();
 }
@@ -257,8 +259,8 @@ async function mutate(task,action){
     await api('/api/tasks/'+encodeURIComponent(task.id),'PATCH',{revision:task.revision,action,day:today,week_start:week});
     await load();
     const current=data.tasks.find(t=>t.id===task.id);
-    toast(({complete:'Commitment completed.',reopen:'Commitment reopened.',archive:'Commitment archived.',focus:'Your priorities are updated.',plan:'Added to the selected week.'})[action]||'Saved.',
-      ['complete','archive'].includes(action)&&current&&current.revision>task.revision?()=>mutate(current,'reopen'):null);
+    toast(({complete:'Commitment completed.',reopen:'Commitment reopened.',archive:'Commitment archived.',restore:'Commitment restored with its earlier status.',focus:'Your priorities are updated.',plan:'Added to the selected week.'})[action]||'Saved.',
+      ['complete','archive'].includes(action)&&current&&current.revision===task.revision+1&&current.status===(action==='archive'?'archived':'done')?()=>mutate(current,action==='archive'?'restore':'reopen'):null);
   }catch(e){error(e.message);$('#save-state').textContent='Change not saved';}
   finally{busy=false;}
 }
@@ -390,10 +392,10 @@ $('#export').addEventListener('click',exportData);
 window.addEventListener('hashchange',()=>{
   const next=location.hash.slice(1)||'today';
   if(hasDraft()){if(next!==view){location.hash=view;error('Save or discard your draft before leaving this page.');}return;}
-  view=['today','week','projects','review','practice','ledger','communication','herald','apps','history'].includes(next)?next:'today';if(view==='today'&&week!==monday(today)){week=monday(today);load();}else render();
+  view=['today','week','commitments','projects','review','practice','ledger','communication','herald','apps','history'].includes(next)?next:'today';if(view==='today'&&week!==monday(today)){week=monday(today);load();}else render();
 });
 window.addEventListener('beforeunload',event=>{if(hasDraft() || ledgerUI.editorDirty || ($('#task-dialog').open && $('#task-form').elements.title.value.trim()) || ($('#project-dialog').open && $('#project-form').elements.title.value.trim())){event.preventDefault();event.returnValue='';}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!hasDraft()&&!document.querySelector('dialog[open]')){const next=localDay();if(next!==today){today=next;week=monday(today);}load();}});
-$('#capture').disabled=true;view=['today','week','projects','review','practice','ledger','communication','herald','apps','history'].includes(location.hash.slice(1))?location.hash.slice(1):'today';render();load();
+$('#capture').disabled=true;view=['today','week','commitments','projects','review','practice','ledger','communication','herald','apps','history'].includes(location.hash.slice(1))?location.hash.slice(1):'today';render();load();
 
 setInterval(()=>{if(document.visibilityState==='visible'&&localDay()!==today&&!hasDraft()&&!document.querySelector('dialog[open]')){today=localDay();week=monday(today);load();}},30000);
