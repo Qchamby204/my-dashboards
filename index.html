@@ -49,6 +49,7 @@ body{background:radial-gradient(1100px 600px at 50% -10%,rgba(240,183,62,.07),tr
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/atlas-vault.css">
 </head>
 <body>
 <div id="app"></div>
@@ -75,7 +76,7 @@ function readForge(){
   return {v:n+"/wk", s:s.length+" sessions", c:n>0?"var(--green)":"var(--amber)"};
 }
 /* Chambers Wealth HQ folded into The Aqueduct (the Book tab); its legacy keys
-   are still captured by the Vault's whole-origin backup. */
+   need an explicit entry in the Vault registry to be backed up. */
 function readProspect(){
   var log=J("qc3_log",[]);
   if(!Array.isArray(log)) log=[];
@@ -124,9 +125,9 @@ function readAqueduct(){
   return {v:"$"+Math.round(gross/1000)+"K", s:"gross \u00b7 "+Math.round(grid*100)+"% grid", c:"var(--cyan)"};
 }
 /* The Summit folded into The Aqueduct (aqueduct:v2); its legacy key is
-   still captured by the Vault's whole-origin backup. */
+   included only when listed in the Vault registry. */
 /* The Waterfall merged into The Aqueduct (aqueduct:v2); its legacy key is
-   still captured by the Vault's whole-origin backup. */
+   included only when listed in the Vault registry. */
 function readMap(){
   var s=J("lifemap_v1",null);
   if(!s||!Array.isArray(s.projects)) return {v:"\u2014",s:"Not started",c:"var(--dim)"};
@@ -155,202 +156,16 @@ var TOOLS=[
   ]}
 ];
 
-/* ---------- The Vault: one backup for the whole suite ----------
-   Every tool stores its data in this browser under its own keys. Clearing the
-   browser wipes all eight at once, so the backup has to be all-or-nothing too.
-   We snapshot the entire origin rather than a hand-written key list, so a tool
-   that adds a new key later is still captured without touching this code. */
+/* ---------- The Vault: scoped, reviewed, and recoverable ---------- */
 var LASTBK="atlas:lastBackup";
-var TOOL_KEYS=[
-  {n:"Life Ledger",              p:["lifeledger:"]},
-  {n:"The Forge",                p:["forge:"]},
-  {n:"Prospecting Command Center",p:["qc3_","qc_reengage"]},
-  {n:"Operations Cadence",       p:["operationsCadence"]},
-  {n:"The Herald",               p:["herald:"]},
-  {n:"Master Communicator",      p:["mc_"]},
-  {n:"Life Map",                 p:["lifemap_"]},
-  {n:"The Aqueduct",             p:["aqueduct:","waterfall:","summit:","climb_"]}
-];
-function allKeys(){ var a=[]; try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k && k!=="__t") a.push(k); } }catch(e){} return a; }
-function keysFor(t){ return allKeys().filter(function(k){ return t.p.some(function(pre){ return k.indexOf(pre)===0; }); }); }
-function bytes(ks){ var n=0; ks.forEach(function(k){ try{ n+=(localStorage.getItem(k)||"").length; }catch(e){} }); return n; }
-function fmtBytes(n){ return n<1024?(n+" B"):n<1048576?((n/1024).toFixed(0)+" KB"):((n/1048576).toFixed(1)+" MB"); }
+var TOOL_KEYS=[]; // Populated by the shared Vault registry after its module loads.
+function keysFor(t){ return (t.keys||[]).filter(function(k){try{return localStorage.getItem(k)!==null;}catch(e){return false;}}); }
 function daysSinceBackup(){
-  var v=null; try{ v=localStorage.getItem(LASTBK); }catch(e){}
-  if(!v) return null;
-  var t=Date.parse(v); if(isNaN(t)) return null;
-  return Math.floor((Date.now()-t)/86400000);
+  var v=null;try{v=localStorage.getItem(LASTBK);}catch(e){}
+  var t=Date.parse(v);return !v||isNaN(t)?null:Math.max(0,Math.floor((Date.now()-t)/86400000));
 }
-function backupAll(){
-  try{
-    var data={};
-    allKeys().forEach(function(k){ if(k===LASTBK) return; try{ data[k]=localStorage.getItem(k); }catch(e){} });
-    var n=Object.keys(data).length;
-    if(!n){ vaultMsg("Nothing to back up yet. Use a tool first.","bad"); return; }
-    var payload={app:"atlas",version:1,exportedAt:new Date().toISOString(),keys:n,data:data};
-    var blob=new Blob([JSON.stringify(payload)],{type:"application/json"});
-    var url=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=url; a.download="atlas-backup-"+todayISO()+".json";
-    document.body.appendChild(a); a.click();
-    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },600);
-    try{ localStorage.setItem(LASTBK,new Date().toISOString()); }catch(e){}
-    render();
-  }catch(e){ vaultMsg("Backup failed: "+e.message,"bad"); }
-}
-/* iOS blocks confirm() and alert() in home-screen apps: they return instantly
-   as if cancelled, so the restore silently did nothing on the phone. Every
-   dialog here is now in-page. Restore arms on the first tap, fires on the
-   second. */
-var PENDING=null;   /* {data, n, src} waiting for the second tap */
-function vaultMsg(txt,kind){
-  var el=document.getElementById("vaultMsg"); if(!el) return;
-  el.textContent=txt;
-  el.style.color = kind==="bad" ? "var(--amber)" : (kind==="good" ? "var(--green)" : "var(--dim)");
-}
-function parseBackup(raw){
-  try{
-    var o=JSON.parse(raw);
-    var d=(o && o.data) ? o.data : (o && typeof o==="object" && !o.data ? o : null);
-    if(!d || typeof d!=="object" || !Object.keys(d).length) return null;
-    return d;
-  }catch(e){ return null; }
-}
-function armRestore(d,src){
-  PENDING={data:d,n:Object.keys(d).length,src:src};
-  render();
-}
-function applyRestore(){
-  if(!PENDING) return;
-  var d=PENDING.data, n=PENDING.n;
-  var before={}; Object.keys(d).forEach(function(k){ before[k]=localStorage.getItem(k); });
-  Object.keys(d).forEach(function(k){ try{ localStorage.setItem(k,d[k]); }catch(e){} });
-  PENDING=null;
-  render();
-  vaultMsg("\u2713 Restored "+n+" keys. Every tool now holds the backed-up data.","good");
-  undoToast("Restored "+n+" keys", function(){
-    Object.keys(before).forEach(function(k){
-      try{ if(before[k]===null) localStorage.removeItem(k); else localStorage.setItem(k,before[k]); }catch(e){}
-    });
-    render(); vaultMsg("Restore undone. This browser is back to what it had.","");
-  });
-}
-function cancelRestore(){ PENDING=null; render(); vaultMsg("Restore cancelled. Nothing changed.",""); }
-function restoreAll(file){
-  var r=new FileReader();
-  r.onload=function(){
-    var d=parseBackup(r.result);
-    if(!d){ vaultMsg("That is not an Atlas backup file.","bad"); return; }
-    armRestore(d,"file");
-  };
-  r.onerror=function(){ vaultMsg("Could not read that file.","bad"); };
-  r.readAsText(file);
-}
-/* Clipboard transfer: no file to shuttle between devices. */
-function copyVault(){
-  try{
-    var payload={app:"atlas",v:1,at:new Date().toISOString(),data:{}};
-    for(var i=0;i<localStorage.length;i++){
-      var k=localStorage.key(i);
-      if(k===LASTBK) continue;
-      payload.data[k]=localStorage.getItem(k);
-    }
-    var txt=JSON.stringify(payload);
-    var done=function(){
-      try{ localStorage.setItem(LASTBK,new Date().toISOString()); }catch(e){}
-      render();
-      vaultMsg("\u2713 Whole suite copied ("+fmtBytes(txt.length)+"). Paste it into the Vault on the other device.","good");
-    };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(done).catch(function(){ fallbackCopy(txt,done); });
-    } else fallbackCopy(txt,done);
-  }catch(e){ vaultMsg("Copy failed: "+e.message,"bad"); }
-}
-function fallbackCopy(txt,done){
-  var ta=document.createElement("textarea");
-  ta.value=txt; ta.style.cssText="position:fixed;left:-9999px;top:0";
-  document.body.appendChild(ta); ta.focus(); ta.select();
-  try{ document.execCommand("copy"); done(); }catch(e){ vaultMsg("Copy failed. Use the file backup instead.","bad"); }
-  ta.remove();
-}
-function pasteVault(){
-  var el=document.getElementById("vaultPaste");
-  var raw=(el && el.value || "").trim();
-  if(!raw){ vaultMsg("Paste the copied text into the box first.","bad"); return; }
-  var d=parseBackup(raw);
-  if(!d){ vaultMsg("That text is not a valid Atlas backup.","bad"); return; }
-  armRestore(d,"paste");
-}
-var __vt=null;
-function undoToast(msg, restore){
-  var t=document.getElementById("undoToast");
-  if(!t){ t=document.createElement("div"); t.id="undoToast"; document.body.appendChild(t); }
-  t.style.cssText="position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:95;"
-   +"background:rgba(20,23,38,.97);border:1px solid rgba(240,183,62,.5);color:#f6e2ad;padding:10px 16px;border-radius:12px;"
-   +"font-family:inherit;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.55);display:flex;align-items:center;gap:12px;max-width:92vw";
-  t.textContent="";
-  var sp=document.createElement("span"); sp.textContent=msg; t.appendChild(sp);
-  if(restore){
-    var b=document.createElement("button"); b.textContent="Undo";
-    b.style.cssText="background:rgba(240,183,62,.16);border:1px solid rgba(240,183,62,.5);color:#f0b73e;font-family:inherit;"
-     +"font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;cursor:pointer;flex-shrink:0";
-    b.onclick=function(){ try{ restore(); }catch(e){} t.remove(); };
-    t.appendChild(b);
-  }
-  clearTimeout(__vt); __vt=setTimeout(function(){ if(t&&t.parentNode) t.remove(); },9000);
-}
-function vaultPanel(){
-  var live=TOOL_KEYS.map(function(t){ var ks=keysFor(t); return {n:t.n,k:ks.length,b:bytes(ks)}; });
-  var used=live.filter(function(x){ return x.k>0; });
-  var totalB=live.reduce(function(a,x){ return a+x.b; },0);
-  var ds=daysSinceBackup();
-  var warn = ds===null || ds>=7;
-
-  var h='<div class="eyebrow" style="margin:22px 2px 9px">The Vault \u00b7 one backup, everything</div>';
-  h+='<div style="padding:15px;border-radius:15px;background:linear-gradient(180deg,rgba(26,31,58,.9),rgba(20,24,48,.9));border:1px solid '+(warn?"rgba(240,104,62,.4)":"var(--line)")+'">';
-
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">';
-  h+='<div style="min-width:0"><div style="font-size:13px;color:var(--txt);font-weight:600">'+used.length+' of '+TOOL_KEYS.length+' tools hold data</div>';
-  h+='<div style="font-size:10.5px;color:'+(warn?"var(--amber)":"var(--dim)")+';margin-top:2px">'
-     + (ds===null ? "Never backed up" : (ds===0 ? "Backed up today" : ("Last backup "+ds+" day"+(ds===1?"":"s")+" ago")))
-     + ' \u00b7 '+fmtBytes(totalB)+'</div></div>';
-  h+='<div class="mono" style="font-size:15px;font-weight:700;color:'+(warn?"var(--amber)":"var(--green)")+'">'+(warn?"\u26a0":"\u2713")+'</div>';
-  h+='</div>';
-
-  if(used.length){
-    h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:11px">';
-    used.forEach(function(x){
-      h+='<span style="font-size:9.5px;padding:3px 8px;border-radius:99px;background:rgba(47,209,128,.1);border:1px solid rgba(47,209,128,.28);color:var(--green);white-space:nowrap">'+esc(x.n)+'</span>';
-    });
-    h+='</div>';
-  }
-
-  if(PENDING){
-    h+='<div style="margin-top:13px;padding:12px;border-radius:12px;background:rgba(240,104,62,.08);border:1px solid rgba(240,104,62,.45)">';
-    h+='<div style="font-size:12px;color:#f6b39e;line-height:1.5;margin-bottom:9px">Restore <b>'+PENDING.n+' keys</b> across every tool?<br>This <b>overwrites</b> what this browser holds right now. If the newer work is here, back up first.</div>';
-    h+='<div style="display:flex;gap:8px">';
-    h+='<button onclick="applyRestore()" style="flex:1;padding:10px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:#0c0e1a;background:linear-gradient(180deg,#f6a06a,#e2622f)">Yes, overwrite</button>';
-    h+='<button onclick="cancelRestore()" style="flex:1;padding:10px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line)">Cancel</button>';
-    h+='</div></div>';
-  }
-
-  h+='<div style="display:flex;gap:8px;margin-top:13px">';
-  h+='<button onclick="backupAll()" style="flex:1;padding:11px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f)">\u2913 Back up to file</button>';
-  h+='<button onclick="document.getElementById(\'atlasRestore\').click()" style="flex:1;padding:11px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line)">\u2911 Restore from file</button>';
-  h+='<input type="file" id="atlasRestore" accept="application/json,.json" style="display:none" onchange="if(this.files&&this.files[0])restoreAll(this.files[0])"/>';
-  h+='</div>';
-
-  h+='<div class="eyebrow" style="font-size:9px;margin:15px 0 7px">Device to device, no file</div>';
-  h+='<div style="display:flex;gap:8px">';
-  h+='<button onclick="copyVault()" style="flex:1;padding:10px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:var(--cyan);background:rgba(69,200,216,.08);border:1px solid rgba(69,200,216,.35)">\u29c9 Copy the whole suite</button>';
-  h+='<button onclick="pasteVault()" style="flex:1;padding:10px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:var(--cyan);background:rgba(69,200,216,.08);border:1px solid rgba(69,200,216,.35)">\u2913 Load pasted suite</button>';
-  h+='</div>';
-  h+='<textarea id="vaultPaste" placeholder="Paste the copied suite here, then tap Load" style="width:100%;margin-top:8px;min-height:46px;background:rgba(10,12,22,.7);color:var(--txt);border:1px solid rgba(120,130,180,.25);border-radius:11px;font-family:monospace;font-size:10px;padding:9px;outline:none;resize:vertical"></textarea>';
-  h+='<div id="vaultMsg" style="font-size:11px;color:var(--dim);margin-top:8px;min-height:15px;line-height:1.5"></div>';
-
-  h+='<div style="font-size:10px;color:var(--dim);margin-top:6px;line-height:1.55">Data lives in each browser, not on GitHub, so devices do not sync themselves. Copy the suite on the device you just worked on, paste it on the other, and they match. Keep a file backup too: clearing your browser or Safari evicting site data wipes every tool at once.</div>';
-  h+='</div>';
-  return h;
-}
+function backupAll(){ if(window.AtlasVaultUI) window.AtlasVaultUI.backup(); }
+function vaultPanel(){return '<section id="atlas-vault-root" aria-label="Atlas backups"><p>Opening the Vault…</p></section>';}
 
 function stats0(){
   var used=TOOL_KEYS.filter(function(t){ return keysFor(t).length>0; }).length;
@@ -363,7 +178,7 @@ function backupBanner(st){
   var h='<div style="padding:13px 14px;border-radius:14px;margin-bottom:14px;background:rgba(240,104,62,.09);border:1px solid rgba(240,104,62,.45);display:flex;align-items:center;gap:11px">';
   h+='<span style="font-size:17px;flex-shrink:0">\u26a0</span>';
   h+='<div style="flex:1;min-width:0">';
-  h+='<div style="font-size:12.5px;color:#f6d0be;font-weight:600;line-height:1.3">'+(never?"Your data has never been backed up":("Last backup was "+st.ds+" days ago"))+'</div>';
+  h+='<div style="font-size:12.5px;color:#f6d0be;font-weight:600;line-height:1.3">'+(never?"Prepare your first Atlas backup":("Last backup was prepared "+st.ds+" days ago"))+'</div>';
   h+='<div style="font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.4">'+(st.used===1?"1 tool holds data in this browser":("All "+st.used+" tools live in this browser"))+'. One clear and it is gone.</div>';
   h+='</div>';
   h+='<button onclick="backupAll()" style="flex-shrink:0;padding:8px 13px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:700;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f)">Back up</button>';
@@ -408,9 +223,10 @@ function render(){
   h+='<div class="mono" style="text-align:center;margin-top:16px;font-size:10px;color:#4e5573">Quinton Chambers \u00b7 Everything is connected. So the advice has to be too.</div>';
 
   document.getElementById("app").innerHTML=h;
+  if(window.AtlasVaultUI) window.AtlasVaultUI.mount();
 }
 render();
-/* Re-read when you come back from a tool, so the numbers are never stale. */
+/* Re-read when you come back from a tool, so the numbers reflect saved work. */
 document.addEventListener("visibilitychange",function(){ if(!document.hidden) render(); });
 window.addEventListener("pageshow",function(){ render(); });
 window.addEventListener("focus",render);
@@ -507,5 +323,6 @@ function uiAsk(title, fields, onOk, okLabel){
 function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent=msg; }
 
 </script>
+<script type="module" src="shared/atlas-vault.js"></script>
 </body>
 </html>
