@@ -15,7 +15,7 @@ test('both shipped full-app scripts boot with saved data and existing editors se
     if(kind==='herald')raw.videos=[{id:'video-one',title:'A story',fmt:'long',vert:'General',status:'draft',opt:{},metrics:{},pub:{},script:'Original script'}];
     else raw.projects=[{id:'project-one',task:'A room plan',area:'Home',status:'Not started',notes:'Original note',pri:'High',sub:'',due:''}];
     const window={AtlasConnected:{raw:()=>JSON.stringify(raw),save:s=>saves.push(structuredClone(s))},addEventListener(){},scrollTo(){},innerWidth:1200};
-    const context=vm.createContext({window,document,navigator:{},location:{href:'https://atlas.test/apps/'+kind},URL,Date,Blob,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});
+    const context=vm.createContext({window,document,navigator:{},location:{href:'https://atlas.test/apps/'+kind},URL,Date,Blob,TextEncoder,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});
     vm.runInContext(connected['/connected/'+kind+'-main.js'][0],context);await tick();assert.equal(typeof window.acceptConnectedState,'function');
     if(kind==='herald'){
       vm.runInContext("schedVid('video-one','2026-09-10')",context);assert.equal(saves.at(-1).videos[0].sched,'2026-09-10');assert.equal(saves.at(-1).videos[0].script,'Original script');
@@ -23,6 +23,13 @@ test('both shipped full-app scripts boot with saved data and existing editors se
     }else{
       vm.runInContext("view.editor=Object.assign({kind:'proj'},S.projects[0],{status:'Done'});saveEditor()",context);assert.equal(saves.at(-1).projects[0].status,'Done');assert.equal(saves.at(-1).projects[0].notes,'Original note');
       const changed=structuredClone(saves.at(-1));changed.projects[0].task='A revised plan';window.acceptConnectedState(changed);assert.equal(vm.runInContext('S.projects[0].task',context),'A revised plan');
+      window.LifeMapDashboard.setStatus('project-one','Not started');window.LifeMapDashboard.setStatus('project-one','Done');
+      assert.equal(saves.at(-1).projects[0].status,'Done');
+      vm.runInContext("S.projects[0].notes='A newer note'",context);node('button').onclick();
+      assert.equal(saves.at(-1).projects[0].status,'Not started');assert.equal(saves.at(-1).projects[0].notes,'A newer note');
+      await vm.runInContext("importData({size:100,text:async()=>JSON.stringify({projects:[{id:'broken',task:'Bad date',status:'Not started',due:'2026-02-30'}],chores:[],checks:{}})})",context);
+      assert.equal(vm.runInContext('S.projects[0].id',context),'project-one');
+
     }
   }
 });
@@ -52,4 +59,12 @@ test('a late automatic refresh cannot replace input entered while that request w
   h.events.get('input')({target:{closest:s=>s==='#connected-app'?{}:null}});
   await h.reply(1,{state:{...emptyAppState('herald'),roadmap:[{id:'late',t:'Saved elsewhere'}]},version:'v2',connected:true});
   assert.equal(h.applied.length,0);assert.equal(h.window.AtlasConnected.pending,true);assert.match(h.node('#connected-status').textContent,/Unsaved/);
+});
+
+test('search-only input is not a saved-data draft and cancelling an edit clears its navigation guard',async()=>{
+ const h=bootstrap();await h.reply(0,{state:emptyAppState('herald'),version:'v1',connected:true});
+ h.events.get('input')({target:{closest:s=>['#connected-app','[data-ui-only]'].includes(s)?{}:null}});
+ assert.equal(h.window.AtlasConnected.pending,false);
+ h.events.get('input')({target:{closest:s=>s==='#connected-app'?{}:null}});assert.equal(h.window.AtlasConnected.pending,true);
+ h.window.AtlasConnected.clearInputDraft();assert.equal(h.window.AtlasConnected.pending,false);
 });
