@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="shared/atlas-theme.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -90,8 +91,10 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 @keyframes sparkfly{0%{opacity:0;transform:rotate(var(--a)) translateY(0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1)}}
 @media(prefers-reduced-motion:reduce){.fill,.orb{transition:none;animation:none}.fill::after,.levelup,.fadeUp{animation:none}#stars span,.spark{animation:none;display:none}}
 </style>
-<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css">
+<link rel="stylesheet" href="shared/atlas-palette.css">
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
+<link rel="stylesheet" href="shared/atlas-appearance.css">
 </head>
 <body>
 <div class="wrap" id="app"></div>
