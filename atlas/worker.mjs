@@ -1,8 +1,9 @@
+import { cadenceRow, cadenceAPI } from './cadence-api.mjs';
 import { searchOptions, searchWorkspace } from './search.mjs';
 import { heraldContent, heraldRecord, heraldItem, parseHeraldTransfer, heraldImportPlan } from './herald.mjs';
 import { communicationContent, communicationRecord, communicationRep, parseCommunicationTransfer, communicationImportPlan } from './communication.mjs';
 import { fetchEditions, editionRefreshPlan, editionSignature } from './courier-editions.mjs';
-import { html, css, js, theme, searchModel, searchUI, agendaModel, agendaUI, commitmentsModel, commitmentsUI, budgetUI, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
+import { html, css, js, theme, searchModel, searchUI, agendaModel, agendaUI, commitmentsModel, commitmentsUI, budgetUI, cadenceModel, cadenceUI, cadenceCatalog, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan, practiceEditionRefresh } from './model.mjs';
 import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
@@ -91,16 +92,18 @@ async function state(db,owner,week) {
     db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner),
     db.prepare('SELECT * FROM atlas_ledger WHERE owner=?').bind(owner),
     db.prepare('SELECT * FROM atlas_communication WHERE owner=?').bind(owner),
-    db.prepare('SELECT * FROM atlas_herald WHERE owner=?').bind(owner)
+    db.prepare('SELECT * FROM atlas_herald WHERE owner=?').bind(owner),
+    db.prepare('SELECT * FROM atlas_cadence WHERE owner=?').bind(owner)
   ]);
   const practice=result[3].results[0];
   return { tasks:result[0].results, projects:result[1].results, week:result[2].results[0]||null,
-    practice:practiceRow(practice),ledger:ledgerRow(result[4].results[0]),communication:communicationRow(result[5].results[0]),herald:heraldRow(result[6].results[0]) };
+    practice:practiceRow(practice),ledger:ledgerRow(result[4].results[0]),communication:communicationRow(result[5].results[0]),herald:heraldRow(result[6].results[0]),cadence:cadenceRow(result[7].results[0]) };
 }
 async function api(request,env,url,owner) {
   const db=env.DB;
   if(!db) throw new HttpError('Your saved workspace is temporarily unavailable. Please try again.',503);
   const path=url.pathname, now=new Date().toISOString();
+  if(path.startsWith('/api/cadence/')&&['POST','PATCH'].includes(request.method))return json(await cadenceAPI({db,owner,path,method:request.method,b:await bodyOf(request),now,HttpError}));
   if(path==='/api/search'&&request.method==='POST'){
     const options=searchOptions(await bodyOf(request));
     const saved=await workspace(db,owner);
@@ -205,11 +208,11 @@ async function api(request,env,url,owner) {
     await writeLedger(db,owner,current,next,now);return json({saved:true});
   }
   if(path==='/api/restore/preview'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald);
-    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1,legacyLedger:b.backup.version<4,legacyCommunication:b.backup.version<5,legacyHerald:b.backup.version<6});
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects);
+    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1,legacyLedger:b.backup.version<4,legacyCommunication:b.backup.version<5,legacyHerald:b.backup.version<6,legacyCadence:b.backup.version<7});
   }
   if(path==='/api/restore'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald);
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects);
     if(!Number.isSafeInteger(b.seq)||b.seq!==current.seq||b.digest!==await digest(backup))throw new HttpError('The workspace or backup changed. Review the restore again.',409);
     const id=await replaceWorkspace(db,owner,backup,current.data,b.seq,'Before workspace restore');
     return json({saved:true,checkpoint:id});
@@ -246,7 +249,7 @@ async function api(request,env,url,owner) {
     if(path.endsWith('/undo')&&request.method==='POST'){
       const b=await bodyOf(request),current=await workspace(db,owner);
       if(b.seq!==current.seq||current.seq!==checkpoint.after_seq)throw new HttpError('The workspace changed after this restore. Download the recovery copy and review it before applying it.',409);
-      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data,current.data.practice,current.data.ledger,current.data.communication,current.data.herald),current.data,current.seq,'Before reversing workspace restore');
+      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects),current.data,current.seq,'Before reversing workspace restore');
       return json({saved:true,checkpoint:recovery});
     }
   }
@@ -438,7 +441,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/budget-ui.mjs':[budgetUI,'text/javascript; charset=utf-8'],'/commitments.mjs':[commitmentsModel,'text/javascript; charset=utf-8'],'/commitments-ui.mjs':[commitmentsUI,'text/javascript; charset=utf-8'],'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
+      const assets={'/cadence.mjs':[cadenceModel,'text/javascript; charset=utf-8'],'/cadence-ui.mjs':[cadenceUI,'text/javascript; charset=utf-8'],'/cadence-catalog.mjs':[cadenceCatalog,'text/javascript; charset=utf-8'],'/budget-ui.mjs':[budgetUI,'text/javascript; charset=utf-8'],'/commitments.mjs':[commitmentsModel,'text/javascript; charset=utf-8'],'/commitments-ui.mjs':[commitmentsUI,'text/javascript; charset=utf-8'],'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});

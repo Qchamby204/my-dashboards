@@ -64,7 +64,7 @@ test('stale imports, edited previews, and simultaneous day writes cannot overwri
   assert.deepEqual(results.map(x=>x.status).sort(),[200,409]);assert.equal((await state(db)).ledger.revision,revision+1);db.close();
 });
 test('version 4 workspace restores and recovery copies retain Ledger contents; older backups preserve current Ledger',async()=>{
-  const db=previewDatabase();await apply(db);const before=await backup(db);assert.equal(before.version,6);await day(db,blank());
+  const db=previewDatabase();await apply(db);const before=await backup(db);assert.equal(before.version,7);await day(db,blank());
   const plan=(await req(db,'/api/restore/preview','POST',{backup:before})).data;
   assert.equal(plan.changes.find(c=>c.key==='ledger').replace,1);const r=await req(db,'/api/restore','POST',plan);assert.equal(r.status,200);
   assert.deepEqual((await state(db)).ledger.days,before.ledger[0].days);
