@@ -12,7 +12,17 @@ The private Life Map opens to Projects, with Chores and Timeline as separate vie
 
 Chores show remaining work or all chores, with clear calendar-cycle recurrence. Backup restoration validates dates, record lists, duplicate IDs, and unsafe fields before review. Cancelling an edit and searching do not strand an unsaved-data guard. Delete Undo restores only the affected record; restore Undo refuses to replace newer changes.
 
-The original Life Map source and browser records remain unchanged. Atlas links to the improved private Life Map. The remaining dashboards are reviewed individually, with The Herald next.
+The original Life Map source and browser records remain unchanged. Atlas links to the improved private Life Map. Dashboards are reviewed individually.
+
+## Dashboard 2: The Herald
+
+Purpose: capture ideas, write scripts, track production, and record publication.
+
+The private Herald opens to a searchable content list. A title is enough to capture an idea. The editor puts the script first and lets users change title, format, audience, stage, and dates. Word count and estimated reading time update while typing. Packaging, publication checklists, and manual results are optional sections; checklist completion is an explicit user choice. Earlier cadence records remain under Tools.
+
+The calendar lists planned content and recorded publications with separate dates. Recording publication never posts externally. Historical publication dates can be entered, and unknown dates remain unknown. Existing scripts and production details are retained across saves.
+
+Cancelling a changed editor requires an explicit discard. Downloaded backups include open editor text and uncaptured ideas. Backup restoration validates content before an explicit replacement review. Delete Undo restores only the affected record, and restore Undo refuses to overwrite newer edits. The original Herald HTML stays unchanged; generic enhancement modules are composed into the private build.
 
 ## Shared records
 
@@ -24,10 +34,10 @@ Earlier records stored in the original browser apps need one reviewed transfer t
 
 Owner-scoped APIs enforce same-origin writes, revision checks, shared priority capacity, and atomic source/detail updates. Idle refresh protects active drafts. Failed saves retain the latest draft in the open tab, with a download option. This is online saving; unsaved drafts are not persisted after closing the tab.
 
-Migration 0009 adds source priorities and connected app details. Applied migrations 0000 through 0008 remain unchanged. Workspace backup format 8 retains these records and supports earlier formats conservatively.
+Migration 0009 adds source priorities and connected app details. Applied migrations 0000 through 0009 remain unchanged. Workspace backup format 8 retains these records and supports earlier formats conservatively.
 
 ## Validation
 
 Run `node atlas/build.mjs`, then `node --test atlas/tests/*.test.mjs`.
 
-175 checks pass, including actual app editor scripts, project completion and Undo, shared source updates, concurrent saves, ownership, import review, and recovery. Tests use synthetic records and mock page elements. No live user records were transferred during development.
+182 checks pass, including actual app editor scripts, draft recovery, publication date round trips, project completion and Undo, shared source updates, concurrent saves, ownership, import review, and recovery. Tests use synthetic records and mock page elements. No live user records were transferred during development. Browser testing was not performed for this pass.
