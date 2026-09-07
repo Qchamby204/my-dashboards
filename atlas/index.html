@@ -16,6 +16,7 @@
     <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Life Map</a>
     <a href="#review" data-view="review"><span aria-hidden="true">↺</span> Weekly review</a>
     <a href="#practice" data-view="practice"><span aria-hidden="true">◇</span> Practice</a>
+    <a href="#ledger" data-view="ledger"><span aria-hidden="true">▤</span> Life Ledger</a>
     <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> All apps</a>
     <a href="#history" data-view="history"><span aria-hidden="true">◷</span> History & recovery</a>
   </nav>
@@ -77,12 +78,29 @@
   <p id="practice-connect-error" class="form-error" role="alert"></p>
   <div class="dialog-actions"><button class="secondary" data-close="practice-connect-dialog">Cancel</button><button class="primary" id="practice-connect">Use synced practice</button></div>
 </dialog>
+<dialog id="ledger-habit-dialog" aria-labelledby="ledger-habit-title">
+  <form id="ledger-habit-form">
+    <div class="dialog-heading"><h2 id="ledger-habit-title">A habit of your own</h2><button type="button" class="icon-button" data-close="ledger-habit-dialog" aria-label="Close habit editor">×</button></div>
+    <label>Habit name<input name="title" required maxlength="160" placeholder="Read something interesting" autocomplete="off"></label>
+    <p class="small">A simple check-in you can rename or archive at any time.</p><p id="ledger-habit-error" class="form-error" role="alert"></p>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close="ledger-habit-dialog">Cancel</button><button class="primary" type="submit">Save habit</button></div>
+  </form>
+</dialog>
+<dialog id="ledger-import-dialog" aria-labelledby="ledger-import-title">
+  <div class="dialog-heading"><h2 id="ledger-import-title">Bring your earlier days</h2><button class="icon-button" data-close="ledger-import-dialog" aria-label="Close Life Ledger import">×</button></div>
+  <p>In the original Life Ledger, choose Export Backup, then select that JSON file here.</p>
+  <p class="small">Imports supported habit names, archive choices, dated check-ins, and notes. Positive quantities become checkmarks. Goals, numeric totals, supplement routines, mood ratings, and outcome metrics stay in the original app. The original backup is unchanged.</p>
+  <label>Life Ledger backup<input id="ledger-import-file" type="file" accept=".json,application/json"></label>
+  <div id="ledger-import-preview"></div><p id="ledger-import-error" class="form-error" role="alert"></p>
+  <label class="restore-consent"><input type="checkbox" id="ledger-import-consent">I reviewed the additions and understand that existing saved dates stay as they are.</label>
+  <div class="dialog-actions"><button class="secondary" data-close="ledger-import-dialog">Cancel</button><button class="primary" id="ledger-import-confirm" disabled>Import reviewed days</button></div>
+</dialog>
 <dialog id="restore-dialog" aria-labelledby="restore-title">
   <div class="dialog-heading"><h2 id="restore-title">Restore your workspace</h2><button class="icon-button" data-close="restore-dialog" aria-label="Close workspace restore">×</button></div>
   <p>Choose an Atlas OS export. Review every addition, replacement, and removal before applying it.</p>
   <label>Choose a JSON export<input id="restore-file" type="file" accept=".json,application/json"></label>
   <details><summary>Or paste an export</summary><label>Atlas OS backup JSON<textarea id="restore-json" rows="5" spellcheck="false"></textarea></label><button id="restore-paste" class="secondary">Review pasted export</button></details>
-  <p class="small">Up to 8 MB. This restores the private workspace. Original app records and appearance preferences stay in their own apps. Version 1 exports retain the current practice snapshot.</p>
+  <p class="small">Up to 8 MB. This restores the private workspace. Original app records and appearance preferences stay in their own apps. Version 1 exports retain current practice. Versions 1–3 retain current Life Ledger records.</p>
   <div id="restore-preview"></div><p id="restore-error" class="form-error" role="alert"></p>
   <div class="dialog-actions"><button class="secondary" data-close="restore-dialog">Cancel</button><button class="primary" id="restore-confirm" disabled>Apply reviewed restore</button></div>
 </dialog>

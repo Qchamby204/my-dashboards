@@ -8,6 +8,15 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 .project-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}.connected-project{border-bottom:1px solid var(--line)}.connected-project>summary{display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;padding:20px 0}.connected-project>summary strong{display:block;font-size:1rem;font-weight:550;overflow-wrap:anywhere}.connected-project>summary .small{display:block;margin-top:6px}.connected-project>summary .badge{flex-shrink:0}.project-body{padding:0 0 20px}.project-body .task{padding-left:8px}.project-toolbar .text-button{font-size:.875rem}.project-body>.small{font-size:.875rem}#practice-preview .import-list:empty{display:none}
 /* Recovery uses the same shared light, dark, and system palette. */
 .recovery-table{overflow-x:auto;margin:1rem 0}
+.ledger-date{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:24px}.ledger-date label{margin:0;max-width:220px}
+.ledger-checks{border:0;padding:0;margin:24px 0}.ledger-checks legend{font-size:.875rem;color:var(--muted);margin-bottom:12px}
+.ledger-checks label{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);padding:12px 0;margin:0;min-height:60px;color:var(--text);cursor:pointer}
+.ledger-checks input{width:24px;height:24px;min-height:24px;flex:none;accent-color:var(--gold)}.ledger-checks span{min-width:0;overflow-wrap:anywhere}.ledger-checks small{display:block;color:var(--faint)}
+.ledger-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.ledger-habit{padding:12px 0;border-bottom:1px solid var(--line)}.ledger-habit>span{overflow-wrap:anywhere}.ledger-habit>div{display:flex;flex-wrap:wrap;margin-left:-8px}
+.ledger-recent{display:block;text-align:left;width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);padding:16px 0}.ledger-recent strong,.ledger-recent span{display:block}.ledger-recent strong{font-size:.9375rem;font-weight:500}
+.ledger-reflection{margin:16px 0}.ledger-reflection summary{min-height:44px;cursor:pointer;font-size:.9375rem}
+#ledger-import-dialog{width:min(760px,calc(100vw - 32px))}
+@media(max-width:420px){.ledger-date label{max-width:none;width:100%}.ledger-actions{align-items:stretch;flex-direction:column}}
 .daily-briefing{margin-bottom:26px}
 .practice-status{display:flex;align-items:center;gap:24px;justify-content:space-between}
 .practice-status>div{min-width:0}.practice-status button{flex:none}
