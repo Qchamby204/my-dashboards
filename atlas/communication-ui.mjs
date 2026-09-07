@@ -64,5 +64,5 @@ export function createCommunicationUI({api,getData,getWeek,load,render,error,toa
   for(const id of ['#communication-dialog','#communication-import-dialog'])$(id).addEventListener('cancel',e=>{if(saving)e.preventDefault();});
   $('#communication-dialog').addEventListener('close',()=>{editing=null;});
   $('#communication-import-dialog').addEventListener('close',()=>{ticket++;plan=null;});
-  return {page,weekly,get dirty(){return !!editing||$('#communication-import-dialog').open;},get saving(){return saving;}};
+  return {page,weekly,openRecord(id){if(saving||blocked())return false;const rep=saved()?.reps.find(r=>r.id===id);if(!rep)return false;openEditor(rep);return true;},get dirty(){return !!editing||$('#communication-import-dialog').open;},get saving(){return saving;}};
 }
