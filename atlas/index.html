@@ -14,6 +14,7 @@
     <a href="#today" data-view="today"><span aria-hidden="true">◉</span> Today</a>
     <a href="#week" data-view="week"><span aria-hidden="true">▦</span> This week</a>
     <a href="#commitments" data-view="commitments"><span aria-hidden="true">✓</span> Commitments</a>
+    <a href="#cadence" data-view="cadence"><span aria-hidden="true">↻</span> Operations Cadence</a>
     <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Life Map</a>
     <a href="#review" data-view="review"><span aria-hidden="true">↺</span> Weekly review</a>
     <a href="#practice" data-view="practice"><span aria-hidden="true">◇</span> Practice</a>
@@ -43,6 +44,7 @@
 </dialog>
 <dialog id="task-dialog" aria-labelledby="task-dialog-title">
   <form id="task-form">
+    <p id="task-routine-note" class="small" hidden>This is one recurring occurrence. Editing it keeps its original occurrence identity and does not change the routine or other dates.</p>
     <div class="dialog-heading"><div><span class="eyebrow">Make room for what matters</span><h2 id="task-dialog-title">Capture a commitment</h2></div><button type="button" class="icon-button" data-close="task-dialog" aria-label="Close capture">×</button></div>
     <p id="task-record-status" class="small" hidden></p>
     <details id="task-source" class="task-source" hidden><summary id="task-source-label"></summary><p id="task-source-text" class="reflection-text"></p><p class="small">Use this note as a reference. Choose a concrete action below. The commitment saves your action title and app connection.</p></details>
@@ -67,6 +69,24 @@
   <p class="small">Only project titles, areas, dates, status, and IDs are imported. Other app data and credentials are excluded. Existing Life Map records stay in their original app.</p>
   <div id="import-preview"></div><p id="import-error" class="form-error" role="alert"></p>
   <div class="dialog-actions"><button class="secondary" data-close="import-dialog">Cancel</button><button class="primary" id="import-confirm" disabled>Import projects</button></div>
+</dialog>
+<dialog id="cadence-dialog" aria-labelledby="cadence-title">
+  <form id="cadence-form" aria-describedby="cadence-schedule-note cadence-error">
+    <div class="dialog-heading"><h2 id="cadence-title">New routine</h2><button type="button" class="icon-button" data-cadence-close aria-label="Close routine editor">×</button></div>
+    <label>Routine title<input name="title" maxlength="300" required placeholder="Review the week"></label>
+    <div class="form-grid"><label>Repeat<select name="frequency"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label><label>On day<select name="day"></select></label></div>
+    <div class="form-grid"><label>Start date<input type="date" name="start_date" required></label><label>Minutes per occurrence<input name="minutes" type="number" min="5" max="1440" step="1" required></label></div>
+    <p id="cadence-schedule-note" class="small"></p><p id="cadence-error" class="form-error" role="alert"></p>
+    <div class="dialog-actions"><button type="button" class="secondary" data-cadence-discard>Discard & reload</button><button type="submit" class="primary">Save routine</button></div>
+  </form>
+</dialog>
+<dialog id="cadence-import-dialog" aria-labelledby="cadence-import-title">
+  <div class="dialog-heading"><h2 id="cadence-import-title">Bring in Operations routines</h2><button type="button" class="icon-button" data-cadence-import-close aria-label="Close routine import">×</button></div>
+  <p>Choose an Atlas Vault export from the original Home app. Weekly and monthly routine titles and supported schedules are reviewed here. Daily, quarterly, annual and ad-hoc work, notes, and completion history remain in the original app.</p>
+  <label>Vault export<input id="cadence-file" type="file" accept=".json,application/json"></label>
+  <div id="cadence-import-preview"></div><label class="consent"><input id="cadence-consent" type="checkbox">I reviewed these routines and want to add them paused.</label>
+  <p id="cadence-import-error" class="form-error" role="alert"></p>
+  <div class="dialog-actions"><button class="secondary" data-cadence-import-close>Cancel</button><button class="primary" id="cadence-import-confirm" disabled>Import paused routines</button></div>
 </dialog>
 <dialog id="project-dialog" aria-labelledby="project-dialog-title">
   <form id="project-form" aria-describedby="project-draft-state project-error">
