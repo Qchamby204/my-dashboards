@@ -5,6 +5,8 @@ export const projects = sqliteTable('atlas_projects', {
   id: text('id').primaryKey(), owner: text('owner').notNull(), sourceId: text('source_id').notNull(),
   title: text('title').notNull(), area: text('area').notNull(), status: text('status').notNull(),
   dueDate: text('due_date'), importedAt: text('imported_at').notNull(),
+  mode: text('mode').notNull().default('snapshot'), revision: integer('revision').notNull().default(1),
+  updatedAt: text('updated_at'), completedAt: text('completed_at'), archivedAt: text('archived_at'),
 }, t => [uniqueIndex('atlas_projects_owner_source').on(t.owner, t.sourceId)]);
 
 export const tasks = sqliteTable('atlas_tasks', {
@@ -22,3 +24,9 @@ export const weeks = sqliteTable('atlas_weeks', {
   capacity: integer('capacity').notNull().default(600), worked: text('worked').notNull().default(''),
   change: text('change').notNull().default(''), revision: integer('revision').notNull().default(1), updatedAt: text('updated_at').notNull(),
 }, t => [uniqueIndex('atlas_weeks_owner_start').on(t.owner, t.weekStart)]);
+
+export const practiceSnapshots = sqliteTable('atlas_practice_snapshots', {
+  owner: text('owner').primaryKey(), items: text('items').notNull(),
+  revision: integer('revision').notNull().default(1), importedAt: text('imported_at').notNull(),
+  sourceExportedAt: text('source_exported_at'),
+});

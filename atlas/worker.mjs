@@ -1,12 +1,12 @@
 import { html, css, js, theme, model } from './assets.mjs';
-import { validDate, monday, textValue, dateValue, appValue, minutesValue } from './model.mjs';
+import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems } from './model.mjs';
 
 const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'same-origin' };
 function json(data,status=200) { return new Response(JSON.stringify(data),{status,headers:{...headers,'Content-Type':'application/json'}}); }
 class HttpError extends Error { constructor(message,status=400){super(message);this.status=status;} }
 async function bodyOf(request) {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError('Send JSON.');
-  const body=await request.text(); if(body.length>350000) throw new HttpError('This request is too large.',413);
+  const body=await request.text(); if(body.length>(new URL(request.url).pathname==='/api/practice'?4500000:350000)) throw new HttpError('This request is too large.',413);
   try { const value=JSON.parse(body); if(!value || typeof value!=='object' || Array.isArray(value)) throw new Error(); return value; }
   catch { throw new HttpError('This request could not be read.'); }
 }
@@ -19,9 +19,12 @@ async function state(db,owner,week) {
   const result=await db.batch([
     db.prepare("SELECT * FROM atlas_tasks WHERE owner=? ORDER BY created_at DESC").bind(owner),
     db.prepare('SELECT * FROM atlas_projects WHERE owner=? ORDER BY title').bind(owner),
-    db.prepare('SELECT * FROM atlas_weeks WHERE owner=? AND week_start=?').bind(owner,week)
+    db.prepare('SELECT * FROM atlas_weeks WHERE owner=? AND week_start=?').bind(owner,week),
+    db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner)
   ]);
-  return { tasks:result[0].results, projects:result[1].results, week:result[2].results[0]||null };
+  const practice=result[3].results[0];
+  return { tasks:result[0].results, projects:result[1].results, week:result[2].results[0]||null,
+    practice:practice?{items:JSON.parse(practice.items),revision:practice.revision,imported_at:practice.imported_at,source_exported_at:practice.source_exported_at}:null };
 }
 async function api(request,env,url,owner) {
   const db=env.DB;
@@ -30,6 +33,51 @@ async function api(request,env,url,owner) {
   if(path==='/api/state' && request.method==='GET') {
     const week=url.searchParams.get('week'); if(!validDate(week) || monday(week)!==week) throw new HttpError('Choose a valid week.');
     return json(await state(db,owner,week));
+  }
+  if(path==='/api/projects' && request.method==='POST') {
+    const b=await bodyOf(request),id=textValue(b.id,80,true),title=textValue(b.title,300,true),area=textValue(b.area,120),due=dateValue(b.due_date);
+    const existing=await db.prepare('SELECT * FROM atlas_projects WHERE id=? AND owner=?').bind(id,owner).first();
+    if(existing){if(existing.title!==title||existing.area!==area||existing.due_date!==due)throw new HttpError('This project was already saved with different details.',409);return json({id});}
+    await db.prepare("INSERT INTO atlas_projects (id,owner,source_id,title,area,status,due_date,imported_at,mode,updated_at) VALUES (?,?,?,?,?,'open',?,?,'managed',?)")
+      .bind(id,owner,'atlas:'+id,title,area,due,now,now).run();
+    return json({id},201);
+  }
+  if(path.startsWith('/api/projects/') && request.method==='PATCH') {
+    const id=path.slice('/api/projects/'.length),b=await bodyOf(request);
+    const p=await db.prepare('SELECT * FROM atlas_projects WHERE id=? AND owner=?').bind(id,owner).first();
+    if(!p)throw new HttpError('That project is unavailable.',404);
+    if(!Number.isInteger(b.revision)||b.revision!==p.revision)throw new HttpError('This project changed on another device. Refresh before trying again.',409);
+    let {title,area,due_date,status,mode,completed_at,archived_at}=p;
+    if(b.action==='connect')mode='managed';
+    else if(b.action==='disconnect')mode='snapshot';
+    else {
+      if(mode!=='managed')throw new HttpError('Use this as a synced project before editing it here.',409);
+      if(b.action==='edit'){title=textValue(b.title,300,true);area=textValue(b.area,120);due_date=dateValue(b.due_date);}
+      else if(b.action==='complete'){status='done';completed_at=status===p.status?p.completed_at:now;}
+      else if(b.action==='reopen'){status='open';completed_at=null;}
+      else if(b.action==='archive')archived_at=now;
+      else if(b.action==='restore')archived_at=null;
+      else throw new HttpError('Unknown project action.');
+    }
+    const result=await db.prepare('UPDATE atlas_projects SET title=?,area=?,due_date=?,status=?,mode=?,completed_at=?,archived_at=?,updated_at=?,revision=revision+1 WHERE id=? AND owner=? AND revision=?')
+      .bind(title,area,due_date,status,mode,completed_at,archived_at,now,id,owner,b.revision).run();
+    if(!result.meta.changes)throw new HttpError('This project changed on another device. Refresh before trying again.',409);
+    return json({id});
+  }
+  if(path==='/api/practice' && request.method==='PUT') {
+    const b=await bodyOf(request),items=JSON.stringify(practiceItems(b.items));
+    const exported=b.source_exported_at===null?null:textValue(b.source_exported_at,50);
+    if(exported&&!Number.isFinite(Date.parse(exported)))throw new HttpError('The backup date is invalid.');
+    const existing=await db.prepare('SELECT revision FROM atlas_practice_snapshots WHERE owner=?').bind(owner).first();
+    if(!Number.isInteger(b.revision)||b.revision!==(existing?.revision||0))throw new HttpError('Practice was refreshed on another device. Review the latest snapshot before replacing it.',409);
+    if(existing){
+      const r=await db.prepare('UPDATE atlas_practice_snapshots SET items=?,source_exported_at=?,imported_at=?,revision=revision+1 WHERE owner=? AND revision=?').bind(items,exported,now,owner,b.revision).run();
+      if(!r.meta.changes)throw new HttpError('Practice changed on another device. Refresh and try again.',409);
+    }else{
+      try{await db.prepare('INSERT INTO atlas_practice_snapshots (owner,items,source_exported_at,imported_at) VALUES (?,?,?,?)').bind(owner,items,exported,now).run();}
+      catch(error){if(String(error.message).includes('UNIQUE'))throw new HttpError('Practice changed on another device. Refresh and try again.',409);throw error;}
+    }
+    return json({count:JSON.parse(items).length});
   }
   if(path==='/api/tasks' && request.method==='POST') {
     const b=await bodyOf(request), id=textValue(b.id,80,true), title=textValue(b.title,300,true), app=appValue(b.app_id);
@@ -88,10 +136,10 @@ async function api(request,env,url,owner) {
       const source=textValue(p.source_id,200,true); if(seen.has(source)) throw new HttpError('Duplicate project IDs.');seen.add(source);
       const title=textValue(p.title,300,true),area=textValue(p.area,120),due=dateValue(p.due_date);
       if(!['open','done'].includes(p.status)) throw new HttpError('Unknown project status.');
-      return db.prepare('INSERT INTO atlas_projects (id,owner,source_id,title,area,status,due_date,imported_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(owner,source_id) DO UPDATE SET title=excluded.title,area=excluded.area,status=excluded.status,due_date=excluded.due_date,imported_at=excluded.imported_at')
+      return db.prepare("INSERT INTO atlas_projects (id,owner,source_id,title,area,status,due_date,imported_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(owner,source_id) DO UPDATE SET title=excluded.title,area=excluded.area,status=excluded.status,due_date=excluded.due_date,imported_at=excluded.imported_at,revision=atlas_projects.revision+1 WHERE atlas_projects.mode='snapshot' AND atlas_projects.archived_at IS NULL")
         .bind(crypto.randomUUID(),owner,source,title,area,p.status,due,now);
     });
-    await db.batch(entries); return json({count:entries.length});
+    const results=await db.batch(entries),count=results.reduce((sum,r)=>sum+(r.meta?.changes||0),0);return json({count,protected:entries.length-count});
   }
   if(path==='/api/week' && request.method==='PUT') {
     const b=await bodyOf(request),week=dateValue(b.week_start);
@@ -110,9 +158,9 @@ async function api(request,env,url,owner) {
     return json({saved:true});
   }
   if(path==='/api/export' && request.method==='GET') {
-    const values=await db.batch(['atlas_tasks','atlas_projects','atlas_weeks'].map(table=>db.prepare(`SELECT * FROM ${table} WHERE owner=?`).bind(owner)));
+    const values=await db.batch(['atlas_tasks','atlas_projects','atlas_weeks','atlas_practice_snapshots'].map(table=>db.prepare(`SELECT * FROM ${table} WHERE owner=?`).bind(owner)));
     const clean=values.map(v=>v.results.map(({owner,...rest})=>rest));
-    return json({app:'atlas-os',version:1,exportedAt:now,tasks:clean[0],projects:clean[1],weeks:clean[2]});
+    return json({app:'atlas-os',version:2,exportedAt:now,tasks:clean[0],projects:clean[1],weeks:clean[2],practice:clean[3].map(p=>({...p,items:JSON.parse(p.items)}))});
   }
   throw new HttpError('This page was not found.',404);
 }
