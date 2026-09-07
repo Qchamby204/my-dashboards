@@ -6,3 +6,22 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 @media(max-width:720px){.sidebar{position:relative;width:auto;padding:20px 20px 0;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:0;font-size:1.2rem}.brand-mark{width:30px;height:30px}.nav-caption,.sidebar-bottom{display:none}nav{display:flex;gap:5px;overflow-x:auto;margin:20px -5px 0;padding-bottom:8px}nav a{white-space:nowrap;padding:10px;font-size:.875rem}nav a>span{display:none}main{margin-left:0;padding:0 20px 40px}.topbar{height:78px;font-size:.8125rem}.topbar>div{gap:4px}.topbar .primary{padding:9px 12px}.topbar .text-button{padding:6px}.page-heading{display:block;margin-bottom:22px}.page-heading h1{font-size:2rem}.page-heading p{font-size:.9375rem}.page-heading>.secondary,.page-heading>.week-switch{margin-top:18px}#content{padding-top:25px}.panel{padding:20px}.columns{gap:20px}.columns>aside{display:block}.columns>aside .panel+.panel{margin-top:20px}.focus-item{padding:13px;gap:9px}.app-grid{grid-template-columns:1fr 1fr;gap:10px}.app-card{padding:17px;min-height:190px}.app-card h3{font-size:.9375rem}.app-card p{font-size:.8125rem}.form-grid{grid-template-columns:1fr;gap:0}.project{align-items:flex-start;gap:10px}.project button{font-size:.8125rem;white-space:nowrap;padding:8px 10px}.filters{display:block}.filters select{margin-top:10px;max-width:none}dialog{padding:22px}.toast{bottom:16px;width:calc(100% - 32px);gap:8px}.budget{gap:12px;flex-wrap:wrap}.statline strong{font-size:1.4rem}}@media(prefers-reduced-motion:no-preference){button,a{transition:background .15s,border-color .15s,color .15s}dialog[open]{animation:appear .16s ease-out}@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}}
 
 .project-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}.connected-project{border-bottom:1px solid var(--line)}.connected-project>summary{display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;padding:20px 0}.connected-project>summary strong{display:block;font-size:1rem;font-weight:550;overflow-wrap:anywhere}.connected-project>summary .small{display:block;margin-top:6px}.connected-project>summary .badge{flex-shrink:0}.project-body{padding:0 0 20px}.project-body .task{padding-left:8px}.project-toolbar .text-button{font-size:.875rem}.project-body>.small{font-size:.875rem}#practice-preview .import-list:empty{display:none}
+/* Recovery uses the same shared light, dark, and system palette. */
+.recovery-table{overflow-x:auto;margin:1rem 0}
+.recovery-table table{width:100%;border-collapse:collapse;font-size:.875rem;text-align:left}
+.recovery-table th,.recovery-table td{padding:.75rem;vertical-align:top;border-bottom:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;min-width:5rem}
+.recovery-table td{max-width:22rem}
+.recovery-copy{display:flex;justify-content:space-between;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--line)}
+.recovery-copy h3,.recovery-copy p{margin:.3rem 0}
+.recovery-copy>div:last-child{display:flex;align-items:center;flex-wrap:wrap;gap:.75rem}
+.history-entry{padding:1rem 0;border-bottom:1px solid var(--line)}
+.history-entry summary{cursor:pointer;min-height:44px;overflow-wrap:anywhere}
+.history-entry summary .small{display:block;margin-top:.35rem}
+.history-entry summary strong{font-size:1rem}
+.restore-details{padding:.75rem 0}
+.restore-details summary{cursor:pointer;min-height:44px}
+.restore-warning{padding:1rem;border:1px solid var(--line);border-radius:12px}
+.restore-consent{display:flex;align-items:flex-start;gap:.75rem}
+.restore-consent input{width:1.25rem;height:1.25rem;flex:none;margin:.1rem 0}
+#restore-dialog,#history-dialog{width:min(760px,calc(100vw - 32px))}
+@media(max-width:700px){.recovery-copy{flex-direction:column}.recovery-table th,.recovery-table td{padding:.65rem .4rem}.dialog-actions{flex-wrap:wrap}}

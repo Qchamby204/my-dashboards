@@ -1,4 +1,4 @@
-# Atlas OS: connected planning
+# Atlas OS: reliable planning and recovery
 
 Atlas has a private, server-backed workspace for synced Life Map projects and the daily and weekly commitment loop. The original GitHub Pages apps retain their URLs and storage. Gang Ops and both test booking dashboards remain outside this work.
 
@@ -18,7 +18,7 @@ Atlas has a private, server-backed workspace for synced Life Map projects and th
 
 Projects, commitments, reviews, and imported practice snapshots are saved in D1 and scoped to the authenticated user. Imported projects begin in snapshot mode. Choosing “Use synced project” makes Atlas the place to manage that project and protects it from later imports. Existing task links and IDs are retained. The original Life Map browser copy is separate: the migration uses reviewed file transfers, not background synchronization between origins.
 
-The project importer sends only source ID, title, area, due date, and open/completed status after review. Local notes, chores, contact records, and credentials stay out of the request. Imports update eligible snapshot projects and never delete absent projects. A separate reviewed Courier import saves only completion IDs, lesson titles, track labels, publication days, and completion dates. Its previous snapshot is replaced so removed completions can be reflected. Atlas export version 2 includes projects, commitments, reviews, and this practice snapshot; a full private Atlas database restore remains a later milestone.
+The project importer sends only source ID, title, area, due date, and open/completed status after review. Local notes, chores, contact records, and credentials stay out of the request. Imports update eligible snapshot projects and never delete absent projects. A separate reviewed Courier import saves only completion IDs, lesson titles, track labels, publication days, and completion dates. Its previous snapshot is replaced so removed completions can be reflected. Atlas export version 2 includes projects, commitments, reviews, and this practice snapshot; History & recovery now reviews and restores the complete private workspace.
 
 Cross-device saving applies inside the private workspace. The UI refreshes on return or through Refresh, rejects stale writes, and keeps unsaved form input on save failure. This is not real-time push or offline editing. Completing a commitment never automatically completes its project. Returning a synced project to import mode retains its saved values and allows later reviewed source imports again.
 
@@ -38,13 +38,13 @@ Identity comes from the trusted Sites dispatcher's `oai-authenticated-user-id` h
 
 Requires Node 24 for the `node:sqlite` test harness. Run `npm ci`, `npm run db:generate` when the schema changes, `npm run build`, and `npm test`. Do not regenerate or edit an applied migration. Append a new migration for future schema changes.
 
-Tests exercise the built Worker's fetch handler against a real in-memory SQLite database through a D1-compatible adapter. They cover owner isolation, origin and identity checks, import filtering and atomicity, duplicate import identity, duplicate capture protection, concurrent focus capacity, stale writes, reviews, export, and database failure handling. These are API and data tests; a browser interaction or visual QA session has not been run.
+Tests exercise the built Worker's fetch handler against a real in-memory SQLite database through a D1-compatible adapter. They cover owner isolation, origin and identity checks, import filtering and atomicity, duplicate import identity, duplicate capture protection, concurrent focus capacity, stale writes, reviews, export, and database failure handling. These are API and data tests, distinct from the bounded desktop browser checks described below.
 
 ## Next implementation priorities
 
-1. Complete browser interaction and visual QA when a compatible supervised preview is available.
-2. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
-3. Add durable event history and a complete private-workspace restore flow.
+1. Finish browser verification of the final build, including Capture and mobile layouts, from a fresh supervised preview.
+2. Add a grounded daily briefing using saved deadlines, unfinished commitments, and weekly priorities.
+3. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
 
 ## Completed: daily workflow batch
 
@@ -70,4 +70,21 @@ GitHub remains the development source. The existing Pages deployment is not swit
 
 The original Life Map connection panel accepts only `atlas-project-updates` version 1 files. Users choose the project rows to apply. It changes title, area, due date, and open/completed status, adds selected new projects, and preserves richer local fields. Reopening removes the local completion record; a newly applied completion is recorded on the local application day. The panel uses Vault's verified checkpoint, rollback, stale-preview detection, and same-tab undo. Close other Life Map tabs before applying updates; independent browser writers are not an atomic transaction system.
 
-User records were not migrated during development. All validation uses synthetic records. The custom Worker/static project has no compatible supervised browser preview in this environment; no browser walkthrough, screenshots, or mobile visual QA are claimed.
+User records were not migrated during development. All validation uses synthetic records. The supervised browser now starts through the Vite development adapter. It uses an isolated in-memory SQLite database and the built production Worker. No live records, identities, or credentials enter the preview. Build before starting it; a running instance retains its initial build and requires a fresh supervised start after rebuilding. The adapter is never packaged or deployed.
+
+
+## Completed: workspace recovery and persistent history
+
+History & recovery accepts Atlas OS exports up to 8 MB. The browser and server validate the format, record types, unique IDs, project links, dates, statuses, and priority slots. Version 1 files preserve the current practice snapshot; version 2 explicitly restores it. The practice payload is limited to 1.5 MB to remain within D1 row limits. Atlas Vault exports belong to the original Home app and are rejected by workspace restore.
+
+The preview lists additions, replacements, removals, and unchanged values for each record type. Applying it requires review acknowledgement. Restore is a full replacement of the owner's projects, commitments, reviews, and practice snapshot. It does not change browser-local app records, appearance, history, or previous recovery copies.
+
+Before replacement, Atlas stores the current workspace in bounded recovery chunks. A D1 batch contains a workspace-generation guard, the recovery copy, replacement records, history entries, and a restore marker. A failed guard or any failed statement rolls back the whole batch. Row revisions advance so already-open editors cannot overwrite restored records. Project identity and commitment links remain intact. A network-uncertain retry must refresh and review again.
+
+`0002_watery_rhodey.sql` appends history, checkpoints, recovery chunks, and a transaction guard. Twelve SQLite triggers record inserts, updates, and removals atomically with each save. Existing records acquire history on their next change; no past activity is invented. Practice history stores counts and provenance, not duplicate lesson contents. Each history query returns 50 entries with a cursor. Recovery lists the latest 20 copies; older copies remain reachable through their workspace history entries. Copies and history are retained until an explicit future retention policy is implemented, so storage grows with use.
+
+A previous task, project, or review update can be recovered only while its saved revision still matches the historical after-value. A workspace-generation guard also detects concurrent changes at commit. Reversing an edit is itself a recorded save. Created records use normal edit/archive controls; practice can be replaced with a reviewed Courier snapshot. The latest workspace restore can be reversed while no later workspace change exists. Otherwise, download its recovery copy and perform a new reviewed restore. All recovery APIs scope access to the authenticated owner.
+
+Validation includes seven additional recovery tests: full round trips across all four record groups; checkpoint retrieval and reversal; stale and tampered previews; a save between restore validation and transaction; foreign-owner ID conflicts; atomic history failure; invalid backups; and minimal practice history. A separate check verifies the secure UUID fallback used when `randomUUID` is unavailable in the HTTP preview.
+
+Browser QA reached the desktop interface and exercised synthetic backup review, application, persistence after reload, commitment completion, undo, and the dark appearance of the recovery screen. The preview retained an earlier build after source changes, and the Sites troubleshooting policy's two startup attempts were exhausted. The final Capture compatibility fix and final-build/mobile browser QA remain unverified. This is not a live-account or physical-device test. The preview limitation does not change the production Worker's authentication.
