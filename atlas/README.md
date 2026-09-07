@@ -1,16 +1,22 @@
-# Atlas: the daily workflow
+# Atlas: a reference hub
 
-The main navigation is Today, Apps, and Settings.
+Atlas is a passive directory of dashboards. Both the original index and private root show app links and brief descriptions, with light, dark, and system appearance. The hub does not load the planning client, query user records, generate tasks, rank priorities, or run reviews.
 
-Today shows pinned records and overdue or due-today tasks, projects, and content. It shows up to six items, with the full list one click away. When nothing is due, up to three upcoming items appear. Completed work is collapsed. There is no required weekly review or priority setup.
+Earlier workspace records remain accessible through a secondary archive link. Existing databases and original app storage are retained. Individual dashboards own their functions and records.
 
-Add task needs a name. Its visible date starts at today, or the selected planning week. Clear the date for unscheduled work. Further planning fields are optional. Saved dated tasks appear automatically. Pinning an existing item is optional and never creates a duplicate task.
+## Dashboard 1: Life Map
 
-Apps opens the suite. Settings contains appearance, one-time transfer, backups, recovery, and optional planning tools. Light, dark, and system appearance are retained.
+Purpose: manage projects, dates, notes, and recurring household chores.
+
+The private Life Map opens to Projects, with Chores and Timeline as separate views. Capture a project, search title or notes, filter area/status/priority, open its editor, or complete it directly. Status changes have Undo that preserves other edits. Notes support multiple lines. Native dialog controls support keyboard editing.
+
+Chores show remaining work or all chores, with clear calendar-cycle recurrence. Backup restoration validates dates, record lists, duplicate IDs, and unsafe fields before review. Cancelling an edit and searching do not strand an unsaved-data guard. Delete Undo restores only the affected record; restore Undo refuses to replace newer changes.
+
+The original Life Map source and browser records remain unchanged. Atlas links to the improved private Life Map. The remaining dashboards are reviewed individually, with The Herald next.
 
 ## Shared records
 
-The full Life Map and Herald interfaces run privately at `/apps/life-map` and `/apps/herald`. They share source records with Today. Scripts, notes, checklists, and chores are retained. Edits and completion update the source record. Mark published records a publication; it does not post to a platform.
+The full Life Map and Herald interfaces run privately at `/apps/life-map` and `/apps/herald`. Their records are saved privately across devices. Scripts, notes, checklists, and chores are retained. Edits and completion remain within their app records. Mark published records a publication; it does not post to a platform.
 
 Earlier records stored in the original browser apps need one reviewed transfer through Settings. The transfer reads only the two supported app stores and excludes contacts. Original app copies remain unchanged and do not receive background synchronization. Other original apps remain separate.
 
@@ -24,4 +30,4 @@ Migration 0009 adds source priorities and connected app details. Applied migrati
 
 Run `node atlas/build.mjs`, then `node --test atlas/tests/*.test.mjs`.
 
-174 checks pass, including actual app editor scripts, title-only task creation, shared source updates, concurrent saves, ownership, import review, and recovery. Tests use synthetic records and mock page elements. No live user records were transferred during development.
+175 checks pass, including actual app editor scripts, project completion and Undo, shared source updates, concurrent saves, ownership, import review, and recovery. Tests use synthetic records and mock page elements. No live user records were transferred during development.

@@ -106,18 +106,13 @@ test('local dates handle numeric and ISO timestamps; current Prospecting avoids 
   finally { if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous; }
 });
 
-test('Home uses current numeric Prospecting timestamps and Operations completion dates', () => {
-  const source = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
-  const storage = { hq_v1: { log: [{ to: 'messaged', ts: now.getTime() }], set: { target: 9 } }, qc3_log: [{ to: 'messaged', ts: now.toISOString() }], 'operationsCadence.v1': { 'daily:0': { done: true, lastDone: today }, 'weekly:1': { done: true, lastDone: '2026-09-06' }, checks: { bad: true } } };
-  const context = { J: (k,d) => storage[k] ?? d, todayISO: () => today, localStorage: { getItem: k => storage[k] === undefined ? null : JSON.stringify(storage[k]) } };
-  for (const name of ['readProspect', 'readCadence']) {
-    const start = source.indexOf('function ' + name + '(){'), end = source.indexOf('\n}', start) + 2;
-    vm.runInNewContext(source.slice(start, end), context);
-  }
-  assert.equal(context.readProspect().v, '1/9');
-  assert.equal(context.readCadence().v, '1');
-  storage.hq_v1 = null;
-  assert.equal(context.readProspect().s, 'Open to review records');
+test('Atlas is a reference directory with no operational data readers', async () => {
+  const {default:worker}=await import('../../dist/server/index.js');
+  const db={prepare(){throw Error('The reference hub must not read records');},batch(){throw Error('The reference hub must not query records');}};
+  const response=await worker.fetch(new Request('https://atlas.test/',{headers:{'oai-authenticated-user-id':'test-owner'}}),{DB:db});
+  assert.equal(response.status,200);const html=await response.text();
+  assert.match(html,/Your dashboards/);assert.doesNotMatch(html,/app\.js|atlas-daily|readProspect|data-add-priority/);
+  const scripts=[...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(x=>x[1]);assert.deepEqual(scripts,['/shared/atlas-theme.js']);
 });
 
 test('Atlas Vault includes practice, validates it, and can undo a restore of its exact prior records', async () => {
