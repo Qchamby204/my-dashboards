@@ -1,4 +1,5 @@
 /* Browser-local Atlas backups. No network requests and no whole-origin writes. */
+import { parsePractice } from './atlas-workflow-core.mjs';
 export const MAX_BYTES = 20 * 1024 * 1024;
 export const RECOVERY_KEY = 'atlas.vault.recovery.v2';
 export const LAST_BACKUP_KEY = 'atlas:lastBackup';
@@ -14,7 +15,7 @@ export const TOOLS = [
   { id: 'wealth', name: 'Wealth HQ (legacy)', keys: ['climb_a', 'climb_h'] },
   { id: 'baby', name: 'Baby Brain', keys: ['babybrain.v1'] },
   { id: 'hourglass', name: 'The Hourglass', keys: ['hourglass:v1'] },
-  { id: 'courier', name: 'Courier', keys: ['courier:state', 'courier:schema-version'] },
+  { id: 'courier', name: 'Courier', keys: ['courier:state', 'courier:schema-version', 'courier:practice:v1'] },
   { id: 'appearance', name: 'Appearance', keys: ['atlas.appearance.v1'] }
 ];
 const byKey = new Map(TOOLS.flatMap(tool => tool.keys.map(key => [key, tool])));
@@ -40,6 +41,7 @@ function inspect(value, depth = 0, budget = { left: 200000 }) {
 function checkValue(key, raw) {
   if (typeof raw !== 'string') throw new VaultError('Every stored entry must be text. Invalid entry: ' + key);
   if (sizeOf(raw) > MAX_BYTES) throw new VaultError('An entry exceeds the 20 MB limit.');
+  if (key === 'courier:practice:v1') parsePractice(raw);
   if (key === 'atlas.appearance.v1') {
     if (!['light', 'dark', 'system'].includes(raw)) throw new VaultError('The appearance preference is invalid.');
     return false;

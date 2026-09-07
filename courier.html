@@ -210,6 +210,7 @@
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/atlas-workflow.css">
 </head>
 <body>
 <header>
@@ -234,6 +235,7 @@
   </aside>
   <div class="feed">
     <div id="notices"></div>
+    <section id="courier-practice" aria-label="Courier practice"></section>
     <div id="blocks"></div>
     <footer>
       <span>Listening history</span>
@@ -269,7 +271,7 @@ const store = {
   get(n, fallback = null) { try { const r = localStorage.getItem(this.key(n)); return r === null ? fallback : JSON.parse(r); } catch (e) { return fallback; } },
   set(n, v) { try { localStorage.setItem(this.key(n), JSON.stringify(v)); return true; } catch (e) { return false; } },
   keys() { try { return Object.keys(localStorage).filter(k => k.startsWith(`${TOOL}:`)); } catch (e) { return []; } },
-  clearTool() { this.keys().forEach(k => localStorage.removeItem(k)); },
+  clearTool() { ['state', 'schema-version'].forEach(k => localStorage.removeItem(this.key(k))); },
   available() { try { localStorage.setItem(this.key('probe'), '1'); localStorage.removeItem(this.key('probe')); return true; } catch (e) { return false; } }
 };
 
@@ -294,6 +296,7 @@ function loadState() {
 let state = loadState();
 let manifest = null;           // fetched, never stored
 let ui = { day: null, current: null, queue: false }; // transient
+window.getCourierContext = () => ({ day: day(), manifest });
 
 function setState(patch) { state = { ...state, ...patch }; store.set('state', state); store.set('schema-version', SCHEMA_VERSION); render(); }
 
@@ -395,6 +398,7 @@ function render() {
   }).join('');
 
   renderRail(d, plan, listened);
+  if (window.AtlasPractice) window.AtlasPractice.mount({ day: d, manifest });
 }
 
 function renderRail(d, plan, listened) {
@@ -473,6 +477,7 @@ function onTick() {
 
 function onEnded() {
   const d = day();
+  if (!$('audio').ended || !d || !ui.current || !d.blocks.some(b => b.id === ui.current)) return;
   const listened = { ...state.listened, [d.date]: Array.from(new Set([...(state.listened[d.date] || []), ui.current])) };
   const positions = { ...state.positions }; delete positions[posKey(d.date, ui.current)];
   setState({ listened, positions });
@@ -501,7 +506,11 @@ function wireEvents() {
     const sec = $('blocks').querySelector(`.block[data-id="${rung.dataset.id}"]`);
     if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
-  $('day').addEventListener('change', e => { ui.day = e.target.value; ui.open = null; render(); });
+  $('day').addEventListener('change', e => {
+    const a = $('audio'); a.pause(); a.removeAttribute('src'); a.load();
+    ui.current = null; ui.queue = false; ui.day = e.target.value; ui.open = null;
+    $('player').classList.remove('on'); render();
+  });
   $('rate').addEventListener('change', e => setState({ rate: Number(e.target.value) }));
   $('playAll').addEventListener('click', () => { ui.queue = true; play(day().blocks[0].id); });
   $('pToggle').addEventListener('click', () => { const a = $('audio'); a.paused ? a.play() : a.pause(); render(); });
@@ -529,10 +538,13 @@ async function init() {
     return;
   }
   if (!manifest.days.length) { notice('No briefings published yet. Run the Courier workflow.'); return; }
-  ui.day = manifest.days[0].date;
+  const requestedDay = new URLSearchParams(location.search).get('day');
+  ui.day = manifest.days.some(d => d.date === requestedDay) ? requestedDay : manifest.days[0].date;
+  if (requestedDay && ui.day !== requestedDay) notice('That edition is no longer available. Showing the latest published edition.');
   renderDays(); render();
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
+<script type="module" src="shared/atlas-workflow.js"></script>
 </body>
 </html>

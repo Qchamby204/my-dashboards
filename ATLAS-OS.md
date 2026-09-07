@@ -38,8 +38,18 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 ## Next implementation priorities
 
 1. Add an explicit, reversible live adapter for Life Map after resolving its authoritative storage location.
-2. Connect Courier lessons to actual practice completion instead of generated curriculum progress.
-3. Add shared event history and a reviewed daily preparation view.
+2. Extend activity coverage beyond Life Map, communication reps, and Courier practice.
+3. Add durable event history and connect daily preparation to private Atlas OS commitments.
+
+## Completed: daily workflow batch
+
+Atlas Home now shows overdue and upcoming Life Map deadlines, the next uncompleted Courier lesson in available editions, and seven days of activity from completed Life Map projects, communication reps, and explicit Courier practice. These views read existing browser records without changing the source apps. A missing or unreadable source is labelled; published lesson dates are shown so an older edition cannot look like today's briefing.
+
+Courier now displays each published lesson's task and drill, with explicit completion and undo. Listening and content publication never count as practice. Completion records are saved locally, verified after writing, included in Atlas Vault backups, and linked back from Home to the correct available edition. Switching Courier editions stops existing playback before changing its date context. The listening-history Reset does not remove practice records.
+
+Home includes all 13 specialist app links and its existing private Atlas OS link. Prospecting's summary uses the current HQ log, numeric or ISO timestamps in the browser's local date, and the configured target. Operations counts task records completed today rather than obsolete checkbox fields.
+
+See [the daily workflow contract](shared/WORKFLOW.md) for record ownership, publication versus completion, and coverage limits. All new surfaces use the existing Light/Dark/System appearance.
 
 ## Completed: original Vault recovery
 

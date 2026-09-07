@@ -50,6 +50,7 @@ body{background:radial-gradient(1100px 600px at 50% -10%,rgba(240,183,62,.07),tr
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-vault.css">
+<link rel="stylesheet" href="shared/atlas-workflow.css">
 </head>
 <body>
 <div id="app"></div>
@@ -78,18 +79,19 @@ function readForge(){
 /* Chambers Wealth HQ folded into The Aqueduct (the Book tab); its legacy keys
    need an explicit entry in the Vault registry to be backed up. */
 function readProspect(){
-  var log=J("qc3_log",[]);
-  if(!Array.isArray(log)) log=[];
+  try{var raw=localStorage.getItem("hq_v1");if(raw!==null){var parsed=JSON.parse(raw);if(!parsed||!Array.isArray(parsed.log))return {v:"\u2014",s:"Open to review records",c:"var(--amber)"};}}catch(e){return {v:"\u2014",s:"Records unavailable",c:"var(--amber)"};}
+  var current=J("hq_v1",null), log=current ? current.log : J("qc3_log",[]);
+  if(!Array.isArray(log)) return {v:"\u2014",s:"Open to review records",c:"var(--amber)"};
   var t=todayISO();
-  var sends=log.filter(function(a){ return (a.to==="messaged"||a.to==="followup") && String(a.ts||"").slice(0,10)===t; }).length;
-  return {v:sends+"/20", s:sends>=20?"Target hit":"Sends today", c:sends>=20?"var(--green)":(sends>0?"var(--gold)":"var(--amber)")};
+  var sends=log.filter(function(a){ if(!a || (a.to!=="messaged"&&a.to!=="followup"))return false; var d=new Date(a.ts);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")===t; }).length;
+  var target=Number(current&&current.set&&current.set.target);if(!Number.isFinite(target)||target<=0)target=20;
+  return {v:sends+"/"+Math.round(target), s:"Sends today", c:sends>=target?"var(--green)":(sends>0?"var(--gold)":"var(--amber)")};
 }
 function readCadence(){
   var st=J("operationsCadence.v1",null);
   if(!st) return {v:"\u2014",s:"Not started",c:"var(--dim)"};
-  var checks=st.checks||st.checked||{};
-  var n=Object.keys(checks).filter(function(k){ return checks[k]; }).length;
-  return {v:n?String(n):"0", s:"tasks checked", c:n>0?"var(--green)":"var(--amber)"};
+  var n=Object.keys(st).filter(function(k){var v=st[k];return k.indexOf(":")>0&&v&&v.done&&v.lastDone===todayISO();}).length;
+  return {v:String(n), s:"Completed today", c:n>0?"var(--green)":"var(--dim)"};
 }
 function readHerald(){
   var s=J("herald:v1",null);
@@ -141,9 +143,14 @@ function readMap(){
   return {v:open+" open", s:over?(over+" overdue"):"nothing overdue", c:over?"var(--amber)":"var(--green)"};
 }
 
+function readPractice(){
+  var s=J("courier:practice:v1",null);var n=s&&s.completions&&typeof s.completions==="object"?Object.keys(s.completions).length:0;
+  return {v:String(n),s:"Lessons practised",c:n?"var(--green)":"var(--dim)"};
+}
+function openWorkspace(){return {v:"Open",s:"",c:"var(--dim)"};}
 var TOOLS=[
   {g:"The Practice", items:[
-    {f:"prospecting-command-center.html", n:"Prospecting Command Center", d:"The pipeline \u00b7 3,719 contacts", i:"\u25ce", c:"var(--gold)", r:readProspect},
+    {f:"prospecting-command-center.html", n:"Prospecting Command Center", d:"Pipeline \u00b7 conversations & follow-ups", i:"\u25ce", c:"var(--gold)", r:readProspect},
     {f:"operations-cadence.html", n:"Operations Cadence", d:"Back-office rhythms", i:"\u21bb", c:"var(--green)", r:readCadence},
     {f:"the-herald.html", n:"The Herald", d:"Content \u00b7 lead generation", i:"\u2691", c:"var(--cyan)", r:readHerald}
   ]},
@@ -151,8 +158,17 @@ var TOOLS=[
     {f:"life-ledger.html", n:"Life Ledger", d:"Daily habits \u00b7 the season", i:"\u269c", c:"var(--gold)", r:readLedger},
     {f:"workout-forge.html", n:"The Forge", d:"Training \u00b7 live workouts", i:"\u2692", c:"var(--amber)", r:readForge},
     {f:"communication-trainer.html", n:"Master Communicator", d:"Speaking \u00b7 sales \u00b7 technical mastery", i:"\u25c8", c:"var(--violet)", r:readComm},
-    {f:"life-map.html", n:"Life Map", d:"22 areas \u00b7 projects & chores", i:"\u2732", c:"var(--gold)", r:readMap},
+    {f:"life-map.html", n:"Life Map", d:"Projects, deadlines & chores", i:"\u2732", c:"var(--gold)", r:readMap},
     {f:"the-aqueduct.html", n:"The Aqueduct", d:"Money, end to end \u00b7 book, paycheque, plan, wealth", i:"\u25c8", c:"var(--cyan)", r:readAqueduct}
+  ]},
+  {g:"Learning & Family", items:[
+    {f:"courier.html",n:"The Courier",d:"Daily briefing & applied learning",i:"\u25c7",c:"var(--cyan)",r:readPractice},
+    {f:"baby-brain.html",n:"Baby Brain",d:"Family preparation",i:"\u2733",c:"var(--violet)",r:openWorkspace},
+    {f:"the-hourglass.html",n:"The Hourglass",d:"Time & perspective",i:"\u25f4",c:"var(--gold)",r:openWorkspace},
+    {f:"neural-map.html",n:"Neural Map",d:"Explore connections across Atlas",i:"\u25c8",c:"var(--cyan)",r:openWorkspace}
+  ]},
+  {g:"Legacy workspace",items:[
+    {f:"chambers-wealth-hq.html",n:"Chambers Wealth HQ",d:"Legacy workspace \u00b7 now part of The Aqueduct",i:"\u25a1",c:"var(--dim)",r:openWorkspace}
   ]}
 ];
 
@@ -196,6 +212,7 @@ function render(){
   h+='<a href="https://atlas-os-quinton.qchambers123018.chatgpt.site" target="_blank" rel="noopener" class="tool" style="margin-bottom:16px;border-color:rgba(240,183,62,.5)"><div style="flex:1"><div style="font-size:16px;color:var(--gold);font-weight:600">Open Atlas OS</div><div style="font-size:14px;color:var(--muted);margin-top:5px">Your priorities, commitments, and weekly review.</div></div><span class="chev" aria-hidden="true">&#8599;</span></a>';
 
   h+=backupBanner(st);
+  h+='<section id="atlas-daily-root" aria-label="Daily preparation"></section>';
 
   TOOLS.forEach(function(grp){
     h+='<div class="eyebrow" style="margin:18px 2px 9px">'+esc(grp.g)+'</div>';
@@ -224,6 +241,7 @@ function render(){
 
   document.getElementById("app").innerHTML=h;
   if(window.AtlasVaultUI) window.AtlasVaultUI.mount();
+  if(window.AtlasDaily) window.AtlasDaily.mount();
 }
 render();
 /* Re-read when you come back from a tool, so the numbers reflect saved work. */
@@ -324,5 +342,6 @@ function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent
 
 </script>
 <script type="module" src="shared/atlas-vault.js"></script>
+<script type="module" src="shared/atlas-workflow.js"></script>
 </body>
 </html>
