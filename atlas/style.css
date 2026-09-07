@@ -143,3 +143,18 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 .agenda-footnote{border-top:1px solid var(--line);padding-top:16px}
 @media(max-width:1100px){.agenda-entries{grid-template-columns:1fr}}
 @media(max-width:600px){.agenda-day{grid-template-columns:1fr;gap:8px}.agenda-day h3{flex-direction:row;align-items:center}.agenda-toolbar{gap:12px}.agenda-toolbar label{flex:1;min-width:125px}.agenda-toolbar p{width:100%;margin:0}.agenda-entry{padding:13px}}
+
+/* Commitment management keeps actions close to their saved record. */
+.commitments-search{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.commitments-search label{flex:1;min-width:180px;margin:0}
+.commitments-search button{min-height:44px;margin-bottom:3px}
+.commitments-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}
+.commitments-filters label{min-width:0;margin:0}
+.commitment-record{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;padding:22px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.commitment-heading{display:flex;align-items:start;gap:12px;flex-wrap:wrap}
+.commitment-heading h2{font-size:1rem;margin:0;line-height:1.5}
+.commitment-dates{display:flex;gap:8px 20px;flex-wrap:wrap;font-size:.875rem;line-height:1.6}
+.commitment-actions{display:flex;align-items:center;justify-content:end;gap:10px;flex-wrap:wrap;max-width:280px}
+.commitment-actions button{min-height:44px}
+@media(max-width:1050px){.commitments-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.commitment-record{grid-template-columns:1fr;gap:8px}.commitment-actions{justify-content:start;max-width:none}}
+@media(max-width:480px){.commitments-filters{grid-template-columns:1fr}.commitment-actions{gap:8px}}

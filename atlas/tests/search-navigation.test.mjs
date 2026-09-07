@@ -13,7 +13,7 @@ function harness(){
  }
  const document={querySelector:node,querySelectorAll:selector=>selector==='[data-project-id]'||selector==='[data-lesson-id]'?details:[],addEventListener(){},visibilityState:'visible'};
  const ui=kind=>({dirty:false,saving:false,weekly:()=>'',page:()=>'',openRecord:id=>opened.push({kind,id})});
- const context=vm.createContext({...model,createAgendaUI:()=>({panel:()=>''}),createSearchUI:()=>({}),createReflectionUI:()=>({dirty:false,saving:false,form:()=>'',notes:()=>''}),createHeraldUI:()=>ui('content'),createCommunicationUI:()=>ui('speaking'),createLedgerUI:()=>({dirty:false,saving:false,daily:()=>'',selectDay:id=>opened.push({kind:'day',id}),openHabit:id=>opened.push({kind:'habit',id})}),createEditionRefreshUI:()=>({saving:false,panel:()=>''}),document,window:{addEventListener(){}},location,history:{pushState:(a,b,hash)=>location.hash=hash},Date,structuredClone,console,setInterval(){},setTimeout(){},fetch:(path,options)=>new Promise((resolve,reject)=>pending.push({path,options,resolve,reject})),localDay:()=>week});
+ const context=vm.createContext({...model,createCommitmentsUI:()=>({page:()=>''}),createAgendaUI:()=>({panel:()=>''}),createSearchUI:()=>({}),createReflectionUI:()=>({dirty:false,saving:false,form:()=>'',notes:()=>''}),createHeraldUI:()=>ui('content'),createCommunicationUI:()=>ui('speaking'),createLedgerUI:()=>({dirty:false,saving:false,daily:()=>'',selectDay:id=>opened.push({kind:'day',id}),openHabit:id=>opened.push({kind:'habit',id})}),createEditionRefreshUI:()=>({saving:false,panel:()=>''}),document,window:{addEventListener(){}},location,history:{pushState:(a,b,hash)=>location.hash=hash},Date,structuredClone,console,setInterval(){},setTimeout(){},fetch:(path,options)=>new Promise((resolve,reject)=>pending.push({path,options,resolve,reject})),localDay:()=>week});
  const source=readFileSync(new URL('../app.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
  vm.runInContext(source,context);
  const state={tasks:[],projects:[],week:null,ledger:null,practice:null,communication:null,herald:null};
@@ -49,4 +49,16 @@ test('agenda record links keep the selected planning week while opening fresh co
  const pending=h.run("resolveSavedRecord(result,undefined,{taskView:'week',taskWeek:week})");
  assert.equal(h.pending[1].path,'/api/state?week=2026-08-03');await h.reply(1,{...h.state,tasks:[{id:'task',title:'Review the draft',status:'done',app_id:'life-map',minutes:30,completed_at:'2026-08-03T12:00:00Z',week_start:'2026-08-03',revision:9}]});(await pending)();
  assert.equal(h.run('week'),'2026-08-03');assert.equal(h.run('view'),'week');assert.equal(h.location.hash,'#week');assert.equal(h.node('#task-form').elements.title.value,'Review the draft');assert.equal(h.run('editing.revision'),9);assert.ok(h.pending.every(r=>r.options.method==='GET'));
+});
+
+test('archive undo restores earlier completion and is not offered after a newer intervening edit',async()=>{
+ for(const latestRevision of [8,10]){
+  const h=harness(),original={id:'task',title:'Earlier work',status:'done',completed_at:'2026-09-01T12:00:00Z',app_id:'life-map',minutes:30,revision:7};await h.reply(0,{...h.state,tasks:[original]});
+  const pending=h.run("mutate(data.tasks[0],'archive')");await h.reply(1,{});await h.reply(2,{...h.state,tasks:[{...original,status:'archived',revision:latestRevision}]});await pending;
+  if(latestRevision===10){assert.equal(h.run('undoAction'),null);continue;}
+  const undo=h.run('undoAction()');assert.equal(JSON.parse(h.pending[3].options.body).action,'restore');assert.equal(JSON.parse(h.pending[3].options.body).revision,8);await h.reply(3,{});await h.reply(4,{...h.state,tasks:[{...original,revision:9}]});await undo;assert.equal(h.run('data.tasks[0].completed_at'),original.completed_at);
+ }
+});
+test('commitment browsing opens the latest editor inside its own view and retains the selected week',async()=>{
+ const h=harness();await h.reply(0);h.context.result={kind:'task',id:'task'};const pending=h.run("resolveSavedRecord(result,undefined,{taskView:'commitments',taskWeek:week})");await h.reply(1,{...h.state,tasks:[{id:'task',title:'Saved archive',status:'archived',revision:12,minutes:30,app_id:'life-map'}]});(await pending)();assert.equal(h.run('view'),'commitments');assert.equal(h.location.hash,'#commitments');assert.equal(h.node('#task-form').elements.title.value,'Saved archive');assert.equal(h.run('editing.revision'),12);
 });
