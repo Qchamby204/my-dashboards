@@ -1,6 +1,6 @@
-# Atlas OS: first working milestone
+# Atlas OS: connected planning
 
-Atlas now has a private, server-backed workspace for the daily and weekly commitment loop. The existing GitHub Pages apps retain their original URLs and storage. Gang Ops and both test booking dashboards are outside this change.
+Atlas has a private, server-backed workspace for synced Life Map projects and the daily and weekly commitment loop. The original GitHub Pages apps retain their URLs and storage. Gang Ops and both test booking dashboards remain outside this work.
 
 ## What works
 
@@ -9,13 +9,18 @@ Atlas now has a private, server-backed workspace for the daily and weekly commit
 - Plan across weeks, see earlier unfinished work, and compare estimates with an editable weekly time budget.
 - Save a weekly reflection and export all new Atlas records as JSON.
 - Import a reviewed Life Map project snapshot from a Life Map export or the existing Atlas Vault format. Imports use stable source IDs and preserve links when refreshed.
+- Create synced projects or explicitly adopt imported projects. Edit, complete, reopen, archive, and restore them with revision checks. Linked commitments retain their own status.
+- Review completed projects and commitments, unfinished work, next week's project deadlines, and a dated Courier practice snapshot together.
+- Download synced project updates and review them in original Life Map, preserving local notes, priorities, chores, and absent projects, with verified undo.
 - Open all 13 specialist surfaces, including a clearly labelled legacy Wealth HQ entry. Atlas Home is the fourteenth surface.
 
 ## Scope of the connection
 
-New commitments and reviews are saved in D1 and scoped to the authenticated user. Imported Life Map projects are snapshots. Completing a commitment does not update the original Life Map project. App links open the existing GitHub Pages workspaces; browser-local records there are not automatically synchronized or copied into this Site.
+Projects, commitments, reviews, and imported practice snapshots are saved in D1 and scoped to the authenticated user. Imported projects begin in snapshot mode. Choosing “Use synced project” makes Atlas the place to manage that project and protects it from later imports. Existing task links and IDs are retained. The original Life Map browser copy is separate: the migration uses reviewed file transfers, not background synchronization between origins.
 
-The JSON importer reads only Life Map projects. It sends only source ID, project title, area, due date, and status to the server after review. It does not send the original backup, contact databases, API keys, notes, or data from other apps. Importing a new snapshot updates existing projects and does not delete absent projects. Atlas exports are portable records for inspection and recovery; a full Atlas restore flow is a later milestone.
+The project importer sends only source ID, title, area, due date, and open/completed status after review. Local notes, chores, contact records, and credentials stay out of the request. Imports update eligible snapshot projects and never delete absent projects. A separate reviewed Courier import saves only completion IDs, lesson titles, track labels, publication days, and completion dates. Its previous snapshot is replaced so removed completions can be reflected. Atlas export version 2 includes projects, commitments, reviews, and this practice snapshot; a full private Atlas database restore remains a later milestone.
+
+Cross-device saving applies inside the private workspace. The UI refreshes on return or through Refresh, rejects stale writes, and keeps unsaved form input on save failure. This is not real-time push or offline editing. Completing a commitment never automatically completes its project. Returning a synced project to import mode retains its saved values and allows later reviewed source imports again.
 
 This release uses deterministic planning and user choices. It does not call a language model, provide an AI recommendation, or take external actions.
 
@@ -37,9 +42,9 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 
 ## Next implementation priorities
 
-1. Add an explicit, reversible live adapter for Life Map after resolving its authoritative storage location.
-2. Extend activity coverage beyond Life Map, communication reps, and Courier practice.
-3. Add durable event history and connect daily preparation to private Atlas OS commitments.
+1. Complete browser interaction and visual QA when a compatible supervised preview is available.
+2. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
+3. Add durable event history and a complete private-workspace restore flow.
 
 ## Completed: daily workflow batch
 
@@ -58,3 +63,11 @@ Atlas Home now prepares scoped backups and previews restores by app. It reads th
 This is the browser-local Vault on GitHub Pages. It does not restore or synchronize the private Atlas OS database. See [the Vault contract](shared/VAULT.md) for supported records, recovery limits, and failure behavior.
 
 GitHub remains the development source. The existing Pages deployment is not switched to the new Worker by merging files alone.
+
+## Migration and recovery rules
+
+`drizzle/0001_tidy_hairball.sql` adds conservative snapshot defaults, project revisions/timestamps, and a practice snapshot table. The earlier migration is unchanged. Existing completed project snapshots receive no invented completion date. Projects archived in Atlas retain their commitments and are excluded from new project-update exports.
+
+The original Life Map connection panel accepts only `atlas-project-updates` version 1 files. Users choose the project rows to apply. It changes title, area, due date, and open/completed status, adds selected new projects, and preserves richer local fields. Reopening removes the local completion record; a newly applied completion is recorded on the local application day. The panel uses Vault's verified checkpoint, rollback, stale-preview detection, and same-tab undo. Close other Life Map tabs before applying updates; independent browser writers are not an atomic transaction system.
+
+User records were not migrated during development. All validation uses synthetic records. The custom Worker/static project has no compatible supervised browser preview in this environment; no browser walkthrough, screenshots, or mobile visual QA are claimed.

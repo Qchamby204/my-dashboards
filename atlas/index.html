@@ -13,7 +13,7 @@
   <nav aria-label="Workspace">
     <a href="#today" data-view="today"><span aria-hidden="true">◉</span> Today</a>
     <a href="#week" data-view="week"><span aria-hidden="true">▦</span> This week</a>
-    <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Projects</a>
+    <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Life Map</a>
     <a href="#review" data-view="review"><span aria-hidden="true">↺</span> Weekly review</a>
     <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> All apps</a>
   </nav>
@@ -42,6 +42,30 @@
   <p class="small">Only project titles, areas, dates, status, and IDs are imported. Other app data and credentials are excluded. Existing Life Map records stay in their original app.</p>
   <div id="import-preview"></div><p id="import-error" class="form-error" role="alert"></p>
   <div class="dialog-actions"><button class="secondary" data-close="import-dialog">Cancel</button><button class="primary" id="import-confirm" disabled>Import projects</button></div>
+</dialog>
+<dialog id="project-dialog" aria-labelledby="project-dialog-title">
+  <form id="project-form">
+    <div class="dialog-heading"><h2 id="project-dialog-title">New synced project</h2><button type="button" class="icon-button" data-close="project-dialog" aria-label="Close project">×</button></div>
+    <label>Project title<input name="title" maxlength="300" required></label>
+    <label>Life area<input name="area" maxlength="120" placeholder="Family, learning, work…"></label>
+    <label>Due date <span class="optional">optional</span><input name="due_date" type="date"></label>
+    <p class="small">Saved privately across devices. Linked commitments keep their own completion status.</p>
+    <p id="project-error" class="form-error" role="alert"></p>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close="project-dialog">Cancel</button><button type="submit" class="primary">Save project</button></div>
+  </form>
+</dialog>
+<dialog id="project-confirm-dialog" aria-labelledby="project-confirm-title">
+  <h2 id="project-confirm-title"></h2><p id="project-confirm-copy"></p>
+  <p id="project-confirm-error" class="form-error" role="alert"></p>
+  <div class="dialog-actions"><button class="secondary" data-close="project-confirm-dialog">Cancel</button><button class="primary" id="project-confirm">Continue</button></div>
+</dialog>
+<dialog id="practice-dialog" aria-labelledby="practice-import-title">
+  <div class="dialog-heading"><h2 id="practice-import-title">Refresh Courier practice</h2><button class="icon-button" data-close="practice-dialog" aria-label="Close practice import">×</button></div>
+  <p>Choose an Atlas Vault backup. Only recorded Courier practice will be saved to your private weekly review.</p>
+  <label>Choose a JSON backup<input type="file" id="practice-file" accept=".json,application/json"></label>
+  <p class="small">This replaces the previous practice snapshot, including removed completions. Courier remains the source. Other app records, listening history, and credentials are excluded.</p>
+  <div id="practice-preview"></div><p id="practice-error" class="form-error" role="alert"></p>
+  <div class="dialog-actions"><button class="secondary" data-close="practice-dialog">Cancel</button><button class="primary" id="practice-confirm" disabled>Save reviewed snapshot</button></div>
 </dialog>
 <div id="toast" class="toast" role="status" hidden><span></span><button class="text-button" id="undo" hidden>Undo</button><button class="icon-button" id="dismiss-toast" aria-label="Dismiss notification">×</button></div>
 <noscript><p class="error">Enable JavaScript to use your Atlas workspace.</p></noscript>
