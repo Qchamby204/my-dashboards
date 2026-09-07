@@ -1,3 +1,4 @@
+import {validateLifeMapRecords} from './life-map-records.mjs';
 import {parseLifeMap,textValue,validDate} from './model.mjs';
 import {heraldContent,heraldItem} from './herald.mjs';
 
@@ -11,6 +12,7 @@ export function validateAppState(kind,raw){
   walk(raw);
   const state=JSON.parse(text);
   if(kind==='life-map'){
+    Object.assign(state,validateLifeMapRecords(state));
     parseLifeMap(state);
     if(!Array.isArray(state.chores)||!object(state.checks)||state.chores.length>2000)throw Error('Life Map chores or check-ins are invalid.');
     if(state.log!==undefined&&!Array.isArray(state.log)||state.planned!==undefined&&!object(state.planned))throw Error('Life Map activity is invalid.');

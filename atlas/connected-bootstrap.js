@@ -17,7 +17,7 @@
   }
   function save(next){
     state=structuredClone(next);if(kind==='herald'){const keys=['videos','cadence','weeks','capture','roadmap','sys','goals'];state={...Object.fromEntries(keys.filter(k=>Object.hasOwn(state,k)).map(k=>[k,state[k]])),leads:[]};}queued={state:structuredClone(state),day:today()};generation++;inputDirty=false;
-    status('Saving to Atlas…');if(!failure)flush();
+    status('Saving…');if(!failure)flush();
   }
   async function flush(){
     if(active)return active;
@@ -28,7 +28,7 @@
         try{const result=await request('PUT',{...work,version});version=result.version;}
         catch(e){if(!queued)queued=work;failure=true;status(e.message);controls();return false;}
       }
-      if(!inputDirty)status('Saved · shared with Atlas Home');
+      if(!inputDirty)status('Saved across devices');
       return true;
     })();
     try{return await active;}finally{active=null;if(queued&&!failure)flush();}
@@ -46,11 +46,11 @@
         if(typeof window.acceptConnectedState!=='function')throw Error('The app could not start. Reload this page.');
         loaded=true;$('#connected-app').inert=false;
       }else {if(discard)window.discardConnectedDraft?.();window.acceptConnectedState?.(structuredClone(state));}
-      failure=false;status('Saved · shared with Atlas Home');$('#connected-import').hidden=next.connected;controls();return true;
+      failure=false;status('Saved across devices');$('#connected-import').hidden=next.connected;controls();return true;
     }catch(e){failure=true;status(e.message);controls();return false;}finally{refreshing=false;}
   }
-  window.AtlasConnected={raw:()=>JSON.stringify(state),save,flush,get pending(){return pending();}};
-  document.addEventListener('input',e=>{if(e.target.closest('#connected-app')&&!e.target.closest('#atlas-appearance-dialog')){inputDirty=true;generation++;status('Unsaved changes');}});
+  window.AtlasConnected={raw:()=>JSON.stringify(state),save,flush,clearInputDraft(){inputDirty=!!window.connectedDraftOpen?.();if(!inputDirty&&!active&&!queued&&!failure)status('Saved across devices');},get pending(){return pending();}};
+  document.addEventListener('input',e=>{if(e.target.closest('#connected-app')&&!e.target.closest('#atlas-appearance-dialog')&&!e.target.closest('[data-ui-only]')){inputDirty=true;generation++;status('Unsaved changes');}});
   document.addEventListener('click',async e=>{
     const a=e.target.closest('a[href]');if(!a||!pending()||!loaded||a.hasAttribute('download')||a.target==='_blank')return;
     const url=new URL(a.href,location.href);if(url.origin===location.origin&&url.pathname===location.pathname&&url.hash)return;
