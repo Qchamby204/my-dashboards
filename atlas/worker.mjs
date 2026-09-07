@@ -345,6 +345,7 @@ async function api(request,env,url,owner) {
   if(path==='/api/tasks' && request.method==='POST') {
     const b=await bodyOf(request), id=textValue(b.id,80,true), title=textValue(b.title,300,true), app=appValue(b.app_id);
     const project=await ownedProject(db,owner,b.project_id), week=dateValue(b.week_start), due=dateValue(b.due_date), minutes=minutesValue(b.minutes);
+    const focusDay=dateValue(b.focus_day??null);
     if(week && monday(week)!==week) throw new HttpError('Choose a Monday for the week.');
     // A caller-generated ID makes a repeated save after a network failure safe.
     const existing=await db.prepare('SELECT * FROM atlas_tasks WHERE id=? AND owner=?').bind(id,owner).first();
@@ -353,8 +354,16 @@ async function api(request,env,url,owner) {
         throw new HttpError('This commitment was already saved with different details. Close Capture and refresh to edit it.',409);
       return json({id},200);
     }
-    await db.prepare('INSERT INTO atlas_tasks (id,owner,title,app_id,project_id,week_start,due_date,minutes,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
-      .bind(id,owner,title,app,project,week,due,minutes,now,now).run();
+    let focusSlot=null;
+    if(focusDay){
+      const chosen=(await db.prepare('SELECT focus_slot FROM atlas_tasks WHERE owner=? AND focus_date=?').bind(owner,focusDay).all()).results;
+      focusSlot=[1,2,3].find(slot=>!chosen.some(t=>t.focus_slot===slot));
+      if(!focusSlot)throw new HttpError('Three priorities are already chosen for this day. Release one, then save this priority again.',409);
+    }
+    // Creation and priority selection are one insert. A full or racing slot
+    // leaves no extra unprioritized task behind, and retries retain the same ID.
+    await db.prepare('INSERT INTO atlas_tasks (id,owner,title,app_id,project_id,week_start,due_date,minutes,created_at,updated_at,focus_date,focus_slot) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+      .bind(id,owner,title,app,project,week,due,minutes,now,now,focusDay,focusSlot).run();
     return json({id},201);
   }
   if(path.startsWith('/api/tasks/') && request.method==='PATCH') {
