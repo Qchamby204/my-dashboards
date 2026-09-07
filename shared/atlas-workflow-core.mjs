@@ -1,3 +1,5 @@
+import { lessonItems } from './courier-lessons.mjs';
+export { lessonItems } from './courier-lessons.mjs';
 /* Read-only app projections and explicit, browser-local Courier practice records. */
 export const PRACTICE_KEY = 'courier:practice:v1';
 export const WORKFLOW_KEYS = ['lifemap_v1', 'mc_reps', 'hq_v1', 'qc3_log', 'operationsCadence.v1', PRACTICE_KEY];
@@ -37,19 +39,6 @@ export function createPracticeTransfer(storage,manifest,now=new Date()) {
   const pack={app:'atlas-practice-transfer',version:1,exportedAt:now.toISOString(),catalog,items};
   if(new TextEncoder().encode(JSON.stringify(pack)).length>1500000)throw Error('This practice pack exceeds 1.5 MB. Export an Atlas Vault backup to keep your full local records.');
   return pack;
-}
-export function lessonItems(manifest) {
-  const out = [], seen = new Set();
-  for (const day of list(manifest?.days)) {
-    if (!object(day) || !validDay(day.date)) continue;
-    for (const block of list(day.blocks)) for (const [position, lesson] of list(block?.lessons).entries()) {
-      if (!object(lesson) || !text(lesson.title) || !text(lesson.track)) continue;
-      const id = 'lesson/' + JSON.stringify([day.date, text(block.id, 80), text(lesson.track, 80), text(lesson.sequence, 120), Number.isSafeInteger(lesson.index) ? lesson.index : position]);
-      if (seen.has(id)) continue; seen.add(id);
-      out.push({ id, day: day.date, title: text(lesson.title), track: text(lesson.label || lesson.track, 120), task: text(lesson.task, 3000), drill: text(lesson.drill, 3000) });
-    }
-  }
-  return out.sort((a, b) => b.day.localeCompare(a.day));
 }
 export function setPracticeCompletion(storage, expectedRaw, lesson, done, now = new Date()) {
   const current = readPractice(storage);

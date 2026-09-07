@@ -111,6 +111,16 @@ export function practicePayloadSize(value) {
   if(new TextEncoder().encode(JSON.stringify(value)).length>1500000)throw Error('Practice records exceed 1.5 MB. Use a smaller lesson selection.');
   return value;
 }
+export function practiceEditionRefresh(value){
+  if(value===null||value===undefined)return null;
+  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Courier refresh details are invalid.');
+  const {checked_at,latest_edition,first_edition,latest_lesson_edition,edition_count,lesson_count}=value;
+  if(typeof checked_at!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(checked_at)||!Number.isFinite(Date.parse(checked_at)))throw Error('The Courier refresh date is invalid.');
+  if(!Number.isInteger(edition_count)||edition_count<0||edition_count>90||!Number.isInteger(lesson_count)||lesson_count<0||lesson_count>10000)throw Error('Courier refresh counts are invalid.');
+  if(edition_count===0?(latest_edition!==null||first_edition!==null||lesson_count!==0):(!validDate(latest_edition)||!validDate(first_edition)||first_edition>latest_edition))throw Error('Courier edition dates are invalid.');
+  if(lesson_count===0?latest_lesson_edition!==null:(!validDate(latest_lesson_edition)||latest_lesson_edition<first_edition||latest_lesson_edition>latest_edition))throw Error('The latest Courier lesson date is invalid.');
+  return {checked_at:new Date(checked_at).toISOString(),latest_edition,first_edition,latest_lesson_edition,edition_count,lesson_count};
+}
 export function parsePracticeTransfer(raw) {
   const b=typeof raw==='string'?JSON.parse(raw):raw;
   const pack=b?.app==='atlas-practice-transfer';

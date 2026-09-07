@@ -1,5 +1,5 @@
 import { ledgerRecord } from './ledger.mjs';
-import { validDate, monday, appValue, minutesValue, practiceItems, practiceCatalog } from './model.mjs';
+import { validDate, monday, appValue, minutesValue, practiceItems, practiceCatalog, practiceEditionRefresh } from './model.mjs';
 
 export const TABLES={tasks:'atlas_tasks',projects:'atlas_projects',weeks:'atlas_weeks',practice:'atlas_practice_snapshots',ledger:'atlas_ledger'};
 const fail=message=>{throw new Error(message);};
@@ -21,7 +21,7 @@ export function parseWorkspace(raw,currentPractice=[],currentLedger=[]) {
   out.projects=input.projects.map(p=>({id:str(p.id,80,true),source_id:str(p.source_id,200,true),title:str(p.title,300,true),area:str(p.area,120),status:oneOf(p.status,['open','done']),due_date:day(p.due_date),imported_at:stamp(p.imported_at),mode:oneOf(p.mode??'snapshot',['managed','snapshot']),revision:revision(p.revision??1),updated_at:stamp(p.updated_at??null,true),completed_at:stamp(p.completed_at??null,true),archived_at:stamp(p.archived_at??null,true)}));
   out.tasks=input.tasks.map(t=>({id:str(t.id,80,true),title:str(t.title,300,true),app_id:appValue(t.app_id),project_id:t.project_id===null?null:str(t.project_id,80,true),week_start:week(t.week_start),due_date:day(t.due_date),minutes:minutesValue(t.minutes),focus_date:day(t.focus_date),focus_slot:t.focus_slot===null?null:integer(t.focus_slot,1,3),status:oneOf(t.status,['open','done','archived']),completed_at:stamp(t.completed_at,true),revision:revision(t.revision),created_at:stamp(t.created_at),updated_at:stamp(t.updated_at)}));
   out.weeks=input.weeks.map(w=>({id:str(w.id,80,true),week_start:week(w.week_start)||fail('A review week is missing.'),capacity:integer(w.capacity,0,10080),worked:str(w.worked,4000),change:str(w.change,4000),revision:revision(w.revision),updated_at:stamp(w.updated_at)}));
-  out.practice=input.practice.map(p=>{if(b.version>=3&&(!Array.isArray(p.catalog)||!['snapshot','managed'].includes(p.mode)))fail('A version 3 or 4 practice backup needs its lesson catalog and management mode.');const items=practiceItems(p.items);return {items,catalog:practiceCatalog(p.catalog??[],items),mode:oneOf(p.mode??'snapshot',['snapshot','managed']),updated_at:stamp(p.updated_at??null,true),revision:revision(p.revision),imported_at:stamp(p.imported_at),source_exported_at:stamp(p.source_exported_at,true)};});
+  out.practice=input.practice.map(p=>{if(b.version>=3&&(!Array.isArray(p.catalog)||!['snapshot','managed'].includes(p.mode)))fail('A version 3 or 4 practice backup needs its lesson catalog and management mode.');const items=practiceItems(p.items);return {items,edition_refresh:practiceEditionRefresh(p.edition_refresh),catalog:practiceCatalog(p.catalog??[],items),mode:oneOf(p.mode??'snapshot',['snapshot','managed']),updated_at:stamp(p.updated_at??null,true),revision:revision(p.revision),imported_at:stamp(p.imported_at),source_exported_at:stamp(p.source_exported_at,true)};});
   out.ledger=input.ledger.map(ledgerRecord);
   if(new TextEncoder().encode(JSON.stringify(out.practice)).length>1500000)fail('The practice snapshot is too large. Use a snapshot smaller than 1.5 MB.');
   const unique=(rows,key)=>{const ids=rows.map(r=>r[key]);if(new Set(ids).size!==ids.length)fail('The backup contains duplicate record IDs.');};
@@ -39,7 +39,7 @@ export function parseWorkspace(raw,currentPractice=[],currentLedger=[]) {
 export async function workspace(db,owner) {
   const result=await db.batch([...Object.values(TABLES).map(t=>db.prepare(`SELECT * FROM ${t} WHERE owner=?`).bind(owner)),db.prepare('SELECT COALESCE(MAX(seq),0) AS seq FROM atlas_history WHERE owner=?').bind(owner)]);
   const data={app:'atlas-os',version:4,exportedAt:new Date().toISOString()};
-  Object.keys(TABLES).forEach((key,i)=>data[key]=result[i].results.map(({owner,...r})=>key==='practice'?{...r,items:JSON.parse(r.items),catalog:practiceCatalog(JSON.parse(r.catalog||'[]'),JSON.parse(r.items))}:key==='ledger'?{...r,habits:JSON.parse(r.habits),days:JSON.parse(r.days)}:r));
+  Object.keys(TABLES).forEach((key,i)=>data[key]=result[i].results.map(({owner,...r})=>key==='practice'?{...r,edition_refresh:practiceEditionRefresh(r.edition_refresh?JSON.parse(r.edition_refresh):null),items:JSON.parse(r.items),catalog:practiceCatalog(JSON.parse(r.catalog||'[]'),JSON.parse(r.items))}:key==='ledger'?{...r,habits:JSON.parse(r.habits),days:JSON.parse(r.days)}:r));
   return {data,seq:result[Object.keys(TABLES).length].results[0].seq};
 }
 function canonical(value){return JSON.stringify(value,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);}

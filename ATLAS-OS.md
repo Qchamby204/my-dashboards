@@ -11,6 +11,7 @@ Atlas has a private, server-backed workspace for synced Life Map projects, Couri
 - Import a reviewed Life Map project snapshot from a Life Map export or the existing Atlas Vault format. Imports use stable source IDs and preserve links when refreshed.
 - Create synced projects or explicitly adopt imported projects. Edit, complete, reopen, archive, and restore them with revision checks. Linked commitments retain their own status.
 - Review completed projects and commitments, unfinished work, next week's project deadlines, and Courier practice together, using either a reviewed snapshot or native synced completions.
+- Check published Courier editions from Practice, review new lessons, and save them without replacing existing lessons or completion choices.
 - Download synced project updates and review them in original Life Map, preserving local notes, priorities, chores, and absent projects, with verified undo.
 - Open all 13 specialist surfaces, including a clearly labelled legacy Wealth HQ entry. Atlas Home is the fourteenth surface.
 
@@ -42,8 +43,8 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 
 ## Next implementation priorities
 
-1. Add direct edition refresh for practice with clear freshness and failure states, while preserving native completion choices.
-2. Add a reviewed way to bring selected reflection into weekly planning without creating commitments automatically.
+1. Add a reviewed way to bring selected reflection into weekly planning without creating commitments automatically.
+2. Extend the shared connection model to the next specialist app after validating its source records and ownership boundaries.
 
 ## Completed: daily workflow batch
 
@@ -139,3 +140,20 @@ Unsaved daily input blocks navigation, refresh, date changes, and unrelated writ
 Workspace export version 4 includes full habits, archive choices, daily checkmarks, and reflection. Restores and recovery-copy reversals preserve them transactionally. Earlier workspace formats retain the current Ledger instead of deleting it. Compact history records counts and provenance, without duplicating reflection text; individual Ledger history entries are not reversible. Use the daily editor or a reviewed full-workspace backup. A workspace restore replaces the entire Ledger aggregate and can remove later entries after review.
 
 Validation: all 72 automated tests pass. New tests cover the additive schema migration, import filtering and limits, owner isolation, native saves and weekly dates, cleared-day and archive protection, stale/tampered imports, simultaneous writes, legacy backup compatibility, full recovery reversal, atomic history failure, and draft retention after a rejected save. Static markup, script, and CSS checks complement the tests. This batch has not received new browser or physical-device QA; previous browser results above apply to their named releases only. No live personal records were imported during development.
+
+
+## Completed: direct Courier edition refresh
+
+Practice now offers Check for editions. It shows the latest published edition, the latest edition containing lessons, all available edition dates and counts, and a review of new or already-saved lessons. The saved refresh time is separate from publication dates. Empty editions and title-only lessons are labelled explicitly. Users acknowledge the review before saving; checking or cancelling alone makes no database changes.
+
+The Worker requests only the fixed public Courier manifest at `https://qchamby204.github.io/my-dashboards/courier/manifest.json`. It sends no private workspace records, identity headers, cookies, credentials, or user-selected URLs. Redirects are rejected. Requests have an eight-second timeout and a streamed two-million-byte limit. Format, dates, bounds, and duplicate identities are checked before a projection of lesson titles, dates, tracks, tasks, and drills is returned. News scripts, audio links, sources, usage data, and published completion-like fields are excluded. The supported `cache: 'no-store'` mode follows [Cloudflare's fetch contract](https://developers.cloudflare.com/workers/runtime-apis/fetch/); upstream publication and CDN availability still determine what is available.
+
+Application fetches the feed again and compares a canonical digest of its projected publication details, excluding the check time. A changed publication requires a fresh review. It also checks the private practice revision before the fetch and at the database update, protecting a completion saved while the public request was in flight. Network, timeout, malformed-feed, size, and stale-review failures keep saved practice and its previous refresh metadata intact. Failed or cancelled UI requests cannot reactivate an older preview. The file-based practice pack remains available as a separate transfer path.
+
+Direct refresh is additive in both snapshot and synced modes. Existing lesson metadata, completed timestamps, reopened choices, and older lessons outside the current publication window are retained. New practice starts in synced mode; an existing snapshot remains a snapshot until the user explicitly adopts it. The refresh never imports completion records from the public feed. Original browser completions still require an explicit practice-pack import, whose existing protection rules remain unchanged. A source correction to an existing lesson does not automatically overwrite the saved version, even if that saved version contains only a title.
+
+`shared/courier-lessons.mjs` centralizes the existing lesson identity and projection rules for the original Home/Courier surfaces and the private refresh. `atlas/courier-editions.mjs` validates and fetches editions; `atlas/edition-refresh-ui.mjs` owns the reviewed interaction. The build includes the shared module as a Worker dependency, without packaging the original publication data or legacy apps.
+
+Migration `0005_great_wraith.sql` appends nullable practice refresh metadata and updates the compact practice history triggers. Migrations 0000–0004 are unchanged. Optional `edition_refresh` metadata is included in version 4 workspace exports and validated during restore; older exports default it to null. It records the successful refresh timestamp, first and latest edition dates, latest lesson edition date, and publication counts. A snapshot-replacing file import clears this metadata; normal completions and additive synced file imports retain it. History keeps the refresh date, not duplicate lesson content.
+
+Validation: all 81 automated tests pass. New coverage includes identity parity with the existing Courier manifest, field projection, fixed outbound requests, malformed/oversized feeds, timeouts, owner isolation, read-only previews, absent and title-only lessons, retention across shrinking publication windows, snapshot mode, feed changes during review, private writes during a fetch, backup compatibility, migration integrity, and cancelled/failed review behavior. Static markup references, module resolution, JavaScript syntax, and CSS checks also pass. External responses are simulated for Worker integration tests; this batch has no new browser, physical-device, or live authenticated refresh QA. No personal records were imported during development.

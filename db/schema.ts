@@ -31,6 +31,7 @@ export const practiceSnapshots = sqliteTable('atlas_practice_snapshots', {
   sourceExportedAt: text('source_exported_at'),
   mode: text('mode').notNull().default('snapshot'), catalog: text('catalog').notNull().default('[]'),
   updatedAt: text('updated_at'),
+  editionRefresh: text('edition_refresh'),
 });
 
 export const ledger = sqliteTable('atlas_ledger', {
