@@ -26,23 +26,23 @@ CREATE UNIQUE INDEX `atlas_priorities_owner_record` ON `atlas_priorities` (`owne
 CREATE UNIQUE INDEX `atlas_priorities_owner_slot` ON `atlas_priorities` (`owner`,`day`,`slot`);
 --> statement-breakpoint
 CREATE TRIGGER atlas_priority_slot_insert BEFORE INSERT ON atlas_priorities BEGIN
- SELECT CASE WHEN EXISTS(SELECT 1 FROM atlas_tasks WHERE owner=NEW.owner AND focus_date=NEW.day AND focus_slot=NEW.slot) THEN RAISE(ABORT,'atlas_priority_conflict') END;
- SELECT CASE WHEN NEW.kind='project' AND NOT EXISTS(SELECT 1 FROM atlas_projects WHERE owner=NEW.owner AND id=NEW.record_id AND status='open' AND archived_at IS NULL) THEN RAISE(ABORT,'atlas_priority_source_changed') END;
- SELECT CASE WHEN NEW.kind='content' AND NOT EXISTS(SELECT 1 FROM atlas_herald,json_each(atlas_herald.items) WHERE owner=NEW.owner AND json_extract(value,'$.id')=NEW.record_id AND json_extract(value,'$.archived')=0 AND json_extract(value,'$.stage')<>'published') THEN RAISE(ABORT,'atlas_priority_source_changed') END;
+ SELECT RAISE(ABORT,'atlas_priority_conflict') WHERE EXISTS(SELECT 1 FROM atlas_tasks WHERE owner=NEW.owner AND focus_date=NEW.day AND focus_slot=NEW.slot);
+ SELECT RAISE(ABORT,'atlas_priority_source_changed') WHERE NEW.kind='project' AND NOT EXISTS(SELECT 1 FROM atlas_projects WHERE owner=NEW.owner AND id=NEW.record_id AND status='open' AND archived_at IS NULL);
+ SELECT RAISE(ABORT,'atlas_priority_source_changed') WHERE NEW.kind='content' AND NOT EXISTS(SELECT 1 FROM atlas_herald,json_each(atlas_herald.items) WHERE owner=NEW.owner AND json_extract(value,'$.id')=NEW.record_id AND json_extract(value,'$.archived')=0 AND json_extract(value,'$.stage')<>'published');
 END;
 --> statement-breakpoint
 CREATE TRIGGER atlas_task_shared_slot_insert BEFORE INSERT ON atlas_tasks WHEN NEW.focus_date IS NOT NULL BEGIN
- SELECT CASE WHEN EXISTS(SELECT 1 FROM atlas_priorities WHERE owner=NEW.owner AND day=NEW.focus_date AND slot=NEW.focus_slot) THEN RAISE(ABORT,'atlas_priority_conflict') END;
+ SELECT RAISE(ABORT,'atlas_priority_conflict') WHERE EXISTS(SELECT 1 FROM atlas_priorities WHERE owner=NEW.owner AND day=NEW.focus_date AND slot=NEW.focus_slot);
 END;
 --> statement-breakpoint
 CREATE TRIGGER atlas_priority_slot_update BEFORE UPDATE ON atlas_priorities BEGIN
- SELECT CASE WHEN EXISTS(SELECT 1 FROM atlas_tasks WHERE owner=NEW.owner AND focus_date=NEW.day AND focus_slot=NEW.slot) THEN RAISE(ABORT,'atlas_priority_conflict') END;
- SELECT CASE WHEN NEW.kind='project' AND NOT EXISTS(SELECT 1 FROM atlas_projects WHERE owner=NEW.owner AND id=NEW.record_id AND status='open' AND archived_at IS NULL) THEN RAISE(ABORT,'atlas_priority_source_changed') END;
- SELECT CASE WHEN NEW.kind='content' AND NOT EXISTS(SELECT 1 FROM atlas_herald,json_each(atlas_herald.items) WHERE owner=NEW.owner AND json_extract(value,'$.id')=NEW.record_id AND json_extract(value,'$.archived')=0 AND json_extract(value,'$.stage')<>'published') THEN RAISE(ABORT,'atlas_priority_source_changed') END;
+ SELECT RAISE(ABORT,'atlas_priority_conflict') WHERE EXISTS(SELECT 1 FROM atlas_tasks WHERE owner=NEW.owner AND focus_date=NEW.day AND focus_slot=NEW.slot);
+ SELECT RAISE(ABORT,'atlas_priority_source_changed') WHERE NEW.kind='project' AND NOT EXISTS(SELECT 1 FROM atlas_projects WHERE owner=NEW.owner AND id=NEW.record_id AND status='open' AND archived_at IS NULL);
+ SELECT RAISE(ABORT,'atlas_priority_source_changed') WHERE NEW.kind='content' AND NOT EXISTS(SELECT 1 FROM atlas_herald,json_each(atlas_herald.items) WHERE owner=NEW.owner AND json_extract(value,'$.id')=NEW.record_id AND json_extract(value,'$.archived')=0 AND json_extract(value,'$.stage')<>'published');
 END;
 --> statement-breakpoint
 CREATE TRIGGER atlas_task_shared_slot_update BEFORE UPDATE ON atlas_tasks WHEN NEW.focus_date IS NOT NULL BEGIN
- SELECT CASE WHEN EXISTS(SELECT 1 FROM atlas_priorities WHERE owner=NEW.owner AND day=NEW.focus_date AND slot=NEW.focus_slot) THEN RAISE(ABORT,'atlas_priority_conflict') END;
+ SELECT RAISE(ABORT,'atlas_priority_conflict') WHERE EXISTS(SELECT 1 FROM atlas_priorities WHERE owner=NEW.owner AND day=NEW.focus_date AND slot=NEW.focus_slot);
 END;
 --> statement-breakpoint
 CREATE TRIGGER atlas_project_priority_closed AFTER UPDATE ON atlas_projects WHEN NEW.status<>'open' OR NEW.archived_at IS NOT NULL BEGIN DELETE FROM atlas_priorities WHERE owner=NEW.owner AND kind='project' AND record_id=NEW.id; END;
