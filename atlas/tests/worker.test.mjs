@@ -40,7 +40,13 @@ test('anonymous visitors are redirected, APIs require identity, and writes requi
   assert.equal((await request(db,'/api/state?week=2026-09-07','GET',null,null)).status,401);
   assert.equal((await request(db,'/api/tasks','POST',task('a'),'alice','https://other.test')).status,403);
   assert.equal((await request(db,'/api/tasks','POST',task('a'),'alice',null)).status,403);
-  assert.equal((await request(db,'/style.css')).status,200);db.close();
+  assert.equal((await request(db,'/style.css')).status,200);
+  const appearance=await request(db,'/theme.js');
+  assert.equal(appearance.status,200);
+  assert.ok(appearance.data.includes('AtlasAppearance'));
+  assert.match(appearance.headers.get('Content-Type'),/text\/javascript/);
+  assert.equal((await request(db,'/theme.js','GET',null,null)).status,302);
+  db.close();
 });
 test('capture, plan, complete, reopen, and export retain a stable record across requests',async()=>{
   const db=database();assert.equal((await request(db,'/api/tasks','POST',task('a'))).status,201);
