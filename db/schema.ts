@@ -29,6 +29,8 @@ export const practiceSnapshots = sqliteTable('atlas_practice_snapshots', {
   owner: text('owner').primaryKey(), items: text('items').notNull(),
   revision: integer('revision').notNull().default(1), importedAt: text('imported_at').notNull(),
   sourceExportedAt: text('source_exported_at'),
+  mode: text('mode').notNull().default('snapshot'), catalog: text('catalog').notNull().default('[]'),
+  updatedAt: text('updated_at'),
 });
 
 export const history = sqliteTable('atlas_history', {

@@ -1,4 +1,4 @@
-import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary, localBriefing } from './atlas-workflow-core.mjs';
+import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary, localBriefing, createPracticeTransfer } from './atlas-workflow-core.mjs';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const prettyDay = day => validDay(day) ? new Date(day + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
@@ -29,8 +29,14 @@ function mountPractice(nextContext = context) {
         (done ? '<p class="workflow-meta">Completed ' + esc(prettyDay(done.completedDay)) + '</p>' : '') +
         '<button type="button" class="btn ' + (done ? 'line' : 'primary') + '" data-practice-item="' + i + '" ' + (busy || issue ? 'disabled' : '') + '>' + (done ? 'Undo completion' : 'Mark practice complete') + '</button></div></details>';
     }).join('') + '</div>' : '<p class="workflow-empty">No lessons were published in this edition.</p><div class="practice-archive">' + lessonItems(context.manifest).filter((item, i, all) => all.findIndex(x => x.day === item.day) === i).slice(0, 3).map(item => '<a href="courier.html?day=' + encodeURIComponent(item.day) + '">Practise the ' + esc(prettyDay(item.day)) + ' lessons</a>').join('') + '</div>') +
+    '<div class="practice-transfer"><h3>Use practice across devices</h3><p>Download the available lessons and your saved completions. In the private Atlas workspace, open Practice, import this pack, then choose Use synced practice.</p><button type="button" class="btn line" id="practice-pack-export" '+(issue?'disabled':'')+'>Download practice pack</button> <a href="https://atlas-os-quinton.qchambers123018.chatgpt.site/#practice" target="_blank" rel="noopener">Open private Practice</a><p class="workflow-meta">Use the private workspace for future completions after switching. This Courier page keeps a separate browser copy.</p></div>' +
     '<p id="practice-feedback" role="' + (problem || issue ? 'alert' : 'status') + '" class="workflow-feedback ' + (problem || issue ? 'workflow-error' : '') + '">' + esc(issue || feedback) + '</p>' +
     '<p class="workflow-meta">Saved in this browser and included in <a href="index.html#atlas-vault-root">Atlas Vault backups</a>. New editions do not mark lessons complete.</p>';
+  host.querySelector('#practice-pack-export').onclick=()=>{
+    try{const pack=createPracticeTransfer(localStorage,context.manifest),url=URL.createObjectURL(new Blob([JSON.stringify(pack,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='atlas-practice-pack-'+localDay()+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);feedback='Practice pack downloaded. Review it in private Atlas Practice.';problem=false;}
+    catch(error){feedback=error.message;problem=true;}
+    signature='';mountPractice();focusFeedback();
+  };
   for (const details of host.querySelectorAll('[data-practice-detail]')) details.addEventListener('toggle', () => { const item = items[Number(details.dataset.practiceDetail)]; if (details.open) expanded.add(item.id); else expanded.delete(item.id); });
   for (const button of host.querySelectorAll('[data-practice-item]')) button.onclick = async () => {
     if (busy) return;
