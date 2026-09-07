@@ -1,9 +1,11 @@
+import {priorityAPI,occupiedSlots} from './priorities-api.mjs';
+import {connectedAPI} from './connected-api.mjs';
 import { cadenceRow, cadenceAPI } from './cadence-api.mjs';
 import { searchOptions, searchWorkspace } from './search.mjs';
 import { heraldContent, heraldRecord, heraldItem, parseHeraldTransfer, heraldImportPlan } from './herald.mjs';
 import { communicationContent, communicationRecord, communicationRep, parseCommunicationTransfer, communicationImportPlan } from './communication.mjs';
 import { fetchEditions, editionRefreshPlan, editionSignature } from './courier-editions.mjs';
-import { html, css, js, theme, searchModel, searchUI, agendaModel, agendaUI, commitmentsModel, commitmentsUI, budgetUI, cadenceModel, cadenceUI, cadenceCatalog, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
+import { connected, workModel, workUI, connectUI, html, css, js, theme, searchModel, searchUI, agendaModel, agendaUI, commitmentsModel, commitmentsUI, budgetUI, cadenceModel, cadenceUI, cadenceCatalog, model, ledgerModel, ledgerUI, editionUI, reflectionUI, communicationModel, communicationUI, heraldModel, heraldUI } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan, practiceEditionRefresh } from './model.mjs';
 import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
@@ -14,7 +16,7 @@ class HttpError extends Error { constructor(message,status=400){super(message);t
 async function bodyOf(request) {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError('Send JSON.');
   const body=await request.text(),path=new URL(request.url).pathname;
-  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:(path.startsWith('/api/practice')||path.startsWith('/api/ledger')||path.startsWith('/api/communication')||path.startsWith('/api/herald'))?1800000:350000)) throw new HttpError('This request is too large.',413);
+  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?13000000:path.startsWith('/api/connected')?3400000:(path.startsWith('/api/practice')||path.startsWith('/api/ledger')||path.startsWith('/api/communication')||path.startsWith('/api/herald'))?1800000:350000)) throw new HttpError('This request is too large.',413);
   try { const value=JSON.parse(body); if(!value || typeof value!=='object' || Array.isArray(value)) throw new Error(); return value; }
   catch { throw new HttpError('This request could not be read.'); }
 }
@@ -93,16 +95,20 @@ async function state(db,owner,week) {
     db.prepare('SELECT * FROM atlas_ledger WHERE owner=?').bind(owner),
     db.prepare('SELECT * FROM atlas_communication WHERE owner=?').bind(owner),
     db.prepare('SELECT * FROM atlas_herald WHERE owner=?').bind(owner),
-    db.prepare('SELECT * FROM atlas_cadence WHERE owner=?').bind(owner)
+    db.prepare('SELECT * FROM atlas_cadence WHERE owner=?').bind(owner),
+    db.prepare('SELECT * FROM atlas_priorities WHERE owner=?').bind(owner),
+    db.prepare('SELECT kind,updated_at FROM atlas_app_states WHERE owner=?').bind(owner)
   ]);
   const practice=result[3].results[0];
   return { tasks:result[0].results, projects:result[1].results, week:result[2].results[0]||null,
-    practice:practiceRow(practice),ledger:ledgerRow(result[4].results[0]),communication:communicationRow(result[5].results[0]),herald:heraldRow(result[6].results[0]),cadence:cadenceRow(result[7].results[0]) };
+    practice:practiceRow(practice),ledger:ledgerRow(result[4].results[0]),communication:communicationRow(result[5].results[0]),herald:heraldRow(result[6].results[0]),cadence:cadenceRow(result[7].results[0]),priorities:result[8].results,connections:result[9].results };
 }
 async function api(request,env,url,owner) {
   const db=env.DB;
   if(!db) throw new HttpError('Your saved workspace is temporarily unavailable. Please try again.',503);
   const path=url.pathname, now=new Date().toISOString();
+  if(path==='/api/priorities'&&request.method==='POST')return json(await priorityAPI({db,owner,b:await bodyOf(request),now,HttpError}));
+  if(path.startsWith('/api/connected/'))return json(await connectedAPI({db,owner,path,method:request.method,b:request.method==='GET'?null:await bodyOf(request),now,HttpError}));
   if(path.startsWith('/api/cadence/')&&['POST','PATCH'].includes(request.method))return json(await cadenceAPI({db,owner,path,method:request.method,b:await bodyOf(request),now,HttpError}));
   if(path==='/api/search'&&request.method==='POST'){
     const options=searchOptions(await bodyOf(request));
@@ -168,6 +174,7 @@ async function api(request,env,url,owner) {
       const index=next.items.findIndex(r=>r.id===b.id);if(index<0)throw new HttpError('This content item is unavailable.',404);
       const rep=next.items[index];
       if(b.action==='archive'||b.action==='restore')next.items[index]={...rep,archived:b.action==='archive'};
+      else if(b.action==='publish'){if(!validDate(b.day))throw new HttpError('Choose a valid publication day.');next.items[index]=heraldItem({...rep,stage:'published',published_day:b.day});}
       else if(b.action==='edit')next.items[index]=heraldItem({...b.item,id:rep.id,archived:rep.archived,source_id:rep.source_id});
       else throw new HttpError('Choose a content action.');
     }else throw new HttpError('This content action is unavailable.',404);
@@ -208,11 +215,11 @@ async function api(request,env,url,owner) {
     await writeLedger(db,owner,current,next,now);return json({saved:true});
   }
   if(path==='/api/restore/preview'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects);
-    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1,legacyLedger:b.backup.version<4,legacyCommunication:b.backup.version<5,legacyHerald:b.backup.version<6,legacyCadence:b.backup.version<7});
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects,current.data.priorities,current.data.app_states);
+    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1,legacyLedger:b.backup.version<4,legacyCommunication:b.backup.version<5,legacyHerald:b.backup.version<6,legacyConnected:b.backup.version<8,legacyCadence:b.backup.version<7});
   }
   if(path==='/api/restore'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects);
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects,current.data.priorities,current.data.app_states);
     if(!Number.isSafeInteger(b.seq)||b.seq!==current.seq||b.digest!==await digest(backup))throw new HttpError('The workspace or backup changed. Review the restore again.',409);
     const id=await replaceWorkspace(db,owner,backup,current.data,b.seq,'Before workspace restore');
     return json({saved:true,checkpoint:id});
@@ -249,7 +256,7 @@ async function api(request,env,url,owner) {
     if(path.endsWith('/undo')&&request.method==='POST'){
       const b=await bodyOf(request),current=await workspace(db,owner);
       if(b.seq!==current.seq||current.seq!==checkpoint.after_seq)throw new HttpError('The workspace changed after this restore. Download the recovery copy and review it before applying it.',409);
-      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects),current.data,current.seq,'Before reversing workspace restore');
+      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data,current.data.practice,current.data.ledger,current.data.communication,current.data.herald,current.data.cadence,current.data.tasks,current.data.projects,current.data.priorities,current.data.app_states),current.data,current.seq,'Before reversing workspace restore');
       return json({saved:true,checkpoint:recovery});
     }
   }
@@ -274,6 +281,7 @@ async function api(request,env,url,owner) {
     if(b.action==='connect')mode='managed';
     else if(b.action==='disconnect')mode='snapshot';
     else {
+      if(['complete','reopen'].includes(b.action))mode='managed';
       if(mode!=='managed')throw new HttpError('Use this as a synced project before editing it here.',409);
       if(b.action==='edit'){title=textValue(b.title,300,true);area=textValue(b.area,120);due_date=dateValue(b.due_date);}
       else if(b.action==='complete'){status='done';completed_at=status===p.status?p.completed_at:now;}
@@ -356,8 +364,8 @@ async function api(request,env,url,owner) {
     }
     let focusSlot=null;
     if(focusDay){
-      const chosen=(await db.prepare('SELECT focus_slot FROM atlas_tasks WHERE owner=? AND focus_date=?').bind(owner,focusDay).all()).results;
-      focusSlot=[1,2,3].find(slot=>!chosen.some(t=>t.focus_slot===slot));
+      const chosen=await occupiedSlots(db,owner,focusDay);
+      focusSlot=[1,2,3].find(slot=>!chosen.some(t=>t.slot===slot));
       if(!focusSlot)throw new HttpError('Three priorities are already chosen for this day. Release one, then save this priority again.',409);
     }
     // Creation and priority selection are one insert. A full or racing slot
@@ -389,8 +397,8 @@ async function api(request,env,url,owner) {
       const day=dateValue(b.day); if(!day) throw new HttpError('Choose a day.');
       if(focus_date===day) {focus_date=null;focus_slot=null;}
       else {
-        const occupied=await db.prepare('SELECT focus_slot FROM atlas_tasks WHERE owner=? AND focus_date=? AND id<>?').bind(owner,day,id).all();
-        focus_slot=[1,2,3].find(slot=>!occupied.results.some(t=>t.focus_slot===slot));
+        const occupied=await occupiedSlots(db,owner,day);
+        focus_slot=[1,2,3].find(slot=>!occupied.some(t=>t.slot===slot));
         if(!focus_slot) throw new HttpError('Your three priorities are set. Release one before adding another.',409);
         focus_date=day; week_start=monday(day);
       }
@@ -450,13 +458,13 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/cadence.mjs':[cadenceModel,'text/javascript; charset=utf-8'],'/cadence-ui.mjs':[cadenceUI,'text/javascript; charset=utf-8'],'/cadence-catalog.mjs':[cadenceCatalog,'text/javascript; charset=utf-8'],'/budget-ui.mjs':[budgetUI,'text/javascript; charset=utf-8'],'/commitments.mjs':[commitmentsModel,'text/javascript; charset=utf-8'],'/commitments-ui.mjs':[commitmentsUI,'text/javascript; charset=utf-8'],'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
+      const assets={...connected,'/work.mjs':[workModel,'text/javascript; charset=utf-8'],'/work-ui.mjs':[workUI,'text/javascript; charset=utf-8'],'/connect-ui.mjs':[connectUI,'text/javascript; charset=utf-8'],'/cadence.mjs':[cadenceModel,'text/javascript; charset=utf-8'],'/cadence-ui.mjs':[cadenceUI,'text/javascript; charset=utf-8'],'/cadence-catalog.mjs':[cadenceCatalog,'text/javascript; charset=utf-8'],'/budget-ui.mjs':[budgetUI,'text/javascript; charset=utf-8'],'/commitments.mjs':[commitmentsModel,'text/javascript; charset=utf-8'],'/commitments-ui.mjs':[commitmentsUI,'text/javascript; charset=utf-8'],'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
-        'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
+        'Content-Security-Policy':url.pathname.startsWith('/apps/')?"default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'":"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
     } catch(error) {
       if(error instanceof HttpError) return json({error:error.message},error.status);
-      if(/atlas_restore_guard_valid|UNIQUE constraint/i.test(error?.message))return json({error:'Your workspace changed or these records conflict. Refresh and review again; nothing from this request was saved.'},409);
+      if(/atlas_restore_guard_valid|atlas_priority_|UNIQUE constraint/i.test(error?.message))return json({error:'Your workspace changed or these records conflict. Refresh and review again; nothing from this request was saved.'},409);
       if(error instanceof Error && !/D1|SQL|database/i.test(error.message)) return json({error:error.message},400);
       console.error('Atlas request failed',error?.name);
       return json({error:'We could not save or load your workspace. Your draft is still here. Please try again.'},503);

@@ -2,34 +2,24 @@
 <html class="atlas-neumo" data-atlas-app="atlas-os" lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Atlas OS</title><meta name="description" content="Your private workspace for a deliberate day and a realistic week.">
+  <title>Atlas OS</title><meta name="description" content="Your day, your tasks, and your apps in one place.">
   <meta name="theme-color" content="#0d111b"><script src="/theme.js"></script><link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to workspace</a>
 <aside class="sidebar">
   <a class="brand" href="#today" aria-label="Atlas home"><span class="brand-mark" aria-hidden="true">✳</span><span>ATLAS <small>OS</small></span></a>
-  <span class="eyebrow nav-caption">Your workspace</span>
   <nav aria-label="Workspace">
     <a href="#today" data-view="today"><span aria-hidden="true">◉</span> Today</a>
-    <a href="#week" data-view="week"><span aria-hidden="true">▦</span> This week</a>
-    <a href="#commitments" data-view="commitments"><span aria-hidden="true">✓</span> Commitments</a>
-    <a href="#cadence" data-view="cadence"><span aria-hidden="true">↻</span> Operations Cadence</a>
-    <a href="#projects" data-view="projects"><span aria-hidden="true">◈</span> Life Map</a>
-    <a href="#review" data-view="review"><span aria-hidden="true">↺</span> Weekly review</a>
-    <a href="#practice" data-view="practice"><span aria-hidden="true">◇</span> Practice</a>
-    <a href="#ledger" data-view="ledger"><span aria-hidden="true">▤</span> Life Ledger</a>
-    <a href="#communication" data-view="communication"><span aria-hidden="true">◌</span> Speaking practice</a>
-    <a href="#herald" data-view="herald"><span aria-hidden="true">⚑</span> Content plan</a>
-    <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> All apps</a>
-    <a href="#history" data-view="history"><span aria-hidden="true">◷</span> History & recovery</a>
+    <a href="#apps" data-view="apps"><span aria-hidden="true">⌘</span> Apps</a>
+    <a href="#settings" data-view="settings"><span aria-hidden="true">⚙</span> Settings</a>
   </nav>
-  <div class="sidebar-bottom"><span class="workspace-label">Private workspace</span><span id="save-state">Connecting…</span><button id="export" class="text-button">Export my Atlas data</button></div>
+  <div class="sidebar-bottom"><span id="save-state" role="status">Connecting…</span><button id="export" hidden>Export my Atlas data</button></div>
 </aside>
 <main id="main" tabindex="-1">
-  <header class="topbar"><span id="date-label"></span><div><button class="secondary" id="workspace-search" aria-haspopup="dialog" aria-controls="workspace-search-dialog" aria-keyshortcuts="Control+k Meta+k">Search</button><button class="text-button" id="refresh">Refresh</button><button class="primary" id="capture">＋ Capture</button></div></header>
+  <header class="topbar"><span id="date-label"></span><div><button class="secondary" id="workspace-search" aria-haspopup="dialog" aria-controls="workspace-search-dialog" aria-keyshortcuts="Control+k Meta+k">Search</button><button class="icon-button" id="refresh" aria-label="Refresh saved work" title="Refresh">↻</button><button class="primary" id="capture">＋ Add task</button></div></header>
   <div id="error" class="error" role="alert" hidden></div>
-  <div id="content" aria-live="polite"><div class="loading"><span class="eyebrow">Atlas OS</span><h1>Opening your workspace.</h1><p>Your commitments will appear here.</p></div></div>
+  <div id="content" aria-live="polite"><div class="loading"><span class="eyebrow">Atlas OS</span><h1>Opening your workspace.</h1><p>Your projects, content, and commitments will appear here.</p></div></div>
 </main>
 <dialog id="workspace-search-dialog" class="workspace-search-dialog" aria-labelledby="workspace-search-title" aria-describedby="workspace-search-description">
   <div class="dialog-heading"><div><span class="eyebrow">Your saved work, together</span><h2 id="workspace-search-title">Search Atlas</h2></div><button type="button" class="icon-button" data-close="workspace-search-dialog" aria-label="Close workspace search">×</button></div>
@@ -45,18 +35,18 @@
 <dialog id="task-dialog" aria-labelledby="task-dialog-title">
   <form id="task-form">
     <p id="task-routine-note" class="small" hidden>This is one recurring occurrence. Editing it keeps its original occurrence identity and does not change the routine or other dates.</p>
-    <div class="dialog-heading"><div><span class="eyebrow">Make room for what matters</span><h2 id="task-dialog-title">Capture a commitment</h2></div><button type="button" class="icon-button" data-close="task-dialog" aria-label="Close capture">×</button></div>
+    <div class="dialog-heading"><div><h2 id="task-dialog-title">Add a task</h2></div><button type="button" class="icon-button" data-close="task-dialog" aria-label="Close capture">×</button></div>
     <p id="task-record-status" class="small" hidden></p>
     <details id="task-source" class="task-source" hidden><summary id="task-source-label"></summary><p id="task-source-text" class="reflection-text"></p><p class="small">Use this note as a reference. Choose a concrete action below. The commitment saves your action title and app connection.</p></details>
-    <label>What will you do?<input name="title" maxlength="300" required placeholder="Name the next concrete action" autocomplete="off"></label>
-    <p id="task-priority-note" class="small" hidden>Saves directly as a priority for today. Planning details below are optional; the initial estimate is 30 minutes.</p>
-    <details id="task-details"><summary>Planning details</summary>
+    <label>What will you do?<input name="title" maxlength="300" required placeholder="e.g. Finish the outline" autocomplete="off"></label>
+    <p id="task-priority-note" class="small" hidden>Pins this task to Today.</p>
+    <label>When <span class="optional">clear for no date</span><input name="due_date" type="date"></label>
+    <details id="task-details"><summary>More options</summary>
     <div class="form-grid"><label>Connected app<select name="app_id" id="app-select"></select></label><label>Project<select name="project_id" id="project-select"><option value="">No project</option></select></label></div>
     <div class="form-grid"><label>Plan for<select name="week_start" id="week-select"></select></label><label>Time estimate<select name="minutes"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">1 hour</option><option value="90">90 minutes</option><option value="120">2 hours</option><option value="180">3 hours</option></select></label></div>
-    <label>Due date <span class="optional">optional</span><input name="due_date" type="date"></label>
     </details>
     <p id="task-error" class="form-error" role="alert"></p>
-    <div class="dialog-actions"><button type="button" class="secondary" data-close="task-dialog">Cancel</button><button class="primary" id="task-submit" type="submit">Save commitment</button></div>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close="task-dialog">Cancel</button><button class="primary" id="task-submit" type="submit">Save task</button></div>
   </form>
 </dialog>
 <dialog id="reflection-dialog" aria-labelledby="reflection-dialog-title">
@@ -96,7 +86,6 @@
     <div class="dialog-heading"><h2 id="project-dialog-title">New synced project</h2><button type="button" class="icon-button" data-close="project-dialog" aria-label="Close project">×</button></div>
     <label>Project title<input name="title" maxlength="300" required></label>
     <label>Life area<input name="area" maxlength="120" placeholder="Family, learning, work…"></label>
-    <label>Due date <span class="optional">optional</span><input name="due_date" type="date"></label>
     <p class="small">Saved privately across devices. Linked commitments keep their own completion status.</p>
     <p id="project-draft-state" class="small" role="status"></p>
     <p id="project-error" class="form-error" role="alert"></p>
@@ -199,7 +188,7 @@
   <p>Choose an Atlas OS export. Review every addition, replacement, and removal before applying it.</p>
   <label>Choose a JSON export<input id="restore-file" type="file" accept=".json,application/json"></label>
   <details><summary>Or paste an export</summary><label>Atlas OS backup JSON<textarea id="restore-json" rows="5" spellcheck="false"></textarea></label><button id="restore-paste" class="secondary">Review pasted export</button></details>
-  <p class="small">Up to 8 MB. This restores the private workspace. Original app records and appearance preferences stay in their own apps. Version 1 exports retain current practice. Versions 1–3 retain current Life Ledger records. Versions 1–4 retain current speaking practice. Versions 1–5 retain the current Herald content plan.</p>
+  <p class="small">Up to 12.5 MB. This restores the private workspace. Original app records and appearance preferences stay in their own apps. Version 1 exports retain current practice. Versions 1–3 retain current Life Ledger records. Versions 1–4 retain current speaking practice. Versions 1–5 retain the current Herald content plan.</p>
   <div id="restore-preview"></div><p id="restore-error" class="form-error" role="alert"></p>
   <div class="dialog-actions"><button class="secondary" data-close="restore-dialog">Cancel</button><button class="primary" id="restore-confirm" disabled>Apply reviewed restore</button></div>
 </dialog>

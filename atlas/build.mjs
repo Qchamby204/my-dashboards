@@ -1,11 +1,16 @@
+import {connectedAssets} from './connected-build.mjs';
 import { readFile, mkdir, writeFile, cp, rm } from 'node:fs/promises';
 const root = new URL('../', import.meta.url);
+const connected=await connectedAssets(root);
 const out = new URL('dist/', root);
 await rm(out, { recursive: true, force: true });
 await mkdir(new URL('server/', out), { recursive: true });
 await mkdir(new URL('.openai/', out), { recursive: true });
 const html = await readFile(new URL('atlas/index.html', root), 'utf8');
 const css = (await Promise.all(['atlas/style.css', 'shared/atlas-palette.css', 'shared/atlas-neumorphism.css', 'shared/atlas-appearance.css'].map(path => readFile(new URL(path, root), 'utf8')))).join('\n');
+const workModel=await readFile(new URL('atlas/work.mjs',root),'utf8');
+const workUI=await readFile(new URL('atlas/work-ui.mjs',root),'utf8');
+const connectUI=await readFile(new URL('atlas/connect-ui.mjs',root),'utf8');
 const js = await readFile(new URL('atlas/app.js', root), 'utf8');
 const theme = await readFile(new URL('shared/atlas-theme.js', root), 'utf8');
 const model = await readFile(new URL('atlas/model.mjs', root), 'utf8');
@@ -27,7 +32,7 @@ const ledgerModel = await readFile(new URL('atlas/ledger.mjs', root), 'utf8');
 const reflectionUI = await readFile(new URL('atlas/reflection-ui.mjs', root), 'utf8');
 const editionUI = await readFile(new URL('atlas/edition-refresh-ui.mjs', root), 'utf8');
 const ledgerUI = await readFile(new URL('atlas/ledger-ui.mjs', root), 'utf8');
-await writeFile(new URL('server/assets.mjs', out), `export const cadenceModel=${JSON.stringify(cadenceModel)};\nexport const cadenceUI=${JSON.stringify(cadenceUI)};\nexport const cadenceCatalog=${JSON.stringify(cadenceCatalog)};\nexport const budgetUI=${JSON.stringify(budgetUI)};\nexport const commitmentsModel=${JSON.stringify(commitmentsModel)};\nexport const commitmentsUI=${JSON.stringify(commitmentsUI)};\nexport const agendaModel=${JSON.stringify(agendaModel)};\nexport const agendaUI=${JSON.stringify(agendaUI)};\nexport const searchModel=${JSON.stringify(searchModel)};\nexport const searchUI=${JSON.stringify(searchUI)};\nexport const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\nexport const reflectionUI=${JSON.stringify(reflectionUI)};\nexport const communicationModel=${JSON.stringify(communicationModel)};\nexport const communicationUI=${JSON.stringify(communicationUI)};\nexport const heraldModel=${JSON.stringify(heraldModel)};\nexport const heraldUI=${JSON.stringify(heraldUI)};\n`);
+await writeFile(new URL('server/assets.mjs', out), `export const connected=${JSON.stringify(connected)};\nexport const workModel=${JSON.stringify(workModel)};\nexport const workUI=${JSON.stringify(workUI)};\nexport const connectUI=${JSON.stringify(connectUI)};\nexport const cadenceModel=${JSON.stringify(cadenceModel)};\nexport const cadenceUI=${JSON.stringify(cadenceUI)};\nexport const cadenceCatalog=${JSON.stringify(cadenceCatalog)};\nexport const budgetUI=${JSON.stringify(budgetUI)};\nexport const commitmentsModel=${JSON.stringify(commitmentsModel)};\nexport const commitmentsUI=${JSON.stringify(commitmentsUI)};\nexport const agendaModel=${JSON.stringify(agendaModel)};\nexport const agendaUI=${JSON.stringify(agendaUI)};\nexport const searchModel=${JSON.stringify(searchModel)};\nexport const searchUI=${JSON.stringify(searchUI)};\nexport const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\nexport const reflectionUI=${JSON.stringify(reflectionUI)};\nexport const communicationModel=${JSON.stringify(communicationModel)};\nexport const communicationUI=${JSON.stringify(communicationUI)};\nexport const heraldModel=${JSON.stringify(heraldModel)};\nexport const heraldUI=${JSON.stringify(heraldUI)};\n`);
 await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
 // Sites registers Worker modules from the server directory. Flatten this shared
 // dependency into that directory while keeping a single source for both apps.
@@ -35,7 +40,7 @@ const editions = await readFile(new URL('atlas/courier-editions.mjs', root), 'ut
 if(!editions.includes("from '../shared/courier-lessons.mjs'")) throw Error('Courier module import changed; update its staging path.');
 await writeFile(new URL('server/courier-editions.mjs', out), editions.replace("from '../shared/courier-lessons.mjs'", "from './courier-lessons.mjs'"));
 await cp(new URL('shared/courier-lessons.mjs', root), new URL('server/courier-lessons.mjs', out));
-for(const name of ['cadence.mjs','cadence-api.mjs','cadence-catalog.mjs'])await cp(new URL('atlas/'+name,root),new URL('server/'+name,out));
+for(const name of ['connected-api.mjs','connected-model.mjs','priorities-api.mjs','cadence.mjs','cadence-api.mjs','cadence-catalog.mjs'])await cp(new URL('atlas/'+name,root),new URL('server/'+name,out));
 await cp(new URL('atlas/model.mjs', root), new URL('server/model.mjs', out));
 await cp(new URL('atlas/search.mjs', root), new URL('server/search.mjs', out));
 await cp(new URL('atlas/herald.mjs', root), new URL('server/herald.mjs', out));
