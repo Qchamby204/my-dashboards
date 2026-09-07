@@ -76,7 +76,7 @@ test('history is atomic with saves, owner-scoped, and can recover a prior edit w
 test('malformed or unrelated backups write nothing and old exports preserve current practice',async()=>{
   const db=previewDatabase();await request(db,'/api/tasks','POST',task('a'));const backup=await snapshot(db);
   for(const bad of [{...backup,version:9},{...backup,tasks:[...backup.tasks,...backup.tasks]},{...backup,tasks:[{...backup.tasks[0],project_id:'missing'}]},{...backup,tasks:[{...backup.tasks[0],focus_date:'2026-09-07',focus_slot:null}]}])assert.equal((await request(db,'/api/restore/preview','POST',{backup:bad})).status,400);
-  const current=[{items:[],revision:2,imported_at:'2026-09-07T12:00:00Z',source_exported_at:null}];
+  const current=[{items:[],catalog:[],mode:'managed',updated_at:null,revision:2,imported_at:'2026-09-07T12:00:00Z',source_exported_at:null}];
   assert.deepEqual(parseWorkspace({...backup,version:1,practice:undefined},current).practice,current);
   const clean=parseWorkspace({...backup,tasks:[{...backup.tasks[0],apiKey:'excluded',owner:'someone'}]});assert.equal(JSON.stringify(clean).includes('excluded'),false);
   assert.equal((await history(db)).events.length,1);db.close();
