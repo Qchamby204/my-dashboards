@@ -46,6 +46,9 @@ test('anonymous visitors are redirected, APIs require identity, and writes requi
   assert.ok(appearance.data.includes('AtlasAppearance'));
   assert.match(appearance.headers.get('Content-Type'),/text\/javascript/);
   assert.equal((await request(db,'/theme.js','GET',null,null)).status,302);
+  const reflection=await request(db,'/reflection-ui.mjs');
+  assert.equal(reflection.status,200);assert.match(reflection.data,/createReflectionUI/);
+  assert.equal((await request(db,'/reflection-ui.mjs','GET',null,null)).status,302);
   db.close();
 });
 test('capture, plan, complete, reopen, and export retain a stable record across requests',async()=>{
