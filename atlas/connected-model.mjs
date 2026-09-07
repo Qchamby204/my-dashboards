@@ -1,5 +1,6 @@
 import {validateLifeMapRecords} from './life-map-records.mjs';
-import {parseLifeMap,textValue,validDate} from './model.mjs';
+import {validateHeraldRecords} from './herald-records.mjs';
+import {parseLifeMap,textValue} from './model.mjs';
 import {heraldContent,heraldItem} from './herald.mjs';
 
 const object=v=>v&&typeof v==='object'&&!Array.isArray(v);
@@ -18,16 +19,7 @@ export function validateAppState(kind,raw){
     if(state.log!==undefined&&!Array.isArray(state.log)||state.planned!==undefined&&!object(state.planned))throw Error('Life Map activity is invalid.');
     state.log??=[];state.planned??={};
   }else{
-    if(!Array.isArray(state.videos)||state.videos.length>1000||!object(state.cadence)||!Array.isArray(state.leads))throw Error('Choose a complete Herald backup.');
-    if(state.leads.length)throw Error('This transfer includes legacy contact records. Use Connect existing apps to bring only content and publishing details.');
-    const ids=new Set();
-    for(const v of state.videos){
-      const id=textValue(v?.id,200,true);if(ids.has(id))throw Error('The Herald has duplicate video IDs.');ids.add(id);
-      textValue(v.title,500,true);
-      if(!['draft','optimized','approved','produced','scheduled','published'].includes(v.status)||!['long','short'].includes(v.fmt))throw Error('A Herald stage or format is invalid.');
-      if(v.sched&&!validDate(v.sched))throw Error('A Herald planned date is invalid.');
-      if(v.opt!==undefined&&!object(v.opt)||v.pub!==undefined&&!object(v.pub))throw Error('A Herald checklist is invalid.');
-    }
+    Object.assign(state,validateHeraldRecords(state));
   }
   return state;
 }
@@ -54,7 +46,7 @@ export function connectedState(kind,workspace,stored){
     raw.videos=(workspace.herald[0]?.items||[]).filter(c=>!c.archived).map(c=>{
       const id=c.source_id||c.id,old=originals.get(id)||{};
       const opt=Object.fromEntries(['title','desc','thumb','broll','emph','tags','blog','cta'].map(k=>[k,{t:'',d:false,...old.opt?.[k]}]));
-      return {script:'',metrics:{},pub:{},...old,id,title:c.title,fmt:c.format,vert:c.audience,status:c.stage,sched:c.scheduled_day||'',opt};
+      return {script:'',metrics:{},pub:{},...old,id,title:c.title,fmt:c.format,vert:c.audience,status:c.stage,sched:c.scheduled_day||'',publishedDay:c.published_day||'',opt};
     });
   }
   return raw;
@@ -65,7 +57,7 @@ export async function contentFromApp(raw,current,day){
   for(const v of raw.videos){
     const old=known.get(v.id),published=v.status==='published';
     items.push(heraldItem({id:old?.id||await legacyId(v.id),source_id:old?old.source_id:v.id,title:v.title,format:v.fmt,audience:v.vert||'',stage:v.status==='optimized'?'approved':v.status,scheduled_day:v.sched||null,
-      published_day:published?(old?.stage==='published'?old.published_day:day):null,note:old?.note||'',archived:false}));
+      published_day:published?(Object.hasOwn(v,'publishedDay')?(v.publishedDay||null):(old?.stage==='published'?old.published_day:day)):null,note:old?.note||'',archived:false}));
   }
   const included=new Set(items.map(x=>x.id));
   for(const old of current?.items||[])if(!included.has(old.id))items.push({...old,archived:true});
