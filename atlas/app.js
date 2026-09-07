@@ -1,3 +1,4 @@
+import { createReflectionUI } from './reflection-ui.mjs';
 import { createEditionRefreshUI } from './edition-refresh-ui.mjs';
 import { createLedgerUI } from './ledger-ui.mjs';
 import { APPS, LEGACY_ORIGIN, localDay, monday, addDays, parseLifeMap, parsePracticeSnapshot, parsePracticeTransfer, weeklySummary, dailyBriefing, newId } from './model.mjs';
@@ -8,14 +9,15 @@ const appURL=id=>id==='life-map'?'#projects':id==='life-ledger'?'#ledger':LEGACY
 const formatDay=day=>new Date(day+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});
 const duration=m=>m<60?`${m} min`:`${Number((m/60).toFixed(1))}h`;
 let today=localDay(), week=monday(today), data={tasks:[],projects:[],week:null};
-let loadedAt=null;
+let loadedAt=null,loadedWeek=null;
 let loaded=false,view='today',editing=null,draftId=null,imports=[],undoAction=null,busy=false,reviewDirty=false,loadNumber=0;
 let historyData=null,historyRequest=0,restorePlan=null,restoreRequest=0,recoveryAction=null;
 let practiceFileRequest=0,practiceFilter='pending',practiceSearch='',practiceLimit=60;
 let editingProject=null,projectDraftId=null,projectConfirmation=null,practiceImport=null,practiceRevision=0;
 const ledgerUI=createLedgerUI({api,getData:()=>data,load,render,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const editionUI=createEditionRefreshUI({api,getPractice:()=>data.practice,esc,formatDay,dateTime:value=>new Date(value).toLocaleString(),load,toast,blocked:()=>hasDraft()||busy});
-const hasDraft=()=>reviewDirty||ledgerUI.dirty||ledgerUI.saving||editionUI.saving;
+const reflectionUI=createReflectionUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,capture:seed=>openCapture(null,null,seed),blocked:()=>busy||reviewDirty||ledgerUI.dirty||ledgerUI.saving||editionUI.saving});
+const hasDraft=()=>reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving;
 const project=id=>data.projects.find(p=>p.id===id);
 const open=()=>data.tasks.filter(t=>t.status==='open');
 const weekTasks=()=>data.tasks.filter(t=>t.status!=='archived' && t.week_start===week);
@@ -34,11 +36,12 @@ function toast(message,undo=null){$('#toast span').textContent=message+($('#save
 async function load({renderPage=true}={}) {
   const requestNumber=++loadNumber, requestedWeek=week;
   $('#save-state').textContent='Loading…';
+  if(loaded && loadedWeek!==week)render();
   try {
     const next=await api('/api/state?week='+requestedWeek);
     if(requestNumber!==loadNumber || requestedWeek!==week) return;
-    if(ledgerUI.dirty){$('#save-state').textContent='Unsaved draft';return;}
-    data=next;loaded=true;loadedAt=new Date();error('');$('#save-state').textContent='Saved across devices';
+    if(ledgerUI.dirty||reviewDirty||reflectionUI.dirty){$('#save-state').textContent='Unsaved draft';return;}
+    data=next;loaded=true;loadedWeek=requestedWeek;loadedAt=new Date();error('');$('#save-state').textContent='Saved across devices';
     if(renderPage) render();
   } catch(e){if(requestNumber!==loadNumber||requestedWeek!==week)return;error(e.message);$('#save-state').textContent='Connection needs attention';if($('#briefing-freshness'))$('#briefing-freshness').textContent='Refresh failed. Showing the last loaded records.';if(!loaded)$('#content').innerHTML='<div class="empty"><h1>Your workspace could not load.</h1><p>Reconnect, then choose Refresh. Capture will be available when your saved records are ready.</p></div>';}
 }
@@ -98,7 +101,7 @@ function projectList(query='',status='open'){
 function reviewView(){
   const summary=weeklySummary(data,week),done=summary.done,remaining=summary.unfinished;
   return pageHeading('Notice. Adjust. Continue.','Close the loop.','A short review of what moved forward and what needs to change.',weekControls())+
-  `<div class="columns"><section class="panel"><div class="statline review-stats"><div><strong>${done.length}</strong><span>Completed this week</span></div><div><strong>${remaining.length}</strong><span>Unfinished through this week</span></div><div><strong>${duration(done.reduce((s,t)=>s+t.minutes,0))}</strong><span>Completed estimates</span></div></div><form id="review-form" class="review-form"><label>What worked?<textarea name="worked" maxlength="4000" placeholder="Notice the conditions that helped you follow through.">${esc(data.week?.worked||'')}</textarea></label><label>What will you change?<textarea name="change" maxlength="4000" placeholder="One adjustment worth carrying into next week.">${esc(data.week?.change||'')}</textarea></label><p class="small">Time totals use your estimates. Atlas is not measuring hours worked.</p><p id="review-error" class="form-error" role="alert"></p><button type="submit" class="primary">Save review</button></form></section><aside><section class="panel"><div class="section-heading"><h2>What moved forward</h2></div>${done.length?done.map(t=>taskRow(t)).join(''):empty('Your completed work will appear here.','Mark a commitment complete as you finish it. Each one keeps its project and app connection.')}</section><section class="panel"><h2>Projects completed</h2>${summary.projects.length?summary.projects.map(p=>`<p>${esc(p.title)}</p>`).join(''):'<p class="quiet-message">No project completion recorded this week.</p>'}<h2 class="wide-section">Next week’s deadlines</h2>${summary.deadlines.length?summary.deadlines.map(p=>`<p>${esc(p.title)} <span class="small">${formatDay(p.due_date)}</span></p>`).join(''):'<p class="quiet-message">No project deadlines recorded for next week.</p>'}</section><section class="panel"><div class="section-heading"><h2>Applied practice</h2><span>${summary.practice.length}</span></div>${data.practice?`<p class="small">${data.practice.mode==='managed'?'Synced practice. Workspace completions update this review.':'Reviewed Courier snapshot. Import again to refresh it.'} Connected or imported ${formatDay(data.practice.imported_at.slice(0,10))}.</p>`:'<p class="quiet-message">Bring in recorded Courier practice to include it in this review.</p>'}${summary.practice.slice(0,20).map(p=>`<p>${esc(p.title)}<br><span class="small">${esc(p.track)} · ${formatDay(p.completedDay)}</span></p>`).join('')}<a class="inline-link" href="#practice">Open Practice</a></section>${ledgerUI.weekly(week)}<section class="panel"><h2>Unfinished commitments</h2>${remaining.length?remaining.map(t=>taskRow(t)).join(''):'<p class="quiet-message">Nothing waiting from this or an earlier planned week.</p>'}<a class="inline-link" href="#week">Plan the next week</a></section></aside></div>`;
+  `<div class="columns review-layout"><section class="panel"><div class="statline review-stats"><div><strong>${done.length}</strong><span>Completed this week</span></div><div><strong>${remaining.length}</strong><span>Unfinished through this week</span></div><div><strong>${duration(done.reduce((s,t)=>s+t.minutes,0))}</strong><span>Completed estimates</span></div></div>${reflectionUI.form()}</section><aside>${reflectionUI.notes()}<section class="panel"><div class="section-heading"><h2>What moved forward</h2></div>${done.length?done.map(t=>taskRow(t)).join(''):empty('Your completed work will appear here.','Mark a commitment complete as you finish it. Each one keeps its project and app connection.')}</section><section class="panel"><h2>Projects completed</h2>${summary.projects.length?summary.projects.map(p=>`<p>${esc(p.title)}</p>`).join(''):'<p class="quiet-message">No project completion recorded this week.</p>'}<h2 class="wide-section">Next week’s deadlines</h2>${summary.deadlines.length?summary.deadlines.map(p=>`<p>${esc(p.title)} <span class="small">${formatDay(p.due_date)}</span></p>`).join(''):'<p class="quiet-message">No project deadlines recorded for next week.</p>'}</section><section class="panel"><div class="section-heading"><h2>Applied practice</h2><span>${summary.practice.length}</span></div>${data.practice?`<p class="small">${data.practice.mode==='managed'?'Synced practice. Workspace completions update this review.':'Reviewed Courier snapshot. Import again to refresh it.'} Connected or imported ${formatDay(data.practice.imported_at.slice(0,10))}.</p>`:'<p class="quiet-message">Bring in recorded Courier practice to include it in this review.</p>'}${summary.practice.slice(0,20).map(p=>`<p>${esc(p.title)}<br><span class="small">${esc(p.track)} · ${formatDay(p.completedDay)}</span></p>`).join('')}<a class="inline-link" href="#practice">Open Practice</a></section><section class="panel"><h2>Unfinished commitments</h2>${remaining.length?remaining.map(t=>taskRow(t)).join(''):'<p class="quiet-message">Nothing waiting from this or an earlier planned week.</p>'}<a class="inline-link" href="#week" data-next-week>Plan the next week</a></section></aside></div>`;
 }
 function practiceView(){
   const p=data.practice,managed=p?.mode==='managed',completed=new Map((p?.items||[]).map(x=>[x.id,x]));
@@ -180,22 +183,25 @@ function render(){
   document.querySelectorAll('[data-view]').forEach(a=>{if(a.dataset.view===view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   $('#date-label').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
   if(!loaded)return;
+  if(loadedWeek!==week){$('#capture').disabled=true;$('#content').innerHTML='<div class="empty"><h2>Loading the selected week.</h2><p>If this takes a moment, use Refresh to try again.</p></div>';return;}
   $('#content').innerHTML=({today:todayView,week:weekView,projects:projectsView,review:reviewView,practice:practiceView,ledger:ledgerUI.daily,apps:appsView,history:historyView}[view]||todayView)();
   $('#capture').disabled=false;
   if(view==='history')refreshHistory();
 }
-function openCapture(projectId=null,task=null){
-  if(!loaded){error('Wait for your workspace to load before capturing a commitment.');return;}
+function openCapture(projectId=null,task=null,seed=null){
+  if(!loaded||loadedWeek!==week||busy){error('Wait for your workspace to finish loading or saving before capturing a commitment.');return;}
   editing=task;draftId=task?.id||newId();
   const form=$('#task-form');form.reset();$('#task-error').textContent='';
   $('#task-dialog-title').textContent=task?'Edit commitment':'Capture a commitment';
   $('#app-select').innerHTML=APPS.filter(a=>a.group!=='Archive').map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');
   if(task?.app_id==='chambers-wealth-hq')$('#app-select').insertAdjacentHTML('beforeend','<option value="chambers-wealth-hq">Chambers Wealth HQ (legacy)</option>');
   $('#project-select').innerHTML='<option value="">No project</option>'+data.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
-  const choices=[...new Set([week,monday(today),addDays(monday(today),7),task?.week_start].filter(Boolean))].sort();
+  const choices=[...new Set([week,addDays(week,7),monday(today),addDays(monday(today),7),task?.week_start,seed?.week_start].filter(Boolean))].sort();
   $('#week-select').innerHTML='<option value="">Unscheduled</option>'+choices.map(w=>`<option value="${w}">Week of ${formatDay(w)}</option>`).join('');
-  form.elements.title.value=task?.title||'';form.elements.app_id.value=task?.app_id||'life-map';form.elements.project_id.value=task?.project_id||projectId||'';
-  form.elements.week_start.value=task?task.week_start||'':week;form.elements.due_date.value=task?.due_date||'';
+  form.elements.title.value=task?.title||seed?.title||'';form.elements.app_id.value=task?.app_id||seed?.app_id||'life-map';form.elements.project_id.value=task?.project_id||projectId||'';
+  form.elements.week_start.value=task?task.week_start||'':seed?.week_start||week;form.elements.due_date.value=task?.due_date||'';
+  $('#task-source').hidden=!seed?.source;$('#task-source-label').textContent=seed?.source?.label||'';$('#task-source-text').textContent=seed?.source?.text||'';
+  $('#task-source').open=false;
   if(task && ![15,30,60,90,120,180].includes(task.minutes))form.elements.minutes.insertAdjacentHTML('beforeend',`<option value="${task.minutes}">${duration(task.minutes)}</option>`);
   form.elements.minutes.value=String(task?.minutes||30);
   $('#task-dialog').showModal();form.elements.title.focus();
@@ -247,7 +253,7 @@ async function exportProjectUpdates(){
 }
 document.addEventListener('click',async event=>{
   if(event.target.closest('[data-export]')){await exportData();return;}
-  const close=event.target.closest('[data-close]');if(close){if(ledgerUI.saving||editionUI.saving)return;document.getElementById(close.dataset.close).close();return;}
+  const close=event.target.closest('[data-close]');if(close){if(busy||ledgerUI.saving||editionUI.saving||reflectionUI.saving)return;document.getElementById(close.dataset.close).close();return;}
   if(hasDraft()&&event.target.closest('[data-capture],#capture,[data-import],[data-project],[data-action],[data-project-action],[data-new-project],[data-practice-import],[data-practice-manage],[data-lesson-action],[data-edition-check],[data-restore]')){error('Save or discard your draft before changing other records.');return;}
   if(event.target.closest('[data-restore]')){openRestore();return;}
   if(event.target.closest('[data-new-project]')){openProjectEditor();return;}
@@ -261,6 +267,7 @@ document.addEventListener('click',async event=>{
   if(event.target.closest('[data-import]')){$('#import-dialog').showModal();return;}
   const next=event.target.closest('[data-project]');if(next){openCapture(next.dataset.project);return;}
   if(event.target.closest('[data-current-week]')){event.preventDefault();if(hasDraft())return;week=monday(today);view='week';location.hash='week';await load();return;}
+  if(event.target.closest('[data-next-week]')){event.preventDefault();if(hasDraft()){error('Save or discard your draft before planning next week.');return;}week=addDays(week,7);view='week';location.hash='week';await load();return;}
   const action=event.target.closest('[data-action]');if(action){const task=data.tasks.find(t=>t.id===action.dataset.id);if(!task)return;if(action.dataset.action==='edit')openCapture(null,task);else await mutate(task,action.dataset.action);return;}
   const shift=event.target.closest('[data-week]');if(shift){if(hasDraft()){error('Save or discard your draft before changing weeks.');return;}week=addDays(week,Number(shift.dataset.week));await load();return;}
   if(event.target.closest('#save-capacity')){
@@ -301,18 +308,16 @@ $('#practice-connect').addEventListener('click',async()=>{
 $('#task-form').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');if(button.disabled)return;button.disabled=true;$('#task-error').textContent='';
   const values=Object.fromEntries(new FormData(form));values.minutes=Number(values.minutes);values.project_id=values.project_id||null;values.week_start=values.week_start||null;values.due_date=values.due_date||null;
+  busy=true;const controls=[...form.querySelectorAll('input,select,button')];controls.forEach(x=>x.disabled=true);
   try {
     if(editing)await api('/api/tasks/'+encodeURIComponent(editing.id),'PATCH',{...values,action:'edit',revision:editing.revision});
     else await api('/api/tasks','POST',{...values,id:draftId});
     $('#task-dialog').close();await load();toast(editing?'Commitment updated.':'Commitment captured. Choose it for today when you are ready.');
-  }catch(e){$('#task-error').textContent=e.message;}finally{button.disabled=false;}
+  }catch(e){$('#task-error').textContent=e.message;}finally{busy=false;controls.forEach(x=>x.disabled=false);}
 });
-document.addEventListener('submit',async event=>{
-  if(event.target.id!=='review-form')return;event.preventDefault();const form=event.target,button=form.querySelector('button');button.disabled=true;
-  try{await saveWeek(Object.fromEntries(new FormData(form)));reviewDirty=false;await load();toast('Your weekly review is saved.');}catch(e){$('#review-error').textContent=e.message;}finally{button.disabled=false;}
-});
+$('#task-dialog').addEventListener('cancel',event=>{if(busy)event.preventDefault();});
 document.addEventListener('input',event=>{
-  if(event.target.closest('#review-form')||event.target.id==='capacity')reviewDirty=true;
+  if(event.target.id==='capacity')reviewDirty=true;
   if(['project-search','project-filter'].includes(event.target.id))$('#project-list').innerHTML=projectList($('#project-search').value,$('#project-filter').value);
 });
 $('#import-file').addEventListener('change',async event=>{
