@@ -1,4 +1,4 @@
-import { html, css, js, model } from './assets.mjs';
+import { html, css, js, theme, model } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue } from './model.mjs';
 
 const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'same-origin' };
@@ -128,7 +128,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8']};
+      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
