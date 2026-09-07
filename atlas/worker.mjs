@@ -1,5 +1,6 @@
-import { html, css, js, theme, model, ledgerModel, ledgerUI } from './assets.mjs';
-import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan } from './model.mjs';
+import { fetchEditions, editionRefreshPlan, editionSignature } from './courier-editions.mjs';
+import { html, css, js, theme, model, ledgerModel, ledgerUI, editionUI } from './assets.mjs';
+import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan, practiceEditionRefresh } from './model.mjs';
 import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
 
@@ -22,7 +23,7 @@ function practiceRow(row){
   if(!row)return null;
   const items=practiceItems(JSON.parse(row.items));
   return {items,catalog:practiceCatalog(JSON.parse(row.catalog||'[]'),items),mode:row.mode||'snapshot',revision:row.revision,
-    imported_at:row.imported_at,source_exported_at:row.source_exported_at,updated_at:row.updated_at||null};
+    imported_at:row.imported_at,source_exported_at:row.source_exported_at,updated_at:row.updated_at||null,edition_refresh:practiceEditionRefresh(row.edition_refresh?JSON.parse(row.edition_refresh):null)};
 }
 async function currentPractice(db,owner){return practiceRow(await db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner).first());}
 function ledgerRow(row){return row?ledgerRecord({...row,habits:JSON.parse(row.habits),days:JSON.parse(row.days)}):null;}
@@ -42,12 +43,14 @@ async function writeLedger(db,owner,current,next,now,source=undefined){
 async function writePractice(db,owner,current,next,now,imported=false){
   practicePayloadSize(next);
   const items=JSON.stringify(next.items),catalog=JSON.stringify(next.catalog);
+  const refresh=Object.hasOwn(next,'edition_refresh')?practiceEditionRefresh(next.edition_refresh):imported&&next.mode==='snapshot'?null:current?.edition_refresh||null;
+  const editionRefresh=refresh?JSON.stringify(refresh):null;
   if(current){
-    const result=await db.prepare('UPDATE atlas_practice_snapshots SET items=?,catalog=?,mode=?,imported_at=?,source_exported_at=?,updated_at=?,revision=revision+1 WHERE owner=? AND revision=?')
-      .bind(items,catalog,next.mode,imported?now:current.imported_at,imported?next.source_exported_at:current.source_exported_at,now,owner,current.revision).run();
+    const result=await db.prepare('UPDATE atlas_practice_snapshots SET items=?,catalog=?,mode=?,imported_at=?,source_exported_at=?,updated_at=?,edition_refresh=?,revision=revision+1 WHERE owner=? AND revision=?')
+      .bind(items,catalog,next.mode,imported?now:current.imported_at,imported?next.source_exported_at:current.source_exported_at,now,editionRefresh,owner,current.revision).run();
     if(!result.meta.changes)throw new HttpError('Practice changed on another device. Refresh and review before trying again.',409);
   }else{
-    try{await db.prepare('INSERT INTO atlas_practice_snapshots (owner,items,catalog,mode,imported_at,source_exported_at,updated_at) VALUES (?,?,?,?,?,?,?)').bind(owner,items,catalog,next.mode,now,next.source_exported_at??null,now).run();}
+    try{await db.prepare('INSERT INTO atlas_practice_snapshots (owner,items,catalog,mode,imported_at,source_exported_at,updated_at,edition_refresh) VALUES (?,?,?,?,?,?,?,?)').bind(owner,items,catalog,next.mode,now,next.source_exported_at??null,now,editionRefresh).run();}
     catch(error){if(String(error.message).includes('UNIQUE'))throw new HttpError('Practice was created on another device. Refresh before trying again.',409);throw error;}
   }
 }
@@ -183,11 +186,24 @@ async function api(request,env,url,owner) {
   }
   if(path.startsWith('/api/practice')&&['POST','PATCH','PUT'].includes(request.method)){
     const b=await bodyOf(request),current=await currentPractice(db,owner),revision=current?.revision||0;
+    if(path==='/api/practice/editions/preview'&&request.method==='POST'){
+      let published;try{published=await fetchEditions();}catch(error){throw new HttpError(error.message,502);}
+      const plan=editionRefreshPlan(current,published);
+      return json({published,digest:await digest(editionSignature(published)),revision,rows:plan.rows,added:plan.added,kept:plan.kept,retained:plan.retained,mode:plan.next.mode});
+    }
     if(path==='/api/practice/import/preview'&&request.method==='POST'){
       const pack=parsePracticeTransfer(b.pack),plan=practiceImportPlan(current,pack);
       return json({pack,digest:await digest(pack),revision,rows:plan.rows,added:plan.added,kept:plan.kept,removed:plan.removed,replaced:plan.replaced,mode:plan.next.mode});
     }
     if(!Number.isSafeInteger(b.revision)||b.revision!==revision)throw new HttpError('Practice changed on another device. Refresh and review before trying again.',409);
+    if(path==='/api/practice/editions'&&request.method==='POST'){
+      if(typeof b.digest!=='string'||!/^[a-f0-9]{64}$/.test(b.digest))throw new HttpError('Review Courier editions before saving them.');
+      let published;try{published=await fetchEditions();}catch(error){throw new HttpError(error.message,502);}
+      if(b.digest!==await digest(editionSignature(published)))throw new HttpError('Courier published a change after your review. Check for editions again before saving.',409);
+      const plan=editionRefreshPlan(current,published),savedAt=new Date().toISOString();
+      await writePractice(db,owner,current,{...plan.next,edition_refresh:published.refresh},savedAt);
+      return json({saved:true,added:plan.added,kept:plan.kept,retained:plan.retained});
+    }
     if(path==='/api/practice/import'&&request.method==='POST'){
       const pack=parsePracticeTransfer(b.pack);
       if(b.digest!==await digest(pack))throw new HttpError('The practice pack changed. Review it again.',409);
@@ -318,7 +334,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8']};
+      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});

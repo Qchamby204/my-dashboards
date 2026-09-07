@@ -20,6 +20,12 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 .daily-briefing{margin-bottom:26px}
 .practice-status{display:flex;align-items:center;gap:24px;justify-content:space-between}
 .practice-status>div{min-width:0}.practice-status button{flex:none}
+.edition-refresh{margin-top:24px}.edition-refresh p{line-height:1.6}
+.edition-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:24px 0}.edition-facts dt{font-size:.8125rem;color:var(--muted);margin-bottom:6px}.edition-facts dd{margin:0;font-size:.9375rem;overflow-wrap:anywhere}
+.edition-list{margin:20px 0}.edition-list summary,.edition-lesson summary{min-height:44px;cursor:pointer}.edition-list p{font-size:.875rem}
+.edition-lesson{padding:14px 0;border-bottom:1px solid var(--line)}.edition-lesson summary{overflow-wrap:anywhere;font-size:.9375rem}.edition-lesson summary span{display:block;margin-top:5px}.edition-lesson p{font-size:.9375rem}
+#edition-refresh-dialog{width:min(760px,calc(100vw - 32px))}#edition-refresh-dialog .import-list:empty{display:none}
+@media(max-width:720px){.edition-facts{grid-template-columns:minmax(0,1fr);gap:16px}.edition-refresh .section-heading{align-items:flex-start;flex-direction:column}.edition-refresh .section-heading button{width:100%}}
 .practice-controls{display:flex;align-items:flex-end;gap:20px;margin:24px 0}
 .practice-controls form{display:flex;align-items:flex-end;gap:12px;flex:1}
 .practice-controls label{flex:1;margin:0}.practice-controls>label{max-width:220px}
