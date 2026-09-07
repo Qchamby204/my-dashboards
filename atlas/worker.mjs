@@ -1,5 +1,5 @@
 import { fetchEditions, editionRefreshPlan, editionSignature } from './courier-editions.mjs';
-import { html, css, js, theme, model, ledgerModel, ledgerUI, editionUI } from './assets.mjs';
+import { html, css, js, theme, model, ledgerModel, ledgerUI, editionUI, reflectionUI } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan, practiceEditionRefresh } from './model.mjs';
 import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
@@ -334,7 +334,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8']};
+      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
