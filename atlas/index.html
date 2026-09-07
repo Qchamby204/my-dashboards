@@ -25,13 +25,25 @@
   <div class="sidebar-bottom"><span class="workspace-label">Private workspace</span><span id="save-state">Connecting…</span><button id="export" class="text-button">Export my Atlas data</button></div>
 </aside>
 <main id="main" tabindex="-1">
-  <header class="topbar"><span id="date-label"></span><div><button class="text-button" id="refresh">Refresh</button><button class="primary" id="capture">＋ Capture</button></div></header>
+  <header class="topbar"><span id="date-label"></span><div><button class="secondary" id="workspace-search" aria-haspopup="dialog" aria-controls="workspace-search-dialog" aria-keyshortcuts="Control+k Meta+k">Search</button><button class="text-button" id="refresh">Refresh</button><button class="primary" id="capture">＋ Capture</button></div></header>
   <div id="error" class="error" role="alert" hidden></div>
   <div id="content" aria-live="polite"><div class="loading"><span class="eyebrow">Atlas OS</span><h1>Opening your workspace.</h1><p>Your commitments will appear here.</p></div></div>
 </main>
+<dialog id="workspace-search-dialog" class="workspace-search-dialog" aria-labelledby="workspace-search-title" aria-describedby="workspace-search-description">
+  <div class="dialog-heading"><div><span class="eyebrow">Your saved work, together</span><h2 id="workspace-search-title">Search Atlas</h2></div><button type="button" class="icon-button" data-close="workspace-search-dialog" aria-label="Close workspace search">×</button></div>
+  <p id="workspace-search-description" class="small">Find records saved in your private workspace. Search text stays out of your URL and Atlas does not save a search history.</p>
+  <form id="workspace-search-form" role="search" autocomplete="off">
+    <label for="workspace-query">Find a word, phrase, or date</label><div class="workspace-search-input"><input id="workspace-query" name="query" type="search" minlength="2" maxlength="160" placeholder="A project, a lesson, a thought…" autocomplete="off" spellcheck="false" required><button id="workspace-search-submit" class="primary" type="submit">Search</button></div>
+    <div class="workspace-search-options"><label>Search in<select id="workspace-source"><option value="all">Everything</option><option value="tasks">Commitments</option><option value="projects">Life Map</option><option value="practice">Courier lessons</option><option value="ledger">Life Ledger</option><option value="communication">Speaking practice</option><option value="herald">Content plan</option><option value="weeks">Weekly reviews</option></select></label><label class="workspace-archive-option"><input type="checkbox" id="workspace-archives">Include archived records</label></div>
+  </form>
+  <p class="small" id="workspace-search-status" role="status" aria-live="polite"></p><p class="form-error" id="workspace-search-error" role="alert"></p>
+  <div id="workspace-results" class="workspace-results" aria-label="Search results"></div>
+  <p class="small">⌘K or Ctrl+K opens search. Use Tab or arrow keys to move through results. Escape closes search.</p>
+</dialog>
 <dialog id="task-dialog" aria-labelledby="task-dialog-title">
   <form id="task-form">
     <div class="dialog-heading"><div><span class="eyebrow">Make room for what matters</span><h2 id="task-dialog-title">Capture a commitment</h2></div><button type="button" class="icon-button" data-close="task-dialog" aria-label="Close capture">×</button></div>
+    <p id="task-record-status" class="small" hidden></p>
     <details id="task-source" class="task-source" hidden><summary id="task-source-label"></summary><p id="task-source-text" class="reflection-text"></p><p class="small">Use this note as a reference. Choose a concrete action below. The commitment saves your action title and app connection.</p></details>
     <label>What will you do?<input name="title" maxlength="300" required placeholder="Name the next concrete action" autocomplete="off"></label>
     <div class="form-grid"><label>Connected app<select name="app_id" id="app-select"></select></label><label>Project<select name="project_id" id="project-select"><option value="">No project</option></select></label></div>
