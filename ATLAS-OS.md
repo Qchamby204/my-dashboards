@@ -12,7 +12,7 @@ Atlas has a private, server-backed workspace for synced Life Map projects, Couri
 - Review a shared weekly agenda of explicit deadlines, content plans, and recorded activity, with source filters and direct record links.
 
 - Capture and edit a commitment with a connected app, optional project, due date, week, and time estimate.
-- Choose up to three priorities for the current local day. Complete, reopen, or archive commitments; undo completion and archiving.
+- Add a priority directly from Home with no existing task list, or choose up to three saved commitments for the current local day. Complete, reopen, or archive commitments; undo completion and archiving.
 - Plan across weeks, see earlier unfinished work, and compare estimates with a weekly time budget that retains failed-save drafts and supports explicit discard and reload.
 - Save a weekly reflection and export all new Atlas records as JSON.
 - Plan content titles, stages, and dates across devices. Review Herald imports, archive or restore items, and distinguish planned content from recorded publications in weekly review.
@@ -58,7 +58,7 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 
 ## Next implementation priorities
 
-1. Extend the shared connection model to the next specialist app after validating its source records and ownership boundaries.
+1. Remove duplicate entry between source apps and Home. Demonstrate one existing source record appearing, being selected, and updating through one shared record before expanding the suite again. Original browser data and the private workspace remain separate today; a labelled app connection is not synchronization.
 2. Validate unattended Courier publication and implement independent deadline recovery; the separate ChatGPT status check reports availability but does not repair the publisher.
 
 ## Completed: daily workflow batch
@@ -302,3 +302,14 @@ The importer reads the Operations key in an original Atlas Vault export and proj
 Migration `0008_nervous_wolfpack.sql` creates the owner-scoped routine record, adds nullable routine/occurrence fields and a unique occurrence index to commitments, and adds count-only history triggers for routines. Applied migrations 0000–0007 and their existing metadata entries are unchanged. Export format 7 includes routines and origin fields; restore rejects dangling or repeated occurrence references and supports the existing durable recovery copies. Earlier exports preserve current routines and generated commitments, including otherwise absent linked projects. Routine records are searchable with exact-record navigation.
 
 Validation: all 157 automated tests pass, including 13 new model, Worker/SQLite, migration, UI and actual-app tests. They cover leap years and month boundaries, starts, concurrent generation, stable retries, pause/resume, individual completion/skip/restore, schedule protection, owner/origin checks, stale revisions, guarded rollback, source projection and reimport, backup/recovery compatibility, frozen editors, discarded late imports, and automatic week preparation with draft protection. The production build, authenticated client module graph, server dependency staging, static markup, JavaScript syntax, CSS, and migration/original-HTML integrity checks pass. No browser, physical-device, or live personal-record QA was performed. The original apps, excluded wife dashboards, and Courier publication and notification workflows are unchanged.
+
+
+## Correction: Home coverage and priority creation
+
+User feedback identified a product failure: Home asked the user to choose a priority from a list that could be empty, and descriptions of integration implied source work flowed into the workspace when it did not. The private Home deadline summary reads saved commitments and Life Map projects, including generated recurring commitments. Original app records remain in their original browser store until an explicitly supported transfer. The weekly agenda separately reads private Herald dates. GitHub repository access does not expose the current contents of a user's browser storage.
+
+Home now puts priorities first and offers Add a priority even when no commitments exist. The editor asks for a concrete action and discloses the initial 30-minute estimate; other planning details can be expanded. A single owner-scoped insert creates the commitment and assigns an available priority slot for the selected local day. It preserves request identity on retry. Full slots, concurrent selection, and history failures leave no additional unprioritized task behind. Ordinary captures retain their existing behavior.
+
+The deadline panel is labelled Saved planning dates, includes an expandable source explanation and loaded record counts, and limits empty-date claims to the records saved here. The unused-list instruction is removed. These corrections improve entry and accuracy; they do not complete source-app synchronization or remove the remaining duplicated records between the original suite and private workspace. Courier playback and publication are unchanged.
+
+Validation: all 162 automated tests pass, including five new tests for direct priority creation and replay, owner/date/capacity boundaries, racing saves and atomic history rollback, accurate empty-Home guidance, and the actual create-priority editor flow without a second selection request. Static markup, JavaScript, CSS and production build checks pass. Applied migrations and original app HTML are unchanged. Browser and device QA was not performed.

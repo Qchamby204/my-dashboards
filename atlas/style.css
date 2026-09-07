@@ -169,3 +169,9 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 .routine-definition h3{margin:0;overflow-wrap:anywhere}
 .routine-definition details{margin-top:.6rem}
 .routine-definition summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+
+#task-details{margin-bottom:18px}#task-details>summary,.briefing-sources>summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+#task-details[open]>summary{margin-bottom:16px}.briefing-sources{margin-top:16px;font-size:.875rem;line-height:1.6}.briefing-sources li{margin-bottom:8px}
+.focus-panel>.section-heading{flex-wrap:wrap}.focus-panel>.section-heading p{margin:5px 0 0}
+
+.columns>aside .briefing-grid{grid-template-columns:minmax(0,1fr)}
