@@ -16,7 +16,9 @@ export const tasks = sqliteTable('atlas_tasks', {
   focusDate: text('focus_date'), focusSlot: integer('focus_slot'),
   status: text('status').notNull().default('open'), completedAt: text('completed_at'),
   revision: integer('revision').notNull().default(1), createdAt: text('created_at').notNull(), updatedAt: text('updated_at').notNull(),
+  routineId: text('routine_id'), occurrenceDate: text('occurrence_date'),
 }, t => [index('atlas_tasks_owner_week').on(t.owner, t.weekStart),
+  uniqueIndex('atlas_tasks_routine_occurrence').on(t.owner, t.routineId, t.occurrenceDate),
   uniqueIndex('atlas_tasks_focus_slot').on(t.owner, t.focusDate, t.focusSlot).where(sql`${t.focusDate} IS NOT NULL`)]);
 
 export const weeks = sqliteTable('atlas_weeks', {
@@ -65,6 +67,12 @@ export const restoreGuards = sqliteTable('atlas_restore_guards', {
 
 export const herald = sqliteTable('atlas_herald', {
   owner: text('owner').primaryKey(), items: text('items').notNull(),
+  revision: integer('revision').notNull().default(1), updatedAt: text('updated_at').notNull(),
+  importedAt: text('imported_at'), sourceExportedAt: text('source_exported_at'),
+});
+
+export const cadence = sqliteTable('atlas_cadence', {
+  owner: text('owner').primaryKey(), routines: text('routines').notNull(),
   revision: integer('revision').notNull().default(1), updatedAt: text('updated_at').notNull(),
   importedAt: text('imported_at'), sourceExportedAt: text('source_exported_at'),
 });
