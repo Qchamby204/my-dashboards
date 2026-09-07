@@ -1,4 +1,4 @@
-import { APPS, LEGACY_ORIGIN, localDay, monday, addDays, parseLifeMap, parsePracticeSnapshot, weeklySummary, newId } from './model.mjs';
+import { APPS, LEGACY_ORIGIN, localDay, monday, addDays, parseLifeMap, parsePracticeSnapshot, weeklySummary, dailyBriefing, newId } from './model.mjs';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const appById=id=>APPS.find(a=>a.id===id)||APPS[0];
@@ -6,6 +6,7 @@ const appURL=id=>id==='life-map'?'#projects':LEGACY_ORIGIN+appById(id).file;
 const formatDay=day=>new Date(day+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});
 const duration=m=>m<60?`${m} min`:`${Number((m/60).toFixed(1))}h`;
 let today=localDay(), week=monday(today), data={tasks:[],projects:[],week:null};
+let loadedAt=null;
 let loaded=false,view='today',editing=null,draftId=null,imports=[],undoAction=null,busy=false,reviewDirty=false,loadNumber=0;
 let historyData=null,historyRequest=0,restorePlan=null,restoreRequest=0,recoveryAction=null;
 let editingProject=null,projectDraftId=null,projectConfirmation=null,practiceImport=null,practiceRevision=0;
@@ -30,9 +31,9 @@ async function load({renderPage=true}={}) {
   try {
     const next=await api('/api/state?week='+requestedWeek);
     if(requestNumber!==loadNumber || requestedWeek!==week) return;
-    data=next;loaded=true;error('');$('#save-state').textContent='Saved across devices';
+    data=next;loaded=true;loadedAt=new Date();error('');$('#save-state').textContent='Saved across devices';
     if(renderPage) render();
-  } catch(e){error(e.message);$('#save-state').textContent='Connection needs attention';if(!loaded)$('#content').innerHTML='<div class="empty"><h1>Your workspace could not load.</h1><p>Reconnect, then choose Refresh. Capture will be available when your saved records are ready.</p></div>';}
+  } catch(e){if(requestNumber!==loadNumber||requestedWeek!==week)return;error(e.message);$('#save-state').textContent='Connection needs attention';if($('#briefing-freshness'))$('#briefing-freshness').textContent='Refresh failed. Showing the last loaded records.';if(!loaded)$('#content').innerHTML='<div class="empty"><h1>Your workspace could not load.</h1><p>Reconnect, then choose Refresh. Capture will be available when your saved records are ready.</p></div>';}
 }
 function pageHeading(label,title,description,extra=''){return `<div class="page-heading"><div><span class="eyebrow">${label}</span><h1>${title}</h1><p>${description}</p></div>${extra}</div>`;}
 function empty(title,description,button=''){return `<div class="empty"><h3>${title}</h3><p>${description}</p>${button}</div>`;}
@@ -44,12 +45,24 @@ function taskRow(t,focus=false,number=1){
   const selected=t.focus_date===today,done=t.status==='done';
   return `<article class="${focus?'focus-item':'task'}${done?' done':''}">${focus?`<span class="focus-number">0${number}</span>`:''}<button class="check" data-action="${done?'reopen':'complete'}" data-id="${esc(t.id)}" aria-label="${done?'Reopen':'Complete'} ${esc(t.title)}">${done?'✓':''}</button><div class="task-body"><div class="task-title">${esc(t.title)}</div>${meta(t)}<div class="task-actions">${!done?`<button class="text-button" data-action="focus" data-id="${esc(t.id)}">${selected?'Release priority':'Choose for today'}</button><button class="text-button" data-action="edit" data-id="${esc(t.id)}">Edit</button>${t.week_start!==week?`<button class="text-button" data-action="plan" data-id="${esc(t.id)}">Plan this week</button>`:''}<button class="text-button" data-action="archive" data-id="${esc(t.id)}">Archive</button>`:''}</div></div></article>`;
 }
+function briefingView(){
+  const b=dailyBriefing(data,today),stamp=loadedAt?.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})||'';
+  const link=item=>item.kind==='task'?`<button class="text-button" data-action="edit" data-id="${esc(item.id)}">Review commitment</button>`:'<a class="inline-link" href="#projects">Review project</a>';
+  const source=item=>`${appById(item.app_id).name} · ${item.kind==='project'?'Project':'Commitment'}`;
+  const due=item=>item.due<today?'Overdue · '+formatDay(item.due):item.due===today?'Due today':'Due '+formatDay(item.due);
+  return `<section class="panel daily-briefing" aria-labelledby="briefing-title"><div class="section-heading"><h2 id="briefing-title">Your daily briefing</h2><span>${formatDay(today)}</span></div>
+    <p class="briefing-lead">${b.priorities.length?`${b.priorities.length} ${b.priorities.length===1?'priority':'priorities'} chosen for today.`:'No priorities chosen yet.'} ${b.overdue.length?`${b.overdue.length} overdue ${b.overdue.length===1?'deadline needs':'deadlines need'} a review.`:b.dueToday.length?`${b.dueToday.length} ${b.dueToday.length===1?'deadline is':'deadlines are'} due today.`:'No open deadlines due today or earlier.'}</p>
+    <div class="briefing-grid"><div class="briefing-next"><span class="eyebrow">${b.next?'A place to begin':'Make space'}</span>${b.next?`<h3>${esc(b.next.title)}</h3><p>${esc(b.reason)}${b.next.due?' · '+esc(due(b.next)):''}</p><p class="small">${esc(source(b.next))}</p>${link(b.next)}`:'<h3>Choose one concrete action.</h3><p>Capture a commitment, then decide whether it belongs among today’s three priorities.</p><button class="secondary" data-capture>Capture a commitment</button>'}</div>
+    <div><h3>The week in view</h3><p>${b.carryover.length} unfinished ${b.carryover.length===1?'commitment':'commitments'} from earlier weeks. ${b.unplanned.length} unscheduled. ${b.completed} completed today.</p><p>${b.capacity===null?`${duration(b.plannedMinutes)} planned this week. Choose your capacity in This week.`:`${duration(b.plannedMinutes)} planned against ${duration(b.capacity)} of chosen capacity.${b.overCapacity?' That is '+duration(b.overCapacity)+' over capacity.':''}`}</p><a class="inline-link" href="#week" data-current-week>Review this week</a></div></div>
+    ${b.deadlines.length?`<details class="briefing-deadlines"><summary>${b.deadlines.length} ${b.deadlines.length===1?'deadline':'deadlines'} to review through ${formatDay(b.through)}</summary><ul>${b.deadlines.slice(0,6).map(item=>`<li><div><strong>${esc(item.title)}</strong><p>${esc(source(item))} · ${esc(due(item))}</p></div>${link(item)}</li>`).join('')}</ul>${b.deadlines.length>6?'<p class="small">Showing the first six by due date. Open projects and commitments to review the rest.</p>':''}</details>`:''}
+    <p class="small briefing-freshness" id="briefing-freshness">${$('#save-state').textContent==='Connection needs attention'?'Refresh failed. Showing the last loaded records.':`Updated ${stamp} from your saved workspace.`} Imported project dates reflect their last reviewed snapshot.</p></section>`;
+}
 function todayView(){
   const focus=open().filter(t=>t.focus_date===today).sort((a,b)=>a.focus_slot-b.focus_slot);
   const waiting=open().filter(t=>t.focus_date!==today).sort((a,b)=>(a.due_date||'9999').localeCompare(b.due_date||'9999'));
   const finished=data.tasks.filter(t=>t.status==='done'&&t.completed_at&&localDay(new Date(t.completed_at))===today);
   const overdue=open().filter(t=>t.due_date&&t.due_date<today).length;
-  return pageHeading('A deliberate day','Today, in focus.','Choose the few commitments that deserve your attention.')+
+  return pageHeading('A deliberate day','Today, in focus.','Choose the few commitments that deserve your attention.')+briefingView()+
   `<div class="columns"><div><section class="panel focus-panel"><div class="section-heading"><h2>Your three priorities</h2><span>${focus.length} of 3 chosen</span></div><div class="focus-list">${focus.map((t,i)=>taskRow(t,true,i+1)).join('')}${Array.from({length:3-focus.length},(_,i)=>`<div class="empty-slot"><b>0${focus.length+i+1}</b><span>${i===0?'Choose a commitment from the list below.':'Leave room until you know what matters.'}</span></div>`).join('')}</div><div class="statline"><div><strong>${duration(focus.reduce((s,t)=>s+t.minutes,0))}</strong><span>Priority time</span></div><div><strong>${finished.length}</strong><span>Completed today</span></div><div><strong>${overdue}</strong><span>Past due</span></div></div></section>
   <section class="panel"><div class="section-heading"><div><h2>Ready to choose</h2><p>Due commitments appear first.</p></div><button class="text-button" data-capture>＋ Add</button></div>${waiting.length?waiting.map(t=>taskRow(t)).join(''):empty('Start with one concrete action.','Capture something you want to follow through on. You can connect it to a project and an app.', '<button class="secondary" data-capture>Capture a commitment</button>')}</section>${finished.length?`<section class="panel"><div class="section-heading"><h2>Completed today</h2></div>${finished.map(t=>taskRow(t)).join('')}</section>`:''}</div>
   <aside><section class="panel"><div class="section-heading"><h2>Prepare & reflect</h2></div><a class="mini-card" href="${appURL('courier')}" target="_blank" rel="noopener"><span class="mini-icon" aria-hidden="true">▱</span><div><h3>Open your Courier briefing</h3><p>Bring one useful idea into your day.</p></div></a><a class="mini-card" href="${appURL('communication-trainer')}" target="_blank" rel="noopener"><span class="mini-icon" aria-hidden="true">◇</span><div><h3>Rehearse a conversation</h3><p>Make room for a focused practice session.</p></div></a><div class="review-prompt"><p>What would make today feel well spent?</p></div><a class="inline-link" href="#week">Shape the rest of your week</a></section>
@@ -223,6 +236,7 @@ document.addEventListener('click',async event=>{
   if(event.target.closest('[data-capture]') || event.target.closest('#capture')){openCapture();return;}
   if(event.target.closest('[data-import]')){$('#import-dialog').showModal();return;}
   const next=event.target.closest('[data-project]');if(next){openCapture(next.dataset.project);return;}
+  if(event.target.closest('[data-current-week]')){event.preventDefault();if(reviewDirty)return;week=monday(today);view='week';location.hash='week';await load();return;}
   const action=event.target.closest('[data-action]');if(action){const task=data.tasks.find(t=>t.id===action.dataset.id);if(!task)return;if(action.dataset.action==='edit')openCapture(null,task);else await mutate(task,action.dataset.action);return;}
   const shift=event.target.closest('[data-week]');if(shift){if(reviewDirty){error('Save your review before changing weeks.');return;}week=addDays(week,Number(shift.dataset.week));await load();return;}
   if(event.target.closest('#save-capacity')){
@@ -289,8 +303,10 @@ $('#export').addEventListener('click',exportData);
 window.addEventListener('hashchange',()=>{
   const next=location.hash.slice(1)||'today';
   if(reviewDirty){if(next!==view){location.hash=view;error('Save your review before leaving this page.');}return;}
-  view=['today','week','projects','review','apps','history'].includes(next)?next:'today';render();
+  view=['today','week','projects','review','apps','history'].includes(next)?next:'today';if(view==='today'&&week!==monday(today)){week=monday(today);load();}else render();
 });
 window.addEventListener('beforeunload',event=>{if(reviewDirty || ($('#task-dialog').open && $('#task-form').elements.title.value.trim()) || ($('#project-dialog').open && $('#project-form').elements.title.value.trim())){event.preventDefault();event.returnValue='';}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!reviewDirty&&!document.querySelector('dialog[open]')){const next=localDay();if(next!==today){today=next;week=monday(today);}load();}});
 $('#capture').disabled=true;view=['today','week','projects','review','apps','history'].includes(location.hash.slice(1))?location.hash.slice(1):'today';render();load();
+
+setInterval(()=>{if(document.visibilityState==='visible'&&localDay()!==today&&!reviewDirty&&!document.querySelector('dialog[open]')){today=localDay();week=monday(today);load();}},30000);

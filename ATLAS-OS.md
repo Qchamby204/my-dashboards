@@ -42,8 +42,8 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 
 ## Next implementation priorities
 
-1. Add a grounded daily briefing using saved deadlines, unfinished commitments, and weekly priorities.
-2. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
+1. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
+2. Add integration freshness and conflict review as each source gains authenticated synchronization.
 
 ## Completed: daily workflow batch
 
@@ -91,3 +91,17 @@ Browser QA now confirms the Capture compatibility fix on a fresh build: a commit
 The responsive check found clipped statistic labels at 320px. Today and weekly review statistics now use one row per card below 421px, with wrapping values and labels. A fresh build verified the correction at 320px in light mode and 390px in dark mode. All 48 automated tests pass. The browser checks use real iframe widths inside the isolated preview, not physical devices, touch keyboards, or production authentication.
 
 The development adapter exposes an optional responsive QA frame at `/?viewport=390` and `/?viewport=320`, linked from the desktop preview. Both sizes use the same built Worker and synthetic in-memory workspace. These controls are excluded from the production archive. Build before starting the supervised preview; restart it after rebuilding.
+
+## Completed: Courier playback and grounded daily briefing
+
+Courier now keeps Play and Next in an explicit transport group, with separate areas for section title, seek control, timing, and continuation. At narrow widths those areas stack without implicit grid placement. Play and pause use consistent SVG controls with accessible names. The shared light/dark materials remain in use.
+
+Starting any audio section enables continuous listening by default. The optional “Continue to next section” checkbox pauses that behavior. Next and automatic progression skip text-only sections and stop after the last audio section. Play all starts the first playable section from the beginning. Automatically advanced sections start at zero; a directly selected section can resume its saved position. Position saves also run on pause, seek, section/day changes, and page hide. Pending metadata listeners are cancelled when sections change so an earlier section cannot seek a later one.
+
+The section clock shows actual media elapsed time and duration. The time left accounts for the selected playback speed. The edition countdown excludes text-only sections and updates during playback. Unloaded audio lengths still come from the publication's word-based estimates, labelled “About”; measured lengths replace them after metadata loads. Playback failures leave an explicit Play/Next recovery message. The browser can reject a playback request, so uninterrupted background or locked-screen playback is not guaranteed. These behaviors follow the [media play promise](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play), [current time](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/currentTime), and [duration](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/duration) contracts.
+
+The private Today view includes a read-only daily briefing from saved workspace records. It keeps the first explicitly chosen priority first, then overdue work, work due today, earlier-week carryover, this week's commitments, upcoming deadlines, and unscheduled commitments. Deadlines include open commitments connected to any registered Atlas app and active Life Map projects. Completed/archived records are excluded from the deadline list. Weekly capacity uses the current calendar week, including an explicit zero. Review links return to the existing project and commitment controls; suggestions never alter priorities or schedules. Failed refreshes identify the older loaded records, and the date rolls forward while an idle, visible workspace remains open.
+
+Atlas Home adds a matching briefing from its existing browser-local Life Map and Courier records. Missing or unreadable records are shown as unavailable, and unpublished/unloaded practice is not suggested. No private workspace records are fetched into the public Home page. Imported project data is labelled as a reviewed snapshot. No model calls, account connections, new schema, or external actions were added in this batch.
+
+Validation: 58 automated tests pass. Six new tests exercise the actual Courier script with a simulated media element, covering progression, text-only skipping, stop behavior, live clocks, speed/seek changes, resume races, rejected play requests, and day reset. Four new briefing tests cover priority order, source filtering, date boundaries, capacity, and unavailable local records. The built Worker, markup, local assets, and scripts also pass their checks. This batch has not been visually exercised in a browser or played on a physical iPhone; earlier browser evidence above applies to the earlier build only.
