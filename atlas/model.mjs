@@ -98,3 +98,27 @@ export function weeklySummary(data,week) {
   const practice=(data.practice?.items||[]).filter(p=>inWeek(p.completedDay));
   return {done,unfinished,deadlines,projects,practice};
 }
+
+// Read-only briefing: priorities are explicit choices; dates never imply completion.
+export function dailyBriefing(data,today=localDay()) {
+  if(!validDate(today))throw new Error('Choose a valid briefing date.');
+  const start=monday(today),through=addDays(today,7),tasks=data.tasks||[],projects=data.projects||[];
+  const active=tasks.filter(t=>t.status==='open');
+  const sortDue=(a,b)=>(a.due||'9999').localeCompare(b.due||'9999')||String(a.id).localeCompare(String(b.id));
+  const taskItem=t=>({kind:'task',id:t.id,title:t.title,app_id:t.app_id,due:t.due_date,minutes:t.minutes,project_id:t.project_id});
+  const priorities=active.filter(t=>t.focus_date===today).sort((a,b)=>a.focus_slot-b.focus_slot).map(taskItem);
+  const deadlines=[...active.filter(t=>validDate(t.due_date)).map(taskItem),
+    ...projects.filter(p=>!p.archived_at&&p.status==='open'&&validDate(p.due_date)).map(p=>({kind:'project',id:p.id,title:p.title,app_id:'life-map',due:p.due_date,mode:p.mode}))]
+    .filter(item=>item.due<=through).sort(sortDue);
+  const overdue=deadlines.filter(x=>x.due<today),dueToday=deadlines.filter(x=>x.due===today),upcoming=deadlines.filter(x=>x.due>today);
+  const carryover=active.filter(t=>validDate(t.week_start)&&t.week_start<start).map(taskItem).sort(sortDue);
+  const thisWeek=active.filter(t=>t.week_start===start).map(taskItem).sort(sortDue);
+  const unplanned=active.filter(t=>!t.week_start).map(taskItem).sort(sortDue);
+  const next=priorities[0]||overdue[0]||dueToday[0]||carryover[0]||thisWeek[0]||upcoming[0]||unplanned[0]||null;
+  const reason=priorities.length?'Your first chosen priority':overdue.length?'An overdue deadline':dueToday.length?'Due today':carryover.length?'Unfinished from an earlier week':thisWeek.length?'Planned for this week':upcoming.length?'An upcoming deadline':unplanned.length?'An unscheduled commitment':null;
+  const plannedMinutes=tasks.filter(t=>t.status!=='archived'&&t.week_start===start).reduce((sum,t)=>sum+t.minutes,0);
+  const capacity=data.week?.week_start===start?data.week.capacity:null;
+  const completed=tasks.filter(t=>t.status==='done'&&t.completed_at&&localDay(new Date(t.completed_at))===today).length;
+  return {today,start,through,priorities,deadlines,overdue,dueToday,upcoming,carryover,unplanned,next,reason,plannedMinutes,capacity,
+    overCapacity:capacity===null?null:Math.max(0,plannedMinutes-capacity),completed};
+}

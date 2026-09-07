@@ -102,3 +102,13 @@ export function dailySummary(storage, manifest, now = new Date()) {
   const activity = [...groups.values()].sort((a, b) => b.day.localeCompare(a.day) || a.app.localeCompare(b.app));
   return { today, soon, due, pending, practiceCount: completed.filter(c => inWeek(c.completedDay)).length, activity, issues: [...new Set(issues)], mapPresent: map !== null, prospecting: prospectingSummary(hqPresent ? current || {} : null, legacy, now) };
 }
+
+export function localBriefing(summary,lessonsReady=true) {
+  const mapReadable=summary.mapPresent&&!summary.issues.includes('Life Map');
+  const overdue=mapReadable?summary.due.filter(p=>p.due<summary.today).length:null;
+  const dueToday=mapReadable?summary.due.filter(p=>p.due===summary.today).length:null;
+  const deadline=mapReadable?summary.due[0]:null;
+  const lesson=lessonsReady&&!summary.issues.includes('Courier practice')?summary.pending[0]:null;
+  return {overdue,dueToday,next:deadline?{title:deadline.title,source:'Life Map',reason:deadline.reason,href:'life-map.html'}:
+    lesson?{title:lesson.title,source:'Courier',reason:'Uncompleted practice · Edition '+lesson.day,href:'courier.html?day='+encodeURIComponent(lesson.day)+'#courier-practice'}:null};
+}

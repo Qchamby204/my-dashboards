@@ -1,4 +1,4 @@
-import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary } from './atlas-workflow-core.mjs';
+import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary, localBriefing } from './atlas-workflow-core.mjs';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const prettyDay = day => validDay(day) ? new Date(day + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
@@ -49,9 +49,12 @@ function mountHome() {
   const host = document.getElementById('atlas-daily-root'); if (!host) return;
   let summary;
   try { summary = dailySummary(localStorage, manifest); } catch { host.innerHTML = '<p role="alert">This browser cannot read your daily records. Open each app to check its saved work.</p>'; return; }
+  const brief=localBriefing(summary,manifestState==='ready');
   const upcoming = summary.due.slice(0, 4), recent = summary.activity.slice(0, 5), next = summary.pending[0];
   host.className = 'workflow daily-view';
   host.innerHTML = '<div class="workflow-heading"><div><span class="eyebrow">Daily preparation</span><h2>' + esc(new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })) + '</h2></div><button type="button" class="btn line" id="daily-refresh" aria-label="Refresh daily preparation">Refresh</button></div>' +
+    '<div class="home-briefing"><span class="eyebrow">Today’s briefing</span><p>' + (brief.overdue===null ? 'Life Map deadlines are unavailable in this browser.' : brief.overdue ? brief.overdue + ' overdue project ' + (brief.overdue===1?'deadline needs':'deadlines need') + ' a review.' : brief.dueToday ? brief.dueToday + ' project ' + (brief.dueToday===1?'deadline is':'deadlines are') + ' due today.' : 'No open project deadlines due today or earlier.') + '</p>' +
+    (brief.next?'<p><strong>'+esc(brief.next.title)+'</strong><span class="workflow-meta">'+esc(brief.next.source)+' · '+esc(brief.next.reason)+'</span></p><a class="btn line workflow-link" href="'+brief.next.href+'">Review in '+esc(brief.next.source)+'</a>':'<p class="workflow-meta">Choose a project in Life Map or open Courier for available practice.</p>') + '</div>' +
     '<div class="daily-grid"><section><div class="workflow-section-heading"><h3>Life Map deadlines</h3><a href="life-map.html">Open Life Map</a></div>' +
     (upcoming.length ? '<ul class="workflow-list">' + upcoming.map(item => '<li><span><strong>' + esc(item.title) + '</strong><span class="workflow-meta">' + esc(item.area) + '</span></span><span class="workflow-due ' + (item.due <= summary.today ? 'workflow-attention' : '') + '">' + esc(item.reason) + '</span></li>').join('') + '</ul>' + (summary.due.length > 4 ? '<p class="workflow-meta">' + (summary.due.length - 4) + ' more deadlines in Life Map.</p>' : '') : '<p class="workflow-empty">' + (summary.issues.includes('Life Map') ? 'Life Map records could not be read.' : summary.mapPresent ? 'No open deadlines through ' + esc(prettyDay(summary.soon)) + '.' : 'Open Life Map to create or restore projects in this browser.') + '</p>') +
     '</section><section><div class="workflow-section-heading"><h3>Next practice</h3><a href="courier.html">Open Courier</a></div>' +

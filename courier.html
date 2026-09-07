@@ -211,6 +211,7 @@
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-workflow.css">
+<link rel="stylesheet" href="shared/courier-player.css">
 </head>
 <body>
 <header>
@@ -246,15 +247,22 @@
     </footer>
   </div>
 </main>
-<div id="player">
+<div id="player" role="region" aria-label="Courier audio player">
   <div class="pwrap">
-    <button class="play" id="pToggle">▶</button>
-    <div>
-      <div class="pnow" id="pNow"></div>
-      <input type="range" id="pSeek" min="0" max="1000" value="0">
+    <div class="ptransport">
+      <button class="play" id="pToggle" type="button" aria-label="Play section">▶</button>
+      <button class="ghost" id="pNext" type="button" aria-label="Next audio section">Next <span aria-hidden="true">›</span></button>
     </div>
-    <span class="ptime mono" id="pTime">0:00 / 0:00</span>
-    <button class="ghost" id="pNext">Next ›</button>
+    <div class="ptrack">
+      <div class="pnow" id="pNow"></div>
+      <input type="range" id="pSeek" min="0" max="1000" value="0" aria-label="Seek within section" disabled>
+      <div class="ptime"><span id="pTime">0:00 elapsed</span><span id="pRemaining">Loading duration…</span></div>
+    </div>
+    <div class="poptions">
+      <label><input type="checkbox" id="pContinue" checked> Continue to next section</label>
+      <span class="ptime" id="pQueueTime"></span>
+    </div>
+    <p id="pStatus" role="status" aria-live="polite"></p>
   </div>
 </div>
 <audio id="audio" preload="none"></audio>
@@ -295,7 +303,7 @@ function loadState() {
 
 let state = loadState();
 let manifest = null;           // fetched, never stored
-let ui = { day: null, current: null, queue: false }; // transient
+let ui = { day: null, current: null, queue: true }; // transient
 window.getCourierContext = () => ({ day: day(), manifest });
 
 function setState(patch) { state = { ...state, ...patch }; store.set('state', state); store.set('schema-version', SCHEMA_VERSION); render(); }
@@ -325,7 +333,9 @@ function importState(file) {
 // ---------- helpers ----------
 const $ = id => document.getElementById(id);
 const fmt = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00';
-const hm = m => `${Math.floor(m / 60)}:${String(Math.round(m % 60)).padStart(2, '0')}`;
+const hm = m => { const n=Math.max(0,Math.round(Number(m)||0)); return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`; };
+const escapeText = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const playIcon = paused => paused ? '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>' : '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor"/></svg>';
 const posKey = (date, id) => `${date}/${id}`;
 function notice(msg) { $('notices').innerHTML = `<div class="notice">${msg}</div>`; }
 function day() { return manifest && manifest.days.find(d => d.date === ui.day); }
@@ -348,7 +358,7 @@ function schedule(blocks) {
 // ---------- rendering ----------
 function render() {
   $('rate').value = String(state.rate);
-  $('audio').playbackRate = state.rate;
+  if ($('audio').playbackRate !== state.rate) $('audio').playbackRate = state.rate;
   const d = day();
   if (!d) return;
   $('stamp').textContent = `generated ${d.generatedAt.replace('T', ' ').slice(0, 16)} UTC`;
@@ -365,7 +375,7 @@ function render() {
     const mute = b.audio ? '' : 'mute';
     return `<section class="block ${done ? 'done' : ''} ${open} ${active} ${mute}" data-id="${b.id}">
       <div class="head" data-act="toggle">
-        <div class="seat"><button class="play" data-act="play" title="${b.audio ? 'Play' : 'No audio for this block today'}">${ui.current === b.id && !$('audio').paused ? '❚❚' : '▶'}</button></div>
+        <div class="seat"><button class="play" data-act="play" aria-label="${b.audio ? (ui.current === b.id && !$('audio').paused ? 'Pause ' : 'Play ') + escapeText(b.label) : 'Read ' + escapeText(b.label) + ' (text only)'}">${playIcon(ui.current !== b.id || $('audio').paused)}</button></div>
         <div>
           <div class="eyebrow">
             <span class="n">${String(i + 1).padStart(2, '0')}</span>
@@ -398,6 +408,7 @@ function render() {
   }).join('');
 
   renderRail(d, plan, listened);
+  updatePlayback();
   if (window.AtlasPractice) window.AtlasPractice.mount({ day: d, manifest });
 }
 
@@ -425,10 +436,8 @@ function renderRail(d, plan, listened) {
     return `<li class="rung ${cls}" data-id="${b.id}" style="--m:${s.mins || 1}" title="${b.label} · ${s.mins} min"></li>`;
   }).join('');
 
-  const cur = ui.current ? d.blocks.find(b => b.id === ui.current) : null;
-  $('railNow').innerHTML = cur
-    ? `Now playing<b>${cur.label}</b>${hm(plan.total - plan.by[cur.id].startsAt)} left from here`
-    : `${d.blocks.length} blocks<span class="idle">Not started</span>`;
+  if (!ui.current) $('railNow').innerHTML = `${d.blocks.length} sections<span class="idle">Not started</span>`;
+
 }
 
 function renderDays() {
@@ -437,58 +446,117 @@ function renderDays() {
 }
 
 // ---------- playback ----------
-function play(id) {
-  const d = day(); const b = d.blocks.find(x => x.id === id);
-  const a = $('audio');
-  if (!b.audio) {                       // published as text only (voice failed that morning)
-    ui.open = id; render();
-    if (ui.queue) { ui.current = id; next(); }
-    return;
+// One audio element keeps user-initiated playback across section changes.
+let sourceEpoch = 0, resumeListener = null, lastSave = 0;
+const measuredDurations = new Map();
+const durationKey = (d,b) => `${d.date}/${b.id}/${b.audio}`;
+function currentBlock() { return day()?.blocks.find(b => b.id === ui.current); }
+function nextAudio() {
+  const d=day(); if(!d)return null;
+  const index=d.blocks.findIndex(b=>b.id===ui.current);
+  return d.blocks.slice(index+1).find(b=>b.audio)||null;
+}
+function savePosition() {
+  const a=$('audio'),d=day();
+  if(!d||!ui.current||a.ended||!Number.isFinite(a.currentTime)||!Number.isFinite(a.duration)||a.duration<=0)return;
+  state.positions[posKey(d.date,ui.current)]=a.currentTime;
+  store.set('state',state);
+}
+function clearResume() {
+  if(resumeListener)$('audio').removeEventListener('loadedmetadata',resumeListener);
+  resumeListener=null;
+}
+function playbackMessage(message) { $('pStatus').textContent=message; }
+function requestPlay() {
+  const a=$('audio'),ticket=sourceEpoch;
+  playbackMessage('');
+  // A denied request leaves a clear manual resume action, including on mobile.
+  return Promise.resolve(a.play()).catch(error=>{
+    if(ticket!==sourceEpoch||error?.name==='AbortError')return;
+    playbackMessage(error?.name==='NotAllowedError' ? 'Tap Play to continue listening.' : 'This audio could not play. Try Play again, or choose Next.');
+    updatePlayback();
+  });
+}
+function play(id,{resume=true,restart=false}={}) {
+  const d=day(),b=d?.blocks.find(x=>x.id===id),a=$('audio');
+  if(!b)return;
+  if(!b.audio){ui.open=id;render();return;}
+  if(ui.current===id&&!restart){
+    if(a.paused||a.ended)requestPlay();else{a.pause();savePosition();}
+    updatePlayback();return;
   }
-  if (ui.current === id) { a.paused ? a.play() : a.pause(); render(); return; }
-  ui.current = id; ui.open = id;
-  a.src = b.audio;
-  a.playbackRate = state.rate;
-  const pos = state.positions[posKey(d.date, id)] || 0;
-  a.addEventListener('loadedmetadata', () => { if (pos > 5 && pos < a.duration - 10) a.currentTime = pos; }, { once: true });
-  a.play().catch(() => notice('Could not play this block. The audio may not be published yet for this day.'));
+  savePosition();clearResume();sourceEpoch++;
+  ui.current=id;ui.open=id;
+  const ticket=sourceEpoch,pos=resume?Number(state.positions[posKey(d.date,id)])||0:0;
+  a.src=b.audio;a.playbackRate=state.rate;
+  resumeListener=()=>{
+    if(ticket!==sourceEpoch)return;
+    clearResume();
+    if(Number.isFinite(a.duration)&&a.duration>0){
+      measuredDurations.set(durationKey(d,b),a.duration);
+      if(pos>0&&pos<a.duration-2)a.currentTime=pos;
+    }
+    updatePlayback();
+  };
+  a.addEventListener('loadedmetadata',resumeListener);
   $('player').classList.add('on');
-  $('pNow').textContent = `${b.label}: ${b.title}`;
-  render();
+  $('pNow').textContent=`${b.label}: ${b.title}`;
+  requestPlay();render();
 }
-
 function next() {
-  const d = day(); const i = d.blocks.findIndex(b => b.id === ui.current);
-  if (i >= 0 && i < d.blocks.length - 1) play(d.blocks[i + 1].id); else { $('audio').pause(); ui.queue = false; render(); }
+  const b=nextAudio();
+  if(b)play(b.id,{resume:false});
+  else{$('audio').pause();updatePlayback();}
 }
-
-let lastSave = 0;
+function playbackTiming() {
+  const d=day(),b=currentBlock(),a=$('audio');if(!d||!b)return null;
+  const duration=Number.isFinite(a.duration)&&a.duration>0?a.duration:null;
+  if(duration)measuredDurations.set(durationKey(d,b),duration);
+  const elapsed=Math.max(0,Math.min(Number(a.currentTime)||0,duration??Infinity));
+  const rate=Number(a.playbackRate)>0?Number(a.playbackRate):1;
+  const later=d.blocks.slice(d.blocks.findIndex(x=>x.id===b.id)+1).filter(x=>x.audio);
+  const lengths=[b,...later].map(x=>measuredDurations.get(durationKey(d,x))??null);
+  const estimated=lengths.some(x=>x===null);
+  const total=[b,...later].reduce((sum,x,i)=>sum+(lengths[i]??Math.max(0,Number(x.minutes)||0)*60),0);
+  return {elapsed,duration,rate,remaining:duration===null?null:Math.max(0,duration-elapsed)/rate,
+    queueRemaining:Math.max(0,total-elapsed)/rate,estimated};
+}
+function updatePlayback() {
+  const a=$('audio'),d=day(),b=currentBlock(),t=playbackTiming();if(!t)return;
+  const paused=a.paused||a.ended;
+  $('pToggle').innerHTML=playIcon(paused);
+  $('pToggle').setAttribute('aria-label',paused?'Play section':'Pause section');
+  $('pNext').disabled=!nextAudio();
+  $('pContinue').checked=ui.queue;
+  $('pTime').textContent=`${fmt(t.elapsed)} elapsed${t.duration===null?'':` / ${fmt(t.duration)}`}`;
+  $('pRemaining').textContent=t.remaining===null?'Loading duration…':`${fmt(t.remaining)} left${t.rate===1?'':` at ${t.rate}×`}`;
+  $('pSeek').disabled=t.duration===null;
+  $('pSeek').value=t.duration===null?0:Math.round(t.elapsed/t.duration*1000);
+  $('pSeek').setAttribute('aria-valuetext',`${fmt(t.elapsed)} of ${t.duration===null?'unknown duration':fmt(t.duration)}`);
+  $('pQueueTime').textContent=`${t.estimated?'About ':''}${fmt(t.queueRemaining)} left in edition${t.rate===1?'':` at ${t.rate}×`}`;
+  $('railTotal').textContent=`${t.estimated?'≈ ':''}${fmt(t.queueRemaining)}`;
+  $('railCap').textContent='Audio left in edition';
+  $('railNow').innerHTML=`${a.ended?'Finished':paused?'Paused':'Now playing'}<b>${escapeText(b.label)}</b>${t.duration===null?'Loading section time':`${fmt(t.elapsed)} played · ${fmt(t.remaining)} left`}`;
+}
 function onTick() {
-  const a = $('audio'); const d = day(); if (!d || !ui.current) return;
-  $('pTime').textContent = `${fmt(a.currentTime)} / ${fmt(a.duration)}`;
-  $('pSeek').value = a.duration ? Math.round(a.currentTime / a.duration * 1000) : 0;
-  $('pToggle').textContent = a.paused ? '▶' : '❚❚';
-  if (Date.now() - lastSave > 5000) {
-    lastSave = Date.now();
-    state.positions[posKey(d.date, ui.current)] = a.currentTime;
-    store.set('state', state);
-  }
+  updatePlayback();
+  if(Date.now()-lastSave>5000){lastSave=Date.now();savePosition();}
 }
-
 function onEnded() {
-  const d = day();
-  if (!$('audio').ended || !d || !ui.current || !d.blocks.some(b => b.id === ui.current)) return;
-  const listened = { ...state.listened, [d.date]: Array.from(new Set([...(state.listened[d.date] || []), ui.current])) };
-  const positions = { ...state.positions }; delete positions[posKey(d.date, ui.current)];
-  setState({ listened, positions });
-  if (ui.queue) next();
+  const a=$('audio'),d=day();
+  if(!a.ended||!d||!currentBlock())return;
+  const listened={...state.listened,[d.date]:Array.from(new Set([...(state.listened[d.date]||[]),ui.current]))};
+  const positions={...state.positions};delete positions[posKey(d.date,ui.current)];
+  setState({listened,positions});
+  if(ui.queue&&nextAudio())next();
+  else{updatePlayback();playbackMessage(nextAudio()?'Section finished. Choose Next when you are ready.':'End of this edition’s audio.');}
 }
 
 // ---------- event wiring ----------
 function wireEvents() {
   $('blocks').addEventListener('click', e => {
     const sec = e.target.closest('.block'); if (!sec) return;
-    const id = sec.dataset.id; const act = e.target.dataset.act; const pane = e.target.dataset.pane;
+    const id = sec.dataset.id; const act = e.target.closest('[data-act]')?.dataset.act; const pane = e.target.closest('[data-pane]')?.dataset.pane;
     if (act === 'play') { e.stopPropagation(); play(id); return; }
     if (act === 'copy') {
       const b = day().blocks.find(x => x.id === id);
@@ -507,18 +575,24 @@ function wireEvents() {
     if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
   $('day').addEventListener('change', e => {
-    const a = $('audio'); a.pause(); a.removeAttribute('src'); a.load();
-    ui.current = null; ui.queue = false; ui.day = e.target.value; ui.open = null;
+    const a = $('audio'); savePosition();clearResume();sourceEpoch++;a.pause();ui.current=null;a.removeAttribute('src');a.load();
+    playbackMessage('');ui.current = null; ui.day = e.target.value; ui.open = null;
     $('player').classList.remove('on'); render();
   });
   $('rate').addEventListener('change', e => setState({ rate: Number(e.target.value) }));
-  $('playAll').addEventListener('click', () => { ui.queue = true; play(day().blocks[0].id); });
-  $('pToggle').addEventListener('click', () => { const a = $('audio'); a.paused ? a.play() : a.pause(); render(); });
+  $('playAll').addEventListener('click', () => { const first=day()?.blocks.find(b=>b.audio);if(!first){notice('This edition has no audio. Open a section to read it.');return;}ui.queue=true;play(first.id,{resume:false,restart:true}); });
+  $('pToggle').addEventListener('click', () => { if(ui.current)play(ui.current); });
+  $('pContinue').addEventListener('change',e=>{ui.queue=e.target.checked;});
   $('pNext').addEventListener('click', next);
-  $('pSeek').addEventListener('input', e => { const a = $('audio'); if (a.duration) a.currentTime = e.target.value / 1000 * a.duration; });
+  $('pSeek').addEventListener('input', e => { const a = $('audio'); if (Number.isFinite(a.duration)&&a.duration>0){a.currentTime=e.target.value/1000*a.duration;updatePlayback();savePosition();} });
   const a = $('audio');
   a.addEventListener('timeupdate', onTick); a.addEventListener('ended', onEnded);
-  a.addEventListener('play', render); a.addEventListener('pause', render);
+  a.addEventListener('play',()=>{playbackMessage('');render();});
+  a.addEventListener('pause',()=>{savePosition();render();});
+  a.addEventListener('durationchange',updatePlayback);a.addEventListener('ratechange',updatePlayback);a.addEventListener('seeked',onTick);
+  a.addEventListener('error',()=>{if(ui.current){playbackMessage('This audio is unavailable. Try Play again, or choose Next.');updatePlayback();}});
+  window.addEventListener('pagehide',savePosition);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)savePosition();});
   $('export').addEventListener('click', exportState);
   $('importBtn').addEventListener('click', () => $('importFile').click());
   $('importFile').addEventListener('change', e => { if (e.target.files[0]) importState(e.target.files[0]); e.target.value = ''; });
