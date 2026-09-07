@@ -205,14 +205,14 @@ function render(){
   var st=stats0();
   var h='';
   h+='<div class="appbar"><div style="min-width:0">';
-  h+='<div class="appbar-title">The Atlas</div><div class="appbar-sub">Everything is connected</div></div>';
+  h+='<div class="appbar-title">The Atlas</div><div class="appbar-sub">Your app library</div></div>';
   var lg=readLedger();
   h+='<div class="appbar-pill">'+esc(lg.v)+'</div></div>';
 
-  h+='<a href="https://atlas-os-quinton.qchambers123018.chatgpt.site" target="_blank" rel="noopener" class="tool" style="margin-bottom:16px;border-color:rgba(240,183,62,.5)"><div style="flex:1"><div style="font-size:16px;color:var(--gold);font-weight:600">Open Atlas OS</div><div style="font-size:14px;color:var(--muted);margin-top:5px">Your priorities, commitments, and weekly review.</div></div><span class="chev" aria-hidden="true">&#8599;</span></a>';
+  h+='<a href="https://atlas-os-quinton.qchambers123018.chatgpt.site" target="_blank" rel="noopener" class="tool" style="margin-bottom:16px;border-color:rgba(240,183,62,.5)"><div style="flex:1"><div style="font-size:16px;color:var(--gold);font-weight:600">Open Atlas OS</div><div style="font-size:14px;color:var(--muted);margin-top:5px">Your day, with shared Life Map projects and Herald content.</div></div><span class="chev" aria-hidden="true">&#8599;</span></a>';
 
   h+=backupBanner(st);
-  h+='<section id="atlas-daily-root" aria-label="Daily preparation"></section>';
+  h+='<details style="margin:16px 0"><summary>Original browser activity</summary><p style="font-size:14px;color:var(--muted)">These older browser records stay separate. Open Atlas OS above for your connected projects and content.</p><section id="atlas-daily-root" aria-label="Original browser activity"></section></details>';
 
   TOOLS.forEach(function(grp){
     h+='<div class="eyebrow" style="margin:18px 2px 9px">'+esc(grp.g)+'</div>';
@@ -220,7 +220,10 @@ function render(){
     grp.items.forEach(function(t){
       var st={v:"\u2014",s:"",c:"var(--dim)"};
       try{ st=t.r()||st; }catch(e){}
-      h+='<a class="tool" href="'+t.f+'">';
+      var connected=t.f==='life-map.html'?'life-map':t.f==='the-herald.html'?'herald':null;
+      if(connected)st={v:'Shared',s:'Open in Atlas',c:'var(--gold)'};
+      var href=connected?'https://atlas-os-quinton.qchambers123018.chatgpt.site/apps/'+connected:t.f;
+      h+='<a class="tool" href="'+href+'">';
       h+='<div class="ic" style="background:radial-gradient(circle at 30% 25%,'+t.c+'33,transparent 72%);border:1px solid '+t.c+'55;color:'+t.c+'">'+t.i+'</div>';
       h+='<div style="flex:1;min-width:0">';
       h+='<div style="font-size:14px;font-weight:600;color:var(--txt);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(t.n)+'</div>';
@@ -237,7 +240,7 @@ function render(){
 
   h+=vaultPanel();
 
-  h+='<div class="mono" style="text-align:center;margin-top:16px;font-size:10px;color:#4e5573">Quinton Chambers \u00b7 Everything is connected. So the advice has to be too.</div>';
+  h+='<div class="mono" style="text-align:center;margin-top:16px;font-size:10px;color:#4e5573">Quinton Chambers \u00b7 Original app library and backups.</div>';
 
   document.getElementById("app").innerHTML=h;
   if(window.AtlasVaultUI) window.AtlasVaultUI.mount();
