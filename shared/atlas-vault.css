@@ -1,0 +1,37 @@
+.atlas-neumo .vault { margin-top: 28px; }
+.atlas-neumo .vault :is(p,label,button,summary,td,th) { font-size: 14px; line-height: 1.6; }
+.atlas-neumo .vault p { margin: 12px 0; color: var(--neo-muted); font-size: 1rem; }
+.atlas-neumo .vault h2 { font-size: 23px; font-weight: 600; margin: 6px 0 0; line-height: 1.25; }
+.atlas-neumo .vault h3 { font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+.atlas-neumo .vault-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.atlas-neumo .vault-count { color: var(--neo-muted); font-size: 14px; white-space: nowrap; }
+.atlas-neumo .vault-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+.atlas-neumo .vault-chips span { font-size: 12px; color: var(--neo-muted); padding: 6px 10px; border: 1px solid var(--neo-line); border-radius: 9px; background: var(--neo-inset); box-shadow: var(--neo-well); }
+.atlas-neumo .vault-actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.atlas-neumo .vault-actions button { padding: 11px 16px; flex: 1 1 150px; cursor: pointer; }
+.atlas-neumo .vault-import { margin-top: 22px; border-top: 1px solid var(--neo-line); padding-top: 20px; }
+.atlas-neumo .vault-file-label { display: grid; gap: 10px; }
+.atlas-neumo .vault input[type="file"] { width: 100%; min-width: 0; }
+.atlas-neumo .vault details { margin-top: 16px; }
+.atlas-neumo .vault summary { cursor: pointer; padding: 10px 0; color: var(--neo-accent); }
+.atlas-neumo .vault details label { display: block; margin: 12px 0 8px; color: var(--neo-muted); }
+.atlas-neumo .vault textarea { width: 100%; resize: vertical; min-height: 90px; margin-bottom: 12px; }
+.atlas-neumo .vault :is(.vault-review,.vault-recovery) { margin-top: 24px; padding: 20px; border: 1px solid var(--neo-line); border-radius: 18px; background: var(--neo-inset); box-shadow: var(--neo-well); }
+.atlas-neumo .vault .vault-table-wrap { overflow-x: auto; margin: 16px 0; }
+.atlas-neumo .vault table { width: 100%; border-collapse: collapse; }
+.atlas-neumo .vault :is(th,td) { padding: 11px 7px; border-bottom: 1px solid var(--neo-line); text-align: center; }
+.atlas-neumo .vault th:first-child { text-align: left; }
+.atlas-neumo .vault tbody th { font-weight: 500; }
+.atlas-neumo .vault th label { display: flex; gap: 10px; align-items: center; cursor: pointer; }
+.atlas-neumo .vault input[type="checkbox"] { width: 20px; height: 20px; flex: 0 0 20px; margin: 0; accent-color: var(--neo-accent); }
+.atlas-neumo .vault .vault-caution { color: var(--neo-orange); }
+.atlas-neumo .vault .vault-status { min-height: 1.5em; color: var(--neo-green); overflow-wrap: anywhere; }
+.atlas-neumo .vault .vault-error { color: var(--neo-rose); }
+.atlas-neumo .vault .vault-secondary { font-size: 13px; line-height: 1.6; }
+.atlas-neumo .vault .vault-scope { border-top: 1px solid var(--neo-line); padding-top: 16px; }
+.vault-copy-helper { position: fixed; left: -9999px; top: 0; }
+@media (max-width: 480px) {
+  .atlas-neumo .vault :is(.vault-review,.vault-recovery) { padding: 14px; }
+  .atlas-neumo .vault :is(td,th) { padding: 10px 4px; }
+  .atlas-neumo .vault th label { gap: 6px; }
+}
