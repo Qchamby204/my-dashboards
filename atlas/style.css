@@ -121,3 +121,25 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 .workspace-result:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .workspace-result:disabled{opacity:.65}
 @media(max-width:600px){.topbar{flex-wrap:wrap;gap:12px}.topbar>div{flex-wrap:wrap}.workspace-search-dialog{padding:20px}.workspace-search-options{gap:8px}.workspace-search-input{gap:8px}.workspace-result{padding:14px}}
+
+/* Weekly agenda: dates provide structure; every record keeps its source. */
+.weekly-agenda{margin-bottom:24px}
+.agenda-toolbar{display:flex;align-items:end;gap:18px;flex-wrap:wrap;margin:18px 0}
+.agenda-toolbar label{min-width:170px;margin:0}
+.agenda-toolbar select{min-height:44px}
+.agenda-toolbar p{margin-left:auto;align-self:center}
+.agenda-day{display:grid;grid-template-columns:145px minmax(0,1fr);gap:20px;padding:18px 0;border-top:1px solid var(--line)}
+.agenda-day h3{font-size:.875rem;margin:6px 0;display:flex;align-items:start;flex-direction:column;gap:8px}
+.agenda-today h3{color:var(--gold)}
+.agenda-entries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;list-style:none;padding:0;margin:0}
+.agenda-entries li{min-width:0}
+.agenda-entry{display:grid;gap:7px;text-align:left;width:100%;height:100%;border:1px solid var(--line);border-radius:14px;padding:15px;color:var(--text);background:var(--panel);white-space:normal;overflow-wrap:anywhere}
+.agenda-entry strong{font-size:1rem;line-height:1.5}
+.agenda-entry:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.agenda-entry:disabled{opacity:.65}
+.agenda-label{font-size:.875rem;font-weight:600;display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.agenda-source,.agenda-open{font-size:.75rem;font-weight:400;color:var(--muted)}
+.agenda-empty{color:var(--muted);font-size:.875rem;margin:6px 0}
+.agenda-footnote{border-top:1px solid var(--line);padding-top:16px}
+@media(max-width:1100px){.agenda-entries{grid-template-columns:1fr}}
+@media(max-width:600px){.agenda-day{grid-template-columns:1fr;gap:8px}.agenda-day h3{flex-direction:row;align-items:center}.agenda-toolbar{gap:12px}.agenda-toolbar label{flex:1;min-width:125px}.agenda-toolbar p{width:100%;margin:0}.agenda-entry{padding:13px}}
