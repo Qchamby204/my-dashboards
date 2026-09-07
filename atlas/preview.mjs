@@ -19,12 +19,21 @@ export function atlasPreview(){
       try{
         // Restrict this demo bridge to the documented preview host.
         if(req.headers.host!=='terminal.local:4173'&&req.headers.host!=='127.0.0.1:4173'){res.statusCode=403;res.end('Preview host required.');return;}
+        const previewURL=new URL(req.url,'http://'+req.headers.host),viewport=previewURL.searchParams.get('viewport');
+        // A real iframe viewport exercises responsive CSS without device emulation.
+        // Only this isolated development adapter serves the sizing controls.
+        if(req.method==='GET'&&previewURL.pathname==='/'&&['320','390'].includes(viewport)){
+          res.setHeader('Content-Type','text/html; charset=utf-8');res.setHeader('Cache-Control','no-store');
+          res.end(`<!doctype html><html lang="en"><head><title>Atlas responsive QA</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#20252e;color:white;font:16px system-ui"><nav style="padding:12px">Isolated test workspace · ${viewport}px <a href="/" style="color:#b9d4ff;margin-left:16px">Desktop preview</a> <a href="/?viewport=390" style="color:#b9d4ff;margin-left:16px">390px preview</a> <a href="/?viewport=320" style="color:#b9d4ff;margin-left:16px">320px preview</a></nav><iframe title="Atlas mobile workspace" src="/?preview=frame" style="display:block;border:0;margin:auto;width:${viewport}px;height:844px"></iframe></body></html>`);return;
+        }
         const chunks=[];let length=0;for await(const chunk of req){length+=chunk.length;if(length>8500000){res.statusCode=413;res.end('Preview request too large.');return;}chunks.push(chunk);}
         const headers=new Headers();for(const [k,v]of Object.entries(req.headers))if(typeof v==='string')headers.set(k,v);
         headers.set('oai-authenticated-user-id','atlas-preview-only');
         const method=req.method||'GET',body=['GET','HEAD'].includes(method)?undefined:Buffer.concat(chunks);
         const result=await worker.fetch(new Request('http://'+req.headers.host+req.url,{method,headers,body}),{DB:db});
-        res.statusCode=result.status;for(const [k,v]of result.headers)res.setHeader(k,v);res.end(Buffer.from(await result.arrayBuffer()));
+        res.statusCode=result.status;for(const [k,v]of result.headers)res.setHeader(k,v);
+        if(req.method==='GET'&&previewURL.pathname==='/'&&!previewURL.searchParams.has('preview'))res.end((await result.text()).replace('</main>','<footer><a href="/?viewport=390">Open mobile layout preview</a></footer></main>'));
+        else res.end(Buffer.from(await result.arrayBuffer()));
       }catch(error){res.statusCode=500;res.end('Preview failed.');console.error(error);}
     });
   }};
