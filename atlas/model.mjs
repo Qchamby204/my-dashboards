@@ -19,6 +19,13 @@ export function validDate(value) {
   const date = new Date(value + 'T12:00:00Z');
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0,10) === value;
 }
+export function newId(){
+  if(typeof crypto.randomUUID==='function')return crypto.randomUUID();
+  // getRandomValues is also available in the supervised HTTP preview.
+  const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+  const hex=[...bytes].map(v=>v.toString(16).padStart(2,'0')).join('');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+}
 export function localDay(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }

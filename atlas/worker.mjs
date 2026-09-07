@@ -1,12 +1,14 @@
 import { html, css, js, theme, model } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems } from './model.mjs';
+import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
 
 const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'same-origin' };
 function json(data,status=200) { return new Response(JSON.stringify(data),{status,headers:{...headers,'Content-Type':'application/json'}}); }
 class HttpError extends Error { constructor(message,status=400){super(message);this.status=status;} }
 async function bodyOf(request) {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError('Send JSON.');
-  const body=await request.text(); if(body.length>(new URL(request.url).pathname==='/api/practice'?4500000:350000)) throw new HttpError('This request is too large.',413);
+  const body=await request.text(),path=new URL(request.url).pathname;
+  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:path==='/api/practice'?1500000:350000)) throw new HttpError('This request is too large.',413);
   try { const value=JSON.parse(body); if(!value || typeof value!=='object' || Array.isArray(value)) throw new Error(); return value; }
   catch { throw new HttpError('This request could not be read.'); }
 }
@@ -30,6 +32,52 @@ async function api(request,env,url,owner) {
   const db=env.DB;
   if(!db) throw new HttpError('Your saved workspace is temporarily unavailable. Please try again.',503);
   const path=url.pathname, now=new Date().toISOString();
+  if(path==='/api/restore/preview'&&request.method==='POST'){
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice);
+    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1});
+  }
+  if(path==='/api/restore'&&request.method==='POST'){
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice);
+    if(!Number.isSafeInteger(b.seq)||b.seq!==current.seq||b.digest!==await digest(backup))throw new HttpError('The workspace or backup changed. Review the restore again.',409);
+    const id=await replaceWorkspace(db,owner,backup,current.data,b.seq,'Before workspace restore');
+    return json({saved:true,checkpoint:id});
+  }
+  if(path==='/api/history'&&request.method==='GET'){
+    const before=url.searchParams.has('before')?Number(url.searchParams.get('before')):Number.MAX_SAFE_INTEGER;
+    if(!Number.isSafeInteger(before)||before<1)throw new HttpError('Choose a valid history page.');
+    const result=await db.batch([
+      db.prepare('SELECT * FROM atlas_history WHERE owner=? AND seq<? ORDER BY seq DESC LIMIT 51').bind(owner,before),
+      db.prepare('SELECT * FROM atlas_checkpoints WHERE owner=? ORDER BY after_seq DESC LIMIT 20').bind(owner),
+      db.prepare('SELECT COALESCE(MAX(seq),0) AS seq FROM atlas_history WHERE owner=?').bind(owner)
+    ]);
+    return json({events:result[0].results.slice(0,50).map(({owner,before_json,after_json,...r})=>({...r,before:before_json?JSON.parse(before_json):null,after:after_json?JSON.parse(after_json):null})),next:result[0].results.length>50?result[0].results[49].seq:null,seq:result[2].results[0].seq,checkpoints:result[1].results.map(({owner,...r})=>r)});
+  }
+  if(/^\/api\/history\/\d+\/undo$/.test(path)&&request.method==='POST'){
+    const b=await bodyOf(request),seq=Number(path.split('/')[3]);
+    const h=await db.prepare('SELECT * FROM atlas_history WHERE owner=? AND seq=?').bind(owner,seq).first();
+    if(!h)throw new HttpError('This change is unavailable.',404);
+    if(h.action!=='updated'||!['tasks','projects','weeks'].includes(h.entity))throw new HttpError('This entry cannot be reversed here. Use a reviewed workspace backup or the app controls.');
+    const table=TABLES[h.entity],before=JSON.parse(h.before_json),after=JSON.parse(h.after_json);
+    const current=await db.prepare(`SELECT * FROM ${table} WHERE owner=? AND id=?`).bind(owner,h.record_id).first();
+    if(!current||current.revision!==after.revision)throw new HttpError('This record changed again. Its newer work is protected.',409);
+    if(!Number.isSafeInteger(b.seq))throw new HttpError('Refresh history before restoring this change.',409);
+    if(h.entity==='tasks')await ownedProject(db,owner,before.project_id);
+    const values={...before,revision:current.revision+1,updated_at:now};delete values.id;
+    const id=crypto.randomUUID(),columns=Object.keys(values);
+    await db.batch([guard(db,owner,b.seq,id),db.prepare(`UPDATE ${table} SET ${columns.map(c=>c+'=?').join(',')} WHERE owner=? AND id=? AND revision=?`).bind(...columns.map(c=>values[c]),owner,h.record_id,current.revision),db.prepare('DELETE FROM atlas_restore_guards WHERE id=?').bind(id)]);
+    return json({saved:true});
+  }
+  if(/^\/api\/checkpoints\/[^/]+\/(export|undo)$/.test(path)){
+    const id=decodeURIComponent(path.split('/')[3]),checkpoint=await checkpointData(db,owner,id);
+    if(!checkpoint)throw new HttpError('This recovery copy is unavailable.',404);
+    if(path.endsWith('/export')&&request.method==='GET')return json(checkpoint.data);
+    if(path.endsWith('/undo')&&request.method==='POST'){
+      const b=await bodyOf(request),current=await workspace(db,owner);
+      if(b.seq!==current.seq||current.seq!==checkpoint.after_seq)throw new HttpError('The workspace changed after this restore. Download the recovery copy and review it before applying it.',409);
+      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data),current.data,current.seq,'Before reversing workspace restore');
+      return json({saved:true,checkpoint:recovery});
+    }
+  }
   if(path==='/api/state' && request.method==='GET') {
     const week=url.searchParams.get('week'); if(!validDate(week) || monday(week)!==week) throw new HttpError('Choose a valid week.');
     return json(await state(db,owner,week));
@@ -158,9 +206,7 @@ async function api(request,env,url,owner) {
     return json({saved:true});
   }
   if(path==='/api/export' && request.method==='GET') {
-    const values=await db.batch(['atlas_tasks','atlas_projects','atlas_weeks','atlas_practice_snapshots'].map(table=>db.prepare(`SELECT * FROM ${table} WHERE owner=?`).bind(owner)));
-    const clean=values.map(v=>v.results.map(({owner,...rest})=>rest));
-    return json({app:'atlas-os',version:2,exportedAt:now,tasks:clean[0],projects:clean[1],weeks:clean[2],practice:clean[3].map(p=>({...p,items:JSON.parse(p.items)}))});
+    return json((await workspace(db,owner)).data);
   }
   throw new HttpError('This page was not found.',404);
 }
@@ -182,6 +228,7 @@ export default {
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
     } catch(error) {
       if(error instanceof HttpError) return json({error:error.message},error.status);
+      if(/atlas_restore_guard_valid|UNIQUE constraint/i.test(error?.message))return json({error:'Your workspace changed or these records conflict. Refresh and review again; nothing from this request was saved.'},409);
       if(error instanceof Error && !/D1|SQL|database/i.test(error.message)) return json({error:error.message},400);
       console.error('Atlas request failed',error?.name);
       return json({error:'We could not save or load your workspace. Your draft is still here. Please try again.'},503);

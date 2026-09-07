@@ -1,4 +1,4 @@
-import { APPS, LEGACY_ORIGIN, localDay, monday, addDays, parseLifeMap, parsePracticeSnapshot, weeklySummary } from './model.mjs';
+import { APPS, LEGACY_ORIGIN, localDay, monday, addDays, parseLifeMap, parsePracticeSnapshot, weeklySummary, newId } from './model.mjs';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const appById=id=>APPS.find(a=>a.id===id)||APPS[0];
@@ -7,6 +7,7 @@ const formatDay=day=>new Date(day+'T12:00:00').toLocaleDateString(undefined,{mon
 const duration=m=>m<60?`${m} min`:`${Number((m/60).toFixed(1))}h`;
 let today=localDay(), week=monday(today), data={tasks:[],projects:[],week:null};
 let loaded=false,view='today',editing=null,draftId=null,imports=[],undoAction=null,busy=false,reviewDirty=false,loadNumber=0;
+let historyData=null,historyRequest=0,restorePlan=null,restoreRequest=0,recoveryAction=null;
 let editingProject=null,projectDraftId=null,projectConfirmation=null,practiceImport=null,practiceRevision=0;
 const project=id=>data.projects.find(p=>p.id===id);
 const open=()=>data.tasks.filter(t=>t.status==='open');
@@ -22,7 +23,7 @@ async function api(path,method='GET',body) {
   return value;
 }
 function error(message){$('#error').textContent=message;$('#error').hidden=!message;}
-function toast(message,undo=null){$('#toast span').textContent=message;$('#toast').hidden=false;$('#undo').hidden=!undo;undoAction=undo;}
+function toast(message,undo=null){$('#toast span').textContent=message+($('#save-state').textContent==='Connection needs attention'?' Refresh to load the latest saved view.':'');$('#toast').hidden=false;$('#undo').hidden=!undo;undoAction=undo;}
 async function load({renderPage=true}={}) {
   const requestNumber=++loadNumber, requestedWeek=week;
   $('#save-state').textContent='Loading…';
@@ -85,16 +86,73 @@ function appsView(){
     groups.map(g=>`<h2 class="app-group">${g}</h2><div class="app-grid">${APPS.filter(a=>a.group===g).map(a=>`<a class="app-card" href="${appURL(a.id)}" target="_blank" rel="noopener"><span class="app-icon" aria-hidden="true">${a.icon}</span><div><h3>${esc(a.name)}</h3><p>${esc(a.detail)}</p></div></a>`).join('')}</div>`).join('')+
     '<p class="footer-note">Atlas Home is the shared workspace. Life Map projects open here; the other specialist apps retain their existing addresses and browser records.</p><button class="secondary" data-export>Export my Atlas data</button>';
 }
+const historyLabels={tasks:'Commitments',projects:'Projects',weeks:'Weekly reviews',practice_snapshots:'Courier practice',practice:'Courier practice',workspace:'Workspace'};
+const fieldLabels={title:'Title',area:'Life area',status:'Status',mode:'Project mode',due_date:'Due date',week_start:'Planned week',minutes:'Minutes',focus_date:'Priority day',focus_slot:'Priority slot',completed_at:'Completed',archived_at:'Archived',app_id:'Connected app',project_id:'Project',capacity:'Weekly minutes',worked:'What worked',change:'What to change',count:'Practice completions',source_exported_at:'Source backup date'};
+const dateTime=value=>new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});
+function historyDiff(h){
+  const keys=Object.keys(fieldLabels).filter(k=>JSON.stringify(h.before?.[k])!==JSON.stringify(h.after?.[k]));
+  const display=(k,v)=>v===null||v===undefined||v===''?'—':k==='project_id'?(project(v)?.title||v):k==='app_id'?appById(v).name:String(v);
+  return keys.length?`<div class="recovery-table"><table><thead><tr><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody>${keys.map(k=>`<tr><th>${fieldLabels[k]}</th><td>${esc(display(k,h.before?.[k]))}</td><td>${esc(display(k,h.after?.[k]))}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small">Saved record metadata changed.</p>';
+}
+function historyView(){
+  const events=historyData?.events||[];
+  return pageHeading('Your work, recoverable','History & recovery.','Review saved changes and recover from a mistake.','<button class="primary" data-restore>Restore workspace</button>')+
+  `<section class="panel"><div class="section-heading"><h2>Keep a copy</h2><button class="secondary" data-export>Download workspace backup</button></div><p>A workspace restore replaces projects, commitments, weekly reviews, and the saved practice snapshot. Review the changes first. Atlas saves a recovery copy before applying them.</p><p class="small">History begins with this upgrade. Original browser apps keep their own data. Downloads contain your personal records; store them somewhere private.</p></section>`+
+  `<section class="panel"><div class="section-heading"><h2>Recovery copies</h2><span>Latest 20</span></div>${historyData?.checkpoints.length?historyData.checkpoints.map(c=>`<div class="recovery-copy"><div><h3>${esc(c.label)}</h3><p>${esc(dateTime(c.created_at))}</p></div><div><button class="text-button" data-checkpoint-export="${esc(c.id)}">Download copy</button>${c.after_seq===historyData.seq?`<button class="secondary" data-checkpoint-undo="${esc(c.id)}">Review reversal</button>`:'<span class="small">Download to review a restore.</span>'}</div></div>`).join(''):'<p class="quiet-message">Your first workspace restore will create a recovery copy here.</p>'}</section>`+
+  `<section class="panel"><div class="section-heading"><h2>Saved changes</h2><button class="text-button" data-history-refresh>Refresh history</button></div><p class="small">Each save includes its history entry. Earlier updates can be reversed while that record remains unchanged. Practice entries record counts and dates; use a Courier backup to replace their contents. History and recovery copies remain here across workspace restores.</p>${historyData?events.length?events.map(h=>`<details class="history-entry"><summary><span><strong>${esc(h.after?.title||h.before?.title||h.after?.week_start||h.before?.week_start||historyLabels[h.entity])}</strong><span class="small">${esc(historyLabels[h.entity])} · ${esc(h.action)} · ${esc(dateTime(h.created_at))}</span></span></summary>${historyDiff(h)}${h.action==='updated'&&['tasks','projects','weeks'].includes(h.entity)?`<button class="secondary" data-history-undo="${h.seq}">Review previous values</button>`:h.entity==='workspace'?`<button class="secondary" data-checkpoint-export="${esc(h.record_id)}">Download the recovery copy</button>`:'<p class="small">'+(h.action==='created'?'Use the app controls to edit or archive this record.':h.entity==='practice_snapshots'?'Refresh practice with a reviewed Courier backup.':'Use the recovery copy for this workspace restore.')+'</p>'}</details>`).join(''):'<p class="quiet-message">Your next saved change will appear here.</p>':'<p>Loading saved history…</p>'}${historyData?.next?'<button class="secondary" data-history-more>Load earlier changes</button>':''}</section>`;
+}
+async function refreshHistory(append=false){
+  const ticket=++historyRequest;
+  try{const next=await api('/api/history'+(append&&historyData?.next?'?before='+historyData.next:''));if(ticket!==historyRequest)return;historyData={...next,events:append?[...historyData.events,...next.events]:next.events};if(view==='history')$('#content').innerHTML=historyView();}
+  catch(e){error(e.message);}
+}
+function openRestore(){
+  if(reviewDirty){error('Save your review before restoring the workspace.');return;}
+  restorePlan=null;restoreRequest++;$('#restore-file').value='';$('#restore-json').value='';$('#restore-preview').innerHTML='';$('#restore-error').textContent='';$('#restore-confirm').disabled=true;$('#restore-dialog').showModal();
+}
+async function reviewRestore(raw){
+  const ticket=++restoreRequest;restorePlan=null;$('#restore-confirm').disabled=true;$('#restore-preview').innerHTML='<p>Checking your backup against the saved workspace…</p>';$('#restore-error').textContent='';
+  try{
+    if(new TextEncoder().encode(raw).length>8000000)throw new Error('Choose an export smaller than 8 MB.');
+    const next=await api('/api/restore/preview','POST',{backup:JSON.parse(raw)});if(ticket!==restoreRequest)return;restorePlan=next;
+    $('#restore-preview').innerHTML=`<h3>Review the replacement</h3><p>Backup from ${esc(dateTime(next.backup.exportedAt))}. ${next.legacy?'This older export retains your current practice snapshot.':''}</p><div class="recovery-table"><table><thead><tr><th>Records</th><th>Add</th><th>Replace</th><th>Remove</th><th>Keep</th></tr></thead><tbody>${next.changes.map(c=>`<tr><th>${historyLabels[c.key]}</th><td>${c.add}</td><td>${c.replace}</td><td>${c.remove}</td><td>${c.keep}</td></tr>`).join('')}</tbody></table></div>${next.changes.filter(c=>c.rows.some(r=>r.action!=='Keep')).map(c=>`<details class="restore-details"><summary>${historyLabels[c.key]} · review changed records</summary><div class="import-list">${c.rows.filter(r=>r.action!=='Keep').map(r=>`<div class="import-row"><strong>${esc(r.action)}</strong><span>${esc(r.title)}</span></div>`).join('')}</div></details>`).join('')}<p class="restore-warning">Records marked Remove will leave the workspace. Atlas will keep a recovery copy of the current workspace. Newer changes from another device will stop this restore.</p><label class="restore-consent"><input type="checkbox" id="restore-understood">I reviewed the replacements and removals.</label>`;
+  }catch(e){if(ticket!==restoreRequest)return;$('#restore-preview').innerHTML='';$('#restore-error').textContent=e.message;}
+}
+$('#restore-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;const ticket=++restoreRequest;restorePlan=null;$('#restore-confirm').disabled=true;$('#restore-preview').innerHTML='';$('#restore-error').textContent='';if(file.size>8000000){$('#restore-error').textContent='Choose an export smaller than 8 MB.';return;}try{const raw=await file.text();if(ticket===restoreRequest)await reviewRestore(raw);}catch(e){if(ticket===restoreRequest)$('#restore-error').textContent='This file could not be read. Choose it again.';}});
+$('#restore-paste').addEventListener('click',()=>reviewRestore($('#restore-json').value));
+$('#restore-json').addEventListener('input',()=>{restoreRequest++;restorePlan=null;$('#restore-confirm').disabled=true;$('#restore-preview').innerHTML='';});
+document.addEventListener('change',e=>{if(e.target.id==='restore-understood')$('#restore-confirm').disabled=!restorePlan||!e.target.checked;});
+$('#restore-confirm').addEventListener('click',async()=>{
+  if(!restorePlan||!$('#restore-understood')?.checked)return;const button=$('#restore-confirm');button.disabled=true;
+  try{await api('/api/restore','POST',{backup:restorePlan.backup,seq:restorePlan.seq,digest:restorePlan.digest});restorePlan=null;$('#restore-dialog').close();undoAction=null;historyData=null;await load();toast('Workspace restored. Your recovery copy is in History & recovery.');}
+  catch(e){restorePlan=null;$('#restore-error').textContent=e.message+' Review the backup again before applying it.';}
+});
+document.addEventListener('click',async e=>{
+  if(e.target.closest('[data-history-refresh]')){await refreshHistory();return;}
+  if(e.target.closest('[data-history-more]')){const button=e.target.closest('button');button.disabled=true;await refreshHistory(true);button.disabled=false;return;}
+  const download=e.target.closest('[data-checkpoint-export]');if(download){try{downloadJSON(await api('/api/checkpoints/'+encodeURIComponent(download.dataset.checkpointExport)+'/export'),'atlas-recovery-'+today+'.json');toast('Recovery copy download started.');}catch(errorValue){error(errorValue.message);}return;}
+  const previous=e.target.closest('[data-history-undo]'),checkpoint=e.target.closest('[data-checkpoint-undo]');if(!previous&&!checkpoint)return;
+  $('#history-error').textContent='';
+  if(previous){const h=historyData.events.find(h=>h.seq===Number(previous.dataset.historyUndo));recoveryAction={path:'/api/history/'+h.seq+'/undo',seq:historyData.seq};$('#history-preview').innerHTML='<p>Restore this record to the values in the Before column. Atlas will protect newer changes and record the recovery as another save.</p>'+historyDiff(h);}
+  else{recoveryAction={path:'/api/checkpoints/'+encodeURIComponent(checkpoint.dataset.checkpointUndo)+'/undo',seq:historyData.seq};$('#history-preview').innerHTML='<p>Reverse the latest workspace restore and return to the recovery copy made immediately before it. This is available only while the workspace has no later changes. Atlas will also keep a copy of the current workspace.</p>';}
+  $('#history-confirm').textContent=previous?'Restore previous values':'Reverse workspace restore';$('#history-dialog').showModal();
+});
+$('#history-confirm').addEventListener('click',async()=>{
+  const button=$('#history-confirm');if(!recoveryAction||button.disabled)return;button.disabled=true;
+  try{await api(recoveryAction.path,'POST',{seq:recoveryAction.seq});$('#history-dialog').close();recoveryAction=null;undoAction=null;historyData=null;await load();toast('Previous values restored. This recovery is recorded in history.');}
+  catch(e){$('#history-error').textContent=e.message;}finally{button.disabled=false;}
+});
 function render(){
   document.querySelectorAll('[data-view]').forEach(a=>{if(a.dataset.view===view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   $('#date-label').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
   if(!loaded)return;
-  $('#content').innerHTML=({today:todayView,week:weekView,projects:projectsView,review:reviewView,apps:appsView}[view]||todayView)();
+  $('#content').innerHTML=({today:todayView,week:weekView,projects:projectsView,review:reviewView,apps:appsView,history:historyView}[view]||todayView)();
   $('#capture').disabled=false;
+  if(view==='history')refreshHistory();
 }
 function openCapture(projectId=null,task=null){
   if(!loaded){error('Wait for your workspace to load before capturing a commitment.');return;}
-  editing=task;draftId=task?.id||crypto.randomUUID();
+  editing=task;draftId=task?.id||newId();
   const form=$('#task-form');form.reset();$('#task-error').textContent='';
   $('#task-dialog-title').textContent=task?'Edit commitment':'Capture a commitment';
   $('#app-select').innerHTML=APPS.filter(a=>a.group!=='Archive').map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');
@@ -124,7 +182,7 @@ async function saveWeek(values){
   await api('/api/week','PUT',{week_start:week,capacity:data.week?.capacity??600,worked:data.week?.worked||'',change:data.week?.change||'',revision:data.week?.revision??0,...values});
 }
 function openProjectEditor(p=null){
-  editingProject=p;projectDraftId=p?.id||crypto.randomUUID();
+  editingProject=p;projectDraftId=p?.id||newId();
   const form=$('#project-form');form.reset();form.elements.title.value=p?.title||'';form.elements.area.value=p?.area||'';form.elements.due_date.value=p?.due_date||'';
   $('#project-dialog-title').textContent=p?'Edit synced project':'New synced project';$('#project-error').textContent='';$('#project-dialog').showModal();form.elements.title.focus();
 }
@@ -156,7 +214,8 @@ async function exportProjectUpdates(){
 document.addEventListener('click',async event=>{
   if(event.target.closest('[data-export]')){await exportData();return;}
   const close=event.target.closest('[data-close]');if(close){document.getElementById(close.dataset.close).close();return;}
-  if(reviewDirty&&event.target.closest('[data-capture],#capture,[data-import],[data-project],[data-action],[data-project-action],[data-new-project],[data-practice-import]')){error('Save your review before changing other records.');return;}
+  if(reviewDirty&&event.target.closest('[data-capture],#capture,[data-import],[data-project],[data-action],[data-project-action],[data-new-project],[data-practice-import],[data-restore]')){error('Save your review before changing other records.');return;}
+  if(event.target.closest('[data-restore]')){openRestore();return;}
   if(event.target.closest('[data-new-project]')){openProjectEditor();return;}
   if(event.target.closest('[data-project-export]')){await exportProjectUpdates();return;}
   if(event.target.closest('[data-practice-import]')){practiceImport=null;practiceRevision=data.practice?.revision||0;$('#practice-file').value='';$('#practice-preview').innerHTML='';$('#practice-error').textContent='';$('#practice-confirm').disabled=true;$('#practice-dialog').showModal();return;}
@@ -168,7 +227,7 @@ document.addEventListener('click',async event=>{
   const shift=event.target.closest('[data-week]');if(shift){if(reviewDirty){error('Save your review before changing weeks.');return;}week=addDays(week,Number(shift.dataset.week));await load();return;}
   if(event.target.closest('#save-capacity')){
     const hours=Number($('#capacity').value),button=$('#save-capacity');button.disabled=true;
-    try{await saveWeek({capacity:Math.round(hours*60)});await load();toast('Weekly time budget saved.');}catch(e){error(e.message);}finally{button.disabled=false;}
+    try{await saveWeek({capacity:Math.round(hours*60)});reviewDirty=false;await load();toast('Weekly time budget saved.');}catch(e){error(e.message);}finally{button.disabled=false;}
   }
 });
 $('#project-confirm').addEventListener('click',async()=>{const button=$('#project-confirm');button.disabled=true;try{if(projectConfirmation&&await mutateProject(projectConfirmation.project,projectConfirmation.action))$('#project-confirm-dialog').close();}finally{button.disabled=false;}});
@@ -202,7 +261,7 @@ document.addEventListener('submit',async event=>{
   try{await saveWeek(Object.fromEntries(new FormData(form)));reviewDirty=false;await load();toast('Your weekly review is saved.');}catch(e){$('#review-error').textContent=e.message;}finally{button.disabled=false;}
 });
 document.addEventListener('input',event=>{
-  if(event.target.closest('#review-form'))reviewDirty=true;
+  if(event.target.closest('#review-form')||event.target.id==='capacity')reviewDirty=true;
   if(['project-search','project-filter'].includes(event.target.id))$('#project-list').innerHTML=projectList($('#project-search').value,$('#project-filter').value);
 });
 $('#import-file').addEventListener('change',async event=>{
@@ -230,8 +289,8 @@ $('#export').addEventListener('click',exportData);
 window.addEventListener('hashchange',()=>{
   const next=location.hash.slice(1)||'today';
   if(reviewDirty){if(next!==view){location.hash=view;error('Save your review before leaving this page.');}return;}
-  view=['today','week','projects','review','apps'].includes(next)?next:'today';render();
+  view=['today','week','projects','review','apps','history'].includes(next)?next:'today';render();
 });
 window.addEventListener('beforeunload',event=>{if(reviewDirty || ($('#task-dialog').open && $('#task-form').elements.title.value.trim()) || ($('#project-dialog').open && $('#project-form').elements.title.value.trim())){event.preventDefault();event.returnValue='';}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!reviewDirty&&!document.querySelector('dialog[open]')){const next=localDay();if(next!==today){today=next;week=monday(today);}load();}});
-$('#capture').disabled=true;view=['today','week','projects','review','apps'].includes(location.hash.slice(1))?location.hash.slice(1):'today';render();load();
+$('#capture').disabled=true;view=['today','week','projects','review','apps','history'].includes(location.hash.slice(1))?location.hash.slice(1):'today';render();load();

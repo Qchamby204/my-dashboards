@@ -5,10 +5,12 @@
   "scripts": {
     "build": "node atlas/build.mjs",
     "db:generate": "drizzle-kit generate",
-    "test": "node --test atlas/tests/*.test.mjs"
+    "test": "node --test atlas/tests/*.test.mjs",
+    "dev": "vite"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.4",
-    "drizzle-orm": "0.44.5"
+    "drizzle-orm": "0.44.5",
+    "vite": "7.3.6"
   }
 }
