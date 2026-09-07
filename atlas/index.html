@@ -69,14 +69,15 @@
   <div class="dialog-actions"><button class="secondary" data-close="import-dialog">Cancel</button><button class="primary" id="import-confirm" disabled>Import projects</button></div>
 </dialog>
 <dialog id="project-dialog" aria-labelledby="project-dialog-title">
-  <form id="project-form">
+  <form id="project-form" aria-describedby="project-draft-state project-error">
     <div class="dialog-heading"><h2 id="project-dialog-title">New synced project</h2><button type="button" class="icon-button" data-close="project-dialog" aria-label="Close project">×</button></div>
     <label>Project title<input name="title" maxlength="300" required></label>
     <label>Life area<input name="area" maxlength="120" placeholder="Family, learning, work…"></label>
     <label>Due date <span class="optional">optional</span><input name="due_date" type="date"></label>
     <p class="small">Saved privately across devices. Linked commitments keep their own completion status.</p>
+    <p id="project-draft-state" class="small" role="status"></p>
     <p id="project-error" class="form-error" role="alert"></p>
-    <div class="dialog-actions"><button type="button" class="secondary" data-close="project-dialog">Cancel</button><button type="submit" class="primary">Save project</button></div>
+    <div class="dialog-actions"><button type="button" class="secondary" id="project-discard">Discard & reload projects</button><button type="submit" class="primary">Save project</button></div>
   </form>
 </dialog>
 <dialog id="project-confirm-dialog" aria-labelledby="project-confirm-title">
