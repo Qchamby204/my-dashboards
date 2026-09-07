@@ -89,6 +89,49 @@ export function parsePracticeSnapshot(raw) {
   const rows=Object.entries(value.completions).map(([id,item])=>{if(item?.id!==id)throw new Error('A practice ID does not match its record.');return item;});
   return {items:practiceItems(rows),source_exported_at:typeof envelope.exportedAt==='string'&&Number.isFinite(Date.parse(envelope.exportedAt))?new Date(envelope.exportedAt).toISOString():null};
 }
+
+export function practiceCatalog(catalog,items=[]) {
+  if(!Array.isArray(catalog)||catalog.length>10000)throw Error('Choose up to 10,000 practice lessons.');
+  const rows=new Map();
+  for(const r of catalog){
+    if(!r||typeof r!=='object')throw Error('A practice lesson is invalid.');
+    const id=textValue(r.id,1000,true),day=dateValue(r.day);
+    if(!id.startsWith('lesson/')||rows.has(id)||!day)throw Error('Practice lesson IDs or dates are invalid.');
+    rows.set(id,{id,day,title:textValue(r.title,500,true),track:textValue(r.track,120),task:textValue(r.task??'',3000),drill:textValue(r.drill??'',3000)});
+  }
+  for(const item of items){
+    const lesson=rows.get(item.id);
+    if(lesson&&lesson.day!==item.day)throw Error('A completion does not match its lesson date.');
+    if(!lesson)rows.set(item.id,{id:item.id,day:item.day,title:item.title,track:item.track,task:'',drill:''});
+  }
+  if(rows.size>10000)throw Error('Choose up to 10,000 practice lessons.');
+  return [...rows.values()].sort((a,b)=>b.day.localeCompare(a.day)||a.id.localeCompare(b.id));
+}
+export function practicePayloadSize(value) {
+  if(new TextEncoder().encode(JSON.stringify(value)).length>1500000)throw Error('Practice records exceed 1.5 MB. Use a smaller lesson selection.');
+  return value;
+}
+export function parsePracticeTransfer(raw) {
+  const b=typeof raw==='string'?JSON.parse(raw):raw;
+  const pack=b?.app==='atlas-practice-transfer';
+  if(pack&&b.version!==1)throw Error('This practice pack version is unsupported.');
+  const snapshot=pack?{items:practiceItems(b.items),source_exported_at:b.exportedAt}:parsePracticeSnapshot(b);
+  const exported=snapshot.source_exported_at;
+  if(exported!==null&&(typeof exported!=='string'||!Number.isFinite(Date.parse(exported))))throw Error('The practice export date is invalid.');
+  return practicePayloadSize({app:'atlas-practice-transfer',version:1,exportedAt:exported,
+    catalog:practiceCatalog(pack?b.catalog:[],snapshot.items),items:snapshot.items});
+}
+export function practiceImportPlan(current,pack) {
+  const managed=current?.mode==='managed',oldCatalog=practiceCatalog(current?.catalog||[],current?.items||[]);
+  const known=new Set(oldCatalog.map(x=>x.id)),incoming=new Set(pack.catalog.map(x=>x.id));
+  const rows=pack.catalog.map(x=>({id:x.id,title:x.title,action:managed&&known.has(x.id)?'Keep synced':known.has(x.id)?'Replace snapshot':'Add'}));
+  if(!managed)for(const x of oldCatalog)if(!incoming.has(x.id))rows.push({id:x.id,title:x.title,action:'Remove snapshot'});
+  const catalog=managed?[...oldCatalog,...pack.catalog.filter(x=>!known.has(x.id))]:pack.catalog;
+  const items=managed?[...(current?.items||[]),...pack.items.filter(x=>!known.has(x.id))]:pack.items;
+  const next=practicePayloadSize({catalog:practiceCatalog(catalog,items),items:practiceItems(items),mode:managed?'managed':'snapshot'});
+  return {rows,next,added:rows.filter(x=>x.action==='Add').length,kept:rows.filter(x=>x.action==='Keep synced').length,
+    removed:rows.filter(x=>x.action==='Remove snapshot').length,replaced:rows.filter(x=>x.action==='Replace snapshot').length};
+}
 export function weeklySummary(data,week) {
   const end=addDays(week,6),inWeek=d=>validDate(d)&&d>=week&&d<=end;
   const done=data.tasks.filter(t=>t.status==='done'&&t.completed_at&&inWeek(localDay(new Date(t.completed_at))));

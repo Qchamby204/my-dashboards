@@ -32,6 +32,12 @@ export function readPractice(storage) {
   let raw; try { raw = storage.getItem(PRACTICE_KEY); } catch { throw Error('This browser cannot read practice records.'); }
   return { raw, value: parsePractice(raw) };
 }
+export function createPracticeTransfer(storage,manifest,now=new Date()) {
+  const saved=readPractice(storage),catalog=lessonItems(manifest),items=Object.values(saved.value.completions);
+  const pack={app:'atlas-practice-transfer',version:1,exportedAt:now.toISOString(),catalog,items};
+  if(new TextEncoder().encode(JSON.stringify(pack)).length>1500000)throw Error('This practice pack exceeds 1.5 MB. Export an Atlas Vault backup to keep your full local records.');
+  return pack;
+}
 export function lessonItems(manifest) {
   const out = [], seen = new Set();
   for (const day of list(manifest?.days)) {

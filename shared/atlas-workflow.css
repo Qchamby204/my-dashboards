@@ -11,6 +11,8 @@
 .atlas-neumo .daily-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 24px; }
 .atlas-neumo .home-briefing{margin-top:22px;padding:20px;border:1px solid var(--neo-line);border-radius:16px;box-shadow:var(--neo-well);overflow-wrap:anywhere}
 .atlas-neumo .home-briefing p{margin:10px 0 14px}
+.atlas-neumo .practice-transfer{border-top:1px solid var(--neo-line);margin-top:22px;padding-top:22px}
+.atlas-neumo .practice-transfer a{display:inline-block;margin:12px 0;font-size:.875rem}
 .atlas-neumo .daily-grid > section + section { border-top: 1px solid var(--neo-line); padding-top: 22px; }
 .atlas-neumo .workflow-section-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
 .atlas-neumo .workflow-section-heading a { font-size: .875rem; }

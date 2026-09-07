@@ -10,15 +10,15 @@ Atlas has a private, server-backed workspace for synced Life Map projects and th
 - Save a weekly reflection and export all new Atlas records as JSON.
 - Import a reviewed Life Map project snapshot from a Life Map export or the existing Atlas Vault format. Imports use stable source IDs and preserve links when refreshed.
 - Create synced projects or explicitly adopt imported projects. Edit, complete, reopen, archive, and restore them with revision checks. Linked commitments retain their own status.
-- Review completed projects and commitments, unfinished work, next week's project deadlines, and a dated Courier practice snapshot together.
+- Review completed projects and commitments, unfinished work, next week's project deadlines, and Courier practice together, using either a reviewed snapshot or native synced completions.
 - Download synced project updates and review them in original Life Map, preserving local notes, priorities, chores, and absent projects, with verified undo.
 - Open all 13 specialist surfaces, including a clearly labelled legacy Wealth HQ entry. Atlas Home is the fourteenth surface.
 
 ## Scope of the connection
 
-Projects, commitments, reviews, and imported practice snapshots are saved in D1 and scoped to the authenticated user. Imported projects begin in snapshot mode. Choosing “Use synced project” makes Atlas the place to manage that project and protects it from later imports. Existing task links and IDs are retained. The original Life Map browser copy is separate: the migration uses reviewed file transfers, not background synchronization between origins.
+Projects, commitments, reviews, and practice records are saved in D1 and scoped to the authenticated user. Imported projects begin in snapshot mode. Choosing “Use synced project” makes Atlas the place to manage that project and protects it from later imports. Existing task links and IDs are retained. The original Life Map browser copy is separate: the migration uses reviewed file transfers, not background synchronization between origins.
 
-The project importer sends only source ID, title, area, due date, and open/completed status after review. Local notes, chores, contact records, and credentials stay out of the request. Imports update eligible snapshot projects and never delete absent projects. A separate reviewed Courier import saves only completion IDs, lesson titles, track labels, publication days, and completion dates. Its previous snapshot is replaced so removed completions can be reflected. Atlas export version 2 includes projects, commitments, reviews, and this practice snapshot; History & recovery now reviews and restores the complete private workspace.
+The project importer sends only source ID, title, area, due date, and open/completed status after review. Local notes, chores, contact records, and credentials stay out of the request. Imports update eligible snapshot projects and never delete absent projects. Courier practice can be imported as a reviewed snapshot or adopted into native synced practice. Practice packs include lesson IDs, titles, track labels, publication days, tasks, drills, and explicit completion records. Snapshot imports replace the earlier snapshot; synced imports add new lessons and preserve existing choices. Atlas export version 3 includes the complete private workspace, including the practice catalog and management mode. History & recovery accepts earlier exports and normalizes their missing fields conservatively.
 
 Cross-device saving applies inside the private workspace. The UI refreshes on return or through Refresh, rejects stale writes, and keeps unsaved form input on save failure. This is not real-time push or offline editing. Completing a commitment never automatically completes its project. Returning a synced project to import mode retains its saved values and allows later reviewed source imports again.
 
@@ -42,8 +42,8 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 
 ## Next implementation priorities
 
-1. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
-2. Add integration freshness and conflict review as each source gains authenticated synchronization.
+1. Bring Life Ledger habits and reflection into the private workspace using the same reviewed-import and ownership model.
+2. Add direct edition refresh for practice with clear freshness and failure states, while preserving native completion choices.
 
 ## Completed: daily workflow batch
 
@@ -74,7 +74,7 @@ User records were not migrated during development. All validation uses synthetic
 
 ## Completed: workspace recovery and persistent history
 
-History & recovery accepts Atlas OS exports up to 8 MB. The browser and server validate the format, record types, unique IDs, project links, dates, statuses, and priority slots. Version 1 files preserve the current practice snapshot; version 2 explicitly restores it. The practice payload is limited to 1.5 MB to remain within D1 row limits. Atlas Vault exports belong to the original Home app and are rejected by workspace restore.
+History & recovery accepts Atlas OS exports up to 8 MB. The browser and server validate the format, record types, unique IDs, project links, dates, statuses, and priority slots. Version 1 files preserve current practice. Version 2 explicitly restores legacy snapshot practice. Version 3 restores the lesson catalog, native completion choices, and management mode. The practice payload is limited to 1.5 MB to remain within D1 row limits. Atlas Vault exports belong to the original Home app and are rejected by workspace restore.
 
 The preview lists additions, replacements, removals, and unchanged values for each record type. Applying it requires review acknowledgement. Restore is a full replacement of the owner's projects, commitments, reviews, and practice snapshot. It does not change browser-local app records, appearance, history, or previous recovery copies.
 
@@ -82,7 +82,7 @@ Before replacement, Atlas stores the current workspace in bounded recovery chunk
 
 `0002_watery_rhodey.sql` appends history, checkpoints, recovery chunks, and a transaction guard. Twelve SQLite triggers record inserts, updates, and removals atomically with each save. Existing records acquire history on their next change; no past activity is invented. Practice history stores counts and provenance, not duplicate lesson contents. Each history query returns 50 entries with a cursor. Recovery lists the latest 20 copies; older copies remain reachable through their workspace history entries. Copies and history are retained until an explicit future retention policy is implemented, so storage grows with use.
 
-A previous task, project, or review update can be recovered only while its saved revision still matches the historical after-value. A workspace-generation guard also detects concurrent changes at commit. Reversing an edit is itself a recorded save. Created records use normal edit/archive controls; practice can be replaced with a reviewed Courier snapshot. The latest workspace restore can be reversed while no later workspace change exists. Otherwise, download its recovery copy and perform a new reviewed restore. All recovery APIs scope access to the authenticated owner.
+A previous task, project, or review update can be recovered only while its saved revision still matches the historical after-value. A workspace-generation guard also detects concurrent changes at commit. Reversing an edit is itself a recorded save. Created records use normal edit/archive controls; native practice uses its completion controls or a reviewed workspace recovery copy. The latest workspace restore can be reversed while no later workspace change exists. Otherwise, download its recovery copy and perform a new reviewed restore. All recovery APIs scope access to the authenticated owner.
 
 Validation includes seven additional recovery tests: full round trips across all four record groups; checkpoint retrieval and reversal; stale and tampered previews; a save between restore validation and transaction; foreign-owner ID conflicts; atomic history failure; invalid backups; and minimal practice history. A separate check verifies the secure UUID fallback used when `randomUUID` is unavailable in the HTTP preview.
 
@@ -105,3 +105,20 @@ The private Today view includes a read-only daily briefing from saved workspace 
 Atlas Home adds a matching briefing from its existing browser-local Life Map and Courier records. Missing or unreadable records are shown as unavailable, and unpublished/unloaded practice is not suggested. No private workspace records are fetched into the public Home page. Imported project data is labelled as a reviewed snapshot. No model calls, account connections, new schema, or external actions were added in this batch.
 
 Validation: 58 automated tests pass. Six new tests exercise the actual Courier script with a simulated media element, covering progression, text-only skipping, stop behavior, live clocks, speed/seek changes, resume races, rejected play requests, and day reset. Four new briefing tests cover priority order, source filtering, date boundaries, capacity, and unavailable local records. The built Worker, markup, local assets, and scripts also pass their checks. This batch has not been visually exercised in a browser or played on a physical iPhone; earlier browser evidence above applies to the earlier build only.
+
+
+## Completed: synced learning practice
+
+Courier offers Download practice pack beside its local practice controls. This file contains available lesson metadata, practice tasks/drills, and recorded completions only. Import it from the private Practice screen, review the proposed changes, and choose Use synced practice. Thereafter, record completions and reopened lessons in the private workspace. Original Courier and Home retain their separate browser-local records; new editions require another reviewed pack. No user records were transferred automatically.
+
+Practice supports search, pending/completed filters, bounded lesson lists, source-edition links, explicit completion, and reopening. Completion dates feed the existing weekly review. All apps now includes a status summary distinguishing native planning, synced projects, snapshots, native practice, and browser-local apps. Import and workspace-update dates are shown without claiming live synchronization with Courier.
+
+The API previews a normalized practice pack, captures the current practice revision, and hashes the reviewed payload. Applying it checks both values. In synced mode, the durable catalog records every known lesson, even when its completion has been removed. Future imports preserve all known lesson metadata and completion choices; only genuinely new lesson IDs and their completions can be added. This intentionally also protects reopened lessons from stale completed copies. Snapshot mode still supports reviewed replacements/removals. Older clients cannot replace synced records through the former snapshot endpoint.
+
+Native completion and reopening use owner-scoped revision checks. Concurrent writes reject stale revisions. Saves and compact history entries are atomic. History records mode, counts, source/update dates, and revisions without copying lesson text. A failed write does not confirm completion.
+
+`0003_moaning_colonel_america.sql` adds constant-default snapshot mode and an empty catalog plus an optional update timestamp, and replaces the three practice history triggers. Existing completion JSON and dates are preserved without a data backfill. All previously applied migrations and journal entries remain unchanged. Workspace export is now version 3. Versions 1 and 2 remain importable; missing legacy practice metadata receives snapshot defaults. Version 3 requires its catalog and management mode. Workspace restore previews disclose the practice mode being restored, and recovery copies retain the native catalog and reopened choices.
+
+Practice payloads remain limited to 1.5 MB, including their catalog. The public pack is a file transfer; it does not send local records to the private Site automatically. Existing Sites authentication, same-origin writes, and owner isolation apply to all practice endpoints.
+
+Validation: 64 tests pass, including six new tests covering migration preservation, pack whitelisting, native completion/reopening, owner isolation, import protection, concurrent writes, failure handling, and versioned recovery. Script syntax, markup IDs, CSS, migration immutability, and excluded dashboards also pass checks. This batch has no new browser or physical-device QA; the earlier browser results describe the earlier build.
