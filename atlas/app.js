@@ -19,14 +19,14 @@ let loadedAt=null,loadedWeek=null;
 let loaded=false,view='today',editing=null,draftId=null,imports=[],undoAction=null,busy=false,reviewDirty=false,loadNumber=0;
 let historyData=null,historyRequest=0,restorePlan=null,restoreRequest=0,recoveryAction=null;
 let practiceFileRequest=0,practiceFilter='pending',practiceSearch='',practiceLimit=60,practiceSelected=null;
-let editingProject=null,projectDraftId=null,projectConfirmation=null,practiceImport=null,practiceRevision=0;
+let editingProject=null,projectDraftId=null,projectDirty=false,projectSaving=false,projectConfirmation=null,practiceImport=null,practiceRevision=0;
 const ledgerUI=createLedgerUI({api,getData:()=>data,load,render,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const editionUI=createEditionRefreshUI({api,getPractice:()=>data.practice,esc,formatDay,dateTime:value=>new Date(value).toLocaleString(),load,toast,blocked:()=>hasDraft()||busy});
 const communicationUI=createCommunicationUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const heraldUI=createHeraldUI({api,getData:()=>data,getWeek:()=>week,load,error,toast,esc,downloadJSON,blocked:()=>hasDraft()||busy});
 const reflectionUI=createReflectionUI({api,getData:()=>data,getWeek:()=>week,load,render,error,toast,esc,downloadJSON,capture:seed=>openCapture(null,null,seed),blocked:()=>busy||budgetUI.dirty||budgetUI.saving||reviewDirty||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving});
 const budgetUI=createBudgetUI({api,getData:()=>data,getWeek:()=>week,load,error,toast,esc,duration,blocked:()=>!loaded||loadedWeek!==week||busy||reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving||!!document.querySelector('dialog[open]')});
-const hasDraft=()=>budgetUI.dirty||budgetUI.saving||reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving;
+const hasDraft=()=>projectDirty||projectSaving||budgetUI.dirty||budgetUI.saving||reviewDirty||reflectionUI.dirty||reflectionUI.saving||ledgerUI.dirty||ledgerUI.saving||editionUI.saving||communicationUI.dirty||communicationUI.saving||heraldUI.dirty||heraldUI.saving;
 const searchUI=createSearchUI({api,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft(),error,esc});
 const agendaUI=createAgendaUI({getData:()=>data,getWeek:()=>week,resolveResult:resolveSavedRecord,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft()||!!document.querySelector('dialog[open]'),error,esc});
 const commitmentsUI=createCommitmentsUI({getData:()=>data,getWeek:()=>week,resolveResult:resolveSavedRecord,mutate,blocked:()=>!loaded||loadedWeek!==week||busy||hasDraft()||!!document.querySelector('dialog[open]'),error,esc});
@@ -52,7 +52,7 @@ async function load({renderPage=true}={}) {
   try {
     const next=await api('/api/state?week='+requestedWeek);
     if(requestNumber!==loadNumber || requestedWeek!==week) return;
-    if(budgetUI.dirty||ledgerUI.dirty||reviewDirty||reflectionUI.dirty||communicationUI.dirty||heraldUI.dirty){$('#save-state').textContent='Unsaved draft';return;}
+    if(projectDirty||budgetUI.dirty||ledgerUI.dirty||reviewDirty||reflectionUI.dirty||communicationUI.dirty||heraldUI.dirty){$('#save-state').textContent='Unsaved draft';return;}
     data=next;loaded=true;loadedWeek=requestedWeek;loadedAt=new Date();error('');$('#save-state').textContent='Saved across devices';
     if(renderPage) render();
     return true;
@@ -269,9 +269,21 @@ async function mutate(task,action){
 }
 
 function openProjectEditor(p=null){
-  editingProject=p;projectDraftId=p?.id||newId();
+  if(!loaded||loadedWeek!==week||busy||hasDraft()||document.querySelector('dialog[open]')){error('Finish loading or close your current editor before opening a project.');return;}
+  if(p&&(p.mode!=='managed'||p.archived_at)){error('Open an active synced project to edit its details.');return;}
+  editingProject=p?structuredClone(p):null;projectDraftId=p?.id||newId();projectDirty=false;
   const form=$('#project-form');form.reset();form.elements.title.value=p?.title||'';form.elements.area.value=p?.area||'';form.elements.due_date.value=p?.due_date||'';
-  $('#project-dialog-title').textContent=p?'Edit synced project':'New synced project';$('#project-error').textContent='';$('#project-dialog').showModal();form.elements.title.focus();
+  $('#project-draft-state').textContent=p?'Saved project · Edit details below':'New project · Save to keep it';
+  $('#project-dialog-title').textContent=p?'Edit synced project':'New synced project';$('#project-error').textContent='';freezeProjectEditor();$('#project-dialog').showModal();form.elements.title.focus();
+}
+function freezeProjectEditor(){
+  $('#project-form').querySelectorAll('input,button').forEach(control=>control.disabled=projectSaving);
+  $('#project-form').setAttribute('aria-busy',String(projectSaving));
+}
+function closeProjectEditor(discard=false){
+  if(busy||projectSaving)return false;
+  if(projectDirty&&!discard){$('#project-error').textContent='Your draft is still here. Save it, or choose Discard & reload projects.';return false;}
+  $('#project-dialog').close();projectDirty=false;editingProject=null;projectDraftId=null;return true;
 }
 async function mutateProject(p,action){
   if(hasDraft()){error('Save or discard your draft before changing other records.');return false;}
@@ -300,7 +312,7 @@ async function exportProjectUpdates(){
 }
 document.addEventListener('click',async event=>{
   if(event.target.closest('[data-export]')){await exportData();return;}
-  const close=event.target.closest('[data-close]');if(close){if(busy||ledgerUI.saving||editionUI.saving||communicationUI.saving||heraldUI.saving||reflectionUI.saving)return;document.getElementById(close.dataset.close).close();return;}
+  const close=event.target.closest('[data-close]');if(close){if(close.dataset.close==='project-dialog'){closeProjectEditor();return;}if(busy||ledgerUI.saving||editionUI.saving||communicationUI.saving||heraldUI.saving||reflectionUI.saving)return;document.getElementById(close.dataset.close).close();return;}
   if(hasDraft()&&event.target.closest('[data-capture],#capture,[data-import],[data-project],[data-action],[data-project-action],[data-new-project],[data-practice-import],[data-practice-manage],[data-lesson-action],[data-edition-check],[data-restore]')){error('Save or discard your draft before changing other records.');return;}
   if(event.target.closest('[data-restore]')){openRestore();return;}
   if(event.target.closest('[data-new-project]')){openProjectEditor();return;}
@@ -321,10 +333,25 @@ document.addEventListener('click',async event=>{
 });
 $('#project-confirm').addEventListener('click',async()=>{const button=$('#project-confirm');button.disabled=true;try{if(projectConfirmation&&await mutateProject(projectConfirmation.project,projectConfirmation.action))$('#project-confirm-dialog').close();}finally{button.disabled=false;}});
 $('#project-form').addEventListener('submit',async event=>{
-  event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]');if(button.disabled)return;button.disabled=true;$('#project-error').textContent='';
+  event.preventDefault();if(busy||projectSaving||!$('#project-dialog').open)return;
+  const form=event.currentTarget;$('#project-error').textContent='';
   const values=Object.fromEntries(new FormData(form));values.due_date=values.due_date||null;
-  try{if(editingProject)await api('/api/projects/'+encodeURIComponent(editingProject.id),'PATCH',{...values,revision:editingProject.revision,action:'edit'});else await api('/api/projects','POST',{...values,id:projectDraftId});$('#project-dialog').close();await load();toast('Project saved privately across devices.');}
-  catch(e){$('#project-error').textContent=e.message;}finally{button.disabled=false;}
+  projectDirty=true;projectSaving=true;busy=true;freezeProjectEditor();$('#project-draft-state').textContent='Saving project…';let saved=false;
+  try{
+    if(editingProject)await api('/api/projects/'+encodeURIComponent(editingProject.id),'PATCH',{...values,revision:editingProject.revision,action:'edit'});
+    else await api('/api/projects','POST',{...values,id:projectDraftId});
+    saved=true;projectDirty=false;editingProject=null;projectDraftId=null;$('#project-dialog').close();
+    await load();toast('Project saved privately across devices.');
+  }catch(e){if(saved){error('Project saved, but the workspace could not refresh. Use Refresh to load it.');}else{$('#project-error').textContent=e.message+' Your draft is kept. Retry, or choose Discard & reload projects.';$('#project-draft-state').textContent='Unsaved project draft';}}
+  finally{projectSaving=false;busy=false;freezeProjectEditor();}
+});
+$('#project-form').addEventListener('input',()=>{if(!$('#project-dialog').open||projectSaving)return;projectDirty=true;$('#project-draft-state').textContent='Unsaved project draft';$('#project-error').textContent='';});
+$('#project-dialog').addEventListener('cancel',event=>{event.preventDefault();closeProjectEditor();});
+$('#project-discard').addEventListener('click',async()=>{
+  if(!$('#project-dialog').open||!closeProjectEditor(true))return;
+  projectSaving=true;busy=true;freezeProjectEditor();
+  try{const refreshed=await load();toast(refreshed?'Project draft discarded. Saved projects reloaded.':'Project draft discarded.');}
+  finally{projectSaving=false;busy=false;freezeProjectEditor();}
 });
 document.addEventListener('click',event=>{if(event.target.closest('[data-practice-clear]')){practiceSelected=null;practiceFilter='all';practiceSearch='';practiceLimit=60;render();}});
 document.addEventListener('change',event=>{if(event.target.id==='practice-filter'){practiceSelected=null;practiceFilter=event.target.value;practiceLimit=60;render();}});
@@ -391,7 +418,7 @@ window.addEventListener('hashchange',()=>{
   if(hasDraft()){if(next!==view){location.hash=view;error('Save or discard your draft before leaving this page.');}return;}
   view=['today','week','commitments','projects','review','practice','ledger','communication','herald','apps','history'].includes(next)?next:'today';if(view==='today'&&week!==monday(today)){week=monday(today);load();}else render();
 });
-window.addEventListener('beforeunload',event=>{if(hasDraft() || ledgerUI.editorDirty || ($('#task-dialog').open && $('#task-form').elements.title.value.trim()) || ($('#project-dialog').open && $('#project-form').elements.title.value.trim())){event.preventDefault();event.returnValue='';}});
+window.addEventListener('beforeunload',event=>{if(hasDraft() || ledgerUI.editorDirty || ($('#task-dialog').open && $('#task-form').elements.title.value.trim())){event.preventDefault();event.returnValue='';}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!hasDraft()&&!document.querySelector('dialog[open]')){const next=localDay();if(next!==today){today=next;week=monday(today);}load();}});
 $('#capture').disabled=true;view=['today','week','commitments','projects','review','practice','ledger','communication','herald','apps','history'].includes(location.hash.slice(1))?location.hash.slice(1):'today';render();load();
 

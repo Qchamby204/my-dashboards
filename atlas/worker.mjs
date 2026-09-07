@@ -263,7 +263,7 @@ async function api(request,env,url,owner) {
     return json({id},201);
   }
   if(path.startsWith('/api/projects/') && request.method==='PATCH') {
-    const id=path.slice('/api/projects/'.length),b=await bodyOf(request);
+    const id=decodeURIComponent(path.slice('/api/projects/'.length)),b=await bodyOf(request);
     const p=await db.prepare('SELECT * FROM atlas_projects WHERE id=? AND owner=?').bind(id,owner).first();
     if(!p)throw new HttpError('That project is unavailable.',404);
     if(!Number.isInteger(b.revision)||b.revision!==p.revision)throw new HttpError('This project changed on another device. Refresh before trying again.',409);
