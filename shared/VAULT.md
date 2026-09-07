@@ -8,6 +8,8 @@ The Vault on Atlas Home backs up supported browser-local Atlas records. `atlas-v
 
 Unknown keys are excluded before their values are read. Gang Ops and the two test booking dashboards are outside this registry. Baby Brain voice connection settings (`babybrain.tts`) are excluded. Recognized nested credential fields cause the entire containing entry to be excluded, preserving its original structure and keeping current credential-bearing entries out of restore and recovery. This is not a general secret scanner: free-text notes remain personal data, and exported files are not encrypted.
 
+Courier practice (`courier:practice:v1`) is included under Courier alongside its listening state. The Vault applies the practice schema validator before previewing or writing it. Restoring the Courier selection can replace both listening and practice entries present in the file; absent entries stay untouched.
+
 New files and copied backups use `{ app: "atlas", version: 2, exportedAt, keys, data }`. Values in `data` are the exact stored strings. Version 1 file backups, version 1 clipboard backups using `v` and `at`, and old bare key/value maps remain readable. Unsupported entries in those older backups are skipped and counted in the preview.
 
 ## Review and restore
