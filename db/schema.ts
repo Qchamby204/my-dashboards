@@ -33,6 +33,12 @@ export const practiceSnapshots = sqliteTable('atlas_practice_snapshots', {
   updatedAt: text('updated_at'),
 });
 
+export const ledger = sqliteTable('atlas_ledger', {
+  owner: text('owner').primaryKey(), habits: text('habits').notNull(), days: text('days').notNull(),
+  revision: integer('revision').notNull().default(1), updatedAt: text('updated_at').notNull(),
+  importedAt: text('imported_at'), sourceExportedAt: text('source_exported_at'),
+});
+
 export const history = sqliteTable('atlas_history', {
   seq: integer('seq').primaryKey({autoIncrement:true}), owner:text('owner').notNull(),
   entity:text('entity').notNull(), recordId:text('record_id').notNull(), action:text('action').notNull(),
