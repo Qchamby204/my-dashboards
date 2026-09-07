@@ -10,7 +10,7 @@ Atlas has a private, server-backed workspace for synced Life Map projects, Couri
 
 - Capture and edit a commitment with a connected app, optional project, due date, week, and time estimate.
 - Choose up to three priorities for the current local day. Complete, reopen, or archive commitments; undo completion and archiving.
-- Plan across weeks, see earlier unfinished work, and compare estimates with an editable weekly time budget.
+- Plan across weeks, see earlier unfinished work, and compare estimates with a weekly time budget that retains failed-save drafts and supports explicit discard and reload.
 - Save a weekly reflection and export all new Atlas records as JSON.
 - Plan content titles, stages, and dates across devices. Review Herald imports, archive or restore items, and distinguish planned content from recorded publications in weekly review.
 - Log, edit, archive, and restore completed speaking sessions. Review earlier Master Communicator exports before importing them, and see active sessions in weekly review.
@@ -35,6 +35,7 @@ This release uses deterministic planning and user choices. It does not call a la
 
 - `atlas/index.html`, `atlas/style.css`, `atlas/app.js`: accessible, responsive, dependency-free client.
 - `atlas/model.mjs`: shared validation, date helpers, safe Life Map projection, and one app registry.
+- `atlas/budget-ui.mjs`: recoverable weekly capacity editing with captured revisions and save/reload states.
 - `atlas/commitments.mjs` and `atlas/commitments-ui.mjs`: filtered commitment management and status-specific actions.
 - `atlas/agenda.mjs` and `atlas/agenda-ui.mjs`: explicit weekly dates, source filters, and guarded navigation to saved records.
 - `atlas/communication.mjs` and `atlas/communication-ui.mjs`: bounded speaking records, reviewed legacy imports, editing, and weekly summaries.
@@ -259,3 +260,16 @@ Archive undo now uses restore rather than reopen, so archiving and undoing a com
 This batch adds no migration or backup-format change. Workspace format 6 already preserves archived tasks and their completion timestamps. Shared search and the weekly agenda continue using their existing status boundaries, so restored completed work reappears on its earlier recorded completion day. Original specialist dashboards, publication workflows, and the Courier status notification are unchanged. The new view uses the existing Light/Dark/System materials.
 
 Validation: all 132 automated tests pass. Nine new tests cover combined filters, literal matching, exact counts and pagination, status-specific actions, completion-preserving restore, encoded IDs, authentication and owner/origin boundaries, stale revisions, atomic rollback, frozen/repeated saves, cancellation and retry, draft guards, selected-view navigation, and archive undo after an intervening edit. The local production build, client/server module resolution, JavaScript syntax, markup references, CSS, and unchanged migration/original-HTML bytes pass. No browser, physical-device, or live personal-data QA was performed in this batch.
+
+
+## Completed: recoverable weekly time-budget editing
+
+The time budget in This week now has an explicit draft lifecycle. The first edit captures its week, revision, and saved review answers. Editing, failed saves, and late workspace refreshes retain that draft instead of replacing its value or silently adopting another device's revision. The availability input, Save budget, and Discard & reload budget controls freeze while a save or reload is in flight, and repeat save clicks are ignored. Other navigation and record actions use the shared draft guard.
+
+Blank input is rejected instead of becoming an unintended zero-hour budget. Explicit zero remains valid. Decimal hours are accepted when they represent whole minutes, preserving existing minute-level budgets without silently rounding finer values. The weekly summary identifies the saved budget, or the unsaved default when no weekly record exists. A typed value changes that summary only after a successful save and refresh.
+
+Discard & reload budget deliberately clears the pending edit and retrieves the saved workspace. If that refresh fails, the editor shows the last loaded value with an explicit warning and permits a retry. A save failure keeps the original draft. A successful save followed by a failed refresh is labelled as saved with a refresh needed; it is not misreported as an unsaved draft. Unsaved values remain in the open tab and are not persisted separately across devices or browser restarts.
+
+Budget saves continue using the existing owner-scoped weekly record API and revision checks. The captured review answers accompany the capacity update, so a concurrent review edit causes a conflict rather than being overwritten. No schema, migration, backup-format, external-service, or scheduling change is required. The existing appearance options, specialist dashboards, and Courier publication/status behavior remain unchanged.
+
+Validation: all 137 automated tests pass. Five new tests cover blank-versus-zero validation and whole-minute precision, frozen controls and duplicate saves, original-revision retention, saved review preservation, conflict recovery, explicit discard and failed reloads, distinguishing save success from refresh failure, and actual app protection against late refreshes and navigation. Local production build, module resolution, JavaScript syntax, markup references, CSS, unchanged migrations, and original HTML pass. No browser, physical-device, or live personal-data QA was performed in this batch.
