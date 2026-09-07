@@ -158,3 +158,6 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 .commitment-actions button{min-height:44px}
 @media(max-width:1050px){.commitments-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.commitment-record{grid-template-columns:1fr;gap:8px}.commitment-actions{justify-content:start;max-width:none}}
 @media(max-width:480px){.commitments-filters{grid-template-columns:1fr}.commitment-actions{gap:8px}}
+
+.budget-draft-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}
+.budget-draft-actions button{min-height:44px}
