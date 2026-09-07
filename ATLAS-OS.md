@@ -38,13 +38,12 @@ Identity comes from the trusted Sites dispatcher's `oai-authenticated-user-id` h
 
 Requires Node 24 for the `node:sqlite` test harness. Run `npm ci`, `npm run db:generate` when the schema changes, `npm run build`, and `npm test`. Do not regenerate or edit an applied migration. Append a new migration for future schema changes.
 
-Tests exercise the built Worker's fetch handler against a real in-memory SQLite database through a D1-compatible adapter. They cover owner isolation, origin and identity checks, import filtering and atomicity, duplicate import identity, duplicate capture protection, concurrent focus capacity, stale writes, reviews, export, and database failure handling. These are API and data tests, distinct from the bounded desktop browser checks described below.
+Tests exercise the built Worker's fetch handler against a real in-memory SQLite database through a D1-compatible adapter. They cover owner isolation, origin and identity checks, import filtering and atomicity, duplicate import identity, duplicate capture protection, concurrent focus capacity, stale writes, reviews, export, and database failure handling. These are API and data tests, distinct from the desktop and responsive browser checks described below.
 
 ## Next implementation priorities
 
-1. Finish browser verification of the final build, including Capture and mobile layouts, from a fresh supervised preview.
-2. Add a grounded daily briefing using saved deadlines, unfinished commitments, and weekly priorities.
-3. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
+1. Add a grounded daily briefing using saved deadlines, unfinished commitments, and weekly priorities.
+2. Extend authenticated synchronization beyond synced projects and commitments; Courier currently uses dated, reviewed practice snapshots.
 
 ## Completed: daily workflow batch
 
@@ -87,4 +86,8 @@ A previous task, project, or review update can be recovered only while its saved
 
 Validation includes seven additional recovery tests: full round trips across all four record groups; checkpoint retrieval and reversal; stale and tampered previews; a save between restore validation and transaction; foreign-owner ID conflicts; atomic history failure; invalid backups; and minimal practice history. A separate check verifies the secure UUID fallback used when `randomUUID` is unavailable in the HTTP preview.
 
-Browser QA reached the desktop interface and exercised synthetic backup review, application, persistence after reload, commitment completion, undo, and the dark appearance of the recovery screen. The preview retained an earlier build after source changes, and the Sites troubleshooting policy's two startup attempts were exhausted. The final Capture compatibility fix and final-build/mobile browser QA remain unverified. This is not a live-account or physical-device test. The preview limitation does not change the production Worker's authentication.
+Browser QA now confirms the Capture compatibility fix on a fresh build: a commitment can be captured, saved, and retained after reload. The 390px preview also exercises Capture and saving. At 320px, synthetic backup review, acknowledgement, restore, persistence after reload, recovery-copy reversal, completion, and undo all passed. Light and dark appearances were checked, including recovery dialogs and the weekly review.
+
+The responsive check found clipped statistic labels at 320px. Today and weekly review statistics now use one row per card below 421px, with wrapping values and labels. A fresh build verified the correction at 320px in light mode and 390px in dark mode. All 48 automated tests pass. The browser checks use real iframe widths inside the isolated preview, not physical devices, touch keyboards, or production authentication.
+
+The development adapter exposes an optional responsive QA frame at `/?viewport=390` and `/?viewport=320`, linked from the desktop preview. Both sizes use the same built Worker and synthetic in-memory workspace. These controls are excluded from the production archive. Build before starting the supervised preview; restart it after rebuilding.
