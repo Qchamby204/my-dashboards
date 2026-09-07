@@ -85,3 +85,14 @@ main{margin-left:232px;padding:0 48px 70px;max-width:1580px}.topbar{height:92px;
 @media(max-width:700px){.recovery-copy{flex-direction:column}.recovery-table th,.recovery-table td{padding:.65rem .4rem}.dialog-actions{flex-wrap:wrap}}
 
 .review-layout{align-items:start}
+
+/* Speaking practice uses the shared appearance tokens in every theme. */
+.communication-rep{display:flex;justify-content:space-between;gap:20px;padding:22px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.communication-rep:last-child{border-bottom:0}
+.communication-rep h3{margin:0 0 8px;font-size:17px}
+.communication-rep>div:first-child{min-width:0;flex:1}
+.communication-rep .review-actions{align-self:flex-start;flex-shrink:0}
+#communication-dialog .review-actions{flex-wrap:wrap}
+@media(max-width:640px){.communication-rep{flex-direction:column;gap:8px}.communication-rep .review-actions{align-self:stretch}}
+@media(min-width:721px){.sidebar{overflow-y:auto;max-height:100dvh}.sidebar-bottom{flex-shrink:0}.page-heading>.primary{flex-shrink:0}}
+@media(max-width:720px){.page-heading>.primary{margin-top:18px}}
