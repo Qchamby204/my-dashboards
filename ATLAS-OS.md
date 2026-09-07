@@ -40,6 +40,11 @@ Tests exercise the built Worker's fetch handler against a real in-memory SQLite 
 1. Add an explicit, reversible live adapter for Life Map after resolving its authoritative storage location.
 2. Connect Courier lessons to actual practice completion instead of generated curriculum progress.
 3. Add shared event history and a reviewed daily preparation view.
-4. Improve original Vault restoration with validation, rollback verification, and credential exclusions.
 
-GitHub remains the development source. This change is prepared on a dedicated branch for review; existing Pages deployment is not switched to the new Worker by merging files alone.
+## Completed: original Vault recovery
+
+Atlas Home now prepares scoped backups and previews restores by app. It reads the existing file, clipboard, and bare-map backup formats, plus the new version 2 envelope. It validates supported values before writing, saves a recovery point, verifies each write, and attempts verified rollback when a restore fails. Undo survives a reload in the same tab. Credentials in recognized structured fields and unrelated dashboards are excluded; personal notes remain in exported records.
+
+This is the browser-local Vault on GitHub Pages. It does not restore or synchronize the private Atlas OS database. See [the Vault contract](shared/VAULT.md) for supported records, recovery limits, and failure behavior.
+
+GitHub remains the development source. The existing Pages deployment is not switched to the new Worker by merging files alone.

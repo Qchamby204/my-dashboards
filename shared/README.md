@@ -27,3 +27,5 @@ Gang Ops and the two test booking dashboards are intentionally outside this them
 | Increased/forced contrast | Strengthen boundaries; do not rely on shadows |
 
 Text palette colours meet 4.5:1 against the inset surface. This token check is not a claim that every legacy view has received a complete accessibility audit. Preserve labels, focus indication, selected-state borders, and existing responsive behavior when extending the theme. Keep new colours in the token layer instead of adding inline palette literals.
+
+Atlas Home's backup controls use these same light/dark tokens in `atlas-vault.css`. Their separate storage and recovery contract is documented in [VAULT.md](VAULT.md).
