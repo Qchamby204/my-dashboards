@@ -1,5 +1,6 @@
-import { html, css, js, theme, model } from './assets.mjs';
+import { html, css, js, theme, model, ledgerModel, ledgerUI } from './assets.mjs';
 import { validDate, monday, textValue, dateValue, appValue, minutesValue, practiceItems, practiceCatalog, practicePayloadSize, parsePracticeTransfer, practiceImportPlan } from './model.mjs';
+import { ledgerContent, ledgerRecord, parseLedgerTransfer, ledgerImportPlan } from './ledger.mjs';
 import { workspace, parseWorkspace, digest, changes, replaceWorkspace, checkpointData, guard, TABLES } from './recovery.mjs';
 
 const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'same-origin' };
@@ -8,7 +9,7 @@ class HttpError extends Error { constructor(message,status=400){super(message);t
 async function bodyOf(request) {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError('Send JSON.');
   const body=await request.text(),path=new URL(request.url).pathname;
-  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:path.startsWith('/api/practice')?1800000:350000)) throw new HttpError('This request is too large.',413);
+  if(new TextEncoder().encode(body).length>(path.startsWith('/api/restore')?8500000:(path.startsWith('/api/practice')||path.startsWith('/api/ledger'))?1800000:350000)) throw new HttpError('This request is too large.',413);
   try { const value=JSON.parse(body); if(!value || typeof value!=='object' || Array.isArray(value)) throw new Error(); return value; }
   catch { throw new HttpError('This request could not be read.'); }
 }
@@ -24,6 +25,20 @@ function practiceRow(row){
     imported_at:row.imported_at,source_exported_at:row.source_exported_at,updated_at:row.updated_at||null};
 }
 async function currentPractice(db,owner){return practiceRow(await db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner).first());}
+function ledgerRow(row){return row?ledgerRecord({...row,habits:JSON.parse(row.habits),days:JSON.parse(row.days)}):null;}
+async function currentLedger(db,owner){return ledgerRow(await db.prepare('SELECT * FROM atlas_ledger WHERE owner=?').bind(owner).first());}
+async function writeLedger(db,owner,current,next,now,source=undefined){
+  const content=ledgerContent(next),habits=JSON.stringify(content.habits),days=JSON.stringify(content.days);
+  const imported=source!==undefined;
+  if(current){
+    const result=await db.prepare('UPDATE atlas_ledger SET habits=?,days=?,updated_at=?,imported_at=?,source_exported_at=?,revision=revision+1 WHERE owner=? AND revision=?')
+      .bind(habits,days,now,imported?now:current.imported_at,imported?source:current.source_exported_at,owner,current.revision).run();
+    if(!result.meta.changes)throw new HttpError('Life Ledger changed on another device. Keep a copy of your draft, then reload the saved day before trying again.',409);
+  }else{
+    try{await db.prepare('INSERT INTO atlas_ledger (owner,habits,days,updated_at,imported_at,source_exported_at) VALUES (?,?,?,?,?,?)').bind(owner,habits,days,now,imported?now:null,imported?source:null).run();}
+    catch(error){if(String(error.message).includes('UNIQUE'))throw new HttpError('Life Ledger was created on another device. Reload before trying again.',409);throw error;}
+  }
+}
 async function writePractice(db,owner,current,next,now,imported=false){
   practicePayloadSize(next);
   const items=JSON.stringify(next.items),catalog=JSON.stringify(next.catalog);
@@ -41,22 +56,57 @@ async function state(db,owner,week) {
     db.prepare("SELECT * FROM atlas_tasks WHERE owner=? ORDER BY created_at DESC").bind(owner),
     db.prepare('SELECT * FROM atlas_projects WHERE owner=? ORDER BY title').bind(owner),
     db.prepare('SELECT * FROM atlas_weeks WHERE owner=? AND week_start=?').bind(owner,week),
-    db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner)
+    db.prepare('SELECT * FROM atlas_practice_snapshots WHERE owner=?').bind(owner),
+    db.prepare('SELECT * FROM atlas_ledger WHERE owner=?').bind(owner)
   ]);
   const practice=result[3].results[0];
   return { tasks:result[0].results, projects:result[1].results, week:result[2].results[0]||null,
-    practice:practiceRow(practice) };
+    practice:practiceRow(practice),ledger:ledgerRow(result[4].results[0]) };
 }
 async function api(request,env,url,owner) {
   const db=env.DB;
   if(!db) throw new HttpError('Your saved workspace is temporarily unavailable. Please try again.',503);
   const path=url.pathname, now=new Date().toISOString();
+  if(path.startsWith('/api/ledger/')&&['POST','PATCH','PUT'].includes(request.method)){
+    const b=await bodyOf(request),current=await currentLedger(db,owner);
+    if(path==='/api/ledger/import/preview'&&request.method==='POST'){
+      const pack=parseLedgerTransfer(b.pack),plan=ledgerImportPlan(current,pack);
+      return json({pack,digest:await digest(pack),revision:current?.revision||0,rows:plan.rows,added:plan.added,kept:plan.kept});
+    }
+    if(!Number.isSafeInteger(b.revision)||b.revision!==(current?.revision||0))throw new HttpError('Life Ledger changed on another device. Download your draft, then reload the saved day or review the import again.',409);
+    if(path==='/api/ledger/import'&&request.method==='POST'){
+      const pack=parseLedgerTransfer(b.pack);
+      if(b.digest!==await digest(pack))throw new HttpError('This import changed after review. Choose the file and review it again.',409);
+      const plan=ledgerImportPlan(current,pack);
+      await writeLedger(db,owner,current,plan.next,now,pack.exportedAt);return json({saved:true,added:plan.added,kept:plan.kept});
+    }
+    const next={habits:[...(current?.habits||[])],days:[...(current?.days||[])]};
+    if(path==='/api/ledger/habit'&&request.method==='POST'){
+      const id=textValue(b.id,240,true),title=textValue(b.title,160,true);
+      if(!id.startsWith('atlas:'))throw new HttpError('Choose a new Atlas habit ID.');
+      if(next.habits.some(h=>h.id===id))throw new HttpError('This habit has already been saved. Reload Life Ledger.',409);
+      next.habits.push({id,title,archived:false});
+    }else if(path==='/api/ledger/habit'&&request.method==='PATCH'){
+      const index=next.habits.findIndex(h=>h.id===b.id);if(index<0)throw new HttpError('This habit is unavailable.',404);
+      const h={...next.habits[index]};
+      if(b.action==='rename')h.title=textValue(b.title,160,true);
+      else if(b.action==='archive')h.archived=true;
+      else if(b.action==='restore')h.archived=false;
+      else throw new HttpError('Choose a habit action.');
+      next.habits[index]=h;
+    }else if(path==='/api/ledger/day'&&request.method==='PUT'){
+      const d=ledgerContent({habits:next.habits,days:[b.day]}).days[0];
+      const index=next.days.findIndex(x=>x.date===d.date);
+      if(index<0)next.days.push(d);else next.days[index]=d;
+    }else throw new HttpError('This Life Ledger action is unavailable.',404);
+    await writeLedger(db,owner,current,next,now);return json({saved:true});
+  }
   if(path==='/api/restore/preview'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice);
-    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1});
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger);
+    return json({backup,seq:current.seq,digest:await digest(backup),changes:changes(current.data,backup),legacy:b.backup.version===1,legacyLedger:b.backup.version<4});
   }
   if(path==='/api/restore'&&request.method==='POST'){
-    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice);
+    const b=await bodyOf(request),current=await workspace(db,owner),backup=parseWorkspace(b.backup,current.data.practice,current.data.ledger);
     if(!Number.isSafeInteger(b.seq)||b.seq!==current.seq||b.digest!==await digest(backup))throw new HttpError('The workspace or backup changed. Review the restore again.',409);
     const id=await replaceWorkspace(db,owner,backup,current.data,b.seq,'Before workspace restore');
     return json({saved:true,checkpoint:id});
@@ -93,7 +143,7 @@ async function api(request,env,url,owner) {
     if(path.endsWith('/undo')&&request.method==='POST'){
       const b=await bodyOf(request),current=await workspace(db,owner);
       if(b.seq!==current.seq||current.seq!==checkpoint.after_seq)throw new HttpError('The workspace changed after this restore. Download the recovery copy and review it before applying it.',409);
-      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data),current.data,current.seq,'Before reversing workspace restore');
+      const recovery=await replaceWorkspace(db,owner,parseWorkspace(checkpoint.data,current.data.practice,current.data.ledger),current.data,current.seq,'Before reversing workspace restore');
       return json({saved:true,checkpoint:recovery});
     }
   }
@@ -268,7 +318,7 @@ export default {
     }
     try {
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8']};
+      const assets={'/':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
