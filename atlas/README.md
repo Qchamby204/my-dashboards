@@ -14,19 +14,15 @@ Chores show remaining work or all chores, with clear calendar-cycle recurrence. 
 
 The original Life Map source and browser records remain unchanged. Atlas links to the improved private Life Map. Dashboards are reviewed individually.
 
-## Dashboard 2: The Herald
+## The Herald: original dashboard
 
-Purpose: capture ideas, write scripts, track production, and record publication.
+Atlas links directly to the existing GitHub Pages Herald at `https://qchamby204.github.io/my-dashboards/the-herald.html`. The mistaken private `/apps/herald` route redirects to that same address. The private build no longer contains a Herald dashboard, replacement editor, or its styles.
 
-The private Herald opens to a searchable content list. A title is enough to capture an idea. The editor puts the script first and lets users change title, format, audience, stage, and dates. Word count and estimated reading time update while typing. Packaging, publication checklists, and manual results are optional sections; checklist completion is an explicit user choice. Earlier cadence records remain under Tools.
-
-The calendar lists planned content and recorded publications with separate dates. Recording publication never posts externally. Historical publication dates can be entered, and unknown dates remain unknown. Existing scripts and production details are retained across saves.
-
-Cancelling a changed editor requires an explicit discard. Downloaded backups include open editor text and uncaptured ideas. Backup restoration validates content before an explicit replacement review. Delete Undo restores only the affected record, and restore Undo refuses to overwrite newer edits. The original Herald HTML stays unchanged; generic enhancement modules are composed into the private build.
+The original `the-herald.html` and its browser storage are unchanged. Existing private Herald records and backup APIs remain available for recovery through the earlier workspace. Nothing is automatically copied into, merged with, or removed from the original app.
 
 ## Shared records
 
-The full Life Map and Herald interfaces run privately at `/apps/life-map` and `/apps/herald`. Their records are saved privately across devices. Scripts, notes, checklists, and chores are retained. Edits and completion remain within their app records. Mark published records a publication; it does not post to a platform.
+The private Life Map runs at `/apps/life-map` and saves its records across devices. Earlier private Herald records are retained for recovery. Herald now opens its original dashboard; it does not share storage with the private workspace.
 
 Earlier records stored in the original browser apps need one reviewed transfer through Settings. The transfer reads only the two supported app stores and excludes contacts. Original app copies remain unchanged and do not receive background synchronization. Other original apps remain separate.
 
@@ -40,4 +36,4 @@ Migration 0009 adds source priorities and connected app details. Applied migrati
 
 Run `node atlas/build.mjs`, then `node --test atlas/tests/*.test.mjs`.
 
-182 checks pass, including actual app editor scripts, draft recovery, publication date round trips, project completion and Undo, shared source updates, concurrent saves, ownership, import review, and recovery. Tests use synthetic records and mock page elements. No live user records were transferred during development. Browser testing was not performed for this pass.
+Automated checks cover the original Herald link and redirect, the absence of a replacement Herald interface, Life Map editing, publication date round trips, shared source updates, concurrent saves, ownership, import review, and recovery. Tests use synthetic records and mock page elements. No live user records were transferred during development. Browser testing was not performed for this pass.
