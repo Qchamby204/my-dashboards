@@ -13,6 +13,9 @@
     if(root.dataset.atlasApp==='the-hourglass'){
       const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
+    if(root.dataset.atlasApp==='communication-trainer'){
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
