@@ -94,3 +94,9 @@ test('invalid backups are rejected before writes, while older backups preserve o
 test('a rejected clipboard fallback never reports success',()=>{
   const h=boot();h.run("globalThis.copySucceeded=false;fallbackCopy('Test',()=>{globalThis.copySucceeded=true})");assert.equal(h.run('copySucceeded'),false);
 });
+test('practice keeps transcript and saving visible while optional external grading starts collapsed',()=>{
+ const h=boot();h.begin();h.run("curDrill.tx='Keep this transcript'");const html=h.run('drillView()');
+ const details=html.match(/<details class="communication-feedback">([\s\S]*?)<\/details>\s*<\/div>\s*<div class="card rubric">/);
+ assert(details);assert.match(details[1],/id="gradeBox"/);assert.match(details[1],/copyGradePrompt/);assert(!details[1].includes('id="txBox"'));
+ assert.match(html,/aria-label="About dictation and feedback"/);assert.match(html,/Save practice/);assert.match(html,/Keep this transcript/);assert.equal((html.match(/<details\b/g)||[]).length,(html.match(/<\/details>/g)||[]).length);
+});

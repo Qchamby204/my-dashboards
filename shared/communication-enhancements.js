@@ -111,7 +111,17 @@
         session.tx=snapshot.tx;session.recSecs=snapshot.secs;render();
       });else toast('Rep restarted','Same topic, full timer.');
     };
-    drillView=function(){return oldDrillView().replace('↺ Reset the clock','Restart rep').replace('Record → transcript → AI grade','Transcript and feedback').replace('Tap record and run the rep — your words transcribe live below (edit anything it misheard). Then copy the grading prompt, paste it to Claude, and paste the JSON grade back into the box. Every grade lands on the trend line in Growth.','Live dictation creates text; this tool does not save an audio recording. You can also type or use keyboard dictation. Review the transcript, then optionally copy the grading prompt to Claude and paste its JSON grade back here.').replace('>● Record<','>Start dictation<').replace('>■ Stop recording<','>Stop dictation<');};
+    function info(label,text){return '<details class="atlas-info"><summary aria-label="'+label+'"><span aria-hidden="true">i</span></summary><div class="atlas-info-body">'+text+'</div></details>';}
+    drillView=function(){
+      let html=oldDrillView().replace('↺ Reset the clock','Restart rep').replace('Record → transcript → AI grade','2 · Review your transcript').replace('Self-score this rep','3 · Score and save').replace('>Log rep (+10 XP)<','>Save practice (+10 XP)<');
+      html=html.replace(/<p class="muted">Tap record and run the rep[\s\S]*?<\/p>/,info('About dictation and feedback','Dictation creates text, not an audio recording. You can also type or use keyboard dictation. Review the transcript before saving. External feedback is optional.'));
+      html=html.replace('<p class="muted">Be honest, this calibrates your training plan.</p>',info('About self-scoring','Rate this attempt using the rubric. Your saved scores help you review progress and choose what to practise.'));
+      html=html.replace('>● Record<','>Start dictation<').replace('>■ Stop recording<','>Stop dictation<');
+      const start='<div class="flex" style="margin-top:8px">\n      <button class="btn" onclick="copyGradePrompt()">';
+      html=html.replace(start,'<details class="communication-feedback"><summary>Optional external feedback</summary>'+info('How external feedback works','Copy the grading prompt to your chosen assistant, then paste its JSON feedback here. This page does not send your transcript automatically.')+start);
+      html=html.replace('  </div>\n  <div class="card rubric">','    </details>\n  </div>\n  <div class="card rubric">');
+      return html;
+    };
     render=function(){
       const keep=renderedPage===curPage&&renderedSession===curDrill,x=window.scrollX||0,y=window.scrollY||0;
       oldRender();renderedPage=curPage;renderedSession=curDrill;if(keep)window.scrollTo(x,y);

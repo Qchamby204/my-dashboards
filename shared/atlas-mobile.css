@@ -65,3 +65,15 @@ html.atlas-mobile[data-atlas-app="workout-forge"] .forge-confirm{top:calc(var(--
   .atlas-mobile[data-atlas-app="the-herald"] [style*="grid-template-columns:repeat(7,1fr)"]{min-width:332px}
   .atlas-mobile[data-atlas-app="the-herald"] [onclick^="calPick("]>div:first-child{font-size:14px!important}
 }
+/* Optional explanations use native tap/keyboard disclosures, never hover-only help. */
+.atlas-info{display:inline-block;vertical-align:middle;max-width:100%;font-size:1rem;line-height:1.55}
+.atlas-info>summary{display:flex;align-items:center;justify-content:center;list-style:none;cursor:pointer;width:44px;min-height:44px;border:1px solid var(--neo-line);border-radius:50%;font:600 16px/1 Georgia,serif;color:var(--neo-accent);background:var(--neo-surface)}
+.atlas-info>summary::-webkit-details-marker{display:none}
+.atlas-info[open]{display:block;width:100%}
+.atlas-info-body{padding:14px 16px;margin:8px 0;border-left:2px solid var(--neo-accent);background:var(--neo-inset);color:var(--neo-ink);overflow-wrap:anywhere}
+.atlas-info-body p{margin:0 0 10px}
+.atlas-info>summary:focus-visible{outline:3px solid var(--neo-blue);outline-offset:3px}
+html.atlas-mobile:not([data-atlas-app="life-ledger"]) :is(.eyebrow,.appbar-sub){font-size:12px!important;letter-spacing:.06em;line-height:1.5;white-space:normal}
+html.atlas-mobile:not([data-atlas-app="life-ledger"]) :is(.chip,.badge,.tag){font-size:12px;box-shadow:none}
+html.atlas-mobile:not([data-atlas-app="life-ledger"]) :is(.tabbar button,.rail-btn){font-size:14px}
+html.atlas-mobile:not([data-atlas-app="life-ledger"]) :is(.tabbar button.active,.rail-btn.active){border-bottom:2px solid var(--neo-accent)!important}

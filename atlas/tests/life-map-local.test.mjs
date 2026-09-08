@@ -27,3 +27,7 @@ test('shipped GitHub dashboard boots existing records, saves edits, and needs no
  assert.equal(window.LifeMapLocal.blocked,false);assert.match(make('app').innerHTML,/Projects/);assert.equal(vm.runInContext('S.projects[0].notes',context),'Keep me');window.LifeMapDashboard.setStatus('one','Done');assert.equal(JSON.parse(s.getItem('lifemap_v1')).projects[0].status,'Done');assert.equal(window.AtlasConnected,undefined);
  vm.runInContext("view.editor=Object.assign({kind:'proj'},S.projects[0],{notes:'Edited locally'});saveEditor()",context);assert.equal(JSON.parse(s.getItem('lifemap_v1')).projects[0].notes,'Edited locally');
 });
+test('public Life Map retains board identity, backups, and keyboard-operable explanation controls',()=>{
+ const html=readFileSync(new URL('../../life-map.html',import.meta.url),'utf8');
+ assert.match(html,/appbar lm-header/);assert.match(html,/Every area, one board/);assert.match(html,/lm-overview-values/);assert.match(html,/id="lm-backups"/);assert.match(html,/<details class="atlas-info"><summary aria-label=/);assert.match(html,/How repeating chores work/);
+});
