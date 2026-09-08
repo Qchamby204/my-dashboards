@@ -31,6 +31,7 @@ test('Ledger migration appends a private table without changing existing practic
 });
 test('legacy imports whitelist check-ins and notes, preserve names and archives, and reject ambiguous or oversized records',()=>{
   const p=parseLedgerTransfer(legacy()),text=JSON.stringify(p);
+  assert.deepEqual(parseLedgerTransfer({...legacy(),version:3,season:{start:'2026-09-08',end:'2026-12-31'},drafts:{private:'excluded unfinished work'}}),p);
   assert.equal(p.habits.find(h=>h.id==='legacy:Read').title,'Read for pleasure');assert.equal(p.habits.find(h=>h.id==='legacy:Board Work').archived,true);
   assert.deepEqual(p.days[0].checked,['legacy:Household Chore','legacy:Read']);assert.equal(p.days[0].note,'Made time for a book.');
   for(const excluded of ['never imported','excluded metric','exclude criteria','goal','crit','25'])assert.equal(text.includes(excluded),false);
