@@ -35,6 +35,15 @@
   }
   function pickBackup(){const file=make('input');file.type='file';file.accept='.json,application/json';file.onchange=()=>importBackup(file.files?.[0]);file.click();}
   function drafts(){return S._drafts||(S._drafts={});}
+  function saveScenario(){
+    const name=document.getElementById('aq-scenario-name')?.value.trim();
+    if(!name){toast('Name this comparison first.');document.getElementById('aq-scenario-name')?.focus();return;}
+    const rows=S.scenarios||(S.scenarios=[]);
+    if(rows.length>=8){toast('Delete a saved comparison before adding another. You can keep up to eight.');return;}
+    const row={id:uid(),name:name.slice(0,60),savedAt:new Date().toISOString(),income:takeHomeMo(),bills:expensesMo(),debt:debtMo(),savings:savingsMo(),available:spendMo()};
+    if(![row.income,row.bills,row.debt,row.savings,row.available].every(Number.isFinite)){toast('Check the plan amounts before saving a comparison.');return;}
+    rows.push(row);save();render();toast('Comparison saved on this device.');
+  }
   function resetReview(){reviewMonth=S.audit?.ym||'';reviewPage=0;reviewQuery='';reviewBucket='all';}
   function removeRecord(collection,id,label){
     const index=S[collection].findIndex(x=>x.id===id);if(index<0)return;const removed=clone(S[collection][index]);S[collection].splice(index,1);save();render();
@@ -89,6 +98,11 @@
   wire=function(){
     originalWire();
     const bind=(id,fn)=>{const n=document.getElementById(id);if(n)n.onclick=fn;};
+    for(const n of app.querySelectorAll('[data-income-mode]')) n.onclick=()=>{S.incomeMode=n.dataset.incomeMode;save();render();document.getElementById('aq-income')?.focus();};
+    const income=document.getElementById('aq-income');
+    if(income) income.onchange=()=>{const amount=toNum(income.value);if(amount!==''&&Number.isFinite(amount)&&amount>=0){S.actualIncomeMo=amount;save();render();}else{toast('Enter a valid amount of zero or more.');income.value=S.actualIncomeMo??'';income.focus();}};
+    bind('aq-save-scenario',saveScenario);
+    for(const n of app.querySelectorAll('[data-delete-scenario]')) n.onclick=()=>removeRecord('scenarios',n.dataset.deleteScenario,'Comparison');
     for(const [id,key]of [['hhAmt','householdAmount'],['hhDate','householdDate']]){const n=document.getElementById(id);if(!n)continue;n.value=drafts()[key]??(id==='hhDate'?iso(new Date()):'');n.setAttribute('aria-label',id==='hhAmt'?'Household assets':'Date opened');n.addEventListener('input',()=>{drafts()[key]=n.value;save();});n.addEventListener('change',()=>{drafts()[key]=n.value;save();});}
     for(const [id,type]of [['segExt','ext'],['segRef','ref']]){bind(id,()=>{draftType=type;drafts().householdType=type;save();render();});document.getElementById(id)?.setAttribute('aria-pressed',String(type===draftType));}
     bind('hhAdd',addHousehold);bind('clearLedger',clearHouseholds);
