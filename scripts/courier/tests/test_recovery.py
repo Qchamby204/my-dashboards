@@ -65,6 +65,20 @@ class RecoveryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             recovery.build_date("2026-2-3")
 
+    def test_targeted_sports_repair_preserves_other_sections_and_skips_existing_audio(self):
+        request = {**self.request, "sections": ["sports"]}
+        manifest = {"days": [self.day]}
+        plan = recovery.choose_plan(manifest, "push", now=self.now, request=request)
+        self.assertTrue(plan["generate"])
+        self.assertEqual(plan["sections"], "sports")
+        self.day["blocks"].append({"id": "sports", "script": "Saved sports script", "audio": ""})
+        self.assertTrue(recovery.choose_plan(manifest, "push", now=self.now, request=request)["generate"])
+        self.day["blocks"][-1]["audio"] = "already-published.mp3"
+        self.assertFalse(recovery.choose_plan(manifest, "push", now=self.now, request=request)["generate"])
+        for sections in [["markets"], ["sports", "sports"], []]:
+            with self.assertRaises(ValueError):
+                recovery.choose_plan(manifest, "push", now=self.now, request={**request, "sections": sections})
+
     def test_actual_git_diff_recognizes_only_recovery_request_changes(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(recovery, "ROOT", Path(directory)):
             def git(*args):
