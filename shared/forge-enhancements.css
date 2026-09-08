@@ -1,0 +1,32 @@
+html[data-atlas-app="workout-forge"] [hidden]{display:none!important}
+html[data-atlas-app="workout-forge"] .forge-button{font:inherit;font-size:14px;min-height:44px;min-width:44px;padding:10px 14px;border-radius:12px;border:1px solid var(--neo-line);color:var(--neo-ink);background:var(--neo-surface);cursor:pointer}
+html[data-atlas-app="workout-forge"] .forge-button:disabled{opacity:.55;cursor:default}
+html[data-atlas-app="workout-forge"] :is(.forge-rest,.forge-save-notice){position:fixed;z-index:80;left:max(12px,var(--atlas-safe-left,0px));right:max(12px,var(--atlas-safe-right,0px));bottom:calc(12px + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px));max-width:600px;margin:0 auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px;border:1px solid var(--neo-blue);border-radius:16px;background:var(--neo-surface);color:var(--neo-ink);box-shadow:var(--neo-raised)}
+html[data-atlas-app="workout-forge"] .forge-rest-label{font-size:14px;flex:1 1 120px}
+html[data-atlas-app="workout-forge"] .forge-rest strong{font-size:22px;flex:1 1 80px;text-align:right;font-variant-numeric:tabular-nums}
+html[data-atlas-app="workout-forge"] .forge-rest button{flex:1 0 auto}
+html[data-atlas-app="workout-forge"] .forge-save-notice{z-index:110;bottom:calc(16px + var(--forge-rest-height,0px) + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px));max-height:40dvh;overflow:auto}
+html[data-atlas-app="workout-forge"] .forge-save-notice p{flex-basis:100%;font-size:14px;line-height:1.5}
+html[data-atlas-app="workout-forge"] .forge-live-panel{padding-bottom:calc(40px + var(--forge-rest-height,0px) + var(--atlas-safe-bottom,0px))!important;scroll-padding-bottom:calc(20px + var(--forge-rest-height,0px));min-height:0}
+html[data-atlas-app="workout-forge"] .forge-live-header{flex-wrap:wrap}
+html[data-atlas-app="workout-forge"] .forge-live-header>div{flex:1 1 120px!important}
+html[data-atlas-app="workout-forge"] .forge-live-header>button{font-size:14px!important;min-height:44px}
+html[data-atlas-app="workout-forge"] .forge-live-actions{flex-wrap:wrap}
+html[data-atlas-app="workout-forge"] .forge-live-actions>*{flex:1 1 100px!important;min-height:48px}
+html[data-atlas-app="workout-forge"] .forge-picker{display:grid;gap:7px;font-size:14px;margin:0 0 16px;color:var(--neo-ink)}
+html[data-atlas-app="workout-forge"] .forge-picker select{font:inherit;font-size:16px;width:100%;min-width:0;min-height:44px;padding:10px;border:1px solid var(--neo-line);border-radius:10px;color:var(--neo-ink);background:var(--neo-inset)}
+html[data-atlas-app="workout-forge"] .forge-paused{font-size:16px;line-height:1.5;margin:0 0 16px;color:var(--neo-ink)}
+html[data-atlas-app="workout-forge"] .forge-cardio{margin-top:12px;font-size:14px;color:var(--neo-ink)}
+html[data-atlas-app="workout-forge"] .forge-cardio label{display:grid;gap:6px}
+html[data-atlas-app="workout-forge"] .forge-cardio input{min-height:44px;width:100%;border:1px solid var(--neo-line);border-radius:10px;padding:10px;background:var(--neo-inset);color:var(--neo-ink)}
+html[data-atlas-app="workout-forge"] :is(.forge-cardio-steps,.forge-cardio-modes){display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+html[data-atlas-app="workout-forge"] .forge-cardio [aria-pressed="true"]{box-shadow:var(--neo-pressed);border-color:var(--neo-blue)}
+html[data-atlas-app="workout-forge"] .forge-confirm{margin:auto;max-width:520px;width:calc(100% - 28px);max-height:calc(var(--atlas-visible-height,100dvh) - 40px);overflow:auto;padding:24px;background:var(--neo-surface);color:var(--neo-ink);border:1px solid var(--neo-line);border-radius:18px}
+html[data-atlas-app="workout-forge"] .forge-confirm p{font-size:16px;line-height:1.6;margin:16px 0}
+html[data-atlas-app="workout-forge"] .forge-confirm button{margin:4px}
+html[data-atlas-app="workout-forge"] :is(input,textarea,select){font-size:16px!important}
+html[data-atlas-app="workout-forge"] :is(button,input,textarea,select):focus-visible{outline:3px solid var(--neo-blue);outline-offset:3px}
+html[data-atlas-app="workout-forge"] #app{padding-bottom:calc(32px + var(--forge-rest-height,0px))}
+html[data-atlas-app="workout-forge"] [data-act="liveresume"]{bottom:calc(18px + var(--forge-rest-height,0px) + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px))!important}
+html[data-atlas-app="workout-forge"] #undoToast{bottom:calc(24px + var(--forge-rest-height,0px) + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px))!important}
+@media(max-width:560px){html[data-atlas-app="workout-forge"] .forge-rest button{flex-basis:calc(50% - 8px)}html[data-atlas-app="workout-forge"] .forge-rest-label,html[data-atlas-app="workout-forge"] .forge-rest strong{flex-basis:40%}html[data-atlas-app="workout-forge"] .forge-live :is(.setw,.setr){width:64px;min-width:54px}html[data-atlas-app="workout-forge"] .forge-live-header #forge-pause{flex-basis:100%}}
