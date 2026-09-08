@@ -16,6 +16,9 @@
     if(root.dataset.atlasApp==='communication-trainer'){
       const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
+    if(root.dataset.atlasApp==='neural-map'){
+      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
