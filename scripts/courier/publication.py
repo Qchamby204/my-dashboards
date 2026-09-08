@@ -125,8 +125,12 @@ def main():
         feed.write_text(xml)
     else:
         item = publish(manifest, args.date, os.environ["REPO"], os.environ["GH_TOKEN"])
+        from status import publish_status
+        record = publish_status("verified", item, args.date)
         audio = sum(bool(b.get("audio")) for b in item["blocks"])
-        message = f"Courier {args.date}: live edition verified; {audio} audio sections, {len(item['blocks']) - audio} text-only sections."
+        message = f"Courier {args.date}: live edition verified; {audio} audio sections, {len(item['blocks']) - audio} text-only sections; {record['state'].upper()}."
+        if record["missingSections"]:
+            message += " Missing sections: " + ", ".join(record["missingSections"]) + "."
         print(message)
         if os.environ.get("GITHUB_STEP_SUMMARY"):
             with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
