@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Life Map · Projects and chores</title>
+<title>Life Map — The Board</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Life Map"/>
@@ -77,13 +77,12 @@ a{color:inherit}
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-workflow.css">
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=github-local-20260908"></head>
+</head>
 <body>
 <section id="atlas-project-transfer" aria-label="Synced project transfer"></section>
 <div id="app"></div>
 <div id="toast"></div>
 <script>
-
 const AREAS=[
  ["Family & Baby","👶","Baby prep, Johanna, parenting, family time"],
  ["House — Interior","🏠","Room-by-room: nursery, kitchen, bedrooms, basement"],
@@ -248,7 +247,15 @@ const SEED_C=[
 
 /* ===================== storage ===================== */
 var KEY="lifemap_v1";
-var store={};
+var store=(function(){
+  var mem={};
+  function ok(){ try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); return true; }catch(e){ return false; } }
+  var has=ok();
+  return {
+    get:function(k){ try{ return Promise.resolve(has?localStorage.getItem(k):(mem[k]||null)); }catch(e){ return Promise.resolve(mem[k]||null); } },
+    set:function(k,v){ try{ if(has) localStorage.setItem(k,v); else mem[k]=v; }catch(e){ mem[k]=v; } }
+  };
+})();
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(m){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]; }); }
 
@@ -1126,6 +1133,25 @@ window.addEventListener("focus",dayRollCheck);
 setInterval(dayRollCheck,60000);
 
 /* ===================== boot ===================== */
+store.get(KEY).then(function(v){
+  var parsed=null;
+  if(v){ try{ parsed=JSON.parse(v); }catch(e){ parsed=null; } }
+  if(parsed && Array.isArray(parsed.projects)){
+    S=parsed;
+    if(!Array.isArray(S.chores)) S.chores=[];
+    if(!S.checks || typeof S.checks!=="object") S.checks={};
+    if(!Array.isArray(S.log)) S.log=[];   // migrate older saves
+    if(!S.planned || typeof S.planned!=="object") S.planned={};
+  } else {
+    S=seedState(); save();
+  }
+  /* stale plans (yesterday's unfinished assignments) slide back to their bucket */
+  (function(){ var t=todayISO(); Object.keys(S.planned||{}).forEach(function(k){ if(S.planned[k]!==t) delete S.planned[k]; }); })();
+  if(migrateAreas()) save();
+  render();
+});
+render();
+
 /* Ask the browser to treat this data as persistent. Browsers evict storage from
    sites you have not visited recently, and all eight tools live in that storage.
    This is a request, not a guarantee, which is why the Vault backup still matters. */
@@ -1216,161 +1242,6 @@ function uiAsk(title, fields, onOk, okLabel){
   if(first){ first.focus(); if(first.select) first.select(); }
 }
 function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent=msg; }
-
-
-function validateLifeMapRecords(input){
-  const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
-  let raw=input;
-  if(raw?.app==='atlas-connected-transfer')raw=raw.apps?.find(x=>x.kind==='life-map')?.state;
-  if(!object(raw)||!Array.isArray(raw.projects))throw Error('Choose a Life Map backup.');
-  const text=JSON.stringify(raw);if(new TextEncoder().encode(text).length>1500000)throw Error('Choose a Life Map backup smaller than 1.5 MB.');
-  const walk=(x,depth=0)=>{if(depth>30)throw Error('This backup is too deeply nested.');if(object(x)||Array.isArray(x))for(const [k,v] of Object.entries(x)){if(['__proto__','prototype','constructor'].includes(k))throw Error('This backup contains an unsupported field.');walk(v,depth+1);}};walk(raw);
-  const copy=JSON.parse(text),out={projects:copy.projects,chores:copy.chores??[],checks:copy.checks??{},planned:copy.planned??{},log:copy.log??[]};
-  const date=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&Number.isFinite(Date.parse(x+'T12:00:00Z'))&&new Date(x+'T12:00:00Z').toISOString().slice(0,10)===x;
-  const id=x=>typeof x==='string'&&/^[a-zA-Z0-9:_-]{1,200}$/.test(x);
-  const string=(x,max,required=false)=>typeof x==='string'&&x.length<=max&&(!required||!!x.trim());
-  if(out.projects.length>1000||!Array.isArray(out.chores)||out.chores.length>2000||!object(out.checks)||!object(out.planned)||!Array.isArray(out.log)||out.log.length>10000)throw Error('This backup has invalid record lists.');
-  for(const [kind,rows] of [['project',out.projects],['chore',out.chores]]){
-    const seen=new Set();for(const r of rows){if(!object(r)||!id(r.id)||seen.has(r.id))throw Error('The backup contains invalid or duplicate '+kind+' IDs.');seen.add(r.id);
-      if(!string(kind==='project'?r.task:r.chore,300,true)||!string(r.notes??'',20000))throw Error('A '+kind+' title or note is invalid.');
-      if(kind==='project'){
-        if(!string(r.area??'',120)||!string(r.sub??'',500)||!['Not started','In progress','Done'].includes(r.status)||r.pri&&!['High','Med','Low'].includes(r.pri))throw Error('A project has invalid details.');
-        if(r.due&&!date(r.due)||r.doneAt&&!date(r.doneAt)||r.park&&(!/^\d{4}-\d{2}$/.test(r.park)||!date(r.park+'-01')))throw Error('A project date is invalid.');
-      }else if(!['Daily','Weekly','Monthly','Quarterly','Annual'].includes(r.cad)||!string(r.zone??'',300)||!string(r.who??'',300))throw Error('A chore has invalid details.');
-    }
-  }
-  if(Object.entries(out.checks).some(([k,v])=>!id(k)||!string(v,100))||Object.entries(out.planned).some(([k,v])=>!id(k)||!date(v))||out.log.some(x=>!object(x)||!id(x.id)||x.t!=='proj'||!date(x.d)))throw Error('The backup contains invalid activity records.');
-  return out;
-}
-
-window.LifeMapRecords={validate:validateLifeMapRecords};
-/* Life Map owns projects and recurring household work. Atlas is only its link hub. */
-(function(){
-  var tab='projects',choreFilter='due',importRequest=0;
-  var originalSave=saveEditor,originalConfirm=uiConfirm;
-  function button(action,id,label,extra){return '<button type="button" data-lm="'+action+'" data-id="'+esc(id)+'" '+(extra||'')+'>'+label+'</button>';}
-  function selected(value,actual){return value===actual?' selected':'';}
-  function options(values,current){return values.map(function(v){return '<option value="'+esc(v)+'"'+selected(v,current)+'>'+esc(v)+'</option>';}).join('');}
-  function filtered(){
-    var q=view.q.toLowerCase();
-    return S.projects.filter(function(p){return (!view.fArea||p.area===view.fArea)&&(!view.fPri||p.pri===view.fPri)&&(!q||[p.task,p.sub,p.area,p.notes].join(' ').toLowerCase().includes(q))&&(view.fStatus==='_open'?p.status!=='Done'&&!isParked(p):view.fStatus==='_parked'?isParked(p):!view.fStatus||p.status===view.fStatus);}).sort(function(a,b){return (a.due||'9999').localeCompare(b.due||'9999')||({High:0,Med:1,Low:2}[a.pri]||0)-({High:0,Med:1,Low:2}[b.pri]||0)||a.task.localeCompare(b.task);});
-  }
-  function projectPanel(){
-    var list=filtered();
-    return '<div class="lm-capture"><label for="qaTxt">Add a project</label><div><input id="qaTxt" data-act="qatxt" maxlength="300" placeholder="What needs doing?" value="'+esc(view.qa.txt)+'"><button type="button" data-act="qaAdd" class="lm-primary">Add</button></div></div>'+
-      '<div class="lm-filters" data-ui-only><label>Search<input data-act="q" value="'+esc(view.q)+'" placeholder="Title or notes"></label><label>Area<select data-act="fArea"><option value="">All areas</option>'+options([...new Set(AREAS.map(function(a){return a.name;}).concat(S.projects.map(function(p){return p.area;})))],view.fArea)+'</select></label><label>Show<select data-act="fStatus"><option value="_open"'+selected('_open',view.fStatus)+'>Open</option><option value="_parked"'+selected('_parked',view.fStatus)+'>Parked</option><option value="Done"'+selected('Done',view.fStatus)+'>Completed</option><option value=""'+selected('',view.fStatus)+'>Everything</option></select></label><label>Priority<select data-act="fPri"><option value="">Any priority</option>'+options(PRIS,view.fPri)+'</select></label></div>'+
-      '<div class="lm-list-heading"><span>'+list.length+' project'+(list.length===1?'':'s')+'</span><button type="button" data-act="add" data-kind="proj">Add with details</button></div>'+
-      (list.length?list.map(function(p){var done=p.status==='Done';return '<article class="lm-row'+(done?' lm-done':'')+'">'+button('complete',p.id,done?'✓':'','class="lm-check" aria-label="'+(done?'Reopen ':'Complete ')+esc(p.task)+'"')+'<div class="lm-row-body"><button class="lm-title" type="button" data-act="edit" data-id="'+esc(p.id)+'">'+esc(p.task)+'</button><p>'+esc(p.area)+' · '+esc(p.status)+(p.due?' · <span class="'+(isOverdue(p)?'lm-overdue':'')+'">'+(isOverdue(p)?'Overdue ':'' )+fmtDay(p.due)+'</span>':'')+(p.park&&!done?' · Parked until '+fmtMonth(p.park):'')+'</p>'+(p.notes?'<p class="lm-note">'+esc(p.notes)+'</p>':'')+'</div>'+(!done?button('start',p.id,p.status==='In progress'?'Pause':'Start','class="lm-secondary"'):'')+'</article>';}).join(''):'<p class="lm-empty">'+(S.projects.length?'No projects match these filters.':'Add your first project above.')+'</p>');
-  }
-  function chorePanel(){
-    var rows=S.chores.filter(function(c){return choreFilter==='all'||!isChecked(c);});
-    return '<div class="lm-list-heading"><label data-ui-only>Show<select data-lm="chore-filter"><option value="due"'+selected('due',choreFilter)+'>Still to do</option><option value="all"'+selected('all',choreFilter)+'>All chores</option></select></label><button type="button" data-act="add" data-kind="chore" class="lm-primary">Add chore</button></div><p class="lm-help">Each chore becomes due again at the start of its next daily, weekly, monthly, quarterly, or annual cycle.</p>'+(rows.length?CADS.map(function(cad){var list=rows.filter(function(c){return c.cad===cad;});return list.length?'<section class="lm-chore-group"><h2>'+cad+'</h2>'+list.map(function(c){return '<article class="lm-row">'+button('chore',c.id,isChecked(c)?'✓':'','class="lm-check" aria-label="'+(isChecked(c)?'Uncheck ':'Complete ')+esc(c.chore)+'"')+'<div class="lm-row-body"><button class="lm-title" type="button" data-act="editc" data-id="'+esc(c.id)+'">'+esc(c.chore)+'</button><p>'+esc([c.zone,c.who].filter(Boolean).join(' · '))+'</p>'+(c.notes?'<p class="lm-note">'+esc(c.notes)+'</p>':'')+'</div></article>';}).join('')+'</section>':'';}).join(''):'<p class="lm-empty">'+(S.chores.length?'You’re caught up for this cycle.':'Add a chore and choose how often it repeats.')+'</p>');
-  }
-  editorView=function(){
-    var e=view.editor;if(!e)return '';var chore=e.kind==='chore';
-    function input(key,label,type,max){return '<label>'+label+'<input data-act="f" data-k="'+key+'" type="'+(type||'text')+'" '+(max?'maxlength="'+max+'"':'')+' value="'+esc(e[key]||'')+'"></label>';}
-    function select(key,label,values){return '<label>'+label+'<select data-act="f" data-k="'+key+'">'+options(values,e[key]||values[0])+'</select></label>';}
-    return '<dialog id="lm-editor" aria-labelledby="lm-editor-title"><form id="lm-editor-form"><div class="lm-editor-heading"><h2 id="lm-editor-title">'+(e.id?'Edit ':'New ')+(chore?'chore':'project')+'</h2><button type="button" data-act="closeEditor">Cancel</button></div>'+input(chore?'chore':'task',chore?'Chore':'Project','text',300)+(chore?select('cad','Repeat',CADS)+input('zone','Location')+input('who','Assigned to'):select('area','Area',[...new Set(AREAS.map(function(a){return a.name;}).concat(e.area||[]))])+input('sub','Category')+'<div class="lm-editor-grid">'+select('pri','Priority',PRIS)+select('status','Status',STATUSES)+'</div><div class="lm-editor-grid">'+input('due','Due date','date')+input('park','Park until','month')+'</div>')+'<label>Notes<textarea data-act="f" data-k="notes" rows="5">'+esc(e.notes||'')+'</textarea></label><p id="lm-editor-error" role="alert"></p><div class="lm-editor-actions">'+(e.id?'<button type="button" data-act="delEditor" class="lm-delete">Delete</button>':'')+'<button type="submit" class="lm-primary">Save</button></div></form></dialog>';
-  };
-  render=function(){
-    app.innerHTML='<div class="lm-dashboard"><header class="lm-header"><div><h1>Life Map</h1><p>Projects and household tasks.</p></div><details><summary>Backups</summary><button type="button" data-act="export">Download backup</button><button type="button" data-act="import">Restore backup</button><input type="file" id="importFile" accept="application/json,.json" hidden></details></header><nav class="lm-tabs" aria-label="Life Map">'+[['projects','Projects'],['chores','Chores'],['timeline','Timeline']].map(function(x){return '<button type="button" data-lm="tab" data-tab="'+x[0]+'" aria-pressed="'+(tab===x[0])+'">'+x[1]+'</button>';}).join('')+'</nav><section class="lm-panel">'+(tab==='projects'?projectPanel():tab==='chores'?chorePanel():horizonView())+'</section>'+editorView()+'</div>';
-    var dialog=document.getElementById('lm-editor');
-    if(view.editor&&dialog&&dialog.showModal){dialog.showModal();dialog.addEventListener('cancel',function(ev){ev.preventDefault();view.editor=null;window.AtlasConnected?.clearInputDraft();render();});}
-  };
-  saveEditor=function(){
-    var e=view.editor;if(!e)return;
-    if(e.kind!=='chore'&&e.due&&!/^\d{4}-\d{2}-\d{2}$/.test(e.due)){document.getElementById('lm-editor-error').textContent='Choose a valid date.';return;}
-    originalSave();
-  };
-  delEditor=function(){
-    var e=view.editor;if(!e||!e.id)return;var chore=e.kind==='chore',key=chore?'chores':'projects',item=S[key].find(function(x){return x.id===e.id;});if(!item)return;
-    var copy=JSON.parse(JSON.stringify(item));
-    uiConfirm('Delete '+(chore?'chore':'project')+'?',chore?item.chore:item.task,'Delete',function(){
-      S[key]=S[key].filter(function(x){return x.id!==copy.id;});view.editor=null;save();render();
-      undoToast('Deleted',function(){if(S[key].some(function(x){return x.id===copy.id;}))return;S[key].push(copy);save();render();});
-    },true);
-  };
-  // Confirmation text can include user-entered project names; keep it text.
-  uiConfirm=function(title,body,label,callback,danger){return originalConfirm(esc(title),esc(body),esc(label),callback,danger);};
-  function setStatus(id,next){
-    var p=S.projects.find(function(x){return x.id===id;});if(!p)return;
-    var before={status:p.status,doneAt:p.doneAt,log:(S.log||[]).filter(function(x){return x.t==='proj'&&x.id===id;})};
-    p.status=next;S.log=(S.log||[]).filter(function(x){return !(x.t==='proj'&&x.id===id);});
-    if(next==='Done'){p.doneAt=todayISO();S.log.push({t:'proj',id:id,d:todayISO()});}else delete p.doneAt;
-    save();render();
-    undoToast(next==='Done'?'Project completed':'Status updated',function(){var current=S.projects.find(function(x){return x.id===id;});if(!current||current.status!==next)return;current.status=before.status;if(before.doneAt)current.doneAt=before.doneAt;else delete current.doneAt;S.log=(S.log||[]).filter(function(x){return !(x.t==='proj'&&x.id===id);}).concat(before.log);save();render();});
-  }
-  app.addEventListener('click',function(ev){
-    if(ev.target.closest('[data-act="closeEditor"]')){window.AtlasConnected?.clearInputDraft();return;}
-    var el=ev.target.closest('[data-lm]');if(!el)return;var id=el.dataset.id;
-    if(el.dataset.lm==='tab'){tab=el.dataset.tab;render();}
-    else if(el.dataset.lm==='complete'){var p=S.projects.find(function(x){return x.id===id;});if(p)setStatus(id,p.status==='Done'?'Not started':'Done');}
-    else if(el.dataset.lm==='start'){var p=S.projects.find(function(x){return x.id===id;});if(p)setStatus(id,p.status==='In progress'?'Not started':'In progress');}
-    else if(el.dataset.lm==='chore')tick(id);
-  });
-  app.addEventListener('submit',function(ev){if(ev.target.id==='lm-editor-form'){ev.preventDefault();saveEditor();}});
-  app.addEventListener('change',function(ev){if(ev.target.dataset.lm==='chore-filter'){choreFilter=ev.target.value;render();}});
-  // The original file input was unreachable because the delegated handler
-  // required data-act before it checked importFile.
-  document.addEventListener('change',function(ev){if(ev.target.id==='importFile'&&ev.target.files[0])importData(ev.target.files[0]);});
-  importData=async function(file){
-    var request=++importRequest;
-    if(file.size>1500000){toast('Choose a backup smaller than 1.5 MB.');return;}
-    try{
-      var raw=JSON.parse(await file.text());if(request!==importRequest)return;
-      var next=window.LifeMapRecords.validate(raw),projects=next.projects.length,chores=next.chores.length;
-      uiConfirm('Restore this backup?',projects+' projects and '+chores+' chores will replace this Life Map. Download a backup first to keep the current version.','Restore',function(){if(request!==importRequest)return;var before=JSON.stringify(S);S=next;view.editor=null;save();render();var restored=JSON.stringify(S);undoToast('Backup restored',function(){if(JSON.stringify(S)!==restored){toast('Newer changes exist. Restore your earlier backup to go back.');return;}S=JSON.parse(before);save();render();});},true);
-    }catch(e){toast(e.message||'This backup could not be read.');}
-  };
-  window.LifeMapDashboard={setStatus:setStatus,filtered:filtered};
-})();
-
-// Browser-local records. The original store and a first-change backup stay private.
-function createLifeMapLocalStore(storage,validate){
-  const key='lifemap_v1',backup='lifemap:before-github:v1';
-  let expected,raw=null,blocked=false,error='',saved=false;
-  function load(){
-    try{raw=storage.getItem(key);expected=raw;const value=raw===null?{projects:[],chores:[],checks:{},log:[],planned:{}}:JSON.parse(raw);const checked=validate(value);blocked=false;error='';saved=raw!==null;return {...value,...checked};}
-    catch{blocked=true;error='Saved records could not be read. Download the recovery copy before restoring a backup.';return {projects:[],chores:[],checks:{},log:[],planned:{}};}
-  }
-  function save(value,restore=false){
-    if(blocked&&!restore)return false;
-    try{
-      validate(value);const text=JSON.stringify(value),current=storage.getItem(key);
-      if(expected===undefined||current!==expected){error='This board changed in another tab. Download your current work before reopening the page.';return false;}
-      if(current!==null&&storage.getItem(backup)===null){storage.setItem(backup,current);if(storage.getItem(backup)!==current)throw Error();}
-      storage.setItem(key,text);if(storage.getItem(key)!==text)throw Error();
-      expected=text;raw=text;blocked=false;error='';saved=true;return true;
-    }catch{error='Changes could not be saved in this browser. Retry or download a backup before closing.';return false;}
-  }
-  return {load,save,get blocked(){return blocked;},get error(){return error;},get raw(){return raw;},get saved(){return saved;}};
-}
-
-/* Compose the same dashboard over the existing GitHub browser store. */
-(()=>{
-  const local=createLifeMapLocalStore({getItem:k=>localStorage.getItem(k),setItem:(k,v)=>localStorage.setItem(k,v)},validateLifeMapRecords);
-  const shell=document.createElement('section');shell.className='lm-local-status';
-  const home=document.createElement('a');home.href='index.html';home.textContent='← Atlas';shell.append(home);
-  const status=document.createElement('p');status.setAttribute('role','status');
-  const retry=document.createElement('button');retry.textContent='Retry saving';retry.onclick=()=>{save();render();};
-  const backup=document.createElement('button');backup.textContent='Download backup';backup.onclick=()=>exportData();
-  const restore=document.createElement('button');restore.textContent='Restore backup';
-  const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.hidden=true;input.onchange=()=>{if(input.files[0])importData(input.files[0]);};restore.onclick=()=>input.click();
-  const earlier=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Bring records from the private version';
-  const help=document.createElement('p');help.textContent='Open the private Life Map, choose Backups → Download backup, then restore that file here. Restoring replaces this browser’s board after confirmation. The private copy stays available.';
-  const link=document.createElement('a');link.href='https://atlas-os-quinton.qchambers123018.chatgpt.site/apps/life-map';link.textContent='Open private Life Map';link.target='_blank';link.rel='noopener';
-  earlier.append(summary,help,link);shell.append(status,retry,backup,restore,input,earlier);app.before(shell);
-  function feedback(){status.textContent=local.error||(view.editor||view.qa.txt.trim()?'Unsaved entry. Use Save or Add to keep it.':local.saved?'Saved in this browser. Use backups to move records between devices.':'This browser has no saved board yet. Add a project or restore a backup.');retry.hidden=!local.error||local.blocked;}
-  const draw=render;render=function(){draw();feedback();app.inert=local.blocked;};
-  document.addEventListener('input',feedback);
-  save=function(){const ok=local.save(S);status.textContent=local.error||'Saved in this browser.';return ok;};
-  const originalExport=exportData;
-  exportData=function(){if(!local.blocked)return originalExport();const url=URL.createObjectURL(new Blob([local.raw??'No readable browser copy was available.'],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download='life-map-recovery.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);};
-  importData=async function(file){try{if(file.size>1500000)throw Error('Choose a backup smaller than 1.5 MB.');const next=validateLifeMapRecords(JSON.parse(await file.text()));uiConfirm('Restore this Life Map?',next.projects.length+' projects and '+next.chores.length+' chores will replace this browser’s board. Download a backup first to keep your current work.','Restore',()=>{if(local.save(next,true)){S=next;view.editor=null;view.qa.txt='';}render();},true);}catch(e){toast(e.message||'Could not read this backup.');}};
-  window.addEventListener('beforeunload',e=>{if(local.error||view.editor||view.qa.txt.trim()){e.preventDefault();e.returnValue='';}});
-  S=local.load();render();
-  window.LifeMapLocal=local;
-})();
 
 </script>
 <script type="module" src="shared/atlas-project-transfer.js"></script>

@@ -23,3 +23,7 @@
   .lm-capture input{flex-basis:100%}
   .lm-capture button{width:100%}
 }
+.lm-local-status{max-width:960px;margin:16px auto;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;font-size:16px;line-height:1.5;color:var(--txt)}
+.lm-local-status button,.lm-local-status summary,.lm-local-status a{font:inherit;min-height:44px;padding:10px;display:inline-flex;align-items:center;color:inherit}
+.lm-local-status button{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:4px}
+.lm-local-status [hidden]{display:none!important}.lm-local-status details{margin-top:12px}.lm-local-status p{overflow-wrap:anywhere}

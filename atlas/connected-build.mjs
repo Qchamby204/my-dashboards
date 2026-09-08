@@ -9,7 +9,7 @@ export async function connectedAssets(root){
   for(const name of ['atlas-hub.css','atlas-theme.js','atlas-palette.css','atlas-neumorphism-compat.css','atlas-neumorphism.css','atlas-appearance.css','atlas-workflow.css','atlas-connect.css'])add('/shared/'+name,await readFile(new URL('shared/'+name,root),'utf8'),name.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8');
   add('/connected/bootstrap.js',await readFile(new URL('atlas/connected-bootstrap.js',root),'utf8'),'text/javascript; charset=utf-8');
   add('/connected/style.css',`.connected-toolbar{position:sticky;top:0;z-index:500;background:var(--bg,#151a24);color:var(--txt,var(--text,#e6ebf3));border-bottom:1px solid var(--border,#445069);padding:12px 20px;font:14px/1.5 system-ui;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.connected-toolbar a,.connected-toolbar button{color:inherit;font:inherit;min-height:44px;display:inline-flex;align-items:center}.connected-toolbar button{background:transparent;border:1px solid currentColor;border-radius:8px;padding:6px 10px}.connected-toolbar [hidden]{display:none}.connected-toolbar p{margin:0;max-width:65ch}#connected-status{flex:1 1 260px}#connected-app[inert]{opacity:.35}#connected-discard{flex-basis:100%}#connected-app .header{position:relative}#connected-app{min-width:0}`,'text/css; charset=utf-8');
-  for(const [kind,file] of [['life-map','life-map.html']]){
+  for(const [kind,file] of [['life-map','atlas/life-map-legacy.html']]){
     let html=await readFile(new URL(file,root),'utf8');
     const matches=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
     if(matches.length!==1)throw Error('Review connected script extraction for '+file);

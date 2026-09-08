@@ -1,0 +1,15 @@
+import {readFile,writeFile} from 'node:fs/promises';
+const root=new URL('../',import.meta.url),read=p=>readFile(new URL(p,root),'utf8');
+let html=await read('atlas/life-map-legacy.html');
+const match=html.match(/<script>([\s\S]*?)<\/script>/);
+if(!match)throw Error('Missing original Life Map script');
+let script=match[1];
+script=script.replace(/var store=\(function\(\)\{[\s\S]*?\}\)\(\);/,'var store={};');
+const start=script.indexOf('store.get(KEY).then(function(v){'),end=script.indexOf('/* Ask the browser',start);
+if(start<0||end<0)throw Error('Review Life Map boot extraction');
+script=script.slice(0,start)+script.slice(end);
+const dashboard=(await read('atlas/life-map-dashboard.js')).replaceAll('window.AtlasConnected.clearInputDraft()','window.AtlasConnected?.clearInputDraft()');
+script+='\n'+(await read('atlas/life-map-records.mjs')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+dashboard+'\n'+(await read('atlas/life-map-local-store.mjs')).replace('export function','function')+'\n'+await read('atlas/life-map-local.js');
+html=html.replace(match[0],'<script>\n'+script+'\n</script>').replace('</head>','<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=github-local-20260908"></head>').replace('<title>Life Map — The Board</title>','<title>Life Map · Projects and chores</title>');
+await writeFile(new URL('life-map.html',root),html);
+console.log('GitHub Life Map prepared with browser-local storage.');
