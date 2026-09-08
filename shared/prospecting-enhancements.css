@@ -1,0 +1,23 @@
+html[data-atlas-app="prospecting-command-center"] #tabs{top:var(--atlas-top-h,80px)}
+html[data-atlas-app="prospecting-command-center"] .prospecting-notice{border:1px solid var(--neo-rose);background:var(--neo-surface);color:var(--neo-ink);border-radius:12px;padding:16px;margin:12px 0;line-height:1.5}
+html[data-atlas-app="prospecting-command-center"] .prospecting-notice[hidden]{display:none!important}
+html[data-atlas-app="prospecting-command-center"] .prospecting-notice button{margin:10px 8px 0 0;min-height:44px}
+html[data-atlas-app="prospecting-command-center"] .prospecting-filters{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+html[data-atlas-app="prospecting-command-center"] .prospecting-filters label{display:grid;gap:6px;font-size:14px;flex:1 1 150px;min-width:0}
+html[data-atlas-app="prospecting-command-center"] .prospecting-filters label:first-child{flex:2 1 240px}
+html[data-atlas-app="prospecting-command-center"] .prospecting-filters :is(input,select){width:100%;min-width:0;min-height:44px;padding:10px;font:inherit;font-size:16px;color:var(--neo-ink);background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:10px}
+html[data-atlas-app="prospecting-command-center"] #prospecting-result-count{font-size:14px;align-self:center}
+html[data-atlas-app="prospecting-command-center"] #prospecting-restore{padding:24px;border:1px solid var(--neo-line);border-radius:18px;background:var(--neo-surface);color:var(--neo-ink);max-width:560px;line-height:1.5}
+html[data-atlas-app="prospecting-command-center"] #prospecting-restore h2{font-size:20px;margin-bottom:12px}
+html[data-atlas-app="prospecting-command-center"] #prospecting-restore button{margin:16px 8px 0 0;min-height:44px}
+html[data-atlas-app="prospecting-command-center"] #tplOv{box-sizing:border-box;top:var(--atlas-visible-top,0px)!important;bottom:auto!important;height:var(--atlas-visible-height,100dvh)!important;padding:calc(12px + var(--atlas-safe-top,0px)) max(12px,var(--atlas-safe-right,0px)) calc(12px + var(--atlas-safe-bottom,0px)) max(12px,var(--atlas-safe-left,0px))!important;overflow:auto}
+html[data-atlas-app="prospecting-command-center"] #tplCard{max-height:100%!important}
+html[data-atlas-app="prospecting-command-center"] #runCard>div:first-child{flex-wrap:wrap}
+@media(max-width:700px){
+  html[data-atlas-app="prospecting-command-center"] .container{padding-left:max(14px,var(--atlas-safe-left,0px));padding-right:max(14px,var(--atlas-safe-right,0px))}
+  html[data-atlas-app="prospecting-command-center"] .row :is(select,input[type="date"]){flex:1 1 140px;width:100%;min-width:0}
+  html[data-atlas-app="prospecting-command-center"] .row input[type="text"]{flex-basis:100%;min-width:0!important}
+  html[data-atlas-app="prospecting-command-center"] .row .who .t{font-size:13px;overflow-wrap:anywhere}
+  html[data-atlas-app="prospecting-command-center"] .qcard .qs{font-size:13px;line-height:1.5}
+  html[data-atlas-app="prospecting-command-center"] .kbd{display:none}
+}
