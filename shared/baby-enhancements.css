@@ -1,0 +1,44 @@
+/* Original Baby Brain: same material palette in light, dark and system appearance. */
+html[data-atlas-app="baby-brain"] [hidden]{display:none!important}
+html[data-atlas-app="baby-brain"] .baby-toolbar{position:fixed;z-index:25;top:var(--baby-toolbar-top,100px);left:0;right:0;display:flex;gap:8px;padding:8px max(14px,var(--atlas-safe-right,0px)) 8px max(14px,var(--atlas-safe-left,0px));background:var(--neo-canvas)}
+html[data-atlas-app="baby-brain"] .baby-button{min-height:44px;min-width:44px;padding:10px 14px;border:1px solid var(--neo-line);border-radius:12px;background:var(--neo-surface);color:var(--neo-ink);font:inherit;font-size:14px;cursor:pointer}
+html[data-atlas-app="baby-brain"] .baby-toolbar [aria-pressed="true"]{box-shadow:var(--neo-pressed);border-color:var(--neo-blue);font-weight:650}
+html[data-atlas-app="baby-brain"] .baby-list{position:fixed;z-index:21;top:var(--baby-content-top,170px);left:0;right:0;bottom:var(--atlas-bottom-offset,0px);overflow:auto;overscroll-behavior:contain;padding:16px max(18px,var(--atlas-safe-right,0px)) calc(90px + var(--atlas-safe-bottom,0px)) max(18px,var(--atlas-safe-left,0px));background:var(--neo-canvas)}
+html[data-atlas-app="baby-brain"] .baby-filters{display:flex;align-items:end;gap:12px;flex-wrap:wrap;max-width:1100px;margin:auto}
+html[data-atlas-app="baby-brain"] .baby-filters label{display:grid;gap:6px;flex:1 1 145px;min-width:0;color:var(--neo-ink);font-size:14px}
+html[data-atlas-app="baby-brain"] .baby-filters label:first-child{flex-basis:100%}
+html[data-atlas-app="baby-brain"] .baby-filters :is(input,select){min-height:44px;min-width:0;width:100%;font:inherit;font-size:16px;border:1px solid var(--neo-line);border-radius:10px;padding:10px;background:var(--neo-inset);color:var(--neo-ink)}
+html[data-atlas-app="baby-brain"] .baby-count{max-width:1100px;margin:14px auto;color:var(--neo-muted);font-size:14px}
+html[data-atlas-app="baby-brain"] .baby-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px;max-width:1100px;margin:auto}
+html[data-atlas-app="baby-brain"] .baby-topic{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:7px;min-width:0;min-height:70px;padding:18px;border:1px solid var(--neo-line);border-radius:16px;background:var(--neo-surface);color:var(--neo-ink);box-shadow:var(--neo-small);font:inherit;cursor:pointer}
+html[data-atlas-app="baby-brain"] .baby-topic strong{font-size:17px;line-height:1.35;font-weight:600}
+html[data-atlas-app="baby-brain"] :is(.baby-path,.baby-meta,.baby-empty,.baby-note-status){font-size:14px;line-height:1.5;color:var(--neo-muted);overflow-wrap:anywhere}
+html[data-atlas-app="baby-brain"] .baby-save-notice{position:fixed;z-index:80;bottom:calc(12px + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px));left:max(12px,var(--atlas-safe-left,0px));right:max(12px,var(--atlas-safe-right,0px));padding:14px;border:2px solid var(--neo-blue);border-radius:14px;background:var(--neo-surface);color:var(--neo-ink);box-shadow:var(--neo-raised);max-height:45dvh;overflow:auto;display:flex;gap:8px;flex-wrap:wrap}
+html[data-atlas-app="baby-brain"] .baby-save-notice p{flex:1 1 100%;font-size:14px;line-height:1.5}
+html[data-atlas-app="baby-brain"] .sheet{z-index:45;bottom:var(--atlas-bottom-offset,0px);padding-bottom:var(--atlas-safe-bottom,0px)}
+html[data-atlas-app="baby-brain"] .sheet-hd{padding-right:108px;min-height:72px}
+html[data-atlas-app="baby-brain"] .sheet-hd :is(.rdbtn,.xbtn){width:44px;height:44px;top:8px}
+html[data-atlas-app="baby-brain"] .sheet-hd .rdbtn{right:56px}
+html[data-atlas-app="baby-brain"] .sheet-hd .xbtn{right:8px}
+html[data-atlas-app="baby-brain"] .sheet-hd :is(.path,h2){padding-right:0}
+html[data-atlas-app="baby-brain"] .baby-jumps{position:sticky;top:0;z-index:2;background:var(--neo-surface);display:flex;gap:8px;padding:8px 0;margin-bottom:16px;flex-wrap:wrap}
+html[data-atlas-app="baby-brain"] .sheet :is(.why,.why.body,.qlist li,textarea.notes){font-size:16px;line-height:1.65;font-weight:400}
+html[data-atlas-app="baby-brain"] .sheet :is(.sec h4,.chip,.st,.lk){font-size:14px;letter-spacing:normal}
+html[data-atlas-app="baby-brain"] .sheet :is(input,textarea){font-size:16px}
+html[data-atlas-app="baby-brain"] .sheet :is(.qlist li,.st,.kid){min-height:44px}
+html[data-atlas-app="baby-brain"] :is(#notes,#links){scroll-margin-top:80px}
+html[data-atlas-app="baby-brain"] .baby-resource{display:flex;gap:8px;align-items:stretch;min-width:0}
+html[data-atlas-app="baby-brain"] .baby-resource a{flex:1;min-width:0}
+html[data-atlas-app="baby-brain"] .baby-resource a .t{white-space:normal;overflow-wrap:anywhere}
+html[data-atlas-app="baby-brain"] .search .res{display:flex;flex-direction:column;gap:10px}
+html[data-atlas-app="baby-brain"] .player.on{display:grid;grid-template-columns:44px 44px 44px 1fr 44px;gap:8px}
+html[data-atlas-app="baby-brain"] .player .pmeta{grid-row:2;grid-column:1/-1;font-size:14px;letter-spacing:normal}
+html[data-atlas-app="baby-brain"] .player .pmeta b{font-size:14px}
+html[data-atlas-app="baby-brain"] .player :is(button,.rate){width:auto;min-height:44px;min-width:44px;font-size:14px;display:flex;align-items:center;justify-content:center}
+html[data-atlas-app="baby-brain"] .player button{width:44px}
+html[data-atlas-app="baby-brain"] .baby-restore{margin:auto;max-width:520px;width:calc(100% - 28px);max-height:calc(var(--atlas-visible-height,100dvh) - 40px);overflow:auto;padding:24px;background:var(--neo-surface);color:var(--neo-ink);border:1px solid var(--neo-line);border-radius:18px}
+html[data-atlas-app="baby-brain"] .baby-restore p{font-size:16px;line-height:1.6;margin:16px 0}
+html[data-atlas-app="baby-brain"] .baby-restore button{margin:4px}
+html[data-atlas-app="baby-brain"] :is(button,input,select,textarea,[role="button"],[role="checkbox"],a):focus-visible{outline:3px solid var(--neo-blue);outline-offset:3px}
+@media(max-width:700px){html[data-atlas-app="baby-brain"] .baby-cards{grid-template-columns:1fr}html[data-atlas-app="baby-brain"][data-baby-view="list"] .sheet{top:calc(8px + var(--atlas-safe-top,0px));max-height:calc(var(--atlas-visible-height,100dvh) - 16px - var(--atlas-safe-top,0px));width:100%;height:auto}html[data-atlas-app="baby-brain"] .addrow{flex-wrap:wrap}html[data-atlas-app="baby-brain"] .addrow input{flex-basis:100%}html[data-atlas-app="baby-brain"] .hud{gap:8px}html[data-atlas-app="baby-brain"] .hud h1{font-size:20px}}
+@media(prefers-reduced-motion:reduce){html[data-atlas-app="baby-brain"] #pulses{display:none}html[data-atlas-app="baby-brain"] .sheet{transition:none}}
