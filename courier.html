@@ -223,6 +223,7 @@
       <option value="1.25">1.25×</option><option value="1.5">1.5×</option>
     </select></label>
     <button class="primary" id="playAll">Play all</button>
+    <button id="resumeListening" type="button" hidden>Resume listening</button>
   </div>
 </header>
 <main>
@@ -265,7 +266,7 @@
     <p id="pStatus" role="status" aria-live="polite"></p>
   </div>
 </div>
-<audio id="audio" preload="none"></audio>
+<audio id="audio" preload="none" playsinline></audio>
 
 <script>
 // ---------- constants ----------
@@ -285,7 +286,7 @@ const store = {
 
 const migrations = {};
 
-function defaultState() { return { rate: 1, listened: {}, positions: {} }; }
+function defaultState() { return { rate: 1, listened: {}, positions: {}, durations: {}, continueNext: true }; }
 
 function loadState() {
   const stored = store.get('state');
@@ -298,12 +299,12 @@ function loadState() {
     data = m(data); version += 1;
   }
   store.set('state', data); store.set('schema-version', SCHEMA_VERSION);
-  return data;
+  return { ...defaultState(), ...data, rate: [0.9,1,1.1,1.25,1.5].includes(data.rate)?data.rate:1 };
 }
 
 let state = loadState();
 let manifest = null;           // fetched, never stored
-let ui = { day: null, current: null, queue: true }; // transient
+let ui = { day: null, current: null, queue: state.continueNext !== false }; // transient
 window.getCourierContext = () => ({ day: day(), manifest });
 
 function setState(patch) { state = { ...state, ...patch }; store.set('state', state); store.set('schema-version', SCHEMA_VERSION); render(); }
@@ -365,6 +366,9 @@ function render() {
 
   const plan = schedule(d.blocks);
   const listened = state.listened[d.date] || [];
+  const resumable = resumeBlock();
+  $('resumeListening').hidden = !resumable;
+  $('resumeListening').title = resumable ? `Continue ${resumable.label} from your saved position` : '';
 
   $('blocks').innerHTML = d.blocks.map((b, i) => {
     const done = listened.includes(b.id);
@@ -448,9 +452,14 @@ function renderDays() {
 // ---------- playback ----------
 // One audio element keeps user-initiated playback across section changes.
 let sourceEpoch = 0, resumeListener = null, lastSave = 0;
-const measuredDurations = new Map();
+const measuredDurations = new Map(Object.entries(state.durations||{}).filter(([,v])=>Number.isFinite(v)&&v>0));
 const durationKey = (d,b) => `${d.date}/${b.id}/${b.audio}`;
 function currentBlock() { return day()?.blocks.find(b => b.id === ui.current); }
+function resumeBlock() {
+  const d=day();if(!d)return null;
+  return d.blocks.find(b=>b.audio&&state.lastPlayed?.day===d.date&&state.lastPlayed.id===b.id&&!(state.listened[d.date]||[]).includes(b.id))
+    ||d.blocks.find(b=>b.audio&&state.positions[posKey(d.date,b.id)]>0&&!(state.listened[d.date]||[]).includes(b.id));
+}
 function nextAudio() {
   const d=day(); if(!d)return null;
   const index=d.blocks.findIndex(b=>b.id===ui.current);
@@ -458,7 +467,7 @@ function nextAudio() {
 }
 function savePosition() {
   const a=$('audio'),d=day();
-  if(!d||!ui.current||a.ended||!Number.isFinite(a.currentTime)||!Number.isFinite(a.duration)||a.duration<=0)return;
+  if(!d||!ui.current||resumeListener||a.ended||!Number.isFinite(a.currentTime)||!Number.isFinite(a.duration)||a.duration<=0)return;
   state.positions[posKey(d.date,ui.current)]=a.currentTime;
   store.set('state',state);
 }
@@ -471,7 +480,8 @@ function requestPlay() {
   const a=$('audio'),ticket=sourceEpoch;
   playbackMessage('');
   // A denied request leaves a clear manual resume action, including on mobile.
-  return Promise.resolve(a.play()).catch(error=>{
+  let attempt;try{attempt=a.play();}catch(error){attempt=Promise.reject(error);}
+  return Promise.resolve(attempt).catch(error=>{
     if(ticket!==sourceEpoch||error?.name==='AbortError')return;
     playbackMessage(error?.name==='NotAllowedError' ? 'Tap Play to continue listening.' : 'This audio could not play. Try Play again, or choose Next.');
     updatePlayback();
@@ -481,12 +491,13 @@ function play(id,{resume=true,restart=false}={}) {
   const d=day(),b=d?.blocks.find(x=>x.id===id),a=$('audio');
   if(!b)return;
   if(!b.audio){ui.open=id;render();return;}
-  if(ui.current===id&&!restart){
+  if(ui.current===id&&!restart&&!a.error){
     if(a.paused||a.ended)requestPlay();else{a.pause();savePosition();}
     updatePlayback();return;
   }
   savePosition();clearResume();sourceEpoch++;
   ui.current=id;ui.open=id;
+  state.lastPlayed={day:d.date,id};store.set('state',state);
   const ticket=sourceEpoch,pos=resume?Number(state.positions[posKey(d.date,id)])||0:0;
   a.src=b.audio;a.playbackRate=state.rate;
   resumeListener=()=>{
@@ -494,6 +505,8 @@ function play(id,{resume=true,restart=false}={}) {
     clearResume();
     if(Number.isFinite(a.duration)&&a.duration>0){
       measuredDurations.set(durationKey(d,b),a.duration);
+      state.durations=Object.fromEntries([...measuredDurations].filter(([key])=>manifest.days.some(entry=>entry.blocks.some(block=>durationKey(entry,block)===key))));
+      store.set('state',state);
       if(pos>0&&pos<a.duration-2)a.currentTime=pos;
     }
     updatePlayback();
@@ -501,6 +514,7 @@ function play(id,{resume=true,restart=false}={}) {
   a.addEventListener('loadedmetadata',resumeListener);
   $('player').classList.add('on');
   $('pNow').textContent=`${b.label}: ${b.title}`;
+  updateMediaMetadata();
   requestPlay();render();
 }
 function next() {
@@ -537,6 +551,26 @@ function updatePlayback() {
   $('railTotal').textContent=`${t.estimated?'≈ ':''}${fmt(t.queueRemaining)}`;
   $('railCap').textContent='Audio left in edition';
   $('railNow').innerHTML=`${a.ended?'Finished':paused?'Paused':'Now playing'}<b>${escapeText(b.label)}</b>${t.duration===null?'Loading section time':`${fmt(t.elapsed)} played · ${fmt(t.remaining)} left`}`;
+  updateMediaPosition(t);
+}
+// Native media controls are progressive enhancement; the on-page player always works.
+function updateMediaMetadata() {
+  const session=globalThis.navigator?.mediaSession,b=currentBlock();if(!session)return;
+  try{session.metadata=b&&globalThis.MediaMetadata?new MediaMetadata({title:`${b.label}: ${b.title}`,artist:'The Courier',album:ui.day}):null;}catch{}
+}
+function updateMediaPosition(t) {
+  const session=globalThis.navigator?.mediaSession;if(!session)return;
+  try{session.playbackState=ui.current?($('audio').paused||$('audio').ended?'paused':'playing'):'none';
+    if(t?.duration)session.setPositionState?.({duration:t.duration,playbackRate:t.rate,position:t.elapsed});
+    else session.setPositionState?.();
+  }catch{}
+}
+function wireMediaControls() {
+  const session=globalThis.navigator?.mediaSession;if(!session?.setActionHandler)return;
+  const seek=seconds=>{const a=$('audio');if(Number.isFinite(a.duration)&&a.duration>0&&Number.isFinite(seconds)){a.currentTime=Math.max(0,Math.min(a.duration,seconds));onTick();savePosition();}};
+  const handlers={play:()=>{if(ui.current&&($('audio').paused||$('audio').error))play(ui.current);},pause:()=>{$('audio').pause();savePosition();},
+    nexttrack:next,seekbackward:event=>seek($('audio').currentTime-(event.seekOffset||15)),seekforward:event=>seek($('audio').currentTime+(event.seekOffset||15)),seekto:event=>seek(event.seekTime)};
+  for(const [action,handler]of Object.entries(handlers)){try{session.setActionHandler(action,handler);}catch{}}
 }
 function onTick() {
   updatePlayback();
@@ -578,11 +612,13 @@ function wireEvents() {
     const a = $('audio'); savePosition();clearResume();sourceEpoch++;a.pause();ui.current=null;a.removeAttribute('src');a.load();
     playbackMessage('');ui.current = null; ui.day = e.target.value; ui.open = null;
     $('player').classList.remove('on'); render();
+    updateMediaMetadata();updateMediaPosition();
   });
   $('rate').addEventListener('change', e => setState({ rate: Number(e.target.value) }));
   $('playAll').addEventListener('click', () => { const first=day()?.blocks.find(b=>b.audio);if(!first){notice('This edition has no audio. Open a section to read it.');return;}ui.queue=true;play(first.id,{resume:false,restart:true}); });
+  $('resumeListening').addEventListener('click',()=>{const b=resumeBlock();if(b&&(ui.current!==b.id||$('audio').paused||$('audio').error))play(b.id);});
   $('pToggle').addEventListener('click', () => { if(ui.current)play(ui.current); });
-  $('pContinue').addEventListener('change',e=>{ui.queue=e.target.checked;});
+  $('pContinue').addEventListener('change',e=>{ui.queue=e.target.checked;state.continueNext=ui.queue;store.set('state',state);});
   $('pNext').addEventListener('click', next);
   $('pSeek').addEventListener('input', e => { const a = $('audio'); if (Number.isFinite(a.duration)&&a.duration>0){a.currentTime=e.target.value/1000*a.duration;updatePlayback();savePosition();} });
   const a = $('audio');
@@ -591,12 +627,15 @@ function wireEvents() {
   a.addEventListener('pause',()=>{savePosition();render();});
   a.addEventListener('durationchange',updatePlayback);a.addEventListener('ratechange',updatePlayback);a.addEventListener('seeked',onTick);
   a.addEventListener('error',()=>{if(ui.current){playbackMessage('This audio is unavailable. Try Play again, or choose Next.');updatePlayback();}});
+  a.addEventListener('waiting',()=>{if(ui.current&&!a.paused)playbackMessage('Buffering audio…');});
+  a.addEventListener('playing',()=>{playbackMessage('');updatePlayback();});
+  wireMediaControls();
   window.addEventListener('pagehide',savePosition);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)savePosition();});
   $('export').addEventListener('click', exportState);
   $('importBtn').addEventListener('click', () => $('importFile').click());
   $('importFile').addEventListener('change', e => { if (e.target.files[0]) importState(e.target.files[0]); e.target.value = ''; });
-  $('reset').addEventListener('click', () => { if (confirm('Clear all Courier listening history on this browser?')) { store.clearTool(); state = defaultState(); render(); } });
+  $('reset').addEventListener('click', () => { if (confirm('Clear all Courier listening history on this browser?')) { store.clearTool(); state = defaultState(); measuredDurations.clear();ui.queue=true;render(); } });
 }
 
 // ---------- init ----------
