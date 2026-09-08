@@ -7,7 +7,7 @@
    "release": "courier-2026-09-08",
    "budgetMinutes": 60,
    "plannedMinutes": 60,
-   "projectedMinutes": 44.1,
+   "projectedMinutes": 50.0,
    "voiceless": [],
    "usage": {
     "calls": 16,
@@ -68,6 +68,61 @@
        "drill": ""
       }
      ]
+    },
+    {
+     "id": "markets",
+     "label": "Markets & Economy",
+     "title": "Oil Nears $100 as Trade War, Bond Selloff Deepen",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@af4ec387b299ad0aea3f8d7f27669b3cbc4d2ffb/2026-09-08/markets.mp3",
+     "bytes": 5132160,
+     "script": "Good morning. Markets are absorbing a wave of pressure this week from the Middle East, from a widening Canada-US trade fight, and from a global bond selloff that traders say could get \"funky\" in the months ahead.\n\nStart with oil. Brent crude pushed back toward the 100-dollar-a-barrel mark after the United States and Iran traded tanker attacks over the weekend, and Saudi Arabia said operations were halted at several energy facilities in the kingdom's south following what officials linked to Houthi attacks, according to Bloomberg and The Globe and Mail. WTI crude also jumped sharply. Goldman Sachs has warned crude could surge as high as 120 dollars a barrel if attacks on shipping intensify further.\n\nThere was some relief in the numbers, though. Iran said a deal with Oman to manage shipping through the Strait of Hormuz is only days away, and empty Qatari LNG tankers were reported heading back toward the Persian Gulf, a signal that exports may resume. Oil briefly erased its gains on that news before commodity markets more broadly kept marching higher, with copper touching a record and European natural gas prices near a three-year high.\n\nAnalysts say the risk premium is doing most of the work in oil right now. Tim Waterer of KCM Trade told the Globe and Mail that tanker flows through Hormuz remain well below normal, and that prices are likely to stay elevated as long as the strait remains contested and diplomacy stays fragile.\n\nOn trade, Canada's retaliatory tariffs on roughly 28 billion dollars of American goods took effect today, hitting nearly 700 products with duties of 15, 25 or 50 percent, according to the Globe and Mail. Industrial goods like aluminum, steel, cardboard and screws bear the brunt, though clothing, furniture, dairy and cosmetics are also affected. Prime Minister Mark Carney used a national address to warn Canadians that the pivot away from the United States will come at a cost, but argued the alternative would be worse.\n\nThe Trump administration is expected to escalate further this week. Trade Representative Jamieson Greer has confirmed plans for additional tariffs on Canadian goods, potentially including outright import bans. Over the past two days Donald Trump has also threatened to bar US sales of Bombardier jets unless production moves to America, a threat that has already knocked down Bombardier shares.\n\nBond markets are under their own strain. Yields on longer-dated debt in France, Italy and the UK have risen faster than anywhere else in the G7 over the past month, hitting multi-year highs, as Europe's energy exposure comes back into focus. Allianz economist Ludovic Subran said higher inflation expectations have shifted anticipated central bank policy rates upward, a major driver of the move in longer-dated yields. Gas prices have climbed more than 120 percent since the start of the Iran war.\n\nThe US 10-year Treasury yield was last near 4.8 percent. Deutsche Bank strategist Henry Allen argues markets are underestimating how much central banks will ultimately need to raise rates given current price pressures, framing it simply: either inflation falls, or the pressure on rates continues.\n\nDespite all this, stocks have shown resilience. Bloomberg notes that credit spreads remain tight and companies don't appear rattled by current borrowing costs, especially with earnings growing more than 20 percent year on year in some cases, according to Collin Martin at the Schwab Center for Financial Research. Still, JPMorgan has flagged sharply deteriorating liquidity in the Treasury market, even if that stress hasn't spread meaningfully to stock futures or corporate bond funds.\n\nCurrency markets delivered one of the bigger surprises. The Japanese yen surged to its strongest level since February, breaking through 155 per dollar and triggering stop-losses that accelerated the move, according to Bloomberg. That has forced investors to unwind an estimated 2.35 trillion dollars in yen-funded carry trades. Japan's finance minister said the currency stance is unchanged from the earlier period of coordinated intervention with Washington.\n\nIn China, authorities are injecting 45 billion dollars into the country's largest banks and insurers to bolster the financial system as growth slows, though shares of some of those insurers and banks fell on fears the recapitalization will dilute existing shareholders.\n\nCorporate news included a rough stretch for Novartis. The Swiss drugmaker's shares fell sharply, at one point reported down as much as 10 percent, after its heart medicine del-desiran failed a final-stage study, its second or third clinical setback within a single week depending on the count. The failure also hit shares of Ionis Pharmaceuticals, which had licensed the drug to Novartis, along with other biotech names.\n\nElsewhere, ZIM Integrated Shipping rose after reports that Hapag-Lloyd and FIMI plan to raise their takeover offer for the container shipping company. And Goldman Sachs strategist Timothy Moe reaffirmed his bullish call on South Korean stocks, keeping a Kospi target of 12,000 on the view that investors are underestimating how long an AI-driven boost to memory chipmakers will last.\n\nLooking ahead, the European Central Bank is widely expected to deliver a rate increase on Thursday, with attention on whether officials leave the door open to a third hike later this year. In the US, producer and consumer price data due later in the week will be closely watched ahead of the Federal Reserve's meeting later this month, with markets pricing rate-hike bets after a stronger-than-expected jobs report.",
+     "talkingPoints": [
+      "Oil nears 100 dollars a barrel on US-Iran tanker strikes and attacks on Saudi energy facilities, though an Iran-Oman shipping deal offers a possible de-escalation path.",
+      "Canada's tariffs on 28 billion dollars of US goods take effect as Trump threatens further measures, including a possible Bombardier sales ban.",
+      "Bond yields climb globally, with Europe hit hardest as energy costs and political risk push French, Italian and UK borrowing costs to multi-year highs.",
+      "The yen jumps to its strongest level since February, forcing unwinding of yen-funded carry trades estimated at 2.35 trillion dollars.",
+      "Novartis shares slide after a second clinical-trial failure in a week, dragging down biotech peers including Ionis Pharmaceuticals.",
+      "China injects 45 billion dollars into major banks and insurers to shore up lending as growth slows."
+     ],
+     "sources": [
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Before the Bell: Global markets fall as oil spikes amid energy facility attacks",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Oil rises to six-week high following Houthi attack on Saudi sites",
+       "url": "https://www.theglobeandmail.com/investing/article-oil-hits-multi-week-highs-after-houthi-attacks-on-saudi-energy/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Bombardier shares fall after Trump threatens ban on U.S. sales",
+       "url": "https://www.theglobeandmail.com/business/article-bombardier-shares-fall-after-latest-trump-attack/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "What's on the list of U.S. goods hit by Canada's countertariffs?",
+       "url": "https://www.theglobeandmail.com/business/article-list-of-us-goods-hit-by-canadas-countertariffs/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Carney warns of tough times ahead in national address as retaliatory tariffs kick in",
+       "url": "https://www.theglobeandmail.com/canada/video-carney-warns-of-tough-times-ahead-in-national-address-as-retaliatory/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Novartis shares fall after second major trial setback in days",
+       "url": "https://www.theglobeandmail.com/business/article-novartis-del-desiran-trial-failure-drug-pipeline/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Copper set to test $15,000 as investors await U.S. data, tariff clarity",
+       "url": "https://www.theglobeandmail.com/investing/markets/article-copper-set-to-test-15000-as-investors-await-uls-data-tariff-clarity/"
+      }
+     ],
+     "words": 887,
+     "minutes": 5.9
     },
     {
      "id": "companies",
@@ -626,17 +681,34 @@
      "minutes": 3.2
     }
    ],
-   "updatedAt": "2026-09-08T14:10:10+00:00",
+   "updatedAt": "2026-09-08T17:59:18+00:00",
    "failed": [],
-   "missingSections": [
-    "markets"
-   ],
+   "missingSections": [],
    "repairs": [
     {
      "section": "sports",
      "at": "2026-09-08T14:10:10+00:00",
      "audio": true
+    },
+    {
+     "section": "markets",
+     "at": "2026-09-08T17:59:18+00:00",
+     "audio": true
     }
+   ],
+   "expectedSections": [
+    "frontpage",
+    "lessons",
+    "markets",
+    "companies",
+    "practice",
+    "manitoba",
+    "politics",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
    ]
   },
   {
