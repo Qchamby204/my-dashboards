@@ -140,3 +140,18 @@ test('metric deletion uses the metric record and default-habit restore is functi
  const h=await boot();h.run(`state.metrics=[{id:'m_read',name:'Reading notes',unit:'notes',readings:[]}];userModel.renames.Read='Changed';userModel.hidden.Make=true;rebuildModel();`);h.act('delmetric',{id:'m_read'});assert.equal(h.run('state.metrics.length'),1);h.clickText('Delete metric');await h.settle();assert.equal(h.run('state.metrics.length'),0);assert.deepEqual(JSON.parse(h.storage.get('lifeledger:metrics:v1')),[]);
  h.act('restoreHabits');h.clickText('Restore habits');await h.settle();assert.equal(h.run('label("Read")'),'Read');assert.equal(h.run('HABITS.includes("Make")'),true);
 });
+test('reopening restores the selected historical date and its unfinished note',async()=>{
+ const h=await boot();h.api.selectDate('2026-09-05');h.run("state.draftNote='Continue this entry'");h.api.remember();
+ const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.logDate'),'2026-09-05');assert.equal(again.run('state.draftNote'),'Continue this entry');assert.equal(again.run('state.days.length'),0);
+});
+test('Undo preserves a newer draft for the same date through date changes and reopening',async()=>{
+ const h=await boot();h.run("state.draftNote='Saved version'");await h.api.saveDay();h.run("state.draftNote='New unfinished version'");h.api.remember();h.api.selectDate('2026-09-06');await h.run('undoLast()');
+ assert.equal(h.run('state.days.length'),0);h.api.selectDate('2026-09-07');assert.equal(h.run('state.draftNote'),'New unfinished version');
+ const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.draftNote'),'New unfinished version');
+});
+test('asynchronous draft saving remains pending until the latest queued write is verified',async()=>{
+ const h=await boot();const writes=[];h.window.storage={set:(key,value)=>new Promise(resolve=>writes.push(()=>{h.storage.set(key,value);resolve();})),get:async key=>({value:h.storage.get(key)})};
+ h.run("state.draftNote='First'");h.api.remember();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Saving changes/);
+ h.run("state.draftNote='Latest'");h.api.remember();writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Saving changes/);
+ writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Draft saved/);assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].note,'Latest');
+});
