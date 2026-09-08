@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Chef</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0d12;--panel:#17151d;--panel2:#1f1c27;--line:#2c2833;
+  --ink:#e9e1cf;--muted:#8f879a;--gold:#c9a24d;--gold2:#e0bf6a;--ember:#c7563b;--sage:#7fa37a;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Outfit,system-ui,sans-serif;font-weight:300;line-height:1.45}
+body{padding:0 0 60px}
+h1,h2,h3,.display{font-family:Cinzel,serif;font-weight:700;letter-spacing:.04em;margin:0}
+.mono{font-family:"Space Mono",monospace}
+button,select,input{font-family:inherit;font-size:14px}
+button{cursor:pointer;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+button:hover{border-color:var(--gold)}
+button.primary{background:var(--gold);color:#1a1508;border-color:var(--gold);font-weight:500}
+button.ghost{background:transparent}
+select,input[type=text]{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+header{padding:28px 18px 14px;text-align:center;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at top,#241f2c 0%,var(--bg) 70%)}
+header h1{font-size:30px;color:var(--gold)}
+header p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 14px}
+nav.tabs{display:flex;gap:6px;margin:14px 0;flex-wrap:wrap}
+nav.tabs button{flex:1;min-width:80px;padding:9px 4px;font-family:Cinzel,serif;font-weight:500;font-size:12px;letter-spacing:.05em}
+nav.tabs button.on{background:var(--gold);color:#1a1508;border-color:var(--gold)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.panel h2{font-size:15px;color:var(--gold);margin-bottom:10px}
+.hidden{display:none!important}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:13px}
+.chip.on{background:var(--gold);color:#1a1508;border-color:var(--gold);font-weight:500}
+details.cat{border-top:1px solid var(--line);padding:8px 0}
+details.cat summary{cursor:pointer;font-family:Cinzel,serif;font-size:13px;color:var(--gold2);list-style:none;display:flex;justify-content:space-between}
+details.cat summary::-webkit-details-marker{display:none}
+details.cat summary span{color:var(--muted);font-family:"Space Mono",monospace;font-size:11px}
+details.cat .chips{margin-top:8px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.filters label{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.count{color:var(--muted);font-size:13px;margin:4px 0 10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:8px}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.card h3{font-size:14px;font-weight:500;color:var(--ink);line-height:1.3}
+.badge{font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:5px;background:var(--panel2);color:var(--gold2);white-space:nowrap;font-family:"Space Mono",monospace}
+.meta{font-family:"Space Mono",monospace;font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.meta b{color:var(--ink);font-weight:400}
+.match{font-family:"Space Mono",monospace;font-size:11px;color:var(--sage)}
+.match.low{color:var(--muted)}
+.tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+.stars{display:flex;gap:2px}
+.stars button{background:none;border:none;padding:0 2px;font-size:17px;color:#3e3948;line-height:1}
+.stars button.on{color:var(--gold)}
+.heart{background:none;border:none;font-size:18px;color:#3e3948;padding:0 4px}
+.heart.on{color:var(--ember)}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+.plan{display:flex;gap:4px;align-items:center}
+.plan select{padding:4px 6px;font-size:12px}
+.plan button{padding:4px 10px;font-size:12px}
+details.more summary{cursor:pointer;font-size:12px;color:var(--gold2);list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more ul,details.more ol{margin:6px 0 0;padding-left:18px;font-size:13px}
+details.more li{margin:2px 0}
+details.more li.have{color:var(--sage)}
+details.more li.need{color:var(--muted)}
+details.more h4{font-family:Cinzel,serif;font-size:11px;color:var(--muted);margin:8px 0 0;letter-spacing:.06em}
+.week{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.day{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px}
+.day h3{font-size:13px;color:var(--gold2);margin-bottom:6px}
+.slot{display:grid;grid-template-columns:70px 1fr auto;gap:6px;align-items:center;margin:4px 0;font-size:12px}
+.slot .lab{color:var(--muted);font-family:"Space Mono",monospace;font-size:10px;text-transform:uppercase}
+.slot select{width:100%;font-size:12px;padding:4px}
+.slot button{padding:2px 7px;font-size:12px}
+.grocery{columns:2;column-gap:20px}
+@media(max-width:600px){.grocery{columns:1}}
+.grocery h4{break-inside:avoid;font-family:Cinzel,serif;font-size:12px;color:var(--gold2);margin:10px 0 4px;letter-spacing:.06em}
+.grocery label{display:flex;gap:8px;align-items:baseline;font-size:14px;padding:3px 0;break-inside:avoid}
+.grocery label.done{color:var(--muted);text-decoration:line-through}
+.grocery .q{font-family:"Space Mono",monospace;font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.summary{font-family:"Space Mono",monospace;font-size:12px;color:var(--muted);margin:6px 0 10px}
+footer{margin-top:22px;padding:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+footer .row{justify-content:center}
+.warn{color:var(--ember);font-size:12px}
+.empty{color:var(--muted);font-size:14px;padding:20px 0;text-align:center}
+.notice{font-size:12px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>The Chef</h1>
+  <p>Tell it what you have, or what you want. It plates the week.</p>
+</header>
+<div class="wrap">
+  <nav class="tabs">
+    <button data-tab="ingredients">Ingredients</button>
+    <button data-tab="mood">Mood</button>
+    <button data-tab="planner">Planner</button>
+    <button data-tab="favourites">Favourites</button>
+  </nav>
+
+  <section id="tab-ingredients">
+    <div class="panel">
+      <h2>What do you have?</h2>
+      <div class="row" style="margin-bottom:8px">
+        <span class="notice" id="ing-selected">Nothing picked yet. Recipes rank by how many of your picks they use.</span>
+        <button class="ghost" id="ing-clear" style="margin-left:auto;font-size:12px">Clear picks</button>
+      </div>
+      <div id="ing-cats"></div>
+    </div>
+  </section>
+
+  <section id="tab-mood">
+    <div class="panel">
+      <h2>What are you in the mood for?</h2>
+      <div class="chips" id="moods"></div>
+    </div>
+  </section>
+
+  <section id="discover">
+    <div class="panel">
+      <div class="filters">
+        <div class="chips" id="meal-chips"></div>
+        <label>Time <select id="f-time"><option value="0">Any</option><option value="20">20 min or less</option><option value="35">35 min or less</option><option value="60">60 min or less</option></select></label>
+        <label>Sort <select id="f-sort"><option value="match">Best match</option><option value="rating">My rating</option><option value="protein">Protein</option><option value="time">Fastest</option><option value="name">Name</option><option value="shuffle">Shuffle</option></select></label>
+        <input type="text" id="f-search" placeholder="Search name or ingredient" style="flex:1;min-width:160px">
+      </div>
+      <div class="count" id="count"></div>
+      <div class="cards" id="cards"></div>
+    </div>
+  </section>
+
+  <section id="tab-planner" class="hidden">
+    <div class="panel">
+      <h2>This week</h2>
+      <div class="summary" id="plan-summary"></div>
+      <div class="week" id="week"></div>
+      <div class="row" style="margin-top:10px">
+        <button id="plan-fill" class="primary">Fill empty slots</button>
+        <button id="plan-clear" class="ghost">Clear week</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Grocery list</h2>
+      <div class="row" style="margin-bottom:6px">
+        <button id="g-copy">Copy list</button>
+        <button id="g-uncheck" class="ghost">Uncheck all</button>
+      </div>
+      <div class="grocery" id="grocery"></div>
+    </div>
+  </section>
+
+  <section id="tab-favourites" class="hidden">
+    <div class="panel">
+      <h2>Favourites and ratings</h2>
+      <div class="count" id="fav-count"></div>
+      <div class="cards" id="fav-cards"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="row">
+      <button id="export">Export</button>
+      <button id="import">Import</button>
+      <input type="file" id="import-file" accept="application/json" class="hidden">
+      <button id="reset" class="ghost">Reset</button>
+    </div>
+    <p style="text-align:center;margin:10px 0 0">Macros are per serving and approximate. Adjust to taste and to how hungry the runner is.</p>
+    <p id="storage-warn" class="warn hidden" style="text-align:center">Storage is unavailable in this browser. Nothing will be saved between visits.</p>
+  </footer>
+</div>
+
+<script>
+/* ---------- constants ---------- */
+const TOOL = 'chef';
+const SCHEMA_VERSION = 1;
+const MEALS = ['breakfast','lunch','dinner','dessert'];
+const DAYS = [['mon','Monday'],['tue','Tuesday'],['wed','Wednesday'],['thu','Thursday'],['fri','Friday'],['sat','Saturday'],['sun','Sunday']];
+const CATS = [['protein','Proteins'],['starch','Starches and grains'],['veg','Vegetables'],['fruit','Fruit'],['dairy','Dairy and eggs'],['pantry','Pantry and sauces'],['baking','Baking']];
+const TAG_LABELS = {batch:'batch prep',quick:'quick',treat:'treat',weekend:'weekend',grabgo:'grab and go',blackstone:'Blackstone',comfort:'comfort',light:'light',datenight:'date night',freezer:'freezer friendly',baby:'one hand'};
+const MOODS = [
+  ['batch','Sunday batch prep',r=>r.tags.includes('batch')],
+  ['quickdinner','Quick weeknight dinner',r=>r.meal==='dinner'&&r.time<=30],
+  ['treat','Snack or treat',r=>r.meal==='dessert'||r.tags.includes('treat')],
+  ['weekendbreakfast','Weekend breakfast',r=>r.meal==='breakfast'&&r.tags.includes('weekend')],
+  ['grabgo','Grab and go lunch',r=>r.meal==='lunch'&&r.tags.includes('grabgo')],
+  ['blackstone','Blackstone night',r=>r.tags.includes('blackstone')],
+  ['comfort','Something comforting',r=>r.tags.includes('comfort')],
+  ['light','Light and fresh',r=>r.tags.includes('light')],
+  ['datenight','Date night',r=>r.tags.includes('datenight')],
+  ['freezer','Freezer friendly',r=>r.tags.includes('freezer')],
+  ['onehand','One hand free (new parent)',r=>r.tags.includes('baby')]
+];
+
+/* ---------- recipe library ---------- */
+const RECIPES = [];
+function r(id,name,meal,time,servings,protein,cal,tags,ingredients,steps){
+  RECIPES.push({id,name,meal,time,servings,protein,cal,tags,steps,
+    ingredients:ingredients.map(([q,n,c])=>({q,n,c}))});
+}
+/* breakfast */
+r('b01','Steak and Egg Breakfast Hash','breakfast',30,4,38,540,['weekend','blackstone','comfort'],
+ [['1 lb','steak','protein'],['4','eggs','protein'],['3','potatoes','starch'],['1','onion','veg'],['1','bell peppers','veg'],['2 tbsp','olive oil','pantry'],['1 tsp','paprika','pantry']],
+ ['Dice potatoes small and crisp them in oil on the Blackstone or a wide pan, 12 minutes.','Add diced onion and peppers, cook until soft.','Sear steak strips on the hot side for 2 minutes, toss into the hash with paprika.','Crack eggs on top, cover, and cook to your liking.']);
+r('b02','Sunday Egg Muffins','breakfast',35,6,17,210,['batch','grabgo','freezer','baby'],
+ [['12','eggs','protein'],['6 slices','bacon','protein'],['1 cup','cheddar','dairy'],['1','bell peppers','veg'],['2 cups','spinach','veg'],['1/4 cup','milk','dairy']],
+ ['Cook and crumble the bacon.','Whisk eggs with milk, salt and pepper.','Divide chopped peppers, spinach, bacon and cheese across a greased 12-cup muffin tin, pour eggs over.','Bake at 375F for 20 minutes. Fridge for 5 days or freeze.']);
+r('b03','Overnight Protein Oats','breakfast',5,4,28,380,['batch','grabgo','quick','baby'],
+ [['2 cups','oats','starch'],['2 cups','milk','dairy'],['1 cup','greek yogurt','dairy'],['2 scoops','protein powder','pantry'],['2 tbsp','chia seeds','pantry'],['1 cup','berries','fruit'],['2 tbsp','maple syrup','pantry']],
+ ['Stir oats, milk, yogurt, protein powder, chia and maple together.','Divide into four jars, top with berries.','Fridge overnight. Keeps four days.']);
+r('b04','Breakfast Burritos for the Freezer','breakfast',45,8,29,520,['batch','freezer','grabgo','baby'],
+ [['12','eggs','protein'],['1 lb','breakfast sausage','protein'],['8','tortillas','starch'],['2 cups','cheddar','dairy'],['3','potatoes','starch'],['1','onion','veg'],['1 cup','salsa','pantry']],
+ ['Brown the sausage, set aside. Crisp diced potatoes and onion in the fat.','Scramble the eggs softly.','Lay out tortillas, add sausage, potatoes, eggs, cheese and a spoon of salsa. Roll tight.','Wrap each in foil, freeze. Reheat 90 seconds in the microwave, then a minute in a pan for crunch.']);
+r('b05','Smoked Salmon Bagel Plate','breakfast',10,2,26,440,['quick','weekend','light'],
+ [['2','bagels','starch'],['4 oz','smoked salmon','protein'],['4 tbsp','cream cheese','dairy'],['1/2','cucumber','veg'],['1','lemon','fruit'],['2 tbsp','capers','pantry'],['1/4','onion','veg']],
+ ['Toast the bagels.','Spread cream cheese, layer salmon, thin cucumber and red onion.','Finish with capers, lemon and black pepper.']);
+r('b06','Blackstone Pancakes and Sausage','breakfast',25,4,24,620,['weekend','blackstone','treat','comfort'],
+ [['2 cups','flour','baking'],['2 tbsp','sugar','baking'],['1 tbsp','baking powder','baking'],['2','eggs','protein'],['1 3/4 cups','milk','dairy'],['3 tbsp','butter','dairy'],['1 lb','breakfast sausage','protein'],['1/2 cup','maple syrup','pantry']],
+ ['Whisk dry ingredients, then eggs, milk and melted butter. Rest 5 minutes.','Cook sausage links on one side of the griddle.','Pour pancakes on the other side, flip when the bubbles hold.','Serve with warm syrup.']);
+r('b07','Greek Yogurt Power Bowl','breakfast',5,1,32,390,['quick','light','baby'],
+ [['1 cup','greek yogurt','dairy'],['1/3 cup','granola','pantry'],['1/2 cup','berries','fruit'],['1 tbsp','honey','pantry'],['1 tbsp','almonds','pantry'],['1 tbsp','peanut butter','pantry']],
+ ['Spoon yogurt into a bowl.','Top with granola, berries, nuts, a swirl of peanut butter and honey.']);
+r('b08','Chorizo and Sweet Potato Skillet','breakfast',30,4,26,480,['weekend','batch','comfort'],
+ [['12 oz','chorizo','protein'],['2','sweet potatoes','starch'],['1','onion','veg'],['4','eggs','protein'],['1','avocado','fruit'],['1','lime','fruit'],['1/4 cup','green onions','veg']],
+ ['Brown crumbled chorizo, remove, keep the fat.','Fry diced sweet potato and onion in the fat until tender, 15 minutes.','Return chorizo, make wells, crack in eggs, cover until set.','Top with avocado, lime and green onion.']);
+r('b09','Cottage Cheese Protein Pancakes','breakfast',20,2,34,420,['quick','light'],
+ [['1 cup','cottage cheese','dairy'],['3','eggs','protein'],['1/2 cup','oats','starch'],['1 tsp','vanilla','baking'],['1 tsp','cinnamon','baking'],['1','bananas','fruit'],['1 tbsp','butter','dairy']],
+ ['Blend cottage cheese, eggs, oats, vanilla and cinnamon until smooth.','Cook small pancakes in butter over medium heat, 2 minutes a side.','Serve with sliced banana.']);
+r('b10','Bacon and Cheddar Frittata','breakfast',35,6,22,330,['batch','weekend','grabgo'],
+ [['10','eggs','protein'],['8 slices','bacon','protein'],['1 cup','cheddar','dairy'],['1','onion','veg'],['2 cups','spinach','veg'],['1/3 cup','heavy cream','dairy']],
+ ['Cook bacon in an ovenproof skillet, remove, soften onion in the fat, wilt spinach.','Whisk eggs with cream, salt, pepper. Pour in, scatter bacon and cheese.','Cook on the stove 4 minutes, then bake at 375F for 18 minutes until just set.']);
+r('b11','Ham, Egg and Cheese Breakfast Sandwiches','breakfast',30,6,30,470,['batch','freezer','grabgo','baby'],
+ [['6','english muffins','starch'],['6','eggs','protein'],['6 slices','ham','protein'],['6 slices','cheddar','dairy'],['2 tbsp','butter','dairy']],
+ ['Bake eggs in a greased muffin tin at 350F for 12 minutes.','Toast and butter the muffins, warm the ham.','Stack egg, ham and cheese. Wrap in parchment and foil to freeze.','Reheat from frozen: 60 seconds microwave, then 30 more.']);
+r('b12','Shakshuka with Merguez','breakfast',35,4,27,410,['weekend','datenight','comfort'],
+ [['8 oz','Italian sausage','protein'],['6','eggs','protein'],['1 can','canned tomatoes','pantry'],['1','onion','veg'],['1','bell peppers','veg'],['3 cloves','garlic','veg'],['1 tsp','cumin','pantry'],['1 tsp','paprika','pantry'],['1/2 cup','feta','dairy'],['1','bread','starch']],
+ ['Brown sausage in a wide pan, add onion, pepper, garlic and spices.','Pour in tomatoes, simmer 10 minutes until thick.','Make wells, crack in eggs, cover, cook 6 minutes for runny yolks.','Crumble feta on top and serve with toasted bread.']);
+r('b13','Peanut Butter Banana Protein Smoothie','breakfast',5,1,38,450,['quick','grabgo','baby'],
+ [['1','bananas','fruit'],['1 scoop','protein powder','pantry'],['2 tbsp','peanut butter','pantry'],['1 cup','milk','dairy'],['1/2 cup','greek yogurt','dairy'],['1/4 cup','oats','starch']],
+ ['Blend everything with a handful of ice until smooth.','Add more milk to loosen.']);
+r('b14','Turkey Sausage Breakfast Bowls','breakfast',30,5,31,410,['batch','grabgo','light'],
+ [['1 lb','ground turkey','protein'],['10','eggs','protein'],['2','sweet potatoes','starch'],['2 cups','kale','veg'],['1 tsp','Italian seasoning','pantry'],['2 tbsp','olive oil','pantry'],['1/2 cup','salsa','pantry']],
+ ['Season turkey with Italian seasoning, salt and fennel if you have it, brown it.','Roast diced sweet potato at 425F for 20 minutes.','Scramble eggs, wilt kale in the turkey pan.','Portion into five containers, salsa on the side.']);
+r('b15','Steel Cut Oats with Bacon and Maple','breakfast',30,4,18,420,['batch','comfort','weekend'],
+ [['1 cup','steel cut oats','starch'],['4 cups','milk','dairy'],['6 slices','bacon','protein'],['3 tbsp','maple syrup','pantry'],['1 tsp','cinnamon','baking'],['1','apples','fruit']],
+ ['Toast the oats dry for 2 minutes, add milk, simmer 25 minutes stirring now and then.','Cook bacon until crisp, crumble.','Bowl the oats, top with bacon, diced apple, cinnamon and maple.']);
+r('b16','Huevos Rancheros','breakfast',20,2,24,480,['quick','weekend'],
+ [['4','eggs','protein'],['4','tortillas','starch'],['1 can','black beans','pantry'],['1 cup','salsa','pantry'],['1/2 cup','cheddar','dairy'],['1','avocado','fruit'],['1/4 cup','green onions','veg'],['1 tbsp','olive oil','pantry']],
+ ['Warm beans with a splash of water and a pinch of cumin, mash a little.','Crisp tortillas in oil, fry the eggs.','Stack tortilla, beans, egg, salsa, cheese, avocado and green onion.']);
+r('b17','Egg and Prosciutto Breakfast Flatbreads','breakfast',20,2,28,510,['quick','datenight','weekend'],
+ [['2','naan','starch'],['4','eggs','protein'],['4 slices','prosciutto','protein'],['1 cup','mozzarella','dairy'],['1 cup','arugula','veg'],['1 tbsp','olive oil','pantry'],['1/4 cup','parmesan','dairy']],
+ ['Oil the naan, scatter mozzarella, crack two eggs on each.','Bake at 450F for 9 minutes until whites set.','Drape prosciutto over, top with arugula and parmesan.']);
+r('b18','Sausage Gravy and Biscuits','breakfast',40,6,22,640,['weekend','comfort','treat'],
+ [['1 lb','breakfast sausage','protein'],['1/4 cup','flour','baking'],['3 cups','milk','dairy'],['2 cups','flour','baking'],['1 tbsp','baking powder','baking'],['1/2 cup','butter','dairy'],['3/4 cup','milk','dairy']],
+ ['Biscuits: rub cold butter into flour, baking powder and salt, stir in milk, cut rounds, bake 425F for 14 minutes.','Brown sausage, sprinkle flour over, stir a minute.','Whisk in milk, simmer to thick, season hard with black pepper.','Split biscuits, ladle gravy.']);
+r('b19','Salmon and Avocado Breakfast Toast','breakfast',10,2,29,430,['quick','light','baby'],
+ [['4 slices','bread','starch'],['1 can','salmon','protein'],['1','avocado','fruit'],['2','eggs','protein'],['1','lemon','fruit'],['1 tsp','sriracha','pantry']],
+ ['Toast bread, mash avocado with lemon and salt.','Flake salmon over the avocado.','Top with a soft fried egg and sriracha.']);
+r('b20','Cinnamon French Toast with Bacon','breakfast',25,4,23,590,['weekend','treat','blackstone','comfort'],
+ [['8 slices','bread','starch'],['4','eggs','protein'],['1 cup','milk','dairy'],['1 tsp','cinnamon','baking'],['1 tsp','vanilla','baking'],['8 slices','bacon','protein'],['2 tbsp','butter','dairy'],['1/2 cup','maple syrup','pantry']],
+ ['Whisk eggs, milk, cinnamon and vanilla.','Cook bacon on the griddle, keep the fat on one side.','Dip thick bread, cook in butter until golden both sides.','Serve with bacon and syrup.']);
+r('b21','Sausage and Egg Breakfast Tacos','breakfast',20,4,26,460,['quick','blackstone','weekend'],
+ [['1 lb','breakfast sausage','protein'],['6','eggs','protein'],['8','tortillas','starch'],['1 cup','cheddar','dairy'],['1/2 cup','salsa','pantry'],['1','avocado','fruit'],['2','green onions','veg']],
+ ['Brown sausage, push aside, scramble eggs soft.','Warm tortillas on the griddle.','Fill with sausage, egg, cheese, salsa, avocado and green onion.']);
+r('b22','Bacon, Egg and Cheese Breakfast Casserole','breakfast',60,8,24,390,['batch','weekend','comfort','freezer'],
+ [['12','eggs','protein'],['12 slices','bacon','protein'],['6 slices','bread','starch'],['2 cups','cheddar','dairy'],['1.5 cups','milk','dairy'],['1','onion','veg'],['1 tsp','dijon mustard','pantry']],
+ ['Cook bacon, soften onion in the fat.','Cube bread into a greased 9x13, scatter bacon, onion and cheese.','Whisk eggs, milk, dijon, salt, pepper, pour over. Rest 20 minutes or overnight.','Bake at 350F for 40 minutes.']);
+r('b23','Chicken and Waffles','breakfast',45,4,42,720,['weekend','treat','comfort'],
+ [['1.5 lb','chicken thighs','protein'],['1 cup','flour','baking'],['1 cup','buttermilk','dairy'],['1 tbsp','paprika','pantry'],['2 cups','flour','baking'],['2','eggs','protein'],['1.5 cups','milk','dairy'],['1/3 cup','butter','dairy'],['1 tbsp','baking powder','baking'],['1/2 cup','maple syrup','pantry'],['1 tsp','sriracha','pantry'],['3 cups','olive oil','pantry']],
+ ['Soak chicken in buttermilk and paprika 30 minutes, dredge in seasoned flour, fry in 350F oil 7 minutes a side.','Waffle batter: flour, baking powder, eggs, milk and melted butter. Cook in the iron.','Warm maple syrup with a dash of sriracha. Stack and pour.']);
+r('b24','Denver Omelette','breakfast',15,2,32,420,['quick','light'],
+ [['6','eggs','protein'],['6 oz','ham','protein'],['1','bell peppers','veg'],['1/2','onion','veg'],['3/4 cup','cheddar','dairy'],['1 tbsp','butter','dairy']],
+ ['Sauté diced ham, pepper and onion in butter.','Pour in whisked eggs, swirl, cook low until nearly set.','Cheese, fold, plate.']);
+r('b25','Cottage Cheese Toast with Prosciutto and Peach','breakfast',10,2,28,380,['quick','light','baby'],
+ [['4 slices','bread','starch'],['1 cup','cottage cheese','dairy'],['4 slices','prosciutto','protein'],['2','peaches','fruit'],['1 tbsp','honey','pantry'],['1/2 tsp','chili flakes','pantry']],
+ ['Toast bread, spread thick with cottage cheese.','Sliced peach and prosciutto on top.','Honey and a pinch of chili.']);
+r('b26','Turkey Bacon Egg White Wraps','breakfast',25,6,27,320,['batch','freezer','grabgo','light','baby'],
+ [['3 cups','egg whites','protein'],['12 slices','turkey bacon','protein'],['6','tortillas','starch'],['2 cups','spinach','veg'],['1 cup','feta','dairy'],['1 cup','cherry tomatoes','veg']],
+ ['Cook turkey bacon crisp.','Scramble egg whites with spinach and chopped tomatoes.','Roll into tortillas with feta and bacon. Foil, freeze, microwave 90 seconds.']);
+r('b27','Blackstone Breakfast Quesadillas','breakfast',20,4,30,520,['blackstone','quick','comfort'],
+ [['8','eggs','protein'],['8 slices','bacon','protein'],['4','tortillas','starch'],['2 cups','cheddar','dairy'],['1/2 cup','salsa','pantry'],['1/2 cup','greek yogurt','dairy']],
+ ['Griddle bacon, scramble eggs in the fat.','Load tortillas with egg, bacon and cheese, fold.','Crisp both sides. Salsa and yogurt to dip.']);
+r('b28','Sweet Potato Hash with Ham and Fried Eggs','breakfast',30,4,28,450,['weekend','batch'],
+ [['2','sweet potatoes','starch'],['8 oz','ham','protein'],['4','eggs','protein'],['1','onion','veg'],['1','bell peppers','veg'],['2 tbsp','olive oil','pantry'],['1 tsp','paprika','pantry'],['1 tsp','cumin','pantry']],
+ ['Dice sweet potato small, crisp in oil 15 minutes.','Add ham, onion, pepper and spices, cook 6 minutes.','Fry eggs and set on top.']);
+r('b29','Steak Breakfast Burritos','breakfast',30,4,40,620,['blackstone','weekend','comfort','freezer'],
+ [['1 lb','steak','protein'],['8','eggs','protein'],['4','tortillas','starch'],['1.5 cups','cheddar','dairy'],['2','potatoes','starch'],['1','bell peppers','veg'],['1/2 cup','salsa','pantry'],['2 tbsp','olive oil','pantry']],
+ ['Crisp diced potatoes and peppers.','Sear steak, slice thin. Scramble the eggs.','Roll everything into large tortillas with cheese and salsa, griddle seam side down to seal.']);
+r('b30','Banana Oat Protein Muffins','breakfast',35,12,11,190,['batch','grabgo','freezer','baby'],
+ [['3','bananas','fruit'],['2 cups','oats','starch'],['2 scoops','protein powder','pantry'],['2','eggs','protein'],['1/2 cup','greek yogurt','dairy'],['1/4 cup','maple syrup','pantry'],['1 tsp','baking powder','baking'],['1 tsp','cinnamon','baking'],['1/2 cup','chocolate chips','baking']],
+ ['Blend bananas, oats, protein, eggs, yogurt, maple, baking powder and cinnamon.','Fold in chips, fill 12 muffin cups.','Bake at 350F for 22 minutes. Freeze half.']);
+r('b31','Eggs Benedict with Ham','breakfast',30,2,32,640,['weekend','datenight','treat'],
+ [['4','eggs','protein'],['2','english muffins','starch'],['6 oz','ham','protein'],['3','egg yolks','protein'],['1/2 cup','butter','dairy'],['1','lemon','fruit'],['1 tsp','white vinegar','pantry']],
+ ['Hollandaise: whisk yolks with lemon over barely simmering water, drizzle in melted butter until thick.','Poach eggs in vinegared water 3 minutes.','Toast muffins, warm ham, stack, sauce over.']);
+r('b32','Chorizo Breakfast Pizza','breakfast',25,4,29,560,['weekend','treat','comfort'],
+ [['1 lb','pizza dough','starch'],['8 oz','chorizo','protein'],['4','eggs','protein'],['1.5 cups','mozzarella','dairy'],['1/2 cup','salsa','pantry'],['2','green onions','veg']],
+ ['Brown chorizo. Stretch dough on a hot sheet pan.','Salsa, cheese and chorizo over, crack eggs on top.','Bake at 475F for 14 minutes. Green onion to finish.']);
+r('b33','Corned Beef Hash and Eggs','breakfast',30,4,30,520,['weekend','comfort','blackstone'],
+ [['1 lb','corned beef','protein'],['3','potatoes','starch'],['1','onion','veg'],['4','eggs','protein'],['2 tbsp','butter','dairy'],['1 tbsp','worcestershire','pantry']],
+ ['Dice potatoes and onion, cook in butter until browned.','Add chopped corned beef and worcestershire, press down, let it crust 5 minutes.','Fry eggs on top.']);
+r('b34','Savoury Oats with Bacon and a Fried Egg','breakfast',15,2,24,430,['quick','comfort','baby'],
+ [['1 cup','oats','starch'],['2 cups','chicken broth','pantry'],['4 slices','bacon','protein'],['2','eggs','protein'],['1/2 cup','parmesan','dairy'],['2','green onions','veg']],
+ ['Cook oats in broth until creamy, stir in parmesan.','Crisp bacon, fry eggs in the fat.','Bacon, egg and green onion on top, plenty of pepper.']);
+r('b35','Smoked Salmon Scramble on Sourdough','breakfast',15,2,30,440,['quick','light','datenight'],
+ [['6','eggs','protein'],['4 oz','smoked salmon','protein'],['4 slices','bread','starch'],['2 tbsp','cream cheese','dairy'],['2','green onions','veg'],['1 tbsp','butter','dairy'],['1','lemon','fruit']],
+ ['Scramble eggs low and slow in butter, fold in cream cheese at the end.','Fold through torn salmon and green onion off the heat.','Pile onto toasted sourdough, lemon over.']);
+r('b36','Sheet Pan Turkey Sausage Breakfast','breakfast',30,4,30,410,['batch','light','quick'],
+ [['1 lb','turkey sausage','protein'],['4','eggs','protein'],['2','sweet potatoes','starch'],['1','bell peppers','veg'],['2 cups','broccoli','veg'],['2 tbsp','olive oil','pantry'],['1 tsp','paprika','pantry']],
+ ['Toss sausage, sweet potato, pepper and broccoli in oil and paprika on a sheet pan. Roast at 425F for 20 minutes.','Make four wells, crack in eggs, back in for 6 minutes.']);
+r('b37','Breakfast Grilled Cheese','breakfast',15,2,33,590,['quick','comfort','blackstone','treat'],
+ [['4 slices','bread','starch'],['4 slices','bacon','protein'],['2','eggs','protein'],['4 slices','cheddar','dairy'],['2 tbsp','butter','dairy'],['1 tsp','sriracha','pantry']],
+ ['Crisp bacon, fry eggs with runny yolks.','Butter the bread, stack cheese, bacon, egg, cheese, sriracha.','Griddle until golden and melted.']);
+r('b38','Freezer Protein Waffles','breakfast',30,8,20,300,['batch','freezer','grabgo','baby'],
+ [['2 cups','oats','starch'],['2 scoops','protein powder','pantry'],['3','eggs','protein'],['1 cup','greek yogurt','dairy'],['1 cup','milk','dairy'],['2 tsp','baking powder','baking'],['1 tsp','vanilla','baking'],['1 cup','berries','fruit']],
+ ['Blend everything but the berries until smooth.','Cook in a waffle iron, 4 minutes each.','Freeze in a bag, toaster on the day. Berries and yogurt on top.']);
+r('b39','Bacon Gruyere Egg Bites','breakfast',40,12,12,180,['batch','grabgo','baby','light'],
+ [['10','eggs','protein'],['1 cup','cottage cheese','dairy'],['1 cup','gruyere','dairy'],['8 slices','bacon','protein'],['1/2 cup','bell peppers','veg']],
+ ['Blend eggs, cottage cheese and half the gruyere until smooth.','Divide bacon bits, pepper and remaining cheese into a greased silicone muffin tray, pour eggs over.','Bake in a water bath at 325F for 30 minutes. Fridge five days.']);
+r('b40','Croque Madame','breakfast',25,2,40,720,['weekend','datenight','treat','comfort'],
+ [['4 slices','bread','starch'],['6 oz','ham','protein'],['1.5 cups','gruyere','dairy'],['2','eggs','protein'],['2 tbsp','butter','dairy'],['2 tbsp','flour','baking'],['1 cup','milk','dairy'],['1 tbsp','dijon mustard','pantry']],
+ ['Bechamel: melt butter, stir in flour, whisk in milk, season, add a spoon of gruyere.','Dijon on bread, ham and cheese, close, bechamel and more cheese on top. Broil until bubbling.','Fried egg on each.']);
+/* lunch */
+r('l01','Chicken Burrito Bowls','lunch',40,6,42,560,['batch','grabgo'],
+ [['2 lb','chicken thighs','protein'],['2 cups','rice','starch'],['1 can','black beans','pantry'],['2 cups','corn','veg'],['1 cup','salsa','pantry'],['2 tbsp','taco seasoning','pantry'],['1','lime','fruit'],['1 cup','cheddar','dairy'],['1/2 cup','greek yogurt','dairy']],
+ ['Toss chicken with taco seasoning and oil, roast at 425F for 25 minutes or grill it.','Cook rice, stir in lime juice and salt.','Portion rice, chopped chicken, beans, corn, salsa and cheese into six containers.','Yogurt stands in for sour cream on the day.']);
+r('l02','Greek Chicken Meal Prep','lunch',40,5,45,520,['batch','grabgo','light'],
+ [['2 lb','chicken breast','protein'],['1 cup','quinoa','starch'],['1','cucumber','veg'],['2 cups','cherry tomatoes','veg'],['1/2','onion','veg'],['1/2 cup','feta','dairy'],['1/2 cup','olives','pantry'],['1','lemon','fruit'],['2 tsp','oregano','pantry'],['3 tbsp','olive oil','pantry'],['1 cup','greek yogurt','dairy'],['2 cloves','garlic','veg']],
+ ['Marinate chicken in lemon, oil, oregano and garlic for 20 minutes, grill or pan sear.','Cook quinoa. Chop cucumber, tomatoes and red onion.','Stir garlic and lemon into yogurt for a quick tzatziki.','Box it up: quinoa, chicken, salad, feta, olives, yogurt on the side.']);
+r('l03','Turkey Club Wraps','lunch',10,2,34,480,['quick','grabgo','baby'],
+ [['2','tortillas','starch'],['8 oz','deli turkey','protein'],['4 slices','bacon','protein'],['2 leaves','romaine','veg'],['1','tomatoes','veg'],['1','avocado','fruit'],['2 tbsp','mayo','pantry']],
+ ['Crisp bacon.','Spread mayo on tortillas, layer turkey, bacon, lettuce, tomato and avocado.','Roll tight, slice in half.']);
+r('l04','Beef and Broccoli Rice Boxes','lunch',30,5,38,540,['batch','grabgo','quick'],
+ [['1.5 lb','steak','protein'],['4 cups','broccoli','veg'],['2 cups','rice','starch'],['1/3 cup','soy sauce','pantry'],['2 tbsp','brown sugar','baking'],['1 tbsp','cornstarch','pantry'],['3 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['1 tbsp','sesame oil','pantry']],
+ ['Slice steak thin, toss with cornstarch.','Sear in batches on high heat, remove.','Stir fry broccoli, garlic and ginger 3 minutes, add soy, sugar and a splash of water, return beef.','Serve over rice, sesame oil to finish.']);
+r('l05','Tuna Melt on Sourdough','lunch',15,2,36,520,['quick','comfort','baby'],
+ [['2 cans','tuna','protein'],['4 slices','bread','starch'],['3 tbsp','mayo','pantry'],['1 stalk','celery','veg'],['1 cup','cheddar','dairy'],['1 tbsp','dijon mustard','pantry'],['1 tbsp','butter','dairy']],
+ ['Mix tuna, mayo, dijon, chopped celery, salt and pepper.','Butter the bread, load tuna and cheese.','Grill in a pan until melted, 4 minutes a side.']);
+r('l06','Chicken Caesar Salad with Crispy Bacon','lunch',25,2,44,560,['quick','light'],
+ [['1 lb','chicken breast','protein'],['4 slices','bacon','protein'],['1 head','romaine','veg'],['1/2 cup','parmesan','dairy'],['1/2 cup','caesar dressing','pantry'],['2 slices','bread','starch'],['1','lemon','fruit']],
+ ['Pan sear seasoned chicken 6 minutes a side, rest, slice.','Crisp bacon. Cube bread and toast it in the bacon fat.','Toss romaine with dressing, lemon and parmesan. Top with chicken, bacon and croutons.']);
+r('l07','Thai Peanut Chicken Noodle Salad','lunch',30,5,40,590,['batch','grabgo','light'],
+ [['2 lb','chicken thighs','protein'],['8 oz','rice noodles','starch'],['1/3 cup','peanut butter','pantry'],['3 tbsp','soy sauce','pantry'],['2 tbsp','honey','pantry'],['2','lime','fruit'],['1 tbsp','sriracha','pantry'],['2 cups','cabbage','veg'],['2','carrots','veg'],['1','bell peppers','veg'],['1/4 cup','peanuts','pantry']],
+ ['Grill or roast chicken, slice.','Whisk peanut butter, soy, honey, lime, sriracha and warm water into a dressing.','Cook noodles, rinse cold. Shred cabbage and carrots, slice peppers.','Toss everything, top with peanuts. Keeps four days.']);
+r('l08','Steak Sandwich with Caramelised Onions','lunch',30,2,42,680,['blackstone','comfort','treat'],
+ [['1 lb','steak','protein'],['2','onion','veg'],['2','buns','starch'],['1 cup','provolone','dairy'],['2 tbsp','butter','dairy'],['1 tbsp','dijon mustard','pantry'],['1 cup','arugula','veg']],
+ ['Slice onions thin, cook slow in butter 20 minutes until deep gold.','Sear steak hot, 3 minutes a side, rest, slice thin.','Toast buns, spread dijon, pile steak, onions and cheese, melt under the griddle dome.','Arugula on top.']);
+r('l09','Chicken Salad with Grapes and Pecans','lunch',15,4,30,390,['batch','grabgo','quick','light','baby'],
+ [['3 cups','rotisserie chicken','protein'],['1 cup','grapes','fruit'],['1/2 cup','pecans','pantry'],['1/3 cup','greek yogurt','dairy'],['1/4 cup','mayo','pantry'],['2 stalks','celery','veg'],['1','lemon','fruit'],['1 tsp','dijon mustard','pantry']],
+ ['Shred chicken. Halve grapes, chop celery and pecans.','Mix yogurt, mayo, dijon, lemon, salt and pepper.','Fold together. Eat on bread, in lettuce cups, or straight from the container.']);
+r('l10','Buffalo Chicken Wraps','lunch',15,4,36,470,['quick','grabgo','baby'],
+ [['3 cups','rotisserie chicken','protein'],['1/3 cup','hot sauce','pantry'],['4','tortillas','starch'],['1/2 cup','ranch dressing','pantry'],['2 cups','romaine','veg'],['1/2 cup','cheddar','dairy'],['1 stalk','celery','veg']],
+ ['Toss shredded chicken with hot sauce and a spoon of melted butter.','Spread ranch on tortillas, add chicken, lettuce, celery and cheese.','Roll and slice.']);
+r('l11','Salmon Poke Bowls','lunch',20,2,38,540,['quick','light','datenight'],
+ [['12 oz','salmon','protein'],['1.5 cups','rice','starch'],['3 tbsp','soy sauce','pantry'],['1 tbsp','sesame oil','pantry'],['1 tsp','rice vinegar','pantry'],['1','avocado','fruit'],['1','cucumber','veg'],['2','green onions','veg'],['1 tbsp','sriracha','pantry'],['2 tbsp','mayo','pantry']],
+ ['Cube sushi-grade salmon, toss with soy, sesame oil and vinegar.','Cook rice, season with a splash of vinegar.','Bowl the rice, salmon, avocado and cucumber. Stir sriracha into mayo and drizzle.']);
+r('l12','Egg Roll in a Bowl','lunch',20,4,32,380,['batch','quick','light'],
+ [['1 lb','ground pork','protein'],['1 bag','coleslaw mix','veg'],['3 tbsp','soy sauce','pantry'],['1 tbsp','sesame oil','pantry'],['3 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['3','green onions','veg'],['1 tsp','sriracha','pantry']],
+ ['Brown pork with garlic and ginger.','Add slaw mix, soy and sriracha, stir fry 5 minutes until just wilted.','Finish with sesame oil and green onions.']);
+r('l13','Italian Sub Salad','lunch',15,4,31,450,['quick','grabgo','light'],
+ [['6 oz','salami','protein'],['6 oz','ham','protein'],['1 head','romaine','veg'],['1 cup','mozzarella','dairy'],['1 cup','cherry tomatoes','veg'],['1/2','onion','veg'],['1/2 cup','banana peppers','pantry'],['3 tbsp','olive oil','pantry'],['2 tbsp','red wine vinegar','pantry'],['1 tsp','oregano','pantry']],
+ ['Chop everything into bite size pieces.','Whisk oil, vinegar, oregano, salt and pepper.','Dress just before eating so the lettuce stays crisp.']);
+r('l14','Chicken Pesto Pasta Salad','lunch',30,6,35,520,['batch','grabgo'],
+ [['1.5 lb','chicken breast','protein'],['1 lb','pasta','starch'],['1/2 cup','pesto','pantry'],['2 cups','cherry tomatoes','veg'],['1 cup','mozzarella','dairy'],['2 cups','spinach','veg'],['1/4 cup','parmesan','dairy'],['1','lemon','fruit']],
+ ['Grill or roast chicken, dice.','Cook pasta, rinse to stop it cooking.','Toss with pesto, chicken, halved tomatoes, mozzarella pearls, spinach, parmesan and lemon.']);
+r('l15','Pulled Pork Sandwiches','lunch',360,8,35,560,['batch','freezer','comfort','weekend'],
+ [['4 lb','pork shoulder','protein'],['1 cup','bbq sauce','pantry'],['2 tbsp','brown sugar','baking'],['1 tbsp','paprika','pantry'],['1 tbsp','chili powder','pantry'],['8','buns','starch'],['1 bag','coleslaw mix','veg'],['1/3 cup','mayo','pantry']],
+ ['Rub pork with sugar, paprika, chili powder, salt, pepper. Slow cooker on low for 8 hours, or Instant Pot 90 minutes.','Shred, toss with bbq sauce and some juices.','Dress slaw with mayo and vinegar. Pile pork and slaw on toasted buns.','Freeze extra pork flat in bags.']);
+r('l16','Shrimp Tacos with Lime Crema','lunch',20,3,30,430,['quick','light','blackstone'],
+ [['1 lb','shrimp','protein'],['6','tortillas','starch'],['2 tsp','chili powder','pantry'],['1 tsp','cumin','pantry'],['2 cups','cabbage','veg'],['1/2 cup','greek yogurt','dairy'],['2','lime','fruit'],['1','avocado','fruit'],['1/4 cup','cilantro','veg']],
+ ['Toss shrimp with chili powder, cumin, salt, cook hot 2 minutes a side.','Stir lime juice into yogurt.','Warm tortillas, fill with cabbage, shrimp, avocado, crema and cilantro.']);
+r('l17','Loaded Chicken Quesadillas','lunch',20,2,40,620,['quick','comfort','blackstone','baby'],
+ [['2 cups','rotisserie chicken','protein'],['4','tortillas','starch'],['2 cups','cheddar','dairy'],['1','bell peppers','veg'],['1/2','onion','veg'],['1/2 cup','salsa','pantry'],['1 tbsp','butter','dairy']],
+ ['Soften peppers and onion.','Fill tortillas with chicken, cheese and vegetables, fold.','Cook in butter until crisp and melted. Salsa to dip.']);
+r('l18','Turkey Chili','lunch',50,8,34,380,['batch','freezer','comfort'],
+ [['2 lb','ground turkey','protein'],['2 cans','black beans','pantry'],['1 can','canned tomatoes','pantry'],['1','onion','veg'],['2','bell peppers','veg'],['4 cloves','garlic','veg'],['3 tbsp','chili powder','pantry'],['1 tbsp','cumin','pantry'],['2 cups','chicken broth','pantry'],['1 cup','cheddar','dairy']],
+ ['Brown turkey, add onion, peppers and garlic.','Stir in spices, tomatoes, beans and broth. Simmer 35 minutes.','Top with cheese. Freezes for months.']);
+r('l19','Cobb Salad','lunch',25,2,48,600,['light','weekend'],
+ [['1 lb','chicken breast','protein'],['4 slices','bacon','protein'],['2','eggs','protein'],['1 head','romaine','veg'],['1','avocado','fruit'],['1 cup','cherry tomatoes','veg'],['1/2 cup','blue cheese','dairy'],['1/3 cup','ranch dressing','pantry']],
+ ['Boil eggs 9 minutes. Crisp bacon. Sear chicken and slice.','Arrange rows over chopped romaine.','Dress at the table.']);
+r('l20','Chicken Shawarma Bowls','lunch',45,6,44,540,['batch','grabgo'],
+ [['2.5 lb','chicken thighs','protein'],['2 cups','rice','starch'],['1 cup','greek yogurt','dairy'],['3 cloves','garlic','veg'],['2','lemon','fruit'],['2 tsp','cumin','pantry'],['2 tsp','paprika','pantry'],['1 tsp','turmeric','pantry'],['1','cucumber','veg'],['2','tomatoes','veg'],['1/2','onion','veg']],
+ ['Marinate chicken in yogurt, half the garlic, lemon, cumin, paprika, turmeric and oil for 30 minutes.','Roast at 450F for 25 minutes until charred at the edges.','Cook rice. Chop cucumber, tomato and onion.','Stir the rest of the garlic and lemon into more yogurt for the sauce. Box everything.']);
+r('l21','Ham and Swiss Croissant Melts','lunch',15,2,32,590,['quick','treat','comfort','baby'],
+ [['2','croissants','starch'],['6 oz','ham','protein'],['4 slices','swiss cheese','dairy'],['1 tbsp','dijon mustard','pantry'],['1 tbsp','honey','pantry']],
+ ['Split croissants, spread with dijon whisked with honey.','Layer ham and swiss, close.','Bake at 375F for 8 minutes until melted.']);
+r('l22','Sheet Pan Sausage and Veg Lunches','lunch',35,5,28,440,['batch','grabgo','light','quick'],
+ [['1.5 lb','Italian sausage','protein'],['3','bell peppers','veg'],['1','onion','veg'],['2','zucchini','veg'],['1 lb','potatoes','starch'],['2 tbsp','olive oil','pantry'],['1 tbsp','Italian seasoning','pantry']],
+ ['Chop everything chunky, toss with oil and seasoning on two sheet pans.','Roast at 425F for 30 minutes, turning once.','Portion into five containers.']);
+r('l23','Chicken Bacon Ranch Wraps','lunch',15,4,38,520,['quick','grabgo','baby'],
+ [['3 cups','rotisserie chicken','protein'],['8 slices','bacon','protein'],['4','tortillas','starch'],['1/2 cup','ranch dressing','pantry'],['2 cups','romaine','veg'],['1 cup','cheddar','dairy'],['1','tomatoes','veg']],
+ ['Crisp bacon.','Toss chicken with ranch.','Roll with lettuce, tomato, bacon and cheese.']);
+r('l24','Beef Taco Salad Bowls','lunch',25,5,34,480,['batch','grabgo','light'],
+ [['1.5 lb','ground beef','protein'],['2 tbsp','taco seasoning','pantry'],['1 head','romaine','veg'],['1 can','black beans','pantry'],['1 cup','corn','veg'],['1 cup','cheddar','dairy'],['1 cup','salsa','pantry'],['1','avocado','fruit'],['1 cup','tortilla chips','starch']],
+ ['Brown beef with seasoning and a splash of water.','Box romaine, beans, corn and cheese, beef in a separate container so it reheats.','Salsa, avocado and crushed chips on the day.']);
+r('l25','Chicken Noodle Soup','lunch',50,8,30,340,['batch','freezer','comfort'],
+ [['2 lb','chicken thighs','protein'],['8 cups','chicken broth','pantry'],['3','carrots','veg'],['3 stalks','celery','veg'],['1','onion','veg'],['3 cloves','garlic','veg'],['8 oz','egg noodles','starch'],['1 tsp','thyme','pantry'],['1','lemon','fruit']],
+ ['Simmer chicken in broth with vegetables, garlic and thyme 30 minutes.','Shred the chicken back in, add noodles, cook 8 minutes.','Lemon at the end. Freeze without noodles for best texture.']);
+r('l26','Cuban Sandwiches','lunch',20,4,42,640,['blackstone','comfort','treat'],
+ [['1 lb','pork shoulder','protein'],['8 oz','ham','protein'],['8 slices','swiss cheese','dairy'],['4','buns','starch'],['1/3 cup','pickles','pantry'],['3 tbsp','dijon mustard','pantry'],['2 tbsp','butter','dairy']],
+ ['Use leftover pulled pork or roast a small piece ahead.','Dijon on both sides, layer pork, ham, swiss and pickles.','Butter the outside, press on the griddle under a weight until crisp.']);
+r('l27','Lemon Dill Salmon Salad','lunch',20,4,32,360,['batch','light','grabgo','baby'],
+ [['1.5 lb','salmon','protein'],['1/3 cup','greek yogurt','dairy'],['2 tbsp','mayo','pantry'],['1','lemon','fruit'],['2 tbsp','dill','veg'],['2 stalks','celery','veg'],['1/4','onion','veg'],['4 slices','bread','starch']],
+ ['Roast salmon at 400F for 12 minutes, cool, flake.','Fold with yogurt, mayo, lemon, dill, celery and red onion.','On toast, in lettuce, or on crackers.']);
+r('l28','Chicken Gyros','lunch',35,4,40,560,['blackstone','light'],
+ [['1.5 lb','chicken thighs','protein'],['4','pita','starch'],['1 cup','greek yogurt','dairy'],['1','cucumber','veg'],['2 cloves','garlic','veg'],['1','lemon','fruit'],['2 tsp','oregano','pantry'],['2','tomatoes','veg'],['1/2','onion','veg'],['2 tbsp','olive oil','pantry']],
+ ['Marinate chicken in oil, lemon, oregano, garlic 20 minutes. Griddle until charred, slice.','Tzatziki: grated squeezed cucumber, yogurt, garlic, lemon, salt.','Warm pita, load chicken, tomato, onion and tzatziki.']);
+r('l29','Chicken Cheesesteak Wraps','lunch',20,4,40,540,['blackstone','quick','comfort'],
+ [['1.5 lb','chicken breast','protein'],['4','tortillas','starch'],['8 slices','provolone','dairy'],['1','onion','veg'],['1','bell peppers','veg'],['8 oz','mushrooms','veg'],['2 tbsp','butter','dairy']],
+ ['Slice chicken thin, griddle in butter with onion, pepper and mushrooms.','Chop it all together, cheese over, dome to melt.','Roll into tortillas, griddle to seal.']);
+r('l30','Banh Mi Style Pork Sandwiches','lunch',30,4,36,580,['light','quick'],
+ [['1.5 lb','pork tenderloin','protein'],['4','buns','starch'],['2','carrots','veg'],['1','cucumber','veg'],['1/4 cup','rice vinegar','pantry'],['1 tbsp','sugar','baking'],['3 tbsp','soy sauce','pantry'],['1 tbsp','honey','pantry'],['1/4 cup','mayo','pantry'],['1 tbsp','sriracha','pantry'],['1/4 cup','cilantro','veg'],['1','jalapeno','veg']],
+ ['Quick pickle shredded carrot in vinegar and sugar.','Slice pork thin, marinate in soy and honey, sear hot.','Sriracha mayo on toasted buns, pork, pickles, cucumber, jalapeno and cilantro.']);
+r('l31','Turkey Meatball Subs','lunch',40,4,42,620,['batch','freezer','comfort'],
+ [['1.5 lb','ground turkey','protein'],['1/2 cup','panko','pantry'],['1','eggs','protein'],['1/2 cup','parmesan','dairy'],['1 jar','marinara','pantry'],['4','buns','starch'],['1.5 cups','mozzarella','dairy'],['3 cloves','garlic','veg'],['1 tbsp','Italian seasoning','pantry']],
+ ['Mix turkey, panko, egg, parmesan, garlic and seasoning. Roll 16 balls, bake at 400F for 18 minutes.','Simmer in marinara 10 minutes.','Into rolls with mozzarella, broil until melted. Freeze extra meatballs in sauce.']);
+r('l32','Sausage and White Bean Soup','lunch',40,6,30,420,['batch','freezer','comfort'],
+ [['1.5 lb','Italian sausage','protein'],['2 cans','white beans','pantry'],['6 cups','chicken broth','pantry'],['1','onion','veg'],['3','carrots','veg'],['4 cloves','garlic','veg'],['3 cups','kale','veg'],['1/2 cup','parmesan','dairy'],['1 tsp','chili flakes','pantry']],
+ ['Brown sausage, add onion, carrot, garlic and chili.','Beans and broth, simmer 20 minutes.','Wilt kale, parmesan on top.']);
+r('l33','BLT with Avocado','lunch',15,2,22,520,['quick','light','baby'],
+ [['8 slices','bacon','protein'],['4 slices','bread','starch'],['2','tomatoes','veg'],['4 leaves','romaine','veg'],['1','avocado','fruit'],['2 tbsp','mayo','pantry']],
+ ['Bacon until crisp.','Toast bread, mayo both sides, mash avocado on one.','Stack bacon, tomato, lettuce. Salt the tomato.']);
+r('l34','Honey Sriracha Chicken Bowls','lunch',30,5,42,540,['batch','grabgo','quick'],
+ [['2 lb','chicken breast','protein'],['3 tbsp','honey','pantry'],['2 tbsp','sriracha','pantry'],['2 tbsp','soy sauce','pantry'],['1','lime','fruit'],['2 cups','rice','starch'],['4 cups','broccoli','veg'],['2','green onions','veg'],['1 tbsp','sesame oil','pantry']],
+ ['Cube chicken, sear, then toss with honey, sriracha, soy and lime until sticky.','Steam broccoli, cook rice.','Portion with green onion and a drop of sesame oil.']);
+r('l35','Spicy Tuna Rice Bowls','lunch',15,2,32,480,['quick','light','baby'],
+ [['2 cans','tuna','protein'],['1.5 cups','rice','starch'],['3 tbsp','mayo','pantry'],['1 tbsp','sriracha','pantry'],['1 tbsp','soy sauce','pantry'],['1','cucumber','veg'],['1','avocado','fruit'],['2','green onions','veg'],['1 tsp','sesame oil','pantry']],
+ ['Mix tuna with mayo, sriracha and soy.','Bowl over warm rice with cucumber and avocado.','Sesame oil and green onion.']);
+r('l36','Steak Salad with Blue Cheese','lunch',25,2,44,560,['light','datenight','blackstone'],
+ [['1 lb','steak','protein'],['1 head','romaine','veg'],['1/2 cup','blue cheese','dairy'],['1 cup','cherry tomatoes','veg'],['1/2','onion','veg'],['1/2 cup','walnuts','pantry'],['3 tbsp','olive oil','pantry'],['1 tbsp','balsamic vinegar','pantry'],['1 tsp','dijon mustard','pantry']],
+ ['Sear steak, rest, slice thin.','Whisk oil, balsamic and dijon.','Toss romaine, tomatoes and onion in dressing, top with steak, blue cheese and walnuts.']);
+r('l37','Chicken Pita Pockets','lunch',15,4,34,440,['quick','grabgo','light','baby'],
+ [['3 cups','rotisserie chicken','protein'],['4','pita','starch'],['1/2 cup','hummus','pantry'],['1','cucumber','veg'],['1 cup','cherry tomatoes','veg'],['1/2 cup','feta','dairy'],['1','lemon','fruit']],
+ ['Toss chicken with lemon, salt and a little oil.','Hummus inside the pita halves.','Stuff with chicken, cucumber, tomato and feta.']);
+r('l38','Beef and Barley Soup','lunch',90,8,32,380,['batch','freezer','comfort','weekend'],
+ [['2 lb','chuck roast','protein'],['1 cup','barley','starch'],['8 cups','beef broth','pantry'],['3','carrots','veg'],['2 stalks','celery','veg'],['1','onion','veg'],['8 oz','mushrooms','veg'],['3 cloves','garlic','veg'],['2 tbsp','tomato paste','pantry'],['1 tsp','thyme','pantry']],
+ ['Sear cubed beef, remove. Soften vegetables, stir in tomato paste.','Beef, broth, thyme, simmer 45 minutes.','Add barley, 30 minutes more.']);
+r('l39','Ham and Cheese Sliders','lunch',30,6,28,480,['batch','weekend','treat','comfort'],
+ [['12','slider buns','starch'],['1 lb','ham','protein'],['12 slices','swiss cheese','dairy'],['1/2 cup','butter','dairy'],['1 tbsp','dijon mustard','pantry'],['1 tbsp','poppy seeds','pantry'],['1 tbsp','worcestershire','pantry']],
+ ['Slice the whole slab of buns in half, layer ham and swiss, close.','Melt butter with dijon, worcestershire and poppy seeds, pour over.','Bake covered at 350F for 15 minutes, uncovered 5.']);
+r('l40','Southwest Chicken Salad Jars','lunch',30,5,36,440,['batch','grabgo','light'],
+ [['2 lb','chicken breast','protein'],['2 tbsp','taco seasoning','pantry'],['1 can','black beans','pantry'],['1 cup','corn','veg'],['1 cup','cherry tomatoes','veg'],['1','bell peppers','veg'],['4 cups','romaine','veg'],['1/2 cup','ranch dressing','pantry'],['1/4 cup','salsa','pantry'],['1 cup','cheddar','dairy']],
+ ['Roast seasoned chicken, dice.','Jars bottom up: ranch mixed with salsa, beans, corn, tomato, pepper, chicken, cheese, lettuce last.','Shake into a bowl at lunch.']);
+r('l41','Pork Carnitas Bowls','lunch',240,8,38,520,['batch','freezer','baby'],
+ [['4 lb','pork shoulder','protein'],['1','onion','veg'],['4 cloves','garlic','veg'],['2','orange','fruit'],['2','lime','fruit'],['1 tbsp','cumin','pantry'],['1 tbsp','oregano','pantry'],['2 cups','rice','starch'],['1 can','black beans','pantry'],['1 cup','salsa','pantry'],['1/4 cup','cilantro','veg']],
+ ['Pork, onion, garlic, orange and lime juice and spices in the slow cooker, low 8 hours or pressure 60 minutes.','Shred, spread on a sheet pan, broil 5 minutes for crisp edges.','Bowl with rice, beans, salsa and cilantro.']);
+r('l42','Shrimp Fried Rice','lunch',20,4,30,480,['quick','blackstone','light'],
+ [['1 lb','shrimp','protein'],['4 cups','rice','starch'],['3','eggs','protein'],['1 cup','peas and carrots','veg'],['3','green onions','veg'],['3 tbsp','soy sauce','pantry'],['1 tbsp','sesame oil','pantry'],['2 cloves','garlic','veg'],['2 tbsp','butter','dairy']],
+ ['Sear shrimp in butter with garlic, remove.','Scramble eggs, add peas and carrots and cold rice, fry hard with soy.','Return shrimp, sesame oil and green onion.']);
+r('l43','Grilled Chicken Caprese Sandwiches','lunch',25,2,44,600,['blackstone','light','datenight'],
+ [['1 lb','chicken breast','protein'],['2','ciabatta','starch'],['1 cup','mozzarella','dairy'],['2','tomatoes','veg'],['1/4 cup','basil','veg'],['2 tbsp','pesto','pantry'],['1 tbsp','balsamic vinegar','pantry']],
+ ['Butterfly chicken, grill 5 minutes a side.','Split and toast ciabatta, pesto on the bottom.','Chicken, mozzarella, tomato, basil, balsamic. Close and press briefly on the griddle.']);
+r('l44','Chicken Tortilla Soup','lunch',45,8,32,380,['batch','freezer','comfort'],
+ [['2 lb','chicken thighs','protein'],['8 cups','chicken broth','pantry'],['1 can','canned tomatoes','pantry'],['1 can','black beans','pantry'],['1 cup','corn','veg'],['1','onion','veg'],['4 cloves','garlic','veg'],['1 tbsp','chili powder','pantry'],['2 tsp','cumin','pantry'],['2','lime','fruit'],['2 cups','tortilla chips','starch'],['1','avocado','fruit'],['1 cup','cheddar','dairy']],
+ ['Soften onion and garlic, add spices, tomatoes, broth and chicken. Simmer 25 minutes.','Shred chicken back in, add beans and corn, lime juice.','Serve with chips, avocado and cheese.']);
+/* dinner */
+r('d01','Blackstone Smash Burgers','dinner',20,4,36,640,['blackstone','quick','comfort','treat'],
+ [['1.5 lb','ground beef','protein'],['4','buns','starch'],['4 slices','cheddar','dairy'],['1','onion','veg'],['4 leaves','romaine','veg'],['1','tomatoes','veg'],['3 tbsp','mayo','pantry'],['1 tbsp','ketchup','pantry'],['1 tsp','dijon mustard','pantry']],
+ ['Roll beef into loose 3 oz balls. Griddle screaming hot.','Smash flat with a spatula, salt, cook 2 minutes, scrape and flip, cheese on.','Toast buns on the griddle.','Sauce: mayo, ketchup, dijon and a chopped pickle.']);
+r('d02','Honey Garlic Salmon with Rice','dinner',25,4,38,520,['quick','light','datenight'],
+ [['4 fillets','salmon','protein'],['1.5 cups','rice','starch'],['3 tbsp','honey','pantry'],['3 tbsp','soy sauce','pantry'],['4 cloves','garlic','veg'],['1','lemon','fruit'],['1 lb','asparagus','veg'],['1 tbsp','olive oil','pantry']],
+ ['Cook rice. Roast asparagus with oil at 425F for 10 minutes.','Sear salmon skin side down 4 minutes, flip.','Add honey, soy, garlic and lemon to the pan, spoon over the fish 2 minutes until glossy.']);
+r('d03','Slow Cooker Beef Stew','dinner',480,8,36,480,['batch','freezer','comfort','weekend'],
+ [['3 lb','chuck roast','protein'],['2 lb','potatoes','starch'],['4','carrots','veg'],['1','onion','veg'],['4 cloves','garlic','veg'],['3 cups','beef broth','pantry'],['2 tbsp','tomato paste','pantry'],['1/4 cup','flour','baking'],['2 tbsp','olive oil','pantry'],['1 tsp','thyme','pantry']],
+ ['Cube beef, dust with flour, sear hard in batches.','Everything into the slow cooker with broth, tomato paste and thyme. Low 8 hours.','Season at the end. Freezes well.']);
+r('d04','Chicken Tikka Masala','dinner',45,6,40,560,['batch','freezer','comfort'],
+ [['2.5 lb','chicken thighs','protein'],['1 cup','greek yogurt','dairy'],['2 tbsp','garam masala','pantry'],['1 tbsp','ginger','pantry'],['4 cloves','garlic','veg'],['1','onion','veg'],['1 can','canned tomatoes','pantry'],['1 cup','heavy cream','dairy'],['2 cups','rice','starch'],['4','naan','starch'],['1 tsp','paprika','pantry']],
+ ['Marinate chicken in yogurt, half the garam masala, ginger and garlic. Broil or grill until charred.','Soften onion, add remaining spices, tomatoes, simmer 10 minutes, blend smooth.','Stir in cream and the chicken, simmer 10 minutes.','Rice and warm naan.']);
+r('d05','Sheet Pan Chicken Fajitas','dinner',30,4,40,480,['quick','light','blackstone'],
+ [['1.5 lb','chicken breast','protein'],['3','bell peppers','veg'],['1','onion','veg'],['2 tbsp','taco seasoning','pantry'],['2 tbsp','olive oil','pantry'],['8','tortillas','starch'],['1','lime','fruit'],['1/2 cup','greek yogurt','dairy'],['1','avocado','fruit']],
+ ['Slice chicken, peppers and onion. Toss with oil and seasoning.','Roast at 450F for 20 minutes, or griddle.','Squeeze lime over, serve with warm tortillas, yogurt and avocado.']);
+r('d06','Creamy Tuscan Chicken','dinner',35,4,44,620,['comfort','datenight'],
+ [['1.5 lb','chicken breast','protein'],['1 cup','heavy cream','dairy'],['1/2 cup','parmesan','dairy'],['3 cups','spinach','veg'],['1/2 cup','sun-dried tomatoes','pantry'],['4 cloves','garlic','veg'],['1 cup','chicken broth','pantry'],['1 lb','pasta','starch'],['1 tbsp','Italian seasoning','pantry']],
+ ['Butterfly chicken, season, sear golden both sides, remove.','Cook garlic and sun-dried tomatoes, add broth and cream, simmer.','Melt in parmesan, wilt spinach, return chicken.','Serve over pasta.']);
+r('d07','Korean Beef Bowls','dinner',20,4,34,560,['quick','batch','baby'],
+ [['1.5 lb','ground beef','protein'],['1/3 cup','soy sauce','pantry'],['3 tbsp','brown sugar','baking'],['1 tbsp','sesame oil','pantry'],['4 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['1 tsp','sriracha','pantry'],['2 cups','rice','starch'],['3','green onions','veg'],['1','cucumber','veg']],
+ ['Brown beef with garlic and ginger, drain most of the fat.','Stir in soy, sugar, sesame oil and sriracha, cook 2 minutes.','Over rice with green onions and sliced cucumber.']);
+r('d08','Blackstone Chicken Fried Rice','dinner',25,4,38,580,['blackstone','quick','batch'],
+ [['1.5 lb','chicken thighs','protein'],['4 cups','rice','starch'],['3','eggs','protein'],['1 cup','peas and carrots','veg'],['1','onion','veg'],['4 tbsp','soy sauce','pantry'],['1 tbsp','sesame oil','pantry'],['3','green onions','veg'],['2 tbsp','butter','dairy']],
+ ['Use day-old rice. Griddle diced chicken in butter until browned.','Push aside, scramble eggs, then add onion and peas and carrots.','Add rice, soy and sesame oil, chop and toss until every grain is coated.','Green onions to finish.']);
+r('d09','Pork Chops with Apples and Onions','dinner',30,4,42,520,['comfort','quick','datenight'],
+ [['4','pork chops','protein'],['2','apples','fruit'],['1','onion','veg'],['2 tbsp','butter','dairy'],['1 tbsp','dijon mustard','pantry'],['1/2 cup','chicken broth','pantry'],['1 tsp','thyme','pantry'],['2 lb','potatoes','starch']],
+ ['Boil and mash potatoes with butter.','Sear thick chops 4 minutes a side, rest.','Cook sliced apple and onion in the pan with thyme, add broth and dijon, simmer 3 minutes, spoon over chops.']);
+r('d10','Baked Ziti with Sausage','dinner',60,8,32,620,['batch','freezer','comfort'],
+ [['1.5 lb','Italian sausage','protein'],['1 lb','pasta','starch'],['1 jar','marinara','pantry'],['2 cups','mozzarella','dairy'],['1 cup','ricotta','dairy'],['1/2 cup','parmesan','dairy'],['1','onion','veg'],['4 cloves','garlic','veg']],
+ ['Brown sausage with onion and garlic, add marinara.','Cook pasta 2 minutes short of done.','Layer pasta, sauce, ricotta and mozzarella in a big dish, parmesan on top.','Bake at 375F for 30 minutes. Second pan for the freezer.']);
+r('d11','Shrimp Scampi Linguine','dinner',25,4,34,560,['quick','datenight','light'],
+ [['1.5 lb','shrimp','protein'],['1 lb','pasta','starch'],['6 cloves','garlic','veg'],['1/2 cup','butter','dairy'],['1/2 cup','white wine','pantry'],['1','lemon','fruit'],['1/2 tsp','chili flakes','pantry'],['1/4 cup','parsley','veg']],
+ ['Boil pasta.','Melt butter with garlic and chili flakes, add shrimp, cook 2 minutes a side.','Deglaze with wine and lemon, toss in the pasta with a splash of pasta water and parsley.']);
+r('d12','Chicken Parmesan','dinner',45,4,52,680,['comfort','treat','weekend'],
+ [['1.5 lb','chicken breast','protein'],['1 cup','panko','pantry'],['1/2 cup','parmesan','dairy'],['2','eggs','protein'],['1/2 cup','flour','baking'],['1 jar','marinara','pantry'],['1.5 cups','mozzarella','dairy'],['1 lb','pasta','starch'],['1/4 cup','olive oil','pantry']],
+ ['Pound chicken thin, dredge flour, egg, then panko mixed with parmesan.','Shallow fry until golden, 4 minutes a side.','Top with marinara and mozzarella, bake at 425F for 10 minutes.','Serve over pasta with the rest of the sauce.']);
+r('d13','Slow Cooker Pulled Chicken Tacos','dinner',240,6,38,460,['batch','freezer','baby'],
+ [['2.5 lb','chicken thighs','protein'],['1 cup','salsa','pantry'],['2 tbsp','taco seasoning','pantry'],['1','onion','veg'],['12','tortillas','starch'],['1 cup','cheddar','dairy'],['2 cups','cabbage','veg'],['1','lime','fruit']],
+ ['Chicken, salsa, seasoning and onion in the slow cooker. Low 4 hours.','Shred in the juices.','Warm tortillas, fill with chicken, cabbage, cheese and lime.']);
+r('d14','Steak with Chimichurri and Roast Potatoes','dinner',40,2,48,700,['datenight','blackstone','weekend','treat'],
+ [['1.5 lb','steak','protein'],['1.5 lb','potatoes','starch'],['1 cup','parsley','veg'],['4 cloves','garlic','veg'],['1/2 cup','olive oil','pantry'],['3 tbsp','red wine vinegar','pantry'],['1 tsp','oregano','pantry'],['1/2 tsp','chili flakes','pantry']],
+ ['Halve potatoes, toss in oil and salt, roast at 425F for 35 minutes.','Chimichurri: finely chop parsley and garlic, stir into oil, vinegar, oregano, chili, salt.','Sear steak hard, rest 5 minutes, slice against the grain, spoon sauce over.']);
+r('d15','Butter Chicken Meal Prep','dinner',45,6,42,580,['batch','freezer','comfort'],
+ [['2.5 lb','chicken thighs','protein'],['1/2 cup','butter','dairy'],['1','onion','veg'],['4 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['2 tbsp','garam masala','pantry'],['1 can','canned tomatoes','pantry'],['1 cup','heavy cream','dairy'],['2 cups','rice','starch'],['1 tsp','cumin','pantry']],
+ ['Brown chicken in half the butter, remove.','Soften onion, garlic and ginger in the rest, add spices, tomatoes, blend smooth.','Return chicken, add cream, simmer 15 minutes.','Portion with rice.']);
+r('d16','Cajun Shrimp and Sausage Skillet','dinner',25,4,36,480,['quick','light','blackstone'],
+ [['1 lb','shrimp','protein'],['12 oz','smoked sausage','protein'],['2','bell peppers','veg'],['2','zucchini','veg'],['1','onion','veg'],['2 tbsp','cajun seasoning','pantry'],['2 tbsp','olive oil','pantry'],['1.5 cups','rice','starch']],
+ ['Cook rice.','Sear sliced sausage, add peppers, zucchini and onion, cook 6 minutes.','Add shrimp and cajun seasoning, 3 minutes more.']);
+r('d17','Lemon Herb Roast Chicken','dinner',90,6,46,520,['weekend','batch','comfort'],
+ [['1 whole','chicken','protein'],['2','lemon','fruit'],['1 head','garlic','veg'],['3 tbsp','butter','dairy'],['1 tbsp','thyme','pantry'],['2 lb','potatoes','starch'],['4','carrots','veg'],['1','onion','veg']],
+ ['Dry the bird, rub butter, thyme, salt and pepper under and over the skin. Lemon and garlic in the cavity.','Bed of potatoes, carrots and onion under it.','Roast at 425F for 75 minutes until the thigh reads 165F. Rest 15 minutes.','Carcass makes broth for the week.']);
+r('d18','Ground Beef Stroganoff','dinner',30,4,32,590,['quick','comfort','baby'],
+ [['1.5 lb','ground beef','protein'],['8 oz','mushrooms','veg'],['1','onion','veg'],['2 cups','beef broth','pantry'],['1 cup','sour cream','dairy'],['2 tbsp','flour','baking'],['1 tbsp','dijon mustard','pantry'],['12 oz','egg noodles','starch'],['2 cloves','garlic','veg']],
+ ['Brown beef with onion, mushrooms and garlic.','Stir in flour, then broth, simmer to thicken.','Off heat, stir in sour cream and dijon. Over buttered noodles.']);
+r('d19','Teriyaki Chicken Thighs','dinner',30,4,44,540,['quick','blackstone','batch'],
+ [['2 lb','chicken thighs','protein'],['1/2 cup','soy sauce','pantry'],['1/4 cup','brown sugar','baking'],['2 tbsp','honey','pantry'],['1 tbsp','ginger','pantry'],['3 cloves','garlic','veg'],['1 tbsp','cornstarch','pantry'],['2 cups','rice','starch'],['4 cups','broccoli','veg']],
+ ['Simmer soy, sugar, honey, ginger and garlic. Thicken with cornstarch slurry.','Grill or sear thighs, brushing sauce the last few minutes.','Steam broccoli, serve over rice, extra sauce on the side.']);
+r('d20','Fish Tacos with Mango Salsa','dinner',25,4,30,450,['quick','light','blackstone'],
+ [['1.5 lb','white fish','protein'],['8','tortillas','starch'],['1','mango','fruit'],['1/2','onion','veg'],['1','jalapeno','veg'],['2','lime','fruit'],['1/4 cup','cilantro','veg'],['2 cups','cabbage','veg'],['2 tsp','chili powder','pantry'],['1/2 cup','greek yogurt','dairy']],
+ ['Dice mango, onion, jalapeno and cilantro, dress with lime.','Season fish with chili powder and salt, sear 3 minutes a side, flake.','Build on warm tortillas with cabbage, salsa and lime yogurt.']);
+r('d21','Cottage Pie','dinner',60,6,34,560,['batch','freezer','comfort'],
+ [['2 lb','ground beef','protein'],['2.5 lb','potatoes','starch'],['1','onion','veg'],['3','carrots','veg'],['1 cup','peas and carrots','veg'],['2 tbsp','tomato paste','pantry'],['1.5 cups','beef broth','pantry'],['2 tbsp','flour','baking'],['1/2 cup','butter','dairy'],['1/2 cup','milk','dairy'],['1 tbsp','worcestershire','pantry']],
+ ['Brown beef with onion and carrot, add flour, tomato paste, worcestershire and broth. Simmer 15 minutes, add peas.','Mash potatoes with butter and milk.','Spread mash over the filling, rough the top, bake at 400F for 25 minutes.']);
+r('d22','Pork Tenderloin with Maple Dijon Glaze','dinner',35,4,42,480,['quick','datenight','light'],
+ [['1.5 lb','pork tenderloin','protein'],['3 tbsp','maple syrup','pantry'],['2 tbsp','dijon mustard','pantry'],['2 cloves','garlic','veg'],['1 lb','green beans','veg'],['1.5 lb','sweet potatoes','starch'],['2 tbsp','olive oil','pantry']],
+ ['Roast sweet potato wedges at 425F for 25 minutes.','Sear tenderloin all over, brush with maple, dijon and garlic, roast 15 minutes to 145F. Rest.','Blister green beans in the hot pan.']);
+r('d23','Chicken and Dumplings','dinner',60,6,36,540,['comfort','weekend','batch'],
+ [['2 lb','chicken thighs','protein'],['6 cups','chicken broth','pantry'],['3','carrots','veg'],['2 stalks','celery','veg'],['1','onion','veg'],['1.5 cups','flour','baking'],['2 tsp','baking powder','baking'],['3/4 cup','milk','dairy'],['3 tbsp','butter','dairy'],['1 tsp','thyme','pantry']],
+ ['Simmer chicken in broth with the vegetables and thyme 25 minutes, shred the meat back in.','Stir flour, baking powder, salt, melted butter and milk into a soft dough.','Drop spoonfuls onto the simmering stew, cover, 15 minutes without peeking.']);
+r('d24','Bang Bang Shrimp Bowls','dinner',25,4,32,560,['quick','treat','light'],
+ [['1.5 lb','shrimp','protein'],['1/2 cup','cornstarch','pantry'],['1/3 cup','mayo','pantry'],['3 tbsp','sweet chili sauce','pantry'],['1 tsp','sriracha','pantry'],['2 cups','rice','starch'],['2 cups','cabbage','veg'],['1','cucumber','veg'],['3','green onions','veg'],['1/2 cup','olive oil','pantry']],
+ ['Toss shrimp in cornstarch, shallow fry 2 minutes a side until crisp.','Whisk mayo, sweet chili and sriracha, toss the shrimp in it.','Bowl over rice with cabbage, cucumber and green onion.']);
+r('d25','Lasagna for Two Nights','dinner',90,8,38,680,['batch','freezer','comfort','weekend'],
+ [['1.5 lb','ground beef','protein'],['1 lb','Italian sausage','protein'],['12','lasagna noodles','starch'],['2 jars','marinara','pantry'],['2 cups','ricotta','dairy'],['3 cups','mozzarella','dairy'],['1 cup','parmesan','dairy'],['1','eggs','protein'],['1','onion','veg'],['4 cloves','garlic','veg']],
+ ['Brown beef and sausage with onion and garlic, add marinara, simmer 20 minutes.','Mix ricotta with egg, parmesan and pepper.','Layer sauce, noodles, ricotta, mozzarella, four times.','Bake covered at 375F for 45 minutes, uncovered 15 more. Rest 20 minutes.']);
+r('d26','Blackstone Philly Cheesesteaks','dinner',25,4,40,660,['blackstone','quick','comfort','treat'],
+ [['1.5 lb','steak','protein'],['4','buns','starch'],['8 slices','provolone','dairy'],['1','onion','veg'],['1','bell peppers','veg'],['8 oz','mushrooms','veg'],['2 tbsp','butter','dairy']],
+ ['Freeze steak 30 minutes, slice paper thin.','Griddle onions, peppers and mushrooms in butter until soft.','Sear steak fast, chop it into the vegetables, lay cheese over, dome to melt.','Scoop into toasted rolls.']);
+r('d27','Thai Green Curry with Chicken','dinner',30,4,36,540,['quick','light','batch'],
+ [['1.5 lb','chicken thighs','protein'],['3 tbsp','curry paste','pantry'],['1 can','coconut milk','pantry'],['1','bell peppers','veg'],['1','zucchini','veg'],['1 cup','green beans','veg'],['1 tbsp','fish sauce','pantry'],['1 tbsp','brown sugar','baking'],['1','lime','fruit'],['1.5 cups','rice','starch'],['1/4 cup','basil','veg']],
+ ['Fry curry paste in the thick top of the coconut milk until fragrant.','Add chicken, cook 5 minutes, then the rest of the milk and vegetables. Simmer 12 minutes.','Season with fish sauce, sugar and lime. Basil in at the end. Over rice.']);
+r('d28','Garlic Butter Steak Bites and Potatoes','dinner',30,4,44,600,['quick','comfort','blackstone'],
+ [['1.5 lb','steak','protein'],['1.5 lb','potatoes','starch'],['4 tbsp','butter','dairy'],['5 cloves','garlic','veg'],['1 tsp','paprika','pantry'],['1 lb','asparagus','veg'],['1 tbsp','olive oil','pantry'],['1/4 cup','parsley','veg']],
+ ['Cube potatoes small, crisp in oil 15 minutes.','Push aside, sear cubed steak in butter hot and fast, 2 minutes.','Add garlic, paprika and asparagus, toss 2 minutes. Parsley over everything.']);
+r('d29','Chicken Pot Pie','dinner',70,6,34,620,['comfort','weekend','freezer'],
+ [['1.5 lb','chicken breast','protein'],['2','pie crusts','starch'],['3','carrots','veg'],['2 stalks','celery','veg'],['1','onion','veg'],['1 cup','peas and carrots','veg'],['1/3 cup','butter','dairy'],['1/3 cup','flour','baking'],['2 cups','chicken broth','pantry'],['2/3 cup','milk','dairy'],['1 tsp','thyme','pantry']],
+ ['Poach and dice chicken. Soften vegetables in butter, stir in flour.','Whisk in broth and milk, simmer thick, add chicken, peas and thyme.','Fill the bottom crust, top with the second, vent, bake at 400F for 40 minutes.']);
+r('d30','Sheet Pan Sausage Gnocchi','dinner',30,4,28,560,['quick','comfort'],
+ [['1 lb','Italian sausage','protein'],['1 lb','gnocchi','starch'],['2 cups','cherry tomatoes','veg'],['1','bell peppers','veg'],['1','onion','veg'],['2 tbsp','olive oil','pantry'],['1/2 cup','parmesan','dairy'],['1 tsp','Italian seasoning','pantry']],
+ ['Toss everything but the cheese on a sheet pan with oil and seasoning.','Roast at 425F for 25 minutes until the gnocchi crisps.','Parmesan on top.']);
+r('d31','Salmon Burgers with Slaw','dinner',30,4,34,520,['light','blackstone','quick'],
+ [['1.5 lb','salmon','protein'],['1/2 cup','panko','pantry'],['1','eggs','protein'],['2 tbsp','dijon mustard','pantry'],['2','green onions','veg'],['4','buns','starch'],['1 bag','coleslaw mix','veg'],['1/4 cup','mayo','pantry'],['1','lemon','fruit']],
+ ['Pulse salmon coarsely, mix with panko, egg, dijon, green onion, salt.','Form four patties, chill 10 minutes, griddle 4 minutes a side.','Slaw with mayo and lemon. Stack on toasted buns.']);
+r('d32','Beef and Bean Enchiladas','dinner',50,6,36,600,['batch','freezer','comfort'],
+ [['1.5 lb','ground beef','protein'],['1 can','black beans','pantry'],['12','tortillas','starch'],['2 cups','enchilada sauce','pantry'],['2 cups','cheddar','dairy'],['1','onion','veg'],['2 tbsp','taco seasoning','pantry'],['1/2 cup','greek yogurt','dairy']],
+ ['Brown beef with onion and seasoning, stir in beans and a little sauce.','Fill and roll tortillas, seam down in a saucy dish.','Cover with remaining sauce and cheese, bake at 375F for 25 minutes.']);
+r('d33','Chicken Alfredo','dinner',30,4,46,720,['quick','comfort','treat'],
+ [['1.5 lb','chicken breast','protein'],['1 lb','pasta','starch'],['1.5 cups','heavy cream','dairy'],['1 cup','parmesan','dairy'],['4 tbsp','butter','dairy'],['4 cloves','garlic','veg'],['3 cups','broccoli','veg']],
+ ['Sear seasoned chicken, slice.','Melt butter with garlic, add cream, simmer 3 minutes, whisk in parmesan.','Toss with pasta and steamed broccoli, chicken on top.']);
+r('d34','Jerk Chicken with Coconut Rice','dinner',45,4,42,580,['blackstone','weekend','datenight'],
+ [['2 lb','chicken thighs','protein'],['3 tbsp','jerk seasoning','pantry'],['1.5 cups','rice','starch'],['1 can','coconut milk','pantry'],['1','pineapple','fruit'],['1','lime','fruit'],['2','green onions','veg'],['2 tbsp','olive oil','pantry']],
+ ['Rub chicken with jerk seasoning, oil and lime, marinate 30 minutes.','Cook rice in coconut milk topped up with water.','Grill chicken over medium until charred and 165F. Grill pineapple rings alongside.','Green onion over the rice.']);
+r('d35','Instant Pot Beef Barbacoa','dinner',75,8,40,420,['batch','freezer','baby'],
+ [['3 lb','chuck roast','protein'],['3','chipotle in adobo','pantry'],['1','onion','veg'],['5 cloves','garlic','veg'],['1 tbsp','cumin','pantry'],['1 tbsp','oregano','pantry'],['1 cup','beef broth','pantry'],['2','lime','fruit'],['16','tortillas','starch'],['1/2','onion','veg'],['1/4 cup','cilantro','veg']],
+ ['Blend chipotle, onion, garlic, cumin, oregano, broth and lime.','Sear cubed beef, pour sauce over, pressure cook 60 minutes, natural release.','Shred, reduce the juices, toss back. Tacos with onion and cilantro all week.']);
+r('d36','Pesto Chicken Stuffed Peppers','dinner',45,4,40,480,['light','batch'],
+ [['1.5 lb','ground chicken','protein'],['4','bell peppers','veg'],['1/3 cup','pesto','pantry'],['1 cup','rice','starch'],['1 cup','mozzarella','dairy'],['1 cup','cherry tomatoes','veg'],['2 cloves','garlic','veg']],
+ ['Brown ground chicken with garlic, stir in cooked rice, pesto and halved tomatoes.','Stuff halved peppers, top with mozzarella.','Bake at 400F for 30 minutes.']);
+r('d37','One Pot Chicken and Rice','dinner',45,6,40,520,['batch','comfort','baby'],
+ [['2 lb','chicken thighs','protein'],['2 cups','rice','starch'],['3.5 cups','chicken broth','pantry'],['1','onion','veg'],['3','carrots','veg'],['4 cloves','garlic','veg'],['2 tbsp','butter','dairy'],['1 tsp','paprika','pantry'],['2 cups','spinach','veg']],
+ ['Sear seasoned thighs skin side down in butter, remove.','Soften onion, carrot and garlic, stir in rice and paprika to toast.','Add broth, nestle chicken on top, cover, simmer 25 minutes.','Fold in spinach at the end.']);
+r('d38','Blackstone Hibachi Steak and Shrimp','dinner',30,4,48,640,['blackstone','datenight','treat','weekend'],
+ [['1 lb','steak','protein'],['1 lb','shrimp','protein'],['4 cups','rice','starch'],['2','zucchini','veg'],['8 oz','mushrooms','veg'],['1','onion','veg'],['4 tbsp','butter','dairy'],['4 tbsp','soy sauce','pantry'],['1/2 cup','mayo','pantry'],['1 tbsp','sriracha','pantry'],['1 tsp','paprika','pantry'],['3 cloves','garlic','veg']],
+ ['Yum yum sauce: mayo, sriracha, paprika, a splash of water and a pinch of sugar.','Griddle vegetables in butter and soy on one side.','Sear steak cubes and shrimp with garlic butter on the hot side, 3 minutes.','Fry day-old rice in the leftover butter with soy. Everything on one plate.']);
+r('d39','Beef Bulgogi','dinner',30,4,40,560,['blackstone','quick','datenight'],
+ [['1.5 lb','steak','protein'],['1/3 cup','soy sauce','pantry'],['2 tbsp','brown sugar','baking'],['1 tbsp','sesame oil','pantry'],['4 cloves','garlic','veg'],['1','pear','fruit'],['2 cups','rice','starch'],['3','green onions','veg'],['1','carrots','veg']],
+ ['Slice steak paper thin. Blend soy, sugar, sesame oil, garlic and grated pear, marinate 20 minutes.','Griddle in a single layer on high, 2 minutes a side, with shredded carrot.','Over rice with green onion.']);
+r('d40','Chicken Marsala','dinner',35,4,44,580,['datenight','comfort'],
+ [['1.5 lb','chicken breast','protein'],['12 oz','mushrooms','veg'],['3/4 cup','marsala wine','pantry'],['3/4 cup','chicken broth','pantry'],['1/3 cup','flour','baking'],['3 tbsp','butter','dairy'],['3 cloves','garlic','veg'],['1 lb','pasta','starch'],['1/4 cup','parsley','veg']],
+ ['Pound chicken thin, dredge in flour, brown in butter, remove.','Cook mushrooms and garlic hard, deglaze with marsala, add broth, simmer to a glaze.','Return chicken 3 minutes. Over pasta with parsley.']);
+r('d41','Meatloaf and Mashed Potatoes','dinner',75,6,36,600,['comfort','batch','freezer','weekend'],
+ [['2 lb','ground beef','protein'],['1','onion','veg'],['2','eggs','protein'],['3/4 cup','panko','pantry'],['1/3 cup','milk','dairy'],['1/2 cup','ketchup','pantry'],['2 tbsp','brown sugar','baking'],['1 tbsp','worcestershire','pantry'],['2.5 lb','potatoes','starch'],['1/2 cup','butter','dairy'],['1 lb','green beans','veg']],
+ ['Mix beef, grated onion, eggs, panko, milk, worcestershire, salt, pepper. Shape a loaf on a sheet pan.','Glaze with ketchup and brown sugar, bake at 375F for 55 minutes.','Mash potatoes with butter and milk, steam beans.']);
+r('d42','Quick Pork Ramen','dinner',30,4,36,540,['comfort','quick'],
+ [['1 lb','pork tenderloin','protein'],['4','eggs','protein'],['8 cups','chicken broth','pantry'],['12 oz','ramen noodles','starch'],['3 tbsp','soy sauce','pantry'],['1 tbsp','miso','pantry'],['1 tbsp','ginger','pantry'],['3 cloves','garlic','veg'],['3','green onions','veg'],['2 cups','spinach','veg'],['1 tbsp','sesame oil','pantry']],
+ ['Simmer broth with soy, miso, ginger and garlic 15 minutes.','Sear sliced pork. Soft boil eggs 7 minutes.','Cook noodles in the broth, bowl with pork, halved eggs, spinach, green onion and sesame oil.']);
+r('d43','Swedish Meatballs','dinner',45,6,34,580,['comfort','batch','freezer'],
+ [['1 lb','ground beef','protein'],['1 lb','ground pork','protein'],['1','onion','veg'],['1/2 cup','panko','pantry'],['1','eggs','protein'],['1/2 cup','milk','dairy'],['3 tbsp','butter','dairy'],['3 tbsp','flour','baking'],['2 cups','beef broth','pantry'],['3/4 cup','heavy cream','dairy'],['12 oz','egg noodles','starch'],['1/2 tsp','nutmeg','pantry']],
+ ['Mix meats, grated onion, panko soaked in milk, egg, nutmeg, salt. Roll small, brown in butter.','Stir flour into the pan, whisk in broth and cream, simmer thick.','Meatballs back in 10 minutes. Over buttered noodles.']);
+r('d44','Blackstone Steak Fajitas','dinner',25,4,42,540,['blackstone','quick','weekend'],
+ [['1.5 lb','steak','protein'],['3','bell peppers','veg'],['1','onion','veg'],['2 tbsp','taco seasoning','pantry'],['8','tortillas','starch'],['2','lime','fruit'],['1/2 cup','greek yogurt','dairy'],['1','avocado','fruit'],['2 tbsp','olive oil','pantry']],
+ ['Rub steak with seasoning and oil. Griddle peppers and onion on one side.','Sear steak 4 minutes a side, rest, slice against the grain.','Warm tortillas, lime over everything, yogurt and avocado on the side.']);
+r('d45','Baked Salmon with Dill Potatoes','dinner',35,4,38,520,['light','datenight','quick'],
+ [['4 fillets','salmon','protein'],['1.5 lb','potatoes','starch'],['3 tbsp','butter','dairy'],['2 tbsp','dill','veg'],['1','lemon','fruit'],['1 lb','asparagus','veg'],['2 tbsp','olive oil','pantry'],['2 cloves','garlic','veg']],
+ ['Boil baby potatoes, toss in butter and dill.','Salmon on a sheet pan with lemon, garlic, oil, salt. Asparagus alongside. Bake at 400F for 14 minutes.']);
+r('d46','Chicken Souvlaki Skewers','dinner',35,4,44,540,['blackstone','light','batch'],
+ [['2 lb','chicken breast','protein'],['3 tbsp','olive oil','pantry'],['2','lemon','fruit'],['4 cloves','garlic','veg'],['2 tsp','oregano','pantry'],['4','pita','starch'],['1 cup','greek yogurt','dairy'],['1','cucumber','veg'],['2','tomatoes','veg'],['1/2','onion','veg']],
+ ['Cube chicken, marinate in oil, lemon, garlic and oregano 30 minutes, skewer.','Grill 12 minutes, turning.','Tzatziki from yogurt, grated cucumber and garlic. Pita, tomato and onion.']);
+r('d47','Chili Mac','dinner',35,6,34,580,['comfort','batch','freezer','baby'],
+ [['1.5 lb','ground beef','protein'],['12 oz','pasta','starch'],['1 can','canned tomatoes','pantry'],['1 can','black beans','pantry'],['1','onion','veg'],['3 cloves','garlic','veg'],['2 tbsp','chili powder','pantry'],['2 cups','beef broth','pantry'],['2 cups','cheddar','dairy']],
+ ['Brown beef with onion and garlic, add chili powder.','Tomatoes, beans, broth and dry pasta, simmer covered 14 minutes.','Stir in cheese.']);
+r('d48','Shrimp Pad Thai','dinner',30,4,32,560,['quick','light','datenight'],
+ [['1 lb','shrimp','protein'],['8 oz','rice noodles','starch'],['3','eggs','protein'],['3 tbsp','fish sauce','pantry'],['3 tbsp','brown sugar','baking'],['2 tbsp','rice vinegar','pantry'],['1 tbsp','sriracha','pantry'],['2 cups','bean sprouts','veg'],['3','green onions','veg'],['1/3 cup','peanuts','pantry'],['2','lime','fruit'],['3 cloves','garlic','veg']],
+ ['Soak noodles in hot water 10 minutes. Whisk fish sauce, sugar, vinegar and sriracha.','Sear shrimp with garlic, push aside, scramble eggs.','Noodles and sauce in, toss 2 minutes, then sprouts and green onion. Peanuts and lime.']);
+r('d49','Spaghetti and Meatballs','dinner',60,8,38,640,['batch','freezer','comfort','weekend'],
+ [['1.5 lb','ground beef','protein'],['1 lb','ground pork','protein'],['1 cup','panko','pantry'],['2','eggs','protein'],['3/4 cup','parmesan','dairy'],['1/2 cup','milk','dairy'],['4 cloves','garlic','veg'],['2 jars','marinara','pantry'],['1.5 lb','pasta','starch'],['1/4 cup','parsley','veg']],
+ ['Mix meats, panko soaked in milk, eggs, parmesan, garlic, parsley, salt. Roll 24 balls.','Brown in batches, simmer in marinara 25 minutes.','Over spaghetti. Freeze half the meatballs in sauce.']);
+r('d50','Pork Schnitzel with Lemon','dinner',30,4,40,620,['comfort','quick','datenight'],
+ [['4','pork chops','protein'],['1 cup','panko','pantry'],['2','eggs','protein'],['1/2 cup','flour','baking'],['1/2 cup','olive oil','pantry'],['2','lemon','fruit'],['1.5 lb','potatoes','starch'],['3 tbsp','butter','dairy'],['1','cucumber','veg'],['1/2 cup','sour cream','dairy']],
+ ['Pound chops thin, flour, egg, panko.','Shallow fry 3 minutes a side until golden.','Buttered potatoes and a cucumber sour cream salad. Lemon over the pork.']);
+r('d51','Chicken Cacciatore','dinner',60,6,42,520,['batch','freezer','comfort'],
+ [['3 lb','chicken thighs','protein'],['1 can','canned tomatoes','pantry'],['2','bell peppers','veg'],['1','onion','veg'],['8 oz','mushrooms','veg'],['4 cloves','garlic','veg'],['1/2 cup','white wine','pantry'],['1/2 cup','olives','pantry'],['1 tbsp','Italian seasoning','pantry'],['1 lb','pasta','starch']],
+ ['Brown thighs skin side down, remove.','Cook peppers, onion, mushrooms and garlic, deglaze with wine, add tomatoes and seasoning.','Chicken back in, simmer covered 35 minutes. Olives at the end. Over pasta or polenta.']);
+r('d52','Blackened Fish with Rice and Beans','dinner',25,4,34,480,['quick','light','blackstone'],
+ [['1.5 lb','white fish','protein'],['2 tbsp','cajun seasoning','pantry'],['2 tbsp','butter','dairy'],['1.5 cups','rice','starch'],['1 can','black beans','pantry'],['1','lime','fruit'],['1','avocado','fruit'],['1/4 cup','cilantro','veg'],['1 cup','corn','veg']],
+ ['Coat fish in cajun seasoning, sear in butter 3 minutes a side.','Warm beans and corn with lime, fold into rice.','Avocado and cilantro on top.']);
+r('d53','Mongolian Beef','dinner',25,4,38,560,['quick','comfort'],
+ [['1.5 lb','steak','protein'],['1/4 cup','cornstarch','pantry'],['1/2 cup','soy sauce','pantry'],['1/3 cup','brown sugar','baking'],['4 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['4','green onions','veg'],['2 cups','rice','starch'],['1/3 cup','olive oil','pantry'],['4 cups','broccoli','veg']],
+ ['Slice steak thin, coat in cornstarch, shallow fry crisp, remove.','Simmer soy, sugar, garlic and ginger 3 minutes until syrupy.','Beef and green onion in the sauce. Rice and steamed broccoli.']);
+r('d54','Sausage and Peppers on Rolls','dinner',25,4,30,600,['blackstone','quick','comfort'],
+ [['1.5 lb','Italian sausage','protein'],['3','bell peppers','veg'],['2','onion','veg'],['4','buns','starch'],['8 slices','provolone','dairy'],['2 tbsp','olive oil','pantry'],['1 tsp','oregano','pantry']],
+ ['Griddle sausages 12 minutes, turning.','Peppers and onions in oil alongside with oregano until soft.','Rolls, sausage, peppers, provolone under the dome.']);
+r('d55','Chicken Piccata','dinner',30,4,42,540,['datenight','light','quick'],
+ [['1.5 lb','chicken breast','protein'],['1/3 cup','flour','baking'],['3 tbsp','butter','dairy'],['2 tbsp','olive oil','pantry'],['2','lemon','fruit'],['1/2 cup','chicken broth','pantry'],['3 tbsp','capers','pantry'],['1 lb','pasta','starch'],['1/4 cup','parsley','veg']],
+ ['Pound chicken thin, flour, sear in oil and butter, remove.','Lemon juice, broth and capers in the pan, simmer, swirl in the rest of the butter.','Chicken back in. Over angel hair with parsley.']);
+r('d56','Turkey Burgers with Sweet Potato Fries','dinner',35,4,38,520,['light','blackstone','baby'],
+ [['1.5 lb','ground turkey','protein'],['1/3 cup','panko','pantry'],['1','eggs','protein'],['1 tsp','worcestershire','pantry'],['4','buns','starch'],['4 slices','cheddar','dairy'],['2','sweet potatoes','starch'],['2 tbsp','olive oil','pantry'],['1','avocado','fruit'],['4 leaves','romaine','veg']],
+ ['Cut sweet potato fries, oil and salt, air fry or roast at 425F for 25 minutes.','Mix turkey, panko, egg, worcestershire, salt, pepper. Four patties, griddle 5 minutes a side, cheese on.','Buns, avocado, lettuce.']);
+r('d57','Slow Cooker Ropa Vieja','dinner',480,8,38,420,['batch','freezer','comfort'],
+ [['3 lb','flank steak','protein'],['1 can','canned tomatoes','pantry'],['2','bell peppers','veg'],['1','onion','veg'],['5 cloves','garlic','veg'],['1 tbsp','cumin','pantry'],['1 tbsp','oregano','pantry'],['1/2 cup','olives','pantry'],['2 cups','rice','starch'],['1 can','black beans','pantry']],
+ ['Everything but olives, rice and beans into the slow cooker, low 8 hours.','Shred the beef in the sauce, stir in olives.','Rice and black beans.']);
+r('d58','Crispy Buffalo Wings','dinner',60,4,40,580,['treat','weekend','comfort'],
+ [['3 lb','chicken wings','protein'],['1 tbsp','baking powder','baking'],['1/2 cup','hot sauce','pantry'],['1/3 cup','butter','dairy'],['1/2 cup','ranch dressing','pantry'],['3 stalks','celery','veg'],['2','carrots','veg']],
+ ['Pat wings dry, toss with baking powder and salt.','Bake on a rack at 425F for 45 minutes, flipping once, until crisp.','Toss in hot sauce melted with butter. Ranch, celery and carrot sticks.']);
+r('d59','Lamb Chops with Mint and Potatoes','dinner',35,2,44,640,['datenight','weekend','treat'],
+ [['1.5 lb','lamb chops','protein'],['1.5 lb','potatoes','starch'],['1/4 cup','mint','veg'],['3 cloves','garlic','veg'],['3 tbsp','olive oil','pantry'],['1','lemon','fruit'],['1 lb','green beans','veg'],['2 tbsp','butter','dairy']],
+ ['Roast halved potatoes in oil at 425F for 30 minutes.','Rub chops with garlic, mint, oil and lemon. Sear 3 minutes a side for medium rare, rest.','Beans in butter.']);
+r('d60','Coconut Shrimp Curry','dinner',25,4,30,520,['quick','light','comfort'],
+ [['1.5 lb','shrimp','protein'],['1 can','coconut milk','pantry'],['2 tbsp','curry paste','pantry'],['1','onion','veg'],['3 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['1','bell peppers','veg'],['2 cups','spinach','veg'],['1','lime','fruit'],['1.5 cups','rice','starch'],['1 tbsp','fish sauce','pantry']],
+ ['Soften onion, garlic and ginger, fry curry paste.','Coconut milk and pepper, simmer 8 minutes.','Shrimp 3 minutes, spinach, fish sauce and lime. Over rice.']);
+r('d61','Chicken Katsu Curry','dinner',40,4,44,680,['comfort','treat','weekend'],
+ [['1.5 lb','chicken breast','protein'],['1 cup','panko','pantry'],['2','eggs','protein'],['1/2 cup','flour','baking'],['1/2 cup','olive oil','pantry'],['1 box','japanese curry roux','pantry'],['1','onion','veg'],['2','carrots','veg'],['2','potatoes','starch'],['2 cups','rice','starch']],
+ ['Simmer onion, carrot and potato in 3 cups water 15 minutes, melt in the roux.','Pound chicken, flour, egg, panko, shallow fry 4 minutes a side, slice.','Rice, curry, katsu on top.']);
+r('d62','Classic Ground Beef Tacos','dinner',20,4,30,520,['quick','comfort','baby','blackstone'],
+ [['1.5 lb','ground beef','protein'],['2 tbsp','taco seasoning','pantry'],['8','tortillas','starch'],['1.5 cups','cheddar','dairy'],['2 cups','romaine','veg'],['2','tomatoes','veg'],['1/2 cup','salsa','pantry'],['1/2 cup','greek yogurt','dairy']],
+ ['Brown beef, add seasoning and a splash of water, simmer 3 minutes.','Crisp tortillas in a dry pan.','Fill with beef, cheese, lettuce, tomato, salsa and yogurt.']);
+r('d63','Sausage Carbonara','dinner',25,4,34,680,['quick','comfort','datenight'],
+ [['1 lb','Italian sausage','protein'],['1 lb','pasta','starch'],['4','eggs','protein'],['1 cup','parmesan','dairy'],['3 cloves','garlic','veg'],['1 tsp','black pepper','pantry']],
+ ['Brown crumbled sausage with garlic.','Whisk eggs with parmesan and lots of pepper.','Toss hot drained pasta with sausage off the heat, then the egg mix with a splash of pasta water until silky.']);
+r('d64','Chicken Fajita Pasta','dinner',30,5,40,580,['quick','batch','comfort'],
+ [['1.5 lb','chicken breast','protein'],['12 oz','pasta','starch'],['2','bell peppers','veg'],['1','onion','veg'],['2 tbsp','taco seasoning','pantry'],['2 cups','chicken broth','pantry'],['1/2 cup','heavy cream','dairy'],['1 cup','cheddar','dairy'],['1','lime','fruit']],
+ ['Sear seasoned chicken strips with peppers and onion.','Add broth and dry pasta, simmer covered 12 minutes.','Stir in cream, cheese and lime.']);
+r('d65','Pork Stir Fry with Snap Peas','dinner',20,4,38,480,['quick','light','blackstone'],
+ [['1.5 lb','pork tenderloin','protein'],['3 cups','snap peas','veg'],['1','bell peppers','veg'],['3 tbsp','soy sauce','pantry'],['1 tbsp','hoisin','pantry'],['1 tbsp','cornstarch','pantry'],['3 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['1.5 cups','rice','starch'],['1 tbsp','sesame oil','pantry']],
+ ['Slice pork thin, toss with cornstarch and half the soy.','Sear hot, remove. Stir fry snap peas, pepper, garlic and ginger 3 minutes.','Pork back in with soy, hoisin and sesame oil. Over rice.']);
+r('d66','Blackstone Smash Tacos','dinner',20,4,34,520,['blackstone','quick','treat'],
+ [['1.5 lb','ground beef','protein'],['8','tortillas','starch'],['2 tbsp','taco seasoning','pantry'],['1.5 cups','cheddar','dairy'],['2 cups','romaine','veg'],['1/2','onion','veg'],['1/2 cup','salsa','pantry'],['1/4 cup','mayo','pantry'],['1 tbsp','sriracha','pantry']],
+ ['Press a thin layer of seasoned beef onto each tortilla.','Beef side down on the hot griddle 3 minutes, flip, cheese on, fold.','Lettuce, onion, salsa, sriracha mayo.']);
+r('d67','Baked Cod with Lemon Butter','dinner',25,4,32,440,['light','quick','datenight'],
+ [['1.5 lb','white fish','protein'],['4 tbsp','butter','dairy'],['1','lemon','fruit'],['3 cloves','garlic','veg'],['1/2 cup','panko','pantry'],['1/4 cup','parmesan','dairy'],['1.5 cups','rice','starch'],['1 lb','broccoli','veg']],
+ ['Melt butter with garlic and lemon, pour half over the cod.','Top with panko and parmesan mixed with the rest of the butter. Bake at 400F for 15 minutes.','Rice and steamed broccoli.']);
+r('d68','Beef Kofta with Rice and Yogurt','dinner',30,4,36,540,['blackstone','light','batch'],
+ [['1.5 lb','ground beef','protein'],['1','onion','veg'],['3 cloves','garlic','veg'],['2 tsp','cumin','pantry'],['1 tsp','cinnamon','baking'],['1/4 cup','parsley','veg'],['1.5 cups','rice','starch'],['1 cup','greek yogurt','dairy'],['1','lemon','fruit'],['1','cucumber','veg'],['2','tomatoes','veg']],
+ ['Mix beef with grated onion, garlic, cumin, cinnamon, parsley, salt. Shape onto skewers or into logs.','Grill 4 minutes a side.','Rice, lemon yogurt, cucumber and tomato.']);
+r('d69','Chicken Lettuce Wraps','dinner',20,4,32,360,['quick','light'],
+ [['1.5 lb','ground chicken','protein'],['1 head','romaine','veg'],['3 tbsp','hoisin','pantry'],['2 tbsp','soy sauce','pantry'],['1 tbsp','rice vinegar','pantry'],['3 cloves','garlic','veg'],['1 tbsp','ginger','pantry'],['1 can','water chestnuts','pantry'],['3','green onions','veg'],['1 tsp','sriracha','pantry']],
+ ['Brown chicken with garlic and ginger.','Hoisin, soy, vinegar, sriracha and chopped water chestnuts, cook 2 minutes.','Spoon into lettuce leaves, green onion on top.']);
+r('d70','Sticky Oven Ribs','dinner',180,4,42,720,['weekend','treat','comfort'],
+ [['4 lb','pork ribs','protein'],['2 tbsp','brown sugar','baking'],['1 tbsp','paprika','pantry'],['1 tbsp','chili powder','pantry'],['1 cup','bbq sauce','pantry'],['1 bag','coleslaw mix','veg'],['1/3 cup','mayo','pantry'],['2','corn','veg']],
+ ['Rub ribs with sugar, paprika, chili powder, salt. Wrap in foil, bake at 300F for 2.5 hours.','Unwrap, brush with bbq sauce, broil or griddle until sticky.','Slaw and grilled corn.']);
+r('d71','Chicken and Sausage Jambalaya','dinner',50,8,36,520,['batch','freezer','comfort'],
+ [['1.5 lb','chicken thighs','protein'],['12 oz','smoked sausage','protein'],['2 cups','rice','starch'],['1','onion','veg'],['2','bell peppers','veg'],['3 stalks','celery','veg'],['4 cloves','garlic','veg'],['1 can','canned tomatoes','pantry'],['3 cups','chicken broth','pantry'],['2 tbsp','cajun seasoning','pantry'],['3','green onions','veg']],
+ ['Brown sausage and chicken, remove. Soften onion, pepper, celery and garlic.','Rice, seasoning, tomatoes, broth and meat back in. Simmer covered 25 minutes.','Rest 5 minutes, green onion over.']);
+r('d72','Steak Stir Fry Noodles','dinner',25,4,40,580,['quick','blackstone'],
+ [['1.5 lb','steak','protein'],['12 oz','egg noodles','starch'],['3 cups','broccoli','veg'],['1','bell peppers','veg'],['1/4 cup','soy sauce','pantry'],['2 tbsp','oyster sauce','pantry'],['1 tbsp','brown sugar','baking'],['3 cloves','garlic','veg'],['1 tbsp','sesame oil','pantry'],['3','green onions','veg']],
+ ['Boil noodles, drain.','Sear sliced steak hot, remove. Stir fry broccoli, pepper and garlic 3 minutes.','Noodles, steak, soy, oyster sauce and sugar tossed together. Sesame oil and green onion.']);
+r('d73','Tuscan Sausage Soup','dinner',35,6,28,460,['batch','freezer','comfort'],
+ [['1.5 lb','Italian sausage','protein'],['1.5 lb','potatoes','starch'],['1','onion','veg'],['4 cloves','garlic','veg'],['6 cups','chicken broth','pantry'],['1 cup','heavy cream','dairy'],['3 cups','kale','veg'],['6 slices','bacon','protein'],['1/2 cup','parmesan','dairy']],
+ ['Crisp bacon, brown sausage with onion and garlic.','Broth and sliced potatoes, simmer 15 minutes.','Cream and kale, 3 minutes. Parmesan on top.']);
+r('d74','Grilled Pork Chops with Corn Salad','dinner',30,4,42,520,['blackstone','light','weekend'],
+ [['4','pork chops','protein'],['4','corn','veg'],['2 cups','cherry tomatoes','veg'],['1/2','onion','veg'],['1/2 cup','feta','dairy'],['2','lime','fruit'],['1/4 cup','cilantro','veg'],['2 tbsp','olive oil','pantry'],['1 tbsp','honey','pantry'],['1 tsp','paprika','pantry']],
+ ['Rub chops with paprika, salt and oil, grill 5 minutes a side.','Grill corn until charred, cut off the cob.','Toss corn with tomatoes, onion, feta, lime, honey and cilantro.']);
+r('d75','Beef Ragu with Pappardelle','dinner',180,8,38,620,['batch','freezer','comfort','weekend','datenight'],
+ [['3 lb','chuck roast','protein'],['1','onion','veg'],['2','carrots','veg'],['2 stalks','celery','veg'],['5 cloves','garlic','veg'],['1 cup','red wine','pantry'],['1 can','canned tomatoes','pantry'],['2 tbsp','tomato paste','pantry'],['2 cups','beef broth','pantry'],['1.5 lb','pasta','starch'],['1 cup','parmesan','dairy']],
+ ['Sear beef hard, remove. Soften diced vegetables and garlic, stir in tomato paste.','Wine, tomatoes, broth, beef. Cover, oven at 325F for 2.5 hours until it falls apart.','Shred into the sauce, toss with pappardelle and parmesan. Freeze half the sauce.']);
+r('d76','Firecracker Chicken Meatballs','dinner',35,5,40,520,['batch','quick','treat'],
+ [['2 lb','ground chicken','protein'],['1/2 cup','panko','pantry'],['1','eggs','protein'],['3','green onions','veg'],['1/2 cup','hot sauce','pantry'],['1/3 cup','honey','pantry'],['2 tbsp','soy sauce','pantry'],['2 tbsp','butter','dairy'],['2 cups','rice','starch'],['4 cups','broccoli','veg']],
+ ['Mix chicken, panko, egg, green onion, salt. Roll 20 balls, bake at 425F for 18 minutes.','Simmer hot sauce, honey, soy and butter 3 minutes, toss meatballs through.','Rice and steamed broccoli.']);
+/* dessert */
+r('s01','Brown Butter Chocolate Chip Cookies','dessert',40,24,3,190,['treat','batch','freezer','weekend'],
+ [['1 cup','butter','dairy'],['1 cup','brown sugar','baking'],['1/2 cup','sugar','baking'],['2','eggs','protein'],['2 tsp','vanilla','baking'],['2.25 cups','flour','baking'],['1 tsp','baking soda','baking'],['2 cups','chocolate chips','baking']],
+ ['Brown the butter until nutty, cool 10 minutes.','Beat with sugars, then eggs and vanilla. Fold in flour, soda, salt and chips.','Chill dough 30 minutes. Bake at 350F for 11 minutes. Freeze scooped dough balls for later.']);
+r('s02','Greek Yogurt Berry Parfaits','dessert',5,2,18,260,['quick','light','baby'],
+ [['1.5 cups','greek yogurt','dairy'],['1 cup','berries','fruit'],['1/3 cup','granola','pantry'],['2 tbsp','honey','pantry']],
+ ['Layer yogurt, berries and granola in a glass.','Honey over the top.']);
+r('s03','Peanut Butter Protein Balls','dessert',15,16,6,150,['batch','quick','grabgo','baby'],
+ [['1 cup','oats','starch'],['2/3 cup','peanut butter','pantry'],['1/3 cup','honey','pantry'],['1 scoop','protein powder','pantry'],['1/3 cup','chocolate chips','baking'],['2 tbsp','chia seeds','pantry']],
+ ['Stir everything together.','Roll into 16 balls, chill. Fridge for two weeks.']);
+r('s04','Skillet Apple Crisp','dessert',45,6,4,380,['comfort','weekend','treat'],
+ [['5','apples','fruit'],['1 cup','oats','starch'],['3/4 cup','flour','baking'],['3/4 cup','brown sugar','baking'],['1/2 cup','butter','dairy'],['2 tsp','cinnamon','baking'],['1','lemon','fruit'],['4 scoops','ice cream','dairy']],
+ ['Toss sliced apples with lemon, cinnamon and a spoon of sugar in a skillet.','Rub butter into oats, flour and brown sugar, crumble over.','Bake at 375F for 35 minutes. Ice cream on top.']);
+r('s05','Molten Chocolate Lava Cakes','dessert',25,2,8,520,['datenight','treat','quick'],
+ [['4 oz','dark chocolate','baking'],['1/2 cup','butter','dairy'],['2','eggs','protein'],['1/2 cup','powdered sugar','baking'],['3 tbsp','flour','baking'],['1 tsp','vanilla','baking']],
+ ['Melt chocolate and butter. Whisk in sugar, eggs, vanilla, then flour.','Pour into two buttered ramekins.','Bake at 425F for 12 minutes. Edges set, middle soft. Invert onto plates.']);
+r('s06','Banana Bread','dessert',70,10,5,290,['batch','comfort','weekend','baby'],
+ [['3','bananas','fruit'],['1/3 cup','butter','dairy'],['3/4 cup','sugar','baking'],['1','eggs','protein'],['1 tsp','vanilla','baking'],['1 tsp','baking soda','baking'],['1.5 cups','flour','baking'],['1/2 cup','walnuts','pantry']],
+ ['Mash ripe bananas with melted butter.','Stir in sugar, egg, vanilla, then soda, salt, flour and nuts.','Bake in a loaf tin at 350F for 60 minutes.']);
+r('s07','No Bake Cheesecake Cups','dessert',20,6,7,380,['datenight','treat','batch'],
+ [['16 oz','cream cheese','dairy'],['1 cup','heavy cream','dairy'],['3/4 cup','powdered sugar','baking'],['1 tsp','vanilla','baking'],['1','lemon','fruit'],['1.5 cups','graham crackers','baking'],['1/3 cup','butter','dairy'],['1 cup','berries','fruit']],
+ ['Crush graham crackers into melted butter, press into six cups.','Beat cream cheese, sugar, vanilla and lemon smooth. Whip cream, fold in.','Pipe over the base, chill 3 hours, berries on top.']);
+r('s08','Chocolate Protein Mug Cake','dessert',5,1,24,280,['quick','treat','baby'],
+ [['1 scoop','protein powder','pantry'],['2 tbsp','cocoa powder','baking'],['1','eggs','protein'],['3 tbsp','milk','dairy'],['1/2 tsp','baking powder','baking'],['1 tbsp','maple syrup','pantry'],['1 tbsp','chocolate chips','baking']],
+ ['Whisk everything in a mug.','Microwave 70 seconds. Do not overcook.']);
+r('s09','Blackstone Grilled Peaches with Ice Cream','dessert',15,4,4,260,['blackstone','weekend','light','quick'],
+ [['4','peaches','fruit'],['2 tbsp','butter','dairy'],['2 tbsp','brown sugar','baking'],['1 tsp','cinnamon','baking'],['4 scoops','ice cream','dairy'],['1 tbsp','honey','pantry']],
+ ['Halve and pit peaches, brush cut side with butter, sugar and cinnamon.','Griddle cut side down 4 minutes until caramelised.','Ice cream in the hollow, honey drizzle.']);
+r('s10','Fudgy Brownies','dessert',45,16,4,240,['treat','batch','comfort'],
+ [['1 cup','butter','dairy'],['8 oz','dark chocolate','baking'],['1.25 cups','sugar','baking'],['3','eggs','protein'],['1 tsp','vanilla','baking'],['3/4 cup','flour','baking'],['1/4 cup','cocoa powder','baking']],
+ ['Melt butter and chocolate. Whisk in sugar, eggs one at a time, vanilla.','Fold in flour, cocoa and salt. Do not overmix.','Bake in a lined 9x9 at 350F for 28 minutes. Cool fully before cutting.']);
+r('s11','Lemon Posset','dessert',15,4,3,420,['datenight','light','quick'],
+ [['2 cups','heavy cream','dairy'],['2/3 cup','sugar','baking'],['3','lemon','fruit'],['1/2 cup','berries','fruit']],
+ ['Boil cream and sugar 3 minutes.','Off heat, stir in the juice of the lemons and the zest of one.','Pour into glasses, chill 3 hours. Berries on top.']);
+r('s12','Cinnamon Sugar Air Fryer Donuts','dessert',15,4,3,220,['quick','treat','weekend'],
+ [['1 can','biscuit dough','starch'],['3 tbsp','butter','dairy'],['1/3 cup','sugar','baking'],['1 tsp','cinnamon','baking']],
+ ['Cut a hole in each biscuit.','Air fry at 350F for 5 minutes, flip, 3 more.','Brush with butter, roll in cinnamon sugar while hot.']);
+r('s13','Chocolate Chia Pudding','dessert',10,4,12,240,['batch','light','grabgo','baby'],
+ [['1/2 cup','chia seeds','pantry'],['2 cups','milk','dairy'],['3 tbsp','cocoa powder','baking'],['3 tbsp','maple syrup','pantry'],['1 tsp','vanilla','baking'],['1/2 cup','greek yogurt','dairy']],
+ ['Whisk everything except the yogurt until no clumps.','Chill overnight, stir once after an hour.','Swirl in yogurt before eating.']);
+r('s14','Strawberry Shortcakes','dessert',35,6,6,410,['weekend','treat','datenight'],
+ [['2 cups','flour','baking'],['1 tbsp','baking powder','baking'],['3 tbsp','sugar','baking'],['1/2 cup','butter','dairy'],['3/4 cup','heavy cream','dairy'],['1 lb','strawberries','fruit'],['1 cup','heavy cream','dairy'],['2 tbsp','powdered sugar','baking']],
+ ['Rub butter into flour, baking powder, sugar and salt. Stir in cream, pat out, cut rounds, bake at 425F for 14 minutes.','Macerate sliced strawberries with a spoon of sugar.','Whip cream with powdered sugar. Split, fill, stack.']);
+r('s15','Peanut Butter Chocolate Bark','dessert',15,12,4,200,['quick','treat','batch','freezer'],
+ [['12 oz','dark chocolate','baking'],['1/3 cup','peanut butter','pantry'],['1/4 cup','peanuts','pantry'],['1 tsp','flaky salt','pantry']],
+ ['Melt chocolate, spread on parchment.','Warm peanut butter, drizzle and swirl through.','Peanuts and salt over the top. Freeze 20 minutes, break up.']);
+r('s16','Sticky Toffee Pudding','dessert',60,8,5,480,['comfort','treat','weekend','datenight'],
+ [['1.5 cups','dates','fruit'],['1 tsp','baking soda','baking'],['1/3 cup','butter','dairy'],['3/4 cup','brown sugar','baking'],['2','eggs','protein'],['1.25 cups','flour','baking'],['1 tsp','baking powder','baking'],['1 cup','heavy cream','dairy'],['1/2 cup','butter','dairy'],['3/4 cup','brown sugar','baking'],['4 scoops','ice cream','dairy']],
+ ['Simmer chopped dates in a cup of water, add soda, cool.','Cream butter and sugar, beat in eggs, fold in flour, baking powder and dates. Bake at 350F for 30 minutes.','Toffee sauce: melt butter, sugar and cream, simmer 4 minutes. Pour over the warm pudding.']);
+r('s17','Apple Cinnamon Baked Oatmeal Bars','dessert',45,9,8,240,['batch','grabgo','light','baby'],
+ [['2.5 cups','oats','starch'],['2','apples','fruit'],['2','eggs','protein'],['1.5 cups','milk','dairy'],['1/3 cup','maple syrup','pantry'],['2 tsp','cinnamon','baking'],['1 tsp','baking powder','baking'],['1/2 cup','walnuts','pantry']],
+ ['Whisk eggs, milk, maple and cinnamon.','Stir in oats, baking powder, diced apple and walnuts.','Bake in an 8x8 at 350F for 40 minutes. Cut into 9 bars.']);
+r('s18','Salted Caramel Rice Krispie Treats','dessert',20,12,2,210,['quick','treat','batch'],
+ [['6 tbsp','butter','dairy'],['1 bag','marshmallows','baking'],['6 cups','rice cereal','starch'],['1/3 cup','caramel sauce','pantry'],['1 tsp','flaky salt','pantry']],
+ ['Brown the butter, melt in marshmallows.','Stir in cereal fast, press into a buttered pan.','Drizzle caramel, sprinkle salt. Cut once cool.']);
+r('s19','Mango Coconut Nice Cream','dessert',10,2,3,220,['quick','light','baby'],
+ [['2','mango','fruit'],['1','bananas','fruit'],['1/2 cup','coconut milk','pantry'],['1','lime','fruit'],['2 tbsp','coconut flakes','pantry']],
+ ['Freeze mango and banana chunks ahead.','Blend with coconut milk and lime until soft serve.','Toasted coconut over.']);
+r('s20','Blackstone S\'mores Quesadillas','dessert',10,4,6,340,['blackstone','quick','treat','weekend'],
+ [['4','tortillas','starch'],['1 cup','chocolate chips','baking'],['1 cup','marshmallows','baking'],['4','graham crackers','baking'],['2 tbsp','butter','dairy']],
+ ['Chocolate, marshmallows and crushed graham on half of each tortilla, fold.','Griddle in butter 2 minutes a side until gooey.','Slice into wedges.']);
+r('s21','Oatmeal Raisin Cookies','dessert',30,24,3,160,['treat','batch','freezer'],
+ [['1 cup','butter','dairy'],['1 cup','brown sugar','baking'],['1/2 cup','sugar','baking'],['2','eggs','protein'],['1 tsp','vanilla','baking'],['1.5 cups','flour','baking'],['1 tsp','baking soda','baking'],['1 tsp','cinnamon','baking'],['3 cups','oats','starch'],['1 cup','raisins','fruit']],
+ ['Cream butter and sugars, beat in eggs and vanilla.','Stir in flour, soda, cinnamon, salt, then oats and raisins.','Scoop, bake at 350F for 12 minutes.']);
+r('s22','Lemon Bars','dessert',60,16,3,220,['treat','batch','light'],
+ [['1 cup','butter','dairy'],['2 cups','flour','baking'],['1/2 cup','powdered sugar','baking'],['4','eggs','protein'],['1.5 cups','sugar','baking'],['4','lemon','fruit'],['1/4 cup','flour','baking']],
+ ['Press butter, flour and powdered sugar into a 9x13, bake at 350F for 18 minutes.','Whisk eggs, sugar, lemon juice and zest, and flour. Pour over the hot crust.','Bake 22 minutes more. Cool fully, dust with powdered sugar.']);
+r('s23','Cheesecake Brownies','dessert',50,16,5,280,['treat','batch','datenight'],
+ [['1 cup','butter','dairy'],['8 oz','dark chocolate','baking'],['1.25 cups','sugar','baking'],['4','eggs','protein'],['3/4 cup','flour','baking'],['8 oz','cream cheese','dairy'],['1/3 cup','sugar','baking'],['1 tsp','vanilla','baking']],
+ ['Brownie batter: melt butter and chocolate, whisk in sugar, 3 eggs, flour.','Cheesecake: beat cream cheese, sugar, 1 egg and vanilla.','Swirl the two in a 9x9, bake at 350F for 35 minutes.']);
+r('s24','Berry Crumble Bars','dessert',50,12,4,260,['batch','treat','grabgo'],
+ [['1 cup','butter','dairy'],['1.5 cups','flour','baking'],['1.5 cups','oats','starch'],['3/4 cup','brown sugar','baking'],['1 tsp','cinnamon','baking'],['3 cups','berries','fruit'],['2 tbsp','sugar','baking'],['1 tbsp','cornstarch','pantry'],['1','lemon','fruit']],
+ ['Rub butter into flour, oats, brown sugar and cinnamon. Press two thirds into a 9x9.','Toss berries with sugar, cornstarch and lemon, spread over, crumble the rest on top.','Bake at 375F for 35 minutes. Cool before cutting.']);
+r('s25','Chocolate Peanut Butter Protein Bars','dessert',15,12,14,230,['batch','grabgo','quick','baby'],
+ [['1 cup','peanut butter','pantry'],['1/3 cup','honey','pantry'],['3 scoops','protein powder','pantry'],['1 cup','oats','starch'],['1/2 cup','chocolate chips','baking'],['1 tsp','coconut oil','pantry']],
+ ['Warm peanut butter and honey, stir in protein and oats.','Press into a lined loaf tin.','Melt chocolate with coconut oil, spread over, chill 1 hour, cut into 12.']);
+r('s26','Tiramisu Cups','dessert',25,6,7,380,['datenight','treat','weekend'],
+ [['8 oz','mascarpone','dairy'],['1 cup','heavy cream','dairy'],['1/3 cup','sugar','baking'],['1 tsp','vanilla','baking'],['1 cup','coffee','pantry'],['24','ladyfingers','starch'],['2 tbsp','cocoa powder','baking']],
+ ['Whip cream, sugar and vanilla, fold into mascarpone.','Dip ladyfingers briefly in cooled coffee, layer with cream in six glasses.','Dust with cocoa, chill 4 hours.']);
+r('s27','Carrot Cake Loaf','dessert',75,10,5,340,['weekend','comfort','batch'],
+ [['2 cups','carrots','veg'],['1.5 cups','flour','baking'],['1 cup','sugar','baking'],['3/4 cup','olive oil','pantry'],['3','eggs','protein'],['2 tsp','cinnamon','baking'],['1 tsp','baking soda','baking'],['1/2 cup','walnuts','pantry'],['8 oz','cream cheese','dairy'],['1/4 cup','butter','dairy'],['1.5 cups','powdered sugar','baking']],
+ ['Whisk oil, sugar and eggs, stir in flour, cinnamon, soda, salt, grated carrot and walnuts.','Bake in a loaf tin at 350F for 60 minutes. Cool.','Beat cream cheese, butter and powdered sugar, spread thick.']);
+r('s28','Air Fryer Apple Hand Pies','dessert',30,8,3,240,['quick','treat','weekend'],
+ [['2','pie crusts','starch'],['3','apples','fruit'],['1/4 cup','brown sugar','baking'],['1 tsp','cinnamon','baking'],['1 tbsp','butter','dairy'],['1','eggs','protein'],['1 tbsp','sugar','baking']],
+ ['Cook diced apple with butter, brown sugar and cinnamon 5 minutes.','Cut crust into rounds, fill, fold, crimp, egg wash and sugar.','Air fry at 350F for 10 minutes.']);
+r('s29','Chocolate Dipped Strawberries','dessert',20,4,2,180,['datenight','quick','light','treat'],
+ [['1 lb','strawberries','fruit'],['8 oz','dark chocolate','baking'],['1 tsp','coconut oil','pantry'],['1 tsp','flaky salt','pantry']],
+ ['Melt chocolate with coconut oil.','Dip dry strawberries, set on parchment, pinch of salt.','Fridge 20 minutes.']);
+r('s30','Snickerdoodles','dessert',30,24,2,150,['treat','batch','comfort'],
+ [['1 cup','butter','dairy'],['1.5 cups','sugar','baking'],['2','eggs','protein'],['2.75 cups','flour','baking'],['2 tsp','cream of tartar','baking'],['1 tsp','baking soda','baking'],['2 tsp','cinnamon','baking'],['3 tbsp','sugar','baking']],
+ ['Cream butter and sugar, beat in eggs.','Stir in flour, cream of tartar, soda, salt.','Roll balls in cinnamon sugar, bake at 375F for 10 minutes.']);
+r('s31','Blueberry Muffins','dessert',35,12,4,240,['batch','grabgo','weekend','baby'],
+ [['2 cups','flour','baking'],['3/4 cup','sugar','baking'],['2 tsp','baking powder','baking'],['2','eggs','protein'],['1/2 cup','butter','dairy'],['3/4 cup','greek yogurt','dairy'],['1 tsp','vanilla','baking'],['2 cups','berries','fruit'],['1','lemon','fruit']],
+ ['Whisk melted butter, sugar, eggs, yogurt, vanilla and lemon zest.','Fold in flour and baking powder, then blueberries.','Bake at 400F for 20 minutes.']);
+r('s32','Cinnamon Rice Pudding','dessert',45,6,8,320,['comfort','batch','baby'],
+ [['1 cup','rice','starch'],['4 cups','milk','dairy'],['1/2 cup','sugar','baking'],['2','eggs','protein'],['1 tsp','vanilla','baking'],['1 tsp','cinnamon','baking'],['1/2 cup','raisins','fruit'],['2 tbsp','butter','dairy']],
+ ['Simmer rice in milk with sugar 30 minutes, stirring.','Temper in beaten eggs, cook 2 minutes more.','Vanilla, cinnamon, raisins, butter. Warm or cold.']);
+r('s33','Key Lime Pie Cups','dessert',25,6,6,360,['datenight','light','treat'],
+ [['1 can','condensed milk','pantry'],['4','lime','fruit'],['3','egg yolks','protein'],['1.5 cups','graham crackers','baking'],['1/3 cup','butter','dairy'],['1 cup','heavy cream','dairy'],['2 tbsp','powdered sugar','baking']],
+ ['Graham crumbs in melted butter, press into six ramekins.','Whisk condensed milk, lime juice and zest, yolks. Pour in, bake at 350F for 12 minutes, chill 3 hours.','Whipped cream on top.']);
+r('s34','Pumpkin Bread','dessert',75,10,5,300,['weekend','comfort','batch','freezer'],
+ [['1 can','pumpkin puree','pantry'],['2','eggs','protein'],['1 cup','sugar','baking'],['1/2 cup','olive oil','pantry'],['1.75 cups','flour','baking'],['1 tsp','baking soda','baking'],['2 tsp','cinnamon','baking'],['1/2 tsp','nutmeg','pantry'],['1/2 cup','chocolate chips','baking']],
+ ['Whisk pumpkin, eggs, sugar and oil.','Fold in flour, soda, spices and chips.','Loaf tin at 350F for 60 minutes.']);
+r('s35','Chocolate Avocado Mousse','dessert',10,4,5,260,['quick','light','datenight'],
+ [['2','avocado','fruit'],['1/3 cup','cocoa powder','baking'],['1/3 cup','maple syrup','pantry'],['1/4 cup','milk','dairy'],['1 tsp','vanilla','baking'],['1/2 cup','berries','fruit']],
+ ['Blend everything but the berries until completely smooth.','Chill 30 minutes, berries on top.']);
+r('s36','Weekend Cinnamon Rolls','dessert',150,12,7,380,['weekend','treat','comfort'],
+ [['4 cups','flour','baking'],['1 cup','milk','dairy'],['1/3 cup','butter','dairy'],['1/4 cup','sugar','baking'],['1 packet','yeast','baking'],['1','eggs','protein'],['3/4 cup','brown sugar','baking'],['2 tbsp','cinnamon','baking'],['1/3 cup','butter','dairy'],['4 oz','cream cheese','dairy'],['1 cup','powdered sugar','baking']],
+ ['Warm milk with butter and sugar, add yeast, egg and flour, knead, rise 1 hour.','Roll out, spread soft butter, brown sugar and cinnamon, roll, slice 12, rise 30 minutes.','Bake at 350F for 25 minutes. Cream cheese, powdered sugar and a splash of milk for the icing.']);
+r('s37','Frozen Yogurt Bark','dessert',10,8,8,120,['quick','light','batch','baby'],
+ [['2 cups','greek yogurt','dairy'],['2 tbsp','honey','pantry'],['1 cup','berries','fruit'],['1/4 cup','chocolate chips','baking'],['1/4 cup','granola','pantry']],
+ ['Stir honey into yogurt, spread on a lined sheet pan.','Scatter berries, chips and granola.','Freeze 3 hours, break into pieces.']);
+r('s38','Pecan Pie Bars','dessert',60,16,4,300,['treat','batch','weekend'],
+ [['1 cup','butter','dairy'],['2 cups','flour','baking'],['1/2 cup','sugar','baking'],['2 cups','pecans','pantry'],['3/4 cup','brown sugar','baking'],['1/2 cup','honey','pantry'],['1/2 cup','butter','dairy'],['3 tbsp','heavy cream','dairy']],
+ ['Press butter, flour and sugar into a 9x13, bake at 350F for 18 minutes.','Boil brown sugar, honey and butter 2 minutes, stir in cream and pecans.','Pour over the crust, bake 20 minutes, cool fully.']);
+r('s39','Peach Cobbler','dessert',55,6,5,380,['comfort','weekend','treat'],
+ [['6','peaches','fruit'],['3/4 cup','sugar','baking'],['1 cup','flour','baking'],['2 tsp','baking powder','baking'],['3/4 cup','milk','dairy'],['1/2 cup','butter','dairy'],['1 tsp','cinnamon','baking'],['4 scoops','ice cream','dairy']],
+ ['Melt butter in a baking dish. Whisk flour, sugar, baking powder and milk, pour over the butter without stirring.','Sliced peaches and cinnamon on top.','Bake at 375F for 40 minutes. Ice cream.']);
+r('s40','Chocolate Peanut Butter Banana Bites','dessert',15,4,5,220,['quick','treat','baby','freezer'],
+ [['3','bananas','fruit'],['1/4 cup','peanut butter','pantry'],['4 oz','dark chocolate','baking'],['1 tsp','coconut oil','pantry']],
+ ['Slice bananas thick, sandwich with peanut butter.','Freeze 30 minutes, dip in melted chocolate.','Back in the freezer. Eat straight from there.']);
+
+
+const BY_ID = Object.fromEntries(RECIPES.map(x=>[x.id,x]));
+const INGREDIENT_INDEX = (()=>{
+  const m = {};
+  RECIPES.forEach(x=>x.ingredients.forEach(i=>{
+    if(!m[i.c]) m[i.c] = {};
+    m[i.c][i.n] = (m[i.c][i.n]||0)+1;
+  }));
+  return m;
+})();
+
+/* ---------- state and storage ---------- */
+const store = {
+  key(n){return `${TOOL}:${n}`;},
+  get(n,fb=null){try{const raw=localStorage.getItem(this.key(n));return raw===null?fb:JSON.parse(raw);}catch(e){console.warn('read',n,e);return fb;}},
+  set(n,v){try{localStorage.setItem(this.key(n),JSON.stringify(v));return true;}catch(e){console.warn('write',n,e);return false;}},
+  keys(){try{return Object.keys(localStorage).filter(k=>k.startsWith(`${TOOL}:`));}catch(e){return [];}},
+  clearTool(){this.keys().forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});},
+  available(){try{const k=this.key('probe');localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}}
+};
+const migrations = {};
+function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{}};}
+function loadState(){
+  const stored = store.get('state');
+  if(stored===null) return defaultState();
+  let version = store.get('schema-version',1), data = stored;
+  while(version<SCHEMA_VERSION){
+    const m = migrations[version];
+    if(!m){console.warn('no migration from v'+version);return defaultState();}
+    data = m(data); version += 1;
+  }
+  store.set('state',data); store.set('schema-version',SCHEMA_VERSION);
+  return {...defaultState(),...data};
+}
+let state = loadState();
+function setState(patch){state={...state,...patch};store.set('state',state);store.set('schema-version',SCHEMA_VERSION);render();}
+
+/* session-only UI state */
+const ui = {tab:'ingredients',meal:'all',time:0,sort:'match',picks:new Set(),mood:null,search:'',shuffleKeys:{}};
+
+/* ---------- pure functions ---------- */
+function timeOk(x){return !ui.time || x.time<=ui.time;}
+function mealOk(x){return ui.meal==='all' || x.meal===ui.meal;}
+function searchOk(x){
+  const q = ui.search.trim().toLowerCase(); if(!q) return true;
+  return x.name.toLowerCase().includes(q) || x.ingredients.some(i=>i.n.toLowerCase().includes(q));
+}
+function reshuffle(){ui.shuffleKeys={};RECIPES.forEach(x=>ui.shuffleKeys[x.id]=Math.random());}
+function matchInfo(x){
+  const have = x.ingredients.filter(i=>ui.picks.has(i.n)).length;
+  return {have,total:x.ingredients.length,pct:have/x.ingredients.length};
+}
+function discoverList(){
+  let list = RECIPES.filter(x=>mealOk(x)&&timeOk(x)&&searchOk(x));
+  if(ui.tab==='ingredients'){
+    if(ui.picks.size){ list = list.filter(x=>matchInfo(x).have>0); }
+  }else if(ui.tab==='mood'){
+    if(ui.mood){ const m = MOODS.find(m=>m[0]===ui.mood); list = list.filter(m[2]); }
+  }
+  const rating = x=>state.ratings[x.id]||0;
+  const sorters = {
+    match:(a,b)=>{
+      if(ui.tab==='ingredients'&&ui.picks.size){
+        const A=matchInfo(a),B=matchInfo(b);
+        if(B.have!==A.have) return B.have-A.have;
+        if(B.pct!==A.pct) return B.pct-A.pct;
+      }
+      return rating(b)-rating(a) || a.name.localeCompare(b.name);
+    },
+    rating:(a,b)=>rating(b)-rating(a)||a.name.localeCompare(b.name),
+    protein:(a,b)=>b.protein-a.protein,
+    time:(a,b)=>a.time-b.time,
+    name:(a,b)=>a.name.localeCompare(b.name),
+    shuffle:(a,b)=>ui.shuffleKeys[a.id]-ui.shuffleKeys[b.id]
+  };
+  return list.sort(sorters[ui.sort]);
+}
+function parseQty(q){
+  const m = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)\s*(.*)$/.exec(q.trim());
+  if(!m) return null;
+  const n = m[1].split(/\s+/).reduce((s,part)=>s+(part.includes('/')?part.split('/').reduce((a,b)=>a/b):parseFloat(part)),0);
+  if(isNaN(n)) return null;
+  const unit = m[2].trim();
+  return {n,unit,key:unit.toLowerCase().replace(/s$/,'')};
+}
+const FRACTIONS = [[0.25,'1/4'],[0.33,'1/3'],[0.5,'1/2'],[0.67,'2/3'],[0.75,'3/4']];
+function fmtNum(n){
+  const whole = Math.floor(n), rem = Math.round((n-whole)*100)/100;
+  if(rem===0) return String(whole);
+  const f = FRACTIONS.find(([v])=>Math.abs(v-rem)<0.03);
+  if(!f) return String(Math.round(n*100)/100);
+  return whole ? `${whole} ${f[1]}` : f[1];
+}
+function groceryList(){
+  const agg = {};
+  Object.values(state.plan).forEach(day=>Object.values(day).forEach(id=>{
+    const x = BY_ID[id]; if(!x) return;
+    x.ingredients.forEach(i=>{
+      const k = i.c+'|'+i.n;
+      if(!agg[k]) agg[k] = {c:i.c,n:i.n,qs:[]};
+      agg[k].qs.push(i.q);
+    });
+  }));
+  Object.values(agg).forEach(a=>{
+    const parsed = a.qs.map(parseQty);
+    if(parsed.every(p=>p) && parsed.every(p=>p.key===parsed[0].key)){
+      a.q = fmtNum(parsed.reduce((s,p)=>s+p.n,0))+(parsed[0].unit?' '+parsed[0].unit:'');
+    }else a.q = a.qs.join(' + ');
+  });
+  return CATS.map(([c,label])=>({c,label,items:Object.values(agg).filter(a=>a.c===c).sort((a,b)=>a.n.localeCompare(b.n))})).filter(g=>g.items.length);
+}
+function planCount(){return Object.values(state.plan).reduce((s,d)=>s+Object.keys(d).length,0);}
+function fillWeek(plan){
+  const used = new Set(Object.values(plan).flatMap(d=>Object.values(d)));
+  const weight = x=>1+(state.favourites[x.id]?2:0)+Math.max(0,(state.ratings[x.id]||0)-2);
+  const pickFrom = pool=>{
+    const total = pool.reduce((s,x)=>s+weight(x),0);
+    let roll = Math.random()*total;
+    for(const x of pool){roll-=weight(x);if(roll<=0)return x;}
+    return pool[pool.length-1];
+  };
+  const next = {};
+  DAYS.forEach(([k])=>{
+    const weekend = k==='sat'||k==='sun';
+    next[k] = {...(plan[k]||{})};
+    MEALS.forEach(m=>{
+      if(next[k][m]) return;
+      let pool = RECIPES.filter(x=>x.meal===m&&!used.has(x.id));
+      if(!weekend) pool = pool.filter(x=>x.time<=45) .length ? pool.filter(x=>x.time<=45) : pool;
+      if(!pool.length) return;
+      const x = pickFrom(pool); next[k][m]=x.id; used.add(x.id);
+    });
+  });
+  return next;
+}
+
+/* ---------- rendering ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+function renderTabs(){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
+  $('#tab-ingredients').classList.toggle('hidden',ui.tab!=='ingredients');
+  $('#tab-mood').classList.toggle('hidden',ui.tab!=='mood');
+  $('#discover').classList.toggle('hidden',!(ui.tab==='ingredients'||ui.tab==='mood'));
+  $('#tab-planner').classList.toggle('hidden',ui.tab!=='planner');
+  $('#tab-favourites').classList.toggle('hidden',ui.tab!=='favourites');
+}
+function renderIngredients(){
+  const el = $('#ing-cats');
+  el.innerHTML = CATS.map(([c,label])=>{
+    const names = Object.entries(INGREDIENT_INDEX[c]||{}).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+    const picked = names.filter(([n])=>ui.picks.has(n)).length;
+    return `<details class="cat" ${picked?'open':''}><summary>${label}<span>${picked?picked+' picked':names.length}</span></summary><div class="chips">${
+      names.map(([n,k])=>`<button class="chip ${ui.picks.has(n)?'on':''}" data-pick="${esc(n)}">${esc(n)}</button>`).join('')}</div></details>`;
+  }).join('');
+  $('#ing-selected').textContent = ui.picks.size ? `${ui.picks.size} picked: ${[...ui.picks].join(', ')}` : 'Nothing picked yet. Recipes rank by how many of your picks they use.';
+}
+function renderMoods(){
+  $('#moods').innerHTML = MOODS.map(([k,label])=>`<button class="chip ${ui.mood===k?'on':''}" data-mood="${k}">${label}</button>`).join('');
+}
+function renderFilters(){
+  $('#meal-chips').innerHTML = ['all',...MEALS].map(m=>`<button class="chip ${ui.meal===m?'on':''}" data-meal="${m}">${cap(m)}</button>`).join('');
+  $('#f-time').value = String(ui.time);
+  $('#f-sort').value = ui.sort;
+  $('#f-search').value = ui.search;
+}
+function cardHtml(x,showMatch){
+  const rating = state.ratings[x.id]||0;
+  const fav = !!state.favourites[x.id];
+  const mi = matchInfo(x);
+  const match = showMatch && ui.picks.size ? `<span class="match ${mi.pct<0.34?'low':''}">${mi.have} of ${mi.total} on hand</span>` : '';
+  const ing = x.ingredients.map(i=>{
+    const cls = showMatch && ui.picks.size ? (ui.picks.has(i.n)?'have':'need') : '';
+    return `<li class="${cls}"><span class="mono" style="font-size:11px;color:var(--muted)">${esc(i.q)}</span> ${esc(i.n)}</li>`;
+  }).join('');
+  return `<div class="card" data-id="${x.id}">
+    <div class="top"><h3>${esc(x.name)}</h3><span class="badge">${x.meal}</span></div>
+    <div class="meta"><span><b>${x.time}</b> min</span><span><b>${x.servings}</b> serv</span><span><b>${x.protein}</b>g protein</span><span><b>${x.cal}</b> kcal</span></div>
+    ${match}
+    <div class="tags">${x.tags.map(t=>`<span class="tag">${TAG_LABELS[t]||t}</span>`).join('')}</div>
+    <div class="actions">
+      <div class="row" style="gap:4px">
+        <div class="stars">${[1,2,3,4,5].map(n=>`<button data-rate="${n}" class="${n<=rating?'on':''}" title="${n} star">&#9733;</button>`).join('')}</div>
+        <button class="heart ${fav?'on':''}" data-fav title="Favourite">&#9829;</button>
+      </div>
+      <div class="plan"><select data-day>${DAYS.map(([k,l])=>`<option value="${k}">${l.slice(0,3)}</option>`).join('')}</select><button data-add>Plan</button></div>
+    </div>
+    <details class="more"><summary>Ingredients and method</summary>
+      <h4>INGREDIENTS</h4><ul>${ing}</ul>
+      <h4>METHOD</h4><ol>${x.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+    </details>
+  </div>`;
+}
+function renderCards(){
+  const list = discoverList();
+  const hint = ui.tab==='ingredients' ? (ui.picks.size?'':' Pick ingredients above to rank by what you have.') : (ui.mood?'':' Pick a mood above, or browse.');
+  $('#count').textContent = `${list.length} recipe${list.length===1?'':'s'}.`+hint;
+  $('#cards').innerHTML = list.length ? list.map(x=>cardHtml(x,true)).join('') : '<div class="empty">Nothing matches. Loosen the time filter or pick more ingredients.</div>';
+}
+function renderPlanner(){
+  const opts = m=>`<option value="">${m==='all'?'':'Pick a '+m}</option>`+RECIPES.filter(x=>x.meal===m).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  $('#week').innerHTML = DAYS.map(([k,label])=>`<div class="day"><h3>${label}</h3>${MEALS.map(m=>{
+    const id = (state.plan[k]||{})[m]||'';
+    return `<div class="slot"><span class="lab">${m}</span><select data-slot="${k}|${m}">${opts(m)}</select>${id?`<button data-unplan="${k}|${m}" title="Remove">&times;</button>`:'<span></span>'}</div>`;
+  }).join('')}</div>`).join('');
+  document.querySelectorAll('[data-slot]').forEach(s=>{const [k,m]=s.dataset.slot.split('|');s.value=(state.plan[k]||{})[m]||'';});
+  const n = planCount();
+  const ids = Object.values(state.plan).flatMap(d=>Object.values(d));
+  const prot = ids.reduce((s,id)=>s+(BY_ID[id]?BY_ID[id].protein:0),0);
+  $('#plan-summary').textContent = n ? `${n} of 28 slots filled. Average protein per planned meal: ${Math.round(prot/n)}g.` : 'Empty week. Add recipes from any card, or pick straight from the slots.';
+  const groups = groceryList();
+  $('#grocery').innerHTML = groups.length ? groups.map(g=>`<h4>${g.label.toUpperCase()}</h4>`+g.items.map(a=>{
+    const done = !!state.checked[a.n];
+    return `<label class="${done?'done':''}"><input type="checkbox" data-check="${esc(a.n)}" ${done?'checked':''}> ${esc(a.n)}<span class="q">${esc(a.q)}</span></label>`;
+  }).join('')).join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
+}
+function renderFavourites(){
+  const list = RECIPES.filter(x=>state.favourites[x.id]||state.ratings[x.id]).sort((a,b)=>(state.ratings[b.id]||0)-(state.ratings[a.id]||0)||a.name.localeCompare(b.name));
+  $('#fav-count').textContent = list.length ? `${list.length} favourited or rated.` : '';
+  $('#fav-cards').innerHTML = list.length ? list.map(x=>cardHtml(x,false)).join('') : '<div class="empty">Tap the heart or the stars on any recipe and it lands here.</div>';
+}
+function render(){
+  renderTabs();
+  if(ui.tab==='ingredients'){renderIngredients();renderFilters();renderCards();}
+  else if(ui.tab==='mood'){renderMoods();renderFilters();renderCards();}
+  else if(ui.tab==='planner') renderPlanner();
+  else renderFavourites();
+}
+
+/* ---------- export, import, reset ---------- */
+function exportState(){
+  const payload = {tool:TOOL,schemaVersion:SCHEMA_VERSION,exportedAt:new Date().toISOString(),state};
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${TOOL}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importState(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    let p; try{p=JSON.parse(reader.result);}catch(e){alert('That file is not valid JSON.');return;}
+    if(p.tool!==TOOL){alert(`That file is from ${p.tool||'another tool'}, not ${TOOL}.`);return;}
+    if(!p.state||typeof p.state!=='object'){alert('That file has no state in it.');return;}
+    if(!confirm('This replaces everything currently saved in The Chef. Continue?')) return;
+    store.set('state',p.state); store.set('schema-version',p.schemaVersion||1);
+    state = loadState(); render();
+  };
+  reader.readAsText(file);
+}
+function resetTool(){
+  if(!confirm('Clear favourites, ratings, the week plan and the grocery checks? This only touches The Chef.')) return;
+  store.clearTool(); state = defaultState(); render();
+}
+
+/* ---------- event wiring ---------- */
+function wireEvents(){
+  document.querySelector('nav.tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){ui.tab=b.dataset.tab;render();}});
+  $('#ing-cats').addEventListener('click',e=>{
+    const b=e.target.closest('[data-pick]'); if(!b) return;
+    const n=b.dataset.pick; ui.picks.has(n)?ui.picks.delete(n):ui.picks.add(n);
+    const open=[...document.querySelectorAll('details.cat')].map(d=>d.open);
+    renderIngredients(); renderCards();
+    document.querySelectorAll('details.cat').forEach((d,i)=>d.open=open[i]);
+  });
+  $('#ing-clear').addEventListener('click',()=>{ui.picks.clear();render();});
+  $('#moods').addEventListener('click',e=>{const b=e.target.closest('[data-mood]');if(!b)return;ui.mood=ui.mood===b.dataset.mood?null:b.dataset.mood;render();});
+  $('#meal-chips').addEventListener('click',e=>{const b=e.target.closest('[data-meal]');if(!b)return;ui.meal=b.dataset.meal;render();});
+  $('#f-time').addEventListener('change',e=>{ui.time=Number(e.target.value);renderCards();});
+  $('#f-sort').addEventListener('change',e=>{ui.sort=e.target.value;if(ui.sort==='shuffle')reshuffle();renderCards();});
+  $('#f-search').addEventListener('input',e=>{ui.search=e.target.value;renderCards();});
+  const cardClick = e=>{
+    const card=e.target.closest('.card'); if(!card) return;
+    const id=card.dataset.id;
+    const rate=e.target.closest('[data-rate]');
+    if(rate){const n=Number(rate.dataset.rate);const ratings={...state.ratings};if(ratings[id]===n)delete ratings[id];else ratings[id]=n;setState({ratings});return;}
+    if(e.target.closest('[data-fav]')){const favourites={...state.favourites};if(favourites[id])delete favourites[id];else favourites[id]=true;setState({favourites});return;}
+    if(e.target.closest('[data-add]')){
+      const day=card.querySelector('[data-day]').value;const x=BY_ID[id];
+      const plan={...state.plan,[day]:{...(state.plan[day]||{}),[x.meal]:id}};
+      setState({plan});
+      e.target.closest('[data-add]').textContent='Planned';
+      setTimeout(()=>{const b=document.querySelector(`.card[data-id="${id}"] [data-add]`);if(b)b.textContent='Plan';},900);
+    }
+  };
+  $('#cards').addEventListener('click',cardClick);
+  $('#fav-cards').addEventListener('click',cardClick);
+  $('#week').addEventListener('change',e=>{
+    const s=e.target.closest('[data-slot]'); if(!s) return;
+    const [k,m]=s.dataset.slot.split('|');
+    const day={...(state.plan[k]||{})}; if(s.value) day[m]=s.value; else delete day[m];
+    const plan={...state.plan}; if(Object.keys(day).length) plan[k]=day; else delete plan[k];
+    setState({plan});
+  });
+  $('#week').addEventListener('click',e=>{
+    const b=e.target.closest('[data-unplan]'); if(!b) return;
+    const [k,m]=b.dataset.unplan.split('|');
+    const day={...(state.plan[k]||{})}; delete day[m];
+    const plan={...state.plan}; if(Object.keys(day).length) plan[k]=day; else delete plan[k];
+    setState({plan});
+  });
+  $('#plan-fill').addEventListener('click',()=>setState({plan:fillWeek(state.plan)}));
+  $('#plan-clear').addEventListener('click',()=>{if(planCount()&&confirm('Clear the whole week?'))setState({plan:{},checked:{}});});
+  $('#grocery').addEventListener('change',e=>{
+    const c=e.target.closest('[data-check]'); if(!c) return;
+    const checked={...state.checked}; if(c.checked) checked[c.dataset.check]=true; else delete checked[c.dataset.check];
+    setState({checked});
+  });
+  $('#g-uncheck').addEventListener('click',()=>setState({checked:{}}));
+  $('#g-copy').addEventListener('click',()=>{
+    const text=groceryList().map(g=>g.label+'\n'+g.items.map(a=>`  ${state.checked[a.n]?'[x]':'[ ]'} ${a.n} (${a.q})`).join('\n')).join('\n\n');
+    if(!text){alert('Nothing to copy yet.');return;}
+    navigator.clipboard.writeText(text).then(()=>{$('#g-copy').textContent='Copied';setTimeout(()=>$('#g-copy').textContent='Copy list',900);},()=>alert('Could not copy. Select the list and copy it by hand.'));
+  });
+  $('#export').addEventListener('click',exportState);
+  $('#import').addEventListener('click',()=>$('#import-file').click());
+  $('#import-file').addEventListener('change',e=>{if(e.target.files[0])importState(e.target.files[0]);e.target.value='';});
+  $('#reset').addEventListener('click',resetTool);
+}
+
+/* ---------- init ---------- */
+function init(){
+  if(!store.available()) $('#storage-warn').classList.remove('hidden');
+  wireEvents();
+  render();
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
