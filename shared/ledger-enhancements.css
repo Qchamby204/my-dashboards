@@ -37,3 +37,8 @@ html[data-atlas-app="life-ledger"] .ledger-error {color:var(--neo-rose);}
  html[data-atlas-app="life-ledger"] .appbar {gap:8px;flex-wrap:wrap;}
  html[data-atlas-app="life-ledger"] .ledger-actions .ledger-button {flex:1 1 auto;}
 }
+html[data-atlas-app="life-ledger"] :is(.ledger-history,.ledger-history-day,.ledger-notice){box-sizing:border-box;min-width:0;overflow-wrap:anywhere;}
+html[data-atlas-app="life-ledger"] .ledger-history summary{flex-wrap:wrap;}
+html[data-atlas-app="life-ledger"] .ledger-history-day{white-space:normal;}
+html[data-atlas-app="life-ledger"] .ledger-notice{max-height:calc(var(--atlas-visible-height,100dvh) * .45);overflow:auto;overscroll-behavior:contain;}
+html[data-atlas-app="life-ledger"] .ledger-dialog{top:calc(var(--atlas-visible-top,0px) + var(--atlas-safe-top,0px) + 16px);bottom:auto;margin:0 auto;max-height:calc(var(--atlas-visible-height,100dvh) - var(--atlas-safe-top,0px) - var(--atlas-safe-bottom,0px) - 32px);overscroll-behavior:contain;}
