@@ -7,7 +7,7 @@
    "release": "courier-2026-09-08",
    "budgetMinutes": 60,
    "plannedMinutes": 60,
-   "projectedMinutes": 40.9,
+   "projectedMinutes": 44.1,
    "voiceless": [],
    "usage": {
     "calls": 16,
@@ -570,6 +570,72 @@
      ],
      "words": 267,
      "minutes": 1.8
+    },
+    {
+     "id": "sports",
+     "label": "Sports",
+     "title": "Bombers Fall in OT, Jets Watch Hellebuyck Drama",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@a78cc006d7a87fd9af0dfa48f8852678dd94dc5c/2026-09-08/sports.mp3",
+     "bytes": 2681856,
+     "script": "The Blue Bombers lost the Labour Day Classic. Saskatchewan beat Winnipeg 32-26 in overtime on Monday in Regina, and CBC Sports called it a game that had everything, back and forth right to the extra frame. That's the one people will be talking about at the office today, and the Blue Bombers are on your watch list, so expect the name to keep coming up. Winnipeg still sits in good playoff position, but a signature loss to your provincial rival stings, and you'll hear plenty of second-guessing on the offensive line and the fourth quarter defence.\n\nOn the Jets, also on your watch list, the story all summer has been Connor Hellebuyck. The goaltender, a former Vezina and Hart Trophy winner, has requested a trade, and it's dominated Jets coverage for weeks according to The Athletic and TSN. Nothing is finalized. Training camp opens September 17, and the preseason starts September 19 in Edmonton against the Oilers, followed by two games at Canada Life Centre against Colorado and Edmonton. If you get asked about the Jets tonight, the honest answer is: still no resolution on the goaltending situation, and it's the single biggest storyline hanging over the franchise heading into camp.\n\nElsewhere in the Canadian Football League, Edmonton erased an eighteen point deficit to beat Calgary 38-28 on Labour Day, scoring 24 points in the final ten minutes. And in Toronto, Chad Kelly threw three touchdown passes as the Argonauts beat Hamilton 37-22, a result that leaves the Tiger-Cats needing to win their final five games just to have a shot at the playoffs.\n\nNow the National Football League. The season finally kicks off Wednesday, two days from now, with a Thursday game to follow before the rest of the league plays Sunday. Betting favorites are the Los Angeles Rams, with Buffalo, Baltimore and Seattle close behind. Josh Allen, Lamar Jackson and Joe Burrow are the leading MVP names early, per The Athletic. Worth knowing if the topic comes up at a client dinner this week, because Winnipeg has plenty of Bombers fans who also follow the NFL closely.\n\nOn the National Basketball Association, no games yet, the season doesn't open until October 24, but the trade and free agency moves are still shaping storylines. Portland added guard Ja Morant in a trade with Memphis. Houston locked up young guard Amen Thompson to a five-year, 208 million dollar extension. And Minnesota signed forward Jonathan Kuminga to a two-year deal. All confirmed through NBA.com's offseason tracker.\n\nAs for tonight, there isn't a game across any of the four leagues you need to watch. The Jets are still weeks from puck drop, the NFL waits until Wednesday, the CFL's next Bomber game is coming up on the schedule, and the NBA is dark until autumn. So tonight is a quiet one, good night to catch up on reading instead of scrambling for a score.",
+     "talkingPoints": [
+      "The Bombers dropped the Labour Day Classic 32-26 in overtime to Saskatchewan.",
+      "Connor Hellebuyck has requested a trade, and it's still unresolved heading into Jets training camp on September 17.",
+      "Edmonton erased an 18-point deficit to beat Calgary, and Hamilton now needs to win out to make the CFL playoffs.",
+      "The NFL season opens Wednesday, with the Rams as the early betting favorite.",
+      "The NBA doesn't open until October 24, but Portland already added Ja Morant in a trade."
+     ],
+     "sources": [
+      {
+       "outlet": "CBC Sports",
+       "title": "Roughriders best Blue Bombers 32-26 in OT thriller",
+       "url": "https://www.cbc.ca/news/canada/manitoba/roughriders-blue-bombers-regina-2026-9.7334731?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Elks erase 18-point deficit, beat Stampeders 38-28 in Calgary on Labour Day",
+       "url": "https://www.cbc.ca/news/canada/edmonton/edmonton-elks-win-calgary-stampeders-cfl-labour-day-9.7335238?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Labour Day loss to Argonauts means Ticats must 'win five in a row now,' coach says",
+       "url": "https://www.cbc.ca/news/canada/hamilton/hamilton-tiger-cats-toronto-argonauts-labour-day-9.7335410?cmp=rss"
+      },
+      {
+       "outlet": "NHL.com",
+       "title": "Jets announce 2026 pre-season schedule",
+       "url": "https://www.nhl.com/jets/news/jets-announce-2026-pre-season-schedule"
+      },
+      {
+       "outlet": "Illegal Curve",
+       "title": "Winnipeg Jets Morning Papers: September 5, 2026",
+       "url": "https://illegalcurve.com/winnipeg-jets-morning-papers-todays-hockey-headlines-september-5-2026"
+      },
+      {
+       "outlet": "NBA.com",
+       "title": "NBA Offseason: Every free agency deal, extension & trade for all 30 teams",
+       "url": "https://www.nba.com/news/nba-offseason-deals-2026"
+      },
+      {
+       "outlet": "Spotrac",
+       "title": "NBA Transactions",
+       "url": "https://www.spotrac.com/nba/transactions"
+      }
+     ],
+     "words": 482,
+     "minutes": 3.2
+    }
+   ],
+   "updatedAt": "2026-09-08T14:10:10+00:00",
+   "failed": [],
+   "missingSections": [
+    "markets"
+   ],
+   "repairs": [
+    {
+     "section": "sports",
+     "at": "2026-09-08T14:10:10+00:00",
+     "audio": true
     }
    ]
   },
