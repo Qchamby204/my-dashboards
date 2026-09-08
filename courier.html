@@ -207,6 +207,13 @@
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-workflow.css?v=courier-practice-20260908">
 <link rel="stylesheet" href="shared/courier-player.css">
+<script type="module" src="shared/courier-status.mjs?v=complete-20260908"></script>
+<style>
+  #editionStatus { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; padding:16px 18px; margin:0 0 22px; border:1px solid var(--fainter); border-radius:16px; font-size:1rem; }
+  #editionStatus strong { font-size:1rem; }
+  #editionDetail { flex:1 1 240px; line-height:1.5; }
+  #refreshEdition { min-height:44px; font-size:1rem; }
+</style>
 </head>
 <body>
 <header>
@@ -232,6 +239,10 @@
   </aside>
   <div class="feed">
     <div id="notices"></div>
+    <div id="editionStatus" role="status" aria-live="polite" data-state="updating">
+      <strong id="editionState">Updating</strong><span id="editionDetail">Checking the published edition.</span>
+      <button id="refreshEdition" type="button">Refresh</button>
+    </div>
     <section id="courier-practice" aria-label="Courier practice"></section>
     <div id="blocks"></div>
     <footer>
@@ -355,6 +366,7 @@ function render() {
   if ($('audio').playbackRate !== state.rate) $('audio').playbackRate = state.rate;
   const d = day();
   if (!d) return;
+  window.CourierPublication?.render(d);
   $('stamp').textContent = `generated ${d.generatedAt.replace('T', ' ').slice(0, 16)} UTC`;
 
   const plan = schedule(d.blocks);
@@ -633,12 +645,33 @@ function wireEvents() {
 // ---------- init ----------
 async function init() {
   wireEvents();
+  $('refreshEdition').addEventListener('click', async () => {
+    const button = $('refreshEdition'); button.disabled = true;
+    $('editionState').textContent = 'Updating';
+    $('editionDetail').textContent = 'Checking the published edition.';
+    try {
+      const response = await fetch(MANIFEST_URL, {cache:'no-store', signal:AbortSignal.timeout(15000)});
+      if (!response.ok) throw new Error('Publication unavailable');
+      const updated = await response.json();
+      if (!Array.isArray(updated.days) || !updated.days.length) throw new Error('No edition available');
+      manifest = updated;
+      if (!day()) ui.day = manifest.days[0].date;
+      await window.CourierPublication?.load();
+      renderDays(); render();
+    } catch {
+      $('editionState').textContent = 'Unable to update';
+      $('editionDetail').textContent = 'Could not check for updates. Your loaded edition is still available.';
+    } finally { button.disabled = false; }
+  });
   if (!store.available()) notice('Storage is unavailable in this browser, so positions and listened marks will not be saved.');
   try {
     const r = await fetch(MANIFEST_URL, { cache: 'no-store' });
     if (!r.ok) throw new Error(r.status);
     manifest = await r.json();
+    await window.CourierPublication?.load();
   } catch (e) {
+    $('editionState').textContent = 'Unavailable';
+    $('editionDetail').textContent = 'The published edition could not be loaded. Try Refresh.';
     notice(`Could not load ${MANIFEST_URL}. This tool needs to be served from the Pages URL, and the daily workflow must have run at least once.`);
     return;
   }

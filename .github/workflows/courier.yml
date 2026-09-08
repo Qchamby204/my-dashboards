@@ -7,6 +7,8 @@ on:
       - .github/workflows/courier.yml
       - scripts/courier/publication.py
       - scripts/courier/recovery.py
+      - scripts/courier/completeness.py
+      - scripts/courier/status.py
       - courier/recovery-request.json
   schedule:
     # Off-hour schedules reduce contention; scheduled execution can still be delayed.
@@ -48,6 +50,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Show edition updating
+        if: steps.today.outputs.generate == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          COURIER_DATE: ${{ steps.today.outputs.date }}
+        run: python scripts/courier/status.py updating
 
       - run: pip install feedparser requests
         if: steps.today.outputs.generate == 'true'
@@ -128,3 +138,11 @@ jobs:
           REPO: ${{ github.repository }}
           COURIER_DATE: ${{ steps.today.outputs.date }}
         run: python scripts/courier/publication.py publish --date "$COURIER_DATE"
+
+      - name: Show interrupted publication
+        if: failure() && steps.today.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          COURIER_DATE: ${{ steps.today.outputs.date }}
+        run: python scripts/courier/status.py failed
