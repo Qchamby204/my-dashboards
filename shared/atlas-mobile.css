@@ -1,0 +1,57 @@
+/* Device insets, touch controls, and keyboard room. Preserve each app's composition. */
+html.atlas-mobile{--atlas-safe-top:env(safe-area-inset-top,0px);--atlas-safe-bottom:env(safe-area-inset-bottom,0px);--atlas-safe-left:env(safe-area-inset-left,0px);--atlas-safe-right:env(safe-area-inset-right,0px);scroll-padding-top:calc(var(--atlas-top-h,66px) + 64px);scroll-padding-bottom:calc(var(--atlas-bottom-h,0px) + 24px)}
+.atlas-mobile .atlas-mobile-table{max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.atlas-mobile :is(button,[role="button"],[role="checkbox"],summary,.btn,.homebtn,.iconbtn,.ghost){touch-action:manipulation}
+.atlas-mobile :is(.appbar,.connected-toolbar){padding-left:max(14px,var(--atlas-safe-left));padding-right:max(14px,var(--atlas-safe-right))}
+.atlas-mobile .connected-toolbar{padding-top:calc(12px + var(--atlas-safe-top))}
+.atlas-mobile #connected-app .appbar{top:var(--atlas-connection-h,0px)}
+.atlas-mobile:is([data-atlas-app="the-herald"],[data-atlas-app="prospecting-command-center"]) nav.tabs{top:var(--atlas-top-h,calc(66px + var(--atlas-safe-top)))}
+.atlas-mobile .atlas-appearance-floating{top:calc(12px + var(--atlas-safe-top));right:max(16px,var(--atlas-safe-right))}
+.atlas-mobile .atlas-appearance-map{top:auto;right:auto;left:max(16px,var(--atlas-safe-left));bottom:calc(110px + var(--atlas-safe-bottom))}
+.atlas-mobile:is([data-atlas-app="atlas-hub"],[data-atlas-app="atlas-connect"]) .hub-wrap{padding-top:calc(24px + var(--atlas-safe-top));padding-left:max(18px,var(--atlas-safe-left));padding-right:max(18px,var(--atlas-safe-right));padding-bottom:calc(32px + var(--atlas-safe-bottom))}
+.atlas-mobile[data-atlas-app="courier"] header{padding-top:calc(24px + var(--atlas-safe-top));padding-left:max(18px,var(--atlas-safe-left));padding-right:max(18px,var(--atlas-safe-right))}
+.atlas-mobile[data-atlas-app="courier"] main{padding-bottom:0}
+.atlas-mobile[data-atlas-app="atlas-connect"] main{padding-top:calc(24px + var(--atlas-safe-top));padding-left:max(18px,var(--atlas-safe-left));padding-right:max(18px,var(--atlas-safe-right))}
+.atlas-mobile[data-atlas-app="courier"] body{padding-bottom:calc(var(--atlas-bottom-h,150px) + 48px + var(--atlas-safe-bottom))}
+.atlas-mobile[data-atlas-app="courier"] #player{left:max(12px,var(--atlas-safe-left));right:max(12px,var(--atlas-safe-right));bottom:calc(12px + var(--atlas-safe-bottom))}
+.atlas-mobile:is([data-atlas-app="baby-brain"],[data-atlas-app="neural-map"]) header.hud{padding-top:calc(12px + var(--atlas-safe-top));padding-left:max(14px,var(--atlas-safe-left));padding-right:max(14px,var(--atlas-safe-right))}
+.atlas-mobile[data-atlas-app="neural-map"] .legend{padding-bottom:calc(12px + var(--atlas-safe-bottom));padding-left:max(14px,var(--atlas-safe-left));padding-right:max(14px,var(--atlas-safe-right))}
+.atlas-mobile[data-atlas-app="neural-map"] .hint{bottom:calc(76px + var(--atlas-safe-bottom))}
+.atlas-mobile[data-atlas-app="communication-trainer"] #toasts{bottom:calc(var(--atlas-bottom-h,78px) + 16px);max-width:calc(100% - 32px)}
+.atlas-mobile:is([data-atlas-app="the-herald"],[data-atlas-app="prospecting-command-center"]) #toast{bottom:calc(24px + var(--atlas-safe-bottom));max-width:calc(100vw - 32px);white-space:normal}
+.atlas-mobile .tabbar{padding-left:max(10px,var(--atlas-safe-left));padding-right:max(10px,var(--atlas-safe-right));padding-bottom:calc(7px + var(--atlas-safe-bottom))}
+@media(max-width:900px),(pointer:coarse){
+  .atlas-mobile :is(button,[role="button"],[role="checkbox"],summary,.homebtn,.iconbtn,.ghost){min-height:44px;min-width:44px}
+  .atlas-mobile :is(.homebtn,.iconbtn,.xbtn,.tickbox){width:44px;height:44px;flex-shrink:0}
+  .atlas-mobile :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea){font-size:16px!important;min-height:44px}
+  .atlas-mobile input[type="range"]{height:44px!important;touch-action:pan-y}
+  .atlas-mobile input:is([type="checkbox"],[type="radio"]){width:24px;height:24px;min-width:24px;min-height:24px}
+  .atlas-mobile :is(.appbar,.topbar,.connected-toolbar){gap:8px;flex-wrap:wrap}
+  .atlas-mobile .appbar>div{max-width:100%;min-width:0;flex-wrap:wrap}
+  .atlas-mobile .appbar-title{white-space:normal;overflow-wrap:anywhere}
+  .atlas-mobile :is(.tabs,.tabbar){overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .atlas-mobile :is(.tabs,.tabbar)>button{flex-shrink:0}
+  .atlas-mobile[data-atlas-app="operations-cadence"] .rail{top:var(--atlas-top-h,66px)}
+  .atlas-mobile dialog{box-sizing:border-box;width:min(700px,calc(100vw - 24px - var(--atlas-safe-left) - var(--atlas-safe-right)));max-height:calc(min(100dvh,var(--atlas-visible-height,100dvh)) - 24px - var(--atlas-safe-top) - var(--atlas-safe-bottom));overflow:auto;overscroll-behavior:contain}
+  .atlas-mobile :is(.overlay,#runner,.search,.vpanel){box-sizing:border-box;top:var(--atlas-visible-top,0px)!important;bottom:auto!important;height:var(--atlas-visible-height,100dvh)!important;padding:calc(12px + var(--atlas-safe-top)) max(12px,var(--atlas-safe-right)) calc(12px + var(--atlas-safe-bottom)) max(12px,var(--atlas-safe-left))!important;overflow:auto}
+  .atlas-mobile :is(.overlay,#runner)>:first-child{max-width:100%;max-height:100%!important;overflow:auto}
+  .atlas-mobile #syncSheet{bottom:var(--atlas-bottom-offset,0px)!important;max-height:calc(var(--atlas-visible-height,100dvh) - 24px - var(--atlas-safe-top))!important;padding-left:max(16px,var(--atlas-safe-left))!important;padding-right:max(16px,var(--atlas-safe-right))!important}
+  .atlas-mobile .sheet{max-height:calc(var(--atlas-visible-height,100dvh) - 24px - var(--atlas-safe-top))}
+  .atlas-mobile .sheet-bd{min-height:0}
+  .atlas-mobile:is([data-atlas-app="the-aqueduct"],[data-atlas-app="the-hourglass"],[data-atlas-app="communication-trainer"]) body{padding-bottom:calc(var(--atlas-bottom-h,78px) + 32px)}
+  .atlas-mobile [data-atlas-keyboard]:focus-visible{outline:3px solid var(--neo-blue);outline-offset:3px}
+}
+.atlas-mobile .herald-vault-search{margin-bottom:16px}.atlas-mobile .herald-vault-search label,.atlas-mobile .herald-title-label{display:block;font-size:14px;margin-bottom:8px}.atlas-mobile .herald-vault-search p{font-size:13px;margin-top:6px;color:var(--dim)}
+.atlas-mobile .herald-script-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:13px;color:var(--dim)}
+.atlas-mobile #herald-save-error{border:1px solid var(--neo-rose);border-radius:12px;padding:16px;margin:12px 0;color:var(--neo-ink);background:var(--neo-surface)}
+.atlas-mobile #herald-save-error button{padding:10px;border:1px solid currentColor;border-radius:8px;margin-top:8px}
+.atlas-mobile [data-herald-id][hidden],.atlas-mobile #herald-save-error[hidden]{display:none!important}
+@media(max-width:560px){
+  .atlas-mobile[data-atlas-app="the-herald"] :is(.row,.vhead){flex-wrap:wrap}
+  .atlas-mobile[data-atlas-app="the-herald"] .optrow{gap:10px}
+  .atlas-mobile[data-atlas-app="the-herald"] .field{min-width:0}
+  .atlas-mobile[data-atlas-app="the-herald"] .stage .nm{font-size:11px;letter-spacing:0;overflow-wrap:anywhere}
+  .atlas-mobile[data-atlas-app="the-herald"] .card:has([onclick^="calPick("]){overflow-x:auto}
+  .atlas-mobile[data-atlas-app="the-herald"] [style*="grid-template-columns:repeat(7,1fr)"]{min-width:332px}
+  .atlas-mobile[data-atlas-app="the-herald"] [onclick^="calPick("]>div:first-child{font-size:14px!important}
+}
