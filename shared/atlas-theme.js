@@ -10,6 +10,9 @@
     if(root.dataset.atlasApp==='the-herald'){
       const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
+    if(root.dataset.atlasApp==='the-hourglass'){
+      const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
