@@ -34,6 +34,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 from recovery import build_date
 from publication import edition
+from completeness import expected_sections, gaps
 
 import feedparser
 import requests
@@ -702,7 +703,7 @@ for the communication track only, a scoreable drill: what to do and what good lo
     return data
 
 
-def write_lessons(minutes):
+def write_lessons(minutes, *, repair=False):
     """One block, three lessons, one per track, sharing the lessons budget. Weekdays only."""
     if WEEKDAY in ("sat", "sun"):
         return None
@@ -720,6 +721,8 @@ def write_lessons(minutes):
         else:
             key, lessons, seq_label = track, spec["lessons"], None
         index = progress.get(key, 0)
+        if repair and progress.get("lastAdvanced") == TODAY:
+            index = max(0, index - 1)
         try:
             data = write_lesson(track, spec, seq_label, index, lessons, per_lesson)
         except Exception as e:
@@ -728,10 +731,11 @@ def write_lessons(minutes):
         out.append({"track": track, "label": spec["label"], "sequence": seq_label, "index": index + 1,
                     "title": data["title"], "script": data["script"], "task": data.get("task", ""),
                     "drill": data.get("drill", "")})
-        if progress.get("lastAdvanced") != TODAY:
+        if not repair and progress.get("lastAdvanced") != TODAY:
             progress[key] = index + 1
-    progress["lastAdvanced"] = TODAY
-    PROGRESS.write_text(json.dumps(progress, indent=1))
+    if not repair:
+        progress["lastAdvanced"] = TODAY
+        PROGRESS.write_text(json.dumps(progress, indent=1))
     return out
 
 
@@ -881,51 +885,83 @@ def load_manifest():
     return {"schemaVersion": 1, "days": []}
 
 
-def repair_sports():
-    """Add a missing Sports section or voice its saved script; preserve other blocks."""
+def repair_sections(sections):
+    """Fill only requested gaps, retaining every already-published block and record."""
     global NEWSLETTERS
     manifest = load_manifest()
     current = edition(manifest, TODAY)
     if current is None:
-        raise ValueError("Sports repair requires an existing edition")
-    previous = next((b for b in current["blocks"] if b["id"] == "sports"), None)
-    if previous and previous.get("audio"):
-        raise ValueError("Sports already has published audio; no repair is needed")
+        raise ValueError("Section repair requires an existing edition")
     sources = json.loads((HERE / "sources.json").read_text())
-    spec = sources["sports"]
+    expected = expected_sections(TODAY, sources)
+    if not sections or len(set(sections)) != len(sections) or any(s not in expected for s in sections):
+        raise ValueError("Invalid targeted repair sections")
     day_dir = OUT / TODAY
     day_dir.mkdir(parents=True, exist_ok=True)
-    if previous:
-        voiced = make_block("sports", previous["label"], previous["title"], previous["script"],
-                            previous.get("talkingPoints", []), previous.get("sources", []), day_dir, current["release"])
-        block = {**previous, "audio": voiced["audio"], "bytes": voiced["bytes"]}
-    else:
-        NEWSLETTERS = fetch_newsletters()
-        data = write_script("sports", spec, fetch_items(spec["feeds"]), budget(sources)["sports"])
-        body, points = split_talking_points(data["script"])
-        block = make_block("sports", spec["label"], data.get("title", spec["label"]), body,
-                           points, data.get("sources", [])[:20], day_dir, current["release"])
-    if previous:
-        current["blocks"] = [block if b["id"] == "sports" else b for b in current["blocks"]]
-    else:
-        current["blocks"].append(block)
+    minutes = budget(sources)
+    repaired, failed = [], []
+    newsletters_loaded = False
+    # Front page is generated last so a missing summary can include newly repaired news.
+    for slug in sorted(sections, key=lambda s: (s == "frontpage", expected.index(s))):
+        previous = next((b for b in current["blocks"] if b["id"] == slug), None)
+        if previous and previous.get("audio"):
+            continue
+        try:
+            if previous:
+                voiced = make_block(slug, previous["label"], previous["title"], previous["script"],
+                                    previous.get("talkingPoints", []), previous.get("sources", []), day_dir, current["release"])
+                block = {**previous, "audio": voiced["audio"], "bytes": voiced["bytes"]}
+            elif slug == "frontpage":
+                data = write_front_page(current["blocks"], minutes[slug])
+                block = make_block(slug, "Front page", data["title"], data["script"], [], [], day_dir, current["release"])
+            elif slug == "lessons":
+                lessons = write_lessons(minutes[slug], repair=True)
+                if not lessons:
+                    raise ValueError("No lessons were generated")
+                body = "\n\n".join(f"{l['label']}, lesson {l['index']}: {l['title']}.\n\n{l['script']}" for l in lessons)
+                block = make_block(slug, "Lessons", " / ".join(l["title"] for l in lessons), body,
+                                   [f"{l['label']}: {l['task']}" for l in lessons], [], day_dir, current["release"])
+                block["lessons"] = lessons
+            else:
+                if not newsletters_loaded:
+                    NEWSLETTERS = fetch_newsletters()
+                    newsletters_loaded = True
+                spec = sources[slug]
+                data = write_script(slug, spec, fetch_items(spec["feeds"]), minutes[slug])
+                body, points = split_talking_points(data["script"])
+                block = make_block(slug, spec["label"], data.get("title", spec["label"]), body,
+                                   points, data.get("sources", [])[:20], day_dir, current["release"])
+            if previous:
+                current["blocks"] = [block if b["id"] == slug else b for b in current["blocks"]]
+            else:
+                current["blocks"].append(block)
+            repaired.append(slug)
+        except Exception as error:
+            failed.append(slug)
+            log(f"repair {slug} failed: {error}")
+    if not repaired:
+        raise ValueError("No requested section could be repaired")
+    current["blocks"].sort(key=lambda b: expected.index(b["id"]) if b["id"] in expected else len(expected))
     current["updatedAt"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     current["projectedMinutes"] = round(sum(b.get("minutes", 0) for b in current["blocks"]), 1)
-    current["voiceless"] = [b["id"] for b in current["blocks"] if not b.get("audio")]
-    current["failed"] = [slug for slug in current.get("failed", []) if slug != "sports"]
-    current["missingSections"] = [slug for slug in sources if not any(b["id"] == slug for b in current["blocks"])]
-    current.setdefault("repairs", []).append({"section": "sports", "at": current["updatedAt"], "audio": bool(block["audio"])})
+    current.update(gaps(current, expected))
+    current["failed"] = list(dict.fromkeys([s for s in current.get("failed", []) if s not in repaired] + failed))
+    for slug in repaired:
+        block = next(b for b in current["blocks"] if b["id"] == slug)
+        current.setdefault("repairs", []).append({"section": slug, "at": current["updatedAt"], "audio": bool(block["audio"])})
     MANIFEST.write_text(json.dumps(manifest, indent=1, ensure_ascii=False))
     write_feed(manifest)
     (OUT / "keep-days.txt").write_text("\n".join(sorted(d["date"] for d in manifest["days"])))
-    log(f"Sports repaired; {len(current['blocks'])} published sections; existing sections preserved")
+    log(f"Repaired {', '.join(repaired)}; {len(current['blocks'])} sections; existing sections preserved")
+
+
+def repair_sports():
+    repair_sections(["sports"])
 
 
 def main():
     if os.environ.get("COURIER_SECTIONS"):
-        if os.environ["COURIER_SECTIONS"] != "sports":
-            raise ValueError("Only targeted Sports repair is supported")
-        repair_sports()
+        repair_sections(os.environ["COURIER_SECTIONS"].split(","))
         return
     sources = json.loads((HERE / "sources.json").read_text())
     global NEWSLETTERS
@@ -1019,6 +1055,7 @@ def main():
         "plan": [{"event": s["event"], "owner": slug} for slug, v in story_plan.items() for s in v["owns"]],
         "blocks": blocks,
     })
+    manifest["days"][0].update(gaps(manifest["days"][0], expected_sections(TODAY, sources)))
     manifest["days"] = manifest["days"][:KEEP_DAYS]
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST.write_text(json.dumps(manifest, indent=1, ensure_ascii=False))

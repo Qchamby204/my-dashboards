@@ -64,6 +64,29 @@ class SectionRepairTests(unittest.TestCase):
         result = json.loads(self.manifest_path.read_text())["days"][0]["blocks"][-1]
         self.assertEqual({k: v for k, v in result.items() if k not in {"audio", "bytes"}}, {k: v for k, v in old.items() if k not in {"audio", "bytes"}})
 
+    def test_multiple_repairs_keep_a_success_when_another_section_fails(self):
+        def write(slug, *args):
+            if slug == "sports":
+                raise ValueError("Temporary writer error")
+            return {"title": "Fictional market news", "script": "Fictional market update."}
+        def voice(slug, *args):
+            return {**self.sports(), "id": slug}
+        with patch.object(builder, "fetch_newsletters", return_value={}), patch.object(builder, "fetch_items", return_value=[]), patch.object(builder, "write_script", side_effect=write), patch.object(builder, "make_block", side_effect=voice):
+            builder.repair_sections(["markets", "sports"])
+        day = json.loads(self.manifest_path.read_text())["days"][0]
+        self.assertEqual(day["blocks"][0], self.block)
+        self.assertIn("markets", [b["id"] for b in day["blocks"]])
+        self.assertIn("sports", day["missingSections"])
+        self.assertIn("sports", day["failed"])
+
+    def test_lesson_repair_does_not_change_curriculum_progress(self):
+        progress = Path(self.temp.name) / "progress.json"
+        original = '{"lastAdvanced":"2026-09-08","technical":4}'
+        progress.write_text(original)
+        with patch.object(builder, "PROGRESS", progress), patch.object(builder, "WEEKDAY", "tue"), patch.object(builder, "write_lesson", return_value={"title":"Fictional lesson", "script":"Synthetic learning", "task":"Review"}):
+            builder.write_lessons(8, repair=True)
+        self.assertEqual(progress.read_text(), original)
+
     def test_empty_search_response_gets_one_writing_retry_without_web_tools(self):
         response = "TITLE: Fictional sports\nSCRIPT:\n" + "A fictional update from the supplied source. " * 15 + "\nSOURCES:\nExample | Fixture | https://example.com/fixture"
         spec = {"label": "Sports", "brief": "Fictional sports", "prefer_web": []}
