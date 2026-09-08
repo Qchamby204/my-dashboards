@@ -3,14 +3,15 @@
  "days": [
   {
    "date": "2026-09-08",
-   "state": "updating",
-   "checkedAt": "2026-09-08T17:55:34+00:00",
-   "verifiedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-09-08T18:00:56+00:00",
+   "verifiedAt": "2026-09-08T18:00:56+00:00",
    "generatedAt": "2026-09-08T13:36:42+00:00",
-   "updatedAt": "2026-09-08T14:10:10+00:00",
+   "updatedAt": "2026-09-08T17:59:18+00:00",
    "audio": {
     "frontpage": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/frontpage.mp3",
     "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/lessons.mp3",
+    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@af4ec387b299ad0aea3f8d7f27669b3cbc4d2ffb/2026-09-08/markets.mp3",
     "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/companies.mp3",
     "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/practice.mp3",
     "manitoba": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/manitoba.mp3",
@@ -35,9 +36,7 @@
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "markets"
-   ],
+   "missingSections": [],
    "voiceless": []
   }
  ]
