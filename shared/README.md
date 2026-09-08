@@ -12,6 +12,8 @@ The ◐ button opens the Appearance dialog. System is the default and responds t
 
 Gang Ops and the two test booking dashboards are intentionally outside this theme and its navigation handoff. Existing application data, storage keys, calculations, and event handlers are preserved.
 
+The shared script also loads the [mobile baseline](MOBILE.md) into these existing pages. Herald's small feature improvements load only on the original Herald page. No alternate Herald interface is hosted inside Atlas.
+
 ## Material and interaction rules
 
 | Element | Treatment |
