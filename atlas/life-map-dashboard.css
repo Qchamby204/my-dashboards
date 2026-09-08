@@ -27,3 +27,23 @@
 .lm-local-status button,.lm-local-status summary,.lm-local-status a{font:inherit;min-height:44px;padding:10px;display:inline-flex;align-items:center;color:inherit}
 .lm-local-status button{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:4px}
 .lm-local-status [hidden]{display:none!important}.lm-local-status details{margin-top:12px}.lm-local-status p{overflow-wrap:anywhere}
+/* Life Ledger's compact, accented panels are the reference for Life Map. */
+html[data-atlas-app="life-map"] .lm-dashboard{max-width:640px;margin:0 auto;padding:0 0 calc(32px + var(--atlas-safe-bottom,0px))}
+html[data-atlas-app="life-map"] .lm-header{margin-bottom:18px;align-items:center;gap:12px}
+.lm-brand{display:flex;align-items:center;gap:10px;min-width:0}
+html[data-atlas-app="life-map"] .lm-header h1{font-size:18px;letter-spacing:.025em;font-weight:700;line-height:1.2}
+.lm-backups{font-size:14px}.lm-backups>summary{padding:8px 12px;border:1px solid var(--neo-line);border-radius:12px;cursor:pointer}
+html[data-atlas-app="life-map"] .lm-overview{padding:18px!important;margin-bottom:18px;border-top:2px solid var(--neo-accent)!important;background:var(--neo-surface);box-shadow:var(--neo-raised);border-radius:18px}
+.lm-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--neo-accent);font-weight:600;margin-bottom:14px}
+.lm-overview-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.lm-overview-values strong{display:block;font-size:30px;font-weight:600;line-height:1.2;color:var(--neo-accent)}
+.lm-overview-values span{display:block;font-size:14px;color:var(--neo-muted);margin-top:5px}
+.lm-tabs{gap:7px}.lm-tabs button{padding:12px 8px}
+html[data-atlas-app="life-map"] .lm-tabs [aria-pressed=true]{background:var(--neo-accent-soft)!important;color:var(--neo-accent)!important;border-color:var(--neo-accent)!important}
+html[data-atlas-app="life-map"] .lm-panel{padding:18px;border-radius:18px;background:var(--neo-surface);box-shadow:var(--neo-raised)}
+html[data-atlas-app="life-map"] .lm-primary{background:var(--neo-accent)!important;color:var(--neo-surface)!important;border-color:var(--neo-accent)!important}
+.lm-row{padding:16px 0}.lm-row .lm-secondary{box-shadow:none;background:transparent}
+html[data-atlas-app="life-map"] .lm-local-status{max-width:640px;margin:8px auto;padding:4px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:transparent;border:0;box-shadow:none;font-size:14px}
+.lm-local-status>p{flex:1;margin:0}.lm-local-status .atlas-info[open]{flex-basis:100%}
+html[data-atlas-app="life-map"] .lm-local-status.lm-save-error{border:1px solid var(--neo-rose);padding:14px;background:var(--neo-surface)}
+@media(max-width:420px){.lm-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.lm-filters>label:first-child{grid-column:1/-1}.lm-overview-values{gap:8px}.lm-overview-values strong{font-size:26px}}
