@@ -1,0 +1,30 @@
+/* Aqueduct retains its existing materials and six work areas. */
+html[data-atlas-app="the-aqueduct"] #app{padding-left:max(16px,var(--atlas-safe-left,0px));padding-right:max(16px,var(--atlas-safe-right,0px));padding-bottom:calc(var(--atlas-bottom-h,86px) + 28px)}
+html[data-atlas-app="the-aqueduct"] .appbar{padding-top:calc(12px + var(--atlas-safe-top,env(safe-area-inset-top,0px)))!important;margin:0 0 12px;top:0;flex-wrap:wrap;background:var(--neo-surface)!important}
+.aqueduct-tools{max-width:640px;margin:0 auto;padding:12px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.aqueduct-tools p{flex-basis:100%;margin:0;color:var(--neo-muted);font-size:14px;line-height:1.5}
+.aqueduct-tools button{font-size:14px;min-height:44px}
+.aqueduct-warning{border:1px solid var(--neo-rose);border-radius:12px;padding:12px}
+.aqueduct-tools[hidden],.aqueduct-tools [hidden],.aqueduct-review [hidden]{display:none!important}
+html[data-atlas-app="the-aqueduct"] .appbar-title{white-space:normal}
+html[data-atlas-app="the-aqueduct"] .appbar-sub{font-size:12px;letter-spacing:.02em;white-space:normal}
+html[data-atlas-app="the-aqueduct"] .tabbar{display:grid;grid-template-columns:repeat(6,minmax(92px,1fr));overflow-x:auto;gap:4px}
+html[data-atlas-app="the-aqueduct"] .tabbar button{min-height:52px;padding:8px}
+html[data-atlas-app="the-aqueduct"] .tabbar .tlbl{font-size:14px;letter-spacing:0;text-transform:none;white-space:nowrap}
+html[data-atlas-app="the-aqueduct"] .f label{font-size:14px;letter-spacing:0;white-space:normal}
+html[data-atlas-app="the-aqueduct"] .xbtn{min-width:44px!important;min-height:44px!important}
+html[data-atlas-app="the-aqueduct"] .toast{bottom:calc(var(--atlas-bottom-h,86px) + 12px);max-width:calc(100% - 32px);flex-wrap:wrap}
+.aqueduct-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:12px 0}
+.aqueduct-review p,.aqueduct-dialog p{font-size:16px;line-height:1.55;margin:12px 0;color:var(--neo-muted)}
+.aqueduct-review label{display:block;font-size:14px;line-height:1.5;margin:8px 0}
+.aqueduct-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.aqueduct-total{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;padding:10px 0;border-bottom:1px solid var(--neo-line)}
+.aqueduct-transaction{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--neo-line)}
+.aqueduct-transaction strong{display:block;font-size:16px;font-weight:600;overflow-wrap:anywhere}
+.aqueduct-transaction span{display:block;font-size:14px;color:var(--neo-muted);margin-top:4px}
+.aqueduct-review details{margin-top:16px}.aqueduct-review summary{font-size:16px;padding:12px 0;cursor:pointer}.aqueduct-review details button{margin:6px 0;text-align:left;max-width:100%;overflow-wrap:anywhere}
+.aqueduct-dialog{box-sizing:border-box;position:fixed;top:calc(var(--atlas-visible-top,0px) + var(--atlas-safe-top,0px) + 16px);bottom:auto;margin:0 auto;width:min(560px,calc(100vw - 32px - var(--atlas-safe-left,0px) - var(--atlas-safe-right,0px)));max-height:calc(var(--atlas-visible-height,100dvh) - 32px - var(--atlas-safe-top,0px) - var(--atlas-safe-bottom,0px));overflow:auto;padding:22px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);color:var(--neo-ink)}
+.aqueduct-dialog::backdrop{background:rgb(0 0 0 / .6)}
+@media(max-width:500px){.aqueduct-filters,.aqueduct-transaction{grid-template-columns:minmax(0,1fr)}.aqueduct-transaction{gap:0}.aqueduct-category select{width:100%}html[data-atlas-app="the-aqueduct"] .row.two{grid-template-columns:minmax(0,1fr)}html[data-atlas-app="the-aqueduct"] .appbar-pill{white-space:normal}}
+
+.aqueduct-tools.aqueduct-blocked{padding:calc(12px + var(--atlas-safe-top,env(safe-area-inset-top,0px))) 16px 12px}
