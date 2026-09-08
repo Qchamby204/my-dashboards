@@ -30,3 +30,13 @@ html[data-atlas-app="workout-forge"] #app{padding-bottom:calc(32px + var(--forge
 html[data-atlas-app="workout-forge"] [data-act="liveresume"]{bottom:calc(18px + var(--forge-rest-height,0px) + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px))!important}
 html[data-atlas-app="workout-forge"] #undoToast{bottom:calc(24px + var(--forge-rest-height,0px) + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px))!important}
 @media(max-width:560px){html[data-atlas-app="workout-forge"] .forge-rest button{flex-basis:calc(50% - 8px)}html[data-atlas-app="workout-forge"] .forge-rest-label,html[data-atlas-app="workout-forge"] .forge-rest strong{flex-basis:40%}html[data-atlas-app="workout-forge"] .forge-live :is(.setw,.setr){width:64px;min-width:54px}html[data-atlas-app="workout-forge"] .forge-live-header #forge-pause{flex-basis:100%}}
+/* Keep form rows at their natural height inside the scrollable session panel. */
+html[data-atlas-app="workout-forge"] .forge-live-panel{box-sizing:border-box;overscroll-behavior:contain}
+html[data-atlas-app="workout-forge"] .forge-live-panel>*{flex-shrink:0;min-width:0;max-width:100%}
+html[data-atlas-app="workout-forge"] :is(.forge-rest,.forge-save-notice,.forge-confirm){box-sizing:border-box;overflow-wrap:anywhere}
+html[data-atlas-app="workout-forge"] .forge-rest{max-height:calc(var(--atlas-visible-height,100dvh) * .4);overflow:auto;overscroll-behavior:contain}
+html[data-atlas-app="workout-forge"] .forge-save-notice{max-height:calc(var(--atlas-visible-height,100dvh) * .4)}
+html[data-atlas-app="workout-forge"] .forge-live-actions>*{height:auto!important;white-space:normal}
+html[data-atlas-app="workout-forge"] .forge-picker{min-width:0}
+html[data-atlas-app="workout-forge"] [data-act="liveresume"]{left:max(14px,var(--atlas-safe-left,0px))!important;max-width:calc(100vw - 28px - var(--atlas-safe-left,0px) - var(--atlas-safe-right,0px));white-space:normal}
+html[data-atlas-app="workout-forge"] #undoToast{box-sizing:border-box;max-width:calc(100vw - 28px - var(--atlas-safe-left,0px) - var(--atlas-safe-right,0px));flex-wrap:wrap}
