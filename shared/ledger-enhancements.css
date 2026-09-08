@@ -1,0 +1,39 @@
+/* Extend the original mineral / graphite appearance and mobile safe areas. */
+html[data-atlas-app="life-ledger"] .ledger-button,
+html[data-atlas-app="life-ledger"] #app button {min-height:44px;min-width:44px;touch-action:manipulation;font-size:14px!important;}
+html[data-atlas-app="life-ledger"] .ledger-button {padding:10px 14px;border:1px solid var(--neo-line);border-radius:12px;background:var(--neo-surface);color:var(--neo-ink);font:inherit;cursor:pointer;}
+html[data-atlas-app="life-ledger"] button:disabled {opacity:.45;cursor:default;}
+html[data-atlas-app="life-ledger"] #app input,
+html[data-atlas-app="life-ledger"] #app select,
+html[data-atlas-app="life-ledger"] .ledger-dialog input {font-size:16px!important;min-height:44px;max-width:100%;min-width:0;box-sizing:border-box;}
+html[data-atlas-app="life-ledger"] .ledger-actions {display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 14px;}
+html[data-atlas-app="life-ledger"] .ledger-help {font-size:14px!important;line-height:1.5;color:var(--neo-muted);white-space:normal;overflow-wrap:anywhere;}
+html[data-atlas-app="life-ledger"] #ledger-draft-status {flex:1 1 190px;margin:0;}
+html[data-atlas-app="life-ledger"] .ledger-date-row {flex-wrap:wrap;}
+html[data-atlas-app="life-ledger"] .ledger-jump {display:block;margin:12px 0 8px auto;}
+html[data-atlas-app="life-ledger"] .ledger-season-summary {padding:16px 0;color:var(--neo-ink);font-size:16px;line-height:1.5;}
+html[data-atlas-app="life-ledger"] .ledger-season-summary p {margin:4px 0;font-size:14px;color:var(--neo-muted);}
+html[data-atlas-app="life-ledger"] #ledger-log,
+html[data-atlas-app="life-ledger"] #ledger-history {scroll-margin-top:calc(var(--atlas-top-h,80px) + env(safe-area-inset-top,0px) + 16px);}
+html[data-atlas-app="life-ledger"] .ledger-history {margin:16px 0;padding:16px;border:1px solid var(--neo-line);border-radius:16px;color:var(--neo-ink);}
+html[data-atlas-app="life-ledger"] .ledger-history summary {min-height:44px;display:flex;align-items:center;font-size:16px;font-weight:600;cursor:pointer;}
+html[data-atlas-app="life-ledger"] .ledger-history-day {display:block;text-align:left;width:100%;margin:8px 0;}
+html[data-atlas-app="life-ledger"] .ledger-history-day span {display:block;margin-top:4px;}
+html[data-atlas-app="life-ledger"] .ledger-notice {position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + var(--atlas-bottom-offset,0px));z-index:100;padding:14px;margin:10px;max-width:650px;border:1px solid var(--neo-line);border-radius:14px;background:var(--neo-surface);color:var(--neo-ink);box-shadow:var(--neo-raised);font-size:16px;}
+html[data-atlas-app="life-ledger"] .ledger-notice[hidden] {display:none;}
+html[data-atlas-app="life-ledger"] .ledger-notice button {margin:4px;}
+html[data-atlas-app="life-ledger"] .ledger-dialog {box-sizing:border-box;width:min(460px,calc(100vw - 24px));max-height:calc(var(--atlas-visible-height,100dvh) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 32px);overflow:auto;padding:22px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);color:var(--neo-ink);font:inherit;line-height:1.5;}
+html[data-atlas-app="life-ledger"] .ledger-dialog::backdrop {background:rgba(0,0,0,.55);}
+html[data-atlas-app="life-ledger"] .ledger-dialog h2 {font-size:22px;line-height:1.2;margin:0 0 12px;}
+html[data-atlas-app="life-ledger"] .ledger-dialog label {display:block;font-size:16px;margin:12px 0;}
+html[data-atlas-app="life-ledger"] .ledger-dialog input {display:block;width:100%;padding:10px;margin-top:6px;background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:10px;color:var(--neo-ink);}
+html[data-atlas-app="life-ledger"] .ledger-error {color:var(--neo-rose);}
+@media(max-width:600px){
+ html[data-atlas-app="life-ledger"] #ledger-log .row {flex-wrap:wrap;gap:8px!important;}
+ html[data-atlas-app="life-ledger"] #ledger-log .row>div:last-child {margin-left:auto;}
+ html[data-atlas-app="life-ledger"] #ledger-log input.num {width:60px;}
+ html[data-atlas-app="life-ledger"] #ledger-log input[type="date"] {flex-basis:150px!important;}
+ html[data-atlas-app="life-ledger"] #ledger-log input[type="date"]:first-child {width:100%;}
+ html[data-atlas-app="life-ledger"] .appbar {gap:8px;flex-wrap:wrap;}
+ html[data-atlas-app="life-ledger"] .ledger-actions .ledger-button {flex:1 1 auto;}
+}
