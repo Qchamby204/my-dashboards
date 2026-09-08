@@ -1,0 +1,17 @@
+[data-atlas-app="communication-trainer"] #communication-save-error{border-color:var(--rose);font-size:16px;line-height:1.6;margin:12px auto;max-width:1100px}
+[data-atlas-app="communication-trainer"] #communication-save-error[hidden]{display:none!important}
+[data-atlas-app="communication-trainer"] #communication-save-error .flex{gap:10px;margin-top:12px}
+[data-atlas-app="communication-trainer"] #tbtn{min-width:120px;font-variant-numeric:tabular-nums}
+[data-atlas-app="communication-trainer"] #tbtn:disabled{opacity:.7;cursor:default}
+[data-atlas-app="communication-trainer"] .drillcard>.flex{gap:10px;align-items:stretch}
+[data-atlas-app="communication-trainer"] #recMeta{font-size:14px!important;line-height:1.5;overflow-wrap:anywhere}
+[data-atlas-app="communication-trainer"] #undoToast{bottom:calc(var(--atlas-bottom-h,78px) + 16px)!important;font-size:14px!important;max-width:calc(100vw - 32px)!important}
+[data-atlas-app="communication-trainer"] #nav .tl{font-size:12px;letter-spacing:0}
+[data-atlas-app="communication-trainer"] #uiDlg{overflow:auto;padding:calc(16px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important}
+[data-atlas-app="communication-trainer"] #uiDlg>div{max-height:calc(var(--atlas-visible-height,100dvh) - 40px);overflow:auto}
+@media(max-width:600px){
+  [data-atlas-app="communication-trainer"] .drillcard>.flex{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  [data-atlas-app="communication-trainer"] .drillcard>.flex button{min-width:0;padding:12px 8px;white-space:normal;line-height:1.35;font-size:14px}
+  [data-atlas-app="communication-trainer"] #communication-save-error{margin:12px 16px}
+  [data-atlas-app="communication-trainer"] :is(#txBox,#gradeBox){min-width:0!important;width:100%}
+}
