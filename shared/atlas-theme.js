@@ -40,6 +40,11 @@
       window.AtlasForgeBoot=boot;
       const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
+    if(root.dataset.atlasApp==='life-ledger'){
+      const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
+      window.AtlasLedgerBoot=boot;
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
@@ -145,7 +150,7 @@
     if (!dialog.isConnected) document.body.append(dialog);
     if (!trigger.isConnected) {
       const map = ['baby-brain', 'neural-map'].includes(root.dataset.atlasApp);
-      const host = map ? null : document.querySelector('.topbar > div, .appbar, header .bar');
+      const host = map ? null : document.querySelector('.topbar > div, .appbar, header .bar, .lm-header');
       trigger.classList.toggle('atlas-appearance-floating', !host);
       trigger.classList.toggle('atlas-appearance-map', map);
       (host || document.body).append(trigger);

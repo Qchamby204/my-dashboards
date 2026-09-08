@@ -1,10 +1,20 @@
 /* Device insets, touch controls, and keyboard room. Preserve each app's composition. */
-html.atlas-mobile{--atlas-safe-top:env(safe-area-inset-top,0px);--atlas-safe-bottom:env(safe-area-inset-bottom,0px);--atlas-safe-left:env(safe-area-inset-left,0px);--atlas-safe-right:env(safe-area-inset-right,0px);scroll-padding-top:calc(var(--atlas-top-h,66px) + 64px);scroll-padding-bottom:calc(var(--atlas-bottom-h,0px) + 24px)}
+html.atlas-mobile{--atlas-safe-top:max(env(safe-area-inset-top,0px),var(--atlas-standalone-top,0px));--atlas-safe-bottom:max(env(safe-area-inset-bottom,0px),var(--atlas-standalone-bottom,0px));--atlas-safe-left:max(env(safe-area-inset-left,0px),var(--atlas-standalone-side,0px));--atlas-safe-right:max(env(safe-area-inset-right,0px),var(--atlas-standalone-side,0px));scroll-padding-top:calc(var(--atlas-top-h,66px) + 64px);scroll-padding-bottom:calc(var(--atlas-bottom-h,0px) + 24px)}
 .atlas-mobile .atlas-mobile-table{max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .atlas-mobile :is(button,[role="button"],[role="checkbox"],summary,.btn,.homebtn,.iconbtn,.ghost){touch-action:manipulation}
 .atlas-mobile :is(.appbar,.connected-toolbar){padding-left:max(14px,var(--atlas-safe-left));padding-right:max(14px,var(--atlas-safe-right))}
 .atlas-mobile .connected-toolbar{padding-top:calc(12px + var(--atlas-safe-top))}
 .atlas-mobile #connected-app .appbar{top:var(--atlas-connection-h,0px)}
+/* One owner for the top safe area. Headers and foreground panels must stay below it. */
+html.atlas-mobile:is([data-atlas-app="workout-forge"],[data-atlas-app="life-map"]) .appbar{top:0;padding-top:calc(12px + var(--atlas-safe-top))!important;padding-left:max(16px,var(--atlas-safe-left))!important;padding-right:max(16px,var(--atlas-safe-right))!important;background:var(--neo-surface)!important;isolation:isolate}
+html.atlas-mobile:is([data-atlas-app="workout-forge"],[data-atlas-app="life-map"]) .wrap{padding-left:max(16px,var(--atlas-safe-left));padding-right:max(16px,var(--atlas-safe-right))}
+html.atlas-mobile:is([data-atlas-app="workout-forge"],[data-atlas-app="life-map"]) .appbar{margin-left:calc(-1 * max(16px,var(--atlas-safe-left)));margin-right:calc(-1 * max(16px,var(--atlas-safe-right)))}
+html.atlas-mobile[data-atlas-app="life-map"] .lm-header{flex-wrap:wrap}
+html.atlas-mobile[data-atlas-app="life-map"] .connected-toolbar{padding-top:calc(12px + var(--atlas-safe-top))!important;padding-left:max(16px,var(--atlas-safe-left))!important;padding-right:max(16px,var(--atlas-safe-right))!important;background:var(--neo-surface)!important}
+html.atlas-mobile[data-atlas-inset-owner="connection"] #connected-app .appbar{top:var(--atlas-connection-h,0px);padding-top:12px!important}
+html.atlas-mobile[data-atlas-app="workout-forge"] .forge-live-panel{padding-top:16px!important;padding-left:16px!important;padding-right:16px!important}
+html.atlas-mobile[data-atlas-app="life-map"] #lm-editor,
+html.atlas-mobile[data-atlas-app="workout-forge"] .forge-confirm{top:calc(var(--atlas-visible-top,0px) + var(--atlas-safe-top) + 16px);bottom:auto;margin:0 auto;width:min(560px,calc(100vw - 32px - var(--atlas-safe-left) - var(--atlas-safe-right)));max-height:calc(var(--atlas-visible-height,100dvh) - 32px - var(--atlas-safe-top) - var(--atlas-safe-bottom));overflow:auto}
 .atlas-mobile:is([data-atlas-app="the-herald"],[data-atlas-app="prospecting-command-center"]) nav.tabs{top:var(--atlas-top-h,calc(66px + var(--atlas-safe-top)))}
 .atlas-mobile .atlas-appearance-floating{top:calc(12px + var(--atlas-safe-top));right:max(16px,var(--atlas-safe-right))}
 .atlas-mobile .atlas-appearance-map{top:auto;right:auto;left:max(16px,var(--atlas-safe-left));bottom:calc(110px + var(--atlas-safe-bottom))}

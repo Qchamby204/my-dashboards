@@ -38,7 +38,7 @@ export function parseLedgerTransfer(raw){
     const out={app:b.app,version:1,exportedAt:stamp(b.exportedAt),...ledgerContent(b),omitted:list(b.omitted??[],100,'omitted habit names').map(x=>textValue(x,160,true))};
     return out;
   }
-  if(b?.app!=='life-ledger'||![1,2].includes(b.version)||!Array.isArray(b.days))fail('Choose Export Backup from the original Life Ledger, or an Atlas Life Ledger transfer.');
+  if(b?.app!=='life-ledger'||![1,2,3].includes(b.version)||!Array.isArray(b.days))fail('Choose Export Backup from the original Life Ledger, or an Atlas Life Ledger transfer.');
   const model=object(b.model)?b.model:{},added=list(model.added??[],100,'custom habits');
   const names=new Map(LEGACY_HABITS.map(key=>[key,key]));
   for(const h of added){const key=textValue(h?.key,200,true);if(names.has(key)||key==='Supplements')fail('The legacy file has conflicting habit IDs.');names.set(key,textValue(h.label||key,160,true));}
