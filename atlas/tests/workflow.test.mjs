@@ -113,6 +113,15 @@ test('Atlas is a reference directory with no operational data readers', async ()
   assert.equal(response.status,200);const html=await response.text();
   assert.match(html,/Your dashboards/);assert.doesNotMatch(html,/app\.js|atlas-daily|readProspect|data-add-priority/);
   const scripts=[...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(x=>x[1]);assert.deepEqual(scripts,['/shared/atlas-theme.js']);
+  const original='https://qchamby204.github.io/my-dashboards/the-herald.html';
+  assert.match(html,/<a class="hub-card" href="https:\/\/qchamby204\.github\.io\/my-dashboards\/the-herald\.html">/);
+  assert.doesNotMatch(html,/\/apps\/herald/);
+  for(const path of ['/apps/herald','/apps/herald/','/apps/herald?record=earlier-item']){
+    const r=await worker.fetch(new Request('https://atlas.test'+path,{headers:{'oai-authenticated-user-id':'test-owner'}}),{DB:db});
+    assert.equal(r.status,302);assert.equal(r.headers.get('Location'),original);
+  }
+  const {connected}=await import('../../dist/server/assets.mjs');
+  assert.equal(Object.keys(connected).some(path=>path.includes('herald')),false);
 });
 
 test('Atlas Vault includes practice, validates it, and can undo a restore of its exact prior records', async () => {

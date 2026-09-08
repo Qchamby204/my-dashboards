@@ -9,18 +9,14 @@ const tick=()=>new Promise(setImmediate);
 function nodes(){
   const map=new Map(),node=id=>{if(!map.has(id))map.set(id,{id,style:{},dataset:{},innerHTML:'',textContent:'',value:'',hidden:false,inert:true,handlers:new Map(),classList:{add(){},remove(){},toggle(){}},addEventListener(t,f){this.handlers.set(t,f);},querySelector:()=>null,querySelectorAll:()=>[],appendChild(){},setAttribute(){},remove(){},focus(){}});return map.get(id);};return {node};
 }
-test('both shipped full-app scripts boot with saved data and existing editors send changes through the connected adapter',async()=>{
-  for(const kind of ['life-map','herald']){
+test('the shipped Life Map script boots with saved data and its editor sends changes through the connected adapter',async()=>{
+  for(const kind of ['life-map']){
     const {node}=nodes(),document={getElementById:node,querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},createElement:node,body:node('body')},saves=[],raw=emptyAppState(kind);
-    if(kind==='herald')raw.videos=[{id:'video-one',title:'A story',fmt:'long',vert:'General',status:'draft',opt:{},metrics:{},pub:{},script:'Original script'}];
-    else raw.projects=[{id:'project-one',task:'A room plan',area:'Home',status:'Not started',notes:'Original note',pri:'High',sub:'',due:''}];
+    raw.projects=[{id:'project-one',task:'A room plan',area:'Home',status:'Not started',notes:'Original note',pri:'High',sub:'',due:''}];
     const window={AtlasConnected:{raw:()=>JSON.stringify(raw),save:s=>saves.push(structuredClone(s))},addEventListener(){},scrollTo(){},innerWidth:1200};
     const context=vm.createContext({window,document,navigator:{},location:{href:'https://atlas.test/apps/'+kind},URL,Date,Blob,TextEncoder,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});
     vm.runInContext(connected['/connected/'+kind+'-main.js'][0],context);await tick();assert.equal(typeof window.acceptConnectedState,'function');
-    if(kind==='herald'){
-      vm.runInContext("schedVid('video-one','2026-09-10')",context);assert.equal(saves.at(-1).videos[0].sched,'2026-09-10');assert.equal(saves.at(-1).videos[0].script,'Original script');
-      const changed=structuredClone(saves.at(-1));changed.videos[0].status='published';window.acceptConnectedState(changed);assert.equal(vm.runInContext('S.videos[0].status',context),'published');
-    }else{
+    {
       vm.runInContext("view.editor=Object.assign({kind:'proj'},S.projects[0],{status:'Done'});saveEditor()",context);assert.equal(saves.at(-1).projects[0].status,'Done');assert.equal(saves.at(-1).projects[0].notes,'Original note');
       const changed=structuredClone(saves.at(-1));changed.projects[0].task='A revised plan';window.acceptConnectedState(changed);assert.equal(vm.runInContext('S.projects[0].task',context),'A revised plan');
       window.LifeMapDashboard.setStatus('project-one','Not started');window.LifeMapDashboard.setStatus('project-one','Done');
