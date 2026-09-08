@@ -26,7 +26,13 @@ Generation and recovery use `America/Winnipeg`, including daylight saving change
 
 The recovery path is verified with a real request for an existing edition, which exercises the push trigger and final publication checks without making model or voice calls. The missing-edition decision, delayed/duplicate requests, timezone boundaries, malformed data and path detection are covered by synthetic tests.
 
+Requests may also include `"sections": ["sports"]` to repair only missing Sports or retry audio from its saved script. A complete existing Sports section is never replaced. This mode merges new audio into the existing day's audio directory and preserves other sections' immutable audio URLs, scripts, lesson progress and listening identifiers. It updates the feed and verifies the resulting edition normally. The independent recovery check may use this bounded repair for Sports; other incomplete sections remain unchanged and are reported.
+
+If research exhausts its response budget before producing a usable script, each news section gets one writing retry with web tools disabled, using the already supplied feeds and newsletters. The builder records failed sections in new editions instead of leaving that information only in logs.
+
 ## Player
+
+Section cards show duration text without decorative length gauges. Actual playback progress remains in the player. “Put it into practice” is collapsed initially, opens from its heading or a direct practice link, and retains its expanded state during saving and rerendering.
 
 The original player uses one audio element across sections. Failed audio is reloaded when Play is retried. Continuation skips text-only sections, follows the saved preference, and reports a manual Play action if the browser blocks continuation. Play all explicitly starts the edition again; Resume listening continues an unfinished section in the selected edition.
 

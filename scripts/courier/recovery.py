@@ -40,8 +40,11 @@ def choose_plan(manifest, event_name, *, now=None, request=None, publish_only=Fa
         # The initial placeholder is inert. A write-authorized connector fills it in.
         if request == {"schemaVersion": 1, "date": None, "requestedAt": None, "attempt": 0}:
             return {"date": date, "generate": False, "publish": False, "reason": "No recovery requested"}
-        if not isinstance(request, dict) or set(request) != {"schemaVersion", "date", "requestedAt", "attempt"}:
+        fields = {"schemaVersion", "date", "requestedAt", "attempt"}
+        if not isinstance(request, dict) or set(request) not in (fields, fields | {"sections"}):
             raise ValueError("Invalid recovery request fields")
+        if "sections" in request and request["sections"] != ["sports"]:
+            raise ValueError("Only targeted Sports repair is supported")
         if request["schemaVersion"] != 1 or type(request["attempt"]) is not int or not 1 <= request["attempt"] <= 3:
             raise ValueError("Invalid recovery version or attempt")
         if not isinstance(request["date"], str) or not isinstance(request["requestedAt"], str):
@@ -56,6 +59,13 @@ def choose_plan(manifest, event_name, *, now=None, request=None, publish_only=Fa
         if request["date"] != date or age > 10800 or now.astimezone(ZoneInfo("America/Winnipeg")).weekday() >= 5:
             return {"date": date, "generate": False, "publish": False, "reason": "Recovery request expired or is outside a weekday"}
         exists = edition(manifest, date) is not None
+        if "sections" in request:
+            if not exists:
+                raise ValueError("Sports repair requires an existing edition")
+            sports = next((b for b in edition(manifest, date)["blocks"] if b["id"] == "sports"), None)
+            needed = not sports or not sports.get("audio")
+            return {"date": date, "generate": needed, "publish": True, "sections": "sports" if needed else "",
+                    "reason": "Repair only Sports" if needed else "Sports already published; verify existing edition"}
         return {"date": date, "generate": not exists, "publish": True,
                 "reason": "Reuse existing edition and verify publication" if exists else "Recover missing edition"}
     if publish_only or event_name == "push":
@@ -83,8 +93,8 @@ def main():
     plan = choose_plan(manifest, event_name, request=request, publish_only=os.environ.get("PUBLISH_ONLY") == "true")
     print(f"Courier {plan['date']}: {plan['reason']}; generate={plan['generate']}; publish={plan['publish']}")
     with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-        for key in ("date", "generate", "publish"):
-            value = str(plan[key]).lower() if isinstance(plan[key], bool) else plan[key]
+        for key in ("date", "generate", "publish", "sections"):
+            value = str(plan[key]).lower() if isinstance(plan.get(key), bool) else plan.get(key, "")
             output.write(f"{key}={value}\n")
 
 

@@ -65,6 +65,10 @@ def pin_audio(manifest, date, repo, sha):
         url = block.get("audio")
         if url:
             if not url.startswith(prefix):
+                # A targeted repair keeps the existing sections on their immutable
+                # audio URLs and pins only the newly generated section.
+                if re.fullmatch(r"https://cdn\.jsdelivr\.net/gh/" + re.escape(repo) + r"@[a-f0-9]{40}/" + re.escape(date) + r"/[A-Za-z0-9_-]+\.mp3", url):
+                    continue
                 raise ValueError("Generated audio is outside this edition")
             block["audio"] = url.replace("@courier-audio/", f"@{sha}/", 1)
             replacements[url] = block["audio"]

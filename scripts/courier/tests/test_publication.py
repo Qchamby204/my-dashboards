@@ -65,6 +65,17 @@ class PublicationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             publication.request_json("https://example.com/", token="synthetic-token")
 
+    def test_pin_repaired_sports_preserves_existing_immutable_audio(self):
+        prior = self.day["blocks"][0]
+        prior["audio"] = prior["audio"].replace("@courier-audio/", "@" + "b" * 40 + "/")
+        sports = {**copy.deepcopy(prior), "id": "sports", "audio": "https://cdn.jsdelivr.net/gh/example/courier@courier-audio/2026-09-08/sports.mp3"}
+        self.day["blocks"].append(sports)
+        original = prior["audio"]
+        replaced = publication.pin_audio(self.manifest, self.day["date"], self.repo, "c" * 40)
+        self.assertEqual(len(replaced), 1)
+        self.assertEqual(prior["audio"], original)
+        self.assertIn("@" + "c" * 40 + "/", sports["audio"])
+
 
 if __name__ == "__main__":
     unittest.main()
