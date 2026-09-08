@@ -41,6 +41,17 @@
     for (const key of ['fi', 'book', 'acctNames', 'rules', 'exec', '_drafts']) if (own(s, key) && !plain(s[key])) fail('Invalid ' + key + ' settings.');
     if (complete && (!plain(s.fi) || !plain(s.book) || !plain(s.acctNames) || !plain(s.rules) || !plain(s.exec) || !Array.isArray(s.cats))) fail('This backup is missing settings.');
     if (s.cats != null && (!Array.isArray(s.cats) || s.cats.some(c => typeof c !== 'string'))) fail('Invalid categories.');
+    if (s.incomeMode != null && !['estimated','actual'].includes(s.incomeMode)) fail('Invalid income mode.');
+    if (s.actualIncomeMo != null && (!number(s.actualIncomeMo) || +s.actualIncomeMo < 0)) fail('Invalid monthly take-home.');
+    if (s.scenarios != null) {
+      if (!Array.isArray(s.scenarios) || s.scenarios.length > 8) fail('Invalid saved comparisons.');
+      const ids = new Set();
+      for (const row of s.scenarios) {
+        if (!plain(row) || typeof row.id !== 'string' || !/^[\w-]+$/.test(row.id) || ids.has(row.id) || typeof row.name !== 'string' || !row.name.trim() || row.name.length > 60 || typeof row.savedAt !== 'string' || !Number.isFinite(Date.parse(row.savedAt))) fail('Invalid saved comparison.');
+        ids.add(row.id);
+        for (const key of ['income','bills','debt','savings','available']) if (typeof row[key] !== 'number' || !Number.isFinite(row[key])) fail('Invalid comparison amount.');
+      }
+    }
     for (const key of ['aum', 'refPct', 'feeRate', 'gridLow', 'gridHigh', 'cliffRev', 'pensionPct', 'esopPct', 'esopCap', 'charityYr', 'otherIncMo']) if (own(s, key) && !number(s[key])) fail('Invalid ' + key + '.');
     for (const [key, value] of Object.entries(s.fi || {})) if (key !== 'lifestyleMode' && !number(value)) fail('Invalid financial setting.');
     for (const [key, value] of Object.entries(s.book || {})) if (key === 'startDate' ? value && !validDay(value) : !number(value)) fail('Invalid book setting.');

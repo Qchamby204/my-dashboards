@@ -94,6 +94,8 @@ class SectionRepairTests(unittest.TestCase):
             result = builder.write_script("sports", spec, [], 4)
         self.assertEqual(api.call_count, 2)
         self.assertEqual(api.call_args_list[1].kwargs["web_searches"], 0)
+        self.assertNotIn("Preferred outlets when you do search", api.call_args_list[1].args[0])
+        self.assertIn("No tools are available", api.call_args_list[1].args[0])
         self.assertEqual(result["title"], "Fictional sports")
 
 

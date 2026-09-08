@@ -28,3 +28,14 @@ html[data-atlas-app="the-aqueduct"] .toast{bottom:calc(var(--atlas-bottom-h,86px
 @media(max-width:500px){.aqueduct-filters,.aqueduct-transaction{grid-template-columns:minmax(0,1fr)}.aqueduct-transaction{gap:0}.aqueduct-category select{width:100%}html[data-atlas-app="the-aqueduct"] .row.two{grid-template-columns:minmax(0,1fr)}html[data-atlas-app="the-aqueduct"] .appbar-pill{white-space:normal}}
 
 .aqueduct-tools.aqueduct-blocked{padding:calc(12px + var(--atlas-safe-top,env(safe-area-inset-top,0px))) 16px 12px}
+/* Income planning and saved comparisons share the original dashboard surface. */
+.aqueduct-planning h2,.aqueduct-planning h3{font-size:1.05rem;margin:0 0 12px}
+.aqueduct-planning p,.aqueduct-planning label,.aqueduct-planning summary,.aqueduct-planning dt,.aqueduct-planning dd{font-size:1rem;line-height:1.5}
+.aqueduct-planning input,.aqueduct-planning button{font-size:1rem;min-height:44px}
+.aqueduct-planning [aria-pressed="true"]{border-color:var(--cyan);box-shadow:inset 0 0 0 1px var(--cyan)}
+.aqueduct-planning summary{min-height:44px;padding:10px 0;cursor:pointer}
+.aqueduct-planning input{margin:6px 0 10px}
+.aqueduct-comparisons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;margin-top:16px}
+.aqueduct-comparisons article{padding:14px;border:1px solid var(--line);border-radius:14px;min-width:0}
+.aqueduct-comparisons dl{margin:0 0 12px}.aqueduct-comparisons dl>div{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 12px}
+.aqueduct-comparisons dd{margin:0;font-variant-numeric:tabular-nums}

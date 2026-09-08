@@ -129,3 +129,34 @@ test('backup text stays literal and non-finite money input cannot corrupt saved 
   const h=boot();assert.equal(h.run('toNum('+JSON.stringify('9'.repeat(400))+')'),'');
   assert.equal(h.run('guessEmoji({emoji:'+JSON.stringify('<img src=x onerror=alert(1)>')+'})'),'&lt;img src=x onerror=alert(1)&gt;');
 });
+
+test('entered monthly take-home includes zero and survives reopening without adding other income twice',()=>{
+  const h=boot();setup(h,'pay');h.run('S.otherIncMo=500;save();render()');
+  h.document.querySelector('[data-income-mode="actual"]').click();
+  h.node('aq-income').value='2,500.50';h.node('aq-income').onchange();
+  assert.equal(h.run('takeHomeMo()'),2500.5);
+  h.node('aq-income').value='0';h.node('aq-income').onchange();
+  assert.equal(h.run('takeHomeMo()'),0);
+  const reload=boot({raw:h.storage.get('aqueduct:v2')});assert.equal(reload.run('takeHomeMo()'),0);
+  reload.node('aq-income').value='-2';reload.node('aq-income').onchange();assert.equal(reload.run('S.actualIncomeMo'),0);
+});
+test('saved comparisons preserve current records and travel in validated backups',()=>{
+  const h=boot();setup(h,'plan');h.run('S.incomeMode="actual";S.actualIncomeMo=5000;save();render()');
+  const original=h.run('JSON.stringify({expenses:S.expenses,accounts:S.accounts,debts:S.debts,goals:S.goals})');
+  h.node('aq-scenario-name').value='Baseline <example>';h.node('aq-save-scenario').click();
+  assert.equal(h.run('S.scenarios.length'),1);assert.equal(h.run('S.scenarios[0].income'),5000);
+  assert.equal(h.run('JSON.stringify({expenses:S.expenses,accounts:S.accounts,debts:S.debts,goals:S.goals})'),original);
+  assert.equal(h.api.parseBackup(h.api.payload()).scenarios[0].name,'Baseline <example>');
+  h.document.querySelector('[data-delete-scenario]').click();assert.equal(h.run('S.scenarios.length'),0);h.undo();assert.equal(h.run('S.scenarios.length'),1);
+});
+test('negative growth is modelled and a growing balance can reach a goal without new contributions',()=>{
+  const h=boot();assert(Math.abs(h.run('project(1000,0,12,-12)')-886.3848717)<0.0001);
+  const required=h.run('requiredMonthly(2000,1000,12,-12)');
+  assert(Math.abs(h.run(`project(1000,${required},12,-12)`)-2000)<0.0001);
+  assert.equal(h.run('monthsToTarget(2000,1000,0,12)'),70);
+  assert.equal(h.run('monthsToTarget(2000,1000,5,-12)'),Infinity);
+});
+test('zero tax assumption is respected and unused debt minimum reaches the next debt immediately',()=>{
+  const h=boot();h.run('S.fi.taxRate=0;S.accounts=[{id:"one",kind:"rrsp",bal:1000}];S.debts=[{id:"a",name:"Small",balance:10,rate:0,min:100},{id:"b",name:"Next",balance:90,rate:0,min:0}]');
+  assert.equal(h.run('spendableTotal()'),1000);assert.equal(h.run('simulate(0).months'),1);
+});
