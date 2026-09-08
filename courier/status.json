@@ -1,0 +1,44 @@
+{
+ "schemaVersion": 1,
+ "days": [
+  {
+   "date": "2026-09-08",
+   "state": "updating",
+   "checkedAt": "2026-09-08T17:46:21+00:00",
+   "verifiedAt": null,
+   "generatedAt": "2026-09-08T13:36:42+00:00",
+   "updatedAt": "2026-09-08T14:10:10+00:00",
+   "audio": {
+    "frontpage": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/frontpage.mp3",
+    "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/lessons.mp3",
+    "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/companies.mp3",
+    "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/practice.mp3",
+    "manitoba": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/manitoba.mp3",
+    "politics": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/politics.mp3",
+    "climate": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/climate.mp3",
+    "tech": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/tech.mp3",
+    "health": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/health.mp3",
+    "parenting": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/parenting.mp3",
+    "sports": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@a78cc006d7a87fd9af0dfa48f8852678dd94dc5c/2026-09-08/sports.mp3"
+   },
+   "expectedSections": [
+    "frontpage",
+    "lessons",
+    "markets",
+    "companies",
+    "practice",
+    "manitoba",
+    "politics",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
+   ],
+   "missingSections": [
+    "markets"
+   ],
+   "voiceless": []
+  }
+ ]
+}
