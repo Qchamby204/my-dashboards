@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="shared/atlas-theme.js"></script>
-<script src="shared/aqueduct-records.js"></script>
+<script src="shared/aqueduct-records.js?v=planning-20260908"></script>
 <style>
 :root{--bg:#0c0e1a;--panel:#141830;--panel2:#1a1f3a;--txt:#eef0fb;--muted:#8089a8;--dim:#6f7798;
   --line:rgba(120,130,180,.16);--gold:#f0b73e;--gold2:#f6cf6a;--green:#2fd180;--green2:#9af0c6;
@@ -110,7 +110,7 @@ tr:last-child td{border-bottom:none}
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/aqueduct-enhancements.css">
+<link rel="stylesheet" href="shared/aqueduct-enhancements.css?v=planning-20260908">
 </head>
 <body>
 <div id="app"></div>
@@ -168,6 +168,7 @@ var DEF={
   aum:"", refPct:"",
   feeRate:1, gridLow:35, gridHigh:45, cliffRev:650000, gridMode:"auto",
   pensionPct:4, esopPct:6, esopCap:10000, charityYr:1000, otherIncMo:"",
+  incomeMode:"estimated", actualIncomeMo:"", scenarios:[],
   showAssume:false, showCats:false,
   cats:null, starterLoaded:false,
   expenses:[],
@@ -543,7 +544,7 @@ function paycheque(){
     allDeduct: G>0 ? (G-net)/G : 0
   };
 }
-function takeHomeMo(){ return paycheque().monthly+(+S.otherIncMo||0); }
+function takeHomeMo(){ return S.incomeMode==="actual" ? Math.max(0,+S.actualIncomeMo||0) : paycheque().monthly+(+S.otherIncMo||0); }
 
 /* ---------- the plan ---------- */
 var FREQ={
@@ -572,7 +573,7 @@ function goalsMo(){ return S.goals.reduce(function(t,g){ return t+(+g.contribMo|
 function fiContribMo(){ return S.accounts.filter(isRetirementAcct).reduce(function(t,a){ return t+(+a.contribMo||0); },0); }
 function savingsMo(){ return goalsMo()+fiContribMo(); }
 function spendMo(){ return takeHomeMo()-expensesMo()-debtMo()-savingsMo(); }
-function setupDone(){ return effAUM()>0; }
+function setupDone(){ return effAUM()>0 || S.incomeMode==="actual"; }
 
 /* ---------- the Summit engine: goals priced per pay ----------
    A goal is a target, a date and what is already earmarked; the required
@@ -612,7 +613,7 @@ function requiredMonthly(target, current, months, annualRatePct){
   target=+target||0; current=+current||0; months=+months||0;
   if(months<=0) return Math.max(0, target-current);
   var i=(+annualRatePct||0)/100/12;
-  if(i<=0) return Math.max(0,(target-current)/months);
+  if(i===0) return Math.max(0,(target-current)/months);
   var g=Math.pow(1+i,months);
   var need=target-current*g;
   if(need<=0) return 0;
@@ -620,15 +621,15 @@ function requiredMonthly(target, current, months, annualRatePct){
 }
 function project(current, monthlyPmt, months, annualRatePct){
   var i=(+annualRatePct||0)/100/12, g=Math.pow(1+i,months||0);
-  if(i<=0) return (+current||0)+(+monthlyPmt||0)*(months||0);
+  if(i===0) return (+current||0)+(+monthlyPmt||0)*(months||0);
   return (+current||0)*g + (+monthlyPmt||0)*(g-1)/i;
 }
 function monthsToTarget(target, current, monthlyPmt, annualRatePct){
   target=+target||0; current=+current||0; monthlyPmt=+monthlyPmt||0;
   if(current>=target) return 0;
-  if(monthlyPmt<=0) return Infinity;
   var i=(+annualRatePct||0)/100/12;
-  if(i<=0) return Math.ceil((target-current)/monthlyPmt);
+  if(i===0) return monthlyPmt>0?Math.ceil((target-current)/monthlyPmt):Infinity;
+  if(i<=-1 || current*i+monthlyPmt<=0 || target*i+monthlyPmt<=0) return Infinity;
   var num=Math.log((target*i+monthlyPmt)/(current*i+monthlyPmt));
   var den=Math.log(1+i);
   var n=num/den;
@@ -678,7 +679,7 @@ function goalMath(g){
   var pctDone=target>0?Math.min(1,cur/target):0;
   var need=Math.max(0,target-cur);
   var reqMo=(months===null)?null:requiredMonthly(target,cur,months,rate);
-  var atPace=(+g.contribMo||0)>0 ? monthsToTarget(target,cur,+g.contribMo,rate) : Infinity;
+  var atPace=monthsToTarget(target,cur,+g.contribMo||0,rate);
   var landing=(months===null)?null:project(cur,+g.contribMo||0,months,rate);
   var landPct=(landing!==null&&target>0)?landing/target:null;
   var shortAt=(landing!==null)?Math.max(0,target-landing):null;
@@ -735,7 +736,7 @@ function allocation(){
 }
 function netWorth(){ return grossAccounts()-debtBal(); }
 function acctWeight(kind, taxRate){
-  var t=(+taxRate||30)/100;
+  var t=(taxRate!=="" && taxRate!=null && isFinite(+taxRate)?+taxRate:30)/100;
   if(kind==="tfsa"||kind==="fhsa") return 1;
   if(kind==="rrsp"||kind==="pension") return 1-t;
   if(kind==="nonreg") return 1-t*0.5;
@@ -744,7 +745,7 @@ function acctWeight(kind, taxRate){
   return 1-t*0.5;
 }
 function spendableTotal(){
-  var t=(+S.fi.taxRate||30);
+  var t=(S.fi.taxRate!=="" && S.fi.taxRate!=null && isFinite(+S.fi.taxRate)?+S.fi.taxRate:30);
   return S.accounts.filter(isRetirementAcct).reduce(function(sum,a){ return sum+(+a.bal||0)*acctWeight(a.kind,t); },0);
 }
 
@@ -789,7 +790,7 @@ function simulate(extraPool,strategy){
     ds.sort(strategy==="snowball"?function(a,b){ return a.bal-b.bal; }:function(a,b){ return b.r-a.r; });
     for(var i=0;i<ds.length;i++){
       var d=ds[i], int_=d.bal*d.r; interest+=int_; d.bal+=int_;
-      var pay=Math.min(d.bal,d.min); d.bal-=pay;
+      var pay=Math.min(d.bal,d.min); d.bal-=pay; pool+=d.min-pay;
     }
     for(var i=0;i<ds.length && pool>0;i++){
       var take=Math.min(ds[i].bal,pool); ds[i].bal-=take; pool-=take;
@@ -1052,8 +1053,8 @@ function render(){
 
   if(activeTab==="month"){ activeTab="plan"; S.tab="plan"; }   /* the Month tab retired; old sessions land on Plan */
   if(activeTab==="book")   h+=viewBook(P);
-  if(activeTab==="pay")    h+=viewPay(P);
-  if(activeTab==="plan")   h+=viewPlan(P);
+  if(activeTab==="pay")    h+=incomePlanningPanel()+viewPay(P);
+  if(activeTab==="plan")   h+=incomePlanningPanel()+viewPlan(P);
   if(activeTab==="goals")  h+=viewGoals(P);
   if(activeTab==="wealth") h+=viewWealth(P);
   if(activeTab==="review") h+=viewReview(P);
@@ -1078,6 +1079,24 @@ function emptyNudge(msg){
 }
 
 /* ---------- TAB 1 · PAYCHEQUE ---------- */
+function incomePlanningPanel(){
+  var actual=S.incomeMode==='actual', scenarios=S.scenarios||[];
+  var h='<section class="panel aqueduct-planning"><h2>Income for this plan</h2>'
+    +'<div class="aqueduct-actions"><button type="button" class="btn line" data-income-mode="estimated" aria-pressed="'+!actual+'">Estimated from book</button>'
+    +'<button type="button" class="btn line" data-income-mode="actual" aria-pressed="'+actual+'">Use entered take-home</button></div>';
+  if(actual) h+='<label for="aq-income">Total monthly take-home</label><input id="aq-income" type="text" inputmode="decimal" value="'+esc(S.actualIncomeMo??'')+'" placeholder="0.00"><p>Enter the total available after deductions, including other income. Use the amount for the month you are planning; zero is allowed.</p>';
+  else h+='<p>The plan uses your estimated book income plus other monthly income.</p>';
+  h+='<details><summary>Saved comparisons ('+scenarios.length+')</summary><p>Save a snapshot to compare income and allocations. Saved comparisons do not change your current plan.</p>'
+    +'<div class="aqueduct-actions"><label for="aq-scenario-name">Comparison name<input id="aq-scenario-name" type="text" maxlength="60" placeholder="Lower-income month"></label><button class="btn line" id="aq-save-scenario" type="button">Save current plan</button></div>';
+  h+='<div class="aqueduct-comparisons">';
+  var current={name:'Current plan',income:takeHomeMo(),bills:expensesMo(),debt:debtMo(),savings:savingsMo(),available:spendMo()};
+  [current].concat(scenarios).forEach(function(row){
+    h+='<article><h3>'+esc(row.name)+'</h3>'+(row.savedAt?'<p>'+esc(row.savedAt.slice(0,10))+'</p>':'')+'<dl>';
+    [['Income','income'],['Bills','bills'],['Debt payments','debt'],['Savings','savings'],[row.available<0?'Shortfall':'Available','available']].forEach(function(pair){h+='<div><dt>'+pair[0]+'</dt><dd>'+fmt(row[pair[1]])+'/mo</dd></div>';});
+    h+='</dl>'+(row.id?'<button class="btn line" type="button" data-delete-scenario="'+row.id+'" aria-label="Delete '+esc(row.name)+'">Delete</button>':'')+'</article>';
+  });
+  return h+'</div></details></section>';
+}
 function viewPay(P){
   var h='';
   h+='<div class="panel fadeUp" style="border-color:rgba(69,200,216,.35)">';
@@ -1111,10 +1130,9 @@ function viewPay(P){
 
   var th=takeHomeMo();
   h+='<div class="panel fadeUp" style="border-color:rgba(47,209,128,.35);text-align:center;padding:20px 16px">';
-  h+='<div class="eyebrow" style="color:var(--green)">Average monthly take-home</div>';
+  h+='<div class="eyebrow" style="color:var(--green)">'+(S.incomeMode==='actual'?'Monthly income used in this plan':'Estimated average monthly take-home')+'</div>';
   h+='<div class="mono" style="font-size:38px;font-weight:700;color:var(--green2);line-height:1;margin-top:6px">'+fmt(th)+'</div>';
-  h+='<div style="font-size:11.5px;color:var(--dim);margin-top:6px">'+fmt(P.net)+' a year from the book, after tax and every deduction'
-    +((+S.otherIncMo||0)>0?', plus '+fmt(+S.otherIncMo)+'/mo other income':'')+'</div>';
+  h+='<div style="font-size:11.5px;color:var(--dim);margin-top:6px">'+(S.incomeMode==='actual'?'Uses the total take-home amount you entered. The cascade below remains an estimate.':fmt(P.net)+' a year estimated from the book, plus '+fmt(+S.otherIncMo||0)+'/mo other income')+'</div>';
   h+='<div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:11px">';
   h+='<span class="chip" style="color:'+(P.onHighGrid?"var(--green2)":"var(--gold2)")+';border-color:'+(P.onHighGrid?"rgba(47,209,128,.4)":"rgba(240,183,62,.4)")+'">'+Math.round(P.grid*100)+'% grid</span>';
   h+='<span class="chip">'+pct(P.effTax*100)+' avg income tax</span>';
@@ -2616,6 +2634,6 @@ window.addEventListener("pageshow",function(){ scheduleRender(); });
   }catch(e){}
 })();
 </script>
-<script src="shared/aqueduct-enhancements.js"></script>
+<script src="shared/aqueduct-enhancements.js?v=planning-20260908"></script>
 </body>
 </html>
