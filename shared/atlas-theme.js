@@ -30,6 +30,11 @@
       window.AtlasOperationsBoot=boot;
       const operations=document.createElement('script');operations.src=new URL('operations-enhancements.js',sharedSource).href;operations.defer=true;document.head.appendChild(operations);
     }
+    if(root.dataset.atlasApp==='baby-brain'){
+      const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('babybrain.v1');}catch{boot.readError=true;}
+      window.AtlasBabyBoot=boot;
+      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
