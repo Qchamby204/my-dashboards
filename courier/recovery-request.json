@@ -1,9 +1,9 @@
 {
-  "schemaVersion": 1,
+  "attempt": 3,
   "date": "2026-09-08",
-  "requestedAt": "2026-09-08T14:08:19.768Z",
-  "attempt": 2,
+  "requestedAt": "2026-09-08T17:42:28.483Z",
+  "schemaVersion": 1,
   "sections": [
-    "sports"
+    "markets"
   ]
 }

@@ -8,6 +8,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from publication import edition
+from completeness import expected_sections, needed_sections
 
 ROOT = Path(__file__).resolve().parents[2]
 REQUEST_PATH = "courier/recovery-request.json"
@@ -43,8 +44,12 @@ def choose_plan(manifest, event_name, *, now=None, request=None, publish_only=Fa
         fields = {"schemaVersion", "date", "requestedAt", "attempt"}
         if not isinstance(request, dict) or set(request) not in (fields, fields | {"sections"}):
             raise ValueError("Invalid recovery request fields")
-        if "sections" in request and request["sections"] != ["sports"]:
-            raise ValueError("Only targeted Sports repair is supported")
+        if "sections" in request:
+            sections = request["sections"]
+            if (not isinstance(sections, list) or not sections or
+                    any(not isinstance(s, str) or s not in expected_sections(date) for s in sections) or
+                    len(set(sections)) != len(sections)):
+                raise ValueError("Invalid targeted repair sections")
         if request["schemaVersion"] != 1 or type(request["attempt"]) is not int or not 1 <= request["attempt"] <= 3:
             raise ValueError("Invalid recovery version or attempt")
         if not isinstance(request["date"], str) or not isinstance(request["requestedAt"], str):
@@ -61,11 +66,10 @@ def choose_plan(manifest, event_name, *, now=None, request=None, publish_only=Fa
         exists = edition(manifest, date) is not None
         if "sections" in request:
             if not exists:
-                raise ValueError("Sports repair requires an existing edition")
-            sports = next((b for b in edition(manifest, date)["blocks"] if b["id"] == "sports"), None)
-            needed = not sports or not sports.get("audio")
-            return {"date": date, "generate": needed, "publish": True, "sections": "sports" if needed else "",
-                    "reason": "Repair only Sports" if needed else "Sports already published; verify existing edition"}
+                raise ValueError("Section repair requires an existing edition")
+            needed = [s for s in request["sections"] if s in needed_sections(edition(manifest, date))]
+            return {"date": date, "generate": bool(needed), "publish": True, "sections": ",".join(needed),
+                    "reason": "Repair only " + ", ".join(needed) if needed else "Requested sections already have audio; verify existing edition"}
         return {"date": date, "generate": not exists, "publish": True,
                 "reason": "Reuse existing edition and verify publication" if exists else "Recover missing edition"}
     if publish_only or event_name == "push":
@@ -76,6 +80,10 @@ def choose_plan(manifest, event_name, *, now=None, request=None, publish_only=Fa
     if event_name not in {"schedule", "workflow_dispatch"}:
         raise ValueError("Unsupported Courier event")
     exists = edition(manifest, date) is not None
+    if exists and event_name == "schedule":
+        needed = needed_sections(edition(manifest, date))
+        return {"date": date, "generate": bool(needed), "publish": True, "sections": ",".join(needed),
+                "reason": "Scheduled missing-section repair" if needed else "Scheduled edition check"}
     return {"date": date, "generate": not exists or event_name == "workflow_dispatch", "publish": True,
             "reason": "Manual rebuild" if event_name == "workflow_dispatch" else "Scheduled edition check"}
 
