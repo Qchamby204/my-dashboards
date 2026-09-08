@@ -33,8 +33,8 @@ test('excluded dashboards receive no mobile hooks and both private script locati
   for(const path of ['/atlas-mobile.js','/shared/atlas-mobile.js'])assert.equal(connected[path][0],source);
   for(const path of ['/atlas-mobile.css','/shared/atlas-mobile.css'])assert.ok(connected[path][0].includes('safe-area-inset-top'));
 });
-test('Forge and Life Map reserve home-screen phone clearance and update it on rotation',()=>{
-  for(const app of ['workout-forge','life-map']){
+test('Forge, Life Map and Aqueduct reserve home-screen phone clearance and update it on rotation',()=>{
+  for(const app of ['workout-forge','life-map','the-aqueduct']){
     const h=boot(app,{phone:true,standalone:true,connected:app==='life-map'});
     assert.equal(h.properties.get('--atlas-standalone-top'),'64px');assert.equal(h.properties.get('--atlas-standalone-bottom'),'34px');assert.equal(h.root.dataset.atlasInsetOwner,app==='life-map'?'connection':'app');
     h.window.screen.orientation.type='landscape-primary';h.windowEvents.get('orientationchange')();assert.equal(h.properties.get('--atlas-standalone-top'),'0px');assert.equal(h.properties.get('--atlas-standalone-side'),'64px');assert.equal(h.properties.get('--atlas-standalone-bottom'),'21px');

@@ -13,7 +13,7 @@
   const height=el=>el?Math.ceil(el.getBoundingClientRect().height):0;
   const set=(name,value)=>{if(root.style.getPropertyValue(name)!==value)root.style.setProperty(name,value);};
   function insets(connection){
-    if(!['workout-forge','life-map'].includes(root.dataset.atlasApp))return;
+    if(!['workout-forge','life-map','the-aqueduct'].includes(root.dataset.atlasApp))return;
     // Keep native env() values authoritative; this is conservative clearance for
     // an iPhone home-screen window when its reported safe area is temporarily zero.
     const phone=/iPhone/.test(window.navigator?.userAgent||'');
