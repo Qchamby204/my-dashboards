@@ -12,7 +12,9 @@ The private Life Map opens to Projects, with Chores and Timeline as separate vie
 
 Chores show remaining work or all chores, with clear calendar-cycle recurrence. Backup restoration validates dates, record lists, duplicate IDs, and unsafe fields before review. Cancelling an edit and searching do not strand an unsaved-data guard. Delete Undo restores only the affected record; restore Undo refuses to replace newer changes.
 
-The original Life Map source and browser records remain unchanged. Atlas links to the improved private Life Map. Dashboards are reviewed individually.
+Atlas now opens the upgraded Life Map at the original GitHub Pages `life-map.html` address. Projects, Chores, Timeline, editing, and backups use the existing `lifemap_v1` browser store. Opening performs no seed or migration writes. The first successful change preserves the previous bytes in `lifemap:before-github:v1`. Read failures block editing, save failures remain visible, and conflicting changes from another tab are not overwritten.
+
+`atlas/build-life-map.mjs` generates the public page from `atlas/life-map-legacy.html`, the shared dashboard, and the browser-local adapter. The private build continues using the preserved legacy template and its existing connected adapter. Its database and private records are retained. To move private records, download a backup in the private Life Map and use Restore backup on GitHub; the public page explains that restoration replaces the current browser board after confirmation. No private records are embedded in GitHub files.
 
 ## The Herald: original dashboard
 

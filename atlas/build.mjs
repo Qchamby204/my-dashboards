@@ -1,4 +1,5 @@
 import {connectedAssets} from './connected-build.mjs';
+import './build-life-map.mjs';
 import { readFile, mkdir, writeFile, cp, rm } from 'node:fs/promises';
 const root = new URL('../', import.meta.url);
 const connected=await connectedAssets(root);
