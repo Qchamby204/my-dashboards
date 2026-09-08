@@ -25,6 +25,11 @@
       window.AtlasProspectingBoot=boot;
       const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js',sharedSource).href;prospects.defer=true;document.head.appendChild(prospects);
     }
+    if(root.dataset.atlasApp==='operations-cadence'){
+      const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('operationsCadence.v1');}catch{boot.readError=true;}
+      window.AtlasOperationsBoot=boot;
+      const operations=document.createElement('script');operations.src=new URL('operations-enhancements.js',sharedSource).href;operations.defer=true;document.head.appendChild(operations);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];

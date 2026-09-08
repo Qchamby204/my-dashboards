@@ -1,0 +1,28 @@
+html[data-atlas-app="operations-cadence"] [hidden]{display:none!important}
+html[data-atlas-app="operations-cadence"] .operations-button{font:inherit;font-size:14px;min-height:44px;min-width:44px;padding:10px 14px;cursor:pointer;color:var(--neo-ink);background:var(--neo-surface);border:1px solid var(--neo-line);border-radius:10px;box-shadow:var(--neo-small)}
+html[data-atlas-app="operations-cadence"] .operations-backup-tools,html[data-atlas-app="operations-cadence"] .operations-actions{display:flex;flex-wrap:wrap;gap:8px}
+html[data-atlas-app="operations-cadence"] .operations-group{margin:24px 0;padding:20px;border:1px solid var(--neo-line);border-radius:16px;background:var(--neo-surface)}
+html[data-atlas-app="operations-cadence"] .operations-group h3{font-size:18px;margin-bottom:8px}
+html[data-atlas-app="operations-cadence"] .operations-source{color:var(--neo-muted);font-size:14px;line-height:1.55;margin:8px 0;overflow-wrap:anywhere}
+html[data-atlas-app="operations-cadence"] .operations-empty{font-size:15px;line-height:1.6;margin-top:14px}
+html[data-atlas-app="operations-cadence"] .operations-due-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0}
+html[data-atlas-app="operations-cadence"] .operations-due-row>div,html[data-atlas-app="operations-cadence"] .operations-due-row>.task-text{flex:1 1 200px;min-width:0}
+html[data-atlas-app="operations-cadence"] .operations-routines{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+html[data-atlas-app="operations-cadence"] .operations-search-hit{display:block;text-align:left;width:100%;margin:12px 0;line-height:1.5}
+html[data-atlas-app="operations-cadence"] .operations-notice{border:1px solid var(--neo-rose);background:var(--neo-surface);padding:16px;border-radius:12px;line-height:1.5;margin:12px 0}
+html[data-atlas-app="operations-cadence"] .operations-notice button{margin:10px 8px 0 0}
+html[data-atlas-app="operations-cadence"] .operations-field{display:grid;gap:8px;margin:16px 0;font-size:14px}
+html[data-atlas-app="operations-cadence"] .operations-field :is(input,select){width:100%;min-width:0;min-height:44px;font:inherit;font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--neo-line);background:var(--neo-inset);color:var(--neo-ink)}
+html[data-atlas-app="operations-cadence"] #uiDlg{top:var(--atlas-visible-top,0px)!important;bottom:auto!important;height:var(--atlas-visible-height,100dvh)!important;padding:calc(12px + var(--atlas-safe-top,0px)) max(12px,var(--atlas-safe-right,0px)) calc(12px + var(--atlas-safe-bottom,0px)) max(12px,var(--atlas-safe-left,0px))!important;overflow:auto}
+html[data-atlas-app="operations-cadence"] #uiDlg>div{max-height:100%!important}
+html[data-atlas-app="operations-cadence"] .log-item{flex-wrap:wrap}
+html[data-atlas-app="operations-cadence"] .log-item .log-body{min-width:0;overflow-wrap:anywhere}
+html[data-atlas-app="operations-cadence"] [data-operations-key]:focus,html[data-atlas-app="operations-cadence"] [data-operations-log]:focus{outline:3px solid var(--neo-blue);outline-offset:4px}
+@media(max-width:700px){
+  html[data-atlas-app="operations-cadence"] .operations-group{padding:14px}
+  html[data-atlas-app="operations-cadence"] .task-row{flex-wrap:wrap;gap:8px}
+  html[data-atlas-app="operations-cadence"] .task-body{flex:1 1 190px;min-width:0}
+  html[data-atlas-app="operations-cadence"] .rail-label{font-size:12px}
+  html[data-atlas-app="operations-cadence"] .rail-count{font-size:11px}
+  html[data-atlas-app="operations-cadence"] .note-wrap textarea{min-height:100px;font-size:16px}
+}
