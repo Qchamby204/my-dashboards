@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="shared/atlas-theme.js"></script>
+<script src="shared/aqueduct-records.js"></script>
 <style>
 :root{--bg:#0c0e1a;--panel:#141830;--panel2:#1a1f3a;--txt:#eef0fb;--muted:#8089a8;--dim:#6f7798;
   --line:rgba(120,130,180,.16);--gold:#f0b73e;--gold2:#f6cf6a;--green:#2fd180;--green2:#9af0c6;
@@ -109,6 +110,7 @@ tr:last-child td{border-bottom:none}
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/aqueduct-enhancements.css">
 </head>
 <body>
 <div id="app"></div>
@@ -134,7 +136,7 @@ tr:last-child td{border-bottom:none}
    waterfall:v1 on first run. No dependencies, no native dialogs. */
 
 var KEY="aqueduct:v2";
-function J(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function J(k,d){ return window.AqueductRecords.read(k,d); }
 
 /* ---------- 2026 tax constants ---------- */
 var FED=[[58523,.14],[117045,.205],[181440,.26],[258482,.29],[Infinity,.33]];
@@ -336,8 +338,10 @@ function guessCat(n){
 
 /* ---------- history ---------- */
 var UNDO=[], LASTSIG=null, LASTT=0;
-function sig(){ var c=JSON.parse(JSON.stringify(S)); delete c.tab; delete c.showAssume; delete c.showCats; delete c.showNotes; delete c.showRules; delete c.showCascade; delete c.open; delete c.lens; delete c.pub; return JSON.stringify(c); }
+function sig(){ var c=JSON.parse(JSON.stringify(S)); delete c.tab; delete c.showAssume; delete c.showCats; delete c.showNotes; delete c.showRules; delete c.showCascade; delete c.open; delete c.lens; delete c.pub; delete c._drafts; return JSON.stringify(c); }
 function save(){
+  if(window.AqueductRecords.blocked) return false;
+  snapshot();
   var now=Date.now(), cur=sig();
   if(LASTSIG!==null && LASTSIG!==cur){
     if(now-LASTT>1000) UNDO.push(LASTSIG);
@@ -349,14 +353,16 @@ function save(){
     var P=paycheque();
     S.pub=(effAUM()>0)?{netMo:Math.round(takeHomeMo()),netYr:Math.round(P.net),grossYr:Math.round(P.gross),aum:Math.round(effAUM()),spendMo:Math.round(spendMo()),nw:Math.round(netWorth()),ts:new Date().toISOString().slice(0,10)}:null;
   }catch(e){}
-  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+  var saved=window.AqueductRecords.persist(S);
+  if(window.AqueductUI) window.AqueductUI.status();
+  return saved;
 }
 function stepBack(){
   if(!UNDO.length) return;
   var prev=UNDO.pop(), tab=S.tab, sa=S.showAssume, sc=S.showCats;
-  S=JSON.parse(prev); S.tab=tab; S.showAssume=sa; S.showCats=sc; LASTSIG=sig();
-  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
-  render(); toast("Stepped back");
+  var drafts=S._drafts;
+  S=JSON.parse(prev); S._drafts=drafts; S.tab=tab; S.showAssume=sa; S.showCats=sc; LASTSIG=sig();
+  save(); render(); toast("Stepped back");
 }
 var __tt=null;
 function toast(msg, actionLabel, action){
@@ -390,7 +396,7 @@ function toNum(v){
   v=v.replace(/[^0-9.\-]/g,"");
   if(v===""||v==="."||v==="-") return "";
   var n=parseFloat(v);
-  return isNaN(n)?"":n*mult;
+  return Number.isFinite(n*mult)?n*mult:"";
 }
 function fmtGroup(n){
   if(n===""||n==null) return "";
@@ -642,7 +648,7 @@ var GOAL_KINDS=[
 ];
 function goalKind(k){ return GOAL_KINDS.filter(function(g){ return g.k===k; })[0]||GOAL_KINDS[0]; }
 function guessEmoji(g){
-  if(g&&g.emoji&&String(g.emoji).trim()) return String(g.emoji).trim();
+  if(g&&g.emoji&&String(g.emoji).trim()) return esc(String(g.emoji).trim());
   var n=String(g&&g.name||'').toLowerCase();
   if(/emerg|safety|cushion|shield/.test(n)) return '🛡️';
   if(/home|house|reno|condo|down ?payment|property/.test(n)) return '🏠';
@@ -928,9 +934,10 @@ function parseStatement(text){
   function cells(l){
     var out=[],cur="",q=false;
     for(var i=0;i<l.length;i++){ var ch=l[i];
-      if(ch==='"'){ q=!q; continue; }
+      if(ch==='"'){ if(q&&l[i+1]==='"'){cur+='"';i++;}else q=!q; continue; }
       if(ch===delim&&!q){ out.push(cur); cur=""; } else cur+=ch;
     }
+    if(q)return [];
     out.push(cur); return out.map(function(c){ return c.trim(); });
   }
   var head=cells(lines[0]).map(function(c){ return c.toLowerCase(); });
@@ -947,14 +954,18 @@ function parseStatement(text){
   }
   function num(v){ if(v==null||v==="") return null; var n=+String(v).replace(/[$,\s]/g,"").replace(/^\((.*)\)$/,"-$1"); return isFinite(n)?n:null; }
   function pdate(v){
-    var d=new Date(v); if(!isNaN(d)) return d;
-    var m=String(v).match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-    if(m){ var a=+m[1],b=+m[2],y=+m[3]; if(y<100)y+=2000; if(a>12) return new Date(y,b-1,a); return new Date(y,a-1,b); }
-    return null;
+    var text=String(v||'').trim(),m=text.match(/^(\d{4})-(\d{2})-(\d{2})$/),day;
+    if(m) day=text;
+    else {
+      m=text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+      if(m){var y=+m[3];if(y<100)y+=2000;var month=+m[1]>12?+m[2]:+m[1],d=+m[1]>12?+m[1]:+m[2];day=y+'-'+String(month).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
+      else if(/[a-z]/i.test(text)&&!/^\d{4}-/.test(text)){var date=new Date(text);if(!isNaN(date))day=iso(date);}
+    }
+    return window.AqueductRecords.validDay(day)?new Date(day+'T12:00:00'):null;
   }
-  var txns=[];
+  var txns=[],skipped=0;
   lines.slice(hasHeader?1:0).forEach(function(l){
-    var c=cells(l); if(c.length<2) return;
+    var c=cells(l); if(c.length<2){ skipped++; return; }
     var date=null,desc="",out=null,inn=null;
     if(hasHeader){
       date=idx.date>=0?pdate(c[idx.date]):null;
@@ -972,14 +983,14 @@ function parseStatement(text){
       if(nums.length===1){ var v2=nums[0][1]; if(v2<0) out=-v2; else out=v2; }
       else if(nums.length>=2){ out=nums[nums.length-2][1]||null; inn=nums[nums.length-1][1]||null; if(out===0)out=null; if(inn===0)inn=null; }
     }
-    if(!desc&&out==null&&inn==null) return;
+    if(!desc&&out==null&&inn==null){ skipped++; return; }
     var inflow=(inn!=null&&inn>0&&(out==null||out===0));
     var amt=inflow?inn:(out!=null?out:0);
-    if(!(amt>0)) return;
+    if(!(amt>0)){ skipped++; return; }
     txns.push({id:uid(),d:date?iso(date):null,ym:date?iso(date).slice(0,7):"?",desc:desc||"(no description)",amt:Math.round(amt*100)/100,inflow:inflow,b:categorizeTx(desc,inflow)});
   });
   if(!txns.length) return {txns:[],err:"Could not find transactions. Paste the raw CSV export, headers included."};
-  return {txns:txns,err:null};
+  return {txns:txns,skipped:skipped,err:null};
 }
 function auditTotals(txns){
   var t={enjoy:0,committed:0,debt:0,forward:0,income:0,ignore:0};
@@ -987,7 +998,7 @@ function auditTotals(txns){
   return t;
 }
 function findRecurring(txns){
-  var by={};
+  var by=Object.create(null);
   txns.forEach(function(x){ if(x.inflow||x.b==="ignore"||x.b==="income") return; var k=merchKey(x.desc); (by[k]=by[k]||[]).push(x); });
   var out=[];
   Object.keys(by).forEach(function(k){
@@ -1025,9 +1036,10 @@ function pillHtml(){
   return v+' <span style="font-size:9px;letter-spacing:.06em;color:var(--dim);font-weight:600">TO SPEND/MO</span>';
 }
 function render(){
+  if(window.AqueductRecords.blocked){ document.getElementById("app").innerHTML=""; return; }
   snapshot();
   var P=paycheque();
-  var activeTab=S.tab||"pay";
+  var activeTab=["book","pay","plan","goals","wealth","review"].indexOf(S.tab)>=0?S.tab:"pay";
   var h='';
 
   h+='<div class="appbar">';
@@ -1181,7 +1193,7 @@ function ff(label,key,money){
 
 /* ---------- TAB 0 · THE BOOK (Chambers Wealth HQ, folded in) ---------- */
 var REWARDS=[[50,'New Suit'],[60,'New shoes / boots'],[70,'Family vacation'],[80,'New car'],[90,'Something for Jo'],[100,'Rolex Datejust']];
-var draftType='ext';
+var draftType=(S._drafts||{}).householdType||"ext";
 function netMarg(x){ return x*(1-(+S.book.mtr||0)/100); }
 function viewBook(P){
   var h='', B=S.book;
@@ -1461,7 +1473,7 @@ function viewPlan(P){
       +'<div style="font-size:12px;color:var(--dim);margin-bottom:11px">Start from a ready-made list, or add your own.</div>'
       +'<button class="btn sm" id="loadStarter" style="width:100%">Load a starter list</button></div>';
   } else {
-    var groups={};
+    var groups=Object.create(null);
     S.expenses.forEach(function(e){ var c=e.cat||"Other"; (groups[c]=groups[c]||[]).push(e); });
     Object.keys(groups).sort().forEach(function(c){
       var sub=groups[c].reduce(function(t,e){ return t+expMonthly(e); },0);
@@ -1685,61 +1697,7 @@ function drawPie(P){
 
 /* ---------- TAB 4 · REVIEW ---------- */
 function viewReview(P){
-  var h='';
-  h+='<div class="panel fadeUp">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'
-    +'<span class="eyebrow" style="color:var(--gold2)">Statement check</span>'
-    +(S.audit?'<button class="disc" id="audClear" style="font-size:10px">new check</button>':'')+'</div>';
-  h+='<div style="font-size:10.5px;color:var(--dim);line-height:1.5;margin-bottom:11px">The plan is decisions; a statement is evidence. Paste a bank export (CSV, headers and all) and the month is sorted into categories and graded against the plan. Tap any line to reassign it; the correction is remembered.</div>';
-  if(!S.audit){
-    h+='<textarea id="audText" placeholder="Paste your statement export here, straight from TD / RBC / Scotia" style="min-height:96px;font-family:\'Space Mono\',monospace;font-size:11px;resize:vertical"></textarea>';
-    h+='<div style="display:flex;gap:8px;margin-top:9px"><button class="btn gold" id="audRun" style="flex:1">Check the statement</button>'
-      +'<button class="btn line" id="audPick">From file</button>'
-      +'<input type="file" id="audFile" accept=".csv,.txt" style="display:none"></div>';
-    h+='<div id="audErr" style="font-size:10.5px;color:var(--amber);margin-top:7px"></div>';
-  } else {
-    var A=S.audit, txns=A.txns||[];
-    var tt=auditTotals(txns);
-    h+='<div style="font-size:11px;color:var(--muted);margin-bottom:9px">'+txns.length+' transactions · '+esc(A.ym||'')+'</div>';
-    if(setupDone()){
-      var grades=[["committed",expensesMo()],["debt",debtMo()],["forward",savingsMo()],["enjoy",Math.max(0,spendMo())]];
-      grades.forEach(function(g){
-        var plan=g[1], act=tt[g[0]]||0, meta=BUCKET_META[g[0]];
-        var over=act-plan;
-        var p2=plan>0?Math.min(140,act/plan*100):(act>0?140:0);
-        h+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">'
-          +'<span style="color:'+meta[1]+';font-weight:700">'+meta[0]+'</span>'
-          +'<span class="mono" style="color:'+(plan<=0?'var(--dim)':(over>plan*0.05?'var(--amber)':'var(--green2)'))+'">'+fmt(act)+' vs '+fmt(plan)+' plan'
-          +(plan>0?' ('+(over>=0?'+':'')+fmt(over)+')':'')+'</span></div>'
-          +'<div class="bar"><i style="width:'+Math.min(100,p2*100/140).toFixed(1)+'%;background:'+meta[1]+'"></i></div></div>';
-      });
-    }
-    if(tt.income>0) h+='<div style="font-size:10px;color:var(--dim);margin:2px 0 8px">Money in, detected in the statement: <span class="mono" style="color:var(--cyan)">'+fmt(tt.income)+'</span></div>';
-    var rec=findRecurring(txns);
-    if(rec.length){
-      h+='<div class="eyebrow" style="font-size:8.5px;margin:10px 0 6px">Recurring charges not in your expenses</div>';
-      h+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
-      rec.forEach(function(r){
-        h+='<button class="btn sm line" data-addrec="'+esc(r.key)+'" data-recamt="'+r.avg+'" data-recname="'+esc(r.desc.slice(0,26))+'" style="font-size:10px">+ '+esc(r.desc.slice(0,22))+' · '+fmt(r.avg)+'/mo</button>';
-      });
-      h+='</div>';
-    }
-    ["enjoy","committed","debt","forward","income","ignore"].forEach(function(bk){
-      var g=txns.filter(function(x){ return x.b===bk; });
-      if(!g.length) return;
-      var meta=BUCKET_META[bk];
-      h+='<div style="margin-top:11px"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:'+meta[1]+';font-weight:700;margin-bottom:4px">'+meta[0]+' · '+fmt(tt[bk])+'</div>';
-      g.slice(0,50).forEach(function(x){
-        h+='<div class="audrow" data-tx="'+x.id+'" style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid rgba(120,130,180,.06);font-size:11px;cursor:pointer">'
-          +'<span style="color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(x.desc.slice(0,34))+(x.d?' <span class="mono" style="color:#4e5573;font-size:8.5px">'+esc(x.d.slice(5))+'</span>':'')+'</span>'
-          +'<span class="mono" style="flex-shrink:0;font-weight:700;color:'+(x.inflow?'var(--cyan)':'var(--txt)')+'">'+fmt(x.amt)+'</span></div>';
-      });
-      if(g.length>50) h+='<div style="font-size:9.5px;color:var(--dim);padding:4px 0">+ '+(g.length-50)+' more</div>';
-      h+='</div>';
-    });
-    h+='<div style="font-size:9.5px;color:var(--dim);margin-top:10px">Tap a line to move it to the next category. Corrections are remembered: '+Object.keys(S.rules).length+' rule'+(Object.keys(S.rules).length===1?'':'s')+' learned so far.</div>';
-  }
-  h+='</div>';
+  var h=window.AqueductUI.review();
 
   /* the long game */
   if(S.hist.length>=1 && setupDone()){
@@ -2594,7 +2552,7 @@ function wire(){
     };
   });
   app.querySelectorAll("[data-acct]").forEach(function(el){
-    el.addEventListener("input",function(){ S.accounts[el.dataset.acct]=el.value; save(); });
+    el.addEventListener("input",function(){ S.acctNames[el.dataset.acct]=el.value; save(); });
     el.addEventListener("blur",function(){ scheduleRender(); });
   });
 
@@ -2647,8 +2605,7 @@ function wire(){
   if(pill && setupDone()){ pill.style.cursor="pointer"; pill.onclick=function(){ S.tab="plan"; save(); window.scrollTo(0,0); render(); }; }
 }
 
-save();   /* persist migrations + publish before first paint */
-render();
+/* Initial save and render follow installation of the Aqueduct UI hooks. */
 document.addEventListener("visibilitychange",function(){ if(!document.hidden) scheduleRender(); });
 window.addEventListener("pageshow",function(){ scheduleRender(); });
 (function(){
@@ -2659,5 +2616,6 @@ window.addEventListener("pageshow",function(){ scheduleRender(); });
   }catch(e){}
 })();
 </script>
+<script src="shared/aqueduct-enhancements.js"></script>
 </body>
 </html>
