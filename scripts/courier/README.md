@@ -14,6 +14,18 @@ New audio URLs include their audio commit SHA, so a same-day rebuild cannot reus
 
 For delivery recovery, run **The Courier daily briefing** with **publish_only** selected. That republishes and checks the latest existing edition without model or voice calls. Leaving it unselected retains the manual rebuild behavior. Changes to the workflow or publication helper on main automatically perform the same publication-only check.
 
+## Independent schedule recovery
+
+A separate ChatGPT automation checks Courier on weekday mornings through the existing GitHub connection. It can update only `courier/recovery-request.json` on `main`, using the current blob SHA. That ordinary authenticated content update emits a GitHub push event and starts Courier independently of GitHub's cron scheduler. It introduces no new API keys or Atlas runtime behavior.
+
+The request contains `schemaVersion: 1`, the Winnipeg edition `date`, an ISO `requestedAt` timestamp with a timezone, and `attempt` (1 through 3). The checked-in null request is inert. The checker sends at most three requests per weekday, waits while Courier is active, and checks whether today's exact edition has already been deployed before requesting recovery. It must not treat a successful request write as publication. The existing morning status notification remains separate.
+
+All runs share the existing `courier-publication` concurrency lock. After acquiring it, the workflow checks out current `main` and rechecks the manifest. Recovery generates only an absent edition; existing and text-only editions are preserved and republished/verified. Requests for another Winnipeg date, a weekend, or more than three hours old are ignored. Invalid requests and corrupt editions fail visibly. Normal publishing-code pushes cannot generate content. Manual rebuild and publication-only controls remain available.
+
+Generation and recovery use `America/Winnipeg`, including daylight saving changes, and the chosen date is passed into the builder. Both independent and GitHub timers still depend on their services being available; the check reports access failures, exhausted attempts, failed runs and unverified publication instead of claiming success.
+
+The recovery path is verified with a real request for an existing edition, which exercises the push trigger and final publication checks without making model or voice calls. The missing-edition decision, delayed/duplicate requests, timezone boundaries, malformed data and path detection are covered by synthetic tests.
+
 ## Player
 
 The original player uses one audio element across sections. Failed audio is reloaded when Play is retried. Continuation skips text-only sections, follows the saved preference, and reports a manual Play action if the browser blocks continuation. Play all explicitly starts the edition again; Resume listening continues an unfinished section in the selected edition.
