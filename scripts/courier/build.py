@@ -32,6 +32,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import threading
+from recovery import build_date
 
 import feedparser
 import requests
@@ -118,7 +119,7 @@ OPENAI_INSTRUCTIONS = os.environ.get("OPENAI_TTS_INSTRUCTIONS") or (
     "No radio-announcer polish, no monotone.")
 
 # Winnipeg date. CDT in September, CST in winter. Good enough for a date stamp.
-TODAY = (datetime.now(timezone.utc) - timedelta(hours=5)).date().isoformat()
+TODAY = build_date(os.environ.get("COURIER_DATE"))
 WEEKDAY = datetime.fromisoformat(TODAY).strftime("%a").lower()[:3]  # mon..sun
 PROGRESS = ROOT / "courier" / "progress.json"
 

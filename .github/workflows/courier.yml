@@ -6,6 +6,8 @@ on:
     paths:
       - .github/workflows/courier.yml
       - scripts/courier/publication.py
+      - scripts/courier/recovery.py
+      - courier/recovery-request.json
   schedule:
     # Off-hour schedules reduce contention; scheduled execution can still be delayed.
   - cron: "17 10 * * 1-5"
@@ -35,31 +37,25 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      # The backstop reuses existing content. Manual dispatch rebuilds unless
-      # publish_only is selected; publishing-code pushes only verify existing content.
-      - name: Has today already been built?
+      # Checkout current main after the shared concurrency lock is acquired, so a
+      # recovery queued behind generation sees its finished edition and reuses it.
+      - name: Choose generation or publication recovery
         id: today
         env:
-          PUBLISH_ONLY: ${{ inputs.publish_only || github.event_name == 'push' }}
-        run: |
-          TODAY=$(date -u -d '5 hours ago' +%F)
-          if [ "$PUBLISH_ONLY" = "true" ]; then
-            TODAY=$(python scripts/courier/publication.py latest)
-          fi
-          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
-          BUILT=$(python scripts/courier/publication.py check --date "$TODAY")
-          echo "built=$BUILT" >> "$GITHUB_OUTPUT"
+          PUBLISH_ONLY: ${{ inputs.publish_only }}
+        run: python scripts/courier/recovery.py
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - run: pip install feedparser requests
-        if: github.event_name != 'push' && inputs.publish_only != true && (steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch')
+        if: steps.today.outputs.generate == 'true'
 
       - name: Build today's briefing
-        if: github.event_name != 'push' && inputs.publish_only != true && (steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch')
+        if: steps.today.outputs.generate == 'true'
         env:
+          COURIER_DATE: ${{ steps.today.outputs.date }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
           TTS_PROVIDER: ${{ vars.TTS_PROVIDER }}
@@ -77,7 +73,7 @@ jobs:
         run: python scripts/courier/build.py
 
       - name: Publish audio to the courier-audio branch
-        if: github.event_name != 'push' && inputs.publish_only != true && (steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch')
+        if: steps.today.outputs.generate == 'true'
         env:
           REPO: ${{ github.repository }}
           COURIER_DATE: ${{ steps.today.outputs.date }}
@@ -102,7 +98,7 @@ jobs:
           python scripts/courier/publication.py pin --date "$COURIER_DATE" --audio-sha "$AUDIO_SHA"
 
       - name: Commit manifest
-        if: github.event_name != 'push' && inputs.publish_only != true && (steps.today.outputs.built != 'yes' || github.event_name == 'workflow_dispatch')
+        if: steps.today.outputs.generate == 'true'
         run: |
           git config user.name "courier-bot"
           git config user.email "courier-bot@users.noreply.github.com"
@@ -115,6 +111,7 @@ jobs:
       # GITHUB_TOKEN commits do not trigger the normal Pages build. Request it explicitly,
       # including on backstop runs where content already exists, then verify what is live.
       - name: Publish and verify the live edition
+        if: steps.today.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
