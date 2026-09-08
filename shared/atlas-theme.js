@@ -3,6 +3,14 @@
   'use strict';
   const root = document.documentElement;
   if (!root.classList.contains('atlas-neumo') || window.AtlasAppearance) return;
+  // Extend the existing pages in place. Their HTML, records, and URLs remain theirs.
+  const sharedSource=document.currentScript?.src;
+  if(sharedSource&&document.head){
+    const mobile=document.createElement('script');mobile.src=new URL('atlas-mobile.js',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
+    if(root.dataset.atlasApp==='the-herald'){
+      const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
+    }
+  }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
   const system = window.matchMedia('(prefers-color-scheme: dark)');
