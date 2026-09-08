@@ -33,6 +33,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import threading
 from recovery import build_date
+from publication import edition
 
 import feedparser
 import requests
@@ -617,8 +618,16 @@ Feed items:
 
 {FORMAT_SCRIPT}"""
 
-    data = parse_fields(claude(prompt, 12000, web_searches=SEARCHES_PER_BLOCK, label=category),
-                        "TITLE", "SCRIPT", "SOURCES")
+    try:
+        data = parse_fields(claude(prompt, 12000, web_searches=SEARCHES_PER_BLOCK, label=category),
+                            "TITLE", "SCRIPT", "SOURCES")
+    except ValueError:
+        # Search can consume the entire response budget before any script is
+        # returned. Retry writing once from the already collected source material.
+        log(f"{category}: no usable script; retrying once from supplied sources without web tools")
+        retry_prompt = prompt + "\nWrite the required TITLE, SCRIPT and SOURCES now using only the supplied feed and newsletter material. Do not plan or research further. Omit claims those sources do not support."
+        data = parse_fields(claude(retry_prompt, 6000, web_searches=0, label=category + " writing retry"),
+                            "TITLE", "SCRIPT", "SOURCES")
     return enforce_length(data, minutes, label=category)
 
 
@@ -872,7 +881,52 @@ def load_manifest():
     return {"schemaVersion": 1, "days": []}
 
 
+def repair_sports():
+    """Add a missing Sports section or voice its saved script; preserve other blocks."""
+    global NEWSLETTERS
+    manifest = load_manifest()
+    current = edition(manifest, TODAY)
+    if current is None:
+        raise ValueError("Sports repair requires an existing edition")
+    previous = next((b for b in current["blocks"] if b["id"] == "sports"), None)
+    if previous and previous.get("audio"):
+        raise ValueError("Sports already has published audio; no repair is needed")
+    sources = json.loads((HERE / "sources.json").read_text())
+    spec = sources["sports"]
+    day_dir = OUT / TODAY
+    day_dir.mkdir(parents=True, exist_ok=True)
+    if previous:
+        voiced = make_block("sports", previous["label"], previous["title"], previous["script"],
+                            previous.get("talkingPoints", []), previous.get("sources", []), day_dir, current["release"])
+        block = {**previous, "audio": voiced["audio"], "bytes": voiced["bytes"]}
+    else:
+        NEWSLETTERS = fetch_newsletters()
+        data = write_script("sports", spec, fetch_items(spec["feeds"]), budget(sources)["sports"])
+        body, points = split_talking_points(data["script"])
+        block = make_block("sports", spec["label"], data.get("title", spec["label"]), body,
+                           points, data.get("sources", [])[:20], day_dir, current["release"])
+    if previous:
+        current["blocks"] = [block if b["id"] == "sports" else b for b in current["blocks"]]
+    else:
+        current["blocks"].append(block)
+    current["updatedAt"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    current["projectedMinutes"] = round(sum(b.get("minutes", 0) for b in current["blocks"]), 1)
+    current["voiceless"] = [b["id"] for b in current["blocks"] if not b.get("audio")]
+    current["failed"] = [slug for slug in current.get("failed", []) if slug != "sports"]
+    current["missingSections"] = [slug for slug in sources if not any(b["id"] == slug for b in current["blocks"])]
+    current.setdefault("repairs", []).append({"section": "sports", "at": current["updatedAt"], "audio": bool(block["audio"])})
+    MANIFEST.write_text(json.dumps(manifest, indent=1, ensure_ascii=False))
+    write_feed(manifest)
+    (OUT / "keep-days.txt").write_text("\n".join(sorted(d["date"] for d in manifest["days"])))
+    log(f"Sports repaired; {len(current['blocks'])} published sections; existing sections preserved")
+
+
 def main():
+    if os.environ.get("COURIER_SECTIONS"):
+        if os.environ["COURIER_SECTIONS"] != "sports":
+            raise ValueError("Only targeted Sports repair is supported")
+        repair_sports()
+        return
     sources = json.loads((HERE / "sources.json").read_text())
     global NEWSLETTERS
     NEWSLETTERS = fetch_newsletters()
@@ -960,6 +1014,7 @@ def main():
         "plannedMinutes": sum(minutes.values()),
         "projectedMinutes": total,
         "voiceless": list(VOICELESS),
+        "failed": list(failed),
         "usage": {**USAGE, "estimatedCost": round(cost, 2)},
         "plan": [{"event": s["event"], "owner": slug} for slug, v in story_plan.items() for s in v["owns"]],
         "blocks": blocks,

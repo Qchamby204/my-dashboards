@@ -117,11 +117,6 @@
   .mins{ font-family:var(--data); font-size:11px; letter-spacing:.06em; color:var(--bone);
          font-variant-numeric:tabular-nums; white-space:nowrap; }
   .block.active .mins{ color:var(--ember); }
-  .gauge{ flex:1; max-width:230px; min-width:80px; height:2px; background:var(--fainter);
-          position:relative; overflow:hidden; }
-  .gauge i{ position:absolute; inset:0 auto 0 0; background:rgba(236,231,222,.30); }
-  .block.active .gauge i{ background:var(--ember); }
-  .block.done .gauge i{ background:rgba(127,169,140,.5); }
   .startat,.words{ font-family:var(--data); font-size:10px; color:var(--mute);
                    letter-spacing:.08em; font-variant-numeric:tabular-nums; white-space:nowrap; }
 
@@ -210,7 +205,7 @@
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/atlas-workflow.css">
+<link rel="stylesheet" href="shared/atlas-workflow.css?v=courier-practice-20260908">
 <link rel="stylesheet" href="shared/courier-player.css">
 </head>
 <body>
@@ -341,8 +336,7 @@ const posKey = (date, id) => `${date}/${id}`;
 function notice(msg) { $('notices').innerHTML = `<div class="notice">${msg}</div>`; }
 function day() { return manifest && manifest.days.find(d => d.date === ui.day); }
 
-// Run time is the spine of this page: every block carries its length, the minute it
-// starts at if you play straight through, and its share of the day.
+// Every block shows its estimated length and starting point in the full edition.
 function schedule(blocks) {
   let at = 0;
   const rows = blocks.map(b => {
@@ -352,8 +346,7 @@ function schedule(blocks) {
     return row;
   });
   const total = at;
-  const longest = rows.reduce((m, r) => Math.max(m, r.mins), 0) || 1;
-  return { rows, total, longest, by: Object.fromEntries(rows.map(r => [r.id, r])) };
+  return { rows, total, by: Object.fromEntries(rows.map(r => [r.id, r])) };
 }
 
 // ---------- rendering ----------
@@ -391,7 +384,6 @@ function render() {
           <h2 class="title">${b.title}</h2>
           <div class="runline">
             <span class="mins">≈ ${s.mins} min</span>
-            <span class="gauge"><i style="width:${Math.round(s.mins / plan.longest * 100)}%"></i></span>
             <span class="startat">starts ${hm(s.startsAt)}</span>
             <span class="words">${b.words.toLocaleString()} words</span>
           </div>
@@ -658,6 +650,6 @@ async function init() {
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
-<script type="module" src="shared/atlas-workflow.js"></script>
+<script type="module" src="shared/atlas-workflow.js?v=courier-practice-20260908"></script>
 </body>
 </html>
