@@ -19,6 +19,12 @@
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
+    if(root.dataset.atlasApp==='prospecting-command-center'){
+      // Retain the saved bytes before the legacy boot can attempt migration.
+      const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
+      window.AtlasProspectingBoot=boot;
+      const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js',sharedSource).href;prospects.defer=true;document.head.appendChild(prospects);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
