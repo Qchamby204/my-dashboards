@@ -56,6 +56,7 @@ jobs:
         if: steps.today.outputs.generate == 'true'
         env:
           COURIER_DATE: ${{ steps.today.outputs.date }}
+          COURIER_SECTIONS: ${{ steps.today.outputs.sections }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
           TTS_PROVIDER: ${{ vars.TTS_PROVIDER }}
@@ -77,15 +78,25 @@ jobs:
         env:
           REPO: ${{ github.repository }}
           COURIER_DATE: ${{ steps.today.outputs.date }}
+          COURIER_SECTIONS: ${{ steps.today.outputs.sections }}
         run: |
           git config user.name "courier-bot"
           git config user.email "courier-bot@users.noreply.github.com"
           rm -rf /tmp/audio && mkdir -p /tmp/audio
           # keep the previous days that the manifest still references
           if git fetch origin courier-audio 2>/dev/null; then
-            git --work-tree=/tmp/audio checkout origin/courier-audio -- . 2>/dev/null || true
+            if ! git --work-tree=/tmp/audio checkout origin/courier-audio -- . 2>/dev/null; then
+              if [ -n "$COURIER_SECTIONS" ]; then exit 1; fi
+            fi
+          elif [ -n "$COURIER_SECTIONS" ]; then
+            echo "Cannot repair audio without reading the existing audio branch."
+            exit 1
           fi
-          for d in $(ls out | grep -E '^[0-9]{4}-'); do rm -rf /tmp/audio/$d; cp -r out/$d /tmp/audio/$d; done
+          for d in $(ls out | grep -E '^[0-9]{4}-'); do
+            if [ -z "$COURIER_SECTIONS" ]; then rm -rf "/tmp/audio/$d"; fi
+            mkdir -p "/tmp/audio/$d"
+            cp -a "out/$d/." "/tmp/audio/$d/"
+          done
           for d in $(ls /tmp/audio); do grep -qx "$d" out/keep-days.txt || rm -rf /tmp/audio/$d; done
           cd /tmp/audio && git init -q && git checkout -q --orphan courier-audio && git add -A
           git -c user.name=courier-bot -c user.email=courier-bot@users.noreply.github.com commit -q -m "Courier audio $(date -u +%F)"

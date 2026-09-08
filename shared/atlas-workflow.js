@@ -4,7 +4,8 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;
 const prettyDay = day => validDay(day) ? new Date(day + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
 let manifest = null, manifestState = 'loading', context = null, practiceRaw = null, signature = '', busy = false, feedback = '', problem = false;
 const expanded = new Set();
-function focusFeedback() { const el = document.getElementById('practice-feedback'); if (el) { el.tabIndex = -1; el.focus(); } }
+let practiceExpanded = window.location?.hash === '#courier-practice';
+function focusFeedback() { const el = document.getElementById('practice-feedback'); if (el) { const panel = el.closest('.practice-panel'); if (panel) panel.open = true; el.tabIndex = -1; el.focus(); } }
 
 function mountPractice(nextContext = context) {
   context = nextContext;
@@ -17,8 +18,10 @@ function mountPractice(nextContext = context) {
   if (signature === nextSignature && host.firstChild) return;
   signature = nextSignature;
   const completed = items.filter(item => saved.value.completions[item.id]).length;
+  const previousPanel = host.querySelector('.practice-panel');
+  if (previousPanel) practiceExpanded = previousPanel.open;
   host.className = 'workflow practice';
-  host.innerHTML = '<div class="workflow-heading"><div><span class="eyebrow">Put it into practice</span><h2>Learning you have used.</h2></div><span class="workflow-meta">' + completed + ' / ' + items.length + '</span></div>' +
+  host.innerHTML = '<details class="practice-panel"' + (practiceExpanded ? ' open' : '') + '><summary class="workflow-heading"><span>Put it into practice</span><span class="workflow-meta">' + completed + ' / ' + items.length + '</span></summary><div class="practice-panel-content"><h2>Learning you have used.</h2>' +
     '<p>Mark a lesson after completing its task. Listening alone does not count as practice.</p>' +
     (items.length ? '<div class="practice-list">' + items.map((item, i) => {
       const done = saved.value.completions[item.id], hasTask = item.task && item.task.trim().toLowerCase() !== 'none';
@@ -31,7 +34,7 @@ function mountPractice(nextContext = context) {
     }).join('') + '</div>' : '<p class="workflow-empty">No lessons were published in this edition.</p><div class="practice-archive">' + lessonItems(context.manifest).filter((item, i, all) => all.findIndex(x => x.day === item.day) === i).slice(0, 3).map(item => '<a href="courier.html?day=' + encodeURIComponent(item.day) + '">Practise the ' + esc(prettyDay(item.day)) + ' lessons</a>').join('') + '</div>') +
     '<div class="practice-transfer"><h3>Use practice across devices</h3><p>Download the available lessons and your saved completions. In the private Atlas workspace, open Practice, import this pack, then choose Use synced practice.</p><button type="button" class="btn line" id="practice-pack-export" '+(issue?'disabled':'')+'>Download practice pack</button> <a href="https://atlas-os-quinton.qchambers123018.chatgpt.site/#practice" target="_blank" rel="noopener">Open private Practice</a><p class="workflow-meta">Use the private workspace for future completions after switching. This Courier page keeps a separate browser copy.</p></div>' +
     '<p id="practice-feedback" role="' + (problem || issue ? 'alert' : 'status') + '" class="workflow-feedback ' + (problem || issue ? 'workflow-error' : '') + '">' + esc(issue || feedback) + '</p>' +
-    '<p class="workflow-meta">Saved in this browser and included in <a href="index.html#atlas-vault-root">Atlas Vault backups</a>. New editions do not mark lessons complete.</p>';
+    '<p class="workflow-meta">Saved in this browser and included in <a href="index.html#atlas-vault-root">Atlas Vault backups</a>. New editions do not mark lessons complete.</p></div></details>';
   host.querySelector('#practice-pack-export').onclick=()=>{
     try{const pack=createPracticeTransfer(localStorage,context.manifest),url=URL.createObjectURL(new Blob([JSON.stringify(pack,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='atlas-practice-pack-'+localDay()+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);feedback='Practice pack downloaded. Review it in private Atlas Practice.';problem=false;}
     catch(error){feedback=error.message;problem=true;}
@@ -83,6 +86,7 @@ async function loadManifest(force = false) {
 }
 window.AtlasDaily = { mount: mountHome };
 window.AtlasPractice = { mount: mountPractice };
+window.addEventListener('hashchange', () => { if (window.location?.hash === '#courier-practice') { practiceExpanded = true; const panel = document.querySelector('#courier-practice .practice-panel'); if (panel) panel.open = true; } });
 mountHome(); loadManifest();
 if (window.getCourierContext) mountPractice(window.getCourierContext());
 window.addEventListener('storage', event => {

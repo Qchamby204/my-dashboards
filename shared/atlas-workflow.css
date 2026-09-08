@@ -46,3 +46,10 @@
 }
 
 .atlas-neumo .project-transfer{width:calc(100% - 32px);max-width:1100px;margin:24px auto}.atlas-neumo .project-transfer summary{font-size:1rem;cursor:pointer}.atlas-neumo .transfer-rows{max-height:320px;overflow:auto}.atlas-neumo .transfer-rows label{display:flex;gap:12px;padding:12px 0;align-items:center;border-bottom:1px solid var(--neo-line)}.atlas-neumo .transfer-rows input[type=checkbox]{width:20px;height:20px;flex:0 0 20px}.atlas-neumo .transfer-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.atlas-neumo .project-transfer>button{margin-top:16px}
+.atlas-neumo .practice-panel > summary { min-height:44px; cursor:pointer; list-style:none; font-size:1rem; font-weight:600; }
+.atlas-neumo .practice-panel > summary::-webkit-details-marker { display:none; }
+.atlas-neumo .practice-panel > summary .workflow-meta { margin-left:auto; white-space:nowrap; }
+.atlas-neumo .practice-panel > summary::after { content:''; width:8px; height:8px; flex-shrink:0; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); margin:0 4px 4px 0; }
+.atlas-neumo .practice-panel[open] > summary::after { transform:rotate(225deg); margin-bottom:0; }
+.atlas-neumo .practice-panel > summary:focus-visible { outline:2px solid var(--neo-accent); outline-offset:5px; border-radius:6px; }
+.atlas-neumo .practice-panel-content { padding-top:16px; }
