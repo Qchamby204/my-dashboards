@@ -35,6 +35,11 @@
       window.AtlasBabyBoot=boot;
       const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
     }
+    if(root.dataset.atlasApp==='workout-forge'){
+      const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
+      window.AtlasForgeBoot=boot;
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+    }
   }
   const key = 'atlas.appearance.v1';
   const modes = ['light', 'dark', 'system'];
