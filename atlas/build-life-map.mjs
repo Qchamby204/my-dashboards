@@ -10,7 +10,8 @@ const start=script.indexOf('store.get(KEY).then(function(v){'),end=script.indexO
 if(start<0||end<0)throw Error('Review Life Map boot extraction');
 script=script.slice(0,start)+script.slice(end);
 const dashboard=(await read('atlas/life-map-dashboard.js')).replaceAll('window.AtlasConnected.clearInputDraft()','window.AtlasConnected?.clearInputDraft()');
-script+='\n'+(await read('atlas/life-map-records.mjs')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+dashboard+'\n'+(await read('atlas/life-map-local-store.mjs')).replace('export function','function')+'\n'+await read('atlas/life-map-local.js');
+script=script.replaceAll('behavior:"smooth"','behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"');
+script+='\n'+(await read('atlas/life-map-records.mjs')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+dashboard+'\n'+await read('atlas/life-map-interactions.js')+'\n'+(await read('atlas/life-map-local-store.mjs')).replace('export function','function')+'\n'+await read('atlas/life-map-local.js');
 const cssVersion=createHash('sha256').update(await read('atlas/life-map-dashboard.css')).digest('hex').slice(0,12);
 html=html.replace(match[0],'<script>\n'+script+'\n</script>').replace('</head>','<link rel="stylesheet" href="atlas/life-map-dashboard.css?v='+cssVersion+'"></head>');
 // Recovery tools belong after the dashboard, never above its safe-area header.
