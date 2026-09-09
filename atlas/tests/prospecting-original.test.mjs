@@ -8,8 +8,8 @@ const enhancement=readFileSync(new URL('../../shared/prospecting-enhancements.js
 // The original workflow runs against synthetic contacts only, without loading the embedded database.
 const fixture=`
 const CONTACTS=[
- {uid:'c1',name:'Alex Example',first:'Alex',title:'Project manager',co:'Example Studio',email:'alex@example.test',url:'https://example.test/profile/1',src:'cold',tier:null,score:80,base:'pool',senti:'mid'},
- {uid:'c2',name:'Blair Sample',first:'Blair',title:'Owner',co:'Sample Workshop',email:'blair@example.test',url:'https://example.test/profile/2',src:'cold',tier:null,score:75,base:'pool',senti:'mid'},
+ {uid:'c1',name:'Alex Example',first:'Alex',title:'Project manager',co:'Example Studio',email:'alex@example.test',url:'https://www.linkedin.com/in/alex-example',src:'cold',tier:null,score:80,base:'pool',senti:'mid'},
+ {uid:'c2',name:'Blair Sample',first:'Blair',title:'Owner',co:'Sample Workshop',email:'blair@example.test',url:'https://www.linkedin.com/in/blair-sample',src:'cold',tier:null,score:75,base:'pool',senti:'mid'},
  {uid:'w3',name:'Casey Demo',first:'Casey',title:'Engineer',co:'Demo Studio',email:'casey@example.test',url:'',src:'warm',tier:1,score:null,base:'replied',senti:'pos'},
  {uid:'c4',name:'Drew Peer',first:'Drew',title:'Consultant',co:'Peer Studio',email:'drew@example.test',url:'',src:'cold',tier:null,score:90,base:'messaged',senti:'mid',peer:true}
 ];
@@ -18,7 +18,7 @@ const G={avgHH:100,hhFirstYear:n=>n},EV={messaged:1,replied:2,meeting:3,won:4},G
 const TIERS={1:{name:'Existing contact'}},DEF_TPL={t0:'Hello {first}'},TPL_LABEL={t0:'Opener'};
 const normUrl=u=>u,variantsFor=c=>[{l:'Simple',t:'Hello '+c.first}],tpl=k=>S.tpl?.[k]||DEF_TPL[k];
 `;
-function boot({raw=null,readBlocked=false,writeBlocked=false,clipboard='success'}={}){
+export function boot({raw=null,readBlocked=false,writeBlocked=false,clipboard='success',contacts=null}={}){
   let now=Date.parse('2026-09-08T12:00:00Z'),id=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{
     constructor(){this.events=new Map();}
@@ -56,7 +56,7 @@ function boot({raw=null,readBlocked=false,writeBlocked=false,clipboard='success'
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
   class BlobURL extends URL{static createObjectURL(blob){const key='blob:test-'+(++id);blobs.set(key,blob);return key;}static revokeObjectURL(key){blobs.delete(key);}}
   const context=vm.createContext({document,window,navigator,localStorage,Date:Clock,performance:{now:()=>now},URL:BlobURL,Blob,console,prompt:()=>null,setTimeout:fn=>{const key=++id;timers.set(key,fn);return key;},clearTimeout:key=>timers.delete(key)});
-  let legacyError=null;try{vm.runInContext(fixture+'\n'+script,context);}catch(e){legacyError=e;}
+  let legacyError=null;try{vm.runInContext((contacts?fixture.replace(/const CONTACTS=\[[\s\S]*?\];/,()=> 'const CONTACTS='+JSON.stringify(contacts)+';'):fixture)+'\n'+script,context);}catch(e){legacyError=e;}
   vm.runInContext(enhancement,context);const run=code=>vm.runInContext(code,context),node=key=>ids.get(key);
   return {run,node,api:window.ProspectingImprovements,document,window,context,localStorage,storage,downloads,navigator,legacyError,
     advance(ms=400){now+=ms;},flush(){for(const [id,fn]of [...timers])if(timers.delete(id))fn();},
@@ -119,4 +119,52 @@ test('backup restore validates before mutation and requires the explicit restore
 test('CSV quotes formulas as text and preserves multiline notes',async()=>{
   const h=boot();assert.equal(h.api.csvCell('=2+2'),'"\'=2+2"');assert.equal(h.api.csvCell(' \t@SUM(A1)'),'"\' \t@SUM(A1)"');assert.equal(h.api.csvCell('A "quote"\nNext line'),'"A ""quote""\nNext line"');
   h.run("S.note.c1='=2+2';exportCSV()");const csv=await h.downloads[0].blob.text();assert(csv.includes('"\'=2+2"'));assert(csv.includes('\r\n'));
+});
+
+const linkedInContact=(overrides={})=>({uid:'li-'+('a'.repeat(24)),url:'https://www.linkedin.com/in/alex-example',name:'Alex Updated',first:'Alex',title:'Studio director',co:'Updated Studio',email:'',connectedOn:'2026-09-04',inboundCount:2,outboundCount:3,lastInboundAt:'2026-09-06T10:00:00Z',lastOutboundAt:'2026-09-05T10:00:00Z',...overrides});
+const linkedInUpdate=(contacts=[linkedInContact()])=>({app:'chambers-hq-linkedin',version:1,exportedOn:'2026-09-09',contacts});
+async function previewImport(h,data){await h.api.importLinkedIn({value:'chosen',files:[{size:1000,text:async()=>JSON.stringify(data)}]});}
+async function applyImport(h,data){await previewImport(h,data);assert(h.node('prospecting-linkedin-import').open);h.clickText(h.node('prospecting-linkedin-import'),'Apply update');}
+
+test('LinkedIn import updates exact profile matches and adds stable IDs while preserving manual work',async()=>{
+  const h=boot();h.run("BYUID.c1.pitched=true;S.stage.c1='won';S.note.c1='Keep my note';S.fu.c1='2026-09-30';S.aum.c1=321;logAct('c1','won');save()");
+  const before=JSON.parse(h.storage.get('hq_v1'));
+  const newcomer=linkedInContact({uid:'li-'+('b'.repeat(24)),url:'https://www.linkedin.com/in/new-example',name:'New Example',first:'New'});
+  await previewImport(h,linkedInUpdate([linkedInContact({url:'http://ca.linkedin.com/in/Alex-Example/?trk=test'}),newcomer]));
+  assert.equal(h.run('CONTACTS.length'),4);assert.equal(h.storage.get('hq_v1'),JSON.stringify(before));
+  h.clickText(h.node('prospecting-linkedin-import'),'Apply update');
+  assert.equal(h.run('CONTACTS.length'),5);assert.equal(h.run('BYUID.c1.name'),'Alex Updated');assert.equal(h.run('BYUID.c1.email'),'alex@example.test');
+  const after=JSON.parse(h.storage.get('hq_v1'));for(const k of Object.keys(before))assert.deepEqual(after[k],before[k]);
+  assert.equal(h.run('stg(BYUID.c1)'),'won');assert.equal(h.run("BYUID['"+newcomer.uid+"'].base"),'pool');
+  assert.equal(h.run('S.log.length'),1);assert.equal(h.run('BYUID.c1.linkedin.inboundCount'),2);assert.equal(h.run('BYUID.c1.pitched'),true);
+});
+test('LinkedIn re-import is idempotent, reload retains records, and backups include the update',async()=>{
+  const h=boot(),data=linkedInUpdate();await applyImport(h,data);const raw=h.storage.get('hq_v1');
+  await previewImport(h,data);assert.equal(h.storage.get('hq_v1'),raw);assert.match(h.node('toast').textContent,/already saved/);
+  const again=boot({raw});assert.equal(again.run('BYUID.c1.name'),'Alex Updated');assert.equal(again.run('CONTACTS.length'),4);
+  again.run('exportBackup()');const backup=JSON.parse(await again.downloads[0].blob.text());assert.equal(backup.state.linkedin.contacts[0].inboundCount,2);
+  const fresh=boot();fresh.context.backup={files:[{size:2000,text:async()=>JSON.stringify(backup)}]};await fresh.run('importBackup(backup)');fresh.clickText(fresh.node('prospecting-restore'),'Restore backup');assert.equal(fresh.run('BYUID.c1.name'),'Alex Updated');
+});
+test('a failed LinkedIn storage write leaves the live roster and saved progress intact',async()=>{
+  const h=boot(),before=h.storage.get('hq_v1');await previewImport(h,linkedInUpdate());h.localStorage.writeBlocked=true;
+  h.clickText(h.node('prospecting-linkedin-import'),'Apply update');assert.equal(h.storage.get('hq_v1'),before);assert.equal(h.run('BYUID.c1.name'),'Alex Example');assert(h.node('prospecting-linkedin-import').open);
+  h.localStorage.writeBlocked=false;h.clickText(h.node('prospecting-linkedin-import'),'Apply update');assert.equal(h.run('BYUID.c1.name'),'Alex Updated');
+});
+test('an import cannot overwrite progress changed by another tab after preview',async()=>{
+  const h=boot();await previewImport(h,linkedInUpdate());const newer=JSON.parse(h.storage.get('hq_v1'));newer.note.c1='Changed elsewhere';h.storage.set('hq_v1',JSON.stringify(newer));
+  h.clickText(h.node('prospecting-linkedin-import'),'Apply update');assert.equal(h.run('BYUID.c1.name'),'Alex Example');assert.equal(JSON.parse(h.storage.get('hq_v1')).note.c1,'Changed elsewhere');assert(h.node('prospecting-linkedin-import').open);
+});
+test('LinkedIn rejects invalid URLs, duplicate identities, raw message bodies and stale exports',async()=>{
+  const h=boot();for(const c of [linkedInContact({url:'javascript:alert(1)'}),linkedInContact({url:'https://linkedin.com.attacker.test/in/alex'}),linkedInContact({inboundCount:-1}),linkedInContact({content:'Do not import message bodies'}),linkedInContact({lastInboundAt:'not-a-date'})])assert.throws(()=>h.api.validateLinkedIn(linkedInUpdate([c])));
+  assert.throws(()=>h.api.validateLinkedIn(linkedInUpdate([linkedInContact(),linkedInContact({uid:'li-'+('b'.repeat(24))})])));
+  await applyImport(h,linkedInUpdate());assert.throws(()=>h.api.mergeLinkedIn({...linkedInUpdate(),exportedOn:'2026-09-08'}));
+});
+test('LinkedIn activity filters are factual and previously messaged contacts leave fresh outreach',async()=>{
+  const h=boot();await applyImport(h,linkedInUpdate());assert(!h.run('freshQueue().some(c=>c.uid===\'c1\')'));assert.equal(h.run('stg(BYUID.c1)'),'pool');
+  h.api.filterLinkedIn('received');assert.deepEqual(Array.from(h.api.databaseMatches(),c=>c.uid),['c1']);h.api.filterLinkedIn('sent');assert.equal(h.api.databaseMatches().length,0);h.api.clearFilters();assert(h.api.databaseMatches().length>1);
+  const row=h.run('rowHTML(BYUID.c1,true)');assert.match(row,/Last message received/);assert.match(row,/aria-label="LinkedIn activity details"/);
+});
+test('LinkedIn updates preserve duplicate original IDs and do not infer identity from a shared name',()=>{
+  const contacts=[{uid:'c1',name:'Same Name',url:'https://www.linkedin.com/in/alex-example'},{uid:'c2',name:'Same Name',url:'https://ca.linkedin.com/in/alex-example/?trk=old'},{uid:'c3',name:'Same Name',url:'https://www.linkedin.com/in/someone-else'}].map(c=>({...c,first:'Same',title:'',co:'',email:'',src:'cold',tier:null,score:40,base:'pool'}));
+  const h=boot({contacts}),overlaid=h.api.overlayContacts(h.api.validateLinkedIn(linkedInUpdate()));assert.equal(overlaid.length,3);assert.equal(overlaid[0].uid,'c1');assert.equal(overlaid[1].uid,'c2');assert.equal(overlaid[1].name,'Alex Updated');assert.equal(overlaid[2].name,'Same Name');
 });

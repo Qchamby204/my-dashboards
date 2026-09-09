@@ -28,7 +28,7 @@
       // Retain the saved bytes before the legacy boot can attempt migration.
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
       window.AtlasProspectingBoot=boot;
-      const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js',sharedSource).href;prospects.defer=true;document.head.appendChild(prospects);
+      const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=linkedin-20260909',sharedSource).href;prospects.defer=true;document.head.appendChild(prospects);
     }
     if(root.dataset.atlasApp==='operations-cadence'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('operationsCadence.v1');}catch{boot.readError=true;}
