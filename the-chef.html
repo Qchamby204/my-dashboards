@@ -97,7 +97,7 @@ footer .row{justify-content:center}
 <link rel="stylesheet" href="shared/atlas-palette.css">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=craft-20260909">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=practice-20260909">
 <script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
 </head>
 <body>
@@ -174,6 +174,7 @@ footer .row{justify-content:center}
     </div>
   </section>
 
+  <div class="cc-undo" id="plan-undo-bar" hidden><span id="plan-undo-message" role="status"></span><button id="plan-undo">Undo</button></div>
   <footer>
     <details class="cc-records"><summary>Backup and restore</summary>
     <div class="cc-record-actions">
@@ -187,6 +188,13 @@ footer .row{justify-content:center}
     <p id="storage-warn" class="warn hidden" style="text-align:center">Storage is unavailable in this browser. Nothing will be saved between visits.</p>
   </footer>
 </main>
+<dialog id="cook-dialog" aria-labelledby="cook-title">
+  <div class="cc-cook-heading"><h2 id="cook-title"></h2><button id="cook-close" aria-label="Close cooking view">×</button></div>
+  <div class="cc-cook-controls"><label for="cook-servings">Servings</label><input id="cook-servings" type="number" min="1" max="48" step="1"><span id="cook-time"></span></div>
+  <details class="cc-help"><summary aria-label="About serving adjustments"><span aria-hidden="true">i</span></summary><p>Ingredient quantities follow servings. Method quantities, timings, and temperatures stay as written; check doneness. Checklist ticks last for this cooking session.</p></details>
+  <h3>Ingredients</h3><div id="cook-ingredients" class="cc-cook-checks"></div>
+  <h3>Method</h3><ol id="cook-steps" class="cc-cook-checks"></ol>
+</dialog>
 
 <script>
 /* ---------- constants ---------- */
@@ -842,7 +850,7 @@ const store = {
   available(){try{const k=this.key('probe');localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}}
 };
 const migrations = {};
-function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{}};}
+function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{},portions:{}};}
 function loadState(){
   const stored = store.get('state');
   if(stored===null) return defaultState();
@@ -852,11 +860,17 @@ function loadState(){
     if(!m){console.warn('no migration from v'+version);return defaultState();}
     data = m(data); version += 1;
   }
-  store.set('state',data); store.set('schema-version',SCHEMA_VERSION);
   return {...defaultState(),...data};
 }
 let state = loadState();
-function setState(patch){state={...state,...patch};store.set('state',state);store.set('schema-version',SCHEMA_VERSION);render();}
+function setState(patch){
+  const next={...state,...patch};
+  if(!store.set('state',next)){
+    window.AtlasCraftUI?.announce('Could not save. Your previous saved records are unchanged. Export a backup before closing.');
+    render();return false;
+  }
+  state=next;store.set('schema-version',SCHEMA_VERSION);render();return true;
+}
 
 /* session-only UI state */
 const ui = {tab:'ingredients',meal:'all',time:0,sort:'match',picks:new Set(),mood:null,search:'',shuffleKeys:{}};
@@ -914,21 +928,83 @@ function fmtNum(n){
   if(!f) return String(Math.round(n*100)/100);
   return whole ? `${whole} ${f[1]}` : f[1];
 }
+function validServings(value){return Number.isInteger(value)&&value>=1&&value<=48;}
+function slotServings(day,meal,recipe){const n=state.portions?.[day]?.[meal];return validServings(n)?n:recipe?.servings||1;}
+function scaledQty(quantity,factor){
+  if(factor===1)return quantity;
+  const p=parseQty(quantity);
+  return p?fmtNum(p.n*factor)+(p.unit?' '+p.unit:''):quantity+' × '+fmtNum(factor);
+}
+let undoChange=null;
+function commitPlan(patch,message){
+  const before=Object.fromEntries(Object.keys(patch).map(key=>[key,JSON.parse(JSON.stringify(state[key]||{}))]));
+  const after=JSON.parse(JSON.stringify(patch));
+  if(JSON.stringify(before)===JSON.stringify(after))return true;
+  if(!setState(patch))return false;
+  undoChange={before,after,message};renderUndo();
+  window.AtlasCraftUI?.announce(message);return true;
+}
+function canUndo(){return !!undoChange&&Object.keys(undoChange.after).every(k=>JSON.stringify(state[k])===JSON.stringify(undoChange.after[k]));}
+function renderUndo(){
+  const bar=document.getElementById('plan-undo-bar');if(!bar)return;
+  bar.hidden=!canUndo();
+  if(!bar.hidden)document.getElementById('plan-undo-message').textContent=undoChange.message;
+}
+function undoPlan(){
+  if(!canUndo())return false;
+  const previous=undoChange.before;
+  if(!setState(previous))return false;
+  undoChange=null;renderUndo();window.AtlasCraftUI?.announce('Last planning change undone.');return true;
+}
+function planRecipe(day,meal,id,servings){
+  if(!DAYS.some(d=>d[0]===day)||!MEALS.includes(meal))return false;
+  const recipe=id?BY_ID[id]:null;
+  if(id&&(!recipe||recipe.meal!==meal))return false;
+  const old=state.plan[day]?.[meal]||'';
+  const n=servings===undefined?(old===id?slotServings(day,meal,recipe):recipe?.servings):servings;
+  if(id&&!validServings(n))return false;
+  if(old&&id&&old!==id&&!confirm(`Replace ${BY_ID[old]?.name||'the current meal'} with ${recipe.name} for ${DAYS.find(d=>d[0]===day)[1]} ${meal}?`))return false;
+  const plan={...state.plan,[day]:{...(state.plan[day]||{})}};
+  const portions={...(state.portions||{}),[day]:{...(state.portions?.[day]||{})}};
+  if(id){plan[day][meal]=id;portions[day][meal]=n;}
+  else {delete plan[day][meal];delete portions[day][meal];}
+  if(!Object.keys(plan[day]).length)delete plan[day];
+  if(!Object.keys(portions[day]).length)delete portions[day];
+  const label=DAYS.find(d=>d[0]===day)[1]+' '+meal;
+  return commitPlan({plan,portions},id?`${label}: ${recipe.name}, ${n} servings.`:`${label} removed.`);
+}
+let cookSession=null;
+function openCook(id,slot,trigger){
+  const recipe=BY_ID[id];if(!recipe)return;
+  const [day,meal]=slot?slot.split('|'):[];
+  cookSession={id,slot,trigger,servings:slot?slotServings(day,meal,recipe):recipe.servings,checked:{}};
+  document.getElementById('cook-title').textContent=recipe.name;
+  document.getElementById('cook-time').textContent=recipe.time+' minutes';
+  document.getElementById('cook-servings').value=cookSession.servings;
+  renderCookIngredients();
+  document.getElementById('cook-steps').innerHTML=recipe.steps.map((step,n)=>'<li><label><input type="checkbox" aria-label="Step '+(n+1)+' complete"><span>'+esc(step)+'</span></label></li>').join('');
+  document.getElementById('cook-dialog').showModal();
+  document.getElementById('cook-close').focus();
+}
+function renderCookIngredients(){
+  const recipe=BY_ID[cookSession.id],factor=cookSession.servings/recipe.servings;
+  document.getElementById('cook-ingredients').innerHTML=recipe.ingredients.map((i,n)=>'<label><input type="checkbox" data-cook-ingredient="'+n+'"'+(cookSession.checked[n]?' checked':'')+'><span><strong>'+esc(scaledQty(i.q,factor))+'</strong> '+esc(i.n)+'</span></label>').join('');
+}
 function groceryList(){
   const agg = {};
-  Object.values(state.plan).forEach(day=>Object.values(day).forEach(id=>{
+  Object.entries(state.plan).forEach(([dayKey,day])=>Object.entries(day).forEach(([meal,id])=>{
     const x = BY_ID[id]; if(!x) return;
+    const factor=slotServings(dayKey,meal,x)/x.servings;
     x.ingredients.forEach(i=>{
-      const k = i.c+'|'+i.n;
-      if(!agg[k]) agg[k] = {c:i.c,n:i.n,qs:[]};
-      agg[k].qs.push(i.q);
+      const k=i.c+'|'+i.n;
+      if(!agg[k])agg[k]={c:i.c,n:i.n,qs:[]};
+      const p=parseQty(i.q);
+      agg[k].qs.push(p?{...p,n:p.n*factor}:scaledQty(i.q,factor));
     });
   }));
   Object.values(agg).forEach(a=>{
-    const parsed = a.qs.map(parseQty);
-    if(parsed.every(p=>p) && parsed.every(p=>p.key===parsed[0].key)){
-      a.q = fmtNum(parsed.reduce((s,p)=>s+p.n,0))+(parsed[0].unit?' '+parsed[0].unit:'');
-    }else a.q = a.qs.join(' + ');
+    if(a.qs.every(p=>typeof p==='object')&&a.qs.every(p=>p.key===a.qs[0].key))a.q=fmtNum(a.qs.reduce((sum,p)=>sum+p.n,0))+(a.qs[0].unit?' '+a.qs[0].unit:'');
+    else a.q=a.qs.map(p=>typeof p==='string'?p:fmtNum(p.n)+(p.unit?' '+p.unit:'')).join(' + ');
   });
   return CATS.map(([c,label])=>({c,label,items:Object.values(agg).filter(a=>a.c===c).sort((a,b)=>a.n.localeCompare(b.n))})).filter(g=>g.items.length);
 }
@@ -1002,14 +1078,16 @@ function cardHtml(x,showMatch){
     <div class="top"><h3>${esc(x.name)}</h3><span class="badge">${x.meal}</span></div>
     <div class="meta"><span><b>${x.time}</b> min</span><span><b>${x.servings}</b> serv</span><span><b>${x.protein}</b>g protein</span></div>
     ${match}
-    <div class="tags">${x.tags.map(t=>`<span class="tag">${TAG_LABELS[t]||t}</span>`).join('')}</div>
+    <div class="tags">${x.tags.slice(0,3).map(t=>`<span class="tag">${TAG_LABELS[t]||t}</span>`).join('')}</div>
+    <button class="primary cc-cook-open" data-cook="${x.id}">Cook this recipe</button>
+    <details class="more cc-recipe-options"><summary>Plan and rate${fav?' · Saved':''}${rating?' · '+rating+'/5':''}</summary>
     <div class="actions">
       <div class="row" style="gap:4px">
         <div class="stars">${[1,2,3,4,5].map(n=>`<button data-rate="${n}" class="${n<=rating?'on':''}" aria-label="Rate ${esc(x.name)} ${n} out of 5" aria-pressed="${n===rating}" title="${n} star">&#9733;</button>`).join('')}</div>
         <button class="heart ${fav?'on':''}" data-fav aria-label="Favourite ${esc(x.name)}" aria-pressed="${!!fav}" title="Favourite">&#9829;</button>
       </div>
-      <div class="plan"><select data-day aria-label="Day to plan ${esc(x.name)}">${DAYS.map(([k,l])=>`<option value="${k}">${l.slice(0,3)}</option>`).join('')}</select><button data-add>Plan</button></div>
-    </div>
+      <div class="plan"><select data-day aria-label="Day to plan ${esc(x.name)}">${DAYS.map(([k,l])=>`<option value="${k}">${l.slice(0,3)}</option>`).join('')}</select><label class="cc-serving-label">Servings <input data-plan-servings type="number" min="1" max="48" step="1" value="${x.servings}" aria-label="Servings to plan for ${esc(x.name)}"></label><button data-add>Plan</button></div>
+    </div></details>
     <details class="more"><summary>Ingredients and method</summary>
       <h4>INGREDIENTS</h4><ul>${ing}</ul>
       <h4>METHOD</h4><ol>${x.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
@@ -1026,13 +1104,11 @@ function renderPlanner(){
   const opts = m=>`<option value="">${m==='all'?'':'Pick a '+m}</option>`+RECIPES.filter(x=>x.meal===m).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
   $('#week').innerHTML = DAYS.map(([k,label])=>`<div class="day"><h3>${label}</h3>${MEALS.map(m=>{
     const id = (state.plan[k]||{})[m]||'';
-    return `<div class="slot"><span class="lab">${m}</span><select data-slot="${k}|${m}" aria-label="${label} ${m}">${opts(m)}</select>${id?`<button data-unplan="${k}|${m}" aria-label="Remove ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}</div>`;
+    return `<div class="slot"><span class="lab">${m}</span><select data-slot="${k}|${m}" aria-label="${label} ${m}">${opts(m)}</select>${id?`<button data-unplan="${k}|${m}" aria-label="Remove ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${id?`<div class="cc-slot-tools"><label>Servings <input type="number" data-portions="${k}|${m}" min="1" max="48" step="1" value="${slotServings(k,m,BY_ID[id])}" aria-label="Servings for ${label} ${m}"></label><button data-cook="${id}" data-cook-slot="${k}|${m}">Cook</button></div>`:''}</div>`;
   }).join('')}</div>`).join('');
   document.querySelectorAll('[data-slot]').forEach(s=>{const [k,m]=s.dataset.slot.split('|');s.value=(state.plan[k]||{})[m]||'';});
   const n = planCount();
-  const ids = Object.values(state.plan).flatMap(d=>Object.values(d));
-  const prot = ids.reduce((s,id)=>s+(BY_ID[id]?BY_ID[id].protein:0),0);
-  $('#plan-summary').textContent = n ? `${n} of 28 slots filled. Average protein per planned meal: ${Math.round(prot/n)}g.` : 'Empty week. Add recipes from any card, or pick straight from the slots.';
+  $('#plan-summary').textContent = n ? `${n} meals planned. Grocery quantities follow each meal’s servings.` : 'Empty week. Add recipes from any card, or pick straight from the slots.';
   const groups = groceryList();
   $('#grocery').innerHTML = groups.length ? groups.map(g=>`<h4>${g.label.toUpperCase()}</h4>`+g.items.map(a=>{
     const done = !!state.checked[a.n];
@@ -1051,6 +1127,7 @@ function render(){
   else if(ui.tab==='planner') renderPlanner();
   else renderFavourites();
   window.AtlasCraftUI?.refresh();
+  renderUndo();
 }
 
 /* ---------- export, import, reset ---------- */
@@ -1071,13 +1148,13 @@ function importState(file){
     if(!p.state||typeof p.state!=='object'){alert('That file has no state in it.');return;}
     if(!confirm('This replaces everything currently saved in The Chef. Continue?')) return;
     store.set('state',p.state); store.set('schema-version',p.schemaVersion||1);
-    state = loadState(); render();
+    undoChange=null; state = loadState(); render();
   };
   reader.readAsText(file);
 }
 function resetTool(){
   if(!confirm('Clear favourites, ratings, the week plan and the grocery checks? This only touches The Chef.')) return;
-  store.clearTool(); state = defaultState(); render();
+  store.clearTool(); undoChange=null; state = defaultState(); render();
 }
 
 /* ---------- event wiring ---------- */
@@ -1096,40 +1173,62 @@ function wireEvents(){
   $('#f-time').addEventListener('change',e=>{ui.time=Number(e.target.value);renderCards();});
   $('#f-sort').addEventListener('change',e=>{ui.sort=e.target.value;if(ui.sort==='shuffle')reshuffle();renderCards();});
   $('#f-search').addEventListener('input',e=>{ui.search=e.target.value;renderCards();});
+  const restoreCardAction=(id,selector)=>{
+    const container=ui.tab==='favourites'?'#fav-cards':'#cards';
+    const control=document.querySelector(`${container} .card[data-id="${id}"] ${selector}`);
+    if(control){control.closest('details').open=true;control.focus({preventScroll:true});}
+  };
   const cardClick = e=>{
     const card=e.target.closest('.card'); if(!card) return;
     const id=card.dataset.id;
     const rate=e.target.closest('[data-rate]');
-    if(rate){const n=Number(rate.dataset.rate);const ratings={...state.ratings};if(ratings[id]===n)delete ratings[id];else ratings[id]=n;setState({ratings});return;}
-    if(e.target.closest('[data-fav]')){const favourites={...state.favourites};if(favourites[id])delete favourites[id];else favourites[id]=true;setState({favourites});return;}
+    if(rate){const n=Number(rate.dataset.rate);const ratings={...state.ratings};if(ratings[id]===n)delete ratings[id];else ratings[id]=n;setState({ratings});restoreCardAction(id,`[data-rate="${n}"]`);return;}
+    if(e.target.closest('[data-fav]')){const favourites={...state.favourites};if(favourites[id])delete favourites[id];else favourites[id]=true;setState({favourites});restoreCardAction(id,'[data-fav]');return;}
     if(e.target.closest('[data-add]')){
-      const day=card.querySelector('[data-day]').value;const x=BY_ID[id];
-      const plan={...state.plan,[day]:{...(state.plan[day]||{}),[x.meal]:id}};
-      setState({plan});
-      const updated=document.querySelector(`.card[data-id="${id}"] [data-add]`);
-      if(updated){updated.textContent='Planned';updated.focus({preventScroll:true});}
-      window.AtlasCraftUI?.announce(`${x.name} added to ${DAYS.find(d=>d[0]===day)[1]}.`);
-      setTimeout(()=>{const b=document.querySelector(`.card[data-id="${id}"] [data-add]`);if(b)b.textContent='Plan';},900);
+      const day=card.querySelector('[data-day]').value,x=BY_ID[id],input=card.querySelector('[data-plan-servings]');
+      if(!input.reportValidity())return;
+      if(planRecipe(day,x.meal,id,Number(input.value))){
+        const updated=document.querySelector(`.card[data-id="${id}"] [data-add]`);
+        if(updated){updated.closest('details').open=true;updated.textContent='Planned';updated.focus({preventScroll:true});}
+      }
     }
   };
   $('#cards').addEventListener('click',cardClick);
   $('#fav-cards').addEventListener('click',cardClick);
   $('#week').addEventListener('change',e=>{
-    const s=e.target.closest('[data-slot]'); if(!s) return;
+    const portions=e.target.closest('[data-portions]');
+    if(portions){
+      if(!portions.reportValidity())return;
+      const [k,m]=portions.dataset.portions.split('|');
+      planRecipe(k,m,state.plan[k][m],Number(portions.value));
+      document.querySelector(`[data-portions="${k}|${m}"]`)?.focus({preventScroll:true});return;
+    }
+    const s=e.target.closest('[data-slot]');if(!s)return;
     const [k,m]=s.dataset.slot.split('|');
-    const day={...(state.plan[k]||{})}; if(s.value) day[m]=s.value; else delete day[m];
-    const plan={...state.plan}; if(Object.keys(day).length) plan[k]=day; else delete plan[k];
-    setState({plan});
+    if(!planRecipe(k,m,s.value))s.value=state.plan[k]?.[m]||'';
+    document.querySelector(`[data-slot="${k}|${m}"]`)?.focus({preventScroll:true});
   });
   $('#week').addEventListener('click',e=>{
-    const b=e.target.closest('[data-unplan]'); if(!b) return;
-    const [k,m]=b.dataset.unplan.split('|');
-    const day={...(state.plan[k]||{})}; delete day[m];
-    const plan={...state.plan}; if(Object.keys(day).length) plan[k]=day; else delete plan[k];
-    setState({plan});
+    const b=e.target.closest('[data-unplan]');if(!b)return;
+    const [k,m]=b.dataset.unplan.split('|');planRecipe(k,m,'');
+    document.querySelector(`[data-slot="${k}|${m}"]`)?.focus({preventScroll:true});
   });
-  $('#plan-fill').addEventListener('click',()=>setState({plan:fillWeek(state.plan)}));
-  $('#plan-clear').addEventListener('click',()=>{if(planCount()&&confirm('Clear the whole week?'))setState({plan:{},checked:{}});});
+  $('#plan-fill').addEventListener('click',()=>commitPlan({plan:fillWeek(state.plan)},'Empty meal slots filled.'));
+  $('#plan-clear').addEventListener('click',()=>{if(planCount()&&confirm('Clear the whole week?'))commitPlan({plan:{},portions:{},checked:{}},'Week cleared.');});
+  $('#plan-undo').addEventListener('click',undoPlan);
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-cook]');if(b)openCook(b.dataset.cook,b.dataset.cookSlot||null,b);});
+  $('#cook-close').addEventListener('click',()=>$('#cook-dialog').close());
+  $('#cook-dialog').addEventListener('close',()=>{
+    const target=cookSession?.trigger?.isConnected?cookSession.trigger:cookSession?.slot?document.querySelector(`[data-cook-slot="${cookSession.slot}"]`):null;
+    target?.focus({preventScroll:true});
+  });
+  $('#cook-servings').addEventListener('change',e=>{
+    if(!e.target.reportValidity()||!cookSession)return;
+    const servings=Number(e.target.value);
+    if(cookSession.slot){const [d,m]=cookSession.slot.split('|');if(!planRecipe(d,m,cookSession.id,servings)){e.target.value=cookSession.servings;return;}}
+    cookSession.servings=servings;renderCookIngredients();
+  });
+  $('#cook-ingredients').addEventListener('change',e=>{const c=e.target.closest('[data-cook-ingredient]');if(c&&cookSession)cookSession.checked[Number(c.dataset.cookIngredient)]=c.checked;});
   $('#grocery').addEventListener('change',e=>{
     const c=e.target.closest('[data-check]'); if(!c) return;
     const checked={...state.checked}; if(c.checked) checked[c.dataset.check]=true; else delete checked[c.dataset.check];
