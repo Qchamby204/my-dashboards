@@ -14,7 +14,7 @@
       const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=practice-20260909',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=topics-20260909',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
