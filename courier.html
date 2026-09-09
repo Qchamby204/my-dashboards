@@ -214,6 +214,7 @@
   #editionDetail { flex:1 1 240px; line-height:1.5; }
   #refreshEdition { min-height:44px; font-size:1rem; }
 </style>
+<link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 </head>
 <body>
 <header>
@@ -393,7 +394,7 @@ function render() {
             ${pos > 5 ? `<span class="tag resume">Resume ${fmt(pos)}</span>` : ''}
             ${done ? '<span class="tag">Heard</span>' : ''}
           </div>
-          <h2 class="title">${b.title}</h2>
+          <h2 class="title"><button class="courier-title-toggle" data-act="toggle" aria-expanded="${ui.open === b.id}" aria-controls="courier-body-${i}"><span>${escapeText(b.title)}</span><span class="courier-chevron" aria-hidden="true">⌄</span></button></h2>
           <div class="runline">
             <span class="mins">≈ ${s.mins} min</span>
             <span class="startat">starts ${hm(s.startsAt)}</span>
@@ -401,7 +402,7 @@ function render() {
           </div>
         </div>
       </div>
-      <div class="body">
+      <div class="body" id="courier-body-${i}">
         <div class="tabs">
           <button class="on" data-pane="points">Talking points</button>
           <button data-pane="script">Script</button>
@@ -598,8 +599,11 @@ function wireEvents() {
     if (act === 'play') { e.stopPropagation(); play(id); return; }
     if (act === 'copy') {
       const b = day().blocks.find(x => x.id === id);
-      navigator.clipboard.writeText(b.talkingPoints.map(p => `• ${p}`).join('\n'));
-      e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy talking points', 1500); return;
+      const button=e.target.closest('[data-act="copy"]');
+      if(!navigator.clipboard?.writeText){notice('Copy unavailable. Select the talking points and copy them manually.');return;}
+      navigator.clipboard.writeText(b.talkingPoints.map(p => `• ${p}`).join('\n')).then(()=>{
+        if(button?.isConnected){button.textContent='Copied';setTimeout(()=>{if(button.isConnected)button.textContent='Copy talking points';},1500);}
+      }).catch(()=>notice('Could not copy. Select the talking points and copy them manually.'));return;
     }
     if (pane) {
       sec.querySelectorAll('.tabs [data-pane]').forEach(x => x.classList.toggle('on', x.dataset.pane === pane));
@@ -610,7 +614,7 @@ function wireEvents() {
   $('ladder').addEventListener('click', e => {
     const rung = e.target.closest('.rung'); if (!rung) return;
     const sec = $('blocks').querySelector(`.block[data-id="${rung.dataset.id}"]`);
-    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (sec) sec.scrollIntoView({ behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth", block: 'center' });
   });
   $('day').addEventListener('change', e => {
     const a = $('audio'); savePosition();clearResume();sourceEpoch++;a.pause();ui.current=null;a.removeAttribute('src');a.load();
@@ -684,5 +688,6 @@ async function init() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 <script type="module" src="shared/atlas-workflow.js?v=courier-practice-20260908"></script>
+<script src="shared/atlas-refinements.js?v=076590dd90c0" defer></script>
 </body>
 </html>

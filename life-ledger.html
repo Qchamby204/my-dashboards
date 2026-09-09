@@ -95,6 +95,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -1296,7 +1297,7 @@ function commit(force){
     if(hk){ var hb=after.habit[hk]; state.levelInfo={kicker:"Outcome Reached",title:hb.chunksDone+" "+plural(hb.cfg.noun,hb.chunksDone),detail:label(hk)+", goal is "+hb.cfg.outcome+"."}; }
   }
   render();
-  window.scrollTo({top:0,behavior:"smooth"});
+  window.scrollTo({top:0,behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
 
   var fresh=ACHV.filter(function(a){ return a.test(after) && !a.test(before); });
   state.achvQueue=fresh.slice();
@@ -1410,7 +1411,7 @@ app.addEventListener("click",function(e){
   var act=el.dataset.act, habit=el.dataset.habit, key=el.dataset.key, id=el.dataset.id;
   if(act==="num"||act==="goal") return; // handled on change
   if(act==="pillar"){ state.openP = state.openP===key?null:key; state.active=key; render(); }
-  else if(act==="node"){ state.active=key; state.openP=key; render(); var c=document.querySelector('[data-act="pillar"][data-key="'+key+'"]'); if(c) c.scrollIntoView({behavior:"smooth",block:"center"}); }
+  else if(act==="node"){ state.active=key; state.openP=key; render(); var c=document.querySelector('[data-act="pillar"][data-key="'+key+'"]'); if(c) c.scrollIntoView({behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"center"}); }
   else if(act==="toggle"){ var on=!(state.draft[habit]>0); state.draft[habit]=on?1:0; if(on&&navigator.vibrate){ try{ navigator.vibrate(8); }catch(e2){} } if(on && state.logMode!=="list" && HABITS[state.cardIndex]===habit && state.cardIndex<HABITS.length-1){ state.cardIndex++; } render(); }
   else if(act==="inc"){ var ci=HCFG[habit]; state.draft[habit]=Math.round(((state.draft[habit]||0)+ci.step)*10)/10; render(); }
   else if(act==="dec"){ var cd=HCFG[habit]; state.draft[habit]=Math.max(0,Math.round(((state.draft[habit]||0)-cd.step)*10)/10); render(); }
@@ -1424,7 +1425,7 @@ app.addEventListener("click",function(e){
   else if(act==="hinfo"){ state.infoHabit=(state.infoHabit===habit)?null:habit; render(); }
   else if(act==="achvNext"){ (state.achvQueue||[]).shift(); if(!(state.achvQueue||[]).length) state.achvReview=false; render(); }
   else if(act==="relic"){ var ri=+el.dataset.idx; if(!isNaN(ri)&&ACHV[ri]){ state.achvQueue=[ACHV[ri]]; state.achvReview=true; render(); } }
-  else if(act==="achvAll"){ state.achvQueue=[]; state.achvReview=false; if(!state.openSections) state.openSections={}; state.openSections.relics=true; render(); var rc=document.querySelector('[data-act="section"][data-key="relics"]'); if(rc) rc.scrollIntoView({behavior:"smooth",block:"start"}); }
+  else if(act==="achvAll"){ state.achvQueue=[]; state.achvReview=false; if(!state.openSections) state.openSections={}; state.openSections.relics=true; render(); var rc=document.querySelector('[data-act="section"][data-key="relics"]'); if(rc) rc.scrollIntoView({behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"}); }
   else if(act==="reset"){ if(state.days.length===0){ return; } uiConfirm("Reset the season?","This clears every logged day. Undo is available right after.","Reset",function(){ var snap=JSON.stringify(state.days); state.days=[]; save(); render(); undoToast("Season reset",function(){ try{ state.days=JSON.parse(snap); save(); render(); }catch(e){} }); },true); }
   else if(act==="closeLevel"){ state.levelInfo=null; render(); }
   else if(act==="settings"){ state.settingsOpen=true; render(); }
@@ -1640,5 +1641,6 @@ function uiAsk(title, fields, onOk, okLabel){
 function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent=msg; }
 
 </script>
+<script src="shared/atlas-refinements.js?v=076590dd90c0" defer></script>
 </body>
 </html>

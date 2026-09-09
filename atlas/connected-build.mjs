@@ -2,7 +2,7 @@ import {readFile} from 'node:fs/promises';
 export async function connectedAssets(root){
   const assets={};
   const add=(path,body,type)=>assets[path]=[body,type];
-  for(const name of ['atlas-mobile.js','atlas-mobile.css']){
+  for(const name of ['atlas-mobile.js','atlas-mobile.css','atlas-refinements.js','atlas-refinements.css']){
     const body=await readFile(new URL('shared/'+name,root),'utf8'),type=name.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8';
     add('/'+name,body,type);add('/shared/'+name,body,type);
   }

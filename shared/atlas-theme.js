@@ -19,6 +19,11 @@
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
+    // Apply interface assets without republishing reference pages with embedded data.
+    if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
+      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=805c48b4fcb5',sharedSource).href;document.head.appendChild(polish);
+      const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=076590dd90c0',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
+    }
     if(root.dataset.atlasApp==='prospecting-command-center'){
       // Retain the saved bytes before the legacy boot can attempt migration.
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
@@ -38,7 +43,7 @@
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasForgeBoot=boot;
-      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=motion-20260909',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}

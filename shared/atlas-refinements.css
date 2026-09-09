@@ -1,0 +1,74 @@
+/* Apple Design, applied in place. Life Ledger retains its existing typography. */
+html.atlas-refined{font-size:100%;font-optical-sizing:auto}
+html.atlas-refined body{font-size:1rem}
+.atlas-refined :is(button,summary,.btn,[role="button"]){touch-action:manipulation}
+.atlas-refined :is(button,summary,.btn){transition:transform 100ms ease-out,box-shadow 100ms ease-out,color 120ms ease-out}
+.atlas-refined :is(button,summary,.btn):active:not(:disabled):not([aria-disabled="true"]){transform:scale(.985);transition-duration:70ms}
+.atlas-refined :is(button,summary,input,select,textarea,a,[tabindex]):focus-visible{outline:3px solid var(--neo-blue)!important;outline-offset:3px!important}
+.atlas-refined :is(input,select,textarea){scroll-margin-block:6rem 8rem}
+.atlas-refined :is(button,summary){overflow-wrap:anywhere}
+.atlas-refined :is(.tabbar,.tabs){scroll-padding-inline:12px}
+.atlas-refined :is(.tabbar button,.tabs button,.rail-btn){line-height:1.35}
+.atlas-refined :is(.tabbar button,.tabs button,.rail-btn)[aria-current="page"]{font-weight:700;border-bottom:2px solid var(--neo-accent)!important}
+.atlas-refined .atlas-info-body{font-size:1rem;line-height:1.6;text-transform:none;letter-spacing:normal}
+.atlas-refined .atlas-info>summary{flex-shrink:0}
+.atlas-refined #uiDlg{overscroll-behavior:contain}
+.atlas-refined #uiDlg>div{background:var(--neo-surface)!important;color:var(--neo-ink)!important;line-height:1.55}
+.atlas-refined #uiDlg>div>div:not(:has(button)){font-size:.9375rem!important;color:var(--neo-ink)!important}
+.atlas-refined:not([data-atlas-app="life-ledger"]) :is(.appbar-title,.appbar h1){font-size:1.0625rem;line-height:1.3;letter-spacing:-.015em;white-space:normal}
+.atlas-refined:not([data-atlas-app="life-ledger"]) :is(.fadeUp,.task,.log-item){animation:none}
+.atlas-refined:not([data-atlas-app="life-ledger"]) :is(.f>label,.field>label,.stat .l,.scell .k,.rail-card .lbl){font-size:.8125rem;line-height:1.45;letter-spacing:.025em;white-space:normal}
+/* Writing and business screens: stronger titles, readable labels, quieter lists. */
+.atlas-refined[data-atlas-app="the-herald"] .card h2{font-size:1rem;letter-spacing:.035em;line-height:1.4}
+.atlas-refined[data-atlas-app="the-herald"] .vhead .t .ti{font-size:1rem;line-height:1.45;overflow-wrap:anywhere}
+.atlas-refined[data-atlas-app="the-herald"] :is(.stage .nm,.optrow .ol,.mtable th){font-size:.8125rem;line-height:1.4;letter-spacing:.02em}
+.atlas-refined[data-atlas-app="the-herald"] textarea{line-height:1.7;resize:vertical}
+.atlas-refined[data-atlas-app="prospecting-command-center"] :is(th,.field label){font-size:.8125rem;letter-spacing:.02em;line-height:1.45}
+.atlas-refined[data-atlas-app="prospecting-command-center"] :is(td,.prospecting-result){line-height:1.5}
+.atlas-refined[data-atlas-app="operations-cadence"] :is(.task-text,.log-text){font-size:1rem;line-height:1.5;overflow-wrap:anywhere}
+.atlas-refined[data-atlas-app="operations-cadence"] :is(.rail-label,.rail-count){line-height:1.4;white-space:normal}
+/* Planning screens: numbers keep their width; controls keep their full names. */
+.atlas-refined:is([data-atlas-app="the-aqueduct"],[data-atlas-app="the-hourglass"]) :is(.tabbar .tlbl,.tabbar .tl){font-size:.8125rem;letter-spacing:0;text-transform:none;white-space:normal;line-height:1.35}
+.atlas-refined:is([data-atlas-app="the-aqueduct"],[data-atlas-app="the-hourglass"]) .tabbar button{min-width:5.25rem;flex:1 0 5.25rem;height:auto}
+.atlas-refined[data-atlas-app="the-aqueduct"] :is(.wrow .v,.wf-lbl .a,.aqueduct-transaction span){font-variant-numeric:tabular-nums}
+.atlas-refined[data-atlas-app="the-aqueduct"] :is(.wf-lbl .n,.wf-lbl .a){font-size:.8125rem;line-height:1.4}
+.atlas-refined[data-atlas-app="the-hourglass"] .hourglass-upcoming-row{padding-block:1rem}
+.atlas-refined[data-atlas-app="the-hourglass"] .hourglass-until{font-variant-numeric:tabular-nums}
+/* Practice and reference: readable content and stable transport controls. */
+.atlas-refined[data-atlas-app="communication-trainer"] #nav .tl{font-size:.8125rem;white-space:normal;line-height:1.35;overflow:visible}
+.atlas-refined[data-atlas-app="communication-trainer"] #nav button{min-width:5rem;flex:1 0 5rem;height:auto}
+.atlas-refined[data-atlas-app="communication-trainer"] :is(.lbody,.drillcard .topic){line-height:1.6}
+.atlas-refined[data-atlas-app="communication-trainer"] :is(#txBox,#gradeBox){line-height:1.65}
+.atlas-refined[data-atlas-app="workout-forge"] :is(.forge-rest strong,#liveClock){font-variant-numeric:tabular-nums}
+.atlas-refined[data-atlas-app="workout-forge"] .forge-live-header{row-gap:.75rem}
+.atlas-refined[data-atlas-app="workout-forge"] .forge-live-actions button{line-height:1.4}
+.atlas-refined[data-atlas-app="courier"] .block .title{line-height:1.3;letter-spacing:-.025em;overflow-wrap:anywhere}
+.atlas-refined[data-atlas-app="courier"] .courier-title-toggle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.75rem;align-items:start;width:100%;padding:0;border:0!important;border-radius:4px;background:transparent!important;box-shadow:none!important;color:inherit!important;text-align:left;font:inherit!important;letter-spacing:inherit;line-height:inherit;cursor:pointer}
+.atlas-refined[data-atlas-app="courier"] .courier-title-toggle:active{transform:none;color:var(--neo-accent)!important}
+.atlas-refined[data-atlas-app="courier"] .courier-chevron{font-size:1rem;line-height:2;color:var(--neo-muted)}
+.atlas-refined[data-atlas-app="courier"] [aria-expanded="true"] .courier-chevron{transform:rotate(180deg)}
+.atlas-refined[data-atlas-app="courier"] :is(.script,.points){font-size:1rem;line-height:1.75}
+.atlas-refined[data-atlas-app="courier"] :is(.runline,.ptime){font-variant-numeric:tabular-nums;line-height:1.45}
+.atlas-refined[data-atlas-app="courier"] .block .tabs{display:flex;flex-wrap:wrap;gap:8px}
+.atlas-refined[data-atlas-app="courier"] .block .tabs button{font-size:.875rem;white-space:normal}
+.atlas-refined[data-atlas-app="baby-brain"] .sheet-hd h2{font-size:1.375rem;line-height:1.35;letter-spacing:-.02em}
+.atlas-refined[data-atlas-app="baby-brain"] .baby-topic strong{font-size:1.0625rem;line-height:1.45}
+.atlas-refined[data-atlas-app="neural-map"] .neural-card h2{font-size:1.1875rem;line-height:1.35;letter-spacing:-.015em}
+.atlas-refined[data-atlas-app="neural-map"] :is(.neural-description,.neural-note){font-size:.9375rem;line-height:1.65}
+/* One translucent chrome layer, using the existing light/dark surface. */
+@supports (backdrop-filter:blur(16px)){
+  .atlas-refined:not([data-atlas-app="life-ledger"]) :is(.appbar,.tabbar,#player,.neural-toolbar,.baby-toolbar){background:color-mix(in srgb,var(--neo-surface) 96%,transparent)!important;backdrop-filter:blur(16px) saturate(115%);-webkit-backdrop-filter:blur(16px) saturate(115%)}
+}
+@media(prefers-reduced-motion:reduce){
+  html.atlas-refined{scroll-behavior:auto!important}
+  .atlas-refined *,.atlas-refined *::before,.atlas-refined *::after{animation:none!important;transition-duration:0s!important;scroll-behavior:auto!important}
+  .atlas-refined :is(button,summary,.btn):active{transform:none!important}
+}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  .atlas-refined :is(.appbar,.tabbar,.tabs,#player,.hud,.sheet,.sheet-hd,.pop,.neural-toolbar,.baby-toolbar,dialog,#uiDlg>div){background:var(--neo-surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .atlas-refined #uiDlg{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+@media(prefers-contrast:more){
+  .atlas-refined :is(.panel,.card,.block,.task,.neural-card,.baby-topic,button,input,select,textarea,summary,dialog){border-color:var(--neo-ink)!important}
+  .atlas-refined :is(.muted,.dim,.faint,.eyebrow,.appbar-sub,.workflow-meta){color:var(--neo-ink)!important}
+}
