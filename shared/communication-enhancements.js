@@ -3,17 +3,49 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='communication-trainer'||typeof S==='undefined'||window.CommunicationImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css',source).href;document.head.appendChild(css);}
-    const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldFinish=finishDrill,oldToast=toast;
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=practice-20260909',source).href;document.head.appendChild(css);}
+    const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldToast=toast;
     const fields={assessments:'assessments',reps:'reps',lessonsDone:'lessonsDone',customTopics:'customTopics',retiredTopics:'retired',catsEnabled:'catsEnabled',city:'city',prepNotes:'prepNotes',refreshed:'refreshed',bankUpdated:'bankUpdated',grades:'grades',pendingGrades:'pendingGrades'};
     const shadow=new Map(),unsaved=new Set();
     const copy=value=>JSON.parse(JSON.stringify(value));
     const originalGet=Store.get.bind(Store);let diskAvailable=Store.usable();
     let deadline=null,remainingMs=null,timerSession=null,speechEpoch=0,restartTask=null,renderedPage=null,renderedSession=null;
+    const DRAFT='practiceDraft';let draftProblem=null,lastSaveError='',lastSaved=null;
+    const recordDay=value=>/^\d{4}-\d\d-\d\d$/.test(value)?value:dstr(new Date(value));
+    dstr=date=>date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+    const eligible=rows=>rows.filter(r=>Number.isFinite(Date.parse(r.date))&&recordDay(r.date)<=dstr(new Date()));
+    activityDates=()=>eligible(S.reps).map(r=>recordDay(r.date));
+    repsByDay=()=>{const days={};for(const date of activityDates())days[date]=(days[date]||0)+1;return days;};
+    streak=()=>{const days=new Set(activityDates()),date=new Date();let count=0;if(!days.has(dstr(date)))date.setDate(date.getDate()-1);while(days.has(dstr(date))){count++;date.setDate(date.getDate()-1);}return count;};
+    repsThisWeek=()=>{const since=new Date();since.setDate(since.getDate()-6);return activityDates().filter(date=>date>=dstr(since)).length;};
+    bestByDrill=()=>{const best={};for(const r of eligible(S.reps))if(!best[r.drill]||r.score>best[r.drill].score)best[r.drill]={score:r.score,topic:r.topic,date:recordDay(r.date),skill:r.skill};return best;};
+    const sorted=rows=>eligible(rows).slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+    latestScores=()=>sorted(S.assessments).at(-1)?.scores||null;firstScores=()=>sorted(S.assessments)[0]?.scores||null;
+    const oldProjectedScores=projectedScores;
+    projectedScores=()=>{const rows=S.assessments;S.assessments=sorted(rows);try{return oldProjectedScores();}finally{S.assessments=rows;}};
+    xp=()=>eligible(S.reps).length*10+Object.values(S.lessonsDone).filter(Boolean).length*15+eligible(S.assessments).length*25;
+    function validateDraft(value){
+      if(value===null)return null;
+      if(!value||typeof value!=='object'||Array.isArray(value)||value.schemaVersion!==1||typeof value.id!=='string'||!value.id||typeof value.drillId!=='string'||!value.topic||typeof value.topic.text!=='string'||typeof value.topic.cat!=='string'||!Array.isArray(value.scores)||!value.scores.length||value.scores.some(n=>!Number.isInteger(n)||n<1||n>5)||typeof value.tx!=='string'||typeof value.recSecs!=='number'||!Number.isFinite(value.recSecs)||value.recSecs<0||typeof value.remainingMs!=='number'||!Number.isFinite(value.remainingMs)||value.remainingMs<0||value.deadline!==null&&(typeof value.deadline!=='number'||!Number.isFinite(value.deadline))||value.gradePaste!==undefined&&typeof value.gradePaste!=='string')throw Error('The unfinished practice could not be read.');
+      return copy(value);
+    }
+    function draftSnapshot(){if(!curDrill)return null;return {schemaVersion:1,id:curDrill.id,drillId:curDrill.drill.id,topic:copy(curDrill.topic),scores:curDrill.scores.slice(),tx:curDrill.tx||'',recSecs:(curDrill.recSecs||0)+(recOn&&recT0?Math.max(0,(Date.now()-recT0)/1000):0),remainingMs:deadline!==null?Math.max(0,deadline-Date.now()):remainingMs??timerLeft*1000,deadline,prepOpen:!!curDrill.prepOpen,graded:!!curDrill.graded,gradePaste:curDrill.gradePaste||''};}
+    function rememberPractice(){if(!curDrill?.id||draftProblem)return false;return Store.set(DRAFT,draftSnapshot());}
+    function restorePractice(value){
+      const draft=validateDraft(value);if(!draft||S.reps.some(r=>r.id===draft.id)){curDrill=null;return;}
+      const drill=DRILLS.find(d=>d.id===draft.drillId);if(!drill||draft.scores.length!==drill.rubric.length)throw Error('This unfinished drill is unavailable. Export it before replacing it.');
+      curDrill={id:draft.id,drill,topic:copy(draft.topic),scores:draft.scores.slice(),tx:draft.tx,recSecs:draft.recSecs,prepOpen:!!draft.prepOpen,graded:!!draft.graded,gradePaste:draft.gradePaste||''};
+      remainingMs=Math.min(drill.time*1000,draft.deadline!==null?Math.max(0,draft.deadline-Date.now()):draft.remainingMs);timerLeft=Math.ceil(remainingMs/1000);deadline=null;timerSession=curDrill;
+    }
+    function writeProgress(key,next){if(Store.set(key,next))return true;shadow.set(key,copy(S[fields[key]]));unsaved.delete(key);lastSaveError='Not saved. Your work is still here. Retry Save when storage is available.';rememberPractice();status();return false;}
+    function leavePractice(){stopRec();stopTimer();rememberPractice();curPage='train';curDrill=null;render();}
+    function resumePractice(){if(draftProblem){toast('Unfinished practice unavailable','Export it before replacing it.');return;}if(!curDrill)try{restorePractice(Store.get(DRAFT,null));}catch(error){draftProblem=error.message;render();return;}if(curDrill){curPage='train';render();}}
+    function discardPractice(){uiConfirm('Discard unfinished practice?','This removes the unfinished transcript and scores. Saved practice history stays.','Discard',()=>{stopRec();stopTimer();if(!Store.set(DRAFT,null))return;curDrill=null;draftProblem=null;lastSaveError='';render();});}
     function status(){
       let box=$('communication-save-error');
       if(!box&&unsaved.size){box=document.createElement('section');box.id='communication-save-error';box.className='card';box.setAttribute('role','alert');box.innerHTML='<p>Some changes could not be saved on this device. Keep this page open, retry saving, or export your progress.</p><div class="flex"><button type="button" class="btn ghost" data-communication-action="retry">Retry saving</button><button type="button" class="btn ghost" data-communication-action="export">Export progress</button></div>';$('main').before(box);}
       if(box)box.hidden=!unsaved.size;
+      const label=$('communication-practice-status');if(label)label.textContent=lastSaveError|| (unsaved.has(DRAFT)?'Draft not saved on this device':'Draft saved on this device');
     }
     Store.set=function(key,value){
       shadow.set(key,copy(value));
@@ -26,7 +58,7 @@
       try{const raw=localStorage.getItem('mc_'+key);if(raw!==null)return JSON.parse(raw);}catch{}
       return shadow.has(key)?copy(shadow.get(key)):originalGet(key,fallback);
     };
-    Store.dump=function(){const result={};for(const [key,field]of Object.entries(fields))result[key]=copy(S[field]);for(const key of ['topics','goalNote','proCatsAdded'])result[key]=Store.get(key,null);return result;};
+    Store.dump=function(){const result={};for(const [key,field]of Object.entries(fields))result[key]=copy(S[field]);for(const key of ['topics','goalNote','proCatsAdded'])result[key]=Store.get(key,null);result.practiceDraft=curDrill?draftSnapshot():Store.get(DRAFT,null);if(draftProblem)try{result.unreadablePracticeDraft=localStorage.getItem('mc_'+DRAFT);}catch{}return result;};
     Store.usable=()=>diskAvailable&&unsaved.size===0;
     toast=function(title,sub){oldToast(unsaved.size?'Progress is not fully saved':title,unsaved.size?'Keep this page open and retry, or export your progress.':sub);};
     function timerUI(){
@@ -41,14 +73,14 @@
     }
     stopTimer=function(){
       if(deadline!==null){remainingMs=Math.max(0,deadline-Date.now());timerLeft=Math.ceil(remainingMs/1000);}
-      deadline=null;if(timerInt!==null){clearInterval(timerInt);timerInt=null;}if(!recOn)relWake();timerUI();
+      deadline=null;if(timerInt!==null){clearInterval(timerInt);timerInt=null;}if(!recOn)relWake();timerUI();if(timerSession===curDrill)rememberPractice();
     };
     toggleTimer=function(){
       if(!curDrill)return;
       if(deadline!==null){stopTimer();return;}
       if(timerSession!==curDrill){timerSession=curDrill;remainingMs=timerLeft*1000;}
       if(timerLeft<=0)return;
-      deadline=Date.now()+(remainingMs??timerLeft*1000);reqWake();timerInt=setInterval(paintTimer,250);paintTimer();
+      deadline=Date.now()+(remainingMs??timerLeft*1000);reqWake();timerInt=setInterval(paintTimer,250);paintTimer();rememberPractice();
     };
     function recordingUI(message){
       const button=$('recBtn');if(button){button.textContent=recOn?'Stop dictation':'Start dictation';button.setAttribute('aria-pressed',String(recOn));button.classList.toggle('reclive',recOn);}
@@ -63,6 +95,7 @@
       recT0=0;if(!timerInt)relWake();
       const stats=curDrill?txStats(curDrill.tx||'',curDrill.recSecs||0):null;
       recordingUI(wasOn&&stats?`${stats.words} words · ${stats.wpm||'?'} wpm · ${stats.fillers} possible filler words`:undefined);
+      if(wasOn)rememberPractice();
     };
     recToggle=function(){
       if(recOn){stopRec();return;}if(!curDrill)return;
@@ -82,6 +115,7 @@
         }
         session.tx=[base,...[...finals].sort((a,b)=>a[0]-b[0]).map(([,value])=>value),interim].filter(Boolean).join(' ').trim();
         const box=$('txBox');if(box){box.value=session.tx;box.scrollTop=box.scrollHeight;}
+        rememberPractice();
       };
       engine.onend=()=>{
         if(!active())return;
@@ -99,21 +133,39 @@
       if(!active())return;
       recTick=setInterval(()=>{if(active()&&recT0)recordingUI('Listening · '+fmtT(Math.floor((session.recSecs||0)+(Date.now()-recT0)/1000)));},1000);
     };
-    launchDrill=function(drill){if(!drill)return;stopTimer();timerSession=null;remainingMs=null;oldLaunch(drill);window.scrollTo(0,0);};
+    launchDrill=function(drill){
+      if(!drill)return;if(draftProblem){toast('Keep a backup first','Your unreadable unfinished practice has been preserved.');return;}
+      const begin=()=>{stopRec();stopTimer();timerSession=null;remainingMs=null;oldLaunch(drill);curDrill.id=crypto.randomUUID();curDrill.scores=drill.rubric.map(()=>3);lastSaveError='';remainingMs=timerLeft*1000;timerSession=curDrill;rememberPractice();render();window.scrollTo(0,0);};
+      let draft=curDrill?draftSnapshot():Store.get(DRAFT,null);if(draft?.id&&S.reps.some(r=>r.id===draft.id))draft=null;
+      if(draft&&(draft.tx.trim()||draft.recSecs>0||draft.scores.some(n=>n!==3)||draft.remainingMs<(DRILLS.find(d=>d.id===draft.drillId)?.time||0)*1000))uiConfirm('Start a new practice?','Your unfinished transcript and scores will be replaced. Save this practice or export progress first if you want to keep it.','Start new practice',begin);else begin();
+    };
     nav=function(page){if(page!=='train'&&curDrill){stopRec();stopTimer();}oldNav(page);};
-    finishDrill=function(){if(!curDrill)return;oldFinish();timerSession=null;remainingMs=null;};
+    finishDrill=function(){
+      if(!curDrill)return false;stopRec();stopTimer();const session=curDrill,{drill,topic,scores}=session;if(S.reps.some(r=>r.id===session.id)){toast('This practice is already saved','Your current draft is kept. Start a new practice to record a separate attempt.');return false;}
+      if(scores.length!==drill.rubric.length||scores.some(n=>!Number.isInteger(n)||n<1||n>5)){lastSaveError='Choose a score from 1 to 5 for each rubric item.';status();return false;}
+      const previous=S.reps.filter(r=>r.drill===drill.name),best=previous.reduce((n,r)=>Math.max(n,r.score),0),score=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*20),beforeXP=xp();
+      const entry={id:session.id,date:new Date().toISOString(),drill:drill.name,skill:drill.skill,topic:topic.text,score,transcript:session.tx||'',recSecs:session.recSecs||0,rubricScores:scores.slice()};
+      const next=[...S.reps,entry];if(!writeProgress('reps',next)){toast('Practice not saved','Your transcript and scores are still here. Try Save practice again.');return false;}
+      S.reps=next;const topicKey=normT(topic.text);if(topicKey&&!S.retired.includes(topicKey)){S.retired=[...S.retired,topicKey];Store.set('retiredTopics',S.retired);}
+      lastSaved={...entry,xp:xp()-beforeXP,first:previous.length===0,best:previous.length>0&&score>best};lastSaveError='';curDrill=null;timerSession=null;remainingMs=null;Store.set(DRAFT,null);nav('progress');toast('Practice saved',lastSaved.xp+' XP added'+(lastSaved.best?' · New personal best':lastSaved.first?' · First practice for this drill':''));return true;
+    };
+    doneLesson=function(id){const next={...S.lessonsDone};if(next[id])delete next[id];else next[id]=true;if(!writeProgress('lessonsDone',next)){toast('Lesson change not saved','Try again when storage is available.');return;}S.lessonsDone=next;lastSaveError='';render();toast(next[id]?'Lesson saved':'Lesson marked incomplete',next[id]?'+15 XP':'Progress updated');};
+    submitAssess=function(){if(Object.keys(curAnswers).length<ASSESS.length)return;const scores={};for(const skill of SKILLS){const answers=ASSESS.map((q,i)=>q.s===skill.id?curAnswers[i]:null).filter(n=>n!==null);if(!answers.length||answers.some(n=>!Number.isInteger(n)||n<1||n>5))return;scores[skill.id]=Math.round(answers.reduce((a,b)=>a+b,0)/answers.length*20);}const next=[...S.assessments,{date:new Date().toISOString(),scores}];if(!writeProgress('assessments',next)){toast('Assessment not saved','Your answers are still here. Try saving again.');return;}S.assessments=next;curAnswers={};lastSaveError='';nav('progress');toast('Assessment saved','+25 XP');};
     resetRep=function(){
       if(!curDrill)return;stopRec();stopTimer();
       const session=curDrill,snapshot={tx:session.tx||'',secs:session.recSecs||0};
-      session.tx='';session.recSecs=0;session.graded=false;timerLeft=session.drill.time;remainingMs=timerLeft*1000;timerSession=session;render();
+      session.tx='';session.recSecs=0;session.graded=false;timerLeft=session.drill.time;remainingMs=timerLeft*1000;timerSession=session;rememberPractice();render();
       if(snapshot.tx.trim())undoToast('Rep restarted. Previous transcript available with Undo.',()=>{
         if(curDrill!==session||session.tx||recOn||timerInt){toast('The current rep was kept','Undo cannot replace newer work.');return;}
-        session.tx=snapshot.tx;session.recSecs=snapshot.secs;render();
+        session.tx=snapshot.tx;session.recSecs=snapshot.secs;rememberPractice();render();
       });else toast('Rep restarted','Same topic, full timer.');
     };
     function info(label,text){return '<details class="atlas-info"><summary aria-label="'+label+'"><span aria-hidden="true">i</span></summary><div class="atlas-info-body">'+text+'</div></details>';}
     drillView=function(){
       let html=oldDrillView().replace('↺ Reset the clock','Restart rep').replace('Record → transcript → AI grade','2 · Review your transcript').replace('Self-score this rep','3 · Score and save').replace('>Log rep (+10 XP)<','>Save practice (+10 XP)<');
+      html=html.replace('stopRec();curDrill=null;stopTimer();render()','CommunicationImprovements.leavePractice()');
+      html=html.replace(/(<textarea id="gradeBox"[^>]*>)[\s\S]*?(<\/textarea>)/,(_,open,close)=>open+esc(curDrill.gradePaste||'')+close);
+      html=html.replace('<div class="card rubric">','<div class="card rubric"><p id="communication-practice-status" role="status">'+esc(lastSaveError||'Draft saved on this device')+'</p>'+info('How practice is saved','Your transcript, timer and rubric scores stay in an unfinished draft on this device. Save practice adds one history record and 10 XP. Returning to a draft keeps dictation off until you start it.'));
       html=html.replace(/<p class="muted">Tap record and run the rep[\s\S]*?<\/p>/,info('About dictation and feedback','Dictation creates text, not an audio recording. You can also type or use keyboard dictation. Review the transcript before saving. External feedback is optional.'));
       html=html.replace('<p class="muted">Be honest, this calibrates your training plan.</p>',info('About self-scoring','Rate this attempt using the rubric. Your saved scores help you review progress and choose what to practise.'));
       html=html.replace('>● Record<','>Start dictation<').replace('>■ Stop recording<','>Stop dictation<');
@@ -122,6 +174,13 @@
       html=html.replace('  </div>\n  <div class="card rubric">','    </details>\n  </div>\n  <div class="card rubric">');
       return html;
     };
+    function recoveryBanner(){const saved=curDrill||Store.get(DRAFT,null);if(!saved&&!draftProblem)return '';if(saved?.id&&S.reps.some(r=>r.id===saved.id)&&!draftProblem)return '';return '<section class="card communication-resume"><h2>'+(draftProblem?'Unfinished practice unavailable':'Unfinished practice')+'</h2><p>'+esc(draftProblem||curDrill?.topic.text||saved?.topic?.text||'Your draft is saved on this device.')+'</p><div class="flex">'+(!draftProblem?'<button class="btn" onclick="CommunicationImprovements.resumePractice()">Resume practice</button>':'<button class="btn ghost" onclick="exportData()">Export recovery backup</button>')+'<button class="btn ghost" onclick="CommunicationImprovements.discardPractice()">Discard draft</button></div></section>';}
+    function recentHistory(){const recent=sorted(S.reps).reverse().slice(0,8);if(!recent.length)return '';return '<div class="card communication-history"><h2>Recent practice</h2>'+recent.map(r=>'<details><summary><span><b>'+esc(r.drill)+'</b><span class="muted">'+esc(r.topic)+'</span></span><span>'+r.score+'/100 · '+recordDay(r.date)+'</span></summary>'+(typeof r.transcript==='string'&&r.transcript?'<p class="communication-transcript">'+esc(r.transcript)+'</p>':'<p class="muted">No transcript was saved for this practice.</p>')+'</details>').join('')+'</div>';}
+    const oldDash=pageDash,oldTrain=pageTrain,oldProgress=pageProgress;
+    pageDash=()=>recoveryBanner()+oldDash();pageTrain=()=>curDrill?oldTrain():recoveryBanner()+oldTrain();
+    pageProgress=function(){const assessments=S.assessments,reps=S.reps;S.assessments=sorted(assessments);S.reps=sorted(reps);try{let html=oldProgress().replace(/<div class="card"><h2>Recent reps<\/h2>[\s\S]*?(?=\n  <div class="card">\n    <h2>Backup & restore<\/h2>)/,recentHistory());if(lastSaved)html='<section class="card communication-saved" role="status"><h2>Practice saved</h2><p>'+esc(lastSaved.drill)+' · '+lastSaved.score+'/100 · +'+lastSaved.xp+' XP'+(lastSaved.best?' · New personal best':lastSaved.first?' · First practice for this drill':'')+'</p></section>'+html;return html;}finally{S.assessments=assessments;S.reps=reps;}};
+    const oldGradeSave=saveGradePaste;
+    saveGradePaste=function(src){const count=S.grades.length;oldGradeSave(src);if(curDrill){if(S.grades.length>count)curDrill.gradePaste='';rememberPractice();render();}};
     render=function(){
       const keep=renderedPage===curPage&&renderedSession===curDrill,x=window.scrollX||0,y=window.scrollY||0;
       oldRender();renderedPage=curPage;renderedSession=curDrill;if(keep)window.scrollTo(x,y);
@@ -137,11 +196,11 @@
     };
     function validateBackup(raw){
       if(!raw||typeof raw!=='object'||Array.isArray(raw)||!['reps','assessments','grades'].some(key=>Array.isArray(raw[key])))throw Error('Use an exported Communication Trainer progress file.');
-      const allowed=new Set([...Object.keys(fields),'topics','goalNote','proCatsAdded']),out={};
+      const allowed=new Set([...Object.keys(fields),'topics','goalNote','proCatsAdded',DRAFT]),out={};
       const arrays=new Set(['reps','assessments','grades','pendingGrades','customTopics','retiredTopics','catsEnabled']);
       const objects=new Set(['lessonsDone','prepNotes','refreshed']);
       for(const [key,value]of Object.entries(raw)){
-        if(!allowed.has(key))continue;if(value===null&&key!=='bankUpdated')continue;
+        if(!allowed.has(key))continue;if(key===DRAFT){out[key]=validateDraft(value);continue;}if(value===null&&key!=='bankUpdated')continue;
         if(arrays.has(key)&&!Array.isArray(value))throw Error('Invalid progress list.');
         if(objects.has(key)&&(!value||typeof value!=='object'||Array.isArray(value)))throw Error('Invalid progress details.');
         if(['city','goalNote'].includes(key)&&typeof value!=='string')throw Error('Invalid text field.');
@@ -151,6 +210,7 @@
         const object=item=>item&&typeof item==='object'&&!Array.isArray(item);
         const score=item=>Number.isFinite(item)&&item>=0&&item<=100;
         if(key==='reps'&&value.some(item=>typeof item.drill!=='string'||typeof item.topic!=='string'||typeof item.skill!=='string'||!score(item.score)))throw Error('Invalid practice score.');
+        if(key==='reps'){const ids=value.filter(item=>item.id!==undefined).map(item=>item.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length||value.some(item=>item.transcript!==undefined&&typeof item.transcript!=='string'||item.recSecs!==undefined&&(!Number.isFinite(item.recSecs)||item.recSecs<0)||item.rubricScores!==undefined&&(!Array.isArray(item.rubricScores)||item.rubricScores.some(n=>!Number.isInteger(n)||n<1||n>5))))throw Error('Invalid saved practice details.');}
         if(key==='assessments'&&value.some(item=>!object(item.scores)||SKILLS.some(skill=>!score(item.scores[skill.id]))))throw Error('Invalid assessment scores.');
         if(key==='grades'&&value.some(item=>!score(item.overall)||!object(item.scores)||typeof item.topic!=='string'||typeof item.drill!=='string'||Object.values(item.scores).some(n=>n!==null&&(!Number.isFinite(n)||n<1||n>10))))throw Error('Invalid saved grade.');
         if(key==='pendingGrades'&&value.some(item=>typeof item.topic!=='string'||typeof item.drill!=='string'))throw Error('Invalid pending feedback.');
@@ -170,22 +230,25 @@
         if(file.size>10*1024*1024)throw Error('This file is too large to import.');
         const data=validateBackup(JSON.parse(await file.text()));
         uiConfirm('Import this progress?','Progress categories present in this file will replace their current values. Categories missing from an older backup will be kept.','Import',()=>{
-          stopRec();stopTimer();const imported=Store.load(data);for(const [key,field]of Object.entries(fields))if(Object.hasOwn(imported,key))S[field]=copy(imported[key]);render();
+          stopRec();stopTimer();const imported=Store.load(data);for(const [key,field]of Object.entries(fields))if(Object.hasOwn(imported,key))S[field]=copy(imported[key]);lastSaved=null;lastSaveError='';if(Object.hasOwn(imported,DRAFT)){draftProblem=null;try{restorePractice(imported[DRAFT]);}catch(error){draftProblem=error.message;curDrill=null;}}render();
           if(!unsaved.size)uiNote('Progress imported.');else toast('Import retained in this page','Retry saving or export before closing.');
         });
       }catch(error){uiNote(error instanceof SyntaxError?'This is not a valid JSON progress file.':error.message||'Could not read this file.');}
       finally{input.value='';}
     };
-    function hide(){if(document.hidden){stopRec();stopTimer();}}
+    function hide(){if(document.hidden){stopRec();stopTimer();rememberPractice();}}
     document.addEventListener('visibilitychange',hide);
-    window.addEventListener('pagehide',()=>{stopRec();stopTimer();});
-    document.addEventListener('input',event=>{if(event.target.id==='txBox'&&recOn)stopRec();});
+    window.addEventListener('pagehide',()=>{stopRec();stopTimer();rememberPractice();});
+    window.addEventListener('beforeunload',event=>{rememberPractice();if(unsaved.size){event.preventDefault();event.returnValue='';}});
+    document.addEventListener('input',event=>{if(event.target.id==='txBox'&&recOn)stopRec();if(curDrill){if(event.target.id==='txBox')curDrill.tx=event.target.value;if(event.target.id==='gradeBox')curDrill.gradePaste=event.target.value;lastSaveError='';rememberPractice();}});
     document.addEventListener('click',event=>{
       const action=event.target.closest?.('[data-communication-action]')?.dataset.communicationAction;
-      if(action==='retry'){save();if(!unsaved.size)toast('Progress saved','Saved on this device.');}
+      if(action==='retry'){save();if(curDrill)rememberPractice();else if(unsaved.has(DRAFT))Store.set(DRAFT,shadow.get(DRAFT));if(!unsaved.size){lastSaveError='';toast('Progress saved','Saved on this device.');status();}}
       if(action==='export')exportData();
     });
-    window.CommunicationImprovements=Object.freeze({validateBackup,get unsaved(){return unsaved.size;}});
+    let savedDraftRaw;try{savedDraftRaw=localStorage.getItem('mc_'+DRAFT);}catch{diskAvailable=false;}
+    if(savedDraftRaw!=null)try{restorePractice(JSON.parse(savedDraftRaw));}catch(error){draftProblem=error.message||'Could not read the unfinished practice.';}
+    window.CommunicationImprovements=Object.freeze({validateBackup,rememberPractice,resumePractice,leavePractice,discardPractice,get unsaved(){return unsaved.size;}});
     render();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

@@ -22,3 +22,17 @@
 [data-atlas-app="communication-trainer"] .rubric{border-top:2px solid var(--neo-green)!important}
 [data-atlas-app="communication-trainer"] :is(.card h2,.drillcard h2){font-size:20px;line-height:1.35}
 [data-atlas-app="communication-trainer"] .communication-feedback textarea{min-width:0!important;width:100%}
+
+[data-atlas-app="communication-trainer"] #communication-practice-status{font-size:14px;line-height:1.5;color:var(--neo-muted)}
+[data-atlas-app="communication-trainer"] .communication-saved{border-color:var(--neo-green)}
+[data-atlas-app="communication-trainer"] .communication-saved p{font-variant-numeric:tabular-nums}
+[data-atlas-app="communication-trainer"] .communication-resume{border-color:var(--neo-accent)}
+[data-atlas-app="communication-trainer"] .communication-resume .flex{gap:8px;flex-wrap:wrap}
+[data-atlas-app="communication-trainer"] .communication-history details{border-top:1px solid var(--neo-line);padding:8px 0}
+[data-atlas-app="communication-trainer"] .communication-history summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;cursor:pointer;list-style:revert;font-size:14px;line-height:1.5}
+[data-atlas-app="communication-trainer"] .communication-history summary>span:first-child{min-width:0;flex:1}
+[data-atlas-app="communication-trainer"] .communication-history summary .muted{display:block;overflow-wrap:anywhere}
+[data-atlas-app="communication-trainer"] .communication-history summary>span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+[data-atlas-app="communication-trainer"] .communication-transcript{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.6;padding:12px 0;margin:0}
+[data-atlas-app="communication-trainer"] .communication-history summary:focus-visible{outline:2px solid var(--neo-accent);outline-offset:3px}
+@media(max-width:480px){[data-atlas-app="communication-trainer"] .communication-history summary{flex-wrap:wrap}[data-atlas-app="communication-trainer"] .communication-history summary>span:first-child{flex-basis:100%}}
