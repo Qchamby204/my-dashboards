@@ -75,7 +75,7 @@ async function boot({records={},blocked=false,width=390}={}){
   return {run,node,document,window,context,api:window.ForgeSession,localStorage,storage,downloads,legacyError,
     at(date){now=new Date(date).getTime();},flush(){for(const [id,t]of [...timers])if(t.due<=now&&timers.delete(id))t.fn();},
     settle:async()=>{for(let i=0;i<30;i++)await Promise.resolve();},act(action,extra={}){const el=document.createElement('button');el.dataset={act:action,...extra};return node('app').emit('click',{target:el});},
-    clickText(text){const scope=document.querySelector('dialog[open]')||document;const b=scope.querySelectorAll('button').find(n=>n.textContent===text);assert(b,'Missing button '+text);b.click();}};
+    clickText(text){const scope=document.querySelectorAll('dialog[open]').at(-1)||document;const b=scope.querySelectorAll('button').find(n=>n.textContent===text);assert(b,'Missing button '+text);b.click();}};
 }
 
 
@@ -119,7 +119,7 @@ test('partial input stays editable and literal, while logging requires complete 
  h.run(`state.draft['PUSH-0-0'].sets[0].w='" onfocus="alert(1)';render()`);const field=h.node('app').querySelector('[data-act="setw"]');assert.equal(field.getAttribute('onfocus'),null);assert.equal(field.value,'" onfocus="alert(1)');
 });
 test('delete Undo restores only that record and preserves later logged work',async()=>{
- const h=await boot();h.run('state.draft='+JSON.stringify(draft));await h.run(`logDay('PUSH')`);h.act('del',{idx:'0'});h.run('state.draft='+JSON.stringify(draft));await h.run(`logDay('PUSH')`);h.node('undoToast').querySelector('button').click();assert.equal(h.run('state.sessions.length'),2);
+ const h=await boot();h.run('state.draft='+JSON.stringify(draft));await h.run(`logDay('PUSH')`);h.act('del',{idx:'0'});await h.settle();h.run('state.draft='+JSON.stringify(draft));await h.run(`logDay('PUSH')`);h.node('undoToast').querySelector('button').click();await h.settle();assert.equal(h.run('state.sessions.length'),2);
 });
 test('malformed backups are rejected before mutation and version 2 retains current drafts',async()=>{
  const h=await boot();assert.throws(()=>h.api.parseBackup({app:'other',sessions:[]}));assert.throws(()=>h.api.parseBackup({app:'forge',version:99,sessions:[]}));assert.throws(()=>h.api.parseBackup({sessions:[{date:'2026-02-31',type:'PUSH',items:{}}]}));assert.throws(()=>h.api.parseBackup(JSON.parse('{"sessions":[],"draft":{"__proto__":{}}}')));
@@ -136,4 +136,58 @@ test('unreadable saved bytes are preserved and can be backed up before confirmed
 test('a late wake-lock request is released after the session ends',async()=>{
  const h=await boot();let complete,releases=0;h.context.navigator.wakeLock={request:()=>new Promise(r=>complete=r)};h.act('live',{key:'PUSH'});h.run('finishLive()');h.clickText('End session');await h.settle();
  complete({release(){releases++;return Promise.resolve();},addEventListener(){}});await h.settle();assert.equal(releases,1);assert.equal(h.run('__wakeLock'),null);
+});
+
+test('a durable session updates history and records and restores record feedback',async()=>{
+ const prior={id:'older',date:'2026-09-07',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'5',r:'4'}],name:'Recorded movement'}}},h=await boot({records:{[S]:JSON.stringify([prior])}});
+ h.run('state.draft='+JSON.stringify(draft));assert.equal(await h.run("logDay('PUSH')"),true);
+ assert.equal(h.run('state.sessions.length'),2);assert.equal(h.run('recordsList()[0].w'),'10');assert.equal(h.run('stats().thisWeek'),2);
+ assert(h.run('state.prCel?.prs.length===1'));
+});
+test('last recorded uses dates after importing out-of-order sessions',async()=>{
+ const rows=[{id:'newer',date:'2026-09-08',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'10',r:'4'}]}}},{id:'older',date:'2026-09-06',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'5',r:'4'}]}}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
+ assert.equal(h.run("lastSets('PUSH-0-0')[0].w"),'10');assert.equal(h.run('stats().last.id'),'newer');assert.equal(h.storage.get(S),JSON.stringify(rows));
+});
+
+test('finish summary describes only saved entries, including zero elapsed minutes',async()=>{
+ const h=await boot();h.act('live',{key:'PUSH'});h.run('state.draft='+JSON.stringify(draft));await h.run("logDay('PUSH')");
+ const summary=h.node('forge-session-summary');assert(summary);assert.match(summary.textContent,/1 exercise entry.*1 recorded set.*0:00 elapsed/);assert.doesNotMatch(summary.textContent,/80 workouts/);assert.equal(h.run('state.prCel'),null);
+ h.clickText('View saved session');assert.equal(h.run('state.openSections.log'),true);const index=h.run('state.sessions.length-1');assert.equal(h.node('app').querySelector('[data-act="del"][data-idx="'+index+'"]').closest('.row').scrolled,true);
+});
+test('pending and failed draft writes stay visibly unsaved and settle in order',async()=>{
+ const h=await boot();h.act('live',{key:'PUSH'});let release;const gate=new Promise(resolve=>release=resolve);
+ h.window.storage={set:async(key,value)=>{if(key===D)await gate;h.storage.set(key,value);},get:async key=>({value:h.storage.get(key)})};
+ h.run('state.draft='+JSON.stringify(draft));h.run('saveDraft()');h.run("state.draft['PUSH-0-0'].note='Latest note';saveDraft()");await h.settle();assert.match(h.node('app').querySelector('.forge-draft-status').textContent,/Saving/);assert.equal(h.window.emit('beforeunload').prevented,true);
+ release();await h.settle();assert.equal(JSON.parse(h.storage.get(D))['PUSH-0-0'].note,'Latest note');assert.match(h.node('app').querySelector('.forge-draft-status').textContent,/Draft saved/);assert.equal(h.window.emit('beforeunload').prevented,undefined);
+ h.window.storage=undefined;h.localStorage.blockedKey=D;h.run('saveDraft()');assert.match(h.node('app').querySelector('.forge-draft-status').textContent,/Not saved/);
+});
+test('active session and selected exercise survive reload and clocks catch up after locking',async()=>{
+ const h=await boot();h.act('live',{key:'PUSH'});h.api.goExercise(1);h.run('state.draft='+JSON.stringify(draft));h.run('saveDraft();startTimer(90)');
+ const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.live.exIdx'),1);assert.equal(again.run("state.draft['PUSH-0-0'].note"),'Keep note');
+ again.document.hidden=true;again.at('2026-09-08T12:05:00-05:00');again.document.hidden=false;again.window.emit('pageshow');assert.equal(again.node('liveClock').textContent,'5:00');assert.equal(again.node('forge-rest-time').textContent,'0:00');
+});
+test('rest cleanup failure retains the pending save until recovery and never duplicates history',async()=>{
+ const h=await boot();h.act('live',{key:'PUSH'});h.run('state.draft='+JSON.stringify(draft));h.run('saveDraft();startTimer(60)');h.localStorage.blockedKey=R;
+ assert.equal(await h.run("logDay('PUSH')"),false);assert.equal(h.run('state.sessions.length'),1);assert.equal(h.run('state.handoff'),undefined);assert.equal(h.run('state.prCel'),null);assert(h.storage.get(J));
+ const again=await boot({records:Object.fromEntries(h.storage)});await again.settle();assert.equal(again.run('state.sessions.length'),1);assert.equal(JSON.parse(again.storage.get(R)),null);assert.equal(JSON.parse(again.storage.get(J)),null);assert(again.node('forge-session-summary'));
+});
+test('failed deletion keeps the session and personal record until a verified deletion',async()=>{
+ const h=await boot();h.run('state.draft='+JSON.stringify(draft));await h.run("logDay('PUSH')");const bytes=h.storage.get(S);h.localStorage.blockedKey=S;h.act('del',{idx:'0'});await h.settle();assert.equal(h.run('state.sessions.length'),1);assert.equal(h.storage.get(S),bytes);assert.equal(h.run('recordsList().length'),1);
+ h.localStorage.blockedKey=null;h.act('del',{idx:'0'});await h.settle();assert.equal(h.run('state.sessions.length'),0);assert.equal(h.run('recordsList().length'),0);
+});
+test('dated history maps deletion back to the right original record after an import',async()=>{
+ const rows=[{id:'newer',date:'2026-09-08',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'10',r:'4'}]}}},{id:'older',date:'2026-09-06',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'5',r:'4'}]}}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
+ h.run('state.openSections.log=true;render()');const first=h.node('app').querySelector('[data-act="del"]');assert.equal(first.dataset.idx,'0');h.act('del',{idx:first.dataset.idx});await h.settle();assert.equal(h.run('state.sessions[0].id'),'older');assert.equal(h.run('recordsList()[0].w'),'5');
+});
+test('future records and entries beyond the season do not inflate current progress',async()=>{
+ const rows=[{id:'today',date:'2026-09-08',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'5',r:'4'}]}}},{id:'future',date:'2027-01-04',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'10',r:'4'}]}}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
+ assert.equal(h.run('stats().total'),1);assert.equal(h.run('stats().thisWeek'),1);assert.equal(h.run("lastSessionFor('PUSH-0-0').date"),'2026-09-08');assert.equal(h.run("prFor('PUSH-0-0').w"),'5');h.at('2027-01-04T12:00:00-06:00');assert.equal(h.run('stats().season'),1);assert.equal(h.storage.get(S),JSON.stringify(rows));
+});
+test('first entries establish baselines; unsaved comparisons and failed commits do not announce records',async()=>{
+ const h=await boot();h.run('state.draft='+JSON.stringify(draft));assert.equal(h.run("draftBeatsPR('PUSH-0-0')"),false);await h.run("logDay('PUSH')");assert.equal(h.run('state.prCel'),null);
+ h.run('state.draft='+JSON.stringify(draft));h.run("state.draft['PUSH-0-0'].sets[0].w='11'");assert.equal(h.run("draftBeatsPR('PUSH-0-0')"),true);h.localStorage.blockedKey=S;await h.run("logDay('PUSH')");assert.equal(h.run('state.prCel'),null);assert.equal(h.run('recordsList()[0].w'),'10');
+});
+test('record modal uses native dismissal and i explanation without dismissing on interior clicks',async()=>{
+ const h=await boot();h.run('state.draft='+JSON.stringify(draft));await h.run("logDay('PUSH')");h.run('state.draft='+JSON.stringify(draft));h.run("state.draft['PUSH-0-0'].sets[0].w='11'");await h.run("logDay('PUSH')");
+ const modal=h.node('app').querySelector('dialog.forge-record-dialog');assert.equal(modal.open,true);assert.equal(modal.dataset.act,undefined);assert(h.node('forge-record-info'));assert.equal(h.node('forge-record-info').parentNode,modal.firstElementChild);modal.emit('cancel');assert.equal(h.run('state.prCel'),null);assert.equal(h.node('app').querySelector('dialog.forge-record-dialog'),null);
 });
