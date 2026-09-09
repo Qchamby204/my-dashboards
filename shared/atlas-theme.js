@@ -48,7 +48,7 @@
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasLedgerBoot=boot;
-      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=progress-20260909',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
     }
   }
   const key = 'atlas.appearance.v1';

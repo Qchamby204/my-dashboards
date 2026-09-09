@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 process.env.TZ='America/Winnipeg';
 const html=readFileSync(new URL('../../life-ledger.html',import.meta.url),'utf8');
 let original=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
+const fullOriginal=original.slice(0,original.indexOf('var SEED_METRICS='))+'var SEED_METRICS=[];\n'+original.slice(original.indexOf('var state={days:'));
 // Exercise the original controls with generic reading / creative-work fixtures.
 const habits={Read:{unit:'pages',kind:'qty',step:1,def:1,goal:100,chunk:10,noun:'book',outcome:'Recorded reading',crit:''},Make:{unit:'entries',kind:'count',step:1,def:1,goal:20,chunk:1,noun:'entry',outcome:'Recorded work',crit:''}};
 const pillars=[{key:'GROWTH',title:'Learning',sub:'',color:'#5075aa',glow:'#5075aa',deep:'#5075aa',icon:'book',habits:['Read']},{key:'CONNECTION',title:'Making',sub:'',color:'#5075aa',glow:'#5075aa',deep:'#5075aa',icon:'book',habits:['Make']}];
@@ -15,8 +16,8 @@ const enhancement=readFileSync(new URL('../../shared/ledger-enhancements.js',imp
 const S='lifeledger:v2',D='lifeledger:drafts:v1',C='lifeledger:season:v1';
 const file=o=>({size:100,text:async()=>JSON.stringify(o)});
 const decode=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
-async function boot({records={},blocked=false,width=390}={}){
-  let now=Date.parse('2026-09-07T22:49:00-05:00'),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
+async function boot({records={},blocked=false,width=390,realModel=false,nowISO='2026-09-07T22:49:00-05:00'}={}){
+  let now=Date.parse(nowISO),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{
     constructor(){this.events=new Map();}
     addEventListener(type,fn,option){const a=this.events.get(type)||[];a.push({fn,capture:option===true||option?.capture});this.events.set(type,a);}
@@ -73,12 +74,12 @@ async function boot({records={},blocked=false,width=390}={}){
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
   class BlobURL extends URL{static createObjectURL(blob){const id='blob:'+(++serial);blobs.set(id,blob);return id;}static revokeObjectURL(id){blobs.delete(id);}}
   const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,URLSearchParams,location:{search:'',pathname:'/life-ledger.html'},history:{replaceState(){}},Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
-  let legacyError;try{vm.runInContext(original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
+  let legacyError;try{vm.runInContext(realModel?fullOriginal:original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
   vm.runInContext(enhancement,context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
   return {run,node,document,window,context,api:window.LedgerDays,localStorage,storage,downloads,legacyError,
     at(date){now=new Date(date).getTime();},flush(){for(const [id,t]of [...timers])if(t.due<=now&&timers.delete(id))t.fn();},
     settle:async()=>{for(let i=0;i<30;i++)await Promise.resolve();},act(action,extra={}){const el=document.createElement('button');el.dataset={act:action,...extra};return node('app').emit('click',{target:el});},
-    clickText(text){const scope=document.querySelector('dialog[open]')||document;const b=scope.querySelectorAll('button').find(n=>n.textContent===text);assert(b,'Missing button '+text);b.click();}};
+    clickText(text){const scope=document.querySelectorAll('dialog[open]').at(-1)||document;const b=scope.querySelectorAll('button').find(n=>n.textContent===text);assert(b,'Missing button '+text);b.click();}};
 }
 
 test('requested season starts September 8 locally and keeps earlier days intact',async()=>{
@@ -154,4 +155,84 @@ test('asynchronous draft saving remains pending until the latest queued write is
  h.run("state.draftNote='First'");h.api.remember();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Saving changes/);
  h.run("state.draftNote='Latest'");h.api.remember();writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Saving changes/);
  writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Draft saved/);assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].note,'Latest');
+});
+
+// Keep the production catalogue and five-value model for reward regressions.
+test('first saved day updates all five values and queues Season Opens after durable save',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});
+ assert.equal(h.legacyError,undefined);
+ h.run('HABITS.forEach(k=>state.draft[k]=1)');await h.api.saveDay();
+ assert.equal(h.run('compute(state.days,state.goals).pillars.filter(p=>p.exact>0).length'),5);
+ assert(h.run('state.achvQueue.some(a=>a.name==="Season Opens")'));
+ assert.match(h.node('app').textContent,/Achievement Unlocked|Level Up/);
+});
+
+test('fractions show in every value and constellation before any whole level is reached',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('HABITS.forEach(k=>state.draft[k]=1)');await h.api.saveDay();
+ assert.equal(h.run('compute(state.days,state.goals).pillars.every(p=>p.level===0)'),true);
+ const cards=h.node('app').querySelectorAll('[data-act="pillar"]');assert.equal(cards.length,5);
+ for(const card of cards)assert.match(card.textContent,/0\.[1-9]\d\/99/);
+ assert.match(h.node('ledger-save-feedback').textContent,/Growth \+0\.63/);
+ const info=h.node('app').querySelector('.ledger-progress-info');assert.equal(info.open,false);info.open=true;info.emit('toggle');h.run('render()');assert.equal(h.node('app').querySelector('.ledger-progress-info').open,true);
+});
+test('a failed or pending write earns nothing; retry verifies data before showing rewards',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');h.localStorage.blockedKey=S;await h.api.saveDay();
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('state.days.length'),0);
+ h.localStorage.blockedKey=null;await h.api.retry();await h.api.saveDay();assert(h.run('state.achvQueue.some(a=>a.name==="Season Opens")'));
+});
+test('unchanged resaves do not repeat rewards and editing only changes the affected value',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();await h.api.saveDay();
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.match(h.node('ledger-save-feedback').textContent,/No change/);
+ h.run('state.draft.Read=2');await h.api.saveDay();assert.equal(h.run('state.days.length'),1);assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),2);
+ assert.match(h.node('ledger-save-feedback').textContent,/Growth \+/);assert.doesNotMatch(h.node('ledger-save-feedback').textContent,/Health|Wealth|Discipline|Connection/);
+});
+test('prior saved entries recover earned achievements on reload without a new save',async()=>{
+ const rows=[{date:'2026-09-08',units:{Read:1},note:'A reflection'}],h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:{[S]:JSON.stringify(rows)}});
+ assert(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'));
+ assert(h.run('ACHV.find(a=>a.name==="First Reflection").test(compute(state.days,state.goals))'));
+ assert.equal(h.storage.get(S),JSON.stringify(rows));assert.equal(h.run('state.achvQueue.length'),0);
+ const earned=h.run('ACHV.filter(a=>a.test(compute(state.days,state.goals))).length');h.clickText('Achievements · '+earned+' earned');assert.equal(h.run('state.openSections.relics'),true);assert.equal(h.node('app').querySelector('[data-act="section"][data-key="relics"]').closest('.panel').scrolled,true);
+ assert.equal(h.node('app').querySelectorAll('[data-act="relic"][role="button"]').length,h.run('ACHV.length'));
+});
+test('streak award uses the longest calendar streak and survives a later gap',async()=>{
+ const rows=Array.from({length:7},(_,i)=>({date:'2026-09-'+String(i+8).padStart(2,'0'),units:{Read:1}})),h=await boot({realModel:true,nowISO:'2026-09-20T19:00:00-05:00',records:{[S]:JSON.stringify(rows)}});
+ assert.equal(h.run('compute(state.days,state.goals).streak.current'),0);assert(h.run('ACHV.find(a=>a.name==="Streak Keeper").test(compute(state.days,state.goals))'));
+ h.run('state.days.splice(3,1)');assert.equal(h.run('ACHV.find(a=>a.name==="Streak Keeper").test(compute(state.days,state.goals))'),false);
+});
+test('empty configurations and empty dates do not earn blanket achievements',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-20T19:00:00-05:00'});h.run('HABITS.forEach(k=>userModel.hidden[k]=true);rebuildModel();state.days=[8,9,10].map(n=>({date:"2026-09-"+String(n).padStart(2,"0"),units:{}}))');
+ for(const name of ['Perfect Day','Season Opens','Five for Five','Renaissance Soul','In Balance','Ahead of Pace'])assert.equal(h.run('ACHV.find(a=>a.name==='+JSON.stringify(name)+').test(compute(state.days,state.goals))'),false,name);
+ assert.equal(h.run('ACHV.every(a=>typeof a.test(compute(state.days,state.goals))==="boolean")'),true);
+});
+test('reflection milestones and nonconsecutive entries use existing season history',async()=>{
+ const rows=[8,10,12,14,16,18,20].map(n=>({date:'2026-09-'+String(n).padStart(2,'0'),units:{},note:'A reflection'})),h=await boot({realModel:true,nowISO:'2026-09-20T19:00:00-05:00',records:{[S]:JSON.stringify(rows)}});
+ for(const name of ['First Reflection','Pages of Your Own','Finding Your Rhythm','Locked In'])assert(h.run('ACHV.find(a=>a.name==='+JSON.stringify(name)+').test(compute(state.days,state.goals))'),name);
+ assert.equal(h.run('compute(state.days,state.goals).life.exact'),0);
+});
+test('Undo and a new season reconcile rewards while keeping the saved history',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();await h.run('undoLast()');
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),false);
+ h.run('state.draft.Read=1');await h.api.saveDay();await h.api.setSeason({start:'2026-09-09',end:'2026-12-31'});assert.equal(h.run('state.days.length'),1);assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),false);
+});
+test('reward dialogs are named native modals and Escape returns focus to Save Day',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();
+ const modal=h.node('app').querySelector('dialog.ledger-reward');assert.equal(modal.open,true);assert.equal(modal.getAttribute('aria-label'),'Season Opens');modal.emit('cancel');
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.node('app').querySelector('dialog.ledger-reward'),null);assert.equal(h.document.activeElement.dataset.act,'commit');
+});
+test('a level crossing celebrates once, then reveals achievements without losing them',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=250');await h.api.saveDay();
+ assert.equal(h.run('state.levelInfo.kicker'),'Level Up');assert(h.run('state.achvQueue.some(a=>a.name==="First Book")'));h.act('closeLevel');
+ assert.equal(h.run('state.levelInfo'),null);assert.equal(h.node('app').querySelector('dialog.ledger-reward').getAttribute('aria-label'),'First Book');
+});
+
+test('async publication of a day waits for verified storage before progress and rewards',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});let release;const gate=new Promise(resolve=>release=resolve);
+ h.window.storage={get:async key=>({value:h.storage.get(key)}),set:async(key,value)=>{if(key===S)await gate;h.storage.set(key,value);}};
+ h.run('state.draft.Read=1');const saving=h.api.saveDay();await h.settle();assert.equal(h.run('state.days.length'),0);assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.node('app').inert,true);
+ release();await saving;assert.equal(h.run('state.days.length'),1);assert(h.run('state.achvQueue.some(a=>a.name==="Season Opens")'));assert.equal(h.node('app').inert,false);
+});
+test('restoring a backup clears stale popups and derives achievements from restored dates',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();
+ h.context.backup=file({days:[{date:'2026-09-07',units:{Read:1}}]});await h.run('importData(backup)');h.clickText('Restore backup');await h.settle();
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('state.days.length'),1);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),false);
 });

@@ -42,3 +42,16 @@ html[data-atlas-app="life-ledger"] .ledger-history summary{flex-wrap:wrap;}
 html[data-atlas-app="life-ledger"] .ledger-history-day{white-space:normal;}
 html[data-atlas-app="life-ledger"] .ledger-notice{max-height:calc(var(--atlas-visible-height,100dvh) * .45);overflow:auto;overscroll-behavior:contain;}
 html[data-atlas-app="life-ledger"] .ledger-dialog{top:calc(var(--atlas-visible-top,0px) + var(--atlas-safe-top,0px) + 16px);bottom:auto;margin:0 auto;max-height:calc(var(--atlas-visible-height,100dvh) - var(--atlas-safe-top,0px) - var(--atlas-safe-bottom,0px) - 32px);overscroll-behavior:contain;}
+
+/* Progress feedback stays within the original cards and achievement artwork. */
+html[data-atlas-app="life-ledger"] .ledger-save-feedback{font-size:14px;line-height:1.6;color:var(--neo-ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+html[data-atlas-app="life-ledger"] .ledger-progress-info{margin:-8px 0 8px;}
+html[data-atlas-app="life-ledger"] .ledger-progress-info summary{position:relative;display:grid;place-items:center;list-style:none;width:44px;height:44px;cursor:pointer;font:600 16px Georgia,serif;color:var(--neo-muted);border-radius:50%;}
+html[data-atlas-app="life-ledger"] .ledger-progress-info summary::-webkit-details-marker{display:none;}
+html[data-atlas-app="life-ledger"] .ledger-progress-info summary::after{content:"";position:absolute;width:20px;height:20px;border:1px solid currentColor;border-radius:50%;}
+html[data-atlas-app="life-ledger"] .ledger-progress-info p{margin:0 0 12px;max-width:65ch;}
+html[data-atlas-app="life-ledger"] .ledger-reward{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;box-sizing:border-box;color:inherit;overflow:auto;overscroll-behavior:contain;}
+html[data-atlas-app="life-ledger"] .ledger-reward:not([open]){display:none!important;}
+html[data-atlas-app="life-ledger"] .ledger-reward::backdrop{background:rgba(0,0,0,.5);}
+html[data-atlas-app="life-ledger"] :is(.ledger-progress-info summary,[data-act="relic"]):focus-visible{outline:2px solid var(--neo-accent);outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){html[data-atlas-app="life-ledger"] .ledger-reward *{animation:none!important;transition:none!important;}}
