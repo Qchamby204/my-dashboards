@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='prospecting-command-center')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('prospecting-enhancements.css?v=sync-20260909',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('prospecting-enhancements.css?v=messages-20260909',source).href;document.head.appendChild(css);
   function ready(){
     if(window.ProspectingImprovements||typeof S==='undefined')return;
     const stages=['pool','messaged','replied','meeting','won','lost','parked'],closed=new Set(['won','lost','parked']);
@@ -21,7 +21,16 @@
         let matches=byURL.get(item.url);
         if(!matches){if(byID.has(item.uid))throw Error('A contact identifier conflicts with saved work.');const c={uid:item.uid,name:item.name,first:item.first,title:'',co:'',email:'',url:item.url,src:'cold',tier:null,score:null,intel:'',news:'',msg:'',lastmsg:'',theirs:false,peer:false,mq:null,senti:'mid',sentiRaw:'',lastDate:'',base:'pool'};contacts.push(c);matches=[c];byURL.set(item.url,matches);byID.set(c.uid,c);}
         // Existing duplicate rows retain their IDs and independent saved work.
-        for(const c of matches){for(const key of ['name','first','title','co','email'])if(item[key])c[key]=item[key];c.linkedin=item;c.connectedOn=item.connectedOn;}
+        for(const c of matches){
+          for(const key of ['name','first','title','co','email'])if(item[key])c[key]=item[key];c.linkedin=item;c.connectedOn=item.connectedOn;
+          const stamp=[item.lastInboundAt,item.lastOutboundAt].sort().at(-1);
+          if(stamp&&(!c.lastDate||stamp.slice(0,10)>=c.lastDate)){
+            c.lastDate=stamp.slice(0,10);c.theirs=item.lastInboundAt>item.lastOutboundAt;
+            // This is a factual default only. stg() still gives saved manual stages priority.
+            if(['pool','messaged','replied'].includes(c.base))c.base=c.theirs?'replied':'messaged';
+            c.lastmsg='';c.senti='mid';c.sentiRaw='';
+          }
+        }
       }return contacts;
     }
     function applyLinkedIn(){
@@ -30,12 +39,24 @@
       for(const k of Object.keys(BYUID))delete BYUID[k];for(const k of Object.keys(URLIX))delete URLIX[k];
       for(const c of contacts)BYUID[c.uid]=c;for(const c of CONTACTS)if(c.url)URLIX[normUrl(c.url)]=c.uid;appliedLinkedIn=S.linkedin;appliedMerges=S.merges;
     }
-    const lastActivity=c=>c.linkedin?Math.max(Date.parse(c.linkedin.lastInboundAt)||0,Date.parse(c.linkedin.lastOutboundAt)||0):0;
-    function activityKind(c){const v=c.linkedin;if(!v)return '';if(!v.inboundCount&&!v.outboundCount)return 'none';return v.lastInboundAt>v.lastOutboundAt?'received':'sent';}
+    let logIndex,logRef,logLength,logTail,logMerges;
+    function messageActivity(c){
+      if(logRef!==S.log||logLength!==S.log.length||logTail!==S.log.at(-1)||logMerges!==S.merges){
+        logIndex=new Map();for(const a of S.log){const dir=a.to==='replied'?'received':['messaged','followup'].includes(a.to)?'sent':null;if(!dir)continue;const uid=window.ProspectingRecords.primaryID(S,a.uid),v=logIndex.get(uid)||{received:0,sent:0};v[dir]=Math.max(v[dir],Number(a.ts));logIndex.set(uid,v);}logRef=S.log;logLength=S.log.length;logTail=S.log.at(-1);logMerges=S.merges;
+      }
+      const manual=logIndex.get(c.uid)||{};return {received:Math.max(Date.parse(c.linkedin?.lastInboundAt)||0,manual.received||0),sent:Math.max(Date.parse(c.linkedin?.lastOutboundAt)||0,manual.sent||0)};
+    }
+    const lastActivity=c=>{const a=messageActivity(c);return Math.max(a.received,a.sent);};
+    function activityKind(c){if(!c.linkedin)return '';const a=messageActivity(c);if(!a.received&&!a.sent)return 'none';return a.received>a.sent?'received':'sent';}
+    function replyPending(c){const a=messageActivity(c),v=S.conversation?.[c.uid];if(!a.received||a.received<=a.sent)return false;return !v||Date.parse(v.seenThrough)<a.received||v.status==='reply'||v.status==='later'&&v.date<=today();}
+    function suggestedFollowup(c){if(own(S.fu,c.uid)||!c.linkedin||activityKind(c)!=='sent')return '';const d=new Date(messageActivity(c).sent);d.setDate(d.getDate()+S.set.fuDays);return dayKey(d.getTime());}
+    const originalDaysSince=daysSince;daysSince=c=>{const timestamp=lastActivity(c);if(!timestamp)return originalDaysSince(c);const n=Math.max(0,Math.round((new Date(today()+'T12:00:00')-new Date(dayKey(timestamp)+'T12:00:00'))/86400000));return n?' '+n+'d ago':'today';};
+    function coverage(){const contacts=S.linkedin?.contacts||[];return {messages:contacts.reduce((n,c)=>n+c.inboundCount+c.outboundCount,0),latest:contacts.reduce((m,c)=>[m,c.lastInboundAt,c.lastOutboundAt].sort().at(-1),'')};}
     function activityHTML(c){
       const v=c.linkedin;if(!v)return '';
       const recent=lastActivity(c),label=recent?(activityKind(c)==='received'?'Last message received':'Last message sent')+' · '+new Date(recent).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric',timeZone:'UTC'}):'No messages recorded in this export';
-      return '<div class="prospecting-linkedin-activity"><span>'+esc(label)+'</span><details class="prospecting-linkedin-info"><summary aria-label="LinkedIn activity details">i</summary><p>'+esc((v.connectedOn?'Connected '+v.connectedOn+'. ':'')+v.inboundCount+' received · '+v.outboundCount+' sent. Activity from the LinkedIn export; this does not establish sales interest or change your pipeline stage.')+'</p></details></div>';
+      const followup=suggestedFollowup(c);
+      return '<div class="prospecting-linkedin-activity"><span>'+esc(label+(followup?' · Follow-up '+followup:''))+'</span><details class="prospecting-linkedin-info"><summary aria-label="LinkedIn activity details">i</summary><p>'+esc((v.connectedOn?'Connected '+v.connectedOn+'. ':'')+v.inboundCount+' received · '+v.outboundCount+' sent in the export. Newer actions you record here take priority. Message direction supplies the default Messaged/Replied status; your manual stage, notes and dates stay unchanged. A reply does not establish sales interest. This import contains message counts and dates, not message text. Open LinkedIn to read the conversation.')+'</p></details></div>';
     }
     function validateState(input){const out=window.ProspectingRecords.validateState(input);if(out.linkedin)overlayContacts(out.linkedin);return out;}
     function validateBackup(input){
@@ -87,7 +108,7 @@
         if(JSON.stringify(next)===JSON.stringify(S.linkedin)){toast('This LinkedIn update is already saved.');return;}
         const existing=new Set(CONTACTS.map(c=>profileURL(c.url)).filter(Boolean)),added=payload.contacts.filter(c=>!existing.has(c.url)).length;
         linkedInDialog.replaceChildren(make('h2','Update LinkedIn contacts'),make('p',payload.exportedOn+' · '+added.toLocaleString()+' new · '+(payload.contacts.length-added).toLocaleString()+' matched'));
-        const info=make('details',null,'prospecting-linkedin-info'),summary=make('summary','i');summary.setAttribute('aria-label','What this update changes');info.append(summary,make('p','Refreshes profile details and one-to-one message counts and dates in this dashboard. Notes, stages, follow-ups, saved activity, and existing contact IDs stay as they are. Matching uses profile URLs. Blank fields do not erase existing details. Re-importing does not duplicate contacts or messages. New contacts have no qualification score; review them in Database.'));
+        const info=make('details',null,'prospecting-linkedin-info'),summary=make('summary','i');summary.setAttribute('aria-label','What this update changes');info.append(summary,make('p','Refreshes profile details and one-to-one message counts and dates in this dashboard. Notes, stages, follow-ups, saved activity, and existing contact IDs stay as they are. Matching uses profile URLs. Blank fields do not erase existing details. Re-importing does not duplicate contacts or messages. Message history refreshes default Messaged/Replied status and queues, while your manually saved stage and follow-up dates take priority. New contacts have no qualification score; review them in Database.'));
         linkedInDialog.append(info,button('Back up current progress',exportBackup),button('Cancel',()=>{if(!importBusy){importToken++;linkedInDialog.close();}}));
         const error=make('p');error.setAttribute('role','alert');linkedInDialog.appendChild(error);
         linkedInDialog.appendChild(button('Apply update',async()=>{
@@ -152,7 +173,7 @@
       if(value==='won'&&!S.aum[uid])S.aum[uid]=G.avgHH;save();render(true);
     };
     setFu=function(uid,value){if(!BYUID[uid]||unreadable||readBlocked)return;if(value!==''&&!day(value)){toast('Choose a valid follow-up date.');return;}S.fu[uid]=value;save();render(true);};
-    fuDue=function(){return CONTACTS.filter(c=>(S.set.peers||!c.peer)&&['messaged','replied','meeting'].includes(stg(c))&&day(fu(c))&&fu(c)<=today()).sort((a,b)=>fu(a).localeCompare(fu(b))||a.name.localeCompare(b.name));};
+    fuDue=function(){const due=c=>fu(c)||suggestedFollowup(c);return CONTACTS.filter(c=>(S.set.peers||!c.peer)&&['messaged','replied','meeting'].includes(stg(c))&&day(due(c))&&due(c)<=today()&&(!c.linkedin||!replyPending(c))).sort((a,b)=>due(a).localeCompare(due(b))||a.name.localeCompare(b.name));};
     function dayQueue(){const remaining=Math.max(0,S.set.target-sendsToday()),seen=new Set();return [...fuDue(),...replyQueue().slice(0,S.set.replyN),...freshQueue().slice(0,remaining)].filter(c=>{if(seen.has(c.uid))return false;seen.add(c.uid);return true;});}
     let sessionId=0,sessionResults=[],actionAfter=0,copyBusy=false;
     function startQueue(kind,uid){
@@ -171,10 +192,10 @@
         const card=document.getElementById('runCard');card.replaceChildren(make('h2','Session complete'),make('p',sessionResults.filter(x=>x!=='skip').length+' updated · '+sessionResults.filter(x=>x==='skip').length+' skipped for this session.'));
         if(lastUndo)card.appendChild(button('Undo last',undoLast));card.appendChild(button('Done',closeRun));paintRunNotice();return;
       }
-      originalRun();const card=document.getElementById('runCard');if(rQ[rI]?.linkedin){const activity=make('div');activity.innerHTML=activityHTML(rQ[rI]);card.prepend(activity);}const copy=card.querySelector('[onclick="runCopy()"]');if(copy)copy.textContent='Copy message';
+      if(runVarIdx===null&&rQ[rI]?.linkedin&&lastActivity(rQ[rI]))runVarIdx=0;originalRun();const card=document.getElementById('runCard');if(rQ[rI]?.linkedin){const activity=make('div');activity.innerHTML=activityHTML(rQ[rI]);card.prepend(activity);}const copy=card.querySelector('[onclick="runCopy()"]');if(copy)copy.textContent='Copy message';
       const guide=card.lastElementChild;if(guide?.classList.contains('mut'))guide.textContent='Copy the message, open the profile, and send it yourself. Return here to record the outcome. Skip leaves this person for a later session.';
       const skip=card.querySelector('[onclick="runAct(\'skip\')"]');if(skip)skip.textContent='Skip for now';
-      const msg=document.getElementById('runMsg');if(msg)msg.setAttribute('aria-label','Message to copy and send manually');
+      const msg=document.getElementById('runMsg');if(msg){msg.setAttribute('aria-label','Message to copy and send manually');if(rQ[rI]?.linkedin)msg.placeholder='Read the latest conversation on LinkedIn, then write your message here.';}
       card.querySelectorAll('a[target="_blank"]').forEach(a=>a.rel='noopener noreferrer');paintRunNotice();
     };
     closeRun=function(){sessionId++;originalClose();};
@@ -183,16 +204,17 @@
       const allowed={sent:['pool'],followup:['messaged'],reply:['pool','messaged'],waiting:['replied'],meeting:['replied'],push:['meeting'],won:['meeting'],lost:['replied','meeting']};
       if(!['skip','park','pitched'].includes(what)&&!allowed[what]?.includes(stg(c)))return;
       actionAfter=performance.now()+350;
-      const before={};for(const key of ['stage','fu','note','aum'])before[key]=S[key][c.uid];
+      const before={};for(const key of ['stage','fu','note','aum','conversation'])before[key]=S[key]?.[c.uid];
       const priorLogs=new Set(S.log),undo={uid:c.uid,before,pitched:c.pitched,session:sessionId,queue:[...rQ],index:rI,results:[...sessionResults]};
       sessionResults.push(what);
       if(what==='skip'){rI++;runVarIdx=null;}else originalAction(what);
-      const after={};for(const key of ['stage','fu','note','aum'])after[key]=S[key][c.uid];
+      if(c.linkedin&&['sent','followup','waiting','push','meeting'].includes(what)){S.conversation??={};const stamp=c.linkedin.lastInboundAt;if(stamp)S.conversation[c.uid]={status:'resolved',seenThrough:stamp,date:''};save();}
+      const after={};for(const key of ['stage','fu','note','aum','conversation'])after[key]=S[key]?.[c.uid];
       lastUndo={...undo,after,pitchedAfter:c.pitched,added:S.log.filter(a=>!priorLogs.has(a))};renderRun();
     };
     undoLast=function(){
       const last=lastUndo;if(!last||last.session!==sessionId||!BYUID[last.uid])return;lastUndo=null;const c=BYUID[last.uid];
-      for(const key of ['stage','fu','note','aum'])if(S[key][last.uid]===last.after[key]){if(last.before[key]===undefined)delete S[key][last.uid];else S[key][last.uid]=last.before[key];}
+      for(const key of ['stage','fu','note','aum','conversation'])if(S[key]?.[last.uid]===last.after[key]){if(last.before[key]===undefined){if(S[key])delete S[key][last.uid];}else{S[key]??={};S[key][last.uid]=last.before[key];}}
       if(c.pitched===last.pitchedAfter){if(last.pitched===undefined)delete c.pitched;else c.pitched=last.pitched;}
       const added=new Set(last.added);S.log=S.log.filter(a=>!added.has(a));rQ=last.queue;rI=last.index;sessionResults=last.results;runVarIdx=null;actionAfter=0;save();renderRun();toast(unsaved?'Undone in this page. Saving needs a retry.':'Last action undone.');
     };
@@ -221,14 +243,21 @@
     const originalRow=rowHTML;rowHTML=(c,showStage)=>{let html=originalRow(c,showStage).replace('</div></div>',activityHTML(c)+'</div></div>');if(c.uid.startsWith('li-'))html=html.replace('>COLD</span>',('>'+({prospect:'PROSPECT',network:'NETWORK',exclude:'EXCLUDED'}[S.review?.[c.uid]]||'UNREVIEWED')+'</span>'));return html;};
     const eligible=c=>!['network','exclude'].includes(S.review?.[c.uid])&&(!c.uid.startsWith('li-')||S.review?.[c.uid]==='prospect');
     const originalRank=rankOf;rankOf=c=>c.uid.startsWith('li-')&&S.review?.[c.uid]==='prospect'?35:originalRank(c);
-    const originalFresh=freshQueue,originalReplies=replyQueue,originalDue=fuDue;freshQueue=()=>originalFresh().filter(c=>!lastActivity(c)&&eligible(c));replyQueue=()=>originalReplies().filter(eligible);fuDue=()=>originalDue().filter(eligible);
+    const originalFresh=freshQueue,originalReplies=replyQueue,originalDue=fuDue;freshQueue=()=>originalFresh().filter(c=>!lastActivity(c)&&eligible(c));
+    replyQueue=()=>{
+      const legacy=originalReplies().filter(c=>!c.linkedin);
+      const imported=CONTACTS.filter(c=>c.linkedin&&stg(c)==='replied'&&(S.set.peers||!c.peer)&&replyPending(c)&&(!fu(c)||fu(c)<=today()));
+      return [...imported,...legacy].filter(eligible).sort((a,b)=>lastActivity(b)-lastActivity(a));
+    };fuDue=()=>originalDue().filter(eligible);
+    const originalVariants=variantsFor;
+    variantsFor=c=>c.linkedin&&lastActivity(c)?[{l:'Write for this conversation',t:''},...originalVariants(c).filter(v=>v.l!=='Prepared for them')]:originalVariants(c);
     const originalRender=render;
     render=function(keep){
-      applyLinkedIn();originalRender(keep);const main=document.getElementById('main');labelRows(main);
+      applyLinkedIn();for(const c of CONTACTS)if(c.linkedin&&lastActivity(c))c.theirs=activityKind(c)==='received';originalRender(keep);const main=document.getElementById('main');labelRows(main);
       main.querySelectorAll('.qcard').forEach((n,i)=>n.setAttribute('onclick',"ProspectingImprovements.startQueue('"+['due','replies','fresh'][i]+"')"));
       const run=main.querySelector('[onclick="runDay()"]');if(run)run.textContent='Run my day ('+dayQueue().length+' contacts)';
       const plan=main.querySelector('.planstrip');if(plan)plan.textContent='Follow-ups first, then replies, then fresh outreach up to your daily send target.';
-      const messages=['Contacts you marked as messaged, replied, or meeting, with a follow-up date due today or earlier.','Contacts marked replied, with no future follow-up date.','Eligible untouched contacts, up to the remaining daily send target.'];
+      const messages=['Due dates you set, plus exported outgoing messages after your follow-up interval.','Latest incoming messages and replies you recorded, most recent first.','Eligible untouched contacts, up to the remaining daily send target.'];
       main.querySelectorAll('.qcard .qs').forEach((n,i)=>{n.textContent=messages[i];});
       const settingLabels=main.querySelectorAll('input[type="number"]');settingLabels.forEach(n=>{if((n.getAttribute('onchange')||'').includes('S.set.'))n.min='1';});paintNotice();window.ProspectingReview?.paint();
     };
@@ -242,7 +271,7 @@
       S=validateState({stage:{},note:{},fu:{},aum:{},log:[]});
     }
     window.ProspectingImprovements=Object.freeze({
-      getState:()=>validateState(S),
+      getState:()=>validateState(S),coverage,messageActivity,replyPending,suggestedFollowup,
       acceptState(next){S=validateState(next);appliedLinkedIn=undefined;appliedMerges=undefined;lastUndo=null;render(true);},
       draftOpen:()=>!!document.querySelector('dialog[open]')||document.getElementById('runner').classList.contains('active')||document.getElementById('tplOv').style.display==='grid'||!!document.activeElement?.closest('input,textarea,select'),
       async applyState(next){next=validateState(next);if(unreadable||readBlocked)throw Error('Recover saved progress first.');if(cloud)await cloud.commit(next);else{const old=localStorage.getItem(KEY);if(old!==null&&JSON.stringify(validateState(JSON.parse(old)))!==JSON.stringify(validateState(S)))throw Error('Progress changed in another tab. Reload before applying this review.');const raw=JSON.stringify(next);localStorage.setItem(KEY,raw);if(localStorage.getItem(KEY)!==raw)throw Error('The save could not be confirmed.');}S=next;appliedLinkedIn=undefined;appliedMerges=undefined;lastUndo=null;unsaved=false;render(true);},
@@ -250,7 +279,7 @@
       validateBackup,validateState,validateLinkedIn,mergeLinkedIn,overlayContacts,importLinkedIn,chooseLinkedIn,profileURL,activityKind,filterLinkedIn(value){linkedInFilter=['imported','new','received','sent','none'].includes(value)?value:'';page=0;refreshResults();},databaseMatches,refreshResults,clearFilters,dayQueue,startQueue,csvCell:cell,get unsaved(){return cloud?cloud.unsaved:unsaved;},get blocked(){return unreadable||readBlocked;}});
     window.addEventListener('beforeunload',e=>{if(unsaved||cloud?.unsaved){e.preventDefault();e.returnValue='';}});
     render();
-    if(!cloud){const review=document.createElement('script');review.src=new URL('prospecting-review.js?v=sync-20260909',source).href;document.head.appendChild(review);}
+    if(!cloud){const review=document.createElement('script');review.src=new URL('prospecting-review.js?v=messages-20260909',source).href;document.head.appendChild(review);}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();

@@ -14,10 +14,11 @@
   async function apply(next,then){if(busy)return;busy=true;dialog.setAttribute('aria-busy','true');try{await api.applyState(next);busy=false;then?.();}catch(e){error(e);}finally{busy=false;dialog.removeAttribute('aria-busy');}}
   dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault();});
   const pending=()=>CONTACTS.filter(c=>c.uid.startsWith('li-')&&!S.review?.[c.uid]);
-  const conversations=()=>CONTACTS.filter(c=>!['network','exclude'].includes(S.review?.[c.uid])&&R.conversationDue(S,c,today()));
+  const conversations=()=>CONTACTS.filter(c=>!['network','exclude'].includes(S.review?.[c.uid])&&api.replyPending(c));
   function paint(){
     const main=document.getElementById('main');if(!['today','base'].includes(tab)||document.getElementById('prospecting-review-strip'))return;
     const strip=make('div',null,'prospecting-import-strip');strip.id='prospecting-review-strip';
+    if(S.linkedin){const v=api.coverage();strip.append(make('span',v.messages.toLocaleString()+' messages · through '+(v.latest?v.latest.slice(0,10):'no messages')),info('Imported from the '+S.linkedin.exportedOn+' export. These are the one-to-one message counts and dates available in that file. Group conversations, unidentified participants and drafts are excluded. It is a snapshot, not a live LinkedIn connection. Message text is not in this import.'));}
     strip.append(btn('Review contacts · '+pending().length,()=>showReview('new')),btn('Conversations · '+conversations().length,()=>showReview('conversation')),btn('Duplicates · '+R.duplicateGroups(CONTACTS,S).length,showDuplicates));
     if(cloud){strip.append(btn('Apply uploaded LinkedIn export',()=>api.uploadedLinkedIn()));}
     else{strip.append(btn('Connect devices',connectDevices));}
@@ -37,7 +38,7 @@
         const current=S.review?.[c.uid];card.appendChild(make('p',current?{prospect:'Prospect',network:'Kept in network',exclude:'Excluded'}[current]:'Not reviewed'));
         for(const [value,label] of [['prospect','Prospect'],['network','Keep in network'],['exclude','Exclude']])card.appendChild(btn(label,()=>apply({...api.getState(),review:{...S.review,[c.uid]:value}},()=>showReview(mode,false))));
       }else{
-        const stamp=c.linkedin.lastInboundAt,v=S.conversation?.[c.uid];
+        const stamp=new Date(api.messageActivity(c).received).toISOString(),v=S.conversation?.[c.uid];
         card.appendChild(make('p','Last incoming · '+stamp.slice(0,10)+(v?' · '+{reply:'Reply needed',later:'Follow up '+v.date,resolved:'Resolved'}[v.status]:'')));
         const set=(status,date='')=>apply({...api.getState(),conversation:{...S.conversation,[c.uid]:{status,date,seenThrough:stamp}}},()=>showReview(mode,false));
         const date=make('input');date.type='date';date.min=today();date.value=v?.status==='later'?v.date:plusDays(7);date.setAttribute('aria-label','Follow-up date for '+c.name);
