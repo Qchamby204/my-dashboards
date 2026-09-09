@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en" class="atlas-neumo cc-app" data-atlas-app="crucible">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Crucible</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --bg:#12100E; --panel:#1B1815; --panel2:#232019; --panel3:#2B2721; --line:#3A322A;
+  --text:#E8E0D4; --muted:#9C8F7D; --gold:#C9A227; --ember:#B4532A; --done:#7A9A5E;
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-weight:300; line-height:1.6; font-size:16px;
+  background-image:radial-gradient(circle at 50% -10%, rgba(201,162,39,.06), transparent 60%);
+  background-attachment:fixed;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:28px 20px 96px}
+h1,h2,h3,h4{font-family:'Cinzel',Georgia,serif;font-weight:700;letter-spacing:.02em;margin:0}
+.num,code{font-family:'Space Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+a{color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+header.masthead{text-align:center;padding:18px 0 24px;border-bottom:1px solid var(--line)}
+header.masthead h1{font-size:2.4rem;color:var(--gold);letter-spacing:.14em}
+header.masthead .sub{color:var(--muted);font-size:.84rem;letter-spacing:.22em;text-transform:uppercase;margin-top:8px}
+header.masthead .mission{max-width:660px;margin:16px auto 0;color:var(--muted);font-size:.95rem}
+
+nav.tabs{margin:22px 0 24px;display:flex;flex-direction:column;gap:10px;align-items:center}
+nav.tabs .band{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
+nav.tabs .bandlabel{
+  font-family:'Space Mono',monospace;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);padding-right:8px;border-right:1px solid var(--line);margin-right:4px
+}
+nav.tabs button{
+  font-family:'Cinzel',serif;font-size:.76rem;letter-spacing:.11em;text-transform:uppercase;
+  background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:2px;
+  padding:8px 13px;cursor:pointer;transition:all .15s
+}
+nav.tabs button:hover{color:var(--text);border-color:var(--gold)}
+nav.tabs button[aria-selected="true"]{background:var(--gold);color:#12100E;border-color:var(--gold);font-weight:700}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:22px 24px;margin-bottom:18px;box-shadow:var(--shadow)}
+.panel > h2{font-size:1.12rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
+.panel > .lede{color:var(--muted);font-size:.92rem;margin:8px 0 16px;max-width:74ch}
+.panel h3{font-size:1rem;margin:20px 0 8px;letter-spacing:.04em}
+.panel p{max-width:78ch}
+
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.stat{flex:1 1 150px;background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:12px 14px}
+.stat .k{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.stat .v{font-family:'Space Mono',monospace;font-variant-numeric:tabular-nums;font-size:1.55rem;color:var(--gold);line-height:1.2;margin-top:4px}
+.stat .n{font-size:.74rem;color:var(--muted)}
+
+.blockhead{display:flex;align-items:baseline;gap:10px;margin:20px 0 6px;flex-wrap:wrap}
+.blockhead .tag{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--ember);letter-spacing:.14em;text-transform:uppercase}
+.blockhead h3{margin:0}
+.blockhead .mins{margin-left:auto;font-family:'Space Mono',monospace;font-size:.74rem;color:var(--muted)}
+
+ul.checks{list-style:none;margin:8px 0 0;padding:0}
+ul.checks li{display:flex;gap:12px;align-items:flex-start;padding:9px 10px;border-radius:2px;transition:background .12s}
+ul.checks li:hover{background:var(--panel2)}
+input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;flex:0 0 auto;width:17px;height:17px;margin-top:4px;
+  border:1px solid var(--line);border-radius:2px;background:var(--bg);cursor:pointer;position:relative
+}
+input[type=checkbox]:hover{border-color:var(--gold)}
+input[type=checkbox]:checked{background:var(--done);border-color:var(--done)}
+input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1px;width:4px;height:9px;border:solid #12100E;border-width:0 2px 2px 0;transform:rotate(42deg)}
+ul.checks label{cursor:pointer;font-size:.95rem;flex:1}
+ul.checks input:checked + label{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+
+textarea{
+  width:100%;min-height:110px;background:var(--bg);color:var(--text);border:1px solid var(--line);
+  border-radius:2px;padding:12px;font-family:'Outfit',sans-serif;font-size:.94rem;line-height:1.6;resize:vertical
+}
+textarea:focus{outline:none;border-color:var(--gold)}
+
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:16px 18px}
+.card p{margin:6px 0;font-size:.92rem}
+.lbl{font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ember);display:block;margin-top:14px}
+.lbl:first-child{margin-top:0}
+.lbl.a{color:var(--muted)} .lbl.b{color:var(--done)} .lbl.c{color:var(--gold)}
+
+/* Blocks */
+.tier{margin-bottom:26px}
+.tierhead{display:flex;align-items:baseline;gap:12px;padding:0 0 8px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tierhead .tn{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ember);letter-spacing:.16em}
+.tierhead h3{font-size:1.02rem;color:var(--gold)}
+.tierhead .tp{margin-left:auto;font-family:'Space Mono',monospace;font-size:.74rem;color:var(--muted)}
+.block{background:var(--panel);border:1px solid var(--line);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.block > summary{
+  list-style:none;cursor:pointer;padding:14px 18px;display:flex;gap:12px;align-items:flex-start;
+  background:var(--panel2);transition:background .12s
+}
+.block > summary::-webkit-details-marker{display:none}
+.block > summary:hover{background:var(--panel3)}
+.block > summary .bid{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--gold);flex:0 0 34px;padding-top:2px}
+.block > summary .bt{flex:1}
+.block > summary .bt b{font-family:'Cinzel',serif;font-size:.98rem;letter-spacing:.03em;display:block}
+.block > summary .bt span{font-size:.88rem;color:var(--muted)}
+.block > summary .caret{color:var(--muted);font-family:'Space Mono',monospace;font-size:.8rem;padding-top:2px}
+.block[open] > summary .caret{color:var(--gold)}
+.block .body{padding:16px 18px 18px;border-top:1px solid var(--line)}
+.res{margin-top:14px}
+.res ul{margin:6px 0 0;padding-left:0;list-style:none}
+.res ul li{padding:5px 0 5px 16px;position:relative;font-size:.9rem}
+.res ul li::before{content:"›";position:absolute;left:0;color:var(--ember);font-family:'Space Mono',monospace}
+.res .q{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:2px;padding:7px 10px;display:block;margin:6px 0}
+.res ul.checks li{padding:7px 10px}
+.res ul.checks li::before{content:none}
+
+/* Arc */
+.phase{border:1px solid var(--line);border-radius:3px;margin-bottom:16px;overflow:hidden}
+.phase > .ph{background:var(--panel2);padding:12px 16px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.phase > .ph .pt{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:.94rem;letter-spacing:.07em}
+.phase > .ph .pr{margin-left:auto;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted)}
+.phase .rationale{padding:14px 16px;border-top:1px solid var(--line);background:var(--panel)}
+.phase .rationale p{margin:0 0 10px;font-size:.91rem}
+.phase .rationale p:last-child{margin-bottom:0}
+.month{display:flex;gap:12px;padding:12px 16px;border-top:1px solid var(--line);align-items:flex-start}
+.month .mno{font-family:'Space Mono',monospace;color:var(--ember);font-size:.76rem;flex:0 0 34px;padding-top:3px}
+.month .mb{flex:1}
+.month .mb b{font-weight:600;font-size:.95rem}
+.month .mb p{margin:4px 0 0;font-size:.88rem;color:var(--muted)}
+.month .mb .ref{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--gold);margin-top:5px;display:block}
+
+/* Statement Mastery ladder */
+.ladderscore{display:flex;align-items:baseline;gap:16px;padding-top:6px;border-top:1px solid var(--line);margin-top:4px}
+.ladderscore .lsv{font-family:'Space Mono',monospace;font-variant-numeric:tabular-nums;font-size:2rem;color:var(--gold)}
+.ladderscore .lsv span{font-size:1rem;color:var(--muted)}
+.ladderscore .lsl{font-size:.88rem;color:var(--muted)}
+details.level{background:var(--panel);border:1px solid var(--line);border-radius:3px;margin-bottom:10px;overflow:hidden}
+details.level.passed{border-color:var(--done)}
+details.level.current{border-color:var(--gold)}
+details.level > summary{list-style:none;cursor:pointer;padding:14px 18px;display:flex;gap:14px;align-items:flex-start;background:var(--panel2);transition:background .12s}
+details.level > summary::-webkit-details-marker{display:none}
+details.level > summary:hover{background:var(--panel3)}
+details.level .lvnum{font-family:'Space Mono',monospace;font-size:1.1rem;color:var(--gold);flex:0 0 30px;padding-top:2px}
+details.level .lvbody{flex:1}
+details.level .lvbody b{font-family:'Cinzel',serif;font-size:.98rem;letter-spacing:.03em;display:block}
+details.level .lvbody span{font-size:.88rem;color:var(--muted)}
+details.level .lvrange{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);white-space:nowrap;padding-top:2px}
+details.level .lvtag{font-family:'Outfit',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-size:.62rem;color:var(--done)}
+details.level .lvtag.cur{color:var(--gold)}
+details.level .caret{color:var(--muted);font-family:'Space Mono',monospace;font-size:.8rem;padding-top:2px}
+details.level[open] > summary .caret{color:var(--gold)}
+details.level .body{padding:16px 18px 18px;border-top:1px solid var(--line)}
+details.level .body ul{margin:6px 0 0;padding-left:0;list-style:none}
+details.level .body ul li{padding:5px 0 5px 16px;position:relative;font-size:.9rem}
+details.level .body ul li::before{content:"›";position:absolute;left:0;color:var(--ember);font-family:'Space Mono',monospace}
+.checkpoint{margin-top:14px;border-left:2px solid var(--ember);background:var(--panel2);padding:12px 16px;border-radius:0 3px 3px 0}
+.checkpoint b{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ember);display:block;margin-bottom:6px}
+.checkpoint p{margin:0 0 10px;font-size:.92rem}
+.cplabel{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.cplabel span{font-size:.9rem}
+
+/* Workflow funnel */
+.stage{border:1px solid var(--line);border-radius:3px;margin-bottom:14px;background:var(--panel)}
+.stage .sh{display:flex;gap:14px;align-items:baseline;padding:14px 18px;background:var(--panel2);flex-wrap:wrap}
+.stage .sh .sn{font-family:'Space Mono',monospace;color:var(--gold);font-size:1.05rem;flex:0 0 auto}
+.stage .sh h3{font-size:1rem;color:var(--text)}
+.stage .sh .zoom{margin-left:auto;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.stage .sb{padding:14px 18px}
+.stage .sb .ask{font-size:.92rem;color:var(--muted);margin:0 0 10px;font-style:italic}
+.stage .out{margin-top:12px;border-left:2px solid var(--done);padding:8px 12px;background:var(--panel2);font-size:.89rem}
+.stage .out b{font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--done);display:block;margin-bottom:3px}
+.funnelrow{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:6px 0 20px;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted)}
+.funnelrow span.f{border:1px solid var(--line);border-radius:2px;padding:5px 9px;background:var(--panel2)}
+.funnelrow span.arw{color:var(--ember)}
+
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:10px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.tablewrap{overflow-x:auto}
+
+ol.method{list-style:none;counter-reset:m;padding:0;margin:0}
+ol.method li{counter-increment:m;position:relative;padding:14px 0 14px 52px;border-bottom:1px solid var(--line)}
+ol.method li:last-child{border-bottom:none}
+ol.method li::before{content:counter(m,decimal-leading-zero);position:absolute;left:0;top:14px;font-family:'Space Mono',monospace;font-size:.95rem;color:var(--gold)}
+ol.method li b{display:block;font-family:'Cinzel',serif;font-size:.98rem;margin-bottom:5px;letter-spacing:.03em}
+ol.method li p{margin:4px 0;font-size:.92rem}
+ol.method li .trap{font-size:.88rem;color:var(--muted);border-left:2px solid var(--ember);padding-left:10px;margin-top:8px}
+ol.method li .trap b{display:inline;font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ember)}
+
+.note{background:var(--panel2);border-left:2px solid var(--gold);padding:12px 16px;margin:14px 0;font-size:.9rem;color:var(--muted)}
+.note b{color:var(--text)}
+.note p{margin:0 0 9px}
+.note p:last-child{margin-bottom:0}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:10px 20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:20}
+.bar .msg{font-size:.8rem;color:var(--muted);margin-left:auto;font-family:'Space Mono',monospace}
+button.act{font-family:'Outfit',sans-serif;font-size:.82rem;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:2px;padding:7px 14px;cursor:pointer}
+button.act:hover{border-color:var(--gold);color:var(--gold)}
+button.act.warn:hover{border-color:var(--ember);color:var(--ember)}
+
+.srcs{font-size:.82rem;color:var(--muted)}
+.hidden{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+@media (max-width:600px){
+  .wrap{padding:18px 12px 110px}
+  header.masthead h1{font-size:1.7rem}
+  .panel{padding:16px 14px}
+  nav.tabs .bandlabel{border-right:none;width:100%;text-align:center;padding:0 0 2px;margin:0}
+}
+</style>
+<meta name="theme-color" content="#202936">
+<script src="shared/atlas-theme.js?v=craft-20260909"></script>
+<link rel="stylesheet" href="shared/atlas-palette.css">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css">
+<link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=craft-20260909">
+<script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
+</head>
+<body>
+<a class="cc-skip" href="#view">Skip to content</a>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="bar"><a class="cc-home" href="https://atlas-os-quinton.qchambers123018.chatgpt.site/" aria-label="Back to Atlas"><span aria-hidden="true">‹</span> Atlas</a></div>
+  <h1>The Crucible</h1>
+  <div class="sub">Analyst Training Curriculum</div>
+  <p class="mission">A twelve month program to build genuine security analysis craft, macro fluency, and the evidentiary command to take apart an investing argument in real time. The portfolio is not where you win. Being the most rigorous person in the room is.</p>
+</header>
+
+<nav class="tabs" id="tabs" aria-label="Crucible sections"></nav>
+<main id="view"></main>
+
+</div>
+
+<footer class="wrap">
+<details class="cc-records"><summary>Backup and restore</summary>
+<div class="cc-record-actions">
+  <button class="act" id="btn-export">Export</button>
+  <button class="act" id="btn-import">Import</button>
+  <input type="file" id="file-import" accept="application/json" class="hidden">
+  <button class="act warn" id="btn-reset">Reset</button>
+</div></details>
+  <p class="cc-status" id="msg" role="status" aria-live="polite"></p>
+</footer>
+
+<script>
+'use strict';
+
+/* ============================================================
+   1. CONSTANTS
+   ============================================================ */
+
+const TOOL = 'crucible';
+const SCHEMA_VERSION = 2;
+const DAILY_RETENTION_DAYS = 120;
+
+const TABS = [
+  ['Practice',   [['today','Today'], ['cadence','Cadence'], ['arc','The Arc']]],
+  ['Curriculum', [['blocks','Blocks'], ['statements','Statements'], ['workflow','Workflow'], ['method','Method'], ['arsenal','Arsenal']]]
+];
+
+/* --- Daily protocol --------------------------------------- */
+
+const TAPE = {
+  title:'The Tape', mins:20,
+  note:'Pre-market. The same five moves every single day. The value is the repetition, not the insight. This is Stage 1 of the top-down workflow, run in miniature.',
+  items:[
+    ['t1','Overnight and futures: index futures, Asia and Europe closes, USD/CAD, WTI, gold. Levels are noise, the change is the signal.'],
+    ['t2','Rates: US 2y, 10y, 30y and GoC 2y, 10y. Record 2s10s and the week-over-week move in basis points, not in percent.'],
+    ['t3','Credit: investment grade and high yield option-adjusted spreads. The single best risk-appetite tell most advisors never look at.'],
+    ['t4','Calendar: today’s economic releases and the earnings that matter to your book or your watchlist.'],
+    ['t5','One headline you would have to explain if a client called at 9am. Write the one-sentence version before you read anyone else’s.']
+  ]
+};
+
+const BENCH = {
+  mon:{ title:'Macro and Rates', mins:45, blocks:'Blocks 11, 12, 13', items:[
+    ['b1','Rebuild the GoC and UST curves from scratch on the terminal. Note 2s10s, 3m10y, and the week’s move in basis points.'],
+    ['b2','Read one primary central bank document, not the media summary. Bank of Canada Monetary Policy Report, FOMC statement, or the minutes.'],
+    ['b3','Track one inflation series: CPI-trim and CPI-median for Canada, core PCE for the US. Say what it did and what it implies for the next meeting.'],
+    ['b4','Derive the implied policy path from the forwards. Then write what would have to happen for that path to be wrong.']
+  ]},
+  tue:{ title:'Statement Forensics', mins:45, blocks:'Blocks 01 to 04', items:[
+    ['b1','Pull one company’s last three years. Build the cash conversion chain yourself: net income to cash from operations to free cash flow.'],
+    ['b2','Compute the accrual ratio: (net income minus cash from operations) divided by average total assets. Anything above roughly 10 percent gets flagged and explained.'],
+    ['b3','Check the trio: days sales outstanding trend, inventory growth against revenue growth, and what is being capitalised rather than expensed.'],
+    ['b4','Read the notes. Revenue recognition policy, non-recurring items, and anything restated. The notes are where the answer lives.'],
+    ['b5','One sentence verdict: is reported earnings a fair picture of economic earnings here, yes or no, and why.']
+  ]},
+  wed:{ title:'Valuation Reps', mins:45, blocks:'Blocks 05 to 09', items:[
+    ['b1','Reverse DCF. Take today’s price and solve for the growth rate and margin the market is implying. This is the drill. Forward DCF is not.'],
+    ['b2','Judge those implied numbers against the company’s own history and the industry base rate. Plausible, or requires a miracle?'],
+    ['b3','Compute ROIC and compare to your WACC estimate. Is this business creating or destroying value on incremental capital?'],
+    ['b4','Cross-check with two multiples, EV/EBIT and EV/invested capital against ROIC over WACC. Explain any gap rather than averaging it away.'],
+    ['b5','Write the specific thing you would have to believe for this to be a buy, then say plainly whether you believe it.']
+  ]},
+  thu:{ title:'Industry and Competitive Structure', mins:45, blocks:'Block 10', items:[
+    ['b1','Map one industry using Porter’s five forces, then overlay Helmer’s 7 Powers on the leader specifically.'],
+    ['b2','Pull the market share data and the five year trend. Who is gaining, and what are they paying to gain it?'],
+    ['b3','Identify the one unit economic that actually drives the sector. One metric. If you name three you have not found it.'],
+    ['b4','Read a competitor’s transcript alongside the leader’s and mark every place they describe the same market differently.'],
+    ['b5','Write it down: what would have to break for the leader to lose?']
+  ]},
+  fri:{ title:'The Arsenal', mins:45, blocks:'Blocks 14 to 17', items:[
+    ['b1','Pick one claim from the Arsenal. Write the steelman first, in the strongest form you can build. A weak steelman means you do not understand the position.'],
+    ['b2','Now write your response, with the citation and the exact figure. Vague beats nothing but precision wins rooms.'],
+    ['b3','Find one piece of evidence that cuts against your own position and file it. This is the habit that separates you from the person opposite.'],
+    ['b4','Deliver it out loud, ninety seconds, timed. Record it once a month and listen back.'],
+    ['b5','Update one number. Check whether the statistic you rely on has been superseded or challenged since you last looked.']
+  ]}
+};
+
+const LEDGER = {
+  title:'The Ledger', mins:10,
+  note:'The engine of the whole program. What you cannot yet explain becomes next week’s queue.',
+  items:[['l1','Write the entry: what I learned, what I would say if challenged on it today, and what I still cannot explain.']]
+};
+
+/* --- Longer cadences -------------------------------------- */
+
+const WEEKLY = { mins:'2 hours, Saturday morning', items:[
+  ['w1','Company teardown, 90 minutes, full pass: the business, the unit economics, the statements, a reverse DCF, and the bear case written before the bull case.'],
+  ['w2','One Block resource, 30 minutes, followed by a five line summary in your own words. If you cannot summarise it you did not read it.'],
+  ['w3','One debate rep from the Arsenal, timed and out loud.'],
+  ['w4','Clear the "cannot explain yet" list from this week’s Ledger entries. Anything unresolved goes to the top of next week.']
+]};
+
+const MONTHLY = { mins:'One half day', items:[
+  ['m1','Run the full top-down workflow end to end, Stage 1 through Stage 5, and land on one company. This is the month’s spine.'],
+  ['m2','Write the research note from it, three to five pages. Structure it like a sell-side note so you know the form cold.'],
+  ['m3','Manager teardown, one fund: attribution, factor loadings, up and down capture, fee drag, style drift.'],
+  ['m4','Run the skill-versus-luck arithmetic on that fund. Given its tracking error, how many years of data would you need to distinguish skill from noise? Most track records fail this test and almost nobody runs it.'],
+  ['m5','Read two sell-side notes on the same company. Mark every point of disagreement and identify the single assumption driving each one.'],
+  ['m6','Refresh the Arsenal against any new data release or published critique.'],
+  ['m7','Prediction log: write three falsifiable views with a date and a confidence level attached to each.']
+]};
+
+const QUARTERLY = { mins:'One week of concentrated work', items:[
+  ['q1','Earnings sprint: five transcripts in one week. Read for change in language, not for the numbers. Compare prepared remarks to last quarter, and weight the Q and A far above the script.'],
+  ['q2','Attribution on a live model portfolio: allocation against selection, factor against idiosyncratic.'],
+  ['q3','Scorecard refresh: the latest SPIVA, the Persistence Scorecard, and the current fund fee studies for both Canada and the US.'],
+  ['q4','Cold ticker test. Someone hands you a ticker you have not looked at. Twenty minutes on the terminal, then deliver a verbal view with a valuation anchor, two risks, and what you would need to know next.'],
+  ['q5','Review the quarter’s Ledger for what you kept failing to explain. That list is your real curriculum.']
+]};
+
+const ANNUAL = { mins:'December', items:[
+  ['y1','Capstone: one long-form thesis, fifteen to twenty-five pages, on a company or a sector, with a stated position and an explicit falsification condition.'],
+  ['y2','Prediction audit. Score every logged view. Calibration is the metric, not accuracy. Being right 70 percent of the time when you said 70 percent is the target.'],
+  ['y3','Credential decision point: CFA Level I, CAIA, or CBV depending on where the practice is heading. Decide, or defer explicitly with a reason.'],
+  ['y4','Rebuild the Arsenal from primary sources. Do not inherit last year’s version, and do not trust your own summary of a paper you read a year ago.'],
+  ['y5','Rewrite your investment philosophy in one page from a blank sheet, then compare it to last year’s. Where it drifted, work out whether that was learning or fashion.']
+]};
+
+/* --- The twelve month arc, with rationale ----------------- */
+
+const ARC = [
+  { phase:'Phase I', name:'Reconstruct the Base', span:'Months 1 to 3',
+    why:'Every tool downstream of here takes financial statements as its input. If the input is wrong then the sophistication of the model is irrelevant, and a confident wrong answer is considerably worse than no answer at all. This phase also front-loads the evidence canon deliberately, because reading the primary papers early means the entire year of security analysis happens with the correct prior already in place. You are learning to analyse companies. You are not learning to beat the market, and doing the reading first stops the second thing from quietly becoming the goal.',
+    unlocks:'You can be handed a set of financials and say whether reported earnings are economic earnings. And you can cite the primary literature rather than a summary of it, which is the difference between sounding read and being read.',
+    prereq:'Nothing precedes this. Everything else assumes it.',
+    months:[
+      [1,'Accounting rigour and terminal fluency','Get fast on Company Views, Estimates, Filings and StreetEvents. Ten cash conversion drills, one per Tuesday session and then some.','Blocks 01, 02'],
+      [2,'Quality of earnings and the notes','Screen twenty companies for accrual red flags and write up the worst one properly.','Blocks 03, 04'],
+      [3,'The evidence canon, primary sources only','Fama and French, Novy-Marx, Berk and Green, Cremers and Petajisto, Sharpe. Read the actual papers, not the summaries, including mine.','Blocks 14, 17']
+    ]},
+  { phase:'Phase II', name:'Value and Structure', span:'Months 4 to 6',
+    why:'This is where you stop having opinions and start having numbers attached to them. The order inside the phase is deliberate. Discount rate first, because every valuation argument is secretly an argument about that number and most people never notice. Then ROIC, because it determines whether growth is worth anything at all. Then reverse DCF, which removes the free parameters that turn forward modelling into a confirmation exercise. Then structure, because structure is the thing that tells you whether high returns persist or get competed away.',
+    unlocks:'You can take any ticker and say what the market is currently assuming, whether that assumption is plausible against historical base rates, and precisely what would have to be true for it to hold. That is a sentence almost nobody in retail wealth can produce.',
+    prereq:'Cannot come earlier. A reverse DCF solves for implied growth off an earnings base, and that number is meaningless if Phase I has not established the earnings base is real.',
+    months:[
+      [4,'The discount rate and DCF mechanics','Damodaran for both. Build three clean DCFs so that you have earned the right to stop building them.','Blocks 05, 07'],
+      [5,'Returns on capital and implied expectations','Twelve reverse DCFs, one per Wednesday session. Rank ten companies by incremental ROIC and defend the top and the bottom.','Blocks 06, 08'],
+      [6,'Multiples and industry structure','Three full industry maps, each ending with the sentence: what would have to break for the leader to lose?','Blocks 09, 10']
+    ]},
+  { phase:'Phase III', name:'Regime and Portfolio', span:'Months 7 to 9',
+    why:'A company view without a regime view is a floating object. This is also the phase where the top-down workflow becomes real rather than theoretical, because you now have the bottom-up skill to know what the macro is actually transmitting to. Credit comes before equity within the phase because credit leads, and because the credit tape is sitting on your terminal every morning already being ignored.',
+    unlocks:'You can hold a conversation about rates, spreads and positioning with a fixed income specialist and not be found out. And you can explain what your portfolios are actually exposed to in factor terms rather than in category terms.',
+    prereq:'Macro is the easiest thing in this business to fake and the hardest to actually use. Learning it first produces someone who sounds extremely informed and cannot value anything, which is precisely the profile you are trying to beat.',
+    months:[
+      [7,'The curve and what is priced','Every Bank of Canada MPR and every FOMC statement in the period, read whole. Derive the forward path yourself rather than reading someone else’s summary of it.','Block 11'],
+      [8,'Credit and the reaction function','Build a saved spread chart you then check every morning for the rest of your career.','Blocks 12, 13'],
+      [9,'Portfolio construction and attribution','Run full attribution on three portfolios including one of your own models.','Block 15']
+    ]},
+  { phase:'Phase IV', name:'Command', span:'Months 10 to 12',
+    why:'Knowing and performing are different skills and the gap between them is exactly where credibility is won or lost. Nine months of study produces someone who is right in writing, given time. This phase converts that into someone who is right out loud, under time pressure, in front of a person who may be trying to catch them out.',
+    unlocks:'A cold ticker, twenty minutes, and a defensible verbal view with a valuation anchor and a named risk. Plus a calibration record, which is the only honest evidence that any of this actually worked.',
+    prereq:'You cannot perform what you do not yet know. Attempting this in month three produces confident fluency with nothing underneath it, which is the specific failure mode this whole program exists to avoid.',
+    months:[
+      [10,'Manager and fund due diligence','Five fund teardowns with the skill-versus-luck arithmetic run on every one.','Blocks 16, 17'],
+      [11,'Live performance','Cold ticker tests weekly. Record yourself and listen back. The gap between knowing it and saying it well is larger than you think.','All blocks'],
+      [12,'Capstone and audit','Long-form thesis, prediction audit, philosophy rewrite, Arsenal rebuilt from source.','All blocks']
+    ]}
+];
+
+/* --- Building blocks -------------------------------------- */
+
+const TIERS = [
+  ['I','Foundations: make the numbers trustworthy','Nothing downstream works if this tier is shaky. Four blocks, roughly months one and two.'],
+  ['II','Valuation: attach a number to an opinion','Where judgment becomes arithmetic you can defend. Five blocks, roughly months four to six.'],
+  ['III','Context: regime, structure and the top down','What turns a company view into a market view. Four blocks, roughly months six to eight.'],
+  ['IV','Judgment: evidence, portfolios and track records','Your home territory, done to the same standard as the rest. Four blocks, month three and months nine to ten.']
+];
+
+const BLOCKS = [
+{ t:0, id:'b01', name:'The three statements as one system',
+  what:'How the income statement, balance sheet and cash flow statement articulate. Every change on the balance sheet has to show up somewhere in the other two.',
+  why:'Almost everyone in this industry can read a statement. Very few can trace a single transaction through all three, and that tracing is exactly what lets you spot the item that does not tie.',
+  unlock:'You can be handed two of the three statements and rebuild the third.',
+  yt:['financial statement articulation three statements linked','how to build a three statement model from scratch','Aswath Damodaran accounting for investors'],
+  ask:['Give me three statements with one deliberate inconsistency planted in them and make me find it before you tell me.','Take a real Canadian company and walk one transaction through all three statements with me.','Quiz me: give me a balance sheet movement and I will tell you where it lands in cash flow. Correct me when I am wrong.'],
+  read:[['The Interpretation of Financial Statements, Benjamin Graham','About ninety pages. Read it in one sitting in week one and never need to again.']] },
+
+{ t:0, id:'b02', name:'Accruals and cash conversion',
+  what:'The gap between reported earnings and cash actually generated, and what the size and direction of that gap tells you.',
+  why:'This is the highest yield single check in fundamental analysis and it takes about four minutes. The accrual ratio flags more genuine problems than any ratio in the standard toolkit.',
+  unlock:'You can compute the accrual ratio on any company inside five minutes and say whether the earnings are cash-backed.',
+  yt:['accrual anomaly Sloan explained','quality of earnings cash conversion analysis','free cash flow versus net income why they diverge'],
+  ask:['Compute the accrual ratio for these three companies, rank them, then tell me what you would ask management about the worst one.','Explain the Sloan accrual anomaly and why it partly persisted even after publication.','Give me five companies where net income and cash from operations diverged sharply and make me guess the reason before you explain it.'],
+  read:[['Quality of Earnings, Thornton O’Glove','Old, short, still the best thing written on this specific gap.'],['Financial Shenanigans, Howard Schilit','The catalogue of what the gap is usually hiding.']] },
+
+{ t:0, id:'b03', name:'Revenue recognition and the notes',
+  what:'When revenue gets booked, under what policy, and what the notes disclose about the judgment involved in that call.',
+  why:'Revenue is the most manipulated line in accounting because every line below it is a percentage of it. The notes are where the answer sits, and the notes are where almost nobody looks.',
+  unlock:'You can read a revenue recognition note and state plainly what management has discretion over.',
+  yt:['IFRS 15 ASC 606 revenue recognition explained for investors','revenue recognition red flags financial analysis','channel stuffing and bill and hold explained'],
+  ask:['Here is a revenue recognition note. Tell me what judgment calls it leaves to management and where I should be sceptical.','Give me a worked percentage-of-completion example and show me where it can be stretched.','Walk me through three historical accounting frauds that began at the revenue line and what the early tell was.'],
+  read:[['Financial Shenanigans, Howard Schilit','The revenue sections specifically. Read those first.']] },
+
+{ t:0, id:'b04', name:'Working capital and the cash cycle',
+  what:'Days sales outstanding, days inventory, days payable, and the cash conversion cycle they produce together.',
+  why:'Working capital is where growth either funds itself or quietly eats the company. It is also the earliest place deterioration shows, usually two to four quarters before it reaches earnings.',
+  unlock:'You can look at a working capital trend and say whether the business is improving or is financing its own customers.',
+  yt:['cash conversion cycle explained with worked example','days sales outstanding trend as a red flag','working capital drag on fast growing companies'],
+  ask:['Compute the cash conversion cycle for these companies across five years and tell me what changed and when.','Explain why a negative cash conversion cycle is a real competitive advantage and name three businesses that have one.','Quiz me on which working capital movements are good news and which are bad news, with the trap cases included.'],
+  read:[] },
+
+{ t:1, id:'b05', name:'The discount rate',
+  what:'Cost of equity, cost of debt, capital structure weights, and why nearly every valuation argument is secretly an argument about this one number.',
+  why:'Two analysts with identical forecasts and a one point difference in WACC produce values twenty percent apart. If you cannot defend your discount rate then your valuation is decoration.',
+  unlock:'You can build a defensible WACC and justify every input in it while someone is actively trying to pull it apart.',
+  yt:['Aswath Damodaran cost of capital session','CAPM beta estimation problems in practice','Damodaran country risk premium explained'],
+  ask:['Build a WACC for this Canadian company with me and challenge every input I propose.','Explain why a regression beta from five years of monthly data is often wrong and what the alternatives are.','Value the same company twice at different discount rates and make me argue for one of them.'],
+  read:[['Investment Valuation, Aswath Damodaran','A reference, not a cover to cover read. The cost of capital chapters are the ones to do properly.']] },
+
+{ t:1, id:'b06', name:'ROIC and the reinvestment engine',
+  what:'Return on invested capital, how invested capital is actually defined, incremental ROIC, and the reinvestment rate.',
+  why:'The single most important concept on this list. Growth creates value only when ROIC exceeds the cost of capital. Below it, growth destroys value, and revenue-line enthusiasm is exactly how people miss that.',
+  unlock:'You can look at a growing company and say whether the growth is worth owning or is a treadmill.',
+  yt:['return on invested capital explained Mauboussin','incremental ROIC how to calculate','why growth destroys value at low returns on capital'],
+  ask:['Calculate ROIC and incremental ROIC for these five companies and rank them by quality of growth, not rate of growth.','Explain the difference between ROIC, ROCE and ROE and name the situation where each one misleads.','Give me a company growing revenue at twenty percent that is destroying value, and make me work out why before you tell me.'],
+  read:[['Expectations Investing, Mauboussin and Rappaport','The value driver framework, which is the heart of this block.'],['Valuation, Koller and others (the McKinsey book)','Definitive on ROIC, growth, and how the two interact.']] },
+
+{ t:1, id:'b07', name:'DCF mechanics',
+  what:'Forecasting free cash flow, terminal value, and the arithmetic of discounting.',
+  why:'You need to be able to build one properly before you are allowed to stop building them. Understanding why the tool is weak requires having used it well first, otherwise the critique is just something you were told.',
+  unlock:'You can build a clean DCF and, more usefully, point at exactly which two assumptions are carrying the entire result.',
+  yt:['Aswath Damodaran DCF valuation session','terminal value assumptions and sensitivity','common DCF mistakes analysts make'],
+  ask:['Walk me through a DCF on a company I choose and stop at every assumption to make me justify it out loud.','Show me what proportion of a typical DCF value sits in terminal value and explain why that is a problem.','Build me a DCF with one subtly wrong assumption and let me hunt for it.'],
+  read:[['Investment Valuation, Aswath Damodaran','Plus his free NYU lecture series, which is better than most paid programs and costs nothing.']] },
+
+{ t:1, id:'b08', name:'Reverse DCF and implied expectations',
+  what:'Taking the market price as given and solving for the growth and margin combination it embeds.',
+  why:'The hinge of this entire program. It converts valuation from an exercise in forecasting, which you cannot do well, into an exercise in judging expectations, which you can.',
+  unlock:'You can say, for any name, what the market is currently assuming and whether companies like this have historically delivered it.',
+  yt:['reverse DCF implied growth rate explained','Mauboussin expectations investing interview','market implied expectations valuation approach'],
+  ask:['Run a reverse DCF on this ticker and tell me what growth and margin the current price implies.','Given these implied expectations, what base rate should I be comparing them against and where do I find it?','Drill me: give me a price and a set of financials, I will state what is implied, then correct my arithmetic.'],
+  read:[['Expectations Investing, Mauboussin and Rappaport','The most important book on this list for your specific purpose.'],['The Base Rate Book, Mauboussin','Free from Morgan Stanley. Use it every single time you run a reverse DCF.']] },
+
+{ t:1, id:'b09', name:'Multiples, and when they lie',
+  what:'EV/EBIT, EV/EBITDA, P/E, and EV/invested capital against ROIC over WACC. What each one embeds and where the shorthand breaks.',
+  why:'Multiples are how the industry actually talks, so you need the fluency. But every multiple is a compressed DCF with its assumptions hidden, and knowing which assumption is hidden is the entire skill.',
+  unlock:'You can hear a multiple quoted and immediately name what it is assuming about growth, returns and risk.',
+  yt:['Damodaran relative valuation multiples session','EV EBITDA when it misleads investors','why P E ratios are not comparable across companies'],
+  ask:['Derive the P/E multiple from a DCF and show me exactly which assumptions it compresses.','Give me two companies trading at the same EV/EBIT where one is cheap and one is expensive, and make me work out which.','Explain when EV/EBITDA is actively misleading and name the industries where it is worst.'],
+  read:[] },
+
+{ t:2, id:'b10', name:'Industry structure and durability',
+  what:'Porter’s five forces at the industry level, Helmer’s 7 Powers at the level of the individual firm.',
+  why:'ROIC tells you the returns are high right now. Structure tells you whether they will still be high in ten years, which is the only question that matters for an asset you are meant to hold for decades.',
+  unlock:'You can name the specific mechanism protecting a company’s returns, or say honestly that there is not one, which is the more common and more useful answer.',
+  yt:['Hamilton Helmer 7 Powers explained','Porter five forces applied to investing','Bruce Greenwald competition demystified barriers to entry'],
+  ask:['Map this industry with five forces, then tell me which of the 7 Powers the leader genuinely has and which it only appears to have.','Give me a company that looks like it has a moat and does not, and make me argue both sides before you rule.','Quiz me: you name the power, I name a company that has it, or the reverse.'],
+  read:[['7 Powers, Hamilton Helmer','Short and precise. The taxonomy is worth memorising.'],['Competition Demystified, Bruce Greenwald','Strips Porter down to the thing that actually matters, which is barriers to entry.']] },
+
+{ t:2, id:'b11', name:'The yield curve',
+  what:'Curve construction, the difference between rate expectations and term premium, and what is genuinely priced into forwards.',
+  why:'This is where advisors get caught out fastest. "The curve is pricing three cuts" is a sentence a great many people repeat and very few can derive. Being able to derive it changes how you are treated in a room within about thirty seconds.',
+  unlock:'You can look at the curve and state what policy path is priced, and separate that cleanly from term premium.',
+  yt:['yield curve term premium explained','how to read forward rates from the yield curve','bond math duration and convexity explained'],
+  ask:['Given these GoC yields, derive the implied one year forward rates with me and tell me what policy path they imply.','Explain term premium, how it is estimated, and why the major estimates disagree with each other.','Drill me on bond math until I stop making duration errors.'],
+  read:[['Bank of Canada Monetary Policy Report','Quarterly, free, and read whole. Almost no advisor does this and it shows immediately.']] },
+
+{ t:2, id:'b12', name:'Credit spreads and the cycle',
+  what:'Option-adjusted spreads, the default cycle, and why credit tends to lead equity.',
+  why:'Credit is the best single risk signal available to you and it is already sitting on your terminal every morning. An advisor watching only equity indices is working with one eye closed.',
+  unlock:'You can read the credit tape and say whether risk appetite is expanding or contracting, before the equity market has made it obvious.',
+  yt:['credit spreads and option adjusted spread explained','high yield spreads as a recession indicator','the credit cycle explained for investors'],
+  ask:['Explain what an option-adjusted spread is and, specifically, what the option is.','Show me three historical episodes where credit spreads led equity drawdowns, and by how long in each case.','What spread levels have historically marked the transitions between phases of the credit cycle?'],
+  read:[['Manias, Panics and Crashes, Charles Kindleberger','The pattern recognition that keeps you calm when it matters.']] },
+
+{ t:2, id:'b13', name:'Inflation and the reaction function',
+  what:'How CPI is constructed, what core and trim measures strip out, and how central banks actually respond to a print.',
+  why:'Everything in the curve is downstream of this. And the difference between someone who says "inflation is sticky" and someone who can name which components are driving it is instantly obvious to anyone who knows.',
+  unlock:'You can decompose an inflation print and say what the Bank of Canada is likely to care about in it.',
+  yt:['CPI trim median common Bank of Canada explained','how central banks set policy reaction function','shelter and housing inflation measurement problem'],
+  ask:['Decompose the latest Canadian CPI print with me and tell me what the Bank will focus on.','Explain the difference between CPI-trim, CPI-median and CPI-common and why the Bank watches all three.','Given this inflation and labour data, what would you expect the Bank to do at the next meeting and what is the strongest case against that?'],
+  read:[['Bank of Canada Monetary Policy Report','The single best macro document available to you, and it is free.']] },
+
+{ t:3, id:'b14', name:'Factors and the cross-section',
+  what:'Market, size, value, profitability, investment, momentum. What holds up out of sample, what is a data mining artifact, and how to tell the difference.',
+  why:'Your entire investment approach rests on this literature. Resting on a literature you have only read summaries of is a liability, and eventually somebody will ask you a real question about it.',
+  unlock:'You can defend a factor tilt from the primary papers and, just as important, state honestly what the tilt costs you in a bad decade.',
+  yt:['Ben Felix factor investing evidence','Fama French five factor model explained','factor zoo and the replication problem in finance'],
+  ask:['Walk me through the Fama and French 1993 paper section by section and stop to check I am following.','What is the strongest argument that the value premium is not real, and how would you answer it?','Quiz me on which published factors survived out of sample and which quietly did not.'],
+  read:[['Fama and French (1992, 1993, 2015) and Novy-Marx (2013)','The actual papers. Not summaries, and specifically not mine.'],['Your Complete Guide to Factor-Based Investing, Berkin and Swedroe','The bridge from the papers to practice.']] },
+
+{ t:3, id:'b15', name:'Attribution',
+  what:'Allocation against selection, factor against idiosyncratic, and what a return decomposition can and cannot honestly tell you.',
+  why:'This is how you find out what a portfolio is actually doing as opposed to what its category label claims. It is also how you take apart somebody else’s track record politely.',
+  unlock:'You can decompose any portfolio’s return and say where it genuinely came from.',
+  yt:['Brinson attribution allocation and selection explained','returns based style analysis Sharpe','running a factor regression on a fund'],
+  ask:['Run a Brinson attribution on this portfolio and explain each component to me as you go.','Regress this fund’s returns on the five factors and tell me what it is actually doing versus what it says it does.','Show me a fund whose stated strategy and factor loadings clearly disagree.'],
+  read:[] },
+
+{ t:3, id:'b16', name:'Skill versus luck',
+  what:'The statistics of track records. How many years of data are needed to distinguish skill from noise at a given tracking error.',
+  why:'The single most powerful thing you can do in a conversation about a manager, and virtually nobody in retail wealth can do it. It converts an anecdote into arithmetic in about ninety seconds and the conversation is then over.',
+  unlock:'Someone says "my manager beat the market for ten years" and you compute, on the spot, whether ten years means anything at all at that fund’s tracking error.',
+  yt:['skill versus luck in investing Mauboussin','statistical significance of fund manager track records','the paradox of skill explained'],
+  ask:['A fund has 4 percent tracking error and 1.5 percent annual excess return. How many years to reach 95 percent confidence? Show me the arithmetic step by step.','Explain the paradox of skill and why outperformance gets harder as the field improves.','Drill me on this until I can do it in my head to one significant figure.'],
+  read:[['The Success Equation, Michael Mauboussin','Read this before you evaluate another track record.'],['Berk and Green (2004)','The most sophisticated pro-skill model in the literature, and it still concludes investors capture nothing.']] },
+
+{ t:3, id:'b17', name:'The arithmetic of costs and taxes',
+  what:'Fee drag compounding, tax drag by account type, asset location, turnover cost, and the after-tax arithmetic that actually determines client outcomes.',
+  why:'This is your home territory and the place your argument is strongest, which is exactly why it deserves the same rigour as the analysis blocks instead of being assumed.',
+  unlock:'You can quantify, live and specifically, what a planning decision is worth against what plausible alpha is worth. That single comparison ends most fee conversations.',
+  yt:['asset location and tax efficiency Canada explained','fee drag compounding over thirty years','Ben Felix tax efficient investing Canada'],
+  ask:['Model the thirty year cost of a one percent fee differential on a portfolio being drawn down from age sixty.','Compare asset location strategies for a Manitoba incorporated professional and show me the after-tax difference in dollars.','Walk me through Sharpe’s arithmetic of active management and why it holds as an identity rather than as an empirical claim.'],
+  read:[['Sharpe (1991), The Arithmetic of Active Management','Two pages. Effectively unanswerable. Everyone should have read it and almost nobody has.'],['Morningstar Canadian Fund Fee Study','Current Canadian cost data, refreshed annually.']] }
+];
+
+/* --- Statement Mastery ladder -------------------------------
+   Ten graded levels, ten points each. The score is earned, not typed in:
+   it only moves when a checkpoint is checked, and a checkpoint is a
+   falsifiable test, not a reading assignment. Levels 1 to 5 deepen Blocks
+   01 to 04; levels 6 to 10 are territory the Blocks tier does not cover. */
+
+const STATEMENTS = [
+{ n:1, name:'Literacy', range:'0 to 10', ref:null,
+  you:'You can open any of the three statements and say, in plain terms, what every line represents, without notes.',
+  why:'This is the floor, and it is worth naming honestly because most people who think they cleared it have not. Reading a statement and understanding one are different skills.',
+  items:[
+    'Name all three statements and the one question each answers: what did we earn, what do we own and owe, where did the cash actually go.',
+    'On an income statement you have never seen, locate revenue, gross profit, operating income and net income, and say what sits between each pair.',
+    'On a balance sheet you have never seen, locate current assets, PP&E, current liabilities, long-term debt and retained earnings.',
+    'On a cash flow statement, locate the operating, investing and financing sections and say in one sentence what belongs in each.'
+  ],
+  test:'Handed a real 10-K’s three statements cold, five minutes on the clock, correctly label ten line items chosen at random by someone else.',
+  yt:['how to read financial statements for beginners','the three financial statements explained Corporate Finance Institute','income statement balance sheet cash flow statement relationship'],
+  ask:['Give me a real company’s three statements with the line items unlabeled and make me identify each one.','Quiz me rapid fire: name a business event and I will tell you which statement and which line it hits.'],
+  read:[] },
+
+{ n:2, name:'Articulation', range:'10 to 20', ref:'Deepens Block 01',
+  you:'You can trace one transaction through all three statements and explain why a balance sheet movement has to show up somewhere else.',
+  why:'Literacy is static. This is dynamic, and it is the difference between naming an engine’s parts and knowing how turning one moves another.',
+  items:[
+    'Take a single cash sale and walk it through all three statements.',
+    'Take a single credit sale and do the same, and say why it looks different from the cash sale on the cash flow statement.',
+    'Take a depreciation entry and walk it through, noting it touches two statements and never touches cash.',
+    'Take a debt repayment and walk it through, noting it appears on only one statement despite moving the balance sheet twice.'
+  ],
+  test:'Given two of the three statements for a real company with one number blanked out on the third, derive the missing number without being told what caused it.',
+  yt:['financial statement articulation three statements linked','how transactions flow through financial statements','T-accounts for beginners investors'],
+  ask:['Give me three statements with one deliberate inconsistency planted in them and make me find it before you tell me.','Take a real Canadian company and walk one transaction through all three statements with me.'],
+  read:[] },
+
+{ n:3, name:'Quality of earnings', range:'20 to 30', ref:'Deepens Block 02',
+  you:'You can compute the accrual ratio and the cash conversion chain on any company inside five minutes and state whether reported earnings are economic earnings.',
+  why:'This is the highest yield check in the entire discipline and it is fast. Everything from here on assumes you run it by reflex, not by reminder.',
+  items:[
+    'Compute (net income minus cash from operations) divided by average total assets on a real filing and flag anything above roughly 10 percent.',
+    'Build the cash conversion chain: net income to cash from operations to free cash flow.',
+    'Check the trio: days sales outstanding trend, inventory growth against revenue growth, and what is being capitalised rather than expensed.'
+  ],
+  test:'Given a real filing you have not seen before, compute the accrual ratio and deliver a one-sentence verdict with the number behind it, in under five minutes.',
+  yt:['accrual anomaly Sloan explained','quality of earnings cash conversion analysis','free cash flow versus net income why they diverge'],
+  ask:['Compute the accrual ratio for three companies, rank them, then tell me what you would ask management about the worst one.','Give me five companies where net income and cash from operations diverged sharply and make me guess why before you explain it.'],
+  read:[] },
+
+{ n:4, name:'The notes and disclosure', range:'30 to 40', ref:'Deepens Block 03, adds segments and related parties',
+  you:'You can read a note and say plainly what judgment it hands management, instead of treating the notes as fine print.',
+  why:'The notes are where almost every real finding in this business actually lives, and where almost nobody looks. Revenue recognition alone is not the whole disclosure package, so this level widens it.',
+  items:[
+    'Read a revenue recognition note and state the judgment calls it leaves open.',
+    'Read a segment note and identify which segment actually drives consolidated results, versus which one management talks about most.',
+    'Read a related-party transactions note and flag anything that would not survive an arm’s-length test.',
+    'Read the commitments and contingencies note and state what liability is not yet on the balance sheet.'
+  ],
+  test:'Given a real filing’s full note package, find the one disclosure that changes your view of the headline numbers, in twenty minutes.',
+  yt:['IFRS 15 ASC 606 revenue recognition explained for investors','segment reporting analysis how to read it','related party transactions red flags'],
+  ask:['Here is a revenue recognition note. Tell me what judgment calls it leaves to management and where I should be sceptical.','Give me a segment note and make me work out which segment is carrying the company before you tell me.'],
+  read:[] },
+
+{ n:5, name:'Ratio fluency', range:'40 to 50', ref:'Deepens Block 04, full ratio toolkit',
+  you:'Handed five years of ratios with no commentary, you can write the story they are telling, including what is actually driving ROE.',
+  why:'Individual ratios are cheap. The skill is reading five years of them together and knowing which ones are cause and which are effect.',
+  items:[
+    'Liquidity: current ratio and quick ratio, and what a widening gap between them means.',
+    'Leverage: debt to equity and interest coverage, tracked across a cycle, not a single year.',
+    'Efficiency: asset turnover, days sales outstanding, days inventory, days payable.',
+    'DuPont decomposition of ROE into margin, asset turnover and leverage, so you know which of the three is actually moving.'
+  ],
+  test:'Given five years of one company’s ratios with no narrative, write the two-paragraph story they tell, including the DuPont decomposition of what is driving ROE.',
+  yt:['DuPont analysis ROE decomposition explained','financial ratio analysis across a business cycle','days sales outstanding days inventory days payable explained'],
+  ask:['Run a DuPont decomposition on this company across five years and tell me whether the ROE trend is margin, turnover or leverage.','Give me a company’s ratios with the name removed and make me guess the industry from the shape alone.'],
+  read:[] },
+
+{ n:6, name:'Real filing navigation', range:'50 to 60', ref:null,
+  you:'You can go into an actual SEDAR+ or EDGAR filing cold and find, inside a bounded time, the ten things that matter, table of contents or not.',
+  why:'Everything so far has assumed clean excerpts. Real filings are two hundred pages of a company trying to bury the one paragraph you need. This level is about speed under real conditions.',
+  items:[
+    'Time yourself finding the auditor’s report and reading Key Audit Matters, which is the auditor telling you on the record where the estimate risk lives.',
+    'Locate the non-GAAP reconciliation table in the MD&A and find the biggest gap between GAAP and adjusted.',
+    'Locate the subsequent events note and say why it matters more in some quarters than others.',
+    'Cross-check one figure from the earnings press release against the actual filed statement it claims to summarise.'
+  ],
+  test:'Cold filing, fifteen minutes on the clock, produce a one-page map of where the ten things that matter live in that specific document.',
+  yt:['how to read a 10-K annual report SEC filing','key audit matters explained auditors report','how to use SEDAR+ EDGAR for investment research'],
+  ask:['Time me: give me a real 10-K structure and quiz me on where a specific disclosure would be filed.','Explain what Key Audit Matters are and why they are the single most underused paragraph in any filing.'],
+  read:[] },
+
+{ n:7, name:'The hard technical topics', range:'60 to 70', ref:null,
+  you:'Leases, stock compensation, deferred tax, pensions, goodwill and business combinations stop being topics you nod along to and become things you can restate and requantify yourself.',
+  why:'This is where most people who are otherwise competent quietly stop. These five topics carry more genuine complexity than everything before them combined, and skipping them is how an advisor sounds fluent right up until someone asks a real question.',
+  items:[
+    'Explain how IFRS 16 and ASC 842 put operating leases onto the balance sheet, and what that did to reported EBITDA and leverage ratios overnight.',
+    'Explain stock-based compensation as a real economic cost despite being a non-cash add-back, and treat "adjusted for stock comp" as a phrase worth pausing on.',
+    'Explain deferred tax assets and valuation allowances, and what a growing allowance quietly says about management’s own view of future profitability.',
+    'Explain goodwill impairment testing, and why a company that has never impaired despite a falling stock price deserves a second look.',
+    'Walk through purchase price allocation on one real acquisition and identify what became goodwill versus an identifiable intangible.'
+  ],
+  test:'Given a company that just adopted a new lease standard or just took a goodwill impairment, quantify the effect on EBITDA, leverage and ROIC yourself, without relying on the company’s own adjusted figures.',
+  yt:['IFRS 16 lease accounting explained with example','stock based compensation real cost or not investor view','deferred tax assets valuation allowance explained','goodwill impairment testing explained'],
+  ask:['Walk me through purchase price allocation on a real acquisition and make me classify each piece as goodwill or an identifiable intangible before you correct me.','Explain why a growing deferred tax valuation allowance is a signal worth taking seriously, with a real example.'],
+  read:[] },
+
+{ n:8, name:'Non-GAAP and adjusted metrics', range:'70 to 80', ref:null,
+  you:'You can rebuild a company’s adjusted EBITDA or adjusted earnings from the actual statements, line by line, and judge every adjustment on its own merits rather than accepting the company’s framing.',
+  why:'Non-GAAP figures are where the gap between what a company wants you to see and what actually happened is widest, and it is the gap most retail investors never check because the company does the arithmetic for them.',
+  items:[
+    'Pull the non-GAAP reconciliation table from an earnings release and rebuild it independently from the filed statements.',
+    'Classify every adjustment as genuinely one-time and non-operating, or a recurring cost relabelled to look temporary.',
+    'Track the same "one-time" adjustment across four consecutive quarters and check whether it is still one-time.',
+    'Compare the adjusted EBITDA margin trend to the GAAP operating margin trend and explain any widening gap.'
+  ],
+  test:'Given a company with a persistent, multi-year gap between adjusted and GAAP earnings, write the paragraph you would say to a client explaining what the company’s preferred number is hiding.',
+  yt:['non-GAAP adjusted EBITDA reconciliation explained','recurring one time charges red flag analysis','adjusted earnings versus GAAP earnings gap'],
+  ask:['Give me a real non-GAAP reconciliation table and make me classify every adjustment before you tell me which ones you would challenge.','Find me a company whose "one-time" charge has now appeared for four straight quarters.'],
+  read:[] },
+
+{ n:9, name:'Forensic scoring and industry statements', range:'80 to 90', ref:null,
+  you:'You can compute the standard forensic scores by hand on a real filing, and you can read a bank’s, an insurer’s and a REIT’s statements without forcing an industrial company’s framework onto them.',
+  why:'The tools so far assume an industrial company. A bank has no revenue or cost of goods sold in any meaningful sense. Applying the wrong toolkit to the wrong industry is a specific, common, and avoidable mistake.',
+  items:[
+    'Compute the eight components of the Beneish M-Score by hand on one company and check whether it clears the -1.78 flag threshold.',
+    'Compute the Altman Z-Score and place the company in the safe zone above 2.99, the grey zone from 1.81 to 2.99, or the distress zone below 1.81.',
+    'Compute the nine binary criteria of the Piotroski F-Score and score the result out of nine, where 8 or 9 is strong and 0 to 2 is weak.',
+    'Read a bank’s statements for net interest margin and provision for credit losses instead of hunting for revenue and COGS, which barely exist there.',
+    'Read a REIT’s statements and reconcile net income to FFO and AFFO, and explain why depreciation gets added back here when it never would for an industrial company.',
+    'Read an insurer’s statements for the combined ratio and float, and explain how an insurer can post an underwriting loss and still be a good business.'
+  ],
+  test:'Handed one filing each from a bank, a REIT and an insurer, produce the one metric from each that an industrial-company toolkit would get wrong if applied naively, and say what to use instead.',
+  yt:['Beneish M-Score explained how to calculate','Altman Z-Score explained with example','Piotroski F-Score explained nine criteria','how to read a bank balance sheet net interest margin','REIT FFO AFFO explained','insurance combined ratio and float explained Buffett'],
+  ask:['Walk me through computing the Beneish M-Score on a real company, one variable at a time, and tell me if it clears -1.78.','Give me a bank’s financial statements and make me find net interest margin and the provision for credit losses without any labels.','Explain FFO and AFFO for a REIT and why adding back depreciation is correct there and would be wrong for a manufacturer.'],
+  read:[['Financial Shenanigans, Howard Schilit','Also the source for the forensic red flag mindset behind the scoring models.']] },
+
+{ n:10, name:'Live and cold', range:'90 to 100', ref:null,
+  you:'Handed an unfamiliar real filing you did not choose, you can produce a verbal quality-of-earnings verdict and a named red flag or a clean bill of health, inside a bounded time, and defend it under real pushback.',
+  why:'Nine levels of study produce someone who is right in writing, given enough time. This level is the only honest test of whether any of it actually works under the conditions it will actually be used in.',
+  items:[
+    'Twenty minutes, cold filing, verbal verdict, recorded.',
+    'Have someone push back on the verdict and either hold the position with a stated reason or update it, never with a shrug either way.',
+    'Do this monthly, and listen back to the recording from three months ago, which is usually the most useful ten minutes in the whole exercise.'
+  ],
+  test:'This is the cold ticker test from the Arc’s Phase IV and the Quarterly protocol, run until you are consistently right about your own confidence level, meaning your own misses stop surprising you.',
+  yt:['cold read financial analysis practice','how to do due diligence quickly under time pressure','calibration training for forecasters Tetlock'],
+  ask:['Give me an unfamiliar filing and put twenty minutes on the clock, then push back hard on whatever verdict I give.','Score my last cold read: was I calibrated, overconfident, or underconfident, and how would I know the difference?'],
+  read:[] }
+];
+
+/* --- Top-down workflow ------------------------------------ */
+
+const WORKFLOW = [
+{ n:'01', title:'The regime', zoom:'Global macro', ask:'What kind of market am I in, and what would tell me it changed?',
+  items:[
+    'Rates: build the GoC and UST curves. Record 2s10s, 3m10y, and the direction of travel over one and three months.',
+    'Forwards: derive the implied policy path. Do not read someone else’s summary of what is priced.',
+    'Credit: investment grade and high yield option-adjusted spreads. Level matters less than direction and rate of change.',
+    'Inflation: CPI-trim and CPI-median for Canada, core PCE for the US, plus the components driving each.',
+    'Growth: PMIs, employment, real retail sales. Two or three series, tracked consistently, beat twenty tracked occasionally.',
+    'Liquidity and FX: the US dollar index, USD/CAD, and oil, which drives a disproportionate share of the TSX.'
+  ],
+  mods:'Fixed Income for curves and spreads, Charting for saved spread and curve views, News with economic topic codes, the economic calendar.',
+  out:'One sentence naming the regime, plus the two indicators that would falsify it. Write both down. The second half is the part everyone skips and it is the part that makes you honest.' },
+
+{ n:'02', title:'Asset class and geography', zoom:'Allocation', ask:'Given that regime, where is the compensation for risk, and where is it absent?',
+  items:[
+    'Equity against fixed income: earnings yield versus the real ten year. A crude comparison, but it anchors the conversation.',
+    'Canada against the US against international. Most of the divergence is sector composition rather than skill or national character, so decompose before concluding.',
+    'Within fixed income: where you are being paid for duration and where you are being paid for credit quality, and whether the regime supports either.',
+    'Currency: whether the USD/CAD exposure inside a US allocation is deliberate or accidental.'
+  ],
+  mods:'Charting for relative performance and spread charts, Portfolio Analytics for exposures, Estimates for aggregate index-level earnings.',
+  out:'A written statement of where the regime argues for a tilt and, more importantly, where it does not. Most of the time the honest answer at this stage is "no change", and being able to say that with reasons behind it is worth more than a tilt.' },
+
+{ n:'03', title:'Sector', zoom:'Sector rotation', ask:'Which parts of the market are levered to this regime, and which are fighting it?',
+  items:[
+    'Relative performance: every sector against the index over one, three, six and twelve months. Look for the change in trend, not the trend.',
+    'Earnings revision breadth by sector. This leads price more reliably than the price momentum does.',
+    'Sector valuation against its own history rather than against other sectors. Cross-sector multiple comparison is mostly noise.',
+    'Map sensitivity explicitly: which sectors are rate-sensitive, which are commodity-levered, which are genuinely defensive in this particular regime rather than in the textbook.'
+  ],
+  mods:'Screening and Analysis for sector screens, Estimates for revision data, Charting for relative strength.',
+  out:'Two sectors that fit the regime call and one that clearly does not, each with the transmission mechanism stated. "Financials benefit from steeper curves" is only an answer if you can say through which line of the income statement.' },
+
+{ n:'04', title:'Industry', zoom:'Competitive structure', ask:'Inside that sector, who has structural advantage and who is a price taker?',
+  items:[
+    'Concentration and the five year market share trend. Who is gaining, and what are they paying for it?',
+    'Pricing power: gross margin trend across the whole peer group. If margins move together, the group is a price taker and the macro call dominates.',
+    'Capital discipline: capex against depreciation, and buybacks against issuance, across the group.',
+    'The one unit economic that drives the industry. Name a single metric. If you name three you have not found it yet.',
+    'Read two competitors’ transcripts from the same quarter and mark where they describe the identical market differently.'
+  ],
+  mods:'Screening and Analysis for peer sets, Company Views for group financials, StreetEvents for transcripts, Deals for consolidation history and precedent multiples.',
+  out:'A ranked peer group with the advantage mechanism named for the top two. This is Block 10 applied, and it is the stage most people skip entirely, jumping from sector straight to ticker.' },
+
+{ n:'05', title:'The company', zoom:'Security', ask:'Is the price asking for something this business can actually deliver?',
+  items:[
+    'Full Company View pass: business model, segments, geography, capital structure.',
+    'Quality of earnings: the accrual check and the cash conversion chain, before any valuation work.',
+    'ROIC against WACC, and incremental ROIC against WACC. Decide whether the growth is worth owning.',
+    'Reverse DCF: what does this price imply, and what is the base rate for delivering it?',
+    'Estimate revisions and dispersion. Wide dispersion is information about uncertainty, not an inconvenience to average away.',
+    'The transcript, weighted heavily toward the Q and A rather than the prepared remarks.',
+    'Ownership and insider activity. Watch concentration and turnover rather than the names on the list.'
+  ],
+  mods:'Company Views, Filings, Estimates, StreetEvents, Ownership, Research for the sell-side disagreement check.',
+  out:'A written view with a valuation anchor, two named risks, and an explicit falsification condition with a date attached. If you cannot write the falsification condition you do not have a thesis, you have a preference.' }
+];
+
+const TERMINAL = [
+  ['Company Views','Overview, financials, estimates, ownership, filings and events on a single name. Home base for Stage 5.'],
+  ['Screening and Analysis','Screens across fundamentals, estimates, ownership and technicals. Three saved screens is the target: accrual red flags, high incremental ROIC, negative estimate revisions.'],
+  ['Estimates (I/B/E/S)','Consensus, revision history, dispersion, surprise history. The revision trend and the dispersion carry more information than the consensus level.'],
+  ['StreetEvents','Calendar, transcripts and event briefs. Transcripts are the highest value and most underused asset on the entire terminal.'],
+  ['Filings','SEDAR+ and EDGAR documents. Go to the notes rather than the summary screens.'],
+  ['Research (Investext)','Aggregated broker research. Read two notes on one name and mark where and why they disagree.'],
+  ['Ownership','Institutional holders, position changes, insider transactions.'],
+  ['Fixed Income','Bond search, yield curves and spread data. Stage 1 lives here.'],
+  ['Charting','Relative performance, spread charts, custom expressions. Save a 2s10s chart and an IG against HY spread chart on day one.'],
+  ['Portfolio Analytics','Holdings analysis, attribution and factor exposures. Stage 2, plus the monthly manager teardown.'],
+  ['Fund and Lipper data','Fund screening, peer groups, performance and fee data. Your manager due diligence workspace.'],
+  ['Deals','M&A and equity issuance. Sector consolidation reads and precedent transaction multiples.'],
+  ['News','Reuters wire with topic codes. Set alerts on estimate revisions rather than on price.']
+];
+
+/* --- Method stack ----------------------------------------- */
+
+const METHOD = [
+  ['Define the question before you open the terminal',
+   'Write down what decision this analysis is meant to inform and what answer would change it. Terminal time without a question is entertainment.',
+   'Most analysts open a company page and start absorbing. Two hours later they have a great many facts and no view.'],
+  ['Understand the business before you touch a number',
+   'Revenue model, unit economics, who pays and why they keep paying. If you cannot explain how the company makes a dollar in two sentences, the model you build will be decorative.',
+   'Skipping to the financials means you cannot tell which line items matter, so you end up modelling all of them with equal care.'],
+  ['Quality of earnings, before valuation',
+   'Accruals, cash conversion, revenue recognition, capitalisation policy. If reported earnings are not economic earnings then every multiple and every model downstream is built on a bad input.',
+   'Valuation is the enjoyable part, so people do it first. A cheap multiple on overstated earnings is not cheap, it is a trap.'],
+  ['Returns on capital and the reinvestment engine',
+   'ROIC against WACC, and more importantly incremental ROIC against WACC, combined with the reinvestment rate. Growth creates value only when returns exceed the cost of capital. Otherwise growth destroys it.',
+   'Treating growth as automatically good. A company compounding capital at 6 percent against a 9 percent cost of capital is shrinking, whatever the revenue line says.'],
+  ['Competitive structure, to test whether the returns persist',
+   'Five forces for the industry, then 7 Powers for the specific firm. High ROIC attracts capital, so the only question that matters is what stops that from happening here.',
+   'Calling something a moat because it has been profitable. That is the observation, not the explanation.'],
+  ['Reverse DCF, not forward DCF',
+   'Take the price as given and solve for the expectations embedded in it, then judge those. This is the one methodological change that will do the most for you.',
+   'A forward DCF has enough free parameters that you can produce whatever answer you started with. Reverse DCF removes that freedom, which is precisely why it is uncomfortable.'],
+  ['Base rates before narrative',
+   'Ask what fraction of companies with these characteristics actually delivered what this price implies. The Base Rate Book exists for exactly this and it is free.',
+   'The inside view feels like analysis and is mostly storytelling. The outside view feels lazy and is usually right.'],
+  ['Scenarios with probabilities, never a point target',
+   'Three cases, an explicit probability on each, a value in each. The expected value and the dispersion are both outputs and both matter.',
+   'A single price target communicates a precision that does not exist and gives you nothing to update against when reality moves.'],
+  ['Falsification first: write the bear case before the bull case',
+   'Name the observable that would prove you wrong, and the date by which you would expect to see it. If you cannot name one, you do not have a thesis, you have a preference.',
+   'Writing the bull case first turns every subsequent piece of research into confirmation gathering.'],
+  ['Size the position, because a correct view sized wrongly is still a bad decision',
+   'Conviction, correlation to what is already held, and the cost of being wrong. Kelly logic as a ceiling rather than as a target.',
+   'Analysis and portfolio construction get treated as separate jobs. In practice the sizing decision destroys more value than the selection decision.'],
+  ['Post-mortem on process, regardless of outcome',
+   'Score the reasoning, not the result. A good decision that lost money remains a good decision. A bad decision that made money is the most dangerous thing in the book.',
+   'Reviewing only the losers. That teaches you to avoid the last mistake rather than to make better decisions.']
+];
+
+/* --- The Arsenal ------------------------------------------ */
+
+const ARSENAL = [
+{ claim:'Markets are obviously inefficient. Look at GameStop. Look at 2008.',
+  steel:'Prices demonstrably depart from any reasonable fundamental anchor, sometimes enormously and for long stretches. Strict efficiency is falsified. Grossman and Stiglitz (1980) went further and showed that a perfectly efficient market is impossible in equilibrium, because nobody would pay to gather information if prices already reflected it.',
+  reply:'Agree with all of it, then move the goalposts to where they belong. The question is not whether prices are sometimes wrong. It is whether they are reliably wrong in a direction you can identify in advance and capture after costs, taxes and the risk of being wrong. Inefficiency is necessary for outperformance and nowhere close to sufficient. Judge the claim on realised net outcomes.',
+  data:'SPIVA Canada Year-End 2025: 98.8 percent of Canadian equity funds underperformed the S&P/TSX Composite over ten years.' },
+{ claim:'Index funds are a bubble. Passive is destroying price discovery.',
+  steel:'Passive holds a large and growing share of US equity. Index flows are price-insensitive by construction. There is real published work on index inclusion effects and on flows moving prices more than they used to. If enough capital stops doing price discovery, prices should get worse.',
+  reply:'Two responses. First, price discovery is done by trading, not by holding, and passive vehicles are a modest share of actual trading volume. Second, and this is the one that ends it: if passive were making markets less efficient, active managers should be finding it easier, not harder. The scorecards have moved firmly the other way. The steelman is a testable prediction and the prediction keeps failing.',
+  data:'SPIVA US Year-End 2025: 78.8 percent of large-cap funds underperformed the S&P 500 that year, 89.9 percent over fifteen years, 92.9 percent over twenty.' },
+{ claim:'Fine for large cap, but you can beat the market in the inefficient corners. Small cap, emerging, private.',
+  steel:'A perfectly reasonable prior. Thinner analyst coverage, higher return dispersion, more genuine mispricing available to somebody willing to do the work.',
+  reply:'Higher dispersion cuts both ways, and costs, spreads and capacity constraints are worst exactly where the inefficiency is supposed to live. So do not argue the theory. Check the scorecard for that specific segment before conceding the premise. The person making this claim has almost never looked.',
+  data:'SPIVA Canada Year-End 2025: 100 percent of Canadian small and mid-cap equity funds underperformed the S&P/TSX Completion Index in 2025.' },
+{ claim:'SPIVA is rigged. The methodology is designed to make active look bad.',
+  steel:'This one is real and you should know it before they do. In May 2026 Cremers, Fulkerson and Riley published a study, sponsored by the Investment Adviser Association’s Active Managers Council, making three defensible objections. SPIVA counts every fund that closes or merges mid-window as an underperformer rather than measuring it over the period it existed. SPIVA equal-weights funds, so a tiny fund counts as much as an enormous one. And SPIVA benchmarks against uninvestable indices rather than the passive funds a person can actually buy, which carry their own costs and tracking error. On their asset-weighted, survivorship-adjusted method, equity underperformance falls from roughly 92 percent of funds to 55 percent of assets, and fixed income from 71 percent to 37 percent. They call it close to a coin flip.',
+  reply:'Concede that the critique is serious, which immediately puts you ahead of everyone else in the room, then make two points. First, a coin flip is not an argument for active management. It is an argument for indexing, because the passive alternative wins on cost and tax with near-certainty while the active outcome is a coin flip. Second, asset-weighting answers a different question than the one your client faces. It tells you how the average dollar did in aggregate, not whether you can identify the winner in advance. For that question you want persistence, and persistence is where the active case actually collapses.',
+  data:'S&P US Persistence Scorecard Year-End 2025: of the large-cap funds in the top quartile in 2021, 0.0 percent were still in the top quartile at the end of 2025. Only 4.5 percent of above-median large-cap funds stayed above median across five years, against 6.25 percent expected from pure chance.' },
+{ claim:'My manager has beaten the index for ten years.',
+  steel:'Ten years is a long time and skill is not zero. The sophisticated version is Berk and Green (2004): managerial skill is real, but it is competed away through fund flows, so the manager captures the economic rent and the investor captures roughly nothing. That model explains the data better than "nobody has skill" does.',
+  reply:'Three moves, in order. Run the statistical arithmetic: given that fund’s tracking error, work out how many years of returns you would need to distinguish skill from luck at conventional confidence. For a typical active equity fund the answer runs to decades. Then address survivorship: you are looking at the survivor of a large starting cohort, and by construction some of them beat the index. Then ask the only question that matters going forward, which is persistence.',
+  data:'Persistence Scorecard Year-End 2025: 33.0 percent of top-quartile domestic funds from 2023 held that quartile through 2025, and 0.0 percent of the 2021 cohort did across five years.' },
+{ claim:'You are a closet indexer charging a percent for it.',
+  steel:'A fair and pointed challenge if it is true. Cremers and Petajisto (2009) documented exactly this: low active share funds charging active fees are the worst value proposition in the industry, and the person saying this may well have been sold one.',
+  reply:'Concede the principle immediately and enthusiastically, then reframe what the fee is actually for. You are not charging for portfolio construction. The portfolio should be boring, cheap and diversified precisely because that is the part where cleverness does not pay. The fee is for the decisions that dominate portfolio selection in expected after-tax dollars: how money comes out of the corporation, whether the passive income grind is being managed, asset location across corporate, RRSP, TFSA and personal, decumulation sequencing, estate and insurance structure, and staying invested through the drawdown they would otherwise sell into. Then show your actual portfolio and its actual cost.',
+  data:'Morningstar 2025 Canadian Fund Fee Study: median MER on active Canadian equity funds in unbundled classes is 1.00 percent, with an implied advice cost of 1.08 to 1.10 percent embedded in bundled series. About one trillion Canadian dollars still sits in commission-based share classes as of September 2025.' },
+{ claim:'Factors are data mining. Value has been dead for fifteen years.',
+  steel:'Genuinely the strongest of the anti-evidence-based arguments. Hundreds of published factors exist and most fail out of sample. Publication bias in finance journals is documented. And value underperformed for a stretch long enough to exhaust any real human being holding it.',
+  reply:'Separate the factor zoo from the handful with a pre-publication economic rationale, out-of-sample international evidence and multi-decade data: market, size, value, profitability, investment, momentum. Then be honest rather than defensive, because honesty is more persuasive here. Premiums are not free money. They are compensation for enduring exactly the period that just happened. If a client would not sit through fifteen bad years they should not own the tilt, and saying so out loud builds more credibility than defending the premium would.',
+  data:'Fama and French (1992, Journal of Finance; 1993 and 2015, Journal of Financial Economics). Novy-Marx (2013, Journal of Financial Economics) on gross profitability.' },
+{ claim:'Active management protects you in a downturn. An index cannot go to cash.',
+  steel:'Structurally true. A discretionary manager has an option an index fund does not, and downside capture is a real, measurable, published statistic.',
+  reply:'It is a testable claim, so test it rather than debating it. Pull the scorecard for the specific drawdown years being invoked and check whether active actually outperformed. It usually did not. Then note the deeper problem: going to cash requires being right twice, on the exit and on the re-entry, and the second one is harder because it happens when the news is worst.',
+  data:'Check SPIVA for the specific down year before conceding. The 2022 and 2025 numbers do not support the claim.' },
+{ claim:'The behaviour gap proves people need an advisor.',
+  steel:'Morningstar’s Mind the Gap 2025 put the investor return gap at 1.2 percentage points a year over the ten years to December 2024, roughly 15 percent of the funds’ total return. It is the most quoted statistic in the advice industry.',
+  reply:'Handle this one carefully, because it is your own side’s favourite number and it is under serious challenge. Fulkerson, Jordan, Riley and Yan published a rebuttal in the Financial Analysts Journal in 2026 finding that on the identical sample, poor timing costs investors about 0.10 percent a year, and that most of the reported gap is a mechanical artifact of how the dollar-weighted return is computed rather than evidence of investor error. Use the behaviour gap as a directional idea, not as a number. If you quote 1.2 percent to someone who has read the paper, you lose the room and deserve to. Argue advisor value from tax, structure and decision quality instead, which are measurable and not contested.',
+  data:'Morningstar, Mind the Gap 2025: 7.0 percent investor return against 8.2 percent total return, ten years to December 2024. Fulkerson, Jordan, Riley and Yan, Financial Analysts Journal Vol. 82 Iss. 3 (2026): 0.10 percent per year.' },
+{ claim:'Private markets and alternatives are where the returns are now.',
+  steel:'There is a defensible illiquidity premium, wider manager dispersion so selection genuinely matters, access to companies unavailable publicly, and materially lower reported volatility.',
+  reply:'Three questions, asked calmly and in order. How is the NAV marked, and by whom? What is the return net of all fees, and is it an IRR or a time-weighted return, because IRR flatters anything with managed cash flow timing? And how much of the improved Sharpe ratio is genuine risk reduction rather than return smoothing from appraisal-based marks? Then bring it back to the plan: what does the client give up in liquidity, and what is that worth against known cash flow needs?',
+  data:'No scorecard citation needed. The three questions do the work, and most people advocating the allocation cannot answer the second one.' },
+{ claim:'AI will finally make active management work.',
+  steel:'Better information processing, faster, at greater scale. Some systematic and quantitative strategies do demonstrably work, and the tooling is improving quickly.',
+  reply:'Every information technology since the ticker tape has made the market more efficient rather than making the average manager better, because everyone receives it simultaneously. An edge from a widely available tool is not an edge, it is a new baseline. So ask the only useful question: what do you have that the person on the other side of your trade does not?',
+  data:'Frame as a question, not a statistic. The burden of proof sits with the claimant.' },
+{ claim:'If you cannot beat the market, why should I pay you anything at all?',
+  steel:'The strongest version of the entire argument and the one to take most seriously. If the portfolio is a low-cost index fund, that is a commodity, and commodities do not command a percentage-of-assets fee.',
+  reply:'This is the conversation you should be steering toward, not away from. Beating the market was never the offer. Concede the portfolio point completely, then quantify one planning decision on the spot for the person in front of you: the salary versus dividend mix, the passive income grind against the small business deduction, asset location across the corporation and the registered accounts, decumulation order, or the estate consequence of a death in the wrong sequence. One worked number ends the fee conversation, because the dollars in any one of those typically dwarf a decade of plausible alpha. The portfolio is boring on purpose. That is the point, not the concession.',
+  data:'Your own case study, run in Manitoba, on a real structure. This is the one argument you should never make with somebody else’s statistic.' }
+];
+
+/* ============================================================
+   2. STATE AND STORAGE
+   ============================================================ */
+
+const store = {
+  key(name){ return TOOL + ':' + name; },
+  get(name, fallback){
+    if (fallback === undefined) fallback = null;
+    try {
+      const raw = localStorage.getItem(this.key(name));
+      return raw === null ? fallback : JSON.parse(raw);
+    } catch(e){ console.warn('Could not read ' + name, e); return fallback; }
+  },
+  set(name, value){
+    try { localStorage.setItem(this.key(name), JSON.stringify(value)); return true; }
+    catch(e){ console.warn('Could not write ' + name, e); return false; }
+  },
+  keys(){
+    const prefix = TOOL + ':';
+    try { return Object.keys(localStorage).filter(function(k){ return k.indexOf(prefix) === 0; }); }
+    catch(e){ return []; }
+  },
+  clearTool(){ this.keys().forEach(function(k){ try { localStorage.removeItem(k); } catch(e){} }); }
+};
+
+/* v1 kept a flat Canon checklist. v2 folds reading into the Blocks, so the old
+   canon keys have no target and are dropped. Everything else carries forward. */
+const migrations = {
+  1: function(data){
+    if (data && data.checks){
+      Object.keys(data.checks).forEach(function(k){
+        if (k.indexOf('canon::') === 0) delete data.checks[k];
+      });
+    }
+    if (data && data.tab === 'canon') data.tab = 'blocks';
+    if (data && data.tab === 'terminal') data.tab = 'workflow';
+    return data;
+  }
+};
+
+function defaultState(){ return { checks:{}, notes:{}, tab:'today' }; }
+
+function pruneState(data){
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - DAILY_RETENTION_DAYS);
+  const cut = dateKey(cutoff);
+  const dayRe = /^(\d{4}-\d{2}-\d{2})::/;
+  Object.keys(data.checks).forEach(function(k){
+    const m = k.match(dayRe);
+    if (m && m[1] < cut) delete data.checks[k];
+  });
+  Object.keys(data.notes).forEach(function(k){
+    if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k < cut) delete data.notes[k];
+  });
+  return data;
+}
+
+function loadState(){
+  const stored = store.get('state');
+  if (stored === null) return defaultState();
+
+  let version = store.get('schema-version', 1);
+  let data = stored;
+
+  while (version < SCHEMA_VERSION){
+    const migrate = migrations[version];
+    if (!migrate){ console.warn('No migration from v' + version + ', using defaults'); return defaultState(); }
+    data = migrate(data);
+    version += 1;
+  }
+
+  if (!data.checks) data.checks = {};
+  if (!data.notes)  data.notes  = {};
+  if (!data.tab)    data.tab    = 'today';
+
+  data = pruneState(data);
+  store.set('state', data);
+  store.set('schema-version', SCHEMA_VERSION);
+  return data;
+}
+
+let state = loadState();
+
+function persist(){ return store.set('state', state); }
+
+function toggleCheck(key, on){
+  if (on) state.checks[key] = true; else delete state.checks[key];
+  if (!persist()) flash('Could not save. Storage may be full or unavailable.');
+}
+
+function setNote(key, text){
+  if (text.trim() === '') delete state.notes[key]; else state.notes[key] = text;
+  persist();
+}
+
+/* ============================================================
+   3. PURE HELPERS
+   ============================================================ */
+
+function pad(n){ return n < 10 ? '0' + n : '' + n; }
+function dateKey(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+
+function weekKey(d){
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = (t.getDay() + 6) % 7;
+  t.setDate(t.getDate() - day + 3);
+  const firstThu = new Date(t.getFullYear(), 0, 4);
+  const fday = (firstThu.getDay() + 6) % 7;
+  firstThu.setDate(firstThu.getDate() - fday + 3);
+  const week = 1 + Math.round((t - firstThu) / (7 * 86400000));
+  return t.getFullYear() + '-W' + pad(week);
+}
+function monthKey(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1); }
+function quarterKey(d){ return d.getFullYear() + '-Q' + (Math.floor(d.getMonth()/3) + 1); }
+function yearKey(d){ return '' + d.getFullYear(); }
+
+const WEEKDAY_SLUG = ['sun','mon','tue','wed','thu','fri','sat'];
+const WEEKDAY_NAME = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function benchFor(d){ return BENCH[WEEKDAY_SLUG[d.getDay()]] || null; }
+
+function todayItems(d){
+  const out = TAPE.items.map(function(i){ return 't:' + i[0]; });
+  const b = benchFor(d);
+  if (b) b.items.forEach(function(i){ out.push('b:' + i[0]); });
+  LEDGER.items.forEach(function(i){ out.push('l:' + i[0]); });
+  return out;
+}
+
+function dayComplete(d){ return state.checks[dateKey(d) + '::l:l1'] === true; }
+
+function streak(){
+  const d = new Date();
+  let n = 0;
+  if (!dayComplete(d)) d.setDate(d.getDate() - 1);
+  for (let i = 0; i < DAILY_RETENTION_DAYS; i++){
+    if (dayComplete(d)) { n++; d.setDate(d.getDate() - 1); } else break;
+  }
+  return n;
+}
+
+function countChecked(prefix, ids){
+  let n = 0;
+  ids.forEach(function(id){ if (state.checks[prefix + '::' + id]) n++; });
+  return n;
+}
+
+function blocksDone(){ return countChecked('blocks', BLOCKS.map(function(b){ return b.id; })); }
+
+function statementScore(){
+  let n = 0;
+  STATEMENTS.forEach(function(lv){ if (state.checks['stmt::l' + lv.n + '_test']) n++; });
+  return n * 10;
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ============================================================
+   4. RENDERING
+   ============================================================ */
+
+function checklist(prefix, items){
+  return '<ul class="checks">' + items.map(function(it){
+    const key = prefix + '::' + it[0];
+    const on = state.checks[key] ? ' checked' : '';
+    const id = 'c_' + key.replace(/[^a-zA-Z0-9]/g,'_');
+    return '<li><input type="checkbox" id="' + id + '" data-key="' + esc(key) + '"' + on + '>' +
+           '<label for="' + id + '">' + it[1] + '</label></li>';
+  }).join('') + '</ul>';
+}
+
+function prog(done, total){ return '<span class="num">' + done + ' / ' + total + '</span>'; }
+
+/* --- Today ------------------------------------------------ */
+
+function viewToday(){
+  const now = new Date();
+  const dk = dateKey(now);
+  const b = benchFor(now);
+  const ids = todayItems(now);
+  const done = countChecked(dk, ids);
+
+  let h = '';
+  h += '<div class="stats">';
+  h += '<div class="stat"><div class="k">Today</div><div class="v">' + prog(done, ids.length) + '</div><div class="n">' + WEEKDAY_NAME[now.getDay()] + ', ' + dk + '</div></div>';
+  h += '<div class="stat"><div class="k">Ledger streak</div><div class="v"><span class="num">' + streak() + '</span></div><div class="n">consecutive days written</div></div>';
+  h += '<div class="stat"><div class="k">Blocks</div><div class="v">' + prog(blocksDone(), BLOCKS.length) + '</div><div class="n">curriculum complete</div></div>';
+  h += '<div class="stat"><div class="k">Statement mastery</div><div class="v"><span class="num">' + statementScore() + '</span> <span class="n" style="font-size:.62rem">/100</span></div><div class="n">earned, not typed in</div></div>';
+  h += '<div class="stat"><div class="k">Session</div><div class="v"><span class="num">' + (TAPE.mins + (b ? b.mins : 0) + LEDGER.mins) + '</span></div><div class="n">minutes planned</div></div>';
+  h += '</div>';
+
+  if (blocksDone() === 0 && streak() === 0){
+    h += '<div class="panel"><h2>Start here</h2>';
+    h += '<p class="lede">Three things, in this order, before the daily cadence means anything.</p>';
+    h += '<ol class="method">';
+    h += '<li><b>Read The Arc</b><p>Ten minutes. It explains why the twelve months run in the order they do, which is the part that makes the sequence worth following rather than reordering to taste.</p></li>';
+    h += '<li><b>Open Blocks 01 and 02</b><p>These are the foundation everything else assumes. Block 02 alone, the accrual ratio, will change how you look at a set of financials within a week.</p></li>';
+    h += '<li><b>Do the terminal setup drills</b><p>On the Workflow tab. Five saved monitors and three saved screens. One hour now removes twenty minutes a day for the rest of the year.</p></li>';
+    h += '</ol></div>';
+  }
+
+  h += '<div class="panel">';
+  h += '<div class="blockhead"><span class="tag">Block A</span><h3>' + TAPE.title + '</h3><span class="mins">' + TAPE.mins + ' min</span></div>';
+  h += '<p class="lede">' + esc(TAPE.note) + '</p>';
+  h += checklist(dk, TAPE.items.map(function(i){ return ['t:' + i[0], esc(i[1])]; }));
+  h += '</div>';
+
+  h += '<div class="panel">';
+  if (b){
+    h += '<div class="blockhead"><span class="tag">Block B</span><h3>' + esc(b.title) + '</h3><span class="mins">' + b.mins + ' min</span></div>';
+    h += '<p class="lede">The weekday drill rotates so no skill goes more than five days without a rep. Curriculum reference: ' + esc(b.blocks) + '.</p>';
+    h += checklist(dk, b.items.map(function(i){ return ['b:' + i[0], esc(i[1])]; }));
+  } else {
+    h += '<div class="blockhead"><span class="tag">Block B</span><h3>Weekend</h3><span class="mins">rest, or the weekly protocol</span></div>';
+    h += '<p class="lede">No weekday drill today. Saturday is the weekly protocol on the Cadence tab. Sunday is off, and taking it off is part of the program rather than a failure of it.</p>';
+  }
+  h += '</div>';
+
+  h += '<div class="panel">';
+  h += '<div class="blockhead"><span class="tag">Block C</span><h3>' + LEDGER.title + '</h3><span class="mins">' + LEDGER.mins + ' min</span></div>';
+  h += '<p class="lede">' + esc(LEDGER.note) + '</p>';
+  h += '<textarea id="ledger" placeholder="What I learned. What I would say if challenged on it today. What I still cannot explain.">' + esc(state.notes[dk] || '') + '</textarea>';
+  h += checklist(dk, LEDGER.items.map(function(i){ return ['l:' + i[0], esc(i[1])]; }));
+  h += '</div>';
+  return h;
+}
+
+/* --- Cadence ---------------------------------------------- */
+
+function cadenceBlock(label, sub, keyName, def){
+  const done = countChecked(keyName, def.items.map(function(i){ return i[0]; }));
+  let h = '<div class="panel">';
+  h += '<div class="blockhead"><span class="tag">' + esc(sub) + '</span><h3>' + esc(label) + '</h3><span class="mins">' + prog(done, def.items.length) + '</span></div>';
+  h += '<p class="lede">' + esc(def.mins) + '. Period <span class="num">' + esc(keyName) + '</span>, so the list clears itself when the period rolls over.</p>';
+  h += checklist(keyName, def.items.map(function(i){ return [i[0], esc(i[1])]; }));
+  h += '</div>';
+  return h;
+}
+
+function viewCadence(){
+  const now = new Date();
+  let h = '<div class="panel"><h2>The four cadences</h2>';
+  h += '<p class="lede">Daily builds fluency, weekly builds depth, monthly builds output, quarterly and annual build judgment. Each list is keyed to its own period, so ticking a box in one week does not carry into the next.</p>';
+  h += '<div class="note"><p><b>The monthly protocol is the spine.</b> Once a month you run the whole top-down workflow end to end and land on a single company, then write it up. Everything in the daily and weekly cadence is practice for that one exercise, and the monthly note is the artifact you can actually show somebody.</p></div></div>';
+  h += cadenceBlock('Weekly Protocol', 'Weekly', weekKey(now), WEEKLY);
+  h += cadenceBlock('Monthly Protocol', 'Monthly', monthKey(now), MONTHLY);
+  h += cadenceBlock('Quarterly Protocol', 'Quarterly', quarterKey(now), QUARTERLY);
+  h += cadenceBlock('Annual Protocol', 'Annual', yearKey(now), ANNUAL);
+  return h;
+}
+
+/* --- Arc -------------------------------------------------- */
+
+function viewArc(){
+  let totalDone = 0;
+  let h = '<div class="panel"><h2>The twelve month arc</h2>';
+  h += '<p class="lede">Four phases. The daily and weekly cadences never change, but what you point them at does. Each phase below states why it exists, what it unlocks, and why it cannot come earlier, because the order is the part that matters and the order is the part people reorder to taste.</p>';
+  h += '<div class="note"><p><b>Why do any of this if you think markets are efficient?</b></p>';
+  h += '<p>It is the obvious objection and it deserves a real answer, because you will be asked. Three reasons.</p>';
+  h += '<p>First, you cannot dismantle an argument you cannot construct. Every rebuttal in the Arsenal is stronger coming from somebody who can actually run the analysis than from somebody quoting a scorecard they did not generate.</p>';
+  h += '<p>Second, credibility is earned in specifics. A client or a competing advisor will test you on a name, not on a scorecard. The person who can take that name apart in twenty minutes is believed about everything else afterwards.</p>';
+  h += '<p>Third, and this is the real one: doing the work is what makes your restraint principled rather than lazy. The advisor who has run a hundred reverse DCFs and still indexes is unanswerable. The advisor who indexes because they never learned how to do anything else is one persuasive salesperson away from being replaced.</p></div>';
+  h += '<p class="lede">Tick a month when its stated output actually exists, not when the month ends.</p>';
+
+  ARC.forEach(function(p){
+    const ids = p.months.map(function(m){ return 'm' + m[0]; });
+    const done = countChecked('phase', ids);
+    totalDone += done;
+    h += '<div class="phase">';
+    h += '<div class="ph"><span class="pt">' + esc(p.phase) + ' · ' + esc(p.name) + '</span><span class="pr">' + esc(p.span) + ' · ' + prog(done, p.months.length) + '</span></div>';
+    h += '<div class="rationale">';
+    h += '<p><span class="lbl a">Why this phase</span>' + esc(p.why) + '</p>';
+    h += '<p><span class="lbl b">What it unlocks</span>' + esc(p.unlocks) + '</p>';
+    h += '<p><span class="lbl">Why not earlier</span>' + esc(p.prereq) + '</p>';
+    h += '</div>';
+    p.months.forEach(function(m){
+      const key = 'phase::m' + m[0];
+      const on = state.checks[key] ? ' checked' : '';
+      const id = 'c_phase_m' + m[0];
+      h += '<div class="month">';
+      h += '<span class="mno">M' + pad(m[0]) + '</span>';
+      h += '<input type="checkbox" id="' + id + '" data-key="' + key + '"' + on + '>';
+      h += '<div class="mb"><b>' + esc(m[1]) + '</b><p>' + esc(m[2]) + '</p><span class="ref">' + esc(m[3]) + '</span></div>';
+      h += '</div>';
+    });
+    h += '</div>';
+  });
+
+  h += '<div class="note"><p><b>Progress: ' + totalDone + ' of 12 months complete.</b> If you fall behind, extend the calendar rather than compressing the phases. Month six is genuinely unreadable without month two.</p></div>';
+  return h + '</div>';
+}
+
+/* --- Blocks ----------------------------------------------- */
+
+function viewBlocks(){
+  let h = '<div class="panel"><h2>The building blocks</h2>';
+  h += '<p class="lede">Seventeen blocks, four tiers, each one a self-contained capability with the resources to acquire it. Every block states what it is, why it matters for your specific purpose, and what you can do once it lands. Tick a block when you can explain it to somebody else without notes.</p>';
+  h += '<div class="note"><p><b>Three resource types, used differently.</b></p>';
+  h += '<p><span class="lbl c">Watch</span>Search strings rather than links, because channels move and videos get taken down. Search the phrase, take the top two or three results, watch at 1.5x. Twenty minutes of video is the cheapest way into a concept you have never met.</p>';
+  h += '<p><span class="lbl c">Ask</span>Paste these to me directly. This does the most of the three and is the most underused: video and books explain, but only a conversation can quiz you, plant a deliberate error for you to find, and correct your arithmetic in real time. Use the drill prompts repeatedly rather than once.</p>';
+  h += '<p><span class="lbl c">Read</span>The permanent layer. Fewer items, higher durability, and these are the only ones with a checkbox, because a book is consumed once and a search is not.</p></div>';
+  h += '<p class="lede">Progress ' + prog(blocksDone(), BLOCKS.length) + ' blocks.</p></div>';
+
+  TIERS.forEach(function(t, ti){
+    const inTier = BLOCKS.filter(function(b){ return b.t === ti; });
+    const done = countChecked('blocks', inTier.map(function(b){ return b.id; }));
+    h += '<div class="tier">';
+    h += '<div class="tierhead"><span class="tn">TIER ' + esc(t[0]) + '</span><h3>' + esc(t[1]) + '</h3><span class="tp">' + prog(done, inTier.length) + '</span></div>';
+    h += '<p class="lede" style="margin-top:-6px">' + esc(t[2]) + '</p>';
+
+    inTier.forEach(function(b){
+      const key = 'blocks::' + b.id;
+      const on = state.checks[key] ? ' checked' : '';
+      h += '<details class="block"><summary>';
+      h += '<input type="checkbox" id="c_' + b.id + '" data-key="' + key + '"' + on + ' onclick="event.stopPropagation()">';
+      h += '<span class="bid">' + esc(b.id.toUpperCase()) + '</span>';
+      h += '<span class="bt"><b>' + esc(b.name) + '</b><span>' + esc(b.what) + '</span></span>';
+      h += '<span class="caret">+</span></summary>';
+      h += '<div class="body">';
+      h += '<span class="lbl a">Why it matters</span><p>' + esc(b.why) + '</p>';
+      h += '<span class="lbl b">What it unlocks</span><p>' + esc(b.unlock) + '</p>';
+
+      h += '<div class="res"><span class="lbl c">Watch: search these on YouTube</span><ul>';
+      b.yt.forEach(function(q){ h += '<li>' + esc(q) + '</li>'; });
+      h += '</ul></div>';
+
+      h += '<div class="res"><span class="lbl c">Ask: paste these to Claude</span>';
+      b.ask.forEach(function(q){ h += '<span class="q">' + esc(q) + '</span>'; });
+      h += '</div>';
+
+      if (b.read.length){
+        h += '<div class="res"><span class="lbl c">Read</span>';
+        h += checklist('read', b.read.map(function(r, ri){
+          return [b.id + '_' + ri, '<b>' + esc(r[0]) + '</b><br><span style="color:var(--muted);font-size:.88rem">' + esc(r[1]) + '</span>'];
+        }));
+        h += '</div>';
+      }
+      h += '</div></details>';
+    });
+    h += '</div>';
+  });
+  return h;
+}
+
+/* --- Statement Mastery ladder ------------------------------ */
+
+function viewStatements(){
+  const score = statementScore();
+  const current = STATEMENTS.find(function(lv){ return !state.checks['stmt::l' + lv.n + '_test']; });
+
+  let h = '<div class="panel"><h2>Statement Mastery</h2>';
+  h += '<p class="lede">Ten levels, ten points each. This score is not a self-rating. It only moves when you check a Checkpoint box, and a Checkpoint is a falsifiable test performed on a real filing, not a reading assignment you have finished. Levels 1 through 5 are the deep version of Blocks 01 through 04. Levels 6 through 10 are territory the Blocks tier does not cover at all, and this is where most people in wealth management stop without ever noticing they stopped.</p>';
+  h += '<div class="ladderscore"><div class="lsv">' + score + '<span>/100</span></div><div class="lsl">' + (current ? 'Current level: ' + current.n + ', ' + esc(current.name) : 'All ten levels checkpointed') + '</div></div>';
+  h += '</div>';
+
+  STATEMENTS.forEach(function(lv){
+    const key = 'stmt::l' + lv.n + '_test';
+    const passed = !!state.checks[key];
+    const isCurrent = current && current.n === lv.n;
+    h += '<details class="level' + (passed ? ' passed' : '') + (isCurrent ? ' current' : '') + '"' + (isCurrent ? ' open' : '') + '>';
+    h += '<summary><span class="lvnum">' + pad(lv.n) + '</span>';
+    h += '<span class="lvbody"><b>' + esc(lv.name) + '</b><span>' + esc(lv.you) + '</span></span>';
+    h += '<span class="lvrange">' + esc(lv.range) + (passed ? ' <span class="lvtag">passed</span>' : (isCurrent ? ' <span class="lvtag cur">current</span>' : '')) + '</span>';
+    h += '<span class="caret">+</span></summary>';
+    h += '<div class="body">';
+    if (lv.ref) h += '<p class="lede" style="margin:0 0 12px">' + esc(lv.ref) + '.</p>';
+    h += '<span class="lbl a">Why here</span><p>' + esc(lv.why) + '</p>';
+    h += '<span class="lbl b">Practice</span><ul>';
+    lv.items.forEach(function(i){ h += '<li>' + esc(i) + '</li>'; });
+    h += '</ul>';
+
+    h += '<div class="checkpoint"><b>Checkpoint, worth 10 points</b><p>' + esc(lv.test) + '</p>';
+    const id = 'c_stmt_l' + lv.n;
+    h += '<label class="cplabel"><input type="checkbox" id="' + id + '" data-key="' + key + '"' + (passed ? ' checked' : '') + '> <span>I ran this, on a real filing, and it held up.</span></label></div>';
+
+    h += '<div class="res"><span class="lbl c">Watch: search these on YouTube</span><ul>';
+    lv.yt.forEach(function(q){ h += '<li>' + esc(q) + '</li>'; });
+    h += '</ul></div>';
+
+    h += '<div class="res"><span class="lbl c">Ask: paste these to Claude</span>';
+    lv.ask.forEach(function(q){ h += '<span class="q">' + esc(q) + '</span>'; });
+    h += '</div>';
+
+    if (lv.read.length){
+      h += '<div class="res"><span class="lbl c">Read</span>';
+      h += checklist('read', lv.read.map(function(r, ri){
+        return ['stmt' + lv.n + '_' + ri, '<b>' + esc(r[0]) + '</b><br><span style="color:var(--muted);font-size:.88rem">' + esc(r[1]) + '</span>'];
+      }));
+      h += '</div>';
+    }
+    h += '</div></details>';
+  });
+  return h;
+}
+
+/* --- Workflow --------------------------------------------- */
+
+function viewWorkflow(){
+  let h = '<div class="panel"><h2>Top-down on Thomson ONE</h2>';
+  h += '<p class="lede">Five stages, widest zoom to narrowest. Run the whole funnel once a month and land on a single company. Run Stage 1 every morning as The Tape. The stages in between are where most advisors have a gap, and it is a visible one.</p>';
+  h += '<div class="funnelrow"><span class="f">Regime</span><span class="arw">&rsaquo;</span><span class="f">Asset class</span><span class="arw">&rsaquo;</span><span class="f">Sector</span><span class="arw">&rsaquo;</span><span class="f">Industry</span><span class="arw">&rsaquo;</span><span class="f">Company</span></div>';
+  h += '<div class="note"><p><b>Why top down, given what you believe about markets?</b></p>';
+  h += '<p>Not to allocate. Your allocation stays structural and evidence-based, and nothing in this workflow should change that. The funnel exists to build a market read that lets you speak credibly at any level of zoom, because that is how you get tested. Somebody asks about rate cuts, then about energy, then about one name, and each answer has to connect to the one before it or the whole thing sounds assembled.</p>';
+  h += '<p>The discipline is the point: each stage produces a written output that the next stage has to be consistent with. Do that for six months and you have something most people in this business never build, which is a market view with an audit trail.</p></div></div>';
+
+  WORKFLOW.forEach(function(s){
+    h += '<div class="stage">';
+    h += '<div class="sh"><span class="sn">' + esc(s.n) + '</span><h3>' + esc(s.title) + '</h3><span class="zoom">' + esc(s.zoom) + '</span></div>';
+    h += '<div class="sb"><p class="ask">' + esc(s.ask) + '</p>';
+    h += '<div class="res"><ul>';
+    s.items.forEach(function(i){ h += '<li>' + esc(i) + '</li>'; });
+    h += '</ul></div>';
+    h += '<span class="lbl a">Terminal modules</span><p style="font-size:.88rem;color:var(--muted)">' + esc(s.mods) + '</p>';
+    h += '<div class="out"><b>Output</b>' + esc(s.out) + '</div>';
+    h += '</div></div>';
+  });
+
+  h += '<div class="panel"><h2>Setup drills, first two weeks</h2>';
+  h += '<p class="lede">Do these once and the daily cadence takes twenty minutes instead of forty for the rest of the year.</p>';
+  h += '<ol class="method">';
+  h += '<li><p>Build and save five monitors: rates, credit, FX and commodities, Canadian sectors, and your watchlist. Do this before anything else.</p></li>';
+  h += '<li><p>Build three saved screens: accrual red flags, high incremental ROIC, and negative estimate revisions. Run them weekly on the same day.</p></li>';
+  h += '<li><p>Save a 2s10s chart and an investment grade against high yield spread chart. These are Stage 1 in two clicks.</p></li>';
+  h += '<li><p>Time yourself pulling a complete picture on a cold ticker. Target is under ten minutes by the end of month three.</p></li>';
+  h += '<li><p>Export one company’s financial history and rebuild the cash conversion chain by hand. Never trust a summary screen you have not verified once yourself.</p></li>';
+  h += '<li><p>Set alerts on estimate revisions rather than on price. Price alerts train you to react. Revision alerts train you to think.</p></li>';
+  h += '</ol></div>';
+
+  h += '<div class="panel"><h2>Module reference</h2>';
+  h += '<p class="lede">Thomson ONE ships in several configurations and LSEG is migrating users onto Workspace, so exact menu labels vary between builds. Map the function first, find it once in your own build, then save the location. The functions do not change even when the navigation does.</p>';
+  h += '<div class="tablewrap"><table><thead><tr><th>Module</th><th>What it is for</th></tr></thead><tbody>';
+  TERMINAL.forEach(function(t){ h += '<tr><td><b>' + esc(t[0]) + '</b></td><td>' + esc(t[1]) + '</td></tr>'; });
+  h += '</tbody></table></div></div>';
+
+  h += '<div class="panel"><h2>The two habits that separate terminal users</h2>';
+  h += '<p><b>Transcripts over summaries.</b> StreetEvents holds full transcripts and almost nobody reads them. Reading the Q and A of two competitors in the same quarter tells you more about a sector than any research note will, because you can hear which management team is being asked the uncomfortable question and how badly they handle it.</p>';
+  h += '<p><b>Revisions over levels.</b> Consensus estimates are a crowd average and largely priced already. The direction and dispersion of revisions is where the information sits. Set your alerts accordingly and you will notice things a week before the person quoting the consensus number does.</p>';
+  h += '</div>';
+  return h;
+}
+
+/* --- Method ----------------------------------------------- */
+
+function viewMethod(){
+  let h = '<div class="panel"><h2>The methodology stack</h2>';
+  h += '<p class="lede">Run in this order, every time, once the funnel has delivered you a company. The order is the method. Most people who own all the same tools apply them in the wrong sequence and arrive at a confident wrong answer.</p>';
+  h += '<ol class="method">';
+  METHOD.forEach(function(m){
+    h += '<li><b>' + esc(m[0]) + '</b><p>' + esc(m[1]) + '</p><div class="trap"><b>Common failure</b> ' + esc(m[2]) + '</div></li>';
+  });
+  h += '</ol></div>';
+
+  h += '<div class="panel"><h2>Why reverse DCF is the hinge</h2>';
+  h += '<p>If you change one thing about how you work, change this. A forward DCF asks you to forecast growth, margins and capital intensity ten years out, then discount them. It has enough free parameters that a motivated analyst can land on whatever answer they were already carrying. It feels like rigour and functions as confirmation.</p>';
+  h += '<p>A reverse DCF inverts it. You take the market price as given and solve for the combination of growth and margin that justifies it. Now the output is not a value, it is a set of expectations. And expectations can be judged against something objective: the company’s own operating history, and the base rate for how often companies of that size and sector actually delivered that growth.</p>';
+  h += '<p>The conversational payoff is large. Instead of "I think it is worth 84 dollars," which invites a pointless duel of assumptions, you say "at this price the market is assuming 12 percent revenue growth for a decade, and roughly 8 percent of companies this size have ever done that." That is a much harder sentence to argue with, and it is the sentence almost nobody in the room can produce.</p>';
+  h += '<p>Curriculum reference: Blocks 05 through 09, with Block 08 as the target.</p>';
+  h += '</div>';
+  return h;
+}
+
+/* --- Arsenal ---------------------------------------------- */
+
+function viewArsenal(){
+  let h = '<div class="panel"><h2>The Arsenal</h2>';
+  h += '<p class="lede">Twelve arguments, each with the strongest version of the opposing case written out first. Build the steelman before the response, always. If your steelman is weak you do not understand the position and the room will notice.</p>';
+  h += '<div class="note"><p><b>The actual edge here is not the evidence for your side.</b> Every evidence-based advisor can quote SPIVA. Almost none of them know that SPIVA’s methodology was formally challenged in 2026, or that the behaviour gap number they lean on was cut from 1.2 percent to 0.10 percent in the Financial Analysts Journal. Being the person who raises the objection to your own position before the other side does is what makes you unarguable rather than merely correct.</p>';
+  h += '<p>Curriculum reference: Blocks 14 through 17 are the foundation under these twelve.</p></div></div>';
+
+  ARSENAL.forEach(function(a, i){
+    h += '<div class="panel">';
+    h += '<div class="blockhead"><span class="tag">' + pad(i+1) + '</span><h3>' + esc(a.claim) + '</h3></div>';
+    h += '<div class="card" style="margin-top:12px">';
+    h += '<span class="lbl a">The steelman</span><p>' + esc(a.steel) + '</p>';
+    h += '<span class="lbl b">Your response</span><p>' + esc(a.reply) + '</p>';
+    h += '<span class="lbl">The evidence</span><p class="num" style="font-size:.85rem">' + esc(a.data) + '</p>';
+    h += '</div></div>';
+  });
+
+  h += '<div class="panel"><h2>Sources for every figure above</h2><div class="srcs"><p>';
+  h += 'S&amp;P Dow Jones Indices, <a href="https://www.spglobal.com/spdji/en/spiva/article/spiva-us" target="_blank" rel="noopener">SPIVA US Scorecard</a> and <a href="https://www.spglobal.com/spdji/en/spiva/article/spiva-canada" target="_blank" rel="noopener">SPIVA Canada Scorecard</a>, Year-End 2025. ';
+  h += '<a href="https://www.spglobal.com/spdji/en/spiva/article/us-persistence-scorecard/" target="_blank" rel="noopener">US Persistence Scorecard</a>, Year-End 2025. ';
+  h += 'Morningstar, <a href="https://www.morningstar.com/business/insights/research/mind-the-gap" target="_blank" rel="noopener">Mind the Gap 2025</a>. ';
+  h += 'Fulkerson, Jordan, Riley and Yan, <a href="https://rpc.cfainstitute.org/research/financial-analysts-journal/2026/bad-timing-does-not-cost-investors-funds-returns" target="_blank" rel="noopener">Bad Timing Does Not Cost Investors 15% of Their Funds’ Returns</a>, Financial Analysts Journal 82(3), 2026. ';
+  h += 'Cremers, Fulkerson and Riley, SPIVA methodology study, May 2026, reported by <a href="https://www.wealthmanagement.com/mutual-funds/new-report-challenges-methodology-in-long-running-active-scorecard" target="_blank" rel="noopener">WealthManagement.com</a>. ';
+  h += 'Morningstar 2025 Canadian Fund Fee Study. ';
+  h += 'Verify every figure at source before you use it in front of anyone, and re-check quarterly.';
+  h += '</p></div></div>';
+  return h;
+}
+
+/* --- Router ----------------------------------------------- */
+
+const VIEWS = {
+  today:viewToday, cadence:viewCadence, arc:viewArc,
+  blocks:viewBlocks, statements:viewStatements, workflow:viewWorkflow, method:viewMethod, arsenal:viewArsenal
+};
+
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = TABS.map(function(band){
+    return '<div class="band"><span class="bandlabel">' + esc(band[0]) + '</span>' + band[1].map(function(t){
+      const sel = state.tab === t[0] ? 'true' : 'false';
+      return '<button aria-pressed="' + sel + '" data-tab="' + t[0] + '">' + t[1] + '</button>';
+    }).join('') + '</div>';
+  }).join('');
+}
+
+function render(){
+  renderTabs();
+  const fn = VIEWS[state.tab] || viewToday;
+  document.getElementById('view').innerHTML = fn();
+  window.AtlasCraftUI?.refresh();
+}
+
+/* ============================================================
+   5. EXPORT, IMPORT, RESET
+   ============================================================ */
+
+function flash(text){
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  setTimeout(function(){ if (el.textContent === text) el.textContent = ''; }, 4000);
+}
+
+/* Two save paths. A plain anchor download works from file:// and from GitHub
+   Pages. Inside the claude.ai artifact viewer anchor downloads are inert, so
+   the hosted runtime's save is tried first when it is present. */
+function exportState(){
+  flushLedger();
+  const payload = { tool:TOOL, schemaVersion:SCHEMA_VERSION, exportedAt:new Date().toISOString(), state:state };
+  const json = JSON.stringify(payload, null, 2);
+  const filename = TOOL + '-' + new Date().toISOString().slice(0,10) + '.json';
+
+  function anchorSave(){
+    const blob = new Blob([json], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 60000);
+    flash('Exported.');
+  }
+
+  if (typeof claude !== 'undefined' && claude && typeof claude.use === 'function'){
+    claude.use('downloads').then(function(dl){
+      if (!dl) { anchorSave(); return; }
+      dl.save({ filename:filename, data:json }).then(function(){ flash('Exported.'); })
+        .catch(function(err){
+          flash(err && err.code === 'declined' ? 'Export cancelled.' : 'Could not save the export file.');
+        });
+    }).catch(anchorSave);
+  } else { anchorSave(); }
+}
+
+function importState(file){
+  const reader = new FileReader();
+  reader.onload = function(){
+    let payload;
+    try { payload = JSON.parse(reader.result); }
+    catch(e){ flash('That file is not valid JSON.'); return; }
+
+    if (payload.tool !== TOOL){
+      flash('That file is from ' + (payload.tool || 'another tool') + ', not ' + TOOL + '.');
+      return;
+    }
+    if (!payload.state || typeof payload.state !== 'object'){ flash('That file has no readable state.'); return; }
+    if (!confirm('This replaces everything currently saved in The Crucible. Continue?')){ flash('Import cancelled.'); return; }
+
+    store.set('state', payload.state);
+    store.set('schema-version', payload.schemaVersion || 1);
+    state = loadState();
+    render();
+    flash('Imported.');
+  };
+  reader.readAsText(file);
+}
+
+function resetState(){
+  if (!confirm('This clears every check, every Ledger entry and all progress in The Crucible. Other tools on this domain are untouched. Continue?')) return;
+  store.clearTool();
+  state = defaultState();
+  persist();
+  store.set('schema-version', SCHEMA_VERSION);
+  render();
+  flash('Reset.');
+}
+
+/* ============================================================
+   6. EVENTS AND INIT
+   ============================================================ */
+
+let noteTimer = null;
+
+/* Any re-render replaces the Ledger textarea, so a pending debounced write must
+   be flushed first or the last keystrokes are lost. Only ever write when a
+   write is genuinely pending: an unconditional flush on unload would rewrite
+   the whole state every time a tab closes, which is how a stale second tab
+   silently overwrites what the active tab just did. */
+function flushLedger(){
+  const ta = document.getElementById('ledger');
+  if (!ta) return null;
+  if (noteTimer !== null){
+    clearTimeout(noteTimer);
+    noteTimer = null;
+    setNote(dateKey(new Date()), ta.value);
+  }
+  return { focused: document.activeElement === ta, start: ta.selectionStart, end: ta.selectionEnd };
+}
+
+/* Both Blocks and the Statement ladder use <details> as the expand unit.
+   A rerender rebuilds the DOM from scratch, so whichever ones were open
+   have to be re-opened by their stable id text, not by position. */
+function openDetailIds(){
+  const out = [];
+  Array.prototype.forEach.call(document.querySelectorAll('details.block[open], details.level[open]'), function(d){
+    const marker = d.querySelector('.bid, .lvnum');
+    if (marker) out.push(marker.textContent);
+  });
+  return out;
+}
+
+function reopenDetails(ids){
+  ids.forEach(function(id){
+    if (!id) return;
+    Array.prototype.forEach.call(document.querySelectorAll('details.block, details.level'), function(d){
+      const marker = d.querySelector('.bid, .lvnum');
+      if (marker && marker.textContent === id) d.open = true;
+    });
+  });
+}
+
+function rerender(){
+  const focusedCheck=document.activeElement?.matches('input[data-key]')?document.activeElement.id:null;
+  const caret = flushLedger();
+  const open = openDetailIds();
+  const scroll = window.scrollY;
+  render();
+  reopenDetails(open);
+  if(focusedCheck)document.getElementById(focusedCheck)?.focus({preventScroll:true});
+  window.scrollTo(0, scroll);
+  if (caret && caret.focused){
+    const next = document.getElementById('ledger');
+    if (next){ next.focus(); try { next.setSelectionRange(caret.start, caret.end); } catch(e){} }
+  }
+}
+
+function wireEvents(){
+  document.getElementById('tabs').addEventListener('click', function(e){
+    const b = e.target.closest('button[data-tab]');
+    if (!b) return;
+    flushLedger();
+    state.tab = b.getAttribute('data-tab');
+    const nextTab=state.tab;
+    persist();
+    render();
+    document.querySelector('#tabs button[data-tab="'+nextTab+'"]')?.focus({preventScroll:true});
+    window.scrollTo(0,0);
+  });
+
+  document.getElementById('view').addEventListener('change', function(e){
+    const cb = e.target.closest('input[type=checkbox][data-key]');
+    if (!cb) return;
+    toggleCheck(cb.getAttribute('data-key'), cb.checked);
+    rerender();
+  });
+
+  document.getElementById('view').addEventListener('input', function(e){
+    if (e.target.id !== 'ledger') return;
+    const text = e.target.value;
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(function(){ setNote(dateKey(new Date()), text); }, 500);
+  });
+
+  document.getElementById('btn-export').addEventListener('click', exportState);
+  document.getElementById('btn-reset').addEventListener('click', resetState);
+  document.getElementById('btn-import').addEventListener('click', function(){ document.getElementById('file-import').click(); });
+  document.getElementById('file-import').addEventListener('change', function(e){
+    if (e.target.files && e.target.files[0]) importState(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  window.addEventListener('beforeunload', flushLedger);
+  document.addEventListener('visibilitychange', function(){ if(document.hidden) flushLedger(); });
+}
+
+function storageAvailable(){
+  try { localStorage.setItem(TOOL + ':probe','1'); localStorage.removeItem(TOOL + ':probe'); return true; }
+  catch(e){ return false; }
+}
+
+function init(){
+  wireEvents();
+  render();
+  if (!storageAvailable()) flash('Storage unavailable. Nothing will be saved in this browser session.');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

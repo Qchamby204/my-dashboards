@@ -12,6 +12,7 @@ export const APPS = [
   { id:'the-herald', name:'The Herald', detail:'Content and publishing', group:'The practice', icon:'⚑', file:'the-herald.html' },
   { id:'communication-trainer', name:'Master Communicator', detail:'Speaking, rehearsal, and practice', group:'Learning', icon:'◇', file:'communication-trainer.html' },
   { id:'courier', name:'The Courier', detail:'Your briefing and daily lessons', group:'Learning', icon:'▱', file:'courier.html' },
+  { id:'crucible', name:'The Crucible', detail:'Analyst training and statement mastery', group:'Learning', icon:'◈', file:'crucible.html' },
   { id:'neural-map', name:'Neural Map', detail:'Your tools and reference library', group:'Learning', icon:'⌘', file:'neural-map.html' },
   { id:'chambers-wealth-hq', name:'Chambers Wealth HQ', detail:'Legacy workspace; current planning lives in The Aqueduct', group:'Archive', icon:'▥', file:'chambers-wealth-hq.html' },
 ];

@@ -120,7 +120,7 @@
     apply();
   });
 
-  const files = new Set(['', 'index.html', 'life-map.html', 'life-ledger.html', 'workout-forge.html', 'the-aqueduct.html', 'the-hourglass.html', 'baby-brain.html', 'communication-trainer.html', 'prospecting-command-center.html', 'operations-cadence.html', 'the-herald.html', 'courier.html', 'neural-map.html', 'chambers-wealth-hq.html']);
+  const files = new Set(['', 'index.html', 'life-map.html', 'life-ledger.html', 'workout-forge.html', 'the-aqueduct.html', 'the-hourglass.html', 'baby-brain.html', 'communication-trainer.html', 'prospecting-command-center.html', 'operations-cadence.html', 'the-herald.html', 'courier.html', 'neural-map.html', 'the-chef.html', 'crucible.html', 'chambers-wealth-hq.html']);
   function carryPreference(event) {
     const link = event.target.closest?.('a[href]');
     if (!link || link.hasAttribute('download')) return;
