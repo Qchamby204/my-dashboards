@@ -24,11 +24,11 @@
       const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=805c48b4fcb5',sharedSource).href;document.head.appendChild(polish);
       const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=076590dd90c0',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
     }
-    if(root.dataset.atlasApp==='prospecting-command-center'){
+    if(root.dataset.atlasApp==='prospecting-command-center'&&!window.AtlasProspectingPrivate){
       // Retain the saved bytes before the legacy boot can attempt migration.
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
       window.AtlasProspectingBoot=boot;
-      const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=linkedin-20260909',sharedSource).href;prospects.defer=true;document.head.appendChild(prospects);
+      const records=document.createElement('script');records.type='module';records.src=new URL('prospecting-records.mjs?v=sync-20260909',sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=sync-20260909',sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
     }
     if(root.dataset.atlasApp==='operations-cadence'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('operationsCadence.v1');}catch{boot.readError=true;}

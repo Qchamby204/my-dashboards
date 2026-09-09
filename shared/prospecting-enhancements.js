@@ -3,45 +3,17 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='prospecting-command-center')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('prospecting-enhancements.css?v=linkedin-20260909',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('prospecting-enhancements.css?v=sync-20260909',source).href;document.head.appendChild(css);
   function ready(){
     if(window.ProspectingImprovements||typeof S==='undefined')return;
     const stages=['pool','messaged','replied','meeting','won','lost','parked'],closed=new Set(['won','lost','parked']);
     const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k),plain=o=>o!==null&&typeof o==='object'&&!Array.isArray(o);
     const day=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v+'T12:00:00Z'))&&new Date(v+'T12:00:00Z').toISOString().slice(0,10)===v;
     const safeKey=k=>typeof k==='string'&&/^[\w-]{1,100}$/.test(k)&&!['__proto__','prototype','constructor'].includes(k);
-    const originalContacts=CONTACTS.map(c=>({...c}));let appliedLinkedIn,linkedInFilter='';
-    function profileURL(value){
-      try{const u=new URL(value),slug=decodeURIComponent(u.pathname.replace(/\/+$/,'').split('/')[2]||'').toLowerCase();
-        if(!['http:','https:'].includes(u.protocol)||u.username||u.password||u.port||!/(^|\.)linkedin\.com$/.test(u.hostname)||!/^\/in\/[^/]+\/*$/i.test(u.pathname)||!slug||/[\s/\\?#]/.test(slug))return '';
-        return 'https://www.linkedin.com/in/'+encodeURIComponent(slug);
-      }catch{return '';}
-    }
-    function validateLinkedIn(input){
-      if(!plain(input)||input.app!=='chambers-hq-linkedin'||input.version!==1||!day(input.exportedOn)||!Array.isArray(input.contacts)||!input.contacts.length||input.contacts.length>20000)throw Error('Choose a prepared LinkedIn prospecting update.');
-      if(Object.keys(input).some(k=>!['app','version','exportedOn','contacts'].includes(k)))throw Error('Unexpected LinkedIn update fields.');
-      const urls=new Set(),uids=new Set(),fields=['uid','url','name','first','title','co','email','connectedOn','inboundCount','outboundCount','lastInboundAt','lastOutboundAt'];
-      const contacts=input.contacts.map(c=>{
-        if(!plain(c)||Object.keys(c).some(k=>!fields.includes(k))||!/^li-[a-f0-9]{24}$/.test(c.uid))throw Error('Invalid LinkedIn contact.');
-        const url=profileURL(c.url);if(!url||urls.has(url)||uids.has(c.uid))throw Error('Duplicate or invalid LinkedIn profile.');urls.add(url);uids.add(c.uid);
-        const out={uid:c.uid,url};
-        for(const key of ['name','first','title','co','email']){if(typeof c[key]!=='string'||c[key].length>1000)throw Error('Invalid contact details.');out[key]=c[key].trim();}
-        if(!out.name)throw Error('A LinkedIn contact needs a name.');
-        if(c.connectedOn!==''&&(!day(c.connectedOn)||c.connectedOn>input.exportedOn))throw Error('Invalid connection date.');out.connectedOn=c.connectedOn;
-        for(const dir of ['Inbound','Outbound']){
-          const count=c[dir.toLowerCase()+'Count'],stamp=c['last'+dir+'At'];
-          if(!Number.isInteger(count)||count<0||count>1000000||typeof stamp!=='string'||(stamp!==''&&(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(stamp)||!Number.isFinite(Date.parse(stamp))||!day(stamp.slice(0,10))||stamp.slice(0,10)>input.exportedOn))||Boolean(count)!==Boolean(stamp))throw Error('Invalid LinkedIn message metadata.');
-          out[dir.toLowerCase()+'Count']=count;out['last'+dir+'At']=stamp;
-        }return out;
-      });return {app:input.app,version:1,exportedOn:input.exportedOn,contacts};
-    }
-    function mergeLinkedIn(input){
-      const next=validateLinkedIn(input),previous=S.linkedin;
-      if(previous&&previous.exportedOn>next.exportedOn)throw Error('This export is older than the update already saved.');
-      const records=new Map((previous?.contacts||[]).map(c=>[c.url,c]));
-      for(const c of next.contacts){const old=records.get(c.url);const merged={...c};if(old){merged.uid=old.uid;for(const k of ['name','first','title','co','email','connectedOn'])if(!merged[k])merged[k]=old[k];for(const dir of ['Inbound','Outbound']){const key='last'+dir+'At',count=dir.toLowerCase()+'Count';if(old[key]>merged[key])merged[key]=old[key];merged[count]=Math.max(old[count],merged[count]);}}records.set(c.url,merged);}
-      return validateLinkedIn({...next,contacts:[...records.values()]});
-    }
+    const originalContacts=CONTACTS.map(c=>({...c}));let appliedLinkedIn,appliedMerges,linkedInFilter='';
+    const cloud=window.ProspectingSync;
+    const {profileURL,validateLinkedIn}=window.ProspectingRecords;
+    const mergeLinkedIn=input=>window.ProspectingRecords.mergeLinkedIn(S.linkedin,input);
     function overlayContacts(dataset){
       const contacts=originalContacts.map(c=>({...c})),byURL=new Map(),byID=new Map(contacts.map(c=>[c.uid,c]));
       for(const c of contacts){const url=profileURL(c.url);if(url){if(!byURL.has(url))byURL.set(url,[]);byURL.get(url).push(c);}}
@@ -53,10 +25,10 @@
       }return contacts;
     }
     function applyLinkedIn(){
-      if(appliedLinkedIn===S.linkedin)return;
-      const contacts=overlayContacts(S.linkedin),current=new Map(CONTACTS.map(c=>[c.uid,c]));for(const c of contacts){if(own(current.get(c.uid)||{},'pitched'))c.pitched=current.get(c.uid).pitched;}CONTACTS.splice(0,CONTACTS.length,...contacts);
+      if(appliedLinkedIn===S.linkedin&&appliedMerges===S.merges)return;
+      const contacts=overlayContacts(S.linkedin),current=new Map(CONTACTS.map(c=>[c.uid,c]));for(const c of contacts){if(own(current.get(c.uid)||{},'pitched'))c.pitched=current.get(c.uid).pitched;}CONTACTS.splice(0,CONTACTS.length,...contacts.filter(c=>window.ProspectingRecords.primaryID(S,c.uid)===c.uid));
       for(const k of Object.keys(BYUID))delete BYUID[k];for(const k of Object.keys(URLIX))delete URLIX[k];
-      for(const c of CONTACTS){BYUID[c.uid]=c;if(c.url)URLIX[normUrl(c.url)]=c.uid;}appliedLinkedIn=S.linkedin;
+      for(const c of contacts)BYUID[c.uid]=c;for(const c of CONTACTS)if(c.url)URLIX[normUrl(c.url)]=c.uid;appliedLinkedIn=S.linkedin;appliedMerges=S.merges;
     }
     const lastActivity=c=>c.linkedin?Math.max(Date.parse(c.linkedin.lastInboundAt)||0,Date.parse(c.linkedin.lastOutboundAt)||0):0;
     function activityKind(c){const v=c.linkedin;if(!v)return '';if(!v.inboundCount&&!v.outboundCount)return 'none';return v.lastInboundAt>v.lastOutboundAt?'received':'sent';}
@@ -65,35 +37,7 @@
       const recent=lastActivity(c),label=recent?(activityKind(c)==='received'?'Last message received':'Last message sent')+' · '+new Date(recent).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric',timeZone:'UTC'}):'No messages recorded in this export';
       return '<div class="prospecting-linkedin-activity"><span>'+esc(label)+'</span><details class="prospecting-linkedin-info"><summary aria-label="LinkedIn activity details">i</summary><p>'+esc((v.connectedOn?'Connected '+v.connectedOn+'. ':'')+v.inboundCount+' received · '+v.outboundCount+' sent. Activity from the LinkedIn export; this does not establish sales interest or change your pipeline stage.')+'</p></details></div>';
     }
-    function validateState(input){
-      if(!plain(input)||!['stage','note','fu','aum','log'].some(k=>own(input,k)))throw Error('This file does not contain prospecting progress.');
-      const out={stage:{},note:{},fu:{},aum:{},log:[],set:{target:20,replyN:10,fuDays:7,peers:false}};
-      for(const key of ['stage','note','fu','aum','tpl']){
-        if(!own(input,key))continue;if(!plain(input[key]))throw Error('Invalid '+key+' records.');out[key]={};
-        for(const [uid,v] of Object.entries(input[key])){
-          if(!safeKey(uid))throw Error('Invalid record key.');
-          const valid=key==='stage'?stages.includes(v):key==='fu'?(v===''||day(v)):key==='aum'?(typeof v==='number'&&Number.isFinite(v)&&v>=0):typeof v==='string';
-          if(!valid)throw Error('Invalid '+key+' value.');out[key][uid]=v;
-        }
-      }
-      if(own(input,'log')){
-        if(!Array.isArray(input.log)||input.log.length>100000)throw Error('Invalid activity log.');
-        out.log=input.log.map(a=>{
-          if(!plain(a)||!safeKey(a.uid)||!['messaged','followup','replied','meeting','won','lost','park','parked','pool'].includes(a.to))throw Error('Invalid activity record.');
-          const ts=typeof a.ts==='number'?a.ts:typeof a.ts==='string'?Date.parse(a.ts):NaN;
-          if(!Number.isFinite(ts)||ts<0||!Number.isFinite(new Date(ts).getTime()))throw Error('Invalid activity date.');return {uid:a.uid,to:a.to,ts};
-        });
-      }
-      if(own(input,'set')){
-        if(!plain(input.set))throw Error('Invalid settings.');
-        for(const key of ['target','replyN','fuDays'])if(own(input.set,key)){
-          const n=input.set[key];if(!Number.isInteger(n)||n<1||n>10000)throw Error('Invalid '+key+' setting.');out.set[key]=Math.min(n,{target:100,replyN:50,fuDays:30}[key]);
-        }
-        if(own(input.set,'peers')){if(typeof input.set.peers!=='boolean')throw Error('Invalid peers setting.');out.set.peers=input.set.peers;}
-      }
-      if(own(input,'linkedin')){out.linkedin=validateLinkedIn(input.linkedin);overlayContacts(out.linkedin);}
-      return out;
-    }
+    function validateState(input){const out=window.ProspectingRecords.validateState(input);if(out.linkedin)overlayContacts(out.linkedin);return out;}
     function validateBackup(input){
       if(!plain(input)||input.app!=='chambers-hq'||input.version!==1)throw Error('Choose a Chambers HQ version 1 backup.');return validateState(input.state);
     }
@@ -105,7 +49,7 @@
     function download(text,name,type){const url=URL.createObjectURL(new Blob([text],{type})),a=make('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
     function exportRaw(){if(rawRecovery!==null)download(rawRecovery,'prospecting_saved_data_'+today()+'.json','application/json');}
     function paintNotice(){
-      notice.hidden=!unreadable&&!unsaved&&!readBlocked;notice.replaceChildren();
+      notice.hidden=!!cloud||!unreadable&&!unsaved&&!readBlocked;notice.replaceChildren();
       document.getElementById('main').inert=unreadable||readBlocked;
       const template=document.querySelector('[onclick="openTpl()"]');if(template)template.disabled=unreadable||readBlocked;
       if(notice.hidden)return;
@@ -121,6 +65,7 @@
     save=function(){
       if(unreadable||readBlocked){paintNotice();return false;}
       for(const key of ['target','replyN','fuDays'])S.set[key]=Math.max(1,Math.min({target:100,replyN:50,fuDays:30}[key],Math.trunc(Number(S.set[key]))||{target:20,replyN:10,fuDays:7}[key]));
+      if(cloud){cloud.requestSave(S);return !cloud.unsaved;}
       try{const raw=JSON.stringify(S);localStorage.setItem(KEY,raw);if(localStorage.getItem(KEY)!==raw)throw Error('Write did not persist');unsaved=false;}
       catch{unsaved=true;}paintNotice();return !unsaved;
     };
@@ -130,7 +75,7 @@
     const restoreDialog=make('dialog');restoreDialog.id='prospecting-restore';restoreDialog.setAttribute('aria-label','Restore prospecting backup');document.body.appendChild(restoreDialog);
     const linkedInDialog=make('dialog');linkedInDialog.id='prospecting-linkedin-import';linkedInDialog.setAttribute('aria-label','Update LinkedIn contacts');document.body.appendChild(linkedInDialog);
     const linkedInInput=make('input');linkedInInput.type='file';linkedInInput.accept='.json,application/json';linkedInInput.hidden=true;linkedInInput.addEventListener('change',()=>importLinkedIn(linkedInInput));document.body.appendChild(linkedInInput);
-    let importToken=0;
+    let importToken=0,importBusy=false;linkedInDialog.addEventListener('cancel',e=>{if(importBusy)e.preventDefault();});
     function chooseLinkedIn(){if(unreadable||readBlocked||unsaved){toast('Save or recover your current progress before updating LinkedIn.');return;}linkedInInput.click();}
     async function importLinkedIn(input){
       const file=input.files?.[0];input.value='';if(!file)return;const token=++importToken;
@@ -142,19 +87,19 @@
         if(JSON.stringify(next)===JSON.stringify(S.linkedin)){toast('This LinkedIn update is already saved.');return;}
         const existing=new Set(CONTACTS.map(c=>profileURL(c.url)).filter(Boolean)),added=payload.contacts.filter(c=>!existing.has(c.url)).length;
         linkedInDialog.replaceChildren(make('h2','Update LinkedIn contacts'),make('p',payload.exportedOn+' · '+added.toLocaleString()+' new · '+(payload.contacts.length-added).toLocaleString()+' matched'));
-        const info=make('details',null,'prospecting-linkedin-info'),summary=make('summary','i');summary.setAttribute('aria-label','What this update changes');info.append(summary,make('p','Refreshes profile details and one-to-one message counts and dates on this device. Notes, stages, follow-ups, saved activity, and existing contact IDs stay as they are. Matching uses profile URLs. Blank fields do not erase existing details. Re-importing does not duplicate contacts or messages. New contacts have no qualification score; review them in Database.'));
-        linkedInDialog.append(info,button('Back up current progress',exportBackup),button('Cancel',()=>{importToken++;linkedInDialog.close();}));
+        const info=make('details',null,'prospecting-linkedin-info'),summary=make('summary','i');summary.setAttribute('aria-label','What this update changes');info.append(summary,make('p','Refreshes profile details and one-to-one message counts and dates in this dashboard. Notes, stages, follow-ups, saved activity, and existing contact IDs stay as they are. Matching uses profile URLs. Blank fields do not erase existing details. Re-importing does not duplicate contacts or messages. New contacts have no qualification score; review them in Database.'));
+        linkedInDialog.append(info,button('Back up current progress',exportBackup),button('Cancel',()=>{if(!importBusy){importToken++;linkedInDialog.close();}}));
         const error=make('p');error.setAttribute('role','alert');linkedInDialog.appendChild(error);
-        linkedInDialog.appendChild(button('Apply update',()=>{
-          if(token!==importToken)return;
+        linkedInDialog.appendChild(button('Apply update',async()=>{
+          if(token!==importToken||importBusy)return;importBusy=true;linkedInDialog.setAttribute('aria-busy','true');
           try{
             if(unreadable||readBlocked||unsaved)throw Error('Save or recover your current progress first.');
-            const raw=localStorage.getItem(KEY);
+            const raw=cloud?null:localStorage.getItem(KEY);
             if(raw!==null&&JSON.stringify(validateState(JSON.parse(raw)))!==JSON.stringify(validateState(S)))throw Error('Progress changed in another tab. Reload this page before importing.');
             const merged=mergeLinkedIn(payload);overlayContacts(merged);const nextState={...S,linkedin:merged},encoded=JSON.stringify(nextState);
-            localStorage.setItem(KEY,encoded);if(localStorage.getItem(KEY)!==encoded)throw Error('The update could not be confirmed. Reload and check before retrying.');
+            if(cloud)await cloud.commit(nextState);else{localStorage.setItem(KEY,encoded);if(localStorage.getItem(KEY)!==encoded)throw Error('The update could not be confirmed. Reload and check before retrying.');}
             importToken++;closeRun();S=nextState;lastUndo=null;tab='base';page=0;linkedInFilter='';applyLinkedIn();render(true);linkedInDialog.close();toast('LinkedIn updated · '+added.toLocaleString()+' new contacts.');
-          }catch(e){error.textContent=e.message||'The update could not be saved. Free device storage and retry.';}
+          }catch(e){error.textContent=e.message||'The update could not be saved. Free device storage and retry.';}finally{importBusy=false;linkedInDialog.removeAttribute('aria-busy');}
         }));if(!linkedInDialog.open)linkedInDialog.showModal();
       }catch(e){toast(e instanceof SyntaxError?'Choose the prepared LinkedIn JSON update.':e.message||'The LinkedIn update could not be read.');}
     }
@@ -163,6 +108,7 @@
       const file=input.files?.[0];input.value='';if(!file)return;const token=++restoreToken;
       try{
         if(file.size>10*1024*1024)throw Error('Choose a backup smaller than 10 MB.');const next=validateBackup(JSON.parse(await file.text()));if(token!==restoreToken)return;
+        if(cloud){window.ProspectingReview.previewTransfer(next);return;}
         restoreDialog.replaceChildren(make('h2','Restore this backup?'),make('p','This replaces the current stages, notes, follow-up dates, activity and templates on this device.'));
         if(!readBlocked)restoreDialog.appendChild(button(unreadable?'Download current saved data':'Back up current progress',()=>unreadable?exportRaw():exportBackup()));
         restoreDialog.appendChild(button('Cancel',()=>restoreDialog.close()));
@@ -272,8 +218,10 @@
         row.querySelectorAll('input[type="date"]').forEach(n=>n.setAttribute('aria-label','Follow-up date for '+name));row.querySelectorAll('input[type="text"]').forEach(n=>n.setAttribute('aria-label','Note for '+name));
       });
     }
-    const originalRow=rowHTML;rowHTML=(c,showStage)=>{let html=originalRow(c,showStage).replace('</div></div>',activityHTML(c)+'</div></div>');if(c.uid.startsWith('li-'))html=html.replace('>COLD</span>',(stg(c)==='pool'?'>UNREVIEWED</span>':'>LINKEDIN</span>'));return html;};
-    const originalFresh=freshQueue;freshQueue=()=>originalFresh().filter(c=>!lastActivity(c));
+    const originalRow=rowHTML;rowHTML=(c,showStage)=>{let html=originalRow(c,showStage).replace('</div></div>',activityHTML(c)+'</div></div>');if(c.uid.startsWith('li-'))html=html.replace('>COLD</span>',('>'+({prospect:'PROSPECT',network:'NETWORK',exclude:'EXCLUDED'}[S.review?.[c.uid]]||'UNREVIEWED')+'</span>'));return html;};
+    const eligible=c=>!['network','exclude'].includes(S.review?.[c.uid])&&(!c.uid.startsWith('li-')||S.review?.[c.uid]==='prospect');
+    const originalRank=rankOf;rankOf=c=>c.uid.startsWith('li-')&&S.review?.[c.uid]==='prospect'?35:originalRank(c);
+    const originalFresh=freshQueue,originalReplies=replyQueue,originalDue=fuDue;freshQueue=()=>originalFresh().filter(c=>!lastActivity(c)&&eligible(c));replyQueue=()=>originalReplies().filter(eligible);fuDue=()=>originalDue().filter(eligible);
     const originalRender=render;
     render=function(keep){
       applyLinkedIn();originalRender(keep);const main=document.getElementById('main');labelRows(main);
@@ -282,7 +230,7 @@
       const plan=main.querySelector('.planstrip');if(plan)plan.textContent='Follow-ups first, then replies, then fresh outreach up to your daily send target.';
       const messages=['Contacts you marked as messaged, replied, or meeting, with a follow-up date due today or earlier.','Contacts marked replied, with no future follow-up date.','Eligible untouched contacts, up to the remaining daily send target.'];
       main.querySelectorAll('.qcard .qs').forEach((n,i)=>{n.textContent=messages[i];});
-      const settingLabels=main.querySelectorAll('input[type="number"]');settingLabels.forEach(n=>{if((n.getAttribute('onchange')||'').includes('S.set.'))n.min='1';});paintNotice();
+      const settingLabels=main.querySelectorAll('input[type="number"]');settingLabels.forEach(n=>{if((n.getAttribute('onchange')||'').includes('S.set.'))n.min='1';});paintNotice();window.ProspectingReview?.paint();
     };
     // Validate the pre-boot copy, so malformed data is not silently replaced by defaults.
     try{
@@ -293,9 +241,16 @@
       if(!readBlocked){unreadable=true;rawRecovery=boot?.raw??null;try{if(rawRecovery!==null)localStorage.setItem(KEY,rawRecovery);}catch{/* The pre-boot copy remains downloadable. */}}
       S=validateState({stage:{},note:{},fu:{},aum:{},log:[]});
     }
-    window.ProspectingImprovements=Object.freeze({validateBackup,validateState,validateLinkedIn,mergeLinkedIn,overlayContacts,importLinkedIn,chooseLinkedIn,profileURL,activityKind,filterLinkedIn(value){linkedInFilter=['imported','new','received','sent','none'].includes(value)?value:'';page=0;refreshResults();},databaseMatches,refreshResults,clearFilters,dayQueue,startQueue,csvCell:cell,get unsaved(){return unsaved;},get blocked(){return unreadable||readBlocked;}});
-    window.addEventListener('beforeunload',e=>{if(unsaved){e.preventDefault();e.returnValue='';}});
+    window.ProspectingImprovements=Object.freeze({
+      getState:()=>validateState(S),
+      acceptState(next){S=validateState(next);appliedLinkedIn=undefined;appliedMerges=undefined;lastUndo=null;render(true);},
+      draftOpen:()=>!!document.querySelector('dialog[open]')||document.getElementById('runner').classList.contains('active')||document.getElementById('tplOv').style.display==='grid'||!!document.activeElement?.closest('input,textarea,select'),
+      async applyState(next){next=validateState(next);if(unreadable||readBlocked)throw Error('Recover saved progress first.');if(cloud)await cloud.commit(next);else{const old=localStorage.getItem(KEY);if(old!==null&&JSON.stringify(validateState(JSON.parse(old)))!==JSON.stringify(validateState(S)))throw Error('Progress changed in another tab. Reload before applying this review.');const raw=JSON.stringify(next);localStorage.setItem(KEY,raw);if(localStorage.getItem(KEY)!==raw)throw Error('The save could not be confirmed.');}S=next;appliedLinkedIn=undefined;appliedMerges=undefined;lastUndo=null;unsaved=false;render(true);},
+      async uploadedLinkedIn(){try{const r=await fetch('/prospecting/uploaded-linkedin.json',{cache:'no-store'});if(!r.ok)throw Error('The uploaded export could not be opened. Retry or choose the prepared JSON file.');const text=await r.text();await importLinkedIn({files:[{size:new Blob([text]).size,text:async()=>text}],value:''});}catch(e){toast(e.message);}},
+      validateBackup,validateState,validateLinkedIn,mergeLinkedIn,overlayContacts,importLinkedIn,chooseLinkedIn,profileURL,activityKind,filterLinkedIn(value){linkedInFilter=['imported','new','received','sent','none'].includes(value)?value:'';page=0;refreshResults();},databaseMatches,refreshResults,clearFilters,dayQueue,startQueue,csvCell:cell,get unsaved(){return cloud?cloud.unsaved:unsaved;},get blocked(){return unreadable||readBlocked;}});
+    window.addEventListener('beforeunload',e=>{if(unsaved||cloud?.unsaved){e.preventDefault();e.returnValue='';}});
     render();
+    if(!cloud){const review=document.createElement('script');review.src=new URL('prospecting-review.js?v=sync-20260909',source).href;document.head.appendChild(review);}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
