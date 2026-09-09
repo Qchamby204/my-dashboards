@@ -2,6 +2,713 @@
  "schemaVersion": 1,
  "days": [
   {
+   "date": "2026-09-09",
+   "generatedAt": "2026-09-09T11:28:03+00:00",
+   "release": "courier-2026-09-09",
+   "budgetMinutes": 60,
+   "plannedMinutes": 60,
+   "projectedMinutes": 49.0,
+   "voiceless": [],
+   "failed": [],
+   "usage": {
+    "calls": 17,
+    "input": 1768,
+    "output": 111053,
+    "cache_read": 175708,
+    "cache_write": 413995,
+    "searches": 19,
+    "estimatedCost": 3.47
+   },
+   "plan": [],
+   "blocks": [
+    {
+     "id": "frontpage",
+     "label": "Front page",
+     "title": "Oil Tops $100 as Trade War Bites",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/frontpage.mp3",
+     "bytes": 2513664,
+     "script": "The trade war and the oil shock are the story today, and they're tangled together. Brent crude topped 100 dollars a barrel for the first time since July, per the Ten, as attacks around the Strait of Hormuz and on Saudi energy facilities raise fears of a real supply disruption. At the same time, Canada's counter tariffs on roughly 28 billion dollars in U.S. goods are now in effect, and Washington hit back hard: Trump has banned Canadian dairy and alcohol imports and is threatening Bombardier sales in the U.S. Markets and Economy, 6.2 minutes, is your deep dive here: oil, the yen carry trade unwind, copper's record high, and Novartis stock falling 10 percent on a third failed drug trial in a week. The Ten, 5.6 minutes, gives you the fast version plus two things that block doesn't cover: Canada and the European Union moving toward a new comprehensive partnership next week, and Germany's AfD winning a regional election in Saxony-Anhalt, a genuine breakthrough for the far right there.\n\nSecond story, the Bank of Canada held rates at 2.25 percent for a seventh straight time, citing tariff and oil price uncertainty. Canadian Politics, 4.1 minutes, has the cleanest rundown, including the September 29 date when new U.S. bans on alcohol, motorcycles and dairy hit the same day Manitoba's legislature reconvenes. If you advise clients, give full attention to Practice, 6.1 minutes: TFSA room is back to 7,000 dollars, RRSP room sits at 33,810, and IG Wealth just outsourced its core funds to Goldman Sachs, a signal on where fee pressure in this industry is heading.\n\nLocally, Manitoba and Winnipeg, 4.7 minutes, covers Manitoba Hydro's three billion dollar Brandon gas plant expansion finishing its public hearing phase and now heading to cabinet, plus the city's 29 million dollar budget shortfall.\n\nQuicker hits you can take in passing: AI and Technology, 3.6 minutes, on Anthropic's Claude accounts getting hijacked through stolen logins and Meta's new Muse agent asking for email and payment access. Climate Policy, 3.9 minutes, on the Canada Revenue Agency tightening charity disbursement enforcement. Parenting, 1.8 minutes, on the Canada Child Benefit increase. Sports, 3.1 minutes, has Aaron Judge back for the Yankees and Ben Shelton's marathon upset of Carlos Alcaraz at the U.S. Open.\n\nTalking points\nOil just crossed 100 dollars a barrel on Middle East supply fears.\nCanada's counter tariffs are live, and Trump just banned our dairy and alcohol.\nBank of Canada held again, seventh straight time, blaming tariffs and oil.\nGermany's far right AfD just won a state election outright.\nManitoba Hydro's Brandon expansion decision now sits with cabinet.",
+     "talkingPoints": [],
+     "sources": [],
+     "words": 434,
+     "minutes": 2.9
+    },
+    {
+     "id": "lessons",
+     "label": "Lessons",
+     "title": "Price to earnings: trailing, forward, and why both mislead in isolation / Questions that open: the difference between a good question and an interrogation",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/lessons.mp3",
+     "bytes": 2201856,
+     "script": "Company & Economy Analysis, Valuation reps, lesson 1: Price to earnings: trailing, forward, and why both mislead in isolation.\n\nNvidia's stock got hammered in early 2026 headlines for trading at what the Financial Times called a nosebleed valuation, then defended a week later for looking cheap. Same company, same week. The difference was which P/E ratio the writer picked.\n\nTrailing price to earnings takes today's share price and divides it by the last twelve months of actual reported earnings per share. It is backward looking, it is audited, it is real. Forward P/E takes that same price and divides it by analysts' consensus estimate for the next twelve months of earnings. It is a guess, dressed up as a number.\n\nHere is the worked example. Say a company trades at 120 dollars a share. Trailing earnings per share, from the last four quarters, is 3 dollars. Trailing P/E is 40. Analysts expect earnings to grow to 4.80 next year on new product demand. Forward P/E is 25. Same stock, same price, and one ratio says expensive, the other says reasonable. Neither is wrong. They are answering different questions.\n\nThe mistake people make is comparing one company's trailing P/E to another company's forward P/E, or worse, treating the forward number as fact instead of a consensus guess that gets revised every quarter, sometimes sharply, as Reuters has documented with semiconductor estimates through 2025.\n\nWhat P/E reveals: how much the market is willing to pay today for a dollar of past or expected earnings, relative to peers. What it cannot reveal: whether that earnings number is clean, whether debt is funding the growth, or whether the estimate behind the forward figure has any discipline behind it. That is exactly why P/E sits inside your analysis step, before you ever touch a chart, and why you check it against the sector average, not in isolation.\n\nIn Thomson ONE, pull both from the same screen, the estimates tab under company overview shows trailing P/E and consensus forward P/E side by side, along with the number of analysts contributing to that estimate.\n\nCommunication, lesson 2: Questions that open: the difference between a good question and an interrogation.\n\nNeil Rackham spent twelve years studying more than 35,000 sales calls across 23 countries, work that became the book SPIN Selling. He found something specific. The top performers did not ask more questions overall. They asked roughly four times as many open questions in the first ten minutes as average performers, and almost none of those were what he called implication questions, the kind that make someone defend a decision they already made.\n\nThat is the line between a good question and an interrogation. A good question invites the other person to think out loud with you. An interrogation asks them to justify something.\n\nHere is the worked example. A client says, \"We spent 40,000 dollars on a rebrand last year and our lead volume did not move.\" Interrogation: \"Why did you spend 40,000 dollars if it did not work?\" There is a verdict built into that question before the client even answers. Open version: \"What were you hoping that 40,000 dollars would change, and what actually changed instead?\" Same number, same fact, completely different posture. One asks them to defend. The other asks them to notice.\n\nThe mistake almost everyone makes is stacking two or three questions in a row without waiting. You ask, get half an answer, then jump in again because silence feels uncomfortable. Rackham's data showed the best performers left three to five seconds after a question before speaking again. That gap is where the real answer usually shows up.",
+     "talkingPoints": [
+      "Company & Economy Analysis: Pick one company you know well, pull trailing and forward P/E from Thomson ONE's estimates tab, and write down the percentage gap between the two plus how many analysts feed the forward number.",
+      "Communication: In your next client call, catch yourself before any question that starts with \"why did you,\" and swap it in your head for \"what were you hoping\" before it leaves your mouth."
+     ],
+     "sources": [],
+     "words": 606,
+     "minutes": 4.0,
+     "lessons": [
+      {
+       "track": "analysis",
+       "label": "Company & Economy Analysis",
+       "sequence": "Valuation reps",
+       "index": 1,
+       "title": "Price to earnings: trailing, forward, and why both mislead in isolation",
+       "script": "Nvidia's stock got hammered in early 2026 headlines for trading at what the Financial Times called a nosebleed valuation, then defended a week later for looking cheap. Same company, same week. The difference was which P/E ratio the writer picked.\n\nTrailing price to earnings takes today's share price and divides it by the last twelve months of actual reported earnings per share. It is backward looking, it is audited, it is real. Forward P/E takes that same price and divides it by analysts' consensus estimate for the next twelve months of earnings. It is a guess, dressed up as a number.\n\nHere is the worked example. Say a company trades at 120 dollars a share. Trailing earnings per share, from the last four quarters, is 3 dollars. Trailing P/E is 40. Analysts expect earnings to grow to 4.80 next year on new product demand. Forward P/E is 25. Same stock, same price, and one ratio says expensive, the other says reasonable. Neither is wrong. They are answering different questions.\n\nThe mistake people make is comparing one company's trailing P/E to another company's forward P/E, or worse, treating the forward number as fact instead of a consensus guess that gets revised every quarter, sometimes sharply, as Reuters has documented with semiconductor estimates through 2025.\n\nWhat P/E reveals: how much the market is willing to pay today for a dollar of past or expected earnings, relative to peers. What it cannot reveal: whether that earnings number is clean, whether debt is funding the growth, or whether the estimate behind the forward figure has any discipline behind it. That is exactly why P/E sits inside your analysis step, before you ever touch a chart, and why you check it against the sector average, not in isolation.\n\nIn Thomson ONE, pull both from the same screen, the estimates tab under company overview shows trailing P/E and consensus forward P/E side by side, along with the number of analysts contributing to that estimate.",
+       "task": "Pick one company you know well, pull trailing and forward P/E from Thomson ONE's estimates tab, and write down the percentage gap between the two plus how many analysts feed the forward number.",
+       "drill": ""
+      },
+      {
+       "track": "communication",
+       "label": "Communication",
+       "sequence": null,
+       "index": 2,
+       "title": "Questions that open: the difference between a good question and an interrogation",
+       "script": "Neil Rackham spent twelve years studying more than 35,000 sales calls across 23 countries, work that became the book SPIN Selling. He found something specific. The top performers did not ask more questions overall. They asked roughly four times as many open questions in the first ten minutes as average performers, and almost none of those were what he called implication questions, the kind that make someone defend a decision they already made.\n\nThat is the line between a good question and an interrogation. A good question invites the other person to think out loud with you. An interrogation asks them to justify something.\n\nHere is the worked example. A client says, \"We spent 40,000 dollars on a rebrand last year and our lead volume did not move.\" Interrogation: \"Why did you spend 40,000 dollars if it did not work?\" There is a verdict built into that question before the client even answers. Open version: \"What were you hoping that 40,000 dollars would change, and what actually changed instead?\" Same number, same fact, completely different posture. One asks them to defend. The other asks them to notice.\n\nThe mistake almost everyone makes is stacking two or three questions in a row without waiting. You ask, get half an answer, then jump in again because silence feels uncomfortable. Rackham's data showed the best performers left three to five seconds after a question before speaking again. That gap is where the real answer usually shows up.",
+       "task": "In your next client call, catch yourself before any question that starts with \"why did you,\" and swap it in your head for \"what were you hoping\" before it leaves your mouth.",
+       "drill": "Record a 5 minute conversation with a colleague about a recent decision they made. Afterward, count two things: how many of your questions started with \"why did you\" versus \"what were you hoping\" or \"what happened,\" and how many seconds of silence you left after each question before you spoke again. Good looks like at least 4 out of 5 questions open ended, and at least 3 seconds of silence held after each one before you jump in."
+      }
+     ]
+    },
+    {
+     "id": "markets",
+     "label": "Markets & Economy",
+     "title": "Trade War Escalates as Oil Nears $100",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/markets.mp3",
+     "bytes": 5404032,
+     "script": "Good morning. Markets are digesting a rough combination this week: escalating Canada-U.S. trade tensions and a sharp jump in oil prices tied to violence in the Middle East.\n\nLet's start with trade. Canada's retaliatory tariffs on roughly 28 billion dollars worth of American goods took effect this week, according to The Peak and The Globe and Mail's Before the Bell newsletter. Nearly 700 U.S. products are affected, with tariffs set at 15, 25 or 50 percent. Industrial goods like aluminum, steel, cardboard and screws are hit hardest, though some consumer goods including clothing, furniture, dairy and cosmetics are also on the list.\n\nThe Peak reports that U.S. Trade Representative Jamieson Greer has confirmed Washington plans to add further tariffs on Canadian goods this week, potentially including outright import bans. President Trump has also been active on social media, complaining about the Canadian dollar, threatening to ban U.S. sales of Bombardier jets, and posting an AI-generated image referring to Prime Minister Mark Carney as \"Governor.\" Bombardier shares fell after the threat, according to Globe and Mail reporting.\n\nPrime Minister Carney addressed the nation as the tariffs took effect, warning Canadians that pivoting away from the United States will carry real costs, but arguing the alternative would be worse, per Globe and Mail coverage. The Peak notes that, so far, public opinion appears to back a firm stance, with 76 percent of Canadians saying the country did the right thing by walking away from trade talks last month. Whether that support holds as economic costs mount remains an open question.\n\nTurning to oil, Brent crude pushed toward the 100 dollar a barrel mark this week, its highest level in roughly six weeks, according to Bloomberg's Markets Daily and The Globe's Before the Bell. West Texas Intermediate traded near 94 dollars. The move follows a serious escalation in the Middle East, with the U.S. and Iran trading attacks around the Strait of Hormuz and reports of strikes on energy facilities in Saudi Arabia. Iran has also threatened what it called economic warfare against the United States.\n\nAnalysts quoted by The Globe say the rally reflects both genuine tightness in tanker flows through Hormuz and a hefty geopolitical risk premium. Some of that pressure eased slightly after Iran signaled it was close to a deal with Oman on managing shipping through the strait, but analysts caution oil is likely to stay elevated as long as the strait remains contested.\n\nGold, often a safe haven in times like these, actually slipped, with spot prices down around 0.3 percent, according to Before the Bell. Copper, meanwhile, hit a record high, driven by supply tightness outside the U.S. as tariff-related buying pulls metal toward American markets, Globe and Mail reporting shows.\n\nThe commodity spike is feeding into a broader story about interest rates and volatility. Bloomberg's Markets Daily reports that strategists are bracing for a choppy autumn, citing rising rates expectations, fiscal deficit worries in the UK and France, the Israel-Iran conflict, and the run-up to U.S. midterm elections. One bond strategist quoted in the newsletter summed up the mood bluntly, saying volatility is probably the only certainty given the mix of Trump-driven trade policy and oil market swings.\n\nDeutsche Bank strategist Henry Allen argued in a note cited by Bloomberg that markets may be underestimating how much central banks will ultimately need to raise rates, given that inflation isn't cooling as quickly as hoped. That tension will be tested with a widely expected quarter point hike from the European Central Bank, and possible moves from the Federal Reserve and Bank of Japan in the weeks ahead.\n\nBond markets are already feeling the strain. The U.S. 10 year Treasury yield sat near 4.8 percent, and Bloomberg reports it's shaping up to be one of the busiest weeks of the year for corporate debt issuance, much of it tied to financing the ongoing AI buildout.\n\nCurrency markets saw their own drama. The Japanese yen surged toward its strongest level of the year against the dollar, breaking through the 155 level before easing, according to Bloomberg. The move triggered a wave of stop losses and forced investors to unwind an estimated 2.35 trillion dollars in yen funded carry trades. Japan's finance minister said the country's currency policy hasn't changed, but the bigger worry flagged by Bloomberg is that continued yen strength could push U.S. borrowing costs higher and fuel demand for havens like gold and Bitcoin.\n\nOn individual stocks, Novartis shares slumped 10 percent after the Swiss drugmaker suffered its third clinical trial setback in a week, according to Bloomberg and Globe and Mail reporting, dragging down other biotech names including Ionis Pharmaceuticals, Dyne Therapeutics and Sarepta Therapeutics.\n\nIn broader market moves reported by The Globe, global stocks were mostly lower as the oil spike and trade tensions weighed on sentiment. Japan's Nikkei closed down 1.7 percent, Hong Kong's Hang Seng slipped, and European indexes were mixed but mostly softer. The Canadian dollar actually strengthened against its U.S. counterpart despite the tariff fight, trading in the 72 cent range and up close to 1 percent over the past month.\n\nElsewhere in economic news, Alberta based Tamarack Valley and Headwater agreed to a 10 billion dollar merger creating a major oil producer in the province's Clearwater region, according to Globe and Mail reporting. Enbridge announced a leadership change, with CEO Greg Ebel set to retire and Michele Harradence named as his successor. And Bank of Montreal became the first of Canada's Big Five banks to eliminate most online trading commissions, a move reportedly aimed at younger, cost sensitive investors.",
+     "talkingPoints": [
+      "One: Canada's counter tariffs on roughly 28 billion dollars in U.S. goods are now in effect, with Washington signaling more tariffs, and possibly import bans, are coming this week.",
+      "Two: Oil prices are near six week highs and flirting with 100 dollars a barrel as attacks around the Strait of Hormuz and on Saudi energy facilities raise fears of supply disruption.",
+      "Three: Strategists are warning of a volatile autumn ahead, driven by central bank rate decisions, fiscal worries in Europe, elections, and a surge in corporate bond issuance tied to AI spending.",
+      "Four: The Japanese yen's sharp rally is forcing investors to unwind massive carry trades, a shift that could ripple into Treasury yields and global risk appetite.",
+      "Five: Copper hit a record high on tight supply, while gold slipped and Novartis shares tumbled 10 percent on repeated clinical trial failures."
+     ],
+     "sources": [
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Brent crude rises above $100 as Mideast conflict escalates",
+       "url": "https://www.theglobeandmail.com/world/video-brent-crude-rises-above-100-as-mideast-conflict-escalates/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Iran hits ships near Hormuz in retaliation for U.S. attacks on tankers",
+       "url": "https://www.theglobeandmail.com/world/article-iran-us-war-jordan-attack/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Bombardier shares fall after Trump threatens ban on U.S. sales",
+       "url": "https://www.theglobeandmail.com/business/article-bombardier-shares-fall-after-latest-trump-attack/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Carney warns of tough times ahead in national address as retaliatory tariffs kick in",
+       "url": "https://www.theglobeandmail.com/canada/video-carney-warns-of-tough-times-ahead-in-national-address-as-retaliatory/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Copper hits record high on weak supply outside U.S.",
+       "url": "https://www.theglobeandmail.com/investing/markets/article-copper-set-to-test-15000-as-investors-await-uls-data-tariff-clarity/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Novartis shares fall after second major trial setback in days",
+       "url": "https://www.theglobeandmail.com/business/article-novartis-del-desiran-trial-failure-drug-pipeline/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Tamarack Valley, Headwater agree to merge in $10-billion deal",
+       "url": "https://www.theglobeandmail.com/business/article-tamarack-valley-headwater-agree-to-merge/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Greg Ebel to retire as Enbridge CEO, Michele Harradence named as successor",
+       "url": "https://www.theglobeandmail.com/business/article-enbridge-ceo-greg-ebel-retiring-michele-harradence/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Bank of Montreal becomes first Big Five bank to eliminate most online trading commissions",
+       "url": "https://www.theglobeandmail.com/business/article-bank-of-montreal-becomes-first-big-five-bank-to-eliminate-most-online/"
+      }
+     ],
+     "words": 929,
+     "minutes": 6.2
+    },
+    {
+     "id": "companies",
+     "label": "The Ten",
+     "title": "Trade War Escalates as Oil Tops $100 a Barrel",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/companies.mp3",
+     "bytes": 4893696,
+     "script": "Good evening. Tonight we lead with the widening trade fight between Canada and the United States, a fresh spike in oil prices tied to the conflict between the U.S. and Iran, and a breakthrough for Germany's far right.\n\nCanada's retaliatory tariffs on roughly 28 billion dollars worth of American goods took effect this week, hitting nearly 700 products with duties of 15, 25 or 50 percent. Industrial goods like aluminum, steel and cardboard took the biggest hit, though clothing, furniture, dairy and cosmetics from the U.S. were also affected, according to The Peak.\n\nThe Trump administration answered almost immediately. President Trump signed a series of executive orders banning imports of Canadian dairy products and most alcoholic drinks, including beer, wine and liquor, along with whey products, motorcycles and molasses, according to CBC News as reported by The Peak. New tariffs of 50 percent were also slapped on additional goods, and the president threatened to bar Canadian companies from selling to U.S. government contractors and to ban the sale of Bombardier jets in America, Bloomberg reports. Bombardier pushed back by pointing to its extensive U.S. manufacturing footprint.\n\nPrime Minister Mark Carney addressed the nation, warning Canadians that the country's pivot away from the United States will come at a cost, but arguing the alternative would be worse, according to the Globe and Mail. Polling cited by The Peak suggests most Canadians still back the tougher stance, with 76 percent saying Canada did the right thing by walking away from talks last month.\n\nAt the same time, Canada is looking to Europe. Bloomberg reports that Canada and the European Union are preparing to unveil a sweeping new partnership as soon as next week, covering trade and security, with both sides trying to get as close as legally possible without Canada joining the bloc outright. The EU's ambassador to Canada told the Toronto Star the relationship may need an entirely new name, since no existing model fits what they're building.\n\nTurning to the Middle East, oil prices pushed past 100 dollars a barrel for the first time since July, according to Bloomberg, as the United States and Iran continued trading attacks around the Strait of Hormuz. Saudi Arabia said operations at several energy facilities were halted after strikes, and Yemen's Houthi rebels hit four Saudi cities with drones and missiles targeting oil sites, according to Reuters. The U.S. reportedly destroyed five Iranian tankers after Iran tried to strike a Navy warship, and Washington has moved to sanction Iran's airlines as part of a broader pressure campaign.\n\nIn German politics, the far right Alternative for Germany party won nearly 44 percent of the vote in a regional election in Saxony-Anhalt, according to the Guardian, giving it the most seats in that province's parliament. If the party forms government there, it would mark the first time since 1945 that the far right has held power in Germany, breaking through the political firewall mainstream parties had maintained against it.\n\nIn markets, both Canadian and American stocks fell through the week as commodity prices climbed and investors weighed the prospect of central banks having to keep interest rates higher for longer. Bloomberg's Deutsche Bank sourcing suggests strategists believe markets are underestimating how much tightening may still be needed given persistent inflation pressure. The Japanese yen has also been strengthening sharply, nearing its best levels of the year, which Treasury Secretary Scott Bessent addressed directly, saying he has strong insight into Bank of Japan policy and telling traders they can bet against him if they want.\n\nIn corporate news, Swiss drugmaker Novartis saw shares slump 10 percent after a third clinical trial setback in a week, according to the Globe and Mail, dragging down partner Ionis Pharmaceuticals and other biotech names. Saudi-backed golf league LIV Golf filed for bankruptcy, according to Bloomberg, with the Public Investment Fund agreeing to provide continued financing. Qualcomm struck a major chip deal with Amazon that could see Amazon buy up to 60 billion dollars in AI data center chips, according to the Globe and Mail. And Enbridge announced Michele Harradence will succeed Greg Ebel as chief executive.\n\nApple unveiled its long anticipated foldable iPhone this week, priced near 2,000 dollars, as new CEO John Ternus faces pressure to prove the company can keep pace on artificial intelligence after a summer stock surge that added an estimated 570 billion dollars in market value, Bloomberg reports.\n\nIn U.S. politics, Chris Pappas won New Hampshire's Democratic Senate primary, setting up a November race against Republican John Sununu in a state that hasn't elected a GOP senator in 16 years. Meanwhile the Justice Department is investigating admissions practices at elite public high schools including Stuyvesant in New York and Lowell in San Francisco, alleging some schools may be giving minority students an unlawful edge, according to Bloomberg Businessweek.\n\nAnd in sports, Ben Shelton stunned top seed Carlos Alcaraz at the U.S. Open in a five set thriller that didn't finish until 3:33 in the morning, ending Alcaraz's 18 match Grand Slam winning streak.",
+     "talkingPoints": [
+      "Canada's counter tariffs on U.S. goods took effect, prompting Trump to ban Canadian dairy and alcohol imports and threaten Bombardier sales in the U.S.",
+      "Canada and the EU are moving toward a new comprehensive partnership, to be detailed as early as next week.",
+      "Brent crude topped 100 dollars a barrel for the first time since July amid escalating U.S.-Iran and Saudi attacks.",
+      "Germany's AfD won a regional election in Saxony-Anhalt, a historic breakthrough for the far right.",
+      "Apple launched its first foldable iPhone as new CEO John Ternus faces high expectations.",
+      "Novartis shares fell 10 percent after a third clinical trial failure in a week.",
+      "Ben Shelton upset Carlos Alcaraz in a marathon U.S. Open match ending near 3:30 a.m."
+     ],
+     "sources": [
+      {
+       "outlet": "CBC News (via The Peak)",
+       "title": "Trump bans Canadian booze and dairy",
+       "url": "https://www.cbc.ca"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Carney warns of tough times ahead in national address as retaliatory tariffs kick in",
+       "url": "https://www.theglobeandmail.com/canada/video-carney-warns-of-tough-times-ahead-in-national-address-as-retaliatory/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Bombardier shares fall after Trump threatens ban on U.S. sales",
+       "url": "https://www.theglobeandmail.com/business/article-bombardier-shares-fall-after-latest-trump-attack/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Brent crude rises above $100 as Mideast conflict escalates",
+       "url": "https://www.theglobeandmail.com/world/video-brent-crude-rises-above-100-as-mideast-conflict-escalates/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Iran hits ships near Hormuz in retaliation for U.S. attacks on tankers",
+       "url": "https://www.theglobeandmail.com/world/article-iran-us-war-jordan-attack/"
+      },
+      {
+       "outlet": "The Guardian (via The Peak)",
+       "title": "AfD wins Saxony-Anhalt election",
+       "url": "https://www.theguardian.com"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Qualcomm strikes AI chip deal with Amazon",
+       "url": "https://www.theglobeandmail.com/business/article-qualcomm-ai-chip-deal-amazon/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Novartis shares fall after second major trial setback in days",
+       "url": "https://www.theglobeandmail.com/business/article-novartis-del-desiran-trial-failure-drug-pipeline/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Enbridge names Michele Harradence next CEO as Greg Ebel set to retire",
+       "url": "https://www.theglobeandmail.com/business/industry-news/energy-and-resources/article-enbridge-michele-harradence-ceo-greg-ebel-retires/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Apple's Ternus faces AI test with launch of new foldable iPhone, Siri overhaul",
+       "url": "https://www.theglobeandmail.com/business/article-apple-john-tenus-foldable-iphone-with-upgraded-siri/"
+      }
+     ],
+     "words": 837,
+     "minutes": 5.6
+    },
+    {
+     "id": "practice",
+     "label": "Practice: Tax, Regulatory & Industry",
+     "title": "Tariffs, Oil Shock and Manitoba's Tax Backdrop for Advisors",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/practice.mp3",
+     "bytes": 5321088,
+     "script": "The biggest story on every feed this morning is trade, and it will shape client calls all week. Canada's counter-tariffs against the United States took effect at one minute past midnight, hitting roughly 27.6 billion dollars of American imports with duties running from 15 to 50 percent, per Investment Executive. Wealth Professional puts the retaliation at more than 700 US product lines, dollar for dollar, with no talks scheduled. The direction is what matters here: this is retaliation, not a pause.\n\nLayer an oil shock on top of that. Attacks on energy facilities around the Persian Gulf pushed Brent crude toward 100 US dollars a barrel, the Globe and Mail's Before the Bell reports, with Brent near 98.72 and West Texas Intermediate near 94.04, both up sharply. Goldman Sachs is now floating a 120 dollar scenario if the Strait of Hormuz disruption drags on, according to Wealth Professional. For your clients, that is an inflation input landing right when the rate path looked settled, so keep the Bank of Canada's next decision on your watch list. Investment Executive's own opinion page calls the bond sell off \"a repricing of the cost of capital,\" and that is not a market that shrugs off an oil spike.\n\nPrime Minister Carney is already framing the cost publicly, warning of tough times as the retaliatory tariffs kick in and that the pivot away from the US will come at a cost before it pays off, per Investment Executive. For business owner clients with US exposure, that is a conversation to start now, not after a client calls you worried.\n\nOn regulation, three items to flag. Advisor.ca's lead piece today asks what the Canadian Investment Regulatory Organization's incoming chief executive needs to deliver: real evidence that self-regulation is working, with changes where it is not. Separately, a rep has been fined and banned by a CIRO hearing panel after admitting to unauthorized transfers, a reminder to keep your own file hygiene tight. And the one worth remembering if a client ever threatens to sue a regulator: the Ontario Superior Court has thrown out a 47.5 million dollar lawsuit against the Mutual Fund Dealers Association and the Ontario Securities Commission, brought by a rep named Valery Herner. The court found no real evidence behind the claims and ruled that a self-regulatory organization does not owe individual reps a duty of care, because that would conflict with its duty to the public. Also on the regulatory side, the Canadian Securities Administrators published a report flagging KYC hurdles and gaps between securities data rules and the federal open banking framework, per Wealth Professional, worth watching if your dealer is touching client data systems this year.\n\nNow to home turf. Manitoba's 2026 budget, tabled by Finance Minister Adrien Sala, made no changes to the corporate income tax rates or the CA$500,000 small-business limit, and no changes to personal income tax rates or tax bracket thresholds. That is the number that matters for your incorporated professional and physician clients: the small business math around active versus passive income holds steady this year. The budget did remove retail sales tax from additional food and beverages sold by grocery stores and prenatal vitamins, effective July 1, 2026, and it raises the renters and homeowners credits starting in 2027. But indexation of Manitoba's tax bracket thresholds to inflation continues to be paused for the 2026 tax year, which quietly pushes more client income into higher brackets over time even without a headline rate change. Worth mentioning at your next incorporated-client review.\n\nOn registered accounts, the TFSA dollar limit for 2026 is $7,000, the third year running at that level. The RRSP contribution limit for 2026, subject to any adjustments, is $33,810. The First Home Savings Account limits are unchanged again this year, so if you have a client in a life transition, buying a first home, separating, or relocating, the same annual and lifetime caps still apply and are worth revisiting. On the RESP side, MoneySense has a piece out today making the case that even a late RESP start still captures meaningful grant and growth benefit, a good one to forward to any client who just became a parent or grandparent and assumes they have missed the window.\n\nOn product and industry moves: IG Wealth Management has handed its core portfolio mandates to Goldman Sachs Asset Management, which now runs five IG funds and adds its own flagship strategies, Wealth Professional reports. The Canadian ETF market is closing in on 924 billion dollars in assets, with bond funds driving 3.9 billion in inflows in a single week, and autocallable ETFs are being called the next income frontier. Questrade rolled out direct links for an agentic AI trading tool, part of a broader automation push across the discount channel, so expect client questions about it.\n\nOn people moves, Investment Executive's industry column flags appointments at RBC, Nicola Wealth and Hub International, plus former ING chief executive Ralph Hamer joining Scotiabank's board, worth noting given Scotia Wealth Management sits inside that group and is on your watch list.\n\nOne more for your insurance conversations. Advisor.ca reports that life insurance licensing requirements vary widely across the country, with seven jurisdictions carrying no continuing education requirement at all, while errors and omissions coverage, sponsorship and fees differ province to province. If you have clients with corporate-owned policies structured through an out of province advisor, that patchwork is worth a second look, especially for incorporated professionals using insurance as part of their passive income and estate strategy.",
+     "talkingPoints": [
+      "Manitoba's budget held small business tax rates steady, so your incorporated and physician clients see no surprise change to the passive income math this year.",
+      "The Bank of Canada's next rate call is now tangled up with an oil shock, watch that decision closely before locking in fixed income moves.",
+      "A court just confirmed self-regulators don't owe individual reps a duty of care, useful context if a client asks about regulatory risk.",
+      "TFSA room is 7,000 dollars again for 2026, RRSP room is 33,810 dollars, good hooks for year-end planning calls starting now.",
+      "IG Wealth just outsourced its core funds to Goldman Sachs, a sign of where fee and manufacturing pressure in this industry is heading."
+     ],
+     "sources": [
+      {
+       "outlet": "Wealth Professional",
+       "title": "Counter-tariffs take effect on more than 700 US products",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/counter-tariffs-take-effect-on-more-than-700-us-products/393471"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "Goldman's $120 oil scenario puts advisor portfolios on alert",
+       "url": "https://www.wealthprofessional.ca/investments/alternative-investments/goldmans-120-oil-scenario-puts-advisor-portfolios-on-alert/393475"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "CSA data portability report flags KYC hurdles and open banking gaps",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/csa-data-portability-report-flags-kyc-hurdles-and-open-banking-gaps/393479"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "IG Wealth Management hands its core portfolios to a global asset manager",
+       "url": "https://www.wealthprofessional.ca/investments/mutual-funds/ig-wealth-management-hands-its-core-portfolios-to-a-global-asset-manager/393470"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "Canadian ETF market nears $924B as bond funds lead weekly surge",
+       "url": "https://www.wealthprofessional.ca/investments/etfs/canadian-etf-market-nears-924b-as-bond-funds-lead-weekly-surge/393480"
+      },
+      {
+       "outlet": "MoneySense",
+       "title": "RESP growth opportunities are well worth it, even if you start late",
+       "url": "https://www.moneysense.ca/save/investing/resp/resp-late-start/"
+      },
+      {
+       "outlet": "EY",
+       "title": "Manitoba Budget 2026",
+       "url": "https://www.ey.com/en_gl/technical/tax-alerts/canada-manitoba-budget-2026"
+      },
+      {
+       "outlet": "KPMG",
+       "title": "Canada: Tax measures in 2026 budget (Manitoba)",
+       "url": "https://kpmg.com/us/en/taxnewsflash/news/2026/03/canada-tax-measures-in-2026-budget-manitoba.html"
+      },
+      {
+       "outlet": "Raymond James",
+       "title": "2026 Manitoba Budget Highlights",
+       "url": "https://www.raymondjames.ca/model-3-rjl-blue/resources/2026/03/26/2026-mn-budget-highlights"
+      },
+      {
+       "outlet": "Canada Revenue Agency",
+       "title": "Calculate your TFSA contribution room",
+       "url": "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/tax-free-savings-account/contributing/calculate-room.html"
+      },
+      {
+       "outlet": "TD",
+       "title": "Important Tax Information for 2026",
+       "url": "https://advisors.td.com/douglas.marriott/TaxPlanning.htm"
+      }
+     ],
+     "words": 920,
+     "minutes": 6.1
+    },
+    {
+     "id": "manitoba",
+     "label": "Manitoba & Winnipeg",
+     "title": "Storms, Tariffs, Hydro Hearings, and City Finances",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/manitoba.mp3",
+     "bytes": 3931392,
+     "script": "Manitoba Hydro crews are still working to restore power to the last customers in River Heights, three days after a storm tore through that neighbourhood Sunday night. Winnipeg Free Press reporting describes downed power lines, toppled Hydro poles, and trees crashed onto homes and vehicles, worst around Borebank and Lindsay streets. Nobody was hurt, but CBC reports some residents were still without power going into Wednesday, and the city set up a reception centre at a River Heights community centre. If you have clients with storm damage or business interruption claims in that pocket of the city, this is the week those calls come in.\n\nThe bigger economic story is the trade war. Canada's retaliatory tariffs on American goods took effect just after midnight Tuesday, hitting close to twenty billion dollars in United States goods, from sunscreen to dairy, according to the Canadian Press. That's Ottawa's answer to the fifty per cent tariffs Washington put on nearly twenty eight billion dollars of Canadian goods back on August 22nd. Trump escalated again Tuesday, signing orders to ban imports of Canadian alcohol, motorcycles, and other products starting September 29th. Prime Minister Mark Carney told Canadians to expect tough times ahead as the country pivots away from the U.S. Economists quoted by the Canadian Press say grocery bills are largely spared, though health and beauty products could see price bumps. Locally, the Free Press reports Manitoba is stepping up interprovincial trade missions and export loan supports for businesses, though the province's own brewers are questioning how effective that plan will be.\n\nOn interest rates: the Bank of Canada held its overnight rate at two and a quarter per cent on September 2nd, the seventh straight hold. The bank said upside risks to inflation have increased while new tariffs make growth prospects more uncertain. That's the backdrop for any client asking why borrowing costs aren't moving despite all the tariff noise. This is on the watch list, and the next decision isn't until late October.\n\nManitoba Hydro is also in the news for its own reasons. Six weeks of public hearings into Manitoba Hydro's generating plans wrapped up with more criticism of the Crown corporation's proposed natural gas expansion in Brandon, as the Public Utilities Board scrutinized a plan to add 1,760 megawatts of capacity, more than a quarter of the utility's existing generation. That includes a three billion dollar plan to add three gas turbines to the two already running in Brandon. The board now writes a report for cabinet, so no rate decision yet, but expect this to shape Hydro's capital spending, and its borrowing, for years. Manitoba Hydro is on the watch list this morning for that reason alone.\n\nCloser to city hall, Winnipeg is tracking toward a twenty nine million dollar operating shortfall this year, based on June numbers, per CBC. A city councillor is downplaying it publicly, but it's worth having on your radar if you sit on any board watching municipal borrowing or property tax pressure.\n\nIn health care, the Manitoba Labour Board has ordered striking Dynacare lab workers back on the job. Roughly 350 technologists and technicians had walked out over wages before the board's ruling. The union isn't happy, but some non-urgent diagnostic testing delays are already built in for the next couple of weeks. Meanwhile the Dauphin Regional Health Centre emergency department reopened Monday, restoring 24 hour emergency service after a two month closure from flood damage, though full hospital services aren't back yet.\n\nOn education, two data points worth knowing. An international assessment shows Manitoba students with a small uptick in science but weaker reading and math scores, mirroring a national decline over two decades. At the same time, the Free Press reports independent school enrolment is hitting record levels, now about 12 per cent of students outside the public system, up from 7 per cent in 2000, as more families pay for faith based or alternative schooling.\n\nAnd on the Jets: goaltender Connor Hellebuyck was a notable no show at the team's pre training camp skate this week, per the Free Press. Nothing official yet on why, but it's the kind of thing that'll come up at the dinner table before it comes up in your meetings.",
+     "talkingPoints": [
+      "The trade war is now two way, and it's hitting specific goods, not groceries broadly, at least for now.",
+      "Bank of Canada held at two and a quarter per cent for a seventh straight time, citing tariff and inflation uncertainty.",
+      "Manitoba Hydro's three billion dollar gas plant expansion in Brandon just finished its public hearing phase, decision now goes to cabinet.",
+      "City of Winnipeg is running a twenty nine million dollar shortfall this year, officials say it's manageable.",
+      "River Heights storm damage and the Dynacare strike back to work order are both live issues for insurance and health care conversations this week."
+     ],
+     "sources": [
+      {
+       "outlet": "Winnipeg Free Press",
+       "title": "Free Press Head Start for Sept. 8, 2026",
+       "url": "https://www.winnipegfreepress.com"
+      },
+      {
+       "outlet": "Winnipeg Free Press",
+       "title": "The Wrap: Dynacare strike, fatal crash, tariffs, flooding, homeless outreach, Jets, Rainbow Stage",
+       "url": "https://www.winnipegfreepress.com"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Manitoba Hydro hearings conclude with more criticism of plan to burn more natural gas",
+       "url": "https://www.cbc.ca/news/canada/manitoba/hydro-regulator-hearings-end-9.7336345?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "City of Winnipeg on track for $29M deficit for 2026, June figures show",
+       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-deficit-projection-9.7335991?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Manitoba Labour Board orders striking Dynacare lab employees back to work",
+       "url": "https://www.cbc.ca/news/canada/manitoba/dynacare-labour-board-essential-workers-hearing-9.7335840?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Manitoba students see tiny uptick in science, worsening scores in reading and math in international report",
+       "url": "https://www.cbc.ca/news/canada/manitoba/international-student-assessment-scores-9.7336126?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Power likely out until Wednesday in Winnipeg area hit hardest by Sunday storm",
+       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-storm-hydro-out-firefighters-check-9.7336002?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Dauphin emergency department reopens, but some services still unavailable as restoration work continues",
+       "url": "https://www.cbc.ca/news/canada/manitoba/manitoba-dauphin-hospital-opening-9.7335157?cmp=rss"
+      },
+      {
+       "outlet": "Bank of Canada",
+       "title": "Bank of Canada maintains the policy rate at 2¼%",
+       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
+      },
+      {
+       "outlet": "CNBC",
+       "title": "Bank of Canada rate decision amid Trump tariffs",
+       "url": "https://www.cnbc.com/2026/09/02/bank-canada-rate-decision-trump-tariffs.html"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Trump banning import of Canadian booze, motorcycles, other goods into U.S.",
+       "url": "https://www.cbc.ca/news/politics/trump-canadian-aclohol-banned-9.7336507?cmp=rss"
+      }
+     ],
+     "words": 704,
+     "minutes": 4.7
+    },
+    {
+     "id": "politics",
+     "label": "Canadian Politics",
+     "title": "Tariffs Escalate, Rates Hold, Manitoba Returns",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/politics.mp3",
+     "bytes": 3671424,
+     "script": "You need to know where the trade war stands, because it moved fast in the last 24 hours. Canada's counter-tariffs on roughly 28 billion dollars of American goods took effect Tuesday. Within hours, President Trump signed three new proclamations hitting back, expanding Section 338 tariffs to cover Canadian alcohol, non-alcoholic beer, motorcycles, dairy products, and molasses, effective September 29. A U.S. administration official briefing reporters put the value of those new bans in the single digit billions, according to Politico's Canada Playbook. Federal minister Dominic LeBlanc, who holds the Canada-U.S. trade file, said Ottawa is assessing the move and that protecting workers, farmers, and businesses comes first. He says he remains in contact with U.S. Trade Representative Jamieson Greer. Prime Minister Mark Carney used a video message this week to tell Canadians the pivot away from U.S. trade reliance will be costly, but that the alternative is worse.\n\nUnderneath this is the dairy fight. Trump claims Canada shuts out American farmers. But per Politico, U.S. Department of Agriculture data shows American dairy exports to Canada rose 78 percent since the USMCA, the trade deal replacing NAFTA, took effect in 2020, and Agriculture Canada figures put U.S. dairy sales into Canada at 1.31 billion dollars last year against 390 million in Canadian dairy exports the other way. Canada's chief trade negotiator, Janice Charette, told Politico the real sticking point before talks collapsed was American producers not filling quotas they already have, not the quota system itself.\n\nThis is on your watch list. The Bank of Canada held its overnight rate at 2.25 percent on September 2. For the seventh time in a row, the central bank told Canadians it would be holding its interest rate steady at 2.25%. The bank pointed to the Middle East conflict keeping energy prices high, plus the new U.S. tariffs and Canadian countermeasures, as sources of ongoing uncertainty. The Globe and Mail's markets desk reports Brent crude pushed close to 100 US dollars a barrel this week after attacks on Gulf energy facilities, another input the bank is watching on the inflation side.\n\nCloser to home: the Manitoba legislature has been on summer break since June 1 and comes back September 29. The House adjourned on June 1, 2026, and the 3rd Session of the 43rd Legislature will reconvene Tuesday, September 29th, 2026 at 10:00 a.m. That's the same day Trump's new bans on Canadian booze and motorcycles kick in. Premier Wab Kinew's NDP government heads into that session having just raised the monthly rent control exemption threshold to 2,000 dollars starting in the new year, and expanded transitional housing funding under its Your Way Home strategy. On the other side of the aisle, the Progressive Conservative opposition is led by Obby Khan, who's held that role since last year.\n\nOn the federal machinery side, worth knowing if clients ask about the investment climate: Politico's Canada Playbook reports Dominic Barton was actually appointed chair of Invest in Canada back on July 16, weeks before the government's public announcement of a leadership shakeup on August 31. The outgoing chief executive, Laurel Broten, left more than a year before her five year term was up, just ahead of a mid-September investment summit in Toronto the agency is helping organize. It's a reminder that cabinet paperwork often lags the headlines by weeks.\n\nPolitically, expect the parties to keep framing this differently. The government casts the tariff response as defending sovereignty and workers. A Globe and Mail opinion piece this week argued Conservatives should pivot toward tax reform to reclaim the economic argument rather than just criticizing the trade file. Either way, the fiscal and trade uncertainty is the backdrop for every planning conversation you're having right now.",
+     "talkingPoints": [
+      "The Bank of Canada held rates at 2.25 percent for a seventh straight time, citing tariff and oil price uncertainty.",
+      "Trump's new bans on Canadian alcohol, motorcycles, and dairy take effect September 29, the same day Manitoba's legislature reconvenes.",
+      "The dairy dispute driving U.S. tariff threats involves unfilled American quotas, not a closed Canadian market, per Canada's chief negotiator.",
+      "Manitoba raised its rent control exemption threshold to 2,000 dollars a month starting January, relevant for rental property clients.",
+      "Watch the mid-September Canada Investment Summit in Toronto, tied to recent leadership turnover at Invest in Canada."
+     ],
+     "sources": [
+      {
+       "outlet": "POLITICO Canada Playbook",
+       "title": "Trumpquake",
+       "url": "https://www.politico.com"
+      },
+      {
+       "outlet": "POLITICO Canada Playbook",
+       "title": "Barton's paper trail",
+       "url": "https://www.politico.com"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Trump banning import of Canadian booze, motorcycles, other goods into U.S.",
+       "url": "https://www.cbc.ca/news/politics/trump-canadian-aclohol-banned-9.7336507?cmp=rss"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Carney warns of tough times ahead in video message as retaliatory tariffs kick in",
+       "url": "https://www.cbc.ca/news/politics/carney-national-address-tariffs-9.7335475?cmp=rss"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Before the Bell: Global markets fall as oil spikes amid energy facility attacks",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "Bank of Canada",
+       "title": "Bank of Canada maintains the policy rate at 2¼%",
+       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
+      },
+      {
+       "outlet": "TD Stories",
+       "title": "The Bank of Canada holds its interest rate on September 2",
+       "url": "https://stories.td.com/ca/en/article/bank-of-canada-interest-rate-september-2026"
+      },
+      {
+       "outlet": "Legislative Assembly of Manitoba",
+       "title": "Session information",
+       "url": "https://www.gov.mb.ca/legislature/index.html"
+      },
+      {
+       "outlet": "Manitoba News Releases",
+       "title": "Rent control exemption threshold increase",
+       "url": "https://news.gov.mb.ca/news/index.html"
+      },
+      {
+       "outlet": "Wikipedia",
+       "title": "Kinew ministry",
+       "url": "https://en.wikipedia.org/wiki/Kinew_ministry"
+      }
+     ],
+     "words": 618,
+     "minutes": 4.1
+    },
+    {
+     "id": "climate",
+     "label": "Climate Policy & Nonprofit Governance",
+     "title": "Tariffs, Hydro Rates, and New CRA Charity Rules",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/climate.mp3",
+     "bytes": 3353088,
+     "script": "The biggest story for you today is the trade war, because it's starting to reshape Canadian energy and climate policy at the same time. Canada's retaliatory tariffs on American goods took effect just after midnight Tuesday, hitting everything from sunscreen to dairy, per Canada's National Observer. Trump responded with new executive orders banning imports of Canadian booze, motorcycles, and some dairy products, escalating further. Prime Minister Mark Carney addressed the country Monday night, warning of tough times ahead as retaliation begins, and laying out plans to diversify trade and build more capacity domestically, per the Observer. The Observer's own panel discussion this week framed the real question for you: does this economic shock sideline decarbonization, or does it become the opening to rebuild Canada's energy base at home. Worth watching for any client with cross border manufacturing or energy exposure.\n\nCloser to home, Manitoba Hydro, which is on your watch list. Electricity rates rose 4 percent effective January 1st this year, the first increase after a one year provincial freeze, according to the utility's own filings. A residential customer with electric heat is paying roughly 8 dollars more a month. The Crown corporation says it needs to spend 31 billion dollars over the next two decades on aging infrastructure and new generating capacity, partly because two straight years of drought hit hydro revenues, and partly because population growth, electrification, and new data centres are pushing demand up faster than supply. Hydro's own numbers put its debt at 24.6 billion dollars. For clients holding Manitoba Hydro bonds, or watching the province's fiscal picture, that debt load is the thing to track.\n\nOn the charity side, three changes landed this year that matter for clients running foundations or private charitable structures. First, the Canada Revenue Agency has added new fields to the T3010 information return specifically to catch foundations that consistently under-disburse against the 5 percent disbursement quota on invested assets, according to Charity Law Group. If a client's foundation hasn't run that calculation properly lately, this is the year to do it. Second, the CRA ended fax filing entirely as of April 1st. Everything now goes through the My Business Account portal, and the agency wants all T3010 returns filed online starting in 2027. Third, in May the CRA issued new guidance on how charities can draft their charitable purposes, but it also confirmed the Charities Directorate no longer offers pre-approval or advance review of proposed changes, according to Philanthropic Foundations Canada. That shifts more of the risk onto a charity's own legal advice before it acts, not after.\n\nOn philanthropy trends, The Philanthropist Journal has two pieces worth knowing about today. One asks whether charitable gaming, the 50/50 draws that fund hospital foundations and other causes, is really a win for donors and charities or just a new dependency, a fair question as more organizations lean on it for revenue. The other is from Anita Khanna at United Way slash Centraide Canada, the national federation that includes United Way Winnipeg, which is on your watch list. She argues the nonprofit care workforce is essential infrastructure and needs to be funded and treated that way, given labour shortages across the sector.\n\nAnd in Alberta, Grassy Mountain, the coal mine Ottawa rejected once already, is back with a scaled-down proposal from Gina Rinehart's Northback Holdings, a reminder that resource approvals keep testing the line between provincial ambition and federal environmental review, and one more data point for clients weighing exposure to Canadian coal and mining names.",
+     "talkingPoints": [
+      "Retaliatory tariffs are live and cutting both ways, watch cross border clients closely.",
+      "Manitoba Hydro's four percent rate hike started January 1st, debt is now 24.6 billion.",
+      "CRA's tightening disbursement quota enforcement, get foundation clients' numbers checked this year.",
+      "Charity fax filing is dead, everything moves online, T3010 goes fully digital by 2027.",
+      "United Way and Centraide are pushing labour force funding as an infrastructure issue, not charity."
+     ],
+     "sources": [
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Carney warns of tough times ahead in national address as retaliatory tariffs begin",
+       "url": "https://www.nationalobserver.com/2026/09/08/news/carney-warns-tough-times-ahead-national-address-retaliatory-tariffs-begin"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Canada's retaliatory tariffs on American goods are in effect",
+       "url": "https://www.nationalobserver.com/2026/09/08/news/canadas-retaliatory-tariffs-american-goods-are-effect"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Trump ramps up trade dispute against Canada, banning imports of booze, other products",
+       "url": "https://www.nationalobserver.com/2026/09/08/news/trump-ramps-trade-dispute-against-canada-banning-imports-booze-other-products"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "The trade war could sideline climate or become an opportunity",
+       "url": "https://www.nationalobserver.com/2026/09/08/news/trade-war-could-sideline-climate-or-become-opportunity"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Rejected Grassy Mountain coal mine is back with a scaled-down proposal",
+       "url": "https://www.nationalobserver.com/2026/09/09/news/alberta-grassy-mountain-coal-mine-proposal"
+      },
+      {
+       "outlet": "Manitoba Hydro",
+       "title": "Rates & charges",
+       "url": "https://www.hydro.mb.ca/account/rates/"
+      },
+      {
+       "outlet": "Manitoba Hydro",
+       "title": "Electric regulatory",
+       "url": "https://www.hydro.mb.ca/corporate/regulatory-affairs/electric/"
+      },
+      {
+       "outlet": "Charity Law Group",
+       "title": "Canada Charity Law Changes in 2026: What Registered Charities Need to Know",
+       "url": "https://www.charitylawgroup.ca/charity-law-questions/canada-charity-law-changes"
+      },
+      {
+       "outlet": "Canada Revenue Agency",
+       "title": "Making a change to your organization",
+       "url": "https://www.canada.ca/en/revenue-agency/services/charities-giving/charities/operating-a-registered-charity/making-changes.html"
+      },
+      {
+       "outlet": "Philanthropic Foundations Canada",
+       "title": "New CRA guidance offers charities greater clarity on charitable purposes and grantmaking flexibility",
+       "url": "https://pfc.ca/blog/new-cra-guidance-offers-charities-greater-clarity-on-charitable-purposes-and-grantmaking-flexibility/"
+      },
+      {
+       "outlet": "The Philanthropist Journal",
+       "title": "Is the future of Canadian philanthropy a 50/50 draw?",
+       "url": "https://thephilanthropist.ca/2026/09/is-the-future-of-canadian-philanthropy-a-50-50-draw/"
+      },
+      {
+       "outlet": "The Philanthropist Journal",
+       "title": "Evidence shows that labour force challenges require action",
+       "url": "https://thephilanthropist.ca/2026/09/evidence-shows-that-labour-force-challenges-require-action/"
+      }
+     ],
+     "words": 584,
+     "minutes": 3.9
+    },
+    {
+     "id": "tech",
+     "label": "AI & Technology",
+     "title": "Math Feud, Token Theft, and Meta's New Agent",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/tech.mp3",
+     "bytes": 2967168,
+     "script": "The biggest technology story overnight is a fight over who actually solved one of the hardest problems in mathematics, and it matters less for the fluid dynamics than for what it shows about how frontier labs behave under pressure.\n\nOpenAI says an internal model, described as significantly more capable than its current Astra system, produced a full proof of the Navier-Stokes existence and smoothness problem, one of seven Millennium Prize problems carrying a one million dollar bounty, and that the underlying question had gone unresolved for roughly ninety years. But NYU mathematician Tristan Buckmaster says he and Anthropic researcher Levent Alpöge were closing in on a related piece of the puzzle, and that OpenAI moved after rumors of their progress reached the company, according to Fortune. Fortune also reports Buckmaster's more serious allegation: that an OpenAI researcher offered him a deal, either publish jointly while OpenAI claimed the full solution, or publish alone but only if he stripped Alpöge's name from the paper because of his Anthropic affiliation. OpenAI denies wrongdoing. In its own release, the company says it began the effort on September first after hearing a rumor, and that it never saw the pair's work through any means before public release, with no user data accessed to solve the problem. Axios reports the compute bill ran into the millions of dollars, with roughly ten thousand agents working the problem at once. For you, the takeaway isn't the math. It's that labs are now racing each other on signals picked up from user conversations, which should make any client typing proprietary or personal detail into these tools pause.\n\nCloser to home for security, Anthropic has confirmed hackers are using infostealer malware, the kind that quietly harvests saved passwords and login sessions, to hijack Claude accounts and drain paid usage without ever touching a password, TechCrunch reports. One affected user only noticed because his account kept consuming tokens on a day he wasn't working. Anthropic signed compromised users out, invalidated sessions, and issued refunds, but told at least one user it couldn't determine how the access happened in the first place. If your clients or staff use any AI subscription, this is the same advice as always: unique passwords, a password manager, and skepticism about anything you download.\n\nMeta launched a personal AI agent called Muse that wants access to email, calendars, payments, and health services, TechCrunch reports, making it Meta's biggest consumer AI bet yet and a real test of whether people trust the company with that much access.\n\nOn the money side, Cognition, the AI coding company, hit a forty eight billion dollar valuation, per TechCrunch, a sign investors think AI coding tools won't be winner take all. French lab Mistral raised three billion euros at a twenty one billion euro valuation led partly by Samsung, underlining how \"sovereign AI\" outside the big American labs is becoming serious business. And Google Cloud struck a deployment deal with Accenture as it tries to catch up in enterprise AI rollouts, a reminder that the productivity gains everyone talks about still depend on unglamorous integration work.\n\nOn the Canadian side, BetaKit has a new rundown of how every province and territory is regulating data centres, worth a look if any client has exposure to that build-out.",
+     "talkingPoints": [
+      "OpenAI's math breakthrough is real, but the credit dispute with Anthropic shows labs are racing on leaked signals, be careful what you type into these tools.",
+      "Anthropic confirmed hackers are draining Claude subscribers' paid usage through stolen login sessions, a reminder to push password managers on staff and family.",
+      "Meta's new Muse agent wants access to email, calendars, and payments, a genuine test of consumer trust in AI agents.",
+      "Cognition's forty eight billion dollar valuation says the market still sees room for multiple AI coding winners, not just one.",
+      "Mistral's three billion euro raise shows sovereign AI, built outside the big US labs, is now serious investable business."
+     ],
+     "sources": [
+      {
+       "outlet": "OpenAI",
+       "title": "On the Navier-Stokes Millennium Prize Problem",
+       "url": "https://openai.com/index/navier-stokes-solution/"
+      },
+      {
+       "outlet": "Fortune",
+       "title": "OpenAI says it cracked Navier-Stokes, one of math's grand challenges",
+       "url": "https://fortune.com/2026/09/08/openai-says-it-cracked-navier-stokes-math-grand-challenge-buckmaster-accusation-cheating-intimidation-tao-lament/"
+      },
+      {
+       "outlet": "Axios",
+       "title": "OpenAI's historic math solution overshadowed by credit controversy",
+       "url": "https://www.axios.com/2026/09/08/openai-math-solution-navier-stokes-credit"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Hackers are stealing Claude tokens from subscribers",
+       "url": "https://techcrunch.com/2026/09/08/hackers-are-stealing-claude-tokens-from-subscribers/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Meta debuts its Muse AI agent. Will consumers trust it?",
+       "url": "https://techcrunch.com/2026/09/08/meta-debuts-its-muse-ai-agent-will-consumers-trust-it/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Cognition hits $48B valuation, signaling investors believe AI coding is far from a winner-take-all market",
+       "url": "https://techcrunch.com/2026/09/08/cognition-hits-48b-valuation-signaling-investors-believe-ai-coding-is-far-from-a-winner-take-all-market/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Mistral raises €3B as sovereign AI becomes big business",
+       "url": "https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Google Cloud races to catch up in the AI deployment wars with Accenture deal",
+       "url": "https://techcrunch.com/2026/09/08/google-cloud-races-to-catch-up-in-the-ai-deployment-wars-with-accenture-deal/"
+      },
+      {
+       "outlet": "BetaKit",
+       "title": "Here's how every Canadian province and territory is governing data centres",
+       "url": "https://betakit.com/heres-how-every-canadian-province-and-territory-is-governing-data-centres/"
+      }
+     ],
+     "words": 545,
+     "minutes": 3.6
+    },
+    {
+     "id": "health",
+     "label": "Health & Fitness",
+     "title": "Climbing for Mental Health, Rinks Under Scrutiny",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/health.mp3",
+     "bytes": 2608896,
+     "script": "The strongest fitness story out there today is really a mental health story, and it is worth folding into any talk about training. Outside Online covers a new German trial comparing structured bouldering therapy against a newer talk therapy called WISE-T, which stands for What's Important: Schedule and Engage Therapy. That therapy focuses on identifying what actually matters to a person and following through on it, instead of just reacting to whatever feels urgent.\n\nEach bouldering session followed the same structure: climbing moderate heights up to ten feet without ropes, thick pads breaking any falls, and each session built around a mindfulness exercise beforehand, the climbing itself, then a relaxation component at the end. The headline result: both the talk therapy and the bouldering therapy cut anxiety scores significantly compared with standard care, which barely moved.\n\nThis is not a one-off finding. It builds on earlier randomized trials from the same German research group. In one of those, a hundred and thirty-three outpatients with depression were split between bouldering therapy and a home exercise program, and the bouldering group showed a significantly greater reduction in depressive symptoms, moving from moderate to mild severity, with a Cohen's d of zero point seven seven. That is a meaningfully large effect size for a mental health intervention. The caveat, and it matters: this newest study took place in one city, at one gym, with participants who were employed and already receiving some treatment for anxiety or depression. Small, single-site, not yet something to build a program around, but promising and consistent with prior randomized work.\n\nPractical takeaway if you already lift: climbing adds real-time problem solving and motor learning that repetitive gym work does not, so think of it as a mental health complement to strength training, not a replacement.\n\nOn the Canadian health system side, CBC reports that a trio of Calgary parents co-authored a new article in the Canadian Medical Association Journal raising awareness about carbon monoxide exposure in ice rinks after their children were sickened during a tournament nearly two years ago. More than twenty young players fell ill in that 2024 incident, and parents along with health experts are now pushing for mandatory carbon monoxide detectors in all rinks. CTV notes federal guidance recommends the devices but does not require them. Health Canada's own numbers put this in context: over two thousand indoor ice arenas operate across the country, and the resurfacers and edgers used on the ice are typically powered by internal combustion engines that emit carbon monoxide and nitrogen dioxide. Worth knowing if you or clients spend time in rec facilities, arenas are common ground for training, coaching kids, or just staying active in winter.",
+     "talkingPoints": [
+      "Bouldering therapy trials keep showing large, replicated reductions in anxiety and depression, though sample sizes stay modest.",
+      "Climbing pairs well with strength training as a mental health complement, not a substitute.",
+      "Calgary parents just published in the Canadian Medical Association Journal pushing for mandatory carbon monoxide detectors in rinks.",
+      "Ottawa recommends but does not require CO detectors in Canada's over two thousand indoor arenas.",
+      "Worth asking clients who coach or train at local rinks whether their facility has one installed."
+     ],
+     "sources": [
+      {
+       "outlet": "Outside Online",
+       "title": "Recent Research Says That Climbing Can Reduce Depression and Anxiety",
+       "url": "https://www.outsideonline.com/health/training-performance/recent-research-says-that-climbing-can-reduce-depression-and-anxiety/"
+      },
+      {
+       "outlet": "ScienceDirect",
+       "title": "Bouldering psychotherapy is more effective in the treatment of depression than physical exercise alone",
+       "url": "https://www.sciencedirect.com/science/article/pii/S2405844017317784"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Their kids were exposed to carbon monoxide at a hockey rink. They're trying to prevent it from happening again",
+       "url": "https://www.cbc.ca/news/health/hockey-rinks-carbon-monoxide-9.7335754?cmp=rss"
+      },
+      {
+       "outlet": "CTV News",
+       "title": "Carbon monoxide: CMAJ report details exposure at hockey arena",
+       "url": "https://www.ctvnews.ca/canada/article/carbon-monoxide-exposure-at-hockey-arena-provides-terrifying-wake-up-call-for-parents-report/"
+      },
+      {
+       "outlet": "Health Canada",
+       "title": "Best Practices for Improving Air Quality in Ice Arenas (Factsheet)",
+       "url": "https://www.canada.ca/en/health-canada/services/publications/healthy-living/factsheet-improving-air-quality-ice-arenas.html"
+      }
+     ],
+     "words": 448,
+     "minutes": 3.0
+    },
+    {
+     "id": "parenting",
+     "label": "Parenting",
+     "title": "Child Benefit Rises, Screen Guidance Still Holds",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/parenting.mp3",
+     "bytes": 1522560,
+     "script": "The Globe and Mail has a piece today on why kids get distracted in class, and the message is calming: the fix is easier than parents assume, small changes to routines, not a phone ban. That tracks with Canadian Paediatric Society guidance for younger kids: screen time for children younger than 2 years is not recommended, while screen time for children aged 2 to 5 should be limited to one hour or less per day. Build the habit early, because attention regulation is easier to shape in a toddler than to retrofit in a ten-year-old.\n\nOn the money side, the bigger story for clients with young families: the Canada Child Benefit rose again this July. Starting this month, the CCB will provide families with up to $8,157 per child under the age of six and up to $6,883 per child aged six to 17. This represents an increase of up to $160 per child under age six and up to $135 per child aged six to 17 compared with last year. If households made less than $38,237, they would be entitled to the maximum benefit amount for each child with no reductions, with the amount clawed back above that.\n\nIf a client just had a baby, worth checking two things at review: Employment Insurance parental leave, still up to twelve months standard or eighteen months extended at a lower weekly rate, and the RESP grant, twenty percent on the first twenty five hundred a year. The CCB increase gives some families more room to redirect into that RESP.\n\nNothing from tonight's watch list showed up in the parenting file.",
+     "talkingPoints": [
+      "Canada Child Benefit went up again this July, worth flagging at reviews with young kids.",
+      "Up to $8,157 per child under six, $6,883 for six to seventeen, per year now.",
+      "RESP grant still matches twenty percent on the first $2,500 a year, easy pairing with the CCB bump.",
+      "CPS still says no screens under two, one hour max for ages two to five.",
+      "EI parental leave: twelve months standard or eighteen extended, map it to household cash flow."
+     ],
+     "sources": [
+      {
+       "outlet": "Globe and Mail",
+       "title": "Of course kids are distracted in class. But it's an easier fix than we think",
+       "url": "https://www.theglobeandmail.com/life/social-trends/article-students-phone-use-school-advice-for-teachers/"
+      },
+      {
+       "outlet": "Global News",
+       "title": "The Canada Child Benefit goes out on Monday and gets a small increase",
+       "url": "https://globalnews.ca/news/11969842/canada-child-benefit-increase/"
+      },
+      {
+       "outlet": "Statistics Canada",
+       "title": "Screen time and well-being among children",
+       "url": "https://www150.statcan.gc.ca/n1/pub/11-627-m/11-627-m2026016-eng.htm"
+      },
+      {
+       "outlet": "Canadian Paediatric Society",
+       "title": "Screen time and preschool children: Promoting health and development in a digital world",
+       "url": "https://cps.ca/en/documents/position/screen-time-and-preschool-children"
+      }
+     ],
+     "words": 269,
+     "minutes": 1.8
+    },
+    {
+     "id": "sports",
+     "label": "Sports",
+     "title": "Judge Returns, US Open Drama, NFL Rankings Out",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/sports.mp3",
+     "bytes": 2449920,
+     "script": "Good morning, sports fans. Here's what's happening across the sports world today.\n\nThe New York Yankees got a huge boost as reigning American League MVP Aaron Judge was activated off the injured list. According to The Athletic, Judge took live batting practice at Yankee Stadium before the announcement, and he's set to return for a three game series against the Colorado Rockies starting Tuesday. The Athletic's Windup newsletter notes the Yankees have struggled offensively since Judge went down in June, with their production ranking near the bottom of baseball, even though the pitching staff has kept the team afloat with the best ERA in the game over that stretch.\n\nIn the NFL, The Athletic released its Week 1 power rankings, putting Sean McVay's Los Angeles Rams at the top as a potential superteam, though plenty of questions remain for the teams behind them.\n\nThere's also a wild story out of Pittsburgh, where Steelers receiver DK Metcalf opened up to The Athletic about his belief in a hidden civilization beneath Antarctica. Metcalf, who struggled in his first year after a trade from Seattle, called himself a big conspiracy theorist. Meanwhile in Cincinnati, pressure is mounting on Bengals coach Zac Taylor to deliver a Super Bowl with MVP candidate Joe Burrow under center.\n\nCollege football had a chaotic Monday night in Tallahassee, where No. 19 SMU beat Florida State 27 to 24 in a game delayed 90 minutes by a power outage that knocked out much of both teams' technology. Florida State coach Mike Norvell remains under heavy scrutiny after his team was outgained badly. Separately, the Mid-American Conference has appealed to the NCAA and College Football Playoff committee, arguing Western Michigan should be recognized as the winner over Michigan after a controversial officiating review preceded the Wolverines' last second Hail Mary win. Michigan coach Kyle Whittingham gave only lukewarm support to quarterback Bryce Underwood following that finish.\n\nAt the U.S. Open, drama has been building on the women's side. China's Zheng Qinwen pulled off her second straight comeback from down five games to love in a set, this time beating Iga Swiatek. Coco Gauff also advanced. On the men's side, CBC reports Ben Shelton knocked off defending champion Carlos Alcaraz in an epic five set match that didn't end until nearly 3:30 in the morning. World number one Aryna Sabalenka survived a tough test from Linda Noskova to reach the semifinals for a sixth straight year.\n\nIn hockey, CBC reports Canada's women will host the United States in an exhibition game next month in Windsor, Ontario, ahead of the world championship in Denmark. And former Ottawa Senators captain Brady Tkachuk spoke about the difficulty of requesting a trade before joining the Florida Panthers, who will face his old team next month.",
+     "talkingPoints": [
+      "Aaron Judge is back for the Yankees, who need his bat as they push through September.",
+      "NFL power rankings have the Rams sitting atop the league entering week one.",
+      "The U.S. Open delivered thrilling comebacks and marathon matches on both sides of the draw.",
+      "College football controversy continues with the MAC appealing Michigan's Hail Mary win."
+     ],
+     "sources": [
+      {
+       "outlet": "Globe and Mail Football",
+       "title": "MAC appeals Michigan win, asks NCAA and CFP to recognize Western Michigan as winner",
+       "url": "https://www.theglobeandmail.com/sports/football/article-mac-appeals-michigan-win-asks-ncaa-and-cfp-to-recognize-western/"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Ben Shelton beats defending champ Carlos Alcaraz in U.S. Open match that ends after 3:30 a.m.",
+       "url": "https://www.cbc.ca/sports/tennis/us-open-shelton-alcaraz-marathon-9.7336775?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "World women's No. 1 Sabalenka survives Noskova test to reach U.S. Open semifinals",
+       "url": "https://www.cbc.ca/sports/tennis/us-open-recap-sept8-9.7336170?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Canada to host U.S. ahead of women's hockey worlds",
+       "url": "https://www.cbc.ca/sports/hockey/pwhl/canada-to-host-u-s-ahead-of-women-s-hockey-worlds-9.7336111?cmp=rss"
+      },
+      {
+       "outlet": "Globe and Mail Hockey",
+       "title": "Ex-Sens captain Brady Tkachuk reflects on Ottawa exit, citing difficulty of asking for trade",
+       "url": "https://www.theglobeandmail.com/sports/hockey/article-ex-sens-captain-brady-tkachuk-reflects-on-ottawa-exit-citing/"
+      }
+     ],
+     "words": 460,
+     "minutes": 3.1
+    }
+   ],
+   "expectedSections": [
+    "frontpage",
+    "lessons",
+    "markets",
+    "companies",
+    "practice",
+    "manitoba",
+    "politics",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
+   ],
+   "missingSections": []
+  },
+  {
    "date": "2026-09-08",
    "generatedAt": "2026-09-08T13:36:42+00:00",
    "release": "courier-2026-09-08",
