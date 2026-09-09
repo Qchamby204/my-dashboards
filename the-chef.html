@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="atlas-neumo cc-app" data-atlas-app="the-chef">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Chef</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -92,14 +92,23 @@ footer .row{justify-content:center}
 .empty{color:var(--muted);font-size:14px;padding:20px 0;text-align:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
+<meta name="theme-color" content="#202936">
+<script src="shared/atlas-theme.js?v=craft-20260909"></script>
+<link rel="stylesheet" href="shared/atlas-palette.css">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css">
+<link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=craft-20260909">
+<script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
 </head>
 <body>
+<a class="cc-skip" href="#main-content">Skip to content</a>
 <header>
+  <div class="bar"><a class="cc-home" href="https://atlas-os-quinton.qchambers123018.chatgpt.site/" aria-label="Back to Atlas"><span aria-hidden="true">‹</span> Atlas</a></div>
   <h1>The Chef</h1>
-  <p>Tell it what you have, or what you want. It plates the week.</p>
+  <p class="cc-explanation">Tell it what you have, or what you want. It plates the week.</p>
 </header>
-<div class="wrap">
-  <nav class="tabs">
+<main class="wrap" id="main-content">
+  <nav class="tabs" aria-label="Chef sections">
     <button data-tab="ingredients">Ingredients</button>
     <button data-tab="mood">Mood</button>
     <button data-tab="planner">Planner</button>
@@ -130,7 +139,7 @@ footer .row{justify-content:center}
         <div class="chips" id="meal-chips"></div>
         <label>Time <select id="f-time"><option value="0">Any</option><option value="20">20 min or less</option><option value="35">35 min or less</option><option value="60">60 min or less</option></select></label>
         <label>Sort <select id="f-sort"><option value="match">Best match</option><option value="rating">My rating</option><option value="protein">Protein</option><option value="time">Fastest</option><option value="name">Name</option><option value="shuffle">Shuffle</option></select></label>
-        <input type="text" id="f-search" placeholder="Search name or ingredient" style="flex:1;min-width:160px">
+        <input type="text" id="f-search" aria-label="Search recipes by name or ingredient" placeholder="Search name or ingredient" style="flex:1;min-width:160px">
       </div>
       <div class="count" id="count"></div>
       <div class="cards" id="cards"></div>
@@ -166,16 +175,18 @@ footer .row{justify-content:center}
   </section>
 
   <footer>
-    <div class="row">
+    <details class="cc-records"><summary>Backup and restore</summary>
+    <div class="cc-record-actions">
       <button id="export">Export</button>
       <button id="import">Import</button>
       <input type="file" id="import-file" accept="application/json" class="hidden">
       <button id="reset" class="ghost">Reset</button>
     </div>
-    <p style="text-align:center;margin:10px 0 0">Macros are per serving and approximate. Adjust to taste and to how hungry the runner is.</p>
+    </details>
+    <p id="cc-status" class="cc-status" role="status" aria-live="polite"></p>
     <p id="storage-warn" class="warn hidden" style="text-align:center">Storage is unavailable in this browser. Nothing will be saved between visits.</p>
   </footer>
-</div>
+</main>
 
 <script>
 /* ---------- constants ---------- */
@@ -989,15 +1000,15 @@ function cardHtml(x,showMatch){
   }).join('');
   return `<div class="card" data-id="${x.id}">
     <div class="top"><h3>${esc(x.name)}</h3><span class="badge">${x.meal}</span></div>
-    <div class="meta"><span><b>${x.time}</b> min</span><span><b>${x.servings}</b> serv</span><span><b>${x.protein}</b>g protein</span><span><b>${x.cal}</b> kcal</span></div>
+    <div class="meta"><span><b>${x.time}</b> min</span><span><b>${x.servings}</b> serv</span><span><b>${x.protein}</b>g protein</span></div>
     ${match}
     <div class="tags">${x.tags.map(t=>`<span class="tag">${TAG_LABELS[t]||t}</span>`).join('')}</div>
     <div class="actions">
       <div class="row" style="gap:4px">
-        <div class="stars">${[1,2,3,4,5].map(n=>`<button data-rate="${n}" class="${n<=rating?'on':''}" title="${n} star">&#9733;</button>`).join('')}</div>
-        <button class="heart ${fav?'on':''}" data-fav title="Favourite">&#9829;</button>
+        <div class="stars">${[1,2,3,4,5].map(n=>`<button data-rate="${n}" class="${n<=rating?'on':''}" aria-label="Rate ${esc(x.name)} ${n} out of 5" aria-pressed="${n===rating}" title="${n} star">&#9733;</button>`).join('')}</div>
+        <button class="heart ${fav?'on':''}" data-fav aria-label="Favourite ${esc(x.name)}" aria-pressed="${!!fav}" title="Favourite">&#9829;</button>
       </div>
-      <div class="plan"><select data-day>${DAYS.map(([k,l])=>`<option value="${k}">${l.slice(0,3)}</option>`).join('')}</select><button data-add>Plan</button></div>
+      <div class="plan"><select data-day aria-label="Day to plan ${esc(x.name)}">${DAYS.map(([k,l])=>`<option value="${k}">${l.slice(0,3)}</option>`).join('')}</select><button data-add>Plan</button></div>
     </div>
     <details class="more"><summary>Ingredients and method</summary>
       <h4>INGREDIENTS</h4><ul>${ing}</ul>
@@ -1015,7 +1026,7 @@ function renderPlanner(){
   const opts = m=>`<option value="">${m==='all'?'':'Pick a '+m}</option>`+RECIPES.filter(x=>x.meal===m).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
   $('#week').innerHTML = DAYS.map(([k,label])=>`<div class="day"><h3>${label}</h3>${MEALS.map(m=>{
     const id = (state.plan[k]||{})[m]||'';
-    return `<div class="slot"><span class="lab">${m}</span><select data-slot="${k}|${m}">${opts(m)}</select>${id?`<button data-unplan="${k}|${m}" title="Remove">&times;</button>`:'<span></span>'}</div>`;
+    return `<div class="slot"><span class="lab">${m}</span><select data-slot="${k}|${m}" aria-label="${label} ${m}">${opts(m)}</select>${id?`<button data-unplan="${k}|${m}" aria-label="Remove ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}</div>`;
   }).join('')}</div>`).join('');
   document.querySelectorAll('[data-slot]').forEach(s=>{const [k,m]=s.dataset.slot.split('|');s.value=(state.plan[k]||{})[m]||'';});
   const n = planCount();
@@ -1039,6 +1050,7 @@ function render(){
   else if(ui.tab==='mood'){renderMoods();renderFilters();renderCards();}
   else if(ui.tab==='planner') renderPlanner();
   else renderFavourites();
+  window.AtlasCraftUI?.refresh();
 }
 
 /* ---------- export, import, reset ---------- */
@@ -1048,7 +1060,8 @@ function exportState(){
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `${TOOL}-${new Date().toISOString().slice(0,10)}.json`;
-  a.click(); URL.revokeObjectURL(a.href);
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},60000);
 }
 function importState(file){
   const reader = new FileReader();
@@ -1074,7 +1087,7 @@ function wireEvents(){
     const b=e.target.closest('[data-pick]'); if(!b) return;
     const n=b.dataset.pick; ui.picks.has(n)?ui.picks.delete(n):ui.picks.add(n);
     const open=[...document.querySelectorAll('details.cat')].map(d=>d.open);
-    renderIngredients(); renderCards();
+    renderIngredients(); renderCards(); window.AtlasCraftUI?.refresh();
     document.querySelectorAll('details.cat').forEach((d,i)=>d.open=open[i]);
   });
   $('#ing-clear').addEventListener('click',()=>{ui.picks.clear();render();});
@@ -1093,7 +1106,9 @@ function wireEvents(){
       const day=card.querySelector('[data-day]').value;const x=BY_ID[id];
       const plan={...state.plan,[day]:{...(state.plan[day]||{}),[x.meal]:id}};
       setState({plan});
-      e.target.closest('[data-add]').textContent='Planned';
+      const updated=document.querySelector(`.card[data-id="${id}"] [data-add]`);
+      if(updated){updated.textContent='Planned';updated.focus({preventScroll:true});}
+      window.AtlasCraftUI?.announce(`${x.name} added to ${DAYS.find(d=>d[0]===day)[1]}.`);
       setTimeout(()=>{const b=document.querySelector(`.card[data-id="${id}"] [data-add]`);if(b)b.textContent='Plan';},900);
     }
   };
@@ -1124,6 +1139,7 @@ function wireEvents(){
   $('#g-copy').addEventListener('click',()=>{
     const text=groceryList().map(g=>g.label+'\n'+g.items.map(a=>`  ${state.checked[a.n]?'[x]':'[ ]'} ${a.n} (${a.q})`).join('\n')).join('\n\n');
     if(!text){alert('Nothing to copy yet.');return;}
+    if(!navigator.clipboard?.writeText){alert('Copy is unavailable. Select the list and copy it by hand.');return;}
     navigator.clipboard.writeText(text).then(()=>{$('#g-copy').textContent='Copied';setTimeout(()=>$('#g-copy').textContent='Copy list',900);},()=>alert('Could not copy. Select the list and copy it by hand.'));
   });
   $('#export').addEventListener('click',exportState);

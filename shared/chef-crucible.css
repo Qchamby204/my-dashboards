@@ -1,0 +1,101 @@
+/* Extend the original Chef and Crucible using Atlas's established materials. */
+:root.atlas-neumo:is([data-atlas-app="crucible"],[data-atlas-app="the-chef"]) {
+  --ink:var(--neo-ink); --panel3:var(--neo-inset); --done:var(--neo-green);
+  --sage:var(--neo-green); --gold2:var(--neo-accent);
+  --cc-top:env(safe-area-inset-top,0px); --cc-side:0px; --cc-bottom:env(safe-area-inset-bottom,0px);
+}
+.cc-app body { padding:0; font-weight:400; line-height:1.6; background-image:none; background-attachment:scroll; }
+.cc-app .wrap { max-width:1120px; padding:0 max(1rem,env(safe-area-inset-right),var(--cc-side)) calc(2rem + var(--cc-bottom)) max(1rem,env(safe-area-inset-left),var(--cc-side)); }
+.cc-app header.masthead,.cc-app body>header { max-width:1120px; margin:auto; text-align:left; border:0; background:none; padding:calc(var(--cc-top) + 1rem) 0 1.25rem; }
+.cc-app body>header { padding-inline:max(1rem,env(safe-area-inset-left),var(--cc-side)) max(1rem,env(safe-area-inset-right),var(--cc-side)); }
+.cc-app header .bar { position:static; display:flex; align-items:center; justify-content:space-between; flex-wrap:nowrap; padding:0; margin:0 0 1.25rem; border:0; border-radius:0; background:none!important; box-shadow:none; }
+.cc-app .cc-home { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; padding:.5rem .75rem; border-radius:13px; text-decoration:none; color:var(--neo-accent); font-weight:600; box-shadow:var(--neo-small); }
+.cc-app header h1,.cc-app header.masthead h1 { font-size:clamp(1.9rem,5vw,2.7rem); letter-spacing:-.035em; line-height:1.15; color:var(--neo-ink); }
+.cc-app header.masthead .sub { font-size:.8rem; letter-spacing:.08em; margin-top:.75rem; }
+.cc-app nav.tabs { margin:0 0 1.75rem; gap:.65rem; align-items:stretch; }
+.cc-app nav.tabs .band { flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; padding:.4rem; scrollbar-width:thin; scroll-padding:1rem; }
+.cc-app nav.tabs .bandlabel { flex:0 0 6.5rem; width:auto; text-align:left; border:0; padding:0 .25rem; margin:0; font-size:.7rem; letter-spacing:.07em; }
+.cc-app nav.tabs button { flex:0 0 auto; min-height:44px; padding:.65rem 1rem; font-size:.9rem; letter-spacing:0; text-transform:none; border-radius:13px; transition:color 120ms,background-color 120ms; }
+.cc-app :is(button,summary,a,input,select,textarea) { touch-action:manipulation; scroll-margin-block:1rem; }
+.cc-app :is(button,summary):active { opacity:.8; }
+.cc-app :is(button,select,input[type=text],summary) { min-height:44px; }
+.cc-app :is(h2,h3,h4) { line-height:1.3; }
+.cc-app .panel { margin-bottom:1.5rem; padding:clamp(1rem,3vw,1.6rem); }
+.cc-app .panel>h2 { font-size:1.15rem; letter-spacing:-.015em; text-transform:none; margin:0 0 .75rem; }
+.cc-app .panel h3 { font-size:1.05rem; letter-spacing:-.01em; }
+.cc-app :is(.note,.notice) { background:none!important; border:0!important; border-radius:0!important; box-shadow:none; padding:0; font-size:.9rem; color:var(--neo-muted); }
+.cc-app .cc-help { margin:.5rem 0 .75rem; }
+.cc-app .cc-help>summary { list-style:none; display:inline-grid; place-items:center; width:44px; border-radius:50%; cursor:pointer; color:var(--neo-blue); }
+.cc-app .cc-help>summary::-webkit-details-marker { display:none; }
+.cc-app .cc-help>summary span { display:grid; place-items:center; width:22px; height:22px; border:1.5px solid currentColor; border-radius:50%; font:600 .85rem/1 ui-serif,Georgia,serif; }
+.cc-app .cc-help[open]>summary { background:var(--neo-inset); box-shadow:var(--neo-well); }
+.cc-app .cc-help :is(p,.lede,.mission) { margin:.4rem 0 0; padding:.75rem 1rem; border-left:2px solid var(--neo-blue); color:var(--neo-muted); font-size:.95rem; max-width:78ch; }
+.cc-app .cc-skip { position:absolute; top:-100px; left:1rem; z-index:100; }
+.cc-app .cc-skip:focus { top:calc(var(--cc-top) + .5rem); padding:1rem; background:var(--neo-surface); }
+.cc-app .cc-records { margin:1.5rem 0 0; padding:1rem 0; color:var(--neo-muted); }
+.cc-app .cc-records>summary { cursor:pointer; font-size:.9rem; font-weight:600; display:flex; align-items:center; gap:.5rem; }
+.cc-app .cc-records>summary::before { content:'›'; font-size:1.4rem; }
+.cc-app .cc-records[open]>summary::before { transform:rotate(90deg); }
+.cc-app .cc-record-actions { display:flex; flex-wrap:wrap; gap:.75rem; padding-top:.75rem; }
+.cc-app .cc-record-actions button:last-of-type { color:var(--neo-rose)!important; }
+.cc-app .cc-status { min-height:1.5em; font-size:.9rem; color:var(--neo-green); }
+.cc-app input[type=checkbox] { appearance:auto; -webkit-appearance:checkbox; accent-color:var(--neo-green); width:24px; height:24px; flex:0 0 24px; margin:.3rem 0; box-shadow:none; }
+.cc-app input[type=checkbox]::after { content:none; }
+.cc-app :is(.checks li,.cplabel,.grocery label) { min-height:48px; align-items:center; gap:.75rem; }
+.cc-app ul.checks label { padding:.5rem 0; }
+.cc-app .tablewrap { border-radius:14px; }
+.cc-app :is(.card,.day,.slot,.lvbody,.mb,.bt) { min-width:0; }
+.cc-app :is(.card h3,.slot,.blockhead,.level summary) { overflow-wrap:anywhere; }
+.cc-app footer { border:0; padding:0; }
+/* Crucible: retain its two navigation bands, curriculum and statement ladder. */
+.cc-app[data-atlas-app="crucible"] :is(.stat,.block,.level,.phase,.stage) { border-radius:18px; border-color:var(--neo-line); box-shadow:var(--neo-small); }
+.cc-app[data-atlas-app="crucible"] .stats { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1rem; margin-bottom:1.75rem; }
+.cc-app[data-atlas-app="crucible"] .stat { padding:1rem; background:var(--neo-surface); }
+.cc-app[data-atlas-app="crucible"] .stat .k { font-size:.7rem; letter-spacing:.06em; }
+.cc-app[data-atlas-app="crucible"] .stat .v { font-size:1.4rem; margin-block:.5rem; }
+.cc-app[data-atlas-app="crucible"] .stat .n { font-size:.8rem; }
+.cc-app[data-atlas-app="crucible"] :is(.block,.level)>summary { padding:1rem; }
+.cc-app[data-atlas-app="crucible"] :is(.block summary .bt b,.level .lvbody b,.phase .ph .pt,.method li>b) { font-family:var(--neo-font); letter-spacing:-.01em; }
+.cc-app[data-atlas-app="crucible"] .blockhead { margin-top:0; }
+.cc-app[data-atlas-app="crucible"] :is(.lbl,.tag,.mins,.tp,.pr,.zoom) { letter-spacing:.02em; }
+.cc-app[data-atlas-app="crucible"] textarea { min-height:10rem; font-size:1rem; }
+.cc-app[data-atlas-app="crucible"] .level.current { border:2px solid var(--neo-accent); }
+.cc-app[data-atlas-app="crucible"] .level.passed { border-color:var(--neo-green); }
+.cc-app[data-atlas-app="crucible"] .checkpoint { border-radius:12px; }
+/* Chef: give recipes, stars and the weekly planner usable space. */
+.cc-app[data-atlas-app="the-chef"] nav.tabs { flex-wrap:nowrap; overflow-x:auto; padding:.4rem; }
+.cc-app[data-atlas-app="the-chef"] nav.tabs button { flex:1 0 auto; }
+.cc-app[data-atlas-app="the-chef"] .cards { grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr)); gap:1.25rem; }
+.cc-app[data-atlas-app="the-chef"] .cards .card { box-shadow:var(--neo-small); padding:1.1rem; gap:.9rem; }
+.cc-app[data-atlas-app="the-chef"] .card h3 { font-size:1.1rem; font-weight:650; }
+.cc-app[data-atlas-app="the-chef"] .meta { font-size:.8rem; }
+.cc-app[data-atlas-app="the-chef"] :is(.filters label,.count,.summary) { font-size:.9rem; }
+.cc-app[data-atlas-app="the-chef"] .chip { font-size:.9rem; border-radius:999px; }
+.cc-app[data-atlas-app="the-chef"] button.chip.on { color:var(--neo-accent)!important; box-shadow:var(--neo-pressed); border-color:var(--neo-accent)!important; }
+.cc-app[data-atlas-app="the-chef"] details.cat>summary { align-items:center; font:600 .95rem/1.4 var(--neo-font); }
+.cc-app[data-atlas-app="the-chef"] .stars button { width:44px; min-width:44px; padding:0; font-size:1.3rem; box-shadow:none; border:0!important; color:var(--neo-muted)!important; }
+.cc-app[data-atlas-app="the-chef"] .stars button.on { color:var(--neo-accent)!important; }
+.cc-app[data-atlas-app="the-chef"] .heart { width:44px; padding:0; box-shadow:none; }
+.cc-app[data-atlas-app="the-chef"] .heart.on { color:var(--neo-rose)!important; }
+.cc-app[data-atlas-app="the-chef"] .plan { gap:.6rem; flex-wrap:wrap; }
+.cc-app[data-atlas-app="the-chef"] :is(.plan,.slot) select { min-height:44px; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] details.more>summary { display:flex; align-items:center; justify-content:space-between; font-size:.9rem; font-weight:600; }
+.cc-app[data-atlas-app="the-chef"] details.more>summary::after { content:'+'; }
+.cc-app[data-atlas-app="the-chef"] details.more[open]>summary::after { content:'−'; }
+.cc-app[data-atlas-app="the-chef"] details.more :is(ul,ol) { font-size:.95rem; line-height:1.65; }
+.cc-app[data-atlas-app="the-chef"] details.more h4 { font-size:.8rem; }
+.cc-app[data-atlas-app="the-chef"] .week { grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr)); gap:1rem; }
+.cc-app[data-atlas-app="the-chef"] .day { padding:1rem; border-radius:18px; }
+.cc-app[data-atlas-app="the-chef"] .slot { grid-template-columns:minmax(0,1fr) 44px; gap:.3rem .5rem; margin:.85rem 0; }
+.cc-app[data-atlas-app="the-chef"] .slot .lab { grid-column:1/-1; font-size:.75rem; }
+.cc-app[data-atlas-app="the-chef"] .grocery label { align-items:center; font-size:.95rem; }
+.cc-app[data-atlas-app="the-chef"] .grocery .q { white-space:normal; max-width:45%; text-align:right; }
+@media(max-width:760px) {
+  .cc-app[data-atlas-app="crucible"] .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cc-app[data-atlas-app="crucible"] .stats .stat:last-child { grid-column:1/-1; }
+  .cc-app nav.tabs .bandlabel { flex-basis:5.6rem; }
+  .cc-app .level .lvrange { white-space:normal; max-width:5rem; }
+}
+@media(prefers-reduced-motion:reduce) { .cc-app * { scroll-behavior:auto!important; animation:none!important; transition:none!important; } .cc-app button:active { transform:none!important; } }
+@media(prefers-reduced-transparency:reduce) { .cc-app dialog::backdrop { backdrop-filter:none!important; background:#101722dd!important; } }
+@media(prefers-contrast:more) { .cc-app :is(.panel,.card,.stat,.day,button,input,select,textarea,summary) { border:1px solid currentColor!important; box-shadow:none!important; } }
