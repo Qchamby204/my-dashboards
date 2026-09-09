@@ -3,9 +3,9 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='communication-trainer'||typeof S==='undefined'||window.CommunicationImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=practice-20260909',source).href;document.head.appendChild(css);}
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=topics-20260909',source).href;document.head.appendChild(css);}
     const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldToast=toast;
-    const fields={assessments:'assessments',reps:'reps',lessonsDone:'lessonsDone',customTopics:'customTopics',retiredTopics:'retired',catsEnabled:'catsEnabled',city:'city',prepNotes:'prepNotes',refreshed:'refreshed',bankUpdated:'bankUpdated',grades:'grades',pendingGrades:'pendingGrades'};
+    const fields={assessments:'assessments',reps:'reps',lessonsDone:'lessonsDone',customTopics:'customTopics',retiredTopics:'retired',catsEnabled:'catsEnabled',city:'city',prepNotes:'prepNotes',refreshed:'refreshed',bankUpdated:'bankUpdated',grades:'grades',pendingGrades:'pendingGrades',topicBank:'topicBank'};
     const shadow=new Map(),unsaved=new Set();
     const copy=value=>JSON.parse(JSON.stringify(value));
     const originalGet=Store.get.bind(Store);let diskAvailable=Store.usable();
@@ -135,6 +135,8 @@
     };
     launchDrill=function(drill){
       if(!drill)return;if(draftProblem){toast('Keep a backup first','Your unreadable unfinished practice has been preserved.');return;}
+      const available=allTopics().filter(t=>!drill.cats||drill.cats.includes(t.cat));
+      if(!available.length){toast('No active topics for this drill','Open Topics to add topics or enable a matching category.');return;}
       const begin=()=>{stopRec();stopTimer();timerSession=null;remainingMs=null;oldLaunch(drill);curDrill.id=crypto.randomUUID();curDrill.scores=drill.rubric.map(()=>3);lastSaveError='';remainingMs=timerLeft*1000;timerSession=curDrill;rememberPractice();render();window.scrollTo(0,0);};
       let draft=curDrill?draftSnapshot():Store.get(DRAFT,null);if(draft?.id&&S.reps.some(r=>r.id===draft.id))draft=null;
       if(draft&&(draft.tx.trim()||draft.recSecs>0||draft.scores.some(n=>n!==3)||draft.remainingMs<(DRILLS.find(d=>d.id===draft.drillId)?.time||0)*1000))uiConfirm('Start a new practice?','Your unfinished transcript and scores will be replaced. Save this practice or export progress first if you want to keep it.','Start new practice',begin);else begin();
@@ -177,7 +179,8 @@
     function recoveryBanner(){const saved=curDrill||Store.get(DRAFT,null);if(!saved&&!draftProblem)return '';if(saved?.id&&S.reps.some(r=>r.id===saved.id)&&!draftProblem)return '';return '<section class="card communication-resume"><h2>'+(draftProblem?'Unfinished practice unavailable':'Unfinished practice')+'</h2><p>'+esc(draftProblem||curDrill?.topic.text||saved?.topic?.text||'Your draft is saved on this device.')+'</p><div class="flex">'+(!draftProblem?'<button class="btn" onclick="CommunicationImprovements.resumePractice()">Resume practice</button>':'<button class="btn ghost" onclick="exportData()">Export recovery backup</button>')+'<button class="btn ghost" onclick="CommunicationImprovements.discardPractice()">Discard draft</button></div></section>';}
     function recentHistory(){const recent=sorted(S.reps).reverse().slice(0,8);if(!recent.length)return '';return '<div class="card communication-history"><h2>Recent practice</h2>'+recent.map(r=>'<details><summary><span><b>'+esc(r.drill)+'</b><span class="muted">'+esc(r.topic)+'</span></span><span>'+r.score+'/100 · '+recordDay(r.date)+'</span></summary>'+(typeof r.transcript==='string'&&r.transcript?'<p class="communication-transcript">'+esc(r.transcript)+'</p>':'<p class="muted">No transcript was saved for this practice.</p>')+'</details>').join('')+'</div>';}
     const oldDash=pageDash,oldTrain=pageTrain,oldProgress=pageProgress;
-    pageDash=()=>recoveryBanner()+oldDash();pageTrain=()=>curDrill?oldTrain():recoveryBanner()+oldTrain();
+    const topicShortcut=()=>'<div class="communication-topic-shortcut"><button id="communication-topic-open" type="button" class="btn ghost" onclick="CommunicationImprovements.editTopics()">Edit topics</button></div>';
+    pageDash=()=>recoveryBanner()+topicShortcut()+oldDash();pageTrain=()=>curDrill?oldTrain():recoveryBanner()+topicShortcut()+oldTrain();
     pageProgress=function(){const assessments=S.assessments,reps=S.reps;S.assessments=sorted(assessments);S.reps=sorted(reps);try{let html=oldProgress().replace(/<div class="card"><h2>Recent reps<\/h2>[\s\S]*?(?=\n  <div class="card">\n    <h2>Backup & restore<\/h2>)/,recentHistory());if(lastSaved)html='<section class="card communication-saved" role="status"><h2>Practice saved</h2><p>'+esc(lastSaved.drill)+' · '+lastSaved.score+'/100 · +'+lastSaved.xp+' XP'+(lastSaved.best?' · New personal best':lastSaved.first?' · First practice for this drill':'')+'</p></section>'+html;return html;}finally{S.assessments=assessments;S.reps=reps;}};
     const oldGradeSave=saveGradePaste;
     saveGradePaste=function(src){const count=S.grades.length;oldGradeSave(src);if(curDrill){if(S.grades.length>count)curDrill.gradePaste='';rememberPractice();render();}};
@@ -200,7 +203,7 @@
       const arrays=new Set(['reps','assessments','grades','pendingGrades','customTopics','retiredTopics','catsEnabled']);
       const objects=new Set(['lessonsDone','prepNotes','refreshed']);
       for(const [key,value]of Object.entries(raw)){
-        if(!allowed.has(key))continue;if(key===DRAFT){out[key]=validateDraft(value);continue;}if(value===null&&key!=='bankUpdated')continue;
+        if(!allowed.has(key))continue;if(key===DRAFT){out[key]=validateDraft(value);continue;}if(key==='topicBank'){out[key]=validateTopicBank(value);continue;}if(value===null&&key!=='bankUpdated')continue;
         if(arrays.has(key)&&!Array.isArray(value))throw Error('Invalid progress list.');
         if(objects.has(key)&&(!value||typeof value!=='object'||Array.isArray(value)))throw Error('Invalid progress details.');
         if(['city','goalNote'].includes(key)&&typeof value!=='string')throw Error('Invalid text field.');
@@ -236,10 +239,123 @@
       }catch(error){uiNote(error instanceof SyntaxError?'This is not a valid JSON progress file.':error.message||'Could not read this file.');}
       finally{input.value='';}
     };
+    // Category edits are one atomic record. The original bank and all practice
+    // records remain intact; opening the editor never migrates or writes data.
+    const topicCategories=[...Object.keys(DEFAULT_TOPICS),'custom'];
+    const topicName=cat=>DEFAULT_TOPICS[cat]?.name||'Custom';
+    const uniqueTopics=items=>{const seen=new Set();return items.map(t=>t.trim()).filter(t=>t&&!seen.has(normT(t))&&seen.add(normT(t)));};
+    function validateTopicBank(value){
+      if(value===null)return null;
+      if(!value||value.schemaVersion!==1||!value.categories||typeof value.categories!=='object'||Array.isArray(value.categories)||typeof value.updatedAt!=='string'||!Number.isFinite(Date.parse(value.updatedAt)))throw Error('The edited topic bank could not be read.');
+      for(const [cat,items]of Object.entries(value.categories))if(!topicCategories.includes(cat)||!Array.isArray(items)||items.length>1000||items.some(t=>typeof t!=='string'||!t.trim()||t.length>1000))throw Error('Invalid edited topic category.');
+      return copy(value);
+    }
+    let topicProblem='',topicEditor=null,topicDialog=null,lastTopicError='';
+    S.topicBank=null;
+    try{const raw=localStorage.getItem('mc_topicBank');if(raw!==null)S.topicBank=validateTopicBank(JSON.parse(raw));}catch{topicProblem='Saved topic edits could not be read. Export your progress before replacing them.';}
+    const oldDump=Store.dump;
+    Store.dump=function(){const result=oldDump();if(topicProblem)try{result.unreadableTopicBank=localStorage.getItem('mc_topicBank');}catch{}return result;};
+    function categoryItems(cat){return uniqueTopics(S.topicBank?.categories[cat]??[...(S.refreshed[cat]||[]),...(DEFAULT_TOPICS[cat]?.items||[]),...S.customTopics.filter(t=>t.cat===cat).map(t=>t.text)]);}
+    effectiveItems=cat=>categoryItems(cat).filter(t=>!isRetired(t));
+    allTopics=()=>topicCategories.filter(cat=>cat==='custom'||S.catsEnabled.includes(cat)).flatMap(cat=>effectiveItems(cat).map(text=>({cat,text})));
+    function topicStamp(){return JSON.stringify(Object.entries({topicBank:null,refreshed:{},customTopics:[],retiredTopics:[]}).map(([key,fallback])=>{const raw=localStorage.getItem('mc_'+key);return raw===null?fallback:JSON.parse(raw);}));}
+    function syncTopics(){
+      const bank=localStorage.getItem('mc_topicBank');S.topicBank=bank===null?null:validateTopicBank(JSON.parse(bank));
+      for(const key of ['refreshed','customTopics','retiredTopics'])S[fields[key]]=Store.get(key,S[fields[key]]);
+      topicProblem='';
+    }
+    function topicError(message){lastTopicError=message;const box=$('communication-topic-error');if(box)box.textContent=message;return false;}
+    function cleanTopicLines(raw){
+      if(typeof raw!=='string'||raw.length>250000)throw Error('Use a shorter topic list.');
+      const lines=raw.split(/\r?\n/).map(t=>t.trim().replace(/^(?:[-*•]\s+|\d+[.)]\s+)/,'')).filter(Boolean);
+      if(lines.length>1000||lines.some(t=>t.length>1000))throw Error('Use up to 1,000 topics, each under 1,000 characters.');
+      return uniqueTopics(lines);
+    }
+    function topicCount(){try{const items=cleanTopicLines($('communication-topic-text').value);$('communication-topic-count').textContent=items.length+' topic'+(items.length===1?'':'s')+' · duplicates removed on save';}catch(error){$('communication-topic-count').textContent=error.message;}}
+    function selectTopicCategory(cat){
+      if(!topicCategories.includes(cat))return false;
+      if(topicEditor&&$('communication-topic-text').value!==topicEditor.text){$('communication-topic-category').value=topicEditor.cat;return topicError('Save or cancel these edits before switching categories.');}
+      const text=effectiveItems(cat).join('\n');topicEditor={cat,text,stamp:topicStamp()};
+      $('communication-topic-category').value=cat;$('communication-topic-text').value=text;topicError('');topicCount();return true;
+    }
+    function editTopics(cat='custom'){
+      if(unsaved.size){toast('Save pending changes first','Retry saving or export your progress before editing topics.');return false;}
+      try{syncTopics();}catch{toast('Topic edits unavailable','Export your progress before replacing unreadable topic data.');return false;}
+      if(!topicDialog){
+        topicDialog=document.createElement('dialog');topicDialog.id='communication-topic-editor';topicDialog.setAttribute('aria-labelledby','communication-topic-title');
+        topicDialog.innerHTML='<form id="communication-topic-form"><div class="communication-topic-heading"><h2 id="communication-topic-title">Edit topics</h2>'+info('How topic edits work','Write one topic per line. Edit, remove, or paste lines to update this category. Blank lines, bullets and duplicates are cleaned up when you save. Edits apply to future practice; history, preparation notes and retired topics are kept. Saved on this device and included in progress exports.')+'</div><label for="communication-topic-category">Category</label><select id="communication-topic-category">'+topicCategories.map(k=>'<option value="'+k+'">'+esc(topicName(k))+'</option>').join('')+'</select><label for="communication-topic-text">Topics · one per line</label><textarea id="communication-topic-text" rows="10" aria-describedby="communication-topic-count communication-topic-error" placeholder="Explain a new idea clearly\nMake the case for a local improvement"></textarea><p id="communication-topic-count" class="muted" role="status"></p><p id="communication-topic-error" role="alert"></p><div class="communication-topic-actions"><button type="button" class="btn ghost" id="communication-topic-cancel">Cancel</button><button type="submit" class="btn">Save topics</button></div></form>';
+        document.body.appendChild(topicDialog);
+        $('communication-topic-form').onsubmit=event=>{event.preventDefault();saveTopics();};
+        $('communication-topic-text').oninput=topicCount;
+        $('communication-topic-category').onchange=event=>selectTopicCategory(event.target.value);
+        $('communication-topic-cancel').onclick=()=>topicDialog.close();
+        topicDialog.addEventListener('close',()=>{topicEditor=null;});
+      }
+      if(topicDialog.open)return false;
+      topicEditor=null;selectTopicCategory(topicCategories.includes(cat)?cat:'custom');
+      if(curDrill){stopRec();stopTimer();rememberPractice();}
+      topicDialog.showModal();$('communication-topic-text').focus();return true;
+    }
+    function commitTopics(next,stamp){
+      try{if(topicStamp()!==stamp)throw Error('Topics changed in another tab. Copy your edits, then reopen the editor to use the latest list.');validateTopicBank(next);}
+      catch(error){return topicError(error.message);}
+      const before=copy(S.topicBank);
+      if(!writeProgress('topicBank',next))return topicError('Topics were not saved. Your edits are still here. Free some browser storage, then try Save topics again.');
+      S.topicBank=copy(next);topicProblem='';lastSaveError='';
+      undoToast('Topics saved on this device.',()=>{
+        try{if(localStorage.getItem('mc_topicBank')!==JSON.stringify(next)){toast('Newer topic edits were kept','Undo cannot replace a later update.');return;}}catch{return;}
+        if(!writeProgress('topicBank',before)){toast('Undo was not saved','Your current topics were kept.');return;}S.topicBank=before;render();
+      });return true;
+    }
+    function saveTopics(){
+      if(!topicEditor)return false;
+      let items;try{items=cleanTopicLines($('communication-topic-text').value);}catch(error){return topicError(error.message);}
+      const {cat,stamp}=topicEditor;
+      const next={schemaVersion:1,updatedAt:new Date().toISOString(),categories:{...(S.topicBank?.categories||{}),[cat]:uniqueTopics([...items,...categoryItems(cat).filter(isRetired)])}};
+      if(!commitTopics(next,stamp))return false;
+      topicDialog.close();topicEditor=null;render();$('communication-topic-open')?.focus({preventScroll:true});return true;
+    }
+    toggleCat=function(cat){
+      if(!Object.hasOwn(DEFAULT_TOPICS,cat))return;
+      const next=S.catsEnabled.includes(cat)?S.catsEnabled.filter(k=>k!==cat):[...S.catsEnabled,cat];
+      if(!writeProgress('catsEnabled',next)){toast('Category change not saved','Try again when storage is available.');return;}S.catsEnabled=next;lastSaveError='';render();
+    };
+    retireTopic=function(text){
+      const key=normT(text);if(!key||S.retired.includes(key))return false;
+      const before=S.retired.slice(),next=[...before,key];if(!writeProgress('retiredTopics',next))return false;
+      S.retired=next;undoToast('Topic retired.',()=>{if(JSON.stringify(S.retired)!==JSON.stringify(next))return;if(writeProgress('retiredTopics',before)){S.retired=before;render();}});return true;
+    };
+    restoreTopic=function(key){const next=S.retired.filter(k=>k!==key);if(writeProgress('retiredTopics',next)){S.retired=next;render();}};
+    applyTopicPaste=function(){
+      const parsed=parseTopicPaste($('pasteBox').value);if(!parsed){toast('Could not read those topics','Paste a topic refresh with category lists.');return false;}
+      try{
+        if(unsaved.size)throw Error('Retry saving your pending changes first.');syncTopics();const stamp=topicStamp(),categories={...(S.topicBank?.categories||{})};
+        for(const [cat,items]of Object.entries(parsed))categories[cat]=uniqueTopics([...cleanTopicLines(items.join('\n')),...categoryItems(cat)]);
+        if(!commitTopics({schemaVersion:1,updatedAt:new Date().toISOString(),categories},stamp)){toast('Topics were not saved',lastTopicError);return false;}
+        render();return true;
+      }catch(error){toast('Topics were not saved',error.message);return false;}
+    };
+    const oldStaleLine=staleLine;
+    staleLine=()=>S.topicBank?.updatedAt?'Topics updated '+S.topicBank.updatedAt.slice(0,10)+'.':oldStaleLine();
+    daysSinceRefresh=()=>Math.max(0,Math.floor((new Date()-new Date(S.topicBank?.updatedAt||S.bankUpdated||'2026-06-10T00:00:00'))/86400000));
+    pageTopics=function(){
+      const rows=topicCategories.map(cat=>{
+        const items=effectiveItems(cat),enabled=cat==='custom'||S.catsEnabled.includes(cat);
+        return '<section class="card communication-topic-category"><div class="communication-topic-heading"><h3>'+esc(topicName(cat))+'</h3><div class="flex">'+(cat==='custom'?'<span class="muted">Always on</span>':'<button type="button" class="btn ghost" aria-pressed="'+enabled+'" aria-label="Use '+esc(topicName(cat))+' topics" onclick="toggleCat(\''+cat+'\')">'+(enabled?'On':'Off')+'</button>')+'<button type="button" class="btn ghost" aria-label="Edit '+esc(topicName(cat))+' topics" onclick="CommunicationImprovements.editTopics(\''+cat+'\')">Edit</button></div></div><details class="communication-topic-list"><summary>'+items.length+' active topic'+(items.length===1?'':'s')+'</summary>'+(items.length?items.map(t=>'<div class="topicitem"><span>'+esc(t)+(S.prepNotes[t]?' <span class="tag">prepped</span>':'')+'</span><div class="flex"><button type="button" class="btn ghost" data-learn="'+esc(t)+'">Learn ↗</button><button type="button" class="btn ghost" data-topic-retire="'+esc(t)+'">Retire</button></div></div>').join(''):'<p class="muted">Add topics with Edit to use this category.</p>')+'</details></section>';
+      }).join('');
+      return '<section class="card"><div class="communication-topic-heading"><h2>Your topics</h2>'+info('About your topic bank','Practice draws from categories marked On, plus Custom. Edit any category using plain text. Topics you complete or retire stay out of rotation until restored. Changing a topic’s wording leaves its earlier practice and preparation notes under the original wording.')+'</div><p class="muted">'+esc(staleLine())+'</p>'+(topicProblem?'<p role="alert">'+esc(topicProblem)+'</p>':'')+'<button id="communication-topic-open" type="button" class="btn" onclick="CommunicationImprovements.editTopics()">Edit topics</button></section>'+rows+
+      '<details class="card communication-topic-refresh"><summary>Optional: refresh with an assistant</summary>'+info('About assisted refresh','Copy the prompt to your chosen assistant and paste its reply below. Adding the reply merges those topics into your existing categories. Nothing is sent automatically.')+'<label for="cityInput">City for local topics</label><div class="flex"><input id="cityInput" value="'+esc(S.city)+'"><button type="button" class="btn ghost" onclick="saveCity()">Save city</button></div><label for="refreshPrompt">Refresh prompt</label><textarea id="refreshPrompt" rows="5" readonly>'+esc(refreshPromptText())+'</textarea><button type="button" class="btn ghost" onclick="copyRefreshPrompt()">Copy prompt</button><label for="pasteBox">Paste the reply</label><textarea id="pasteBox" rows="5"></textarea><button type="button" class="btn" onclick="applyTopicPaste()">Add these topics</button><details><summary>Browse topic sources</summary>'+Object.entries(CATEGORY_SOURCES).map(([cat,sources])=>'<h3>'+esc(topicName(cat))+'</h3>'+sources.map(([name,url])=>'<a class="pill" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(name)+' ↗</a>').join('')).join('')+'</details></details>'+
+      (S.retired.length?'<details class="card communication-topic-list"><summary>Retired topics · '+S.retired.length+'</summary>'+info('About retired topics','Completed or dismissed topics stay out of future practice. Restore one for another attempt.')+S.retired.map(t=>'<div class="topicitem"><span>'+esc(t)+'</span><button type="button" class="btn ghost" data-topic-restore="'+esc(t)+'">Restore</button></div>').join('')+'</details>':'');
+    };
+    document.addEventListener('click',event=>{
+      const retire=event.target.closest?.('[data-topic-retire]'),restore=event.target.closest?.('[data-topic-restore]');
+      if(retire){retireTopic(retire.dataset.topicRetire,'Retired:');render();}
+      if(restore)restoreTopic(restore.dataset.topicRestore);
+    });
     function hide(){if(document.hidden){stopRec();stopTimer();rememberPractice();}}
     document.addEventListener('visibilitychange',hide);
     window.addEventListener('pagehide',()=>{stopRec();stopTimer();rememberPractice();});
-    window.addEventListener('beforeunload',event=>{rememberPractice();if(unsaved.size){event.preventDefault();event.returnValue='';}});
+    window.addEventListener('beforeunload',event=>{rememberPractice();if(unsaved.size||topicDialog?.open&&topicEditor&&$('communication-topic-text').value!==topicEditor.text){event.preventDefault();event.returnValue='';}});
     document.addEventListener('input',event=>{if(event.target.id==='txBox'&&recOn)stopRec();if(curDrill){if(event.target.id==='txBox')curDrill.tx=event.target.value;if(event.target.id==='gradeBox')curDrill.gradePaste=event.target.value;lastSaveError='';rememberPractice();}});
     document.addEventListener('click',event=>{
       const action=event.target.closest?.('[data-communication-action]')?.dataset.communicationAction;
@@ -248,7 +364,7 @@
     });
     let savedDraftRaw;try{savedDraftRaw=localStorage.getItem('mc_'+DRAFT);}catch{diskAvailable=false;}
     if(savedDraftRaw!=null)try{restorePractice(JSON.parse(savedDraftRaw));}catch(error){draftProblem=error.message||'Could not read the unfinished practice.';}
-    window.CommunicationImprovements=Object.freeze({validateBackup,rememberPractice,resumePractice,leavePractice,discardPractice,get unsaved(){return unsaved.size;}});
+    window.CommunicationImprovements=Object.freeze({validateBackup,rememberPractice,resumePractice,leavePractice,discardPractice,editTopics,saveTopics,selectTopicCategory,cleanTopicLines,get unsaved(){return unsaved.size;}});
     render();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

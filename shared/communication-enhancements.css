@@ -36,3 +36,29 @@
 [data-atlas-app="communication-trainer"] .communication-transcript{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.6;padding:12px 0;margin:0}
 [data-atlas-app="communication-trainer"] .communication-history summary:focus-visible{outline:2px solid var(--neo-accent);outline-offset:3px}
 @media(max-width:480px){[data-atlas-app="communication-trainer"] .communication-history summary{flex-wrap:wrap}[data-atlas-app="communication-trainer"] .communication-history summary>span:first-child{flex-basis:100%}}
+
+[data-atlas-app="communication-trainer"] .communication-topic-shortcut{display:flex;justify-content:flex-end;margin-bottom:12px}
+[data-atlas-app="communication-trainer"] .communication-topic-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+[data-atlas-app="communication-trainer"] .communication-topic-heading :is(h2,h3){margin:0;flex:1;min-width:0}
+[data-atlas-app="communication-trainer"] .communication-topic-heading .flex{gap:8px;align-items:center}
+[data-atlas-app="communication-trainer"] .communication-topic-category [aria-pressed="true"]{color:var(--neo-green);border-color:var(--neo-green)}
+[data-atlas-app="communication-trainer"] .communication-topic-category [aria-pressed="false"]{color:var(--neo-muted)}
+[data-atlas-app="communication-trainer"] :is(.communication-topic-list,.communication-topic-refresh) summary{min-height:44px;cursor:pointer;align-content:center;line-height:1.5}
+[data-atlas-app="communication-trainer"] .communication-topic-list .topicitem{gap:12px;flex-wrap:wrap}
+[data-atlas-app="communication-trainer"] .communication-topic-list .topicitem>span{flex:1;min-width:180px;overflow-wrap:anywhere}
+[data-atlas-app="communication-trainer"] .communication-topic-list .topicitem .flex{gap:8px}
+[data-atlas-app="communication-trainer"] :is(.communication-topic-list,.communication-topic-refresh) summary:focus-visible{outline:2px solid var(--neo-accent);outline-offset:3px}
+[data-atlas-app="communication-trainer"] :is(#communication-topic-editor,.communication-topic-refresh) label{display:block;margin:16px 0 8px;font-weight:600;font-size:15px}
+[data-atlas-app="communication-trainer"] :is(#communication-topic-editor,.communication-topic-refresh) :is(input,select,textarea){font-family:inherit;font-size:16px;line-height:1.6;min-width:0!important;max-width:100%;width:100%;box-sizing:border-box}
+[data-atlas-app="communication-trainer"] .communication-topic-refresh :is(textarea,.flex){margin-bottom:12px}
+[data-atlas-app="communication-trainer"] .communication-topic-refresh .flex input{flex:1;width:auto}
+[data-atlas-app="communication-trainer"] #communication-topic-editor{box-sizing:border-box;width:min(660px,calc(100vw - 32px));max-height:calc(var(--atlas-visible-height,100dvh) - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;border:1px solid var(--neo-line);border-radius:24px;padding:24px;color:var(--text);background:var(--bg);box-shadow:var(--neo-float);margin:auto}
+[data-atlas-app="communication-trainer"] #communication-topic-editor::backdrop{background:rgba(0,0,0,.65)}
+[data-atlas-app="communication-trainer"] #communication-topic-editor textarea{resize:vertical;min-height:180px}
+[data-atlas-app="communication-trainer"] #communication-topic-editor :is(button,select){min-height:44px;touch-action:manipulation}
+[data-atlas-app="communication-trainer"] #communication-topic-count{font-size:13px;margin:8px 0}
+[data-atlas-app="communication-trainer"] #communication-topic-error{font-size:14px;line-height:1.5;color:var(--rose);overflow-wrap:anywhere}
+[data-atlas-app="communication-trainer"] #communication-topic-error:empty{display:none}
+[data-atlas-app="communication-trainer"] .communication-topic-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:12px}
+[data-atlas-app="communication-trainer"] .communication-topic-actions button{min-width:100px}
+@media(max-width:480px){[data-atlas-app="communication-trainer"] #communication-topic-editor{padding:20px 16px}[data-atlas-app="communication-trainer"] .communication-topic-actions button{flex:1}}
