@@ -3,12 +3,25 @@
  "days": [
   {
    "date": "2026-09-09",
-   "state": "updating",
-   "checkedAt": "2026-09-09T11:16:19+00:00",
-   "verifiedAt": null,
-   "generatedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-09-09T11:30:00+00:00",
+   "verifiedAt": "2026-09-09T11:30:00+00:00",
+   "generatedAt": "2026-09-09T11:28:03+00:00",
    "updatedAt": null,
-   "audio": {},
+   "audio": {
+    "frontpage": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/frontpage.mp3",
+    "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/lessons.mp3",
+    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/markets.mp3",
+    "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/companies.mp3",
+    "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/practice.mp3",
+    "manitoba": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/manitoba.mp3",
+    "politics": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/politics.mp3",
+    "climate": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/climate.mp3",
+    "tech": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/tech.mp3",
+    "health": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/health.mp3",
+    "parenting": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/parenting.mp3",
+    "sports": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/sports.mp3"
+   },
    "expectedSections": [
     "frontpage",
     "lessons",
@@ -23,20 +36,7 @@
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "frontpage",
-    "lessons",
-    "markets",
-    "companies",
-    "practice",
-    "manitoba",
-    "politics",
-    "climate",
-    "tech",
-    "health",
-    "parenting",
-    "sports"
-   ],
+   "missingSections": [],
    "voiceless": []
   },
   {
