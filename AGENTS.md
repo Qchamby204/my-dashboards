@@ -19,5 +19,6 @@ For interface changes, read `.agents/skills/apple-design/SKILL.md` and apply its
 - Public Life Map uses the existing `lifemap_v1` browser records. Private Life Map uses its existing connected adapter. Do not move records between them automatically, seed over existing data, or migrate records merely by opening a page.
 - Build with `node atlas/build.mjs`. It generates public `life-map.html` and the private assets; edit the source modules, then regenerate.
 - Keep public asset references versioned when their content changes. Check the actual Pages deployment before reporting GitHub publication, and the private deployment separately when publishing there.
+- `shared/atlas-refinements.js` and `.css` extend the remaining dashboards in place. The build updates their content hashes. Keep this layer free of record writes, skip Life Map's separate interaction layer, and keep Life Ledger's established typography. Scope new rules to the dashboard being improved.
 - The source checkout's Courier manifest may lag GitHub. Never include generated episodes, manifests, recovery requests, feeds, credentials, or records in an unrelated UI publish.
 - Retain the original Life Map composition and persistence checks when changing its controls. Report browser/iPhone testing only when it was actually performed.

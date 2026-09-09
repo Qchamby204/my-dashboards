@@ -114,6 +114,7 @@
     // Capture only the changed actions; all other original handlers remain in place.
     app.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const act=el.dataset.act;
       if(blocked||busy||pendingLog){e.preventDefault();e.stopImmediatePropagation();return;}
+      if(act==='day'&&window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){e.stopImmediatePropagation();state.openDay=state.openDay===el.dataset.key?null:el.dataset.key;render();if(state.openDay)app.querySelector('[data-act="day"][data-key="'+state.openDay+'"]')?.scrollIntoView({behavior:'instant',block:'start'});return;}
       if(act==='livedone'&&state.live){const it=current();if(state.live.pausedAt||state.draft[effId(it)]?.done){e.stopImmediatePropagation();if(!state.live.pausedAt)goExercise(state.live.exIdx+1);return;}}
       if(act==='log'&&state.live?.key===el.dataset.key){e.stopImmediatePropagation();finishLive();return;}
       if(act==='cmin'){e.stopImmediatePropagation();const dr=state.draft[el.dataset.id]||{sets:[]},base=Number(dr.min)||0;dr.min=Math.max(0,base+Number(el.dataset.delta));state.draft[el.dataset.id]=dr;saveDraft();render();return;}
