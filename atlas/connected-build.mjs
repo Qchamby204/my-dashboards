@@ -16,6 +16,10 @@ export async function connectedAssets(root){
     let script=matches.map(m=>m[1]).join('\n');
     const replace=(pattern,value)=>{if(!pattern.test(script))throw Error('Connected storage adapter no longer matches '+kind);script=script.replace(pattern,value);};
       replace(/var store=\(function\(\)\{[\s\S]*?\}\)\(\);/,"var store={get:k=>Promise.resolve(window.AtlasConnected.raw()),set:(k,v)=>window.AtlasConnected.save(JSON.parse(v))};");
+      // Opening the restored interface must not seed or migrate saved records.
+      const bootStart=script.indexOf('store.get(KEY).then(function(v){'),bootEnd=script.indexOf('/* Ask the browser',bootStart);
+      if(bootStart<0||bootEnd<0)throw Error('Review original Life Map boot boundaries');
+      script=script.slice(0,bootStart)+"store.get(KEY).then(function(v){var raw=JSON.parse(v);S=Object.assign({},raw,window.LifeMapRecords.validate(raw));render();});\n"+script.slice(bootEnd);
       script+="\nwindow.discardConnectedDraft=()=>{view.editor=null;};window.acceptConnectedState=next=>{S=next;render();};window.connectedDraftOpen=()=>!!view.editor||!!view.qa.txt.trim()||!!document.querySelector('#connected-app input:focus,#connected-app textarea:focus');\nstore.get(KEY).then(()=>{const id=new URL(location.href).searchParams.get('record'),p=S.projects.find(x=>x.id===id);if(p){view.editor=Object.assign({kind:'proj'},p);render();}});\n";
     // Compose private dashboard improvements over the unchanged legacy sources.
     script=script.replaceAll('href="index.html"','href="/"').replaceAll('href="life-ledger.html"','href="/workspace#ledger"').replaceAll('href="workout-forge.html"','href="https://qchamby204.github.io/my-dashboards/workout-forge.html"');
