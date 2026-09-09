@@ -14,6 +14,7 @@ html[data-atlas-app="life-map"] .lm-local-status{max-width:640px;margin:8px auto
 html[data-atlas-app="life-map"] .lm-local-status.lm-save-error{border:1px solid var(--rose);padding:14px;background:var(--neo-surface);color:var(--txt)}
 html[data-atlas-app="life-map"] #toast{max-width:calc(100vw - 32px);white-space:normal}
 html[data-atlas-app="life-map"] #atlas-project-transfer{max-width:608px;width:calc(100% - 32px);margin:0 auto 24px;padding:8px 14px;border-radius:14px}
+html[data-atlas-app="life-map"] #atlas-project-transfer:empty{display:none}
 html[data-atlas-app="life-map"] #atlas-project-transfer>details>summary{min-height:44px;align-content:center;font-size:14px}
 html[data-atlas-app="life-map"] #atlas-project-transfer .workflow-feedback:empty{display:none}
 @media(max-width:380px){html[data-atlas-app="life-map"] #app [style*="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
