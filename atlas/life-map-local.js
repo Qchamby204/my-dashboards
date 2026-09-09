@@ -8,9 +8,9 @@
   const restore=document.createElement('button');restore.textContent='Restore backup';
   const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.hidden=true;input.onchange=()=>{if(input.files[0])importData(input.files[0]);};restore.onclick=()=>input.click();
   const earlier=document.createElement('details'),summary=document.createElement('summary');summary.textContent='i';summary.setAttribute('aria-label','About browser saving and private record transfer');earlier.className='atlas-info';
-  const help=document.createElement('p');help.textContent='Open the private Life Map, choose Backups → Download backup, then restore that file here. Restoring replaces this browser’s board after confirmation. The private copy stays available.';
+  const help=document.createElement('p');help.textContent='Use Export backup at the bottom of the private Life Map, then Import backup here. Restoring replaces this browser’s board after confirmation. The private copy stays available.';
   const link=document.createElement('a');link.href='https://atlas-os-quinton.qchambers123018.chatgpt.site/apps/life-map';link.textContent='Open private Life Map';link.target='_blank';link.rel='noopener';
-  const helpBody=document.createElement('div');helpBody.className='atlas-info-body';helpBody.append(help,link);earlier.append(summary,helpBody);shell.append(status,earlier,retry,backup,restore,input);app.before(shell);
+  const helpBody=document.createElement('div');helpBody.className='atlas-info-body';helpBody.append(help,link);earlier.append(summary,helpBody);shell.append(status,earlier,retry,backup,restore,input);app.after(shell);
   function feedback(){status.textContent=local.error||(view.editor||view.qa.txt.trim()?'Unsaved entry. Use Save or Add to keep it.':local.saved?'Saved in this browser':'No saved projects yet');retry.hidden=!local.error||local.blocked;backup.hidden=restore.hidden=!local.error;shell.className='lm-local-status'+(local.error?' lm-save-error':'');}
   const draw=render;render=function(){draw();feedback();app.inert=local.blocked;};
   document.addEventListener('input',feedback);

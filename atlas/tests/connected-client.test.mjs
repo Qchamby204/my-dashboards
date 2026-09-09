@@ -12,10 +12,11 @@ function nodes(){
 test('the shipped Life Map script boots with saved data and its editor sends changes through the connected adapter',async()=>{
   for(const kind of ['life-map']){
     const {node}=nodes(),document={getElementById:node,querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},createElement:node,body:node('body')},saves=[],raw=emptyAppState(kind);
+    raw.planned={older:'2026-08-01'};
     raw.projects=[{id:'project-one',task:'A room plan',area:'Home',status:'Not started',notes:'Original note',pri:'High',sub:'',due:''}];
     const window={AtlasConnected:{raw:()=>JSON.stringify(raw),save:s=>saves.push(structuredClone(s))},addEventListener(){},scrollTo(){},innerWidth:1200};
     const context=vm.createContext({window,document,navigator:{},location:{href:'https://atlas.test/apps/'+kind},URL,Date,Blob,TextEncoder,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});
-    vm.runInContext(connected['/connected/'+kind+'-main.js'][0],context);await tick();assert.equal(typeof window.acceptConnectedState,'function');
+    vm.runInContext(connected['/connected/'+kind+'-main.js'][0],context);await tick();assert.equal(typeof window.acceptConnectedState,'function');assert.equal(saves.length,0);assert.equal(vm.runInContext('S.planned.older',context),'2026-08-01');
     {
       vm.runInContext("view.editor=Object.assign({kind:'proj'},S.projects[0],{status:'Done'});saveEditor()",context);assert.equal(saves.at(-1).projects[0].status,'Done');assert.equal(saves.at(-1).projects[0].notes,'Original note');
       const changed=structuredClone(saves.at(-1));changed.projects[0].task='A revised plan';window.acceptConnectedState(changed);assert.equal(vm.runInContext('S.projects[0].task',context),'A revised plan');
