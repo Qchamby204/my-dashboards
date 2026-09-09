@@ -4,6 +4,7 @@ export const APPS = [
   { id:'the-hourglass', name:'The Hourglass', detail:'Time, perspective, and intention', group:'Direction', icon:'◷', file:'the-hourglass.html' },
   { id:'life-ledger', name:'Life Ledger', detail:'Habits and daily reflection', group:'Daily life', icon:'▤', file:'life-ledger.html' },
   { id:'workout-forge', name:'The Forge', detail:'Training and session history', group:'Daily life', icon:'⌁', file:'workout-forge.html' },
+  { id:'the-chef', name:'The Chef', detail:'Recipes, weekly meals, and grocery lists', group:'Daily life', icon:'♨', file:'the-chef.html' },
   { id:'baby-brain', name:'Baby Brain', detail:'Parenting knowledge and preparation', group:'Daily life', icon:'✳', file:'baby-brain.html' },
   { id:'the-aqueduct', name:'The Aqueduct', detail:'Book, cash flow, goals, and wealth', group:'Money', icon:'≋', file:'the-aqueduct.html' },
   { id:'prospecting-command-center', name:'Prospecting Command Center', detail:'Relationships and follow-through', group:'The practice', icon:'◎', file:'prospecting-command-center.html' },
