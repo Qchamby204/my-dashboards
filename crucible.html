@@ -214,7 +214,7 @@ button.act.warn:hover{border-color:var(--ember);color:var(--ember)}
 <link rel="stylesheet" href="shared/atlas-palette.css">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=craft-20260909">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=practice-20260909">
 <script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
 </head>
 <body>
@@ -253,10 +253,9 @@ button.act.warn:hover{border-color:var(--ember);color:var(--ember)}
 
 const TOOL = 'crucible';
 const SCHEMA_VERSION = 2;
-const DAILY_RETENTION_DAYS = 120;
 
 const TABS = [
-  ['Practice',   [['today','Today'], ['cadence','Cadence'], ['arc','The Arc']]],
+  ['Practice',   [['today','Today'], ['cadence','Cadence'], ['arc','The Arc'], ['review','Weekly review'], ['archive','Archive']]],
   ['Curriculum', [['blocks','Blocks'], ['statements','Statements'], ['workflow','Workflow'], ['method','Method'], ['arsenal','Arsenal']]]
 ];
 
@@ -898,27 +897,13 @@ const migrations = {
 
 function defaultState(){ return { checks:{}, notes:{}, tab:'today' }; }
 
-function pruneState(data){
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - DAILY_RETENTION_DAYS);
-  const cut = dateKey(cutoff);
-  const dayRe = /^(\d{4}-\d{2}-\d{2})::/;
-  Object.keys(data.checks).forEach(function(k){
-    const m = k.match(dayRe);
-    if (m && m[1] < cut) delete data.checks[k];
-  });
-  Object.keys(data.notes).forEach(function(k){
-    if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k < cut) delete data.notes[k];
-  });
-  return data;
-}
-
 function loadState(){
   const stored = store.get('state');
   if (stored === null) return defaultState();
 
   let version = store.get('schema-version', 1);
   let data = stored;
+  const originalVersion = version;
 
   while (version < SCHEMA_VERSION){
     const migrate = migrations[version];
@@ -931,9 +916,11 @@ function loadState(){
   if (!data.notes)  data.notes  = {};
   if (!data.tab)    data.tab    = 'today';
 
-  data = pruneState(data);
-  store.set('state', data);
-  store.set('schema-version', SCHEMA_VERSION);
+  // Current records are read without rewriting or removing historical entries.
+  if (version !== originalVersion){
+    store.set('state', data);
+    store.set('schema-version', SCHEMA_VERSION);
+  }
   return data;
 }
 
@@ -948,7 +935,7 @@ function toggleCheck(key, on){
 
 function setNote(key, text){
   if (text.trim() === '') delete state.notes[key]; else state.notes[key] = text;
-  persist();
+  if (!persist()) flash('Could not save the note. Export a backup before closing.');
 }
 
 /* ============================================================
@@ -991,7 +978,7 @@ function streak(){
   const d = new Date();
   let n = 0;
   if (!dayComplete(d)) d.setDate(d.getDate() - 1);
-  for (let i = 0; i < DAILY_RETENTION_DAYS; i++){
+  for (let i = 0; i <= Object.keys(state.checks).length; i++){
     if (dayComplete(d)) { n++; d.setDate(d.getDate() - 1); } else break;
   }
   return n;
@@ -1053,9 +1040,9 @@ function viewToday(){
     h += '<div class="panel"><h2>Start here</h2>';
     h += '<p class="lede">Three things, in this order, before the daily cadence means anything.</p>';
     h += '<ol class="method">';
-    h += '<li><b>Read The Arc</b><p>Ten minutes. It explains why the twelve months run in the order they do, which is the part that makes the sequence worth following rather than reordering to taste.</p></li>';
-    h += '<li><b>Open Blocks 01 and 02</b><p>These are the foundation everything else assumes. Block 02 alone, the accrual ratio, will change how you look at a set of financials within a week.</p></li>';
-    h += '<li><b>Do the terminal setup drills</b><p>On the Workflow tab. Five saved monitors and three saved screens. One hour now removes twenty minutes a day for the rest of the year.</p></li>';
+    h += '<li><b><button class="cc-inline-link" data-go="arc">Read The Arc</button></b><p>Ten minutes. It explains why the twelve months run in the order they do, which is the part that makes the sequence worth following rather than reordering to taste.</p></li>';
+    h += '<li><b><button class="cc-inline-link" data-go="blocks" data-open-blocks="b01,b02">Open Blocks 01 and 02</button></b><p>These are the foundation everything else assumes. Block 02 alone, the accrual ratio, will change how you look at a set of financials within a week.</p></li>';
+    h += '<li><b><button class="cc-inline-link" data-go="workflow" data-target="setup-drills">Do the terminal setup drills</button></b><p>On the Workflow tab. Five saved monitors and three saved screens. One hour now removes twenty minutes a day for the rest of the year.</p></li>';
     h += '</ol></div>';
   }
 
@@ -1171,7 +1158,7 @@ function viewBlocks(){
     inTier.forEach(function(b){
       const key = 'blocks::' + b.id;
       const on = state.checks[key] ? ' checked' : '';
-      h += '<details class="block"><summary>';
+      h += '<details class="block" id="block_' + b.id + '"><summary>';
       h += '<input type="checkbox" id="c_' + b.id + '" data-key="' + key + '"' + on + ' onclick="event.stopPropagation()">';
       h += '<span class="bid">' + esc(b.id.toUpperCase()) + '</span>';
       h += '<span class="bt"><b>' + esc(b.name) + '</b><span>' + esc(b.what) + '</span></span>';
@@ -1275,7 +1262,7 @@ function viewWorkflow(){
     h += '</div></div>';
   });
 
-  h += '<div class="panel"><h2>Setup drills, first two weeks</h2>';
+  h += '<div class="panel" id="setup-drills" tabindex="-1"><h2>Setup drills, first two weeks</h2>';
   h += '<p class="lede">Do these once and the daily cadence takes twenty minutes instead of forty for the rest of the year.</p>';
   h += '<ol class="method">';
   h += '<li><p>Build and save five monitors: rates, credit, FX and commodities, Canadian sectors, and your watchlist. Do this before anything else.</p></li>';
@@ -1349,10 +1336,64 @@ function viewArsenal(){
   return h;
 }
 
+/* --- History and weekly review: read the existing notes and checks in place. --- */
+let archiveQuery='';
+function shiftDay(day,n){const d=new Date(day+'T12:00:00');d.setDate(d.getDate()+n);return dateKey(d);}
+function mondayOf(date){const d=new Date(date);d.setDate(d.getDate()-((d.getDay()+6)%7));return dateKey(d);}
+let reviewMonday=mondayOf(new Date());
+function dailyItemsFor(day){
+  const date=new Date(day+'T12:00:00'),bench=benchFor(date);
+  return [...TAPE.items.map(i=>['t:'+i[0],i[1]]),...(bench?bench.items.map(i=>['b:'+i[0],i[1]]):[]),...LEDGER.items.map(i=>['l:'+i[0],i[1]])];
+}
+function historyEntries(query=''){
+  const days=new Set(Object.keys(state.notes));
+  for(const key of Object.keys(state.checks)){const m=key.match(/^(\d{4}-\d{2}-\d{2})::/);if(m)days.add(m[1]);}
+  const q=query.trim().toLocaleLowerCase();
+  return [...days].sort().reverse().map(day=>{
+    const dated=/^\d{4}-\d{2}-\d{2}$/.test(day);
+    const items=dated?dailyItemsFor(day):[];
+    const done=items.filter(([id])=>state.checks[day+'::'+id]);
+    return {day,note:String(state.notes[day]||''),items,done};
+  }).filter(entry=>!q||[entry.day,entry.note,...entry.done.map(i=>i[1])].join(' ').toLocaleLowerCase().includes(q));
+}
+function entryHtml(entry){
+  return '<details class="cc-history-entry"><summary><strong>'+esc(entry.day)+'</strong><span>'+entry.done.length+(entry.items.length?' / '+entry.items.length+' checks':' checks')+'</span></summary>'+
+    (entry.note?'<p class="cc-saved-note">'+esc(entry.note)+'</p>':'<p class="muted">No written note saved for this day.</p>')+
+    (entry.done.length?'<h3>Completed practice</h3><ul>'+entry.done.map(i=>'<li>'+esc(i[1])+'</li>').join('')+'</ul>':'')+'</details>';
+}
+function archiveResults(){const entries=historyEntries(archiveQuery);return entries.length?entries.map(entryHtml).join(''):'<p class="empty">'+(archiveQuery?'No saved entries match your search.':'Your saved notes and daily checks will appear here.')+'</p>';}
+function viewArchive(){
+  return '<section class="panel"><h2>Learning archive</h2><p class="lede">Search all notes and daily checks still saved in this browser. Entries no longer expire. This change cannot recover entries already removed by an older version.</p><label class="cc-field" for="archive-search">Search notes, dates, or completed practice</label><input id="archive-search" type="search" value="'+esc(archiveQuery)+'" placeholder="Search your learning history"><p id="archive-count" role="status">'+historyEntries(archiveQuery).length+' saved days or entries</p><div id="archive-results">'+archiveResults()+'</div></section>';
+}
+function reviewData(start){
+  const end=shiftDay(start,6),today=dateKey(new Date());
+  const entries=historyEntries().filter(e=>e.day>=start&&e.day<=end);
+  const practice=[];
+  for(let i=0;i<7;i++){
+    const day=shiftDay(start,i);if(day>today)continue;
+    const entry=entries.find(e=>e.day===day);if(!entry)continue;
+    const missing=entry.items.filter(([id])=>!state.checks[day+'::'+id]);
+    if(missing.length)practice.push({day,missing});
+  }
+  const weeklyKey=weekKey(new Date(start+'T12:00:00'));
+  return {start,end,entries,practice,weeklyKey,weeklyMissing:WEEKLY.items.filter(([id])=>!state.checks[weeklyKey+'::'+id])};
+}
+function viewReview(){
+  const r=reviewData(reviewMonday),current=STATEMENTS.find(l=>!state.checks['stmt::l'+l.n+'_test']);
+  const pendingBlocks=BLOCKS.filter(b=>!state.checks['blocks::'+b.id]);
+  let h='<section class="panel"><h2 id="review-heading" tabindex="-1">Weekly review</h2><div class="cc-review-nav"><button data-review-week="-1" aria-label="Previous week">‹</button><strong>'+esc(r.start)+' – '+esc(r.end)+'</strong><button data-review-week="1" aria-label="Next week"'+(r.start>=mondayOf(new Date())?' disabled':'')+'>›</button><button data-review-week="today">This week</button></div>';
+  h+='<p>'+r.entries.filter(e=>e.note.trim()).length+' days with notes · '+r.entries.reduce((n,e)=>n+e.done.length,0)+' daily checks completed</p><p class="lede">This review uses saved entries from the selected Monday–Sunday week. Unfinished daily practice only includes days you recorded. Curriculum and mastery below show your current progress.</p></section>';
+  h+='<section class="panel"><h2>Your notes</h2>'+(r.entries.length?r.entries.map(entryHtml).join(''):'<p>No entries saved for this week yet.</p>')+'</section>';
+  h+='<section class="panel"><h2>Still to revisit</h2>'+(r.practice.length?r.practice.map(p=>'<details class="cc-history-entry"><summary>'+p.day+'<span>'+p.missing.length+' unfinished</span></summary><ul>'+p.missing.map(i=>'<li>'+esc(i[1])+'</li>').join('')+'</ul></details>').join(''):'<p>No unfinished practice on recorded days.</p>');
+  h+='<h3>Weekly protocol</h3>'+(r.weeklyMissing.length?'<ul>'+r.weeklyMissing.map(i=>'<li>'+esc(i[1])+'</li>').join('')+'</ul>':'<p>All weekly protocol checks complete.</p>')+'<button data-go="cadence">Open cadence</button></section>';
+  h+='<section class="panel"><h2>Current mastery</h2><p class="cc-mastery-score">'+statementScore()+' / 100</p><p>'+ (current?'Next checkpoint: '+esc(current.name):'All statement checkpoints complete.')+'</p><button data-go="statements">Open statement ladder</button><h3>Next curriculum blocks</h3>'+(pendingBlocks.length?'<ul>'+pendingBlocks.slice(0,3).map(b=>'<li>'+esc(b.id.toUpperCase()+' · '+b.name)+'</li>').join('')+'</ul>':'<p>All curriculum blocks complete.</p>')+'<button data-go="blocks">Open blocks</button></section>';
+  return h;
+}
+
 /* --- Router ----------------------------------------------- */
 
 const VIEWS = {
-  today:viewToday, cadence:viewCadence, arc:viewArc,
+  today:viewToday, cadence:viewCadence, arc:viewArc, review:viewReview, archive:viewArchive,
   blocks:viewBlocks, statements:viewStatements, workflow:viewWorkflow, method:viewMethod, arsenal:viewArsenal
 };
 
@@ -1518,6 +1559,32 @@ function wireEvents(){
     window.scrollTo(0,0);
   });
 
+  document.getElementById('view').addEventListener('click', function(e){
+    const go=e.target.closest('[data-go]');
+    if(go){
+      flushLedger();
+      const tab=go.dataset.go;
+      if(!VIEWS[tab])return;
+      state.tab=tab; persist(); render();
+      if(go.dataset.openBlocks)for(const id of go.dataset.openBlocks.split(',')){const block=document.getElementById('block_'+id);if(block)block.open=true;}
+      document.querySelector('#tabs button[data-tab="'+tab+'"]')?.focus({preventScroll:true});
+      const target=go.dataset.target?document.getElementById(go.dataset.target):go.dataset.openBlocks?document.getElementById('block_'+go.dataset.openBlocks.split(',')[0]):null;
+      if(target){target.scrollIntoView({block:'start'});(target.querySelector('summary')||target).focus({preventScroll:true});}
+      else window.scrollTo(0,0);return;
+    }
+    const week=e.target.closest('[data-review-week]');
+    if(week){
+      if(week.dataset.reviewWeek==='today')reviewMonday=mondayOf(new Date());
+      else reviewMonday=shiftDay(reviewMonday,Number(week.dataset.reviewWeek)*7);
+      render();document.getElementById('review-heading')?.focus({preventScroll:true});
+    }
+  });
+  document.getElementById('view').addEventListener('input', function(e){
+    if(e.target.id!=='archive-search')return;
+    archiveQuery=e.target.value;
+    document.getElementById('archive-results').innerHTML=archiveResults();
+    document.getElementById('archive-count').textContent=historyEntries(archiveQuery).length+' saved days or entries';
+  });
   document.getElementById('view').addEventListener('change', function(e){
     const cb = e.target.closest('input[type=checkbox][data-key]');
     if (!cb) return;

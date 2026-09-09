@@ -99,3 +99,36 @@
 @media(prefers-reduced-motion:reduce) { .cc-app * { scroll-behavior:auto!important; animation:none!important; transition:none!important; } .cc-app button:active { transform:none!important; } }
 @media(prefers-reduced-transparency:reduce) { .cc-app dialog::backdrop { backdrop-filter:none!important; background:#101722dd!important; } }
 @media(prefers-contrast:more) { .cc-app :is(.panel,.card,.stat,.day,button,input,select,textarea,summary) { border:1px solid currentColor!important; box-shadow:none!important; } }
+
+/* Keep added history, planning, and cooking controls in the same material system. */
+.cc-app .cc-inline-link { background:transparent!important; color:var(--neo-blue)!important; box-shadow:none; border:0!important; padding:.35rem 0; text-align:left; text-decoration:underline; text-underline-offset:.2em; font-size:1rem; }
+.cc-app .cc-field { display:block; margin:.75rem 0 .4rem; font-weight:600; }
+.cc-app #archive-search { width:100%; min-height:48px; }
+.cc-app .cc-history-entry { border-top:1px solid var(--neo-line); padding:.75rem 0; }
+.cc-app .cc-history-entry>summary { display:flex; align-items:center; justify-content:space-between; gap:1rem; cursor:pointer; font-size:1rem; }
+.cc-app .cc-history-entry>summary::after { content:'+'; }
+.cc-app .cc-history-entry[open]>summary::after { content:'−'; }
+.cc-app .cc-history-entry>summary span { font-size:.875rem; color:var(--neo-muted); margin-left:auto; }
+.cc-app .cc-saved-note { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.7; }
+.cc-app .cc-review-nav { display:flex; align-items:center; flex-wrap:wrap; gap:.75rem; }
+.cc-app .cc-review-nav button { min-width:44px; }
+.cc-app .cc-mastery-score { font-size:2rem; font-weight:600; color:var(--neo-accent); margin:.75rem 0; }
+.cc-app .cc-serving-label,.cc-app .cc-slot-tools label { display:flex; align-items:center; gap:.5rem; font-size:.9rem; }
+.cc-app input[type=number] { max-width:6rem; min-height:44px; }
+.cc-app .cc-recipe-options .actions { display:grid; gap:1rem; padding-block:.5rem; }
+.cc-app .cc-cook-open { margin-top:auto; width:100%; }
+.cc-app .cc-slot-tools { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; }
+.cc-app .cc-undo { position:fixed; bottom:calc(var(--cc-bottom) + 1rem); left:50%; transform:translateX(-50%); width:min(36rem,calc(100% - 2rem)); z-index:40; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.75rem 1rem; border:1px solid var(--neo-line); border-radius:18px; background:var(--neo-surface); box-shadow:var(--neo-float); }
+.cc-app .cc-undo[hidden] { display:none; }
+.cc-app:has(.cc-undo:not([hidden])) main.wrap { padding-bottom:calc(var(--cc-bottom) + 9rem); }
+.cc-app #cook-dialog { width:min(48rem,calc(100% - 1.5rem)); max-height:calc(100dvh - var(--cc-top) - var(--cc-bottom) - 2rem); overflow:auto; padding:clamp(1rem,3vw,2rem); }
+.cc-app .cc-cook-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
+.cc-app .cc-cook-heading h2 { font-size:clamp(1.4rem,4vw,2rem); }
+.cc-app #cook-close { width:44px; flex:0 0 44px; font-size:1.5rem; padding:0; }
+.cc-app .cc-cook-controls { display:flex; align-items:center; flex-wrap:wrap; gap:.75rem; margin:1.25rem 0 .5rem; }
+.cc-app #cook-time { color:var(--neo-muted); }
+.cc-app .cc-cook-checks { font-size:1.0625rem; }
+.cc-app .cc-cook-checks label { display:flex; align-items:flex-start; gap:.85rem; padding:.75rem 0; min-height:48px; line-height:1.65; }
+.cc-app .cc-cook-checks label:has(input:checked) span { color:var(--neo-muted); text-decoration:line-through; }
+.cc-app ol.cc-cook-checks { padding-left:1.5rem; }
+.cc-app #cook-dialog h3 { margin:1.5rem 0 .4rem; }
