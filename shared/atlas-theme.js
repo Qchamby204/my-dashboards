@@ -43,7 +43,7 @@
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasForgeBoot=boot;
-      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=motion-20260909',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=save-20260909',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
