@@ -3,8 +3,8 @@
  "days": [
   {
    "date": "2026-09-11",
-   "state": "failed",
-   "checkedAt": "2026-09-11T12:52:34+00:00",
+   "state": "updating",
+   "checkedAt": "2026-09-11T14:28:08+00:00",
    "verifiedAt": null,
    "generatedAt": "2026-09-11T10:47:03+00:00",
    "updatedAt": null,
