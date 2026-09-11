@@ -3,12 +3,13 @@
  "days": [
   {
    "date": "2026-09-11",
-   "state": "updating",
-   "checkedAt": "2026-09-11T14:28:08+00:00",
-   "verifiedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-09-11T14:30:28+00:00",
+   "verifiedAt": "2026-09-11T14:30:28+00:00",
    "generatedAt": "2026-09-11T10:47:03+00:00",
-   "updatedAt": null,
+   "updatedAt": "2026-09-11T14:29:14+00:00",
    "audio": {
+    "frontpage": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ec2650efe3d4cd38f218cec9134ce59f8e066a05/2026-09-11/frontpage.mp3",
     "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/lessons.mp3",
     "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/markets.mp3",
     "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/companies.mp3",
@@ -35,9 +36,7 @@
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "frontpage"
-   ],
+   "missingSections": [],
    "voiceless": []
   },
   {
