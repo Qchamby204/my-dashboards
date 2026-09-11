@@ -7,11 +7,9 @@
    "release": "courier-2026-09-11",
    "budgetMinutes": 60,
    "plannedMinutes": 60,
-   "projectedMinutes": 50.5,
+   "projectedMinutes": 54.0,
    "voiceless": [],
-   "failed": [
-    "frontpage"
-   ],
+   "failed": [],
    "usage": {
     "calls": 17,
     "input": 2747,
@@ -23,6 +21,18 @@
    },
    "plan": [],
    "blocks": [
+    {
+     "id": "frontpage",
+     "label": "Front page",
+     "title": "Oil Above $100 Reshapes Rates and Risk",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ec2650efe3d4cd38f218cec9134ce59f8e066a05/2026-09-11/frontpage.mp3",
+     "bytes": 2936832,
+     "script": "Oil crossed one hundred dollars a barrel this week, and that single number is driving almost everything else in your day. It's pushing inflation risk higher, it's behind this week's bond selloff, and it's the backdrop for why the Bank of Canada held rates at two and a quarter percent for a seventh straight meeting, with the next decision October twenty eighth. The loonie is softer anyway, because safe haven demand for U.S. dollars is overriding the usual oil-currency pattern. That's the core of Markets and Economy, seven and a half minutes, and it earns your full attention today.\n\nRight behind it, The Ten, seven point two minutes, rounds up the corporate side: Oracle's earnings beat calmed some fear about its AI-linked debt load, Anthropic's own staff are the ones raising the loudest alarm about the company's safety practices, and Shopify's recent slide looks like a broad market move, not a company problem.\n\nYour Practice block, five and a half minutes, has three items that change what you tell clients today: don't act on the twenty twenty four capital gains changes before royal assent, BMO just went fee-free on online trading and other platforms will likely follow, and check life insurance for any client mid-transition, since lapse risk peaks in years one through three.\n\nManitoba and Winnipeg, four point three minutes, covers circuit court sittings being cut starting April twenty twenty seven, Kinew talking openly about bringing lab services back into the public system, and Winnipeg clearing one hundred twenty six point five million dollars in federal housing money after beating its targets.\n\nCanadian Politics, four minutes, has Ottawa formally pitching the fifty seven billion dollar Churchill port expansion, worth watching if you have Manitoba exposure, plus Alberta's October nineteenth referendum, with Ottawa staying out of funding the federalist side.\n\nClimate Policy, four point one minutes, centers on Manitoba Hydro's gas turbine plan facing real pushback in its rate case, plus a reminder that the Canada Revenue Agency is cracking down on charity receipting misuse.\n\nHealth and Fitness, two point eight minutes, has a genuinely useful figure: a Harvard study found ninety to one hundred nineteen minutes of weekly strength training linked to thirteen percent lower all-cause mortality over thirty years. There's also a Health Canada recall on one lot of Novo-Gesic Forte acetaminophen, lot number one zero zero zero eight three zero four zero.\n\nParenting, one point nine minutes, flags the Canada Child Benefit increase and the roughly thirty eight thousand dollar income cutoff for the full amount.\n\nSports, three point two minutes, closes things out: the Seahawks opened one and oh over the Patriots, and the hockey world is mourning Barry Melrose, dead at seventy.\n\nTalking points\nOil above one hundred a barrel is the real story behind this week's bond selloff.\nThe Bank of Canada is done cutting for now, next call isn't until October twenty eighth.\nBMO going fee-free on trading is about to force every other bank's hand.\nManitoba Hydro's gas plant is facing tougher hearings than expected on cost and need.\nNinety minutes of lifting a week is now tied to real mortality numbers, not just muscle.",
+     "talkingPoints": [],
+     "sources": [],
+     "words": 523,
+     "minutes": 3.5
+    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -745,8 +755,14 @@
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "frontpage"
+   "missingSections": [],
+   "updatedAt": "2026-09-11T14:29:14+00:00",
+   "repairs": [
+    {
+     "section": "frontpage",
+     "at": "2026-09-11T14:29:14+00:00",
+     "audio": true
+    }
    ]
   },
   {
