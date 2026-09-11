@@ -3,9 +3,9 @@
  "days": [
   {
    "date": "2026-09-11",
-   "state": "partial",
-   "checkedAt": "2026-09-11T10:48:57+00:00",
-   "verifiedAt": "2026-09-11T10:48:57+00:00",
+   "state": "updating",
+   "checkedAt": "2026-09-11T11:35:23+00:00",
+   "verifiedAt": null,
    "generatedAt": "2026-09-11T10:47:03+00:00",
    "updatedAt": null,
    "audio": {
