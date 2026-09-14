@@ -2,6 +2,704 @@
  "schemaVersion": 1,
  "days": [
   {
+   "date": "2026-09-14",
+   "generatedAt": "2026-09-14T10:55:26+00:00",
+   "release": "courier-2026-09-14",
+   "budgetMinutes": 60,
+   "plannedMinutes": 60,
+   "projectedMinutes": 50.6,
+   "voiceless": [],
+   "failed": [
+    "frontpage"
+   ],
+   "usage": {
+    "calls": 16,
+    "input": 2772,
+    "output": 91458,
+    "cache_read": 107271,
+    "cache_write": 283797,
+    "searches": 20,
+    "estimatedCost": 2.68
+   },
+   "plan": [],
+   "blocks": [
+    {
+     "id": "lessons",
+     "label": "Lessons",
+     "title": "Reading the yield curve: shape, inversion, and what it has and has not predicted / RESP: grants, the CESG, and withdrawal strategy for EAPs versus contributions / Numbers people can hear: translating figures into comparisons and consequences",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/lessons.mp3",
+     "bytes": 5682048,
+     "script": "Company & Economy Analysis, Macro & rates, lesson 2: Reading the yield curve: shape, inversion, and what it has and has not predicted.\n\nThe yield curve is just government bond yields lined up by maturity, three month, two year, ten year, thirty year, for the same issuer. Normally it slopes upward, because lending money for thirty years carries more risk than lending it for three months, so investors demand more yield for the wait. When that flips, when short-term yields sit above long-term yields, that is inversion, and it means the market expects the central bank to cut rates later because it thinks growth or inflation is weakening.\n\nHere is the real example. In July 2023, the US two-year Treasury yield hit roughly four point eight six percent while the ten-year sat near three point seven eight percent. That is a spread of about negative one point zero eight, the deepest two-year, ten-year inversion since 1981, reported widely at the time including by the Wall Street Journal. That curve stayed inverted for about two years before steepening again through 2024 and into 2025.\n\nNow the mistake. People treat inversion as a countdown clock, as if recession follows in six months on schedule. It does not work that way. The lag between inversion and any downturn has ranged from six months to over two years historically, and there have been inversions, like in 1998, that produced no recession at all. What actually matters more is the re-steepening after inversion, when the curve moves back to normal shape, because that has historically lined up closer to the start of downturns than the inversion itself. The curve tells you what bond investors expect for rates and growth. It does not tell you timing, and it says nothing about which sectors or companies get hit hardest, that is a separate layer of work.\n\nFor today, pull up the Canada and US government yield curves on Thomson ONE, the GOVT screen works, and note the two year, five year, ten year, and thirty year yields for both. Check whether either curve is inverted right now, and compare today's spread to where it sat six months ago.\n\nFinancial Planning Facts, lesson 6: RESP: grants, the CESG, and withdrawal strategy for EAPs versus contributions.\n\nThe Registered Education Savings Plan, or RESP, is the only account where the government hands you free money just for contributing. That's the Canada Education Savings Grant, the CESG. For 2026, the rule is 20 percent on the first 2,500 dollars you contribute per beneficiary per year, so a maximum grant of 500 dollars a year. Lifetime CESG per child caps at 7,200 dollars. Lifetime contribution room per child is 50,000 dollars, no annual cap on contributions, just no extra grant past that 2,500 dollar sweet spot. Manitoba has no provincial top-up here, unlike Quebec's QESI. What you get in Manitoba is the federal CESG plus, for lower income families, the Canada Learning Bond, up to 2,000 dollars, paid with no contribution required at all.\n\nHere's the withdrawal side, and this is where advisors earn their fee. Money coming out for school splits into two buckets. Post-Secondary Education withdrawals, PSE, are just your original contributions back, no tax, ever. Educational Assistance Payments, EAP, are the grant money plus all the growth, and that's taxed in the student's hands. Budget 2023 raised the EAP cap for the first 13 weeks of enrollment to 8,000 dollars for full-time students, up from 5,000. After those 13 weeks, no cap.\n\nWorked example. A student starts university in September 2026. The RESP holds 40,000 dollars: 28,000 in contributions, 12,000 in grant and growth. Withdraw 8,000 dollars as EAP in year one. The student has little or no other income, so that 8,000 lands mostly or entirely under the basic personal amount and gets taxed at close to zero.\n\nThe mistake: families draw PSE first because it feels safer, \"it's just my own money.\" That leaves the taxable EAP piling up for later years, when the student might be working part-time and actually paying tax on it, or worse, the program ends early and unused grant money has to be repaid to the government.\n\nYour task today, ten minutes: pull one client's RESP statement, split the balance into contribution room used versus grant and growth, and write down which bucket you'd draw from first if withdrawals started this year.\n\nCommunication, lesson 5: Numbers people can hear: translating figures into comparisons and consequences.\n\nYou're in a board meeting. The finance chair says, \"revenue grew 40 percent this year.\" Everyone nods. Nobody feels anything, because 40 percent of what.\n\nThat's the whole lesson: a number without a comparison is just a sound. A number with a comparison becomes a fact people can carry out of the room.\n\nChip Heath, the Stanford professor who wrote \"Made to Stick\" with his brother Dan, studied why some numbers stick and others vanish. The answer isn't precision, it's scale the listener already understands.\n\nWorked example. A food bank tells its board, \"we distributed 1.4 million pounds of food last year.\" True, but it slides past you. Reframe it: 1.4 million pounds is roughly 1,150,000 meals, or about 3,150 meals every single day the doors were open, or one meal every 27 seconds. Now the board member pictures a person eating, not a spreadsheet cell.\n\nSame move works with money. The Chronicle of Philanthropy reported total US charitable giving hit 557 billion dollars in 2023. Say instead: that's roughly 1,700 dollars given, on average, for every person in the country, whether they gave a cent or not. That comparison makes a huge, abstract number personal.\n\nThe mistake almost everyone makes: leading with the percentage and skipping the base number. \"We grew 40 percent\" tells you nothing about size. Going from 10 clients to 14 is 40 percent. Going from 10,000 to 14,000 is also 40 percent. Always give the base, then the change, then what it means for the person in front of you.",
+     "talkingPoints": [
+      "Company & Economy Analysis: On Thomson ONE, pull the Canada and US two year and ten year government yields, calculate the spread for each, and write down whether it is inverted and how that compares to six months ago.",
+      "Financial Planning Facts: Pull one RESP statement, separate the balance into contributions versus grant and growth, and note which bucket to draw first if withdrawals started this year.",
+      "Communication: Pull one statistic you use often, a client win, a board metric, a LinkedIn claim. Rewrite it three ways: as a rate per day or per person, as a comparison to something the listener already knows the size of, and as a consequence for one real person."
+     ],
+     "sources": [],
+     "words": 998,
+     "minutes": 6.7,
+     "lessons": [
+      {
+       "track": "analysis",
+       "label": "Company & Economy Analysis",
+       "sequence": "Macro & rates",
+       "index": 2,
+       "title": "Reading the yield curve: shape, inversion, and what it has and has not predicted",
+       "script": "The yield curve is just government bond yields lined up by maturity, three month, two year, ten year, thirty year, for the same issuer. Normally it slopes upward, because lending money for thirty years carries more risk than lending it for three months, so investors demand more yield for the wait. When that flips, when short-term yields sit above long-term yields, that is inversion, and it means the market expects the central bank to cut rates later because it thinks growth or inflation is weakening.\n\nHere is the real example. In July 2023, the US two-year Treasury yield hit roughly four point eight six percent while the ten-year sat near three point seven eight percent. That is a spread of about negative one point zero eight, the deepest two-year, ten-year inversion since 1981, reported widely at the time including by the Wall Street Journal. That curve stayed inverted for about two years before steepening again through 2024 and into 2025.\n\nNow the mistake. People treat inversion as a countdown clock, as if recession follows in six months on schedule. It does not work that way. The lag between inversion and any downturn has ranged from six months to over two years historically, and there have been inversions, like in 1998, that produced no recession at all. What actually matters more is the re-steepening after inversion, when the curve moves back to normal shape, because that has historically lined up closer to the start of downturns than the inversion itself. The curve tells you what bond investors expect for rates and growth. It does not tell you timing, and it says nothing about which sectors or companies get hit hardest, that is a separate layer of work.\n\nFor today, pull up the Canada and US government yield curves on Thomson ONE, the GOVT screen works, and note the two year, five year, ten year, and thirty year yields for both. Check whether either curve is inverted right now, and compare today's spread to where it sat six months ago.",
+       "task": "On Thomson ONE, pull the Canada and US two year and ten year government yields, calculate the spread for each, and write down whether it is inverted and how that compares to six months ago.",
+       "drill": ""
+      },
+      {
+       "track": "planning",
+       "label": "Financial Planning Facts",
+       "sequence": null,
+       "index": 6,
+       "title": "RESP: grants, the CESG, and withdrawal strategy for EAPs versus contributions",
+       "script": "The Registered Education Savings Plan, or RESP, is the only account where the government hands you free money just for contributing. That's the Canada Education Savings Grant, the CESG. For 2026, the rule is 20 percent on the first 2,500 dollars you contribute per beneficiary per year, so a maximum grant of 500 dollars a year. Lifetime CESG per child caps at 7,200 dollars. Lifetime contribution room per child is 50,000 dollars, no annual cap on contributions, just no extra grant past that 2,500 dollar sweet spot. Manitoba has no provincial top-up here, unlike Quebec's QESI. What you get in Manitoba is the federal CESG plus, for lower income families, the Canada Learning Bond, up to 2,000 dollars, paid with no contribution required at all.\n\nHere's the withdrawal side, and this is where advisors earn their fee. Money coming out for school splits into two buckets. Post-Secondary Education withdrawals, PSE, are just your original contributions back, no tax, ever. Educational Assistance Payments, EAP, are the grant money plus all the growth, and that's taxed in the student's hands. Budget 2023 raised the EAP cap for the first 13 weeks of enrollment to 8,000 dollars for full-time students, up from 5,000. After those 13 weeks, no cap.\n\nWorked example. A student starts university in September 2026. The RESP holds 40,000 dollars: 28,000 in contributions, 12,000 in grant and growth. Withdraw 8,000 dollars as EAP in year one. The student has little or no other income, so that 8,000 lands mostly or entirely under the basic personal amount and gets taxed at close to zero.\n\nThe mistake: families draw PSE first because it feels safer, \"it's just my own money.\" That leaves the taxable EAP piling up for later years, when the student might be working part-time and actually paying tax on it, or worse, the program ends early and unused grant money has to be repaid to the government.\n\nYour task today, ten minutes: pull one client's RESP statement, split the balance into contribution room used versus grant and growth, and write down which bucket you'd draw from first if withdrawals started this year.",
+       "task": "Pull one RESP statement, separate the balance into contributions versus grant and growth, and note which bucket to draw first if withdrawals started this year.",
+       "drill": ""
+      },
+      {
+       "track": "communication",
+       "label": "Communication",
+       "sequence": null,
+       "index": 5,
+       "title": "Numbers people can hear: translating figures into comparisons and consequences",
+       "script": "You're in a board meeting. The finance chair says, \"revenue grew 40 percent this year.\" Everyone nods. Nobody feels anything, because 40 percent of what.\n\nThat's the whole lesson: a number without a comparison is just a sound. A number with a comparison becomes a fact people can carry out of the room.\n\nChip Heath, the Stanford professor who wrote \"Made to Stick\" with his brother Dan, studied why some numbers stick and others vanish. The answer isn't precision, it's scale the listener already understands.\n\nWorked example. A food bank tells its board, \"we distributed 1.4 million pounds of food last year.\" True, but it slides past you. Reframe it: 1.4 million pounds is roughly 1,150,000 meals, or about 3,150 meals every single day the doors were open, or one meal every 27 seconds. Now the board member pictures a person eating, not a spreadsheet cell.\n\nSame move works with money. The Chronicle of Philanthropy reported total US charitable giving hit 557 billion dollars in 2023. Say instead: that's roughly 1,700 dollars given, on average, for every person in the country, whether they gave a cent or not. That comparison makes a huge, abstract number personal.\n\nThe mistake almost everyone makes: leading with the percentage and skipping the base number. \"We grew 40 percent\" tells you nothing about size. Going from 10 clients to 14 is 40 percent. Going from 10,000 to 14,000 is also 40 percent. Always give the base, then the change, then what it means for the person in front of you.",
+       "task": "Pull one statistic you use often, a client win, a board metric, a LinkedIn claim. Rewrite it three ways: as a rate per day or per person, as a comparison to something the listener already knows the size of, and as a consequence for one real person.",
+       "drill": "Record yourself saying the original stat cold, ten seconds. Then record your rewritten version. Play both, unlabeled, to one other person. Ask them to repeat back what they remember thirty seconds later. Pass: they repeat the translated version accurately. Fail: they repeat the raw number, the wrong number, or nothing at all."
+      }
+     ]
+    },
+    {
+     "id": "markets",
+     "label": "Markets & Economy",
+     "title": "Oil Shock, Rate Bets, and Carney's Investment Push",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/markets.mp3",
+     "bytes": 6471552,
+     "script": "Start with oil, because it touches almost everything else you'll talk about with clients this week. Saudi Arabia has shut down its East-West pipeline after drone attacks over the weekend, and that route carries about seven million barrels a day across the kingdom to Red Sea ports, bypassing the Strait of Hormuz entirely. Saudi Arabia's Energy Ministry said it suspended operations on the pipeline as a precaution after multiple attacks, and the pipeline is critical in linking oil production sites in the Eastern Province with Yanbu on the kingdom's western coast, with full pumping capacity of about seven million barrels per day. Brent crude touched 108 US dollars a barrel this morning before easing back, and West Texas Intermediate is trading around 103. Brent crude rose as high as 108, while U.S. crude oil touched 103 per barrel. Layer on top of that a postponed diplomatic meeting between Iran and Gulf states over the Strait of Hormuz, and reports that Saudi export stocks at one port could run dry within five to seven days, and you've got a genuine supply scare, not just headline noise. Tell clients this matters for two reasons: pump prices, and inflation readings that feed straight into central bank decisions.\n\nWhich brings you to today's number. Statistics Canada releases the August Consumer Price Index this morning, and the Street is watching closely. A poll of economists expects the annual rate of inflation was three per cent last month, holding steady from July. Economists expect the headline CPI to remain unchanged at 3 per cent year over year, with the Bank of Canada's core measure forecast to rise by just 0.1 per cent. The story underneath the headline is energy. RBC economists say Canada has seen inflationary pressure coming mainly from higher energy prices, which are up around 23 per cent from a year ago, though there was slight relief at the pumps last month compared with earlier this summer. Grocery inflation has also been running hotter than the headline number for about a year and a half, so lower income households are still feeling squeezed even as the topline print looks tame.\n\nOn the Bank of Canada, and this one's on your watch list, the bank held its policy rate at 2.25 per cent at its September 2nd meeting. The August inflation figures come after the Bank of Canada left its key policy rate unchanged at 2.25 per cent earlier this month, and the central bank has held its policy rate steady in seven consecutive decisions as it tries to balance volatile global energy prices and U.S. tariffs hampering the economy. The next scheduled decision is October 28th, and most economists still expect another hold, but Governor Tiff Macklem has flagged that if rising energy costs start spilling into the price of other goods and services, a hike becomes live. Wednesday brings the bank's summary of deliberations, which should give you a clearer read on how seriously they're weighing the trade war and the Middle East conflict together. If a client asks you point blank whether the BoC is done cutting, the honest answer is that the bar for a move either way just got higher, and the risk has tilted toward a hike in early 2027 rather than a cut.\n\nSouth of the border, this is shaping up as a pivotal week for central banks generally. The Federal Reserve decides Wednesday, followed by the Bank of England and the Bank of Japan on successive days. Markets have swung toward pricing in a Fed hike, not a cut, after a hotter than expected core inflation print Friday. JPMorgan's chief US economist put it plainly, that the Fed risks its credibility if it doesn't back up its rhetoric with action. Fed Chair Kevin Warsh is now navigating this in direct tension with President Trump, who's been pushing publicly for lower rates. That's an unusual dynamic to explain to clients: a central bank that may hike specifically because inflation is proving stickier than politically convenient.\n\nEquity markets are reacting to two things at once, the oil shock and a sudden wave of caution out of the artificial intelligence industry. Anthropic's CEO published an open letter over the weekend calling for a slowdown in AI development and pledged to do so unilaterally, and OpenAI, Google DeepMind, and others echoed the call. That's rattled the exact stocks that have carried this market's momentum. SoftBank shares dropped double digits in Tokyo, memory chip makers in Korea and Japan fell hard, and Nvidia was down in US premarket trading this morning. Nasdaq futures are leading losses. Here in Canada, TSX futures are following that lower ahead of the inflation print, even though Friday's session was actually positive, up about half a percent, led by names like Boyd Group and Celestica. Tell clients this is a valuation and momentum story on top of a supply shock story, and that the two are reinforcing each other right now rather than offsetting.\n\nOn currency, the loonie is weaker again today. The Canadian dollar weakened against its U.S. counterpart, trading in a range of 71.92 to 72.13 US cents, down about 0.17 per cent over the past month. A stronger US dollar index and rising rate expectations south of the border are the main drag. For anyone with US dollar exposure or upcoming cross-border spending, this is worth a quick mention.\n\nNow the domestic story that's actually dominating Bay Street this week, even more than rates: the Canada Investment Summit running today and tomorrow in Toronto. Prime Minister Carney is pitching the country to roughly two dozen sources' worth of global capital, with a goal of one trillion dollars in investment over five years. More than 160 projects are on the table, including a proposed high speed rail link between Edmonton and Calgary and a Port of Churchill expansion, which matters to anyone in this room with Manitoba exposure, and Manitoba Hydro is worth watching if energy infrastructure spending flows this way. TD committed 150 billion dollars and Scotiabank committed 100 billion dollars this morning to fund Canadian companies in critical sectors, and Scotiabank has also brought on former US ambassador Kirsten Hillman to advise its new Scotia Growth Institute, which is on your watch list too. On trade, Trump told reporters this weekend a Canada-US deal could come fairly soon, and Carney has echoed that he doesn't expect further retaliation from either side. That's a meaningfully more constructive tone than we've had in months.\n\nOne more thread worth a sentence with clients: Canada is quietly exploring deeper ties with the European Union, possibly even some kind of associate status, as a hedge against overreliance on Washington. And on housing, the Globe's own reporting this morning flags that the market should brace for more strain heading into 2027, tied to affordability and borrowing costs that aren't falling as fast as some homeowners had hoped. Worth keeping on your radar for renewal conversations this fall.",
+     "talkingPoints": [
+      "Oil just spiked on a Saudi pipeline shutdown, and that's the wildcard for both inflation and your energy holdings this week.",
+      "Today's Canadian inflation number is expected to hold near 3 per cent, with the Bank of Canada watching whether energy costs bleed into everything else.",
+      "The Bank of Canada's rate decision is on the watch list, next one October 28th, and a hike in early 2027 is now a real possibility, not a hold forever story.",
+      "The Fed decides Wednesday and markets are now betting on a hike, not a cut, which is an awkward message for anyone expecting lower borrowing costs soon.",
+      "Carney's trillion dollar investment summit in Toronto, plus TD and Scotiabank's big financing commitments, is the most constructive Canadian growth story we've had in a while."
+     ],
+     "sources": [
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Statistics Canada set to report inflation figures for August this morning",
+       "url": "https://www.nationalobserver.com/2026/09/14/news/statistics-canada-set-report-inflation-figures-august-morning"
+      },
+      {
+       "outlet": "FXStreet",
+       "title": "Canada CPI Preview: Inflation expected to remain steady in August",
+       "url": "https://www.fxstreet.com/news/canada-cpi-expected-to-show-steady-inflation-in-august-202609140730"
+      },
+      {
+       "outlet": "NBC News",
+       "title": "Diesel prices push to new all-time high as oil prices jump after key Saudi pipeline shut",
+       "url": "https://www.nbcnews.com/business/business-news/diesel-oil-prices-jump-saudi-pipeline-shut-hormuz-talks-postponed-iran-rcna597579"
+      },
+      {
+       "outlet": "The National",
+       "title": "Oil nears $108 after Saudi Arabia shuts pipeline amid attacks",
+       "url": "https://www.thenationalnews.com/business/energy/2026/09/14/oil-nears-108-after-saudi-arabia-shuts-pipeline-amid-attacks/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Before the Bell: What every Canadian investor needs to know today",
+       "url": "https://www.theglobeandmail.com/investing/markets/inside-the-market/article-before-the-bell-what-every-canadian-investor-needs-to-know-today-1560/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Business Brief: Five files to follow this week",
+       "url": "https://www.theglobeandmail.com/business/article-business-brief-five-files-to-follow-this-week-30/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "TD commits $150-billion to fund Canadian companies in critical sectors over next five years",
+       "url": "https://www.theglobeandmail.com/business/article-td-commits-150-billion-to-fund-canadian-companies-in-critical-sectors/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Scotiabank commits more than $100-billion to help fund expansion of Canadian companies",
+       "url": "https://www.theglobeandmail.com/business/article-scotiabank-100-billion-to-help-fund-expansion-of-canadian-companies/"
+      }
+     ],
+     "words": 1158,
+     "minutes": 7.7
+    },
+    {
+     "id": "companies",
+     "label": "The Ten",
+     "title": "AI Giants Call for Slowdown as Markets Wobble",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/companies.mp3",
+     "bytes": 4742016,
+     "script": "Good evening. Here is your roundup of the day's top business and world news.\n\nThe biggest story tonight comes from Silicon Valley, where the leaders of the world's largest AI companies are suddenly talking about hitting the brakes. Anthropic CEO Dario Amodei published an open letter over the weekend calling for a global slowdown in AI development, according to Bloomberg's Markets Daily newsletter. Amodei warned that AI has been advancing drastically faster this summer, driven by the technology's growing ability to build its own successors, and said this risks AI outrunning humanity's ability to understand and control it.\n\nAmodei also committed Anthropic to giving outside evaluators permanent, employee-level access to its systems so they can check safety measures and flag problems.\n\nHe wasn't alone. OpenAI's Sam Altman, Google DeepMind chair Demis Hassabis, and Elon Musk all backed the call for a slower pace, Bloomberg reports. Altman said OpenAI would offer similar access to independent evaluators, and confirmed he's pushing the company's planned stock market listing back to at least 2027, calling this an ill-advised moment to go public.\n\nNot everyone is convinced this is really about safety. White House AI chief David Sacks described the industry's sudden caution as a bid for regulatory capture, according to The Peak newsletter. President Trump himself has downplayed the warnings, according to the BBC, suggesting that concerns are being raised by, in his words, negative forces worried about things that won't happen, and pointing to competition with China as a reason to keep pushing forward.\n\nMeanwhile, a former Anthropic researcher told the BBC that AI safety staff are genuinely frightened for humanity's future, even as the BBC also reports that some in Silicon Valley are treating the dramatic warnings with skepticism. In Britain, MPs and members of the House of Lords are calling for new legislation to address AI's threat to human rights, arguing existing law isn't equipped to handle it. And former President Obama has urged Democrats to develop a clear plan on AI safeguards, calling it a central issue the party needs to address.\n\nMarkets felt the jitters immediately. Bloomberg's Markets Daily reports that AI bellwether stocks took a hit, with SoftBank shares sliding eleven percent in Tokyo. Chipmakers were hammered too, with South Korea's SK Hynix and Samsung both down sharply, and Europe's ASML falling more than four percent. In the United States, Nvidia and memory chip makers were lower in premarket trading. On the flip side, software companies seen as less exposed to an AI slowdown, including Adobe, Salesforce, and Crowdstrike, all gained ground.\n\nAdding to market anxiety, oil prices jumped after Saudi Arabia was forced to close a major crude pipeline following drone attacks, according to Bloomberg. Traders say as much as four percent of global oil supply could be at risk, on top of ongoing disruptions around the Strait of Hormuz, where a planned meeting between Iran and Gulf nations on the shipping lane has reportedly been postponed. Separately, Yemen's Houthi rebels have seized more islands in the southern Red Sea, according to the Globe and Mail, tightening their grip on a major maritime route and prompting Somali shippers to look for alternative paths.\n\nTurning to Canada, Prime Minister Mark Carney is kicking off his Canada Investment Summit in Toronto this week, seeking roughly one trillion dollars in commitments from major global investors, according to CBC. More than 167 projects are reportedly on the table. Canadian banks are already lining up behind the effort. The Globe and Mail reports TD has committed 150 billion dollars to fund Canadian companies in critical sectors over five years, while Scotiabank has pledged more than 100 billion dollars for similar expansion, tapping former U.S. ambassador Kirsten Hillman to help lead the push. Protests are also planned around the summit, with organizers objecting to putting the country's economic future in the hands of corporate executives, the Globe and Mail reports.\n\nOn trade, President Trump told reporters over the weekend that a deal between the U.S. and Canada could be coming fairly soon, downplaying talk of the U.S. walking away from the CUSMA agreement, according to The Peak. Carney struck a similarly optimistic note last week, saying he doesn't expect further tariff retaliation from either side. Separately, CBC reports Canadian exports to China rose about 30 percent in the first half of 2026, even as imports from China declined, according to data from the Canada-China Business Council and the University of Alberta.\n\nIn Europe, exit polls show Sweden's centre-left bloc winning the country's parliamentary election, a result that bucks the rightward trend seen elsewhere on the continent, Reuters reports via The Peak. The result was described as an unexpectedly poor showing for the right-wing Sweden Democrats.\n\nAnd in Britain, Prime Minister Burnham is urging a culture shift in how the UK does business, saying risk-takers deserve government backing, even as his administration faces criticism for raising business costs, the BBC reports. Separately, property website Zoopla forecasts rents in the UK will accelerate, rising four to five percent a year by December.",
+     "talkingPoints": [
+      "Major AI firms including Anthropic, OpenAI, and Google DeepMind are calling for a slower pace of development, citing loss-of-control risks, while critics call it regulatory capture.",
+      "Global markets wobbled on the AI slowdown talk and on oil price spikes following attacks on Saudi pipeline infrastructure and ongoing Red Sea and Hormuz disruptions.",
+      "Canada's Carney is seeking roughly a trillion dollars in investment commitments at a Toronto summit this week, backed by major bank pledges, amid protests and trade talks with Washington.",
+      "Sweden's centre-left bloc appears set to form government, defying Europe's rightward political trend."
+     ],
+     "sources": [
+      {
+       "outlet": "BBC News",
+       "title": "AI staff 'genuinely frightened' for humanity's future, ex-Anthropic researcher tells BBC",
+       "url": "https://www.bbc.co.uk/news/articles/c1kx0gyje9wo"
+      },
+      {
+       "outlet": "BBC News",
+       "title": "Trump downplays warnings of AI risks, citing rivalry with China",
+       "url": "https://www.bbc.co.uk/news/articles/c7v48vp31mdo"
+      },
+      {
+       "outlet": "BBC News",
+       "title": "Dramatic insider warnings over AI fall flat with some in Silicon Valley",
+       "url": "https://www.bbc.co.uk/news/articles/cq635037g18o"
+      },
+      {
+       "outlet": "BBC News",
+       "title": "MPs and Lords call for new law to address AI threat to human rights",
+       "url": "https://www.bbc.co.uk/news/articles/cwyzvgj70y4o"
+      },
+      {
+       "outlet": "BBC News",
+       "title": "'Culture shift' needed in how UK does business, PM urges",
+       "url": "https://www.bbc.co.uk/news/articles/clyl18x4734o"
+      },
+      {
+       "outlet": "BBC News",
+       "title": "Rent rises set to speed up in gloomy forecast for tenants",
+       "url": "https://www.bbc.co.uk/news/articles/c4gqjv476qeo"
+      },
+      {
+       "outlet": "CBC Business",
+       "title": "Carney is seeking $1 trillion in investments at this week's summit",
+       "url": "https://www.cbc.ca/news/business/carney-investment-summit-explainer-9.7341009"
+      },
+      {
+       "outlet": "CBC Business",
+       "title": "Amid Trump trade war, Canada's exports to China up 30% in first half of 2026",
+       "url": "https://www.cbc.ca/news/canada/canada-china-trade-export-up-2026-9.7340408"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "TD commits $150-billion to fund Canadian companies in critical sectors",
+       "url": "https://www.theglobeandmail.com/business/article-td-commits-150-billion-to-fund-canadian-companies-in-critical-sectors/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Scotiabank commits more than $100-billion to help fund expansion of Canadian companies",
+       "url": "https://www.theglobeandmail.com/business/article-scotiabank-100-billion-to-help-fund-expansion-of-canadian-companies/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Protests planned for Carney's Canada Investment Summit in Toronto",
+       "url": "https://www.theglobeandmail.com/canada/article-protests-planned-for-carneys-canada-investment-summit-in-toronto/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Yemen's Houthi rebels seize more key islands in southern Red Sea",
+       "url": "https://www.theglobeandmail.com/business/article-yemens-houthi-rebels-seize-more-key-islands-in-southern-red-sea/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Somalis seek alternative shipping routes after Houthi advance along Red Sea coast",
+       "url": "https://www.theglobeandmail.com/business/article-somalis-seek-alternative-shipping-routes-after-houthi-advance-along/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Obama urges Democrats to have a 'clear plan' for AI safeguards",
+       "url": "https://techcrunch.com/2026/09/13/obama-urges-democrats-to-have-a-clear-plan-for-ai-safeguards/"
+      }
+     ],
+     "words": 837,
+     "minutes": 5.6
+    },
+    {
+     "id": "practice",
+     "label": "Practice: Tax, Regulatory & Industry",
+     "title": "Registered Plans, CIRO Breach, and Rate Watch",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/practice.mp3",
+     "bytes": 5431296,
+     "script": "Start with the one that affects how you talk to every client this week. The Canadian Investment Regulatory Organization, that's CIRO, the national self-regulator for investment and mutual fund dealers, is still working through its cybersecurity incident. CIRO has confirmed the breach hit registration data, not the National Registration Database itself, and the organization began sending letters to affected individuals beginning September 9. That's this week. If you get calls from clients who received one of those letters, the message is simple: their trading system wasn't touched, this is registration information CIRO holds, and CIRO has said it's conducting a renewed review of its data retention policies. Worth raising proactively with anyone who's had a CIRO-registered advisor over the years, even ones they've since left.\n\nLayer onto that a second CIRO story that's more about your own file hygiene. New proficiency rules took effect January 1 this year, meaning newly approved registered representatives need a relevant diploma or degree, or four years of relevant experience, before they get approved. And on the documentation side, CIRO hearing panels have been sanctioning firms over what is or isn't in the client file. National Bank Financial accepted a settlement this past March over a failure to properly supervise note-taking and suitability documentation on one representative's book. CIRO's also running a Rule Consolidation Project that will reshape know-your-client and suitability documentation once finalized. Translation for your practice: your meeting notes need to show the reasoning, not just the recommendation.\n\nNow the numbers you'll actually use in review meetings this fall. The 2026 Registered Retirement Savings Plan dollar limit is $33,810, up from $32,490 in 2025. Remember that's capped at 18 percent of prior year earned income, so a client earning $150,000 gets roughly $27,000 in new room, not the full dollar limit. Tax-Free Savings Account room added another $7,000 on January 1, same as the past two years, which puts cumulative room at $109,000 for anyone eligible since 2009 who's never contributed. First Home Savings Account holders get $8,000 of new room a year toward a $40,000 lifetime cap, and withdrawals for a qualifying first home stay tax-free. Registered Education Savings Plan lifetime contribution room per beneficiary is $50,000. For your incorporated business owners and physicians, this is the moment to revisit the salary versus dividend decision before year-end bonus declarations, since RRSP room only builds off salaried, T4 income, not dividends.\n\nOn the macro side, Statistics Canada put out August inflation this morning, and the Street was looking for headline Consumer Price Index growth to hold around 3 percent, unchanged from July, per Investment Executive and the Globe and Mail. Gasoline was still running about 23 percent above year-ago levels even after easing in August, RBC economist Nathan Janzen noted. Core measures, which strip out food and energy, are sitting closer to 2 percent, and that's what the Bank of Canada actually watches. The Globe reports another hold looks likely at the Bank's October 28 decision, though Governor Tiff Macklem has flagged he'd consider hiking if energy costs spill into broader prices. That decision stays on your watch list heading into the fourth quarter.\n\nOn the industry side, both TD and Scotiabank made headlines today with big Canadian financing commitments tied to the Canada Investment Summit in Toronto. TD is putting $150 billion toward Canadian companies in critical sectors over five years, and Scotiabank, parent of Scotia Wealth Management, is committing $100 billion. That's on your watch list given the Scotia Wealth Management connection, and it signals both banks leaning harder into domestic corporate lending as Ottawa tries to court foreign capital. Separately, CIBC earmarked $2 billion for small and medium-sized defence firms, part of the same push to scale domestic manufacturing capacity.\n\nOn product and fee trends, Advisor.ca flags rising client interest in annuities, driven by higher interest rates making guaranteed income products more attractive again. Worth raising with any client approaching retirement or already in a life transition, since a rate environment like this one is exactly when annuities start pricing more competitively against a pure drawdown strategy. Investment Executive's product roundup also shows Vanguard launching an actively managed fixed-income exchange-traded fund, alongside new offerings from Manulife, Capstone, Hamilton ETFs, Corton Capital and Smead Canada. Active strategies keep pushing into ETF wrappers, and that's worth a line in any fee conversation this month.\n\nTwo more for your file. A former tech executive resolved a Securities and Exchange Commission insider trading case in the U.S. after trading ahead of negative earnings news, a reminder to keep pre-clearance conversations current with any client who sits on a board or has material non-public information exposure. And closer to home, the Globe reports a second TD investor has alleged fraudulent trades in an obscure Chinese stock, following an earlier Alberta case with what sounds like an identical pattern. Given the CIRO breach news, this is a good week to walk clients through how to spot unauthorized account activity.\n\nLast one, and it touches your professional client base directly. The Globe reports on Canadian students going abroad for medical school because of competitive domestic admissions, often at substantially higher cost. If you advise young physicians, that debt load now shows up years before incorporation and passive income planning even start, so factor it into any new physician's five-year plan before you talk about setting up a professional corporation.",
+     "talkingPoints": [
+      "The CIRO breach letters going out this week are about registration data, not trading access, so reassure before you explain.",
+      "New RRSP room for 2026 is $33,810, but it's still capped at 18 percent of earned income, so check the math before promising a number.",
+      "TFSA cumulative room is now $109,000 for anyone who's never contributed since 2009.",
+      "Rising rates are pulling annuities back into retirement income conversations, worth a mention with anyone near retirement.",
+      "TD and Scotiabank both made nine and ten figure commitments to Canadian companies this week, tied to the Toronto investment summit."
+     ],
+     "sources": [
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Business Brief: Five files to follow this week",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "Advisor.ca",
+       "title": "AM Bulletin: Interest in annuities on the rise",
+       "url": "https://www.advisor.ca"
+      },
+      {
+       "outlet": "Investment Executive",
+       "title": "The Day Ahead: Inflation in focus",
+       "url": "https://www.investmentexecutive.com"
+      },
+      {
+       "outlet": "CIRO",
+       "title": "CIRO cybersecurity incident - For Registrants",
+       "url": "https://www.ciro.ca/ciro-cybersecurity-incident-registrants"
+      },
+      {
+       "outlet": "CIRO",
+       "title": "Guidance on Relevant Education and Experience Requirements",
+       "url": "https://www.ciro.ca/newsroom/publications/guidance-relevant-education-and-experience-requirements"
+      },
+      {
+       "outlet": "Northern Catalyst",
+       "title": "What CIRO Requires in Meeting Documentation (2026)",
+       "url": "https://northerncatalyst.ca/blog/ciro-meeting-documentation-requirements/"
+      },
+      {
+       "outlet": "BNN Bloomberg",
+       "title": "New RRSP and TFSA limits revealed for 2026: Dale Jackson",
+       "url": "https://www.bnnbloomberg.ca/investing/opinion/2025/12/31/cra-sets-new-savings-and-pension-plan-limits-for-2026-dale-jackson/"
+      },
+      {
+       "outlet": "CI Assante Wealth Management (Ferguson Financial Planning)",
+       "title": "Key Registered Account Changes in 2026",
+       "url": "https://www.fergusonfinancialplanning.com/articles/key-registered-account-changes-2026/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "They racked up debt from going abroad for medical school. Was it worth it?",
+       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-debt-from-going-abroad-for-medical-school-was-it-worth-it/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Second TD investor alleges fraudulent trades involving obscure Chinese stock",
+       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-second-td-investor-alleges-fraudulent-trades-obscure-chinese-stock/"
+      }
+     ],
+     "words": 892,
+     "minutes": 5.9
+    },
+    {
+     "id": "manitoba",
+     "label": "Manitoba & Winnipeg",
+     "title": "Hydro Tariffs, Bank of Canada Hold, Daycare Scandal",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/manitoba.mp3",
+     "bytes": 3387264,
+     "script": "The story with the biggest dollar signs for your clients today is Manitoba Hydro, and it is two stories rolled into one. The Canada-U.S. trade war has complicated Manitoba Hydro's plan to buy gas turbines for its $3-billion Brandon generating station expansion from a manufacturer based in Massachusetts. Layer onto that the fact that six weeks of public hearings into Manitoba Hydro's generating plans came to an end with more criticism of the Crown corporation's proposed natural gas expansion in Brandon. If you have clients with Hydro bonds, Hydro pension exposure, or just a mortgage tied to provincial rate assumptions, this is worth watching. A three billion dollar capital project running into tariff friction on its main equipment supplier is the kind of thing that shows up later as a rate application.\n\nSpeaking of rates, the Bank of Canada is on your watch list, and it held its target for the overnight rate at 2.25%, with the Bank Rate at 2.5% and the deposit rate at 2.20%, on September second. That makes a seventh consecutive hold. The Bank flagged the war in the Middle East and new US tariffs as live risks to inflation, language it used to justify staying put rather than cutting further. The next scheduled date for announcing the overnight rate target is October 28, 2026. So if a client asks why nothing moved, tell them that is your next real decision point.\n\nCloser to home, CBC Manitoba has a story that will come up at any board table this week: a five and a half million dollar daycare, built two years ago with provincial funds in the East St. Paul area, is now sitting vacant, plundered by scavengers, and damaged by flooding. That is public money, spent on a facility meant to add child care spaces in a province that has spent years talking up its child care expansion, and it is now a boarded up shell. Expect questions about how that gets audited and who signed off on it.\n\nOn the trade file, CBC reports Manitoba sports organizations and retailers are pushing governments on both sides of the border to suspend tariffs on sports equipment, warning that higher prices could reduce participation in youth and recreational sports. For retail clients or anyone with exposure to sporting goods distribution in this province, that is a small but real margin squeeze story, and it lines up with the broader tariff drag the Bank of Canada itself is watching.\n\nManitoba's other big engine, agriculture, got a research update from CBC Manitoba out of Brandon, where scientists at Agriculture and Agri-Food Canada are racing to breed crops that can handle heat and drought, work aimed squarely at protecting yields on the hundreds of acres surrounding the city. If you have farm clients in the Westman region, or bank shares tied to grain handling, that research pipeline is part of what protects revenue when the growing season turns hostile.\n\nOn the Blue Bombers, also on your watch list, Winnipeg beat Saskatchewan nineteen to six at the Banjo Bowl on Saturday at Princess Auto Stadium. Safety Redha Kramdi, back from a broken hand, played what CBC called a huge role in the win. Good dinner table material this week if you have Bomber season ticket holders as clients.\n\nFinally, three community stories worth knowing even if they are not balance sheet items. Steinbach held its Pride event this weekend after last year's was postponed over safety threats, and CBC reports marchers said they were not going to hide. About one hundred people gathered at The Forks for the third annual Fentanyl Awareness walk. And the family of Tanya Nepinak marked fifteen years since she went missing in Winnipeg's West End, a reminder that cases like hers still shape how this city talks about policing priorities.\n\nThat is Manitoba and Winnipeg for today.",
+     "talkingPoints": [
+      "Manitoba Hydro's Brandon turbine order is caught in the tariff fight, watch for rate case implications.",
+      "Bank of Canada held at two point two five percent, next move not expected before October twenty eighth.",
+      "A five and a half million dollar provincially funded daycare in East St. Paul now sits derelict.",
+      "Sports retailers want tariffs on gear suspended before participation and margins take a hit.",
+      "Blue Bombers beat Saskatchewan nineteen to six at the Banjo Bowl, Kramdi back from injury."
+     ],
+     "sources": [
+      {
+       "outlet": "CBC Manitoba",
+       "title": "$5.5M daycare built with provincial funds now derelict, scavenged by thieves and damaged by flooding",
+       "url": "https://www.cbc.ca/news/canada/manitoba/east-st-paul-daycare-derelict-9.7338775?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Steinbach Pride attendees say they're 'not going to go and hide' after last year's event threatened",
+       "url": "https://www.cbc.ca/news/canada/manitoba/steinbach-pride-2026-9.7341807?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Mourning sister joins others for walk to raise awareness about deadly impact of fentanyl use",
+       "url": "https://www.cbc.ca/news/canada/manitoba/fentanyl-awareness-walk-2026-9.7342515?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "'It gets harder every year': Family marks 15 years since Tanya Nepinak went missing",
+       "url": "https://www.cbc.ca/news/canada/manitoba/tanya-nepinak-15-year-anniversary-9.7342259?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Sports groups, businesses worry tariffs will spike gear prices, reduce participation",
+       "url": "https://www.cbc.ca/news/canada/manitoba/sports-gear-tariffs-winnipeg-store-9.7342479?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Blue Bombers pick apart Roughriders in 19-6 win at annual Banjo Bowl",
+       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-blue-bombers-saskatchewan-roughriders-banjo-bowl-2026-9.7342185?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Brandon researchers working to develop more climate-resilient crops",
+       "url": "https://www.cbc.ca/news/canada/manitoba/brandon-research-station-seeds-resiliant-9.7337632?cmp=rss"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Manitoba Hydro hearings conclude with more criticism of plan to burn more natural gas",
+       "url": "https://www.cbc.ca/news/canada/manitoba/hydro-regulator-hearings-end-9.7336345"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Trade war complicates Manitoba Hydro plan to buy gas turbines from U.S. manufacturer",
+       "url": "https://www.cbc.ca/news/canada/manitoba/manitoba-hydro-turbines-american-9.7329917"
+      },
+      {
+       "outlet": "Bank of Canada",
+       "title": "Bank of Canada maintains the policy rate at 2¼%",
+       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
+      },
+      {
+       "outlet": "nesto.ca",
+       "title": "Bank of Canada Policy Interest Rate Schedule 2026",
+       "url": "https://www.nesto.ca/mortgage-basics/bank-of-canada-interest-rate-schedule/"
+      }
+     ],
+     "words": 641,
+     "minutes": 4.3
+    },
+    {
+     "id": "politics",
+     "label": "Canadian Politics",
+     "title": "Carney's Toronto Pitch, Hydro's Trade War Headache",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/politics.mp3",
+     "bytes": 3744000,
+     "script": "Prime Minister Mark Carney spent Sunday night in Toronto trying to turn a headline number into real deals. The Canada Investment Summit opened at the Royal Ontario Museum, and the room included premiers, cabinet ministers and executives from BlackRock, RBC, Scotiabank and CPP Investments. Manitoba Premier Wab Kinew was on the guest list alongside the other provincial leaders. Carney told the crowd that investors managing over 120 trillion dollars in assets are looking at Canada differently now, and that there's a new consensus from Iqaluit to Victoria that the country is taking control of its future. Industry Minister Mélanie Joly says she expects the summit, running through Tuesday at the Four Seasons, to produce actual deal announcements, not just talk. Officials have circulated a list of more than 160 projects open for investment, and two are worth flagging for a Manitoba audience: a proposed 57 billion dollar expansion at the Port of Churchill, and a 10.9 billion dollar high speed rail link between Edmonton and Calgary. On the financing side, TD committed 150 billion dollars and Scotiabank committed 100 billion dollars to fund Canadian companies over the next five years. Scotia Wealth Management's parent bank making that kind of commitment is on the watch list worth noting for clients who ask where the big banks are putting capital.\n\nStatistics Canada put out August inflation numbers this morning. The Street expected headline CPI to hold at 3 percent year over year, unchanged from July, with gasoline still running about 23 percent above last year despite easing slightly last month. Grocery inflation has outpaced the overall rate for roughly a year and a half, which keeps squeezing lower income households hardest. Core measures, which strip out food and energy, are running closer to 2 percent, and that's what the Bank of Canada watches most closely. The Bank of Canada rate decision is on the watch list: another hold is expected October 28, though Governor Tiff Macklem has said the bank would consider raising rates if energy costs spill into broader prices. Most economists don't see a hike this year, but the odds of one in early 2027 are rising.\n\nCloser to home, Manitoba Hydro is on the watch list and had a rough couple of weeks. Six weeks of public hearings into the utility's generating plans wrapped up with continued criticism of its proposal to expand natural gas burning at its Brandon station. Separately, the Canada-US trade war has complicated Manitoba Hydro's plan to buy gas turbines for that same three billion dollar Brandon expansion from a Massachusetts manufacturer. That's a direct, local example of how tariff friction is showing up in provincial infrastructure planning, not just in the news out of Ottawa.\n\nOn the diplomatic front, Carney is set to address the European Parliament in Strasbourg on Thursday. Ottawa wants deeper trade, investment, security and labour ties with the European Union, but a senior government official says not at the expense of Canadian sovereignty. The Wall Street Journal reported Carney had floated the idea of Canada as an associate member of the EU, though a Canadian government source pushed back, saying it was the EU, not Carney, that raised the idea, and that any formal arrangement is premature. Carney also meets his British counterpart this week for the first time, and travels to Saint-Pierre and Miquelon next week to meet French President Emmanuel Macron on energy and defence.\n\nNone of this happens separate from the tariff fight with Washington. Canada and the US remain stuck in their trade war positions, and some Democratic politicians in Washington argue a strong showing for their party in the November midterms would shift Trump's approach to Canada. That's a bet, not a certainty, and it's one more reason the investment summit's emphasis on non-US capital, from European and Gulf investors, matters for how exposed Canadian portfolios are to a single trading partner.",
+     "talkingPoints": [
+      "The Canada Investment Summit in Toronto is pitching over 160 projects, including a Churchill port expansion relevant to Manitoba trade routes.",
+      "TD and Scotiabank each pledged nine and ten figure sums to Canadian business financing this week, a signal on where bank capital is heading.",
+      "August inflation held near 3 percent, but the Bank of Canada watches core inflation near 2 percent, with the next rate decision October 28.",
+      "Manitoba Hydro's Brandon gas expansion is facing both regulatory criticism and US tariff complications on turbine purchases.",
+      "Carney's EU outreach and Strasbourg speech this week are about diversifying trade away from US dependence, not formal membership."
+     ],
+     "sources": [
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Business Brief: Five files to follow this week",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Morning Update: Broadening our economic horizons",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "POLITICO Canada Playbook",
+       "title": "Welcome to Canada Inc.",
+       "url": "https://www.politico.com"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Carney says Canada planning to discuss 'unique alliance' with EU, but not membership",
+       "url": "https://www.cbc.ca/news/politics/canada-european-union-eu-membership-poilievre-trump-tariffs-usa-9.7342604"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Manitoba Hydro hearings conclude with more criticism of plan to burn more natural gas",
+       "url": "https://www.cbc.ca/news/canada/manitoba/hydro-regulator-hearings-end-9.7336345"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Trade war complicates Manitoba Hydro plan to buy gas turbines from U.S. manufacturer",
+       "url": "https://www.cbc.ca/news/canada/manitoba/manitoba-hydro-turbines-american-9.7329917"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Will the U.S. midterm results affect Trump's tariffs on Canada? Democrats think yes",
+       "url": "https://www.cbc.ca/news/politics/us-midterms-trump-canada-trade-war-democrats-9.7342260"
+      }
+     ],
+     "words": 647,
+     "minutes": 4.3
+    },
+    {
+     "id": "climate",
+     "label": "Climate Policy & Nonprofit Governance",
+     "title": "Manitoba Gas Fight, Ottawa's Investment Pitch, United Way's Record Year",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/climate.mp3",
+     "bytes": 3276288,
+     "script": "The biggest energy story out of Manitoba this week wrapped up last Wednesday. Six weeks of public hearings into Manitoba Hydro's generating plan closed with more pushback on the utility's proposal to burn more natural gas, CBC News reports. Six weeks of public hearings into Manitoba Hydro's generating plans came to an end with more criticism of the Crown corporation's proposed natural gas expansion in Brandon, and the Public Utilities Board spent late July to early September scrutinizing the integrated resource plan. That plan calls for 1,760 more megawatts of electricity, more than a quarter of Hydro's existing generating capacity, over the next decade. It leans on 600 megawatts of new Indigenous majority owned wind power, but also roughly 750 megawatts of new gas turbines, and several groups told the board in closing arguments that Hydro hadn't made its case for the gas piece.\n\nThat matters for anyone with Manitoba Hydro exposure or rate sensitivity, because the bill side is already locked in. The Public Utilities Board finalized a 4 per cent general rate increase effective January 1, 2026, with further increases of 3.5 per cent in 2027 and 3 per cent in 2028, framed as front-loading revenue to respond to drought impacts on hydroelectric generation. Manitoba Hydro is on the watch list this week for that reason: rates are settled through 2028, but the gas-versus-wind fight over how the utility grows past that point is still live and unresolved.\n\nZoom out to the national picture. Prime Minister Mark Carney opened his first Investment Summit in Toronto on Monday, pitching global investors on Canada, according to Canada's National Observer. Clean Energy Canada used the moment to make its own point. The group's program manager said the deal book released last week showcases Canada's potential to become a clean energy superpower while highlighting a gap between ambition and the money actually moving. Worth raising with clients who hold Canadian infrastructure or utility names: the ambition is loud right now, the capital commitments are still catching up.\n\nMeanwhile in Alberta, Premier Danielle Smith said this weekend it's unlikely her government will launch a new Crown corporation to build gas pipelines, after a report on the idea leaked, per Canada's National Observer. So in one week you've got Manitoba's utility leaning into gas at the generation level, Alberta backing away from a state-run gas pipeline vehicle, and Ottawa trying to sell the country as a clean electricity destination, all pulling in slightly different directions.\n\nOn the charitable side, United Way Winnipeg closed its 2025 campaign with a record result. The organization says Winnipeggers raised a record-breaking $23.3 million for United Way Winnipeg's 2025 campaign, and it has named Anne Mahon, Chancellor Emeritus of the University of Manitoba, and Paul Mahon, former President and CEO of Canada Life, as co-chairs of the 2026 campaign. United Way Winnipeg is on the watch list this week for that reason.\n\nFor governance conversations with nonprofit board clients, here's a useful benchmark: United Way Winnipeg is accredited by Imagine Canada's Standards Program, a set of 73 standards that ensure effective, accountable, and ethical practices in nonprofit governance and management. That's a concrete, third-party standard you can point clients toward when they're vetting a charity's board practices before a major gift or a board seat, rather than relying on a glossy annual report alone.",
+     "talkingPoints": [
+      "Manitoba Hydro's gas expansion plan just cleared six weeks of hostile hearings, worth flagging for utility-exposed holdings.",
+      "Hydro rates are locked through 2028 at 4, 3.5, and 3 percent, so build that into retiree cash flow planning now.",
+      "Ottawa's investment summit is heavy on clean energy talk, but Clean Energy Canada says the capital isn't matching the ambition yet.",
+      "Alberta just stepped back from a state-run gas pipeline company, a sign provinces are still feeling out the right structure.",
+      "United Way Winnipeg's $23.3 million record campaign and its Imagine Canada accreditation are a solid governance reference point for nonprofit clients."
+     ],
+     "sources": [
+      {
+       "outlet": "CBC News",
+       "title": "Manitoba Hydro hearings conclude with more criticism of plan to burn more natural gas",
+       "url": "https://www.cbc.ca/news/canada/manitoba/hydro-regulator-hearings-end-9.7336345"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Manitoba Hydro plans to free up more power by saving energy, building new turbines and wind farms",
+       "url": "https://www.cbc.ca/news/canada/manitoba/manitoba-hydro-energy-plan-9.7012914"
+      },
+      {
+       "outlet": "The Canada Report",
+       "title": "Manitoba Hydro Rates Rise 10.7% Over 3 Years",
+       "url": "https://www.thecanadareport.ca/manitoba-hydro-rate-increase/"
+      },
+      {
+       "outlet": "Clean Energy Canada",
+       "title": "Response: Investment summit highlights Canada's huge but mostly untapped potential to be a clean energy superpower",
+       "url": "https://cleanenergycanada.org/response-investment-summit-highlights-canadas-huge-but-mostly-untapped-potential-to-be-a-clean-energy-superpower/"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Prime Minister Carney kicks off first investment summit in Toronto",
+       "url": "https://www.nationalobserver.com/2026/09/14/news/prime-minister-carney-kicks-first-investment-summit-toronto"
+      },
+      {
+       "outlet": "Canada's National Observer",
+       "title": "Alberta's Smith says Crown corporation for natural gas unlikely after report leaked",
+       "url": "https://www.nationalobserver.com/2026/09/14/news/albertas-smith-says-crown-corporation-natural-gas-unlikely-after-report-leaked"
+      },
+      {
+       "outlet": "United Way Winnipeg",
+       "title": "Winnipeggers come together in record-breaking show of collective care, raising $23.3 million to strengthen community supports",
+       "url": "https://unitedwaywinnipeg.ca/news-and-stories/winnipeggers-come-together-in-record-breaking-show-of-collective-care-raising-23-3-million-to-strengthen-community-supports/"
+      },
+      {
+       "outlet": "CanadaHelps",
+       "title": "United Way of Winnipeg Charity Profile",
+       "url": "https://www.canadahelps.org/en/charities/united-way-of-winnipeg/"
+      }
+     ],
+     "words": 555,
+     "minutes": 3.7
+    },
+    {
+     "id": "tech",
+     "label": "AI & Technology",
+     "title": "Anthropic's Slowdown Call Meets Wall Street Money",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/tech.mp3",
+     "bytes": 3368832,
+     "script": "The biggest story this week is Dario Amodei's essay calling for the industry to pace the frontier. The Anthropic chief executive published a thirty eight hundred word piece on Saturday arguing that development of the most advanced AI systems needs to slow down to avoid losing control of them. What makes this notable is who signed on: OpenAI's Sam Altman and Elon Musk's SpaceXAI both endorsed it. Bloomberg reports that Anthropic and OpenAI will have to weigh this against forces in the tech industry, financial markets, and the Trump administration that are likely to resist any real slowdown, especially with both companies eyeing potentially record setting initial public offerings that depend on continued frontier breakthroughs. Amodei insists pacing doesn't mean less spending or growth, but that's a hard sell to investors betting on hundreds of billions in capital expenditure.\n\nWorth knowing for client conversations: President Trump publicly downplayed these risk warnings, per the BBC, framing them as negative forces raising concerns about things that won't happen, and tying it to competition with China. On the other side, Barack Obama told Democrats this week, according to TechCrunch, that AI needs to become a central agenda item with a clear plan on economic impact and safety. So you've got a real partisan split forming on how this gets regulated, which matters if you're advising anyone with exposure to AI infrastructure names.\n\nThere's also a useful counter frame here. Researchers Arvind Narayanan and Sayash Kapoor argue AI should be treated as a normal technology, not an incomprehensible superintelligence in waiting, and that view is gaining traction as a check on the doom messaging. BetaKit's newsletter this week flagged the AI bubble red flags directly: circular financing arrangements between chip makers, cloud providers, and model companies, plus concerns about rogue agentic tools operating with too little oversight. That's the kind of structural risk worth mentioning if a client asks why you're not chasing every AI headline into their portfolio.\n\nOn the Canadian side, BetaKit also reports Canada and Ukraine have struck a binational deal tapping Canadian drone companies, with firms from New Brunswick, Quebec, Ontario, and Saskatchewan receiving contracts. That's a real, if narrow, data point on where Canadian tech dollars and government procurement are actually flowing right now, defence and dual use tech rather than pure consumer AI.\n\nNow the part that touches your clients directly. The Canadian Anti-Fraud Centre's 2025 figures show Canadians lost a record seven hundred four million dollars to fraud last year, up from six hundred forty five million in 2024, with investment fraud alone accounting for three hundred fifty one million of that. The Canadian Centre for Cyber Security has separately warned that AI is shrinking the time defenders have to respond to attacks, from days down to hours, because generative tools let scammers write convincing phishing emails and voice clones at scale. If you haven't already, this is the week to remind clients that a phone call sounding exactly like a family member asking for a wire transfer is not proof of anything.\n\nOne item for the watch list: the Bank of Canada held its overnight rate at two and a quarter percent at its September second decision, the seventh straight hold, citing energy prices tied to the Middle East conflict and fresh trade tension with Washington. The next decision is October twenty eighth, and Governor Tiff Macklem's language suggests no clear signal either way until then.\n\nNet for you: the AI story right now isn't about a new model release, it's about who controls the pace of the next one, and whether regulation lands before or after the capital keeps flowing.",
+     "talkingPoints": [
+      "Anthropic's own chief executive is now the one calling for a slowdown, and Musk and Altman backed him.",
+      "Trump and Obama are on opposite sides of how hard to regulate AI, which will shape the policy risk in AI-heavy portfolios.",
+      "Canadian fraud losses hit a record seven hundred four million dollars last year, with investment scams the single largest category.",
+      "Ottawa's cyber centre says AI is cutting response time for defenders from days to hours, so verify any urgent money request by a second channel.",
+      "The Bank of Canada held rates again on September second, seventh straight hold, next decision October twenty eighth."
+     ],
+     "sources": [
+      {
+       "outlet": "Bloomberg via Stratechery",
+       "title": "Pacing the Frontier",
+       "url": "https://stratechery.com/2026/pacing-the-frontier-ais-digital-limits-ai-commissars/"
+      },
+      {
+       "outlet": "BBC News",
+       "title": "Trump downplays warnings of AI risks, citing rivalry with China",
+       "url": "https://www.bbc.co.uk/news/articles/c7v48vp31mdo"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Obama urges Democrats to have a 'clear plan' for AI safeguards",
+       "url": "https://techcrunch.com/2026/09/13/obama-urges-democrats-to-have-a-clear-plan-for-ai-safeguards/"
+      },
+      {
+       "outlet": "BetaKit",
+       "title": "Waving the AI bubble red flags",
+       "url": "https://betakit.com/waving-the-ai-bubble-red-flags/"
+      },
+      {
+       "outlet": "BetaKit",
+       "title": "Canada, Ukraine tap Canadian drone companies in binational deal",
+       "url": "https://betakit.com/canada-ukraine-tap-canadian-drone-companies-in-binational-deal/"
+      },
+      {
+       "outlet": "Cybersecurity Canada",
+       "title": "The Cybersecurity Canada Report 2026: Seven Findings Canadian SMBs Should Know",
+       "url": "https://cybersecuritycanada.ca/news/posts/cybersecurity-canada-report-2026-key-findings/"
+      },
+      {
+       "outlet": "Bank of Canada",
+       "title": "Bank of Canada maintains the policy rate at 2¼%",
+       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
+      }
+     ],
+     "words": 605,
+     "minutes": 4.0
+    },
+    {
+     "id": "health",
+     "label": "Health & Fitness",
+     "title": "Strength Training Longevity Data, Creatine, and RSV Gaps",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/health.mp3",
+     "bytes": 2252160,
+     "script": "The biggest health story this week comes from Harvard's T.H. Chan School of Public Health, published in the British Journal of Sports Medicine. The study looked at three decades' worth of data from nearly 150,000 adults participating in three long-running studies, the Health Professionals Follow-Up Study, the Nurses' Health Study, and the Nurses' Health Study II. Roughly 90-120 minutes of strength training per week was linked with a 13% reduced risk of premature death, according to the study. Adults who averaged that range of weekly resistance training had a 13% lower risk of early death from any cause, a 19% lower risk from heart disease specifically. Adding aerobic exercise to the weekly mix increased the longevity benefit further. This is a long-running observational study, not a randomized trial, so it shows association, not proof of cause. But the sample size and three decades of tracking make it one of the stronger pieces of evidence yet that lifting does real work for longevity, not just muscle. The takeaway for someone who already lifts twice a week is that you're already in the zone where the data show the biggest return. No need to chase more volume for longevity's sake.\n\nOn the supplement side, Examine.com published a summary this year of a meta-analysis of 61 randomized controlled trials in 1,457 participants, finding that creatine combined with resistance training increased fat-free mass equally well in both trained and untrained lifters. So if you've been putting off creatine because you thought it was only for advanced lifters, the evidence doesn't back that up.\n\nFor the mobility side of training, Outside magazine published five yoga-inspired exercises for feet, ankles, and calves, aimed at people who hike or run outdoors. The logic holds in the gym too: weak ankle stability shows up as wobble under a loaded squat or lunge, and a few minutes of targeted foot and ankle work before a session is cheap insurance against rolled ankles and shifted form.\n\nOn the Canadian health system side, CBC reports that Nova Scotia's RSV, that's respiratory syncytial virus, vaccination program only covers three specific groups for free, leaving some seniors and immunocompromised people to pay out of pocket, a few hundred dollars per dose. It's a reminder that provincial vaccine coverage varies a lot across the country, worth checking directly with Manitoba Health if clients ask about their own eligibility this fall.",
+     "talkingPoints": [
+      "Ninety to 120 minutes of strength training a week is linked to a 13% lower risk of early death, per a 30 year Harvard study.",
+      "Two lifting sessions a week already puts you in the sweet spot for the longevity benefit.",
+      "Creatine works just as well for beginners as for experienced lifters, per a new 61 trial meta-analysis.",
+      "A few minutes of ankle and foot mobility work protects your squat and lunge form.",
+      "Nova Scotia's free RSV vaccine program excludes some seniors, a reminder provincial health coverage varies across Canada."
+     ],
+     "sources": [
+      {
+       "outlet": "Harvard T.H. Chan School of Public Health",
+       "title": "Moderate amount of strength training each week could boost longevity",
+       "url": "https://hsph.harvard.edu/news/moderate-amount-of-strength-training-each-week-could-boost-longevity/"
+      },
+      {
+       "outlet": "Examine.com",
+       "title": "Does creatine work better for trained or untrained lifters?",
+       "url": "https://examine.com/research-feed/study/dn25Xd/"
+      },
+      {
+       "outlet": "Outside",
+       "title": "5 Yoga-Inspired Foot and Ankle Exercises to Help You Move Better Outdoors",
+       "url": "https://www.outsideonline.com/health/training-performance/foot-exercises-yoga/"
+      },
+      {
+       "outlet": "CBC Health",
+       "title": "Nova Scotia's RSV vaccine program leaves out vulnerable adults, patients say",
+       "url": "https://www.cbc.ca/news/canada/nova-scotia/rsv-vaccine-nova-scotia-9.7340798?cmp=rss"
+      }
+     ],
+     "words": 396,
+     "minutes": 2.6
+    },
+    {
+     "id": "parenting",
+     "label": "Parenting",
+     "title": "Canada Child Benefit Rises, Screen Time Guidance Holds Firm",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/parenting.mp3",
+     "bytes": 1661568,
+     "script": "The biggest line for parents this year is a bank account, not a diagnosis. The Canada Child Benefit reset its payments in July, and Ottawa confirmed the new maximums this summer: up to eight thousand one hundred fifty seven dollars a year for a child under six, and up to six thousand eight hundred eighty three dollars for a child six to seventeen. That is an increase of up to $160 per child under age 6 and up to $135 per child aged 6 to 17 compared to the previous year. A family with one child aged 5 and one aged 9, with adjusted family net income of $65,000, will receive approximately $11,430 in 2026 to 27, nearly $400 more than the year before. The benefit has been indexed to inflation every year since 2018, so this is predictable, not a one off top up. For clients, that is real monthly cash flow worth revisiting, especially the question of whether some of it should flow straight into a Registered Education Savings Plan, or RESP, to capture the matching Canada Education Savings Grant.\n\nOn the paediatric side, guidance has not shifted this month. Canadian guidelines recommend no screen time for children under two, and for children two to five, routine or sedentary screen time limited to one hour or less per day. Canadian Paediatric Society principles still centre on minimizing, mitigating, mindfully using, and modelling healthy screen use rather than a strict stopwatch.\n\nSeparately, the Globe and Mail has a piece today on breakfast and school focus, citing evidence that a nutritious morning meal helps kids think and learn better in the classroom. Small, practical, consistent with what paediatric nutrition guidance has said for years, and worth passing along to clients juggling early drop offs.",
+     "talkingPoints": [
+      "The CCB just went up, up to $160 more per child under six this year.",
+      "That extra cash flow is a good prompt to revisit RESP contributions and the grant match.",
+      "Screen guidance hasn't changed: none under two, about an hour through preschool.",
+      "Nutrition research keeps linking a solid breakfast to classroom focus.",
+      "Family benefit planning and education savings go hand in hand this fall."
+     ],
+     "sources": [
+      {
+       "outlet": "Canada.ca",
+       "title": "Canada Child Benefit payments increasing in 2026-2027",
+       "url": "https://www.canada.ca/en/employment-social-development/news/2026/07/canada-child-benefit-payments-increasing-in-2026-2027.html"
+      },
+      {
+       "outlet": "PMC / Canadian Paediatric Society",
+       "title": "Paediatricians' awareness of Canadian screen time guidelines",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10517250/"
+      },
+      {
+       "outlet": "Canadian Paediatric Society",
+       "title": "Screen time and preschool children: Promoting health and development in a digital world",
+       "url": "https://cps.ca/en/documents/position/screen-time-and-preschool-children"
+      },
+      {
+       "outlet": "Globe and Mail Life",
+       "title": "To improve mental focus, build these foods into your family's morning meal",
+       "url": "https://www.theglobeandmail.com/life/wellness/article-breakfast-food-ideas-kids-families-mental-focus/"
+      }
+     ],
+     "words": 294,
+     "minutes": 2.0
+    },
+    {
+     "id": "sports",
+     "label": "Sports",
+     "title": "Bombers Survive, Jets Camp Looms, Hellebuyck Watch",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/sports.mp3",
+     "bytes": 3072768,
+     "script": "The Winnipeg Blue Bombers beat the Saskatchewan Roughriders 19 to 6 in the Banjo Bowl on Saturday at Princess Auto Stadium. That puts them at 7 and 6, back in the thick of the West Division playoff race, per the Globe and Mail. The real story out of that game is quarterback Zach Collaros. He left in the third quarter with an undisclosed upper body injury after taking a beating, four of Saskatchewan's five sacks landed on him, and he finished 13 for 19 for 175 yards, a touchdown and two interceptions before backup Dru Brown closed it out, 4 for 5 for 46 yards, per CBC. Safety Redha Kramdi, back from a six game stretch on the injured list with a broken hand, forced a fumble and sealed the win with a fourth quarter interception. The Bombers are on their bye this week and return September 25th hosting the Toronto Argonauts. Watch for a Collaros update before then. Both the Bombers and the Jets are on your watch list, so this is a two team morning.\n\nOn the Jets, training camp opens Thursday at Hockey For All Centre. Preseason starts September 19th in Edmonton against the Oilers, then two home dates at Canada Life Centre, Colorado on the 21st and the Oilers again on the 22nd. The regular season is tentatively pegged for September 29th at home. The story hanging over camp is goaltender Connor Hellebuyck. He has requested a trade and has stayed off the ice at informal skates in Winnipeg. Captain Adam Lowry says the speculation is not worth the team's time, and Mark Scheifele says he still believes in this group coming off a career year of his own. If it is not resolved before the opener, expect it to follow the team on the road, and expect it to come up at every dinner table in the city.\n\nElsewhere in the NHL, new Maple Leafs general manager Chayka told the Globe and Mail he understands the weight of running the team he cheered for as a kid, after Toronto missed the playoffs last season for the first time since 2016. In Montreal, the Canadiens signed forward Zachary Bolduc to a four year extension, per CBC.\n\nIn the NFL, Sunday delivered the highest scoring season opener in league history as the Bears beat the Panthers, per the Globe and Mail. Kirk Cousins threw three touchdowns and joined the 300 touchdown club as the Raiders beat the Dolphins 27 to 13. Detroit escaped New Orleans in overtime, 31 to 30, with Jahmyr Gibbs putting up a career high 29 carries for 156 yards and two touchdowns. Buffalo got a late touchdown from Josh Allen to Joshua Palmer to beat Houston, their first win there since 2006. On the injury side, the reigning NFL Defensive Player of the Year, Myles Garrett, needs knee surgery and is headed to injured reserve, out at least four games, per The Athletic.\n\nIn the NBA, Clippers owner Steve Ballmer said this weekend his team will accept the league's penalties for circumventing the salary cap to funnel money to Kawhi Leonard. He called it sincere regrets in a statement, per The Athletic.\n\nTonight closes out week one of the NFL with Monday Night Football. The CFL is quiet with the Bombers on their bye, and the NBA stays in the off season while Jets camp opens in three days.",
+     "talkingPoints": [
+      "The Bombers are 7 and 6 and playoff-relevant again after the Banjo Bowl win.",
+      "Zach Collaros left hurt again, watch for word before the September 25th Argos game.",
+      "Jets camp opens Thursday, but the Hellebuyck trade request is the real headline.",
+      "Kirk Cousins just joined the NFL's 300 touchdown club with Las Vegas.",
+      "Clippers owner Steve Ballmer is accepting the cap circumvention penalties tied to Kawhi Leonard."
+     ],
+     "sources": [
+      {
+       "outlet": "Globe and Mail",
+       "title": "Winnipeg Blue Bombers pick Saskatchewan Roughriders apart to win Banjo Bowl 19-6",
+       "url": "https://www.theglobeandmail.com/sports/football/article-winnipeg-blue-bombers-pick-saskatchewan-roughriders-apart-to-win-banjo/"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Blue Bombers pick apart Roughriders in 19-6 win at annual Banjo Bowl",
+       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-blue-bombers-saskatchewan-roughriders-banjo-bowl-2026-9.7342185"
+      },
+      {
+       "outlet": "3DownNation",
+       "title": "Winnipeg Blue Bombers QB Zach Collaros leaves Banjo Bowl with injury, doesn't return",
+       "url": "https://3downnation.com/2026/09/12/winnipeg-blue-bombers-qb-zach-collaros-ruled-out-of-banjo-bowl-with-injury/"
+      },
+      {
+       "outlet": "NHL.com",
+       "title": "Jets announce 2026 pre-season schedule",
+       "url": "https://www.nhl.com/jets/news/jets-announce-2026-pre-season-schedule"
+      },
+      {
+       "outlet": "Illegal Curve",
+       "title": "Winnipeg Jets Morning Papers: Today's Hockey Headlines, September 10, 2026",
+       "url": "https://illegalcurve.com/winnipeg-jets-morning-papers-todays-hockey-headlines-september-10-2026"
+      },
+      {
+       "outlet": "Illegal Curve",
+       "title": "Winnipeg Jets Morning Papers: Today's Hockey Headlines, September 9, 2026",
+       "url": "https://illegalcurve.com/winnipeg-jets-morning-papers-todays-hockey-headlines-september-9-2026"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Running the team he cheered for as a kid, Chayka says he understands obligation that comes as Leafs GM",
+       "url": "https://www.theglobeandmail.com/sports/hockey/article-running-the-team-he-cheered-for-as-a-kid-chayka-says-he-understands/"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Canadiens sign forward Zachary Bolduc to 4-year contract extension",
+       "url": "https://www.cbc.ca/news/canada/montreal/montreal-canadiens-zachary-bolduc-4-year-deal-9.7342560"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Kirk Cousins throws three TDs, joins 300-touchdown club as Raiders beat Dolphins 27-13",
+       "url": "https://www.theglobeandmail.com/sports/football/article-kirk-cousins-throws-three-tds-joins-300-touchdown-club-as-raiders-beat/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Lions escape season opener with 31-30 OT win over Saints",
+       "url": "https://www.theglobeandmail.com/sports/football/article-lions-escape-season-opener-with-31-30-ot-win-over-saints/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Josh Allen finds Joshua Palmer for a late TD to get the Bills a win in Houston",
+       "url": "https://www.theglobeandmail.com/sports/football/article-josh-allen-finds-joshua-palmer-for-a-late-td-to-get-the-bills-a-win-in/"
+      }
+     ],
+     "words": 566,
+     "minutes": 3.8
+    }
+   ],
+   "expectedSections": [
+    "frontpage",
+    "lessons",
+    "markets",
+    "companies",
+    "practice",
+    "manitoba",
+    "politics",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
+   ],
+   "missingSections": [
+    "frontpage"
+   ]
+  },
+  {
    "date": "2026-09-11",
    "generatedAt": "2026-09-11T10:47:03+00:00",
    "release": "courier-2026-09-11",
@@ -3760,155 +4458,6 @@
      ],
      "words": 322,
      "minutes": 2.1
-    }
-   ]
-  },
-  {
-   "date": "2026-09-04",
-   "generatedAt": "2026-09-04T16:09:55+00:00",
-   "release": "courier-2026-09-04",
-   "budgetMinutes": 60,
-   "plannedMinutes": 60,
-   "projectedMinutes": 16.6,
-   "voiceless": [],
-   "plan": [],
-   "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Jobs Shock Overshadows a Bank Hold",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/frontpage.mp3",
-     "bytes": 2710656,
-     "script": "The number that matters most today: Canada lost 41,700 jobs in August. Economists polled by Reuters expected a gain of about 15,000. Instead the economy shed jobs, almost all of it full-time work, down 35,900, right after a blowout July that added 75,100 positions. The unemployment rate held at 6.4 percent, but the Globe and Mail calls this one of the last clean reads on the labour market before new US tariffs of 50 percent start hitting the numbers. That's the Markets and Economy block, 2.3 minutes, and it's your top listen today.\n\nNext, the Manitoba and Winnipeg block, 0.9 minutes. The Bank of Canada held its key rate at 2.25 percent on Wednesday, the seventh straight hold. It came off second quarter GDP growth of 3.3 percent, but the Bank flagged that US tariffs, Canadian counter-tariffs, and high oil prices could push inflation higher rather than toward its 2 percent target. Next decision is October 28. If you've got mortgage clients renewing this fall, that's your cue.\n\nThird, Climate Policy and Nonprofit Governance, the longest block at 3.3 minutes, and it's worth your attention for two separate reasons. Alberta just exempted Suncor's tailings discharge from environmental review, a real flag if you've got ESG-minded clients, ESG meaning environmental, social, and governance investing. Separately, the Canada Revenue Agency no longer pre-approves charity purpose changes, so nonprofit boards now carry that compliance risk directly instead of leaning on government sign-off. On a brighter note, United Way Winnipeg posted a record 23.3 million dollar campaign, so local giving still has legs heading into fall.\n\nLast, Health and Fitness, 2.6 minutes. Peter Attia is stepping back from chasing an exact Zone 2 heart rate number, arguing consistent easy cardio matters more than precision. There's also a small new study suggesting light weights build muscle about as well as heavy ones. Lower priority today, but worth the four minutes if you lift or run.\n\nSo the order for your attention: jobs numbers first, they change the tariff and rate conversation. The Manitoba rate hold second, because it's local and time-sensitive for clients. Climate and nonprofit governance third, for anyone touching ESG or charity boards. Health and fitness last, good information, no urgency.\n\nTalking points\nThe August jobs loss was the worst surprise of the year, not the tariffs yet, just the setup for them.\nBank of Canada held again, but it's watching oil and tariffs push inflation the wrong way.\nAlberta waiving environmental review for Suncor's tailings is going to come up with ESG clients.\nCharity boards now own compliance on purpose changes, CRA stepped back from pre-approval.\nUnited Way Winnipeg's record campaign says local giving isn't slowing down yet.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 446,
-     "minutes": 3.0
-    },
-    {
-     "id": "lessons",
-     "label": "Lessons",
-     "title": "The Fama French factors: what they are and what the evidence supports / Federal and Manitoba tax brackets for the current year and how marginal rates combine",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/lessons.mp3",
-     "bytes": 4270080,
-     "script": "Company & Economy Analysis, Evidence arsenal, lesson 1: The Fama French factors: what they are and what the evidence supports.\n\nThe biggest story in factor investing isn't that stock picking works or doesn't, it's that a large chunk of what looks like manager skill is actually just exposure to a small number of factors. Eugene Fama and Kenneth French published this in 1992 and 1993. They found that a single market factor, the one from the Capital Asset Pricing Model, doesn't explain the spread of stock returns on its own. Two more do a lot of the work: size, meaning small companies versus big ones, and value, meaning stocks with a high book to market ratio versus low. They built portfolios called SMB, small minus big, and HML, high minus low, and ran the regression against thousands of stocks. In 2015 they added two more factors, profitability and investment, making it a five factor model.\n\nHere's the worked example. Using the Fama French data library at Dartmouth, since 1926 the size factor, SMB, has averaged close to two and a half percent a year. That sounds like free money. But look at 2010 through 2020: SMB averaged near zero, some years sharply negative, because large cap growth, especially mega cap technology names, dominated. The value factor, HML, tells a similar story. Value beat growth for decades, then underperformed for roughly thirteen straight years, until a sharp reversal in 2022, when rising rates hit expensive growth stocks hard.\n\nThe mistake people make is treating these factors as a timing tool or a guarantee, chasing whichever one just outperformed. The evidence supports a different reading. These are risk premia, compensation for holding something uncomfortable, and they can underperform for a decade or more, with no promise of paying off inside your investing lifetime.\n\nIn Thomson ONE, you can find a stock's market cap and its book to market ratio on the company snapshot or estimates tab, which is the raw material behind this whole model.\n\nTASK:\nPick one holding you know well, find its size and value standing against its sector in Thomson ONE, and write one sentence stating whether it behaves like a small value stock or a large growth stock, with no trade attached.\nDRILL:\nnone\n\nFinancial Planning Facts, lesson 1: Federal and Manitoba tax brackets for the current year and how marginal rates combine.\n\nThe biggest thing to understand today is that you never pay one flat rate on your total income in Canada. You pay different rates on different slices of income, federal and provincial, and those slices stack on top of each other.\n\nFor 2026, the Canada Revenue Agency indexes federal brackets to inflation every year. This year the federal brackets are: 15 percent on income up to $58,800, 20.5 percent on the next slice up to $117,600, 26 percent up to $182,300, 29 percent up to $259,700, and 33 percent on anything above that.\n\nManitoba is different. Manitoba Finance began indexing its brackets to inflation starting in 2025, after years of fixed thresholds. For 2026, Manitoba tax runs 10.8 percent up to $48,857, 12.75 percent up to $103,932, and 17.4 percent above $103,932.\n\nHere's a worked example. Say you're an incorporated business owner paying yourself a $150,000 salary. Your next dollar earned falls in the federal 26 percent bracket, because $150,000 sits between $117,600 and $182,300. On the Manitoba side, $150,000 is above $103,932, so that dollar also falls in Manitoba's top bracket, 17.4 percent. Add the two: 26 plus 17.4 equals 43.4 percent. That's your marginal rate, the tax on your next dollar, not on the whole $150,000.\n\nHere's the mistake people make. They assume Manitoba's top bracket only hits high earners the way the federal top bracket does. It doesn't. Manitoba's top rate starts at $103,932 for 2026, far below the $259,700 where the federal 33 percent rate kicks in. That means a lot of professionals and business owners hit Manitoba's ceiling years before they ever reach the federal one. It matters when you're advising on a bonus, an inc",
-     "talkingPoints": [
-      "Company & Economy Analysis: ",
-      "Financial Planning Facts: "
-     ],
-     "sources": [],
-     "words": 676,
-     "minutes": 4.5,
-     "lessons": [
-      {
-       "track": "analysis",
-       "label": "Company & Economy Analysis",
-       "sequence": "Evidence arsenal",
-       "index": 1,
-       "title": "The Fama French factors: what they are and what the evidence supports",
-       "script": "The biggest story in factor investing isn't that stock picking works or doesn't, it's that a large chunk of what looks like manager skill is actually just exposure to a small number of factors. Eugene Fama and Kenneth French published this in 1992 and 1993. They found that a single market factor, the one from the Capital Asset Pricing Model, doesn't explain the spread of stock returns on its own. Two more do a lot of the work: size, meaning small companies versus big ones, and value, meaning stocks with a high book to market ratio versus low. They built portfolios called SMB, small minus big, and HML, high minus low, and ran the regression against thousands of stocks. In 2015 they added two more factors, profitability and investment, making it a five factor model.\n\nHere's the worked example. Using the Fama French data library at Dartmouth, since 1926 the size factor, SMB, has averaged close to two and a half percent a year. That sounds like free money. But look at 2010 through 2020: SMB averaged near zero, some years sharply negative, because large cap growth, especially mega cap technology names, dominated. The value factor, HML, tells a similar story. Value beat growth for decades, then underperformed for roughly thirteen straight years, until a sharp reversal in 2022, when rising rates hit expensive growth stocks hard.\n\nThe mistake people make is treating these factors as a timing tool or a guarantee, chasing whichever one just outperformed. The evidence supports a different reading. These are risk premia, compensation for holding something uncomfortable, and they can underperform for a decade or more, with no promise of paying off inside your investing lifetime.\n\nIn Thomson ONE, you can find a stock's market cap and its book to market ratio on the company snapshot or estimates tab, which is the raw material behind this whole model.\n\nTASK:\nPick one holding you know well, find its size and value standing against its sector in Thomson ONE, and write one sentence stating whether it behaves like a small value stock or a large growth stock, with no trade attached.\nDRILL:\nnone",
-       "task": "",
-       "drill": ""
-      },
-      {
-       "track": "planning",
-       "label": "Financial Planning Facts",
-       "sequence": null,
-       "index": 1,
-       "title": "Federal and Manitoba tax brackets for the current year and how marginal rates combine",
-       "script": "The biggest thing to understand today is that you never pay one flat rate on your total income in Canada. You pay different rates on different slices of income, federal and provincial, and those slices stack on top of each other.\n\nFor 2026, the Canada Revenue Agency indexes federal brackets to inflation every year. This year the federal brackets are: 15 percent on income up to $58,800, 20.5 percent on the next slice up to $117,600, 26 percent up to $182,300, 29 percent up to $259,700, and 33 percent on anything above that.\n\nManitoba is different. Manitoba Finance began indexing its brackets to inflation starting in 2025, after years of fixed thresholds. For 2026, Manitoba tax runs 10.8 percent up to $48,857, 12.75 percent up to $103,932, and 17.4 percent above $103,932.\n\nHere's a worked example. Say you're an incorporated business owner paying yourself a $150,000 salary. Your next dollar earned falls in the federal 26 percent bracket, because $150,000 sits between $117,600 and $182,300. On the Manitoba side, $150,000 is above $103,932, so that dollar also falls in Manitoba's top bracket, 17.4 percent. Add the two: 26 plus 17.4 equals 43.4 percent. That's your marginal rate, the tax on your next dollar, not on the whole $150,000.\n\nHere's the mistake people make. They assume Manitoba's top bracket only hits high earners the way the federal top bracket does. It doesn't. Manitoba's top rate starts at $103,932 for 2026, far below the $259,700 where the federal 33 percent rate kicks in. That means a lot of professionals and business owners hit Manitoba's ceiling years before they ever reach the federal one. It matters when you're advising on a bonus, an inc",
-       "task": "",
-       "drill": ""
-      }
-     ]
-    },
-    {
-     "id": "markets",
-     "label": "Markets & Economy",
-     "title": "Jobs Shock, Rate Bets, and Oil's Iran-Driven Surge",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/markets.mp3",
-     "bytes": 2078592,
-     "script": "Start with the number that matters most for you this morning. Canada lost 41,700 jobs in August. The unemployment rate held at 6.4 percent, but that headline number hides how bad this was. Economists polled by Reuters had expected a gain of around 15,000 positions. Instead you got a big loss, and it followed a blowout July where the economy added 75,100 jobs. Nearly all of the damage was in full-time work, down 35,900, with part-time down another 5,800. The Globe and Mail is calling this one of the last clean reads on the labour market before the new 50 percent US tariffs start showing up in the data, so brace clients for more volatility in this number through the fall.\n\nNow the contrast, because it's a big one. The US jobs report landed the same morning and went the other way entirely. Nonfarm payrolls jumped 162,000 in August, nearly triple the consensus call of around 55,000 to 56,000. Total nonfarm payroll employment increased by 162,000 in August, and the unemployment rate was unchanged at 4.1 percent. Average hourly earnings climbed 3.1% year over year, topping the 3.0% forecast. That is a genuinely hot print, and it changes the conversation in Washington.\n\nOn rates, here's where you stand. The Bank of Canada already met this week, on September 2, and it's on your watch list for a reason. The Bank of Canada held its target for the overnight rate at 2.25%, with the Bank Rate at 2.5% and the deposit rate at 2.20%. That's the seventh straight hold. The next scheduled date for announcing the overnight rate target is October 28, 2026. The Bank flagged Middle East energy prices and the breakdown in trade talks with the US as the two big swing factors keeping it on hold rather than cutting further.\n\nSouth of the border, it's a different story. Going into Friday, markets had pared back bets on a Fed rate hike after Governor Christopher Waller talked up a wait-and-see approach on Thursday. The blowout payrolls number reversed that fast.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 341,
-     "minutes": 2.3
-    },
-    {
-     "id": "manitoba",
-     "label": "Manitoba & Winnipeg",
-     "title": "Rate Hold, Tariffs, Hydro Costs, Klein Runs Again",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/manitoba.mp3",
-     "bytes": 840192,
-     "script": "The Bank of Canada held its key interest rate at 2.25 percent on Wednesday. That's the seventh straight hold, and it's on your watch list for good reason. The decision came fresh off the latest GDP numbers, which grew 3.3% in the second quarter of 2026, and unemployment edged down to 6.4% in July. But the Bank also warned that new US tariffs and Canadian counter-tariffs, as well as elevated oil prices, are raising the risk that inflation moves higher rather than settling near the Bank's 2% target. The next scheduled rate announcement is October 28. For clients renewing mortgages this fall, tell them not to expect relief before then, and don't rule out a hike if tariff costs start showing up at the checkout.\n\nSpeaking of tariffs, Manitoba businesses have five days to prepare.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 135,
-     "minutes": 0.9
-    },
-    {
-     "id": "climate",
-     "label": "Climate Policy & Nonprofit Governance",
-     "title": "Climate Policy Retreat Meets Charity Sector Modernization",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/climate.mp3",
-     "bytes": 3020928,
-     "script": "The biggest story today: a new federal government report finds that the effects of climate change in Canada are now largely irreversible, with average temperatures on track to rise by at least 3.5 degrees Celsius by the end of the century. That's per Canada's National Observer, and it lands the same week Canada's National Observer separately argues that Ottawa's trade war footing with Washington is quietly pushing climate policy down the priority list.\n\nOn the watch list: the Bank of Canada. On Wednesday it held its overnight rate at 2.25 percent for a seventh straight decision. The bank warned that new US tariffs and Canadian counter-tariffs, along with elevated oil prices, are raising the risk that inflation moves higher rather than settling near its 2 percent target. For your clients, that means borrowing costs hold steady for now, but the bank left the door open to a hike, not a cut, if tariff costs spread into everyday prices.\n\nAlso on the watch list, Manitoba Hydro. CBC News reports the Canada-US trade war has complicated Manitoba Hydro's plan to buy gas turbines from a Massachusetts manufacturer for its three billion dollar Brandon generating station expansion. That's a direct line from tariff politics to Manitoba's electricity supply plans.\n\nIn Alberta, two governance stories worth flagging. The provincial regulator has exempted Suncor's oil sands tailings pond discharge into the Athabasca River from an environmental review, angering downstream communities, per Canada's National Observer. And starting October 1st, Alberta is bringing in a 14 dollar recycling fee on new solar panels along with a landfill ban, which critics say puts renewables at a disadvantage.\n\nOn the clean electricity side, construction has begun on British Columbia's North Coast Transmission Line, linking Prince George to Terrace and set to more than double electricity supply to the northwest. Clean Energy Canada's Evan Pivnick called clean electricity central to a competitive Canadian economy.\n\nTurning to the charitable sector. The CRA's Charities Directorate is deep into a modernization push. As of this spring, charities can no longer submit documents by fax, and the agency will no longer pre-approve changes to a charity's stated purposes, shifting that responsibility onto boards and directors. The Open Government Data Portal now hosts T3010 public charity data going back to 1990, giving donors and advisors far more transparency into any charity's financial history before you recommend a gift.\n\nCloser to home, United Way Winnipeg is on the watch list. Winnipeggers raised a record-breaking 23.3 million dollars for the 2025 campaign, with Anne Mahon and Paul Mahon set to co-chair the 2026 campaign. That's a strong signal for local philanthropy heading into fall campaign season, and worth mentioning to clients weighing year-end giving.\n\nOne more for the building retrofit file: Efficiency Manitoba's monthly household energy reports are now reaching 100,000 homes, comparing usage against similar residences, and the Crown corporation says usage is dropping among households that get the reports. That's a low-cost nudge worth flagging to clients thinking about retrofit incentives this fall.",
-     "talkingPoints": [
-      "Bank of Canada held at 2.25 percent, but flagged inflation risk from tariffs and oil prices, not a rate cut signal.",
-      "Manitoba Hydro's Brandon expansion is getting tangled in Trump tariffs on US-made turbines.",
-      "Alberta just exempted Suncor's tailings discharge from environmental review, a governance flag for ESG-minded clients.",
-      "CRA no longer pre-approves charity purpose changes, boards now own that compliance risk directly.",
-      "United Way Winnipeg's record 23.3 million dollar campaign shows local giving still has momentum into fall."
-     ],
-     "sources": [
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Changes to Canada's climate now 'irreversible,' federal report says",
-       "url": "https://www.nationalobserver.com/2026/09/04/news/changes-canadas-climate-now-irreversible-federal-report-says"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Donald Trump's trade war is accelerating Canada's retreat from climate policy",
-       "url": "https://www.nationalobserver.com/2026/09/03/opinion/donald-trumps-trade-war-accelerating-canadas-retreat-climate-policy"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Alberta exempts Suncor's tailings pond dump from review, angering downstream communities",
-       "url": "https://www.nationalobserver.com/2026/09/04/news/alberta-oilsands-tailings-suncor-regulator"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Alberta government touts the Oct. 1 launch of $14 solar panel recycling fee, landfill ban",
-       "url": "https://www.nationalobserver.com/2026/09/04/news/alberta-government-touts-oct-1-launch-14-solar-panel-recycling-fee-landfill-ban"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Construction begins on major BC transmission line aimed at powering northwest",
-       "url": "https://www.nationalobserver.com/2026/09/03/news/construction-begins-major-bc-transmission-line-aimed-powering-northwest"
-      },
-      {
-       "outlet": "Clean Energy Canada",
-       "title": "Response: North Coast Transmission Line builds Canada's competitive advantage",
-       "url": "https://cleanenergyc"
-      }
-     ],
-     "words": 498,
-     "minutes": 3.3
-    },
-    {
-     "id": "health",
-     "label": "Health & Fitness",
-     "title": "Zone 2 Rethink, Load Debate, and a Rate Hold",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-04/health.mp3",
-     "bytes": 2162688,
-     "script": "The biggest health story this week comes from Peter Attia, the longevity physician raised in Toronto. In a newsletter dated August 29th, he walks back some of his own messaging on Zone 2 training, the steady aerobic pace he has championed for years. Attia admits he has been too prescriptive, defining Zone 2 the way elite endurance coaches do, by keeping blood lactate under two millimoles per liter. His updated take: precision matters less than consistency. Get your heart working at a sustainable, conversational effort several times a week, and do not get hung up on hitting an exact number on a chest strap or watch. For someone who lifts and also does cardio, that is useful. You do not need a lab test to get the mitochondrial benefit, you need repeated, easy effort logged over time.\n\nOn the resistance training side, Examine dot com's most recent roundup of study summaries highlighted a ten week trial where twenty young men with no lifting background were split between heavy loads and light loads, both taken to muscular failure. Muscle growth came out similar either way. Examine flags this as useful but preliminary. Twenty people is a small sample, and it only tracked beginners for ten weeks, so it does not settle the load debate for anyone with years of training behind them. Still, it lines up with a decade of other research: proximity to failure and total volume seem to matter more than the specific weight on the bar.\n\nOn the Canadian health system, CBC reports that hiring across Alberta and Ontario's health care sector has been propping up the national job market this year, and health reporters there caution that this says more about a sluggish broader economy than about better patient outcomes. Separately, CBC's Calgary bureau reports that front line workers are flagging a gap in social and addiction supports more than two months after the city's only supervised consumption site closed.\n\nOn the financial side, the Bank of Canada held its overnight rate at 2.25 percent this week, its seventh straight hold, citing tariff related inflation risk. That is on your watch list. Worth flagging to clients asking about mortgage renewals: the Bank signaled it is now more likely to raise than cut from here if tariff costs spread into consumer prices.",
-     "talkingPoints": [
-      "Attia is easing off strict Zone 2 targets, consistency of easy cardio beats chasing a precise number.",
-      "A small new study suggests light and heavy weights build similar musc"
-     ],
-     "sources": [],
-     "words": 384,
-     "minutes": 2.6
     }
    ]
   }
