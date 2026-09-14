@@ -6,7 +6,7 @@ from pathlib import Path
 
 def expected_sections(day, sources=None):
     sources = sources if sources is not None else json.loads(Path(__file__).with_name("sources.json").read_text())
-    return ["frontpage"] + (["lessons"] if date.fromisoformat(day).weekday() < 5 else []) + list(sources)
+    return (["lessons"] if date.fromisoformat(day).weekday() < 5 else []) + list(sources)
 
 
 def gaps(item, expected=None):
