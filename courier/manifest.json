@@ -6,8 +6,8 @@
    "generatedAt": "2026-09-14T10:55:26+00:00",
    "release": "courier-2026-09-14",
    "budgetMinutes": 60,
-   "plannedMinutes": 60,
-   "projectedMinutes": 53.8,
+   "plannedMinutes": 57,
+   "projectedMinutes": 50.6,
    "voiceless": [],
    "failed": [],
    "usage": {
@@ -21,18 +21,6 @@
    },
    "plan": [],
    "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Oil Shock Meets Two Central Bank Decisions",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@035dc927030aae0236124b23a4490acbf46b668f/2026-09-14/frontpage.mp3",
-     "bytes": 2965632,
-     "script": "Oil just jumped after a Saudi pipeline shutdown, and that single event is now shaping everything else in your week. It hits Canadian inflation data out today, expected to hold near 3 percent, and it complicates both the Bank of Canada's October 28th decision and the Federal Reserve's call Wednesday, where markets have flipped to betting on a hike instead of a cut. That's the story to give your full attention to: Markets and Economy, 7.7 minutes, covers the oil spike, the rate bets, and Carney's trillion dollar Toronto investment push, which is the most constructive Canadian growth headline in a while.\n\nSecond, the artificial intelligence slowdown call. Anthropic, OpenAI, and Google DeepMind are now asking for a slower pace of development themselves, citing loss of control risks, while critics call it regulatory capture. Markets wobbled on that news alongside the oil spike. The Ten, 5.6 minutes, covers the global picture, and AI and Technology, 4.0 minutes, digs into Trump and Obama landing on opposite sides of AI regulation, plus a record 704 million dollars in Canadian fraud losses last year.\n\nThird, Carney's investment summit itself. Over 160 projects pitched in Toronto, TD and Scotiabank each putting nine and ten figure sums behind Canadian business, and a Churchill port expansion that matters directly for Manitoba trade routes. Canadian Politics, 4.3 minutes, is where to hear that in full.\n\nIf you're client-facing, the Practice block, 5.9 minutes, is your working session today: CIRO breach letters going out this week are about registration data only, new RRSP room sits at 33,810 dollars, TFSA cumulative room is now 109,000, and rising rates are pulling annuities back into retirement conversations.\n\nLocally, Manitoba and Winnipeg, 4.3 minutes, covers the Bank of Canada hold, a derelict 5.5 million dollar daycare in East St. Paul, and the Bombers' Banjo Bowl win. Climate Policy and Nonprofit Governance, 3.7 minutes, has Manitoba Hydro's gas expansion clearing hearings with rates locked through 2028, plus United Way Winnipeg's record 23.3 million dollar campaign.\n\nLighter stuff rounds out the day: Health and Fitness, 2.6 minutes, on a 30 year Harvard study linking strength training to a 13 percent lower early death risk. Parenting, 2.0 minutes, on the Canada Child Benefit rising up to 160 dollars more per child under six. And Sports, 3.8 minutes, on the Jets camp opening Thursday under the shadow of the Hellebuyck trade request.\n\nTalking points\nOil spiking off a Saudi pipeline hit could push both the Fed and the Bank of Canada toward hikes, not cuts.\nThe same AI labs building this technology are now asking regulators to slow them down.\nCarney's Toronto summit has real bank money behind it, TD and Scotiabank both wrote nine and ten figure checks this week.\nTFSA room is up to 109,000 dollars for anyone who's never contributed.\nThe Bombers are 7 and 6 and playoff relevant again after the Banjo Bowl.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 481,
-     "minutes": 3.2
-    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -692,7 +680,6 @@
     }
    ],
    "expectedSections": [
-    "frontpage",
     "lessons",
     "markets",
     "companies",
@@ -720,8 +707,8 @@
    "generatedAt": "2026-09-11T10:47:03+00:00",
    "release": "courier-2026-09-11",
    "budgetMinutes": 60,
-   "plannedMinutes": 60,
-   "projectedMinutes": 54.0,
+   "plannedMinutes": 57,
+   "projectedMinutes": 50.5,
    "voiceless": [],
    "failed": [],
    "usage": {
@@ -735,18 +722,6 @@
    },
    "plan": [],
    "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Oil Above $100 Reshapes Rates and Risk",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ec2650efe3d4cd38f218cec9134ce59f8e066a05/2026-09-11/frontpage.mp3",
-     "bytes": 2936832,
-     "script": "Oil crossed one hundred dollars a barrel this week, and that single number is driving almost everything else in your day. It's pushing inflation risk higher, it's behind this week's bond selloff, and it's the backdrop for why the Bank of Canada held rates at two and a quarter percent for a seventh straight meeting, with the next decision October twenty eighth. The loonie is softer anyway, because safe haven demand for U.S. dollars is overriding the usual oil-currency pattern. That's the core of Markets and Economy, seven and a half minutes, and it earns your full attention today.\n\nRight behind it, The Ten, seven point two minutes, rounds up the corporate side: Oracle's earnings beat calmed some fear about its AI-linked debt load, Anthropic's own staff are the ones raising the loudest alarm about the company's safety practices, and Shopify's recent slide looks like a broad market move, not a company problem.\n\nYour Practice block, five and a half minutes, has three items that change what you tell clients today: don't act on the twenty twenty four capital gains changes before royal assent, BMO just went fee-free on online trading and other platforms will likely follow, and check life insurance for any client mid-transition, since lapse risk peaks in years one through three.\n\nManitoba and Winnipeg, four point three minutes, covers circuit court sittings being cut starting April twenty twenty seven, Kinew talking openly about bringing lab services back into the public system, and Winnipeg clearing one hundred twenty six point five million dollars in federal housing money after beating its targets.\n\nCanadian Politics, four minutes, has Ottawa formally pitching the fifty seven billion dollar Churchill port expansion, worth watching if you have Manitoba exposure, plus Alberta's October nineteenth referendum, with Ottawa staying out of funding the federalist side.\n\nClimate Policy, four point one minutes, centers on Manitoba Hydro's gas turbine plan facing real pushback in its rate case, plus a reminder that the Canada Revenue Agency is cracking down on charity receipting misuse.\n\nHealth and Fitness, two point eight minutes, has a genuinely useful figure: a Harvard study found ninety to one hundred nineteen minutes of weekly strength training linked to thirteen percent lower all-cause mortality over thirty years. There's also a Health Canada recall on one lot of Novo-Gesic Forte acetaminophen, lot number one zero zero zero eight three zero four zero.\n\nParenting, one point nine minutes, flags the Canada Child Benefit increase and the roughly thirty eight thousand dollar income cutoff for the full amount.\n\nSports, three point two minutes, closes things out: the Seahawks opened one and oh over the Patriots, and the hockey world is mourning Barry Melrose, dead at seventy.\n\nTalking points\nOil above one hundred a barrel is the real story behind this week's bond selloff.\nThe Bank of Canada is done cutting for now, next call isn't until October twenty eighth.\nBMO going fee-free on trading is about to force every other bank's hand.\nManitoba Hydro's gas plant is facing tougher hearings than expected on cost and need.\nNinety minutes of lifting a week is now tied to real mortality numbers, not just muscle.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 523,
-     "minutes": 3.5
-    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -1456,7 +1431,6 @@
     }
    ],
    "expectedSections": [
-    "frontpage",
     "lessons",
     "markets",
     "companies",
@@ -1484,8 +1458,8 @@
    "generatedAt": "2026-09-10T11:08:15+00:00",
    "release": "courier-2026-09-10",
    "budgetMinutes": 60,
-   "plannedMinutes": 60,
-   "projectedMinutes": 54.9,
+   "plannedMinutes": 57,
+   "projectedMinutes": 52.0,
    "voiceless": [],
    "failed": [],
    "usage": {
@@ -1499,18 +1473,6 @@
    },
    "plan": [],
    "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Tariffs Bite, Oil Spikes, Rates Hold Steady",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/frontpage.mp3",
-     "bytes": 2474496,
-     "script": "The trade war is the story today, and it's the one to give your full attention. Trump's new bans on Canadian alcohol, dairy, and motorcycles land September 29th, with fifty percent tariffs on top for goods like cheese and aluminum products. That's covered in Markets and Economy, seven and a half minutes, and again in Canadian Politics, four minutes, where a new Nanos poll shows eighty percent of Canadians still back Ottawa's countertariffs even as the cost climbs. If you or a client has exposure to any of those sectors, the Practice block, six point two minutes, has the specific ask: stress test cash flow before the deadline hits.\n\nOil is back above 100 dollars a barrel, and Markets and Economy explains why that means higher gas prices this fall instead of the usual seasonal dip. The Bank of Canada held its rate at 2.25 percent for a seventh straight time, with the next call October 28th. That single decision echoes through four different blocks today, but Markets and Economy gives you the real division: Scotiabank and National Bank are the lone voices calling for an October hike.\n\nIn Manitoba and Winnipeg, four and a half minutes, watch the Dynacare fight, it raises real odds the province nationalizes lab testing. Hydro's three billion dollar gas turbine plan cleared hearings, and that means rate hikes are coming regardless of what the Climate Policy block, three point four minutes, says about the province's new Net Zero plan.\n\nThe Ten, seven point eight minutes, is worth your attention for business chatter: Apple's folding phone at almost three thousand dollars despite shrinking global demand, and Shopify down twice this week on tariff and rate fear, not company news.\n\nAI and Technology, three point six minutes, flags something practical: treat AI agents inside your business like employees with access badges, that's becoming a real security category.\n\nHealth and Fitness, two and a half minutes, has a genuinely useful number: ninety minutes of lifting a week links to thirteen percent lower mortality risk, per Harvard research.\n\nParenting, two minutes, and Sports, three point six minutes, round out the day. Shelton beat Alcaraz in a marathon at the US Open, setting up an all American semifinal.\n\nTalking points\nTariffs on alcohol, dairy, and motorcycles hit September 29th, ask if anyone here is exposed.\nOil over 100 dollars means gas prices climb this fall instead of falling.\nThe Bank of Canada held again, but two banks think October brings a hike.\nManitoba might nationalize lab testing over the Dynacare fight.\nNinety minutes of lifting a week is now linked to a real drop in mortality risk.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 438,
-     "minutes": 2.9
-    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -2257,7 +2219,6 @@
     }
    ],
    "expectedSections": [
-    "frontpage",
     "lessons",
     "markets",
     "companies",
@@ -2277,8 +2238,8 @@
    "generatedAt": "2026-09-09T11:28:03+00:00",
    "release": "courier-2026-09-09",
    "budgetMinutes": 60,
-   "plannedMinutes": 60,
-   "projectedMinutes": 49.0,
+   "plannedMinutes": 57,
+   "projectedMinutes": 46.1,
    "voiceless": [],
    "failed": [],
    "usage": {
@@ -2292,18 +2253,6 @@
    },
    "plan": [],
    "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Oil Tops $100 as Trade War Bites",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/frontpage.mp3",
-     "bytes": 2513664,
-     "script": "The trade war and the oil shock are the story today, and they're tangled together. Brent crude topped 100 dollars a barrel for the first time since July, per the Ten, as attacks around the Strait of Hormuz and on Saudi energy facilities raise fears of a real supply disruption. At the same time, Canada's counter tariffs on roughly 28 billion dollars in U.S. goods are now in effect, and Washington hit back hard: Trump has banned Canadian dairy and alcohol imports and is threatening Bombardier sales in the U.S. Markets and Economy, 6.2 minutes, is your deep dive here: oil, the yen carry trade unwind, copper's record high, and Novartis stock falling 10 percent on a third failed drug trial in a week. The Ten, 5.6 minutes, gives you the fast version plus two things that block doesn't cover: Canada and the European Union moving toward a new comprehensive partnership next week, and Germany's AfD winning a regional election in Saxony-Anhalt, a genuine breakthrough for the far right there.\n\nSecond story, the Bank of Canada held rates at 2.25 percent for a seventh straight time, citing tariff and oil price uncertainty. Canadian Politics, 4.1 minutes, has the cleanest rundown, including the September 29 date when new U.S. bans on alcohol, motorcycles and dairy hit the same day Manitoba's legislature reconvenes. If you advise clients, give full attention to Practice, 6.1 minutes: TFSA room is back to 7,000 dollars, RRSP room sits at 33,810, and IG Wealth just outsourced its core funds to Goldman Sachs, a signal on where fee pressure in this industry is heading.\n\nLocally, Manitoba and Winnipeg, 4.7 minutes, covers Manitoba Hydro's three billion dollar Brandon gas plant expansion finishing its public hearing phase and now heading to cabinet, plus the city's 29 million dollar budget shortfall.\n\nQuicker hits you can take in passing: AI and Technology, 3.6 minutes, on Anthropic's Claude accounts getting hijacked through stolen logins and Meta's new Muse agent asking for email and payment access. Climate Policy, 3.9 minutes, on the Canada Revenue Agency tightening charity disbursement enforcement. Parenting, 1.8 minutes, on the Canada Child Benefit increase. Sports, 3.1 minutes, has Aaron Judge back for the Yankees and Ben Shelton's marathon upset of Carlos Alcaraz at the U.S. Open.\n\nTalking points\nOil just crossed 100 dollars a barrel on Middle East supply fears.\nCanada's counter tariffs are live, and Trump just banned our dairy and alcohol.\nBank of Canada held again, seventh straight time, blaming tariffs and oil.\nGermany's far right AfD just won a state election outright.\nManitoba Hydro's Brandon expansion decision now sits with cabinet.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 434,
-     "minutes": 2.9
-    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -2964,7 +2913,6 @@
     }
    ],
    "expectedSections": [
-    "frontpage",
     "lessons",
     "markets",
     "companies",
@@ -2984,8 +2932,8 @@
    "generatedAt": "2026-09-08T13:36:42+00:00",
    "release": "courier-2026-09-08",
    "budgetMinutes": 60,
-   "plannedMinutes": 60,
-   "projectedMinutes": 50.0,
+   "plannedMinutes": 57,
+   "projectedMinutes": 46.9,
    "voiceless": [],
    "usage": {
     "calls": 16,
@@ -2998,18 +2946,6 @@
    },
    "plan": [],
    "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Tariffs Bite, Rates Hold, Astra Worries Everyone",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/frontpage.mp3",
-     "bytes": 2475264,
-     "script": "Canada's counter-tariffs on twenty seven point six billion dollars of US goods are now in effect, and per the Canadian Politics block, three point nine minutes, there are no talks scheduled to end this. That single fact is why your first stop today should be The Ten, seven point three minutes, the longest block and the one carrying the most weight. It covers Bombardier, whose jets are certified and USMCA compliant so it can't just be banned overnight, Novartis losing its third clinical trial in a week with Ionis taking the hardest hit, Enbridge naming an internal successor as Canadian energy M&A keeps heating up, Anthropic walking away from a six billion dollar AI deal after full due diligence, and IG Wealth hiring Goldman Sachs, which is worth asking what actually changes in client accounts.\n\nSecond priority is Practice, five point nine minutes, because it turns the tariff story into action. Ask incorporated clients about US dollar exposure today, and watch oil near one hundred dollars a barrel, because it could push passive investment income in a corporation over the fifty thousand dollar threshold. CIRO's advisor incorporation proposal closes for comment November 6th, flag that now.\n\nThe Bank of Canada held its rate at two and a quarter percent on September 2nd, citing trade war and Middle East risk. That shows up in three separate blocks today, so you only need it once.\n\nThird, AI and Technology, three and a half minutes. OpenAI's GPT-6 Astra is the first model the company itself rates critical risk for cyber capability, and its own chief scientist says nobody is prepared for how fast this is moving. That deserves your attention over most of the local news today.\n\nManitoba and Winnipeg, four point two minutes, is now a real two-horse mayoral race, Gillingham versus Klein, decided October 28th. Dynacare lab workers are on strike province-wide, expect testing delays for clients.\n\nQuick hits: Climate Policy and Nonprofit Governance, three point three minutes, CRA has killed the charity fax line, any client on a board needs online filing now. Health and Fitness, three point one minutes, ninety to one hundred twenty minutes of weekly strength training links to thirteen percent lower mortality risk in a thirty year Harvard study. Parenting, one point eight minutes, the Canada Child Benefit maximum is now eight thousand one hundred fifty seven dollars under six, worth routing straight into an RESP conversation.\n\nTalking points:\nCanada's counter-tariffs are live and there's no meeting on the calendar to fix it.\nBombardier's planes are certified, so this isn't a snap ban situation.\nOil near a hundred bucks could tip incorporated clients over the passive income threshold.\nGPT-6 Astra is the first model OpenAI itself calls a critical cyber risk.\nWinnipeg's mayoral race just became an actual two-person contest.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 464,
-     "minutes": 3.1
-    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -3675,7 +3611,6 @@
     }
    ],
    "expectedSections": [
-    "frontpage",
     "lessons",
     "markets",
     "companies",
@@ -3695,7 +3630,7 @@
    "release": "courier-2026-09-07",
    "budgetMinutes": 60,
    "plannedMinutes": 60,
-   "projectedMinutes": 33.9,
+   "projectedMinutes": 30.8,
    "voiceless": [],
    "usage": {
     "calls": 15,
@@ -3708,18 +3643,6 @@
    },
    "plan": [],
    "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Rates Hold, Tariffs Bite, Oil Spikes",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/frontpage.mp3",
-     "bytes": 2845056,
-     "script": "Oil spiked this week after US and Iran traded tanker strikes, and the number to watch is what comes out of the Strait of Hormuz talks with Oman in the next few days. That sits right alongside a Bank of Canada hold at 2.25 percent, the seventh straight, where the debate inside the bank has actually flipped to a possible hike, not a cut. And Canada's counter-tariffs just hit over 600 US goods categories, so if you've got clients with cross-border exposure, ask them directly this week, don't wait for them to raise it. All of that, plus a surprising 41,700 drop in August jobs against a hawkish central bank, lives in Markets and Economy, 6.4 minutes, and that's your first stop today.\n\nRight behind it, the Practice block, 6.0 minutes, covers money you can act on before year end. TFSA room is shaping up to be 7,500 dollars for 2027, the RRSP limit is 33,810 this year with 35,390 already locked in for next year, and if any physician client's corporation is closing in on 50,000 dollars of passive income, book that year end call now, not in December.\n\nLocally, Manitoba and Winnipeg, 4.4 minutes, ties the trade war straight into Manitoba Hydro's Brandon turbine purchase, which just got more expensive, with rate case implications worth watching. That block also covers the same Bank of Canada hold, a rent control exemption threshold rising to 2,000 dollars a month starting January 2027, and hate graffiti that marred the Sikh community's Nagar Kirtan downtown.\n\nCanadian Politics, 3.8 minutes, covers the same rate hold and tariff escalation from Ottawa's side, plus one odd detail worth flagging: the new defence procurement minister used to publicly oppose the F-35, which suggests that file isn't as settled as it looked.\n\nAI and Technology, 3.6 minutes, flags that OpenAI's new GPT-6 Astra model just crossed into critical cyber risk territory, by OpenAI's own classification, which raises the bar on AI-assisted fraud. Worth reminding clients this week to verify any big money request by phone, on a known number.\n\nHealth and Fitness, 2.8 minutes, is the one you can skip if you're short on time. The headline there is a UK Biobank study linking tyrosine supplements to shorter lifespan in men, preliminary, and it does not apply to protein from food.\n\nTalking points\nBank held again, seventh straight, and the next move on the table is up, not down.\nCanada's tariff list now covers over 600 US goods categories, worth checking your cross-border exposure.\nTFSA room is heading to 7,500 dollars for 2027, start planning client cash flow now.\nGPT-6 Astra just crossed into critical risk territory, by OpenAI's own admission.\nManitoba Hydro's turbine buy got pricier because of the trade war, watch the rate case.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 459,
-     "minutes": 3.1
-    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -4099,7 +4022,7 @@
    "release": "courier-2026-09-05",
    "budgetMinutes": 60,
    "plannedMinutes": 52,
-   "projectedMinutes": 26.7,
+   "projectedMinutes": 23.9,
    "voiceless": [],
    "usage": {
     "calls": 12,
@@ -4112,18 +4035,6 @@
    },
    "plan": [],
    "blocks": [
-    {
-     "id": "frontpage",
-     "label": "Front page",
-     "title": "Jobs Slump, Fed Pivot, Warming Turns Irreversible",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/frontpage.mp3",
-     "bytes": 2593920,
-     "script": "Start with the number that changes how you read everything else today: Canada shed 41,700 jobs in August, and unemployment still held at 6.4 percent, which tells you the headline rate is hiding real damage. That's inside Markets and Economy, 6.7 minutes, and the bigger twist is in the US, where a jobs report came in too strong and is now pushing odds toward a Fed hike instead of a cut, the opposite of what most clients are positioned for. Oil above 95 dollars a barrel on US-Iran tensions is adding to that inflation risk. Give this block your full attention first.\n\nCanadian Politics, 3.9 minutes, picks up that same jobs shock from Ottawa's side and adds two things worth tracking this week: a small federal cabinet shuffle possible before Thursday's retreat, and federal Conservatives getting pulled into active campaigning against Alberta's separation referendum.\n\nClimate Policy and Nonprofit Governance, 3.5 minutes, carries real weight today. Ottawa's own government report now says Canadian warming impacts are irreversible, which changes how you frame client conversations on climate risk. The same block flags Manitoba Hydro's Brandon turbine deal wobbling under trade war pressure, which feeds future rate hikes.\n\nAI and Technology, 3.3 minutes, is next. OpenAI's new model, Astra, can reportedly find and exploit unknown security flaws with no human guidance, per OpenAI's own safety card, and a separate rogue agent investigation is building congressional pressure for independent oversight.\n\nHealth and Fitness, 2.6 minutes, has a genuinely useful number: a 30 year study of 147,000 people found 90 to 120 minutes of lifting a week cuts early death risk 13 percent, and adding cardio pushes that toward 45 percent. Manitoba's also putting 22.1 million dollars into a new cardiac centre at St. Boniface, though the Fraser Institute says wait times are still up 34 percent.\n\nParenting, 2.1 minutes, is worth a quick check if you have clients with young families: the Canada Child Benefit rose in August, and Employment Insurance parental leave maximums are now higher too.\n\nLast, Manitoba and Winnipeg, 1.8 minutes: Kevin Klein's mayoral run went official this week and the attacks started immediately, useful if you're watching city politics but not urgent for your calendar today.\n\nTalking points\nCanada lost jobs in August even though the unemployment rate looks unchanged.\nThe Fed may hike, not cut, and almost nobody was pricing that in.\nOttawa's own report now calls Canadian climate impacts irreversible.\nA new OpenAI model can find security flaws on its own, no human needed.\nNinety minutes of lifting a week measurably cuts early death risk.",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 427,
-     "minutes": 2.8
-    },
     {
      "id": "markets",
      "label": "Markets & Economy",
