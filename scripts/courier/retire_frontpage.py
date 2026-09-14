@@ -8,8 +8,10 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = ROOT / "courier" / "manifest.json"
 DEFAULT_FEED = ROOT / "courier" / "feed.xml"
 
+# Stay inside one RSS item. A broad .*? can start at an earlier item and consume it
+# while searching forward for the front-page guid.
 _FRONT_ITEM = re.compile(
-    r"\n?\s*<item>.*?<guid[^>]*>courier-[^<]*-frontpage</guid>.*?</item>",
+    r"\n?\s*<item>(?:(?!</item>).)*?<guid[^>]*>courier-[^<]*-frontpage</guid>(?:(?!</item>).)*?</item>",
     flags=re.S,
 )
 
