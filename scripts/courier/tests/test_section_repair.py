@@ -1,4 +1,3 @@
-import copy
 import importlib.util
 import json
 import sys
@@ -23,7 +22,7 @@ class SectionRepairTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         root = Path(self.temp.name)
         self.manifest_path, self.out = root / "manifest.json", root / "out"
-        self.block = {"id": "frontpage", "label": "Front page", "title": "Fictional edition", "script": "An existing fictional section.", "audio": "https://cdn.jsdelivr.net/gh/example/courier@" + "b" * 40 + "/2026-09-08/frontpage.mp3", "bytes": 64, "words": 4, "minutes": 1, "talkingPoints": [], "sources": []}
+        self.block = {"id": "climate", "label": "Climate", "title": "Fictional climate edition", "script": "An existing fictional section.", "audio": "https://cdn.jsdelivr.net/gh/example/courier@" + "b" * 40 + "/2026-09-08/climate.mp3", "bytes": 64, "words": 4, "minutes": 1, "talkingPoints": [], "sources": []}
         self.manifest = {"days": [{"date": "2026-09-08", "generatedAt": "2026-09-08T12:00:00Z", "release": "courier-2026-09-08", "blocks": [self.block]}]}
         self.manifest_path.write_text(json.dumps(self.manifest))
         for name, value in [("MANIFEST", self.manifest_path), ("OUT", self.out), ("TODAY", "2026-09-08"), ("REPO", "example/courier")]:
@@ -39,7 +38,7 @@ class SectionRepairTests(unittest.TestCase):
             builder.repair_sports()
         result = json.loads(self.manifest_path.read_text())
         self.assertEqual(result["days"][0]["blocks"][0], self.block)
-        self.assertEqual([b["id"] for b in result["days"][0]["blocks"]], ["frontpage", "sports"])
+        self.assertEqual([b["id"] for b in result["days"][0]["blocks"]], ["climate", "sports"])
         self.assertNotIn("sports", result["days"][0]["missingSections"])
         self.assertIn(self.block["audio"], self.manifest_path.with_name("feed.xml").read_text())
         self.assertEqual((self.out / "keep-days.txt").read_text(), "2026-09-08")
