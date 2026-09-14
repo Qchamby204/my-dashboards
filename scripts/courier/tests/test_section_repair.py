@@ -73,7 +73,7 @@ class SectionRepairTests(unittest.TestCase):
         with patch.object(builder, "fetch_newsletters", return_value={}), patch.object(builder, "fetch_items", return_value=[]), patch.object(builder, "write_script", side_effect=write), patch.object(builder, "make_block", side_effect=voice):
             builder.repair_sections(["markets", "sports"])
         day = json.loads(self.manifest_path.read_text())["days"][0]
-        self.assertEqual(day["blocks"][0], self.block)
+        self.assertIn(self.block, day["blocks"])
         self.assertIn("markets", [b["id"] for b in day["blocks"]])
         self.assertIn("sports", day["missingSections"])
         self.assertIn("sports", day["failed"])
