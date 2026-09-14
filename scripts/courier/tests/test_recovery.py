@@ -75,15 +75,15 @@ class RecoveryTests(unittest.TestCase):
         self.assertTrue(recovery.choose_plan(manifest, "push", now=self.now, request=request)["generate"])
         self.day["blocks"][-1]["audio"] = "already-published.mp3"
         self.assertFalse(recovery.choose_plan(manifest, "push", now=self.now, request=request)["generate"])
-        for sections in [["unknown"], ["sports", "sports"], [], "markets", [1]]:
+        for sections in [["unknown"], ["frontpage"], ["sports", "sports"], [], "markets", [1]]:
             with self.assertRaises(ValueError):
                 recovery.choose_plan(manifest, "push", now=self.now, request={**request, "sections": sections})
 
     def test_any_expected_section_can_be_repaired_without_overwriting_finished_blocks(self):
         self.day["blocks"] = [{"id": "sports", "script": "Saved sports", "audio": "saved.mp3"}]
-        request = {**self.request, "sections": ["markets", "sports", "frontpage", "lessons"]}
+        request = {**self.request, "sections": ["markets", "sports", "lessons"]}
         plan = recovery.choose_plan({"days": [self.day]}, "push", now=self.now, request=request)
-        self.assertEqual(plan["sections"], "markets,frontpage,lessons")
+        self.assertEqual(plan["sections"], "markets,lessons")
         self.assertEqual(self.day["blocks"][0]["audio"], "saved.mp3")
 
     def test_actual_git_diff_recognizes_only_recovery_request_changes(self):
