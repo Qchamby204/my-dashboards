@@ -13,6 +13,7 @@ on:
       - scripts/courier/recovery.py
       - scripts/courier/completeness.py
       - scripts/courier/status.py
+      - scripts/courier/tests/**
       - courier/recovery-request.json
   schedule:
     # Off-hour schedules reduce contention; scheduled execution can still be delayed.
@@ -60,6 +61,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Verify Courier safeguards
+        run: python -m unittest discover -s scripts/courier/tests
 
       - name: Show edition updating
         if: steps.today.outputs.generate == 'true'
