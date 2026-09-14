@@ -9,7 +9,7 @@ from retire_frontpage import retire
 
 
 class RetireFrontpageTests(unittest.TestCase):
-    def test_retire_removes_frontpage_from_manifest_and_feed(self):
+    def test_retire_removes_only_frontpage_from_manifest_and_feed(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             manifest = root / "manifest.json"
@@ -27,7 +27,10 @@ class RetireFrontpageTests(unittest.TestCase):
                     {"id": "markets", "minutes": 4.5},
                 ],
             }]}))
+            # Put the retired item between two valid items to prove cleanup never
+            # consumes an adjacent RSS entry.
             feed.write_text("""<rss><channel>
+<item><title>Lessons</title><guid>courier-2026-09-14-lessons</guid></item>
 <item><title>Front</title><guid>courier-2026-09-14-frontpage</guid></item>
 <item><title>Markets</title><guid>courier-2026-09-14-markets</guid></item>
 </channel></rss>""")
@@ -41,8 +44,10 @@ class RetireFrontpageTests(unittest.TestCase):
             self.assertEqual(day["failed"], [])
             self.assertEqual(day["plannedMinutes"], 57)
             self.assertEqual(day["projectedMinutes"], 4.5)
-            self.assertNotIn("frontpage", feed.read_text())
-            self.assertIn("markets", feed.read_text())
+            cleaned = feed.read_text()
+            self.assertNotIn("frontpage", cleaned)
+            self.assertIn("lessons", cleaned)
+            self.assertIn("markets", cleaned)
 
 
 if __name__ == "__main__":
