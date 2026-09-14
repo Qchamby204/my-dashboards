@@ -8,9 +8,17 @@
   <itunes:block>Yes</itunes:block>
   <itunes:author>The Courier</itunes:author>
   <item>
+   <title>2026-09-14 Front page: Oil Shock Meets Two Central Bank Decisions</title>
+   <guid isPermaLink="false">courier-2026-09-14-frontpage</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:26 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@035dc927030aae0236124b23a4490acbf46b668f/2026-09-14/frontpage.mp3" length="2965632" type="audio/mpeg"/>
+   <itunes:duration>3:12</itunes:duration>
+   <description>Oil just jumped after a Saudi pipeline shutdown, and that single event is now shaping everything else in your week. It hits Canadian inflation data out today, expected to hold near 3 percent, and it complicates both the Bank of Canada's October 28th decision and the Federal Reserve's call Wednesday, where markets have flipped to betting on a hike instead of a cut. That's the story to give your ful</description>
+  </item>
+  <item>
    <title>2026-09-14 Lessons: Reading the yield curve: shape, inversion, and what it has and has not predicted / RESP: grants, the CESG, and withdrawal strategy for EAPs versus contributions / Numbers people can hear: translating figures into comparisons and consequences</title>
    <guid isPermaLink="false">courier-2026-09-14-lessons</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:26 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:25 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/lessons.mp3" length="5682048" type="audio/mpeg"/>
    <itunes:duration>6:39</itunes:duration>
    <description>- Company &amp; Economy Analysis: On Thomson ONE, pull the Canada and US two year and ten year government yields, calculate the spread for each, and write down whether it is inverted and how that compares to six months ago.
@@ -20,7 +28,7 @@
   <item>
    <title>2026-09-14 Markets &amp; Economy: Oil Shock, Rate Bets, and Carney's Investment Push</title>
    <guid isPermaLink="false">courier-2026-09-14-markets</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:25 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:24 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/markets.mp3" length="6471552" type="audio/mpeg"/>
    <itunes:duration>7:43</itunes:duration>
    <description>- Oil just spiked on a Saudi pipeline shutdown, and that's the wildcard for both inflation and your energy holdings this week.
@@ -32,7 +40,7 @@
   <item>
    <title>2026-09-14 The Ten: AI Giants Call for Slowdown as Markets Wobble</title>
    <guid isPermaLink="false">courier-2026-09-14-companies</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:24 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:23 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/companies.mp3" length="4742016" type="audio/mpeg"/>
    <itunes:duration>5:34</itunes:duration>
    <description>- Major AI firms including Anthropic, OpenAI, and Google DeepMind are calling for a slower pace of development, citing loss-of-control risks, while critics call it regulatory capture.
@@ -43,7 +51,7 @@
   <item>
    <title>2026-09-14 Practice: Tax, Regulatory &amp; Industry: Registered Plans, CIRO Breach, and Rate Watch</title>
    <guid isPermaLink="false">courier-2026-09-14-practice</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:23 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:22 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/practice.mp3" length="5431296" type="audio/mpeg"/>
    <itunes:duration>5:56</itunes:duration>
    <description>- The CIRO breach letters going out this week are about registration data, not trading access, so reassure before you explain.
@@ -55,7 +63,7 @@
   <item>
    <title>2026-09-14 Manitoba &amp; Winnipeg: Hydro Tariffs, Bank of Canada Hold, Daycare Scandal</title>
    <guid isPermaLink="false">courier-2026-09-14-manitoba</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:22 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:21 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/manitoba.mp3" length="3387264" type="audio/mpeg"/>
    <itunes:duration>4:16</itunes:duration>
    <description>- Manitoba Hydro's Brandon turbine order is caught in the tariff fight, watch for rate case implications.
@@ -67,7 +75,7 @@
   <item>
    <title>2026-09-14 Canadian Politics: Carney's Toronto Pitch, Hydro's Trade War Headache</title>
    <guid isPermaLink="false">courier-2026-09-14-politics</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:21 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:20 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/politics.mp3" length="3744000" type="audio/mpeg"/>
    <itunes:duration>4:18</itunes:duration>
    <description>- The Canada Investment Summit in Toronto is pitching over 160 projects, including a Churchill port expansion relevant to Manitoba trade routes.
@@ -79,7 +87,7 @@
   <item>
    <title>2026-09-14 Climate Policy &amp; Nonprofit Governance: Manitoba Gas Fight, Ottawa's Investment Pitch, United Way's Record Year</title>
    <guid isPermaLink="false">courier-2026-09-14-climate</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:20 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:19 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/climate.mp3" length="3276288" type="audio/mpeg"/>
    <itunes:duration>3:42</itunes:duration>
    <description>- Manitoba Hydro's gas expansion plan just cleared six weeks of hostile hearings, worth flagging for utility-exposed holdings.
@@ -91,7 +99,7 @@
   <item>
    <title>2026-09-14 AI &amp; Technology: Anthropic's Slowdown Call Meets Wall Street Money</title>
    <guid isPermaLink="false">courier-2026-09-14-tech</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:19 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:18 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/tech.mp3" length="3368832" type="audio/mpeg"/>
    <itunes:duration>4:02</itunes:duration>
    <description>- Anthropic's own chief executive is now the one calling for a slowdown, and Musk and Altman backed him.
@@ -103,7 +111,7 @@
   <item>
    <title>2026-09-14 Health &amp; Fitness: Strength Training Longevity Data, Creatine, and RSV Gaps</title>
    <guid isPermaLink="false">courier-2026-09-14-health</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:18 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:17 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/health.mp3" length="2252160" type="audio/mpeg"/>
    <itunes:duration>2:38</itunes:duration>
    <description>- Ninety to 120 minutes of strength training a week is linked to a 13% lower risk of early death, per a 30 year Harvard study.
@@ -115,7 +123,7 @@
   <item>
    <title>2026-09-14 Parenting: Canada Child Benefit Rises, Screen Time Guidance Holds Firm</title>
    <guid isPermaLink="false">courier-2026-09-14-parenting</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:17 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:16 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/parenting.mp3" length="1661568" type="audio/mpeg"/>
    <itunes:duration>1:57</itunes:duration>
    <description>- The CCB just went up, up to $160 more per child under six this year.
@@ -127,7 +135,7 @@
   <item>
    <title>2026-09-14 Sports: Bombers Survive, Jets Camp Looms, Hellebuyck Watch</title>
    <guid isPermaLink="false">courier-2026-09-14-sports</guid>
-   <pubDate>Mon, 14 Sep 2026 10:55:16 +0000</pubDate>
+   <pubDate>Mon, 14 Sep 2026 10:55:15 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/sports.mp3" length="3072768" type="audio/mpeg"/>
    <itunes:duration>3:46</itunes:duration>
    <description>- The Bombers are 7 and 6 and playoff-relevant again after the Banjo Bowl win.

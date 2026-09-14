@@ -7,11 +7,9 @@
    "release": "courier-2026-09-14",
    "budgetMinutes": 60,
    "plannedMinutes": 60,
-   "projectedMinutes": 50.6,
+   "projectedMinutes": 53.8,
    "voiceless": [],
-   "failed": [
-    "frontpage"
-   ],
+   "failed": [],
    "usage": {
     "calls": 16,
     "input": 2772,
@@ -23,6 +21,18 @@
    },
    "plan": [],
    "blocks": [
+    {
+     "id": "frontpage",
+     "label": "Front page",
+     "title": "Oil Shock Meets Two Central Bank Decisions",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@035dc927030aae0236124b23a4490acbf46b668f/2026-09-14/frontpage.mp3",
+     "bytes": 2965632,
+     "script": "Oil just jumped after a Saudi pipeline shutdown, and that single event is now shaping everything else in your week. It hits Canadian inflation data out today, expected to hold near 3 percent, and it complicates both the Bank of Canada's October 28th decision and the Federal Reserve's call Wednesday, where markets have flipped to betting on a hike instead of a cut. That's the story to give your full attention to: Markets and Economy, 7.7 minutes, covers the oil spike, the rate bets, and Carney's trillion dollar Toronto investment push, which is the most constructive Canadian growth headline in a while.\n\nSecond, the artificial intelligence slowdown call. Anthropic, OpenAI, and Google DeepMind are now asking for a slower pace of development themselves, citing loss of control risks, while critics call it regulatory capture. Markets wobbled on that news alongside the oil spike. The Ten, 5.6 minutes, covers the global picture, and AI and Technology, 4.0 minutes, digs into Trump and Obama landing on opposite sides of AI regulation, plus a record 704 million dollars in Canadian fraud losses last year.\n\nThird, Carney's investment summit itself. Over 160 projects pitched in Toronto, TD and Scotiabank each putting nine and ten figure sums behind Canadian business, and a Churchill port expansion that matters directly for Manitoba trade routes. Canadian Politics, 4.3 minutes, is where to hear that in full.\n\nIf you're client-facing, the Practice block, 5.9 minutes, is your working session today: CIRO breach letters going out this week are about registration data only, new RRSP room sits at 33,810 dollars, TFSA cumulative room is now 109,000, and rising rates are pulling annuities back into retirement conversations.\n\nLocally, Manitoba and Winnipeg, 4.3 minutes, covers the Bank of Canada hold, a derelict 5.5 million dollar daycare in East St. Paul, and the Bombers' Banjo Bowl win. Climate Policy and Nonprofit Governance, 3.7 minutes, has Manitoba Hydro's gas expansion clearing hearings with rates locked through 2028, plus United Way Winnipeg's record 23.3 million dollar campaign.\n\nLighter stuff rounds out the day: Health and Fitness, 2.6 minutes, on a 30 year Harvard study linking strength training to a 13 percent lower early death risk. Parenting, 2.0 minutes, on the Canada Child Benefit rising up to 160 dollars more per child under six. And Sports, 3.8 minutes, on the Jets camp opening Thursday under the shadow of the Hellebuyck trade request.\n\nTalking points\nOil spiking off a Saudi pipeline hit could push both the Fed and the Bank of Canada toward hikes, not cuts.\nThe same AI labs building this technology are now asking regulators to slow them down.\nCarney's Toronto summit has real bank money behind it, TD and Scotiabank both wrote nine and ten figure checks this week.\nTFSA room is up to 109,000 dollars for anyone who's never contributed.\nThe Bombers are 7 and 6 and playoff relevant again after the Banjo Bowl.",
+     "talkingPoints": [],
+     "sources": [],
+     "words": 481,
+     "minutes": 3.2
+    },
     {
      "id": "lessons",
      "label": "Lessons",
@@ -695,8 +705,14 @@
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "frontpage"
+   "missingSections": [],
+   "updatedAt": "2026-09-14T16:24:10+00:00",
+   "repairs": [
+    {
+     "section": "frontpage",
+     "at": "2026-09-14T16:24:10+00:00",
+     "audio": true
+    }
    ]
   },
   {
