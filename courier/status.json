@@ -4,12 +4,11 @@
   {
    "date": "2026-09-14",
    "state": "complete",
-   "checkedAt": "2026-09-14T22:10:22+00:00",
-   "verifiedAt": "2026-09-14T22:10:22+00:00",
+   "checkedAt": "2026-09-14T22:14:44+00:00",
+   "verifiedAt": "2026-09-14T22:14:44+00:00",
    "generatedAt": "2026-09-14T10:55:26+00:00",
    "updatedAt": "2026-09-14T16:24:10+00:00",
    "audio": {
-    "frontpage": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@035dc927030aae0236124b23a4490acbf46b668f/2026-09-14/frontpage.mp3",
     "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/lessons.mp3",
     "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/markets.mp3",
     "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/companies.mp3",
@@ -23,7 +22,6 @@
     "sports": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/sports.mp3"
    },
    "expectedSections": [
-    "frontpage",
     "lessons",
     "markets",
     "companies",
