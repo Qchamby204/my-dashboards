@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - .github/workflows/courier.yml
+      - scripts/courier/build.py
+      - scripts/courier/run.py
+      - scripts/courier/dedupe.py
+      - scripts/courier/retire_frontpage.py
       - scripts/courier/publication.py
       - scripts/courier/recovery.py
       - scripts/courier/completeness.py
@@ -38,6 +42,12 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+
+      # The front page is retired. Clean legacy copies before recovery decides whether
+      # an edition is complete, so it can never become a repair dependency again.
+      - name: Retire legacy front page
+        id: retire_frontpage
+        run: python scripts/courier/retire_frontpage.py
 
       # Checkout current main after the shared concurrency lock is acquired, so a
       # recovery queued behind generation sees its finished edition and reuses it.
@@ -81,7 +91,7 @@ jobs:
           COURIER_MAIL_USER: ${{ secrets.COURIER_MAIL_USER }}
           COURIER_MAIL_PASSWORD: ${{ secrets.COURIER_MAIL_PASSWORD }}
           REPO: ${{ github.repository }}
-        run: python scripts/courier/build.py
+        run: python scripts/courier/run.py
 
       - name: Publish audio to the courier-audio branch
         if: steps.today.outputs.generate == 'true'
@@ -126,6 +136,16 @@ jobs:
           git add courier/manifest.json courier/feed.xml courier/progress.json
           git diff --cached --quiet || git commit -m "Courier: $(date -u +%F)"
           # A dashboard edit may land while generation runs. Rebase instead of losing it.
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Commit front page retirement
+        if: steps.retire_frontpage.outputs.changed == 'true' && steps.today.outputs.generate != 'true'
+        run: |
+          git config user.name "courier-bot"
+          git config user.email "courier-bot@users.noreply.github.com"
+          git add courier/manifest.json courier/feed.xml
+          git diff --cached --quiet || git commit -m "Courier: retire front page"
           git pull --rebase origin main
           git push origin HEAD:main
 
