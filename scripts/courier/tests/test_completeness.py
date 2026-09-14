@@ -9,8 +9,8 @@ from status import snapshot
 
 class CompletenessTests(unittest.TestCase):
     def test_weekday_lessons_are_expected_and_weekend_lessons_are_not(self):
-        self.assertEqual(expected_sections("2026-09-08", {"sports": {}}), ["frontpage", "lessons", "sports"])
-        self.assertEqual(expected_sections("2026-09-12", {"sports": {}}), ["frontpage", "sports"])
+        self.assertEqual(expected_sections("2026-09-08", {"sports": {}}), ["lessons", "sports"])
+        self.assertEqual(expected_sections("2026-09-12", {"sports": {}}), ["sports"])
 
     def test_verified_partial_is_never_complete(self):
         day = {"date":"2026-09-08", "generatedAt":"2026-09-08T12:00:00Z", "expectedSections":["markets", "sports"], "blocks":[{"id":"sports", "audio":"sports.mp3"}]}
