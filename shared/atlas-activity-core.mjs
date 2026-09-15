@@ -98,13 +98,17 @@ function usageEvents(events) {
 }
 
 function sequencePattern(events) {
-  const ordered = usageEvents(events).slice().sort((a,b) => Date.parse(a.at)-Date.parse(b.at));
+  // Atlas and Review are routing/observation surfaces. Remove them before pairing so
+  // Courier -> Atlas -> Forge is still recognized as the user's Courier -> Forge flow.
+  const ordered = usageEvents(events)
+    .filter(event => !isSystemApp(event.app))
+    .slice()
+    .sort((a,b) => Date.parse(a.at)-Date.parse(b.at));
   const pairs = new Map();
   for (let i=1;i<ordered.length;i++) {
     const before = ordered[i-1], after = ordered[i];
     if (before.app === after.app) continue;
     if (Date.parse(after.at) - Date.parse(before.at) > 45 * 60000) continue;
-    if (isSystemApp(before.app) || isSystemApp(after.app)) continue;
     const key = `${before.app}\u0000${after.app}`;
     pairs.set(key, (pairs.get(key) || 0) + 1);
   }
