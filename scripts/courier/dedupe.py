@@ -3,7 +3,7 @@ import re
 from difflib import SequenceMatcher
 
 _WORD = re.compile(r"[a-z0-9]+")
-_NUMBER = re.compile(r"\b\d+(?:\.\d+)?%?\b")
+_NUMBER = re.compile(r"(?<!\w)\d+(?:\.\d+)?%?(?!\w)")
 _STOP = {
     "a","an","and","are","as","at","be","by","for","from","has","have","in","is","it","its",
     "of","on","or","that","the","this","to","was","were","will","with","today","yesterday",
