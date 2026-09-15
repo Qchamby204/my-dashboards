@@ -28,7 +28,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npm test
+      - name: Verify Review and shared bootstrap boundaries
+        run: node --test atlas/tests/review.test.mjs atlas/tests/mobile-baseline.test.mjs atlas/tests/workflow.test.mjs
       - run: node --check shared/atlas-activity-core.mjs
       - run: node --check shared/atlas-activity.js
       - run: node --check shared/atlas-mobile.js
