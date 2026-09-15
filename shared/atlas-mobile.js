@@ -3,9 +3,10 @@
   'use strict';
   const root=document.documentElement;
   const source=document.currentScript?.src;
-  // Review telemetry lives in its own module. This bootstrap only loads it so every
-  // same-origin Atlas dashboard can contribute to the shared, browser-local activity log.
-  if(source&&root.dataset.atlasApp){
+  const trackedApps=new Set(['atlas-hub','atlas-os','atlas-connect','life-map','life-ledger','workout-forge','the-chef','the-aqueduct','the-hourglass','baby-brain','communication-trainer','prospecting-command-center','operations-cadence','the-herald','courier','crucible','neural-map','chambers-wealth-hq','review']);
+  // Review telemetry uses this existing shared bootstrap, but only for the Atlas suite.
+  // Dashboards deliberately excluded from suite-wide hooks remain untouched.
+  if(source&&trackedApps.has(root.dataset.atlasApp)){
     const activity=document.createElement('script');activity.src=new URL('atlas-activity.js?v=review-20260915',source).href;activity.defer=true;document.head.appendChild(activity);
   }
   const apps=new Set(['atlas-hub','atlas-os','atlas-connect','life-map','life-ledger','workout-forge','the-aqueduct','the-hourglass','baby-brain','communication-trainer','prospecting-command-center','operations-cadence','the-herald','courier','neural-map','chambers-wealth-hq','review']);
