@@ -122,13 +122,32 @@ def _configure_shared_patches():
     courier.FRONT_MINUTES = 0
 
 
+def refresh_repair_metadata():
+    manifest = _manifest()
+    current = edition(manifest, courier.TODAY)
+    if not current:
+        return manifest
+    for block in current.get("blocks", []):
+        local_audio = courier.OUT / courier.TODAY / f"{block['id']}.mp3"
+        if local_audio.exists():
+            attach_duration(block, local_audio)
+    current["projectedMinutes"] = round(sum(float(b.get("minutes", 0) or 0) for b in current.get("blocks", [])), 1)
+    current["durationSeconds"] = round(sum(float(b.get("durationSeconds", 0) or 0) for b in current.get("blocks", [])), 1)
+    current.update(courier.gaps(current, current.get("expectedSections")))
+    courier.MANIFEST.write_text(json.dumps(manifest, indent=1, ensure_ascii=False) + "\n")
+    measured_feed(manifest)
+    return manifest
+
+
 def repair_main():
     """Use the existing bounded repair path, with freshness, dedupe context and measured runtime."""
     _configure_shared_patches()
     sections = [s for s in os.environ.get("COURIER_SECTIONS", "").split(",") if s]
     courier.repair_sections(sections)
-    # Historical front pages are harmless but should never reappear in stored data.
     retire(courier.MANIFEST, courier.MANIFEST.parent / "feed.xml")
+    refresh_repair_metadata()
+    sources = json.loads((courier.HERE / "sources.json").read_text())
+    write_health(HEALTH.report(sources), planning_method="targeted-repair")
 
 
 def normal_main():
