@@ -2,9 +2,14 @@
 (()=>{
   'use strict';
   const root=document.documentElement;
-  const apps=new Set(['atlas-hub','atlas-os','atlas-connect','life-map','life-ledger','workout-forge','the-aqueduct','the-hourglass','baby-brain','communication-trainer','prospecting-command-center','operations-cadence','the-herald','courier','neural-map','chambers-wealth-hq']);
+  const source=document.currentScript?.src;
+  // Review telemetry lives in its own module. This bootstrap only loads it so every
+  // same-origin Atlas dashboard can contribute to the shared, browser-local activity log.
+  if(source&&root.dataset.atlasApp){
+    const activity=document.createElement('script');activity.src=new URL('atlas-activity.js?v=review-20260915',source).href;activity.defer=true;document.head.appendChild(activity);
+  }
+  const apps=new Set(['atlas-hub','atlas-os','atlas-connect','life-map','life-ledger','workout-forge','the-aqueduct','the-hourglass','baby-brain','communication-trainer','prospecting-command-center','operations-cadence','the-herald','courier','neural-map','chambers-wealth-hq','review']);
   if(!apps.has(root.dataset.atlasApp)||window.AtlasMobile)return;
-  const source=document.currentScript.src;
   let viewport=document.querySelector('meta[name="viewport"]');
   if(!viewport){viewport=document.createElement('meta');viewport.name='viewport';document.head.appendChild(viewport);}
   viewport.content='width=device-width, initial-scale=1, viewport-fit=cover';
