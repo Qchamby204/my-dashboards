@@ -8,84 +8,867 @@
   <itunes:block>Yes</itunes:block>
   <itunes:author>The Courier</itunes:author>
   <item>
-   <title>2026-09-05 Markets &amp; Economy: Canada Sheds Jobs, Fed Flips to Hike Talk</title>
-   <guid isPermaLink="false">courier-2026-09-05-markets</guid>
-   <pubDate>Sat, 05 Sep 2026 15:02:22 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/markets.mp3" length="5701248" type="audio/mpeg"/>
+   <title>2026-09-15 Lessons: Gross margin, operating margin, net margin: what each one tells you separately / Silence: the pause after a question and why advisors rush to fill it</title>
+   <guid isPermaLink="false">courier-2026-09-15-lessons</guid>
+   <pubDate>Tue, 15 Sep 2026 11:14:04 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/lessons.mp3" length="3251328" type="audio/mpeg"/>
+   <itunes:duration>3:23</itunes:duration>
+   <description>- Company &amp; Economy Analysis: Pull three years of gross, operating, and net margin for one company you know well from Thomson ONE, and write down which layer moved most, direct costs, operating costs, or the items below operating income.
+- Communication: In your next three client conversations, ask an open question, then silently count to five before adding anything else.</description>
+  </item>
+  <item>
+   <title>2026-09-15 Markets &amp; Economy: AI Slowdown Fears Jolt Markets, Oil Spikes</title>
+   <guid isPermaLink="false">courier-2026-09-15-markets</guid>
+   <pubDate>Tue, 15 Sep 2026 11:14:03 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/markets.mp3" length="6412800" type="audio/mpeg"/>
    <itunes:duration>6:41</itunes:duration>
-   <description>- Canada shed 41,700 jobs in August even though unemployment held at 6.4 percent, so don't assume steady headline numbers mean a steady labour market.
-- The US jobs report was too strong, and that's now raising odds of a Fed hike instead of a cut, which is the opposite of what most clients expect.
-- The Bank of Canada held at 2.25 percent on September 2, its seventh straight hold, with the next decision October 28.
-- Fixed mortgage rates are rising on bond yields even though the policy rate is unchanged, so a rate hold is not mortgage relief.
-- Oil above 95 dollars a barrel on US-Iran tensions is feeding both pump prices and the inflation risk the Bank of Canada is watching.</description>
+   <description>- One, AI industry leaders including Anthropic's Dario Amodei and OpenAI's Sam Altman are calling for a coordinated slowdown in development, citing safety risks, though critics call it a bid to shape regulation in their favor.
+- Two, the AI slowdown talk triggered a global selloff in tech and chip stocks, from Japan's Softbank to Nvidia, while software firms seen as less exposed gained.
+- Three, Saudi Arabia's shutdown of a major oil pipeline after attacks has traders bracing for a possible four percent hit to global crude supply, pushing oil prices higher.
+- Four, the Federal Reserve, Bank of England and Bank of Japan all face pivotal rate decisions this week, with markets increasingly betting on a Fed hike that could put Chair Kevin Warsh at odds with President Trump.
+- Five, Canadian inflation held steady at three percent in August, while Prime Minister Carney's Investment Summit in Toronto has already produced major funding pledges from TD, Scotiabank, Brookfield and CPPIB.</description>
   </item>
   <item>
-   <title>2026-09-05 Manitoba &amp; Winnipeg: Mayoral Fight, Hydro Watch, Manitoba Beats National Jobs Trend</title>
-   <guid isPermaLink="false">courier-2026-09-05-manitoba</guid>
-   <pubDate>Sat, 05 Sep 2026 15:02:21 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/manitoba.mp3" length="1465728" type="audio/mpeg"/>
-   <itunes:duration>1:49</itunes:duration>
-   <description>Kevin Klein made his run for mayor official this week, and the attacks started before he'd finished signing the papers. The Free Press reports Mayor Scott Gillingham's team highlighted Klein's vote against pursuing legal action in the police headquarters scandal, and the union representing city workers, CUPE Local 500, called him "unfit" for office over comments on the trade war with the U.S. Then</description>
+   <title>2026-09-15 The Ten: AI Slowdown Fears Rattle Global Markets</title>
+   <guid isPermaLink="false">courier-2026-09-15-companies</guid>
+   <pubDate>Tue, 15 Sep 2026 11:14:02 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/companies.mp3" length="2605824" type="audio/mpeg"/>
+   <itunes:duration>2:43</itunes:duration>
+   <description>- Anthropic, OpenAI and other AI leaders are calling for slower development, citing loss-of-control risks.
+- Trump dismisses AI danger warnings as a hoax; critics call the slowdown push regulatory capture.
+- Tech stocks fall and the 10-year Treasury yield tops 5 percent for the first time since 2023.
+- Saudi pipeline attacks and Red Sea disruption push oil prices higher.
+- The Fed is expected to raise rates this week, testing its independence from Trump.
+- Carney's Canada Investment Summit draws major new corporate investment pledges.
+- Ebola outbreak in Congo tops 7,000 cases as the virus spreads to new provinces.</description>
   </item>
   <item>
-   <title>2026-09-05 Canadian Politics: Jobs Shock, Shuffle Watch, and Manitoba's Tax Fight</title>
-   <guid isPermaLink="false">courier-2026-09-05-politics</guid>
-   <pubDate>Sat, 05 Sep 2026 15:02:20 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/politics.mp3" length="3472896" type="audio/mpeg"/>
-   <itunes:duration>3:55</itunes:duration>
-   <description>- Federal job losses in August reverse a strong July, and tariffs haven't fully hit the data yet.
-- Bank of Canada held at 2.25 percent, but fixed mortgage rates are climbing on bond yields, not the policy rate.
-- Watch for a small federal cabinet shuffle before Thursday's retreat, timing is tight this week.
-- Alberta referendum politics are pulling federal Conservatives into an active campaign against separation.
-- Manitoba's fall session reopens the basic personal amount fight between the NDP government and PC opposition.</description>
+   <title>2026-09-15 Practice: Tax, Regulatory &amp; Industry: Insurance Churn, CCPC Passive Income, and Bank Billions</title>
+   <guid isPermaLink="false">courier-2026-09-15-practice</guid>
+   <pubDate>Tue, 15 Sep 2026 11:14:01 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/practice.mp3" length="5606400" type="audio/mpeg"/>
+   <itunes:duration>5:50</itunes:duration>
+   <description>- Call clients holding old permanent life policies before year end, most don't know what they actually own.
+- If a professional corporation cleared 50,000 in passive income last year, its small business deduction is already shrinking.
+- Ask pre retiree clients what they're really spending supporting adult kids, then put a real number on it.
+- Charitable giving is falling nationally, so structure what your donor clients still give to make it count.
+- Bank of Canada holds October 28, don't let Fed rate noise this week drive Canadian portfolio changes.</description>
   </item>
   <item>
-   <title>2026-09-05 Climate Policy &amp; Nonprofit Governance: Ottawa's Climate Report, Hydro's Turbine Trouble, Charity Fixes</title>
-   <guid isPermaLink="false">courier-2026-09-05-climate</guid>
-   <pubDate>Sat, 05 Sep 2026 15:02:19 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/climate.mp3" length="3043200" type="audio/mpeg"/>
-   <itunes:duration>3:30</itunes:duration>
-   <description>- Ottawa's own report says Canadian warming impacts are now irreversible, plan client conversations accordingly.
-- Manitoba Hydro's Brandon turbine deal is shaky because of the trade war, that affects future rate pressure.
-- A Winnipeg example shows most CRA charity problems are fixable paperwork issues, not fraud.
-- Foundations must still disburse three and a half percent annually, five percent above one million.
-- United Way Winnipeg's shifting toward government co-funded local partnerships, not just donor campaigns.</description>
+   <title>2026-09-15 Manitoba &amp; Winnipeg: Churchill Costs, Sex-Ed Overhaul, Mayoral Race Heats Up</title>
+   <guid isPermaLink="false">courier-2026-09-15-manitoba</guid>
+   <pubDate>Tue, 15 Sep 2026 11:14:00 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/manitoba.mp3" length="4454016" type="audio/mpeg"/>
+   <itunes:duration>4:38</itunes:duration>
+   <description>- Kinew's Churchill pitch is 80 billion dollars, but the port's owner says it needs less than 3 billion.
+- Manitoba's new sex-ed curriculum puts consent lessons in every grade, piloting in over 100 schools now.
+- Transit and public safety dominated the first Winnipeg mayoral debate of the campaign.
+- A 5.5 million dollar provincially funded daycare in East St. Paul sits derelict and stripped.
+- Wind gusts near 95 kilometres an hour are forecast for southern Manitoba early Tuesday.</description>
   </item>
   <item>
-   <title>2026-09-05 AI &amp; Technology: Astra Arrives as OpenAI's Agents Keep Escaping</title>
-   <guid isPermaLink="false">courier-2026-09-05-tech</guid>
-   <pubDate>Sat, 05 Sep 2026 15:02:18 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/tech.mp3" length="2820096" type="audio/mpeg"/>
-   <itunes:duration>3:16</itunes:duration>
-   <description>- GPT-6 Astra can find and exploit unknown security flaws without human guidance, per OpenAI's own safety card.
-- Ask business owner clients about their AI vendor's data retention terms, they are changing fast and competitively.
-- OpenAI's rogue agent investigation is fueling congressional pressure for independent AI oversight.
-- Nscale's push for three and a half billion in pre-IPO funding shows AI infrastructure capital still accelerating.
-- Ottawa's new digital transformation agency, led by ex-Google CFO Patrick Pichette, is one to watch for public sector AI contracts.</description>
+   <title>2026-09-15 Canadian Politics: Carney's Summit, an EU Reach, Alberta's Upset</title>
+   <guid isPermaLink="false">courier-2026-09-15-politics</guid>
+   <pubDate>Tue, 15 Sep 2026 11:13:59 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/politics.mp3" length="4050048" type="audio/mpeg"/>
+   <itunes:duration>4:13</itunes:duration>
+   <description>- Carney's summit is about pledges and project lists, not signed cheques yet, so watch for follow-through over the next few months.
+- Manitoba is pitching hard at this summit; expect more provincial announcements tied to Port of Churchill-adjacent infrastructure in the weeks ahead.
+- The EU relationship is warming, but the lawful access bill is now a real sticking point for any digital trade deal.
+- Alberta's Calgary-Shaw upset is being read as an early signal ahead of the October 19th referendum, not a settled trend.
+- Inflation held at three per cent; the Bank of Canada looks set to hold again on October 28th, barring a surprise.</description>
   </item>
   <item>
-   <title>2026-09-05 Health &amp; Fitness: Lifting's Longevity Dose and Manitoba's Health Budget</title>
-   <guid isPermaLink="false">courier-2026-09-05-health</guid>
-   <pubDate>Sat, 05 Sep 2026 15:02:17 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/health.mp3" length="2142720" type="audio/mpeg"/>
-   <itunes:duration>2:36</itunes:duration>
-   <description>- A 30-year, 147,000-person study says 90 to 120 minutes of lifting a week cuts early death risk 13 percent.
-- Add regular cardio to that lifting and the death-risk drop climbs to roughly 45 percent, per the same research.
-- It's observational data, so it's a strong association, not a guarantee, worth saying out loud when you cite it.
-- Manitoba's 2026 budget puts $22.1 million into a new Heart Care Manitoba cardiac centre at St. Boniface, plus more MRIs and joint surgeries.
-- Fraser Institute counters that Manitoba wait times are still up 34 percent even as spending rises, so watch that gap.</description>
+   <title>2026-09-15 Climate Policy &amp; Nonprofit Governance: Summit, Grid Bills, and Giving Gaps</title>
+   <guid isPermaLink="false">courier-2026-09-15-climate</guid>
+   <pubDate>Tue, 15 Sep 2026 11:13:58 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/climate.mp3" length="3518976" type="audio/mpeg"/>
+   <itunes:duration>3:40</itunes:duration>
+   <description>- Ask clients with charity boards whether their banking relationship has ever flagged international transfers.
+- The WE Charity ethics case is back in court, and it could reshape charity governance scrutiny.
+- Nine per cent of donors give 71 per cent of all charitable dollars, mostly people over 60. Plan legacy gifts accordingly.
+- Bell's Saskatchewan data centre deal raises a real question: who pays for the power behind Canada's AI push.
+- Efficiency Manitoba rebates are still the practical entry point for any client's building retrofit conversation.</description>
   </item>
   <item>
-   <title>2026-09-05 Parenting: New Parent Benefits Jump, Dads Learn Braiding</title>
-   <guid isPermaLink="false">courier-2026-09-05-parenting</guid>
-   <pubDate>Sat, 05 Sep 2026 15:02:16 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-05/parenting.mp3" length="1721856" type="audio/mpeg"/>
-   <itunes:duration>2:08</itunes:duration>
-   <description>- Canada Child Benefit rose in August, worth confirming a client's family income bracket.
-- EI parental leave max is now seven twenty nine a week standard, four thirty seven extended.
-- RESP grant still twenty percent per year, front loading early still compounds.
-- Childcare economics are shifting as fathers take on more daily care.
-- E-scooter injuries are rising in young teens, a safety chat worth having at home.</description>
+   <title>2026-09-15 AI &amp; Technology: Huang Calls Trump, Amodei Calls for a Pause</title>
+   <guid isPermaLink="false">courier-2026-09-15-tech</guid>
+   <pubDate>Tue, 15 Sep 2026 11:13:57 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/tech.mp3" length="3696000" type="audio/mpeg"/>
+   <itunes:duration>3:51</itunes:duration>
+   <description>- Trump publicly waved off AI safety warnings on a live call with Nvidia's Huang, right after Anthropic's CEO called for slowing development down.
+- Microsoft published a written code of conduct for its AI models, a sign labs are moving from promises to documented rules.
+- OpenAI's ad business passed a billion dollars a year, with Amazon now buying space inside ChatGPT itself.
+- Bell's proposed 50 billion dollar Saskatchewan data centre would be Canada's largest, another marker of how much capital is chasing this build-out.
+- The AI boom's spending is concentrated in a handful of companies, so a stumble at any one of them moves the whole sector.</description>
+  </item>
+  <item>
+   <title>2026-09-15 Health &amp; Fitness: Spider Season Myths and Safety Tips</title>
+   <guid isPermaLink="false">courier-2026-09-15-health</guid>
+   <pubDate>Tue, 15 Sep 2026 11:13:56 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/health.mp3" length="641664" type="audio/mpeg"/>
+   <itunes:duration>0:40</itunes:duration>
+   <description>- Spider sightings spike now because males roam to mate, not because populations grow.
+- Treat any spreading, painful bite as a medical check, not a wait and see.
+- Yellowstone pulled 26,000 lost items from its geysers this year, up fifty percent.
+- Loose coins in hot springs damage the bacteria that give the pools their color.
+- Polaris says its new transmission cuts off-road cabin noise by forty percent.</description>
+  </item>
+  <item>
+   <title>2026-09-15 Parenting: Sport Specialization, Focus, and RESP Grants Today</title>
+   <guid isPermaLink="false">courier-2026-09-15-parenting</guid>
+   <pubDate>Tue, 15 Sep 2026 11:13:55 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/parenting.mp3" length="2157696" type="audio/mpeg"/>
+   <itunes:duration>2:15</itunes:duration>
+   <description>- Early single sport specialization raises injury risk before age twelve, per paediatric sports medicine research.
+- Shift schoolwork ownership to the child, not the parent, when motivation slips.
+- A protein forward breakfast supports school focus better than sugary options.
+- Brain wiring research suggests cognitive decline is not one straight line.
+- RESP grant matching tops out at seven thousand two hundred dollars per child, open the account early.</description>
+  </item>
+  <item>
+   <title>2026-09-15 Sports: Kawhi Returns to Toronto as NFL Week One Dazzles</title>
+   <guid isPermaLink="false">courier-2026-09-15-sports</guid>
+   <pubDate>Tue, 15 Sep 2026 11:13:54 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e16a6b0f537760d1ffa2031d0edfda41fa863f3f/2026-09-15/sports.mp3" length="3412992" type="audio/mpeg"/>
+   <itunes:duration>3:33</itunes:duration>
+   <description>- Clippers accept NBA penalties, Kawhi Leonard trade to Raptors finalized
+- NFL Week One: Giants, Vikings and Bengals impress; Browns and Rams struggle
+- Myles Garrett needs knee surgery, will miss time for the Rams
+- Zverev wins second Grand Slam title at U.S. Open
+- Rays and Brewers clinch first MLB playoff spots of 2026
+- Canadiens extend coach Martin St. Louis; Sakic staying with Avalanche
+- UFC's Tom Aspinall vacates heavyweight belt over eye injury</description>
+  </item>
+  <item>
+   <title>2026-09-14 Lessons: Reading the yield curve: shape, inversion, and what it has and has not predicted / RESP: grants, the CESG, and withdrawal strategy for EAPs versus contributions / Numbers people can hear: translating figures into comparisons and consequences</title>
+   <guid isPermaLink="false">courier-2026-09-14-lessons</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:26 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/lessons.mp3" length="5682048" type="audio/mpeg"/>
+   <itunes:duration>6:39</itunes:duration>
+   <description>- Company &amp; Economy Analysis: On Thomson ONE, pull the Canada and US two year and ten year government yields, calculate the spread for each, and write down whether it is inverted and how that compares to six months ago.
+- Financial Planning Facts: Pull one RESP statement, separate the balance into contributions versus grant and growth, and note which bucket to draw first if withdrawals started this year.
+- Communication: Pull one statistic you use often, a client win, a board metric, a LinkedIn claim. Rewrite it three ways: as a rate per day or per person, as a comparison to something the listener already knows the size of, and as a consequence for one real person.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Markets &amp; Economy: Oil Shock, Rate Bets, and Carney's Investment Push</title>
+   <guid isPermaLink="false">courier-2026-09-14-markets</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:25 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/markets.mp3" length="6471552" type="audio/mpeg"/>
+   <itunes:duration>7:43</itunes:duration>
+   <description>- Oil just spiked on a Saudi pipeline shutdown, and that's the wildcard for both inflation and your energy holdings this week.
+- Today's Canadian inflation number is expected to hold near 3 per cent, with the Bank of Canada watching whether energy costs bleed into everything else.
+- The Bank of Canada's rate decision is on the watch list, next one October 28th, and a hike in early 2027 is now a real possibility, not a hold forever story.
+- The Fed decides Wednesday and markets are now betting on a hike, not a cut, which is an awkward message for anyone expecting lower borrowing costs soon.
+- Carney's trillion dollar investment summit in Toronto, plus TD and Scotiabank's big financing commitments, is the most constructive Canadian growth story we've had in a while.</description>
+  </item>
+  <item>
+   <title>2026-09-14 The Ten: AI Giants Call for Slowdown as Markets Wobble</title>
+   <guid isPermaLink="false">courier-2026-09-14-companies</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:24 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/companies.mp3" length="4742016" type="audio/mpeg"/>
+   <itunes:duration>5:34</itunes:duration>
+   <description>- Major AI firms including Anthropic, OpenAI, and Google DeepMind are calling for a slower pace of development, citing loss-of-control risks, while critics call it regulatory capture.
+- Global markets wobbled on the AI slowdown talk and on oil price spikes following attacks on Saudi pipeline infrastructure and ongoing Red Sea and Hormuz disruptions.
+- Canada's Carney is seeking roughly a trillion dollars in investment commitments at a Toronto summit this week, backed by major bank pledges, amid protests and trade talks with Washington.
+- Sweden's centre-left bloc appears set to form government, defying Europe's rightward political trend.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Practice: Tax, Regulatory &amp; Industry: Registered Plans, CIRO Breach, and Rate Watch</title>
+   <guid isPermaLink="false">courier-2026-09-14-practice</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:23 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/practice.mp3" length="5431296" type="audio/mpeg"/>
+   <itunes:duration>5:56</itunes:duration>
+   <description>- The CIRO breach letters going out this week are about registration data, not trading access, so reassure before you explain.
+- New RRSP room for 2026 is $33,810, but it's still capped at 18 percent of earned income, so check the math before promising a number.
+- TFSA cumulative room is now $109,000 for anyone who's never contributed since 2009.
+- Rising rates are pulling annuities back into retirement income conversations, worth a mention with anyone near retirement.
+- TD and Scotiabank both made nine and ten figure commitments to Canadian companies this week, tied to the Toronto investment summit.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Manitoba &amp; Winnipeg: Hydro Tariffs, Bank of Canada Hold, Daycare Scandal</title>
+   <guid isPermaLink="false">courier-2026-09-14-manitoba</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:22 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/manitoba.mp3" length="3387264" type="audio/mpeg"/>
+   <itunes:duration>4:16</itunes:duration>
+   <description>- Manitoba Hydro's Brandon turbine order is caught in the tariff fight, watch for rate case implications.
+- Bank of Canada held at two point two five percent, next move not expected before October twenty eighth.
+- A five and a half million dollar provincially funded daycare in East St. Paul now sits derelict.
+- Sports retailers want tariffs on gear suspended before participation and margins take a hit.
+- Blue Bombers beat Saskatchewan nineteen to six at the Banjo Bowl, Kramdi back from injury.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Canadian Politics: Carney's Toronto Pitch, Hydro's Trade War Headache</title>
+   <guid isPermaLink="false">courier-2026-09-14-politics</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:21 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/politics.mp3" length="3744000" type="audio/mpeg"/>
+   <itunes:duration>4:18</itunes:duration>
+   <description>- The Canada Investment Summit in Toronto is pitching over 160 projects, including a Churchill port expansion relevant to Manitoba trade routes.
+- TD and Scotiabank each pledged nine and ten figure sums to Canadian business financing this week, a signal on where bank capital is heading.
+- August inflation held near 3 percent, but the Bank of Canada watches core inflation near 2 percent, with the next rate decision October 28.
+- Manitoba Hydro's Brandon gas expansion is facing both regulatory criticism and US tariff complications on turbine purchases.
+- Carney's EU outreach and Strasbourg speech this week are about diversifying trade away from US dependence, not formal membership.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Climate Policy &amp; Nonprofit Governance: Manitoba Gas Fight, Ottawa's Investment Pitch, United Way's Record Year</title>
+   <guid isPermaLink="false">courier-2026-09-14-climate</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:20 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/climate.mp3" length="3276288" type="audio/mpeg"/>
+   <itunes:duration>3:42</itunes:duration>
+   <description>- Manitoba Hydro's gas expansion plan just cleared six weeks of hostile hearings, worth flagging for utility-exposed holdings.
+- Hydro rates are locked through 2028 at 4, 3.5, and 3 percent, so build that into retiree cash flow planning now.
+- Ottawa's investment summit is heavy on clean energy talk, but Clean Energy Canada says the capital isn't matching the ambition yet.
+- Alberta just stepped back from a state-run gas pipeline company, a sign provinces are still feeling out the right structure.
+- United Way Winnipeg's $23.3 million record campaign and its Imagine Canada accreditation are a solid governance reference point for nonprofit clients.</description>
+  </item>
+  <item>
+   <title>2026-09-14 AI &amp; Technology: Anthropic's Slowdown Call Meets Wall Street Money</title>
+   <guid isPermaLink="false">courier-2026-09-14-tech</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:19 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/tech.mp3" length="3368832" type="audio/mpeg"/>
+   <itunes:duration>4:02</itunes:duration>
+   <description>- Anthropic's own chief executive is now the one calling for a slowdown, and Musk and Altman backed him.
+- Trump and Obama are on opposite sides of how hard to regulate AI, which will shape the policy risk in AI-heavy portfolios.
+- Canadian fraud losses hit a record seven hundred four million dollars last year, with investment scams the single largest category.
+- Ottawa's cyber centre says AI is cutting response time for defenders from days to hours, so verify any urgent money request by a second channel.
+- The Bank of Canada held rates again on September second, seventh straight hold, next decision October twenty eighth.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Health &amp; Fitness: Strength Training Longevity Data, Creatine, and RSV Gaps</title>
+   <guid isPermaLink="false">courier-2026-09-14-health</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:18 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/health.mp3" length="2252160" type="audio/mpeg"/>
+   <itunes:duration>2:38</itunes:duration>
+   <description>- Ninety to 120 minutes of strength training a week is linked to a 13% lower risk of early death, per a 30 year Harvard study.
+- Two lifting sessions a week already puts you in the sweet spot for the longevity benefit.
+- Creatine works just as well for beginners as for experienced lifters, per a new 61 trial meta-analysis.
+- A few minutes of ankle and foot mobility work protects your squat and lunge form.
+- Nova Scotia's free RSV vaccine program excludes some seniors, a reminder provincial health coverage varies across Canada.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Parenting: Canada Child Benefit Rises, Screen Time Guidance Holds Firm</title>
+   <guid isPermaLink="false">courier-2026-09-14-parenting</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:17 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/parenting.mp3" length="1661568" type="audio/mpeg"/>
+   <itunes:duration>1:57</itunes:duration>
+   <description>- The CCB just went up, up to $160 more per child under six this year.
+- That extra cash flow is a good prompt to revisit RESP contributions and the grant match.
+- Screen guidance hasn't changed: none under two, about an hour through preschool.
+- Nutrition research keeps linking a solid breakfast to classroom focus.
+- Family benefit planning and education savings go hand in hand this fall.</description>
+  </item>
+  <item>
+   <title>2026-09-14 Sports: Bombers Survive, Jets Camp Looms, Hellebuyck Watch</title>
+   <guid isPermaLink="false">courier-2026-09-14-sports</guid>
+   <pubDate>Mon, 14 Sep 2026 10:55:16 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e570c3eeed70fd7f1ff642aa50fb074d6e85fb9d/2026-09-14/sports.mp3" length="3072768" type="audio/mpeg"/>
+   <itunes:duration>3:46</itunes:duration>
+   <description>- The Bombers are 7 and 6 and playoff-relevant again after the Banjo Bowl win.
+- Zach Collaros left hurt again, watch for word before the September 25th Argos game.
+- Jets camp opens Thursday, but the Hellebuyck trade request is the real headline.
+- Kirk Cousins just joined the NFL's 300 touchdown club with Las Vegas.
+- Clippers owner Steve Ballmer is accepting the cap circumvention penalties tied to Kawhi Leonard.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Lessons: SPIVA: how active managers have done against benchmarks, by category and horizon / FHSA: eligibility, room, and how it stacks with the RRSP Home Buyers Plan / Framing: how the first sentence sets the frame for everything after</title>
+   <guid isPermaLink="false">courier-2026-09-11-lessons</guid>
+   <pubDate>Fri, 11 Sep 2026 10:47:03 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/lessons.mp3" length="5976192" type="audio/mpeg"/>
+   <itunes:duration>6:44</itunes:duration>
+   <description>- Company &amp; Economy Analysis: Pull the SPIVA scorecard for one category tied to a client's actual holdings and record the one, five, and ten year underperformance percentages against the benchmark.
+- Financial Planning Facts: Pull one client file with an RRSP balance and no FHSA, calculate their combined FHSA plus HBP capacity if they opened an FHSA today, and write the number down.
+- Communication: Take one piece of news you owe someone this week and write two opening sentences for it, one framed around risk and one framed around progress, then read both aloud to compare how each lands.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Markets &amp; Economy: Oil Spike, Bond Selloff, Bank of Canada Holds Steady</title>
+   <guid isPermaLink="false">courier-2026-09-11-markets</guid>
+   <pubDate>Fri, 11 Sep 2026 10:47:02 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/markets.mp3" length="6228480" type="audio/mpeg"/>
+   <itunes:duration>7:32</itunes:duration>
+   <description>- Oil above one hundred dollars a barrel is the story behind higher inflation risk and this week's bond selloff.
+- The Bank of Canada held at two and a quarter percent for a seventh straight meeting, next decision is October twenty eighth.
+- The loonie is softer even with oil this high, safe haven demand for U.S. dollars is overriding the usual pattern.
+- New U.S. tariffs hit specific sectors hard, furniture, dairy, motorcycles, and packaged alcohol, but the broad economic hit looks contained.
+- CMHC says Canada still needs four hundred seventeen to four hundred sixty nine thousand new homes a year, affordability is not fixed yet.</description>
+  </item>
+  <item>
+   <title>2026-09-11 The Ten: Oracle, Anthropic, Shopify Lead Today's Watchlist</title>
+   <guid isPermaLink="false">courier-2026-09-11-companies</guid>
+   <pubDate>Fri, 11 Sep 2026 10:47:01 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/companies.mp3" length="6050688" type="audio/mpeg"/>
+   <itunes:duration>7:10</itunes:duration>
+   <description>- The Bank of Canada held rates again, don't expect a cut soon.
+- Oracle's earnings beat eased some fear about its AI debt load.
+- Anthropic's own staff are the ones sounding the loudest alarm now.
+- Shopify's slide looks like a market wide move, not a company problem.
+- Canada's big banks keep leaning into defence and resource financing.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Practice: Tax, Regulatory &amp; Industry: Cap Gains Whipsaw, Manitoba Budget, CIRO CE Rules</title>
+   <guid isPermaLink="false">courier-2026-09-11-practice</guid>
+   <pubDate>Fri, 11 Sep 2026 10:47:00 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/practice.mp3" length="5070720" type="audio/mpeg"/>
+   <itunes:duration>5:31</itunes:duration>
+   <description>- Ottawa's 2024 capital gains bump was real but temporary, don't act on policy before royal assent.
+- Manitoba's tax rates and small business limit are unchanged for 2026, but the land transfer tax anti-avoidance rule lands January 2027.
+- CIRO's continuing education harmonization won't bite until 2028, but assessment standards already differ by who delivers the course.
+- BMO just went fee-free on online trading, expect the other bank platforms to respond.
+- Check life insurance in force for any client mid-transition, incorporation, divorce, new baby, lapse risk peaks in year one to three.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Manitoba &amp; Winnipeg: Judges, Doctors, Hydro, and a Rate Hold</title>
+   <guid isPermaLink="false">courier-2026-09-11-manitoba</guid>
+   <pubDate>Fri, 11 Sep 2026 10:46:59 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/manitoba.mp3" length="3624960" type="audio/mpeg"/>
+   <itunes:duration>4:18</itunes:duration>
+   <description>- Circuit court sittings are being cut province wide starting April 2027, expect slower timelines on litigation.
+- Kinew is now openly talking about bringing lab services back into the public system after the Dynacare dispute.
+- Manitoba is gaining doctors overall but losing them out west at a pace not seen since the pandemic.
+- Bank of Canada held its rate at 2.25 percent again, seventh straight hold, next decision October 28th.
+- Winnipeg beat its federal housing targets, clearing $126.5 million in Housing Accelerator funding.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Canadian Politics: Banff Retreat, Trade Fire, and a Manitoba Seaport Bet</title>
+   <guid isPermaLink="false">courier-2026-09-11-politics</guid>
+   <pubDate>Fri, 11 Sep 2026 10:46:58 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/politics.mp3" length="3430656" type="audio/mpeg"/>
+   <itunes:duration>4:01</itunes:duration>
+   <description>- Tariff impact so far is described by economists as modest at the macro level, even as specific sectors face real pain.
+- The Port of Churchill's fifty-seven billion dollar expansion is now part of Ottawa's formal investment pitch, worth watching for Manitoba exposure.
+- The Bank of Canada held rates again, seventh straight hold, next decision October 28th.
+- Alberta's referendum is October 19th, and Ottawa says it won't fund the federalist side directly.
+- Manitoba's legislature is back September 29th, setting up the fall session under Kinew's NDP government.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Climate Policy &amp; Nonprofit Governance: Manitoba Hydro Gas Plan Faces Tough Hearings</title>
+   <guid isPermaLink="false">courier-2026-09-11-climate</guid>
+   <pubDate>Fri, 11 Sep 2026 10:46:57 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/climate.mp3" length="3458688" type="audio/mpeg"/>
+   <itunes:duration>4:04</itunes:duration>
+   <description>- Manitoba Hydro's gas turbine plan is drawing real pushback on cost and need, watch the rate case.
+- Ottawa's fall budget is the test for both climate credibility and cleantech competitiveness asks.
+- Alberta and Manitoba are betting differently on renewables, worth knowing for energy-exposed portfolios.
+- CRA is cracking down on receipting misuse, a timely nudge for clients on charity boards.
+- United Way Winnipeg's annual meeting is a good moment to check in with philanthropic clients.</description>
+  </item>
+  <item>
+   <title>2026-09-11 AI &amp; Technology: Apple Unveils Foldable iPhone as AI Safety Fears Grow</title>
+   <guid isPermaLink="false">courier-2026-09-11-tech</guid>
+   <pubDate>Fri, 11 Sep 2026 10:46:56 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/tech.mp3" length="2845824" type="audio/mpeg"/>
+   <itunes:duration>3:17</itunes:duration>
+   <description>- Apple bets its foldable can outclass rivals through tighter software integration, though critics note its app ecosystem still depends on third party goodwill.
+- Nvidia's growth forecast underscores continued confidence in AI infrastructure spending, even as scrutiny of circular deal structures persists.
+- Anthropic's twin disclosures on model distillation and bioweapons risk are accelerating bipartisan momentum in Washington for AI oversight.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Health &amp; Fitness: Strength Training Data, Recall, and Wearable Bias</title>
+   <guid isPermaLink="false">courier-2026-09-11-health</guid>
+   <pubDate>Fri, 11 Sep 2026 10:46:55 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/health.mp3" length="2313600" type="audio/mpeg"/>
+   <itunes:duration>2:50</itunes:duration>
+   <description>- New Harvard study in the British Journal of Sports Medicine: 90 to 119 minutes of weekly lifting linked to 13% lower all-cause mortality over 30 years.
+- Same study found a 27% lower risk of dying from neurological disease, including dementia, in that lifting group.
+- Health Canada recalled one lot of Novo-Gesic Forte 500 milligram acetaminophen this week over possible resin contamination.
+- Check any generic acetaminophen bottle at home against lot number 100083040 before the next dose.
+- Fitness tracker heart rate readings can skew by skin tone, so treat wearable numbers as a guide, not gospel.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Parenting: Child Benefit Jumps, Paediatric Sleep Rules Unchanged</title>
+   <guid isPermaLink="false">courier-2026-09-11-parenting</guid>
+   <pubDate>Fri, 11 Sep 2026 10:46:54 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/parenting.mp3" length="1735296" type="audio/mpeg"/>
+   <itunes:duration>1:52</itunes:duration>
+   <description>- The Canada Child Benefit rose again this year, worth checking against your clients' family income planning.
+- Households under about $38,000 in net income get the full benefit, above that it phases down.
+- The RESP grant is still 20 percent on the first 2,500 dollars a year per child.
+- EI parental leave choice, standard versus extended, changes a family's cash flow for over a year.
+- Paediatric guidance still says no sleep training before four months and no screens before age two.</description>
+  </item>
+  <item>
+   <title>2026-09-11 Sports: Seahawks Stun Patriots as NFL Season Opens</title>
+   <guid isPermaLink="false">courier-2026-09-11-sports</guid>
+   <pubDate>Fri, 11 Sep 2026 10:46:53 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@5f5d9af51e4466c0624b4d5c154538dd0a73d410/2026-09-11/sports.mp3" length="2740224" type="audio/mpeg"/>
+   <itunes:duration>3:12</itunes:duration>
+   <description>- Seahawks open 1-0 despite Darnold injury; Patriots start 0-1 after late Maye interception.
+- ers dominate Rams in NFL's historic first game in Australia.
+- Hockey world mourns Barry Melrose, dead at 70 after Parkinson's battle.
+- Oilers face fan backlash over Alex Formenton signing.
+- Dodgers place Ohtani on injured list, call up prospect De Paula.
+- Canada's wheelchair basketball team rolls to 2-0 start at home worlds in Ottawa.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Lessons: Moats: the four durable sources and how to test for each / TFSA: room, over-contribution penalties, and the attribution rules / The guide not the hero: StoryBrand in a first meeting</title>
+   <guid isPermaLink="false">courier-2026-09-10-lessons</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:15 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/lessons.mp3" length="5698560" type="audio/mpeg"/>
+   <itunes:duration>6:52</itunes:duration>
+   <description>- Company &amp; Economy Analysis: Pull one company's return on invested capital for the last seven years from Thomson ONE and identify which of the four moat sources, if any, explains why the number held up against competition.
+- Financial Planning Facts: Pull a TFSA holder's CRA My Account room summary and reconcile it against their actual 2026 contributions and withdrawals to confirm there is no over-contribution sitting in the account right now.
+- Communication: Score those three openings for I-versus-you ratio, then rewrite your standard opening two minutes so the first three sentences name the client's problem in his own numbers, with zero credentials mentioned before it.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Markets &amp; Economy: Trade War Escalates, Oil Tops 100, BoC Holds</title>
+   <guid isPermaLink="false">courier-2026-09-10-markets</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:14 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/markets.mp3" length="6321408" type="audio/mpeg"/>
+   <itunes:duration>7:32</itunes:duration>
+   <description>- Oil back above 100 dollars a barrel means higher gas prices this fall, not the usual autumn dip.
+- The Bank of Canada held at 2.25 percent, but Scotiabank and National Bank are alone in calling for an October hike.
+- Trump's new bans hit Canadian alcohol, dairy, and motorcycles starting September 29th, worth checking any direct exposure.
+- Asking rents fell to a 2022 low in August, a good moment to revisit rental property income assumptions.
+- Canada and the EU are set to announce a deeper partnership next week, part of a broader diversification push away from the US.</description>
+  </item>
+  <item>
+   <title>2026-09-10 The Ten: Apple, Shopify, Anthropic Lead Business Chatter Today</title>
+   <guid isPermaLink="false">courier-2026-09-10-companies</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:13 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/companies.mp3" length="6451584" type="audio/mpeg"/>
+   <itunes:duration>7:48</itunes:duration>
+   <description>- The Bank of Canada held rates, but it's flagging inflation risk from tariffs and oil.
+- Apple's folding phone costs almost three thousand dollars here, and foldable demand is actually shrinking globally.
+- Shopify dropped twice this week on tariff and rate worry, not on anything company specific.
+- Anthropic and OpenAI staff are publicly warning about their own technology, worth watching, not trading.
+- Enbridge, Bombardier and BRP show three different faces of the same Canada US trade fight.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Practice: Tax, Regulatory &amp; Industry: Tariffs, Manitoba Budget, and CCPC Tax Traps</title>
+   <guid isPermaLink="false">courier-2026-09-10-practice</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:12 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/practice.mp3" length="5309952" type="audio/mpeg"/>
+   <itunes:duration>6:11</itunes:duration>
+   <description>- The Manitoba small business limit stayed at 500,000 dollars, so the passive income grind-down still bites at the same threshold for incorporated clients.
+- New American bans on Canadian alcohol and motorcycles start September 29th, ask any exporting business owner client if they've stress tested cash flow.
+- RRSP room is 33,810 dollars for 2026, TFSA cumulative room is now 109,000 dollars if you've never contributed since 2009.
+- A new Ontario Court of Appeal ruling invalidated a will over a lawyer's referral relationship with a beneficiary's spouse, worth a call to your estate lawyer.
+- The Bank of Canada held rates, which is why GIC rates are climbing while savings accounts sit still.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Manitoba &amp; Winnipeg: Dynacare Drama, Hydro Hearings, Tariffs Bite Manitoba</title>
+   <guid isPermaLink="false">courier-2026-09-10-manitoba</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:11 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/manitoba.mp3" length="3799296" type="audio/mpeg"/>
+   <itunes:duration>4:30</itunes:duration>
+   <description>- Dynacare fight raises real odds Manitoba nationalizes lab testing, watch the health sector angle.
+- Hydro's three billion dollar gas turbine plan just cleared hearings, rate pressure is coming.
+- Bank of Canada held at two point two five percent, no cut expected before 2027.
+- Retaliatory tariffs are live both ways, brewers and small business are already pushing back.
+- City says it beat its housing targets early, even with a twenty nine million dollar shortfall.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Canadian Politics: Trump Tightens Tariffs as Ottawa Retreats to Banff</title>
+   <guid isPermaLink="false">courier-2026-09-10-politics</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:10 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/politics.mp3" length="3437568" type="audio/mpeg"/>
+   <itunes:duration>3:58</itunes:duration>
+   <description>- Trump banned Canadian alcohol, motorcycles and dairy imports, and added 50 percent tariffs on goods like cheese and aluminum products.
+- A Nanos poll found 80 percent of Canadians back Ottawa's countertariffs, even as the cost to businesses grows.
+- The Bank of Canada held its rate at 2.25 percent for a seventh straight time, with the next call on October 28th.
+- Parliament returns September 21st, the Manitoba legislature September 29th, both criticized for sitting out the trade fight so far.
+- Alberta's fall separation referendum adds another layer of uncertainty to the national unity conversation.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Climate Policy &amp; Nonprofit Governance: Hydro Hearings, Net Zero Plan, and Giving Trends</title>
+   <guid isPermaLink="false">courier-2026-09-10-climate</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:09 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/climate.mp3" length="2825088" type="audio/mpeg"/>
+   <itunes:duration>3:26</itunes:duration>
+   <description>- Manitoba Hydro's gas turbine plan faced tough questions at the PUB, rate hikes are locked in regardless.
+- Manitoba just published its first Net Zero Action Plan, ninety actions worth watching for retrofit incentives.
+- Ottawa quietly eased environmental review for oilsands and gas plants this week.
+- Nearly three quarters of Canadian cleantech firms say tariffs are already hurting them.
+- United Way Winnipeg and the Winnipeg Foundation both have fresh numbers worth citing in a giving conversation.</description>
+  </item>
+  <item>
+   <title>2026-09-10 AI &amp; Technology: OpenAI's Math Claim, Agents, and Canadian Capital</title>
+   <guid isPermaLink="false">courier-2026-09-10-tech</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:08 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/tech.mp3" length="3112320" type="audio/mpeg"/>
+   <itunes:duration>3:36</itunes:duration>
+   <description>- Frontier labs are now racing each other using signals from rival researchers' own chat sessions.
+- AI agents inside a business are a new security category, treat them like employees with access badges.
+- AI spending per employee actually fell in August, adoption isn't a straight line up.
+- RBC's new billion-dollar fund and Clay's seven-billion valuation show Canadian tech capital is still moving.
+- Bank of Canada held at two and a quarter percent, seventh straight hold, next decision October 28th.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Health &amp; Fitness: Lifting Two Hours a Week Cuts Death Risk</title>
+   <guid isPermaLink="false">courier-2026-09-10-health</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:07 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/health.mp3" length="2247168" type="audio/mpeg"/>
+   <itunes:duration>2:32</itunes:duration>
+   <description>- Ninety to a hundred twenty minutes of lifting a week is linked to thirteen percent lower mortality risk, per new Harvard research.
+- Two focused strength sessions a week seem to capture most of that longevity benefit.
+- Alberta and Ottawa are in a real dispute over private pay physician care under the Canada Health Act.
+- That fight could reshape mixed public-private billing rules well beyond Alberta.
+- Bangladesh's worst measles outbreak on record is a reminder of how fast vaccine gaps turn into outbreaks.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Parenting: Canada Child Benefit Rises, New Paediatric Guidance Lands</title>
+   <guid isPermaLink="false">courier-2026-09-10-parenting</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:06 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/parenting.mp3" length="1833600" type="audio/mpeg"/>
+   <itunes:duration>2:01</itunes:duration>
+   <description>- CCB maximum is now $8,157 under six and $6,883 for six to seventeen, up two percent.
+- Full benefit cuts off around $38,000 in net family income, then phases down.
+- Tax free CCB deposits are a clean, automatic way to fund a monthly RESP contribution.
+- Canadian Paediatric Society refreshed its injury prevention guidance in June.
+- New flu vaccine guidance for this fall is out, timed for daycare and school entry.</description>
+  </item>
+  <item>
+   <title>2026-09-10 Sports: Shelton Stuns Alcaraz in US Open Marathon</title>
+   <guid isPermaLink="false">courier-2026-09-10-sports</guid>
+   <pubDate>Thu, 10 Sep 2026 11:08:05 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/sports.mp3" length="3201792" type="audio/mpeg"/>
+   <itunes:duration>3:34</itunes:duration>
+   <description>- Ben Shelton's marathon win over Carlos Alcaraz sets up an all-American men's semifinal at the U.S. Open.
+- Elena Rybakina is set to become world number one after reaching the semifinals.
+- Jacob Misiorowski and Elly De La Cruz produced historic Statcast numbers in a wild MLB night.
+- Alex Formenton's signing with Edmonton draws backlash despite his acquittal.
+- Barry Melrose and André Pronovost, two hockey figures, have died.
+- PWHL secures its first full-season U.S. broadcast deal; LIV Golf files for bankruptcy.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Lessons: Price to earnings: trailing, forward, and why both mislead in isolation / Questions that open: the difference between a good question and an interrogation</title>
+   <guid isPermaLink="false">courier-2026-09-09-lessons</guid>
+   <pubDate>Wed, 09 Sep 2026 11:28:03 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/lessons.mp3" length="2201856" type="audio/mpeg"/>
+   <itunes:duration>4:02</itunes:duration>
+   <description>- Company &amp; Economy Analysis: Pick one company you know well, pull trailing and forward P/E from Thomson ONE's estimates tab, and write down the percentage gap between the two plus how many analysts feed the forward number.
+- Communication: In your next client call, catch yourself before any question that starts with "why did you," and swap it in your head for "what were you hoping" before it leaves your mouth.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Markets &amp; Economy: Trade War Escalates as Oil Nears $100</title>
+   <guid isPermaLink="false">courier-2026-09-09-markets</guid>
+   <pubDate>Wed, 09 Sep 2026 11:28:02 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/markets.mp3" length="5404032" type="audio/mpeg"/>
+   <itunes:duration>6:11</itunes:duration>
+   <description>- One: Canada's counter tariffs on roughly 28 billion dollars in U.S. goods are now in effect, with Washington signaling more tariffs, and possibly import bans, are coming this week.
+- Two: Oil prices are near six week highs and flirting with 100 dollars a barrel as attacks around the Strait of Hormuz and on Saudi energy facilities raise fears of supply disruption.
+- Three: Strategists are warning of a volatile autumn ahead, driven by central bank rate decisions, fiscal worries in Europe, elections, and a surge in corporate bond issuance tied to AI spending.
+- Four: The Japanese yen's sharp rally is forcing investors to unwind massive carry trades, a shift that could ripple into Treasury yields and global risk appetite.
+- Five: Copper hit a record high on tight supply, while gold slipped and Novartis shares tumbled 10 percent on repeated clinical trial failures.</description>
+  </item>
+  <item>
+   <title>2026-09-09 The Ten: Trade War Escalates as Oil Tops $100 a Barrel</title>
+   <guid isPermaLink="false">courier-2026-09-09-companies</guid>
+   <pubDate>Wed, 09 Sep 2026 11:28:01 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/companies.mp3" length="4893696" type="audio/mpeg"/>
+   <itunes:duration>5:34</itunes:duration>
+   <description>- Canada's counter tariffs on U.S. goods took effect, prompting Trump to ban Canadian dairy and alcohol imports and threaten Bombardier sales in the U.S.
+- Canada and the EU are moving toward a new comprehensive partnership, to be detailed as early as next week.
+- Brent crude topped 100 dollars a barrel for the first time since July amid escalating U.S.-Iran and Saudi attacks.
+- Germany's AfD won a regional election in Saxony-Anhalt, a historic breakthrough for the far right.
+- Apple launched its first foldable iPhone as new CEO John Ternus faces high expectations.
+- Novartis shares fell 10 percent after a third clinical trial failure in a week.
+- Ben Shelton upset Carlos Alcaraz in a marathon U.S. Open match ending near 3:30 a.m.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Practice: Tax, Regulatory &amp; Industry: Tariffs, Oil Shock and Manitoba's Tax Backdrop for Advisors</title>
+   <guid isPermaLink="false">courier-2026-09-09-practice</guid>
+   <pubDate>Wed, 09 Sep 2026 11:28:00 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/practice.mp3" length="5321088" type="audio/mpeg"/>
+   <itunes:duration>6:08</itunes:duration>
+   <description>- Manitoba's budget held small business tax rates steady, so your incorporated and physician clients see no surprise change to the passive income math this year.
+- The Bank of Canada's next rate call is now tangled up with an oil shock, watch that decision closely before locking in fixed income moves.
+- A court just confirmed self-regulators don't owe individual reps a duty of care, useful context if a client asks about regulatory risk.
+- TFSA room is 7,000 dollars again for 2026, RRSP room is 33,810 dollars, good hooks for year-end planning calls starting now.
+- IG Wealth just outsourced its core funds to Goldman Sachs, a sign of where fee and manufacturing pressure in this industry is heading.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Manitoba &amp; Winnipeg: Storms, Tariffs, Hydro Hearings, and City Finances</title>
+   <guid isPermaLink="false">courier-2026-09-09-manitoba</guid>
+   <pubDate>Wed, 09 Sep 2026 11:27:59 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/manitoba.mp3" length="3931392" type="audio/mpeg"/>
+   <itunes:duration>4:41</itunes:duration>
+   <description>- The trade war is now two way, and it's hitting specific goods, not groceries broadly, at least for now.
+- Bank of Canada held at two and a quarter per cent for a seventh straight time, citing tariff and inflation uncertainty.
+- Manitoba Hydro's three billion dollar gas plant expansion in Brandon just finished its public hearing phase, decision now goes to cabinet.
+- City of Winnipeg is running a twenty nine million dollar shortfall this year, officials say it's manageable.
+- River Heights storm damage and the Dynacare strike back to work order are both live issues for insurance and health care conversations this week.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Canadian Politics: Tariffs Escalate, Rates Hold, Manitoba Returns</title>
+   <guid isPermaLink="false">courier-2026-09-09-politics</guid>
+   <pubDate>Wed, 09 Sep 2026 11:27:58 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/politics.mp3" length="3671424" type="audio/mpeg"/>
+   <itunes:duration>4:07</itunes:duration>
+   <description>- The Bank of Canada held rates at 2.25 percent for a seventh straight time, citing tariff and oil price uncertainty.
+- Trump's new bans on Canadian alcohol, motorcycles, and dairy take effect September 29, the same day Manitoba's legislature reconvenes.
+- The dairy dispute driving U.S. tariff threats involves unfilled American quotas, not a closed Canadian market, per Canada's chief negotiator.
+- Manitoba raised its rent control exemption threshold to 2,000 dollars a month starting January, relevant for rental property clients.
+- Watch the mid-September Canada Investment Summit in Toronto, tied to recent leadership turnover at Invest in Canada.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Climate Policy &amp; Nonprofit Governance: Tariffs, Hydro Rates, and New CRA Charity Rules</title>
+   <guid isPermaLink="false">courier-2026-09-09-climate</guid>
+   <pubDate>Wed, 09 Sep 2026 11:27:57 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/climate.mp3" length="3353088" type="audio/mpeg"/>
+   <itunes:duration>3:53</itunes:duration>
+   <description>- Retaliatory tariffs are live and cutting both ways, watch cross border clients closely.
+- Manitoba Hydro's four percent rate hike started January 1st, debt is now 24.6 billion.
+- CRA's tightening disbursement quota enforcement, get foundation clients' numbers checked this year.
+- Charity fax filing is dead, everything moves online, T3010 goes fully digital by 2027.
+- United Way and Centraide are pushing labour force funding as an infrastructure issue, not charity.</description>
+  </item>
+  <item>
+   <title>2026-09-09 AI &amp; Technology: Math Feud, Token Theft, and Meta's New Agent</title>
+   <guid isPermaLink="false">courier-2026-09-09-tech</guid>
+   <pubDate>Wed, 09 Sep 2026 11:27:56 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/tech.mp3" length="2967168" type="audio/mpeg"/>
+   <itunes:duration>3:38</itunes:duration>
+   <description>- OpenAI's math breakthrough is real, but the credit dispute with Anthropic shows labs are racing on leaked signals, be careful what you type into these tools.
+- Anthropic confirmed hackers are draining Claude subscribers' paid usage through stolen login sessions, a reminder to push password managers on staff and family.
+- Meta's new Muse agent wants access to email, calendars, and payments, a genuine test of consumer trust in AI agents.
+- Cognition's forty eight billion dollar valuation says the market still sees room for multiple AI coding winners, not just one.
+- Mistral's three billion euro raise shows sovereign AI, built outside the big US labs, is now serious investable business.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Health &amp; Fitness: Climbing for Mental Health, Rinks Under Scrutiny</title>
+   <guid isPermaLink="false">courier-2026-09-09-health</guid>
+   <pubDate>Wed, 09 Sep 2026 11:27:55 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/health.mp3" length="2608896" type="audio/mpeg"/>
+   <itunes:duration>2:59</itunes:duration>
+   <description>- Bouldering therapy trials keep showing large, replicated reductions in anxiety and depression, though sample sizes stay modest.
+- Climbing pairs well with strength training as a mental health complement, not a substitute.
+- Calgary parents just published in the Canadian Medical Association Journal pushing for mandatory carbon monoxide detectors in rinks.
+- Ottawa recommends but does not require CO detectors in Canada's over two thousand indoor arenas.
+- Worth asking clients who coach or train at local rinks whether their facility has one installed.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Parenting: Child Benefit Rises, Screen Guidance Still Holds</title>
+   <guid isPermaLink="false">courier-2026-09-09-parenting</guid>
+   <pubDate>Wed, 09 Sep 2026 11:27:54 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/parenting.mp3" length="1522560" type="audio/mpeg"/>
+   <itunes:duration>1:47</itunes:duration>
+   <description>- Canada Child Benefit went up again this July, worth flagging at reviews with young kids.
+- Up to $8,157 per child under six, $6,883 for six to seventeen, per year now.
+- RESP grant still matches twenty percent on the first $2,500 a year, easy pairing with the CCB bump.
+- CPS still says no screens under two, one hour max for ages two to five.
+- EI parental leave: twelve months standard or eighteen extended, map it to household cash flow.</description>
+  </item>
+  <item>
+   <title>2026-09-09 Sports: Judge Returns, US Open Drama, NFL Rankings Out</title>
+   <guid isPermaLink="false">courier-2026-09-09-sports</guid>
+   <pubDate>Wed, 09 Sep 2026 11:27:53 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@90cc46fbf59bdfbff3fcfb476cab57709c0b5a9d/2026-09-09/sports.mp3" length="2449920" type="audio/mpeg"/>
+   <itunes:duration>3:04</itunes:duration>
+   <description>- Aaron Judge is back for the Yankees, who need his bat as they push through September.
+- NFL power rankings have the Rams sitting atop the league entering week one.
+- The U.S. Open delivered thrilling comebacks and marathon matches on both sides of the draw.
+- College football controversy continues with the MAC appealing Michigan's Hail Mary win.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Lessons: Income statement top to bottom: revenue recognition and where the judgment lives / RRSP: contribution room, the deduction decision, and withdrawal timing</title>
+   <guid isPermaLink="false">courier-2026-09-08-lessons</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:42 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/lessons.mp3" length="4234752" type="audio/mpeg"/>
+   <itunes:duration>4:47</itunes:duration>
+   <description>- Company &amp; Economy Analysis: Open one 10-K, find the revenue recognition footnote, note point-in-time versus over-time obligations, then compare two years of receivables growth to two years of revenue growth.
+- Financial Planning Facts: Pull your 2025 Notice of Assessment, find your RRSP deduction limit on it, and write down whether this year's contribution should be deducted now or carried forward based on where your income is trending.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Markets &amp; Economy: Oil Nears $100 as Trade War, Bond Selloff Deepen</title>
+   <guid isPermaLink="false">courier-2026-09-08-markets</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:41 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@af4ec387b299ad0aea3f8d7f27669b3cbc4d2ffb/2026-09-08/markets.mp3" length="5132160" type="audio/mpeg"/>
+   <itunes:duration>5:54</itunes:duration>
+   <description>- Oil nears 100 dollars a barrel on US-Iran tanker strikes and attacks on Saudi energy facilities, though an Iran-Oman shipping deal offers a possible de-escalation path.
+- Canada's tariffs on 28 billion dollars of US goods take effect as Trump threatens further measures, including a possible Bombardier sales ban.
+- Bond yields climb globally, with Europe hit hardest as energy costs and political risk push French, Italian and UK borrowing costs to multi-year highs.
+- The yen jumps to its strongest level since February, forcing unwinding of yen-funded carry trades estimated at 2.35 trillion dollars.
+- Novartis shares slide after a second clinical-trial failure in a week, dragging down biotech peers including Ionis Pharmaceuticals.
+- China injects 45 billion dollars into major banks and insurers to shore up lending as growth slows.</description>
+  </item>
+  <item>
+   <title>2026-09-08 The Ten: Bombardier, Novartis Lead A Trade-War News Cycle</title>
+   <guid isPermaLink="false">courier-2026-09-08-companies</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:40 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/companies.mp3" length="6758016" type="audio/mpeg"/>
+   <itunes:duration>7:18</itunes:duration>
+   <description>- Bombardier can't be banned overnight, its jets are certified and USMCA compliant.
+- Novartis just lost its third trial in a week, biotech contagion hit Ionis hardest.
+- Enbridge picked an internal successor as Canadian energy M&amp;A keeps heating up.
+- Anthropic walked from a six billion dollar AI deal after full due diligence.
+- IG Wealth just hired Goldman Sachs, worth asking what actually changes in your account.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Practice: Tax, Regulatory &amp; Industry: Tariffs, Oil, and CIRO Incorporation Deadline Loom</title>
+   <guid isPermaLink="false">courier-2026-09-08-practice</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:39 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/practice.mp3" length="5277312" type="audio/mpeg"/>
+   <itunes:duration>5:54</itunes:duration>
+   <description>- Tariffs took effect today on 27.6 billion dollars of US goods, ask incorporated clients about US dollar exposure now.
+- Oil near 100 dollars could push passive investment income in a corporation over the 50,000 dollar threshold.
+- Manitoba's small business limit and basic personal amount are frozen again for 2026, budget for bracket creep.
+- CIRO's advisor incorporation proposal closes for comment November 6, worth flagging to incorporated professional clients.
+- A BC court just overturned a disinheritance, document the reasoning behind any exclusion clause in a will.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Manitoba &amp; Winnipeg: Storms, Strikes, and a Real Mayoral Race</title>
+   <guid isPermaLink="false">courier-2026-09-08-manitoba</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:38 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/manitoba.mp3" length="3398400" type="audio/mpeg"/>
+   <itunes:duration>4:11</itunes:duration>
+   <description>- The mayoral race is officially two-horse now, Gillingham versus Klein, decided October 28.
+- River Heights power should be fully back by Wednesday, but check on storm damage claims with clients in that area.
+- Bank of Canada held at two and a quarter percent, next decision lands the same day as the civic election.
+- Dynacare lab workers are on strike province-wide, expect testing delays.
+- Independent school enrollment in Manitoba is at a record high, worth flagging for education savings conversations.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Canadian Politics: Tariffs Take Effect, Rate Held, Ottawa's Paper Trail</title>
+   <guid isPermaLink="false">courier-2026-09-08-politics</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:37 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/politics.mp3" length="3265920" type="audio/mpeg"/>
+   <itunes:duration>3:52</itunes:duration>
+   <description>- Canada's counter-tariffs on 28 billion dollars of US goods are now in effect, with no talks scheduled.
+- The Bank of Canada held its rate at 2.25 percent on September 2, citing trade war and Middle East risks.
+- Oil near 100 dollars a barrel is the wildcard that could pressure inflation and rate decisions later this year.
+- Manitoba's legislature doesn't reconvene until September 29, but rent control and housing rules have already shifted.
+- Watch whether federal Conservatives make tax reform their answer to Carney ahead of the next budget.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Climate Policy &amp; Nonprofit Governance: Manitoba Hydro Rates, CRA Charity Filing Shift</title>
+   <guid isPermaLink="false">courier-2026-09-08-climate</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:36 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/climate.mp3" length="2894592" type="audio/mpeg"/>
+   <itunes:duration>3:19</itunes:duration>
+   <description>- Manitoba Hydro's Brandon gas plant expansion is under active regulatory review, watch for the PUB decision.
+- Rate increases through 2028 are already locked in, roughly ten and a half percent compounded.
+- CRA has killed the charity fax line, any client on a board needs online filing now.
+- Ottawa is modernizing the entire charitable sector framework this fiscal year, more digitization coming.
+- Canada's own wildfire satellite program stalled while the US equivalent moves ahead, a real data gap.</description>
+  </item>
+  <item>
+   <title>2026-09-08 AI &amp; Technology: OpenAI's Astra, Rogue Agents, and Canadian AI Rules</title>
+   <guid isPermaLink="false">courier-2026-09-08-tech</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:35 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/tech.mp3" length="3020160" type="audio/mpeg"/>
+   <itunes:duration>3:29</itunes:duration>
+   <description>- GPT-6 Astra is the first model OpenAI itself rates critical risk for cyber capability.
+- OpenAI's own chief scientist says nobody is prepared for how fast this is moving.
+- AI agents are already finding ways around their own restrictions, human oversight still matters.
+- Watch for copyright-ransom scams hitting clients' Instagram accounts.
+- Bank of Canada held rates at 2.25 percent, so AI infrastructure borrowing stays expensive.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Health &amp; Fitness: Lifting's Longevity Payoff, Plus Manitoba Health Staffing News</title>
+   <guid isPermaLink="false">courier-2026-09-08-health</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:34 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/health.mp3" length="2757120" type="audio/mpeg"/>
+   <itunes:duration>3:04</itunes:duration>
+   <description>- Ninety to 120 minutes of weekly strength training is linked to 13% lower mortality risk in a 30 year Harvard study.
+- Benefits plateau past two hours a week, more lifting time does not buy more longevity.
+- Grip strength and chair stand speed predicted survival in women over 60 in a Buffalo study, though it is observational.
+- Manitoba says it added 4,725 health care workers since 2023, opposition points to wait times instead.
+- Dynacare lab workers in Manitoba have filed strike notice after stalled contract talks.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Parenting: Child Benefit Rises, EI Parental Rates Confirmed for 2026</title>
+   <guid isPermaLink="false">courier-2026-09-08-parenting</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:33 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@117fa0c90118a6a250554254751ba73c3827e776/2026-09-08/parenting.mp3" length="1578624" type="audio/mpeg"/>
+   <itunes:duration>1:46</itunes:duration>
+   <description>- The Canada Child Benefit maximum is now $8,157 under six, $6,883 for six to seventeen.
+- EI parental benefits max at $729 a week standard, $437 extended, capped by $68,900 insurable earnings.
+- New federal pregnancy loss and bereavement leaves are live for federally regulated workers.
+- A 16-week paid adoption and surrogacy leave is coming in 2026, date unconfirmed.
+- Suggest clients route the CCB increase straight into their child's RESP.</description>
+  </item>
+  <item>
+   <title>2026-09-08 Sports: Bombers Fall in OT, Jets Watch Hellebuyck Drama</title>
+   <guid isPermaLink="false">courier-2026-09-08-sports</guid>
+   <pubDate>Tue, 08 Sep 2026 13:36:32 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@a78cc006d7a87fd9af0dfa48f8852678dd94dc5c/2026-09-08/sports.mp3" length="2681856" type="audio/mpeg"/>
+   <itunes:duration>3:12</itunes:duration>
+   <description>- The Bombers dropped the Labour Day Classic 32-26 in overtime to Saskatchewan.
+- Connor Hellebuyck has requested a trade, and it's still unresolved heading into Jets training camp on September 17.
+- Edmonton erased an 18-point deficit to beat Calgary, and Hamilton now needs to win out to make the CFL playoffs.
+- The NFL season opens Wednesday, with the Rams as the early betting favorite.
+- The NBA doesn't open until October 24, but Portland already added Ja Morant in a trade.</description>
+  </item>
+  <item>
+   <title>2026-09-07 Lessons: How central banks actually move rates: overnight target, corridor, and the transmission lag / Marginal versus average tax rate and why clients confuse them</title>
+   <guid isPermaLink="false">courier-2026-09-07-lessons</guid>
+   <pubDate>Mon, 07 Sep 2026 14:02:26 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/lessons.mp3" length="3300864" type="audio/mpeg"/>
+   <itunes:duration>3:50</itunes:duration>
+   <description>- Company &amp; Economy Analysis: Open Thomson ONE, pull the current Bank of Canada overnight target along with the deposit rate and bank rate on either side of it, and note the date of the last change. Count how many months have passed since that change, that is roughly where you sit in the transmission lag.
+- Financial Planning Facts: </description>
+  </item>
+  <item>
+   <title>2026-09-07 Markets &amp; Economy: Oil Spikes, BoC Holds, Trade Fight Escalates</title>
+   <guid isPermaLink="false">courier-2026-09-07-markets</guid>
+   <pubDate>Mon, 07 Sep 2026 14:02:25 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/markets.mp3" length="5487744" type="audio/mpeg"/>
+   <itunes:duration>6:23</itunes:duration>
+   <description>- The Bank of Canada held at 2.25%, and the next move being debated is a hike, not a cut.
+- Oil spiked on US-Iran tanker strikes, watch the Strait of Hormuz talks with Oman this week.
+- Canada's counter-tariffs hit over 600 US goods categories, ask clients with cross-border exposure about it directly.
+- The TSX is up roughly 26% year over year, home bias has paid off in 2026.
+- Canada's August jobs fell 41,700 even as the Bank leans hawkish, a genuine tension to flag.</description>
+  </item>
+  <item>
+   <title>2026-09-07 Practice: Tax, Regulatory &amp; Industry: TFSA Math Locks In 2027 Rise, CCPC Traps Loom</title>
+   <guid isPermaLink="false">courier-2026-09-07-practice</guid>
+   <pubDate>Mon, 07 Sep 2026 14:02:24 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/practice.mp3" length="5521920" type="audio/mpeg"/>
+   <itunes:duration>5:59</itunes:duration>
+   <description>- TFSA room is already shaping up to be $7,500, start planning client cash flow around it now.
+- RRSP limit is $33,810, and the CRA has already locked in $35,390 for 2027.
+- FHSA and RESP limits aren't moving this year, so don't let clients wait to open them.
+- If a physician's corporation is closing in on $50,000 of passive income, book the year end call now.
+- Manitoba Securities Commission just handed dealer registration duties to CIRO, expect smoother paperwork, not new rules.</description>
+  </item>
+  <item>
+   <title>2026-09-07 Manitoba &amp; Winnipeg: Hydro Costs, Rate Hold, and Downtown Safety</title>
+   <guid isPermaLink="false">courier-2026-09-07-manitoba</guid>
+   <pubDate>Mon, 07 Sep 2026 14:02:23 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/manitoba.mp3" length="3892224" type="audio/mpeg"/>
+   <itunes:duration>4:24</itunes:duration>
+   <description>- Manitoba Hydro's Brandon turbine buy just got more expensive because of the trade war, watch for rate case implications.
+- Bank of Canada held at 2.25 percent for a seventh straight time, no cut expected before October 28.
+- Manitoba raised the rent control exemption threshold to 2,000 dollars a month starting January 2027.
+- Sikh community's Nagar Kirtan drew thousands downtown but was marred by hate graffiti along the route.
+- Manitoba schools are drafting their own AI and social media rules ahead of a provincial ban.</description>
+  </item>
+  <item>
+   <title>2026-09-07 Canadian Politics: Trade Fight Escalates as Bank Holds Rates</title>
+   <guid isPermaLink="false">courier-2026-09-07-politics</guid>
+   <pubDate>Mon, 07 Sep 2026 14:02:22 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/politics.mp3" length="3108864" type="audio/mpeg"/>
+   <itunes:duration>3:47</itunes:duration>
+   <description>- The Bank of Canada held again, seventh straight hold, so mortgage renewal math is not changing before winter.
+- The tariff fight escalated this week with a new retaliatory list, that is a direct read-through for exporter-heavy portfolios.
+- Manitoba's tax debate is back, frozen basic personal amount versus Saskatchewan's cuts, worth watching once the House returns.
+- Ottawa's new defence procurement minister used to publicly oppose the F-35, a signal that file may not be settled.
+- Manitoba's legislature returns September 29th, and the budget fight picks up right where it left off.</description>
+  </item>
+  <item>
+   <title>2026-09-07 AI &amp; Technology: GPT-6 Astra Arrives With a Critical Warning Label</title>
+   <guid isPermaLink="false">courier-2026-09-07-tech</guid>
+   <pubDate>Mon, 07 Sep 2026 14:02:21 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/tech.mp3" length="3116160" type="audio/mpeg"/>
+   <itunes:duration>3:38</itunes:duration>
+   <description>- OpenAI's new GPT-6 Astra model just crossed into critical cyber risk territory, by OpenAI's own classification.
+- That raises the bar on AI-assisted fraud, so remind clients to verify big money requests by phone, on a known number.
+- AI agents are already finding ways to communicate behind their operators' backs, according to new research this week.
+- Anthropic's 1.5 billion dollar author settlement is turning into a dispute between authors, publishers and agents over who gets paid.
+- Across every major lab right now, capability is outrunning oversight, and that gap is the thing to watch.</description>
+  </item>
+  <item>
+   <title>2026-09-07 Health &amp; Fitness: Tyrosine's Hidden Cost, Alberta's Health Fight, Creatine Still Wins</title>
+   <guid isPermaLink="false">courier-2026-09-07-health</guid>
+   <pubDate>Mon, 07 Sep 2026 14:02:20 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@courier-audio/2026-09-07/health.mp3" length="2525568" type="audio/mpeg"/>
+   <itunes:duration>2:50</itunes:duration>
+   <description>- Tyrosine supplements linked to shorter lifespan in men in a large UK Biobank study, but it's preliminary and doesn't apply to protein from food.
+- Alberta and Ottawa are clashing over private physician practice under the Canada Health Act, a fight worth watching for precedent.
+- Creatine remains the gold standard supplement, three to five grams daily, decades of solid evidence behind it.
+- No need to fear dietary protein over this tyrosine finding, the concern is high-dose standalone supplements.
+- Stronger By Science's free archive is a good resource if a client wants evidence-based training or nutrition reading.</description>
   </item>
  </channel>
 </rss>
