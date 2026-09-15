@@ -89,18 +89,18 @@
     return result;
   };
 
-  function targetApp(href){
+  function target(href){
     let url;try{url=new URL(href,location.href);}catch{return null;}
     if(url.hostname==='atlas-os-quinton.qchambers123018.chatgpt.site'){
-      if(url.pathname.startsWith('/apps/prospecting'))return 'prospecting-command-center';
-      return 'atlas-os';
+      return {app:url.pathname.startsWith('/apps/prospecting')?'prospecting-command-center':'atlas-os',url};
     }
-    const file=url.pathname.split('/').pop()||'';return PATHS[file]||null;
+    const file=url.pathname.split('/').pop()||'';return {app:PATHS[file]||null,url};
   }
   document.addEventListener('click',event=>{
     const link=event.target.closest?.('a.hub-card,a[data-atlas-app-link]');if(!link)return;
-    const target=link.dataset.atlasAppLink||targetApp(link.href);if(!target||target===app)return;
-    record({app:target,type:'launch',summary:`Opened ${label(target)} from ${label(app)}`,sourceApp:app});
+    const resolved=target(link.href),targetApp=link.dataset.atlasAppLink||resolved?.app;
+    if(!targetApp||targetApp===app||!resolved||resolved.url.origin===location.origin)return;
+    record({app:targetApp,type:'launch',summary:`Opened ${label(targetApp)} from ${label(app)}`,sourceApp:app});
   },true);
 
   window.AtlasActivity=Object.freeze({
