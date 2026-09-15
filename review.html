@@ -1,0 +1,83 @@
+<!doctype html>
+<html class="atlas-neumo" data-atlas-app="review" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>The Review · Atlas</title>
+  <meta name="description" content="Usage, changes, and payoff across Atlas OS.">
+  <meta name="theme-color" content="#202936">
+  <script src="shared/atlas-theme.js?v=craft-20260915"></script>
+  <link rel="stylesheet" href="shared/atlas-palette.css">
+  <link rel="stylesheet" href="shared/atlas-neumorphism.css">
+  <link rel="stylesheet" href="shared/atlas-appearance.css">
+  <link rel="stylesheet" href="shared/review.css?v=review-20260915">
+</head>
+<body>
+  <main class="review-shell" id="main">
+    <header class="review-top">
+      <div>
+        <p class="review-kicker">Atlas OS · System feedback</p>
+        <h1>The Review</h1>
+        <p>What you used, what actually changed, and where the suite paid off. Read-only by design: Review observes the system without becoming another place to manage it.</p>
+      </div>
+      <a class="review-home" href="./">‹ Atlas</a>
+    </header>
+
+    <nav class="review-period" aria-label="Review period">
+      <button type="button" data-days="7" aria-pressed="true">7 days</button>
+      <button type="button" data-days="28" aria-pressed="false">4 weeks</button>
+      <button type="button" data-days="84" aria-pressed="false">12 weeks</button>
+    </nav>
+
+    <section class="review-hero" aria-labelledby="periodLabel">
+      <p class="review-kicker" id="periodLabel">This week</p>
+      <p class="review-narrative" id="narrative">Review is reading your Atlas activity.</p>
+      <div class="review-stats" id="stats" aria-label="Period summary"></div>
+    </section>
+
+    <section class="review-section" aria-labelledby="usage-title">
+      <div class="review-section-head">
+        <h2 id="usage-title">Usage</h2>
+        <p>Visits, recorded changes, and active time by app.</p>
+      </div>
+      <div class="review-panel" id="usage"></div>
+    </section>
+
+    <div class="review-grid">
+      <section class="review-section" aria-labelledby="changes-title">
+        <div class="review-section-head">
+          <h2 id="changes-title">What changed</h2>
+          <p>Meaningful state changes across the suite.</p>
+        </div>
+        <div class="review-panel" id="changes"></div>
+      </section>
+
+      <section class="review-section" aria-labelledby="patterns-title">
+        <div class="review-section-head">
+          <h2 id="patterns-title">Patterns &amp; payoff</h2>
+          <p>Explainable signals, not a productivity score.</p>
+        </div>
+        <div class="review-panel" id="patterns"></div>
+      </section>
+    </div>
+
+    <section class="review-section" aria-labelledby="trendTitle">
+      <div class="review-section-head">
+        <h2 id="trendTitle">Recent weeks</h2>
+        <p>Usage and recorded change over time.</p>
+      </div>
+      <div class="review-panel">
+        <div class="review-trend" id="trend" style="--weeks:4" aria-label="Weekly activity trend"></div>
+        <div class="review-legend" aria-hidden="true"><span>Sessions</span><span>Recorded changes</span></div>
+      </div>
+    </section>
+
+    <details class="review-about">
+      <summary>About Review data</summary>
+      <p>Review activity stays in this browser. It records app visits, approximate active time, and whether an app saved a change. It does not copy the contents of your dashboard records into the activity log. Apps hosted on the separate private Atlas origin can currently be counted when launched from Atlas, but their inside-app activity is not visible to this browser-local Review.</p>
+      <button class="review-danger" id="clearReview" type="button">Clear Review activity history</button>
+    </details>
+  </main>
+  <script type="module" src="shared/review.js?v=review-20260915"></script>
+</body>
+</html>
