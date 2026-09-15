@@ -52,11 +52,13 @@ test('reference use is surfaced as a pattern rather than treated as failure',()=
   assert.match(patternNotes(summary).map(note=>note.text).join(' '),/healthy for a reference tool/);
 });
 
-test('common flow requires a repeated cross-app sequence within 45 minutes',()=>{
+test('common flow survives Atlas hub hops and still requires a repeated pair within 45 minutes',()=>{
   const value=envelope([
     event('2026-09-13T08:00:00Z','courier','open'),
+    event('2026-09-13T08:10:00Z','atlas-hub','open'),
     event('2026-09-13T08:20:00Z','workout-forge','open'),
     event('2026-09-14T08:00:00Z','courier','open'),
+    event('2026-09-14T08:12:00Z','atlas-hub','open'),
     event('2026-09-14T08:25:00Z','workout-forge','open'),
   ]);
   const summary=summarizeActivity(value,{days:7,now:NOW});
