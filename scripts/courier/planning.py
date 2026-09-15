@@ -1,9 +1,14 @@
 """Resilient story planning for The Courier."""
 from dedupe import filter_plan, history_prompt, near_duplicate
+from story_memory import topic_similarity
 
 
 def empty_plan(sources):
     return {slug: {"owns": [], "callbacks": [], "elsewhere": [], "context": []} for slug in sources}
+
+
+def same_topic(a, b):
+    return near_duplicate(a, b) or topic_similarity(a, b) >= 0.72
 
 
 def stories_to_plan(sources, stories):
@@ -14,7 +19,7 @@ def stories_to_plan(sources, stories):
         owner = story.get("owner")
         if owner not in plan or owner in summary or not story.get("event"):
             continue
-        if any(near_duplicate(story["event"], prior["event"]) for prior in accepted):
+        if any(same_topic(story["event"], prior["event"]) for prior in accepted):
             continue
         story.setdefault("line", story["event"])
         story.setdefault("callbacks", [])
@@ -63,7 +68,7 @@ LINE: one sentence other blocks may assume was already heard
 
 
 def deterministic_plan(sources, items_by_block):
-    """No-AI fallback that still guarantees one owner per near-duplicate headline."""
+    """No-AI fallback that still guarantees one owner per underlying headline topic."""
     summary = {slug for slug, spec in sources.items() if spec.get("mode") == "companies"}
     plan = empty_plan(sources)
     accepted = []
@@ -72,7 +77,7 @@ def deterministic_plan(sources, items_by_block):
             continue
         for item in items_by_block.get(owner, [])[:24]:
             event = (item.get("title") or "").strip()
-            if not event or any(near_duplicate(event, prior["event"]) for prior in accepted):
+            if not event or any(same_topic(event, prior["event"]) for prior in accepted):
                 continue
             story = {"event": event, "owner": owner, "line": event, "callbacks": []}
             accepted.append(story)
