@@ -10,6 +10,7 @@
     'baby-brain':'', 'neural-map':'', 'chambers-wealth-hq':''
   };
   if(!Object.hasOwn(navigation,root.dataset.atlasApp)||window.AtlasRefinements)return;
+  if(root.dataset.atlasApp==='courier')import('./courier-experience.js?v=20260914-player-2').catch(()=>{});
   const controls='button,input,select,textarea,summary,a[href],[tabindex],[data-act],[onclick]';
   const helpState=new Map();
   let remembered=null,lastTrigger=null,modal=null,returnTo=null,inerted=[];
