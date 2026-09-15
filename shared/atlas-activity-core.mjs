@@ -127,7 +127,7 @@ export function weeklyBuckets(events, weeks = 12, now = Date.now()) {
     const apps = new Set(usageEvents(rows).filter(event=>!isSystemApp(event.app)).map(event=>event.app));
     buckets.push({
       start:new Date(start).toISOString(),
-      sessions:rows.filter(event=>event.type==='open'&&!isSystemApp(event.app)).length,
+      sessions:usageEvents(rows).filter(event=>!isSystemApp(event.app)).length,
       meaningful:rows.filter(event=>event.kind==='meaningful'&&!isSystemApp(event.app)).length,
       apps:apps.size,
       activeSeconds:rows.filter(event=>!isSystemApp(event.app)).reduce((sum,event)=>sum+(event.seconds||0),0),
@@ -159,7 +159,7 @@ export function summarizeActivity(value, {days=7, now=Date.now()} = {}) {
   const systemApps = apps.filter(app => app.system && (app.sessions || app.launches || app.meaningful));
   const changes = recent.filter(event => event.kind === 'meaningful' && !isSystemApp(event.app))
     .sort((a,b)=>Date.parse(b.at)-Date.parse(a.at));
-  const sessions = valueApps.reduce((sum,app)=>sum+app.sessions,0);
+  const sessions = valueApps.reduce((sum,app)=>sum+app.sessions+app.launches,0);
   const meaningful = changes.length;
   const activeSeconds = valueApps.reduce((sum,app)=>sum+app.activeSeconds,0);
   const topUsage = valueApps.slice().sort((a,b)=>(b.sessions+b.launches)-(a.sessions+a.launches))[0] || null;
