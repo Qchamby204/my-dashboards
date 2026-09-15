@@ -7,6 +7,9 @@ on:
       - .github/workflows/courier.yml
       - scripts/courier/*.py
       - scripts/courier/tests/**
+      - shared/courier-status.mjs
+      - shared/courier-experience.js
+      - shared/atlas-refinements.js
       - courier/recovery-request.json
   schedule:
     # Off-hour schedules reduce contention; scheduled execution can still be delayed.
@@ -60,6 +63,13 @@ jobs:
 
       - name: Verify Courier safeguards
         run: python -m unittest discover -s scripts/courier/tests
+
+      - name: Verify Courier browser modules
+        run: |
+          node --test scripts/courier/tests/*.mjs
+          node --check shared/courier-experience.js
+          node --check shared/atlas-refinements.js
+          node --check shared/courier-status.mjs
 
       - name: Show edition updating
         if: steps.today.outputs.generate == 'true'
