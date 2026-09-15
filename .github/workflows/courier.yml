@@ -5,14 +5,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/courier.yml
-      - scripts/courier/build.py
-      - scripts/courier/run.py
-      - scripts/courier/dedupe.py
-      - scripts/courier/retire_frontpage.py
-      - scripts/courier/publication.py
-      - scripts/courier/recovery.py
-      - scripts/courier/completeness.py
-      - scripts/courier/status.py
+      - scripts/courier/*.py
       - scripts/courier/tests/**
       - courier/recovery-request.json
   schedule:
@@ -62,6 +55,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Courier dependencies
+        run: pip install feedparser requests mutagen
+
       - name: Verify Courier safeguards
         run: python -m unittest discover -s scripts/courier/tests
 
@@ -72,9 +68,6 @@ jobs:
           REPO: ${{ github.repository }}
           COURIER_DATE: ${{ steps.today.outputs.date }}
         run: python scripts/courier/status.py updating
-
-      - run: pip install feedparser requests
-        if: steps.today.outputs.generate == 'true'
 
       - name: Build today's briefing
         if: steps.today.outputs.generate == 'true'
@@ -137,7 +130,7 @@ jobs:
         run: |
           git config user.name "courier-bot"
           git config user.email "courier-bot@users.noreply.github.com"
-          git add courier/manifest.json courier/feed.xml courier/progress.json
+          git add courier/manifest.json courier/feed.xml courier/progress.json courier/health.json
           git diff --cached --quiet || git commit -m "Courier: $(date -u +%F)"
           # A dashboard edit may land while generation runs. Rebase instead of losing it.
           git pull --rebase origin main
