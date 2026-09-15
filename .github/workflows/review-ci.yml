@@ -27,6 +27,7 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+      - run: npm run build
       - run: npm test
       - run: node --check shared/atlas-activity-core.mjs
       - run: node --check shared/atlas-activity.js
