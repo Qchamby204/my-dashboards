@@ -24,21 +24,24 @@ class SourceHealth:
         sections = {}
         degraded = []
         for slug, spec in sources.items():
-            rows = [by_url.get(feed.get("url"), {}) for feed in spec.get("feeds", [])]
-            total = len(rows)
+            configured = list(spec.get("feeds", []))
+            rows = [by_url[feed.get("url")] for feed in configured if feed.get("url") in by_url]
+            checked = len(rows)
             ok = sum(1 for r in rows if r.get("status") == "ok")
             fresh = sum(int(r.get("freshEntries", 0) or 0) for r in rows)
             undated = sum(int(r.get("undatedDropped", 0) or 0) for r in rows)
             stale = sum(int(r.get("staleEntries", 0) or 0) for r in rows)
             section = {
-                "feeds": total,
+                "feeds": len(configured),
+                "checkedFeeds": checked,
                 "healthyFeeds": ok,
                 "freshItems": fresh,
                 "undatedDropped": undated,
                 "staleDropped": stale,
                 "newsletterItems": self.newsletters["bySection"].get(slug, 0),
+                "notChecked": checked == 0,
             }
-            section["degraded"] = bool(total and (ok < max(1, (total + 1) // 2) or fresh == 0))
+            section["degraded"] = bool(checked and (ok < max(1, (checked + 1) // 2) or fresh == 0))
             if section["degraded"]:
                 degraded.append(slug)
             sections[slug] = section
