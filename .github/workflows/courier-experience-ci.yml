@@ -1,0 +1,29 @@
+name: Courier experience CI
+
+on:
+  push:
+    branches: [courier-experience-2026-09-14]
+    paths:
+      - shared/courier-experience.js
+      - shared/courier-status.mjs
+      - shared/atlas-refinements.js
+      - scripts/courier/tests/**
+      - .github/workflows/courier-experience-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install feedparser requests mutagen
+      - run: python -m unittest discover -s scripts/courier/tests
+      - run: node --test scripts/courier/tests/*.mjs
+      - run: node --check shared/courier-experience.js
+      - run: node --check shared/atlas-refinements.js
+      - run: node --check shared/courier-status.mjs
