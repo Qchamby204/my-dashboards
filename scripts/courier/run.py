@@ -1,7 +1,8 @@
 """The Courier production entrypoint.
 
 The active path has no front page. It uses resilient shared story planning, cross-edition story
-memory, freshness-gated feeds, adaptive section length, measured audio duration and source health.
+memory, freshness-gated feeds, adaptive section length, measured audio duration, source health,
+and a hard generated-section duplicate gate.
 """
 import json
 import os
@@ -11,8 +12,9 @@ from datetime import datetime, timezone
 import build as courier
 from allocation import adaptive_minutes
 from audio_meta import attach_duration, write_feed as write_measured_feed
+from coverage import filter_items, has_publishable_assignment, overlap_report, prune_plan
 from dedupe import history_prompt, recent_events
-from planning import resilient_plan
+from planning import resilient_plan, same_topic
 from publication import edition
 from retire_frontpage import retire
 from source_health import SourceHealth, fetch_items as fetch_fresh_items
@@ -66,10 +68,12 @@ def claude_with_context(prompt, max_tokens, web_searches=0, label=""):
     if label == "companies":
         prompt += """
 
-Company-summary quality gate, firm: never retell a news event already owned by another Courier
-block. Give at most one clause of orientation, then the company-specific implication. Use fewer
-than ten companies if the source material does not support ten genuinely worthwhile updates;
-never add filler just to hit a quota.
+The Ten quality gate, superseding any earlier summary-surface language in this prompt:
+- The Ten is NOT a recap of Markets, Practice, Politics, Tech, or any other block.
+- Cover only stories explicitly listed under "Yours, and the spine of this block."
+- Anything listed as covered elsewhere is banned, even if web search says it is the day's biggest story.
+- Use fewer than ten companies if fewer than ten distinct owned company stories are worthwhile.
+- Never fill the slot by repeating another block.
 """
     return _BASE_CLAUDE(prompt, max_tokens, web_searches=web_searches, label=label)
 
@@ -150,6 +154,41 @@ def repair_main():
     write_health(HEALTH.report(sources), planning_method="targeted-repair")
 
 
+def _matches_any(title, stories):
+    return any(same_topic(title, story.get("event", "")) for story in stories if story.get("event"))
+
+
+def _scope_items(slug, items, plan):
+    """Do not hand a writer headlines the shared plan explicitly assigned elsewhere."""
+    block = plan.get(slug, {})
+    owns = block.get("owns", [])
+    callbacks = block.get("callbacks", [])
+    banned = block.get("elsewhere", []) + block.get("context", [])
+    spec_mode = None
+    try:
+        spec_mode = json.loads((courier.HERE / "sources.json").read_text()).get(slug, {}).get("mode")
+    except Exception:
+        pass
+    if spec_mode == "companies":
+        allowed = owns + callbacks
+        return [item for item in items if _matches_any(item.get("title", ""), allowed)] if allowed else []
+    return [item for item in items if not _matches_any(item.get("title", ""), banned)]
+
+
+def _scope_newsletters(sources, plan):
+    """Apply the same ownership bans to newsletter subjects before parallel writing begins."""
+    for slug, mail in list((courier.NEWSLETTERS or {}).items()):
+        block = plan.get(slug, {})
+        owns = block.get("owns", [])
+        callbacks = block.get("callbacks", [])
+        banned = block.get("elsewhere", []) + block.get("context", [])
+        if sources.get(slug, {}).get("mode") == "companies":
+            allowed = owns + callbacks
+            courier.NEWSLETTERS[slug] = [m for m in mail if _matches_any(m.get("subject", ""), allowed)] if allowed else []
+        else:
+            courier.NEWSLETTERS[slug] = [m for m in mail if not _matches_any(m.get("subject", ""), banned)]
+
+
 def normal_main():
     _configure_shared_patches()
     retire(courier.MANIFEST, courier.MANIFEST.parent / "feed.xml")
@@ -174,6 +213,7 @@ def normal_main():
     courier.log("== Shared story plan")
     story_plan, planning_method, dropped = resilient_plan(courier, sources, items_by_block, history)
     story_plan = assign_story_identity(story_plan, manifest_before, courier.TODAY)
+    _scope_newsletters(sources, story_plan)
 
     weekday = courier.WEEKDAY not in ("sat", "sun")
     allocation, skipped, scores = adaptive_minutes(
@@ -189,32 +229,89 @@ def normal_main():
         )
     )
 
-    def build_block(slug):
+    def draft_block(slug):
         minutes = allocation.get(slug, 0)
         if minutes <= 0:
             return None
         spec = sources[slug]
-        courier.log(f"== {spec['label']} start, {minutes:g} min planned")
+        courier.log(f"== {spec['label']} draft start, {minutes:g} min planned")
         try:
-            data = courier.write_script(slug, spec, items_by_block.get(slug, []), minutes, story_plan.get(slug))
+            scoped = _scope_items(slug, items_by_block.get(slug, []), story_plan)
+            data = courier.write_script(slug, spec, scoped, minutes, story_plan.get(slug))
             body, points = courier.split_talking_points(data["script"])
-            block = measured_block(
-                slug, spec["label"], data.get("title", spec["label"]), body,
-                points, data.get("sources", [])[:20], day_dir, release,
+            courier.log(f"== {spec['label']} draft done")
+            return {"slug": slug, "spec": spec, "minutes": minutes, "data": data, "body": body, "points": points}
+        except Exception as exc:
+            courier.log(f"block {slug} failed while drafting, skipping it today: {exc}")
+            failed.append(slug)
+            return None
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        drafts = [draft for draft in pool.map(draft_block, list(sources)) if draft]
+
+    # Hard publication gate. The planner is advisory; this checks what the model actually wrote.
+    accepted = []
+    duplicate_repairs = []
+    duplicate_rejected = []
+    for draft in drafts:
+        slug = draft["slug"]
+        report = overlap_report(draft["data"], draft["points"], accepted)
+        if report["material"]:
+            courier.log(
+                f"duplicate gate: {slug} overlaps earlier coverage; rewriting once "
+                f"({len(report['duplicateSources'])} source(s), {len(report['duplicateTalkingPoints'])} point(s))"
             )
-            block["plannedMinutes"] = minutes
+            repaired_plan = prune_plan(story_plan.get(slug), accepted)
+            repaired_items = filter_items(_scope_items(slug, items_by_block.get(slug, []), story_plan), accepted)
+            if not has_publishable_assignment(repaired_plan):
+                duplicate_rejected.append(slug)
+                courier.log(f"duplicate gate: {slug} has no distinct assignment left; skipping")
+                continue
+            try:
+                data = courier.write_script(slug, draft["spec"], repaired_items, draft["minutes"], repaired_plan)
+                body, points = courier.split_talking_points(data["script"])
+                second = overlap_report(data, points, accepted)
+            except Exception as exc:
+                courier.log(f"duplicate gate: {slug} rewrite failed; skipping: {exc}")
+                duplicate_rejected.append(slug)
+                continue
+            duplicate_repairs.append({
+                "section": slug,
+                "firstPass": report,
+                "secondPass": second,
+            })
+            if second["material"]:
+                duplicate_rejected.append(slug)
+                courier.log(f"duplicate gate: {slug} still overlaps after rewrite; skipping instead of repeating")
+                continue
+            story_plan[slug] = repaired_plan
+            draft.update({"data": data, "body": body, "points": points})
+        accepted.append({"slug": slug, "data": draft["data"], "points": draft["points"]})
+
+    for slug in duplicate_rejected:
+        allocation[slug] = 0.0
+    skipped_final = list(dict.fromkeys(skipped + duplicate_rejected))
+
+    def finalize_block(draft):
+        slug, spec = draft["slug"], draft["spec"]
+        try:
+            block = measured_block(
+                slug, spec["label"], draft["data"].get("title", spec["label"]), draft["body"],
+                draft["points"], draft["data"].get("sources", [])[:20], day_dir, release,
+            )
+            block["plannedMinutes"] = draft["minutes"]
             block["storyIds"] = [s.get("storyId") for s in story_plan.get(slug, {}).get("owns", []) if s.get("storyId")]
             courier.log(f"== {spec['label']} done, {block['minutes']} min measured")
             return block
         except Exception as exc:
-            courier.log(f"block {slug} failed, skipping it today: {exc}")
+            courier.log(f"block {slug} failed during audio/finalization, skipping it today: {exc}")
             failed.append(slug)
             return None
 
-    blocks = []
+    accepted_slugs = {entry["slug"] for entry in accepted}
+    final_drafts = [draft for draft in drafts if draft["slug"] in accepted_slugs]
     with ThreadPoolExecutor(max_workers=4) as pool:
-        results = list(pool.map(build_block, list(sources)))
-    blocks.extend(block for block in results if block)
+        blocks = [block for block in pool.map(finalize_block, final_drafts) if block]
 
     if weekday:
         courier.log("== Lessons")
@@ -245,11 +342,11 @@ def normal_main():
     cost = courier.estimate_cost(courier.USAGE)
     source_report = HEALTH.report(sources)
     health_record = write_health(
-        source_report, planning_method=planning_method, skipped=skipped,
+        source_report, planning_method=planning_method, skipped=skipped_final,
         allocation=allocation, scores=scores,
     )
 
-    expected = (["lessons"] if weekday else []) + [slug for slug in sources if slug not in skipped]
+    expected = (["lessons"] if weekday else []) + [slug for slug in sources if slug not in skipped_final]
     planned_total = round(sum(allocation.values()) + (courier.LESSONS_MINUTES if weekday else 0), 1)
     day = {
         "date": courier.TODAY,
@@ -261,7 +358,9 @@ def normal_main():
         "durationSeconds": round(sum(float(block.get("durationSeconds", 0) or 0) for block in blocks), 1),
         "voiceless": list(courier.VOICELESS),
         "failed": list(dict.fromkeys(failed)),
-        "skippedSections": skipped,
+        "skippedSections": skipped_final,
+        "duplicateRejectedSections": duplicate_rejected,
+        "duplicateRepairs": duplicate_repairs,
         "allocationMinutes": allocation,
         "activityScores": scores,
         "planningMethod": planning_method,
@@ -287,7 +386,8 @@ def normal_main():
 
     courier.log(
         f"done: {len(blocks)} blocks, {total} measured min, planning={planning_method}, "
-        f"skipped={len(skipped)}, degraded sources={len(source_report['degradedSections'])}, "
+        f"skipped={len(skipped_final)}, duplicate repairs={len(duplicate_repairs)}, "
+        f"duplicate rejects={len(duplicate_rejected)}, degraded sources={len(source_report['degradedSections'])}, "
         f"est ${cost:.2f}"
         + (f"; FAILED: {', '.join(failed)}" if failed else "")
         + (f"; TEXT ONLY: {', '.join(courier.VOICELESS)}" if courier.VOICELESS else "")
