@@ -149,10 +149,10 @@
       hiddenSections:[...HIDDEN_SECTIONS]
     });
 
-    normalizeUnits(state.draft);
-    for(const key of TAP_HABITS)if(state.goals&&hasOwn(state.goals,key))delete state.goals[key];
-    render();
+    // This function performs its in-memory normalization before its first await, so the
+    // first simplified render already uses the calibrated goals and binary values.
     migrateStoredValues();
+    render();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
