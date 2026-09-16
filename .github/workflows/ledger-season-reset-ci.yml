@@ -29,3 +29,4 @@ jobs:
         run: node --test atlas/tests/ledger-season-reset.test.mjs atlas/tests/ledger-original.test.mjs atlas/tests/ledger-reward-animation.test.mjs
       - run: node --check shared/ledger-season-reset-20260915.js
       - run: node --check shared/ledger-reward-hotfix-20260916.js
+      # Re-run after the VM-realm assertion was corrected.
