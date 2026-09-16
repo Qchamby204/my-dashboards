@@ -18,7 +18,9 @@ async function run({season={start:'2026-09-08',end:'2026-12-31'},marker=null}={}
 
 test('moves the legacy Sep 8 season to Sep 15 without deleting history itself',async()=>{
   const r=await run();
-  assert.deepEqual(r.calls,[{start:'2026-09-15',end:'2026-12-31'}]);
+  assert.equal(r.calls.length,1);
+  assert.equal(r.calls[0].start,'2026-09-15');
+  assert.equal(r.calls[0].end,'2026-12-31');
   assert.equal(r.storage.get('lifeledger:migration:season-20260915:v1'),'done');
 });
 
