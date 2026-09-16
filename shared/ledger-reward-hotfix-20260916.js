@@ -1,8 +1,18 @@
 /* Life Ledger reward hotfix: keep Level Up / Achievement cards visible until dismissed. */
 (()=>{
   'use strict';
-  const root=document.documentElement;
+  const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
+
+  // One-time requested season reset. This stays separate from the reward logic,
+  // but loading it here lets existing Life Ledger pages pick up the migration
+  // without rewriting the large original dashboard file.
+  if(source){
+    const seasonReset=document.createElement('script');
+    seasonReset.src=new URL('ledger-season-reset-20260915.js?v=1',source).href;
+    seasonReset.defer=true;
+    document.head.appendChild(seasonReset);
+  }
 
   const style=document.createElement('style');
   style.id='ledger-reward-hotfix-20260916';
