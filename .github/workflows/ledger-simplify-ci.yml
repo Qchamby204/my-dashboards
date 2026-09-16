@@ -1,0 +1,36 @@
+name: Ledger Simplify CI
+
+on:
+  push:
+    branches: [ledger-simplify-20260916]
+    paths:
+      - shared/ledger-simplify-20260916.js
+      - shared/atlas-refinements.js
+      - atlas/tests/ledger-simplify.test.mjs
+      - atlas/tests/ledger-original.test.mjs
+      - atlas/tests/ledger-reward-animation.test.mjs
+      - atlas/tests/ledger-season-reset.test.mjs
+      - .github/workflows/ledger-simplify-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Verify Life Ledger behavior
+        run: node --test atlas/tests/ledger-simplify.test.mjs atlas/tests/ledger-season-reset.test.mjs atlas/tests/ledger-original.test.mjs atlas/tests/ledger-reward-animation.test.mjs
+      - name: Check Ledger scripts
+        run: |
+          node --check shared/ledger-simplify-20260916.js
+          node --check shared/atlas-refinements.js
+          node --check shared/ledger-reward-hotfix-20260916.js
+          node --check shared/ledger-season-reset-20260915.js
