@@ -39,6 +39,24 @@ class AllocationTests(unittest.TestCase):
         self.assertEqual(set(skipped), set(sources))
         self.assertEqual(sum(minutes.values()), 0)
 
+    def test_the_ten_cannot_buy_airtime_with_feed_volume_when_it_owns_nothing(self):
+        sources = {
+            "markets": {"minutes": 8},
+            "companies": {"minutes": 7, "mode": "companies"},
+        }
+        plan = {
+            "markets": {"owns": [{"event": "Rates move"}], "callbacks": []},
+            "companies": {"owns": [], "callbacks": []},
+        }
+        items = {
+            "markets": [{"title": "Rates move"}],
+            "companies": [{"title": f"Company headline {i}"} for i in range(40)],
+        }
+        minutes, skipped, scores = adaptive_minutes(sources, plan, items, total_minutes=20, lessons_minutes=8)
+        self.assertEqual(scores["companies"], 0)
+        self.assertEqual(minutes["companies"], 0)
+        self.assertIn("companies", skipped)
+
 
 if __name__ == "__main__":
     unittest.main()
