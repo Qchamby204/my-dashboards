@@ -1,0 +1,30 @@
+name: Ledger Reward CI
+
+on:
+  push:
+    branches: [ledger-reward-fix]
+    paths:
+      - life-ledger.html
+      - shared/ledger-enhancements.css
+      - shared/ledger-enhancements.js
+      - atlas/tests/ledger-reward-animation.test.mjs
+      - atlas/tests/ledger-original.test.mjs
+      - .github/workflows/ledger-reward-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Verify Life Ledger rewards
+        run: node --test atlas/tests/ledger-reward-animation.test.mjs atlas/tests/ledger-original.test.mjs
+      - run: node --check shared/ledger-enhancements.js
