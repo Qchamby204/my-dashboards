@@ -11,6 +11,12 @@
   };
   if(!Object.hasOwn(navigation,root.dataset.atlasApp)||window.AtlasRefinements)return;
   if(root.dataset.atlasApp==='courier')import('./courier-experience.js?v=20260914-player-2').catch(()=>{});
+  if(root.dataset.atlasApp==='life-ledger'&&document.currentScript?.src){
+    const simplify=document.createElement('script');
+    simplify.src=new URL('ledger-simplify-20260916.js?v=1',document.currentScript.src).href;
+    simplify.defer=true;
+    document.head.append(simplify);
+  }
   const controls='button,input,select,textarea,summary,a[href],[tabindex],[data-act],[onclick]';
   const helpState=new Map();
   let remembered=null,lastTrigger=null,modal=null,returnTo=null,inerted=[];
