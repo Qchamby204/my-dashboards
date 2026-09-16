@@ -23,7 +23,9 @@ def activity_scores(sources, plan, items_by_block):
         callbacks = len(block.get("callbacks", []))
         fresh = len(items_by_block.get(slug, []))
         if spec.get("mode") == "companies":
-            score = min(6.0, fresh / 3.0) + callbacks * 0.25
+            # The Ten is no longer a recap surface. Feed volume alone must never buy it airtime;
+            # it runs only when the shared plan found distinct company stories for it to own.
+            score = (owns * 2.0 + min(2.0, fresh / 8.0)) if owns else 0.0
         else:
             score = owns * 2.0 + callbacks * 0.5 + min(3.0, fresh / 8.0)
         scores[slug] = round(score, 3)
