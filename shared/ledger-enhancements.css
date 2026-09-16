@@ -53,5 +53,16 @@ html[data-atlas-app="life-ledger"] .ledger-progress-info p{margin:0 0 12px;max-w
 html[data-atlas-app="life-ledger"] .ledger-reward{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;box-sizing:border-box;color:inherit;overflow:auto;overscroll-behavior:contain;}
 html[data-atlas-app="life-ledger"] .ledger-reward:not([open]){display:none!important;}
 html[data-atlas-app="life-ledger"] .ledger-reward::backdrop{background:rgba(0,0,0,.5);}
+
+/* The original .levelup animation faded to opacity:0 at its final frame while
+   the reward dialog stayed open, leaving only the modal backdrop visible.
+   Rewards now animate in and remain readable until the user dismisses them. */
+@keyframes ledgerRewardEnter{
+  0%{opacity:0;transform:scale(.7)}
+  38%{opacity:1;transform:scale(1.04)}
+  100%{opacity:1;transform:scale(1)}
+}
+html[data-atlas-app="life-ledger"] .ledger-reward .levelup{animation:ledgerRewardEnter .6s ease both;}
+
 html[data-atlas-app="life-ledger"] :is(.ledger-progress-info summary,[data-act="relic"]):focus-visible{outline:2px solid var(--neo-accent);outline-offset:3px;}
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="life-ledger"] .ledger-reward *{animation:none!important;transition:none!important;}}
