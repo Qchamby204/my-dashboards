@@ -1,6 +1,9 @@
 {
   "schemaVersion": 1,
   "date": "2026-09-17",
-  "requestedAt": "2026-09-17T05:38:44-05:00",
-  "attempt": 1
+  "requestedAt": "2026-09-17T06:53:21-05:00",
+  "attempt": 2,
+  "sections": [
+    "sports"
+  ]
 }
