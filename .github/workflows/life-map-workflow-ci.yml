@@ -7,7 +7,8 @@ permissions:
   contents: read
 jobs:
   validate:
-    if: github.ref == 'refs/heads/life-map-workflow-20260917' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'Life Map: apply'))
+    if: >-
+      github.ref == 'refs/heads/life-map-workflow-20260917' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'Life Map: apply'))
     permissions:
       contents: write
     runs-on: ubuntu-latest
