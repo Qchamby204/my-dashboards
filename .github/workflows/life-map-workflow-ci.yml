@@ -1,0 +1,23 @@
+name: Life Map workflow validation
+on:
+  push:
+    branches: [life-map-workflow-20260917]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Bundle source only
+        run: |
+          mkdir -p /tmp/life-map-source
+          git ls-files -z '*.js' '*.mjs' '*.css' '*.html' '*AGENTS.md' '.agents/*' 'package*.json' '.github/workflows/*' | tar --null -T - -cf /tmp/life-map-source/source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: life-map-source
+          path: /tmp/life-map-source/source.tar
+          retention-days: 1
