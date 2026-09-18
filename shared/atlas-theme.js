@@ -6,7 +6,7 @@
   // Extend the existing pages in place. Their HTML, records, and URLs remain theirs.
   const sharedSource=document.currentScript?.src;
   if(sharedSource&&document.head){
-    const mobile=document.createElement('script');mobile.src=new URL('atlas-mobile.js',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
+    const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=life-map-workflow-20260917':'atlas-mobile.js',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
     if(root.dataset.atlasApp==='the-herald'){
       const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
@@ -22,7 +22,7 @@
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
       const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=805c48b4fcb5',sharedSource).href;document.head.appendChild(polish);
-      const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=076590dd90c0',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
+      const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=54aa0f1d0514',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
     }
     if(root.dataset.atlasApp==='prospecting-command-center'&&!window.AtlasProspectingPrivate){
       // Retain the saved bytes before the legacy boot can attempt migration.

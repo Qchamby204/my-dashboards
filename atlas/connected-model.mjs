@@ -34,7 +34,7 @@ export function connectedState(kind,workspace,stored){
     const originals=new Map(raw.projects.map(p=>[p.id,p]));
     raw.projects=workspace.projects.filter(p=>!p.archived_at).map(p=>{
       const old=originals.get(p.source_id)||{};
-      const next={sub:'',pri:'Med',notes:'',...old,id:p.source_id,task:p.title,area:p.area,due:p.due_date||'',status:p.status==='done'?'Done':old.status==='In progress'?'In progress':'Not started'};
+      const next={sub:'',pri:'Med',notes:'',...old,id:p.source_id,task:p.title,area:p.area,due:p.due_date||'',status:p.status==='done'?'Done':['In progress','Waiting'].includes(old.status)?old.status:'Not started'};
       if(p.status==='done'&&p.completed_at)next.doneAt=p.completed_at.slice(0,10);else delete next.doneAt;
       return next;
     });
@@ -67,5 +67,15 @@ export function retainAppDetails(kind,incoming,stored){
   const old=stored?JSON.parse(stored.state_json):emptyAppState(kind),key=kind==='life-map'?'projects':'videos',ids=new Set(incoming[key].map(r=>r.id));
   // Keep the details of archived records so restoring their canonical record
   // also restores the script or notes. They are hidden by connectedState.
-  return validateAppState(kind,{...incoming,[key]:[...incoming[key],...old[key].filter(r=>!ids.has(r.id))]});
+  const retained=[...incoming[key],...old[key].filter(r=>!ids.has(r.id))];
+  const details={...incoming,[key]:retained};
+  if(kind==='life-map'){
+    const groups=new Map((incoming.groups||[]).map(g=>[g.id,g]));
+    for(const p of retained)if(p.parentId&&!groups.has(p.parentId)){
+      const previous=old.groups?.find(g=>g.id===p.parentId);
+      if(previous)groups.set(previous.id,{...previous,archived:true});
+    }
+    if(incoming.groups!==undefined||groups.size)details.groups=[...groups.values()];
+  }
+  return validateAppState(kind,details);
 }

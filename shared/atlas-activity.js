@@ -72,7 +72,7 @@
 
   function ignoredKey(key){return key===KEY||key==='atlas.appearance.v1'||/^atlas:activity:/.test(key)||/(?:appearance|theme|probe|schema-version)$/i.test(key||'');}
   function changed(){
-    if(current.changed||app==='review'||app==='atlas-hub')return;
+    if(current.changed||app==='review'||app==='atlas-hub'||app==='life-map'&&window.LifeMapWorkflow?.semanticEvents)return;
     current.changed=true;current.lastSeen=Date.now();saveSession();
     record({type:'data_changed',kind:'meaningful',summary:`${label(app)} recorded a change`});
   }
