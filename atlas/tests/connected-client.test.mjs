@@ -14,7 +14,7 @@ test('the shipped Life Map script boots with saved data and its editor sends cha
     const {node}=nodes(),document={getElementById:node,querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},createElement:node,body:node('body')},saves=[],raw=emptyAppState(kind);
     raw.planned={older:'2026-08-01'};
     raw.projects=[{id:'project-one',task:'A room plan',area:'Home',status:'Not started',notes:'Original note',pri:'High',sub:'',due:''}];
-    const window={AtlasConnected:{raw:()=>JSON.stringify(raw),save:s=>saves.push(structuredClone(s))},addEventListener(){},scrollTo(){},innerWidth:1200};
+    const window={AtlasConnected:{raw:()=>JSON.stringify(raw),save:s=>saves.push(structuredClone(s)),commit:s=>{saves.push(structuredClone(s));return true;}},addEventListener(){},scrollTo(){},innerWidth:1200};
     const context=vm.createContext({window,document,navigator:{},location:{href:'https://atlas.test/apps/'+kind},URL,Date,Blob,TextEncoder,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});
     vm.runInContext(connected['/connected/'+kind+'-main.js'][0],context);await tick();assert.equal(typeof window.acceptConnectedState,'function');assert.equal(saves.length,0);assert.equal(vm.runInContext('S.planned.older',context),'2026-08-01');
     {
@@ -64,4 +64,20 @@ test('search-only input is not a saved-data draft and cancelling an edit clears 
  assert.equal(h.window.AtlasConnected.pending,false);
  h.events.get('input')({target:{closest:s=>s==='#connected-app'?{}:null}});assert.equal(h.window.AtlasConnected.pending,true);
  h.window.AtlasConnected.clearInputDraft();assert.equal(h.window.AtlasConnected.pending,false);
+});
+
+
+test('transactional private commit changes saved state only after a verified response',async()=>{
+ const h=bootstrap();const original=emptyAppState('herald');await h.reply(0,{state:original,version:'v1',connected:true});
+ const next=structuredClone(original);next.roadmap=[{id:'new',t:'Draft'}];const saved=h.window.AtlasConnected.commit(next);
+ assert.deepEqual(JSON.parse(h.window.AtlasConnected.raw()),original);assert.equal(h.window.AtlasConnected.pending,true);
+ assert.equal(await h.window.AtlasConnected.commit(next),false);
+ await h.reply(1,{saved:true,version:'v2'});assert.equal(await saved,true);assert.deepEqual(JSON.parse(h.window.AtlasConnected.raw()),next);
+});
+
+test('rejected transactional commit preserves prior records and version',async()=>{
+ const h=bootstrap();const original=emptyAppState('herald');await h.reply(0,{state:original,version:'v1',connected:true});
+ const next=structuredClone(original);next.roadmap=[{id:'new',t:'Draft'}];const saved=h.window.AtlasConnected.commit(next);
+ await h.reply(1,{error:'Another device saved first'},409);assert.equal(await saved,false);assert.deepEqual(JSON.parse(h.window.AtlasConnected.raw()),original);
+ const retry=h.window.AtlasConnected.commit(next);assert.equal(JSON.parse(h.pending[2].options.body).version,'v1');await h.reply(2,{saved:true,version:'v2'});assert.equal(await retry,true);
 });

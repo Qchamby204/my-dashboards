@@ -7,7 +7,7 @@
   // Review telemetry uses this existing shared bootstrap, but only for the Atlas suite.
   // Dashboards deliberately excluded from suite-wide hooks remain untouched.
   if(source&&trackedApps.has(root.dataset.atlasApp)){
-    const activity=document.createElement('script');activity.src=new URL('atlas-activity.js?v=review-20260915',source).href;activity.defer=true;document.head.appendChild(activity);
+    const activity=document.createElement('script');activity.src=new URL('atlas-activity.js?v=lifemap-workflow-20260917',source).href;activity.defer=true;document.head.appendChild(activity);
   }
   const apps=new Set(['atlas-hub','atlas-os','atlas-connect','life-map','life-ledger','workout-forge','the-aqueduct','the-hourglass','baby-brain','communication-trainer','prospecting-command-center','operations-cadence','the-herald','courier','neural-map','chambers-wealth-hq','review']);
   if(!apps.has(root.dataset.atlasApp)||window.AtlasMobile)return;
