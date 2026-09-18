@@ -6,18 +6,64 @@ on:
 permissions:
   contents: read
 jobs:
-  source:
+  validate:
+    if: github.ref == 'refs/heads/life-map-workflow-20260917' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'Life Map: apply'))
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          persist-credentials: false
-      - name: Bundle source only
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Apply checksum-verified source changes
+        run: python scripts/lm-upgrade-apply.py
+      - run: npm ci --ignore-scripts
+      - name: Build both Life Map adapters
+        run: npm run build
+      - name: All Node regression tests
         run: |
-          mkdir -p /tmp/life-map-source
-          git ls-files -z '*.js' '*.mjs' '*.css' '*.html' '*AGENTS.md' '.agents/*' 'package*.json' '.github/workflows/*' | tar --null -T - -cf /tmp/life-map-source/source.tar
+          mkdir -p artifacts/life-map-tests
+          npm test 2>&1 | tee artifacts/life-map-tests/node-tests.txt
+      - name: Install test browsers
+        run: |
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps chromium webkit
+      - name: Chromium and WebKit interaction tests
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/life-map-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/life-map.html >/dev/null && break || sleep 1; done
+          failed=0
+          for browser in chromium webkit; do
+            LM_BROWSER="$browser" python atlas/tests/life-map-browser.py 2>&1 | tee "artifacts/life-map-tests/$browser-tests.txt" || failed=1
+          done
+          test "$failed" = 0
+      - name: Commit only validated release files on the isolated branch
+        run: |
+          git config user.name 'Qchamby204'
+          git config user.email '225991756+Qchamby204@users.noreply.github.com'
+          python - <<'PY'
+          import json,subprocess
+          paths=json.load(open('/tmp/lm-release-paths.json'))+['life-map.html']
+          subprocess.run(['git','add','--',*paths],check=True)
+          subprocess.run(['git','diff','--cached','--stat'],check=True)
+          subprocess.run(['git','commit','-m','Life Map: implement capture, planning, projects and recurrence'],check=True)
+          entries=[]
+          for path in paths:
+              sha=subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()
+              entries.append({'path':path,'mode':'100644','type':'blob','sha':sha})
+          json.dump(entries,open('artifacts/life-map-tests/release-tree.json','w'),indent=2)
+          print('VALIDATED_HEAD='+subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
+          PY
+          git push origin HEAD:life-map-workflow-20260917
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: life-map-source
-          path: /tmp/life-map-source/source.tar
-          retention-days: 1
+          name: life-map-validation
+          path: artifacts/life-map-tests/
+          retention-days: 7
