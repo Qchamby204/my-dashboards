@@ -11,15 +11,15 @@ function harness(){
   const document={activeElement:null,getElementById:id=>Object.values(nodes).find(x=>x.id===id)||null,addEventListener:(type,fn)=>events[type]=fn};
   const app={children:[],contains:el=>Object.values(nodes).includes(el),addEventListener:(type,fn)=>{if(type==='click')clicks.push(fn);},querySelector:selector=>selector.startsWith('.overlay')?dialog:null,
     querySelectorAll:selector=>{
-      if(selector==='[data-act]')return Object.values(nodes).filter(x=>x.dataset.act);
+      if(selector==='[data-act]'||selector==='[data-act],[data-lm]')return Object.values(nodes).filter(x=>x.dataset.act);
       if(selector.startsWith('[data-act="advance"]'))return [nodes.advance,nodes.tick,nodes.edit,nodes.timeline];
-      if(selector.startsWith('details.atlas-info'))return !nodes.help?[]:selector.endsWith('[open]')?(nodes.help.open?[nodes.help]:[]):[nodes.help];
-      if(selector==='[data-act="f"]')return dialog?[nodes.field]:[];
+      if(selector.startsWith('details'))return !nodes.help?[]:selector.endsWith('[open]')?(nodes.help.open?[nodes.help]:[]):[nodes.help];
+      if(selector.startsWith('[data-act="f"]'))return dialog?[nodes.field]:[];
       return [];
     }};
   function node(name,tag='BUTTON',data={}){
     const n={name,id:name,tagName:tag,dataset:data,attrs:{},style:{},inert:false,tabIndex:tag==='BUTTON'?0:-1,classList:{add(){}},setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k];},querySelector:()=>null,
-      closest:selector=>selector==='#app'?app:selector==='[data-act]'&&n.dataset.act?n:null,
+      closest:selector=>selector==='#app'?app:['[data-act]','[data-act],[data-lm]'].includes(selector)&&n.dataset.act?n:null,
       focus(){document.activeElement=n;},getClientRects:()=>[{}],click(){n.activated=(n.activated||0)+1;}};
     nodes[name]=n;return n;
   }
@@ -34,7 +34,7 @@ function harness(){
       dialog.querySelectorAll=()=>[nodes.cancel,nodes.field,nodes.save];app.children.push(dialog);
     }
   }
-  const context=vm.createContext({app,document,window:{},view,S,render:draw,isChecked:c=>c.done,plannedToday:()=>false});
+  const context=vm.createContext({app,document,window:{addEventListener(){}},view,S,render:draw,isChecked:c=>c.done,plannedToday:()=>false});
   vm.runInContext(code,context);
   const render=()=>context.render();render();
   function key(value,shiftKey=false){const event={key:value,shiftKey,target:document.activeElement,preventDefault(){this.prevented=true;},stopPropagation(){}};events.keydown(event);return event;}
@@ -43,7 +43,7 @@ function harness(){
 
 test('redrawing an updated record preserves focus, open help, and meaningful state labels',()=>{
   const h=harness();const before=h.node('advance');before.focus();h.node('help').open=true;
-  assert.equal(before.attrs['aria-label'],'Start Room plan');
+  assert.equal(before.attrs['aria-label'],'Complete Room plan');
   h.S.projects[0].status='In progress';h.S.chores[0].done=true;h.render();
   assert.notEqual(h.document.activeElement,before);assert.equal(h.document.activeElement,h.node('advance'));
   assert.equal(h.node('advance').attrs['aria-label'],'Complete Room plan');assert.equal(h.node('tick').attrs['aria-pressed'],'true');assert.equal(h.node('help').open,true);

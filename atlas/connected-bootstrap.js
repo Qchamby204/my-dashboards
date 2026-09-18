@@ -5,7 +5,7 @@
   let state=null,version=null,loaded=false,active=null,queued=null,failure=false,inputDirty=false,generation=0,refreshing=false;
   const status=message=>{$('#connected-status').textContent=message;};
   const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
-  const pending=()=>!!active||!!queued||inputDirty;
+  const pending=()=>!!active||!!queued||inputDirty||!!window.LifeMapWorkflow?.pending;
   async function request(method='GET',body){
     let response;try{response=await fetch('/api/connected/'+kind,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});}catch{throw Error('Connection lost. Your draft is still in this tab.');}
     let data;try{data=await response.json();}catch{throw Error('Your saved app could not load. Please sign in again or retry.');}
@@ -49,7 +49,13 @@
       failure=false;status('Saved across devices');$('#connected-import').hidden=next.connected;controls();return true;
     }catch(e){failure=true;status(e.message);controls();return false;}finally{refreshing=false;}
   }
-  window.AtlasConnected={raw:()=>JSON.stringify(state),save,flush,clearInputDraft(){inputDirty=!!window.connectedDraftOpen?.();if(!inputDirty&&!active&&!queued&&!failure)status('Saved across devices');},get pending(){return pending();}};
+  async function commit(next){
+    if(!loaded||active||queued)return false;
+    const candidate=structuredClone(next);generation++;status('Saving…');
+    const job=(async()=>{try{const result=await request('PUT',{state:candidate,day:today(),version});if(result.saved!==true)throw Error('The save was not confirmed.');state=candidate;version=result.version;failure=false;inputDirty=false;status('Saved across devices');controls();return true;}catch(e){failure=true;status(e.message);controls();return false;}})();
+    active=job;try{return await job;}finally{if(active===job)active=null;}
+  }
+  window.AtlasConnected={raw:()=>JSON.stringify(state),save,flush,commit,clearInputDraft(){inputDirty=!!window.connectedDraftOpen?.();if(!inputDirty&&!active&&!queued&&!failure)status('Saved across devices');},get pending(){return pending();}};
   // Observe before app handlers: an input handler may itself queue a save.
   document.addEventListener('input',e=>{if(e.target.closest('#connected-app')&&!e.target.closest('#atlas-appearance-dialog')&&!e.target.closest('[data-ui-only]')){inputDirty=true;generation++;status('Unsaved changes');}},true);
   document.addEventListener('click',async e=>{
