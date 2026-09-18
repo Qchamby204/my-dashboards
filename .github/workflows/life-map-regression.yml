@@ -1,0 +1,76 @@
+name: Life Map regression checks
+on:
+  push:
+    branches: [main, life-map-release-20260917]
+    paths:
+      - 'atlas/life-map*'
+      - 'atlas/build-life-map.mjs'
+      - 'atlas/connected*'
+      - 'atlas/tests/life-map*'
+      - 'atlas/tests/connected*'
+      - 'shared/atlas-activity.js'
+      - 'shared/atlas-mobile.js'
+      - 'shared/atlas-theme.js'
+      - 'life-map.html'
+      - 'package*.json'
+      - '.github/workflows/life-map-regression.yml'
+  pull_request:
+    paths:
+      - 'atlas/life-map*'
+      - 'atlas/build-life-map.mjs'
+      - 'atlas/connected*'
+      - 'atlas/tests/life-map*'
+      - 'atlas/tests/connected*'
+      - 'shared/atlas-activity.js'
+      - 'shared/atlas-mobile.js'
+      - 'shared/atlas-theme.js'
+      - 'life-map.html'
+      - 'package*.json'
+      - '.github/workflows/life-map-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - name: Life Map, connected storage and shared-interface regressions
+        run: |
+          mkdir -p artifacts/life-map-tests
+          node --test atlas/tests/life-map-*.test.mjs atlas/tests/connected-*.test.mjs atlas/tests/appearance.test.mjs atlas/tests/mobile-baseline.test.mjs atlas/tests/refinements.test.mjs atlas/tests/review.test.mjs 2>&1 | tee artifacts/life-map-tests/node-tests.txt
+      - name: Install test-only browsers
+        run: |
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps chromium webkit
+      - name: Chromium and WebKit interactions
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/life-map-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/life-map.html >/dev/null && break || sleep 1; done
+          failed=0
+          for browser in chromium webkit; do
+            LM_BROWSER="$browser" python atlas/tests/life-map-browser.py 2>&1 | tee "artifacts/life-map-tests/$browser-tests.txt" || failed=1
+          done
+          test "$failed" = 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: life-map-regression-results
+          path: artifacts/life-map-tests/
+          retention-days: 7

@@ -21,14 +21,14 @@ test('private backup exports can be validated without fetching or publishing per
 });
 test('shipped GitHub dashboard boots existing records, saves edits, and needs no connected API',async()=>{
  const html=readFileSync(new URL('../../life-map.html',import.meta.url),'utf8'),script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
- const nodes=new Map(),make=id=>{if(!nodes.has(id))nodes.set(id,{id,style:{},dataset:{},value:'',innerHTML:'',textContent:'',handlers:new Map(),classList:{add(){},remove(){}},addEventListener(k,v){if(!this.handlers.has(k))this.handlers.set(k,[]);this.handlers.get(k).push(v);},querySelector(){return null;},querySelectorAll(){return [];},append(){},appendChild(){},after(){},setAttribute(){},remove(){},focus(){},click(){}});return nodes.get(id);};
+ const nodes=new Map(),make=id=>{if(!nodes.has(id))nodes.set(id,{id,style:{},dataset:{},value:'',innerHTML:'',textContent:'',handlers:new Map(),classList:{add(){},remove(){}},addEventListener(k,v,capture=false){if(!this.handlers.has(k))this.handlers.set(k,[]);this.handlers.get(k).push({fn:v,capture});},querySelector(){return null;},querySelectorAll(){return [];},append(){},appendChild(){},after(){},setAttribute(){},remove(){},focus(){},click(){}});return nodes.get(id);};
  const document={getElementById:make,querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},createElement:make,body:make('body')};const s=storage(JSON.stringify(fixture())),window={addEventListener(){},innerWidth:390};
  const context=vm.createContext({document,window,localStorage:s,navigator:{},Date,TextEncoder,Blob,URL,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});vm.runInContext(script,context);await new Promise(setImmediate);
- const fire=(kind,dataset={},value='',id='')=>{const target={dataset,value,id,closest:selector=>selector==='[data-act]'?target:selector==='[data-act="closeEditor"]'&&dataset.act==='closeEditor'?target:null};for(const fn of make('app').handlers.get(kind)||[])fn({target,key:kind==='keydown'?'Enter':undefined,preventDefault(){}});};
+ const fire=(kind,dataset={},value='',id='')=>{const target={dataset,value,id,closest:selector=>selector==='[data-act]'&&dataset.act?target:selector==='[data-lm]'&&dataset.lm?target:null};let stopped=false;for(const {fn}of (make('app').handlers.get(kind)||[]).slice().sort((a,b)=>Number(b.capture)-Number(a.capture))){fn({target,key:kind==='keydown'?'Enter':undefined,preventDefault(){},stopImmediatePropagation(){stopped=true;}});if(stopped)break;}};
  assert.equal(window.LifeMapLocal.blocked,false);assert.match(make('app').innerHTML,/Projects/);assert.equal(vm.runInContext('S.projects[0].notes',context),'Keep me');window.LifeMapDashboard.setStatus('one','Done');assert.equal(JSON.parse(s.getItem('lifemap_v1')).projects[0].status,'Done');assert.equal(window.AtlasConnected,undefined);
  vm.runInContext("view.editor=Object.assign({kind:'proj'},S.projects[0],{notes:'Edited locally'});saveEditor()",context);assert.equal(JSON.parse(s.getItem('lifemap_v1')).projects[0].notes,'Edited locally');
  for(const key of ['horizon','map','proj','chores','mom'])assert.match(make('app').innerHTML,new RegExp('data-key="'+key+'"'));
- fire('click',{act:'section',key:'map'});assert.equal(vm.runInContext('view.open.map',context),true);assert.match(make('app').innerHTML,/data-act="area"/);
+ vm.runInContext('S.preferences={hideEmpty:false}',context);fire('click',{act:'section',key:'map'});assert.equal(vm.runInContext('view.open.map',context),true);assert.match(make('app').innerHTML,/data-act="area"/);
  fire('click',{act:'area',area:'Home'});assert.equal(vm.runInContext('view.fArea',context),'Home');assert.equal(vm.runInContext('view.open.proj',context),true);
  make('qaTxt').value='Future room project';vm.runInContext('view.qa.when=monthsAhead(2,1)[0]',context);fire('keydown',{},'','qaTxt');
  assert.equal(JSON.parse(s.getItem('lifemap_v1')).projects.length,2);assert.equal(vm.runInContext('isParked(S.projects[1])',context),true);
@@ -38,7 +38,7 @@ test('shipped GitHub dashboard boots existing records, saves edits, and needs no
  const chore=JSON.parse(s.getItem('lifemap_v1')).chores[0];assert.equal(chore.chore,'Water the plants');assert.equal(chore.cad,'Weekly');
  fire('click',{act:'plan',id:chore.id});assert.equal(vm.runInContext('plannedChores().length',context),1);
  fire('click',{act:'tick',id:chore.id});assert.equal(vm.runInContext('isChecked(S.chores[0])',context),true);
- const future=JSON.parse(s.getItem('lifemap_v1')).projects[1];fire('click',{act:'advance',id:future.id});fire('click',{act:'advance',id:future.id});
+ const future=JSON.parse(s.getItem('lifemap_v1')).projects[1];fire('click',{act:'advance',id:future.id});
  assert.equal(JSON.parse(s.getItem('lifemap_v1')).projects[1].status,'Done');assert.equal(vm.runInContext('doneInLastDays(7)',context),2);
  fire('click',{act:'section',key:'mom'});assert.equal(vm.runInContext('view.open.mom',context),true);
 });
