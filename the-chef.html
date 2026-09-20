@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Chef</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Cinzel:wght@500;700&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0e0d12;--panel:#17151d;--panel2:#1f1c27;--line:#2c2833;
@@ -97,7 +97,7 @@ footer .row{justify-content:center}
 <link rel="stylesheet" href="shared/atlas-palette.css">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=practice-20260909">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=71dfd0606864">
 <script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
 </head>
 <body>
@@ -149,7 +149,7 @@ footer .row{justify-content:center}
   <section id="tab-planner" class="hidden">
     <div class="panel">
       <h2>This week</h2>
-      <div class="summary" id="plan-summary"></div>
+      <div class="summary" id="plan-summary"></div><div id="chef-plan-progress" class="chef-plan-progress"></div>
       <div class="week" id="week"></div>
       <div class="row" style="margin-top:10px">
         <button id="plan-fill" class="primary">Fill empty slots</button>
@@ -850,7 +850,7 @@ const store = {
   available(){try{const k=this.key('probe');localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}}
 };
 const migrations = {};
-function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{},portions:{}};}
+function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{},portions:{},deletedRecipes:[]};}
 function loadState(){
   const stored = store.get('state');
   if(stored===null) return defaultState();
@@ -860,16 +860,43 @@ function loadState(){
     if(!m){console.warn('no migration from v'+version);return defaultState();}
     data = m(data); version += 1;
   }
-  return {...defaultState(),...data};
+  return withoutDeletedRecipes({...defaultState(),...data});
 }
 let state = loadState();
 function setState(patch){
-  const next={...state,...patch};
+  const next=withoutDeletedRecipes({...state,...patch},store.get('state')?.deletedRecipes);
   if(!store.set('state',next)){
     window.AtlasCraftUI?.announce('Could not save. Your previous saved records are unchanged. Export a backup before closing.');
     render();return false;
   }
   state=next;store.set('schema-version',SCHEMA_VERSION);render();return true;
+}
+
+// Deletion IDs belong to the same browser record and travel with its backups.
+// Keep them across ordinary resets/imports so an old plan cannot resurrect a recipe.
+function withoutDeletedRecipes(value,previous=[]){
+  const ids=[...new Set([...(Array.isArray(value.deletedRecipes)?value.deletedRecipes:[]),...(Array.isArray(previous)?previous:[])].filter(id=>typeof id==='string'))];
+  const removed=new Set(ids),next={...value,deletedRecipes:ids,favourites:{...value.favourites},ratings:{...value.ratings},plan:{},portions:{...value.portions}};
+  for(const id of ids){delete next.favourites[id];delete next.ratings[id];}
+  for(const [day,meals] of Object.entries(value.plan||{})){
+    const kept={...meals},portions={...next.portions[day]};
+    for(const [meal,id] of Object.entries(kept))if(removed.has(id)){delete kept[meal];delete portions[meal];}
+    if(Object.keys(kept).length)next.plan[day]=kept;
+    if(Object.keys(portions).length)next.portions[day]=portions;else delete next.portions[day];
+  }
+  return next;
+}
+function recipeDeleted(id){return state.deletedRecipes.includes(id);}
+function availableRecipes(){return RECIPES.filter(x=>!recipeDeleted(x.id));}
+function deleteRecipe(id){
+  const recipe=BY_ID[id];if(!recipe||recipeDeleted(id))return false;
+  const slots=Object.values(state.plan).reduce((n,day)=>n+Object.values(day).filter(value=>value===id).length,0);
+  if(!confirm(`Permanently delete “${recipe.name}” from this browser’s recipe library?\n\nIt will be removed from favourites, ratings, and meal suggestions.${slots?' '+slots+' planned meal'+(slots===1?'':'s')+' will also be removed and the grocery list recalculated.':''} Other recipes stay unchanged. This cannot be undone.`))return false;
+  if(!setState({deletedRecipes:[...state.deletedRecipes,id]}))return false;
+  undoChange=null;renderUndo();
+  if(cookSession?.id===id){document.getElementById('cook-dialog')?.close();cookSession=null;}
+  window.AtlasCraftUI?.announce(recipe.name+' permanently deleted from this browser’s library.');
+  return true;
 }
 
 /* session-only UI state */
@@ -888,7 +915,7 @@ function matchInfo(x){
   return {have,total:x.ingredients.length,pct:have/x.ingredients.length};
 }
 function discoverList(){
-  let list = RECIPES.filter(x=>mealOk(x)&&timeOk(x)&&searchOk(x));
+  let list = availableRecipes().filter(x=>mealOk(x)&&timeOk(x)&&searchOk(x));
   if(ui.tab==='ingredients'){
     if(ui.picks.size){ list = list.filter(x=>matchInfo(x).have>0); }
   }else if(ui.tab==='mood'){
@@ -959,7 +986,7 @@ function undoPlan(){
 function planRecipe(day,meal,id,servings){
   if(!DAYS.some(d=>d[0]===day)||!MEALS.includes(meal))return false;
   const recipe=id?BY_ID[id]:null;
-  if(id&&(!recipe||recipe.meal!==meal))return false;
+  if(id&&(!recipe||recipeDeleted(id)||recipe.meal!==meal))return false;
   const old=state.plan[day]?.[meal]||'';
   const n=servings===undefined?(old===id?slotServings(day,meal,recipe):recipe?.servings):servings;
   if(id&&!validServings(n))return false;
@@ -975,7 +1002,7 @@ function planRecipe(day,meal,id,servings){
 }
 let cookSession=null;
 function openCook(id,slot,trigger){
-  const recipe=BY_ID[id];if(!recipe)return;
+  const recipe=BY_ID[id];if(!recipe||recipeDeleted(id))return;
   const [day,meal]=slot?slot.split('|'):[];
   cookSession={id,slot,trigger,servings:slot?slotServings(day,meal,recipe):recipe.servings,checked:{}};
   document.getElementById('cook-title').textContent=recipe.name;
@@ -993,7 +1020,7 @@ function renderCookIngredients(){
 function groceryList(){
   const agg = {};
   Object.entries(state.plan).forEach(([dayKey,day])=>Object.entries(day).forEach(([meal,id])=>{
-    const x = BY_ID[id]; if(!x) return;
+    const x = BY_ID[id]; if(!x||recipeDeleted(id)) return;
     const factor=slotServings(dayKey,meal,x)/x.servings;
     x.ingredients.forEach(i=>{
       const k=i.c+'|'+i.n;
@@ -1024,7 +1051,7 @@ function fillWeek(plan){
     next[k] = {...(plan[k]||{})};
     MEALS.forEach(m=>{
       if(next[k][m]) return;
-      let pool = RECIPES.filter(x=>x.meal===m&&!used.has(x.id));
+      let pool = availableRecipes().filter(x=>x.meal===m&&!used.has(x.id));
       if(!weekend) pool = pool.filter(x=>x.time<=45) .length ? pool.filter(x=>x.time<=45) : pool;
       if(!pool.length) return;
       const x = pickFrom(pool); next[k][m]=x.id; used.add(x.id);
@@ -1080,14 +1107,14 @@ function cardHtml(x,showMatch){
     ${match}
     <div class="tags">${x.tags.slice(0,3).map(t=>`<span class="tag">${TAG_LABELS[t]||t}</span>`).join('')}</div>
     <button class="primary cc-cook-open" data-cook="${x.id}">Cook this recipe</button>
-    <details class="more cc-recipe-options"><summary>Plan and rate${fav?' · Saved':''}${rating?' · '+rating+'/5':''}</summary>
+    <details class="more cc-recipe-options"><summary>Recipe options${fav?' · Saved':''}${rating?' · '+rating+'/5':''}</summary>
     <div class="actions">
       <div class="row" style="gap:4px">
         <div class="stars">${[1,2,3,4,5].map(n=>`<button data-rate="${n}" class="${n<=rating?'on':''}" aria-label="Rate ${esc(x.name)} ${n} out of 5" aria-pressed="${n===rating}" title="${n} star">&#9733;</button>`).join('')}</div>
         <button class="heart ${fav?'on':''}" data-fav aria-label="Favourite ${esc(x.name)}" aria-pressed="${!!fav}" title="Favourite">&#9829;</button>
       </div>
       <div class="plan"><select data-day aria-label="Day to plan ${esc(x.name)}">${DAYS.map(([k,l])=>`<option value="${k}">${l.slice(0,3)}</option>`).join('')}</select><label class="cc-serving-label">Servings <input data-plan-servings type="number" min="1" max="48" step="1" value="${x.servings}" aria-label="Servings to plan for ${esc(x.name)}"></label><button data-add>Plan</button></div>
-    </div></details>
+    </div><button class="cc-delete-recipe" data-delete-recipe aria-label="Permanently delete ${esc(x.name)}">Permanently delete recipe</button></details>
     <details class="more"><summary>Ingredients and method</summary>
       <h4>INGREDIENTS</h4><ul>${ing}</ul>
       <h4>METHOD</h4><ol>${x.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
@@ -1101,7 +1128,7 @@ function renderCards(){
   $('#cards').innerHTML = list.length ? list.map(x=>cardHtml(x,true)).join('') : '<div class="empty">Nothing matches. Loosen the time filter or pick more ingredients.</div>';
 }
 function renderPlanner(){
-  const opts = m=>`<option value="">${m==='all'?'':'Pick a '+m}</option>`+RECIPES.filter(x=>x.meal===m).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  const opts = m=>`<option value="">${m==='all'?'':'Pick a '+m}</option>`+availableRecipes().filter(x=>x.meal===m).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
   $('#week').innerHTML = DAYS.map(([k,label])=>`<div class="day"><h3>${label}</h3>${MEALS.map(m=>{
     const id = (state.plan[k]||{})[m]||'';
     return `<div class="slot"><span class="lab">${m}</span><select data-slot="${k}|${m}" aria-label="${label} ${m}">${opts(m)}</select>${id?`<button data-unplan="${k}|${m}" aria-label="Remove ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${id?`<div class="cc-slot-tools"><label>Servings <input type="number" data-portions="${k}|${m}" min="1" max="48" step="1" value="${slotServings(k,m,BY_ID[id])}" aria-label="Servings for ${label} ${m}"></label><button data-cook="${id}" data-cook-slot="${k}|${m}">Cook</button></div>`:''}</div>`;
@@ -1109,6 +1136,8 @@ function renderPlanner(){
   document.querySelectorAll('[data-slot]').forEach(s=>{const [k,m]=s.dataset.slot.split('|');s.value=(state.plan[k]||{})[m]||'';});
   const n = planCount();
   $('#plan-summary').textContent = n ? `${n} meals planned. Grocery quantities follow each meal’s servings.` : 'Empty week. Add recipes from any card, or pick straight from the slots.';
+  const total=DAYS.length*MEALS.length;
+  $('#chef-plan-progress').innerHTML=`<div class="chef-progress-label"><strong>${n}<small> / ${total}</small></strong><span>meal slots planned</span></div><div class="chef-progress-track" role="progressbar" aria-label="Weekly meal slots planned" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${n}"><span style="width:${Math.min(100,n/total*100)}%"></span></div>`;
   const groups = groceryList();
   $('#grocery').innerHTML = groups.length ? groups.map(g=>`<h4>${g.label.toUpperCase()}</h4>`+g.items.map(a=>{
     const done = !!state.checked[a.n];
@@ -1116,7 +1145,7 @@ function renderPlanner(){
   }).join('')).join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
 }
 function renderFavourites(){
-  const list = RECIPES.filter(x=>state.favourites[x.id]||state.ratings[x.id]).sort((a,b)=>(state.ratings[b.id]||0)-(state.ratings[a.id]||0)||a.name.localeCompare(b.name));
+  const list = availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]).sort((a,b)=>(state.ratings[b.id]||0)-(state.ratings[a.id]||0)||a.name.localeCompare(b.name));
   $('#fav-count').textContent = list.length ? `${list.length} favourited or rated.` : '';
   $('#fav-cards').innerHTML = list.length ? list.map(x=>cardHtml(x,false)).join('') : '<div class="empty">Tap the heart or the stars on any recipe and it lands here.</div>';
 }
@@ -1147,14 +1176,16 @@ function importState(file){
     if(p.tool!==TOOL){alert(`That file is from ${p.tool||'another tool'}, not ${TOOL}.`);return;}
     if(!p.state||typeof p.state!=='object'){alert('That file has no state in it.');return;}
     if(!confirm('This replaces everything currently saved in The Chef. Continue?')) return;
-    store.set('state',p.state); store.set('schema-version',p.schemaVersion||1);
-    undoChange=null; state = loadState(); render();
+    if((p.schemaVersion||1)!==SCHEMA_VERSION){alert('This backup version is not supported.');return;}
+    if(!setState({...defaultState(),...p.state,deletedRecipes:[...state.deletedRecipes,...(Array.isArray(p.state.deletedRecipes)?p.state.deletedRecipes:[])]}))return;
+    undoChange=null;renderUndo();
   };
   reader.readAsText(file);
 }
 function resetTool(){
-  if(!confirm('Clear favourites, ratings, the week plan and the grocery checks? This only touches The Chef.')) return;
-  store.clearTool(); undoChange=null; state = defaultState(); render();
+  if(!confirm('Clear favourites, ratings, the week plan and the grocery checks? Permanently deleted recipes stay deleted. This only touches The Chef.')) return;
+  if(!setState({...defaultState(),deletedRecipes:state.deletedRecipes}))return;
+  undoChange=null;renderUndo();
 }
 
 /* ---------- event wiring ---------- */
@@ -1181,6 +1212,7 @@ function wireEvents(){
   const cardClick = e=>{
     const card=e.target.closest('.card'); if(!card) return;
     const id=card.dataset.id;
+    if(e.target.closest('[data-delete-recipe]')){if(deleteRecipe(id)){const target=ui.tab==='favourites'?$('#fav-count'):$('#count');target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}return;}
     const rate=e.target.closest('[data-rate]');
     if(rate){const n=Number(rate.dataset.rate);const ratings={...state.ratings};if(ratings[id]===n)delete ratings[id];else ratings[id]=n;setState({ratings});restoreCardAction(id,`[data-rate="${n}"]`);return;}
     if(e.target.closest('[data-fav]')){const favourites={...state.favourites};if(favourites[id])delete favourites[id];else favourites[id]=true;setState({favourites});restoreCardAction(id,'[data-fav]');return;}

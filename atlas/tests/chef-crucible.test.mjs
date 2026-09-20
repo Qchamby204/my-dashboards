@@ -20,6 +20,43 @@ function app(name,saved,options={}){
 }
 const chefState=()=>({favourites:{b01:true},ratings:{b01:4},plan:{mon:{breakfast:'b01'}},checked:{eggs:true}});
 
+test('permanent deletion removes only the chosen recipe and its planned servings, including after reopening',()=>{
+  const a=app('chef',{...chefState(),plan:{mon:{breakfast:'b01',lunch:'l01'},tue:{breakfast:'b01'}},portions:{mon:{breakfast:6,lunch:2},tue:{breakfast:3}},ratings:{b01:4,b02:5}});
+  assert.equal(a.run('deleteRecipe("b01")'),true);
+  assert.deepEqual(a.json('state.deletedRecipes'),['b01']);
+  assert.deepEqual(a.json('state.plan'),{mon:{lunch:'l01'}});
+  assert.deepEqual(a.json('state.portions'),{mon:{lunch:2}});
+  assert.deepEqual(a.json('state.ratings'),{b02:5});
+  assert.deepEqual(a.json('state.favourites'),{});
+  assert.deepEqual(a.json('state.checked'),{eggs:true});
+  assert.equal(a.run('discoverList().some(x=>x.id==="b01")'),false);
+  assert.equal(a.run('planRecipe("mon","breakfast","b01",4)'),false);
+  assert.equal(a.records.get('unrelated'),'preserve');
+  const reopened=app('chef',JSON.parse(a.records.get('chef:state')));
+  assert.equal(reopened.run('availableRecipes().some(x=>x.id==="b01")'),false);
+  for(let n=0;n<10;n++)assert.equal(reopened.run('JSON.stringify(fillWeek({})).includes("b01")'),false);
+  assert.equal(reopened.writes.length,0);
+});
+test('cancelled or failed permanent deletion preserves all saved records',()=>{
+  for(const options of [{accept:false},{failSave:true}]){
+    const a=app('chef',chefState(),options),before=a.json('state'),raw=a.records.get('chef:state');
+    assert.equal(a.run('deleteRecipe("b01")'),false);
+    assert.deepEqual(a.json('state'),before);assert.equal(a.records.get('chef:state'),raw);
+    assert.equal(a.run('recipeDeleted("b01")'),false);
+  }
+});
+test('deletion survives reset, older imported state, planning undo, and a stale tab save',()=>{
+  const a=app('chef',chefState());
+  a.run('planRecipe("tue","breakfast","b02",4)');
+  a.run('deleteRecipe("b01")');assert.equal(a.run('canUndo()'),false);
+  a.run('resetTool()');assert.equal(a.run('recipeDeleted("b01")'),true);
+  a.run('setState({...defaultState(),plan:{mon:{breakfast:"b01"}},favourites:{b01:true}})');
+  assert.equal(a.run('recipeDeleted("b01")'),true);assert.deepEqual(a.json('state.plan'),{});assert.deepEqual(a.json('state.favourites'),{});
+  const stale=app('chef',chefState());
+  stale.records.set('chef:state',JSON.stringify({...chefState(),deletedRecipes:['b01']}));
+  stale.run('setState({ratings:{b02:5}})');assert.equal(stale.run('recipeDeleted("b01")'),true);assert.deepEqual(stale.json('state.plan'),{});
+});
+
 test('Crucible keeps old notes/checks and does not rewrite current records on load',()=>{
   const saved={checks:{'2023-01-03::t:t1':true,'blocks::b01':true},notes:{'2023-01-03':'Old learning note'},tab:'today'};
   const a=app('crucible',saved);
