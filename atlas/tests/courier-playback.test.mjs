@@ -30,6 +30,19 @@ function harness(saved){
   run(`manifest={days:[{date:'2026-09-07',blocks:[{id:'a',audio:'a.mp3',label:'A',title:'First',minutes:2},{id:'text',audio:'',label:'Text',title:'Read',minutes:9},{id:'b',audio:'b.mp3',label:'B',title:'Second',minutes:3},{id:'tail',audio:'',label:'Text',title:'Read',minutes:1}]}]};ui.day='2026-09-07';render=()=>updatePlayback();wireEvents();`);
   return {run,audio,node,storage,media};
 }
+test('edition progress uses saved heard flags, excludes text and stale IDs, and never changes records',()=>{
+  const h=harness({rate:1,listened:{'2026-09-07':['a','text','old-edition']},positions:{'2026-09-07/b':90}});
+  h.node('axis').querySelectorAll=()=>[];
+  const before=JSON.stringify([...h.storage]);
+  h.run("renderRail(day(),{total:0,by:{a:{mins:2},text:{mins:9},b:{mins:3},tail:{mins:1}}},state.listened[ui.day])");
+  assert.match(h.node('editionProgress').innerHTML,/1 of 2 audio sections heard/);
+  assert.match(h.node('editionProgress').innerHTML,/aria-valuenow="1"/);
+  assert.match(h.node('editionProgress').innerHTML,/width:50%/);
+  assert.equal(JSON.stringify([...h.storage]),before);
+  h.run("renderRail({blocks:[]},{total:0,by:{}},[])");
+  assert.match(h.node('editionProgress').innerHTML,/Text-only edition/);
+  assert.doesNotMatch(h.node('editionProgress').innerHTML,/NaN|progressbar/);
+});
 test('a section play continues automatically, skips text-only blocks, and stops at the final audio',async()=>{
   const h=harness();h.run("play('a')");h.audio.metadata(120);h.audio.finish();
   assert.equal(h.run('ui.current'),'b');assert.equal(h.audio.currentTime,0);assert.equal(h.audio.paused,false);
