@@ -45,7 +45,7 @@
     timerLabel.setAttribute('role','status');timerLabel.setAttribute('aria-live','polite');timerBox.append(timerLabel,time,minus,plus,restPause,dismiss);document.body.append(timerBox);
     function restRemaining(){return !timer?0:timer.pausedRemaining!==undefined?timer.pausedRemaining:Math.max(0,timer.endAt-Date.now());}
     function measure(){root.style.setProperty('--forge-rest-height',timerBox.hidden?'0px':Math.ceil(timerBox.getBoundingClientRect().height+16)+'px');}
-    tickTimer=function(){if(!timer)return;const left=restRemaining();time.textContent=clk(Math.ceil(left/1000));timerLabel.textContent=left===0?'Rest finished':timer.pausedRemaining!==undefined?'Rest paused':'Rest';restPause.textContent=timer.pausedRemaining!==undefined?'Resume rest':'Pause rest';restPause.disabled=left===0;
+    tickTimer=function(){if(!timer||busy)return;const left=restRemaining();time.textContent=clk(Math.ceil(left/1000));timerLabel.textContent=left===0?'Rest finished':timer.pausedRemaining!==undefined?'Rest paused':'Rest';restPause.textContent=timer.pausedRemaining!==undefined?'Resume rest':'Pause rest';restPause.disabled=left===0;
       if(left===0&&!timer.fired){timer.fired=true;persistRest();beep();}measure();};
     startTimer=function(sec){if(blocked)return;const total=Number(sec);if(!Number.isFinite(total)||total<=0)return;try{if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()?.catch?.(()=>{});}catch{}
       timer={endAt:Date.now()+total*1000,total,fired:false};timerBox.hidden=false;if(!timerInterval)timerInterval=setInterval(tickTimer,250);persistRest();tickTimer();};
