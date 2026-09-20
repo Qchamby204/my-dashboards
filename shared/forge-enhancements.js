@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='workout-forge')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=save-20260909',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=889944ecb213',source).href;document.head.append(css);
   function ready(){
     if(window.ForgeSession||typeof state==='undefined')return;
     const RESTKEY='forge:rest:v1',JOURNALKEY='forge:pending-log:v1',keys={sessions:KEY,draft:DRAFTKEY,live:LIVEKEY,swaps:SWAPKEY,order:ORDERKEY,rest:RESTKEY,pendingLog:JOURNALKEY};
@@ -45,7 +45,7 @@
     timerLabel.setAttribute('role','status');timerLabel.setAttribute('aria-live','polite');timerBox.append(timerLabel,time,minus,plus,restPause,dismiss);document.body.append(timerBox);
     function restRemaining(){return !timer?0:timer.pausedRemaining!==undefined?timer.pausedRemaining:Math.max(0,timer.endAt-Date.now());}
     function measure(){root.style.setProperty('--forge-rest-height',timerBox.hidden?'0px':Math.ceil(timerBox.getBoundingClientRect().height+16)+'px');}
-    tickTimer=function(){if(!timer)return;const left=restRemaining();time.textContent=clk(Math.ceil(left/1000));timerLabel.textContent=left===0?'Rest finished':timer.pausedRemaining!==undefined?'Rest paused':'Rest';restPause.textContent=timer.pausedRemaining!==undefined?'Resume rest':'Pause rest';restPause.disabled=left===0;
+    tickTimer=function(){if(!timer||busy)return;const left=restRemaining();time.textContent=clk(Math.ceil(left/1000));timerLabel.textContent=left===0?'Rest finished':timer.pausedRemaining!==undefined?'Rest paused':'Rest';restPause.textContent=timer.pausedRemaining!==undefined?'Resume rest':'Pause rest';restPause.disabled=left===0;
       if(left===0&&!timer.fired){timer.fired=true;persistRest();beep();}measure();};
     startTimer=function(sec){if(blocked)return;const total=Number(sec);if(!Number.isFinite(total)||total<=0)return;try{if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()?.catch?.(()=>{});}catch{}
       timer={endAt:Date.now()+total*1000,total,fired:false};timerBox.hidden=false;if(!timerInterval)timerInterval=setInterval(tickTimer,250);persistRest();tickTimer();};
@@ -102,7 +102,33 @@
       if(!ok){failed.set(JOURNALKEY,'null');paintStatus();toast('Session not logged yet. Your draft is still here.');return false;}
       pendingLog=job;return commitPending();
     };
-    function confirmAction(title,text,okLabel,fn){document.getElementById('forge-confirm')?.remove();const dialog=make('dialog',null,'forge-confirm');dialog.id='forge-confirm';const h=make('h2',title);h.id='forge-confirm-title';dialog.setAttribute('aria-labelledby',h.id);const cancel=()=>{dialog.close();dialog.remove();};dialog.append(h,make('p',text),button('Cancel',cancel),button(okLabel,()=>{cancel();fn();}));document.body.append(dialog);dialog.showModal();}
+    function confirmAction(title,text,okLabel,fn,cancelLabel='Cancel'){document.getElementById('forge-confirm')?.remove();const dialog=make('dialog',null,'forge-confirm');dialog.id='forge-confirm';const h=make('h2',title);h.id='forge-confirm-title';dialog.setAttribute('aria-labelledby',h.id);const cancel=()=>{dialog.close();dialog.remove();};dialog.append(h,make('p',text),button(cancelLabel,cancel),button(okLabel,()=>{cancel();fn();}));document.body.append(dialog);dialog.showModal();}
+    function cancelLive(){
+      if(!state.live||busy||blocked||pendingLog)return;
+      const session=state.live;
+      confirmAction('Cancel this workout?','Discard unfinished entries for this workout and stop its workout and rest timers. Nothing will be added to history or personal records. Other workout drafts and saved sessions stay unchanged.','Discard workout',async()=>{
+        if(state.live!==session||busy||blocked||pendingLog)return;
+        busy=true;paintStatus();
+        // Drain queued draft writes before snapshotting and discarding this session.
+        await Promise.allSettled([...pending.values()]);
+        const before=new Map([[DRAFTKEY,JSON.stringify(state.draft)],[RESTKEY,JSON.stringify(timer)],[LIVEKEY,JSON.stringify(state.live)]]);
+        const next=clone(state.draft);
+        allItems(dayBy(session.key)).forEach(it=>delete next[effId(it)]);
+        const changes=[[DRAFTKEY,JSON.stringify(next)],[RESTKEY,'null'],[LIVEKEY,'null']],attempted=[];
+        try{
+          for(const [key,value]of changes){
+            attempted.push(key);
+            if(!await write(key,value)){
+              for(const changed of attempted)await write(changed,before.get(changed));
+              toast('Workout was not cancelled. Your entries are still here. Retry or back up your work.');
+              return;
+            }
+          }
+          state.draft=next;state.live=null;restoreRest(null);keepAwake(false);stopLiveClock();
+          toast('Workout cancelled. Nothing added to history.');
+        }finally{busy=false;render();if(!state.live)app.querySelector('[data-act="live"][data-key="'+session.key+'"]')?.focus({preventScroll:true});}
+      },'Keep working out');
+    }
     finishLive=function(){if(!state.live||busy||blocked)return;const session=state.live;let items;try{items=sessionItems(dayBy(session.key));}catch(e){toast(e.message);return;}
       confirmAction('Finish session?',Object.keys(items).length?'Save the entries you recorded and end the clock. Unmarked exercises stay unmarked.':'End the clock without adding an empty session to your history.',Object.keys(items).length?'Save and finish':'End session',async()=>{
         if(state.live!==session)return;if(Object.keys(items).length){await logDay(session.key);return;}const ok=await write(LIVEKEY,'null');if(!ok){failed.set(LIVEKEY,JSON.stringify(state.live));return;}state.live=null;stopTimer();keepAwake(false);stopLiveClock();render();
@@ -131,7 +157,7 @@
       for(const action of app.querySelectorAll('[data-act="section"]'))if(action.dataset.key==='records')action.parentNode.append(info('forge-records-info','How saved records work','Records are recalculated from your saved sessions for each exercise variation. Draft comparisons only become saved records when you finish saving. Deleting a session updates the records list.'));
       const live=state.live,overlay=app.querySelector('.forge-live');
       if(overlay&&live){const panel=overlay.firstElementChild;panel.classList.add('forge-live-panel');overlay.setAttribute('aria-label','Current training session');const finish=overlay.querySelector('[data-act="livefinish"]'),header=finish.parentNode;
-        const pause=button(live.pausedAt?'Resume session':'Pause session',pauseLive);pause.id='forge-pause';header.append(pause);header.classList.add('forge-live-header');const draftStatus=make('p',null,'forge-draft-status');draftStatus.setAttribute('role','status');header.append(draftStatus,info('forge-draft-info','About unfinished session saving','Edits are saved on this device as you type. Finish adds the session to history. The session and rest clocks use elapsed time when you return after locking the phone. Backups include unfinished entries.'));
+        const pause=button(live.pausedAt?'Resume session':'Pause session',pauseLive);pause.id='forge-pause';const cancel=button('Cancel workout',cancelLive);cancel.id='forge-cancel';header.append(pause,cancel);header.classList.add('forge-live-header');const draftStatus=make('p',null,'forge-draft-status');draftStatus.setAttribute('role','status');header.append(draftStatus,info('forge-draft-info','About unfinished session saving','Edits are saved on this device as you type. Finish adds the session to history. The session and rest clocks use elapsed time when you return after locking the phone. Backups include unfinished entries.'));
         const label=make('label','Exercise','forge-picker'),select=make('select');select.id='forge-exercise';const items=orderedItems(dayBy(live.key));items.forEach((it,i)=>{const o=make('option',(i+1)+'. '+effName(it)+(state.draft[effId(it)]?.done?' · done':''));o.value=String(i);select.append(o);});select.value=String(live.exIdx);select.disabled=!!live.pausedAt;select.addEventListener('change',()=>goExercise(Number(select.value)));label.append(select);header.after(label);
         const done=overlay.querySelector('[data-act="livedone"]'),prev=overlay.querySelector('[data-act="liveprev"]');prev.disabled=live.exIdx===0||!!live.pausedAt;
         if(state.draft[effId(items[live.exIdx])]?.done)done.textContent=live.exIdx===items.length-1?'Already marked done':'Next exercise';
@@ -148,7 +174,7 @@
       if(act==='livedone'&&state.live){const it=current();if(state.live.pausedAt||state.draft[effId(it)]?.done){e.stopImmediatePropagation();if(!state.live.pausedAt)goExercise(state.live.exIdx+1);return;}}
       if(act==='log'&&state.live?.key===el.dataset.key){e.stopImmediatePropagation();finishLive();return;}
       if(act==='cmin'){e.stopImmediatePropagation();const dr=state.draft[el.dataset.id]||{sets:[]},base=Number(dr.min)||0;dr.min=Math.max(0,base+Number(el.dataset.delta));state.draft[el.dataset.id]=dr;saveDraft();render();return;}
-      if(act==='live'&&state.live&&state.live.key!==el.dataset.key){e.stopImmediatePropagation();toast('Finish the current session before starting another. Your draft is still available.');return;}
+      if(act==='live'&&state.live&&state.live.key!==el.dataset.key){e.stopImmediatePropagation();toast('Finish or cancel the current workout before starting another. Your draft is still available.');return;}
       if(act==='clearday'){e.stopImmediatePropagation();const d=dayBy(el.dataset.key);confirmAction('Clear this draft?','Remove this day’s unfinished entries. Saved sessions stay in your history.','Clear draft',()=>{allItems(d).forEach(it=>delete state.draft[effId(it)]);saveDraft();render();});return;}
       if(act==='del'){e.stopImmediatePropagation();const removed=state.sessions[Number(el.dataset.idx)];if(!removed)return;(async()=>{if(await replaceSessions(state.sessions.filter(s=>s!==removed)))undoToast('Session deleted',async()=>{if(!state.sessions.some(s=>s===removed||removed.id&&s.id===removed.id))await replaceSessions([...state.sessions,removed]);});})();return;}
       if(act==='reset'){e.stopImmediatePropagation();confirmAction('Clear saved history?','This removes the training log. Back up first if you want to keep it. The current draft stays available.','Clear history',async()=>{const removed=state.sessions.slice();if(await replaceSessions([]))undoToast('History cleared',async()=>{const missing=removed.filter(old=>!state.sessions.some(s=>s===old||old.id&&s.id===old.id));await replaceSessions([...missing,...state.sessions]);});});return;}
@@ -163,7 +189,7 @@
     document.addEventListener('visibilitychange',()=>{tickTimer();keepAwake(!!state.live&&!state.live.hidden&&!state.live.pausedAt);});window.addEventListener('pageshow',()=>{tickTimer();const clock=document.getElementById('liveClock');if(clock&&state.live)clock.textContent=liveElapsed();});window.addEventListener('beforeunload',e=>{if(failed.size||pending.size||busy||pendingLog){e.preventDefault();e.returnValue='';}});window.addEventListener('resize',measure);window.visualViewport?.addEventListener('resize',measure);
     if(window.ResizeObserver)new ResizeObserver(measure).observe(timerBox);
     if(!blocked){try{restoreRest(boot.raw[RESTKEY]?JSON.parse(boot.raw[RESTKEY]):null);}catch{restoreRest(null);}}
-    window.ForgeSession=Object.freeze({pauseLive,pauseRest,adjustRest,goExercise,elapsedMs,sessionItems,parseBackup,restoreRest,get blocked(){return blocked;},get failed(){return failed.size;},get busy(){return busy;}});
+    window.ForgeSession=Object.freeze({cancelLive,pauseLive,pauseRest,adjustRest,goExercise,elapsedMs,sessionItems,parseBackup,restoreRest,get blocked(){return blocked;},get failed(){return failed.size;},get busy(){return busy;}});
     render();if(pendingLog&&!blocked)commitPending();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();

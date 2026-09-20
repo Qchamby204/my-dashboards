@@ -64,3 +64,45 @@ html[data-atlas-app="workout-forge"] .forge-history-strip>div>span:nth-child(2){
 html[data-atlas-app="workout-forge"] .forge-info summary:focus-visible{outline:2px solid var(--neo-blue);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="workout-forge"] .forge-record-dialog *{animation:none!important;transition:none!important}}
 html[data-atlas-app="workout-forge"] .forge-record-dialog>.panel{box-sizing:border-box;max-height:calc(var(--atlas-visible-height,100dvh) - var(--atlas-safe-top,0px) - var(--atlas-safe-bottom,0px) - 40px);overflow:auto!important;overscroll-behavior:contain}
+
+/* Sports-menu styling, scoped to Forge's existing surfaces and controls. */
+html.atlas-neumo[data-atlas-app="workout-forge"] {
+ --forge-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+ --neo-radius:6px;--neo-raised:0 8px 24px #0002,inset 0 1px 0 #ffffff12;
+ --neo-small:inset 0 1px 0 #ffffff12;--neo-pressed:inset 0 2px 6px #0003;--neo-well:inset 0 2px 5px #0002;
+ --forge-top:#f6f9fd;--forge-bottom:#dce5f0;--forge-gold:#bd8613;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme="dark"] {
+ --neo-canvas:#09121f;--neo-surface:#142237;--neo-inset:#0b1626;--neo-ink:#f0f5ff;
+ --neo-muted:#a7bad2;--neo-faint:#9cafc8;--neo-line:#334a66;--neo-accent:#ffcf58;
+ --neo-blue:#60c8ff;--neo-green:#59e4ac;--neo-rose:#ff87a7;--neo-violet:#be9cff;--neo-orange:#ffab70;
+ --forge-top:#1b2e48;--forge-bottom:#101e31;--forge-gold:#ffcf58;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] body {background:linear-gradient(125deg,transparent 25%,#4576ad0b 25%,#4576ad0b 43%,transparent 43%),var(--neo-canvas)!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-live-panel,.forge-rest,.forge-confirm,.forge-save-notice) {background:linear-gradient(145deg,var(--forge-top),var(--forge-bottom))!important;border:1px solid var(--neo-line)!important;border-radius:6px!important;box-shadow:var(--neo-raised);}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app>.appbar {background:#102039!important;border-bottom:2px solid #60c8ff!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .appbar-title {font:800 2rem/1 var(--forge-display)!important;text-transform:uppercase;letter-spacing:.035em;color:#f0f5ff!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .appbar-sub {color:#b4c7df!important;font-size:.75rem;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .appbar :is(button,a) {background:#1c344f!important;color:#edf6ff!important;border-color:#426184!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] :is(.cinzel,.eyebrow,.forge-summary h2,.forge-confirm h2) {font-family:var(--forge-display)!important;font-weight:700;letter-spacing:.04em;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .eyebrow {font-size:.875rem!important;line-height:1.3;}
+html.atlas-neumo[data-atlas-app="workout-forge"] :is(button,.homebtn,input,select,textarea) {border-radius:4px!important;border-color:var(--neo-line)!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] [data-act="section"] {border-left:3px solid var(--neo-blue)!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="workout-forge"] [data-act="day"] {border-left:3px solid var(--forge-gold)!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="workout-forge"] :is([data-act="live"],[data-act="livefinish"]) {background:#ffcf58!important;color:#102039!important;border-color:#ffcf58!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] #forge-cancel {color:var(--neo-rose)!important;border-color:var(--neo-rose)!important;background:transparent!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-live-header {border-bottom:1px solid var(--neo-line);padding-bottom:12px;gap:8px;}
+html.atlas-neumo[data-atlas-app="workout-forge"] #liveClock {font:800 2.25rem/1 var(--forge-display)!important;font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .bartrack {height:12px!important;min-height:12px;border-radius:2px!important;background:var(--neo-inset)!important;box-shadow:inset 0 0 0 1px var(--neo-line);position:relative;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .bartrack>.fill {height:100%!important;border-radius:0!important;background:linear-gradient(90deg,#bd8613,var(--forge-gold))!important;box-shadow:inset 0 1px 0 #fff6;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .bartrack::after {content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--neo-inset) calc(10% - 2px),var(--neo-inset) 10%);}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-season .mono {font-family:var(--forge-display)!important;font-size:1.625rem!important;font-weight:800;font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-season>div:first-child {flex-wrap:wrap;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-season>div:first-child>div {min-width:95px;border-radius:3px!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-rest {border-top:2px solid var(--neo-blue)!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-rest strong {font-family:var(--forge-display);font-size:2rem;color:var(--neo-blue);}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-summary {border-top:2px solid var(--neo-green)!important;}
+@media(max-width:560px){html.atlas-neumo[data-atlas-app="workout-forge"] .forge-live-header #forge-cancel{flex-basis:100%;}}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-live-panel,.forge-rest,.forge-confirm,.forge-save-notice){background:var(--neo-surface)!important;backdrop-filter:none;}}
+@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-rest,.forge-confirm){border-color:var(--neo-ink)!important;}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="workout-forge"] .bartrack>.fill{background:Highlight!important;forced-color-adjust:none;}}
