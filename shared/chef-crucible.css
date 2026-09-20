@@ -132,3 +132,54 @@
 .cc-app .cc-cook-checks label:has(input:checked) span { color:var(--neo-muted); text-decoration:line-through; }
 .cc-app ol.cc-cook-checks { padding-left:1.5rem; }
 .cc-app #cook-dialog h3 { margin:1.5rem 0 .4rem; }
+
+/* Chef sports-menu presentation; Crucible retains its existing appearance. */
+html.atlas-neumo[data-atlas-app="the-chef"] {
+  --chef-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --neo-radius:6px;--neo-raised:0 8px 24px #0002,inset 0 1px 0 #ffffff12;
+  --neo-small:inset 0 1px 0 #ffffff12;--neo-pressed:inset 0 2px 6px #0003;--neo-well:inset 0 2px 5px #0002;
+  --chef-top:#f6f9fd;--chef-bottom:#dce5f0;--chef-gold:#bd8613;
+}
+html.atlas-neumo[data-atlas-app="the-chef"][data-atlas-theme="dark"] {
+  --neo-canvas:#09121f;--neo-surface:#142237;--neo-inset:#0b1626;--neo-ink:#f0f5ff;
+  --neo-muted:#a7bad2;--neo-faint:#9cafc8;--neo-line:#334a66;--neo-accent:#ffcf58;
+  --neo-blue:#60c8ff;--neo-green:#59e4ac;--neo-rose:#ff87a7;--neo-violet:#be9cff;--neo-orange:#ffab70;
+  --chef-top:#1b2e48;--chef-bottom:#101e31;--chef-gold:#ffcf58;
+}
+html.atlas-neumo[data-atlas-app="the-chef"] body {background:linear-gradient(125deg,transparent 25%,#4576ad0b 25%,#4576ad0b 43%,transparent 43%),var(--neo-canvas)!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] body>header {background:#102039!important;border-bottom:2px solid #60c8ff;margin-bottom:24px;}
+html.atlas-neumo[data-atlas-app="the-chef"] header h1 {font:800 clamp(2.5rem,6vw,3.5rem)/1 var(--chef-display)!important;letter-spacing:.02em;text-transform:uppercase;color:#f0f5ff;}
+html.atlas-neumo[data-atlas-app="the-chef"] header :is(.cc-home,button) {background:#1c344f!important;color:#edf6ff!important;border:1px solid #426184!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] header .cc-help :is(summary,p) {color:#b4c7df;}
+html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,#cook-dialog) {border:1px solid var(--neo-line)!important;border-radius:6px!important;background:linear-gradient(145deg,var(--chef-top),var(--chef-bottom))!important;box-shadow:var(--neo-raised);}
+html.atlas-neumo[data-atlas-app="the-chef"] .card {border-top:3px solid var(--neo-blue)!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel>h2,.card h3,.day h3,#cook-title) {font-family:var(--chef-display)!important;font-weight:700;letter-spacing:.015em;}
+html.atlas-neumo[data-atlas-app="the-chef"] .panel>h2 {font-size:1.5rem;text-transform:uppercase;}
+html.atlas-neumo[data-atlas-app="the-chef"] .card h3 {font-size:1.625rem;line-height:1.15;}
+html.atlas-neumo[data-atlas-app="the-chef"] .day h3 {font-size:1.25rem;text-transform:uppercase;}
+html.atlas-neumo[data-atlas-app="the-chef"] :is(button,select,input:not([type="checkbox"]),.cc-home,.chip,.badge,.tag,details.cat) {border-radius:4px!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] :is(button,select,input) {border-color:var(--neo-line)!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs {background:var(--neo-inset)!important;border:1px solid var(--neo-line);border-radius:4px;}
+html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs button {font-family:var(--chef-display)!important;font-size:1.125rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs button.on {border-bottom:3px solid var(--neo-blue)!important;color:var(--neo-blue)!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] .primary {background:#ffcf58!important;color:#102039!important;border-color:#ffcf58!important;font-weight:700;}
+html.atlas-neumo[data-atlas-app="the-chef"] .meta {display:flex;flex-wrap:wrap;gap:8px;}
+html.atlas-neumo[data-atlas-app="the-chef"] .meta>span {flex:1;min-width:75px;background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:3px;padding:8px;font-size:.8125rem;}
+html.atlas-neumo[data-atlas-app="the-chef"] .meta b {font:800 1.75rem/1 var(--chef-display);color:var(--neo-blue);font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="the-chef"] .meta>span:nth-child(3) b {color:var(--neo-green);}
+html.atlas-neumo[data-atlas-app="the-chef"] .badge {font-family:var(--chef-display);font-size:.875rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+html.atlas-neumo[data-atlas-app="the-chef"] .cc-recipe-options {border-top:1px solid var(--neo-line);}
+html.atlas-neumo[data-atlas-app="the-chef"] .cc-delete-recipe {margin-top:14px;min-height:44px;color:var(--neo-rose)!important;border-color:var(--neo-rose)!important;background:transparent!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-plan-progress {padding:14px;background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:4px;margin:14px 0 20px;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label {display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label strong {font:800 2.75rem/1 var(--chef-display);color:var(--chef-gold);font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label small {font-size:1.25rem;color:var(--neo-muted);}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label>span {font-size:.875rem;color:var(--neo-muted);}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track {height:12px;position:relative;border:1px solid var(--neo-line);background:var(--neo-inset);border-radius:2px;overflow:hidden;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track>span {display:block;height:100%;background:linear-gradient(90deg,#bd8613,var(--chef-gold));box-shadow:inset 0 1px 0 #fff6;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track::after {content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100% / 28 - 2px),var(--neo-inset) calc(100% / 28 - 2px),var(--neo-inset) calc(100% / 28));}
+html.atlas-neumo[data-atlas-app="the-chef"] .grocery label.done {color:var(--neo-green);}
+html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:checked) {color:var(--neo-green);}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,#cook-dialog){background:var(--neo-surface)!important;backdrop-filter:none;}}
+@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,.chef-progress-track){border-color:var(--neo-ink)!important;}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track>span{background:Highlight!important;forced-color-adjust:none;}}
