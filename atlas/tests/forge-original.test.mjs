@@ -181,7 +181,7 @@ test('dated history maps deletion back to the right original record after an imp
 });
 test('future records and entries beyond the season do not inflate current progress',async()=>{
  const rows=[{id:'today',date:'2026-09-08',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'5',r:'4'}]}}},{id:'future',date:'2027-01-04',type:'PUSH',items:{'PUSH-0-0':{sets:[{w:'10',r:'4'}]}}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
- assert.equal(h.run('stats().total'),1);assert.equal(h.run('stats().thisWeek'),1);assert.equal(h.run("lastSessionFor('PUSH-0-0').date"),'2026-09-08');assert.equal(h.run("prFor('PUSH-0-0').w"),'5');h.at('2027-01-04T12:00:00-06:00');assert.equal(h.run('stats().season'),1);assert.equal(h.storage.get(S),JSON.stringify(rows));
+ assert.equal(h.run('stats().total'),1);assert.equal(h.run('stats().thisWeek'),1);assert.equal(h.run("lastSessionFor('PUSH-0-0').date"),'2026-09-08');assert.equal(h.run("prFor('PUSH-0-0').w"),'5');h.at('2027-01-04T12:00:00-06:00');assert.equal(h.run('stats().season'),0);assert.equal(h.storage.get(S),JSON.stringify(rows));
 });
 test('first entries establish baselines; unsaved comparisons and failed commits do not announce records',async()=>{
  const h=await boot();h.run('state.draft='+JSON.stringify(draft));assert.equal(h.run("draftBeatsPR('PUSH-0-0')"),false);await h.run("logDay('PUSH')");assert.equal(h.run('state.prCel'),null);
@@ -220,4 +220,15 @@ test('failed cancellation restores prior draft and clock records without logging
   assert.deepEqual([D,R,L].map(k=>h.storage.get(k)),before);assert(h.run('!!state.live'));assert.equal(h.run('state.sessions.length'),0);assert.equal(h.run(`state.draft['PUSH-0-0'].note`),'Keep note');
   h.localStorage.blockedKey=null;h.api.cancelLive();h.clickText('Discard workout');await h.settle();assert.equal(h.run('state.live'),null);
  }
+});
+test('rest expiry cannot overwrite the cleared timer while cancellation saves asynchronously',async()=>{
+ const h=await boot();h.act('live',{key:'PUSH'});h.run('startTimer(60)');
+ h.window.storage={set:async(key,value)=>{h.storage.set(key,value);if(key===R){h.run('timer.endAt=Date.now()-1;tickTimer()');}return {};},get:async key=>({value:h.storage.get(key)})};
+ h.api.cancelLive();h.clickText('Discard workout');await h.settle();
+ assert.equal(h.storage.get(R),'null');assert.equal(h.storage.get(L),'null');assert.equal(h.run('state.live'),null);assert.equal(h.run('state.sessions.length'),0);
+});
+
+test('September 21 season includes its first day and preserves earlier workout history',async()=>{
+ const rows=[{id:'before',date:'2026-09-20',type:'PUSH',items:{}},{id:'start',date:'2026-09-21',type:'PUSH',items:{}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
+ h.at('2026-09-22T12:00:00-05:00');assert.equal(h.run('stats().season'),1);assert.equal(h.run('stats().total'),2);assert.equal(h.run('SEASON_START_ISO'),'2026-09-21');assert.equal(h.run('SEASON_GOAL'),80);assert.equal(h.run('SEASON_END'),Date.UTC(2026,11,31));assert.equal(h.storage.get(S),JSON.stringify(rows));assert.match(html,/Season · Sep 21 → Dec 31/);
 });

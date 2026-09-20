@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=d1028f47d545"></script>
+<script src="shared/atlas-theme.js?v=05f1cc1ff65a"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -88,8 +88,8 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <script>
 "use strict";
 var SEASON_END=Date.UTC(2026,11,31);
-var SEASON_START=Date.UTC(2026,7,4);   // Aug 4 2026 — season restart: season stats count from here; older sessions stay as history
-var SEASON_START_ISO="2026-08-04";
+var SEASON_START=Date.UTC(2026,8,21);   // Sep 21 2026 — season restart: season stats count from here; older sessions stay as history
+var SEASON_START_ISO="2026-09-21";
 var SEASON_GOAL=80;                    // matches Life Ledger's resized "80 workouts (about 4 a week)"
 var FOCUS={"Strength":"#4ea3e0","Power":"#f0683e","Mobility":"#2fd180","Aesthetic":"#c98bff","Core":"#f0b73e","Cardio":"#45c8d8"};
 
@@ -1131,7 +1131,7 @@ function render(){
   h+='<div class="panel fadeUp forge-season" style="padding:14px;margin-top:14px"><div style="display:flex;gap:8px">'+tile(st.season,"Season")+tile(st.thisWeek,"This Week")+tile(st.weeksLeft,"Weeks Left")+'</div>';
   var spct=Math.min(100,st.season/st.goal*100);
   h+='<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'
-    +'<span class="eyebrow" style="font-size:8.5px">Season · Aug 4 → Dec 31</span>'
+    +'<span class="eyebrow" style="font-size:8.5px">Season · Sep 21 → Dec 31</span>'
     +'<span class="mono" style="font-size:10px;color:'+(st.onPace?"#2fd180":"#f0683e")+'">'+st.season+' / '+st.goal+' · '+(st.onPace?'on pace':'~'+Math.max(1,Math.round(st.expected-st.season))+' behind')+'</span></div>'
     +'<div class="bartrack" style="height:6px"><div class="fill" style="width:'+spct.toFixed(1)+'%;background:linear-gradient(90deg,#e2a32f,#f6cf6a)"></div>'
     +'<div style="position:absolute;top:-1px;bottom:-1px;left:'+Math.min(100,st.expected/st.goal*100).toFixed(1)+'%;width:2px;background:rgba(255,255,255,.55)" title="on-pace marker"></div></div></div>';
