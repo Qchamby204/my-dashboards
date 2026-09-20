@@ -30,3 +30,101 @@
   .poptions{justify-items:start;max-width:none}
   .atlas-neumo[data-atlas-app="courier"] main{padding-bottom:340px}
 }
+
+/* Courier sports-menu presentation; all tokens are scoped to this dashboard. */
+html.atlas-neumo[data-atlas-app="courier"] {
+  --courier-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --neo-radius:6px;
+  --neo-raised:0 8px 24px #0002,inset 0 1px 0 #ffffff12;
+  --neo-small:inset 0 1px 0 #ffffff12;
+  --neo-pressed:inset 0 2px 6px #0003;
+  --neo-well:inset 0 2px 5px #0002;
+  --courier-panel-top:#f6f9fd;
+  --courier-panel-bottom:#dce5f0;
+  --courier-gold:#bd8613;
+  --courier-track:#c0cad6;
+  --fainter:var(--neo-line);
+}
+html.atlas-neumo[data-atlas-app="courier"][data-atlas-theme="dark"] {
+  --neo-canvas:#09121f;--neo-surface:#142237;--neo-inset:#0b1626;
+  --neo-ink:#f0f5ff;--neo-muted:#a7bad2;--neo-faint:#9cafc8;--neo-line:#334a66;
+  --neo-accent:#ffcf58;--neo-blue:#60c8ff;--neo-green:#59e4ac;
+  --neo-rose:#ff87a7;--neo-violet:#be9cff;--neo-orange:#ffab70;
+  --courier-panel-top:#1b2e48;--courier-panel-bottom:#101e31;
+  --courier-gold:#ffcf58;--courier-track:#334a66;
+}
+html.atlas-neumo[data-atlas-app="courier"] body {
+  background:linear-gradient(125deg,transparent 25%,#4576ad0b 25%,#4576ad0b 43%,transparent 43%),var(--neo-canvas)!important;
+}
+html.atlas-neumo[data-atlas-app="courier"] header {
+  background:#102039;border-bottom:2px solid #60c8ff;
+  padding-top:max(28px,env(safe-area-inset-top));margin-bottom:26px;
+}
+html.atlas-neumo[data-atlas-app="courier"] h1 {
+  font:800 clamp(2.25rem,5vw,3.5rem)/1 var(--courier-display)!important;
+  letter-spacing:.015em;text-transform:uppercase;color:#f0f5ff;
+}
+html.atlas-neumo[data-atlas-app="courier"] h1 small {font-size:.75rem;line-height:1.5;color:#b4c7df;letter-spacing:.04em;}
+html.atlas-neumo[data-atlas-app="courier"] header :is(button,select) {background:#1c344f!important;color:#edf6ff!important;border-color:#426184!important;color-scheme:dark;}
+html.atlas-neumo[data-atlas-app="courier"] header label {color:#b4c7df;font-size:.875rem;}
+html.atlas-neumo[data-atlas-app="courier"] :is(button,select,.tag) {border-radius:4px!important;}
+html.atlas-neumo[data-atlas-app="courier"] :is(button,select) {border-color:var(--neo-line)!important;touch-action:manipulation;}
+html.atlas-neumo[data-atlas-app="courier"] :is(.block,.rail,#editionStatus,#courier-practice:not(:empty),#player) {
+  border:1px solid var(--neo-line)!important;border-radius:6px!important;
+  background:linear-gradient(145deg,var(--courier-panel-top),var(--courier-panel-bottom))!important;
+  box-shadow:var(--neo-raised);
+}
+html.atlas-neumo[data-atlas-app="courier"] .block {margin-bottom:14px;border-left:3px solid var(--neo-blue)!important;}
+html.atlas-neumo[data-atlas-app="courier"] .block.done {border-left-color:var(--neo-green)!important;}
+html.atlas-neumo[data-atlas-app="courier"] .block.active {border-color:var(--courier-gold)!important;border-left-width:4px!important;}
+html.atlas-neumo[data-atlas-app="courier"] :is(#playAll,.block.active .play) {background:#ffcf58!important;color:#102039!important;border-color:#ffcf58!important;}
+html.atlas-neumo[data-atlas-app="courier"] .title {font:700 clamp(1.5rem,3vw,2rem)/1.15 var(--courier-display)!important;letter-spacing:.01em!important;}
+html.atlas-neumo[data-atlas-app="courier"] .eyebrow {font:600 .875rem/1.4 var(--courier-display);letter-spacing:.07em;}
+html.atlas-neumo[data-atlas-app="courier"] .eyebrow .n {font:800 1.75rem/1 var(--courier-display);color:var(--neo-blue);opacity:1;}
+html.atlas-neumo[data-atlas-app="courier"] .block.done .eyebrow .n {color:var(--neo-green);}
+html.atlas-neumo[data-atlas-app="courier"] .block.active .eyebrow .n {color:var(--courier-gold);}
+html.atlas-neumo[data-atlas-app="courier"] .tag {border:1px solid currentColor;font-size:.75rem;padding:3px 7px;}
+html.atlas-neumo[data-atlas-app="courier"] .block.done .tag:not(.textonly):not(.resume) {color:var(--neo-green);}
+html.atlas-neumo[data-atlas-app="courier"] :is(.runline .mins,.runline .startat,.runline .words,.rail-cap,.rail-now,.sources span) {font-size:.75rem;color:var(--neo-muted);letter-spacing:.025em;}
+html.atlas-neumo[data-atlas-app="courier"] .rail-total {font:800 2.5rem/1 var(--courier-display);color:var(--courier-gold);}
+html.atlas-neumo[data-atlas-app="courier"] .rail {border-top:2px solid var(--courier-gold)!important;}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress {margin-top:22px;padding-top:16px;border-top:1px solid var(--neo-line);}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-label {font:700 .875rem/1.3 var(--courier-display);letter-spacing:.06em;text-transform:uppercase;color:var(--neo-muted);}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-value {font:800 3.25rem/1.1 var(--courier-display);color:var(--neo-green);font-variant-numeric:tabular-nums;margin:6px 0;}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-value small {font-size:1.25rem;margin-left:3px;}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-caption {font-size:.8125rem;line-height:1.5;color:var(--neo-muted);margin-top:8px;}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-track {position:relative;height:12px;background:var(--neo-inset);border:1px solid var(--courier-track);overflow:hidden;border-radius:2px;}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-track>span {display:block;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--neo-green) 65%,#156055),var(--neo-green));box-shadow:inset 0 1px 0 #ffffff60;}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-track::after {content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--neo-inset) calc(10% - 2px),var(--neo-inset) 10%);pointer-events:none;}
+html.atlas-neumo[data-atlas-app="courier"] .ladder {width:20px;gap:4px;}
+html.atlas-neumo[data-atlas-app="courier"] .rung {background:var(--courier-track);border-radius:1px;}
+html.atlas-neumo[data-atlas-app="courier"] .rung.done {background:var(--neo-green);}
+html.atlas-neumo[data-atlas-app="courier"] .rung.live {background:var(--courier-gold);transform:scaleX(1.35);}
+html.atlas-neumo[data-atlas-app="courier"] .tabs button {box-shadow:none;}
+html.atlas-neumo[data-atlas-app="courier"] .tabs button.on {border-bottom:3px solid var(--neo-blue)!important;color:var(--neo-blue)!important;}
+html.atlas-neumo[data-atlas-app="courier"] #player {border-top:2px solid var(--courier-gold)!important;}
+html.atlas-neumo[data-atlas-app="courier"] .pnow {font:700 1.25rem/1.3 var(--courier-display);}
+html.atlas-neumo[data-atlas-app="courier"] :is(#pTime,#pRemaining) {font-size:.875rem;color:var(--neo-ink);}
+html.atlas-neumo[data-atlas-app="courier"] :is(.points,.sources) {font-size:1rem;}
+html.atlas-neumo[data-atlas-app="courier"] .head>div {min-width:0;}
+@media(max-width:900px){
+  html.atlas-neumo[data-atlas-app="courier"] .rail {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:20px;}
+  html.atlas-neumo[data-atlas-app="courier"] .courier-progress {margin:0;padding:0;border:0;}
+  html.atlas-neumo[data-atlas-app="courier"] .rail-now {grid-column:1/-1;text-align:left;margin:0;}
+}
+@media(max-width:420px){
+  html.atlas-neumo[data-atlas-app="courier"] header {padding-left:16px;padding-right:16px;}
+  html.atlas-neumo[data-atlas-app="courier"] main {padding-left:16px;padding-right:16px;}
+  html.atlas-neumo[data-atlas-app="courier"] .bar {min-width:0;}
+  html.atlas-neumo[data-atlas-app="courier"] #day {max-width:100%;}
+  html.atlas-neumo[data-atlas-app="courier"] .head {grid-template-columns:44px minmax(0,1fr);}
+}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  html.atlas-neumo[data-atlas-app="courier"] :is(.block,.rail,#editionStatus,#courier-practice:not(:empty),#player) {background:var(--neo-surface)!important;backdrop-filter:none;-webkit-backdrop-filter:none;}
+}
+@media(prefers-contrast:more){
+  html.atlas-neumo[data-atlas-app="courier"] :is(.block,.rail,#editionStatus,#player,.courier-progress-track) {border-color:var(--neo-ink)!important;}
+}
+@media(forced-colors:active){
+  html.atlas-neumo[data-atlas-app="courier"] .courier-progress-track>span {background:Highlight!important;forced-color-adjust:none;}
+}
