@@ -1,0 +1,36 @@
+/* Sports-game styling for the existing Herald publishing workflow. */
+html.atlas-neumo[data-atlas-app="the-herald"] :is(.appbar-title,h2,.rail-card .lbl){font-family:'Barlow Condensed',var(--neo-font,sans-serif)!important;font-weight:700;letter-spacing:.04em;}
+html.atlas-neumo[data-atlas-app="the-herald"] .appbar{border-bottom:2px solid var(--neo-accent)!important;}
+html.atlas-neumo[data-atlas-app="the-herald"] .appbar-title{font-size:24px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .appbar-pill{border-radius:5px;border-color:var(--neo-accent)!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="the-herald"] :is(.card,.rail-card,.vitem){border-radius:12px!important;}
+html.atlas-neumo[data-atlas-app="the-herald"] .card{box-shadow:0 5px 16px color-mix(in srgb,var(--neo-ink) 7%,transparent);}
+html.atlas-neumo[data-atlas-app="the-herald"] h2{font-size:25px;text-transform:uppercase;line-height:1.2;}
+html.atlas-neumo[data-atlas-app="the-herald"] .rail-card{background:linear-gradient(125deg,#142135,#24354c)!important;border:1px solid #40516a!important;border-top:3px solid #ebc165!important;padding:22px 18px 18px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .rail-card .lbl{font-size:22px;line-height:1.2;color:#f2f5fc!important;margin-bottom:22px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .rail{background:transparent!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="the-herald"] .rail::before{top:23px;background:#8395b0;opacity:.5;}
+html.atlas-neumo[data-atlas-app="the-herald"] .ember{display:none;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage{--stage-color:#aebbd0;min-width:0;padding:2px 3px 8px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage:nth-child(2){--stage-color:#e8c16b;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage:nth-child(3){--stage-color:#b9a1ed;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage:nth-child(4){--stage-color:#7dc8e3;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage:nth-child(5){--stage-color:#82d9aa;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage .node{width:46px;height:46px;border-radius:8px;background:#1d2c41!important;color:#dce5f3!important;border:1px solid #566781;box-shadow:none;font-size:21px;font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage.active .node{background:#2a3b52!important;border:2px solid var(--stage-color);color:var(--stage-color)!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage .nm{color:#d2dceb!important;font-size:10px;letter-spacing:.06em;line-height:1.4;white-space:normal;}
+html.atlas-neumo[data-atlas-app="the-herald"] .stage:focus-visible{outline:2px solid #f4cd77;outline-offset:2px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .scell{background:#1a293e!important;border:1px solid #455872!important;border-top:2px solid #ecc263!important;border-radius:7px;box-shadow:none;min-width:0;}
+html.atlas-neumo[data-atlas-app="the-herald"] .scell .v{font-size:26px;color:#f4cd77!important;font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="the-herald"] .scell .k{color:#cbd7e7!important;letter-spacing:.07em;}
+html.atlas-neumo[data-atlas-app="the-herald"] .tabs .tab{border-radius:6px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .tabs .tab.on{border-bottom:2px solid var(--neo-accent)!important;}
+html.atlas-neumo[data-atlas-app="the-herald"] .bar{position:relative;isolation:isolate;min-height:8px;border-radius:3px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .bar i{border-radius:2px;}
+html.atlas-neumo[data-atlas-app="the-herald"] .bar::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--neo-inset) calc(10% - 2px),var(--neo-inset) 10%);}
+html.atlas-neumo[data-atlas-app="the-herald"] .vitem{border-left:3px solid var(--neo-accent);}
+html.atlas-neumo[data-atlas-app="the-herald"] .vhead .mini.mono{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;}
+@media(max-width:560px){html.atlas-neumo[data-atlas-app="the-herald"] .season{grid-template-columns:repeat(2,minmax(0,1fr));}html.atlas-neumo[data-atlas-app="the-herald"] .rail-card{padding:18px 12px 14px;}html.atlas-neumo[data-atlas-app="the-herald"] .stage .nm{font-size:9px;letter-spacing:0;}}
+@media(prefers-reduced-motion:reduce){html.atlas-neumo[data-atlas-app="the-herald"] .bar i{transition:none;}}
+@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-herald"] :is(.card,.vitem){border-color:var(--neo-ink)!important;}html.atlas-neumo[data-atlas-app="the-herald"] .rail-card{border-color:#f4cd77!important;}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-herald"] .rail-card :is(.lbl,.node,.nm,.v,.k){color:CanvasText!important;}html.atlas-neumo[data-atlas-app="the-herald"] .bar::after{display:none;}html.atlas-neumo[data-atlas-app="the-herald"] .bar i{background:Highlight!important;forced-color-adjust:none;}}
