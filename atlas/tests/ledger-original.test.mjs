@@ -236,3 +236,17 @@ test('restoring a backup clears stale popups and derives achievements from resto
  h.context.backup=file({days:[{date:'2026-09-07',units:{Read:1}}]});await h.run('importData(backup)');h.clickText('Restore backup');await h.settle();
  assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('state.days.length'),1);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),false);
 });
+
+test('habit logging omits reflection inputs and retains saved reflections when updating a day',async()=>{
+ const rows=[{date:'2026-09-07',units:{Read:2,Archived:8},mood:4,note:'A saved reflection'}],h=await boot({records:{[S]:JSON.stringify(rows)}});
+ for(const mode of ['cards','list']){
+  h.run(`state.logMode='${mode}';render()`);
+  assert.equal(h.node('app').querySelector('[data-act="mood"]'),null);
+  assert.equal(h.node('app').querySelector('[data-act="note"]'),null);
+  assert.doesNotMatch(h.node('app').textContent,/Day felt|A line for the chronicle/);
+ }
+ assert.equal(h.storage.get(S),JSON.stringify(rows));
+ h.run('state.draft.Read=5');await h.api.saveDay();
+ const saved=JSON.parse(h.storage.get(S))[0];assert.equal(saved.units.Read,5);assert.equal(saved.units.Archived,8);assert.equal(saved.mood,4);assert.equal(saved.note,'A saved reflection');
+ const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.days[0].mood'),4);assert.equal(again.run('state.days[0].note'),'A saved reflection');
+});

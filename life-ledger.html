@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js"></script>
+<script src="shared/atlas-theme.js?v=3e6cd95661af"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -348,7 +348,7 @@ function bar(pct,target,color,glow,h){
   h=h||9;
   var t = target!=null ? Math.max(0,Math.min(100,target*100)) : null;
   var w = Math.max(1.5,Math.min(100,pct*100));
-  return '<div class="bartrack" style="height:'+h+'px">'
+  return '<div class="bartrack" style="--ledger-meter:'+color+';height:'+h+'px">'
     +'<div class="fill" style="width:'+w+'%;background:'+color+';box-shadow:0 0 12px '+glow+'"></div>'
     +(t!=null?'<div class="tick" title="on-pace target for today" style="left:calc('+t+'% - 1px)"></div>':'')
     +'</div>';
@@ -382,11 +382,11 @@ function constellation(pillars,life,active){
 }
 function pillarCard(p,habit,expected,open){
   var behind=Math.max(1,Math.round(expected-p.exact));
-  var h='<div class="panel card" data-act="pillar" data-key="'+p.key+'" tabindex="0" style="padding:14px 15px;border-color:'+(open?p.color:"rgba(120,130,180,.16)")+';'+(open?'box-shadow:0 0 0 1px '+p.color+',0 18px 40px -26px '+p.glow+';':'')+'">';
+  var h='<div class="panel card ledger-value" data-act="pillar" data-key="'+p.key+'" tabindex="0" style="--ledger-value:'+p.color+';padding:14px 15px;border-color:'+(open?p.color:"rgba(120,130,180,.16)")+';'+(open?'box-shadow:0 0 0 1px '+p.color+',0 18px 40px -26px '+p.glow+';':'')+'">';
   h+='<div style="display:flex;align-items:center;gap:12px">';
   h+='<div style="width:44px;height:44px;border-radius:13px;flex-shrink:0;background:radial-gradient(circle at 30% 25%,'+p.deep+',#14172400);border:1px solid '+p.color+'55;display:grid;place-items:center;box-shadow:inset 0 0 14px '+p.glow+'">'+iconSVG(p.icon,p.color)+'</div>';
   h+='<div style="flex:1;min-width:0">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span class="cinzel" style="font-size:16px;color:#eef0fb;font-weight:600">'+p.title+'</span><span class="mono" style="font-size:13px;color:'+p.color+';font-weight:700;white-space:nowrap">'+p.level+'<span style="color:#6f7798">/99</span></span></div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span class="cinzel" style="font-size:16px;color:#eef0fb;font-weight:600">'+p.title+'</span><span class="mono ledger-value-level" style="font-size:13px;color:'+p.color+';font-weight:700;white-space:nowrap">'+p.level+'<span style="color:#6f7798">/99</span></span></div>';
   h+='<div style="font-size:11.5px;color:#7c84a8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.sub)+'</div>';
   h+='</div></div>';
   h+='<div style="margin-top:12px">'+bar(p.pctTo99,expected/99,p.color,p.glow)+'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">'+paceTag(p.onPace,behind)+'<span class="mono" style="font-size:10.5px;color:#8089a8">'+Math.round(p.pctTo99*100)+'% to maxed</span></div></div>';
@@ -465,14 +465,6 @@ function questLog(draft,dayNum){
       +'<span style="font-size:13px;flex-shrink:0">\u270f\ufe0f</span>'
       +'<span style="font-size:10.5px;color:#e3c88a;line-height:1.4">This day is already logged. The form shows what you saved, edit any value and save to update it.</span></div>';
   }
-  h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:9px">';
-  h+='<span style="font-size:11px;color:#8089a8;white-space:nowrap;margin-right:3px">Day felt</span>';
-  MOODS.forEach(function(me,mi){
-    var mv=mi+1, on=state.draftMood===mv;
-    h+='<button class="btn tap" data-act="mood" data-v="'+mv+'" aria-label="mood '+mv+' of 5" style="flex:1;padding:6px 0;border-radius:9px;font-size:17px;line-height:1;background:'+(on?"rgba(240,183,62,.18)":"rgba(255,255,255,.03)")+';border:1px solid '+(on?"rgba(240,183,62,.55)":"rgba(120,130,180,.14)")+';filter:'+(on?"none":"grayscale(.65) opacity(.65)")+'">'+me+'</button>';
-  });
-  h+='</div>';
-  h+='<input data-act="note" placeholder="A line for the chronicle\u2026 (optional)" maxlength="140" value="'+esc(state.draftNote||"")+'" style="width:100%;margin-bottom:12px;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.18);color:#dfe3f4;border-radius:10px;padding:9px 11px;font-family:inherit;font-size:13px;outline:none;font-style:italic"/>';
   h+='<div style="display:flex;gap:6px;margin-bottom:13px;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.12);border-radius:10px;padding:3px">';
   [["cards","\ud83c\udccf Cards"],["list","\u2630 List"]].forEach(function(m){ var on=mode===m[0]; h+='<button class="btn tap" data-act="logmode" data-mode="'+m[0]+'" style="flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;color:'+(on?"#0c0e1a":"#9aa2c0")+';background:'+(on?"#f0b73e":"transparent")+';border:none">'+m[1]+'</button>'; });
   h+='</div>';
@@ -1183,7 +1175,7 @@ function render(){
   h+='<h1 class="cinzel" style="font-size:24px;margin:7px 0 3px;color:#f3f4fb;font-weight:700;line-height:1.15">Quinton \u00b7 <span style="color:#f0b73e">'+esc(data.identity)+'</span></h1>';
   h+='<div style="font-size:12px;color:#8089a8;font-style:italic;line-height:1.4">Gather XP daily. The levels are the goals.</div></div>';
 
-  h+='<div class="panel fadeUp" style="padding:16px;margin-top:14px">'+constellation(data.pillars,data.life,state.active);
+  h+='<div class="panel fadeUp ledger-overall" style="padding:16px;margin-top:14px">'+constellation(data.pillars,data.life,state.active);
   h+='<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px"><span class="eyebrow" style="letter-spacing:.12em">Life Level '+data.life.level+' / 99</span>'+paceTag(data.life.onPace,behindLife)+'</div>';
   h+=bar(data.life.pctTo99,data.expectedLevel/99,"#f0b73e","rgba(240,183,62,.55)",11);
   h+='<div style="font-size:11px;color:#6f7798;margin-top:9px;text-align:center;line-height:1.4">'+data.daysLeft+' days to max out \u00b7 the white tick is your pace line</div></div></div>';
