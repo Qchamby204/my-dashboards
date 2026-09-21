@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js"></script>
+<script src="shared/atlas-theme.js?v=2e97773b9d7c"></script>
 <style>
   :root{
     --void:#0A0E11; --deep:#0E1418; --surface:#141D22;
@@ -226,7 +226,7 @@
       <option value="0.9">0.9×</option><option value="1">1×</option><option value="1.1">1.1×</option>
       <option value="1.25">1.25×</option><option value="1.5">1.5×</option>
     </select></label>
-    <button class="primary" id="playAll">Play all</button>
+    <button class="primary" id="playAll">Play all</button><button id="shortListen">Build a 10-minute queue</button><a href="index.html" class="btn">Atlas</a>
     <button id="resumeListening" type="button" hidden>Resume listening</button>
   </div>
 </header>
@@ -418,6 +418,8 @@ function render() {
     </section>`;
   }).join('');
 
+  renderShortQueue();
+  let publication=$('courier-publication-note');if(!publication){publication=document.createElement('p');publication.id='courier-publication-note';$('editionStatus').after(publication);}publication.textContent='Latest selected edition: '+d.date+'. Editions are scheduled on weekdays; publication can be delayed. Refresh checks available editions.';
   renderRail(d, plan, listened);
   updatePlayback();
   if (window.AtlasPractice) window.AtlasPractice.mount({ day: d, manifest });
@@ -475,10 +477,17 @@ function resumeBlock() {
   return d.blocks.find(b=>b.audio&&state.lastPlayed?.day===d.date&&state.lastPlayed.id===b.id&&!(state.listened[d.date]||[]).includes(b.id))
     ||d.blocks.find(b=>b.audio&&state.positions[posKey(d.date,b.id)]>0&&!(state.listened[d.date]||[]).includes(b.id));
 }
+function shortQueue(){const d=day();if(!d)return [];const heard=state.listened[d.date]||[];let left=600;return d.blocks.filter(b=>{if(!b.audio||heard.includes(b.id))return false;const seconds=(measuredDurations.get(durationKey(d,b))||Number(b.minutes)*60)/(Number(state.rate)||1);if(!Number.isFinite(seconds)||seconds<=0||seconds>left)return false;left-=seconds;return true;}).map(b=>b.id);}
+function renderShortQueue(){
+  let box=$('courier-shortlist');if(!box){box=document.createElement('section');box.id='courier-shortlist';box.className='notice';$('blocks').before(box);}box.hidden=!ui.shortQueue;
+  if(!ui.shortQueue)return;const d=day(),chosen=(d?.blocks||[]).filter(b=>ui.shortQueue.includes(b.id));
+  box.innerHTML='<h2>Your short listening queue</h2><p>Whole unheard sections, in edition order, estimated to fit 10 minutes at '+escapeText(ui.shortRate||state.rate)+'× when selected. Changing speed changes the listening time; actual audio length can differ.</p>'+chosen.map(b=>'<p>'+escapeText(b.label)+' · '+escapeText(b.title)+'</p>').join('')+(chosen.length?'<button id="startShort">Play this queue</button>':'<p>No remaining whole sections fit. Choose an individual section or the full edition.</p>')+'<button id="closeShort">Use full edition</button>';
+  $('startShort')?.addEventListener('click',()=>{ui.queue=true;play(ui.shortQueue[0],{resume:false,restart:true});});$('closeShort').onclick=()=>{ui.shortQueue=null;render();};
+}
 function nextAudio() {
   const d=day(); if(!d)return null;
   const index=d.blocks.findIndex(b=>b.id===ui.current);
-  return d.blocks.slice(index+1).find(b=>b.audio)||null;
+  return d.blocks.slice(index+1).find(b=>b.audio&&(!ui.shortQueue||ui.shortQueue.includes(b.id)))||null;
 }
 function savePosition() {
   const a=$('audio'),d=day();
@@ -505,6 +514,7 @@ function requestPlay() {
 function play(id,{resume=true,restart=false}={}) {
   const d=day(),b=d?.blocks.find(x=>x.id===id),a=$('audio');
   if(!b)return;
+  if(ui.shortQueue&&!ui.shortQueue.includes(id))ui.shortQueue=null;
   if(!b.audio){ui.open=id;render();return;}
   if(ui.current===id&&!restart&&!a.error){
     if(a.paused||a.ended)requestPlay();else{a.pause();savePosition();}
@@ -543,7 +553,7 @@ function playbackTiming() {
   if(duration)measuredDurations.set(durationKey(d,b),duration);
   const elapsed=Math.max(0,Math.min(Number(a.currentTime)||0,duration??Infinity));
   const rate=Number(a.playbackRate)>0?Number(a.playbackRate):1;
-  const later=d.blocks.slice(d.blocks.findIndex(x=>x.id===b.id)+1).filter(x=>x.audio);
+  const later=d.blocks.slice(d.blocks.findIndex(x=>x.id===b.id)+1).filter(x=>x.audio&&(!ui.shortQueue||ui.shortQueue.includes(x.id)));
   const lengths=[b,...later].map(x=>measuredDurations.get(durationKey(d,x))??null);
   const estimated=lengths.some(x=>x===null);
   const total=[b,...later].reduce((sum,x,i)=>sum+(lengths[i]??Math.max(0,Number(x.minutes)||0)*60),0);
@@ -562,7 +572,7 @@ function updatePlayback() {
   $('pSeek').disabled=t.duration===null;
   $('pSeek').value=t.duration===null?0:Math.round(t.elapsed/t.duration*1000);
   $('pSeek').setAttribute('aria-valuetext',`${fmt(t.elapsed)} of ${t.duration===null?'unknown duration':fmt(t.duration)}`);
-  $('pQueueTime').textContent=`${t.estimated?'About ':''}${fmt(t.queueRemaining)} left in edition${t.rate===1?'':` at ${t.rate}×`}`;
+  $('pQueueTime').textContent=`${t.estimated?'About ':''}${fmt(t.queueRemaining)} left in ${ui.shortQueue?'short queue':'edition'}${t.rate===1?'':` at ${t.rate}×`}`;
   $('railTotal').textContent=`${t.estimated?'≈ ':''}${fmt(t.queueRemaining)}`;
   $('railCap').textContent='Audio left in edition';
   $('railNow').innerHTML=`${a.ended?'Finished':paused?'Paused':'Now playing'}<b>${escapeText(b.label)}</b>${t.duration===null?'Loading section time':`${fmt(t.elapsed)} played · ${fmt(t.remaining)} left`}`;
@@ -628,12 +638,13 @@ function wireEvents() {
   });
   $('day').addEventListener('change', e => {
     const a = $('audio'); savePosition();clearResume();sourceEpoch++;a.pause();ui.current=null;a.removeAttribute('src');a.load();
-    playbackMessage('');ui.current = null; ui.day = e.target.value; ui.open = null;
+    playbackMessage('');ui.current = null; ui.shortQueue=null; ui.day = e.target.value; ui.open = null;
     $('player').classList.remove('on'); render();
     updateMediaMetadata();updateMediaPosition();
   });
   $('rate').addEventListener('change', e => setState({ rate: Number(e.target.value) }));
-  $('playAll').addEventListener('click', () => { const first=day()?.blocks.find(b=>b.audio);if(!first){notice('This edition has no audio. Open a section to read it.');return;}ui.queue=true;play(first.id,{resume:false,restart:true}); });
+  $('shortListen').addEventListener('click',()=>{ui.shortQueue=shortQueue();ui.shortRate=state.rate;render();});
+  $('playAll').addEventListener('click', () => {ui.shortQueue=null; const first=day()?.blocks.find(b=>b.audio);if(!first){notice('This edition has no audio. Open a section to read it.');return;}ui.queue=true;play(first.id,{resume:false,restart:true}); });
   $('resumeListening').addEventListener('click',()=>{const b=resumeBlock();if(b&&(ui.current!==b.id||$('audio').paused||$('audio').error))play(b.id);});
   $('pToggle').addEventListener('click', () => { if(ui.current)play(ui.current); });
   $('pContinue').addEventListener('change',e=>{ui.queue=e.target.checked;state.continueNext=ui.queue;store.set('state',state);});
@@ -698,6 +709,6 @@ async function init() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 <script type="module" src="shared/atlas-workflow.js?v=courier-practice-20260908"></script>
-<script src="shared/atlas-refinements.js?v=076590dd90c0" defer></script>
+<script src="shared/atlas-refinements.js?v=54aa0f1d0514" defer></script>
 </body>
 </html>

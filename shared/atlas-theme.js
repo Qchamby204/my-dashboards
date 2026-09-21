@@ -15,13 +15,13 @@
       const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
     if(root.dataset.atlasApp==='the-hourglass'){
-      const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
+      const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=ff0a80190552',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=159a1d499c41',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=4579fd7f0622',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
-      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
+      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=d81f94bcc8c9',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
@@ -32,22 +32,22 @@
       // Retain the saved bytes before the legacy boot can attempt migration.
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
       window.AtlasProspectingBoot=boot;
-      const records=document.createElement('script');records.type='module';records.src=new URL('prospecting-records.mjs?v=messages-20260909',sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=messages-20260909',sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
+      const records=document.createElement('script');records.type='module';records.src=new URL('prospecting-records.mjs?v=messages-20260909',sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=1bd2f03eabd8',sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
     }
     if(root.dataset.atlasApp==='operations-cadence'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('operationsCadence.v1');}catch{boot.readError=true;}
       window.AtlasOperationsBoot=boot;
-      const operations=document.createElement('script');operations.src=new URL('operations-enhancements.js',sharedSource).href;operations.defer=true;document.head.appendChild(operations);
+      const operations=document.createElement('script');operations.src=new URL('operations-enhancements.js?v=16917b1905ec',sharedSource).href;operations.defer=true;document.head.appendChild(operations);
     }
     if(root.dataset.atlasApp==='baby-brain'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('babybrain.v1');}catch{boot.readError=true;}
       window.AtlasBabyBoot=boot;
-      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
+      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js?v=dd23fe95a77a',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
     }
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasForgeBoot=boot;
-      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=00b15b799161',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=4908c2ab9b35',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}

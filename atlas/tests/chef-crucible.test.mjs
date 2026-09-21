@@ -129,3 +129,7 @@ test('Clear-week Undo cannot overwrite grocery checks changed afterward',()=>{
   a.run('setState({checked:{eggs:true}})');
   assert.equal(a.run('undoPlan()'),false);assert.deepEqual(a.json('state.checked'),{eggs:true});
 });
+
+test('household feedback changes discovery priority and survives ordinary state updates',()=>{
+ const a=app('chef',chefState());const id=a.run('RECIPES[0].id');a.run(`setState({recipeFeedback:{[RECIPES[0].id]:{verdict:'again',reason:'Family favourite',note:'Use less salt'}}})`);assert.equal(a.run('trustedRank(RECIPES[0])'),2);a.run('setState({checked:{eggs:true}})');assert.equal(a.json('state.recipeFeedback')[id].note,'Use less salt');a.run(`setState({recipeFeedback:{[RECIPES[0].id]:{verdict:'not-again'}}})`);assert.equal(a.run('trustedRank(RECIPES[0])'),-1);
+});
