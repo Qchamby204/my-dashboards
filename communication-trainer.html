@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=2d4e7283c792"></script>
+<script src="shared/atlas-theme.js?v=79535e081077"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -529,10 +529,16 @@ const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 const todayStr = ()=>new Date().toISOString().slice(0,10);
 function latestScores(){ return S.assessments.length? S.assessments[S.assessments.length-1].scores : null; }
 function firstScores(){ return S.assessments.length? S.assessments[0].scores : null; }
-function weakestSkill(){
-  const sc = latestScores(); if(!sc) return SKILLS[Math.floor(Math.random()*SKILLS.length)].id;
-  return SKILLS.reduce((a,b)=> (sc[a.id]??100) <= (sc[b.id]??100) ? a : b).id;
+function trainingSuggestion(){
+  const now=Date.now(),rows=S.reps.filter(r=>SKILLS.some(s=>s.id===r.skill)&&Number.isFinite(Date.parse(r.date))&&Date.parse(r.date)<=now).slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+  const recent=rows.filter(r=>now-Date.parse(r.date)<30*86400000),last=recent.at(-1);
+  if(last?.nextFocus?.trim())return {skill:last.skill,reason:'Continue your chosen focus: '+last.nextFocus.trim(),focus:last.nextFocus.trim()};
+  const idle=SKILLS.map(skill=>({skill,last:rows.filter(r=>r.skill===skill.id).at(-1)})).sort((a,b)=>(Date.parse(a.last?.date)||0)-(Date.parse(b.last?.date)||0));
+  if(!idle[0].last||now-Date.parse(idle[0].last.date)>=14*86400000)return {skill:idle[0].skill.id,reason:idle[0].last?'Bring this skill back into rotation; it has been at least two weeks.':'Try a skill you haven’t practised here yet.'};
+  const scores=SKILLS.map(skill=>{const reps=recent.filter(r=>r.skill===skill.id&&Number.isFinite(r.score));return {skill,score:reps.length?reps.reduce((sum,r)=>sum+r.score,0)/reps.length:Infinity};}).sort((a,b)=>a.score-b.score);
+  return {skill:scores[0].skill.id,reason:'A useful next practice based on your recent self-scores.'};
 }
+function weakestSkill(){return trainingSuggestion().skill;}
 function streak(){
   const days = new Set(S.reps.map(r=>r.date.slice(0,10)));
   let n=0; let d=new Date();
@@ -691,14 +697,14 @@ function drawRadar(canvasId, datasets){ // datasets: [{scores, color, fill}]
 }
 
 /* ============ NAV / PAGES ============ */
-const PAGES=[['dash','Home','\u25c8'],['assess','Assess','\u25ce'],['learn','Learn','\u25a4'],['train','Train','\u26a1'],['topics','Topics','\u2726'],['progress','Growth','\u25b2']];
+const PAGES=[['dash','Home','\u25c8'],['learn','Learn','\u25a4'],['train','Train','\u26a1'],['topics','Topics','\u2726'],['progress','Growth','\u25b2']];
 let curPage='dash';
 let lastPage=null;
 function nav(p){ curPage=p; render(); }
 function render(){
   const w=weeksLeft();
   const bp=$('barPill'); if(bp){ bp.innerHTML='<span>'+xp()+'</span><span style="font-size:9px;letter-spacing:.08em;color:var(--muted);font-weight:600">XP</span>'; }
-  $('nav').innerHTML = PAGES.map(([id,l,ic])=>`<button class="${id===curPage?'active':''}" onclick="nav('${id}')" aria-label="${l}"><span class="ti">${ic}</span><span class="tl">${l}</span></button>`).join('');
+  $('nav').innerHTML = PAGES.map(([id,l,ic])=>`<button class="${id===curPage||id==='progress'&&curPage==='assess'?'active':''}" onclick="nav('${id}')" aria-label="${l}"><span class="ti">${ic}</span><span class="tl">${l}</span></button>`).join('');
   const season = `<div class="season">Season ends Dec 31, 2026 \u00b7 ${w} week${w===1?'':'s'} left</div>`;
   $('main').innerHTML = season + ({dash:pageDash,assess:pageAssess,learn:pageLearn,train:pageTrain,topics:pageTopics,progress:pageProgress})[curPage]();
   if(lastPage!==curPage){ window.scrollTo(0,0); lastPage=curPage; }
@@ -729,7 +735,7 @@ function paceCoachCard(){
 }
 function pageDash(){
   const [lvl,prog]=level(); const sc=latestScores();
-  const weak = sc? SKILLS.find(s=>s.id===weakestSkill()) : null;
+  const suggestion=trainingSuggestion(),weak=SKILLS.find(s=>s.id===suggestion.skill);
   const currentXP=xp(),nextXP=[100,300,700,1500].find(target=>target>currentXP);
   const rankProgress=Math.round(prog*100);
   return `
@@ -748,22 +754,21 @@ function pageDash(){
   <div class="grid grid2">
     <div class="card">
       <h2>Today’s training</h2>
-      ${sc? `<p class="muted">Your weakest pillar right now: <b style="color:var(--text)">${weak.name}</b>, ${weak.desc.toLowerCase()}.</p>` : `<p class="muted">Start with the self-assessment so training can target your weak spots.</p>`}
+      <p><b>${weak.name}</b></p><p class="muted">${esc(suggestion.reason)}</p>
       <div class="flex" style="margin-top:12px">
-        ${sc? `<button class="btn" onclick="startDrill('${weak.id}')">Start targeted drill</button>
-               <button class="btn ghost" onclick="startDrill()">Surprise me</button>`
-            : `<button class="btn" onclick="nav('assess')">Take the assessment (5 min)</button>`}
+        <button class="btn" onclick="startDrill('${weak.id}')">Start suggested drill</button>
+        <button class="btn ghost" onclick="startDrill()">Surprise me</button>
       </div>
     </div>
     <div class="card">
       <h2>Skill profile</h2>
-      ${sc? `<canvas id="radarDash"></canvas>` : `<p class="muted">No assessment yet. Your radar chart will appear here.</p>`}
+      ${sc? `<canvas id="radarDash"></canvas>` : `<p class="muted">Your optional monthly check-in and skill radar live in Growth.</p>`}
     </div>
   </div>
   ${paceCoachCard()}
   <div class="card">
     <h2>How this works</h2>
-    <p class="muted">1) <b style="color:var(--text)">Assess</b> yourself across 8 pillars — six communication, plus <b style="color:var(--text)">Sales & Advice Craft</b> and <b style="color:var(--text)">Technical Fluency</b>. 2) <b style="color:var(--text)">Learn</b> the frameworks (Pyramid Principle, ABT storytelling, Monroe’s sequence, Voss’s listening tools, objection handling, the Dimensional story). 3) <b style="color:var(--text)">Train</b> daily with 1–2 minute drills: small-talk topics your network actually discusses, AND real client objections, Dimensional’s philosophy, and wealth-planning concepts told as story. 4) Re-assess monthly and watch the radar grow.</p>
+    <p class="muted">Learn a framework, practise it out loud, then choose one thing to improve next time. Suggested drills use your recent practice, chosen focus, and skills due for another turn. Growth keeps your practice history and optional monthly check-ins.</p>
   </div>`;
 }
 
@@ -772,8 +777,8 @@ function pageAssess(){
   const done=Object.keys(curAnswers).length;
   return `
   <div class="card">
-    <h2>Self-Assessment</h2>
-    <p class="muted">Rate how true each statement is of you <i>today</i>, based on actual recent behavior, not intention. ${ASSESS.length} statements, ~5 minutes. Re-take monthly; your history is kept.</p>
+    <button class="btn ghost" onclick="nav('progress')">← Back to Growth</button><h2>Monthly check-in</h2>
+    <p class="muted">Optional reflection: rate how true each statement is of you <i>today</i>, based on actual recent behavior, not intention. ${ASSESS.length} statements, ~5 minutes. Re-take monthly; your history is kept.</p>
     <div class="bar" style="margin-top:10px"><i style="width:${Math.round(done/ASSESS.length*100)}%"></i></div>
     <div class="muted">${done}/${ASSESS.length} answered</div>
   </div>
@@ -786,7 +791,7 @@ function pageAssess(){
       `).join('')}
     </div>`).join('')}
   <div class="card flex">
-    <button class="btn" onclick="submitAssess()" ${done<ASSESS.length?'disabled style="opacity:.5"':''}>Submit assessment</button>
+    <button class="btn" onclick="submitAssess()" ${done<ASSESS.length?'disabled style="opacity:.5"':''}>Save check-in</button>
     <span class="muted">${done<ASSESS.length? 'Answer all statements to submit.' : 'Ready!'}</span>
   </div>`;
 }
@@ -833,7 +838,7 @@ function pageTrain(){
     <h2>Daily drills</h2>
     <p class="muted">Each drill is 1–2 minutes of deliberate practice: a proven exercise format × a topic from your interest feed. Speak <b>out loud</b>, thinking it doesn’t count. Self-score honestly afterward; scores steer your recommendations.</p>
     <div class="flex" style="margin-top:12px">
-      <button class="btn" onclick="startDrill('${weakestSkill()}')">Target my weakest skill</button>
+      <button class="btn" onclick="startDrill('${weakestSkill()}')">Start suggested drill</button>
       <button class="btn ghost" onclick="startDrill()">Random drill</button>
     </div>
   </div>
@@ -1392,9 +1397,9 @@ function pageProgress(){
   const recent=[...S.reps].reverse().slice(0,8);
   return `
   <div class="card">
-    <h2>Skill radar ${S.assessments.length>1?'<span class="muted" style="font-weight:400;font-size:.8rem">(grey = first, gold dashes = projected Dec 31, green = latest)</span>':''}</h2>
-    ${sc? `<canvas id="radarProg"></canvas>` : `<p class="muted">Take the assessment to see your radar.</p><button class="btn" onclick="nav('assess')" style="margin-top:8px">Take assessment</button>`}
-    ${sc? `<div class="flex" style="margin-top:8px"><button class="btn ghost" onclick="nav('assess')">Re-take assessment</button><span class="muted">${S.assessments.length} assessment${S.assessments.length>1?'s':''} · last: ${S.assessments[S.assessments.length-1].date.slice(0,10)}</span></div>`:''}
+    <h2>Monthly check-in ${S.assessments.length>1?'<span class="muted" style="font-weight:400;font-size:.8rem">(grey = first, gold dashes = projected Dec 31, green = latest)</span>':''}</h2>
+    ${sc? `<canvas id="radarProg"></canvas>` : `<p class="muted">An optional reflection on your eight skills. Your check-ins and radar stay here; daily training works without them.</p><button class="btn" onclick="nav('assess')" style="margin-top:8px">Start monthly check-in</button>`}
+    ${sc? `<div class="flex" style="margin-top:8px"><button class="btn ghost" onclick="nav('assess')">New monthly check-in</button><span class="muted">${S.assessments.length} assessment${S.assessments.length>1?'s':''} · last: ${S.assessments[S.assessments.length-1].date.slice(0,10)}</span></div>`:''}
   </div>
   ${gradesCard()}
   ${recordsCard()}
