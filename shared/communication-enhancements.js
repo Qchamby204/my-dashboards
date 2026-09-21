@@ -3,7 +3,7 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='communication-trainer'||typeof S==='undefined'||window.CommunicationImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=5d6d05e97b17',source).href;document.head.appendChild(css);}
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=d7c7e081f1f8',source).href;document.head.appendChild(css);}
     const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldToast=toast;
     const fields={assessments:'assessments',reps:'reps',lessonsDone:'lessonsDone',customTopics:'customTopics',retiredTopics:'retired',catsEnabled:'catsEnabled',city:'city',prepNotes:'prepNotes',refreshed:'refreshed',bankUpdated:'bankUpdated',grades:'grades',pendingGrades:'pendingGrades',topicBank:'topicBank'};
     const shadow=new Map(),unsaved=new Set();
@@ -137,7 +137,7 @@
       if(!drill)return;if(draftProblem){toast('Keep a backup first','Your unreadable unfinished practice has been preserved.');return;}
       const available=allTopics().filter(t=>!drill.cats||drill.cats.includes(t.cat));
       if(!available.length){toast('No active topics for this drill','Open Topics to add topics or enable a matching category.');return;}
-      const begin=()=>{stopRec();stopTimer();timerSession=null;remainingMs=null;oldLaunch(drill);curDrill.id=crypto.randomUUID();curDrill.scores=drill.rubric.map(()=>3);lastSaveError='';remainingMs=timerLeft*1000;timerSession=curDrill;rememberPractice();render();window.scrollTo(0,0);};
+      const begin=()=>{stopRec();stopTimer();timerSession=null;remainingMs=null;oldLaunch(drill);curDrill.id=crypto.randomUUID();const suggestion=trainingSuggestion();if(suggestion.skill===drill.skill&&suggestion.focus)curDrill.nextFocus=suggestion.focus;curDrill.scores=drill.rubric.map(()=>3);lastSaveError='';remainingMs=timerLeft*1000;timerSession=curDrill;rememberPractice();render();window.scrollTo(0,0);};
       let draft=curDrill?draftSnapshot():Store.get(DRAFT,null);if(draft?.id&&S.reps.some(r=>r.id===draft.id))draft=null;
       if(draft&&(draft.tx.trim()||draft.recSecs>0||draft.scores.some(n=>n!==3)||draft.remainingMs<(DRILLS.find(d=>d.id===draft.drillId)?.time||0)*1000))uiConfirm('Start a new practice?','Your unfinished transcript and scores will be replaced. Save this practice or export progress first if you want to keep it.','Start new practice',begin);else begin();
     };

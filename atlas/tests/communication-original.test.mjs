@@ -160,3 +160,16 @@ test('career display follows existing XP tiers without changing practice records
   assert.ok(markup.includes(remaining));assert.ok(markup.includes('<h2>'+rank+'</h2>'));assert.ok(markup.includes('aria-valuenow="'+percent+'"'));assert.equal(h.run('JSON.stringify(S)'),before);
  }
 });
+
+test('daily suggestions work without assessments and prioritise a recent chosen focus',()=>{
+  const h=boot();assert.equal(h.run('trainingSuggestion().skill'),h.run('SKILLS[0].id'));
+  h.run("S.reps=[{date:'2026-09-07',skill:SKILLS[2].id,score:80,nextFocus:'Pause before the conclusion'}]");
+  assert.equal(h.run('trainingSuggestion().skill'),h.run('SKILLS[2].id'));
+  assert.equal(h.run('trainingSuggestion().focus'),'Pause before the conclusion');
+  h.run("S.reps[0].nextFocus=''; S.assessments=[{date:'2026-09-07',scores:Object.fromEntries(SKILLS.map(s=>[s.id,0]))}]");
+  assert.equal(h.run('trainingSuggestion().skill'),h.run('SKILLS[0].id'));
+});
+test('recent practice suggestions use self-scores after every skill has had a recent turn',()=>{
+  const h=boot();h.run("S.reps=SKILLS.map((s,i)=>({date:'2026-09-07',skill:s.id,score:i===3?20:80}));S.reps.push({date:'2099-01-01',skill:SKILLS[1].id,score:0,nextFocus:'Future entry'})");
+  assert.equal(h.run('trainingSuggestion().skill'),h.run('SKILLS[3].id'));
+});
