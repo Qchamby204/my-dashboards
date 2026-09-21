@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 
 const html=readFileSync(new URL('../../life-ledger.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../../shared/ledger-enhancements.css',import.meta.url),'utf8');
@@ -16,7 +17,9 @@ test('earned achievement and level-up cards remain visible until dismissed',()=>
 
 test('Ledger loads a uniquely versioned reward hotfix instead of the September cache key',()=>{
   assert.match(theme,/ledger-reward-hotfix-20260916\.js/);
-  assert.match(theme,/ledger-enhancements\.js\?v=reward-hotfix-20260916/);
+  const js=readFileSync(new URL('../../shared/ledger-enhancements.js',import.meta.url),'utf8');
+  const version=createHash('sha256').update(js).digest('hex').slice(0,12);
+  assert.ok(theme.includes('ledger-enhancements.js?v='+version));
   assert.doesNotMatch(theme,/ledger-enhancements\.js\?v=progress-20260909/);
 });
 
