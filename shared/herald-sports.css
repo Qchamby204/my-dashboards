@@ -34,3 +34,11 @@ html.atlas-neumo[data-atlas-app="the-herald"] .vhead .mini.mono{font-size:13px;f
 @media(prefers-reduced-motion:reduce){html.atlas-neumo[data-atlas-app="the-herald"] .bar i{transition:none;}}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-herald"] :is(.card,.vitem){border-color:var(--neo-ink)!important;}html.atlas-neumo[data-atlas-app="the-herald"] .rail-card{border-color:#f4cd77!important;}}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-herald"] .rail-card :is(.lbl,.node,.nm,.v,.k){color:CanvasText!important;}html.atlas-neumo[data-atlas-app="the-herald"] .bar::after{display:none;}html.atlas-neumo[data-atlas-app="the-herald"] .bar i{background:Highlight!important;forced-color-adjust:none;}}
+/* Give the main identity and publishing board the same visual weight. */
+html.atlas-neumo[data-atlas-app="the-herald"] .wrap>header{display:block;background:linear-gradient(125deg,#142135,#24354c)!important;border:1px solid #455872;border-top:3px solid #ebc165;border-radius:12px;padding:24px;margin-top:16px;text-align:left}
+html.atlas-neumo[data-atlas-app="the-herald"] .wrap>header .brand{display:block;color:#f2f5fc!important}
+html.atlas-neumo[data-atlas-app="the-herald"] .wrap>header h1{font-family:'Barlow Condensed',sans-serif!important;font-size:clamp(32px,5vw,48px);letter-spacing:.05em;line-height:1.1;color:#f4cd77!important;background:none!important;-webkit-text-fill-color:currentColor}
+html.atlas-neumo[data-atlas-app="the-herald"] .wrap>header h1::before{content:"";display:inline-block;width:1.5em;height:1.5em;vertical-align:middle;margin-right:.35em;background:center/cover url('icons/the-herald-apple.png?v=8a1621338f3a');border-radius:10px;border:1px solid #596b86}
+html.atlas-neumo[data-atlas-app="the-herald"] .wrap>header .sub{color:#cbd7e7!important;font-size:12px;margin-top:12px;letter-spacing:.12em}
+html.atlas-neumo[data-atlas-app="the-herald"] .vitem{border-left:4px solid var(--neo-accent);box-shadow:none}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-herald"] .wrap>header{background:Canvas!important;border-color:CanvasText}html.atlas-neumo[data-atlas-app="the-herald"] .wrap>header :is(h1,.sub){color:CanvasText!important}}
