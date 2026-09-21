@@ -86,3 +86,17 @@ test('direct add and edit actions open and focus the matching existing setup fie
   h.events.get('click')({target:{closest:()=>({dataset:{hourglassAction:'add'}})}});
   assert.equal(h.run('S.milestones.length'),3);const id=h.run('S.milestones[2].id');assert.equal(h.field(id,'label').focused,true);
 });
+
+test('time overview reads saved assumptions without modifying records',()=>{
+  const h=boot(),before=h.storage.get('hourglass:v1');
+  h.run('S.tab="weeks"; render()');
+  const content=h.node('app').innerHTML;
+  assert.match(content,/Weeks to horizon/);
+  assert.match(content,/chosen age 90 planning horizon/);
+  assert.match(content,/Years to planned retirement/);
+  const percentage=Number(content.match(/aria-valuenow="([^"]+)"/)[1]);
+  assert.ok(percentage>=0&&percentage<=100);
+  assert.equal(h.storage.get('hourglass:v1'),before);
+  h.run('S.retireAge=20; render()');
+  assert.match(h.node('app').innerHTML,/<strong>0\.0<\/strong><span>Years to planned retirement/);
+});

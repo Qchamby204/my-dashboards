@@ -1,0 +1,44 @@
+/* Hourglass sports styling: presentation only, scoped to this dashboard. */
+html.atlas-neumo[data-atlas-app="the-hourglass"] :is(.appbar-title,h2,.cinzel,.hg-title){font-family:'Barlow Condensed',var(--neo-font,sans-serif)!important;font-weight:700;letter-spacing:.035em}
+html.atlas-neumo[data-atlas-app="the-hourglass"] #app{max-width:800px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .appbar{border-bottom:2px solid var(--neo-accent)!important}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .appbar-title{font-size:25px;line-height:1.1;text-transform:uppercase}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .appbar-sub{font-size:10px;letter-spacing:.16em;margin-top:5px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .appbar-pill{border-radius:5px;border-color:var(--neo-accent)!important;box-shadow:none;font-variant-numeric:tabular-nums}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .panel{border-radius:12px!important;border-top:2px solid color-mix(in srgb,var(--neo-accent) 45%,var(--neo-line))!important;box-shadow:0 5px 16px color-mix(in srgb,var(--neo-ink) 7%,transparent)}
+html.atlas-neumo[data-atlas-app="the-hourglass"] h2{font-size:25px;text-transform:uppercase;line-height:1.2}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .eyebrow{font-size:11px;letter-spacing:.12em}
+html.atlas-neumo[data-atlas-app="the-hourglass"] :is(.btn,.addbtn,.xbtn){border-radius:6px;min-height:44px;box-shadow:none!important}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .tabbar{gap:5px;border-top:2px solid var(--neo-accent)!important}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .tabbar button{border-radius:6px;min-width:0!important;flex:1 1 0!important;min-height:50px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .tabbar button.on{border-bottom:3px solid var(--neo-accent)!important;box-shadow:none!important}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .bar{position:relative;isolation:isolate;height:12px;border-radius:3px;box-shadow:none}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .bar i{border-radius:2px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .bar::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--neo-inset) calc(10% - 2px),var(--neo-inset) 10%)}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .grid-wrap{padding:14px 8px 14px 3px;border-radius:6px;background:var(--neo-inset);border:1px solid var(--neo-line)}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .grid-row{margin-bottom:2px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .cell{border-radius:1px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .cell.now{outline:1px solid var(--neo-ink);outline-offset:1px;animation:none}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-upcoming-row{border-left:2px solid var(--neo-accent);padding-left:12px;margin-top:8px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-overview{--neo-inset:#152238;background:linear-gradient(125deg,#142135,#24354c);color:#f2f5fc;border:1px solid #40516a;border-top:3px solid #ebc165;border-radius:12px;padding:22px;margin-bottom:16px;overflow:hidden}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-heading{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-art{width:72px;height:72px;object-fit:cover;border-radius:15px;border:1px solid #647089;flex-shrink:0}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#edc56f;font-weight:700}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-title{font-size:34px;line-height:1.05;text-transform:uppercase;color:#fff!important;margin:5px 0}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-sub{font-size:13px;color:#cbd7e7;line-height:1.5}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat{background:#19293f;border:1px solid #455872;border-top:2px solid #edc56f;border-radius:6px;padding:14px 12px;min-width:0}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat:nth-child(2){border-top-color:#7dc8e3}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat:nth-child(3){border-top-color:#82d9aa}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat strong{display:block;font-family:'Barlow Condensed',sans-serif;font-size:35px;line-height:1.1;font-weight:700;font-variant-numeric:tabular-nums;color:#f4cd77}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat:nth-child(2) strong{color:#94d9f0}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat:nth-child(3) strong{color:#a0e5bb}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat span{display:block;font-size:11px;line-height:1.4;color:#cbd7e7;margin-top:5px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-progress-label{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:#d7e1ee;margin:18px 0 8px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-meter{height:10px;background:#101b2c;border-radius:2px;overflow:hidden;position:relative}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-meter i{display:block;height:100%;background:linear-gradient(90deg,#c69236,#f3cf7f)}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-meter::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),#142135 calc(10% - 2px),#142135 10%)}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-note{font-size:11px;color:#b7c6da;line-height:1.5;margin-top:10px}
+@media(max-width:480px){html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-overview{padding:18px 14px}html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-title{font-size:28px}html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-art{width:60px;height:60px}html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat{padding:12px 8px}html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-stat strong{font-size:29px}html.atlas-neumo[data-atlas-app="the-hourglass"] .appbar{flex-wrap:wrap}}
+@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-overview{border-color:#f4cd77}html.atlas-neumo[data-atlas-app="the-hourglass"] :is(.hg-sub,.hg-note,.hg-stat span){color:#fff}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-hourglass"] :is(.hg-overview,.hg-stat,.hg-title,.hg-stat strong,.hg-stat span,.hg-sub,.hg-note,.hg-kicker,.hg-progress-label){background:Canvas;color:CanvasText!important;border-color:CanvasText}html.atlas-neumo[data-atlas-app="the-hourglass"] :is(.bar,.hg-meter)::after{display:none}html.atlas-neumo[data-atlas-app="the-hourglass"] .hg-meter i{background:Highlight;forced-color-adjust:none}}
