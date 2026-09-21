@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='workout-forge')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=889944ecb213',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=35fb6affef0f',source).href;document.head.append(css);
   function ready(){
     if(window.ForgeSession||typeof state==='undefined')return;
     const RESTKEY='forge:rest:v1',JOURNALKEY='forge:pending-log:v1',keys={sessions:KEY,draft:DRAFTKEY,live:LIVEKEY,swaps:SWAPKEY,order:ORDERKEY,rest:RESTKEY,pendingLog:JOURNALKEY};
@@ -159,6 +159,9 @@
       if(overlay&&live){const panel=overlay.firstElementChild;panel.classList.add('forge-live-panel');overlay.setAttribute('aria-label','Current training session');const finish=overlay.querySelector('[data-act="livefinish"]'),header=finish.parentNode;
         const pause=button(live.pausedAt?'Resume session':'Pause session',pauseLive);pause.id='forge-pause';const cancel=button('Cancel workout',cancelLive);cancel.id='forge-cancel';header.append(pause,cancel);header.classList.add('forge-live-header');const draftStatus=make('p',null,'forge-draft-status');draftStatus.setAttribute('role','status');header.append(draftStatus,info('forge-draft-info','About unfinished session saving','Edits are saved on this device as you type. Finish adds the session to history. The session and rest clocks use elapsed time when you return after locking the phone. Backups include unfinished entries.'));
         const label=make('label','Exercise','forge-picker'),select=make('select');select.id='forge-exercise';const items=orderedItems(dayBy(live.key));items.forEach((it,i)=>{const o=make('option',(i+1)+'. '+effName(it)+(state.draft[effId(it)]?.done?' · done':''));o.value=String(i);select.append(o);});select.value=String(live.exIdx);select.disabled=!!live.pausedAt;select.addEventListener('change',()=>goExercise(Number(select.value)));label.append(select);header.after(label);
+        const exercise=items[live.exIdx],eid=effId(exercise),previous=orderedSessions().map(x=>x.session).filter(s=>s.date<=todayISO()).reverse().find(s=>s.items?.[eid]&&(s.items[eid].sets?.some(x=>Number(x.r)>0)||Number(s.items[eid].min)>0||s.items[eid].note));
+        const last=make('section',null,'forge-last-time');last.append(make('strong','Last time · '+effName(exercise)));
+        if(previous){const entry=previous.items[eid];last.append(make('p',previous.date+' · '+(entry.sets?.filter(x=>Number(x.r)>0).map(x=>(x.w||0)+' lb × '+x.r).join(' / ')||[entry.min?entry.min+' minutes':'',entry.mode||''].filter(Boolean).join(' · ')||'Notes only')));if(entry.note)last.append(make('p',entry.note));}else last.append(make('p','No saved entries for this exercise variation yet. Today can establish your baseline.'));label.after(last);
         const done=overlay.querySelector('[data-act="livedone"]'),prev=overlay.querySelector('[data-act="liveprev"]');prev.disabled=live.exIdx===0||!!live.pausedAt;
         if(state.draft[effId(items[live.exIdx])]?.done)done.textContent=live.exIdx===items.length-1?'Already marked done':'Next exercise';
         const skip=button('Skip for now',()=>goExercise(live.exIdx+1));skip.id='forge-skip';skip.disabled=live.exIdx===items.length-1||!!live.pausedAt;done.parentNode.append(skip);done.parentNode.classList.add('forge-live-actions');

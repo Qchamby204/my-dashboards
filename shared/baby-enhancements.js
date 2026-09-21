@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='baby-brain')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('baby-enhancements.css',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('baby-enhancements.css?v=b1388f1a1399',source).href;document.head.appendChild(css);
   function ready(){
     if(window.BabyNavigation||typeof ALL==='undefined')return;
     const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e;};
@@ -23,6 +23,7 @@
       if(!plain(data))throw Error('Expected a notes record.');
       function keys(v){if(v&&typeof v==='object')for(const k of Object.keys(v)){if(['__proto__','prototype','constructor'].includes(k))throw Error('Unsafe record key.');keys(v[k]);}}keys(data);
       for(const [id,o]of Object.entries(data)){
+        if(['decision','unresolved','appointment'].some(k=>o?.[k]!==undefined&&(typeof o[k]!=='string'||o[k].length>4000)))throw Error('Invalid family decision.');
         if(!id||!plain(o)||o.n!==undefined&&typeof o.n!=='string'||o.s!==undefined&&!states.includes(o.s)||o.d!==undefined&&(!Array.isArray(o.d)||o.d.some(i=>!Number.isInteger(i)||i<0))||o.lk!==undefined&&(!Array.isArray(o.lk)||o.lk.some(l=>!plain(l)||typeof l.u!=='string'||l.t!==undefined&&typeof l.t!=='string')))throw Error('Invalid topic record.');
       }
       return clone(data);
@@ -48,11 +49,11 @@
     const notice=make('div',null,'baby-save-notice');notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');
     const noticeText=make('p');notice.append(noticeText,button('Retry saving',()=>{if(blocked){toast('Back up the unreadable record, then restore a valid notes file.');return;}save();}),button('Back up notes',()=>exportNotes()));document.body.append(notice);
     const body=$('shBody');sheet.setAttribute('aria-labelledby','shTitle');sheet.inert=true;sheet.setAttribute('aria-hidden','true');
-    function hasNotes(n){const o=STATE[n.id];return !!(o&&(o.n?.trim()||o.lk?.length));}
+    function hasNotes(n){const o=STATE[n.id];return !!(o&&(o.n?.trim()||o.lk?.length||o.decision?.trim()||o.unresolved?.trim()||o.appointment?.trim()));}
     const catalog=new Map(ALL.map(n=>[n.id,normalize([n.l,n.pathLabels.join(' '),cleanText(n.w),(n.q||[]).map(cleanText).join(' '),(n.r||[]).map(s=>s[0]+' '+cleanText(s[1])).join(' ')].join(' '))]));
     function findTopics(query='',hub='',stageFilter='',onlyNotes=false,includeBranches=false){
       const words=normalize(query).trim().split(/\s+/).filter(Boolean);
-      return (includeBranches?ALL.filter(n=>n.depth>0):LEAVES).filter(n=>(!hub||n.id.startsWith(hub+'/')||n.id===hub)&&(!stageFilter||n.s===stageFilter||n.s==='all')&&(!onlyNotes||hasNotes(n))&&words.every(w=>(catalog.get(n.id)+' '+normalize(STATE[n.id]?.n||'')).includes(w))).sort((a,b)=>{
+      return (includeBranches?ALL.filter(n=>n.depth>0):LEAVES).filter(n=>(!hub||n.id.startsWith(hub+'/')||n.id===hub)&&(!stageFilter||n.s===stageFilter||n.s==='all')&&(!onlyNotes||hasNotes(n))&&words.every(w=>(catalog.get(n.id)+' '+normalize([STATE[n.id]?.n,STATE[n.id]?.decision,STATE[n.id]?.unresolved,STATE[n.id]?.appointment].filter(Boolean).join(' '))).includes(w))).sort((a,b)=>{
         const q=normalize(query).trim(),score=n=>q?(normalize(n.l)===q?3:normalize(n.l).startsWith(q)?2:normalize(n.l).includes(q)?1:0):0;
         return score(b)-score(a)||a.l.localeCompare(b.l);
       });
@@ -93,6 +94,9 @@
     function refresh(node){paintNode(node);refreshProgress();paintSave();}
     wireSheet=function(node){
       const o=st(node),notes=$('notes'),questions=$('qlist');
+      const decisions=make('section',null,'baby-decisions');decisions.append(make('h3','Our decisions'));
+      for(const [key,title] of [['decision','What we decided'],['unresolved','Still to decide'],['appointment','Questions for our appointment']]){const label=make('label',title),field=make('textarea');field.value=o[key]||'';field.maxLength=4000;field.rows=3;field.disabled=blocked;field.addEventListener('input',()=>{if(blocked)return;o[key]=field.value;save();refresh(node);});label.append(field);decisions.append(label);}
+      const taskLabel=make('label','Preparation task'),task=make('input');task.placeholder='One concrete next action';task.maxLength=300;taskLabel.append(task);const handoff=make('a','Review task in Life Map');handoff.className='baby-button';handoff.href='life-map.html';handoff.addEventListener('click',e=>{if(!task.value.trim()){e.preventDefault();task.focus();return;}handoff.href='life-map.html#capture='+encodeURIComponent(task.value.trim());});decisions.append(taskLabel,handoff,make('p','Opens a draft for you to review and add. Nothing is completed automatically.'));body.append(decisions);
       const jumps=make('nav',null,'baby-jumps');jumps.setAttribute('aria-label','Topic sections');
       const read=button('Read',()=>body.scrollTo({top:0,behavior:'auto'}));read.classList.add('baby-jump');jumps.append(read);
       [['Notes','notes'],['Resources','links']].forEach(([name,id])=>{const target=$(id);if(target){const b=button(name,()=>{target.scrollIntoView({block:'start',behavior:'auto'});if(id==='notes')target.focus({preventScroll:true});});b.classList.add('baby-jump');jumps.append(b);}});body.prepend(jumps);
@@ -144,7 +148,7 @@
     const originalInsets=insets;
     insets=function(ignoreSheet){return {...originalInsets(ignoreSheet),top:Math.max(hud.getBoundingClientRect().bottom,toolbar.getBoundingClientRect().bottom)+16};};
     ensureVisible=function(node){if(!node)return;const top=toolbar.getBoundingClientRect().bottom+16,bottom=Math.max(top+60,sheet.classList.contains('show')?sheet.getBoundingClientRect().top-18:innerHeight-60),p=node.parent||node;animateTo(scale,innerWidth/2-(node.tx*.68+p.tx*.32)*scale,(top+bottom)/2-(node.ty*.68+p.ty*.32)*scale);};
-    refreshProgress=function(){const n=LEAVES.filter(hasNotes).length;$('progFill').style.width=(100*n/Math.max(1,LEAVES.length)).toFixed(1)+'%';$('progTxt').textContent=n+' topics with notes or links';};
+    refreshProgress=function(){const n=LEAVES.filter(hasNotes).length;$('progFill').style.width=(100*n/Math.max(1,LEAVES.length)).toFixed(1)+'%';$('progTxt').textContent=n+' topics with notes, decisions or links';};
     // The legacy speech shortcut must not also run when a focused control uses Space.
     body.addEventListener('keydown',e=>{if(e.key===' '&&e.target.closest('button,[role="button"],[role="checkbox"]'))e.stopPropagation();});
     window.addEventListener('resize',measure);window.visualViewport?.addEventListener('resize',measure);if(window.ResizeObserver)new ResizeObserver(measure).observe(hud);

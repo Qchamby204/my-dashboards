@@ -26,3 +26,6 @@ html[data-atlas-app="operations-cadence"] [data-operations-key]:focus,html[data-
   html[data-atlas-app="operations-cadence"] .rail-count{font-size:11px}
   html[data-atlas-app="operations-cadence"] .note-wrap textarea{min-height:100px;font-size:16px}
 }
+
+/* Focused daily workflow additions. */
+.growth-dialog{max-width:520px;width:calc(100% - 32px);color:var(--neo-text,#eee);background:var(--neo-surface,#202936);border:1px solid var(--neo-line,#596477);border-radius:16px;padding:24px}.growth-dialog::backdrop{background:#0009}.growth-dialog form{display:grid;gap:12px}.growth-dialog input,.growth-dialog select{font:inherit;min-height:44px}.growth-dialog [hidden]{display:none}

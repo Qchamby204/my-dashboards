@@ -106,3 +106,6 @@ html.atlas-neumo[data-atlas-app="workout-forge"] .forge-summary {border-top:2px 
 @media(prefers-reduced-transparency:reduce),(prefers-contrast:more){html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-live-panel,.forge-rest,.forge-confirm,.forge-save-notice){background:var(--neo-surface)!important;backdrop-filter:none;}}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-rest,.forge-confirm){border-color:var(--neo-ink)!important;}}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="workout-forge"] .bartrack>.fill{background:Highlight!important;forced-color-adjust:none;}}
+
+/* Focused daily workflow additions. */
+.forge-last-time{padding:14px;margin:12px 0;border:1px solid var(--neo-line,#596477);border-left:3px solid #dfbd75;border-radius:10px}.forge-last-time p{white-space:pre-wrap;margin:8px 0}

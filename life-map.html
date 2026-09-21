@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=life-map-workflow-20260917"></script>
+<script src="shared/atlas-theme.js?v=2e97773b9d7c"></script>
 <style>
 :root{
   --bg:#0c0e1a; --card:#141830; --card2:#1a1f3a; --line:rgba(120,130,180,.16);
@@ -75,7 +75,7 @@ a{color:inherit}
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-workflow.css">
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=2d3aa4a936e1"><link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-32.png?v=0cfc426aae7b">
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=d8f42dd57933"><link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-32.png?v=0cfc426aae7b">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-64.png?v=c95ca5a4b3ef">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-apple.png?v=8b8862ad8038">
 </head>
@@ -1246,6 +1246,7 @@ function validateLifeMapRecords(input){
   const link=x=>{try{return typeof x==='string'&&x.length<=3000&&['http:','https:'].includes(new URL(x).protocol);}catch{return false;}};
   const checklist=x=>x===undefined||Array.isArray(x)&&x.length<=100&&new Set(x.map(c=>c.id)).size===x.length&&x.every(c=>object(c)&&id(c.id)&&string(c.text,500,true)&&typeof c.done==='boolean');
   for(const p of out.projects){
+    if(p.effortMinutes!==undefined&&(!Number.isInteger(p.effortMinutes)||p.effortMinutes<1||p.effortMinutes>10080))throw Error('A task has an invalid effort estimate.');
     if(!optionalDates(p,['plan','planWeek','showAfter','followUp','createdAt','updatedAt'])||!['inbox','someday','archived'].every(k=>flag(p,k))||!string(p.waitingFor??'',300)||p.parentId&&!id(p.parentId)||!checklist(p.checklist))throw Error('A task has invalid planning or checklist details.');
     if(p.tags!==undefined&&(!Array.isArray(p.tags)||p.tags.length>10||p.tags.some(t=>!string(t,40,true))))throw Error('Use up to ten short context tags.');
     if(p.links!==undefined&&(!Array.isArray(p.links)||p.links.length>10||p.links.some(x=>!link(x))))throw Error('Task links must start with https:// or http://.');
@@ -1518,7 +1519,7 @@ function createLifeMapWorkflow(){
     else if(p.planWeek)meta.push('Week of '+fmtDay(p.planWeek));
     if(p.followUp&&p.status==='Waiting')meta.push('Follow up '+fmtDay(p.followUp));
     if(p.showAfter)meta.push('Show '+fmtDay(p.showAfter));else if(p.park)meta.push('Parked '+fmtMonth(p.park));if(p.someday)meta.push('Someday');
-    if(p.pri==='High')meta.push('High');if(p.checklist?.length)meta.push(p.checklist.filter(x=>x.done).length+'/'+p.checklist.length+' steps');
+    if(p.effortMinutes)meta.push(p.effortMinutes+' min');if(p.tags?.length)meta.push(p.tags.join(', '));if(p.pri==='High')meta.push('High');if(p.checklist?.length)meta.push(p.checklist.filter(x=>x.done).length+'/'+p.checklist.length+' steps');
     return '<div class="lm-task-row'+(done?' lm-done':'')+'">'+
       button(selectMode?(selected?'✓':''):(done?'✓':''),selectMode?'select':'complete','data-id="'+esc(p.id)+'" aria-label="'+esc((selectMode?'Select ':done?'Reopen ':'Complete ')+p.task)+'" aria-pressed="'+(selectMode?selected:done)+'"','lm-check')+
       '<button type="button" class="btn lm-task-main" data-lm="edit-task" data-id="'+esc(p.id)+'"><span class="lm-task-title">'+title+'</span>'+(meta.length?'<span class="lm-row-meta">'+meta.map(esc).join(' · ')+'</span>':'')+'</button>'+
@@ -1626,7 +1627,7 @@ function createLifeMapWorkflow(){
       '<details class="lm-details"'+(e.notes||checklist.length?' open':'')+'><summary>Notes, checklist & links</summary>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+
       '<div class="lm-checklist">'+checklist.map((c,i)=>'<div class="lm-inline"><input type="checkbox" data-lm="check-item" data-index="'+i+'" aria-label="Complete checklist item"'+(c.done?' checked':'')+'><input data-lm="check-text" data-index="'+i+'" value="'+esc(c.text)+'" maxlength="500" aria-label="Checklist item '+(i+1)+'">'+button('×','remove-check','data-index="'+i+'" aria-label="Remove checklist item"','lm-icon')+'</div>').join('')+button('+ Checklist item','add-check')+'</div>'+
       field('Source links (one per line)','<textarea data-lm="field" data-field="linksText" rows="2" placeholder="https://…">'+esc(e.linksText??(e.links||[]).join('\n'))+'</textarea>')+'</details>'+
-      '<details class="lm-details"><summary>Context & deferral</summary>'+field('Context tags (comma separated)',input('tagsText',e.tagsText??(e.tags||[]).join(', '),'text','placeholder="Calls, Errands, Quick task"'))+field('Sub-area',input('sub',e.sub,'text','maxlength="500"'))+field('Show again on',input('showAfter',e.showAfter,'date'))+
+      '<details class="lm-details"><summary>Context & deferral</summary>'+field('Context tags (comma separated)',input('tagsText',e.tagsText??(e.tags||[]).join(', '),'text','placeholder="Calls, Errands, Quick task"'))+field('Estimated effort (minutes)',input('effortMinutes',e.effortMinutes,'number','min="1" max="10080" step="1"'))+field('Sub-area',input('sub',e.sub,'text','maxlength="500"'))+field('Show again on',input('showAfter',e.showAfter,'date'))+
       '<label class="lm-checkbox"><input type="checkbox" data-lm="field-check" data-field="someday"'+(e.someday?' checked':'')+'> Someday — keep out of Next</label><label class="lm-checkbox"><input type="checkbox" data-lm="field-check" data-field="inbox"'+(e.inbox?' checked':'')+'> Still needs organizing (Inbox)</label>'+help('Deferral does not change a real deadline. Nearby deadlines remain visible.')+'</details>'+
       '<div class="lm-sheet-actions">'+button('Save task','save-editor','data-lm-save','lm-primary')+(e.id?button('Calendar reminder','reminder','data-id="'+esc(e.id)+'"'):'')+'</div>'+(e.id?button('Delete task','delete-editor','','lm-danger'):'');
   }
@@ -1684,7 +1685,7 @@ function createLifeMapWorkflow(){
     try{
       if(e.kind==='proj'){
         for(const k of ['task','area','sub','pri','due','park','notes','plan','planWeek','showAfter','parentId','waitingFor','followUp'])row[k]=String(e[k]??row[k]??'');
-        row.task=row.task.trim();row.pri=row.pri||'Med';for(const k of ['inbox','someday','archived'])if(e[k]!==undefined)row[k]=!!e[k];
+        if(e.effortMinutes!==undefined){const n=Number(e.effortMinutes);if(e.effortMinutes!==''&&(!Number.isInteger(n)||n<1||n>10080))throw Error('Use a whole number of minutes between 1 and 10080.');if(e.effortMinutes==='')delete row.effortMinutes;else row.effortMinutes=n;}row.task=row.task.trim();row.pri=row.pri||'Med';for(const k of ['inbox','someday','archived'])if(e[k]!==undefined)row[k]=!!e[k];
         row.status=e.status||row.status||'Not started';row.tags=e.tagsText!==undefined?e.tagsText.split(',').map(x=>x.trim()).filter(Boolean):e.tags||row.tags||[];
         row.links=e.linksText!==undefined?e.linksText.split(/\r?\n/).map(x=>x.trim()).filter(Boolean):e.links||row.links||[];
         row.checklist=(e.checklist||row.checklist||[]).filter(c=>c.text?.trim()).map(c=>({id:c.id||uid(),text:c.text.trim(),done:!!c.done}));
@@ -1862,9 +1863,20 @@ function createLifeMapWorkflow(){
   app.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='qaTxt'){ev.preventDefault();ev.stopImmediatePropagation();quickAdd();}},true);
   document.addEventListener('change',ev=>{if(ev.target.id==='importFile'&&ev.target.files?.[0])importData(ev.target.files[0]);});
   document.addEventListener('keydown',ev=>{if(ev.ctrlKey||ev.metaKey||ev.altKey||ev.target?.matches?.('input,textarea,select,[contenteditable]'))return;if(ev.key==='n'&&!view.editor){ev.preventDefault();captureSheet();}if(ev.key==='/'&&!view.editor){ev.preventDefault();handle('search',{dataset:{}});}});
+  function weeklyPanel(){
+    const now=new Date(todayISO()+'T12:00:00'),offset=(now.getDay()+6)%7;now.setDate(now.getDate()-offset);const week=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const chosen=S.projects.filter(p=>!p.archived&&p.planWeek===week),open=chosen.filter(p=>p.status!=='Done'),minutes=open.reduce((n,p)=>n+(p.effortMinutes||0),0);
+    const panel=document.createElement('section');panel.className='panel lm-weekly';panel.setAttribute('aria-label','Weekly shortlist');
+    panel.innerHTML='<h2>This week</h2><p>'+chosen.filter(p=>p.status==='Done').length+' of '+chosen.length+' chosen tasks complete'+(minutes?' · '+minutes+' estimated minutes remaining':'')+'</p>'+info('About the weekly shortlist','Choose a small set of commitments for this Monday-to-Sunday week. Your backlog stays intact. Unfinished tasks remain in Projects when a new week starts; they are not automatically recommitted.')+open.map(p=>taskRow(p)).join('');
+    const label=document.createElement('label');label.textContent='Choose a task for this week';const select=document.createElement('select');select.innerHTML='<option value="">Choose from your backlog…</option>'+S.projects.filter(p=>!p.archived&&p.status!=='Done'&&p.planWeek!==week).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.task)+'</option>').join('');label.append(select);panel.append(label);
+    const add=document.createElement('button');add.type='button';add.className='btn';add.textContent='Add to this week';add.onclick=()=>{if(!select.value)return;const id=select.value;transaction(next=>{const p=next.projects.find(p=>p.id===id);if(p)p.planWeek=week;},'Added to this week');};panel.append(add);
+    if(open.length>5){const note=document.createElement('p');note.textContent='More than five commitments. Consider keeping only what realistically fits.';panel.append(note);}
+    if(chosen.length){const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Adjust shortlist';details.append(summary);chosen.forEach(p=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='Remove: '+p.task;b.onclick=()=>transaction(next=>{const row=next.projects.find(x=>x.id===p.id);if(row?.planWeek===week)delete row.planWeek;},'Removed from this week');details.append(b);});panel.append(details);}
+    return panel;
+  }
   const baseRender=render;
   render=function(){
-    loadDraft();const y=window.scrollY||0;baseRender();
+    loadDraft();const y=window.scrollY||0;baseRender();const todayPanel=app.querySelector('[data-lm="capture-today"]')?.closest('.panel');if(todayPanel)todayPanel.after(weeklyPanel());else app.querySelector('.appbar')?.after(weeklyPanel());
     const dialog=app.querySelector('dialog.lm-sheet-overlay');if(dialog){if(typeof dialog.showModal==='function'&&!dialog.open)dialog.showModal();dialog.addEventListener('cancel',ev=>{ev.preventDefault();closeEditor();});}
     const launch=document.createElement('button');launch.type='button';launch.id='lm-capture-launch';launch.className='btn lm-fab';launch.dataset.lm='capture';launch.setAttribute('aria-label','Capture a task');launch.textContent='+';launch.hidden=!!view.editor;app.appendChild(launch);
     const footer=document.createElement('div');footer.className='lm-tools';footer.innerHTML=button('Capture, saving & reminders','connections')+((S.groups||[]).some(g=>g.archived)?button('Archived projects','archived-groups'):'');app.appendChild(footer);

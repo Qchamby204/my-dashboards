@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='operations-cadence')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('operations-enhancements.css',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('operations-enhancements.css?v=fe19635059b4',source).href;document.head.appendChild(css);
   function ready(){
     if(window.OperationsImprovements||typeof state==='undefined')return;
     const plain=o=>o!==null&&typeof o==='object'&&!Array.isArray(o),own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
@@ -20,6 +20,8 @@
     function validateState(value){
       if(!plain(value))throw Error('Choose a valid Operations Cadence backup.');
       const checkKeys=o=>{if(o&&typeof o==='object')for(const [k,v]of Object.entries(o)){if(['__proto__','prototype','constructor'].includes(k))throw Error('Invalid record key.');checkKeys(v);}};checkKeys(value);
+      if(value.missedOccurrences!==undefined&&!plain(value.missedOccurrences))throw Error('Invalid occurrence decisions.');
+      for(const v of Object.values(value.missedOccurrences||{}))if(!plain(v)||!['keep','roll','skip'].includes(v.action)||!day(v.date)||typeof v.label!=='string'||typeof v.reason!=='string'||v.reason.length>500||v.action==='roll'&&!day(v.until))throw Error('Invalid occurrence decision.');
       for(const k of ['custom','sched','recur','overrides'])if(value[k]!==undefined&&!plain(value[k]))throw Error('Invalid '+k+' records.');
       for(const rows of Object.values(value.custom||{})){
         if(!Array.isArray(rows)||rows.some(x=>!plain(x)||typeof x.cid!=='string'||!/^c[\w-]+$/.test(x.cid)||typeof x.t!=='string'||x.sys!==undefined&&typeof x.sys!=='string'))throw Error('Invalid custom checklist.');
@@ -126,7 +128,7 @@
         if(dates.length)rows.push({sid:sec.id,i,task,custom,label:labelFor(sec.id,i,task),date:dates[0].date,source:dates[0].source,type:'cadence'});
       }));
       getLog().filter(t=>!t.done&&day(t.due)&&t.due<=today).forEach(t=>rows.push({type:'log',item:t,label:t.text,date:t.due,source:'Date you set in Captured tasks'}));
-      return rows.sort((a,b)=>a.date.localeCompare(b.date)||a.label.localeCompare(b.label));
+      return rows.filter(row=>{const choice=state.missedOccurrences?.[occurrenceKey(row)];if(choice?.action==='skip')return false;if(choice?.action==='roll'&&choice.until>today)return false;if(choice?.action==='roll')row.source+=' · rolled to '+choice.until;return true;}).sort((a,b)=>a.date.localeCompare(b.date)||a.label.localeCompare(b.label));
     }
     todayCounts=()=>({left:dueRows().length,total:dueRows().length,done:0});
     function completeRow(row){
@@ -138,10 +140,17 @@
         if(pin&&!schedFor(row.sid,row.i))getSched()[k]=pin;state.events=getEvents().filter(e=>e.id!==event.id);save();render();
       });
     }
+    function occurrenceKey(row){return (row.type==='log'?'log:'+row.item.id:keyFor(row.sid,row.i))+':'+row.date;}
+    function resolveMissed(row){
+      const dialog=make('dialog',null,'growth-dialog');dialog.setAttribute('aria-label','Handle overdue task');dialog.append(make('h2',row.label),make('p','Choose what happens to this occurrence. Skipping does not count as completed.'));
+      const form=make('form'),choice=make('select'),reason=make('input'),date=make('input'),status=make('p');choice.setAttribute('aria-label','How to handle this occurrence');for(const [value,text]of [['keep','Keep outstanding'],['roll','Roll forward'],['skip','Skip with a reason']]){const o=make('option',text);o.value=value;choice.append(o);}reason.placeholder='Reason for skipping';reason.maxLength=500;reason.setAttribute('aria-label','Reason');date.type='date';date.min=isoDay();date.value=isoDay();date.setAttribute('aria-label','Return on');status.setAttribute('role','status');
+      const update=()=>{reason.hidden=choice.value!=='skip';reason.required=choice.value==='skip';date.hidden=choice.value!=='roll';date.required=choice.value==='roll';};choice.onchange=update;update();const submit=make('button','Save decision');submit.type='submit';form.append(choice,date,reason,status,submit,button('Cancel',()=>dialog.close()));
+      form.onsubmit=e=>{e.preventDefault();if(choice.value==='roll'&&(!day(date.value)||date.value<isoDay())){status.textContent='Choose today or a later date.';return;}const rule=row.type==='cadence'?recurFor(row.sid,row.i):null;if(choice.value==='roll'&&rule&&date.value>=nextOccurrence(rule)){status.textContent='Choose a date before the next recurring occurrence ('+nextOccurrence(rule)+').';return;}const key=occurrenceKey(row),before=state.missedOccurrences?.[key];state.missedOccurrences={...state.missedOccurrences,[key]:{action:choice.value,until:choice.value==='roll'?date.value:'',reason:reason.value.trim(),label:row.label,date:row.date}};if(!save()){status.textContent='Not saved. Retry or download a backup.';return;}dialog.close();render();toast('Occurrence decision saved.','Undo',()=>{if(before)state.missedOccurrences[key]=before;else delete state.missedOccurrences[key];save();render();});};dialog.append(form);dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
+    }
     function taskRow(row){
       const li=make('li',null,'task operations-due-row'),check=button('Done',()=>completeRow(row));check.setAttribute('aria-label','Mark '+row.label+' complete');
       const text=make('div');text.append(make('p',row.label,'task-text'),make('p',(row.date<isoDay()?'Overdue · ':'Due · ')+fmtDate(parseDate(row.date))+' · '+row.source,'operations-source'));li.append(check,text);
-      if(row.type==='cadence')li.appendChild(button('Schedule',()=>scheduleSheet(row.sid,row.i,row.label)));return li;
+      if(row.date<isoDay())li.appendChild(button('Handle overdue',()=>resolveMissed(row)));if(row.type==='cadence')li.appendChild(button('Schedule',()=>scheduleSheet(row.sid,row.i,row.label)));return li;
     }
     const navigate=id=>{active=id;searchQ='';render();};
     renderToday=function(){
@@ -151,6 +160,7 @@
       if(searchQ.trim().length>=2){renderSearch(body);return;}
       const scheduled=make('section',null,'operations-group');scheduled.append(make('h3','Scheduled work'),make('p','Only tasks with a date or repeat schedule you set.','operations-source'));
       if(rows.length){const list=make('ul',null,'tasks');rows.forEach(row=>list.appendChild(taskRow(row)));scheduled.appendChild(list);}else scheduled.appendChild(make('p','No scheduled tasks are due. Open a routine checklist when you need it.','operations-empty'));body.appendChild(scheduled);
+      const decisions=Object.entries(state.missedOccurrences||{});if(decisions.length){const details=make('details'),summary=make('summary','Occurrence decisions · '+decisions.length);details.append(summary);for(const [key,item] of decisions.slice(-20).reverse()){const entry=make('div');entry.append(make('p',item.label+' · '+item.date+' · '+(item.action==='roll'?'Return '+item.until:item.action==='skip'?'Skipped: '+item.reason:'Kept outstanding')),button('Remove decision',()=>{delete state.missedOccurrences[key];if(!save()){state.missedOccurrences[key]=item;toast('Could not save. Please retry.');return;}render();toast('Decision removed. Applicable outstanding work is visible again.');}));details.append(entry);}body.append(details);}
       const undated=getLog().filter(t=>!t.done&&!t.due).sort((a,b)=>b.created-a.created),capture=make('section',null,'operations-group');
       capture.append(make('h3','Captured tasks'+(undated.length?' · '+undated.length:'')),make('p','Your undated captures stay here until you complete them or choose a date.','operations-source'));
       if(undated.length){const list=make('ul',null,'tasks');undated.slice(0,5).forEach(t=>{const li=make('li',null,'task operations-due-row');li.append(button('Done',()=>toggleLog(t.id)),make('p',t.text,'task-text'),button('Set date',()=>editDue(t.id)));list.appendChild(li);});capture.appendChild(list);}else capture.appendChild(make('p','Use the capture field above to add a one-off task.','operations-empty'));
