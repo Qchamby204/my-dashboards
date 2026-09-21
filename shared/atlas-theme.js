@@ -6,6 +6,10 @@
   // Extend the existing pages in place. Their HTML, records, and URLs remain theirs.
   const sharedSource=document.currentScript?.src;
   if(sharedSource&&document.head){
+    // Sports styling only: no record access or changes to dashboard behavior.
+    if(['crucible', 'neural-map', 'baby-brain', 'the-aqueduct', 'operations-cadence', 'chambers-wealth-hq', 'prospecting-command-center', 'review'].includes(root.dataset.atlasApp)){
+      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=bc2b59393d86',sharedSource).href;document.head.appendChild(sports);
+    }
     const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=life-map-workflow-20260917':'atlas-mobile.js',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
     if(root.dataset.atlasApp==='the-herald'){
       const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
