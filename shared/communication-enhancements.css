@@ -96,3 +96,42 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.communication-save
 
 /* Focused daily workflow additions. */
 .communication-transcript{white-space:pre-wrap}.communication-transcript+label{display:grid;gap:8px}.communication-transcript~input,#communication-next-focus{font-size:16px;min-height:44px;width:100%}.card>details>button{margin:10px 0}
+
+/* Communicator page audit: readable choices, complete navigation, resilient cards. */
+html.atlas-neumo[data-atlas-app="communication-trainer"] main{padding-bottom:calc(var(--atlas-bottom-h,90px) + 28px + env(safe-area-inset-bottom));min-width:0}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .grid3{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard,.rubric,.grid>*){min-width:0}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard)>.tag{display:inline-block;width:auto;max-width:100%;border-radius:4px;padding:5px 9px;line-height:1.4;white-space:normal}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .likert{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0 24px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .likert button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:48px;padding:10px 8px;font-size:14px;line-height:1.4;white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:none;border:1px solid var(--neo-line)!important;border-radius:7px;background:var(--neo-inset)!important;color:var(--neo-ink)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .likert .assessment-value{font-family:var(--mono);font-size:12px;opacity:.7}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .likert button.sel{border:2px solid var(--neo-accent)!important;background:var(--neo-surface)!important;color:var(--neo-accent)!important;font-weight:700;box-shadow:inset 0 -3px 0 var(--neo-accent)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .q{font-size:16px;line-height:1.6;margin-top:22px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;overflow:visible;padding-inline:max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-right))}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #nav button{min-width:0;min-height:52px;width:100%;padding:8px 2px;gap:5px;white-space:normal;overflow-wrap:normal}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #nav .tl{font-size:12px;letter-spacing:0;white-space:nowrap;overflow:visible;text-overflow:clip;line-height:1.3}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar h1{min-width:0;white-space:normal;font-size:clamp(16px,4.5vw,23px);line-height:1.2;letter-spacing:.01em}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar .homebtn{flex-shrink:0}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .topicitem{gap:12px;align-items:center}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .topicitem>span{min-width:0;overflow-wrap:break-word}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .topicitem>button{flex-shrink:0;min-height:44px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .lhead{min-height:52px;line-height:1.5}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .lhead>span:last-child{min-width:0;overflow-wrap:break-word}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .heat{max-width:100%;overscroll-behavior-inline:contain}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(textarea,input,select){max-width:100%;box-sizing:border-box;font-size:16px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(button,summary,input,textarea,select):focus-visible{outline:2px solid var(--neo-accent);outline-offset:3px}
+@media(max-width:600px){html.atlas-neumo[data-atlas-app="communication-trainer"] .likert{grid-template-columns:repeat(2,minmax(0,1fr))}html.atlas-neumo[data-atlas-app="communication-trainer"] .likert button:last-child{grid-column:1/-1}html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard){padding:16px}html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar{gap:8px}html.atlas-neumo[data-atlas-app="communication-trainer"] .stat .l{white-space:normal;font-size:12px;line-height:1.4}html.atlas-neumo[data-atlas-app="communication-trainer"] .stat .v{white-space:normal}html.atlas-neumo[data-atlas-app="communication-trainer"] .topicitem{flex-wrap:wrap}}
+@media(max-width:360px){html.atlas-neumo[data-atlas-app="communication-trainer"] #nav{grid-template-columns:repeat(3,minmax(0,1fr))}html.atlas-neumo[data-atlas-app="communication-trainer"] #nav button{flex-direction:row;min-height:44px;gap:7px}html.atlas-neumo[data-atlas-app="communication-trainer"] #nav .tl{font-size:14px}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="communication-trainer"] .likert button.sel{border-color:Highlight!important;outline:2px solid Highlight}}
+
+html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .lhead{padding:4px 10px;gap:8px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:1;min-width:0;min-height:48px;border:0!important;box-shadow:none!important;background:transparent!important;color:var(--neo-ink)!important;text-align:left;padding:8px;font:inherit;font-size:16px;line-height:1.5;overflow-wrap:normal}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .check{width:44px;height:44px;min-width:44px;border-radius:7px;border:1px solid var(--neo-line)!important;color:var(--neo-ink)!important;background:var(--neo-inset)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .check.done{border-color:var(--neo-green)!important;color:var(--neo-green)!important}
+
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(#radarDash,#radarProg){display:block;width:100%}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-legend{list-style:none;padding:0;margin:8px 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 20px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-legend li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--neo-line);padding:8px 0;font-size:14px;line-height:1.5}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-legend strong{white-space:nowrap;color:var(--neo-green);font-variant-numeric:tabular-nums}
+@media(max-width:600px){html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-legend{grid-template-columns:1fr}}
