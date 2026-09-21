@@ -1,3 +1,4 @@
+import './sync-icons.mjs';
 import {connectedAssets} from './connected-build.mjs';
 import './build-life-map.mjs';
 import './build-refinements.mjs';
