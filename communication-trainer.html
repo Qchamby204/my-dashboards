@@ -14,8 +14,8 @@
 <title>Master Communicator · Training Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="shared/atlas-theme.js?v=f1e2553e640f"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -727,7 +727,15 @@ function paceCoachCard(){
 function pageDash(){
   const [lvl,prog]=level(); const sc=latestScores();
   const weak = sc? SKILLS.find(s=>s.id===weakestSkill()) : null;
+  const currentXP=xp(),nextXP=[100,300,700,1500].find(target=>target>currentXP);
+  const rankProgress=Math.round(prog*100);
   return `
+  <section class="card communication-career" aria-label="Communication rank">
+    <div class="communication-career-top"><span class="communication-eyebrow">Communication career</span><span class="communication-xp">${currentXP} XP</span></div>
+    <h2>${lvl}</h2>
+    <div class="communication-rank-line"><span>${nextXP?`${nextXP-currentXP} XP to ${levelName(nextXP)}`:'Top rank reached'}</span><strong>${rankProgress}%</strong></div>
+    <div class="bar" role="progressbar" aria-label="${nextXP?'Progress to '+levelName(nextXP):'Top rank reached'}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${rankProgress}"><i style="width:${rankProgress}%"></i></div>
+  </section>
   <div class="statrow" style="margin-bottom:16px">
     <div class="stat"><div class="v">${streak()}🔥</div><div class="l">Day streak</div></div>
     <div class="stat"><div class="v">${xp()}</div><div class="l">XP</div></div>

@@ -124,7 +124,7 @@ test('retry preserves the same practice ID and adds one record after a failed sa
 });
 test('a saved rep with interrupted draft cleanup cannot be logged again after reload',()=>{
  const h=boot();h.begin();h.run("curDrill.tx='A retained transcript'");h.api.rememberPractice();h.localStorage.blockedKey='mc_practiceDraft';h.run('finishDrill()');assert.equal(h.run('S.reps.length'),1);
- const again=boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('curDrill'),null);assert.equal(again.run('xp()'),10);assert.doesNotMatch(again.run('pageDash()'),/Resume practice/);again.begin();again.run('finishDrill()');assert.equal(again.run('S.reps.length'),2);
+ const again=boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('curDrill'),null);assert.equal(again.run('xp()'),10);assert.doesNotMatch(again.run('pageDash()'),/Resume practice/);again.run("restoreTopic(normT('Explain a familiar hobby'))");again.begin();again.run('finishDrill()');assert.equal(again.run('S.reps.length'),2);
 });
 test('Back keeps an unfinished draft and resuming does not start dictation',()=>{
  const h=boot();h.begin();h.run("curDrill.tx='Finish this later';curDrill.gradePaste='Unsubmitted feedback'");h.api.leavePractice();assert.equal(h.run('curDrill'),null);assert.match(h.run('pageTrain()'),/Resume practice/);h.api.resumePractice();assert.equal(h.run('curDrill.tx'),'Finish this later');assert.equal(h.run('recOn'),false);assert.match(h.run('drillView()'),/Unsubmitted feedback/);
@@ -150,4 +150,13 @@ test('assessment order is chronological without modifying the imported records',
 test('assessment and lesson failures keep progress unchanged until verified saves',()=>{
  const h=boot();h.run('ASSESS.forEach((q,i)=>curAnswers[i]=4)');h.localStorage.blockedKey='mc_assessments';h.run('submitAssess()');assert.equal(h.run('S.assessments.length'),0);assert.equal(h.run('Object.keys(curAnswers).length'),h.run('ASSESS.length'));h.localStorage.blockedKey=null;h.run('submitAssess()');assert.equal(h.run('xp()'),25);
  const lesson=h.run('CURRICULUM[0].lessons[0].id');h.localStorage.blockedKey='mc_lessonsDone';h.run('doneLesson('+JSON.stringify(lesson)+')');assert.equal(h.run('xp()'),25);h.localStorage.blockedKey=null;h.run('doneLesson('+JSON.stringify(lesson)+')');assert.equal(h.run('xp()'),40);h.run('doneLesson('+JSON.stringify(lesson)+')');assert.equal(h.run('xp()'),25);
+});
+
+test('career display follows existing XP tiers without changing practice records',()=>{
+ const h=boot();
+ for(const [reps,remaining,rank,percent] of [[0,'100 XP to Apprentice','Novice',0],[9,'10 XP to Apprentice','Novice',90],[10,'200 XP to Practitioner','Apprentice',0],[30,'400 XP to Orator','Practitioner',0],[70,'800 XP to Master Communicator','Orator',0],[150,'Top rank reached','Master Communicator',100]]){
+  h.run(`S.reps=Array.from({length:${reps}},(_,i)=>({id:String(i),date:'2026-09-08T10:00:00Z',drill:'Explain clearly',topic:'Practice',score:60,skill:SKILLS[0].id}));S.assessments=[];S.lessonsDone={}`);
+  const before=h.run('JSON.stringify(S)'),markup=h.run('pageDash()');
+  assert.ok(markup.includes(remaining));assert.ok(markup.includes('<h2>'+rank+'</h2>'));assert.ok(markup.includes('aria-valuenow="'+percent+'"'));assert.equal(h.run('JSON.stringify(S)'),before);
+ }
 });
