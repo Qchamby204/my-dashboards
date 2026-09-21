@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=2e97773b9d7c"></script>
+<script src="shared/atlas-theme.js?v=2d4e7283c792"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -664,7 +664,7 @@ function drawRadar(canvasId, datasets){ // datasets: [{scores, color, fill}]
   const cx=W/2, cy=H/2+6, R=Math.min(W,H)/2-44, n=SKILLS.length;
   const ang=i=>-Math.PI/2 + i*2*Math.PI/n;
   // grid
-  ctx.strokeStyle='#2c2440'; ctx.fillStyle='#9b93ad'; ctx.font='11px Outfit, sans-serif';
+  const chartStyle=getComputedStyle(document.documentElement);ctx.strokeStyle=chartStyle.getPropertyValue('--neo-line').trim()||'#596477'; ctx.fillStyle=chartStyle.getPropertyValue('--neo-muted').trim()||'#aeb9c9'; ctx.font='14px Outfit, sans-serif';
   for(let ring=1;ring<=4;ring++){ ctx.beginPath();
     for(let i=0;i<=n;i++){ const a=ang(i%n), r=R*ring/4; const x=cx+r*Math.cos(a), y=cy+r*Math.sin(a); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
     ctx.stroke();
@@ -672,11 +672,13 @@ function drawRadar(canvasId, datasets){ // datasets: [{scores, color, fill}]
   for(let i=0;i<n;i++){ const a=ang(i);
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*Math.cos(a), cy+R*Math.sin(a)); ctx.stroke();
     const lx=cx+(R+18)*Math.cos(a), ly=cy+(R+18)*Math.sin(a);
-    ctx.textAlign = Math.abs(Math.cos(a))<.3?'center':(Math.cos(a)>0?'left':'right');
-    const label=SKILLS[i].name.split(' & ');
-    ctx.fillText(label[0]+(label[1]?' &':''), lx, ly-5);
-    if(label[1]) ctx.fillText(label[1], lx, ly+8);
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(i+1),lx,ly);
   }
+  cv.setAttribute('role','img');cv.setAttribute('aria-label','Skill radar. Latest scores are listed below.');
+  document.getElementById(canvasId+'-legend')?.remove();
+  const legend=document.createElement('ol');legend.id=canvasId+'-legend';legend.className='communication-radar-legend';legend.setAttribute('aria-label','Latest skill scores');
+  const latest=datasets[datasets.length-1].scores;
+  SKILLS.forEach((skill,index)=>{const item=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');name.textContent=(index+1)+'. '+skill.name;score.textContent=Math.round(latest[skill.id]||0)+'/100';item.append(name,score);legend.append(item);});cv.after(legend);
   // data
   datasets.forEach(ds=>{
     ctx.beginPath();
@@ -779,8 +781,8 @@ function pageAssess(){
     <div class="card">
       <div class="tag">${sk.name}</div>
       ${ASSESS.map((q,i)=>({...q,i})).filter(q=>q.s===sk.id).map(q=>`
-        <div class="q">${q.t}</div>
-        <div class="likert">${LIKERT.map((l,v)=>`<button class="${curAnswers[q.i]===v+1?'sel':''}" onclick="ans(${q.i},${v+1})">${l}</button>`).join('')}</div>
+        <div class="q" id="assessment-q-${q.i}">${q.t}</div>
+        <div class="likert" role="group" aria-labelledby="assessment-q-${q.i}">${LIKERT.map((l,v)=>`<button type="button" aria-pressed="${curAnswers[q.i]===v+1}" class="${curAnswers[q.i]===v+1?'sel':''}" onclick="ans(${q.i},${v+1})"><span class="assessment-value" aria-hidden="true">${v+1}</span><span>${l}</span></button>`).join('')}</div>
       `).join('')}
     </div>`).join('')}
   <div class="card flex">
@@ -788,7 +790,7 @@ function pageAssess(){
     <span class="muted">${done<ASSESS.length? 'Answer all statements to submit.' : 'Ready!'}</span>
   </div>`;
 }
-function ans(i,v){ curAnswers[i]=v; render(); }
+function ans(i,v){ curAnswers[i]=v; render(); document.querySelector('[onclick="ans('+i+','+v+')"]')?.focus({preventScroll:true}); }
 function submitAssess(){
   if(Object.keys(curAnswers).length<ASSESS.length) return;
   const scores={};
@@ -812,15 +814,15 @@ function pageLearn(){
       <h2>${m.title} <span class="muted" style="font-weight:400;font-size:.85rem">${done}/${m.lessons.length}</span></h2>
       ${m.lessons.map(l=>`
         <div class="lesson" id="ls_${l.id}">
-          <div class="lhead" onclick="toggleLesson('${l.id}')">
-            <span class="check ${S.lessonsDone[l.id]?'done':''}" onclick="event.stopPropagation();doneLesson('${l.id}')">${S.lessonsDone[l.id]?'✓':''}</span>
-            <span>${l.title}</span>
+          <div class="lhead">
+            <button type="button" class="check ${S.lessonsDone[l.id]?'done':''}" aria-label="Complete lesson: ${l.title}" aria-pressed="${!!S.lessonsDone[l.id]}" onclick="doneLesson('${l.id}')">${S.lessonsDone[l.id]?'✓':''}</button>
+            <button type="button" class="lesson-title" aria-expanded="false" aria-controls="lesson-body-${l.id}" onclick="toggleLesson('${l.id}')">${l.title}<span aria-hidden="true">⌄</span></button>
           </div>
-          <div class="lbody">${l.body}<p style="margin-top:10px"><button class="btn ghost" onclick="startDrill('${m.skill}')">Train this skill →</button></p></div>
+          <div class="lbody" id="lesson-body-${l.id}">${l.body}<p style="margin-top:10px"><button class="btn ghost" onclick="startDrill('${m.skill}')">Train this skill →</button></p></div>
         </div>`).join('')}
     </div>`;}).join('');
 }
-function toggleLesson(id){ $('ls_'+id).classList.toggle('open'); }
+function toggleLesson(id){ const row=$('ls_'+id),open=row.classList.toggle('open');row.querySelector('.lesson-title').setAttribute('aria-expanded',String(open)); }
 function doneLesson(id){ S.lessonsDone[id]=!S.lessonsDone[id]; if(!S.lessonsDone[id]) delete S.lessonsDone[id]; save(); render(); }
 
 /* ============ TRAIN ============ */
