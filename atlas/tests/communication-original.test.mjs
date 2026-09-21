@@ -15,7 +15,7 @@ function boot({speech=true,records={}}={}){
     set id(value){this._id=value;nodes.set(value,this);}get id(){return this._id;}
     set textContent(value){this._text=value;this.children=[];}get textContent(){return this._text||'';}
     setAttribute(key,value){this.attrs[key]=String(value);}removeAttribute(key){delete this.attrs[key];}
-    appendChild(el){this.children.push(el);el.parentNode=this;return el;}before(el){el.parentNode=this;}
+    appendChild(el){this.children.push(el);el.parentNode=this;return el;}append(...els){els.forEach(el=>this.appendChild(el));}before(el){el.parentNode=this;}after(el){el.parentNode=this.parentNode;}
     remove(){this.parentNode=null;}focus(){this.focused=true;}select(){}click(){this.onclick?.();}
     querySelectorAll(){return [];}querySelector(){return null;}addEventListener(){}
     getContext(){return new Proxy({},{get:(obj,key)=>obj[key]??(()=>{}),set:(obj,key,value)=>(obj[key]=value,true)});}
@@ -29,7 +29,7 @@ function boot({speech=true,records={}}={}){
   class Recognition{constructor(){engines.push(this);}start(){this.started=(this.started||0)+1;}abort(){this.aborted=true;}stop(){this.stopped=true;}}
   const window={scrollX:0,scrollY:0,addEventListener:(key,fn)=>on(windowEvents,key,fn),scrollTo(x,y){this.scrollX=x;this.scrollY=y;}};if(speech)window.SpeechRecognition=Recognition;
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
-  const context=vm.createContext({document,window,localStorage,navigator:{},crypto:{randomUUID:()=> 'practice-'+(++uuidSerial)},Date:Clock,URL,Blob,console,
+  const context=vm.createContext({getComputedStyle:()=>({getPropertyValue:()=>''}),document,window,localStorage,navigator:{},crypto:{randomUUID:()=> 'practice-'+(++uuidSerial)},Date:Clock,URL,Blob,console,
     setInterval:fn=>{const id=++nextId;intervals.set(id,fn);return id;},clearInterval:id=>intervals.delete(id),
     setTimeout:fn=>{const id=++nextId;timeouts.set(id,fn);return id;},clearTimeout:id=>timeouts.delete(id)});
   vm.runInContext(original+"\nDRILLS.push({id:'synthetic',name:'Explain clearly',skill:SKILLS[0].id,time:90,steps:()=>['Speak about a familiar topic.'],rubric:['Clear point','Useful example','Clear ending']});\n"+extension,context);

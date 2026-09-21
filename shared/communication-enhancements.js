@@ -3,7 +3,7 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='communication-trainer'||typeof S==='undefined'||window.CommunicationImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=a3f6b1a217cf',source).href;document.head.appendChild(css);}
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=5d6d05e97b17',source).href;document.head.appendChild(css);}
     const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldToast=toast;
     const fields={assessments:'assessments',reps:'reps',lessonsDone:'lessonsDone',customTopics:'customTopics',retiredTopics:'retired',catsEnabled:'catsEnabled',city:'city',prepNotes:'prepNotes',refreshed:'refreshed',bankUpdated:'bankUpdated',grades:'grades',pendingGrades:'pendingGrades',topicBank:'topicBank'};
     const shadow=new Map(),unsaved=new Set();
