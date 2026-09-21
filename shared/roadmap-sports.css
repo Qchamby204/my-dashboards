@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap');
+/* Retain the Gang's wine accent and existing operating plan; update presentation only. */
+html[data-sports-roadmap]{--display:'Barlow Condensed',sans-serif;--r-lg:12px;--r-md:9px}
+[data-sports-roadmap] :is(.pagehead h1,.section-head h2,.brand-name){font-family:var(--display);font-weight:700;letter-spacing:.035em;text-transform:uppercase}
+[data-sports-roadmap] .pagehead{border-bottom:2px solid var(--wine);padding-bottom:20px}
+[data-sports-roadmap] .pagehead h1{font-size:clamp(32px,5vw,48px)}
+[data-sports-roadmap] .stat{background:#19293f;border:1px solid #455872;border-top:3px solid #edc56f;border-radius:7px;box-shadow:none;color:#f4cd77}
+[data-sports-roadmap] .stat-n{font-size:36px;font-weight:700;color:#f4cd77}
+[data-sports-roadmap] .stat-l{color:#cbd7e7}
+[data-sports-roadmap] .stat--done{border-top-color:#a8dfb9}
+[data-sports-roadmap] .stat--done .stat-n{color:#a8dfb9}
+[data-sports-roadmap] .stat--over{border-top-color:#ffa2a9}
+[data-sports-roadmap] .stat--over .stat-n{color:#ffa2a9}
+[data-sports-roadmap] .card{border-radius:10px;border-top:2px solid var(--wine)}
+[data-sports-roadmap] :is(.btn,.nav-item){border-radius:6px}
+[data-sports-roadmap] .nav-item[aria-current="page"]{border-left:3px solid var(--wine)}
+[data-sports-roadmap] .task{border-radius:6px}
+[data-sports-roadmap] .ribbon{border-radius:6px}
+@media(prefers-contrast:more){[data-sports-roadmap] .stat{border-color:#fff}[data-sports-roadmap] .stat-l{color:#fff}}
+@media(forced-colors:active){[data-sports-roadmap] :is(.stat,.stat-n,.stat-l){background:Canvas;color:CanvasText!important;border-color:CanvasText}}
