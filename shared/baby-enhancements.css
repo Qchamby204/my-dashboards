@@ -42,3 +42,6 @@ html[data-atlas-app="baby-brain"] .baby-restore button{margin:4px}
 html[data-atlas-app="baby-brain"] :is(button,input,select,textarea,[role="button"],[role="checkbox"],a):focus-visible{outline:3px solid var(--neo-blue);outline-offset:3px}
 @media(max-width:700px){html[data-atlas-app="baby-brain"] .baby-cards{grid-template-columns:1fr}html[data-atlas-app="baby-brain"][data-baby-view="list"] .sheet{top:calc(8px + var(--atlas-safe-top,0px));max-height:calc(var(--atlas-visible-height,100dvh) - 16px - var(--atlas-safe-top,0px));width:100%;height:auto}html[data-atlas-app="baby-brain"] .addrow{flex-wrap:wrap}html[data-atlas-app="baby-brain"] .addrow input{flex-basis:100%}html[data-atlas-app="baby-brain"] .hud{gap:8px}html[data-atlas-app="baby-brain"] .hud h1{font-size:20px}}
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="baby-brain"] #pulses{display:none}html[data-atlas-app="baby-brain"] .sheet{transition:none}}
+
+/* Focused daily workflow additions. */
+.baby-decisions{padding:16px 0;border-top:1px solid var(--neo-line,#596477)}.baby-decisions label{display:grid;gap:6px;margin:12px 0}.baby-decisions textarea,.baby-decisions input{width:100%;font:inherit;font-size:16px;padding:10px}.baby-decisions a{display:inline-block;margin:8px 0}

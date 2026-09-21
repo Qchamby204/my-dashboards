@@ -26,3 +26,6 @@ html[data-atlas-app="neural-map"] :is(button,a,input,select):focus-visible{outli
 html[data-atlas-app="neural-map"][data-neural-view="list"] .atlas-appearance-map{bottom:calc(16px + var(--atlas-safe-bottom,0px) + var(--atlas-bottom-offset,0px))}
 @media(max-width:700px){html[data-atlas-app="neural-map"] .neural-cards{grid-template-columns:1fr}html[data-atlas-app="neural-map"] .hud h1{font-size:17px}html[data-atlas-app="neural-map"] .hud{gap:8px}html[data-atlas-app="neural-map"] .neural-filters label+label{flex:1 1 160px}html[data-atlas-app="neural-map"] .hint{padding:0 18px;font-size:11px;line-height:1.5}}
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="neural-map"] .pop{transition:none}}
+
+/* Focused daily workflow additions. */
+.neural-links small{display:block;margin:6px 0}.neural-links select{max-width:100%;min-height:44px}.neural-filters input[type=checkbox]{width:22px;height:22px}.neural-card>button{margin:6px}

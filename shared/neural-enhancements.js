@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='neural-map')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css?v=7ea2570c8efa',source).href;document.head.appendChild(css);
   function ready(){
     if(window.NeuralNavigation||typeof CATS==='undefined')return;
     const make=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -21,6 +21,8 @@
       if(routes[tool.full]&&!doors.some(d=>d.k==='live'))doors.unshift({k:'live',label:'Open dashboard',url:new URL(routes[tool.full],location.href).href});
       return doors.map(d=>{let url;try{url=new URL(d.url,location.href);}catch{return null;}return {...d,url:url.href,web:['https:','http:'].includes(url.protocol),local:url.protocol==='file:'};}).filter(Boolean);
     }
+    const FAVKEY='neural:favourites:v1',HEALTHKEY='neural:link-review:v1';let favourites=[],linkReview={},preferenceBlocked=false;try{favourites=JSON.parse(localStorage.getItem(FAVKEY)||'[]');linkReview=JSON.parse(localStorage.getItem(HEALTHKEY)||'{}');if(!Array.isArray(favourites)||!linkReview||typeof linkReview!=='object'||Array.isArray(linkReview))throw Error();}catch{favourites=[];linkReview={};preferenceBlocked=true;}
+    function savePreference(key,value){if(preferenceBlocked){count.textContent="Saved favourites could not be read. Export your browser records before repairing them.";return false;}try{const raw=JSON.stringify(value);localStorage.setItem(key,raw);if(localStorage.getItem(key)!==raw)throw Error();return true;}catch{count.textContent='Could not save this change. Please retry.';return false;}}
     let mode=window.matchMedia('(max-width:700px)').matches?'list':'map',returnFocus=null;
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
     const hud=document.querySelector('header.hud'),stage=document.getElementById('stage'),legend=document.querySelector('.legend'),hint=document.querySelector('.hint');
@@ -33,13 +35,14 @@
     const branchLabel=make('label','Area');const branch=make('select');branch.id='neural-area';
     const option=make('option','All areas');option.value='';branch.appendChild(option);
     CATS.forEach(cat=>{const o=make('option',cat.title);o.value=cat.key;branch.appendChild(o);});branchLabel.appendChild(branch);
-    const clear=button('Clear filters',()=>{search.value='';branch.value='';renderList();search.focus();});filters.append(searchLabel,branchLabel,clear);
+    const favOnly=make('input');favOnly.type='checkbox';const favLabel=make('label','Favourites only');favLabel.append(favOnly);filters.append(favLabel);favOnly.addEventListener('change',renderList);
+    const clear=button('Clear filters',()=>{search.value='';branch.value='';favOnly.checked=false;renderList();search.focus();});filters.append(searchLabel,branchLabel,clear);
     const count=make('p',null,'neural-count');count.setAttribute('role','status');count.setAttribute('aria-live','polite');
     const cards=make('div',null,'neural-cards');list.append(filters,count,cards);document.body.appendChild(list);
     function linksFor(tool){
       const wrap=make('div',null,'neural-links');
       destinations(tool).forEach(d=>{
-        if(d.web){const a=make('a',d.label||(d.k==='live'?'Open dashboard':d.k==='chat'?'Open chat':d.k==='drive'?'Open Drive':'Open resource'));a.href=d.url;a.target='_blank';a.rel='noopener noreferrer';wrap.appendChild(a);}
+        if(d.web){const a=make('a',d.label||(d.k==='live'?'Open dashboard':d.k==='chat'?'Open chat':d.k==='drive'?'Open Drive':'Open resource'));a.href=d.url;a.target='_blank';a.rel='noopener noreferrer';wrap.appendChild(a);const kind=make('small',d.k==='chat'?'Chat':d.k==='drive'?'Document':d.k==='live'?'Dashboard':'Web resource');wrap.append(kind);const review=make('select');review.setAttribute('aria-label','Link status: '+(d.label||tool.full));for(const [value,label]of [['','Not checked'],['working','I checked: working'],['broken','Needs repair']]){const o=make('option',label);o.value=value;review.append(o);}review.value=linkReview[d.url]?.status||'';review.onchange=()=>{const next={...linkReview,[d.url]:{status:review.value,checkedAt:new Date().toISOString()}};if(savePreference(HEALTHKEY,next))linkReview=next;else review.value=linkReview[d.url]?.status||'';};wrap.append(review);}
         else if(d.local){const note=make('p','Stored on your computer. This file cannot open from the web dashboard.','neural-local');const path=make('code');try{path.textContent=decodeURI(new URL(d.url).pathname);}catch{path.textContent=d.url;}note.appendChild(path);wrap.appendChild(note);}
       });
       if(tool.note&&!routes[tool.full])wrap.appendChild(make('p',tool.note,'neural-note'));
@@ -47,12 +50,12 @@
       return wrap;
     }
     function renderList(){
-      const found=findTools(search.value,branch.value);cards.replaceChildren();
-      count.textContent=found.length+' of '+tools.length+' tools';clear.hidden=!search.value&&!branch.value;
+      const found=findTools(search.value,branch.value).filter(t=>!favOnly.checked||favourites.includes(t.id)).sort((a,b)=>Number(favourites.includes(b.id))-Number(favourites.includes(a.id)));cards.replaceChildren();
+      count.textContent=found.length+' of '+tools.length+' tools';clear.hidden=!search.value&&!branch.value&&!favOnly.checked;
       found.forEach(tool=>{
         const card=make('article',null,'neural-card');card.dataset.toolId=tool.id;
         card.append(make('p',[tool.cat.title,tool.sub].filter(Boolean).join(' · '),'neural-category'),make('h2',tool.full||tool.label),make('p',tool.file,'neural-description'),linksFor(tool));
-        const show=button('Show on map',()=>{setMode('map');const node=nodesById.get(tool.id);focusTool(node);node.focus({preventScroll:true});});show.setAttribute('aria-label','Show '+(tool.full||tool.label)+' on map');card.appendChild(show);cards.appendChild(card);
+        const show=button('Show on map',()=>{setMode('map');const node=nodesById.get(tool.id);focusTool(node);node.focus({preventScroll:true});});show.setAttribute('aria-label','Show '+(tool.full||tool.label)+' on map');card.appendChild(show);const fav=button(favourites.includes(tool.id)?'★ Favourite':'☆ Add favourite',()=>{const next=favourites.includes(tool.id)?favourites.filter(id=>id!==tool.id):[...favourites,tool.id];if(savePreference(FAVKEY,next)){favourites=next;renderList();}});fav.setAttribute('aria-pressed',String(favourites.includes(tool.id)));card.append(fav);cards.appendChild(card);
       });
       if(!found.length)cards.appendChild(make('p','No matching tools. Try another word or clear the filters.','neural-empty'));
     }

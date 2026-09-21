@@ -271,3 +271,6 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-overview > div:last-child >
 @media (forced-colors:active) {
   html.atlas-neumo[data-atlas-app="life-map"] #app :is(.bartrack>.fill,.lm-summary-track>span) {background:Highlight!important;forced-color-adjust:none;}
 }
+
+/* Focused daily workflow additions. */
+.lm-weekly{padding:18px}.lm-weekly>label{display:grid;gap:8px;margin:12px 0}.lm-weekly select{width:100%;min-height:44px}.lm-weekly details>.btn{display:block;margin:8px 0;max-width:100%;white-space:normal;text-align:left}

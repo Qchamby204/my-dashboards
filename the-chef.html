@@ -93,11 +93,11 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#202936">
-<script src="shared/atlas-theme.js?v=craft-20260909"></script>
+<script src="shared/atlas-theme.js?v=2e97773b9d7c"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=71dfd0606864">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=e766e9fd2772">
 <script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-32.png?v=41e1e3906c07">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-64.png?v=9b7a6325c0c0">
@@ -853,7 +853,7 @@ const store = {
   available(){try{const k=this.key('probe');localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}}
 };
 const migrations = {};
-function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{},portions:{},deletedRecipes:[]};}
+function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{},portions:{},recipeFeedback:{},deletedRecipes:[]};}
 function loadState(){
   const stored = store.get('state');
   if(stored===null) return defaultState();
@@ -917,6 +917,7 @@ function matchInfo(x){
   const have = x.ingredients.filter(i=>ui.picks.has(i.n)).length;
   return {have,total:x.ingredients.length,pct:have/x.ingredients.length};
 }
+function trustedRank(x){const f=state.recipeFeedback?.[x.id];return f?.verdict==='again'?2:f?.verdict==='not-again'?-1:0;}
 function discoverList(){
   let list = availableRecipes().filter(x=>mealOk(x)&&timeOk(x)&&searchOk(x));
   if(ui.tab==='ingredients'){
@@ -932,7 +933,7 @@ function discoverList(){
         if(B.have!==A.have) return B.have-A.have;
         if(B.pct!==A.pct) return B.pct-A.pct;
       }
-      return rating(b)-rating(a) || a.name.localeCompare(b.name);
+      return trustedRank(b)-trustedRank(a) || rating(b)-rating(a) || a.name.localeCompare(b.name);
     },
     rating:(a,b)=>rating(b)-rating(a)||a.name.localeCompare(b.name),
     protein:(a,b)=>b.protein-a.protein,
@@ -1110,6 +1111,7 @@ function cardHtml(x,showMatch){
     ${match}
     <div class="tags">${x.tags.slice(0,3).map(t=>`<span class="tag">${TAG_LABELS[t]||t}</span>`).join('')}</div>
     <button class="primary cc-cook-open" data-cook="${x.id}">Cook this recipe</button>
+    <button data-cooked>I've cooked this · ${state.recipeFeedback?.[x.id]?.verdict==='again'?'In our rotation':state.recipeFeedback?.[x.id]?.verdict==='not-again'?'Not again':'Make again?'}</button>
     <details class="more cc-recipe-options"><summary>Recipe options${fav?' · Saved':''}${rating?' · '+rating+'/5':''}</summary>
     <div class="actions">
       <div class="row" style="gap:4px">
@@ -1123,6 +1125,12 @@ function cardHtml(x,showMatch){
       <h4>METHOD</h4><ol>${x.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
     </details>
   </div>`;
+}
+function recipeFeedback(id){
+  const old=state.recipeFeedback?.[id]||{},dialog=document.createElement('dialog');dialog.className='growth-dialog';
+  dialog.innerHTML='<h2>'+esc(BY_ID[id].name)+'</h2><form><label>Make again?<select name="verdict"><option value="again">Yes — keep in our rotation</option><option value="try-again">Try again with changes</option><option value="not-again">No — not for us</option></select></label><label>Why?<select name="reason"><option value="">Choose a reason</option>'+['Family favourite','Easy weeknight meal','Too much work','Bland','Too expensive','Needs adjustments'].map(x=>'<option>'+x+'</option>').join('')+'</select></label><label>Notes for next time<textarea name="note" maxlength="1000"></textarea></label><p role="status"></p><button type="submit">Save cooking feedback</button><button type="button" data-cancel>Cancel</button></form>';
+  const form=dialog.querySelector('form');form.elements.verdict.value=old.verdict||'again';form.elements.reason.value=old.reason||'';form.elements.note.value=old.note||'';
+  form.onsubmit=e=>{e.preventDefault();if(setState({recipeFeedback:{...state.recipeFeedback,[id]:{verdict:form.elements.verdict.value,reason:form.elements.reason.value,note:form.elements.note.value.trim(),reviewedAt:new Date().toISOString()}}}))dialog.close();else dialog.querySelector('[role=status]').textContent='Feedback was not saved. Please retry.';};dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
 }
 function renderCards(){
   const list = discoverList();
@@ -1148,8 +1156,8 @@ function renderPlanner(){
   }).join('')).join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
 }
 function renderFavourites(){
-  const list = availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]).sort((a,b)=>(state.ratings[b.id]||0)-(state.ratings[a.id]||0)||a.name.localeCompare(b.name));
-  $('#fav-count').textContent = list.length ? `${list.length} favourited or rated.` : '';
+  const list = availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]||state.recipeFeedback?.[x.id]?.verdict==='again').sort((a,b)=>(state.ratings[b.id]||0)-(state.ratings[a.id]||0)||a.name.localeCompare(b.name));
+  $('#fav-count').textContent = list.length ? `${list.length} saved, rated, or in your rotation.` : '';
   $('#fav-cards').innerHTML = list.length ? list.map(x=>cardHtml(x,false)).join('') : '<div class="empty">Tap the heart or the stars on any recipe and it lands here.</div>';
 }
 function render(){
@@ -1216,6 +1224,7 @@ function wireEvents(){
     const card=e.target.closest('.card'); if(!card) return;
     const id=card.dataset.id;
     if(e.target.closest('[data-delete-recipe]')){if(deleteRecipe(id)){const target=ui.tab==='favourites'?$('#fav-count'):$('#count');target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}return;}
+    if(e.target.closest('[data-cooked]')){recipeFeedback(id);return;}
     const rate=e.target.closest('[data-rate]');
     if(rate){const n=Number(rate.dataset.rate);const ratings={...state.ratings};if(ratings[id]===n)delete ratings[id];else ratings[id]=n;setState({ratings});restoreCardAction(id,`[data-rate="${n}"]`);return;}
     if(e.target.closest('[data-fav]')){const favourites={...state.favourites};if(favourites[id])delete favourites[id];else favourites[id]=true;setState({favourites});restoreCardAction(id,'[data-fav]');return;}

@@ -16,6 +16,7 @@ export const TOOLS = [
   { id: 'baby', name: 'Baby Brain', keys: ['babybrain.v1'] },
   { id: 'hourglass', name: 'The Hourglass', keys: ['hourglass:v1'] },
   { id: 'courier', name: 'Courier', keys: ['courier:state', 'courier:schema-version', 'courier:practice:v1'] },
+  { id: 'neural', name: 'Neural Map', keys: ['neural:favourites:v1','neural:link-review:v1'] },
   { id: 'appearance', name: 'Appearance', keys: ['atlas.appearance.v1'] }
 ];
 const byKey = new Map(TOOLS.flatMap(tool => tool.keys.map(key => [key, tool])));

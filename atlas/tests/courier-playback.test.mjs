@@ -115,3 +115,7 @@ test('buffering status clears when playback actually resumes',()=>{
   const h=harness();h.run("play('a')");h.audio.dispatchEvent(new Event('waiting'));assert.match(h.node('pStatus').textContent,/Buffering/);
   h.audio.dispatchEvent(new Event('playing'));assert.equal(h.node('pStatus').textContent,'');
 });
+
+test('short listening queue excludes heard sections and stops at its final selected section',()=>{
+ const h=harness();h.run("manifest.days[0].blocks.forEach((b,i)=>b.minutes=i===0?6:5);state.listened[ui.day]=[];state.rate=1;ui.shortQueue=shortQueue()");assert.equal(h.run('ui.shortQueue.length'),1);h.run('ui.current=ui.shortQueue[0]');assert.equal(h.run('nextAudio()'),null);h.run('state.listened[ui.day]=[ui.shortQueue[0]]');assert.equal(h.run('shortQueue().includes(ui.current)'),false);
+});

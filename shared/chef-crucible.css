@@ -183,3 +183,6 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 @media(prefers-reduced-transparency:reduce),(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,#cook-dialog){background:var(--neo-surface)!important;backdrop-filter:none;}}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,.chef-progress-track){border-color:var(--neo-ink)!important;}}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track>span{background:Highlight!important;forced-color-adjust:none;}}
+
+/* Focused daily workflow additions. */
+.growth-dialog{max-width:520px;width:calc(100% - 32px);color:var(--text);background:var(--panel,#202936);border:1px solid var(--line,#596477);border-radius:16px;padding:24px}.growth-dialog::backdrop{background:#0009}.growth-dialog form,.growth-dialog label{display:grid;gap:10px}.growth-dialog input,.growth-dialog select,.growth-dialog textarea{font:inherit;font-size:16px;min-height:44px}.growth-dialog button{margin-top:8px}
