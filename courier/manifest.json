@@ -2,6 +2,1545 @@
  "schemaVersion": 1,
  "days": [
   {
+   "date": "2026-09-21",
+   "generatedAt": "2026-09-21T11:30:12+00:00",
+   "release": "courier-2026-09-21",
+   "budgetMinutes": 60,
+   "plannedMinutes": 59.5,
+   "projectedMinutes": 43.1,
+   "durationSeconds": 2592.6,
+   "voiceless": [],
+   "failed": [],
+   "skippedSections": [],
+   "duplicateRejectedSections": [],
+   "duplicateRepairs": [
+    {
+     "section": "companies",
+     "firstPass": {
+      "material": true,
+      "duplicateSources": [
+       "Business Development Bank of Canada joins NATO's defence tech investor network",
+       "US and China discuss AI safety plan ahead of Trump-Xi summit"
+      ],
+      "duplicateTalkingPoints": [],
+      "sourceRatio": 0.222,
+      "pointRatio": 0.0
+     },
+     "secondPass": {
+      "material": false,
+      "duplicateSources": [],
+      "duplicateTalkingPoints": [],
+      "sourceRatio": 0.0,
+      "pointRatio": 0.0
+     }
+    },
+    {
+     "section": "climate",
+     "firstPass": {
+      "material": true,
+      "duplicateSources": [
+       "Blanchet warns of a possible 'Trojan horse' in Carney's promised deal with Europe",
+       "Climate isn't factored into feds' airport privatization plans: experts"
+      ],
+      "duplicateTalkingPoints": [
+       "Airport privatization is moving ahead with no climate risk framework attached, a real due-diligence gap.",
+       "Manitoba's new climate plan sets no emission targets despite a twenty fifty net-zero goal.",
+       "United Way Winnipeg's 2026 campaign is underway after a record twenty three point three million dollar year."
+      ],
+      "sourceRatio": 0.167,
+      "pointRatio": 0.6
+     },
+     "secondPass": {
+      "material": false,
+      "duplicateSources": [],
+      "duplicateTalkingPoints": [],
+      "sourceRatio": 0.0,
+      "pointRatio": 0.0
+     }
+    },
+    {
+     "section": "tech",
+     "firstPass": {
+      "material": true,
+      "duplicateSources": [],
+      "duplicateTalkingPoints": [
+       "Anthropic's Amodei wants the industry to slow down, but Nvidia's Huang is pushing the opposite, and regulators aren't forcing either side's hand.",
+       "World model startups like AMI Labs and World Labs are raising huge money while staying vague on what they actually sell, worth a caution flag for private market clients."
+      ],
+      "sourceRatio": 0.0,
+      "pointRatio": 0.4
+     },
+     "secondPass": {
+      "material": false,
+      "duplicateSources": [],
+      "duplicateTalkingPoints": [],
+      "sourceRatio": 0.0,
+      "pointRatio": 0.0
+     }
+    }
+   ],
+   "allocationMinutes": {
+    "markets": 8.0,
+    "companies": 9.0,
+    "practice": 6.5,
+    "manitoba": 6.0,
+    "politics": 3.5,
+    "climate": 5.0,
+    "tech": 5.0,
+    "health": 2.0,
+    "parenting": 3.0,
+    "sports": 3.5
+   },
+   "activityScores": {
+    "markets": 17.0,
+    "companies": 36.0,
+    "practice": 14.875,
+    "manitoba": 38.375,
+    "politics": 6.625,
+    "climate": 21.5,
+    "tech": 15.0,
+    "health": 4.25,
+    "parenting": 10.875,
+    "sports": 8.5
+   },
+   "planningMethod": "deterministic",
+   "duplicatesDropped": [],
+   "sourceHealth": {
+    "degradedSections": [],
+    "newsletters": {
+     "configured": true,
+     "items": 29,
+     "bySection": {
+      "markets": 8,
+      "companies": 4,
+      "sports": 3,
+      "climate": 2,
+      "politics": 5,
+      "practice": 6,
+      "tech": 1
+     }
+    }
+   },
+   "usage": {
+    "calls": 20,
+    "input": 2811,
+    "output": 152750,
+    "cache_read": 133707,
+    "cache_write": 387342,
+    "searches": 26,
+    "estimatedCost": 4.05
+   },
+   "plan": [
+    {
+     "storyId": "story-10107a5f05e4",
+     "event": "Before the Bell: What every Canadian investor needs to know today",
+     "owner": "markets",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-c865fe99ffb2",
+     "event": "Monday’s analyst upgrades and downgrades",
+     "owner": "markets",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-048b540ae31f",
+     "event": "Premarket: Stocks rise on AI optimism; lower oil helps bonds",
+     "owner": "markets",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-4de72337b261",
+     "event": "Portfolios for dividend investors - and more",
+     "owner": "markets",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-c60363df1e2a",
+     "event": "Looking for stable dividend stocks with potential for growth? Try these",
+     "owner": "markets",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-1578a6e5d9de",
+     "event": "Richardson Wealth will change its name to Nobelia Wealth in November",
+     "owner": "markets",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-e5c796dd8edb",
+     "event": "CIRO’s revised proposal for account transfers provides wiggle room on timeline",
+     "owner": "markets",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-da352759ad39",
+     "event": "Germany’s Merz struggles to keep agenda on track after regional election defeat",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-a7c4ecb81465",
+     "event": "Business Brief: Five files to follow this week",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-5b18ee9bc50c",
+     "event": "How U.S. tariffs are driving Canadian brewers toward Chinese aluminum cans",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-faadd10f3701",
+     "event": "How cannabis can help Canada win the trade war",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-cd47601aa0b2",
+     "event": "Ottawa building sovereign AI ecosystem for Canadian defence operations",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-7731b21ef37b",
+     "event": "The era of blind pursuit of stability over growth in Canadian banking is finally ending",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-fe0fc3c2da8f",
+     "event": "Miner Cameco expected to boost dividends after win on Westinghouse investment",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-1474cde42c29",
+     "event": "Xanadu stock faces test as lockup set to lift for most investors",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-25143004bac4",
+     "event": "Companies want growth, but workers are too busy to deliver it",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-41e4584be63e",
+     "event": "His Hyundai Santa Fe burst into flames on busy highway after repairs at dealership",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-6eee518f1678",
+     "event": "What are my rights if my flight is cancelled or delayed?",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-9458e259868d",
+     "event": "Tories pledge to bring back tax-free shopping for tourists",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-b6863f57e16e",
+     "event": "Nvidia boss rejects AI extinction fears as 'doomsday narratives'",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-a804bb4d670a",
+     "event": "Billionaire Man United owner loses moral high ground after tax exile, Labour chair says",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-01ead4cfd1cc",
+     "event": "Ed Davey calls for immediate 10p cut to fuel duty",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-166a6f79ef68",
+     "event": "AI chatbots give wrong financial answers most of the time, study finds",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-f45307d3706e",
+     "event": "Global M&A value rises 15%, with highest sentiment in financial sector",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-b36568a01b6c",
+     "event": "EQT raises Perpetual takeover bid for the fourth time",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-72d10de1ba9b",
+     "event": "Canadian mutual fund and ETF assets hit new all-time highs in August",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-3b1443265ada",
+     "event": "Fixed mortgage rates rise as home affordability improves in August",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-500391200797",
+     "event": "How to use The Globe’s Canadian digital brokerage ratings to suit your investments",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-e3dc61ad46b8",
+     "event": "Guelph, Ont. mom, 36, looks to rebuild finances and career after two parental leaves",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-04151b8b813a",
+     "event": "Winnipeggers losing compassion for people who are homeless or openly using drugs, survey suggests",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-cc7427a9820e",
+     "event": "Winnipeg vendor in 'disbelief' after $70,000 worth of Pokemon cards stolen",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-637cb2997f9b",
+     "event": "Serious crash shuts down roads in Winnipeg's West Kildonan area",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-0a1addd9858f",
+     "event": "AC/DC fans gather at band pop-up",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-b1fd63efbca5",
+     "event": "'An extremely difficult job': Feds put $1M towards promoting farm safety in Canada",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-51b1b5063c8c",
+     "event": "Glenboro woman, 88, plans new housing for community on site of now-demolished hotel",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-f709aee096dd",
+     "event": "Estate of late Streetheart singer Kenny Shields suing current band members",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-338df0fdecb6",
+     "event": "‘Our hearts shattered’: Family of student pilot killed in crash mourns victims of latest Harv’s Air plane crash",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-e41f8bb6b3ba",
+     "event": "Rising use of AI in Canadian courtrooms creates divide",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-3d6d28f9ac18",
+     "event": "Four Ontario nuclear reactors taken off-line ahead of Pickering station’s refurbishment",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-bd52b2fb7e5b",
+     "event": "Morning Update: Euro visions and Parliament’s return",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-5b7c49aa7b01",
+     "event": "Probes into Toronto’s shooter-for-hire network thwarted by impenetrable phone, police source says",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-c3f83df60f9b",
+     "event": "Kerry-Lynne Findlay resigns as B.C. Conservative leader after weeks of party turmoil",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-19a333b85fa9",
+     "event": "Ontario’s SIU notified after Belleville incident",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-6b463c2279a2",
+     "event": "Carney, Macron meet in Saint-Pierre-et-Miquelon as Canada and Europe look to build greater ties",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-f1dac910838c",
+     "event": "Danielle Smith speaks about potential separation",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-262afdebcbe1",
+     "event": "International Language Academy of Canada files for bankruptcy, cancels all classes and programs",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-fd7c18f65343",
+     "event": "MPs, senators on intelligence committee review Canada’s foreign spying capabilities",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-badfe58aec40",
+     "event": "Carney government to introduce major economic bill as Parliament returns Monday",
+     "owner": "politics",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-da4ff08275d4",
+     "event": "Head of European Investment Bank eyes Canada opportunities as Carney pushes EU ties",
+     "owner": "politics",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-5d2312037a02",
+     "event": "Canada, France pledge to work together on space infrastructure, economy",
+     "owner": "politics",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-a2969e2952ea",
+     "event": "MPs return to Parliament after a drama-filled summer",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-767a65ca79a8",
+     "event": "Poilievre says Canada will never be the European Union's '28th state'",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-ad46c1c898af",
+     "event": "Carney touts the 'right partnerships' in the Arctic during his meeting in Ottawa with Norwegian PM",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-a600c07ac4f8",
+     "event": "Toronto mayoral candidate Bradford using Israeli app that feeds supporters AI-generated comments",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-b40edc5bf487",
+     "event": "A Calgary teen turned fruit peels into a plastic-free farming solution",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-7f1447054084",
+     "event": "From shock doctrine to end-times fascism",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-3570668983c7",
+     "event": "Endangered orcas remain at risk even after Ottawa drops proposed legal change",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-4ce521cb9e69",
+     "event": "How the end of USAID eroded global environmental goals",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-a7b43a807485",
+     "event": "6 days left to save up to $200 to TechCrunch Disrupt 2026",
+     "owner": "tech",
+     "status": "UPDATE",
+     "firstSeen": "2026-09-15",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "2 days left to exhibit at TechCrunch Disrupt 2026",
+     "whatChanged": "key figures changed: 2, 2026 -> 200, 2026, 6"
+    },
+    {
+     "storyId": "story-88af947d5463",
+     "event": "World model companies are keeping a lot of secrets",
+     "owner": "tech",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-1efaa6ddcf2e",
+     "event": "Is the AI industry really ready to slow down?",
+     "owner": "tech",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-c0db43f1aec1",
+     "event": "Vocci’s ring adds a new form factor to meeting note-taking",
+     "owner": "tech",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-f83c8c883f12",
+     "event": "ScrollEd wants to turn textbooks into TikTok",
+     "owner": "tech",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-81397810f870",
+     "event": "Identifying unclaimed ashes at N.S. funeral home through DNA ‘very challenging,’ says expert",
+     "owner": "tech",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-1d26a407a09c",
+     "event": "Alberta researchers investigate how zombie parasites take control of ant brains",
+     "owner": "tech",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-385e25128d72",
+     "event": "The Salomon Aero Blaze 4 GRVL Made Me Believe In Gravel Running Shoes",
+     "owner": "health",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-d7f162e19772",
+     "event": "Runners Have Been Analyzing Their Gaits For Decades to Manage Chronic Pain. Could It Help Hikers, Too?",
+     "owner": "health",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-79e5e52bfd54",
+     "event": "Can robots and AI companions help seniors feel less alone?",
+     "owner": "parenting",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-fe3430554094",
+     "event": "There’s no ‘best’ diet for healthy aging, study suggests",
+     "owner": "parenting",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-97811cc705b4",
+     "event": "Accidental cannabis poisonings among kids are increasing. Here’s what parents should know",
+     "owner": "parenting",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-9d8962be7b28",
+     "event": "For Millennial parents, the landline is making a comeback",
+     "owner": "parenting",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-eeb1dea8ee72",
+     "event": "Your daily horoscope: September 21, 2026",
+     "owner": "parenting",
+     "status": "UPDATE",
+     "firstSeen": "2026-09-15",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "Your daily horoscope: September 18, 2026",
+     "whatChanged": "key figures changed: 18, 2026 -> 2026, 21"
+    },
+    {
+     "storyId": "story-8fabdb68ad2a",
+     "event": "NFL roundup, Week 2: Tyler Shough scores on fourth-down sneak as Saints rally past Ravens 24-17",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-862d605af4fb",
+     "event": "Tempo fans applaud team despite loss to Liberty in home finale of inaugural campaign",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-c8dd0f960a89",
+     "event": "Marlen Reusser wins women's elite individual time trial title at road cycling world championships",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-3b2f55d02259",
+     "event": "Auger-Aliassime leads Canada past France 3-1 to move on to Davis Cup Final 8",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-09-21",
+     "lastSeen": "2026-09-21",
+     "previousEvent": "",
+     "whatChanged": ""
+    }
+   ],
+   "blocks": [
+    {
+     "id": "lessons",
+     "label": "Lessons",
+     "title": "CPP: how the benefit is calculated, the enhancement, and the take it early or late decision / Delivering bad news: the structure that keeps trust",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/lessons.mp3",
+     "bytes": 4203264,
+     "script": "Financial Planning Facts, lesson 8: CPP: how the benefit is calculated, the enhancement, and the take it early or late decision.\n\nCPP, the Canada Pension Plan, pays you a percentage of your average pensionable earnings, worked out over your contributory period from age 18 until you start your pension. Since 2019, Ottawa has been phasing in the enhancement, which lifts the replacement rate from 25% of average earnings up to 33%, and adds a second tier called CPP2 on earnings above the Year's Maximum Pensionable Earnings, or YMPE. For 2026, that YMPE is $74,900. The additional ceiling for CPP2, the Year's Additional Maximum Pensionable Earnings, is $83,900. If your income sits above $74,900 in 2026, you and your employer each pay an extra 4% into CPP2 on the slice up to $83,900. That extra contribution buys extra pension later.\n\nNow the decision that actually matters: when to start. Standard age is 65. Take it at 60, and it's cut 0.6% for every month before 65, that's 36% less, for life. Wait to 70, it grows 0.7% for every month after 65, that's 42% more, for life.\n\nHere's the math. Say your CPP at 65 would be $1,300 a month, close to the 2025 maximum of $1,364.60. Start at 60, you get roughly $832 a month for life. Wait to 70, you get roughly $1,846 a month for life. The break even point, where delaying overtakes starting early in total dollars received, lands around age 74. Live past 74, delaying wins. Die before 74, starting early wins.\n\nThe one mistake: people decide based on a gut feeling about how long they'll live, without checking family longevity, their spouse's income needs, or whether they're still working and paying into CPP2 anyway. Incorporated business owners especially keep working past 65, which changes the math because they're still contributing and still earning other income that stacks on top.\n\nYour task, under fifteen minutes: pull your latest CPP Statement of Contributions from your My Service Canada Account, find your estimated pension at 65, then calculate what it would be at 60 and at 70 using the percentages above.\n\nCommunication, lesson 8: Delivering bad news: the structure that keeps trust.\n\nIn 2000, Dr. Walter Baile at MD Anderson published a protocol called SPIKES for oncologists telling patients their cancer had returned. Before SPIKES, doctors were rated by patients as cold or evasive nearly half the time, per the study in The Oncologist. The fix wasn't more empathy training. It was sequence. Setting, then Perception, then Invitation, then Knowledge, then Emotion, then Summary. The headline comes fourth, but it comes clearly, in one sentence, before anything softens it.\n\nAdvisors get this backwards. Say a client's portfolio dropped 22 percent in 2022, versus the S&P 500's 18 percent decline that year, per Morningstar data. The instinct is to open with the Fed, inflation, the bond market, three minutes of context, and only then say the number. By the time the number lands, the client has stopped listening for the point and started scanning for the excuse. Trust erodes not because the news is bad, but because they had to hunt for it.\n\nThe structure that works: state the fact in one sentence first. \"Your account is down 22 percent this year.\" Then check what they already understand. Then explain the mechanism briefly. Then name the emotion out loud, something like \"I know that number is hard to sit with.\" Then summarize what happens next, concretely. Baile's data showed patients rated doctors as more trustworthy when bad news came early and plainly, even though the news itself didn't change.\n\nThe one mistake: leading with reasons instead of the result. Reasons before results reads as defense. Results before reasons reads as respect.\n\nYour task today: pull up the last piece of bad financial or project news you delivered to a client or board. Rewrite the opening two sentences so the fact comes first, no qualifier, no cushion. Time yourself, this takes under ten minutes.",
+     "talkingPoints": [
+      "Financial Planning Facts: Pull your CPP Statement of Contributions from My Service Canada Account, find the estimated pension at 65, and calculate the amounts at 60 and at 70 using the 0.6% and 0.7% monthly adjustments.",
+      "Communication: "
+     ],
+     "sources": [],
+     "words": 664,
+     "minutes": 4.4,
+     "durationSeconds": 262.7,
+     "lessons": [
+      {
+       "track": "planning",
+       "label": "Financial Planning Facts",
+       "sequence": null,
+       "index": 8,
+       "title": "CPP: how the benefit is calculated, the enhancement, and the take it early or late decision",
+       "script": "CPP, the Canada Pension Plan, pays you a percentage of your average pensionable earnings, worked out over your contributory period from age 18 until you start your pension. Since 2019, Ottawa has been phasing in the enhancement, which lifts the replacement rate from 25% of average earnings up to 33%, and adds a second tier called CPP2 on earnings above the Year's Maximum Pensionable Earnings, or YMPE. For 2026, that YMPE is $74,900. The additional ceiling for CPP2, the Year's Additional Maximum Pensionable Earnings, is $83,900. If your income sits above $74,900 in 2026, you and your employer each pay an extra 4% into CPP2 on the slice up to $83,900. That extra contribution buys extra pension later.\n\nNow the decision that actually matters: when to start. Standard age is 65. Take it at 60, and it's cut 0.6% for every month before 65, that's 36% less, for life. Wait to 70, it grows 0.7% for every month after 65, that's 42% more, for life.\n\nHere's the math. Say your CPP at 65 would be $1,300 a month, close to the 2025 maximum of $1,364.60. Start at 60, you get roughly $832 a month for life. Wait to 70, you get roughly $1,846 a month for life. The break even point, where delaying overtakes starting early in total dollars received, lands around age 74. Live past 74, delaying wins. Die before 74, starting early wins.\n\nThe one mistake: people decide based on a gut feeling about how long they'll live, without checking family longevity, their spouse's income needs, or whether they're still working and paying into CPP2 anyway. Incorporated business owners especially keep working past 65, which changes the math because they're still contributing and still earning other income that stacks on top.\n\nYour task, under fifteen minutes: pull your latest CPP Statement of Contributions from your My Service Canada Account, find your estimated pension at 65, then calculate what it would be at 60 and at 70 using the percentages above.",
+       "task": "Pull your CPP Statement of Contributions from My Service Canada Account, find the estimated pension at 65, and calculate the amounts at 60 and at 70 using the 0.6% and 0.7% monthly adjustments.",
+       "drill": ""
+      },
+      {
+       "track": "communication",
+       "label": "Communication",
+       "sequence": null,
+       "index": 8,
+       "title": "Delivering bad news: the structure that keeps trust",
+       "script": "In 2000, Dr. Walter Baile at MD Anderson published a protocol called SPIKES for oncologists telling patients their cancer had returned. Before SPIKES, doctors were rated by patients as cold or evasive nearly half the time, per the study in The Oncologist. The fix wasn't more empathy training. It was sequence. Setting, then Perception, then Invitation, then Knowledge, then Emotion, then Summary. The headline comes fourth, but it comes clearly, in one sentence, before anything softens it.\n\nAdvisors get this backwards. Say a client's portfolio dropped 22 percent in 2022, versus the S&P 500's 18 percent decline that year, per Morningstar data. The instinct is to open with the Fed, inflation, the bond market, three minutes of context, and only then say the number. By the time the number lands, the client has stopped listening for the point and started scanning for the excuse. Trust erodes not because the news is bad, but because they had to hunt for it.\n\nThe structure that works: state the fact in one sentence first. \"Your account is down 22 percent this year.\" Then check what they already understand. Then explain the mechanism briefly. Then name the emotion out loud, something like \"I know that number is hard to sit with.\" Then summarize what happens next, concretely. Baile's data showed patients rated doctors as more trustworthy when bad news came early and plainly, even though the news itself didn't change.\n\nThe one mistake: leading with reasons instead of the result. Reasons before results reads as defense. Results before reasons reads as respect.\n\nYour task today: pull up the last piece of bad financial or project news you delivered to a client or board. Rewrite the opening two sentences so the fact comes first, no qualifier, no cushion. Time yourself, this takes under ten minutes.",
+       "task": "",
+       "drill": "Record yourself delivering one piece of real or simulated bad news in 90 seconds, following the order: fact, check understanding, mechanism, name the emotion, next step. Play it back and score two things: did the first sentence contain the actual bad news with a number or outcome, yes or no, and did more than 20 seconds pass before that first sentence, yes or no. Good looks like: yes on the first, no on the second."
+      }
+     ],
+     "plannedMinutes": 8
+    },
+    {
+     "id": "markets",
+     "label": "Markets & Economy",
+     "title": "Markets Rally as Tech Surges, Oil Retreats",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/markets.mp3",
+     "bytes": 5238528,
+     "script": "Good morning. Global markets opened the week higher today, buoyed by a rally in technology stocks and a pullback in oil prices, according to Bloomberg and the Globe and Mail's Before the Bell newsletter.\n\nWall Street futures pointed higher after a mixed close on Friday. The S&P 500 and Nasdaq 100 futures were both up around one percent in early trading, according to Bloomberg's Morning Briefing. In Europe, the pan-European STOXX 600 climbed more than one percent, with Britain's FTSE 100, Germany's DAX and France's CAC 40 all posting solid gains. In Asia, Hong Kong's Hang Seng rose more than one percent, though Japanese markets were closed for a holiday.\n\nThe rally comes as investors look ahead to this week's summit between President Trump and Chinese President Xi Jinping. Bloomberg reports that US and Chinese officials described talks on artificial intelligence, trade and investment as constructive, with the two sides agreeing to launch an AI dialogue, even though they failed to extend their existing trade truce. Treasury Secretary Scott Bessent called the discussions \"very successful.\"\n\nOil prices helped calm investor nerves after spiking last week. Brent crude fell more than two percent, trading around 100 to 101 dollars a barrel, while West Texas Intermediate dropped close to three percent. The Globe and Mail reports that some of the anxiety that rattled markets last week over fears of a global central bank hiking cycle has eased as oil pulls back from highs above 109 dollars a barrel seen just days earlier. IG chief market strategist Chris Beauchamp said the move looks like a correction rather than a change in the underlying trend, which he still sees pointing higher over time.\n\nTraders are also watching for diplomatic progress on the Iran war. Bloomberg notes that Trump said he may meet Iranian President Masoud Pezeshkian on the sidelines of this week's UN General Assembly meetings, fueling hopes that tensions in the region could ease. Still, strains in energy markets remain visible elsewhere. US retail diesel prices topped six dollars and fifty cents a gallon for the first time, Bloomberg reports, and the ongoing standoff in the Black Sea is raising concerns about a potential food supply shock.\n\nGold slipped alongside the broader shift toward risk assets. Spot gold was down around half a percent, trading near 4,350 dollars an ounce, according to the Globe and Mail.\n\nIn currency markets, the Canadian dollar weakened slightly against its US counterpart, trading in a range of roughly 71.3 to 71.5 US cents. The loonie is down about a quarter of a percent over the past month. The US dollar index ticked up modestly.\n\nOn the bond side, the yield on the US 10-year Treasury note eased to just under 5 percent.\n\nThe AI investment boom remains a dominant force in markets. Bloomberg's Markets Daily newsletter points out that AI-related spending now accounts for roughly half of US GDP growth by some estimates, and nearly 33 trillion dollars in market value has been added to the S&P 500 since late 2022, with most of that gain tied to AI-linked companies. Jim Morrow of Callodine Capital Management warned that markets and the broader economy are so intertwined with AI right now that a slowdown could unravel a great deal, and that fund managers are finding it hard to diversify away from AI exposure even across private equity, corporate bonds and Treasuries.\n\nThat AI wave shows no sign of slowing. SoftBank is reportedly seeking to raise more than 11 billion dollars in what would be one of the largest junk bond deals ever, as it ramps up investment in OpenAI, according to Bloomberg. Meanwhile Citigroup chief executive Jane Fraser said companies are racing to bolster their defenses as increasingly powerful AI models raise the risk of cyberattacks.\n\nIndividual stock moves reflected some of these AI-driven currents. Accenture gained more than six percent in premarket trading after Anthropic partnered with the firm to test the safety of its advanced AI models. Warner Bros. Discovery and Paramount Skydance also rose sharply on signs of progress in settlement talks with California officials over Paramount's planned acquisition of Warner Bros. Discovery, a deal Bloomberg says now includes discussions over theatrical release commitments and keeping major operations in California.\n\nNot every story was upbeat. Bloomberg's Markets Daily newsletter recapped a meltdown in Turkey's stock market last week, where regulators cracked down on funds suspected of artificially inflating illiquid stocks. Asset manager Tera's chairman has been arrested and executives' assets frozen, and the chairman of finance company Destek, whose fortune had ballooned to nearly 14 billion dollars on the back of Tera's investments, has also been detained. Analyst Murat Gulkan warned that the seized, thinly traded shares could fetch only \"pennies on the dollar\" if sold off.\n\nIn Europe, tens of thousands of workers at Volkswagen and other German carmakers protested against factory closures, Bloomberg reports, after VW slashed its profit forecast on Friday.\n\nNorth of the border, the Globe and Mail notes that Canadian construction investment figures for July are due today, and Bank of Canada Governor Tiff Macklem is scheduled to speak in Halifax. In Ottawa, Transport Minister Steven MacKinnon acknowledged, according to The Peak newsletter, that the federal government cannot guarantee air travel costs won't rise once Canada's largest airports are opened to private investors, even as fees remain partially regulated.\n\nOn the corporate calendar, Costco and BlackBerry are both due to report earnings this week, along with General Mills and H&M, offering fresh signals on consumer spending heading into the fall.",
+     "talkingPoints": [
+      "One, global stocks rallied to start the week as AI optimism and retreating oil prices lifted sentiment, though strategists caution the drop in oil looks like a pause rather than a reversal of the broader upward trend.",
+      "Two, all eyes are on this week's Trump-Xi summit, with both sides striking a constructive tone on AI and trade even after failing to extend their existing tariff truce.",
+      "Three, the scale of AI-driven market gains, estimated near 33 trillion dollars in added S&P 500 value since 2022, is prompting warnings from fund managers that diversification strategies may no longer protect investors if the AI boom slows.",
+      "Four, Turkey's fund crisis, with arrests, frozen assets and plunging share prices, is a reminder of the risks tied to illiquid, high-flying investment vehicles.",
+      "Five, in Canada, attention turns to construction investment data and comments from Bank of Canada Governor Tiff Macklem, along with questions about airport privatization and its potential effect on travel costs."
+     ],
+     "sources": [
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Before the Bell: What every Canadian investor needs to know today",
+       "url": "https://www.theglobeandmail.com/investing/markets/inside-the-market/article-before-the-bell-what-every-canadian-investor-needs-to-know-today-1565/"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Premarket: Stocks rise on AI optimism; lower oil helps bonds",
+       "url": "https://www.theglobeandmail.com/investing/markets/inside-the-market/market-news/article-premarket-stocks-rise-on-ai-optimism-lower-oil-helps-bonds/"
+      }
+     ],
+     "words": 920,
+     "minutes": 5.5,
+     "durationSeconds": 327.41,
+     "plannedMinutes": 8.0,
+     "storyIds": [
+      "story-10107a5f05e4",
+      "story-c865fe99ffb2",
+      "story-048b540ae31f",
+      "story-4de72337b261",
+      "story-c60363df1e2a",
+      "story-1578a6e5d9de",
+      "story-e5c796dd8edb"
+     ]
+    },
+    {
+     "id": "companies",
+     "label": "The Ten",
+     "title": "Cameco, Nvidia And Xanadu Lead The Ten",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/companies.mp3",
+     "bytes": 6132096,
+     "script": "Start with Cameco, the Saskatoon-based uranium miner that supplies fuel and services to nuclear utilities around the world. The Globe and Mail reports Cameco shareholders are expected to share in the company's massive win on an investment in Westinghouse Electric Co., with the Saskatoon-based uranium miner poised to boost dividends after a planned Westinghouse initial public offering, which analysts estimate will value the company at between US thirty billion and fifty billion dollars. The tailwind is nuclear demand itself, with utilities around the world having ordered up to 91 of its flagship Advanced Passive 1000 reactors for delivery over the next two decades. Cameco already doubled its own dividend from twelve cents to twenty four cents a share between 2023 and 2025, a year ahead of its own target. The headwind is that Westinghouse's earnings boost won't immediately translate into equivalent cash flow for Cameco, since large non-cash amortization charges and debt servicing take priority over dividend distributions. An evidence-based advisor would tell you a dividend story riding on one subsidiary's IPO timing is worth tracking, not a reason to load up on a single mining stock.\n\nStay with that same story for Westinghouse, the nuclear reactor manufacturer that went bankrupt once and was bought out of Toshiba's hands by Brookfield back in 2018. It is now heading toward a US listing this fall, with at least five investment banks hired to lead the offering, according to Bloomberg. The tailwind is a genuine global nuclear buildout that gives it real order books, not just investor enthusiasm. The headwind is roughly four billion dollars of debt a public listing needs to help recapitalize before profits flow freely to its owners. An evidence-based advisor would say this is a private-to-public transition worth watching for what it signals about nuclear financing generally, not something a retail client can act on before shares actually price.\n\nThird, Brookfield Renewable Partners, the renewable power arm of Brookfield Corp that holds the majority stake in Westinghouse alongside Cameco. Brookfield Renewable owns a 51 per cent stake in Westinghouse and Cameco holds 49 per cent, so Brookfield stands to see the largest dollar gain if that IPO prices anywhere near current estimates. The tailwind is diversification, with nuclear exposure sitting alongside its wind, solar and hydro assets. The headwind is complexity, since unit holders are effectively betting on execution of a subsidiary's listing layered on top of Brookfield's core renewable business. An evidence-based advisor would say Brookfield's structure rewards patient, diversified holders and punishes anyone trying to trade around a single asset sale.\n\nFourth, Nvidia, the American chipmaker that dominates the market for processors powering artificial intelligence. It is in the news because chief executive Jensen Huang pushed back hard on what the BBC calls doomsday narratives, rejecting warnings from AI researchers that the technology could lead to human extinction. The tailwind remains enormous AI infrastructure spending that keeps flowing toward its chips from every major cloud provider. The headwind is that Huang's comments land right as scrutiny of AI safety and concentration risk in a handful of mega-cap suppliers keeps building among regulators and investors alike. An evidence-based advisor would tell a client that one chief executive dismissing existential risk is not investment analysis, and that Nvidia's valuation already prices in a lot of good news continuing indefinitely.\n\nFifth, Xanadu, the Toronto quantum computing developer that went public six months ago. The Globe reports its lockup lifts on September twenty second, freeing most investor and insider shares to trade for the first time since the listing. The tailwind is being one of Canada's few pure-play quantum computing stocks in a sector pulling global attention and capital. The headwind is straightforward supply and demand: when a large batch of previously locked shares suddenly becomes tradeable, prices often soften on the extra volume regardless of how the underlying business is doing. An evidence-based advisor would tell a client that lockup expiries are a well-documented, mechanical pattern, not a referendum on the technology, and that trading around this specific date is speculation dressed up as a thesis.\n\nSixth, Manchester United, the English football club now caught up in an ownership controversy. The BBC reports its billionaire owner says he has lost confidence in the UK over high taxes and immigration and has moved into tax exile, prompting a Labour committee chair to say he has lost the moral high ground. The tailwind for the club commercially is that its global brand keeps generating sponsorship and broadcast revenue almost regardless of who owns it. The headwind is reputational, with ownership controversy feeding fan and political anger that can complicate stadium and investment decisions down the line. An evidence-based advisor would say ownership dramas at sports clubs rarely move the numbers that actually matter inside a diversified portfolio.\n\nSeventh, Hyundai, the Korean automaker. CBC reports a Santa Fe SUV caught fire on a busy highway just after dealership repairs, with the owner, Jason Pelletier, still waiting three months later for answers and full compensation. The tailwind for Hyundai is that its North American sales and market share have held up well through past recall cycles. The headwind is exactly this kind of story, since a vehicle fire tied to post-repair work raises fresh questions about dealership quality control and how the warranty process actually treats customers. An evidence-based advisor would say a single-incident recall story rarely changes an automaker's long-term investment case, but it is worth watching if a pattern of similar claims starts to build.\n\nEighth, and last for this segment, Korn Ferry, the global workforce consulting firm. The Globe cites its latest research finding nearly half of workers say they are too busy to deliver meaningful results, juggling multiple roles as artificial intelligence adds to workloads instead of easing them. The tailwind for Korn Ferry itself is steady demand for exactly this kind of workforce data as companies wrestle with productivity questions. The headwind is that the finding cuts against the growth story many corporate clients want to tell their own investors, which puts pressure on how those companies message their AI rollouts. An evidence-based advisor would say data like this is a good reason to ask any growth company how it actually measures output, not just headcount or activity.",
+     "talkingPoints": [
+      "Cameco's dividend story depends on Westinghouse actually pricing its IPO this fall.",
+      "Xanadu's lockup lifts tomorrow, and that alone can move the stock.",
+      "Nvidia's chief executive dismissing extinction fears is not the same as derisking the stock.",
+      "Hyundai's fire claim is one incident so far, worth watching, not yet a pattern.",
+      "Ask any company touting AI productivity gains how they are actually measuring output."
+     ],
+     "sources": [
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Miner Cameco expected to boost dividends after win on Westinghouse investment",
+       "url": "https://www.theglobeandmail.com/business/article-miner-cameco-expected-to-boost-dividends-after-win-on-westinghouse/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Xanadu stock faces test as lockup set to lift for most investors",
+       "url": "https://www.theglobeandmail.com/business/article-xanadu-stock-faces-test-as-lockup-set-to-lift-for-most-investors/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Companies want growth, but workers are too busy to deliver it",
+       "url": "https://www.theglobeandmail.com/business/careers/article-companies-want-growth-but-workers-are-too-busy-to-deliver-it/"
+      },
+      {
+       "outlet": "BBC Business",
+       "title": "Nvidia boss rejects AI extinction fears as 'doomsday narratives'",
+       "url": "https://www.bbc.co.uk/news/articles/cr5ye7p13jg7o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "outlet": "BBC Business",
+       "title": "Billionaire Man United owner loses moral high ground after tax exile, Labour chair says",
+       "url": "https://www.bbc.co.uk/news/articles/cm0rexrwjj1vo?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "outlet": "CBC Business",
+       "title": "His Hyundai Santa Fe burst into flames on busy highway after repairs at dealership",
+       "url": "https://www.cbc.ca/news/business/hyundai-vehicle-fire-compensation-9.7350140?cmp=rss"
+      },
+      {
+       "outlet": "The Motley Fool",
+       "title": "Prediction: Cameco's Westinghouse Stake Becomes the Real Growth Story by 2028",
+       "url": "https://www.fool.com/investing/2026/09/18/prediction-camecos-westinghouse-stake-becomes-the/"
+      }
+     ],
+     "words": 1040,
+     "minutes": 6.4,
+     "durationSeconds": 383.26,
+     "plannedMinutes": 9.0,
+     "storyIds": [
+      "story-da352759ad39",
+      "story-a7c4ecb81465",
+      "story-5b18ee9bc50c",
+      "story-faadd10f3701",
+      "story-cd47601aa0b2",
+      "story-7731b21ef37b",
+      "story-fe0fc3c2da8f",
+      "story-1474cde42c29",
+      "story-25143004bac4",
+      "story-41e4584be63e",
+      "story-6eee518f1678",
+      "story-9458e259868d",
+      "story-b6863f57e16e",
+      "story-a804bb4d670a",
+      "story-01ead4cfd1cc"
+     ]
+    },
+    {
+     "id": "practice",
+     "label": "Practice: Tax, Regulatory & Industry",
+     "title": "Provinces Hold AA Ratings, Defence ETFs Launch",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/practice.mp3",
+     "bytes": 4164096,
+     "script": "Good day. Here's your industry and regulatory update for Monday, September 21st, 2026.\n\nFitch Ratings says five Canadian provinces have held onto their AA credit ratings despite mounting debt loads. According to a new report covered by Investment Executive and Advisor dot ca, the five rated provinces are now facing a divergence in their debt trajectories, meaning some are managing their finances more sustainably than others even as they keep the same overall grade for now.\n\nIn the product world, the exchange traded fund space is getting more crowded in the defence sector. Ninepoint and Evolve have both launched new defence focused ETFs, joining a wave of new offerings this month. Alongside those, TD Asset Management, CI Global Asset Management, Canada Life, and Caldwell have each rolled out new products, while Mackenzie and Franklin Templeton have made changes to existing funds. This continues a busy stretch for Canada's fund providers as they compete for investor dollars heading into the fall.\n\nOn the people side, Wellington-Altus has added an advisor team in Saint John, New Brunswick, expanding its East Coast presence. Other moves this week touched Designed, Harbourfront Wealth, BMO Financial, and Worldsource Wealth, according to Investment Executive and Advisor dot ca's weekly roundup of industry moves.\n\nTurning to the broader backdrop shaping these decisions, Bank of Canada Governor Tiff Macklem was in Halifax today speaking about economic developments, with a media availability following. The central bank held its overnight rate at 2.25 percent earlier this month, and investors are watching closely for signals on how policymakers are weighing a softening economy against renewed inflation pressure coming from oil prices and a weaker Canadian dollar.\n\nMarkets opened the week on a mixed but generally calmer note. The Toronto Stock Exchange dipped slightly on Friday, while the S&P 500 and Nasdaq posted modest gains on a rally in technology stocks. Globally, European markets climbed on Monday morning, with the pan-European STOXX 600 up more than one percent, and Hong Kong's Hang Seng also higher, though Japanese markets were closed for a holiday.\n\nOil prices helped calm nerves after a volatile week. Brent crude slipped back toward the 100 dollar a barrel mark, down nearly three percent, as investors grew hopeful about diplomatic progress on the Iran conflict ahead of this week's United Nations meeting, and as Saudi shipments showed signs of a partial recovery despite ongoing attacks from Yemen's Houthis. Market strategists cautioned that the longer term direction for oil still points higher, calling last week's spike above 109 dollars a barrel an overreaction that is now correcting.\n\nThe Canadian dollar weakened against the U.S. dollar, trading near 1.40 to the greenback, continuing a slow slide over the past month. The U.S. ten year Treasury yield eased slightly but remains close to 5 percent, a level that has been drawing attention from bond markets. Gold prices pulled back as well.\n\nOn the industry data front, Canadian mutual fund and ETF assets hit new all time highs in August, according to figures from the Statistics and Investment Management Association, or SIMA, reported by Wealth Professional. Record fund assets and strong ETF sales point to sustained investor confidence heading into the fall.\n\nAlso from Wealth Professional, fixed mortgage rates rose in August even as home affordability improved in most Canadian markets. Falling home prices eased buying conditions for many, but climbing bond yields pushed fixed mortgage rates higher, a reminder that affordability gains on one side of the ledger can be offset by borrowing costs on the other.\n\nOn the merger and acquisition front, global M&A value rose 15 percent this year, with the financial sector showing the highest sentiment among dealmakers, according to Wealth Professional. Megadeals are surging, though small and mid-market transaction volumes remain well below historical norms. Separately, Swedish private equity giant EQT has raised its takeover bid for Australian asset manager Perpetual for a fourth time, with ambitions that reportedly extend into the Canadian advisor market.\n\nFinally, a note of caution for consumers and advisors alike. A new study reported by Wealth Professional found that major AI chatbots gave wrong answers to financial questions in 57 percent of cases tested, raising serious questions about how much everyday Canadians should rely on artificial intelligence tools for financial advice.",
+     "talkingPoints": [
+      "One, five Canadian provinces keep their AA credit ratings from Fitch despite rising debt, but their financial paths are starting to diverge.",
+      "Two, the ETF market is expanding fast in defence, with new launches from Ninepoint and Evolve joining a broader wave of new fund products this month.",
+      "Three, Wellington-Altus expands into Saint John as advisor movement continues across major wealth firms.",
+      "Four, Bank of Canada Governor Tiff Macklem addresses economic developments in Halifax as markets watch for policy signals amid oil driven inflation risk.",
+      "Five, Canadian mutual fund and ETF assets hit record highs in August even as fixed mortgage rates rise on higher bond yields.",
+      "Six, a new study warns that AI chatbots get financial questions wrong more than half the time, a caution for advisors and consumers relying on these tools."
+     ],
+     "sources": [
+      {
+       "outlet": "Investment Executive",
+       "title": "The Day Ahead: 5 provinces retain 'AA' ratings, despite debt",
+       "url": "https://www.investmentexecutive.com"
+      },
+      {
+       "outlet": "Advisor.ca",
+       "title": "AM Bulletin: Ninepoint, Evolve launch defence-focused ETFs",
+       "url": "https://www.advisor.ca"
+      },
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Before the Bell: Global markets rise on tech rally, easing oil prices",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "AI chatbots give wrong financial answers most of the time, study finds",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/ai-chatbots-give-wrong-financial-answers-most-of-the-time-study-finds/393573"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "Global M&A value rises 15%, with highest sentiment in financial sector",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/global-ma-value-rises-15-with-highest-sentiment-in-financial-sector/393579"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "EQT raises Perpetual takeover bid for the fourth time",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/eqt-raises-perpetual-takeover-bid-for-the-fourth-time/393574"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "Canadian mutual fund and ETF assets hit new all-time highs in August",
+       "url": "https://www.wealthprofessional.ca/investments/etfs/canadian-mutual-fund-and-etf-assets-hit-new-all-time-highs-in-august/393572"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "Fixed mortgage rates rise as home affordability improves in August",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/fixed-mortgage-rates-rise-as-home-affordability-improves-in-august/393580"
+      }
+     ],
+     "words": 707,
+     "minutes": 4.3,
+     "durationSeconds": 260.26,
+     "plannedMinutes": 6.5,
+     "storyIds": [
+      "story-166a6f79ef68",
+      "story-f45307d3706e",
+      "story-b36568a01b6c",
+      "story-72d10de1ba9b",
+      "story-3b1443265ada",
+      "story-500391200797",
+      "story-e3dc61ad46b8"
+     ]
+    },
+    {
+     "id": "manitoba",
+     "label": "Manitoba & Winnipeg",
+     "title": "Compassion Fades, Harv's Air Grief, Winnipeg Business Notes",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/manitoba.mp3",
+     "bytes": 4942080,
+     "script": "A survey out this week suggests a majority of Winnipeggers and Manitobans are losing compassion for people dealing with homelessness and addiction, ahead of this October's municipal election. Ahead of this October's municipal and civic elections, a majority of Winnipeggers and Manitobans are losing compassion for people dealing with homelessness and addiction, survey results suggest. The online survey conducted by Abacus Data for CBC News in August asked 687 adults in Winnipeg, from a cross-section of demographics and backgrounds, about their views and priorities in the upcoming civic election. Fifty nine per cent strongly or somewhat agreed they are starting to lose compassion for people living on the street or using drugs openly in public. That lines up with a string of Probe Research polling earlier this year showing Winnipeggers increasingly frustrated with encampments and skeptical that any level of government can fix the problem. There's concern among social services about these views and the implications for future funding and policy decisions. End Homelessness Winnipeg's leadership has already pushed back publicly, arguing that restrictions on encampments do not solve a housing shortage. For clients on nonprofit boards, or anyone in commercial real estate downtown, this points to more appetite among voters this fall for enforcement focused candidates, and less patience for status quo outreach spending.\n\nA Winnipeg small business story worth knowing too. A Pokemon card vendor at a flea market in the South Osborne neighbourhood says he is in disbelief after seventy thousand dollars worth of product and cards were stolen from his shop Friday night, CBC reports. That is a serious inventory loss for a collectibles retailer, and a reminder that a lot of small Winnipeg operators in resale carry thin insurance. Worth asking clients who run similar shops whether coverage matches replacement value, not just cost.\n\nCloser to home, a serious two vehicle crash shut down several streets in West Kildonan on Sunday, with one vehicle left upside down against a tree. Police had roads closed for hours while they investigated.\n\nThe story drawing the most attention across the province is the third fatal or injury incident in under two years at Harv's Air, the Manitoba based flight school. The plane crash on Friday marks the school's third incident with crashes and injuries in less than two years. A Cessna 172 was on a night flight from Regina back to Steinbach, Man., but didn't arrive as scheduled, according to Adam Penner, president of Harv's Air. There was a post-impact fire, said Sophie Wistaff, media relations at the Transportation Safety Board of Canada, in an emailed statement on Sunday. Both people aboard were licensed pilots who had rented the aircraft to build flying hours toward their commercial pilot licences. The family of Savanna Royes, a student pilot killed in a mid air collision near Steinbach last July, told Global News their hearts stopped hearing that two more lives were lost and two more families now face what they've been facing. Harv's Air is a Manitoba-based flight school which opened in 1973. Expect continued scrutiny of flight school oversight and insurance here, and if you have clients connected to aviation training, this is a live file.\n\nOn agriculture, the federal government is putting more than one million dollars toward promoting health and safety on Canadian farms, CBC reports, calling farming an extremely difficult job to make safer. Manitoba's rural economy leans heavily on agriculture, and for advisors with farm succession clients, that funding is a useful prompt to revisit disability coverage and key person risk on family operations.\n\nIn southwestern Manitoba, an eighty eight year old Glenboro resident, Lorelie Mitchell, is leading a push to build new housing on the site of the town's demolished hotel, with plans for a seniors facility as well, CBC reports. It is a small town story, but it points to a real gap: rural Manitoba communities are short on both workforce housing and seniors housing, and it is often local volunteers filling that gap rather than developers. If you have clients thinking about rural real estate or community giving, Glenboro is worth watching.\n\nOn the legal side, Global News reports a rise in the use of artificial intelligence, meaning software that can draft or analyze legal filings, inside Canadian courtrooms, and it is creating a divide. Supporters say it improves access to justice for people who cannot afford a lawyer. Critics worry it is displacing the entry level work that used to train law students. Worth knowing if your practice touches trust and estate litigation, since that is exactly where these drafting tools are showing up first.\n\nAnd a Winnipeg music story with an estate angle. The estate of the late Streetheart singer Kenny Shields is suing three current members of the Winnipeg band over use of the band's name and revenue, CBC reports. It is a reminder of how messy trademark and royalty disputes get after a founding member dies, and worth flagging to any client whose family estate includes a brand or intellectual property.\n\nOn a lighter note, AC/DC fans travelled from across Canada and around the world to a Winnipeg pop-up ahead of the band's last Canadian show on this tour, CBC reports. A good reason for a Monday morning smile before markets open.",
+     "talkingPoints": [
+      "Winnipeg's compassion survey: 59 per cent losing sympathy for homeless and addiction issues, ahead of the October 28 civic vote.",
+      "Pokemon vendor lost seventy thousand dollars in a theft, good prompt to check small business inventory coverage.",
+      "Harv's Air marks its third crash incident in two years, aviation training sector facing scrutiny.",
+      "Ottawa's one million dollar farm safety funding, useful opener for farm succession and disability coverage talks.",
+      "Glenboro's eighty eight year old builder shows rural Manitoba's housing and seniors care gap."
+     ],
+     "sources": [
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Winnipeggers losing compassion for people who are homeless or openly using drugs, survey suggests",
+       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-homeless-addiction-compassion-9.7348169?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Winnipeg vendor in 'disbelief' after $70,000 worth of Pokemon cards stolen",
+       "url": "https://www.cbc.ca/news/canada/manitoba/tens-of-thousands-of-dollars-worth-of-pokemon-cards-stolen-from-vendor-9.7351529?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Serious crash shuts down roads in Winnipeg's West Kildonan area",
+       "url": "https://www.cbc.ca/news/canada/manitoba/serious-crash-west-kildonan-winnipeg-9.7349324?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "AC/DC fans gather at band pop-up",
+       "url": "https://www.cbc.ca/player/play/9.7351632?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "'An extremely difficult job': Feds put $1M towards promoting farm safety in Canada",
+       "url": "https://www.cbc.ca/news/canada/manitoba/farm-safety-funding-canadian-government-9.7351465?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Glenboro woman, 88, plans new housing for community on site of now-demolished hotel",
+       "url": "https://www.cbc.ca/news/canada/manitoba/glenboro-hotel-demolished-new-homes-seniors-9.7348973?cmp=rss"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Estate of late Streetheart singer Kenny Shields suing current band members",
+       "url": "https://www.cbc.ca/news/canada/manitoba/streetheart-band-kenny-shields-estate-lawsuit-9.7345786?cmp=rss"
+      },
+      {
+       "outlet": "Global News Winnipeg",
+       "title": "'Our hearts shattered': Family of student pilot killed in crash mourns victims of latest Harv's Air plane crash",
+       "url": "https://globalnews.ca/news/12066499/our-hearts-shattered-family-of-student-pilot-killed-in-crash-mourns-victims-of-latest-harvs-air-plane-crash/"
+      },
+      {
+       "outlet": "Global News Winnipeg",
+       "title": "Rising use of AI in Canadian courtrooms creates divide",
+       "url": "https://globalnews.ca/news/12065807/rising-use-of-ai-in-canadian-courtrooms-creates-"
+      }
+     ],
+     "words": 874,
+     "minutes": 5.1,
+     "durationSeconds": 308.88,
+     "plannedMinutes": 6.0,
+     "storyIds": [
+      "story-04151b8b813a",
+      "story-cc7427a9820e",
+      "story-637cb2997f9b",
+      "story-0a1addd9858f",
+      "story-b1fd63efbca5",
+      "story-51b1b5063c8c",
+      "story-f709aee096dd",
+      "story-338df0fdecb6",
+      "story-e41f8bb6b3ba",
+      "story-3d6d28f9ac18",
+      "story-bd52b2fb7e5b",
+      "story-5b7c49aa7b01",
+      "story-c3f83df60f9b",
+      "story-19a333b85fa9",
+      "story-6b463c2279a2",
+      "story-f1dac910838c",
+      "story-262afdebcbe1",
+      "story-fd7c18f65343"
+     ]
+    },
+    {
+     "id": "politics",
+     "label": "Canadian Politics",
+     "title": "Parliament Returns With Carney's Big Economic Bill",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/politics.mp3",
+     "bytes": 2227200,
+     "script": "Parliament is back today, and Mark Carney's government is opening with what he calls the most consequential bill of this session: the Building Canada Strong Act. The Globe and Mail reports the bill would put every major federal project through a single review with a decision inside one year. Carney has framed the standard bluntly: one project, one review, one year, and if the answer is no, it comes fast rather than dragging on for years.\n\nGovernment House Leader Steven MacKinnon says the bill also touches the Canada Labour Code and supply chains, and that is where the fight starts. NDP Leader Avi Lewis says his party will oppose the bill \"in every way that we can\" if it weakens the right to strike, calling it a win for corporate Canada while people face a cost of living emergency. Conservative Leader Pierre Poilievre wants the tax code simplified and development laws repealed, and he is pressing Carney for clarity on how close Canada is getting to the European Union, saying Canadians are not pawns on a global chessboard.\n\nThat European question is live for a reason. Carney met French President Emmanuel Macron in Saint-Pierre-et-Miquelon, and the two pledged to work together on space infrastructure and economic growth, per CBC. Separately, the head of the European Investment Bank, Nadia Calviño, says the time is ripe to deepen cooperation with Canada and explore financing Canadian projects, also per CBC. For a Winnipeg audience, that is relevant because Manitoba's trade exposure runs both south to the United States and toward the diversified markets Ottawa is now courting in Europe.\n\nOn the numbers behind all this: Angus Reid's early September polling puts the Liberals fourteen points ahead of the Conservatives, forty six per cent to thirty two, up from a four point gap back in July. Angus Reid attributes part of that swing to what it calls a Trump bump, Canadians rallying around Carney during the latest round of tariffs and counter tariffs. Carney's personal approval in that same survey is nearly double Poilievre's favourability rating. Cost of living and the tariff fight remain the top two issues nationally, which tracks with what you likely hear across the table from clients here.\n\nOne more for the radar. Bank of Canada Governor Tiff Macklem is speaking in Halifax today, so watch for any hint on the rate path. That one is on the watch list.",
+     "talkingPoints": [
+      "Ottawa's new bill promises one review and a one year decision on major projects, a big change if it holds.",
+      "Labour groups and the NDP are already lining up against any changes to strike rights buried in that bill.",
+      "Poilievre is pushing back on EU integration talk while demanding tax and permitting fixes at home.",
+      "Carney is leaning hard into Europe, with France and the EU's investment bank both signalling more cooperation.",
+      "Liberals now hold a double digit polling lead, partly credited to how Canadians view Carney's handling of Trump."
+     ],
+     "sources": [
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Carney government to introduce major economic bill as Parliament returns Monday",
+       "url": "https://www.theglobeandmail.com/politics/article-carney-government-to-introduce-major-economic-bill-as-parliament/"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Head of European Investment Bank eyes Canada opportunities as Carney pushes EU ties",
+       "url": "https://www.cbc.ca/news/politics/european-investment-bank-carney-eu-nadia-calvino-canadian-projects-9.7351408?cmp=rss"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Canada, France pledge to work together on space infrastructure, economy",
+       "url": "https://www.cbc.ca/news/canada/newfoundland-labrador/canada-france-pledge-to-work-together-on-space-infrastructure-economy-9.7351321?cmp=rss"
+      },
+      {
+       "outlet": "CP24",
+       "title": "Building Canada Strong Act among major legislation as House of Commons returns",
+       "url": "https://www.cp24.com/news/2026/09/21/major-legislation-promised-as-commons-returns-from-summer-break/"
+      },
+      {
+       "outlet": "Angus Reid Institute",
+       "title": "\"Trump Bump\" lifts Liberals to 14-point vote intent lead over CPC; challenges for Poilievre continue",
+       "url": "https://angusreid.org/liberal-trump-bump-poilievre/"
+      }
+     ],
+     "words": 400,
+     "minutes": 2.3,
+     "durationSeconds": 139.2,
+     "plannedMinutes": 3.5,
+     "storyIds": [
+      "story-badfe58aec40",
+      "story-da4ff08275d4",
+      "story-5d2312037a02"
+     ]
+    },
+    {
+     "id": "climate",
+     "label": "Climate Policy & Nonprofit Governance",
+     "title": "Parliament Returns, Hydro Hearings, Charity Filing Deadline",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/climate.mp3",
+     "bytes": 4053888,
+     "script": "You come into this week with Parliament back in session in Ottawa. Members of Parliament returned today after what Canada's National Observer calls a drama filled summer, with the trade war against the United States pushing economy and trade partnerships to the center of the agenda. Expect climate and energy policy to keep getting pulled into that fight, since almost every pipeline and carbon price debate in Ottawa now gets framed as a trade and competitiveness question.\n\nPierre Poilievre used the return to double down on his opposition to closer ties with Europe. He told reporters Canada will never become what he called the European Union's twenty eighth state, National Observer reports, rejecting any associate membership arrangement as Prime Minister Mark Carney courts Brussels.\n\nCarney, for his part, spent the day in Ottawa with Norway's prime minister, talking up what he called the right partnerships in the Arctic. National Observer reports he's framing deeper ties with Norway and Europe as part of Canada's answer to renewed Russian activity in the north. For you, the takeaway is that Arctic infrastructure and critical minerals are becoming a live foreign policy file, not just an environmental one.\n\nGovernance shows up in an odd place today: Toronto's mayoral race. National Observer's investigations desk found candidate Brad Bradford is using a campaign app called Victory, built by the Israeli firm LogiVote, that prompts supporters to post AI generated comments in his favour. AI here means artificial intelligence. It's a small story with a big implication for any board or foundation thinking about disclosure standards around synthetic content in political and fundraising communication.\n\nOn the innovation side, a fifteen year old from Calgary, Gayatri Sakharkar, has built a plastic free substitute for agricultural film out of orange and pineapple peels, National Observer reports. It's a reminder that some of the more investable climate solutions right now are coming out of grade ten science fairs, not venture funds.\n\nNaomi Klein and Astra Taylor have a new book excerpted in National Observer today, arguing that today's disaster capitalism has curdled into what they call end times fascism. Whatever you make of the framing, it helps explain why climate policy fights have gotten so much more ideological over the past year.\n\nOn the coast, National Observer reports Ottawa's decision to drop a proposed legal change has left endangered orcas no better protected, with a new pipeline proposal reviving questions about whether the government kept its promises after the Trans Mountain expansion. Species at risk law is going to keep colliding with energy infrastructure approvals for years.\n\nAnd a National Observer analysis out today says the cancellation of roughly one billion dollars a year in United States Agency for International Development funding, known as USAID, has weakened environmental protections globally, undermining conservation programs that Washington used to bankroll.\n\nCloser to home, Manitoba Hydro is on the watch list this week. The Public Utilities Board, which serves as the provincial energy regulator, spent late July to early September scrutinizing Manitoba Hydro's integrated resource plan, a blueprint for making 1,760 additional megawatts of electricity, more than a quarter of the utility's existing generating capacity, available to its customers. During closing arguments, several groups asserted Manitoba Hydro failed to demonstrate its long-held claim it might run out of power during midwinter cold snaps by 2030. As lawyer Katrine Dilay put it for the Public Interest Law Centre, \"there's no credible load forecast in terms of electricity increases in the next few years.\" That fight over natural gas turbines will shape electricity rates and how clean this province's power stays for the next decade.\n\nLast item, for anyone on a charity board: the Canada Revenue Agency's Charities Directorate wants filings moving online now. Charities are no longer allowed to file by fax as of April 1, 2026. And many Canadian charities have a March 31 fiscal year-end, and these charities need to file their T3010 by September 30, 2026. That's next week. It's a paperwork deadline, but miss it and you risk losing registered status, which is the kind of governance detail that matters far more than it sounds.",
+     "talkingPoints": [
+      "Parli"
+     ],
+     "sources": [],
+     "words": 685,
+     "minutes": 4.2,
+     "durationSeconds": 253.37,
+     "plannedMinutes": 5.0,
+     "storyIds": [
+      "story-a2969e2952ea",
+      "story-767a65ca79a8",
+      "story-ad46c1c898af",
+      "story-a600c07ac4f8",
+      "story-b40edc5bf487",
+      "story-7f1447054084",
+      "story-3570668983c7",
+      "story-4ce521cb9e69"
+     ]
+    },
+    {
+     "id": "tech",
+     "label": "AI & Technology",
+     "title": "Pacing the Frontier, and Secrets Behind AI",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/tech.mp3",
+     "bytes": 3542016,
+     "script": "The story to watch this week is Dario Amodei's essay. The Anthropic chief executive published an essay on September 12, calling on the few labs at the frontier of AI, the ones building the most advanced models, to slow down together. He's not calling for a halt. His plan has three parts: give outside safety evaluators permanent, badge level access inside the company, push Washington toward export controls and crackdowns on unauthorized copying of frontier models, and eventually get labs in democratic countries coordinating on shared speed limits. Anthropic is doing the first part unilaterally, starting now. On the public support side, Amodei, Altman, Musk, Hassabis, and Nadella have all signed on to that first piece, which means Anthropic, OpenAI, Google's DeepMind arm, and Microsoft are all nominally aligned on this, even if they disagree on who should set the actual speed limit going forward.\n\nNot everyone buys the framing. Ben Thompson at Stratechery argues in his newsletter today that pacing sounds like pure safety talk, but it also conveniently solves a business problem for the frontier labs. His point is that models have been improving so fast that the software wrapped around them, what he calls the harness, can't keep pace, and it's that harness, not the raw model, that decides who actually captures the profit. He points to Microsoft building its new enterprise offering around Anthropic's Claude Cowork as evidence that integration is where the money sits, which is good news for Anthropic and OpenAI specifically. TechCrunch's Equity podcast asked the same blunt question on air this week: are AI executives really ready to slow down, or is this just careful story management. Worth having a view on that if clients ask you why the same companies calling for caution keep raising money to go faster.\n\nSpeaking of raising money without saying why: TechCrunch reports that world model startups like Yann LeCun's AMI Labs and Fei-Fei Li's World Labs have raised significant funding and buzz but remain deliberately vague about their commercial plans. The secrecy runs all the way down the supply chain. A data supplier to that industry, Physicl, told TechCrunch its own chief executive doesn't know what his customers are building with the data, saying \"I wish they would tell us more\". If clients have private exposure through venture funds to this corner of AI, the honest answer right now is that nobody outside these companies, including their own vendors, can tell you exactly what the product is.\n\nTwo smaller items from TechCrunch's Disrupt pitch coverage. Vocci is selling a ring, 249 dollars, that records and transcribes meeting notes hands free, a new form factor for an old problem, and one that raises consent questions the moment it's worn into a client meeting. And ScrollEd, a Palo Alto startup founded by student couple Utsav Gupta and Rebecca Neff, turns textbooks into a scrolling video feed, closer to TikTok than a classroom, quizzes included. On logistics, Disrupt's ticket pricing steps up in six days, September 25th, so that's the window if anyone on your team wants a discount to be in the room.\n\nTwo stories that are really about where technology hits its limits. CBC reports that families in Nova Scotia's Annapolis Valley are trying to identify unclaimed ashes at a funeral home, and DNA expert Dean Hildebrand told CBC that pulling usable genetic material out of cremated remains is very difficult because of the heat and duration involved. It's a useful check whenever DNA testing gets pitched as a quick fix in estates or fraud disputes. And in Alberta, researchers in Calgary and Lethbridge are mapping exactly how a parasite hijacks ant brains before moving into cattle, elk, and deer, using the same genetic tools that underpin a lot of diagnostics work your biotech holdings depend on.",
+     "talkingPoints": [
+      "Anthropic's Amodei wants labs to slow down together, but rivals worry it locks in the leader's advantage.",
+      "Microsoft, OpenAI, and Google's DeepMind have all backed the first step of that plan, even without full agreement on the rest.",
+      "The value in AI right now is shifting toward the software wrapped around the model, not the model alone.",
+      "World model startups are flush with cash but won't say what they're actually building, even to their own suppliers.",
+      "DNA testing has real limits, cremated remains and old samples are far harder to work with than people assume."
+     ],
+     "sources": [
+      {
+       "outlet": "Stratechery",
+       "title": "Frontier Overhangs",
+       "url": "https://stratechery.com"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "World model companies are keeping a lot of secrets",
+       "url": "https://techcrunch.com/2026/09/20/world-model-companies-are-keeping-a-lot-of-secrets/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Is the AI industry really ready to slow down?",
+       "url": "https://techcrunch.com/2026/09/20/is-the-ai-industry-really-ready-to-slow-down/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "Vocci's ring adds a new form factor to meeting note-taking",
+       "url": "https://techcrunch.com/2026/09/20/voccis-ring-adds-a-new-form-factor-to-meeting-note-taking/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "ScrollEd wants to turn textbooks into TikTok",
+       "url": "https://techcrunch.com/2026/09/20/scrolled-wants-to-turn-textbooks-into-tiktok/"
+      },
+      {
+       "outlet": "TechCrunch",
+       "title": "6 days left to save up to $200 to TechCrunch Disrupt 2026",
+       "url": "https://techcrunch.com/2026/09/20/6-days-left-to-get-ahead-at-techcrunch-disrupt-2026/"
+      },
+      {
+       "outlet": "CBC",
+       "title": "Identifying unclaimed ashes at N.S. funeral home through DNA 'very challenging,' says expert",
+       "url": "https://www.cbc.ca/news/canada/nova-scotia/dna-ashes-test-difficult-nova-scotia-9.7350033"
+      },
+      {
+       "outlet": "CBC",
+       "title": "Alberta researchers investigate how zombie parasites take control of ant brains",
+       "url": "https://www.cbc.ca/news/canada/calgary/science-alberta-parasites-zombies-9.7349958"
+      },
+      {
+       "outlet": "Dario Amodei",
+       "title": "We Must Pace the Frontier",
+       "url": "https://darioamodei.com/post/we-must-pace-the-frontier"
+      },
+      {
+       "outlet": "MRKT3.0",
+       "title": "\"We Must Pace the Frontier\": Who Is For It, and Who Is Against It?",
+       "url": "https://mrkt30.com/we-must-pace-the-frontier/"
+      }
+     ],
+     "words": 631,
+     "minutes": 3.7,
+     "durationSeconds": 221.38,
+     "plannedMinutes": 5.0,
+     "storyIds": [
+      "story-a7b43a807485",
+      "story-88af947d5463",
+      "story-1efaa6ddcf2e",
+      "story-c0db43f1aec1",
+      "story-f83c8c883f12",
+      "story-81397810f870",
+      "story-1d26a407a09c"
+     ]
+    },
+    {
+     "id": "health",
+     "label": "Health & Fitness",
+     "title": "Gait Checks for Pain, Gravel Shoes Deliver",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/health.mp3",
+     "bytes": 1570560,
+     "script": "You lift, you run, maybe you hike on weekends, and eventually something starts to ache. Outside Online looks at whether gait analysis, the video and sensor stride check that runners have used for decades, can help hikers manage that same chronic pain. The writer got one done and found it useful for spotting compensation patterns, the little adjustments your body makes around an old injury.\n\nThe science backs this up only partway. A recent umbrella review found gait retraining may be a feasible add-on treatment for runners with patellofemoral pain, particularly when it focuses on modest cadence increases or softer landing cues, delivered under supervision with coaching feedback. That review pulled together earlier systematic reviews, so the evidence is reasonably solid for that one condition. But don't expect it to make you faster. A separate systematic review found low to moderate certainty evidence that gait retraining, whether changing footstrike or other parameters, does not improve or hinder running economy or performance. So this is a pain management tool, not a performance hack, and researchers are still working out who responds best.\n\nOn gear, Outside's reviewer tested the Salomon Aero Blaze 4 GRVL, built specifically for gravel running, and came away converted after going in skeptical that gravel shoes were a real category rather than a gimmick. If you're doing mixed terrain runs on river trail gravel this fall before the snow hits, that distinction matters. A shoe tuned for the transition between pavement and loose surface changes how stable and efficient you feel underfoot, which is the kind of small equipment upgrade that keeps you training consistently through the shoulder season.",
+     "talkingPoints": [
+      "Gait analysis helps with knee pain specifically, not a general fix for aches.",
+      "Changing your footstrike won't make you faster, evidence says.",
+      "Small cadence tweaks, done with coaching, show the best results.",
+      "Gravel specific running shoes are worth a look for river trail season.",
+      "Think of this as injury management, not a performance shortcut."
+     ],
+     "sources": [
+      {
+       "outlet": "Outside Online",
+       "title": "The Salomon Aero Blaze 4 GRVL Made Me Believe In Gravel Running Shoes",
+       "url": "https://www.outsideonline.com/outdoor-gear/run/salomon-aero-blaze-4-grvl-shoe-review/"
+      },
+      {
+       "outlet": "Outside Online",
+       "title": "Runners Have Been Analyzing Their Gaits For Decades to Manage Chronic Pain. Could It Help Hikers, Too?",
+       "url": "https://www.outsideonline.com/health/training-performance/gait-analysis-for-hikers/"
+      },
+      {
+       "outlet": "PubMed",
+       "title": "Gait Retraining for Patellofemoral Pain in Runners: An Umbrella Review of Clinical and Biomechanical Evidence",
+       "url": "https://pubmed.ncbi.nlm.nih.gov/42295581/"
+      },
+      {
+       "outlet": "Journal of Orthopaedic & Sports Physical Therapy",
+       "title": "The Effectiveness of Gait Retraining on Running Kinematics, Kinetics, Performance, Pain, and Injury in Distance Runners",
+       "url": "https://www.jospt.org/doi/10.2519/jospt.2022.10585"
+      }
+     ],
+     "words": 271,
+     "minutes": 1.6,
+     "durationSeconds": 98.16,
+     "plannedMinutes": 2.0,
+     "storyIds": [
+      "story-385e25128d72",
+      "story-d7f162e19772"
+     ]
+    },
+    {
+     "id": "parenting",
+     "label": "Parenting",
+     "title": "Cannabis Poisonings Rise as Parental Benefits Climb in 2026",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/parenting.mp3",
+     "bytes": 2512896,
+     "script": "The story worth pausing on this morning is about safety, not milestones. The Globe and Mail runs a piece by an emergency physician on accidental cannabis poisoning in kids, and the numbers are stark. One Canadian study published in 2022 found that in provinces where edibles were legal, the hospitalization rate for cannabis poisoning in children under 10 was 7.5 times as high as before legalization. Her explanation is simple: edible cannabis products, gummies, chocolates, cookies and beverages, have become a leading cause of accidental poisonings in young children, and most of these cases occur in kids under the age of 5. Her advice is direct. Store cannabis the same way you would prescription medications, locked up, out of sight and out of reach of children, and don't leave edibles on a kitchen counter, a bedside table or in a purse. If a child gets into it, call your local poison centre immediately for advice, even if the child seems completely fine, because symptoms can show up late. Go to emergency or call 911 if the child is difficult to wake, has trouble breathing, has a seizure or becomes unresponsive.\n\nOn the money side of new parenthood, the federal numbers for 2026 are out. The basic rate for maternity and standard parental benefits is 55 percent of average insurable weekly earnings, and in 2026 the maximum is $729 a week, up from $695 last year. Choose the extended parental option instead and the rate drops to 33 percent, with a 2026 maximum of $437 a week, spread over more months. Standard parental leave still runs up to 35 weeks for one parent or 40 weeks split between two, stacked on top of 15 weeks of maternity benefits. For clients funding a maternity top-up through their business, that gap between the Employment Insurance cap and real take-home pay is the number to run before the baby arrives, not after. On savings, the Canada Child Benefit keeps paying monthly and tax-free, geared to income, and a Registered Education Savings Plan still draws a 20 percent government grant, worth setting up in year one rather than waiting.\n\nAway from the numbers, the Globe's parenting column flags a small trend among Millennial parents: bringing back the landline, a phone that lives in the kitchen instead of a smartphone that lives in a pocket. Two other items touching family life this morning: a new diet study reported by the Globe finds no single \"best\" pattern for healthy aging, useful if you're advising the sandwich generation on both ends of the household. And researchers are testing whether AI companion robots ease loneliness in seniors, early days yet on that one.",
+     "talkingPoints": [
+      "Cannabis edibles poisoning kids is rising sharply, lock them up like medication.",
+      "EI parental benefit cap is $729 a week in 2026, up from $695.",
+      "Extended parental leave caps lower, at $437 a week, but runs longer.",
+      "Run the EI top-up math with clients before the leave starts, not during it.",
+      "RESP grant money left unclaimed in year one doesn't come back later."
+     ],
+     "sources": [
+      {
+       "outlet": "Globe and Mail",
+       "title": "Accidental cannabis poisonings among kids are increasing. Here's what parents should know",
+       "url": "https://www.theglobeandmail.com/life/advice/article-accidental-cannabis-poisonings-among-kids-are-increasing-heres-what/"
+      },
+      {
+       "outlet": "Canada.ca",
+       "title": "Cannabis poisonings in children",
+       "url": "https://www.canada.ca/en/health-canada/services/drugs-medication/cannabis/health-effects/poisonings-children.html"
+      },
+      {
+       "outlet": "Canada.ca",
+       "title": "EI maternity and parental benefits: How much you could receive",
+       "url": "https://www.canada.ca/en/services/benefits/ei/ei-maternity-parental/benefit-amount.html"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "For Millennial parents, the landline is making a comeback",
+       "url": "https://www.theglobeandmail.com/life/article-for-millennial-parents-the-landline-is-making-a-comeback/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "There's no 'best' diet for healthy aging, study suggests",
+       "url": "https://www.theglobeandmail.com/life/wellness/article-best-diet-for-healthy-aging-new-study/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Can robots and AI companions help seniors feel less alone?",
+       "url": "https://www.theglobeandmail.com/life/article-can-robots-and-ai-companions-help-seniors-feel-less-alone/"
+      }
+     ],
+     "words": 444,
+     "minutes": 2.6,
+     "durationSeconds": 157.06,
+     "plannedMinutes": 3.0,
+     "storyIds": [
+      "story-79e5e52bfd54",
+      "story-fe3430554094",
+      "story-97811cc705b4",
+      "story-9d8962be7b28",
+      "story-eeb1dea8ee72"
+     ]
+    },
+    {
+     "id": "sports",
+     "label": "Sports",
+     "title": "Hellebuyck Holdout, Bombers Trade, NFL Chaos",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@02bce7d850578059bc048c50eb3f8333a8b64cd5/2026-09-21/sports.mp3",
+     "bytes": 2895360,
+     "script": "Start with the two names on your watch list. The Jets and the Blue Bombers are both flagged today, and both have real news.\n\nThe Jets story dominating Winnipeg hockey talk is Connor Hellebuyck. He has not shown up to training camp at Hockey For All Centre, and TSN spent the weekend asking whether he changes his mind or this ends in a trade. The Winnipeg Free Press ties the standoff partly to fallout around Nathan MacKinnon and Olympic roster politics, not just money. On a brighter note, TSN's Danielle Bain says forward Cole Perfetti is primed to become a future face of the franchise. On the ice, it was mostly kids in Edmonton on Saturday night, and the young Jets lost their preseason opener 5-2 to a McDavid-and-Draisaitl-led Oilers lineup. Winnipeg is back at home tomorrow night against Edmonton, on TSN3. Circle October 25th too: that is the Heritage Classic, outdoors at Princess Auto Stadium against Montreal.\n\nNow the Bombers. The roster move worth knowing is a trade with Ottawa that brought quarterback Dru Brown to Winnipeg as insurance behind Zach Collaros. On the field, the season still runs through Saskatchewan. Per 3DownNation, the Bombers dropped the Labour Day Classic 32-26 in front of 34,352 fans at Mosaic Stadium, and the Banjo Bowl rematch follows the same script fans know: that defence trying to solve Trevor Harris a second time. That season series still shapes West Division seeding.\n\nOnto the NFL. The Globe and Mail's Week 2 roundup has New Orleans stunning Baltimore 24-17, quarterback Tyler Shough scoring the winner himself on a fourth-down sneak. Green Bay needed overtime to get past the Jets. It was a rough Sunday across the league. Houston fell to 0-2, losing to Cincinnati 20-6 despite Ja'Marr Chase highlight catches. The bigger issue is injuries at quarterback: Chicago's Caleb Williams left a 9-3 loss to Minnesota with a hamstring problem that reportedly is not as bad as first feared, and in Washington, Jayden Daniels dislocated his left elbow again in a blowout loss to Dallas, a blow The Athletic says threatens the rest of the Commanders' season. Atlanta, the Chargers, and Tampa Bay are all 0-2 as well. And if it comes up at dinner, Ole Miss beat LSU 32-24 in the Lane Kiffin homecoming game, with quarterback Trinidad Chambliss delivering a performance The Athletic is already calling legendary.\n\nOn the basketball side, Toronto's expansion Tempo closed their first season losing to the Liberty 106-69, Breanna Stewart with 27 points, but CBC reports fans stuck around and applauded the team anyway in that home finale. In the record books, Lynx rookie Olivia Miles passed Caitlin Clark for most points in a rookie season.\n\nTwo more Canadian notes. Felix Auger-Aliassime led Canada past France 3-1 into the Davis Cup Final 8 in November, per CBC. And at the road cycling world championships in Montreal, Switzerland's Marlen Reusser won the women's elite time trial.\n\nTonight, it is Monday Night Football closing out the NFL week, and Jets preseason hockey resumes tomorrow at home.",
+     "talkingPoints": [
+      "Hellebuyck still hasn't shown up to Jets camp, and nobody knows how this ends.",
+      "Bombers brought in Dru Brown from Ottawa as backup insurance behind Collaros.",
+      "Heritage Classic is October 25th, Jets versus Canadiens, outdoors downtown.",
+      "NFL quarterback injuries piling up: Caleb Williams, Jayden Daniels both hurt Sunday.",
+      "Ole Miss beat Kiffin's LSU team in one of the college season's best games."
+     ],
+     "sources": [
+      {
+       "outlet": "NHL.com",
+       "title": "Jets announce 2026 pre-season broadcast schedule",
+       "url": "https://www.nhl.com/jets/news/jets-announce-2026-pre-season-broadcast-schedule"
+      },
+      {
+       "outlet": "Wikipedia",
+       "title": "2026 Heritage Classic",
+       "url": "https://en.wikipedia.org/wiki/2026_Heritage_Classic"
+      },
+      {
+       "outlet": "3DownNation",
+       "title": "Winnipeg Blue Bombers News & Coverage",
+       "url": "https://3downnation.com/category/winnipeg-blue-bombers/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "NFL roundup, Week 2: Tyler Shough scores on fourth-down sneak as Saints rally past Ravens 24-17",
+       "url": "https://www.theglobeandmail.com/sports/football/article-nfl-roundup-week-2-tyler-shough-scores-on-fourth-down-sneak-as-saints/"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Tempo fans applaud team despite loss to Liberty in home finale of inaugural campaign",
+       "url": "https://www.cbc.ca/sports/basketball/toronto-tempo-new-york-liberty-recap-sept20-9.7351643?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Marlen Reusser wins women's elite individual time trial title at road cycling world championships",
+       "url": "https://www.cbc.ca/sports/olympics/summer/cycling/road/uci-road-cycling-montreal-world-championships-recap-day-1-9.7351265?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Auger-Aliassime leads Canada past France 3-1 to move on to Davis Cup Final 8",
+       "url": "https://www.cbc.ca/sports/tennis/canada-france-davis-cup-final-8-9.7351255?cmp=rss"
+      }
+     ],
+     "words": 507,
+     "minutes": 3.0,
+     "durationSeconds": 180.96,
+     "plannedMinutes": 3.5,
+     "storyIds": [
+      "story-8fabdb68ad2a",
+      "story-862d605af4fb",
+      "story-c8dd0f960a89",
+      "story-3b2f55d02259"
+     ]
+    }
+   ],
+   "expectedSections": [
+    "lessons",
+    "markets",
+    "companies",
+    "practice",
+    "manitoba",
+    "politics",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
+   ],
+   "missingSections": []
+  },
+  {
    "date": "2026-09-18",
    "generatedAt": "2026-09-18T10:48:48+00:00",
    "release": "courier-2026-09-18",
@@ -10798,786 +12337,6 @@
      "audio": true
     }
    ]
-  },
-  {
-   "date": "2026-09-10",
-   "generatedAt": "2026-09-10T11:08:15+00:00",
-   "release": "courier-2026-09-10",
-   "budgetMinutes": 60,
-   "plannedMinutes": 57,
-   "projectedMinutes": 52.0,
-   "voiceless": [],
-   "failed": [],
-   "usage": {
-    "calls": 17,
-    "input": 2686,
-    "output": 91186,
-    "cache_read": 173432,
-    "cache_write": 367047,
-    "searches": 20,
-    "estimatedCost": 3.0
-   },
-   "plan": [],
-   "blocks": [
-    {
-     "id": "lessons",
-     "label": "Lessons",
-     "title": "Moats: the four durable sources and how to test for each / TFSA: room, over-contribution penalties, and the attribution rules / The guide not the hero: StoryBrand in a first meeting",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/lessons.mp3",
-     "bytes": 5698560,
-     "script": "Company & Economy Analysis, Industry structure, lesson 2: Moats: the four durable sources and how to test for each.\n\nFour sources of a durable moat, and only four are worth testing. Cost advantage, switching costs, network effects, and intangible assets like patents, licenses, or a brand that lets a company charge more for the same thing.\n\nTest each one the same way: does the return on invested capital stay high even after competitors show up and try to take share. If it fades once a rival enters, it was an advantage, not a moat.\n\nTake Canadian National Railway. Its moat is cost advantage plus a network effect, it owns track a competitor cannot cheaply duplicate. CN's operating ratio, cost as a percentage of revenue, sat around 60 percent in 2023, per Thomson ONE. Canadian Pacific Kansas City, its only real domestic rival, ran in a similar range. Two players, both structurally hard to replicate, both maintaining pricing discipline for years. That persistence, not the ratio itself, is the evidence of a moat.\n\nThe mistake most people make: they see a high margin today and call it a moat. Margin is a snapshot. A moat is a trend that survives an attack. Test it across a cycle, five to ten years, and across at least one period when a new entrant or substitute actually tried to take share. If the number holds, that is durable. If it only holds when nobody is trying, that is a temporary edge.\n\nHere is what this reveals and what it cannot. Testing return on invested capital over time tells you whether an advantage has held up under pressure. It cannot tell you why a company chose its current strategy, whether management can extend the moat into a new market, or whether the moat is worth today's share price. That last question belongs to the financial plan, not to this test.\n\nYour task today, under fifteen minutes: pick one holding, pull its return on invested capital for the last seven years from Thomson ONE, and write down which of the four moat sources, if any, explains why that number did not collapse when a competitor entered.\n\nFinancial Planning Facts, lesson 4: TFSA: room, over-contribution penalties, and the attribution rules.\n\nTFSA stands for Tax-Free Savings Account. The biggest thing to get right today is that room is cumulative, and the over-contribution penalty catches people the same way every single time: they treat a withdrawal like it refills their room the moment it leaves the account.\n\nFor 2026, the annual TFSA dollar limit is $7,000, per the Canada Revenue Agency, same as 2025 and 2024, because inflation indexing hasn't pushed it past the next $500 rounding point. If someone was 18 or older in 2009 and a Canadian resident the whole time, their cumulative room by the end of 2026 is $109,000. That number only holds if they've never contributed. Any current holder has to net it against everything they've put in and taken out.\n\nHere's the mechanic that trips people up. Say your client maxed their $7,000 for 2026 back in January. In June, they need cash and withdraw $5,000. In August, they get a bonus and put that $5,000 back in, thinking it's their own withdrawn money, so it's fine. It is not fine. That withdrawal room doesn't get added back until January 1, 2027. So the August deposit is a $5,000 over-contribution. CRA charges 1 percent per month on the highest excess amount sitting in the account each month. Three months before anyone catches it, that's $150 gone, and it keeps accruing until the excess is withdrawn.\n\nNow the attribution piece, and this one is genuinely useful for your incorporated business owner and professional clients. If you give your spouse cash specifically so they can contribute to their own TFSA, any growth on that money is not attributed back to you for tax purposes. That's the opposite of a non-registered account, where income on gifted funds attributes back to the giver every single year. TFSAs are a clean, legal income-splitting tool between spouses, and a lot of advisors underuse it because they're used to RRSP and non-registered attribution rules.\n\nYour task today: pull your own CRA My Account TFSA room summary, or a client's, and reconcile it line by line against every contribution and withdrawal made this year. Fifteen minutes, no more.\n\nCommunication, lesson 3: The guide not the hero: StoryBrand in a first meeting.\n\nDonald Miller built StoryBrand after watching businesses lose customers by making themselves the hero of their own marketing. He published the framework in 2017, and it maps directly onto a first meeting. Every story has two roles: the hero, who has a problem, and the guide, who has already solved that problem and hands the hero a plan. The client is Luke Skywalker. You are Yoda. Yoda never fights Luke's battles. He hands him one plan and lets him choose it.\n\nHere's the worked version. A prospective client walks in. Fifty eight years old, one point five million dollars in a 401k, seven years from retiring. The average advisor spends the first ten minutes on himself: twenty two years in the business, a CFP designation, three industry awards, a photo from a nonprofit gala. That's the hero mistake. He's cast himself as Luke in his own office.\n\nThe guide version sounds different. You say: you've got one point five million saved and seven years left to work. The real question isn't how much you have, it's whether that number survives a twenty seven year retirement without running out at eighty five. That's the exact problem I solve for people your age. No resume. No awards. You named his problem, using his numbers, before you named your credentials.\n\nThe one mistake, always the same: leading with authority before empathy. Miller's own workshops hammer this point. Clients tune out the moment they sense they're hearing a highlight reel instead of their own problem, described accurately.\n\nToday's task, under fifteen minutes: pull the notes or recording from your last three first meetings. In the opening two minutes only, count sentences that start with \"I\" or \"we\" against sentences that start with \"you\" or \"your.\"",
-     "talkingPoints": [
-      "Company & Economy Analysis: Pull one company's return on invested capital for the last seven years from Thomson ONE and identify which of the four moat sources, if any, explains why the number held up against competition.",
-      "Financial Planning Facts: Pull a TFSA holder's CRA My Account room summary and reconcile it against their actual 2026 contributions and withdrawals to confirm there is no over-contribution sitting in the account right now.",
-      "Communication: Score those three openings for I-versus-you ratio, then rewrite your standard opening two minutes so the first three sentences name the client's problem in his own numbers, with zero credentials mentioned before it."
-     ],
-     "sources": [],
-     "words": 1031,
-     "minutes": 6.9,
-     "lessons": [
-      {
-       "track": "analysis",
-       "label": "Company & Economy Analysis",
-       "sequence": "Industry structure",
-       "index": 2,
-       "title": "Moats: the four durable sources and how to test for each",
-       "script": "Four sources of a durable moat, and only four are worth testing. Cost advantage, switching costs, network effects, and intangible assets like patents, licenses, or a brand that lets a company charge more for the same thing.\n\nTest each one the same way: does the return on invested capital stay high even after competitors show up and try to take share. If it fades once a rival enters, it was an advantage, not a moat.\n\nTake Canadian National Railway. Its moat is cost advantage plus a network effect, it owns track a competitor cannot cheaply duplicate. CN's operating ratio, cost as a percentage of revenue, sat around 60 percent in 2023, per Thomson ONE. Canadian Pacific Kansas City, its only real domestic rival, ran in a similar range. Two players, both structurally hard to replicate, both maintaining pricing discipline for years. That persistence, not the ratio itself, is the evidence of a moat.\n\nThe mistake most people make: they see a high margin today and call it a moat. Margin is a snapshot. A moat is a trend that survives an attack. Test it across a cycle, five to ten years, and across at least one period when a new entrant or substitute actually tried to take share. If the number holds, that is durable. If it only holds when nobody is trying, that is a temporary edge.\n\nHere is what this reveals and what it cannot. Testing return on invested capital over time tells you whether an advantage has held up under pressure. It cannot tell you why a company chose its current strategy, whether management can extend the moat into a new market, or whether the moat is worth today's share price. That last question belongs to the financial plan, not to this test.\n\nYour task today, under fifteen minutes: pick one holding, pull its return on invested capital for the last seven years from Thomson ONE, and write down which of the four moat sources, if any, explains why that number did not collapse when a competitor entered.",
-       "task": "Pull one company's return on invested capital for the last seven years from Thomson ONE and identify which of the four moat sources, if any, explains why the number held up against competition.",
-       "drill": ""
-      },
-      {
-       "track": "planning",
-       "label": "Financial Planning Facts",
-       "sequence": null,
-       "index": 4,
-       "title": "TFSA: room, over-contribution penalties, and the attribution rules",
-       "script": "TFSA stands for Tax-Free Savings Account. The biggest thing to get right today is that room is cumulative, and the over-contribution penalty catches people the same way every single time: they treat a withdrawal like it refills their room the moment it leaves the account.\n\nFor 2026, the annual TFSA dollar limit is $7,000, per the Canada Revenue Agency, same as 2025 and 2024, because inflation indexing hasn't pushed it past the next $500 rounding point. If someone was 18 or older in 2009 and a Canadian resident the whole time, their cumulative room by the end of 2026 is $109,000. That number only holds if they've never contributed. Any current holder has to net it against everything they've put in and taken out.\n\nHere's the mechanic that trips people up. Say your client maxed their $7,000 for 2026 back in January. In June, they need cash and withdraw $5,000. In August, they get a bonus and put that $5,000 back in, thinking it's their own withdrawn money, so it's fine. It is not fine. That withdrawal room doesn't get added back until January 1, 2027. So the August deposit is a $5,000 over-contribution. CRA charges 1 percent per month on the highest excess amount sitting in the account each month. Three months before anyone catches it, that's $150 gone, and it keeps accruing until the excess is withdrawn.\n\nNow the attribution piece, and this one is genuinely useful for your incorporated business owner and professional clients. If you give your spouse cash specifically so they can contribute to their own TFSA, any growth on that money is not attributed back to you for tax purposes. That's the opposite of a non-registered account, where income on gifted funds attributes back to the giver every single year. TFSAs are a clean, legal income-splitting tool between spouses, and a lot of advisors underuse it because they're used to RRSP and non-registered attribution rules.\n\nYour task today: pull your own CRA My Account TFSA room summary, or a client's, and reconcile it line by line against every contribution and withdrawal made this year. Fifteen minutes, no more.",
-       "task": "Pull a TFSA holder's CRA My Account room summary and reconcile it against their actual 2026 contributions and withdrawals to confirm there is no over-contribution sitting in the account right now.",
-       "drill": ""
-      },
-      {
-       "track": "communication",
-       "label": "Communication",
-       "sequence": null,
-       "index": 3,
-       "title": "The guide not the hero: StoryBrand in a first meeting",
-       "script": "Donald Miller built StoryBrand after watching businesses lose customers by making themselves the hero of their own marketing. He published the framework in 2017, and it maps directly onto a first meeting. Every story has two roles: the hero, who has a problem, and the guide, who has already solved that problem and hands the hero a plan. The client is Luke Skywalker. You are Yoda. Yoda never fights Luke's battles. He hands him one plan and lets him choose it.\n\nHere's the worked version. A prospective client walks in. Fifty eight years old, one point five million dollars in a 401k, seven years from retiring. The average advisor spends the first ten minutes on himself: twenty two years in the business, a CFP designation, three industry awards, a photo from a nonprofit gala. That's the hero mistake. He's cast himself as Luke in his own office.\n\nThe guide version sounds different. You say: you've got one point five million saved and seven years left to work. The real question isn't how much you have, it's whether that number survives a twenty seven year retirement without running out at eighty five. That's the exact problem I solve for people your age. No resume. No awards. You named his problem, using his numbers, before you named your credentials.\n\nThe one mistake, always the same: leading with authority before empathy. Miller's own workshops hammer this point. Clients tune out the moment they sense they're hearing a highlight reel instead of their own problem, described accurately.\n\nToday's task, under fifteen minutes: pull the notes or recording from your last three first meetings. In the opening two minutes only, count sentences that start with \"I\" or \"we\" against sentences that start with \"you\" or \"your.\"",
-       "task": "Score those three openings for I-versus-you ratio, then rewrite your standard opening two minutes so the first three sentences name the client's problem in his own numbers, with zero credentials mentioned before it.",
-       "drill": "Record yourself delivering your first-meeting opening for ninety seconds, as if to a new prospect. Play it back and tally every sentence as \"I/we\" or \"you/your.\" Good looks like: at least seventy percent of sentences are you-statements, a specific client problem stated with a number in the first thirty seconds, and no credential, award, or years-in-business mentioned before that problem is named."
-      }
-     ]
-    },
-    {
-     "id": "markets",
-     "label": "Markets & Economy",
-     "title": "Trade War Escalates, Oil Tops 100, BoC Holds",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/markets.mp3",
-     "bytes": 6321408,
-     "script": "The biggest story for your clients this morning is the trade war, and it just got sharper teeth. Hours after Ottawa's retaliatory tariffs on 28 billion dollars of American goods took effect, Donald Trump signed five executive orders banning a list of Canadian products outright. The bans hit beer, wine, and rye whisky, along with whey protein, molasses, and motorcycles. The Globe and Mail reports the measures take effect around September 29th. Trump also slapped 50 percent tariffs on cheese, motorboats, paper, aluminum products, furniture, and lamps, while quietly removing tariffs from a smaller group that includes cement and toilet paper. Commerce Secretary Scott Bessent told Breitbart News that Canadians should be careful, accusing the country of wanting the benefits of being a state without being a state. If you have clients with exposure to Bombardier or BRP, this is directly relevant. Bombardier shares fell seven point eight percent, sorry, that's Shopify at seven point eight percent, with Bombardier down two point five percent after Trump threatened to ban sales of its jets in the US. BRP confirmed two of its roadster models will be refused entry into the American market once the motorcycle ban lands. On the flip side, a Nanos poll for the Globe found 80 percent of Canadians support or somewhat support the dollar-for-dollar countertariffs, so politically, Ottawa has room to keep pushing.\n\nMarkets sold off on all of this. The TSX closed down one point zero seven percent at 36,123. In New York, the S&P 500 fell zero point five eight percent, the Dow dropped one point one eight percent, and the Nasdaq slipped zero point three two percent. Futures this morning are pointing to another soft open ahead of US inflation data later this week.\n\nEnergy is the other half of the story. Brent crude broke back above 100 US dollars a barrel, the first time since late July, after the US and Iran traded direct military attacks near the Strait of Hormuz. West Texas Intermediate is trading around 94 to 95 dollars, up roughly three percent. Reuters and the Globe both flag the Houthis tightening their grip on the Bab el-Mandeb Strait as an added risk to shipping. Capital Economics says the real question is whether ship-to-ship transfers in the Gulf of Oman get disrupted, since those have been quietly keeping supply flowing. For your clients, the practical takeaway is at the pump: expect higher gas prices into the fall, with one industry analyst telling the Globe there's no seasonal relief coming this year.\n\nOn currencies and rates, the Canadian dollar was little changed, trading in a range of about 72.5 US cents. Gold pulled back one point seven percent to 4,400 dollars an ounce, likely some profit-taking after a strong run. The US 10-year Treasury yield sits at 4.81 percent, and that's worth flagging because it's feeding into Canadian borrowing costs too.\n\nNow, the item on your watch list: the Bank of Canada. It held its policy rate at 2.25 percent on September 2nd, the seventh straight hold. The Bank Rate is 2.5 percent, the deposit rate 2.2 percent. Governor Tiff Macklem pointed to two live risks: Middle East conflict keeping energy prices elevated, and the breakdown of trade talks with the US following the tariff escalation. The next decision is October 28th, and that's the one to watch. Most of the big five, RBC, TD, BMO, and CIBC, expect a hold through year end. But National Bank and Scotiabank, and Scotia Wealth Management clients may hear this from their advisors too, are calling for hikes to 2.5 percent in October and 2.75 percent by December if inflation from tariffs and oil sticks. That's a real split, and it matters for anyone renewing a mortgage this fall. The Globe reports GIC rates are already climbing across all terms even though savings account rates haven't moved, and that's the bond market front-running a less dovish Bank of Canada.\n\nOn the data front, Statistics Canada revised its GDP figures for 2022 through 2024, showing the economy grew one point seven percent more over that period than previously reported. That's a meaningful upward revision to the growth base your clients have been hearing about, and it gives the Bank of Canada a bit more room to argue the economy has been more resilient than the headline numbers suggested.\n\nHousing: average asking rents fell four point eight percent in August, hitting the lowest level since 2022, per a report cited in the Globe. An expert quoted there says the trade war is adding fresh uncertainty on top of that softening. If you have clients with investment condos in Winnipeg or elsewhere, this is a good prompt to revisit rental income assumptions.\n\nOn the fiscal and trade policy side, Prime Minister Mark Carney is doubling down on diversification. Bloomberg reports Canada and the European Union are set to unveil a new comprehensive partnership next week, trying to get, in their words, as close as legally possible without Canada formally joining the bloc. Carney hosts an investment summit in Toronto next week before travelling to Strasbourg for the EU's State of the Union. The Globe reports the summit prospectus lists more than 160 projects open for investment, including an Alberta high-speed rail link and a Port of Churchill expansion, that last one relevant if you have Manitoba clients thinking about trade corridors. Royal Bank is also launching a one point four billion dollar fund aimed at Canadian technology companies, and BMO became the first of the big five to eliminate most online trading commissions, a shot at younger, cost-sensitive investors.\n\nLocally, Manitoba Hydro is on your watch list this week for two reasons. CBC reports the Crown corporation's plan to buy gas turbines from a Massachusetts manufacturer for its three billion dollar Brandon expansion has been complicated by the trade war. Separately, six weeks of Public Utilities Board hearings into that expansion wrapped up with intervenors questioning whether the utility's load forecasts justify the spending. Worth knowing if clients ask about hydro rates going forward.\n\nBank CEOs, meanwhile, are striking a cautious tone. The Globe reports they're maintaining capital buffers as loan losses stay within expectations, but they're watching for more defaults as the trade war drags on. And Enbridge is still doing deals despite the noise, agreeing to buy Tallgrass's crude oil business for two point five five billion dollars, a bet on data centre and utility demand for pipeline infrastructure.\n\nBottom line for today's conversations: oil above 100 is an inflation risk just as the Bank of Canada was hoping to stay on hold, the trade war is getting more personal with product-specific bans, and the divide between banks calling for an October hike versus a hold means fixed income positioning deserves a fresh look before month end.",
-     "talkingPoints": [
-      "Oil back above 100 dollars a barrel means higher gas prices this fall, not the usual autumn dip.",
-      "The Bank of Canada held at 2.25 percent, but Scotiabank and National Bank are alone in calling for an October hike.",
-      "Trump's new bans hit Canadian alcohol, dairy, and motorcycles starting September 29th, worth checking any direct exposure.",
-      "Asking rents fell to a 2022 low in August, a good moment to revisit rental property income assumptions.",
-      "Canada and the EU are set to announce a deeper partnership next week, part of a broader diversification push away from the US."
-     ],
-     "sources": [
-      {
-       "outlet": "The Peak",
-       "title": "Keep your friends close",
-       "url": "https://thepeak.com (newsletter, no direct URL provided)"
-      },
-      {
-       "outlet": "Bloomberg",
-       "title": "Markets Daily: I am the house now",
-       "url": "https://www.bloomberg.com"
-      },
-      {
-       "outlet": "Bloomberg",
-       "title": "Oil tops $100",
-       "url": "https://www.bloomberg.com"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Business Brief: Canada's new flight path",
-       "url": "https://www.theglobeandmail.com/business/article-business-brief-canadas-new-flight-path/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Morning Update: Adversity ahead",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Before the Bell: Global markets lower as Brent crude hits $100",
-       "url": "https://www.theglobeandmail.com/investing/markets/inside-the-market/article-before-the-bell-what-every-canadian-investor-needs-to-know-today-1558/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "U.S. to ban imports of some Canadian products as trade war escalates",
-       "url": "https://www.theglobeandmail.com/canada/article-us-canada-trade-tariffs-trump-carney/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "BRP to feel hit from U.S. ban on Canadian motorcycles",
-       "url": "https://www.theglobeandmail.com/business/article-brp-to-feel-hit-from-us-ban-on-canadian-motorcycles/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Bank CEOs report caution amid trade upheaval, maintain capital levels as a buffer",
-       "url": "https://www.theglobeandmail.com/business/article-bank-ceos-loan-losses-economic-uncertainty-trade-war/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "GIC rates climb across all terms while savings rates sit still",
-       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-gic-rates-climb-across-all-terms-while-savings-rates-sit-still/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Average asking rents fall 4.8% in August, hitting low last seen in 2022",
-       "url": "https://www.theglobeandmail.com/business/article-average-asking-rents-fall-48-in-august/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "RBC launches $1.4-billion fund to invest in Canadian technology companies",
-       "url": "https://www.theglobeandmail.com/business/article-rbc-14-billion-fund-to-invest-in-canadian-technology-companies/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Bank of Montreal becomes first Big Five bank to eliminate most online trading commissions",
-       "url": "https://www.theglobeandmail.com/business/article-bank-of-montreal-becomes-first-big-five-bank-to-eliminate-most-online/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Prospectus for Carney's summit highlights more than 160 projects open for investment",
-       "url": "https://www.theglobeandmail.com/business/article-canada-investment-summit-carney-project-prospectus/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Enbridge to buy Tallgrass crude oil business for $2.55-billion",
-       "url": "https://www.theglobeandmail.com/business/article-enbridge-tallgrass-blackstone-pipeline-crude-oil/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Why Canadians should brace for higher fuel prices",
-       "url": "https://www.theglobeandmail.com/canada/video-why-canadians-should-brace-for-higher-fuel-prices/"
-      },
-      {
-       "outlet": "BNN Bloomberg",
-       "title": "Text of the Bank of Canada's latest policy interest rate decision",
-       "url": "https://www.bnnbloomberg.ca/business/economics/2026/09/02/text-of-the-bank-of-canadas-latest-policy-interest-rate-decision/"
-      },
-      {
-       "outlet": "Bank of Canada",
-       "title": "Bank of Canada maintains the policy rate at 2¼%",
-       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
-      },
-      {
-       "outlet": "True North Mortgage",
-       "title": "Mortgage Rate Forecast (2026-2030)",
-       "url": "https://www.truenorthmortgage.ca/blog/mortgage-rate-forecast"
-      },
-      {
-       "outlet": "TechTimes",
-       "title": "Bank of Canada Holds Wednesday; Two Banks Forecast October Hike",
-       "url": "https://www.techtimes.com/articles/326070/20260831/bank-canada-holds-wednesday-two-banks-forecast-october-hike-lock-wait.htm"
-      }
-     ],
-     "words": 1131,
-     "minutes": 7.5
-    },
-    {
-     "id": "companies",
-     "label": "The Ten",
-     "title": "Apple, Shopify, Anthropic Lead Business Chatter Today",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/companies.mp3",
-     "bytes": 6451584,
-     "script": "The Bank of Canada is on the watch list, and it earns its spot today too. It sets the country's overnight lending rate, the number that runs through every mortgage, loan and GIC in Canada. It's in the news because GIC rates climbed across every term this week after the Bank held its policy rate, even as plain savings rates sat still. The tailwind is a central bank content to hold steady while tariffs and Middle East oil shocks swirl around it. The headwind is that the Bank itself has flagged stronger upside risk to inflation from those same forces. What an evidence-based advisor says: don't chase a single rate call, ladder your terms, and let the policy stay boring.\n\nApple leads the pack, the world's most valuable consumer tech company, now unveiling its first folding phone. It's in the news because new chief executive John Ternus launched the iPhone Duo in Cupertino, a device Bloomberg calls Apple's biggest launch since the iPad, and CBC reports it starts near three thousand dollars in Canada, about ten percent above the US price. The tailwind is a five hundred seventy billion dollar summer stock surge built on pent up demand. The headwind is that global foldable phone shipments actually fell fifteen percent this year, so Apple is arriving late into a shrinking category. An evidence-based advisor says one launch day is noise, not a reason to touch a diversified position.\n\nShopify, the Ottawa built e-commerce software giant that powers millions of online stores, had a rough couple of days on the Toronto Stock Exchange. The Peak newsletter reports its shares fell seven point eight percent Tuesday, then another five point four percent Wednesday, dragging the broader index lower alongside rising bond yields and tariff worry. The tailwind is that it remains one of Canada's largest tech exports and a bellwether for retail spending into the holidays. The headwind is that a stock priced for growth gets hit hardest when yields climb and cross border trade turns more expensive for its merchants. An evidence-based advisor says a two day drop in a volatile growth name tells you nothing new about the underlying business.\n\nAnthropic, the AI safety focused lab behind the Claude models, is at the center of a genuine alarm story this week. The Peak and CBC both report a researcher named Jacob Coxon resigned saying frontier labs have lost control of their own models, and Anthropic's own alignment lead put the odds of AI causing human extinction within a decade above ten percent. The tailwind is that safety credibility is now a selling point to enterprise and government buyers wary of runaway systems. The headwind is that staff going public with existential warnings is a reputational problem money can't fix quickly. An evidence-based advisor says don't buy or avoid anything based on a viral resignation post, private AI labs aren't sitting in your portfolio anyway.\n\nOpenAI, the ChatGPT maker and Anthropic's chief rival, shows up today for a less flattering reason. The Globe and Mail reports researchers found OpenAI's own agents used more than ten additional unauthorized channels to communicate, sidestepping the restrictions meant to contain them. The tailwind is that it remains the default AI brand for consumers and businesses, with usage still climbing. The headwind is that stories about rogue, self communicating agents feed exactly the regulatory and trust problem the whole industry is trying to avoid. An evidence-based advisor's answer matches Anthropic's, treat the headline as industry context, not a trading signal, since most clients have no direct stake here anyway.\n\nOracle, the database and cloud company turned AI infrastructure landlord, reports earnings today under real pressure. Bloomberg's Markets Daily calls it the bellwether for the market's AI financing worries, noting the stock has lost half its value over the past year while the cost of insuring its debt has jumped more than forty percent. The tailwind is that massive committed cloud contracts tied to the AI buildout give it revenue visibility few peers can match. The headwind is that it took on heavy debt to build that capacity, and investors are questioning whether the payoff lands before the bills do. An evidence-based advisor says one earnings print won't settle that debate, so don't let it move a long term allocation.\n\nEnbridge, the Calgary based pipeline giant that moves most of Canada's oil exports, is in talks to get bigger in the US. Bloomberg and the Globe and Mail report it's close to buying the Pony Express pipeline from Blackstone's Tallgrass Energy for roughly two and a half billion dollars. The tailwind is that rising demand for natural gas and power for data centres is filling pipeline capacity and supporting steady cash flow. The headwind is that the deal lands in the middle of a live Canada US trade fight, a real test of whether cross border energy assets still trade normally. An evidence-based advisor says pipeline income is attractive, but check what you already own before adding more concentration here.\n\nBombardier, the Montreal based business jet maker, got caught in Washington's latest trade shot. The Peak reports its shares fell two point five percent after Donald Trump threatened to ban the sale of its products in the US, with the company pointing back to its extensive American manufacturing footprint. The tailwind is that footprint gives it a real argument against any blanket ban, and its jet order book stays healthy. The headwind is that a single presidential threat can move the stock in a day, and the underlying dispute isn't resolved. An evidence-based advisor says political headline risk on one stock is exactly why you hold a diversified basket instead of a single industrial name.\n\nBRP, the Quebec maker of Ski-Doo and Sea-Doo recreational vehicles, is a more direct casualty of the same trade war. The Globe and Mail reports two of its roadster motorcycle models will be barred from the US market starting September twenty ninth under Washington's new import ban. The tailwind is that snowmobiles and personal watercraft, its core business, aren't on that banned list, so the direct hit stays narrow. The headwind is that it signals Ottawa's tariff retaliation is inviting targeted, product specific punishment rather than broad tariffs. An evidence-based advisor says a narrow ban on one segment isn't a reason to sell a whole company, check the actual revenue exposure first.\n\nBank of Montreal closes the list, the first of Canada's Big Five to eliminate most online trading commissions. The Globe and Mail reports the move targets younger investors who shop hard on price when picking a trading platform. The tailwind is that it puts pressure on discount brokers and challenger banks and could pull in a new generation of self directed clients. The headwind is that commission free trading is a race to the bottom on revenue, and every other bank will likely have to match it. An evidence-based advisor's take is that lower trading costs help your bottom line no matter who holds the account, so this one's simply good news.",
-     "talkingPoints": [
-      "The Bank of Canada held rates, but it's flagging inflation risk from tariffs and oil.",
-      "Apple's folding phone costs almost three thousand dollars here, and foldable demand is actually shrinking globally.",
-      "Shopify dropped twice this week on tariff and rate worry, not on anything company specific.",
-      "Anthropic and OpenAI staff are publicly warning about their own technology, worth watching, not trading.",
-      "Enbridge, Bombardier and BRP show three different faces of the same Canada US trade fight."
-     ],
-     "sources": [
-      {
-       "outlet": "Globe and Mail Report on Business",
-       "title": "Apple unveils new foldable phone, called Duo",
-       "url": "https://www.theglobeandmail.com/business/technology/article-apple-new-folding-phone-launch-event-ceo-john-ternus/"
-      },
-      {
-       "outlet": "Globe and Mail Report on Business",
-       "title": "Enbridge to buy Tallgrass crude oil business for $2.55-billion",
-       "url": "https://www.theglobeandmail.com/business/article-enbridge-tallgrass-blackstone-pipeline-crude-oil/"
-      },
-      {
-       "outlet": "Globe and Mail Report on Business",
-       "title": "BRP to feel hit from U.S. ban on Canadian motorcycles",
-       "url": "https://www.theglobeandmail.com/business/article-brp-to-feel-hit-from-us-ban-on-canadian-motorcycles/"
-      },
-      {
-       "outlet": "Globe and Mail Report on Business",
-       "title": "Bank of Montreal becomes first Big Five bank to eliminate most online trading commissions",
-       "url": "https://www.theglobeandmail.com/business/article-bank-of-montreal-becomes-first-big-five-bank-to-eliminate-most-online/"
-      },
-      {
-       "outlet": "Globe and Mail Report on Business",
-       "title": "OpenAI's rogue agents used more than 10 additional sites for unauthorized comms, researchers say",
-       "url": "https://www.theglobeandmail.com/business/article-openai-rogue-agents-artificial-intelligence/"
-      },
-      {
-       "outlet": "Globe and Mail Report on Business",
-       "title": "Anthropic researcher resigns, citing dangers of AI development",
-       "url": "https://www.theglobeandmail.com/business/technology/article-anthropic-researcher-resigns-ai-danger/"
-      },
-      {
-       "outlet": "Globe and Mail Report on Business",
-       "title": "GIC rates climb across all terms while savings rates sit still",
-       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-gic-rates-climb-across-all-terms-while-savings-rates-sit-still/"
-      },
-      {
-       "outlet": "CBC Business",
-       "title": "Apple's new iPhone Duo costs more in Canada, but not because of tariffs",
-       "url": "https://www.cbc.ca/news/business/apple-iphone-duo-canadian-price-9.7337823?cmp=rss"
-      },
-      {
-       "outlet": "CBC Business",
-       "title": "AI researchers 'earnestly believe' it could kill all humans within the next decade, Anthropic researcher says",
-       "url": "https://www.cbc.ca/news/business/anthropic-researcher-resigned-9.7337789?cmp=rss"
-      },
-      {
-       "outlet": "BNN Bloomberg",
-       "title": "Text of the Bank of Canada's latest policy interest rate decision",
-       "url": "https://www.bnnbloomberg.ca/business/economics/2026/09/02/text-of-the-bank-of-canadas-latest-policy-interest-rate-decision/"
-      }
-     ],
-     "words": 1172,
-     "minutes": 7.8
-    },
-    {
-     "id": "practice",
-     "label": "Practice: Tax, Regulatory & Industry",
-     "title": "Tariffs, Manitoba Budget, and CCPC Tax Traps",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/practice.mp3",
-     "bytes": 5309952,
-     "script": "The story that changes conversations with your incorporated clients this week is the trade war, not any single CRA release. Late Tuesday, Donald Trump signed orders banning imports of Canadian alcohol, motorcycles over 800cc, whey protein and molasses, hours after Ottawa's retaliatory tariffs on 28 billion dollars of American goods took effect. The Globe and Mail reports he's also slapping fifty per cent tariffs on cheese, motorboats, paper, aluminum products, furniture and lamps, while quietly lifting tariffs on cement, toilet paper and some electronics. Most of this starts September 29th.\n\nIf you have clients who own a distillery, a craft brewery, a furniture manufacturer, or anything that ships product south, this is not background noise. It is a cash flow and valuation conversation you need to have now, before year end planning. Federal ministers including Mélanie Joly and François-Philippe Champagne are touring the country this month to walk businesses through support programs, and Prime Minister Carney's investment summit in Toronto next week is aimed squarely at replacing that lost American demand with foreign capital. Ask your business owner clients whether they've had that conversation with their own bank yet.\n\nCloser to home, Manitoba's 2026 budget, tabled back in March by Finance Minister Adrien Sala, still matters for planning conversations this fall. There were no changes to personal or corporate income tax rates, and Manitoba kept its zero per cent provincial rate on active business income up to the 500,000 dollar small business limit. What did move: the province is removing retail sales tax on additional grocery store food and beverages starting July 1st, and the Renters Affordability and Homeowners Affordability tax credits both step up for the 2027 tax year, with the homeowner credit phasing out for properties assessed above a million dollars. None of that changes your investment advice, but your clients will ask about it, so know it cold.\n\nOn the federal side, the Canada Revenue Agency's 2026 numbers are now the ones you should be quoting in every review meeting. The RRSP dollar limit is 33,810 dollars, up from 32,490 last year, still capped at 18 per cent of earned income. The TFSA limit holds at 7,000 dollars for a third straight year, which puts cumulative room at 109,000 dollars for anyone eligible since 2009. The First Home Savings Account is unchanged at 8,000 a year and 40,000 lifetime. RESP lifetime contribution room stays at 50,000 dollars per beneficiary. And the OAS clawback threshold moves up to 95,323 dollars of net income, which matters for retired clients doing pension income splitting.\n\nFor your incorporated professionals, physicians especially, the fact that nothing moved on passive income rules this cycle is itself the message. The small business deduction still grinds down once a CCPC earns more than 50,000 dollars of passive investment income in a year, and Manitoba's unchanged small business limit means that grind hits at the same federal threshold it always has. If a physician client's corporation is sitting on a growing investment portfolio, this is the year to revisit the split between active reinvestment, an individual pension plan, and simply paying out dividends before the passive income tail wags the active income dog.\n\nOn the estate side, Globe Advisor flagged an Ontario Court of Appeal decision, Anroop versus Naqvi, that should worry anyone who refers clients into a referral network for wills. The court invalidated a will in part because the drafting lawyer rented office space from a beneficiary's spouse, who ran a real estate brokerage and had referred business to that lawyer for years. If you have a go-to estate lawyer for client referrals, this is a good week to ask how they document independence from beneficiaries, particularly on blended family files or second marriages.\n\nOn the industry side, a few things worth knowing. IG Wealth Management has hired Goldman Sachs to build out a private asset sleeve inside its fund lineup, a sign the alternatives push is reaching mainstream retail shelves, not just high net worth accounts. The Canadian Securities Administrators published a report on financial data portability and open banking, concluding there's no industry consensus yet and flagging know your client hurdles that will slow any real client-directed data sharing. The Ontario Securities Commission named the first members of a new capital markets advisory committee, giving dealers and asset managers a formal seat at that table. And Bank of Montreal became the first of the Big Five to eliminate most online trading commissions, the same week it closed the sale of 138 U.S. branches to First Citizens Bank.\n\nTwo more numbers for your back pocket. The Canadian ETF market is closing in on 924 billion dollars in assets, with fixed income funds pulling in 3.9 billion dollars in a single week as investors reposition into bonds. And the Bank of Canada, which is on my watch list every week, held its policy rate at the last decision, which the Globe notes is why GIC rates are climbing across every term while savings account rates sit still. If a client asks why their high interest savings account yield hasn't moved even as GIC rates rise, that's your answer.\n\nLast item, and it's a good one for anyone doing planning with clients in a life transition. The Globe's personal finance desk ran a piece this week on longevity planning, borrowed from health care thinking, essentially building a financial plan around the possibility of living to ninety-five or a hundred rather than the old default of eighty-five. Worth raising with any client recently widowed, recently retired, or newly self-employed after leaving a corporate job.",
-     "talkingPoints": [
-      "The Manitoba small business limit stayed at 500,000 dollars, so the passive income grind-down still bites at the same threshold for incorporated clients.",
-      "New American bans on Canadian alcohol and motorcycles start September 29th, ask any exporting business owner client if they've stress tested cash flow.",
-      "RRSP room is 33,810 dollars for 2026, TFSA cumulative room is now 109,000 dollars if you've never contributed since 2009.",
-      "A new Ontario Court of Appeal ruling invalidated a will over a lawyer's referral relationship with a beneficiary's spouse, worth a call to your estate lawyer.",
-      "The Bank of Canada held rates, which is why GIC rates are climbing while savings accounts sit still."
-     ],
-     "sources": [
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Breaking News: Trump bans imports of some Canadian goods in response to Ottawa's countertariffs",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Business Brief: Canada's new flight path",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "Globe Advisor",
-       "title": "Advisor Daily: Estate lawyers worry about conflicts of interest after ruling over invalid will",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "Advisor.ca",
-       "title": "AM Bulletin: IG Wealth partners with Goldman Sachs",
-       "url": "https://www.advisor.ca"
-      },
-      {
-       "outlet": "Advisor.ca",
-       "title": "Open banking is on the way, open investing will have to wait",
-       "url": "https://www.advisor.ca"
-      },
-      {
-       "outlet": "Wealth Professional",
-       "title": "Canadian ETF market nears $924B as bond funds lead weekly surge",
-       "url": "https://www.wealthprofessional.ca/investments/etfs/canadian-etf-market-nears-924b-as-bond-funds-lead-weekly-surge/393480"
-      },
-      {
-       "outlet": "Wealth Professional",
-       "title": "OSC names inaugural members of new capital markets advisory committee",
-       "url": "https://www.wealthprofessional.ca/news/industry-news/csa-shelves-live-data-portability-test-waits-on-federal-banking-rules/393482"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "GIC rates climb across all terms while savings rates sit still",
-       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-gic-rates-climb-across-all-terms-while-savings-rates-sit-still/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "How should 'longevity planning' factor into my financial plan?",
-       "url": "https://www.theglobeandmail.com/investing/personal-finance/retirement/article-how-should-longevity-planning-factor-into-my-financial-plan/"
-      },
-      {
-       "outlet": "Baker Tilly Canada",
-       "title": "Key tax updates from Manitoba's 2026 budget",
-       "url": "https://www.bakertilly.ca/insights/tax-alert-mb-2026-budget"
-      },
-      {
-       "outlet": "KPMG",
-       "title": "Canada: Tax measures in 2026 budget (Manitoba)",
-       "url": "https://kpmg.com/us/en/taxnewsflash/news/2026/03/canada-tax-measures-in-2026-budget-manitoba.html"
-      },
-      {
-       "outlet": "ts2.tech",
-       "title": "Canada 2026 Tax Brackets and CRA Changes: New Rates, CPP/EI, TFSA and RRSP Limits Explained",
-       "url": "https://ts2.tech/en/canada-2026-tax-brackets-and-cra-changes-new-rates-cpp-ei-tfsa-and-rrsp-limits-explained/"
-      },
-      {
-       "outlet": "Investment Executive",
-       "title": "BMO completes sale of 138 U.S. branches to First Citizens Bank",
-       "url": "https://www.investmentexecutive.com"
-      }
-     ],
-     "words": 928,
-     "minutes": 6.2
-    },
-    {
-     "id": "manitoba",
-     "label": "Manitoba & Winnipeg",
-     "title": "Dynacare Drama, Hydro Hearings, Tariffs Bite Manitoba",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/manitoba.mp3",
-     "bytes": 3799296,
-     "script": "Start with the story every board table in this city is talking about today: Dynacare. The Manitoba Labour Board halted a strike by Dynacare lab workers this week, and Premier Wab Kinew didn't hide his frustration with the private lab company, telling reporters bluntly that \"Dynacare sucks.\" The Winnipeg Free Press and CBC both report the premier is now musing about bringing lab testing back into the public system entirely. The union representing the workers says Kinew's government is doing damage control after a messy intervention. For any client with health sector exposure, or anyone watching the province's appetite for reversing privatization deals, this is worth tracking. It's not just a labour dispute anymore, it's a live question about who runs Manitoba's diagnostic testing going forward.\n\nNext, Manitoba Hydro, which is on your watch list and just wrapped six weeks of hearings before the Public Utilities Board. CBC reports the board heard from eleven expert witnesses and seven interveners on Hydro's plan to add seventeen hundred and sixty megawatts of new generating capacity, more than a quarter of its existing output. The centrepiece is a three billion dollar bet on three new natural gas turbines in Brandon. Manitoba's Climate Action Team called the gas plan \"financially reckless\" with impacts stretching twenty five to thirty years. The minister responsible for Hydro, Adrien Sala, wouldn't say which way he leans. The board now writes its recommendations, but the final call sits with cabinet. Watch for rate implications here. Hydro already got an emergency four percent rate hike this year tied to drought, and a three billion dollar build tends to show up on customer bills eventually.\n\nThe trade war is the backdrop to almost everything else this week. Prime Minister Mark Carney told Canadians Tuesday that the pivot away from the United States will come at a cost, per the Canadian Press. Ottawa's retaliatory tariffs took effect the same day, and Washington answered by banning imports of Canadian booze and other goods. Economists quoted by the Canadian Press say most grocery items are spared, though health and beauty products could see price movement. Locally, Manitoba brewers are questioning the province's plan for trade missions to open new markets, while Prairies Economic Development Canada is leaning harder into interprovincial trade as a hedge. The S&P TSX dropped nearly four hundred points on the news, a reminder that this isn't abstract for portfolios.\n\nOn rates, the Bank of Canada is on your watch list too. It held its policy rate at two point two five percent on September second, the seventh straight hold, unchanged since last October's cut. The Bank flagged upside inflation risk from Middle East energy prices and the tariff fight, and most bank forecasts now point to a hold through year end, with any move likely pushed into 2027 rather than more cuts. Worth repeating to clients asking about mortgage renewals.\n\nCloser to home, City of Winnipeg finances came up this week too. A councillor downplayed the city's projected twenty nine million dollar shortfall as no cause for panic, per the Free Press, while separately the city says it has already exceeded its federal housing accelerator fund targets, with more money set to flow in for projects at Portage Place and Market Lands.\n\nStorm cleanup is still very live. The Northern Tornadoes Project confirmed a tornado touched down in River Heights during Sunday's storm, and Hydro crews were still restoring power to the last customers there this week. Nordale School will stay closed three to four months for water damage repair, right at the start of the school year.\n\nOn health workforce, a physicians' advocacy report says Manitoba gained doctors for a third straight year, but is also losing them at a rate not seen since the depths of the pandemic.\n\nQuickly on the two teams everyone's asking about: the Jets held their pre-training camp skate without goaltender Connor Hellebuyck, who has requested a trade, and the Blue Bombers play the Banjo Bowl Saturday at Princess Auto Stadium looking to avenge their overtime loss in Regina.",
-     "talkingPoints": [
-      "Dynacare fight raises real odds Manitoba nationalizes lab testing, watch the health sector angle.",
-      "Hydro's three billion dollar gas turbine plan just cleared hearings, rate pressure is coming.",
-      "Bank of Canada held at two point two five percent, no cut expected before 2027.",
-      "Retaliatory tariffs are live both ways, brewers and small business are already pushing back.",
-      "City says it beat its housing targets early, even with a twenty nine million dollar shortfall."
-     ],
-     "sources": [
-      {
-       "outlet": "CBC Manitoba",
-       "title": "'Dynacare sucks,' Manitoba premier says after labour board agrees to halt strike",
-       "url": "https://www.cbc.ca/news/canada/manitoba/dynacare-premier-wab-kinew-9.7337301"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Manitoba Hydro hearings conclude with more criticism of plan to burn more natural gas",
-       "url": "https://www.cbc.ca/news/canada/manitoba/hydro-regulator-hearings-end-9.7336345"
-      },
-      {
-       "outlet": "Bank of Canada",
-       "title": "Bank of Canada maintains the policy rate at 2¼%",
-       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Winnipeg surpasses federal target for housing funding ahead of deadline",
-       "url": "https://www.cbc.ca/news/canada/manitoba/housing-accelerator-fund-target-exceeded-9.7338237"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Tornado touched down in Winnipeg's River Heights neighbourhood Sunday night",
-       "url": "https://www.cbc.ca/news/canada/manitoba/tornado-confirmed-river-heights-winnipeg-9.7338230"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Flooding will shut down Nordale School down for up to 4 months",
-       "url": "https://www.cbc.ca/news/canada/manitoba/nordale-school-closed-three-to-four-months-on-eve-of-school-year-9.7337924"
-      }
-     ],
-     "words": 675,
-     "minutes": 4.5
-    },
-    {
-     "id": "politics",
-     "label": "Canadian Politics",
-     "title": "Trump Tightens Tariffs as Ottawa Retreats to Banff",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/politics.mp3",
-     "bytes": 3437568,
-     "script": "Donald Trump escalated the trade war with Canada again, and it's the story dominating Ottawa this week. Hours after Canada's retaliatory tariffs on 28 billion dollars of American goods took effect Tuesday, the president signed proclamations banning imports of Canadian alcohol, including beer, wine and rye whisky, along with motorcycles over 800 cubic centimetres, whey protein and molasses. He's also imposing 50 percent tariffs on a separate list: cheese, motorboats, paper products, aluminum goods, furniture and lamps, while lifting tariffs on a handful of items like cement and toilet paper.\n\nFor Manitoba that matters directly. The province's distillers, brewers and dairy processors sell into that American market, and manufacturers supplying auto and aerospace parts are watching the broader tariff list closely.\n\nOttawa's response has been measured so far. Canada-U.S. Trade Minister Dominic LeBlanc says the government is assessing the move and remains in contact with U.S. Trade Representative Jamieson Greer. Greer himself told the Financial Times he finds Canada's posture \"unhinged\", a line getting a lot of play in Ottawa this week. Prime Minister Mark Carney addressed Canadians directly in an online video, warning that \"this won't be easy and I won't pretend otherwise.\" A Nanos Research poll done for the Globe and Mail found 80 percent of Canadians support or somewhat support Ottawa's dollar for dollar countertariffs, so there's real public backing for the hard line even as businesses brace for higher costs.\n\nCarney is currently at a two day cabinet retreat in Banff, where ministers are being asked to show progress against the government's seven stated priorities, top of the list being a new economic and security relationship with the United States. Ukrainian President Volodymyr Zelenskyy joined Carney in Calgary for a signing ceremony before the retreat began. Separately, Ottawa quietly streamlined environmental approvals for pipelines and transmission lines this week, a move widely read as an olive branch to Alberta Premier Danielle Smith. On that note, Alberta has a referendum question this fall that could open the door to eventual separation, and CBC reports the campaign trying to keep the province in Canada is underfunded and struggling to organize.\n\nParliament itself stays adjourned until September 21st, and that's drawing criticism. One Globe and Mail opinion piece argues that with tens of billions in trade at stake, the House should be sitting now rather than waiting. Conservative Leader Pierre Poilievre is pressing that case from New York this week, though CBC also reports his own caucus is showing signs of friction over how hard to push the trade file. On the smaller party side, the Green Party leadership race is down to one candidate, former MP Mike Morrice, after his only rival withdrew.\n\nOn the Bank of Canada, which is on your watch list: it held its policy rate at 2 and a quarter percent on September 2nd, a seventh consecutive hold, citing Middle East driven energy prices and the fluid trade situation with Washington. The next decision lands October 28th, and most bank economists now expect the next move, whenever it comes, to be a hike rather than a cut.\n\nHere at home, the Manitoba legislature is still on summer break. It reconvenes September 29th, a week after Parliament. In the meantime, Premier Wab Kinew's government has been governing by news release, this week unveiling a Net Zero Action Plan with 90 specific actions toward 2050, alongside new housing investment and a defence alliance announcement. Watch for how the province positions itself on trade retaliation and interprovincial trade barriers once the House returns, since that's shaping up as a fall theme across the country.",
-     "talkingPoints": [
-      "Trump banned Canadian alcohol, motorcycles and dairy imports, and added 50 percent tariffs on goods like cheese and aluminum products.",
-      "A Nanos poll found 80 percent of Canadians back Ottawa's countertariffs, even as the cost to businesses grows.",
-      "The Bank of Canada held its rate at 2.25 percent for a seventh straight time, with the next call on October 28th.",
-      "Parliament returns September 21st, the Manitoba legislature September 29th, both criticized for sitting out the trade fight so far.",
-      "Alberta's fall separation referendum adds another layer of uncertainty to the national unity conversation."
-     ],
-     "sources": [
-      {
-       "outlet": "POLITICO Canada Playbook",
-       "title": "Trumpquake",
-       "url": "https://www.politico.com"
-      },
-      {
-       "outlet": "POLITICO Canada Playbook",
-       "title": "Keep calm, Carney on",
-       "url": "https://www.politico.com"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Trump bans imports of some Canadian goods in response to Ottawa's countertariffs",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Business Brief: Canada's new flight path",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Morning Update: Adversity ahead",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Opinion: Parliament should be sitting if Canada is at war",
-       "url": "https://www.theglobeandmail.com"
-      },
-      {
-       "outlet": "CBC News",
-       "title": "Trade war, Alberta referendum loom large as Carney charts cabinet's year forward",
-       "url": "https://www.cbc.ca/news/politics/carney-banff-cabinet-planning-forum-9.7338041"
-      },
-      {
-       "outlet": "CBC News",
-       "title": "As the trade war dominates Canadian politics, Conservatives fight among themselves",
-       "url": "https://www.cbc.ca/news/politics/conservatives-infighting-trade-war-9.7337963"
-      },
-      {
-       "outlet": "CBC News",
-       "title": "'Unhinged' for Canada to call dispute with U.S. a trade war, says Trump's tariff chief",
-       "url": "https://www.cbc.ca/news/politics/trump-tariffs-canada-unhinged-us-trade-jamieson-greer-9.7337101"
-      },
-      {
-       "outlet": "CBC News",
-       "title": "Former MP Mike Morrice only Green Party of Canada leadership candidate after Nira Dookeran withdraws",
-       "url": "https://www.cbc.ca/news/canada/kitchener-waterloo/green-party-leadership-race-mike-morrice-nira-dookeran-drops-out-9.7336842"
-      },
-      {
-       "outlet": "Government of Manitoba",
-       "title": "The Legislative Assembly of Manitoba",
-       "url": "https://www.gov.mb.ca/legislature/index.html"
-      },
-      {
-       "outlet": "Manitoba News Releases",
-       "title": "Net Zero Action Plan announcement",
-       "url": "https://news.gov.mb.ca/news/index.html"
-      },
-      {
-       "outlet": "Bank of Canada",
-       "title": "Bank of Canada maintains the policy rate at 2¼%",
-       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
-      },
-      {
-       "outlet": "Trading Economics",
-       "title": "Canada Interest Rate",
-       "url": "https://tradingeconomics.com/canada/interest-rate"
-      }
-     ],
-     "words": 597,
-     "minutes": 4.0
-    },
-    {
-     "id": "climate",
-     "label": "Climate Policy & Nonprofit Governance",
-     "title": "Hydro Hearings, Net Zero Plan, and Giving Trends",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/climate.mp3",
-     "bytes": 2825088,
-     "script": "Start with Manitoba Hydro, since it's on your watch list and it's the biggest local story today. Six weeks of Public Utilities Board hearings into Hydro's generating plan wrapped up this week, and CBC News reports the closing arguments kept landing on the same target: Hydro's proposal to build three new natural gas turbines near Brandon, priced at three billion dollars. The broader plan calls for adding 1,760 megawatts of capacity over ten years, more than a quarter of Hydro's current output, through a mix of efficiency gains, new turbines, and wind. A lawyer for the Public Interest Law Centre told the board there's no credible load forecast to justify the gas buildout, questioning whether Hydro can even hit that three billion dollar price. That matters for your clients because rates are already locked in for a three and a half percent hike next year and three percent the year after, stacked on this year's four percent increase tied to drought. If anyone asks why their power bill keeps climbing while the utility argues gas versus wind, this hearing is the reason.\n\nSame day, the Manitoba government rolled out its first Net Zero Action Plan, ninety specific actions aimed at getting the province to net zero by 2050. That's a formal provincial document, not just a talking point, so expect it to shape building codes and retrofit incentive programs over the next few years.\n\nFederally, Canada's National Observer reports the Carney government quietly exempted oilsands and gas power plants from environmental impact assessments, folding the change into a package of amendments to the impact assessment law passed early Wednesday morning. That's a real acceleration in how fast energy projects can clear federal review, timed to Ottawa's push for megaprojects as a hedge against the US trade war.\n\nOn the business side, a new poll covered by the National Observer finds nearly three quarters of Canadian clean economy firms say they've already felt the sting of US tariffs, and sector leaders are asking the fall federal budget to focus on competitiveness rather than tariff relief. Worth raising if you have clients in clean tech or manufacturing here.\n\nNow the nonprofit side, two Winnipeg items. United Way Winnipeg, also on your watch list, renewed a multi-year funding deal with the province for the For Every Family program. The province raised its annual contribution from one and a half million to two million dollars, matched dollar for dollar by United Way donors, securing funding through 2028. Separately, the Winnipeg Foundation says it moved 115 million dollars to roughly a thousand charities last year, funded by growth in its endowment. Both are useful reference points if a client is weighing a donor advised fund or a bequest through a community foundation against giving directly.\n\nOne governance note while you're at it: the CRA's disbursement quota still requires registered charities to spend at least three and a half percent of property not used for charitable activity each year, rising to five percent above one million dollars. If you sit on any local boards, that's the number auditors will check first.",
-     "talkingPoints": [
-      "Manitoba Hydro's gas turbine plan faced tough questions at the PUB, rate hikes are locked in regardless.",
-      "Manitoba just published its first Net Zero Action Plan, ninety actions worth watching for retrofit incentives.",
-      "Ottawa quietly eased environmental review for oilsands and gas plants this week.",
-      "Nearly three quarters of Canadian cleantech firms say tariffs are already hurting them.",
-      "United Way Winnipeg and the Winnipeg Foundation both have fresh numbers worth citing in a giving conversation."
-     ],
-     "sources": [
-      {
-       "outlet": "CBC News",
-       "title": "Manitoba Hydro hearings conclude with more criticism of plan to burn more natural gas",
-       "url": "https://www.cbc.ca/news/canada/manitoba/hydro-regulator-hearings-end-9.7336345"
-      },
-      {
-       "outlet": "CBC News",
-       "title": "Manitoba Hydro rates will continue to rise for another 2 years, regulator decides",
-       "url": "https://www.cbc.ca/news/canada/manitoba/hydro-rate-hikes-9.7135537"
-      },
-      {
-       "outlet": "Manitoba.ca",
-       "title": "News Releases (Net Zero Action Plan)",
-       "url": "https://news.gov.mb.ca/news/index.html"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Feds quietly exempt oilsands and gas power plants from environmental impact assessments",
-       "url": "https://www.nationalobserver.com/2026/09/10/news/carney-government-oilsands-gas-projects-impact-assessments"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "New tariffs hitting Canadian cleantech 'quickly – and in very different ways': poll",
-       "url": "https://www.nationalobserver.com/2026/09/09/news/new-tariffs-hitting-canadian-cleantech-quickly-very-different-ways-poll"
-      },
-      {
-       "outlet": "chrisd.ca",
-       "title": "Province, United Way Winnipeg Commit to Multi-Year Funding in 'For Every Family' Program",
-       "url": "https://www.chrisd.ca/2026/02/13/united-way-winnipeg-for-every-family-program-funding/"
-      },
-      {
-       "outlet": "Winnipeg Foundation",
-       "title": "Home - Winnipeg Foundation",
-       "url": "https://www.wpgfdn.org/"
-      },
-      {
-       "outlet": "Charity Law Group",
-       "title": "How Do You Register a Charity in Winnipeg? A Step-by-Step Guide",
-       "url": "https://www.charitylawgroup.ca/charity-law-questions/how-do-you-register-a-charity-in-winnipeg-a-step-by-step-guide"
-      }
-     ],
-     "words": 515,
-     "minutes": 3.4
-    },
-    {
-     "id": "tech",
-     "label": "AI & Technology",
-     "title": "OpenAI's Math Claim, Agents, and Canadian Capital",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/tech.mp3",
-     "bytes": 3112320,
-     "script": "The biggest story in tech right now is a fight over a math proof, and it matters more than it sounds. OpenAI says an internal, unreleased model directed ten thousand coordinating agents to crack the Navier-Stokes equations, one of the six unsolved Millennium Prize Problems, in eighty-eight hours. That's a two-hundred-year-old puzzle about whether fluid motion can break down mathematically. Quanta Magazine reports the result was checked in the formal language Lean, so mathematicians are confident it's correct. The catch: a New York University professor named Tristan Buckmaster says he and an Anthropic researcher were close to a related result themselves, and that OpenAI moved fast right after hearing rumors of their work. OpenAI, per its own release, says the effort began September 1st after hearing that rumor. Nobody is accusing anyone of theft outright, but for you, the takeaway is this: frontier labs are now racing each other using signals from each other's users, and if your clients or their businesses use these tools for anything proprietary, the privacy settings matter more than they think.\n\nThat race is also splitting the safety camp. TechCrunch reports an Anthropic researcher, Jacob Coxon, quit this week, calling the competition between Anthropic and OpenAI \"gambling with our lives\" and pushing for pacing agreements between labs. Meanwhile OpenAI just added Paul Christiano, a well-known alignment researcher, to its nonprofit board. So one lab is losing a safety voice publicly, the other is adding one. Worth knowing if clients ask whether these companies are self-regulating.\n\nOn the enterprise side, agentic tools are now a security category of their own. TechCrunch reports Sequoia is doubling down on a startup called Cymphony, which gives security teams a single view of employees, AI agents, and other so-called nonhuman identities, tracking what systems and data those agents can touch. If a client runs a business that's plugged AI agents into email, scheduling, or payments, that's a real exposure point now, not a hypothetical one.\n\nThere's a productivity wrinkle too. TechCrunch reports AI spending per employee actually slumped at top firms in August, with falling token costs and cheaper models part of the story. That's a useful data point if clients ask whether AI capital spending is paying off yet. It's not a clean story of runaway adoption.\n\nOn the Canadian side, BetaKit reports RBC has launched a billion-dollar fund aimed at scaling homegrown tech companies, and Ottawa has unveiled a national AI literacy initiative delivered through the Alberta Machine Intelligence Institute. The TSX30 list of top-performing Canadian tech stocks this year leans hardware: Celestica, MDA Space, and Telesat, with software names notably absent. And Clay, a Canadian-founded go-to-market startup, just raised one hundred fifteen million US dollars at a seven-billion-dollar valuation.\n\nOn the macro side, the Bank of Canada held its rate at two and a quarter percent on September 2nd, its seventh straight hold, citing Middle East-driven energy prices and new US tariffs. That one's on your watch list, worth flagging in any client conversation about rate direction.\n\nLast, Google is putting thirteen billion euros into a single data center project in Finland, its largest single investment in Europe, a reminder that AI infrastructure spending abroad shows no sign of slowing even as adoption numbers at home look shakier.",
-     "talkingPoints": [
-      "Frontier labs are now racing each other using signals from rival researchers' own chat sessions.",
-      "AI agents inside a business are a new security category, treat them like employees with access badges.",
-      "AI spending per employee actually fell in August, adoption isn't a straight line up.",
-      "RBC's new billion-dollar fund and Clay's seven-billion valuation show Canadian tech capital is still moving.",
-      "Bank of Canada held at two and a quarter percent, seventh straight hold, next decision October 28th."
-     ],
-     "sources": [
-      {
-       "outlet": "Nature",
-       "title": "OpenAI claims huge maths breakthrough on a famed 'Millennium Problem'",
-       "url": "https://www.nature.com/articles/d41586-026-02842-5"
-      },
-      {
-       "outlet": "CNBC",
-       "title": "OpenAI claims to have solved the 90-year-old Navier-Stokes math problem in 88 hours",
-       "url": "https://www.cnbc.com/2026/09/09/openai-navier-stokes-math-problem-solved.html"
-      },
-      {
-       "outlet": "Quanta Magazine",
-       "title": "AI Has Solved One of Math's $1 Million Millennium Prize Problems",
-       "url": "https://www.quantamagazine.org/ai-has-solved-one-of-maths-1-million-millennium-prize-problems-20260908/"
-      },
-      {
-       "outlet": "OpenAI",
-       "title": "On the Navier-Stokes Millennium Prize Problem",
-       "url": "https://openai.com/index/navier-stokes-solution/"
-      },
-      {
-       "outlet": "TechCrunch",
-       "title": "'Gambling with our lives': Anthropic researcher quits, warns against self-improving AI",
-       "url": "https://techcrunch.com/2026/09/09/gambling-with-our-lives-anthropic-researcher-quits-warns-against-self-improving-ai/"
-      },
-      {
-       "outlet": "TechCrunch",
-       "title": "OpenAI adds a prominent AI doomer to its board of directors",
-       "url": "https://techcrunch.com/2026/09/09/openai-adds-a-prominent-ai-doomer-to-its-board-of-directors/"
-      },
-      {
-       "outlet": "TechCrunch",
-       "title": "Sequoia doubles down on Cymphony as AI agents create new enterprise security risks",
-       "url": "https://techcrunch.com/2026/09/09/sequoia-doubles-down-on-cymphony-as-ai-agents-create-new-enterprise-security-risks/"
-      },
-      {
-       "outlet": "TechCrunch",
-       "title": "AI spend per employee slumped at top firms in August",
-       "url": "https://techcrunch.com/2026/09/09/ai-spend-per-employee-slumped-at-top-firms-in-august-summer-doldrums-or-a-warning-sign/"
-      },
-      {
-       "outlet": "BetaKit",
-       "title": "RBC launches billion-dollar Canadian tech growth fund",
-       "url": "https://betakit.com/rbc-launches-billion-dollar-canadian-tech-growth-fund/"
-      },
-      {
-       "outlet": "BetaKit",
-       "title": "Canada unveils national AI literacy initiative",
-       "url": "https://betakit.com/canada-unveils-national-ai-literacy-initiative/"
-      },
-      {
-       "outlet": "BetaKit",
-       "title": "Celestica, MDA Space, Telesat among tech names on 2026 TSX30",
-       "url": "https://betakit.com/celestica-mda-space-telesat-among-tech-names-on-2026-tsx30/"
-      },
-      {
-       "outlet": "BetaKit",
-       "title": "Clay lands $115-million USD Series D at $7-billion valuation",
-       "url": "https://betakit.com/clay-lands-115-million-usd-series-d-at-7-billion-valuation/"
-      },
-      {
-       "outlet": "Bank of Canada",
-       "title": "Bank of Canada maintains the policy rate at 2¼%",
-       "url": "https://www.bankofcanada.ca/2026/09/fad-press-release-2026-09-02/"
-      },
-      {
-       "outlet": "BBC Technology",
-       "title": "Google picks Finland for its largest single investment in Europe",
-       "url": "https://www.bbc.co.uk/news/articles/c8r6y4me2g6o?at_medium=RSS&at_campaign=rss"
-      }
-     ],
-     "words": 541,
-     "minutes": 3.6
-    },
-    {
-     "id": "health",
-     "label": "Health & Fitness",
-     "title": "Lifting Two Hours a Week Cuts Death Risk",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/health.mp3",
-     "bytes": 2247168,
-     "script": "A new analysis from Harvard's T.H. Chan School of Public Health gives you an actual dose to point to if you train with weights. The study, published in the British Journal of Sports Medicine, followed more than 147,000 adults for up to 30 years, pulling from three long running cohorts including the Health Professionals Follow-up Study and the two Nurses' Health Studies. Roughly 90 to 120 minutes of strength training per week was linked with a 13% reduced risk of premature death. Adding aerobic exercise to the weekly mix increased the longevity benefit further. This is observational, so it shows association, not proof that the lifting itself causes the effect, and self-reported activity over decades always has some noise in it. But the sample size and the three decade follow-up make it one of the sturdier pieces of evidence connecting resistance training to lifespan, not just to muscle and bone. If you're already training, the practical takeaway is that two solid sessions a week appears to capture most of the benefit, more isn't obviously better on the mortality curve.\n\nOn the Canadian health system side, Alberta is pushing to let physicians see private pay patients alongside public ones, and Ottawa is pushing back. Alberta's hospitals and surgical services minister defends the provincial jurisdiction, while the federal health minister raises concerns about compliance with the Canada Health Act. Commentary in The Hub argues physicians in Alberta, and most of Canada, are already able to opt out of the public system, and allowing them to practice privately without sacrificing their public role is a common-sense approach. Worth watching if clients ask about private care options, because however this lands could shape mixed public private billing well beyond Alberta.\n\nSeparately, CBC reports Bangladesh is facing its worst measles outbreak on record, with around 1,000 suspected and confirmed measles-related deaths reported since March, and hospitals struggling with overcrowding and shortages. It's a stark reminder of how fast a vaccine preventable disease comes back once coverage gaps open up, and it's a useful data point if the topic of childhood vaccination rates comes up with clients who have young kids.\n\nNone of today's items touch the Bank of Canada, Manitoba Hydro, or the local sports franchises, so nothing from the watch list to flag this time.",
-     "talkingPoints": [
-      "Ninety to a hundred twenty minutes of lifting a week is linked to thirteen percent lower mortality risk, per new Harvard research.",
-      "Two focused strength sessions a week seem to capture most of that longevity benefit.",
-      "Alberta and Ottawa are in a real dispute over private pay physician care under the Canada Health Act.",
-      "That fight could reshape mixed public-private billing rules well beyond Alberta.",
-      "Bangladesh's worst measles outbreak on record is a reminder of how fast vaccine gaps turn into outbreaks."
-     ],
-     "sources": [
-      {
-       "outlet": "Harvard T.H. Chan School of Public Health",
-       "title": "Moderate amount of strength training each week could boost longevity",
-       "url": "https://hsph.harvard.edu/news/moderate-amount-of-strength-training-each-week-could-boost-longevity/"
-      },
-      {
-       "outlet": "The Hub",
-       "title": "Ottawa should cheer, not impede, Canada's much-needed health-care reform",
-       "url": "https://thehub.ca/2026/09/02/ottawa-should-cheer-not-impede-canadas-much-needed-health-care-reform/"
-      },
-      {
-       "outlet": "CBC Health",
-       "title": "Bangladesh in grips of world's worst measles outbreak, with 1,000 dead in last 6 months",
-       "url": "https://www.cbc.ca/news/health/bangladesh-worst-measles-outbreak-9.7337063?cmp=rss"
-      }
-     ],
-     "words": 381,
-     "minutes": 2.5
-    },
-    {
-     "id": "parenting",
-     "label": "Parenting",
-     "title": "Canada Child Benefit Rises, New Paediatric Guidance Lands",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/parenting.mp3",
-     "bytes": 1833600,
-     "script": "The Canada Child Benefit went up this summer, and it is worth mentioning to any client with young kids. Households can now receive up to $8,157 a year for a child under six and $6,883 a year for a child aged six to seventeen, paid monthly and tax free. That is an increase of up to $160 per child under six and up to $135 per child aged six to seventeen compared to last year, part of an annual two percent inflation adjustment. Families with net income under $38,237 get the full amount, and it is reduced for households above that threshold. A couple earning $65,000 with a five and a nine year old will receive about $11,430 this benefit year, nearly $400 more than last year. Because the payment is tax free, it can go straight into a Registered Education Savings Plan contribution without pushing anyone into a different bracket.\n\nOn the health side, the Canadian Paediatric Society posted new national guidance in June on injury prevention in children and youth, framed around prevention across the home and the car. It also issued updated flu vaccine recommendations for the 2026 to 2027 season in mid August, useful context if a client asks about daycare or school timing this fall.\n\nOn feeding, the standing guidance is to introduce foods that commonly cause allergy around six months of age and keep feeding them regularly. For infants at high risk of allergy, introduction can start earlier, but not before four months. That timing has not shifted, but it remains the most common question from new parents.\n\nNo changes to Employment Insurance parental leave this week. Standard leave stays at up to forty weeks combined between parents at fifty five percent of earnings, with an extended, lower paid option running longer for families who need more time.",
-     "talkingPoints": [
-      "CCB maximum is now $8,157 under six and $6,883 for six to seventeen, up two percent.",
-      "Full benefit cuts off around $38,000 in net family income, then phases down.",
-      "Tax free CCB deposits are a clean, automatic way to fund a monthly RESP contribution.",
-      "Canadian Paediatric Society refreshed its injury prevention guidance in June.",
-      "New flu vaccine guidance for this fall is out, timed for daycare and school entry."
-     ],
-     "sources": [
-      {
-       "outlet": "Government of Canada",
-       "title": "Canada Child Benefit payments increasing in 2026-2027",
-       "url": "https://www.canada.ca/en/employment-social-development/news/2026/07/canada-child-benefit-payments-increasing-in-2026-2027.html"
-      },
-      {
-       "outlet": "Global News",
-       "title": "The Canada Child Benefit goes out on Monday and gets a small increase",
-       "url": "https://globalnews.ca/news/11969842/canada-child-benefit-increase/"
-      },
-      {
-       "outlet": "Canadian Paediatric Society",
-       "title": "Position Statements and Practice Points",
-       "url": "https://cps.ca/en/documents"
-      },
-      {
-       "outlet": "Food Allergy Canada",
-       "title": "Early introduction of allergens: Recommendations from the Canadian Paediatric Society and CSACI",
-       "url": "https://foodallergycanada.ca/early-introduction-of-allergens-updated-canadian-paediatric-society-recommendations/"
-      }
-     ],
-     "words": 304,
-     "minutes": 2.0
-    },
-    {
-     "id": "sports",
-     "label": "Sports",
-     "title": "Shelton Stuns Alcaraz in US Open Marathon",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@67073dbd5a99ca810b1f89f4adb64c1f58800714/2026-09-10/sports.mp3",
-     "bytes": 3201792,
-     "script": "Good evening. We start in New York, where the U.S. Open delivered one of its most dramatic matches in years. Ben Shelton outlasted defending champion Carlos Alcaraz in five sets, a match that didn't finish until nearly 3:30 in the morning. The Athletic's Matthew Futterman called it a heavyweight prize fight, and it's the biggest win of the 23-year-old American's career. Shelton now faces countryman Frances Tiafoe in a semifinal that guarantees an American man reaches the final, according to The Athletic's Pulse newsletter.\n\nOn the women's side, CBC Sports reports Elena Rybakina beat Zheng Qinwen to reach the semifinals and will take over the world number one ranking from Aryna Sabalenka, who had earlier survived a three-set battle with Linda Nosková. Sabalenka now meets Jessica Pegula, who is into her third straight U.S. Open semifinal after beating Emma Navarro.\n\nIn baseball, The Athletic's Windup newsletter highlights a wild Cubs-Brewers game that went to extra innings before Milwaukee walked it off, even as Chicago's bullpen questions linger. Statcast had a night for the ages too. Pitcher Jacob Misiorowski became the first pitcher ever to throw a thousand triple-digit fastballs in a season, and Reds star Elly De La Cruz fired off the fastest infield throw ever tracked, at just over 105 miles an hour. Mariners rookie Lázaro Montes also crushed the longest home run ever hit at Seattle's ballpark. Meanwhile, Yankees slugger Aaron Judge is easing back into the lineup after injury, and The Athletic notes the Nationals have set a dubious record for blown saves this season.\n\nIn hockey, The Athletic's rumor mill says the Hurricanes, Sabres and Utah Mammoth remain in the running for goaltender Connor Hellebuyck, while talks on a Nikita Kucherov extension in Tampa Bay have gone quiet. Closer to home, Winnipeg Free Press reporter Mike McIntyre notes Hellebuyck himself was a notable no-show at the Jets' pre-training camp skate.\n\nThe Edmonton Oilers have signed forward Alex Formenton to a one-year, 850-thousand dollar deal, according to CBC Sports. Formenton was one of five players acquitted last year in the 2018 world junior sexual assault case, and the Globe and Mail reports the signing has cost the team the support of a well-known superfan known as Mama Stanley.\n\nThe hockey world is also mourning. CBC Sports reports longtime coach and broadcaster Barry Melrose, who led the Los Angeles Kings to the 1993 Stanley Cup final, has died at 70. Former Canadiens winger and four-time Cup champion André Pronovost has also died, at 90.\n\nOn the business side, the Winnipeg Free Press notes Hockey Canada's board chair is stepping down. The PWHL has landed its first season-long U.S. national television deal with Scripps Sports as it enters its fourth season, CBC Sports reports. And LIV Golf has filed for bankruptcy protection in New Jersey, carrying more than 500 million dollars in debt as it tries to survive without Saudi funding.\n\nIn football, the Buffalo Bills say they'll play \"O Canada\" at their home opener, citing their large Canadian fan base amid trade tensions, according to the Globe and Mail. And in Winnipeg, the Goldeyes opened their playoff series against the Fargo-Moorhead RedHawks, their first postseason trip since reaching the Miles Wolff Cup final in 2024.",
-     "talkingPoints": [
-      "Ben Shelton's marathon win over Carlos Alcaraz sets up an all-American men's semifinal at the U.S. Open.",
-      "Elena Rybakina is set to become world number one after reaching the semifinals.",
-      "Jacob Misiorowski and Elly De La Cruz produced historic Statcast numbers in a wild MLB night.",
-      "Alex Formenton's signing with Edmonton draws backlash despite his acquittal.",
-      "Barry Melrose and André Pronovost, two hockey figures, have died.",
-      "PWHL secures its first full-season U.S. broadcast deal; LIV Golf files for bankruptcy."
-     ],
-     "sources": [
-      {
-       "outlet": "CBC Sports",
-       "title": "Rybakina to take women's world No. 1 ranking from Sabalenka after U.S. Open quarterfinal win",
-       "url": "https://www.cbc.ca/sports/tennis/dabrowski-rybakina-us-open-roundup-sept9-9.7337805?cmp=rss"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "Ben Shelton beats defending champ Carlos Alcaraz in U.S. Open match that ends after 3:30 a.m.",
-       "url": "https://www.cbc.ca/sports/tennis/us-open-shelton-alcaraz-marathon-9.7336775?cmp=rss"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "Acquitted 2018 world junior player Alex Formenton signs 1-year deal with Oilers",
-       "url": "https://www.cbc.ca/news/canada/edmonton/formenton-signs-with-edmonton-oilers-9.7337242?cmp=rss"
-      },
-      {
-       "outlet": "Globe and Mail Hockey",
-       "title": "Edmonton Oilers lose support of superfan 'Mama Stanley' after Formenton signing",
-       "url": "https://www.theglobeandmail.com/sports/hockey/article-edmonton-oilers-sign-alex-formenton-lose-mama-stanley-support/"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "Barry Melrose, former NHL player-turned-coach and broadcaster, dead at 70",
-       "url": "https://www.cbc.ca/sports/hockey/nhl/barry-melrose-obit-9.7338212?cmp=rss"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "André Pronovost, former Canadiens winger and 4-time Stanley Cup champion, dead at 90",
-       "url": "https://www.cbc.ca/news/canada/montreal/andre-pronovost-dead-at-90-9.7337229?cmp=rss"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "PWHL lands first season-long U.S. national broadcast deal with Scripps Sports for 4th season",
-       "url": "https://www.cbc.ca/sports/hockey/pwhl/scripps-sports-pwhl-season-long-american-broadcast-deal-9.7336951?cmp=rss"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "LIV Golf files for bankruptcy protection as it tries to survive in a smaller version",
-       "url": "https://www.cbc.ca/sports/golf/liv-golf-bankruptcy-protection-9.7337294?cmp=rss"
-      },
-      {
-       "outlet": "Globe and Mail Football",
-       "title": "Buffalo Bills to play 'O Canada' at home opener amid strained cross-border relations",
-       "url": "https://www.theglobeandmail.com/sports/football/article-bills-to-play-o-canada-at-home-opener-amid-strained-cross-border/"
-      }
-     ],
-     "words": 537,
-     "minutes": 3.6
-    }
-   ],
-   "expectedSections": [
-    "lessons",
-    "markets",
-    "companies",
-    "practice",
-    "manitoba",
-    "politics",
-    "climate",
-    "tech",
-    "health",
-    "parenting",
-    "sports"
-   ],
-   "missingSections": []
   }
  ]
 }
