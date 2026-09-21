@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#0c0e1a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="shared/atlas-theme.js"></script>
 <style>
 :root{--bg:#0c0e1a;--panel:#141830;--panel2:#1a1f3a;--txt:#eef0fb;--muted:#8089a8;--dim:#6f7798;
@@ -99,6 +99,7 @@ input:focus,select:focus{border-color:var(--gold)}
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/hourglass-sports.css?v=0c4a09bc0432">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-hourglass-32.png?v=48194468ba45">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-hourglass-64.png?v=c3078c38b42b">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-hourglass-apple.png?v=46ba60238c21">
@@ -484,6 +485,19 @@ function downloadCanvas(cv){
 var TICKER=null;
 function clearTicker(){ if(TICKER){ clearInterval(TICKER); TICKER=null; } }
 
+function hourglassOverview(){
+  var age=Math.max(0,ageNow()),year=Math.floor(age),yearPct=Math.max(0,Math.min(100,(age-year)*100));
+  var retirement=Math.max(0,yearsToRetire());
+  return '<section class="hg-overview" aria-labelledby="hg-overview-title">'
+    +'<div class="hg-heading"><img class="hg-art" src="shared/icons/the-hourglass-apple.png?v=46ba60238c21" alt="" width="72" height="72"><div><div class="hg-kicker">The Hourglass · Time overview</div><h1 class="hg-title" id="hg-overview-title">Make this chapter count</h1><p class="hg-sub">Your time. Your milestones. Your next move.</p></div></div>'
+    +'<div class="hg-stats"><div class="hg-stat"><strong>'+year+'</strong><span>Years lived</span></div>'
+    +'<div class="hg-stat"><strong>'+comma(weeksLeft())+'</strong><span>Weeks to horizon</span></div>'
+    +'<div class="hg-stat"><strong>'+retirement.toFixed(1)+'</strong><span>Years to planned retirement</span></div></div>'
+    +'<div class="hg-progress-label"><span>Age '+year+' → '+(year+1)+'</span><span>'+Math.floor(yearPct)+'% of this year lived</span></div>'
+    +'<div class="hg-meter" role="progressbar" aria-label="Current year of life elapsed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.floor(yearPct)+'"><i style="width:'+yearPct.toFixed(2)+'%"></i></div>'
+    +'<p class="hg-note">Based on your chosen age '+healthyAge()+' planning horizon. Adjust your assumptions in Setup.</p></section>';
+}
+
 function render(){
   clearTicker();
   var activeTab=S.tab||"weeks";
@@ -496,7 +510,7 @@ function render(){
   h+='<span class="appbar-pill">'+comma(weeksLeft())+' <span style="font-size:9px;color:var(--dim);font-weight:400">weeks left</span></span>';
   h+='</div>';
 
-  if(activeTab==="weeks")   h+=viewWeeks();
+  if(activeTab==="weeks")   h+=hourglassOverview()+viewWeeks();
   if(activeTab==="reckon")  h+=viewReckon();
   if(activeTab==="climb")   h+=viewClimb();
   if(activeTab==="setup")   h+=viewSetup();
