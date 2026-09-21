@@ -50,3 +50,7 @@ test('public Life Map restores the original composition and retains native expla
  for(const fn of ['hero','quickCapture','todayPanel','boardPanel','focusPanel','horizonView','mapView','projectsView','choresView','momentumView'])assert.match(html,new RegExp('function '+fn+'\\('));
  assert.match(html,/<details class="atlas-info"><summary aria-label=/);assert.match(html,/How repeating chores work/);
 });
+
+test('weekly planning and effort survive the existing store without changing task identity',()=>{
+ const value=fixture();value.projects[0].planWeek='2026-09-21';value.projects[0].effortMinutes=25;value.projects[0].tags=['Garage'];const s=storage(),local=createLifeMapLocalStore(s,validateLifeMapRecords);local.load();assert(local.save(value));const restored=local.load();assert.equal(restored.projects[0].id,'one');assert.equal(restored.projects[0].effortMinutes,25);assert.equal(restored.projects[0].planWeek,'2026-09-21');for(const bad of [-1,0,1.5,Infinity,'30'])assert.throws(()=>validateLifeMapRecords({...value,projects:[{...value.projects[0],effortMinutes:bad}]}));
+});

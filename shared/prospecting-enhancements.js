@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='prospecting-command-center')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('prospecting-enhancements.css?v=messages-20260909',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('prospecting-enhancements.css?v=cf1a49f46f70',source).href;document.head.appendChild(css);
   function ready(){
     if(window.ProspectingImprovements||typeof S==='undefined')return;
     const stages=['pool','messaged','replied','meeting','won','lost','parked'],closed=new Set(['won','lost','parked']);
@@ -175,10 +175,10 @@
     setFu=function(uid,value){if(!BYUID[uid]||unreadable||readBlocked)return;if(value!==''&&!day(value)){toast('Choose a valid follow-up date.');return;}S.fu[uid]=value;save();render(true);};
     fuDue=function(){const due=c=>fu(c)||suggestedFollowup(c);return CONTACTS.filter(c=>(S.set.peers||!c.peer)&&['messaged','replied','meeting'].includes(stg(c))&&day(due(c))&&due(c)<=today()&&(!c.linkedin||!replyPending(c))).sort((a,b)=>due(a).localeCompare(due(b))||a.name.localeCompare(b.name));};
     function dayQueue(){const remaining=Math.max(0,S.set.target-sendsToday()),seen=new Set();return [...fuDue(),...replyQueue().slice(0,S.set.replyN),...freshQueue().slice(0,remaining)].filter(c=>{if(seen.has(c.uid))return false;seen.add(c.uid);return true;});}
-    let sessionId=0,sessionResults=[],actionAfter=0,copyBusy=false;
+    let queueKind='day',sessionId=0,sessionResults=[],actionAfter=0,copyBusy=false;
     function startQueue(kind,uid){
       if(unreadable||readBlocked)return;const queues={day:dayQueue,due:fuDue,replies:()=>replyQueue().slice(0,S.set.replyN),fresh:()=>freshQueue().slice(0,Math.max(0,S.set.target-sendsToday())),one:()=>BYUID[uid]?[BYUID[uid]]:[]};
-      if(!queues[kind])return;rQ=queues[kind]();rI=0;lastUndo=null;runVarIdx=null;sessionId++;sessionResults=[];actionAfter=0;
+      if(!queues[kind])return;queueKind=kind;rQ=queues[kind]();rI=0;lastUndo=null;runVarIdx=null;sessionId++;sessionResults=[];actionAfter=0;
       if(!rQ.length){toast(kind==='fresh'?'No eligible fresh prospects are queued.':'No contacts in this queue.');return;}
       document.getElementById('runner').classList.add('active');renderRun();
     }
@@ -192,7 +192,8 @@
         const card=document.getElementById('runCard');card.replaceChildren(make('h2','Session complete'),make('p',sessionResults.filter(x=>x!=='skip').length+' updated · '+sessionResults.filter(x=>x==='skip').length+' skipped for this session.'));
         if(lastUndo)card.appendChild(button('Undo last',undoLast));card.appendChild(button('Done',closeRun));paintRunNotice();return;
       }
-      if(runVarIdx===null&&rQ[rI]?.linkedin&&lastActivity(rQ[rI]))runVarIdx=0;originalRun();const card=document.getElementById('runCard');if(rQ[rI]?.linkedin){const activity=make('div');activity.innerHTML=activityHTML(rQ[rI]);card.prepend(activity);}const copy=card.querySelector('[onclick="runCopy()"]');if(copy)copy.textContent='Copy message';
+      if(runVarIdx===null&&rQ[rI]?.linkedin&&lastActivity(rQ[rI]))runVarIdx=0;originalRun();const card=document.getElementById('runCard');
+      const contact=rQ[rI],due=suggestedFollowup(contact),reply=replyPending(contact)||stg(contact)==='replied',reason=make('p',due&&due<=today()?'Why now: follow-up due '+due+(S.fu[contact.uid]?' · date you chose.':' · based on the recorded outgoing message and your follow-up interval.'):reply?'Why now: an incoming reply is waiting for your review.':queueKind==='one'?'Why now: opened individually for your review.':'Why now: eligible fresh outreach within your daily target.','prospecting-queue-reason');card.prepend(reason);if(rQ[rI]?.linkedin){const activity=make('div');activity.innerHTML=activityHTML(rQ[rI]);card.prepend(activity);}const copy=card.querySelector('[onclick="runCopy()"]');if(copy)copy.textContent='Copy message';
       const guide=card.lastElementChild;if(guide?.classList.contains('mut'))guide.textContent='Copy the message, open the profile, and send it yourself. Return here to record the outcome. Skip leaves this person for a later session.';
       const skip=card.querySelector('[onclick="runAct(\'skip\')"]');if(skip)skip.textContent='Skip for now';
       const msg=document.getElementById('runMsg');if(msg){msg.setAttribute('aria-label','Message to copy and send manually');if(rQ[rI]?.linkedin)msg.placeholder='Read the latest conversation on LinkedIn, then write your message here.';}
@@ -259,7 +260,8 @@
       const plan=main.querySelector('.planstrip');if(plan)plan.textContent='Follow-ups first, then replies, then fresh outreach up to your daily send target.';
       const messages=['Due dates you set, plus exported outgoing messages after your follow-up interval.','Latest incoming messages and replies you recorded, most recent first.','Eligible untouched contacts, up to the remaining daily send target.'];
       main.querySelectorAll('.qcard .qs').forEach((n,i)=>{n.textContent=messages[i];});
-      const settingLabels=main.querySelectorAll('input[type="number"]');settingLabels.forEach(n=>{if((n.getAttribute('onchange')||'').includes('S.set.'))n.min='1';});paintNotice();window.ProspectingReview?.paint();
+      const settingLabels=main.querySelectorAll('input[type="number"]');settingLabels.forEach(n=>{if((n.getAttribute('onchange')||'').includes('S.set.'))n.min='1';});main.querySelectorAll('.statbar').forEach(bar=>{for(const n of bar.querySelectorAll('span'))if(n.textContent.includes('EV today'))n.title='Estimated value from configured assumptions; not revenue received.';});
+      if(tab==='today'&&!main.querySelector('.prospecting-estimate-note')){const note=make('p','Sends and replies are recorded activity. Estimated value (EV) is an assumption-based projection, not revenue received.','prospecting-estimate-note');main.append(note);}paintNotice();window.ProspectingReview?.paint();
     };
     // Validate the pre-boot copy, so malformed data is not silently replaced by defaults.
     try{

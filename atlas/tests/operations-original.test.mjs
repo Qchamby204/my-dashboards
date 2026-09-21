@@ -117,3 +117,7 @@ test('backup restore validates before replacing state and confirms the replaceme
 test('day rollover waits while typing and updates when the field is left',()=>{
   const h=boot();h.run("setSched('weekly',0,'2026-09-09')");h.node('capText').focus();h.at('2026-09-09T12:00:00-05:00');h.api.refreshDay();assert.equal(h.node('tBig').textContent,'0');h.node('capText').blur();h.api.refreshDay();assert.equal(h.node('tBig').textContent,'1');
 });
+
+test('skipped occurrences do not earn completion and a later recurrence still appears',()=>{
+ const h=boot();h.run("setRecur('monthly',0,{kind:'weekday',wd:2});state.missedOccurrences={[keyFor('monthly',0)+':2026-09-08']:{action:'skip',until:'',reason:'Office closed',label:'Review',date:'2026-09-08'}}");assert.equal(h.api.dueRows().length,0);assert.notEqual(h.run("state[keyFor('monthly',0)]?.done"),true);h.at('2026-09-15T12:00:00-05:00');assert.equal(h.api.dueRows().length,1);assert.throws(()=>h.api.validateState({missedOccurrences:{bad:{action:'skip'}}}));
+});

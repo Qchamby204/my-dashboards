@@ -25,6 +25,7 @@ export function validateLifeMapRecords(input){
   const link=x=>{try{return typeof x==='string'&&x.length<=3000&&['http:','https:'].includes(new URL(x).protocol);}catch{return false;}};
   const checklist=x=>x===undefined||Array.isArray(x)&&x.length<=100&&new Set(x.map(c=>c.id)).size===x.length&&x.every(c=>object(c)&&id(c.id)&&string(c.text,500,true)&&typeof c.done==='boolean');
   for(const p of out.projects){
+    if(p.effortMinutes!==undefined&&(!Number.isInteger(p.effortMinutes)||p.effortMinutes<1||p.effortMinutes>10080))throw Error('A task has an invalid effort estimate.');
     if(!optionalDates(p,['plan','planWeek','showAfter','followUp','createdAt','updatedAt'])||!['inbox','someday','archived'].every(k=>flag(p,k))||!string(p.waitingFor??'',300)||p.parentId&&!id(p.parentId)||!checklist(p.checklist))throw Error('A task has invalid planning or checklist details.');
     if(p.tags!==undefined&&(!Array.isArray(p.tags)||p.tags.length>10||p.tags.some(t=>!string(t,40,true))))throw Error('Use up to ten short context tags.');
     if(p.links!==undefined&&(!Array.isArray(p.links)||p.links.length>10||p.links.some(x=>!link(x))))throw Error('Task links must start with https:// or http://.');

@@ -3,7 +3,7 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='the-hourglass'||typeof S==='undefined'||window.HourglassImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('hourglass-enhancements.css',source).href;document.head.appendChild(css);}
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('hourglass-enhancements.css?v=e2960467aff3',source).href;document.head.appendChild(css);}
     const originalRender=render,originalWire=wire,originalWeeks=viewWeeks,originalSetup=viewSetup,originalToast=toast;
     const clone=value=>JSON.parse(JSON.stringify(value));
     let failed=false,visibleDay='',focusAfter=null;
@@ -34,7 +34,7 @@
     function upcomingPanel(){
       const rows=upcoming();
       return '<section class="panel hourglass-upcoming" aria-labelledby="hourglass-upcoming-title"><div class="hourglass-section-heading"><h2 id="hourglass-upcoming-title">Coming up</h2><button type="button" class="btn line" data-hourglass-action="add">Add milestone</button></div>'+
-        (rows.length?rows.map(({item,days})=>'<div class="hourglass-upcoming-row"><span aria-hidden="true">'+esc(item.emoji||'📌')+'</span><div><strong>'+esc(item.label||'Untitled milestone')+'</strong><p>'+esc(niceDate(new Date(item.date+'T00:00:00')))+'</p></div><span class="hourglass-until">'+(days===0?'Today':days===1?'Tomorrow':comma(days)+' days away')+'</span><button type="button" class="btn line" data-hourglass-action="edit" data-hourglass-id="'+esc(item.id)+'" aria-label="Edit '+esc(item.label||'milestone')+'">Edit</button></div>').join(''):
+        (rows.length?rows.map(({item,days})=>'<div class="hourglass-upcoming-row"><span aria-hidden="true">'+esc(item.emoji||'📌')+'</span><div><strong>'+esc(item.label||'Untitled milestone')+'</strong><p>'+esc(niceDate(new Date(item.date+'T00:00:00')))+'</p></div><span class="hourglass-until">'+(days===0?'Today':days===1?'Tomorrow':comma(days)+' days away')+'</span><button type="button" class="btn line" data-hourglass-action="edit" data-hourglass-id="'+esc(item.id)+'" aria-label="Edit '+esc(item.label||'milestone')+'">Edit</button><a class="btn line" href="life-map.html#capture='+encodeURIComponent('Plan time for '+(item.label||'this milestone')+' on '+item.date)+'">Plan something</a></div>').join(''):
           '<p class="hourglass-empty">No upcoming milestones. Add a date you want to keep in view.</p>')+'</section>';
     }
     viewWeeks=function(){return upcomingPanel()+originalWeeks();};

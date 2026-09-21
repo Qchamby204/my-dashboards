@@ -51,3 +51,6 @@ html[data-atlas-app="prospecting-command-center"] .prospecting-cloud>span:first-
 html[data-atlas-app="prospecting-command-center"] .prospecting-cloud button{min-height:44px;padding:8px 12px;border:1px solid var(--neo-line);border-radius:10px;background:var(--neo-surface);color:var(--neo-ink);font:inherit}
 html[data-atlas-app="prospecting-command-center"] #prospecting-private-app[inert]{opacity:.4}
 html[data-atlas-app="prospecting-command-center"] .prospecting-review-dialog :focus-visible{outline:2px solid var(--neo-blue);outline-offset:3px}
+
+/* Focused daily workflow additions. */
+.prospecting-queue-reason{padding:12px;border-left:3px solid #dfbd75;background:var(--neo-well,#192332);line-height:1.5}.prospecting-estimate-note{font-size:12px;line-height:1.6;color:var(--muted)}
