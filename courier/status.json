@@ -3,12 +3,22 @@
  "days": [
   {
    "date": "2026-09-23",
-   "state": "updating",
-   "checkedAt": "2026-09-23T10:45:08+00:00",
-   "verifiedAt": null,
-   "generatedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-09-23T11:03:26+00:00",
+   "verifiedAt": "2026-09-23T11:03:26+00:00",
+   "generatedAt": "2026-09-23T11:01:51+00:00",
    "updatedAt": null,
-   "audio": {},
+   "audio": {
+    "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/lessons.mp3",
+    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/markets.mp3",
+    "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/companies.mp3",
+    "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/practice.mp3",
+    "manitoba": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/manitoba.mp3",
+    "politics": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/politics.mp3",
+    "health": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/health.mp3",
+    "parenting": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/parenting.mp3",
+    "sports": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@57c5fa03413cf7fb5f5b4089e5feed1d3f4af135/2026-09-23/sports.mp3"
+   },
    "expectedSections": [
     "lessons",
     "markets",
@@ -16,25 +26,11 @@
     "practice",
     "manitoba",
     "politics",
-    "climate",
-    "tech",
     "health",
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "lessons",
-    "markets",
-    "companies",
-    "practice",
-    "manitoba",
-    "politics",
-    "climate",
-    "tech",
-    "health",
-    "parenting",
-    "sports"
-   ],
+   "missingSections": [],
    "voiceless": []
   },
   {
