@@ -404,3 +404,253 @@ main{padding:0;max-width:none}
 .muted,.eyebrow{color:#444}
 }
 
+
+/* Library visual alignment — Atlas 2026 instrument-panel language */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap');
+
+html[data-atlas-app="library"]{
+  --lib-navy:#19293f;
+  --lib-navy-2:#142135;
+  --lib-navy-3:#24354c;
+  --lib-edge:#455872;
+  --lib-gold:#edc56f;
+  --lib-blue:#7dc8e3;
+  --lib-green:#a8dfb9;
+}
+html[data-atlas-app="library"] :is(h1,h2,h3,.brand-title,.stat-number){
+  font-family:'Barlow Condensed',var(--neo-font,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif);
+  font-weight:700;
+}
+html[data-atlas-app="library"] h1{
+  font-size:clamp(2.5rem,5vw,3.75rem);
+  line-height:1.02;
+  letter-spacing:.005em;
+  text-transform:uppercase;
+}
+html[data-atlas-app="library"] :is(.section-head h2,.page-head h1){
+  letter-spacing:.02em;
+}
+html[data-atlas-app="library"] .page-head h1{font-size:clamp(2.2rem,4vw,3.3rem)}
+html[data-atlas-app="library"] .brand-title{
+  font-size:1.05rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+html[data-atlas-app="library"] .eyebrow{
+  font-size:11px;
+  letter-spacing:.12em;
+}
+html[data-atlas-app="library"] .sidebar{
+  background:var(--neo-surface);
+}
+html[data-atlas-app="library"] .brand-mark{
+  width:42px;height:46px;border-radius:7px;
+  background:var(--lib-navy);
+  color:var(--lib-gold);
+  border:1px solid var(--lib-edge);
+  box-shadow:none;
+}
+html[data-atlas-app="library"] .nav a{
+  border-radius:7px;
+  border-left:3px solid transparent;
+}
+html[data-atlas-app="library"] .nav a.active{
+  background:var(--neo-inset);
+  color:var(--neo-ink);
+  box-shadow:none;
+  border-color:var(--neo-accent);
+}
+html[data-atlas-app="library"] .topbar{
+  border-bottom:2px solid var(--neo-accent);
+}
+html[data-atlas-app="library"] .mobile-brand .brand-mark{border-radius:6px}
+html[data-atlas-app="library"] :is(.panel,.book-list,.continue-book,.callout,.empty){
+  border-radius:10px;
+  box-shadow:0 5px 16px color-mix(in srgb,var(--neo-ink) 7%,transparent);
+}
+html[data-atlas-app="library"] :is(.panel,.book-list){
+  border:1px solid var(--neo-line);
+}
+html[data-atlas-app="library"] :is(.topic-card,.synthesis-editor,.synthesis-source,.understanding-card){
+  border-top:2px solid color-mix(in srgb,var(--neo-accent) 60%,var(--neo-line));
+}
+html[data-atlas-app="library"] :is(.btn,.icon-btn,.pill,.segmented,.segmented a,input,select,textarea,.continue-book){
+  border-radius:6px;
+}
+html[data-atlas-app="library"] :is(.btn,.icon-btn){box-shadow:none}
+html[data-atlas-app="library"] .btn.primary{
+  background:var(--lib-navy);
+  color:#f4f6fb;
+  border-color:var(--lib-edge);
+}
+html[data-atlas-app="library"] .btn.accent{
+  background:color-mix(in srgb,var(--neo-accent) 12%,var(--neo-surface));
+  color:var(--neo-accent);
+  border-color:color-mix(in srgb,var(--neo-accent) 55%,var(--neo-line));
+}
+html[data-atlas-app="library"] .intro{
+  position:relative;
+  gap:28px;
+  padding:32px 34px;
+  border-radius:12px;
+  border:1px solid var(--lib-edge);
+  border-top:3px solid var(--lib-gold);
+  background:linear-gradient(125deg,var(--lib-navy-2),var(--lib-navy-3));
+  box-shadow:0 10px 28px color-mix(in srgb,#000 22%,transparent);
+  overflow:hidden;
+}
+html[data-atlas-app="library"] .intro::after{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(120deg,transparent 0,transparent 86px,#ffffff04 86px,#ffffff04 88px);
+}
+html[data-atlas-app="library"] .intro>div{position:relative;z-index:1}
+html[data-atlas-app="library"] .intro h1{color:#f4f6fb!important}
+html[data-atlas-app="library"] .intro p{color:#cbd7e7}
+html[data-atlas-app="library"] .intro .eyebrow{color:var(--lib-gold)}
+html[data-atlas-app="library"] .intro .btn.accent{
+  background:#21344c;
+  color:var(--lib-gold);
+  border-color:var(--lib-edge);
+}
+html[data-atlas-app="library"] .focus-card{
+  min-height:190px;
+  border:1px solid var(--lib-edge);
+  border-left:3px solid var(--lib-blue);
+  border-radius:9px;
+  background:#17263a;
+  box-shadow:none;
+  color:#f4f6fb;
+}
+html[data-atlas-app="library"] .focus-card .eyebrow{color:var(--lib-blue);opacity:1}
+html[data-atlas-app="library"] .focus-card p{color:#cbd7e7;opacity:1}
+html[data-atlas-app="library"] .focus-card .btn{
+  background:#20334b;
+  color:#f4f6fb;
+  border:1px solid var(--lib-edge);
+}
+html[data-atlas-app="library"] .stats{
+  gap:12px;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+html[data-atlas-app="library"] .stat{
+  min-width:0;
+  padding:18px 20px;
+  border:1px solid var(--lib-edge);
+  border-top:3px solid var(--lib-gold);
+  border-radius:7px;
+  background:var(--lib-navy);
+  box-shadow:none;
+}
+html[data-atlas-app="library"] .stat:nth-child(2){border-top-color:var(--lib-blue)}
+html[data-atlas-app="library"] .stat:nth-child(3){border-top-color:var(--lib-green)}
+html[data-atlas-app="library"] .stat-number{
+  font-size:32px;
+  line-height:1.1;
+  letter-spacing:.01em;
+  color:#f4cd77;
+}
+html[data-atlas-app="library"] .stat:nth-child(2) .stat-number{color:#9bd9ed}
+html[data-atlas-app="library"] .stat:nth-child(3) .stat-number{color:#bce7c8}
+html[data-atlas-app="library"] .stat-number span,.atlas-neumo[data-atlas-app="library"] .stat-label{color:#cbd7e7}
+html[data-atlas-app="library"] .topic-grid{gap:14px}
+html[data-atlas-app="library"] .topic-card{
+  min-height:170px;
+  padding:20px 19px 17px;
+  border-radius:9px;
+  border-left:3px solid var(--neo-blue);
+  box-shadow:0 4px 12px color-mix(in srgb,var(--neo-ink) 6%,transparent);
+}
+html[data-atlas-app="library"] .topic-card:nth-child(3n+2){border-left-color:var(--neo-accent)}
+html[data-atlas-app="library"] .topic-card:nth-child(3n){border-left-color:var(--neo-green)}
+html[data-atlas-app="library"] .topic-card:hover{
+  transform:none;
+  background:color-mix(in srgb,var(--neo-blue) 4%,var(--neo-surface));
+}
+html[data-atlas-app="library"] .topic-card h3{
+  font-size:1.18rem;
+  letter-spacing:.015em;
+  line-height:1.2;
+  text-transform:uppercase;
+}
+html[data-atlas-app="library"] .topic-index{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--neo-accent);
+}
+html[data-atlas-app="library"] .progress-track{height:5px;border-radius:3px;position:relative}
+html[data-atlas-app="library"] .progress-track::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--neo-inset) calc(10% - 2px),var(--neo-inset) 10%);
+}
+html[data-atlas-app="library"] .progress-fill{border-radius:2px;background:var(--neo-accent)}
+html[data-atlas-app="library"] .section-head h2{
+  font-size:1.5rem;
+  text-transform:uppercase;
+}
+html[data-atlas-app="library"] .book-group-head h3{
+  font-family:'Barlow Condensed',var(--neo-font,sans-serif);
+  font-size:1.05rem;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+}
+html[data-atlas-app="library"] .book-row{
+  border-left:3px solid transparent;
+}
+html[data-atlas-app="library"] .book-row:has(input:checked){border-left-color:var(--neo-green)}
+html[data-atlas-app="library"] .book-row:has(.pill.reading){border-left-color:var(--neo-accent)}
+html[data-atlas-app="library"] .book-title{font-size:.92rem}
+html[data-atlas-app="library"] .pill{
+  box-shadow:none;
+  border:1px solid var(--neo-line);
+}
+html[data-atlas-app="library"] .pill.reading,.atlas-neumo[data-atlas-app="library"] .pill.focus{
+  border-color:color-mix(in srgb,var(--neo-accent) 55%,var(--neo-line));
+}
+html[data-atlas-app="library"] .pill.done,.atlas-neumo[data-atlas-app="library"] .pill.distilled{
+  border-color:color-mix(in srgb,var(--neo-green) 55%,var(--neo-line));
+}
+html[data-atlas-app="library"] .segmented{
+  padding:0;
+  gap:0;
+  border:1px solid var(--neo-line);
+  background:var(--neo-surface);
+  overflow:hidden;
+}
+html[data-atlas-app="library"] .segmented a{border-radius:0}
+html[data-atlas-app="library"] .segmented a.active{
+  background:var(--neo-inset);
+  color:var(--neo-accent);
+  box-shadow:none;
+  border-bottom:3px solid var(--neo-accent);
+}
+html[data-atlas-app="library"] dialog{
+  border-radius:12px;
+  border-top:3px solid var(--neo-accent);
+}
+html[data-atlas-app="library"] .dialog-head{border-radius:9px 9px 0 0}
+html[data-atlas-app="library"] .understanding-card h3,.atlas-neumo[data-atlas-app="library"] .synthesis-editor h3{
+  font-size:1.35rem;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+html[data-atlas-app="library"] .mobile-nav a{border-radius:6px}
+html[data-atlas-app="library"] .mobile-nav a.active{
+  color:var(--neo-accent);
+  border-bottom:3px solid var(--neo-accent);
+  background:var(--neo-inset);
+}
+@media(max-width:600px){
+  html[data-atlas-app="library"] .intro{padding:24px 21px;border-radius:10px}
+  html[data-atlas-app="library"] .intro h1{font-size:2.65rem}
+  html[data-atlas-app="library"] .focus-card{border-radius:8px}
+  html[data-atlas-app="library"] .stats{gap:8px}
+  html[data-atlas-app="library"] .stat{padding:15px 12px}
+  html[data-atlas-app="library"] .stat-number{font-size:28px}
+  html[data-atlas-app="library"] .topic-card{border-radius:8px;min-height:180px}
+  html[data-atlas-app="library"] .topic-card h3{font-size:1rem}
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-atlas-app="library"] .topic-card{transition:none}
+}
