@@ -1,0 +1,14 @@
+{
+  "name":"The Library · Atlas OS",
+  "short_name":"Library",
+  "start_url":"./the-library.html#home",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#0b1422",
+  "theme_color":"#0b1422",
+  "description":"Books, reading notes, and topic understandings.",
+  "icons":[
+    {"src":"shared/icons/library-192.png?v=2k1","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"shared/icons/library-512.png?v=2k1","sizes":"512x512","type":"image/png","purpose":"any"}
+  ]
+}
