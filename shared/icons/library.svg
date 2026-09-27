@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Existing Library book mark, using the dashboard's 2K navy and gold. -->
+  <rect width="64" height="64" fill="#0b1422"/>
+  <path d="M13 17h13q6 0 6 5q0-5 6-5h13v31H38q-6 0-6 5q0-5-6-5H13zM32 22v31" fill="none" stroke="#f1c96b" stroke-width="3" stroke-linejoin="round"/>
+</svg>

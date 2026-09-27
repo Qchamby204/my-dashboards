@@ -239,7 +239,7 @@ function getTheme(){try{return ['system','light','dark'].includes(localStorage.g
 let themeMode='system';
 function applyTheme(mode,write=false){
  themeMode=mode;const dark=mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme:dark)').matches);
- document.documentElement.dataset.theme=dark?'dark':'light';document.documentElement.dataset.atlasTheme=dark?'dark':'light';document.querySelector('meta[name=theme-color]').content=dark?'#202936':'#e7ecf2';
+ document.documentElement.dataset.theme=dark?'dark':'light';document.documentElement.dataset.atlasTheme=dark?'dark':'light';document.querySelector('meta[name=theme-color]').content='#0b1422';
  if(write)try{localStorage.setItem(THEME_KEY,mode);}catch(e){toast('Appearance changed for this tab. Browser storage is unavailable.');}
 }
 function openSettings(){
