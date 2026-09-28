@@ -9,7 +9,7 @@ on:
       - 'shared/icons/library*'
       - 'shared/icons/catalog.json'
       - 'atlas/sync-icons.mjs'
-      - 'atlas/tests/library-install.test.mjs'
+      - 'atlas/tests/library-*.test.mjs'
       - '.github/workflows/library-regression.yml'
   pull_request:
     paths:
@@ -19,7 +19,7 @@ on:
       - 'shared/icons/library*'
       - 'shared/icons/catalog.json'
       - 'atlas/sync-icons.mjs'
-      - 'atlas/tests/library-install.test.mjs'
+      - 'atlas/tests/library-*.test.mjs'
       - '.github/workflows/library-regression.yml'
 permissions:
   contents: read
@@ -34,4 +34,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test atlas/tests/library-install.test.mjs
+      - run: node --test atlas/tests/library-*.test.mjs

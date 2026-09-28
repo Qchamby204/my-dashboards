@@ -657,6 +657,7 @@ html[data-atlas-app="library"] .mobile-nav a.active{
 
 /* Library v1.3 — Atlas 2K / sports-game presentation */
 html[data-atlas-app="library"]{
+ background-color:#0b1422;
  --game-bg:#0b1422;--game-panel:#132238;--game-panel-2:#192b45;--game-line:#405570;
  --game-ink:#f4f7fb;--game-muted:#aebdd0;--game-gold:#f1c96b;--game-blue:#62c7ea;--game-green:#7fd59c;
 }
@@ -825,3 +826,54 @@ html[data-atlas-app="library"] .app-footer{border-color:var(--game-line);color:v
  html[data-atlas-app="library"] .stat{padding:13px 10px!important}
  html[data-atlas-app="library"] .stat-number{font-size:2rem!important}
 }
+
+/* Reading goals and topic emblems extend the established 2K library palette. */
+html[data-atlas-app="library"] .topic-card{position:relative;isolation:isolate;overflow:hidden;padding-right:100px!important}
+html[data-atlas-app="library"] .topic-art{display:block;width:150px;height:85px;color:var(--game-gold,#f1c96b);pointer-events:none}
+html[data-atlas-app="library"] .topic-art svg{width:100%;height:100%;display:block}
+html[data-atlas-app="library"] .topic-card>.topic-art{position:absolute;right:4px;bottom:28px;width:100px;height:66px;opacity:.46;z-index:-1}
+html[data-atlas-app="library"] .topic-card:nth-child(3n+1)>.topic-art{color:var(--game-blue,#62c7ea)}
+html[data-atlas-app="library"] .topic-card:nth-child(3n)>.topic-art{color:var(--game-green,#7fd59c)}
+html[data-atlas-app="library"] .reading-topic-head{position:relative;padding-right:180px;min-height:115px}
+html[data-atlas-app="library"] .reading-topic-head>.topic-art{position:absolute;right:0;top:15px;width:160px;height:90px}
+html[data-atlas-app="library"] .reading-card-goal{display:block;margin-top:12px;font-size:12px;line-height:1.5;color:var(--game-gold);font-variant-numeric:tabular-nums}
+html[data-atlas-app="library"] .reading-planner{margin:0 0 25px;padding:24px;border-left:3px solid var(--game-blue)!important}
+.reading-plan-heading{display:flex;align-items:start;justify-content:space-between;gap:18px}
+.reading-plan-heading h2{font-size:23px;margin:6px 0 18px}
+.reading-info{position:relative}
+.reading-info summary{display:grid;place-items:center;cursor:pointer;list-style:none;min-width:44px;min-height:44px;border:1px solid var(--game-line);border-radius:50%;font-family:serif;font-style:italic}
+.reading-info summary::-webkit-details-marker{display:none}
+.reading-info p{position:absolute;right:0;top:50px;width:min(310px,70vw);z-index:25;background:#132238;border:1px solid #536985;box-shadow:0 12px 30px #0006;padding:18px;font-size:13px;color:#dce6f5}
+#reading-goal-form>label{display:block;font-size:13px;font-weight:600;margin-bottom:9px}
+.reading-date-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.reading-date-row input{min-width:170px;min-height:46px;padding:8px 12px;border:1px solid var(--game-line);color-scheme:dark}
+.reading-target{font:700 clamp(25px,4vw,40px)/1.15 'Barlow Condensed',sans-serif;color:var(--game-gold);margin:20px 0 15px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.reading-target span{font-size:16px;font-weight:500;color:var(--game-muted)}
+.reading-metrics{display:flex;gap:12px 25px;flex-wrap:wrap;font-size:12px;color:var(--game-muted)}
+.reading-metrics b{display:block;color:var(--game-ink);font-size:21px;font-variant-numeric:tabular-nums}
+.reading-caption{display:block;font-size:12px;color:var(--game-muted);line-height:1.55;margin-top:10px}
+.reading-warning{font-size:13px;color:var(--game-gold);margin-top:14px}
+html[data-atlas-app="library"] .book-page-count{display:block;min-height:44px;padding:6px 0;text-align:left;font-size:12px;color:var(--game-blue);text-decoration:underline;text-underline-offset:3px}
+.reading-book-fields{border-top:1px solid var(--game-line);border-bottom:1px solid var(--game-line);padding:20px 0;margin:16px 0 24px}
+.reading-book-fields h3{font-size:18px}
+.reading-book-fields .form-grid{margin-top:15px}
+.reading-book-fields input{width:100%;min-height:46px;padding:10px;border:1px solid var(--game-line);font-size:16px}
+.reading-book-fields .btn{margin-top:15px}
+.reading-source{font-size:12px;margin:13px 0}
+.reading-source summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--game-gold);text-decoration:underline;text-underline-offset:3px}
+.reading-source p{line-height:1.7;color:var(--game-muted);overflow-wrap:anywhere}
+@media(prefers-reduced-motion:no-preference){
+ .topic-art .art-motion{animation:library-topic-reveal 2.2s ease-out both}
+ .topic-card:hover .topic-art,.topic-card:focus-visible .topic-art{transform:translateY(-3px);transition:transform .3s ease,opacity .3s ease;opacity:.8!important}
+ @keyframes library-topic-reveal{from{opacity:.15;stroke-dasharray:500;stroke-dashoffset:500;transform:translateY(3px)}to{opacity:1;stroke-dasharray:500;stroke-dashoffset:0;transform:translateY(0)}}
+}
+@media(prefers-reduced-motion:reduce){.topic-art,.topic-art *{animation:none!important;transition:none!important;transform:none!important}}
+@media(max-width:600px){
+ html[data-atlas-app="library"] .topic-card{padding-right:95px!important}
+ html[data-atlas-app="library"] .reading-topic-head{padding-right:0;padding-top:0}
+ html[data-atlas-app="library"] .reading-topic-head>.topic-art{position:relative;top:0;float:right;width:90px;height:57px;margin:0 0 8px 12px}
+ html[data-atlas-app="library"] .reading-planner{padding:18px 16px}
+ .reading-plan-heading h2{font-size:22px}.reading-date-row input{width:100%;min-width:0}.reading-date-row .btn{flex:1}.reading-metrics{gap:12px 18px}
+}
+@media(prefers-contrast:more){html[data-atlas-app="library"] .topic-card>.topic-art{opacity:.8}.reading-caption,.reading-metrics{color:#f4f7fb}}
+@media print{.topic-art{display:none!important}.reading-info p{position:static}.reading-planner{break-inside:avoid}}
