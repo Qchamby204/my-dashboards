@@ -931,3 +931,14 @@ html[data-atlas-app="library"] .continue-book{flex:0 0 340px;max-width:100%;padd
 .priority-footer{position:sticky;bottom:0;background:#132238;gap:12px;padding:16px 0;margin-bottom:0;z-index:1}
 @media(max-width:600px){.priority-row{gap:9px;grid-template-columns:25px minmax(0,1fr) 62px}.priority-footer{flex-wrap:wrap}.priority-row label{font-size:13px}}
 html[data-atlas-app="library"] .dialog-head p{color:var(--game-muted)}
+
+/* Learning guidance uses native disclosures and never gates reading. */
+.learning-label,.learning-book-order{color:var(--game-gold);font-size:.75rem;font-weight:700;letter-spacing:.04em;margin:0 0 .5rem}
+.learning-guide summary,.learning-reason summary{display:flex;align-items:center;gap:.5rem;min-height:44px;cursor:pointer}
+.learning-guide summary svg,.learning-reason summary svg{width:18px;height:18px;flex-shrink:0}
+.learning-reason{margin:0 0 1rem}.learning-reason p,.learning-guide p{line-height:1.6}
+.learning-book-order{font-size:.6875rem;color:var(--game-muted)}
+
+.learning-guide,.learning-reason{border-color:var(--game-line)}
+.learning-guide summary,.learning-reason summary,.learning-guide[open]>summary,.learning-reason[open]>summary{color:var(--game-ink)}
+.learning-guide p,.learning-reason p{color:var(--game-muted)}
