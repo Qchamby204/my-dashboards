@@ -18,9 +18,11 @@ try{
  for(const mobile of [false,true]){
   const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1440,height:1000},isMobile:mobile,hasTouch:mobile,reducedMotion:'reduce',timezoneId:'America/Winnipeg'});
   const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+  // Dialog close and hashchange each queue a render; let both finish before editing.
+  const settled=()=>p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const records=()=>p.evaluate(()=>JSON.parse(localStorage.getItem('atlas.library.v1')));
   const photo=async name=>{if(process.env.LIBRARY_SCREENSHOTS){mkdirSync(process.env.LIBRARY_SCREENSHOTS,{recursive:true});await p.screenshot({path:path.join(process.env.LIBRARY_SCREENSHOTS,(mobile?'mobile-':'desktop-')+name+'.png'),fullPage:name==='home'});}};
-  await p.goto(base+'#home');assert.equal(await p.locator('.topic-card').count(),14);assert.equal(await records(),null);
+  await p.goto(base+'#home');await settled();assert.equal(await p.locator('.topic-card').count(),14);assert.equal(await records(),null);
   assert.equal(await p.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(x=>x.id);return ids.length===new Set(ids).size;}),true,'no colliding SVG IDs');
   assert.equal(await p.locator('.badge-symbol').first().evaluate(e=>getComputedStyle(e).animationName),'none');
   await photo('home');
@@ -34,8 +36,8 @@ try{
   await editor.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],64);
   await row.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal((await records()).progress[id].status,'unread');assert.equal((await records()).reading.pagesRead[id],64);
   await row.getByRole('button',{name:'Resume reading',exact:true}).click();assert.equal((await records()).progress[id].status,'reading');
-  await row.locator('[data-action=notes]').first().click();await p.locator('#note-notes').fill('Keep this note when toggling and logging pages.');await p.getByRole('button',{name:'Done',exact:true}).click();
-  await p.goto(base+'#home');
+  await row.locator('[data-action=notes]').first().click();await p.locator('#note-notes').fill('Keep this note when toggling and logging pages.');await p.getByRole('button',{name:'Done',exact:true}).click();await settled();
+  await p.goto(base+'#home');await settled();
   const card=p.locator('.continue-book').first();assert.equal(await card.locator('[data-progress-page]').inputValue(),'64');
   await card.locator('[data-progress-page]').fill('123');await card.getByRole('button',{name:'+10',exact:true}).click();assert.equal(await card.locator('[data-progress-page]').inputValue(),'128');
   await card.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],128);assert.equal((await records()).progress[id].status,'reading','a full bar does not silently mark completion');
@@ -43,8 +45,8 @@ try{
   await card.locator('[data-progress-page]').fill('50');await card.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],50);assert.equal((await records()).reading.pageCounts[id],undefined);
   await p.locator('[data-action=log-focus-progress]').click();editor=p.locator('#modal [data-progress-form]');
   await editor.locator('[data-progress-slider]').fill('110');await editor.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],110);
-  await p.getByRole('button',{name:'Done',exact:true}).click();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
-  await photo('progress');await card.scrollIntoViewIfNeeded();await photo('reading-card');
+  await p.getByRole('button',{name:'Done',exact:true}).click();await settled();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
+  if(process.env.LIBRARY_SCREENSHOTS){await photo('progress');await card.scrollIntoViewIfNeeded();await photo('reading-card');}
   await card.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal(await p.locator('.continue-book').count(),0);assert.equal((await records()).reading.pagesRead[id],110);assert.match((await records()).progress[id].notes,/Keep this note/);
   await p.reload();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
   // Export / preview / restore includes both the new progress and all existing notes.
