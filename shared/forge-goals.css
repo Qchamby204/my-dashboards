@@ -98,3 +98,20 @@ html.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-done{color:var
 html.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-primary{background:var(--neo-ink)!important;color:var(--neo-canvas)!important;border-color:var(--fg-accent)!important}
 @media(prefers-reduced-transparency:reduce),(prefers-contrast:more){html.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-card{background:var(--neo-surface)!important}}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-card,.fg-primary,.fg-done,button[aria-pressed="true"]){background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important}.fg-progress>span{background:Highlight!important}}
+
+/* Weekly guidance uses the same seven-day strip as the regular split. */
+html[data-atlas-app="workout-forge"] .fg-week-guide{margin:18px 0 22px}
+html[data-atlas-app="workout-forge"] .fg-week-guide-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-bottom:12px}
+html[data-atlas-app="workout-forge"] #forge-goals .fg-week-guide-heading h3{font:700 1.15rem/1.2 var(--forge-display);text-transform:uppercase;letter-spacing:.04em;color:var(--neo-muted)}
+html[data-atlas-app="workout-forge"] .fg-week-guide-heading>span{font-size:.74rem;color:var(--neo-muted)}
+html[data-atlas-app="workout-forge"] .fg-week-strip{display:grid;grid-template-columns:repeat(7,minmax(128px,1fr));gap:10px;overflow-x:auto;list-style:none;margin:0;padding:0 0 8px;overscroll-behavior-x:contain}
+html[data-atlas-app="workout-forge"] .fg-week-day{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;padding:14px 9px;min-height:158px;border:1px solid var(--neo-line);border-radius:14px;background:var(--neo-inset);color:var(--neo-ink)}
+html[data-atlas-app="workout-forge"] .fg-week-dayname{font:700 1.2rem/1.2 var(--forge-display);text-transform:uppercase;letter-spacing:.045em;color:var(--neo-muted);margin-bottom:7px}
+html[data-atlas-app="workout-forge"] .fg-week-day strong{font-size:.84rem;font-weight:600;line-height:1.35}
+html[data-atlas-app="workout-forge"] .fg-week-day small{font-size:.67rem;line-height:1.35;color:var(--neo-muted);margin-top:7px}
+html[data-atlas-app="workout-forge"] .fg-week-then{font-size:.8rem;line-height:1;color:var(--neo-muted)}
+html[data-atlas-app="workout-forge"] .fg-week-lower{border-color:var(--neo-green);border-top-width:2px}
+html[data-atlas-app="workout-forge"] .fg-week-upper{border-color:var(--forge-gold);border-top-width:2px}
+html[data-atlas-app="workout-forge"] .fg-week-rest{color:var(--neo-muted)}
+html[data-atlas-app="workout-forge"] .fg-week-rest strong{font-size:1rem}
+@media(forced-colors:active){html[data-atlas-app="workout-forge"] .fg-week-day{border-color:CanvasText}}
