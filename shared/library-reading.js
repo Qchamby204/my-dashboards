@@ -38,8 +38,9 @@ function pageInfo(book,reading,references,seedBooks){
  return {pages:null,confirmed:false,reference:null};
 }
 function summary(books,progress,reading,references,seedBooks,deadline,today){
- let total=0,read=0,unknown=0,unknownRemaining=0,estimated=0;
+ let total=0,read=0,unknown=0,unknownRemaining=0,estimated=0,skipped=0;
  for(const book of books){
+  if(progress[book.id]?.status==='skipped'){skipped++;continue;}
   const info=pageInfo(book,reading,references,seedBooks),done=progress[book.id]?.status==='done';
   if(!info.pages){unknown++;if(!done)unknownRemaining++;continue;}
   total+=info.pages;if(!info.confirmed)estimated++;
@@ -47,9 +48,9 @@ function summary(books,progress,reading,references,seedBooks,deadline,today){
  }
  const remaining=total-read,start=dayNumber(today),end=dayNumber(deadline);
  const days=start!==null&&end!==null?end-start+1:null;
- return {total,read,remaining,unknown,unknownRemaining,estimated,days,
+ return {total,read,remaining,unknown,unknownRemaining,estimated,days,skipped,included:books.length-skipped,
   overdue:days!==null&&days<=0&&(remaining>0||unknownRemaining>0),
-  complete:books.length>0&&remaining===0&&unknownRemaining===0,
+  complete:books.length-skipped>0&&remaining===0&&unknownRemaining===0,
   daily:days!==null&&days>0?Math.ceil(remaining/days):null};
 }
 function normalizeOrder(raw,ids){

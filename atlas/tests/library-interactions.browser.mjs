@@ -36,7 +36,11 @@ try{
   await photo('learning');
   await p.goto(base+'#topic/12/all/books');await settled();assert.equal(await p.locator('.learning-label').filter({hasText:'Optional branch'}).count(),3);
   await p.goto(base+'#topic/1/all/books');await settled();
-  await p.locator('#reading-deadline').fill('2099-12-31');await p.getByRole('button',{name:'Save goal',exact:true}).click();
+  await p.locator('#reading-deadline').fill('2099-12-31');
+  await p.locator('[data-complete="b-1A-03"]').check();await settled();
+  assert.equal(await p.locator('#reading-deadline').inputValue(),'2099-12-31','selecting a date then completing a book must retain the deadline');
+  await p.locator('[data-complete="b-1A-03"]').uncheck();await settled();
+  await p.getByRole('button',{name:'Save goal',exact:true}).click();
   await p.locator('[data-action=set-focus]').click();
   const id='b-1A-01',row=p.locator(`[data-book-row="${id}"]`);
   await row.getByRole('button',{name:'Start reading',exact:true}).click();
@@ -58,6 +62,33 @@ try{
   if(process.env.LIBRARY_SCREENSHOTS){await photo('progress');await card.scrollIntoViewIfNeeded();await photo('reading-card');}
   await card.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal(await p.locator('.continue-book').count(),0);assert.equal((await records()).reading.pagesRead[id],110);assert.match((await records()).progress[id].notes,/Keep this note/);
   await p.reload();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
+  // A fixed deadline survives completion, undo, skipping, inclusion, reload and backup.
+  await p.goto(base+'#topic/1/all/books');await settled();
+  const deadline=await p.evaluate(()=>{const d=new Date();d.setDate(d.getDate()+9);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;});
+  await p.locator('#reading-deadline').fill(deadline);await p.locator('#reading-deadline').blur();
+  assert.equal((await records()).reading.goals['1:all'],deadline);
+  const remaining=async()=>Number((await p.locator('#reading-goal-output .reading-metrics b').nth(1).innerText()).replaceAll(',',''));
+  const pace=async()=>Number((await p.locator('#reading-goal-output .reading-target').innerText()).split(' ')[0].replaceAll(',',''));
+  const baseline=await remaining(),changed='b-1A-03';
+  const changedPages=await p.evaluate(id=>window.ATLAS_LIBRARY_PAGES[id].pages,changed);
+  await p.locator(`[data-complete="${changed}"]`).check();await settled();
+  assert.equal(await remaining(),baseline-changedPages);assert.equal(await pace(),Math.ceil((baseline-changedPages)/10));
+  assert.equal(await p.locator('#reading-deadline').inputValue(),deadline);
+  await p.locator(`[data-complete="${changed}"]`).uncheck();await settled();assert.equal(await remaining(),baseline);
+  await p.locator(`[data-action="skip-book"][data-id="${id}"]`).click();await settled();
+  assert.equal((await records()).progress[id].status,'skipped');assert.equal((await records()).reading.pagesRead[id],110);
+  assert.equal((await records()).progress[id].notes,'Keep this note when toggling and logging pages.');
+  assert.equal(await p.locator('#reading-deadline').inputValue(),deadline);
+  const skippedRemaining=await remaining();assert.ok(skippedRemaining<baseline);assert.equal(await pace(),Math.ceil(skippedRemaining/10));
+  await p.locator(`[data-action="include-book"][data-id="${id}"]`).click();await settled();assert.equal(await remaining(),baseline);
+  await p.locator(`[data-action="skip-book"][data-id="${id}"]`).click();await settled();
+  await p.reload();await settled();assert.equal((await records()).progress[id].status,'skipped');assert.equal(await remaining(),skippedRemaining);assert.equal(await p.locator('#reading-deadline').inputValue(),deadline);
+  // Subsection goals remain separate, and neither completion nor navigation clears either date.
+  await p.goto(base+'#topic/1/1A/books');await settled();await p.locator('#reading-deadline').fill('2099-12-31');await p.locator('#reading-deadline').blur();
+  await p.locator(`[data-complete="${changed}"]`).check();await settled();
+  assert.equal((await records()).reading.goals['1:all'],deadline);assert.equal((await records()).reading.goals['1:1A'],'2099-12-31');
+  await p.locator(`[data-complete="${changed}"]`).uncheck();await settled();
+  await p.goto(base+'#home');await settled();
   // Priority edits are a preview until saved; moves must not remap book or goal IDs.
   const beforeOrder=await records();
   await p.locator('[data-action=edit-priorities]').click();await p.locator('#priority-14').selectOption('1');
@@ -76,7 +107,7 @@ try{
   // Export / preview / restore includes both the new progress and all existing notes.
   await p.locator('[data-action=settings]:visible').first().click();const download=p.waitForEvent('download');await p.locator('[data-action=export-backup]').click();const backup=JSON.parse(readFileSync(await (await download).path(),'utf8'));
   await p.locator('#import-file').setInputFiles({name:'reading-roundtrip.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});
-  await p.locator('[data-action=confirm-import]').waitFor();p.once('dialog',d=>d.accept());await p.locator('[data-action=confirm-import]').click();assert.deepEqual((await records()).reading,backup.data.reading);assert.deepEqual((await records()).topicOrder,backup.data.topicOrder);assert.equal((await records()).progress[id].notes,backup.data.progress[id].notes);
+  await p.locator('[data-action=confirm-import]').waitFor();p.once('dialog',d=>d.accept());await p.locator('[data-action=confirm-import]').click();assert.deepEqual((await records()).reading,backup.data.reading);assert.deepEqual((await records()).topicOrder,backup.data.topicOrder);assert.equal((await records()).progress[id].notes,backup.data.progress[id].notes);assert.equal((await records()).progress[id].status,'skipped');
   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'no horizontal page overflow');
   assert.deepEqual(errors,[]);console.log(`${mobile?'Mobile':'Desktop'}: reading toggle, slider, page entry, focus progress, section priorities, persistence, notes and backup restoration passed.`);
   await context.close();
