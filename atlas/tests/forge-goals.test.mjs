@@ -46,3 +46,22 @@ test('touch metrics ignore box-height notes and use the highest approach touch',
  p.done['0-d1-2-0']=entry('123.5','');assert.equal(M.metric('dunk',p),'123.5 in · 3.5 above rim');
  p.done['1-d1-2-0']=entry('122','');assert.equal(M.metric('dunk',p),'123.5 in · 3.5 above rim');
 });
+
+test('actual run distances produce mile pace and mph without assuming a 3-mile run',()=>{
+ const s=M.runStats({w:'15:00',distance:'1.5',unit:'mi'});assert.equal(s.pace,600);assert.equal(s.mph,6);assert.equal(M.format(s.pace),'10:00');
+ const km=M.runStats({w:'10:00',distance:'1.609344',unit:'km'});assert.equal(km.mph,6);assert.equal(km.pace,600);
+ for(const distance of ['','0','-1','Infinity','NaN'])assert.equal(M.runStats({w:'15:00',distance,unit:'mi'}),null);
+ assert.equal(M.runStats({w:'00:00',distance:'1',unit:'mi'}),null);assert.equal(M.runStats({w:'10:00',distance:'1',unit:'yards'}),null);
+});
+test('partial trials validate, do not replace the completed 5K and preserve old logs',()=>{
+ const e=P.run.build().weeks[0].d1[0],p=M.fresh();
+ const short={...entry('08:00'),distance:'0.75',unit:'mi'};assert.doesNotThrow(()=>M.validateEntry('run',e,short));assert.equal(M.fullTrial(e,short),false);
+ p.done['0-d1-0-0']=entry('27:00');p.done['4-d1-0-0']=short;assert.equal(M.latestTrial(p),'27:00');
+ assert.doesNotThrow(()=>M.validate({version:1,plans:{run:p}}));assert.equal(M.defaults('run',p,'0-d1-0-0').distance,'5');assert.equal(p.done['0-d1-0-0'].distance,undefined);
+ assert.equal(M.fullTrial(e,{...entry('27:00'),distance:'3',unit:'mi'}),false);
+ assert.equal(M.fullTrial(e,{...entry('27:00'),distance:'3.107',unit:'mi'}),true);
+});
+test('run averages divide total time by total distance and exclude old unmeasured sets',()=>{
+ const p=M.fresh();p.done['1-d1-0-0']={...entry('04:00'),distance:'0.5',unit:'mi'};p.done['1-d1-0-1']={...entry('18:00'),distance:'1.5',unit:'mi'};p.done['1-d1-0-2']=entry('02:00');
+ const {stats,unmeasured}=M.runTotals(p,1,'d1');assert.equal(stats.seconds,1320);assert.equal(stats.miles,2);assert.equal(stats.pace,660);assert.equal(M.format(stats.pace),'11:00');assert.equal(unmeasured,1);
+});

@@ -109,3 +109,6 @@ html.atlas-neumo[data-atlas-app="workout-forge"] .forge-summary {border-top:2px 
 
 /* Focused daily workflow additions. */
 .forge-last-time{padding:14px;margin:12px 0;border:1px solid var(--neo-line,#596477);border-left:3px solid #dfbd75;border-radius:10px}.forge-last-time p{white-space:pre-wrap;margin:8px 0}
+
+html[data-atlas-app="workout-forge"] .forge-wake-status{flex:1 1 100%!important;min-height:44px;font-size:.78rem!important;text-align:left;white-space:normal;color:var(--neo-muted)!important}
+html[data-atlas-app="workout-forge"] .forge-wake-status:disabled{opacity:1;cursor:default}
