@@ -38,6 +38,10 @@ jobs:
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,5 +50,5 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --prefix /tmp/library-browser --no-package-lock --ignore-scripts playwright@1.62.1
-      - run: /tmp/library-browser/node_modules/.bin/playwright install --with-deps --only-shell chromium
-      - run: NODE_PATH=/tmp/library-browser/node_modules node atlas/tests/library-interactions.browser.mjs
+      - run: /tmp/library-browser/node_modules/.bin/playwright install --with-deps --only-shell ${{ matrix.browser }}
+      - run: NODE_PATH=/tmp/library-browser/node_modules LIBRARY_BROWSER=${{ matrix.browser }} node atlas/tests/library-interactions.browser.mjs

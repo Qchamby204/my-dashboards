@@ -179,26 +179,40 @@ const number=n=>n.toLocaleString();
 function goalOutput(books,deadline){
  const r=readingSummary(books,deadline),provisional=r.unknownRemaining>0;
  let target=!books.length?'No books in this section':!r.included?'No books in your reading plan':r.complete?'Section complete':!deadline?'Choose your finish date':r.overdue?'Choose a new finish date':r.daily===null?'Choose a valid date':provisional&&r.remaining===0?'Add page counts first':`${number(r.daily)} <span>pages / day${provisional?' · provisional':''}</span>`;
- return `<div class="reading-target" aria-live="polite">${target}</div><div class="reading-metrics"><span><b>${number(r.total)}</b> ${r.unknown?'known ':''}pages total</span><span><b>${number(r.remaining)}</b> ${provisional?'known ':''}pages left</span>${r.days!==null&&r.days>0?`<span><b>${number(r.days)}</b> days left</span>`:''}</div>${r.overdue?'<p class="reading-warning">Your deadline has passed. Your progress is kept; choose a new date to recalculate.</p>':''}${provisional?`<p class="reading-warning">${r.unknownRemaining} unfinished ${r.unknownRemaining===1?'book needs':'books need'} a page count. This target only covers known pages.</p>`:''}${r.skipped?`<p class="reading-caption">${r.skipped} skipped · excluded from the target. Notes and page progress are kept.</p>`:''}${r.estimated?`<p class="reading-caption">${r.estimated} ${r.estimated===1?'count uses':'counts use'} a reference edition. Adjust each to your copy.</p>`:''}`;
+ return `${deadline?`<p class="reading-caption reading-saved-deadline">Finish by ${esc(prettyDate(deadline))}</p>`:''}<div class="reading-target" aria-live="polite">${target}</div><div class="reading-metrics"><span><b>${number(r.total)}</b> ${r.unknown?'known ':''}pages total</span><span><b>${number(r.remaining)}</b> ${provisional?'known ':''}pages left</span>${r.days!==null&&r.days>0?`<span><b>${number(r.days)}</b> days left</span>`:''}</div>${r.overdue?'<p class="reading-warning">Your deadline has passed. Your progress is kept; choose a new date to recalculate.</p>':''}${provisional?`<p class="reading-warning">${r.unknownRemaining} unfinished ${r.unknownRemaining===1?'book needs':'books need'} a page count. This target only covers known pages.</p>`:''}${r.skipped?`<p class="reading-caption">${r.skipped} skipped · excluded from the target. Notes and page progress are kept.</p>`:''}${r.estimated?`<p class="reading-caption">${r.estimated} ${r.estimated===1?'count uses':'counts use'} a reference edition. Adjust each to your copy.</p>`:''}`;
 }
 function readingPlanner(tid,sid){
  const key=scopeKey(tid,sid),date=state.reading.goals[key]||'',books=booksIn(tid,sid);
  return `<section class="reading-planner panel" aria-labelledby="reading-plan-title"><div class="reading-plan-heading"><div><p class="eyebrow">Your reading pace</p><h2 id="reading-plan-title">Turn this section into a daily target.</h2></div><details class="reading-info"><summary aria-label="How the reading target is calculated">i</summary><p>Remaining pages ÷ calendar days, rounded up. Today and your finish date both count. Your finish date stays fixed when books change. Skipped books are excluded; completed books contribute no remaining pages; enter your current page for books in progress. Whole-topic and subtopic goals are separate views of the same books, not extra quotas. Reference editions may differ from your copies. Unknown counts are excluded and flagged. Goals and page progress are included in JSON backups.</p></details></div><form id="reading-goal-form" data-key="${key}"><label for="reading-deadline">Finish this ${sid==='all'?'topic':'subtopic'} by</label><div class="reading-date-row"><input id="reading-deadline" name="deadline" type="date" min="${localDate()}" value="${date}" required><button class="btn primary" type="submit">Save goal</button><button class="btn quiet" type="button" data-action="clear-reading-goal" data-key="${key}" ${date?'':'hidden'}>Clear goal</button></div><p id="reading-goal-status" class="reading-caption">${date?'Goal saved. Your target adjusts as your reading plan changes.':'Choose a finish date. Valid date changes save automatically.'}</p></form><div id="reading-goal-output">${goalOutput(books,date)}</div></section>`;
 }
+// Store a complete date on input as well as change: native date pickers can delay
+// change, and a progress save replaces the date control when the section redraws.
+function captureGoalDate(field){
+ const key=field?.closest('form')?.dataset.key,date=field?.value;
+ if(!validScope(key)||Reading.dayNumber(date)===null||date<localDate())return false;
+ if(state.reading.goals[key]===date)return false;
+ state.reading.goals[key]=date;return true;
+}
 function saveGoalDate(field){
- const key=field.closest('form')?.dataset.key,date=field.value;
- if(!validScope(key)||Reading.dayNumber(date)===null||date<localDate()){refreshGoalPreview();return;}
- state.reading.goals[key]=date;const saved=persist();refreshGoalPreview();
- const clear=$('[data-action="clear-reading-goal"]');if(clear)clear.hidden=false;
- $('#reading-goal-status').textContent=saved?'Goal saved automatically. Your target adjusts as your reading plan changes.':'Not saved — export a backup before closing.';
+ const changed=captureGoalDate(field),saved=changed?persist():!(storageError||blocked||conflict);
+ refreshGoalPreview();
+ const clear=$('[data-action="clear-reading-goal"]');if(clear)clear.hidden=!state.reading.goals[field.closest('form')?.dataset.key];
+ if(changed)$('#reading-goal-status').textContent=saved?'Goal saved automatically. Your target adjusts as your reading plan changes.':'Not saved — export a backup before closing.';
 }
 function readingFields(b){
  const info=pageInfo(b),done=progress(b.id).status==='done',current=done?(info.pages||0):(state.reading.pagesRead[b.id]||0),ref=info.reference;
  return `<form id="reading-progress-form" data-id="${b.id}" class="reading-book-fields"><div class="row between wrap"><h3>Reading progress</h3><span class="pill">${info.confirmed?'Your page count':info.pages?'Reference edition':'Count needed'}</span></div><div class="form-grid"><div class="field"><label for="reading-total">Total pages in my copy</label><input id="reading-total" name="pages" type="number" inputmode="numeric" min="1" max="100000" step="1" value="${info.pages||''}" placeholder="e.g. 320"></div><div class="field"><label for="reading-current">Pages read so far</label><input id="reading-current" name="current" type="number" inputmode="numeric" min="0" max="${info.pages||100000}" step="1" value="${current}" ${done?'disabled':''}></div></div><p class="reading-caption">${progress(b.id).status==='skipped'?'Skipped: excluded from reading goals. Your page progress and notes are kept.':done?'Marked completed: all pages count as read. Change reading status to log partial progress.':'Use the last numbered page you finished. Saving pages does not mark the book completed.'}</p>${ref?`<details class="reading-source"><summary>Reference edition · confirm against your copy</summary><p>${esc([ref.editionTitle,ref.publisher,ref.year,ref.isbn?'ISBN '+ref.isbn:''].filter(Boolean).join(' · '))}<br><a class="subtle-link" href="${esc(ref.source)}" target="_blank" rel="noopener noreferrer">Page-count source ↗</a>. This edition has ${info.pages} pages. Save to use this count for your copy, or enter a different count.</p></details>`:!info.pages?'<p class="reading-caption">No reliable matching count is available yet. Enter the page count from your copy.</p>':''}<button class="btn accent" type="submit">Save pages</button><span id="reading-pages-status" class="reading-caption" role="status"></span></form>`;
 }
 function refreshGoalPreview(){
- const field=$('#reading-deadline'),output=$('#reading-goal-output');
- if(field&&output){output.innerHTML=goalOutput(booksIn(route.topic,route.subtopic),field.value);const label=$('#reading-goal-status');if(label)label.textContent=field.value===(state.reading.goals[scopeKey(route.topic,route.subtopic)]||'')?(field.value?'Goal saved.':'Choose a finish date. Valid date changes save automatically.'):'Choose a valid date to save your deadline.';}
+ const form=$('#reading-goal-form'),field=$('#reading-deadline'),output=$('#reading-goal-output');
+ if(!form||!field||!output)return;
+ const key=form.dataset.key;if(!validScope(key))return;
+ const [tid,sid]=key.split(':'),date=state.reading.goals[key]||'';
+ // The saved deadline is authoritative. An empty or partially edited control
+ // must never erase the displayed target, including after app resume.
+ output.innerHTML=goalOutput(booksIn(tid,sid),date);
+ const label=$('#reading-goal-status');
+ if(label)label.textContent=storageError||blocked||conflict?'Not saved — export a backup before closing.':date?(field.value===date?'Goal saved. Your target adjusts as your reading plan changes.':'Your saved deadline is kept. Choose a complete valid date to change it.'):'Choose a finish date. Valid date changes save automatically.';
 }
 function progressEditor(b,place='row'){
  const info=pageInfo(b),total=info.pages,done=progress(b.id).status==='done',current=done?(total||0):Math.min(total||100000,state.reading.pagesRead[b.id]||0),key=place+'-'+b.id;
@@ -459,7 +473,7 @@ document.addEventListener('click',async event=>{
 document.addEventListener('input',event=>{
  const el=event.target;
  if(el.matches?.('[data-progress-slider],[data-progress-page]')){if(el.value!=='')previewProgress(el.closest('[data-progress-form]'),el.value);}
- else if(el.id==='reading-deadline'){refreshGoalPreview();}
+ else if(el.id==='reading-deadline'){saveGoalDate(el);}
  else if(el.id==='reading-total'){$('#reading-current').max=Number(el.value)>0?el.value:100000;}
  else if(el.id==='edit-title'){el.setCustomValidity('');}
  else if(el.id==='library-search'){ui.q=el.value;$('#book-results').innerHTML=bookResults();}
@@ -492,6 +506,7 @@ document.addEventListener('submit',event=>{
  if(event.target.dataset.progressForm){
   event.preventDefault();const form=event.target,id=form.dataset.progressForm,b=getBook(id);if(!b||!form.reportValidity()||progress(id).status==='done')return;
   const value=Number(new FormData(form).get('current')),total=pageInfo(b).pages;if(!Reading.validProgress(value,total))return;
+  captureGoalDate($('#reading-deadline'));
   state.reading.pagesRead[id]=value;const p=ensureProgress(id);if(value>0&&p.status==='unread'){p.status='reading';p.startedAt=p.startedAt||now();}p.updatedAt=now();
   const saved=persist(),place=form.dataset.place,strip=$('.continue-strip'),x=strip?.scrollLeft||0;
   routeAfterEdit();if($('.continue-strip'))$('.continue-strip').scrollLeft=x;
@@ -509,6 +524,7 @@ document.addEventListener('submit',event=>{
   event.preventDefault();const form=event.target,id=form.dataset.id,b=getBook(id);if(!b||!form.reportValidity())return;
   const data=new FormData(form),raw=String(data.get('pages')||''),pages=raw?Number(raw):null,current=Number(data.get('current')||0),done=progress(id).status==='done';
   if((pages!==null&&!Reading.validPages(pages))||!Number.isInteger(current)||current<0||current>100000||(!done&&pages!==null&&current>pages))return;
+  captureGoalDate($('#reading-deadline'));
   state.reading.pageCounts[id]=pages;if(!done)state.reading.pagesRead[id]=current;
   if(!done&&current>0&&progress(id).status==='unread'){const p=ensureProgress(id);p.status='reading';p.startedAt=p.startedAt||now();p.updatedAt=now();}
   const saved=persist();openNotes(id);$('#reading-pages-status').textContent=saved?'Pages saved. Section targets updated.':'Not saved — export a backup.';return;
@@ -538,7 +554,7 @@ window.addEventListener('storage',event=>{
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(getTheme()==='system')applyTheme('system');});
 window.addEventListener('beforeunload',event=>{if(storageError||conflict||blocked){event.preventDefault();event.returnValue='Your changes are not saved. Export a backup before leaving.';}});
 // Public hooks are intentionally read-only and limited to metadata for diagnostics.
-Object.defineProperty(window,'LibraryInfo',{value:Object.freeze({version:'1.5.1',schemaVersion:1,storageKey:KEY,seedBooks:seed.books.length,topics:TOPICS.length}),writable:false});
+Object.defineProperty(window,'LibraryInfo',{value:Object.freeze({version:'1.5.2',schemaVersion:1,storageKey:KEY,seedBooks:seed.books.length,topics:TOPICS.length}),writable:false});
 window.addEventListener('pageshow',refreshGoalPreview);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshGoalPreview();});
 applyTheme(getTheme());replaceIcons();render();

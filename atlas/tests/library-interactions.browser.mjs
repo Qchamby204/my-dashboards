@@ -6,7 +6,8 @@ import {readFileSync,mkdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {createServer} from 'node:http';
 import path from 'node:path';
-const {chromium}=createRequire(import.meta.url)('playwright');
+const {chromium,webkit}=createRequire(import.meta.url)('playwright');
+const engine=process.env.LIBRARY_BROWSER==='webkit'?webkit:chromium;
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.webmanifest':'application/manifest+json'};
 const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]));if(!file.startsWith(root))throw Error('Invalid path');res.setHeader('Content-Type',types[path.extname(file)]||'text/plain');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
@@ -14,7 +15,7 @@ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const base=`http://127.0.0.1:${server.address().port}/the-library.html`;
 let browser;
 try{
- browser=await chromium.launch({headless:true,executablePath:process.env.LIBRARY_CHROMIUM||undefined,args:['--no-sandbox','--disable-gpu']});
+ browser=await engine.launch({headless:true,...(engine===chromium?{executablePath:process.env.LIBRARY_CHROMIUM||undefined,args:['--no-sandbox','--disable-gpu']}:{})});
  for(const mobile of [false,true]){
   const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1440,height:1000},isMobile:mobile,hasTouch:mobile,reducedMotion:'reduce',timezoneId:'America/Winnipeg'});
   const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
@@ -46,8 +47,13 @@ try{
   await row.getByRole('button',{name:'Start reading',exact:true}).click();
   let editor=row.locator('[data-progress-form]');
   await editor.locator('[data-progress-slider]').fill('64');assert.equal((await records()).reading.pagesRead[id],undefined,'slider preview must not write');
-  await editor.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],64);
-  await row.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal((await records()).progress[id].status,'unread');assert.equal((await records()).reading.pagesRead[id],64);
+  // A date picker can deliver input before change; the visible target must survive Save.
+  await p.locator('#reading-deadline').evaluate(el=>{el.value='2099-12-30';el.dispatchEvent(new Event('input',{bubbles:true}));});
+  await editor.getByRole('button',{name:'Save',exact:true}).click();
+  assert.equal(await p.locator('#reading-deadline').inputValue(),'2099-12-30','progress Save must preserve the visible deadline before change fires');
+  await p.locator('#reading-deadline').fill('2099-12-31');await p.locator('#reading-deadline').blur();
+  assert.equal((await records()).reading.pagesRead[id],64);assert.equal((await records()).reading.goals['1:all'],'2099-12-31');assert.equal(await p.locator('#reading-deadline').inputValue(),'2099-12-31');
+  await row.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal((await records()).progress[id].status,'unread');assert.equal((await records()).reading.pagesRead[id],64);assert.equal((await records()).reading.goals['1:all'],'2099-12-31');assert.equal(await p.locator('#reading-deadline').inputValue(),'2099-12-31');
   await row.getByRole('button',{name:'Resume reading',exact:true}).click();assert.equal((await records()).progress[id].status,'reading');
   await row.locator('[data-action=notes]').first().click();await p.locator('#note-notes').fill('Keep this note when toggling and logging pages.');await p.getByRole('button',{name:'Done',exact:true}).click();await settled();
   await p.goto(base+'#home');await settled();
@@ -57,7 +63,7 @@ try{
   // Corrections work in both directions and do not overwrite the reference edition count.
   await card.locator('[data-progress-page]').fill('50');await card.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],50);assert.equal((await records()).reading.pageCounts[id],undefined);
   await p.locator('[data-action=log-focus-progress]').click();editor=p.locator('#modal [data-progress-form]');
-  await editor.locator('[data-progress-slider]').fill('110');await editor.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],110);
+  await editor.locator('[data-progress-slider]').fill('110');await editor.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],110);assert.equal((await records()).reading.goals['1:all'],'2099-12-31');
   await p.getByRole('button',{name:'Done',exact:true}).click();await settled();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
   if(process.env.LIBRARY_SCREENSHOTS){await photo('progress');await card.scrollIntoViewIfNeeded();await photo('reading-card');}
   await card.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal(await p.locator('.continue-book').count(),0);assert.equal((await records()).reading.pagesRead[id],110);assert.match((await records()).progress[id].notes,/Keep this note/);
@@ -69,6 +75,30 @@ try{
   assert.equal((await records()).reading.goals['1:all'],deadline);
   const remaining=async()=>Number((await p.locator('#reading-goal-output .reading-metrics b').nth(1).innerText()).replaceAll(',',''));
   const pace=async()=>Number((await p.locator('#reading-goal-output .reading-target').innerText()).split(' ')[0].replaceAll(',',''));
+  // Every daily logging entry point keeps both the stored and visible deadline.
+  const assertGoal=async()=>{
+   assert.equal((await records()).reading.goals['1:all'],deadline);
+   assert.equal(await p.locator('#reading-deadline').inputValue(),deadline);
+   assert.equal(await p.locator('.reading-saved-deadline').count(),1);
+   assert.equal(await pace(),Math.ceil((await remaining())/10));
+  };
+  const logRow=p.locator(`[data-book-row="${id}"]`);
+  await logRow.locator('[data-progress-page]').fill('55');await logRow.getByRole('button',{name:'Save',exact:true}).click();await settled();await assertGoal();
+  // An incomplete replacement date must not hide the previously saved target.
+  await p.locator('#reading-deadline').fill('');
+  assert.equal(await p.locator('.reading-saved-deadline').count(),1);
+  assert.equal(await pace(),Math.ceil((await remaining())/10));
+  await logRow.locator('[data-progress-page]').fill('56');await logRow.getByRole('button',{name:'Save',exact:true}).click();await settled();await assertGoal();
+  await p.goto(base+'#home');await settled();
+  await p.locator('.continue-book [data-progress-page]').fill('60');await p.locator('.continue-book').getByRole('button',{name:'Save',exact:true}).click();await settled();
+  assert.equal((await records()).reading.goals['1:all'],deadline);
+  await p.locator('[data-action=log-focus-progress]').click();await p.locator('#modal [data-progress-page]').fill('70');await p.locator('#modal').getByRole('button',{name:'Save',exact:true}).click();
+  assert.equal((await records()).reading.goals['1:all'],deadline);
+  await p.getByRole('button',{name:'Done',exact:true}).click();await settled();
+  await p.goto(base+'#topic/1/all/books');await settled();await assertGoal();
+  await logRow.locator('[data-action=notes]').first().click();await p.locator('#reading-current').fill('110');await p.getByRole('button',{name:'Save pages',exact:true}).click();
+  assert.equal((await records()).reading.goals['1:all'],deadline);
+  await p.getByRole('button',{name:'Done',exact:true}).click();await settled();await assertGoal();
   const baseline=await remaining(),changed='b-1A-03';
   const changedPages=await p.evaluate(id=>window.ATLAS_LIBRARY_PAGES[id].pages,changed);
   await p.locator(`[data-complete="${changed}"]`).check();await settled();
