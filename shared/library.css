@@ -922,3 +922,12 @@ html[data-atlas-app="library"] .continue-book{flex:0 0 340px;max-width:100%;padd
  html[data-atlas-app="library"] .continue-book{flex-basis:min(340px,100%);padding:16px}
  .stat-label{overflow-wrap:anywhere}.book-row .quick-progress{margin-right:0}.progress-entry{gap:7px}.progress-entry label{flex-basis:100%}
 }
+
+/* Numbered priority editor: native selects work with touch and keyboard. */
+.priority-row{display:grid;grid-template-columns:30px minmax(0,1fr) 68px;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--game-line)}
+.priority-number{font-size:13px;font-weight:700;color:var(--game-gold);font-variant-numeric:tabular-nums}
+.priority-row label{font-size:14px;line-height:1.4;color:var(--game-ink)}
+.priority-row select{width:100%;min-height:44px;font-size:16px;padding:8px}
+.priority-footer{position:sticky;bottom:0;background:#132238;gap:12px;padding:16px 0;margin-bottom:0;z-index:1}
+@media(max-width:600px){.priority-row{gap:9px;grid-template-columns:25px minmax(0,1fr) 62px}.priority-footer{flex-wrap:wrap}.priority-row label{font-size:13px}}
+html[data-atlas-app="library"] .dialog-head p{color:var(--game-muted)}
