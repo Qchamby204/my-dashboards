@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
+import * as ProspectingRecords from '../../shared/prospecting-records.mjs';
 const html=readFileSync(new URL('../../prospecting-command-center.html',import.meta.url),'utf8');
 const script=html.slice(html.indexOf('/* ================= STATE ================= */'),html.indexOf('</script>',html.indexOf('/* ================= STATE ================= */')));
 const enhancement=readFileSync(new URL('../../shared/prospecting-enhancements.js',import.meta.url),'utf8');
@@ -16,7 +17,8 @@ const CONTACTS=[
 const BYUID=Object.fromEntries(CONTACTS.map(c=>[c.uid,c])),URLIX={},WARM=[],COLD_STAGE={},STAGE_ORDER={};
 const G={avgHH:100,hhFirstYear:n=>n},EV={messaged:1,replied:2,meeting:3,won:4},GOAL={contacts:10,responses:5,meetings:2,won:1},SEASON_END=new Date(2026,11,31);
 const TIERS={1:{name:'Existing contact'}},DEF_TPL={t0:'Hello {first}'},TPL_LABEL={t0:'Opener'};
-const normUrl=u=>u,variantsFor=c=>[{l:'Simple',t:'Hello '+c.first}],tpl=k=>S.tpl?.[k]||DEF_TPL[k];
+const normUrl=u=>u,tpl=k=>S.tpl?.[k]||DEF_TPL[k];
+function variantsFor(c){return [{l:'Simple',t:'Hello '+c.first}];}
 `;
 export function boot({raw=null,readBlocked=false,writeBlocked=false,clipboard='success',contacts=null}={}){
   let now=Date.parse('2026-09-08T12:00:00Z'),id=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
@@ -37,7 +39,7 @@ export function boot({raw=null,readBlocked=false,writeBlocked=false,clipboard='s
     before(n){const p=this.parentNode;p.children.splice(p.children.indexOf(this),0,n);n.parentNode=p;}
     remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(n=>n!==this);this.parentNode=null;if(this.id)ids.delete(this.id);}
     replaceChildren(...a){this.children.forEach(n=>{n.parentNode=null;if(n.id)ids.delete(n.id);});this.children=[];this.append(...a);}
-    setAttribute(k,v){this.attrs[k]=String(v);}getAttribute(k){return this.attrs[k]??null;}
+    setAttribute(k,v){this.attrs[k]=String(v);}getAttribute(k){return this.attrs[k]??null;}removeAttribute(k){delete this.attrs[k];}
     matches(s){return s.split(',').some(x=>{x=x.trim();if(x==='a[href]')return this.tagName==='A'&&!!this.href;if(x.startsWith('.'))return this.classes.has(x.slice(1));if(x.startsWith('#'))return this.id===x.slice(1);return x.toUpperCase()===this.tagName;});}
     closest(s){return this.matches(s)?this:this.parentNode?.closest(s)||null;}
     querySelectorAll(s){return this.children.flatMap(n=>[...(n.matches(s)?[n]:[]),...n.querySelectorAll(s)]);}querySelector(s){return this.querySelectorAll(s)[0]||null;}
@@ -51,7 +53,7 @@ export function boot({raw=null,readBlocked=false,writeBlocked=false,clipboard='s
   for(const key of ['main','tabs','subCounts','barPill','runner','tplOv','toast','impF']){const n=new Element(key==='impF'?'input':'div');n.id=key;document.body.appendChild(n);}
   for(const [key,parent] of [['runCard','runner'],['tplCard','tplOv']]){const n=new Element();n.id=key;ids.get(parent).appendChild(n);}
   const storage=new Map(raw===null?[]:[['hq_v1',raw]]),localStorage={readBlocked,writeBlocked,getItem(key){if(this.readBlocked)throw Error('Storage blocked');return storage.get(key)??null;},setItem(key,value){if(this.writeBlocked)throw Error('Storage full');storage.set(key,String(value));}};
-  const window=new Events();window.scrollY=0;window.scrollTo=()=>{};window.open=()=>{throw Error('Tests must not open or send anything');};window.AtlasProspectingBoot={raw,readError:readBlocked};
+  const window=new Events();window.ProspectingRecords=ProspectingRecords;window.scrollY=0;window.scrollTo=()=>{};window.open=()=>{throw Error('Tests must not open or send anything');};window.AtlasProspectingBoot={raw,readError:readBlocked};
   const navigator={clipboard:clipboard==='missing'?undefined:{writeText:async text=>{if(clipboard==='denied')throw Error('Denied');navigator.copied=text;}}};
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
   class BlobURL extends URL{static createObjectURL(blob){const key='blob:test-'+(++id);blobs.set(key,blob);return key;}static revokeObjectURL(key){blobs.delete(key);}}
@@ -135,7 +137,7 @@ test('LinkedIn import updates exact profile matches and adds stable IDs while pr
   h.clickText(h.node('prospecting-linkedin-import'),'Apply update');
   assert.equal(h.run('CONTACTS.length'),5);assert.equal(h.run('BYUID.c1.name'),'Alex Updated');assert.equal(h.run('BYUID.c1.email'),'alex@example.test');
   const after=JSON.parse(h.storage.get('hq_v1'));for(const k of Object.keys(before))assert.deepEqual(after[k],before[k]);
-  assert.equal(h.run('stg(BYUID.c1)'),'won');assert.equal(h.run("BYUID['"+newcomer.uid+"'].base"),'pool');
+  assert.equal(h.run('stg(BYUID.c1)'),'won');assert.equal(h.run("BYUID['"+newcomer.uid+"'].base"),'replied');
   assert.equal(h.run('S.log.length'),1);assert.equal(h.run('BYUID.c1.linkedin.inboundCount'),2);assert.equal(h.run('BYUID.c1.pitched'),true);
 });
 test('LinkedIn re-import is idempotent, reload retains records, and backups include the update',async()=>{
@@ -160,9 +162,22 @@ test('LinkedIn rejects invalid URLs, duplicate identities, raw message bodies an
   await applyImport(h,linkedInUpdate());assert.throws(()=>h.api.mergeLinkedIn({...linkedInUpdate(),exportedOn:'2026-09-08'}));
 });
 test('LinkedIn activity filters are factual and previously messaged contacts leave fresh outreach',async()=>{
-  const h=boot();await applyImport(h,linkedInUpdate());assert(!h.run('freshQueue().some(c=>c.uid===\'c1\')'));assert.equal(h.run('stg(BYUID.c1)'),'pool');
+  const h=boot();await applyImport(h,linkedInUpdate());assert(!h.run('freshQueue().some(c=>c.uid===\'c1\')'));assert.equal(h.run('stg(BYUID.c1)'),'replied');
   h.api.filterLinkedIn('received');assert.deepEqual(Array.from(h.api.databaseMatches(),c=>c.uid),['c1']);h.api.filterLinkedIn('sent');assert.equal(h.api.databaseMatches().length,0);h.api.clearFilters();assert(h.api.databaseMatches().length>1);
   const row=h.run('rowHTML(BYUID.c1,true)');assert.match(row,/Last message received/);assert.match(row,/aria-label="LinkedIn activity details"/);
+});
+test('LinkedIn defaults follow message direction while explicit manual stages take precedence',async()=>{
+  for(const [expected,activity] of [
+    ['pool',{inboundCount:0,outboundCount:0,lastInboundAt:'',lastOutboundAt:''}],
+    ['messaged',{lastOutboundAt:'2026-09-07T10:00:00Z'}],
+    ['replied',{}]
+  ]){
+    const h=boot();await applyImport(h,linkedInUpdate([linkedInContact(activity)]));
+    assert.equal(h.run('BYUID.c1.base'),expected);assert.equal(h.run('stg(BYUID.c1)'),expected);
+    assert.equal(h.run('S.log.length'),0,'Import must not invent manual activity');
+  }
+  const h=boot();h.run("S.stage.c1='pool';save()");await applyImport(h,linkedInUpdate());
+  assert.equal(h.run('BYUID.c1.base'),'replied');assert.equal(h.run('stg(BYUID.c1)'),'pool');
 });
 test('LinkedIn updates preserve duplicate original IDs and do not infer identity from a shared name',()=>{
   const contacts=[{uid:'c1',name:'Same Name',url:'https://www.linkedin.com/in/alex-example'},{uid:'c2',name:'Same Name',url:'https://ca.linkedin.com/in/alex-example/?trk=old'},{uid:'c3',name:'Same Name',url:'https://www.linkedin.com/in/someone-else'}].map(c=>({...c,first:'Same',title:'',co:'',email:'',src:'cold',tier:null,score:40,base:'pool'}));
