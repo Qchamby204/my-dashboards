@@ -172,6 +172,27 @@ function refreshGoalPreview(){
  const field=$('#reading-deadline'),output=$('#reading-goal-output');
  if(field&&output){output.innerHTML=goalOutput(booksIn(route.topic,route.subtopic),field.value);const label=$('#reading-goal-status');if(label)label.textContent=field.value===(state.reading.goals[scopeKey(route.topic,route.subtopic)]||'')?(field.value?'Goal saved.':'Choose a date to preview your target.'):'Preview · save to keep this deadline.';}
 }
+function progressEditor(b,place='row'){
+ const info=pageInfo(b),total=info.pages,done=progress(b.id).status==='done',current=done?(total||0):Math.min(total||100000,state.reading.pagesRead[b.id]||0),key=place+'-'+b.id;
+ if(!total)return `<div class="quick-progress unknown-progress"><p class="reading-caption">Add the page count to track this book.</p><button class="btn" data-action="page-progress" data-id="${b.id}">Set page count</button></div>`;
+ if(done)return `<div class="quick-progress"><div class="progress-numbers"><span>Completed</span><span>${number(total)} / ${number(total)} pages</span></div><progress class="page-progress-track" max="${total}" value="${total}" aria-label="Pages read in ${esc(b.title)}"></progress></div>`;
+ return `<form class="quick-progress" data-progress-form="${b.id}" data-place="${place}"><div class="progress-numbers"><label for="slider-${key}">Reading progress</label><output data-progress-label>${number(current)} / ${number(total)} · ${Math.round(current/total*100)}%</output></div><input id="slider-${key}" class="page-slider" type="range" min="0" max="${total}" step="1" value="${current}" name="slider" data-progress-slider aria-label="Pages read in ${esc(b.title)}" aria-valuetext="${current} of ${total} pages" style="--read:${current/total*100}%"><div class="progress-entry"><label for="page-${key}">Page reached</label><input id="page-${key}" name="current" type="number" inputmode="numeric" min="0" max="${total}" step="1" required value="${current}" data-progress-page><button class="btn quiet" type="button" data-action="add-pages" data-pages="10">+10</button><button id="save-${key}" class="btn accent" type="submit">Save</button></div><p class="progress-feedback" data-progress-feedback role="status">${info.confirmed?'Your copy':'Reference edition'} · drag the bar or enter a page.</p></form>`;
+}
+function previewProgress(form,value){
+ const slider=form.querySelector('[data-progress-slider]'),field=form.querySelector('[data-progress-page]');
+ const n=Number(value),max=Number(slider.max);if(!Number.isInteger(n)||n<0||n>max){form.querySelector('[data-progress-feedback]').textContent='Enter a page between 0 and '+number(max)+'.';return;}
+ slider.value=n;field.value=n;slider.style.setProperty('--read',n/max*100+'%');slider.setAttribute('aria-valuetext',n+' of '+max+' pages');
+ form.querySelector('[data-progress-label]').textContent=number(n)+' / '+number(max)+' · '+Math.round(n/max*100)+'%';form.querySelector('[data-progress-feedback]').textContent='Preview · tap Save to keep this progress.';
+}
+function focusProgress(tid,sid){
+ const books=booksIn(tid,sid),r=readingSummary(books,state.reading.goals[scopeKey(tid,sid)]||''),pct=r.total?Math.round(r.read/r.total*100):0;
+ return `<div class="focus-progress"><div class="progress-numbers"><span>${number(r.read)} / ${number(r.total)} ${r.unknown?'known ':''}pages</span><strong>${pct}%</strong></div><progress class="page-progress-track" max="${r.total||1}" value="${r.read}" aria-label="Pages read in your focus section"></progress>${r.unknown?`<span class="reading-caption">${r.unknown} page ${r.unknown===1?'count':'counts'} needed</span>`:''}<button class="btn accent" data-action="log-focus-progress" data-topic="${tid}" data-subtopic="${sid}" ${books.length?'':'disabled'}>Update reading progress ${icon('arrow')}</button></div>`;
+}
+function openFocusProgress(tid,sid,id){
+ const books=booksIn(tid,sid);if(!books.length)return;
+ const b=books.find(b=>b.id===id)||books.find(b=>progress(b.id).status==='reading')||books.find(b=>progress(b.id).status!=='done')||books[0];
+ showModal(`${modalHeader('Daily reading',scopeTitle(tid,sid),'Update the last page you finished. Your section goal adjusts automatically.')}<div class="dialog-body"><div class="field"><label for="progress-book-select">Book</label><select id="progress-book-select" data-topic="${tid}" data-subtopic="${sid}">${books.map(x=>`<option value="${x.id}" ${x.id===b.id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></div>${progressEditor(b,'focus')}<div class="dialog-bottom"><button class="btn quiet" data-action="notes" data-id="${b.id}">Open book notes</button><button class="btn primary" data-action="close-modal">Done</button></div></div>`,{type:'quick-progress',topic:tid,subtopic:sid,id:b.id});
+}
 function topicCard(t){
  const s=stats(booksIn(t.id)),pct=s.total?100*s.done/s.total:0,f=state.focus?.topic===t.id,c=snapshots().filter(([key])=>key.split(':')[0]===t.id).length;
  const date=state.reading.goals[scopeKey(t.id)]||'',r=readingSummary(booksIn(t.id),date);
@@ -180,17 +201,17 @@ function topicCard(t){
 function homeView(){
  const s=stats(state.catalog), saved=snapshots(), f=state.focus;
  let focus;
- if(f){const fs=stats(booksIn(f.topic,f.subtopic));focus=`<span class="eyebrow">Your current focus · ${f.subtopic==='all'?'Topic '+f.topic:f.subtopic}</span><h3>${esc(scopeTitle(f.topic,f.subtopic))}</h3><p>${fs.done} of ${fs.total} books completed · ${fs.notes} with notes</p><a class="btn" href="${scopeRoute(f.topic,f.subtopic)}">Continue learning ${icon('arrow')}</a>`;}
+ if(f){const fs=stats(booksIn(f.topic,f.subtopic));focus=`<span class="eyebrow">Your current focus · ${f.subtopic==='all'?'Topic '+f.topic:f.subtopic}</span><h3>${esc(scopeTitle(f.topic,f.subtopic))}</h3><p>${fs.done} of ${fs.total} books completed · ${fs.notes} with notes</p><a class="btn" href="${scopeRoute(f.topic,f.subtopic)}">Continue reading ${icon('arrow')}</a>${focusProgress(f.topic,f.subtopic)}`;}
  else focus=`<span class="eyebrow">A place to begin</span><h3>Choose one topic.<br>Make it your own.</h3><p>Start with a question, not a reading quota.</p><button class="btn" data-action="browse-topics">Explore your topics ${icon('arrow')}</button>`;
  const reading=state.catalog.filter(b=>progress(b.id).status==='reading').sort((a,b)=>(progress(b.id).updatedAt||'').localeCompare(progress(a.id).updatedAt||''));
  return `<section class="intro"><div><div class="eyebrow">Your personal learning library</div><h1>Read deeply.<br>Think clearly.</h1><p>A home for the books you read, the ideas you keep, and the understanding you build.</p><button class="btn accent" style="margin-top:20px" data-action="new-book">${icon('plus')}Add book</button></div><div class="focus-card">${focus}${icon('book','folio')}</div></section><section class="stats" aria-label="Library progress"><div class="stat"><div class="stat-number">${s.done}<span>/ ${s.total}</span></div><div class="stat-label">Books completed</div></div><div class="stat"><div class="stat-number">${s.notes}</div><div class="stat-label">Books with notes</div></div><div class="stat"><div class="stat-number">${saved.length}</div><div class="stat-label">Understandings saved</div></div></section>
- ${reading.length?`<section style="margin-bottom:23px"><div class="section-head"><h2>On your reading desk</h2><span class="small muted">${reading.length} in progress</span></div><div class="continue-strip">${reading.slice(0,10).map(b=>`<button class="continue-book" data-action="notes" data-id="${b.id}"><span class="eyebrow">${esc(topicById(b.topic)?.short||'Reference')}</span><strong>${esc(b.title)}</strong><span class="small muted">Open notes →</span></button>`).join('')}</div></section>`:''}
+ ${reading.length?`<section style="margin-bottom:23px"><div class="section-head"><h2>Continue reading</h2><span class="small muted">${reading.length} in progress</span></div><div class="continue-strip">${reading.map(b=>`<article class="continue-book"><span class="eyebrow">${esc(topicById(b.topic)?.short||'Reference')}</span><button class="book-title" data-action="notes" data-id="${b.id}">${esc(b.title)}</button>${progressEditor(b,'desk')}<div class="reading-card-actions"><button class="btn quiet" data-action="notes" data-id="${b.id}">Open notes</button><button class="btn quiet" data-action="stop-reading" data-id="${b.id}">Stop reading</button></div></article>`).join('')}</div></section>`:''}
  <section id="topic-grid-section"><div class="section-head"><div><h2>Explore your topics</h2><p>14 topics. Open a section to set your reading pace. Page totals use editable reference editions.</p></div><a class="btn quiet" href="#books">All books ${icon('arrow')}</a></div><div class="topic-grid">${TOPICS.map(topicCard).join('')}</div></section>
  <div class="callout section-gap">${icon('info')}<div><strong>Read → reflect → distill.</strong><p>Check off a book as you finish. Keep your notes with it. Then open “Distill understanding” to see those notes together and write a short synthesis. You do not need to finish every book first.</p></div></div>${footer()}`;
 }
 function bookRow(b,{showTopic=false}={}){
  const p=progress(b.id),has=hasNotes(b.id),status=p.status||'unread',pages=pageInfo(b).pages,read=status==='done'?pages:(state.reading.pagesRead[b.id]||0);
- return `<div class="book-row" data-book-row="${b.id}"><label class="book-check"><input type="checkbox" data-complete="${b.id}" ${status==='done'?'checked':''} aria-label="Mark ${esc(b.title)} as completed">${icon('check')}</label><div class="grow">${showTopic?`<div class="book-topline"><span class="eyebrow" style="font-size:9px">${esc(b.subtopic==='reference'?'Reference':b.subtopic==='unassigned'?'To place':b.subtopic+' · '+topicById(b.topic)?.short)}</span></div>`:''}<button class="book-title" data-action="notes" data-id="${b.id}">${esc(b.title)}</button>${b.author?`<div class="book-author">${esc(b.author)}</div>`:''}<button class="book-page-count" data-action="page-progress" data-id="${b.id}" aria-label="Edit pages for ${esc(b.title)}">${pages?`${number(pages)} pages${read?` · ${number(Math.min(read,pages))} read`:''}${pageInfo(b).confirmed?'':' · reference'}`:'Add page count'} ↗</button>${p.takeaway?.trim()?`<div class="book-excerpt">${esc(p.takeaway)}</div>`:''}</div><div class="book-controls"><span class="book-state"><span class="pill ${status}">${status==='done'?icon('check'):status==='reading'?icon('clock'):''}${STATUS[status]}</span></span>${status==='unread'?`<button class="btn quiet reading-status-button" data-action="start-reading" data-id="${b.id}">Start reading</button>`:''}<button class="btn ${has?'accent':''}" data-action="notes" data-id="${b.id}">${icon('note')}${has?'View notes':'Add notes'}</button></div></div>`;
+ return `<div class="book-row" data-book-row="${b.id}"><label class="book-check"><input type="checkbox" data-complete="${b.id}" ${status==='done'?'checked':''} aria-label="Mark ${esc(b.title)} as completed">${icon('check')}</label><div class="grow">${showTopic?`<div class="book-topline"><span class="eyebrow" style="font-size:9px">${esc(b.subtopic==='reference'?'Reference':b.subtopic==='unassigned'?'To place':b.subtopic+' · '+topicById(b.topic)?.short)}</span></div>`:''}<button class="book-title" data-action="notes" data-id="${b.id}">${esc(b.title)}</button>${b.author?`<div class="book-author">${esc(b.author)}</div>`:''}<button class="book-page-count" data-action="page-progress" data-id="${b.id}" aria-label="Edit pages for ${esc(b.title)}">${pages?`${number(pages)} pages${read?` · ${number(Math.min(read,pages))} read`:''}${pageInfo(b).confirmed?'':' · reference'}`:'Add page count'} ↗</button>${status==='reading'||read>0?progressEditor(b,'row'):''}${p.takeaway?.trim()?`<div class="book-excerpt">${esc(p.takeaway)}</div>`:''}</div><div class="book-controls"><span class="book-state"><span class="pill ${status}">${status==='done'?icon('check'):status==='reading'?icon('clock'):''}${STATUS[status]}</span></span>${status==='unread'?`<button class="btn quiet reading-status-button" data-action="start-reading" data-id="${b.id}">${read>0?'Resume reading':'Start reading'}</button>`:status==='reading'?`<button class="btn quiet reading-status-button" data-action="stop-reading" data-id="${b.id}">Stop reading</button>`:''}<button class="btn ${has?'accent':''}" data-action="notes" data-id="${b.id}">${icon('note')}${has?'View notes':'Add notes'}</button></div></div>`;
 }
 function emptyHTML(title,body,action=''){return `<div class="empty"><div class="empty-icon">${icon('book')}</div><h3>${esc(title)}</h3><p>${esc(body)}</p>${action}</div>`;}
 function topicView(){
@@ -367,6 +388,9 @@ document.addEventListener('click',async event=>{
   if(!window.confirm(`Remove “${b.title}” and its book notes? Saved topic understandings will stay. Export a backup first to keep a recoverable copy.`))return;
   state.catalog=state.catalog.filter(book=>book.id!==id);delete state.progress[id];delete state.reading.pageCounts[id];delete state.reading.pagesRead[id];persist();$('#modal').close();toast('Book removed. Saved topic understandings are unchanged.');
  }
+ else if(a==='add-pages'){const form=el.closest('[data-progress-form]'),field=form?.querySelector('[data-progress-page]');if(field)previewProgress(form,Math.min(Number(field.max),Number(field.value||0)+Number(el.dataset.pages)));}
+ else if(a==='log-focus-progress')openFocusProgress(el.dataset.topic,el.dataset.subtopic);
+ else if(a==='stop-reading'){setStatus(id,'unread');routeAfterEdit();toast('Removed from Continue reading. Your pages and notes are kept.');}
  else if(a==='start-reading'){setStatus(id,'reading');routeAfterEdit();toast('Marked as reading.');}
  else if(a==='browse-topics'){$('#topic-grid-section')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});$('#topic-grid-section .topic-card')?.focus({preventScroll:true});}
  else if(a==='set-focus'){
@@ -395,7 +419,8 @@ document.addEventListener('click',async event=>{
 });
 document.addEventListener('input',event=>{
  const el=event.target;
- if(el.id==='reading-deadline'){refreshGoalPreview();}
+ if(el.matches?.('[data-progress-slider],[data-progress-page]')){if(el.value!=='')previewProgress(el.closest('[data-progress-form]'),el.value);}
+ else if(el.id==='reading-deadline'){refreshGoalPreview();}
  else if(el.id==='reading-total'){$('#reading-current').max=Number(el.value)>0?el.value:100000;}
  else if(el.id==='edit-title'){el.setCustomValidity('');}
  else if(el.id==='library-search'){ui.q=el.value;$('#book-results').innerHTML=bookResults();}
@@ -407,7 +432,8 @@ document.addEventListener('input',event=>{
 });
 document.addEventListener('change',event=>{
  const el=event.target;
- if(el.id==='reading-deadline'){refreshGoalPreview();}
+ if(el.id==='progress-book-select'){openFocusProgress(el.dataset.topic,el.dataset.subtopic,el.value);$('#progress-book-select')?.focus();}
+ else if(el.id==='reading-deadline'){refreshGoalPreview();}
  else if(el.dataset.complete){const id=el.dataset.complete;if(getBook(id)){setStatus(id,el.checked?'done':progress(id).beforeComplete==='reading'?'reading':'unread');const y=window.scrollY;routeAfterEdit();window.scrollTo(0,y);document.querySelector(`[data-complete="${id}"]`)?.focus({preventScroll:true});}}
  else if(el.dataset.bookStatus){setStatus(el.dataset.bookStatus,el.value);$('#completed-date-field').hidden=el.value!=='done';$('#note-finished').value=(progress(el.dataset.bookStatus).completedAt||'').slice(0,10);const current=$('#reading-current');if(current){current.disabled=el.value==='done';current.value=el.value==='done'?(pageInfo(getBook(el.dataset.bookStatus)).pages||0):(state.reading.pagesRead[el.dataset.bookStatus]||0);}}
  else if(el.dataset.finishedDate){const p=ensureProgress(el.dataset.finishedDate);if(p.status==='done'){p.completedAt=el.value;p.updatedAt=now();persist();}}
@@ -421,6 +447,17 @@ document.addEventListener('change',event=>{
  else if(el.id==='import-file')previewImport(el.files?.[0]);
 });
 document.addEventListener('submit',event=>{
+ if(event.target.dataset.progressForm){
+  event.preventDefault();const form=event.target,id=form.dataset.progressForm,b=getBook(id);if(!b||!form.reportValidity()||progress(id).status==='done')return;
+  const value=Number(new FormData(form).get('current')),total=pageInfo(b).pages;if(!Reading.validProgress(value,total))return;
+  state.reading.pagesRead[id]=value;const p=ensureProgress(id);if(value>0&&p.status==='unread'){p.status='reading';p.startedAt=p.startedAt||now();}p.updatedAt=now();
+  const saved=persist(),place=form.dataset.place,strip=$('.continue-strip'),x=strip?.scrollLeft||0;
+  routeAfterEdit();if($('.continue-strip'))$('.continue-strip').scrollLeft=x;
+  const active=document.querySelector(`[data-progress-form="${id}"][data-place="${place}"]`);
+  if(active){previewProgress(active,value);active.querySelector('[data-progress-feedback]').textContent=saved?'Progress saved. Your daily target is updated.':'Not saved — export a backup.';active.querySelector('[type="submit"]').focus({preventScroll:true});}
+  refreshGoalPreview();return;
+ }
+
  if(event.target.id==='reading-goal-form'){
   event.preventDefault();const form=event.target,key=form.dataset.key,date=new FormData(form).get('deadline');
   if(!form.reportValidity()||!validScope(key)||Reading.dayNumber(date)===null||date<localDate())return;
@@ -459,7 +496,7 @@ window.addEventListener('storage',event=>{
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(getTheme()==='system')applyTheme('system');});
 window.addEventListener('beforeunload',event=>{if(storageError||conflict||blocked){event.preventDefault();event.returnValue='Your changes are not saved. Export a backup before leaving.';}});
 // Public hooks are intentionally read-only and limited to metadata for diagnostics.
-Object.defineProperty(window,'LibraryInfo',{value:Object.freeze({version:'1.2.0',schemaVersion:1,storageKey:KEY,seedBooks:seed.books.length,topics:TOPICS.length}),writable:false});
+Object.defineProperty(window,'LibraryInfo',{value:Object.freeze({version:'1.3.0',schemaVersion:1,storageKey:KEY,seedBooks:seed.books.length,topics:TOPICS.length}),writable:false});
 window.addEventListener('pageshow',refreshGoalPreview);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshGoalPreview();});
 applyTheme(getTheme());replaceIcons();render();
