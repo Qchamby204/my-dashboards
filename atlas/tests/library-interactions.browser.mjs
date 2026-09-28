@@ -26,7 +26,16 @@ try{
   assert.equal(await p.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(x=>x.id);return ids.length===new Set(ids).size;}),true,'no colliding SVG IDs');
   assert.equal(await p.locator('.badge-symbol').first().evaluate(e=>getComputedStyle(e).animationName),'none');
   await photo('home');
-  await p.locator('.topic-card').first().click();
+  await p.locator('.topic-card').first().click();await settled();
+  assert.deepEqual(await p.locator('[data-learning-sub]').evaluateAll(es=>es.map(e=>e.dataset.learningSub)),['1A','1C','1B','1E','1D','1F','1G']);
+  assert.deepEqual(await p.locator('[data-learning-sub="1A"] [data-book-row]').evaluateAll(es=>es.map(e=>e.dataset.bookRow)),['b-1A-03','b-1A-04','b-1A-05','b-1A-02','b-1A-01']);
+  await p.locator('.learning-guide summary').click();assert.equal(await p.locator('.learning-guide').evaluate(e=>e.open),true);
+  await p.locator('.learning-reason summary').first().focus();await p.keyboard.press('Enter');assert.equal(await p.locator('.learning-reason').first().evaluate(e=>e.open),true);
+  assert.equal(await records(),null,'learning guidance must not write records');
+  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await photo('learning');
+  await p.goto(base+'#topic/12/all/books');await settled();assert.equal(await p.locator('.learning-label').filter({hasText:'Optional branch'}).count(),3);
+  await p.goto(base+'#topic/1/all/books');await settled();
   await p.locator('#reading-deadline').fill('2099-12-31');await p.getByRole('button',{name:'Save goal',exact:true}).click();
   await p.locator('[data-action=set-focus]').click();
   const id='b-1A-01',row=p.locator(`[data-book-row="${id}"]`);
