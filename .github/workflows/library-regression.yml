@@ -9,7 +9,7 @@ on:
       - 'shared/icons/library*'
       - 'shared/icons/catalog.json'
       - 'atlas/sync-icons.mjs'
-      - 'atlas/tests/library-*.test.mjs'
+      - 'atlas/tests/library-*'
       - '.github/workflows/library-regression.yml'
   pull_request:
     paths:
@@ -19,7 +19,7 @@ on:
       - 'shared/icons/library*'
       - 'shared/icons/catalog.json'
       - 'atlas/sync-icons.mjs'
-      - 'atlas/tests/library-*.test.mjs'
+      - 'atlas/tests/library-*'
       - '.github/workflows/library-regression.yml'
 permissions:
   contents: read
@@ -35,3 +35,16 @@ jobs:
         with:
           node-version: '22'
       - run: node --test atlas/tests/library-*.test.mjs
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/library-browser --no-package-lock --ignore-scripts playwright@1.62.1
+      - run: /tmp/library-browser/node_modules/.bin/playwright install --with-deps --only-shell chromium
+      - run: NODE_PATH=/tmp/library-browser/node_modules node atlas/tests/library-interactions.browser.mjs

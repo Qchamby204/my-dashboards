@@ -3,6 +3,7 @@
 'use strict';
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
 const validPages=n=>Number.isInteger(n)&&n>0&&n<=100000;
+const validProgress=(value,total)=>validPages(total)&&Number.isInteger(value)&&value>=0&&value<=total;
 function dayNumber(value){
  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
  const [y,m,d]=value.split('-').map(Number);if(y<1900||y>9999)return null;
@@ -51,5 +52,5 @@ function summary(books,progress,reading,references,seedBooks,deadline,today){
   complete:books.length>0&&remaining===0&&unknownRemaining===0,
   daily:days!==null&&days>0?Math.ceil(remaining/days):null};
 }
-window.LibraryReading=Object.freeze({validPages,dayNumber,empty,normalize,pageInfo,summary});
+window.LibraryReading=Object.freeze({validPages,validProgress,dayNumber,empty,normalize,pageInfo,summary});
 })();

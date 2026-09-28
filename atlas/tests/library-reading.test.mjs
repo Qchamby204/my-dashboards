@@ -76,3 +76,13 @@ test('14 distinct decorative emblems have reduced-motion support and versioned a
   if(file!=='library.js'&&file.endsWith('.js'))assert.ok(html.indexOf(`shared/${file}?`)<html.indexOf('shared/library.js?'));
  }
 });
+
+test('quick progress accepts exact pages and corrections, rejecting unknown totals and out-of-range entries',()=>{
+ for(const value of [0,1,50,128])assert.equal(R.validProgress(value,128),true);
+ for(const value of [-1,129,1.5,NaN,Infinity,'64'])assert.equal(R.validProgress(value,128),false);
+ assert.equal(R.validProgress(50,null),false);
+ const reading={pageCounts:{'custom-a':128},pagesRead:{'custom-a':110},goals:{}};
+ reading.pagesRead['custom-a']=50;
+ assert.equal(summary(reading).read,50);
+ assert.equal(summary(reading).remaining,78);
+});
