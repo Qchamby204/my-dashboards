@@ -100,7 +100,7 @@ function boot(saved, theme = 'system') {
     matchMedia: () => ({matches: false, addEventListener() {}}),
     localStorage: {getItem: key => storage.get(key) ?? null,
       setItem: (key, value) => {writes.push(key); storage.set(key, value);}}});
-  vm.runInContext(read('shared/library-catalog.js').toString(), context);
+  for(const path of ['shared/library-reading.js','shared/library-art.js','shared/library-pages.js','shared/library-catalog.js']) vm.runInContext(read(path).toString(), context);
   vm.runInContext(read('shared/library.js').toString(), context);
   return {window, nodes, writes, events, storage};
 }
@@ -148,4 +148,27 @@ test('Library opening unreadable saved records never overwrites the recovery dat
   assert.deepEqual(app.writes, []);
   assert.equal(app.storage.get('atlas.library.v1'), raw);
   assert.match(app.nodes.get('#storage-banner').innerHTML, /original data has not been overwritten/);
+});
+
+
+test('Library reading records survive reopening and note edits with legacy storage unchanged', () => {
+  const catalog=boot().window.ATLAS_LIBRARY_CATALOG.books;
+  const reading={pageCounts:{[catalog[0].id]:5000},pagesRead:{[catalog[0].id]:125},goals:{'1:all':'2027-01-01','1:1A':'2026-12-01'}};
+  const saved=JSON.stringify({schemaVersion:1,catalog,progress:{},syntheses:{},reading});
+  const app=boot(saved);
+  assert.deepEqual(app.writes,[]);
+  assert.equal(app.storage.get('atlas.library.v1'),saved);
+  app.events.get('input')({target:{dataset:{bookNote:catalog[0].id,field:'notes'},value:'Keep my page goals'}});
+  const after=JSON.parse(app.storage.get('atlas.library.v1'));
+  assert.deepEqual(after.reading,reading);
+  assert.equal(after.progress[catalog[0].id].notes,'Keep my page goals');
+});
+
+test('invalid saved page goals preserve the original record for recovery', () => {
+  const catalog=boot().window.ATLAS_LIBRARY_CATALOG.books;
+  const saved=JSON.stringify({schemaVersion:1,catalog,reading:{goals:{'1:all':'not a date'}}});
+  const app=boot(saved);
+  assert.deepEqual(app.writes,[]);
+  assert.equal(app.storage.get('atlas.library.v1'),saved);
+  assert.match(app.nodes.get('#storage-banner').innerHTML,/original data has not been overwritten/);
 });
