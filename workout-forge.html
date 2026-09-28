@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=5a17dfaf1945"></script>
+<script src="shared/atlas-theme.js?v=787d398fc108"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -80,7 +80,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/forge-goals.css?v=goal-week-20260927">
+<link rel="stylesheet" href="shared/forge-goals.css?v=6dc2136384f6">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/workout-forge-32.png?v=9eee6d9917f7">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/workout-forge-64.png?v=30e3ecff5cc1">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/workout-forge-apple.png?v=275a085fe2f1">
@@ -998,28 +998,9 @@ function prCelView(){
 /* ---------- live session mode ---------- */
 var liveClockInt=null;
 function liveElapsed(){ if(!state.live) return "0:00"; return clk((Date.now()-state.live.startedAt)/1000); }
-/* Screen Wake Lock: the actual fix for "my screen goes dark mid-set". A web app
-   cannot push a timer to Apple Watch (no API exists for that from a browser),
-   but it can stop the phone sleeping while a session is live. Safari on iOS 16.4+
-   supports this. Released automatically when the session ends. */
+/* The session enhancement manages one screen wake lock for both active clocks. */
 var __wakeLock=null;
-function keepAwake(on){
-  try{
-    if(on){
-      if(__wakeLock||!("wakeLock" in navigator)) return;
-      navigator.wakeLock.request("screen").then(function(wl){
-        __wakeLock=wl;
-        wl.addEventListener("release",function(){ __wakeLock=null; });
-      }).catch(function(){});
-    } else if(__wakeLock){
-      try{ __wakeLock.release(); }catch(e){}
-      __wakeLock=null;
-    }
-  }catch(e){}
-}
-document.addEventListener("visibilitychange",function(){
-  if(document.visibilityState==="visible" && state.live && !state.live.hidden) keepAwake(true);
-});
+function keepAwake(){} // Installed by forge-enhancements.js after the page is ready.
 function startLiveClock(){ if(!liveClockInt) liveClockInt=setInterval(function(){ var el=document.getElementById("liveClock"); if(el&&state.live) el.textContent=liveElapsed(); },1000); }
 function stopLiveClock(){ if(liveClockInt){ clearInterval(liveClockInt); liveClockInt=null; } }
 function liveView(){
@@ -1446,7 +1427,7 @@ render();
 
 </script>
 <script src="shared/forge-goal-plans.js?v=goals-20260927"></script>
-<script src="shared/forge-goal-model.js?v=goals-20260927"></script>
-<script src="shared/forge-goals.js?v=goal-week-20260927"></script>
+<script src="shared/forge-goal-model.js?v=355ecbfb824b"></script>
+<script src="shared/forge-goals.js?v=602662213515"></script>
 </body>
 </html>

@@ -50,29 +50,38 @@
   function editor(k,e){
     const p=plan(),v=M.defaults(active,p,k);
     let fields='';
-    if(active==='run')fields=field('Time (mm:ss)','w',v.w,'text','inputmode="numeric" placeholder="mm:ss" required');
+    if(active==='run')fields=field('Total time (mm:ss)','w',v.w,'text','inputmode="text" placeholder="15:00" required')+field('Distance completed','distance',v.distance,'number','min="0.001" placeholder="1.5" required')+`<label>Distance unit<select name="unit"><option value="mi" ${v.unit!=='km'?'selected':''}>Miles</option><option value="km" ${v.unit==='km'?'selected':''}>Kilometres</option></select></label>`;
     else if(e.reach)fields=field('Best touch (inches)','w',v.w,'number','min="0.5" max="200" required');
     else if(active==='dunk')fields=field('Weight, reps or note (optional)','w',v.w,'text','maxlength="500" placeholder="e.g. 35 lb × 6 each leg"');
     else fields=field('Weight (lb; 0 for bodyweight)','w',v.w,'number','min="0"')+field(e.rl||'Reps','r',v.r,'number','min="0.1" required');
     if(active!=='dunk')fields+=field('RPE (optional)','e',v.e,'number','min="1" max="10"');
-    return `<form class="fg-editor" data-key="${k}"><strong>Set ${M.locate(active,k,p.base).set+1}</strong><div class="fg-fields">${fields}</div><div class="fg-actions"><button type="submit" class="fg-primary">${active==='dunk'&&!e.reach?'Mark done':'Save set'}</button>${p.done[k]?button('Clear set','clear',`data-key="${k}"`):''}${button('Close','close-editor')}</div><small>Entries stay in this browser. Unfinished fields are saved as a draft.</small></form>`;
+    return `<form class="fg-editor" data-key="${k}"><strong>Set ${M.locate(active,k,p.base).set+1}</strong><div class="fg-fields">${fields}</div>${active==='run'?`<p class="fg-run-result" role="status" aria-live="polite">${runResult(v)}</p><small>Use the time and distance for this set. Shorter runs count, including runs under 3 miles.</small>`:''}<div class="fg-actions"><button type="submit" class="fg-primary">${active==='dunk'&&!e.reach?'Mark done':'Save set'}</button>${p.done[k]?button('Clear set','clear',`data-key="${k}"`):''}${button('Close','close-editor')}</div><small>Entries stay in this browser. Unfinished fields are saved as a draft.</small></form>`;
   }
   function exercises(){
     const {p,w}=selected();
     return w[p.day].map((e,ei)=>`<section class="fg-exercise ${e.main?'fg-main':''}" aria-labelledby="fg-ex-${ei}"><div class="fg-ex-top"><h3 id="fg-ex-${ei}">${esc(e.n)}</h3><strong>${esc(e.rx)}</strong></div><div class="fg-rest-line"><span>${esc(e.rest)}</span>${restSeconds(e.rest)?button('Start rest','rest',`data-seconds="${restSeconds(e.rest)}" aria-label="Start rest for ${esc(e.n)}"`):''}</div>${e.note?`<p class="fg-ex-note">${esc(e.note)}</p>`:''}<div class="fg-sets">${Array.from({length:e.sets},(_,s)=>{
       const k=M.key(p.week,p.day,ei,s),v=p.done[k];let label=''+(s+1);
-      if(v)label=active==='run'?v.w:e.reach?v.w+' in':active==='dunk'?'✓':`${v.w!==''?v.w+' × ':''}${v.r}${e.rl?' '+e.rl.toLowerCase():''}`;
+      if(v)label=active==='run'?`${v.w}${v.distance?' · '+v.distance+' '+v.unit:''}`:e.reach?v.w+' in':active==='dunk'?'✓':`${v.w!==''?v.w+' × ':''}${v.r}${e.rl?' '+e.rl.toLowerCase():''}`;
       return button(esc(label),'set',`data-key="${k}" class="fg-set ${v?'fg-done':''}" aria-label="${esc(e.n)}, set ${s+1}, ${v?esc(label):'not logged'}" aria-expanded="${p.draft?.key===k}"`);
     }).join('')}</div>${p.draft&&M.locate(active,p.draft.key,p.base)?.exercise===ei&&p.draft.key.startsWith(`${p.week}-${p.day}-`)?editor(p.draft.key,e):''}</section>`).join('');
+  }
+  function runResult(v){
+    const stats=M.runStats(v);
+    return stats?`${M.format(stats.pace)} / mile · ${stats.mph.toFixed(1)} mph average`:'Enter time and distance to see your average mile pace and speed.';
+  }
+  function runSummary(p){
+    const {stats,unmeasured}=M.runTotals(p,p.week,p.day);
+    if(!stats&&!unmeasured)return '';
+    return `<section class="fg-run-summary" aria-label="Logged run totals"><strong>Logged run totals</strong>${stats?`<div class="fg-pace-grid"><div><small>Distance</small><strong>${Number(stats.miles.toFixed(3))} mi</strong></div><div><small>Total time</small><strong>${M.format(stats.seconds)}</strong></div><div><small>Average / mile</small><strong>${M.format(stats.pace)}</strong></div><div><small>Average speed</small><strong>${stats.mph.toFixed(1)} mph</strong></div></div>`:''}<small>${unmeasured?`${unmeasured} older set${unmeasured===1?' has':'s have'} time only. Add distance to include ${unmeasured===1?'it':'them'} in these totals. `:''}Totals use the sets you logged; rest between sets is excluded.</small></section>`;
   }
   function restSeconds(s){const m=s.match(/(\d+)(?: to (\d+))? (sec|min)/);return m?Number(m[2]||m[1])*(m[3]==='min'?60:1):0;}
   function pacePanel(){
     const p=plan(),sec=M.seconds(p.base)/5;
-    return `<section class="fg-pace"><form id="fg-base-form"><label>Latest 5K time trial<input name="base" value="${p.baseConfirmed?esc(p.base):''}" placeholder="mm:ss" inputmode="numeric" required></label><button type="submit">Update paces</button></form>${!p.baseConfirmed?'<p>Preview paces use 28:00 until you log your first time trial.</p>':''}<div class="fg-pace-grid">${[['Easy',`${M.format(sec+60)}–${M.format(sec+90)}`],['Tempo',M.format(sec+15)],['Intervals',M.format(sec-5)]].map(([n,v])=>`<div><small>${n} / km</small><strong>${v}</strong></div>`).join('')}</div></section>`;
+    return `<section class="fg-pace"><form id="fg-base-form"><label>Latest 5K time trial<input name="base" value="${p.baseConfirmed?esc(p.base):''}" placeholder="mm:ss" inputmode="text" required></label><button type="submit">Update paces</button></form>${!p.baseConfirmed?'<p>Preview paces use 28:00 until you log your first time trial.</p>':''}<div class="fg-pace-grid">${[['Easy',`${M.format(sec+60)}–${M.format(sec+90)}`],['Tempo',M.format(sec+15)],['Intervals',M.format(sec-5)]].map(([n,v])=>`<div><small>${n} / km</small><strong>${v}</strong></div>`).join('')}</div></section>`;
   }
   function detail(){
     const c=P[active],{p,b,w}=selected(),day=name(active,p,p.week,p.day),ct=M.counts(active,p,p.week,p.day),done=p.completed[`${p.week}-${p.day}`];
-    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><div class="fg-detail-title"><div class="fg-kicker">${esc(c.aim)}</div><h2 tabindex="-1" id="fg-detail-title">${esc(c.target)} <small>${esc(c.unit)}</small></h2><p>${esc(M.metric(active,p))}</p></div>${notice()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>The rim is 120 inches. Your best touch is measured from the floor, not the height of your jump. The supplied plan estimates a dunk needs roughly 126–129 inches, depending on your hands.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`W${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?' ✓':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets logged${done?' · Session saved':''}</span></div>${exercises()}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets logged</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
+    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><div class="fg-detail-title"><div class="fg-kicker">${esc(c.aim)}</div><h2 tabindex="-1" id="fg-detail-title">${esc(c.target)} <small>${esc(c.unit)}</small></h2><p>${esc(M.metric(active,p))}</p></div>${notice()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>The rim is 120 inches. Your best touch is measured from the floor, not the height of your jump. The supplied plan estimates a dunk needs roughly 126–129 inches, depending on your hands.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`W${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?' ✓':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets logged${done?' · Session saved':''}</span></div>${exercises()}${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets logged</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
   }
   function paint(){
     const host=document.getElementById('forge-goals');if(!host)return;
@@ -93,13 +102,15 @@
   function saveSet(form){
     const p=editPlan(),k=form.dataset.key,at=M.locate(active,k,p.base),values=Object.fromEntries(new FormData(form));
     try{M.validateEntry(active,at.e,values);}catch(e){error=e.message;paint();document.querySelector('.fg-error')?.scrollIntoView({block:'nearest'});return;}
+    const replacedTrial=active==='run'&&p.done[k]&&M.fullTrial(at.e,p.done[k])&&p.base===p.done[k].w;
     p.done[k]={...values,at:new Date().toISOString()};p.draft=null;
+    status='Set saved.';
     if(active==='run'&&at.e.n==='5k time trial'){
-      // Editing an older trial must not replace a later checkpoint's pace basis.
-      const trials=Object.entries(p.done).filter(([key])=>M.locate(active,key,p.base)?.e.n==='5k time trial').sort(([a],[b])=>a.localeCompare(b));
-      const latest=trials.at(-1)?.[1].w;
-      if(M.seconds(latest)>=600&&M.seconds(latest)<=3600){p.base=latest;p.baseConfirmed=true;status='Set saved. Paces updated from your latest time trial.';}
-    }else status='Set saved.';
+      // Short runs stay in the log without replacing a completed 5K benchmark.
+      const latest=M.latestTrial(p);
+      if(latest&&(M.fullTrial(at.e,values)||replacedTrial)){p.base=latest;p.baseConfirmed=true;}else if(replacedTrial){p.base='28:00';p.baseConfirmed=false;}
+      status=M.fullTrial(at.e,values)?'Run saved. Paces updated from your latest completed 5K.':'Run saved with your actual distance, mile pace and speed.';
+    }
     persist();paint();document.querySelector(`[data-goal-action="set"][data-key="${k}"]`)?.focus({preventScroll:true});
   }
   function backup(){
@@ -130,8 +141,8 @@
     }
     if(a==='close-editor')p.draft=null;
     if(a==='clear'){
-      const cleared=M.locate(active,el.dataset.key,p.base);delete p.done[el.dataset.key];p.draft=null;
-      if(active==='run'&&cleared.e.n==='5k time trial'){const trials=Object.entries(p.done).filter(([k])=>M.locate(active,k,p.base)?.e.n==='5k time trial').sort(([a],[b])=>a.localeCompare(b));p.base=trials.at(-1)?.[1].w||'28:00';p.baseConfirmed=trials.length>0;}
+      const cleared=M.locate(active,el.dataset.key,p.base),removed=p.done[el.dataset.key];delete p.done[el.dataset.key];p.draft=null;
+      if(active==='run'&&removed&&M.fullTrial(cleared.e,removed)){const latest=M.latestTrial(p);if(latest){p.base=latest;p.baseConfirmed=true;}else if(p.base===removed.w){p.base='28:00';p.baseConfirmed=false;}}
       if(!M.counts(active,p,p.week,p.day).logged)delete p.completed[`${p.week}-${p.day}`];
     }
     if(a==='finish'){
@@ -152,6 +163,7 @@
     document.getElementById('app').addEventListener('input',e=>{
       const f=e.target.closest('.fg-editor');if(!f||blocked)return;
       const p=editPlan();p.draft={key:f.dataset.key,values:Object.fromEntries(new FormData(f))};persist();
+      const result=f.querySelector('.fg-run-result');if(result)result.textContent=runResult(p.draft.values);
       // Keep typing uninterrupted; announce write failures without replacing the form.
       if(failed){let warning=f.querySelector('.fg-inline-error');if(!warning){warning=document.createElement('p');warning.className='fg-inline-error';warning.setAttribute('role','alert');f.append(warning);}warning.textContent='Draft could not be saved. Keep this tab open and back up your goals.';}
     });

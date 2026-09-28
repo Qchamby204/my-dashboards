@@ -12,7 +12,7 @@ const S='forge:sessions:v2',D='forge:draft:v1',L='forge:live:v1',R='forge:rest:v
 const file=o=>({size:100,text:async()=>JSON.stringify(o)});
 const draft={'PUSH-0-0':{sets:[{w:'10',r:'4'}],note:'Keep note',done:false}};
 const decode=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
-async function boot({records={},blocked=false,width=390}={}){
+async function boot({records={},blocked=false,width=390,wakeLock,goals=false}={}){
   let now=Date.parse('2026-09-08T12:00:00-05:00'),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{
     constructor(){this.events=new Map();}
@@ -69,9 +69,11 @@ async function boot({records={},blocked=false,width=390}={}){
   const window=new Events();window.innerWidth=width;window.innerHeight=844;window.matchMedia=q=>({matches:q.includes('max-width')?width<=700:true,addEventListener(){}});window.AtlasForgeBoot={raw:{...records},readError:blocked};window.scrollTo=()=>{};
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
   class BlobURL extends URL{static createObjectURL(blob){const id='blob:'+(++serial);blobs.set(id,blob);return id;}static revokeObjectURL(id){blobs.delete(id);}}
-  const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
+  const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{wakeLock},location:{hash:''},FormData:class{constructor(form){this.values=form.querySelectorAll('input,select,textarea').filter(n=>n.getAttribute('name')).map(n=>[n.getAttribute('name'),n.value]);}*[Symbol.iterator](){yield* this.values;}get(name){return this.values.find(([key])=>key===name)?.[1]??null;}},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
   let legacyError;try{vm.runInContext(original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
-  vm.runInContext(enhancement,context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
+  if(goals)for(const file of ['forge-goal-plans.js','forge-goal-model.js'])vm.runInContext(readFileSync(new URL('../../shared/'+file,import.meta.url),'utf8'),context);
+  vm.runInContext(enhancement,context);
+  if(goals)vm.runInContext(readFileSync(new URL('../../shared/forge-goals.js',import.meta.url),'utf8'),context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
   return {run,node,document,window,context,api:window.ForgeSession,localStorage,storage,downloads,legacyError,
     at(date){now=new Date(date).getTime();},flush(){for(const [id,t]of [...timers])if(t.due<=now&&timers.delete(id))t.fn();},
     settle:async()=>{for(let i=0;i<30;i++)await Promise.resolve();},act(action,extra={}){const el=document.createElement('button');el.dataset={act:action,...extra};return node('app').emit('click',{target:el});},
@@ -231,4 +233,62 @@ test('rest expiry cannot overwrite the cleared timer while cancellation saves as
 test('September 21 season includes its first day and preserves earlier workout history',async()=>{
  const rows=[{id:'before',date:'2026-09-20',type:'PUSH',items:{}},{id:'start',date:'2026-09-21',type:'PUSH',items:{}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
  h.at('2026-09-22T12:00:00-05:00');assert.equal(h.run('stats().season'),1);assert.equal(h.run('stats().total'),2);assert.equal(h.run('SEASON_START_ISO'),'2026-09-21');assert.equal(h.run('SEASON_GOAL'),80);assert.equal(h.run('SEASON_END'),Date.UTC(2026,11,31));assert.equal(h.storage.get(S),JSON.stringify(rows));assert.match(html,/Season · Sep 21 → Dec 31/);
+});
+
+function wakeMock(){
+ const locks=[];let calls=0,deny=false,resolve=null,delay=false;
+ return {locks,get calls(){return calls;},set deny(v){deny=v;},set delay(v){delay=v;},resolve(){resolve?.();},async request(type){
+   assert.equal(type,'screen');calls++;if(deny)throw Error('Denied');if(delay)await new Promise(r=>resolve=r);
+   const events=[],lock={released:false,addEventListener(type,fn){if(type==='release')events.push(fn);},async release(){this.released=true;events.forEach(fn=>fn());}};locks.push(lock);return lock;
+ }};
+}
+test('screen stays awake for a hidden workout and releases on pause and finish',async()=>{
+ const wake=wakeMock(),h=await boot({wakeLock:wake});assert.equal(wake.calls,0);
+ h.act('live',{key:'PUSH'});await h.settle();assert.equal(wake.calls,1);assert.match(h.document.querySelector('.forge-live .forge-wake-status').textContent,/Screen stays awake/);
+ h.act('livehide');await h.settle();assert.equal(wake.locks[0].released,false);
+ h.api.pauseLive();await h.settle();assert.equal(wake.locks[0].released,true);
+ h.api.pauseLive();await h.settle();assert.equal(wake.calls,2);
+ h.act('livefinish');h.clickText('End session');await h.settle();assert.equal(wake.locks[1].released,true);
+});
+test('rest timers alone acquire a lock, release on pause or expiry and resume correctly',async()=>{
+ const wake=wakeMock(),h=await boot({wakeLock:wake});h.run('startTimer(60)');await h.settle();assert.equal(wake.calls,1);
+ h.api.pauseRest();await h.settle();assert.equal(wake.locks[0].released,true);
+ h.api.pauseRest();await h.settle();assert.equal(wake.calls,2);
+ h.at('2026-09-08T12:01:01-05:00');h.run('tickTimer()');await h.settle();assert.equal(wake.locks[1].released,true);
+});
+test('returning to Forge and system release reacquire a single wake lock',async()=>{
+ const wake=wakeMock(),h=await boot({wakeLock:wake});h.run('startTimer(180)');await h.settle();
+ h.document.hidden=true;h.document.emit('visibilitychange');await h.settle();assert.equal(wake.locks[0].released,true);
+ h.document.hidden=false;h.document.emit('visibilitychange');h.window.emit('pageshow');await h.settle();assert.equal(wake.calls,2);
+ await wake.locks[1].release();h.at('2026-09-08T12:00:02-05:00');h.flush();await h.settle();assert.equal(wake.calls,3);
+ h.run('stopTimer()');await h.settle();assert.equal(wake.locks[2].released,true);
+});
+test('wake request resolving after timer dismissal releases immediately',async()=>{
+ const wake=wakeMock();wake.delay=true;const h=await boot({wakeLock:wake});h.run('startTimer(60)');await h.settle();
+ h.run('stopTimer()');wake.resolve();await h.settle();assert.equal(wake.locks[0].released,true);assert.equal(h.run('__wakeLock'),null);
+});
+test('denied wake lock is visible, retries are bounded, and manual retry can recover',async()=>{
+ const wake=wakeMock();wake.deny=true;const h=await boot({wakeLock:wake});h.run('startTimer(60)');await h.settle();
+ assert.match(h.document.querySelector('.forge-wake-status').textContent,/may sleep/);
+ for(let i=0;i<10;i++)h.run('tickTimer()');await h.settle();assert.equal(wake.calls,1);
+ wake.deny=false;h.document.querySelector('.forge-wake-status').click();await h.settle();assert.equal(wake.calls,2);assert.match(h.document.querySelector('.forge-wake-status').textContent,/stays awake/);
+});
+test('unsupported screen-awake API does not interrupt workout timing or saving',async()=>{
+ const h=await boot();h.run('startTimer(60)');await h.settle();assert.match(h.document.querySelector('.forge-wake-status').textContent,/unavailable/);assert.equal(h.run('timer.total'),60);
+});
+function goalClick(h,action,data={}){const el=h.document.createElement('button');el.dataset={goalAction:action,...data};h.node('app').emit('click',{target:el});}
+function fillGoal(h,values){const form=h.document.querySelector('.fg-editor');for(const [name,value]of Object.entries(values))form.querySelector(`[name="${name}"]`).value=value;h.node('app').emit('input',{target:form.querySelector('input')});return form;}
+test('run editor calculates as typed, persists short runs and restores its draft after reopening',async()=>{
+ const h=await boot({goals:true});goalClick(h,'open',{goal:'run'});goalClick(h,'set',{key:'0-d1-0-0'});
+ let form=fillGoal(h,{w:'15:00',distance:'1.5',unit:'mi'});assert.match(form.querySelector('.fg-run-result').textContent,/10:00.*6.0 mph/);
+ const again=await boot({goals:true,records:Object.fromEntries(h.storage)});goalClick(again,'open',{goal:'run'});form=again.document.querySelector('.fg-editor');assert.equal(form.querySelector('[name="distance"]').value,'1.5');
+ again.node('app').emit('submit',{target:form});assert.match(again.document.querySelector('.fg-run-summary').textContent,/10:00/);
+ const p=again.window.ForgeGoals.snapshot().plans.run;assert.equal(p.done['0-d1-0-0'].distance,'1.5');assert.equal(p.baseConfirmed,false);
+ goalClick(again,'finish');assert.ok(again.window.ForgeGoals.snapshot().plans.run.completed['0-d1']);
+});
+test('completed 5K updates training paces while a later shorter trial preserves that benchmark',async()=>{
+ const h=await boot({goals:true});goalClick(h,'open',{goal:'run'});goalClick(h,'set',{key:'0-d1-0-0'});
+ let form=fillGoal(h,{w:'27:00',distance:'5',unit:'km'});h.node('app').emit('submit',{target:form});assert.equal(h.window.ForgeGoals.snapshot().plans.run.base,'27:00');
+ goalClick(h,'week',{week:'4'});goalClick(h,'set',{key:'4-d1-0-0'});form=fillGoal(h,{w:'12:00',distance:'1',unit:'mi'});h.node('app').emit('submit',{target:form});assert.equal(h.window.ForgeGoals.snapshot().plans.run.base,'27:00');
+ goalClick(h,'set',{key:'4-d1-0-0'});goalClick(h,'clear',{key:'4-d1-0-0'});assert.equal(h.window.ForgeGoals.snapshot().plans.run.base,'27:00');
 });
