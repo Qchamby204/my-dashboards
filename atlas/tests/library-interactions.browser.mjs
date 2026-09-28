@@ -64,10 +64,10 @@ try{
   await card.locator('[data-progress-page]').fill('50');await card.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],50);assert.equal((await records()).reading.pageCounts[id],undefined);
   await p.locator('[data-action=log-focus-progress]').click();editor=p.locator('#modal [data-progress-form]');
   await editor.locator('[data-progress-slider]').fill('110');await editor.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],110);assert.equal((await records()).reading.goals['1:all'],'2099-12-31');
-  await p.getByRole('button',{name:'Done',exact:true}).click();await settled();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
+  await p.getByRole('button',{name:'Done',exact:true}).click();await settled();assert.equal(await p.locator('.focus-progress > progress').getAttribute('value'),'110');
   if(process.env.LIBRARY_SCREENSHOTS){await photo('progress');await card.scrollIntoViewIfNeeded();await photo('reading-card');}
   await card.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal(await p.locator('.continue-book').count(),0);assert.equal((await records()).reading.pagesRead[id],110);assert.match((await records()).progress[id].notes,/Keep this note/);
-  await p.reload();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
+  await p.reload();assert.equal(await p.locator('.focus-progress > progress').getAttribute('value'),'110');
   // A fixed deadline survives completion, undo, skipping, inclusion, reload and backup.
   await p.goto(base+'#topic/1/all/books');await settled();
   const deadline=await p.evaluate(()=>{const d=new Date();d.setDate(d.getDate()+9);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;});
@@ -75,19 +75,20 @@ try{
   assert.equal((await records()).reading.goals['1:all'],deadline);
   const remaining=async()=>Number((await p.locator('#reading-goal-output .reading-metrics b').nth(1).innerText()).replaceAll(',',''));
   const pace=async()=>Number((await p.locator('#reading-goal-output .reading-target').innerText()).split(' ')[0].replaceAll(',',''));
+  const todayRead=async()=>Number((await p.locator('.reading-planner .daily-count').innerText()).split(' ')[0].replaceAll(',',''));
   // Every daily logging entry point keeps both the stored and visible deadline.
   const assertGoal=async()=>{
    assert.equal((await records()).reading.goals['1:all'],deadline);
    assert.equal(await p.locator('#reading-deadline').inputValue(),deadline);
    assert.equal(await p.locator('.reading-saved-deadline').count(),1);
-   assert.equal(await pace(),Math.ceil((await remaining())/10));
+   assert.equal(await pace(),Math.ceil(((await remaining())+(await todayRead()))/10));
   };
   const logRow=p.locator(`[data-book-row="${id}"]`);
   await logRow.locator('[data-progress-page]').fill('55');await logRow.getByRole('button',{name:'Save',exact:true}).click();await settled();await assertGoal();
   // An incomplete replacement date must not hide the previously saved target.
   await p.locator('#reading-deadline').fill('');
   assert.equal(await p.locator('.reading-saved-deadline').count(),1);
-  assert.equal(await pace(),Math.ceil((await remaining())/10));
+  assert.equal(await pace(),Math.ceil(((await remaining())+(await todayRead()))/10));
   await logRow.locator('[data-progress-page]').fill('56');await logRow.getByRole('button',{name:'Save',exact:true}).click();await settled();await assertGoal();
   await p.goto(base+'#home');await settled();
   await p.locator('.continue-book [data-progress-page]').fill('60');await p.locator('.continue-book').getByRole('button',{name:'Save',exact:true}).click();await settled();
@@ -102,7 +103,7 @@ try{
   const baseline=await remaining(),changed='b-1A-03';
   const changedPages=await p.evaluate(id=>window.ATLAS_LIBRARY_PAGES[id].pages,changed);
   await p.locator(`[data-complete="${changed}"]`).check();await settled();
-  assert.equal(await remaining(),baseline-changedPages);assert.equal(await pace(),Math.ceil((baseline-changedPages)/10));
+  assert.equal(await remaining(),baseline-changedPages);assert.equal(await pace(),Math.ceil((baseline-changedPages+(await todayRead()))/10));
   assert.equal(await p.locator('#reading-deadline').inputValue(),deadline);
   await p.locator(`[data-complete="${changed}"]`).uncheck();await settled();assert.equal(await remaining(),baseline);
   await p.locator(`[data-action="skip-book"][data-id="${id}"]`).click();await settled();
@@ -140,6 +141,28 @@ try{
   await p.locator('[data-action=confirm-import]').waitFor();p.once('dialog',d=>d.accept());await p.locator('[data-action=confirm-import]').click();assert.deepEqual((await records()).reading,backup.data.reading);assert.deepEqual((await records()).topicOrder,backup.data.topicOrder);assert.equal((await records()).progress[id].notes,backup.data.progress[id].notes);assert.equal((await records()).progress[id].status,'skipped');
   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'no horizontal page overflow');
   assert.deepEqual(errors,[]);console.log(`${mobile?'Mobile':'Desktop'}: reading toggle, slider, page entry, focus progress, section priorities, persistence, notes and backup restoration passed.`);
+  await p.evaluate(({deadline})=>{
+   const b=window.ATLAS_LIBRARY_CATALOG.books.find(b=>b.id==='b-1A-03');
+   localStorage.setItem('atlas.library.v1',JSON.stringify({schemaVersion:1,catalog:[b],progress:{[b.id]:{status:'reading',notes:'Keep existing notes'}},syntheses:{},focus:{topic:'1',subtopic:'all'},reading:{pageCounts:{[b.id]:400},pagesRead:{[b.id]:21},goals:{'1:all':deadline}}}));
+  },{deadline});
+  await p.goto(base+'#topic/1/all/books');await p.reload();await settled();
+  const dailyBook=p.locator('[data-book-row="b-1A-03"]');
+  await dailyBook.getByRole('button',{name:'Adjust today',exact:true}).click();await p.locator('#reading-today').fill('21');await p.getByRole('button',{name:'Save today',exact:true}).click();await settled();
+  assert.equal(await dailyBook.locator('.daily-count').innerText(),'21 / 40 pages today');assert.equal(await dailyBook.locator('.daily-remaining').innerText(),'19 pages left today');
+  assert.equal((await records()).reading.pagesRead['b-1A-03'],21);assert.equal((await records()).progress['b-1A-03'].notes,'Keep existing notes');
+  await dailyBook.locator('[data-progress-page]').fill('31');await dailyBook.getByRole('button',{name:'Save',exact:true}).click();await settled();
+  assert.equal(await dailyBook.locator('.daily-count').innerText(),'31 / 40 pages today');assert.equal(await dailyBook.locator('.daily-remaining').innerText(),'9 pages left today');
+  await dailyBook.getByRole('button',{name:'Save',exact:true}).click();await settled();assert.equal(await dailyBook.locator('.daily-count').innerText(),'31 / 40 pages today');
+  await dailyBook.locator('[data-progress-page]').fill('40');await dailyBook.getByRole('button',{name:'Save',exact:true}).click();await settled();assert.equal(await dailyBook.locator('.daily-remaining').innerText(),'Daily goal reached');
+  await dailyBook.locator('[data-progress-page]').fill('21');await dailyBook.getByRole('button',{name:'Save',exact:true}).click();await settled();
+  await p.reload();await settled();assert.equal(await dailyBook.locator('.daily-remaining').innerText(),'19 pages left today');
+  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  if(process.env.LIBRARY_SCREENSHOTS){await dailyBook.locator('.daily-reading').scrollIntoViewIfNeeded();await photo('daily-reading');}
+  await p.goto(base+'#home');await settled();assert.equal(await p.locator('.continue-book .daily-remaining').innerText(),'19 pages left today');assert.equal(await p.locator('.focus-progress .daily-remaining').innerText(),'19 pages left today');
+  const tomorrow=await p.evaluate(()=>{const d=new Date();d.setDate(d.getDate()+1);return d.toISOString();});
+  const beforeMidnight=JSON.stringify(await records());await p.clock.setFixedTime(new Date(tomorrow));await p.evaluate(()=>window.dispatchEvent(new Event('pageshow')));
+  assert.equal(await p.locator('.continue-book .daily-count').innerText(),'0 / 43 pages today');assert.equal(await p.locator('.continue-book .daily-remaining').innerText(),'43 pages left today');assert.equal(JSON.stringify(await records()),beforeMidnight,'day rollover must not rewrite saved records');
+  assert.deepEqual(errors,[]);
   await context.close();
  }
 }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}

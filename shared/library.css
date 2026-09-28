@@ -942,3 +942,8 @@ html[data-atlas-app="library"] .dialog-head p{color:var(--game-muted)}
 .learning-guide,.learning-reason{border-color:var(--game-line)}
 .learning-guide summary,.learning-reason summary,.learning-guide[open]>summary,.learning-reason[open]>summary{color:var(--game-ink)}
 .learning-guide p,.learning-reason p{color:var(--game-muted)}
+
+.daily-reading{padding:14px 0 6px;border-top:1px solid var(--game-line);margin-top:12px;display:grid;gap:8px}
+.daily-label{font-size:11px;font-weight:700;color:var(--game-muted);text-transform:uppercase;letter-spacing:.06em}
+.daily-count{color:var(--game-ink);font-size:14px;font-weight:650}.daily-remaining{color:var(--game-gold);font-size:15px}
+.daily-adjust{justify-self:start;font-size:12px;min-height:44px}.daily-progress-track{height:8px!important}

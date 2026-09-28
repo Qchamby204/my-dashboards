@@ -117,3 +117,33 @@ test('skipped unknown counts do not prevent a remaining plan from completing',()
  const r=summary({pageCounts:{'custom-a':100,'custom-b':null},pagesRead:{},goals:{}},{'custom-a':{status:'done'},'custom-b':{status:'skipped'}});
  assert.equal(r.unknownRemaining,0);assert.equal(r.complete,true);assert.equal(r.skipped,1);
 });
+test('today credit reduces the daily remainder without moving today’s target',()=>{
+ const reading={pageCounts:{'custom-a':2000,'custom-b':3000},pagesRead:{},goals:{}};
+ R.logProgress(reading,'custom-a',21,'2026-09-28');
+ let r=summary(reading);assert.equal(r.todayRead,21);assert.equal(r.todayTarget,500);assert.equal(r.todayRemaining,479);
+ R.logProgress(reading,'custom-a',21,'2026-09-28');assert.equal(summary(reading).todayRead,21);
+ R.logProgress(reading,'custom-b',479,'2026-09-28');r=summary(reading);assert.equal(r.todayTarget,500);assert.equal(r.todayRemaining,0);
+ R.logProgress(reading,'custom-a',22,'2026-09-28');assert.equal(summary(reading).todayRemaining,0);
+ R.logProgress(reading,'custom-a',10,'2026-09-28');r=summary(reading);assert.equal(r.todayRead,489);assert.equal(r.todayTarget,500);assert.equal(r.todayRemaining,11);
+});
+test('new local day starts at zero; previously saved pages are not invented as today’s reading',()=>{
+ const reading={pageCounts:{'custom-a':100},pagesRead:{'custom-a':21},goals:{}};
+ assert.equal(summary(reading).todayRead,0);
+ R.logProgress(reading,'custom-a',31,'2026-09-28');assert.equal(summary(reading).todayRead,10);
+ assert.equal(summary(reading,{},'2026-10-07','2026-09-29').todayRead,0);
+ R.logProgress(reading,'custom-a',36,'2026-09-29');assert.equal(summary(reading,{},'2026-10-07','2026-09-29').todayRead,5);
+ assert.equal(reading.daily['2026-09-28']['custom-a'],10);
+});
+test('daily credit follows included books and numeric logs, not retrospective completion',()=>{
+ const reading={pageCounts:{'custom-a':100,'custom-b':200},pagesRead:{'custom-a':21},daily:{'2026-09-28':{'custom-a':21}},goals:{}};
+ assert.equal(summary(reading).todayRead,21);
+ assert.equal(summary(reading,{'custom-a':{status:'skipped'}}).todayRead,0);
+ assert.equal(summary(reading,{'custom-a':{status:'done'},'custom-b':{status:'done'}}).todayRead,21);
+ assert.equal(summary(reading,{},undefined,undefined,[books[1]]).todayRead,0);
+});
+test('daily logs round-trip and malformed daily imports are rejected without touching source records',()=>{
+ const reading={pageCounts:{'custom-a':100},pagesRead:{'custom-a':21},daily:{'2026-09-28':{'custom-a':21}},goals:{'1:all':'2026-10-07'}};
+ assert.deepEqual(plain(R.normalize(reading,books,scope)),reading);
+ for(const daily of [null,[],{'2026-02-30':{}},{'2026-09-28':[]},{'2026-09-28':{'custom-a':-1}},{'2026-09-28':{'custom-a':1.5}},{'2026-09-28':{'custom-a':'21'}}])assert.throws(()=>R.normalize({...reading,daily},books,scope));
+ assert.equal(reading.daily['2026-09-28']['custom-a'],21);
+});
