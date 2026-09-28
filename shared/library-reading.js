@@ -28,7 +28,31 @@ function normalize(raw,catalog,validScope){
    out[field][key]=value;
   }
  }
+ if(raw.daily!==undefined){
+  if(!raw.daily||typeof raw.daily!=='object'||Array.isArray(raw.daily))throw Error('Invalid daily reading log. Nothing has been replaced.');
+  out.daily={};
+  for(const [date,entries] of Object.entries(raw.daily)){
+   if(dayNumber(date)===null||!entries||typeof entries!=='object'||Array.isArray(entries))throw Error('Invalid daily reading log. Nothing has been replaced.');
+   out.daily[date]={};
+   for(const [id,pages] of Object.entries(entries)){
+    if(!ids.has(id))continue;
+    if(!Number.isInteger(pages)||pages<0||pages>100000)throw Error('Invalid daily page count. Nothing has been replaced.');
+    out.daily[date][id]=pages;
+   }
+  }
+ }
  return out;
+}
+// Credit only newly logged pages. Re-saving a page is idempotent; corrections
+// reduce today's credit without rewriting previous days or inventing old history.
+function logProgress(reading,id,value,today){
+ if(dayNumber(today)===null||!Number.isInteger(value)||value<0||value>100000)throw Error('Invalid reading progress.');
+ const previous=reading.pagesRead[id]||0;
+ if(value!==previous){
+  reading.daily??={};reading.daily[today]??={};
+  reading.daily[today][id]=Math.max(0,Math.min(value,(reading.daily[today][id]||0)+value-previous));
+ }
+ reading.pagesRead[id]=value;
 }
 function pageInfo(book,reading,references,seedBooks){
  if(own(reading.pageCounts,book.id))return {pages:reading.pageCounts[book.id],confirmed:reading.pageCounts[book.id]!==null,reference:null};
@@ -38,17 +62,20 @@ function pageInfo(book,reading,references,seedBooks){
  return {pages:null,confirmed:false,reference:null};
 }
 function summary(books,progress,reading,references,seedBooks,deadline,today){
- let total=0,read=0,unknown=0,unknownRemaining=0,estimated=0,skipped=0;
+ let total=0,read=0,unknown=0,unknownRemaining=0,estimated=0,skipped=0,todayRead=0;
  for(const book of books){
   if(progress[book.id]?.status==='skipped'){skipped++;continue;}
   const info=pageInfo(book,reading,references,seedBooks),done=progress[book.id]?.status==='done';
   if(!info.pages){unknown++;if(!done)unknownRemaining++;continue;}
   total+=info.pages;if(!info.confirmed)estimated++;
-  read+=done?info.pages:Math.min(info.pages,reading.pagesRead[book.id]||0);
+  const bookRead=done?info.pages:Math.min(info.pages,reading.pagesRead[book.id]||0);
+  read+=bookRead;todayRead+=Math.min(bookRead,reading.daily?.[today]?.[book.id]||0);
  }
  const remaining=total-read,start=dayNumber(today),end=dayNumber(deadline);
  const days=start!==null&&end!==null?end-start+1:null;
+ const todayTarget=days!==null&&days>0?Math.ceil((remaining+todayRead)/days):null;
  return {total,read,remaining,unknown,unknownRemaining,estimated,days,skipped,included:books.length-skipped,
+  todayRead,todayTarget,todayRemaining:todayTarget===null?null:Math.max(0,todayTarget-todayRead),
   overdue:days!==null&&days<=0&&(remaining>0||unknownRemaining>0),
   complete:books.length-skipped>0&&remaining===0&&unknownRemaining===0,
   daily:days!==null&&days>0?Math.ceil(remaining/days):null};
@@ -62,5 +89,5 @@ function movePriority(order,id,rank){
  if(!order.includes(id)||!Number.isInteger(rank)||rank<1||rank>order.length)throw Error('Choose a valid priority.');
  const next=order.filter(value=>value!==id);next.splice(rank-1,0,id);return next;
 }
-window.LibraryReading=Object.freeze({normalizeOrder,movePriority,validPages,validProgress,dayNumber,empty,normalize,pageInfo,summary});
+window.LibraryReading=Object.freeze({normalizeOrder,movePriority,validPages,validProgress,dayNumber,empty,normalize,logProgress,pageInfo,summary});
 })();
