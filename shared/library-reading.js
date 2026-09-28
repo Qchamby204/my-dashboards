@@ -52,5 +52,14 @@ function summary(books,progress,reading,references,seedBooks,deadline,today){
   complete:books.length>0&&remaining===0&&unknownRemaining===0,
   daily:days!==null&&days>0?Math.ceil(remaining/days):null};
 }
-window.LibraryReading=Object.freeze({validPages,validProgress,dayNumber,empty,normalize,pageInfo,summary});
+function normalizeOrder(raw,ids){
+ if(raw===undefined)return [...ids];
+ if(!Array.isArray(raw)||raw.length!==ids.length||new Set(raw).size!==ids.length||raw.some(id=>!ids.includes(id)))throw Error('Invalid section priorities. Nothing has been replaced.');
+ return [...raw];
+}
+function movePriority(order,id,rank){
+ if(!order.includes(id)||!Number.isInteger(rank)||rank<1||rank>order.length)throw Error('Choose a valid priority.');
+ const next=order.filter(value=>value!==id);next.splice(rank-1,0,id);return next;
+}
+window.LibraryReading=Object.freeze({normalizeOrder,movePriority,validPages,validProgress,dayNumber,empty,normalize,pageInfo,summary});
 })();

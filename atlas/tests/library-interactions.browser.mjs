@@ -49,12 +49,27 @@ try{
   if(process.env.LIBRARY_SCREENSHOTS){await photo('progress');await card.scrollIntoViewIfNeeded();await photo('reading-card');}
   await card.getByRole('button',{name:'Stop reading',exact:true}).click();assert.equal(await p.locator('.continue-book').count(),0);assert.equal((await records()).reading.pagesRead[id],110);assert.match((await records()).progress[id].notes,/Keep this note/);
   await p.reload();assert.equal(await p.locator('.focus-progress progress').getAttribute('value'),'110');
+  // Priority edits are a preview until saved; moves must not remap book or goal IDs.
+  const beforeOrder=await records();
+  await p.locator('[data-action=edit-priorities]').click();await p.locator('#priority-14').selectOption('1');
+  assert.deepEqual((await records()).topicOrder,beforeOrder.topicOrder);
+  await p.getByRole('button',{name:'Cancel',exact:true}).click();await settled();
+  assert.match(await p.locator('.topic-card').first().getAttribute('href'),/#topic\/1\//);
+  await p.locator('[data-action=edit-priorities]').click();await p.locator('#priority-14').selectOption('1');await p.locator('#priority-3').selectOption('2');
+  if(process.env.LIBRARY_SCREENSHOTS)await photo('priorities');
+  await p.getByRole('button',{name:'Save priorities',exact:true}).click();await settled();
+  assert.match(await p.locator('.topic-card').first().getAttribute('href'),/#topic\/14\//);
+  assert.equal(await p.locator('.topic-card').first().locator('.topic-index').innerText(),'Priority 01');
+  const ranked=await records();assert.deepEqual(ranked.catalog,beforeOrder.catalog);assert.deepEqual(ranked.reading,beforeOrder.reading);assert.deepEqual(ranked.progress,beforeOrder.progress);assert.deepEqual(ranked.focus,beforeOrder.focus);
+  await p.reload();assert.match(await p.locator('.topic-card').first().getAttribute('href'),/#topic\/14\//);
+  await p.locator('[data-action=edit-priorities]').click();await p.getByRole('button',{name:'Original order',exact:true}).click();await p.getByRole('button',{name:'Cancel',exact:true}).click();await settled();
+  assert.deepEqual((await records()).topicOrder,ranked.topicOrder);
   // Export / preview / restore includes both the new progress and all existing notes.
   await p.locator('[data-action=settings]:visible').first().click();const download=p.waitForEvent('download');await p.locator('[data-action=export-backup]').click();const backup=JSON.parse(readFileSync(await (await download).path(),'utf8'));
   await p.locator('#import-file').setInputFiles({name:'reading-roundtrip.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});
-  await p.locator('[data-action=confirm-import]').waitFor();p.once('dialog',d=>d.accept());await p.locator('[data-action=confirm-import]').click();assert.deepEqual((await records()).reading,backup.data.reading);assert.equal((await records()).progress[id].notes,backup.data.progress[id].notes);
+  await p.locator('[data-action=confirm-import]').waitFor();p.once('dialog',d=>d.accept());await p.locator('[data-action=confirm-import]').click();assert.deepEqual((await records()).reading,backup.data.reading);assert.deepEqual((await records()).topicOrder,backup.data.topicOrder);assert.equal((await records()).progress[id].notes,backup.data.progress[id].notes);
   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'no horizontal page overflow');
-  assert.deepEqual(errors,[]);console.log(`${mobile?'Mobile':'Desktop'}: reading toggle, slider, page entry, focus progress, persistence, notes and backup restoration passed.`);
+  assert.deepEqual(errors,[]);console.log(`${mobile?'Mobile':'Desktop'}: reading toggle, slider, page entry, focus progress, section priorities, persistence, notes and backup restoration passed.`);
   await context.close();
  }
 }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}

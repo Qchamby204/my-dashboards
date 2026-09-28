@@ -172,3 +172,17 @@ test('invalid saved page goals preserve the original record for recovery', () =>
   assert.equal(app.storage.get('atlas.library.v1'),saved);
   assert.match(app.nodes.get('#storage-banner').innerHTML,/original data has not been overwritten/);
 });
+
+test('reordered sections preserve seed IDs, goals, notes and priority order during normal edits',()=>{
+ const seed=boot().window.ATLAS_LIBRARY_CATALOG;
+ const topicOrder=seed.topics.map(t=>t.id).reverse();
+ const reading={pageCounts:{},pagesRead:{[seed.books[0].id]:30},goals:{'1:all':'2099-12-31'}};
+ const saved=JSON.stringify({schemaVersion:1,catalog:seed.books,topicOrder,reading,progress:{},syntheses:{},focus:{topic:'1',subtopic:'all'}});
+ const app=boot(saved);assert.deepEqual(app.writes,[]);
+ app.events.get('input')({target:{dataset:{bookNote:seed.books[0].id,field:'notes'},value:'Still the same book'}});
+ const after=JSON.parse(app.storage.get('atlas.library.v1'));
+ assert.deepEqual(after.topicOrder,JSON.parse(saved).topicOrder);
+ assert.deepEqual(after.catalog,JSON.parse(saved).catalog);
+ assert.deepEqual(after.reading,reading);
+ assert.equal(after.focus.topic,'1');
+});

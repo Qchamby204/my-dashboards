@@ -86,3 +86,19 @@ test('quick progress accepts exact pages and corrections, rejecting unknown tota
  assert.equal(summary(reading).read,50);
  assert.equal(summary(reading).remaining,78);
 });
+
+test('section priority moves shift other ranks without changing topic IDs or mutating the prior order',()=>{
+ const ids=seed.topics.map(t=>t.id),original=plain(ids);
+ const moved=R.movePriority(ids,'14',1);
+ assert.equal(moved[0],'14');assert.equal(moved[1],'1');assert.equal(moved.length,14);assert.equal(new Set(moved).size,14);
+ assert.deepEqual(plain(ids),original);
+ assert.deepEqual(plain(R.movePriority(moved,'14',14)),original);
+ for(const rank of [0,15,1.5,NaN])assert.throws(()=>R.movePriority(ids,'1',rank));
+ assert.throws(()=>R.movePriority(ids,'unknown',1));
+});
+test('priority backups accept only a complete unique order and default legacy backups to original order',()=>{
+ const ids=seed.topics.map(t=>t.id);
+ assert.deepEqual(plain(R.normalizeOrder(undefined,ids)),plain(ids));
+ const reversed=[...ids].reverse();assert.deepEqual(plain(R.normalizeOrder(reversed,ids)),plain(reversed));
+ for(const invalid of [null,{},[],ids.slice(1),ids.map(()=>ids[0]),[...ids.slice(1),'unknown']])assert.throws(()=>R.normalizeOrder(invalid,ids));
+});
