@@ -102,3 +102,18 @@ test('priority backups accept only a complete unique order and default legacy ba
  const reversed=[...ids].reverse();assert.deepEqual(plain(R.normalizeOrder(reversed,ids)),plain(reversed));
  for(const invalid of [null,{},[],ids.slice(1),ids.map(()=>ids[0]),[...ids.slice(1),'unknown']])assert.throws(()=>R.normalizeOrder(invalid,ids));
 });
+
+test('skipping excludes pages without recording them as read or changing a fixed deadline',()=>{
+ const reading={pageCounts:{'custom-a':2000,'custom-b':3000},pagesRead:{'custom-a':100},goals:{'1:all':'2026-10-07'}};
+ const before=JSON.stringify(reading);
+ const r=summary(reading,{'custom-a':{status:'skipped'}});
+ assert.equal(r.total,3000);assert.equal(r.read,0);assert.equal(r.remaining,3000);assert.equal(r.daily,300);assert.equal(r.skipped,1);
+ assert.equal(JSON.stringify(reading),before);
+ assert.equal(summary(reading).daily,490,'including a book restores its unread pages');
+ const all=summary(reading,{'custom-a':{status:'skipped'},'custom-b':{status:'skipped'}});
+ assert.equal(all.included,0);assert.equal(all.complete,false);assert.equal(all.daily,0);
+});
+test('skipped unknown counts do not prevent a remaining plan from completing',()=>{
+ const r=summary({pageCounts:{'custom-a':100,'custom-b':null},pagesRead:{},goals:{}},{'custom-a':{status:'done'},'custom-b':{status:'skipped'}});
+ assert.equal(r.unknownRemaining,0);assert.equal(r.complete,true);assert.equal(r.skipped,1);
+});
