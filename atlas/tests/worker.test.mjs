@@ -44,7 +44,8 @@ test('Life Map projection excludes all other backup data and validates source ID
   assert.throws(()=>parseLifeMap({projects:[{id:'a',task:'A'},{id:'a',task:'B'}]}),/duplicate/i);
   assert.throws(()=>parseLifeMap({projects:[{task:'No id'}]}));
   assert.equal(validDate('2026-02-30'),false);assert.equal(monday('2026-09-06'),'2026-08-31');assert.equal(monday('2026-09-07'),'2026-09-07');
-  assert.equal(APPS.length,13);assert.ok(!APPS.some(a=>/gang|booking/.test(a.file)));
+  assert.equal(APPS.length,15);assert.ok(!APPS.some(a=>/gang|booking/.test(a.file)));
+  for(const id of ['the-chef','crucible'])assert.ok(APPS.some(a=>a.id===id&&a.file===id+'.html'),id);
 });
 test('anonymous visitors are redirected, APIs require identity, and writes require same origin',async()=>{
   const db=database();

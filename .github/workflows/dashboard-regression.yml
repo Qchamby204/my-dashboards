@@ -1,0 +1,36 @@
+name: Dashboard regression checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'atlas/**'
+      - 'shared/**'
+      - '*.html'
+      - '*.webmanifest'
+      - 'drizzle/**'
+      - 'package*.json'
+      - '.github/workflows/dashboard-regression.yml'
+  pull_request:
+    paths:
+      - 'atlas/**'
+      - 'shared/**'
+      - '*.html'
+      - '*.webmanifest'
+      - 'drizzle/**'
+      - 'package*.json'
+      - '.github/workflows/dashboard-regression.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run build
+      - run: npm test
