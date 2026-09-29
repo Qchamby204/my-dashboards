@@ -273,8 +273,16 @@
   },
   "sports": {
     "label": "Sports",
-    "brief": "NHL, NFL, CFL and NBA. Lead with the Winnipeg Jets and Blue Bombers, then the league-wide stories, scores from the last 24 hours, injuries, trades, and what is on tonight. Assume the listener wants to hold his own in any sports conversation in Winnipeg.",
+    "brief": "NHL, NFL, CFL and NBA. The listener's NFL team is the Las Vegas Raiders: prioritize meaningful Raiders developments and the biggest NFL stories alongside the Winnipeg Jets and Blue Bombers. Include verified results from the last 24 hours, injuries, roster moves, and the next game when supported by current sources. If the feeds lack NFL or Raiders coverage, use the existing web-search allowance to check NFL.com or Raiders.com; do not increase the search budget. On quiet Raiders days, say less rather than repeat old news or invent an update. Then cover other major league-wide stories so the listener can hold his own in a sports conversation in Winnipeg.",
     "feeds": [
+      {
+        "outlet": "Las Vegas Raiders",
+        "url": "https://www.raiders.com/rss/news"
+      },
+      {
+        "outlet": "ESPN NFL",
+        "url": "https://www.espn.com/espn/rss/nfl/news"
+      },
       {
         "outlet": "Globe and Mail Hockey",
         "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/hockey/"
@@ -301,6 +309,8 @@
       "Sportsnet",
       "ESPN",
       "NHL.com",
+      "NFL.com",
+      "Raiders.com",
       "CFL.ca",
       "The Athletic",
       "Winnipeg Free Press"
