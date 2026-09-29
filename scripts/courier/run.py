@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 
 import build as courier
 from allocation import adaptive_minutes
-from audio_meta import attach_duration, write_feed as write_measured_feed
+from audio_meta import attach_duration, validate_duration_cap, write_feed as write_measured_feed
 from coverage import filter_items, has_publishable_assignment, overlap_report, prune_plan
 from dedupe import history_prompt, recent_events
 from planning import resilient_plan, same_topic
@@ -137,6 +137,7 @@ def refresh_repair_metadata():
             attach_duration(block, local_audio)
     current["projectedMinutes"] = round(sum(float(b.get("minutes", 0) or 0) for b in current.get("blocks", [])), 1)
     current["durationSeconds"] = round(sum(float(b.get("durationSeconds", 0) or 0) for b in current.get("blocks", [])), 1)
+    validate_duration_cap(current.get("blocks", []), current.get("budgetMinutes", courier.TOTAL_MINUTES))
     current.update(courier.gaps(current, current.get("expectedSections")))
     courier.MANIFEST.write_text(json.dumps(manifest, indent=1, ensure_ascii=False) + "\n")
     measured_feed(manifest)
@@ -338,6 +339,7 @@ def normal_main():
     if not blocks:
         raise RuntimeError("Courier produced no usable blocks")
 
+    validate_duration_cap(blocks, courier.TOTAL_MINUTES)
     total = round(sum(float(block.get("minutes", 0) or 0) for block in blocks), 1)
     cost = courier.estimate_cost(courier.USAGE)
     source_report = HEALTH.report(sources)
