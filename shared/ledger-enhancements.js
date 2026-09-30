@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=54bee6cc9b2d',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=d61490850e85',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -17,7 +17,15 @@
     const button=(text,fn)=>{const b=make('button',text,'ledger-button');b.type='button';b.addEventListener('click',fn);return b;};
     const pretty=date=>new Date(date+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
     function safeKeys(o){if(o&&typeof o==='object')for(const k of Object.keys(o)){if(['__proto__','prototype','constructor'].includes(k))throw Error('Invalid record key.');safeKeys(o[k]);}}
-    function validEntry(d){if(!plain(d)||!plain(d.units)||Object.values(d.units).some(v=>!finite(v))||d.note!==undefined&&typeof d.note!=='string'||d.mood!==undefined&&(!Number.isInteger(d.mood)||d.mood<0||d.mood>5))throw Error('A daily entry is invalid.');}
+    const guardrails={'':'Choose one for today',feeds:'No YouTube / Instagram feeds today',work:'Phone out of reach during work blocks',evening:'Phone charges out of reach this evening'};
+    const triggers={'':'Optional: what pulled you in?',bored:'Boredom',stress:'Stress',avoid:'Avoiding a task',habit:'Opened it automatically'};
+    const resets={task:'Phone away · 10 minutes on my next task',read:'Phone away · read for 10 minutes',walk:'Phone away · take a 10-minute walk'};
+    const emptyScreen=()=>({guardrail:'',slips:[]});
+    const hasScreen=s=>!!s&&(!!s.guardrail||s.slips.length>0);
+    function validScreen(s){
+      if(!plain(s)||!Object.hasOwn(guardrails,s.guardrail)||!Array.isArray(s.slips)||s.slips.length>100||s.slips.some(v=>!plain(v)||!Object.hasOwn(triggers,v.trigger)||!Object.hasOwn(resets,v.action)||typeof v.recovered!=='boolean'))throw Error('Invalid Screen Discipline entry.');
+    }
+    function validEntry(d){if(!plain(d)||!plain(d.units)||Object.values(d.units).some(v=>!finite(v))||d.note!==undefined&&typeof d.note!=='string'||d.mood!==undefined&&(!Number.isInteger(d.mood)||d.mood<0||d.mood>5))throw Error('A daily entry is invalid.');if(d.screen!==undefined)validScreen(d.screen);}
     function validate(field,value){
       safeKeys(value);
       if(field==='days'){
@@ -58,11 +66,11 @@
     }
     store.set=write;
     async function retry(){if(blocked||busy)return;for(const [key,value]of [...failed])await write(key,value);status();}
-    function currentEntry(){return {units:clone(state.draft),mood:state.draftMood||0,note:state.draftNote||''};}
-    function dirty(){const saved=dayEntryFor(state.logDate);return HABITS.some(h=>(saved?.units?.[h]||0)!==(state.draft[h]||0))||(saved?.mood||0)!==(state.draftMood||0)||(saved?.note||'')!==(state.draftNote||'');}
+    function currentEntry(){return {units:clone(state.draft),mood:state.draftMood||0,note:state.draftNote||'',...(hasScreen(state.draftScreen)?{screen:clone(state.draftScreen)}:{})};}
+    function dirty(){const saved=dayEntryFor(state.logDate);return HABITS.some(h=>(saved?.units?.[h]||0)!==(state.draft[h]||0))||(saved?.mood||0)!==(state.draftMood||0)||(saved?.note||'')!==(state.draftNote||'')||JSON.stringify(saved?.screen||emptyScreen())!==JSON.stringify(state.draftScreen||emptyScreen());}
     function remember(){if(blocked||busy||!validDate(state.draftFor))return;if(dirty())drafts.days[state.draftFor]=currentEntry();else delete drafts.days[state.draftFor];drafts.selected=state.draftFor;drafts.mode=state.logMode;write(DRAFTKEY,JSON.stringify(drafts));}
     const originalLoad=loadDraftFor;
-    loadDraftFor=function(date){originalLoad(date);const d=drafts.days[date];if(d){state.draft={...freshDraft(),...clone(d.units)};state.draftMood=d.mood||0;state.draftNote=d.note||'';}};
+    loadDraftFor=function(date){originalLoad(date);const d=drafts.days[date];if(d){state.draft={...freshDraft(),...clone(d.units)};state.draftMood=d.mood||0;state.draftNote=d.note||'';}state.draftScreen=clone((d||dayEntryFor(date))?.screen||emptyScreen());};
     let seenToday=todayISO();
     state.logMode=drafts.mode;state.logDate=validDate(drafts.selected)&&drafts.selected<=seenToday?drafts.selected:seenToday;loadDraftFor(state.logDate);
     function selectDate(date){if(blocked||busy||!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return false;}remember();state.logDate=date;loadDraftFor(date);drafts.selected=date;write(DRAFTKEY,JSON.stringify(drafts));state.cardIndex=0;render();document.getElementById('ledger-log')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return true;}
@@ -126,10 +134,11 @@
     async function saveDay(force=false){
       if(blocked||busy)return;const date=state.logDate;if(!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return;}
       if(Object.values(state.draft).some(v=>!finite(v))){toast('Use a valid, non-negative number for each entry.');return;}
-      if(!HABITS.some(h=>state.draft[h]>0)&&!state.draftMood&&!state.draftNote.trim()&&!force){confirmAction('Save an empty day?','This records the date with no check-ins or note.','Save day',()=>saveDay(true));return;}
+      if(!HABITS.some(h=>state.draft[h]>0)&&!state.draftMood&&!state.draftNote.trim()&&!hasScreen(state.draftScreen)&&!force){confirmAction('Save an empty day?','This records the date with no check-ins or note.','Save day',()=>saveDay(true));return;}
       remember();const progressBefore=compute(state.days,state.goals),before=dayEntryFor(date),entry={...clone(before||{}),date,units:clone(before?.units||{})};
       for(const h of HABITS){delete entry.units[h];if(state.draft[h]>0)entry.units[h]=state.draft[h];}
       delete entry.mood;delete entry.note;if(state.draftMood)entry.mood=state.draftMood;if(state.draftNote.trim())entry.note=state.draftNote.trim();
+      delete entry.screen;if(hasScreen(state.draftScreen))entry.screen=clone(state.draftScreen);
       const next=state.days.filter(d=>d.date!==date).concat([entry]).sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map((d,i)=>({...d,day:i+1}));
       busy=true;status();const ok=await write(KEY,JSON.stringify(next));
       // A failed day save is retried explicitly with Save day, never as a stale queued snapshot.
@@ -147,6 +156,66 @@
     importData=async function(file){if(busy)return;const ticket=++importTicket;try{if(file.size>10*1024*1024)throw Error('Choose a backup smaller than 10 MB.');const next=parseBackup(JSON.parse(await file.text()));if(ticket!==importTicket)return;confirmAction('Restore Life Ledger?',next.days.length+' saved days will replace this history. '+(next.drafts?'The backup also replaces unfinished drafts.':'Current unfinished drafts and season dates stay unless included in the backup.')+(blocked?' Keep a recovery backup before replacing unreadable records.':''),'Restore backup',async()=>{if(ticket!==importTicket||busy)return;const all={...clone(payload()),...next};blocked=false;busy=true;failed.clear();state.days=all.days;state.goals=all.goals;state.metrics=all.metrics;userModel=all.model;season=all.season;drafts=all.drafts;rebuildModel();SEASON_START=isoToNum(season.start);SEASON_END=isoToNum(season.end);lastUndo=null;clearCelebrations();saveFeedback='';state.logMode=drafts.mode;state.logDate=drafts.selected<=todayISO()?drafts.selected:todayISO();loadDraftFor(state.logDate);for(const [field,key]of Object.entries(keys))await write(key,JSON.stringify(all[field]));busy=false;render();toast(failed.size?'Restored in this tab. Retry saving or keep a backup.':'Backup restored on this device.');});}catch(err){toast(err.message||'Could not read this backup.');}};
     function pickImport(){const input=make('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',()=>{if(input.files?.[0])importData(input.files[0]);});input.click();}
     function removeMetric(id){const removed=state.metrics.find(m=>m.id===id);if(!removed)return;confirmAction('Delete this metric?','This removes the metric and its readings from this device. An Undo action follows.','Delete metric',async()=>{const next=state.metrics.filter(m=>m.id!==id);busy=true;status();const ok=await write(METRICKEY,JSON.stringify(next));busy=false;if(!ok){failed.delete(METRICKEY);status();toast('Metric was not deleted. Try again.');return;}state.metrics=next;render();toast('Metric deleted.','Undo',async()=>{if(state.metrics.some(m=>m.id===id)||busy)return;const restored=[...state.metrics,removed];busy=true;status();const saved=await write(METRICKEY,JSON.stringify(restored));busy=false;if(saved){state.metrics=restored;render();}else{failed.delete(METRICKEY);status();toast('Could not restore the metric. Keep a backup before closing.');}});});}
+    // Optional daily notes share the existing draft/save/backup path. They never
+    // change habit units or XP. No record is written merely by drawing this view.
+    let screenInfoOpen=false,screenPatternsOpen=false;
+    function screenPattern(end){
+      const rows=[],reasons={};let guarded=0,slips=0,recovered=0,recorded=0;
+      for(let i=6;i>=0;i--){
+        const date=numToISO(isoToNum(end)-i*86400000);
+        const s=(date===state.logDate?state.draftScreen:(drafts.days[date]||dayEntryFor(date))?.screen)||emptyScreen();
+        if(hasScreen(s))recorded++;if(s.guardrail)guarded++;
+        const done=s.slips.filter(v=>v.recovered).length;slips+=s.slips.length;recovered+=done;
+        for(const v of s.slips)if(v.trigger)reasons[v.trigger]=(reasons[v.trigger]||0)+1;
+        rows.push({date,guardrail:!!s.guardrail,slips:s.slips.length,recovered:done,recorded:hasScreen(s)});
+      }
+      const max=Math.max(0,...Object.values(reasons)),top=Object.keys(reasons).filter(k=>reasons[k]===max).map(k=>triggers[k]);
+      return {rows,guarded,slips,recovered,recorded,top};
+    }
+    function screenPanel(){
+      const date=state.logDate,s=state.draftScreen,last=s.slips.at(-1),today=date===todayISO();
+      const panel=make('section',null,'ledger-screen');panel.id='ledger-screen';panel.setAttribute('aria-labelledby','ledger-screen-title');
+      const header=make('div',null,'ledger-screen-heading'),title=make('h3','Screen Discipline');title.id='ledger-screen-title';
+      const info=make('details',null,'ledger-progress-info'),infoToggle=make('summary','i');infoToggle.setAttribute('aria-label','About Screen Discipline');info.open=screenInfoOpen;info.addEventListener('toggle',()=>screenInfoOpen=info.open);
+      info.append(infoToggle,make('p','Pick a practical boundary before you open a feed. If you drift, note it and protect the next 10 minutes. These manual notes stay on this device with your drafts and backups. Only your separate Under 1 Hour check-in counts toward that habit; a slip or reset never changes it.','ledger-help'));
+      header.append(title,info);panel.append(header);
+      function change(fn,focus){
+        if(blocked||busy)return;
+        if(date!==todayISO()||state.logDate!==date){checkDay();toast('The day changed. Use today’s Screen Discipline controls.');return;}
+        fn();remember();render();document.getElementById(focus)?.focus({preventScroll:true});
+      }
+      function choose(id,text,options,value,fn){
+        const label=make('label',text),select=make('select');select.id=id;
+        for(const [key,text]of Object.entries(options)){const option=make('option',text);option.value=key;select.append(option);}select.value=value;
+        select.addEventListener('change',()=>change(()=>fn(select.value),id));label.append(select);panel.append(label);
+      }
+      function action(id,text,fn,focus=id){const b=button(text,()=>change(fn,focus));b.id=id;panel.append(b);return b;}
+      if(today){
+        choose('screen-guardrail','Today’s guardrail',guardrails,s.guardrail,v=>s.guardrail=v);
+        const caught=action('screen-slip','Caught myself scrolling',()=>{if(s.slips.length>=100)return;s.slips.push({trigger:'',action:'task',recovered:false});},'screen-recovery');
+        caught.disabled=s.slips.length>=100;
+        if(last){
+          const feedback=make('p',last.recovered?'Reset recorded. Keep the next block intentional.':'Slip noted. Close the feed; protect the next block.','ledger-help');feedback.setAttribute('role','status');panel.append(feedback);
+          if(!last.recovered){
+            choose('screen-trigger','What pulled you in? (optional)',triggers,last.trigger,v=>last.trigger=v);
+            choose('screen-action','Next 10 minutes',resets,last.action,v=>last.action=v);
+            action('screen-recovery','I did this reset',()=>last.recovered=true,'screen-slip');
+          }else action('screen-unrecover','Undo reset',()=>last.recovered=false,'screen-recovery');
+          action('screen-undo','Undo last slip',()=>s.slips.pop(),'screen-slip');
+        }
+      }else{
+        panel.append(make('p',pretty(date)+' · '+(s.guardrail?guardrails[s.guardrail]:'No guardrail recorded'),'ledger-help'));
+        panel.append(button('Open today’s controls',()=>selectDate(todayISO())));
+      }
+      const count=(n,word)=>n+' '+word+(n===1?'':'s');
+      const pattern=screenPattern(date),details=make('details',null,'ledger-screen-patterns');details.open=screenPatternsOpen;details.addEventListener('toggle',()=>screenPatternsOpen=details.open);
+      details.append(make('summary','Last 7 days · '+count(pattern.slips,'slip')+' · '+count(pattern.recovered,'reset')));
+      details.append(make('p',pattern.guarded+' / 7 days with a guardrail. '+pattern.recorded+' days with intervention notes.','ledger-help'));
+      if(pattern.top.length)details.append(make('p','Most noted trigger: '+pattern.top.join(' / ')+'.','ledger-help'));
+      const list=make('ul');for(const row of pattern.rows)list.append(make('li',fmtDay(row.date)+' · '+(row.recorded?(row.guardrail?'Guardrail · ':'')+count(row.slips,'slip')+' / '+count(row.recovered,'reset'):'No notes')));details.append(list);
+      details.append(make('p','Manual notes, including drafts. No notes does not mean no scrolling.','ledger-help'));panel.append(details);
+      return panel;
+    }
     const originalQuest=questLog,originalSettings=settingsView,originalDeckChrome=updateDeckChrome;
     function withLiteralUnits(fn){const units=Object.fromEntries(Object.entries(HCFG).map(([key,c])=>[key,c.unit]));try{Object.values(HCFG).forEach(c=>c.unit=esc(c.unit));return fn();}finally{for(const [key,unit]of Object.entries(units))HCFG[key].unit=unit;}}
     questLog=function(draft){const days=compute(state.days,state.goals).days,existing=days.find(d=>d.date===state.logDate),count=days.filter(d=>d.date<=state.logDate).length;const draw=()=>originalQuest(draft,existing?.day||count+1);return state.logMode==='list'?withLiteralUnits(draw):draw();};
@@ -173,6 +242,7 @@
 
       const log=app.querySelector('[data-act="logdate"]')?.closest('.panel');if(log){log.id='ledger-log';const actions=make('div',null,'ledger-actions');actions.append(button('Today',()=>selectDate(todayISO())),button('Yesterday',()=>selectDate(numToISO(isoToNum(todayISO())-86400000))));const stateLabel=make('p',null,'ledger-help');stateLabel.id='ledger-draft-status';stateLabel.setAttribute('role','status');actions.append(stateLabel);const achievements=button('Achievements · '+earned.length+' earned',()=>{state.openSections.relics=true;clearCelebrations();render();app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel')?.scrollIntoView({block:'start'});});actions.append(achievements);log.prepend(actions);if(saveFeedback){const feedback=make('p',saveFeedback,'ledger-save-feedback');feedback.id='ledger-save-feedback';feedback.setAttribute('role','status');log.prepend(feedback);}const dateInput=log.querySelector('[data-act="logdate"]');dateInput.setAttribute('aria-label','Date to log');dateInput.parentNode.classList.add('ledger-date-row');const note=log.querySelector('[data-act="note"]');note?.setAttribute('aria-label','Daily note');}
       const bar=app.querySelector('.appbar');if(bar){const jump=button('Log today',()=>selectDate(todayISO()));bar.after(jump);jump.classList.add('ledger-jump');}
+      if(log&&HABITS.includes('Screen Discipline'))log.querySelector('[data-act="logdate"]')?.parentNode.after(screenPanel());
       const seasonInfo=make('section',null,'ledger-season-summary');seasonInfo.id='ledger-season-summary';const archived=state.days.filter(d=>!d.date||d.date<season.start||d.date>season.end).length;seasonInfo.append(make('strong',todayISO()<season.start?'Season starts '+pretty(season.start):'Season: '+pretty(season.start)+' to '+pretty(season.end)),make('p',archived+' earlier or outside-season entries kept in Saved days.'));if(log)log.before(seasonInfo);
       if(state.logDate<season.start||state.logDate>season.end){const info=make('p','This date is outside the current season. Saving keeps it in your history.','ledger-help');log?.prepend(info);}
       const reset=app.querySelector('[data-act="reset"]');if(reset)reset.textContent='Start new season';
@@ -187,7 +257,7 @@
       const el=e.target.closest('[data-act]');if(!el)return;if(blocked||busy){e.stopImmediatePropagation();return;}
       const act=el.dataset.act;
       if(act==='reset'){e.stopImmediatePropagation();remember();seasonDialog();}
-      if(act==='clear'){e.stopImmediatePropagation();confirmAction('Clear this draft?','Saved days remain in your history. Save day is required to replace an existing entry.','Clear draft',()=>{state.draft=freshDraft();state.draftMood=0;state.draftNote='';remember();render();});}
+      if(act==='clear'){e.stopImmediatePropagation();confirmAction('Clear this draft?','Saved days remain in your history. Save day is required to replace an existing entry.','Clear draft',()=>{state.draft=freshDraft();state.draftMood=0;state.draftNote='';state.draftScreen=emptyScreen();remember();render();});}
       if(act==='delmetric'){e.stopImmediatePropagation();removeMetric(el.dataset.id);}
       if(act==='restoreHabits'){e.stopImmediatePropagation();confirmAction('Restore the default habits?','Original habit names, locations and visibility return. Your custom habits and saved entries stay.','Restore habits',()=>{for(const h of Object.keys(DEFAULT_HCFG))for(const field of ['renames','moves','hidden','crit'])delete userModel[field][h];saveModel();rebuildModel();render();});}
     },true);

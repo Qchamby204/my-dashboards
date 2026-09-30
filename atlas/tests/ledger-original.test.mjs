@@ -250,3 +250,95 @@ test('habit logging omits reflection inputs and retains saved reflections when u
  const saved=JSON.parse(h.storage.get(S))[0];assert.equal(saved.units.Read,5);assert.equal(saved.units.Archived,8);assert.equal(saved.mood,4);assert.equal(saved.note,'A saved reflection');
  const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.days[0].mood'),4);assert.equal(again.run('state.days[0].note'),'A saved reflection');
 });
+
+// Screen Discipline uses the production day/draft/backup path and real habit model.
+const screenNow='2026-09-30T09:00:00-05:00';
+const screenBoot=options=>boot({realModel:true,nowISO:screenNow,...options});
+const chooseScreen=(h,id,value)=>{h.node(id).value=value;h.node(id).emit('change');};
+const screenDraft=h=>JSON.parse(h.storage.get(D)).days['2026-09-30'].screen;
+
+test('Screen Discipline is optional on legacy days and opening adds no intervention records',async()=>{
+ const rows=[{date:'2026-09-30',units:{Read:10,'Screen Discipline':1},note:'Keep this',mood:4}],h=await screenBoot({records:{[S]:JSON.stringify(rows)}});
+ assert.equal(h.storage.get(S),JSON.stringify(rows));assert.equal(h.storage.has(D),false);
+ assert.equal(h.run('state.draftScreen.guardrail'),'');assert.match(h.node('ledger-screen').textContent,/0 slips · 0 resets/);
+ assert.equal(h.node('screen-guardrail').parentNode.tagName,'LABEL');assert.equal(h.node('screen-trigger'),undefined);
+ for(const mode of ['cards','list']){h.run(`state.logMode='${mode}';render()`);assert.equal(h.node('app').querySelectorAll('#ledger-screen').length,1);}
+ h.run(`userModel.hidden['Screen Discipline']=true;rebuildModel();render()`);assert.equal(h.node('ledger-screen'),undefined);
+});
+
+test('guardrail, one-tap slip, optional trigger and reset persist without changing habits or rewards',async()=>{
+ const h=await screenBoot();chooseScreen(h,'screen-guardrail','feeds');
+ assert.equal(screenDraft(h).guardrail,'feeds');h.node('screen-slip').click();
+ assert.equal(screenDraft(h).slips.length,1);assert.equal(h.node('screen-slip').disabled,false);
+ assert.equal(h.document.activeElement.id,'screen-recovery');chooseScreen(h,'screen-trigger','avoid');chooseScreen(h,'screen-action','read');h.node('screen-recovery').click();
+ assert.deepEqual(screenDraft(h).slips[0],{trigger:'avoid',action:'read',recovered:true});
+ assert.equal(h.run('state.draft["Screen Discipline"]'),0);assert.equal(h.run('state.days.length'),0);assert.equal(h.run('state.achvQueue.length'),0);
+ const again=await screenBoot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.draftScreen.slips[0].recovered'),true);
+ again.node('screen-unrecover').click();assert.equal(screenDraft(again).slips[0].recovered,false);again.node('screen-recovery').click();again.node('screen-slip').click();assert.equal(screenDraft(again).slips.length,2);
+ again.node('screen-undo').click();assert.equal(screenDraft(again).slips.length,1);assert.equal(screenDraft(again).slips[0].recovered,true);
+});
+
+test('screen notes alone save without awarding a successful day; normal outcomes keep their milestones',async()=>{
+ const h=await screenBoot();h.node('screen-slip').click();h.node('screen-recovery').click();await h.api.saveDay();
+ assert.equal(h.run('state.days[0].screen.slips[0].recovered'),true);assert.equal(h.run('compute(state.days,state.goals).life.exact'),0);
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),0);
+ const rows=Array.from({length:29},(_,i)=>({date:'2026-09-'+String(i+1).padStart(2,'0'),units:{'Screen Discipline':1}}));
+ const earned=await screenBoot({records:{[S]:JSON.stringify(rows),[C]:JSON.stringify({start:'2026-09-01',end:'2026-12-31'})}});
+ earned.node('screen-slip').click();earned.node('screen-recovery').click();earned.act('toggle',{habit:'Screen Discipline'});await earned.api.saveDay();
+ assert.equal(earned.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),30);assert(earned.run('state.achvQueue.some(a=>a.name==="Unplugged")'));
+});
+
+test('saving and undoing Screen Discipline preserve other units, notes, mood and season history',async()=>{
+ const rows=[{date:'2026-09-30',units:{Read:15,Archived:4,'Screen Discipline':1},note:'Keep me',mood:3}],h=await screenBoot({records:{[S]:JSON.stringify(rows)}});
+ chooseScreen(h,'screen-guardrail','work');h.node('screen-slip').click();await h.api.saveDay();
+ const saved=JSON.parse(h.storage.get(S))[0];assert.deepEqual(saved.units,rows[0].units);assert.equal(saved.note,'Keep me');assert.equal(saved.mood,3);assert.equal(saved.screen.slips.length,1);
+ h.node('screen-recovery').click();await h.run('undoLast()');assert.equal(h.run('state.days[0].screen'),undefined);assert.equal(h.run('state.draftScreen.slips[0].recovered'),true);
+ await h.api.saveDay();await h.api.setSeason({start:'2026-10-01',end:'2026-12-31'});assert.equal(h.run('state.days[0].screen.slips.length'),1);assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),0);
+});
+
+test('backup round-trip retains saved and draft interventions and old backups remain valid',async()=>{
+ const h=await screenBoot();chooseScreen(h,'screen-guardrail','evening');h.node('screen-slip').click();await h.api.saveDay();h.node('screen-recovery').click();
+ h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());assert.equal(pack.days[0].screen.slips[0].recovered,false);assert.equal(pack.drafts.days['2026-09-30'].screen.slips[0].recovered,true);
+ const restored=await screenBoot();await restored.run('importData')(file(pack));restored.clickText('Restore backup');await restored.settle();
+ assert.equal(restored.run('state.draftScreen.slips[0].recovered'),true);assert.equal(restored.run('state.days[0].screen.slips[0].recovered'),false);
+ for(const version of [1,2,3])assert.doesNotThrow(()=>h.api.parseBackup({app:'life-ledger',version,days:[{date:'2026-09-20',units:{Read:2}}]}));
+});
+
+test('malformed screen imports are rejected and corrupt original bytes remain recoverable',async()=>{
+ const h=await screenBoot(),slip={trigger:'',action:'task',recovered:false};
+ for(const screen of [{guardrail:'<img>',slips:[]},{guardrail:'feeds',slips:null},{guardrail:'',slips:[{...slip,recovered:'yes'}]},{guardrail:'',slips:[{...slip,action:'<script>'}]},{guardrail:'',slips:Array(101).fill(slip)}]){
+  assert.throws(()=>h.api.parseBackup({days:[{date:'2026-09-30',units:{},screen}]}),/Invalid Screen Discipline/);
+ }
+ const raw=JSON.stringify([{date:'2026-09-30',units:{},screen:{guardrail:'invalid',slips:[]}}]),broken=await screenBoot({records:{[S]:raw}});
+ assert.equal(broken.api.blocked,true);assert.equal(broken.storage.get(S),raw);broken.run('exportData()');assert.equal(JSON.parse(await broken.downloads.at(-1).blob.text()).records[S],raw);
+});
+
+test('failed draft writes keep the intervention for retry and recovery backup',async()=>{
+ const h=await screenBoot();h.localStorage.blockedKey=D;h.node('screen-slip').click();assert.equal(h.api.failed,1);assert.equal(h.run('state.draftScreen.slips.length'),1);
+ assert.match(h.node('ledger-draft-status').textContent,/Not saved/);h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());assert.equal(pack.drafts.days['2026-09-30'].screen.slips.length,1);
+ h.localStorage.blockedKey=null;await h.api.retry();assert.equal(h.api.failed,0);assert.equal(screenDraft(h).slips.length,1);
+});
+
+test('midnight starts a fresh guardrail and retains yesterday; stale controls cannot write the wrong day',async()=>{
+ const h=await screenBoot();chooseScreen(h,'screen-guardrail','work');h.node('screen-slip').click();const stale=h.node('screen-recovery');
+ h.at('2026-10-01T00:01:00-05:00');stale.click();assert.equal(h.run('state.logDate'),'2026-10-01');assert.equal(h.run('state.draftScreen.guardrail'),'');assert.equal(h.run('state.draftScreen.slips.length'),0);
+ assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-30'].screen.slips[0].recovered,false);
+ h.api.selectDate('2026-09-30');assert.equal(h.node('screen-slip'),undefined);assert.match(h.node('ledger-screen').textContent,/Phone out of reach/);
+ h.api.selectDate('2026-10-01');assert.equal(h.node('screen-guardrail').value,'');
+});
+
+test('seven-day patterns combine saved days and drafts once and leave missing dates unknown',async()=>{
+ const slip={trigger:'bored',action:'task',recovered:false};
+ const rows=[{date:'2026-09-23',units:{},screen:{guardrail:'feeds',slips:[slip]}},{date:'2026-09-24',units:{},screen:{guardrail:'work',slips:[slip]}},{date:'2026-09-30',units:{},screen:{guardrail:'evening',slips:[slip]}}];
+ const drafts={selected:'2026-09-30',mode:'list',days:{'2026-09-30':{units:{},screen:{guardrail:'feeds',slips:[{...slip,recovered:true}]}}}};
+ const h=await screenBoot({records:{[S]:JSON.stringify(rows),[D]:JSON.stringify(drafts)}}),view=h.node('ledger-screen');
+ assert.match(view.textContent,/Last 7 days · 2 slips · 1 reset/);assert.match(view.textContent,/2 \/ 7 days with a guardrail/);assert.match(view.textContent,/Most noted trigger: Boredom/);assert.equal(view.querySelectorAll('li').length,7);
+ assert.match(view.textContent,/No notes does not mean no scrolling/);assert.doesNotMatch(view.textContent,/Sep 23/);
+});
+
+
+test('another slip can be noted without claiming the previous reset was completed',async()=>{
+ const h=await screenBoot();h.node('screen-slip').click();chooseScreen(h,'screen-trigger','stress');h.node('screen-slip').click();
+ assert.equal(screenDraft(h).slips.length,2);assert.equal(screenDraft(h).slips[0].recovered,false);assert.equal(screenDraft(h).slips[0].trigger,'stress');
+ h.node('screen-recovery').click();assert.equal(screenDraft(h).slips[1].recovered,true);assert.match(h.node('ledger-screen').textContent,/2 slips · 1 reset/);
+});

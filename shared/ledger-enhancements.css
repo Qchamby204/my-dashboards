@@ -86,3 +86,19 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .bartrack>.fill::after{displ
  html.atlas-neumo[data-atlas-app="life-ledger"] #app .bartrack>.fill{background:Highlight!important;forced-color-adjust:none;}
  html.atlas-neumo[data-atlas-app="life-ledger"] #app .bartrack::after{display:none;}
 }
+
+/* Compact, local Screen Discipline loop within the existing daily log. */
+html[data-atlas-app="life-ledger"] .ledger-screen{margin:12px 0 16px;padding:14px;border:1px solid var(--neo-line);border-left:3px solid #4ea3e0;border-radius:12px;color:var(--neo-ink);overflow-wrap:anywhere;}
+html[data-atlas-app="life-ledger"] .ledger-screen-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+html[data-atlas-app="life-ledger"] .ledger-screen h3{font-size:16px;}
+html[data-atlas-app="life-ledger"] .ledger-screen .ledger-progress-info{margin:0;}
+html[data-atlas-app="life-ledger"] .ledger-screen label{display:block;font-size:14px;margin:8px 0 12px;}
+html[data-atlas-app="life-ledger"] .ledger-screen select{display:block;width:100%;margin-top:6px;padding:10px 6px;border:1px solid var(--neo-line);border-radius:8px;color:var(--neo-ink);background:var(--neo-surface);font:inherit;}
+html[data-atlas-app="life-ledger"] .ledger-screen>.ledger-button{width:100%;margin:4px 0;white-space:normal;}
+html[data-atlas-app="life-ledger"] .ledger-screen .ledger-help{margin:8px 0;}
+html[data-atlas-app="life-ledger"] .ledger-screen-patterns{margin-top:8px;border-top:1px solid var(--neo-line);font-size:14px;line-height:1.5;}
+html[data-atlas-app="life-ledger"] .ledger-screen-patterns summary{min-height:44px;padding:12px 0;cursor:pointer;}
+html[data-atlas-app="life-ledger"] .ledger-screen-patterns ul{list-style:none;}
+html[data-atlas-app="life-ledger"] .ledger-screen .ledger-button:active{filter:brightness(.94);}
+html[data-atlas-app="life-ledger"] .ledger-screen :focus-visible{outline:2px solid var(--neo-accent);outline-offset:2px;}
+@media(prefers-contrast:more){html[data-atlas-app="life-ledger"] .ledger-screen{border-color:var(--neo-ink);}}
