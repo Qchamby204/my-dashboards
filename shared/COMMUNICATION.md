@@ -27,3 +27,19 @@ Active, unlogged transcripts remain in memory for the current page session, as b
 ## Verification
 
 Synthetic tests execute the original script plus the enhancement. They cover delayed timer callbacks, pause/resume precision, navigation and visibility, microphone denial, stale recognition events, countdown expiry, reset Undo, complete exports, rejected imports, older backups and failed clipboard operations. No microphone, speech service or external grading provider is called by these tests. Physical iPhone testing remains outstanding for actual speech recognition, safe-area presentation and installed home-screen behavior.
+
+## Library → speaking practice (September 30, 2026)
+
+Library book notes offer “Practise explaining this · 60 seconds” for the saved
+one-sentence takeaway. Saved “My understanding” cards offer the same handoff.
+The link contains only a source ID in its fragment. Communicator reads that
+selected source from this browser's Library records and previews it before
+starting the existing 60-Second Impromptu drill. Nothing is sent to a service.
+A missing source offers a return to Library; it never creates an empty practice.
+
+Starting requires an explicit button and confirms before replacing an unfinished
+practice. The source is snapshotted with the existing practice draft and saved
+rep, so edits to Library do not rewrite past attempts. Opening or starting the
+handoff does not grant XP; only Save practice does. Library notes, reading goals,
+and topic settings are unchanged. Existing practice export/import preserves the
+source and rejects malformed source records. Microphone activation remains manual.

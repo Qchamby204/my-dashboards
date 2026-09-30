@@ -135,3 +135,8 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-le
 html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-legend li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--neo-line);padding:8px 0;font-size:14px;line-height:1.5}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-legend strong{white-space:nowrap;color:var(--neo-green);font-variant-numeric:tabular-nums}
 @media(max-width:600px){html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-legend{grid-template-columns:1fr}}
+
+/* Library handoff uses the existing practice flow, with touch-sized actions. */
+.communication-library .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;margin:4px 6px 4px 0;text-decoration:none;white-space:normal}
+.communication-library p,.communication-library summary{overflow-wrap:anywhere}
+.communication-library summary{min-height:44px;padding-block:10px;cursor:pointer}
