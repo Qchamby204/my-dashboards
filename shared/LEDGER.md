@@ -45,3 +45,16 @@ Shared safe-area and keyboard behavior is extended with 44 px controls, 16 px in
 The same batch responds to the reported Dynamic Island clearance issue. Both original headers explicitly consume the safe-area inset. The connected Life Map's outer toolbar owns that inset, avoiding duplicate top padding in nested chrome. Forge's full-screen session uses the outer panel's inset once instead of applying it again inside. Life Map's editor and Forge's confirmation dialogs use the visible viewport and safe areas.
 
 An iPhone home-screen window receives conservative fallback clearance (64 px portrait top; 64 px landscape sides) with the larger native inset retained. This is a spacing policy, not device-model detection or a claim that every iPhone reports zero insets. Normal browser tabs and desktop windows do not receive the fallback. Orientation, resume and viewport changes recompute the spacing. The native mechanism follows [WebKit's safe-area guidance](https://webkit.org/blog/7929/designing-websites-for-iphone-x/). Automated checks verify mode/orientation selection and preserved asset delivery; physical Dynamic Island rendering remains unverified.
+
+## Screen Discipline and browser verification (September 30, 2026)
+
+Screen Discipline provides one daily guardrail, an explicit “Caught myself
+scrolling” action, an optional slip trigger, and a choice of practical resets for
+the next ten minutes. “I did this reset” records follow-through; Undo remains
+available. The seven-day view separates days without notes from recorded slips.
+The existing “Under 1 Hour” habit remains a separate manual outcome.
+
+This was already added on main while the Library/mobile batch was in progress.
+The batch retains that implementation and verifies its rendered mobile flow,
+including Save day and reopening a closed tab. It does not add a second scrolling
+tracker or change previously saved records. See MOBILE.md for exact test scope.
