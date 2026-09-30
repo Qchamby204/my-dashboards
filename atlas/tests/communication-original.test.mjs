@@ -29,7 +29,7 @@ function boot({speech=true,records={}}={}){
   class Recognition{constructor(){engines.push(this);}start(){this.started=(this.started||0)+1;}abort(){this.aborted=true;}stop(){this.stopped=true;}}
   const window={scrollX:0,scrollY:0,addEventListener:(key,fn)=>on(windowEvents,key,fn),scrollTo(x,y){this.scrollX=x;this.scrollY=y;}};if(speech)window.SpeechRecognition=Recognition;
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
-  const context=vm.createContext({getComputedStyle:()=>({getPropertyValue:()=>''}),document,window,localStorage,navigator:{},crypto:{randomUUID:()=> 'practice-'+(++uuidSerial)},Date:Clock,URL,Blob,console,
+  const context=vm.createContext({getComputedStyle:()=>({getPropertyValue:()=>''}),document,window,localStorage,navigator:{},crypto:{randomUUID:()=> 'practice-'+(++uuidSerial)},Date:Clock,URL,URLSearchParams,location:{hash:'',pathname:'/communication-trainer.html',search:''},history:{replaceState(){}},Blob,console,
     setInterval:fn=>{const id=++nextId;intervals.set(id,fn);return id;},clearInterval:id=>intervals.delete(id),
     setTimeout:fn=>{const id=++nextId;timeouts.set(id,fn);return id;},clearTimeout:id=>timeouts.delete(id)});
   vm.runInContext(original+"\nDRILLS.push({id:'synthetic',name:'Explain clearly',skill:SKILLS[0].id,time:90,steps:()=>['Speak about a familiar topic.'],rubric:['Clear point','Useful example','Clear ending']});\n"+extension,context);
@@ -172,4 +172,12 @@ test('daily suggestions work without assessments and prioritise a recent chosen 
 test('recent practice suggestions use self-scores after every skill has had a recent turn',()=>{
   const h=boot();h.run("S.reps=SKILLS.map((s,i)=>({date:'2026-09-07',skill:s.id,score:i===3?20:80}));S.reps.push({date:'2099-01-01',skill:SKILLS[1].id,score:0,nextFocus:'Future entry'})");
   assert.equal(h.run('trainingSuggestion().skill'),h.run('SKILLS[3].id'));
+});
+
+test('Library source stays attached to draft and saved practice without changing the book',()=>{
+  const app=boot();app.begin();
+  app.run("curDrill.topic.librarySource={kind:'book',id:'b-test',title:'A book',text:'A useful idea'};curDrill.tx='My own explanation';window.CommunicationImprovements.rememberPractice()");
+  const saved=app.run('Store.dump()');assert.equal(saved.practiceDraft.topic.librarySource.text,'A useful idea');
+  app.run('finishDrill()');assert.equal(app.run('S.reps.at(-1).librarySource.text'),'A useful idea');
+  assert.throws(()=>app.run("window.CommunicationImprovements.validateBackup({reps:[{date:new Date().toISOString(),topic:'Idea',skill:'clarity',drill:'Drill',score:60,librarySource:{kind:'book',id:'x',title:'title',text:''}}]})"));
 });
