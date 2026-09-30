@@ -11,8 +11,10 @@ on:
       - shared/courier-experience.js
       - shared/atlas-refinements.js
       - courier/recovery-request.json
+      - courier/daily-trigger.json
   schedule:
-    # Off-hour schedules reduce contention; scheduled execution can still be delayed.
+    # Backstops only: the independent weekday timer updates daily-trigger.json.
+    # GitHub scheduled events can arrive hours late; adding crons is not independence.
   - cron: "17 10 * * 1-5"
   - cron: "43 11 * * 1-5"  # backstop: reuse generated content, always check publication
   workflow_dispatch:
@@ -70,6 +72,12 @@ jobs:
           node --check shared/courier-experience.js
           node --check shared/atlas-refinements.js
           node --check shared/courier-status.mjs
+
+      - name: Reserve automatic generation attempt
+        if: steps.today.outputs.generate == 'true' && steps.today.outputs.automatic == 'true'
+        env:
+          COURIER_DATE: ${{ steps.today.outputs.date }}
+        run: python scripts/courier/automatic.py
 
       - name: Show edition updating
         if: steps.today.outputs.generate == 'true'
