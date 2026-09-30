@@ -1,4 +1,9 @@
 {
   "schemaVersion": 1,
-  "days": []
+  "days": [
+    {
+      "date": "2026-09-30",
+      "attempts": 1
+    }
+  ]
 }
