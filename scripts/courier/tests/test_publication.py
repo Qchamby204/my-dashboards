@@ -18,7 +18,7 @@ class PublicationTests(unittest.TestCase):
         calls, waits, probes = [], [], []
         stale = copy.deepcopy(self.manifest)
         stale["days"][0]["generatedAt"] = "2026-09-08T10:00:00Z"
-        responses = iter([{"status": "queued"}, stale, self.manifest])
+        responses = iter([stale, {"status": "queued"}, self.manifest])
         def request(url, **kwargs):
             calls.append((url, kwargs))
             return next(responses)
@@ -26,8 +26,50 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(item, self.day)
         self.assertEqual(waits, [10])
         self.assertEqual(len(probes), 1)
-        self.assertEqual(calls[0][1], {"token": "synthetic-token", "method": "POST"})
-        self.assertTrue(all(not args for _, args in calls[1:]))
+        self.assertEqual(calls[1][1], {"token": "synthetic-token", "method": "POST"})
+        self.assertTrue(all(not calls[i][1] for i in (0, 2)))
+
+    def test_live_edition_checks_every_audio_without_requesting_a_build(self):
+        self.day["blocks"].append({**self.day["blocks"][0], "id": "sports",
+                                   "audio": self.day["blocks"][0]["audio"].replace("news.mp3", "sports.mp3")})
+        calls, probes = [], []
+        def request(url, **kwargs):
+            calls.append((url, kwargs))
+            return self.manifest
+        item = publication.publish(self.manifest, self.day["date"], self.repo, "synthetic-token",
+                                   request=request, probe=lambda *args: probes.append(args), attempts=1)
+        self.assertEqual(item, self.day)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][1], {})
+        self.assertIn("courier-check=", calls[0][0])
+        self.assertEqual(probes, [(b["audio"], self.repo) for b in self.day["blocks"]])
+
+    def test_stale_manifest_rebuild_is_bounded_and_cannot_report_success(self):
+        calls, waits = [], []
+        def request(url, **kwargs):
+            calls.append(kwargs)
+            return {"days": []}
+        with self.assertRaisesRegex(RuntimeError, "could not be verified"):
+            publication.publish(self.manifest, self.day["date"], self.repo, "synthetic-token",
+                                request=request, probe=lambda *a: self.fail("Stale edition was probed"),
+                                pause=waits.append, attempts=3)
+        self.assertEqual(sum(c.get("method") == "POST" for c in calls), 1)
+        self.assertEqual(sum(not c for c in calls), 3)
+        self.assertEqual(waits, [10, 10])
+
+    def test_unavailable_manifest_recovers_with_one_build(self):
+        calls = []
+        responses = iter([OSError("Pages unavailable"), {"status": "queued"}, self.manifest])
+        def request(url, **kwargs):
+            calls.append(kwargs)
+            response = next(responses)
+            if isinstance(response, OSError):
+                raise response
+            return response
+        item = publication.publish(self.manifest, self.day["date"], self.repo, "synthetic-token",
+                                   request=request, probe=lambda *a: None, pause=lambda _: None, attempts=2)
+        self.assertEqual(item, self.day)
+        self.assertEqual(sum(c.get("method") == "POST" for c in calls), 1)
 
     def test_unavailable_audio_cannot_report_success(self):
         def request(url, **kwargs):
