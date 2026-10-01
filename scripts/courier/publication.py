@@ -83,8 +83,8 @@ def publish(manifest, date, repo, token, *, request=request_json, probe=probe_au
         raise ValueError("The requested edition has not been generated")
     owner, name = repo.split("/")
     url = f"https://{owner.lower()}.github.io/{name}/courier/manifest.json"
-    # An accepted request is not proof that the edition is visible.
-    request(f"https://api.github.com/repos/{repo}/pages/builds", token=token, method="POST")
+    # Backstops must check the live edition and audio even when nothing changed.
+    # Request a build only if that check fails; acceptance is never proof of delivery.
     for attempt in range(attempts):
         try:
             live = request(f"{url}?courier-check={time.time_ns()}")
@@ -95,6 +95,8 @@ def publish(manifest, date, repo, token, *, request=request_json, probe=probe_au
                     probe(block["audio"], repo)
             return expected
         except (OSError, ValueError):
+            if attempt == 0:
+                request(f"https://api.github.com/repos/{repo}/pages/builds", token=token, method="POST")
             if attempt + 1 == attempts:
                 raise RuntimeError("Publication could not be verified: the live edition or an audio file is unavailable. The backstop can retry without regenerating content.") from None
             pause(10)

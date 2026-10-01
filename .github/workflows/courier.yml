@@ -164,8 +164,8 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      # GITHUB_TOKEN commits do not trigger the normal Pages build. Request it explicitly,
-      # including on backstop runs where content already exists, then verify what is live.
+      # GITHUB_TOKEN commits do not trigger the normal Pages build. Check what is live
+      # first and request a build if needed; backstops still verify the edition and audio.
       - name: Publish and verify the live edition
         if: steps.today.outputs.publish == 'true'
         env:

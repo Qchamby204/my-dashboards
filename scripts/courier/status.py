@@ -28,18 +28,31 @@ def snapshot(state, item, date, now=None):
 def publish_status(state, item, date):
     record = snapshot(state, item, date)
     status = json.loads(PATH.read_text()) if PATH.exists() else {"schemaVersion": 1, "days": []}
-    status["days"] = [record] + [d for d in status["days"] if d["date"] != date][:29]
-    PATH.write_text(json.dumps(status, indent=1) + "\n")
-    def git(*args):
-        subprocess.run(["git", *args], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
-    git("config", "user.name", "courier-bot")
-    git("config", "user.email", "courier-bot@users.noreply.github.com")
-    git("add", "courier/status.json")
-    git("commit", "-m", f"Courier status: {date} {record['state']}")
-    git("pull", "--rebase", "origin", "main")
-    git("push", "origin", "HEAD:main")
+    previous = next((d for d in status["days"] if d["date"] == date), {})
+    # Preserve proof timestamps only for an already verified, unchanged Complete
+    # record. Every other field (including coverage and audio URLs) must agree.
+    def meaningful(value):
+        return {k: v for k, v in value.items() if k not in {"checkedAt", "verifiedAt"}}
+    unchanged = (state == "verified" and record["state"] == "complete"
+                 and previous.get("checkedAt") and previous.get("verifiedAt")
+                 and meaningful(previous) == meaningful(record))
+    if unchanged:
+        record = previous
+        print(f"Courier {date}: reusing unchanged Complete status.")
+    else:
+        status["days"] = [record] + [d for d in status["days"] if d["date"] != date][:29]
+        PATH.write_text(json.dumps(status, indent=1) + "\n")
+        def git(*args):
+            subprocess.run(["git", *args], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+        git("config", "user.name", "courier-bot")
+        git("config", "user.email", "courier-bot@users.noreply.github.com")
+        git("add", "courier/status.json")
+        git("commit", "-m", f"Courier status: {date} {record['state']}")
+        git("pull", "--rebase", "origin", "main")
+        git("push", "origin", "HEAD:main")
     repo, token = os.environ["REPO"], os.environ["GH_TOKEN"]
-    request_json(f"https://api.github.com/repos/{repo}/pages/builds", token=token, method="POST")
+    if not unchanged:
+        request_json(f"https://api.github.com/repos/{repo}/pages/builds", token=token, method="POST")
     if state == "verified":
         owner, name = repo.split("/")
         for attempt in range(36):
@@ -49,6 +62,10 @@ def publish_status(state, item, date):
                     return record
             except (OSError, ValueError):
                 pass
+            if unchanged and attempt == 0:
+                # A prior status push may not have reached Pages. Recover delivery
+                # of that same record without manufacturing another status commit.
+                request_json(f"https://api.github.com/repos/{repo}/pages/builds", token=token, method="POST")
             if attempt < 35:
                 time.sleep(10)
         raise RuntimeError("The edition was verified but its public status has not caught up")
