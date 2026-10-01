@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from xml.sax.saxutils import escape
 
+NARRATION_WPM = 140  # shared conservative planning/estimate rate; measured audio wins
+
 
 def duration_seconds(path):
     path = Path(path)
@@ -21,7 +23,7 @@ def attach_duration(block, path):
         block["durationSeconds"] = seconds
         block["minutes"] = round(seconds / 60.0, 1)
     else:
-        fallback = float(block.get("words", 0) or 0) / 150.0 * 60.0
+        fallback = float(block.get("words", 0) or 0) / NARRATION_WPM * 60.0
         block["durationSeconds"] = round(fallback, 1)
         block["minutes"] = round(fallback / 60.0, 1)
     return block
@@ -31,7 +33,14 @@ def block_seconds(block):
     seconds = block.get("durationSeconds")
     if isinstance(seconds, (int, float)) and seconds > 0:
         return int(round(seconds))
-    return int(float(block.get("words", 0) or 0) / 150.0 * 60.0)
+    return int(float(block.get("words", 0) or 0) / NARRATION_WPM * 60.0)
+
+
+def validate_duration_cap(blocks, minutes):
+    """Fail before publication rather than truncate speech or buy another audio pass."""
+    seconds = sum(float(b.get("durationSeconds") or block_seconds(b)) for b in blocks)
+    if seconds > minutes * 60:
+        raise ValueError(f"Courier runtime {seconds / 60:.2f} min exceeds the {minutes:g} min cap")
 
 
 def write_feed(manifest, repo, manifest_path):
