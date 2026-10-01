@@ -42,6 +42,14 @@ The public `courier/status.json` records Updating before generation and Complete
 
 If research exhausts its response budget before producing a usable script, each news section gets one writing retry with web tools disabled, using the already supplied feeds and newsletters. The builder records failed sections in new editions instead of leaving that information only in logs.
 
+### Partially duplicate sections
+
+The generated-section gate still checks cited stories and talking points against earlier accepted sections. Material overlap now triggers one deletion-only edit of the existing draft, replacing the former search-enabled rewrite. The editor returns paragraph, citation and talking-point indices with a 2,000-token output cap and no web searches. It cannot introduce replacement prose, new sources or padding. Local checks remove known repeated paragraphs (including mixed fresh/repeated paragraphs), citations and talking points, and reject malformed selections. Retained passages keep their original wording and source attribution; unused citations are removed. A distinct newsletter story can survive even if the planner missed it.
+
+The shortened section is checked again before narration. A usable fresh remainder stays published and expected; an empty or still-duplicate remainder is skipped. An edit failure remains isolated to its section. Adaptive thin-news skipping, the initial duplicate thresholds, source collection limits and cross-edition story memory are unchanged. `duplicateRepairs` records `method: trim-existing-draft` plus the before/after overlap metrics. No extra research or length-repair pass follows the trim.
+
+The September 30 regression reproduces one repeated source out of ten and three repeated talking points out of five. It verifies that fresh attributed climate passages survive, repeats do not, and climate remains in the edition's expected sections. Additional cases cover fully repeated content, mixed paragraphs, invalid selections, an unplanned newsletter story, quiet-section skipping and isolated editor failure. These use synthetic text and mocked editing/narration, not paid generation.
+
 ## Player
 
 Section cards show duration text without decorative length gauges. Actual playback progress remains in the player. “Put it into practice” is collapsed initially, opens from its heading or a direct practice link, and retains its expanded state during saving and rerendering.
