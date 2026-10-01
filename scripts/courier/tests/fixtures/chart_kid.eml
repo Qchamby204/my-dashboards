@@ -1,0 +1,43 @@
+From: Chart Kid Matt <chart-kid-matt@mail.chartkidmatt.com>
+Subject: Synthetic breadth newsletter fixture
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="courier-chart-fixture"
+
+--courier-chart-fixture
+Content-Type: text/plain; charset=utf-8
+
+S&P 500 new lows: distinguish the index from its sectors.
+View image: (https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80/uploads/asset/file/00000000-0000-0000-0000-000000000001/image.png?t=123)
+Caption: Index breadth
+Defensive-sector breadth: compare Utilities and Staples.
+View image: (https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000002/image.png)
+Offensive-sector breadth: compare Technology and Financials.
+View image: (https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000003/image.png)
+Utilities, Staples and Real Estate contribution to new lows.
+View image: (https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000004/image.png)
+View image: (https://elink.example.com/ls/click?tracking=recipient)
+Unsubscribe: https://example.com/unsubscribe?recipient=fixture
+
+--courier-chart-fixture
+Content-Type: text/html; charset=utf-8
+
+<html><head><style>ignored styles</style></head><body>
+<img src="https://media.beehiiv.com/uploads/publication/logo.png" width="600" alt="Newsletter logo">
+<img src="https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000009/image.png" width="1" height="1">
+<img src="https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000008/image.png" style="display:none">
+<p>S&amp;P 500 new lows: distinguish the index from its sectors.</p>
+<img src="https://media.beehiiv.com/cdn-cgi/image/fit=scale-down,format=auto,onerror=redirect,quality=80,width=1920,height=3840/uploads/asset/file/00000000-0000-0000-0000-000000000001/image.png?t=123&amp;utm_source=email" width="614" height="auto" alt=""/>
+<p>Defensive-sector breadth: compare Utilities and Staples.</p>
+<img src="https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000002/image.png" width="614"/>
+<p>Offensive-sector breadth: compare Technology and Financials.</p>
+<img src="https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000003/image.png" width="614"/>
+<p>Utilities, Staples and Real Estate contribution to new lows.</p>
+<img src="https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000004/image.png" width="614"/>
+<img src="https://media.beehiiv.com/uploads/asset/file/00000000-0000-0000-0000-000000000001/image.png?t=456" width="614"/>
+<img src="https://media.beehiiv.com/static_assets/youtube_play_icon.png"/>
+<img src="https://i.ytimg.com/vi/fixture/thumbnail.jpg"/>
+<img src="https://elink.example.com/open?recipient=fixture" width="1" height="1"/>
+<a href="https://elink.example.com/ls/click?recipient=fixture">Subscription preferences</a>
+<p>Tracking URL: https://example.com/unsubscribe?recipient=fixture</p>
+</body></html>
+--courier-chart-fixture--

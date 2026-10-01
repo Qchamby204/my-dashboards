@@ -35,6 +35,7 @@ import threading
 from recovery import build_date
 from publication import edition
 from completeness import expected_sections, gaps
+from newsletter_charts import CHART_SENDER, CHART_RULES, ChartInputs, chart_marker, chart_image_tag
 
 import feedparser
 import requests
@@ -181,19 +182,21 @@ def fetch_items(feeds, since_hours=26):
 # ---------- 1b. newsletters ----------
 
 class _Text(HTMLParser):
-    def __init__(self):
-        super().__init__(); self.out = []; self.skip = 0
+    def __init__(self, chart_urls=None):
+        super().__init__(); self.out = []; self.skip = 0; self.chart_urls = chart_urls
     def handle_starttag(self, tag, attrs):
         if tag in ("style", "script", "head"): self.skip += 1
         if tag in ("p", "br", "div", "tr", "li", "h1", "h2", "h3"): self.out.append("\n")
+        if tag == "img" and not self.skip and self.chart_urls is not None:
+            self.out.append(chart_marker(chart_image_tag(attrs) or "", self.chart_urls))
     def handle_endtag(self, tag):
         if tag in ("style", "script", "head"): self.skip -= 1
     def handle_data(self, d):
         if not self.skip: self.out.append(d)
 
 
-def html_to_text(html):
-    p = _Text(); p.feed(html)
+def html_to_text(html, chart_urls=None):
+    p = _Text(chart_urls); p.feed(html)
     text = "".join(p.out)
     text = re.sub(r"https?://\S+", "", text)            # tracking links add nothing for the model
     text = re.sub(r"[ \t]+", " ", text)
@@ -204,9 +207,34 @@ def _decode(v):
     return "".join(b.decode(c or "utf-8", "replace") if isinstance(b, bytes) else b for b, c in decode_header(v or ""))
 
 
+def newsletter_content(msg, sender):
+    body, charts = "", []
+    chart_mail = sender == CHART_SENDER
+    for part in msg.walk():
+        ctype = part.get_content_type()
+        if ctype in ("text/html", "text/plain") and not part.get("Content-Disposition"):
+            payload = part.get_payload(decode=True).decode(part.get_content_charset() or "utf-8", "replace")
+            charts = []  # MIME alternatives must not double-count or mix chart numbering.
+            if ctype == "text/html":
+                body = html_to_text(payload, charts if chart_mail else None)
+            elif chart_mail:
+                body = re.sub(r"View image:\s*\(?(https://[^\s<>\)]+)\)?",
+                              lambda m: chart_marker(m[1], charts), payload, flags=re.I)
+                body = re.sub(r"https?://\S+", "", body)
+            else:
+                body = payload
+            if ctype == "text/html":
+                break
+    body = body[:MAIL_CHARS]
+    # A chart outside the retained prose may have lost its context; do not download it.
+    charts = [url for i, url in enumerate(charts, 1) if f"[Newsletter chart {i}]" in body]
+    return body, charts
+
+
 def fetch_newsletters(since_hours=26):
     """Pull the last day of mail from the Courier inbox and bucket it by block via newsletters.json.
-    Returns {block: [ {outlet, subject, text} ]}. Skipped entirely if no mailbox is configured."""
+    Returns {block: [{outlet, subject, text, charts?}]}. No image downloads during collection.
+    Skipped entirely if no mailbox is configured."""
     user, pw = os.environ.get("COURIER_MAIL_USER"), os.environ.get("COURIER_MAIL_PASSWORD")
     if not (user and pw) or DRY_RUN:
         return {}
@@ -232,15 +260,11 @@ def fetch_newsletters(since_hours=26):
             blocks = next((v for k, v in routes.items() if matches(sender, k)), None)
             if not blocks:
                 unmapped.add(sender); continue
-            body = ""
-            for part in msg.walk():
-                ctype = part.get_content_type()
-                if ctype in ("text/html", "text/plain") and not part.get("Content-Disposition"):
-                    payload = part.get_payload(decode=True).decode(part.get_content_charset() or "utf-8", "replace")
-                    body = html_to_text(payload) if ctype == "text/html" else payload
-                    if ctype == "text/html": break
+            body, charts = newsletter_content(msg, sender)
             item = {"outlet": _decode(msg.get("From", "")).split("<")[0].strip(' "'),
-                    "subject": _decode(msg.get("Subject", "")), "text": body[:MAIL_CHARS]}
+                    "subject": _decode(msg.get("Subject", "")), "text": body}
+            if charts:
+                item["charts"] = charts
             for b in blocks:
                 by_block.setdefault(b, []).append(item)
         box.logout()
@@ -254,14 +278,15 @@ def fetch_newsletters(since_hours=26):
 
 
 NEWSLETTERS = None  # filled once in main()
+CHART_INPUTS = ChartInputs()  # shared bounded download cache for parallel Markets/Companies calls
 
 
 # ---------- 2. script ----------
 
-def claude(prompt, max_tokens, web_searches=0, label=""):
+def claude(prompt, max_tokens, web_searches=0, label="", chart_inputs=None):
     """Call the Messages API and return the concatenated text. Logs the API's error body on failure.
 
-    The prompt goes up as a single cached block. A call that uses web search re-reads its prompt
+    Chart images precede the prompt; the final text breakpoint caches both. Web search re-reads its prompt
     on every search iteration and every pause_turn continuation; with the cache breakpoint those
     re-reads bill at the cache-read rate instead of full price. Token usage is accumulated per
     call and logged with a cost estimate, so the run reports what it spent."""
@@ -269,7 +294,7 @@ def claude(prompt, max_tokens, web_searches=0, label=""):
                "content-type": "application/json"}
     if os.environ.get("ANTHROPIC_WORKSPACE_ID"):  # needed for identity-linked keys
         headers["anthropic-workspace-id"] = os.environ["ANTHROPIC_WORKSPACE_ID"]
-    content = [{"type": "text", "text": prompt, "cache_control": {"type": "ephemeral"}}]
+    content = list(chart_inputs or []) + [{"type": "text", "text": prompt, "cache_control": {"type": "ephemeral"}}]
     body = {"model": CLAUDE_MODEL, "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": content}]}
     if web_searches:
@@ -278,6 +303,16 @@ def claude(prompt, max_tokens, web_searches=0, label=""):
     texts = []   # everything written across pauses; a pause_turn must not lose the opening of the script
     for _ in range(6):  # pause_turn continuations
         r = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=body, timeout=600)
+        if (chart_inputs and len(body["messages"]) == 1 and r.status_code in (400, 413, 422)
+                and (r.status_code == 413 or re.search(r"image|vision|base64|media.type", r.text, re.I))):
+            # Only pre-generation image validation failures get a single text-only retry.
+            # Auth/rate/network errors and post-search failures retain the usual failure path.
+            log(f"{label or 'call'}: chart input rejected; retrying once with newsletter prose only")
+            chart_inputs = None
+            body["messages"][0]["content"] = [{"type": "text", "text": prompt +
+                "\nNo chart images are available in this call. Use newsletter prose only; do not infer chart readings.",
+                "cache_control": {"type": "ephemeral"}}]
+            continue
         if r.status_code == 400 and "tools" in body and "web search" in r.text.lower():
             log("web search is not enabled for this API org; retrying without it. Enable it at platform.claude.com/settings/privacy")
             body.pop("tools")
@@ -569,8 +604,12 @@ def write_script(category, spec, items, minutes, block_plan=None):
     feed_text = "\n".join(
         f"- [{i['outlet']}] {i['title']} :: {i['summary']} ({i['url']})" for i in items[:FEED_ITEMS]
     ) or "(no feed items today)"
-    mail = (NEWSLETTERS or {}).get(category, [])
-    mail_text = "\n\n".join(f"### {m['outlet']}: {m['subject']}\n{m['text']}" for m in mail[:MAIL_PER_BLOCK])
+    mail = (NEWSLETTERS or {}).get(category, [])[:MAIL_PER_BLOCK]
+    mail_text = "\n\n".join(f"### {m['outlet']}: {m['subject']}\n{m['text']}" for m in mail)
+    chart_inputs = CHART_INPUTS.blocks(mail, requests, log)
+    if any(m.get("charts") for m in mail):
+        log(f"{category}: using {sum(b['type'] == 'image' for b in chart_inputs)} newsletter chart(s)")
+        mail_text = CHART_RULES + "\n\n" + mail_text
     if mail_text:
         feed_text = ("Subscriber newsletters received today. These are the primary source; the feed items "
                      "below are the backstop.\n\n" + mail_text + "\n\nFeed items:\n" + feed_text)
@@ -620,7 +659,8 @@ Feed items:
 {FORMAT_SCRIPT}"""
 
     try:
-        data = parse_fields(claude(prompt, 12000, web_searches=SEARCHES_PER_BLOCK, label=category),
+        data = parse_fields(claude(prompt, 12000, web_searches=SEARCHES_PER_BLOCK, label=category,
+                                   chart_inputs=chart_inputs),
                             "TITLE", "SCRIPT", "SOURCES")
     except ValueError:
         # Search can consume the entire response budget before any script is
@@ -642,7 +682,8 @@ Do not quote long passages from the sources. Use plain language and no em dashes
 </source_material>
 
 {FORMAT_SCRIPT}"""
-        data = parse_fields(claude(retry_prompt, 6000, web_searches=0, label=category + " writing retry"),
+        data = parse_fields(claude(retry_prompt, 6000, web_searches=0, label=category + " writing retry",
+                                   chart_inputs=chart_inputs),
                             "TITLE", "SCRIPT", "SOURCES")
     return enforce_length(data, minutes, label=category)
 
