@@ -8,14 +8,17 @@ from allocation import adaptive_minutes
 
 
 class AllocationTests(unittest.TestCase):
-    def test_full_weekday_and_weekend_fit_thirty_minutes(self):
+    def test_default_full_weekday_and_weekend_use_sixty_minute_budget(self):
         sources = json.loads((Path(__file__).resolve().parents[1] / "sources.json").read_text())
         plan = {slug: {"owns": [{"event": f"{slug} news"}], "callbacks": []} for slug in sources}
         items = {slug: [{"title": str(i)} for i in range(40)] for slug in sources}
         for weekday in (True, False):
             with self.subTest(weekday=weekday):
                 minutes, skipped, _ = adaptive_minutes(sources, plan, items, weekday=weekday)
-                self.assertLessEqual(sum(minutes.values()) + (8 if weekday else 0), 30)
+                total = sum(minutes.values()) + (8 if weekday else 0)
+                self.assertLessEqual(total, 60)
+                # An upper-bound check alone would silently accept a 30-minute default.
+                self.assertGreaterEqual(total, 59)
                 self.assertEqual(skipped, [])
 
     def test_quiet_section_can_be_skipped_and_time_moves_to_busy_sections(self):

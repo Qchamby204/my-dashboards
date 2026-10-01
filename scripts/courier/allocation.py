@@ -32,7 +32,7 @@ def activity_scores(sources, plan, items_by_block):
     return scores
 
 
-def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=30, lessons_minutes=8, weekday=True):
+def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=60, lessons_minutes=8, weekday=True):
     """Allocate time toward useful sections and allow quiet sections to disappear.
 
     Returns (minutes_by_section, skipped_sections, scores). Values are half-minute increments.

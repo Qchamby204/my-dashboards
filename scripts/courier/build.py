@@ -17,7 +17,7 @@ rewritten daily with only the last 7 days, and served through jsDelivr with a pr
 
 Env: ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID (if the key is identity-linked),
 COURIER_MAIL_USER and COURIER_MAIL_PASSWORD (Gmail address and app password for the
-newsletter inbox, optional), COURIER_MINUTES (total run time cap, default 30), COURIER_SEARCHES, COURIER_MAIL_PER_BLOCK,
+newsletter inbox, optional), COURIER_MINUTES (total run time cap, default 60), COURIER_SEARCHES, COURIER_MAIL_PER_BLOCK,
 COURIER_MAIL_CHARS, COURIER_FEED_ITEMS (what each block is allowed to read), COURIER_PRICE_* (rates
 for the cost estimate in the log), TTS_PROVIDER (openai, the default, or elevenlabs), OPENAI_API_KEY, OPENAI_TTS_VOICE, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (optional),
 REPO (owner/name), DRY_RUN=1 to skip both APIs and write a placeholder day.
@@ -58,7 +58,7 @@ CLAUDE_MODEL = "claude-sonnet-5"
 # The whole day must fit inside TOTAL_MINUTES. Word targets are derived from minutes at WPM,
 # which is set a little under a real narration rate so the finished audio lands under the cap
 # rather than on it. Per-category minutes can be overridden with a "minutes" key in sources.json.
-TOTAL_MINUTES = int(os.environ.get("COURIER_MINUTES") or 30)
+TOTAL_MINUTES = int(os.environ.get("COURIER_MINUTES") or 60)
 FRONT_MINUTES = 3
 LESSONS_MINUTES = 8          # weekdays only; the three tracks share it
 DEFAULT_MINUTES = {

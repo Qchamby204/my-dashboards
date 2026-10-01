@@ -41,12 +41,15 @@ class AudioMetaTests(unittest.TestCase):
         self.assertEqual(block["minutes"], 1.5)
 
     def test_runtime_cap_uses_unrounded_audio_and_allows_short_editions(self):
-        validate_duration_cap([{"durationSeconds": 1700}], 30)
-        validate_duration_cap([{"durationSeconds": 900}, {"durationSeconds": 900}], 30)
-        with self.assertRaisesRegex(ValueError, "exceeds the 30 min cap"):
-            validate_duration_cap([{"durationSeconds": 900}, {"durationSeconds": 900.01}], 30)
-        # Older editions keep their original budget during targeted repair.
         validate_duration_cap([{"durationSeconds": 2400}], 60)
+        validate_duration_cap([{"durationSeconds": 1800}, {"durationSeconds": 1800}], 60)
+        with self.assertRaisesRegex(ValueError, "exceeds the 60 min cap"):
+            validate_duration_cap([{"durationSeconds": 1800}, {"durationSeconds": 1800.01}], 60)
+
+    def test_runtime_cap_respects_an_explicit_override(self):
+        validate_duration_cap([{"durationSeconds": 2700}], 45)
+        with self.assertRaisesRegex(ValueError, "exceeds the 45 min cap"):
+            validate_duration_cap([{"durationSeconds": 2700.01}], 45)
 
 
 if __name__ == "__main__":

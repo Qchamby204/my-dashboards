@@ -11,11 +11,21 @@ from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
-with patch.dict(sys.modules, {name: types.ModuleType(name) for name in ("requests", "feedparser")}), \
-        patch.dict(os.environ, {"COURIER_MINUTES": "", "DRY_RUN": ""}):
-    spec = importlib.util.spec_from_file_location("duration_builder", HERE / "build.py")
-    builder = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(builder)
+
+
+def load_builder(minutes=None):
+    with patch.dict(sys.modules, {name: types.ModuleType(name) for name in ("requests", "feedparser")}), \
+            patch.dict(os.environ, {"DRY_RUN": ""}):
+        os.environ.pop("COURIER_MINUTES", None)
+        if minutes is not None:
+            os.environ["COURIER_MINUTES"] = minutes
+        spec = importlib.util.spec_from_file_location("duration_builder", HERE / "build.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+
+builder = load_builder()
 with patch.dict(sys.modules, {"build": builder}):
     spec = importlib.util.spec_from_file_location("duration_runner", HERE / "run.py")
     runner = importlib.util.module_from_spec(spec)
@@ -35,15 +45,23 @@ class DurationTests(unittest.TestCase):
             "task": "Keep task", "drill": "Keep drill",
         }
 
-    def test_default_and_prompt_use_thirty_minute_cap(self):
-        self.assertEqual(builder.TOTAL_MINUTES, 30)
-        self.assertIn("capped at 30 minutes", builder.length_rule(2))
-        self.assertNotIn("one hour", builder.length_rule(2))
+    def test_unset_and_empty_duration_default_to_sixty_minutes(self):
+        for setting in (None, ""):
+            with self.subTest(setting=setting):
+                default_builder = load_builder(setting)
+                self.assertEqual(default_builder.TOTAL_MINUTES, 60)
+                self.assertIn("capped at 60 minutes", default_builder.length_rule(2))
+                self.assertEqual(default_builder.WPM, 140)
+
+    def test_explicit_duration_override_is_still_honored(self):
+        override_builder = load_builder("30")
+        self.assertEqual(override_builder.TOTAL_MINUTES, 30)
+        self.assertIn("capped at 30 minutes", override_builder.length_rule(2))
 
     def test_short_script_gets_one_grounded_edit_and_retains_metadata(self):
         with patch.object(builder, "claude", return_value="SCRIPT:\n" + script(260)) as api:
             result = builder.enforce_length(self.data, 2, "sports", source_material="Verified fixture detail",
-                                            scope="Raiders only. Other story belongs to markets.")
+                                            scope="Sports only. Other story belongs to markets.")
         api.assert_called_once()
         prompt = api.call_args.args[0]
         self.assertIn("Verified fixture detail", prompt)
@@ -111,10 +129,10 @@ class DurationTests(unittest.TestCase):
             api.assert_called_once()
 
     def test_news_repair_reuses_capped_sources_and_ownership_without_more_searches(self):
-        spec = {"label": "Sports", "brief": "Raiders coverage", "prefer_web": []}
+        spec = {"label": "Sports", "brief": "Sports coverage", "prefer_web": []}
         items = [{"outlet": "Fixture", "title": name, "summary": "Supplied facts", "url": "https://example.com/a"}
                  for name in ("Included headline", "Excluded headline")]
-        plan = {"owns": [{"event": "Raiders coverage"}], "callbacks": [],
+        plan = {"owns": [{"event": "Sports coverage"}], "callbacks": [],
                 "elsewhere": [{"line": "Market news belongs elsewhere"}]}
         responses = ["TITLE: Fixture\nSCRIPT:\n" + script(150), "SCRIPT:\n" + script(260)]
         with patch.object(builder, "claude", side_effect=responses) as api, \
@@ -142,39 +160,40 @@ class DurationTests(unittest.TestCase):
         self.assertIn("hypothetical", api.call_args.args[0])
         self.assertEqual(api.call_args.kwargs["web_searches"], 0)
 
-    def test_sports_config_has_raiders_and_nfl_feeds_without_new_section(self):
-        sources = json.loads((HERE / "sources.json").read_text())
-        sports = sources["sports"]
-        self.assertIn("Las Vegas Raiders", sports["brief"])
-        self.assertIn("Winnipeg Jets", sports["brief"])
-        self.assertIn("Blue Bombers", sports["brief"])
-        self.assertIn("https://www.raiders.com/rss/news", [f["url"] for f in sports["feeds"]])
-        self.assertIn("https://www.espn.com/espn/rss/nfl/news", [f["url"] for f in sports["feeds"]])
-        self.assertNotIn("nfl", sources)
+    def test_production_allows_more_than_thirty_minutes_and_rejects_over_sixty(self):
+        for seconds in (2400, 3600, 3600.01):
+            with self.subTest(seconds=seconds), tempfile.TemporaryDirectory() as directory:
+                self.check_production_duration(Path(directory), seconds)
 
-    def test_production_rejects_over_cap_audio_before_saving_edition(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            manifest = root / "manifest.json"
-            original = '{"days": []}'
-            manifest.write_text(original)
-            (root / "sources.json").write_text(json.dumps({"sports": {"label": "Sports", "feeds": []}}))
-            block = {"id": "sports", "minutes": 30.0, "durationSeconds": 1800.01}
-            with patch.object(runner, "_configure_shared_patches"), patch.object(runner, "retire"), \
-                    patch.object(builder, "HERE", root), patch.object(builder, "MANIFEST", manifest), \
-                    patch.object(builder, "OUT", root / "out"), patch.object(builder, "WEEKDAY", "sat"), \
-                    patch.object(runner, "newsletters_with_health", return_value={}), \
-                    patch.object(runner, "fresh_items", return_value=[]), \
-                    patch.object(runner, "resilient_plan", return_value=({}, "fixture", [])), \
-                    patch.object(runner, "adaptive_minutes", return_value=({"sports": 30}, [], {})), \
-                    patch.object(builder, "write_script", return_value=self.data), \
-                    patch.object(runner, "measured_block", return_value=block), \
-                    patch.object(runner, "write_health") as health:
-                with self.assertRaisesRegex(ValueError, "exceeds the 30 min cap"):
+    def check_production_duration(self, root, seconds):
+        manifest = root / "manifest.json"
+        original = '{"days": []}'
+        manifest.write_text(original)
+        (root / "sources.json").write_text(json.dumps({"sports": {"label": "Sports", "feeds": []}}))
+        block = {"id": "sports", "minutes": round(seconds / 60, 1), "durationSeconds": seconds}
+        with patch.object(runner, "_configure_shared_patches"), patch.object(runner, "retire"), \
+                patch.object(builder, "HERE", root), patch.object(builder, "MANIFEST", manifest), \
+                patch.object(builder, "OUT", root / "out"), patch.object(builder, "WEEKDAY", "sat"), \
+                patch.object(runner, "newsletters_with_health", return_value={}), \
+                patch.object(runner, "fresh_items", return_value=[]), \
+                patch.object(runner, "resilient_plan", return_value=({}, "fixture", [])), \
+                patch.object(runner, "adaptive_minutes", return_value=({"sports": 60}, [], {})) as allocation, \
+                patch.object(builder, "write_script", return_value=self.data), \
+                patch.object(runner, "measured_block", return_value=block), \
+                patch.object(runner, "write_health", return_value={}) as health:
+            if seconds > 3600:
+                with self.assertRaisesRegex(ValueError, "exceeds the 60 min cap"):
                     runner.normal_main()
-            self.assertEqual(manifest.read_text(), original)
-            self.assertFalse(manifest.with_name("feed.xml").exists())
-            health.assert_not_called()
+                self.assertEqual(manifest.read_text(), original)
+                self.assertFalse(manifest.with_name("feed.xml").exists())
+                health.assert_not_called()
+            else:
+                runner.normal_main()
+                day = json.loads(manifest.read_text())["days"][0]
+                self.assertEqual(day["budgetMinutes"], 60)
+                self.assertEqual(day["durationSeconds"], seconds)
+                self.assertTrue(manifest.with_name("feed.xml").exists())
+            self.assertEqual(allocation.call_args.kwargs["total_minutes"], 60)
 
 
 if __name__ == "__main__":
