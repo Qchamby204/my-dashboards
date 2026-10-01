@@ -52,6 +52,34 @@ The shortened section is checked again before narration. A usable fresh remainde
 
 The September 30 regression reproduces one repeated source out of ten and three repeated talking points out of five. It verifies that fresh attributed climate passages survive, repeats do not, and climate remains in the edition's expected sections. Additional cases cover fully repeated content, mixed paragraphs, invalid selections, an unplanned newsletter story, quiet-section skipping and isolated editor failure. These use synthetic text and mocked editing/narration, not paid generation.
 
+## Chart Kid Matt newsletter charts
+
+The existing sender route still feeds Markets and Companies. Chart handling applies only to
+`chart-kid-matt@mail.chartkidmatt.com`: HTML editorial images and plain-text `View image:`
+references become numbered markers beside their prose. Only HTTPS Beehiiv editorial asset
+files are accepted; tracking queries, click/open links, logos, icons, hidden images and video
+thumbnails are discarded. Other newsletters keep their existing text handling.
+
+The existing newsletter count and character caps apply before image downloads. There are at
+most four chart inputs per newsletter and writing call, and eight unique download attempts
+per process, including failures. Downloads are shared across parallel sections, streamed with
+a 2 MiB per-image limit, checked for image MIME/signature, requested at at most 1568 pixels per
+side from the CDN, and given connection/read/elapsed-time limits. Redirects are not followed.
+Only references alongside retained prose are eligible. Failed downloads keep the prose.
+
+The downloaded bytes use the [Messages API's supported base64 image blocks](https://platform.claude.com/docs/en/build-with-claude/vision)
+in the existing writing call, with outlet, newsletter title and clean image URL labels for
+attribution. There is no additional analysis call or search allowance. The prompt cache covers
+the images too, and returned token usage remains in the existing cost estimate. Pre-generation
+image validation errors get one text-only retry; ordinary API errors retain their existing
+failure behavior. Missing or illegible charts must not become invented values. No downloaded
+images or raw emails are written to published artifacts.
+
+`tests/fixtures/chart_kid.eml` is a synthetic multipart regression based on the newsletter's
+four-chart layout. Tests cover both MIME alternatives, actual ingestion through the production
+model wrapper, count/size limits, shared downloads, attribution, image rejection, text fallback,
+usage/caching and unchanged handling of ordinary newsletters. They make no paid API calls.
+
 ## Player
 
 Section cards show duration text without decorative length gauges. Actual playback progress remains in the player. “Put it into practice” is collapsed initially, opens from its heading or a direct practice link, and retains its expanded state during saving and rerendering.

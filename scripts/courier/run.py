@@ -60,7 +60,7 @@ existing block, and move immediately to that distinct angle.
 """ % "\n".join(lines)
 
 
-def claude_with_context(prompt, max_tokens, web_searches=0, label=""):
+def claude_with_context(prompt, max_tokens, web_searches=0, label="", chart_inputs=None):
     if label == "story plan":
         prompt += history_prompt(_history())
     elif os.environ.get("COURIER_SECTIONS") and not label.startswith("lesson "):
@@ -75,7 +75,7 @@ The Ten quality gate, superseding any earlier summary-surface language in this p
 - Use fewer than ten companies if fewer than ten distinct owned company stories are worthwhile.
 - Never fill the slot by repeating another block.
 """
-    return _BASE_CLAUDE(prompt, max_tokens, web_searches=web_searches, label=label)
+    return _BASE_CLAUDE(prompt, max_tokens, web_searches=web_searches, label=label, chart_inputs=chart_inputs)
 
 
 def fresh_items(feeds, since_hours=26):
