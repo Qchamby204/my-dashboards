@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 import build as courier
 from allocation import adaptive_minutes
 from audio_meta import attach_duration, write_feed as write_measured_feed
-from coverage import filter_items, has_publishable_assignment, overlap_report, prune_plan
+from coverage import overlap_report, prune_plan, trim_duplicate_draft
 from dedupe import history_prompt, recent_events
 from planning import resilient_plan, same_topic
 from publication import edition
@@ -258,31 +258,27 @@ def normal_main():
         report = overlap_report(draft["data"], draft["points"], accepted)
         if report["material"]:
             courier.log(
-                f"duplicate gate: {slug} overlaps earlier coverage; rewriting once "
+                f"duplicate gate: {slug} overlaps earlier coverage; trimming once "
                 f"({len(report['duplicateSources'])} source(s), {len(report['duplicateTalkingPoints'])} point(s))"
             )
             repaired_plan = prune_plan(story_plan.get(slug), accepted)
-            repaired_items = filter_items(_scope_items(slug, items_by_block.get(slug, []), story_plan), accepted)
-            if not has_publishable_assignment(repaired_plan):
-                duplicate_rejected.append(slug)
-                courier.log(f"duplicate gate: {slug} has no distinct assignment left; skipping")
-                continue
             try:
-                data = courier.write_script(slug, draft["spec"], repaired_items, draft["minutes"], repaired_plan)
+                data = trim_duplicate_draft(courier, draft, accepted, repaired_plan)
                 body, points = courier.split_talking_points(data["script"])
                 second = overlap_report(data, points, accepted)
             except Exception as exc:
-                courier.log(f"duplicate gate: {slug} rewrite failed; skipping: {exc}")
+                courier.log(f"duplicate gate: {slug} trim failed; skipping: {exc}")
                 duplicate_rejected.append(slug)
                 continue
             duplicate_repairs.append({
                 "section": slug,
+                "method": "trim-existing-draft",
                 "firstPass": report,
                 "secondPass": second,
             })
-            if second["material"]:
+            if not body.strip() or second["material"]:
                 duplicate_rejected.append(slug)
-                courier.log(f"duplicate gate: {slug} still overlaps after rewrite; skipping instead of repeating")
+                courier.log(f"duplicate gate: {slug} has no clean attributed remainder; skipping")
                 continue
             story_plan[slug] = repaired_plan
             draft.update({"data": data, "body": body, "points": points})
