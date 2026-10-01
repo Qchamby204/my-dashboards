@@ -54,9 +54,11 @@ class RecoveryTests(unittest.TestCase):
     def test_other_pushes_cannot_generate_and_manual_rebuild_is_preserved(self):
         manifest = {"days": [self.day]}
         for event, publish_only, generates in [("push", False, False), ("schedule", False, True), ("workflow_dispatch", True, False), ("workflow_dispatch", False, True)]:
-            plan = recovery.choose_plan(manifest, event, now=self.now, publish_only=publish_only)
+            plan = recovery.choose_plan(manifest, event, now=self.now, publish_only=publish_only,
+                                        automatic_state={"schemaVersion": 1, "days": []})
             self.assertEqual(plan["generate"], generates)
-        self.assertTrue(recovery.choose_plan({"days": []}, "schedule", now=self.now)["generate"])
+        self.assertTrue(recovery.choose_plan({"days": []}, "schedule", now=self.now,
+                                            automatic_state={"schemaVersion": 1, "days": []})["generate"])
 
     def test_winnipeg_date_handles_winter_and_summer_midnight(self):
         self.assertEqual(recovery.winnipeg_date(datetime.fromisoformat("2026-01-13T05:30:00+00:00")), "2026-01-12")
