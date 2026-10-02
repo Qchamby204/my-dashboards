@@ -3,38 +3,32 @@
  "days": [
   {
    "date": "2026-10-02",
-   "state": "updating",
-   "checkedAt": "2026-10-02T11:28:18+00:00",
-   "verifiedAt": null,
-   "generatedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-10-02T11:41:52+00:00",
+   "verifiedAt": "2026-10-02T11:41:52+00:00",
+   "generatedAt": "2026-10-02T11:40:07+00:00",
    "updatedAt": null,
-   "audio": {},
+   "audio": {
+    "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/lessons.mp3",
+    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/markets.mp3",
+    "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/practice.mp3",
+    "politics": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/politics.mp3",
+    "tech": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/tech.mp3",
+    "health": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/health.mp3",
+    "parenting": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/parenting.mp3",
+    "sports": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@d484be01c9fc97b3777f710f1e8364666cc82195/2026-10-02/sports.mp3"
+   },
    "expectedSections": [
     "lessons",
     "markets",
-    "companies",
     "practice",
-    "manitoba",
     "politics",
-    "climate",
     "tech",
     "health",
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "lessons",
-    "markets",
-    "companies",
-    "practice",
-    "manitoba",
-    "politics",
-    "climate",
-    "tech",
-    "health",
-    "parenting",
-    "sports"
-   ],
+   "missingSections": [],
    "voiceless": []
   },
   {
