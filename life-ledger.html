@@ -1048,8 +1048,8 @@ function drawSeasonCard(data){
 }
 
 function toast(msg,actionLabel,actionFn){
-  var t=document.createElement("div");
-  t.style.cssText="position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:rgba(20,23,38,.96);border:1px solid rgba(240,183,62,.5);color:#f6e2ad;padding:10px 18px;border-radius:12px;font-family:Outfit,sans-serif;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;max-width:92vw";
+  var t=document.createElement("div"); t.className="ledger-toast"; t.setAttribute("role","status");
+  t.style.cssText="position:fixed;left:50%;bottom:calc(var(--atlas-bottom-h,0px) + 16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:rgba(20,23,38,.96);border:1px solid rgba(240,183,62,.5);color:#f6e2ad;padding:10px 18px;border-radius:12px;font-family:Outfit,sans-serif;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;max-width:92vw";
   var s=document.createElement("span"); s.textContent=msg; t.appendChild(s);
   if(actionLabel && actionFn){
     var b=document.createElement("button"); b.textContent=actionLabel;

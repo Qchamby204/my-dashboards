@@ -82,6 +82,8 @@ with sync_playwright() as pw:
             page.keyboard.press('Escape')
         page.locator('#ledger-nav-history').click()
         expect(page.locator('#ledger-history')).to_be_visible()
+        settle()
+        assert page.evaluate("[...document.querySelectorAll('.ledger-toast')].every(t => t.getBoundingClientRect().bottom <= document.getElementById('ledger-dock').getBoundingClientRect().top)"), 'Save feedback overlaps navigation'
         page.screenshot(path=str(OUT / f'{ENGINE}-history.png'), full_page=True)
         page.get_by_role('button', name='Oct 2, 2026', exact=False).click()
         expect(page.locator('#ledger-view-today')).to_be_visible()
