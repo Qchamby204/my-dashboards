@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=63f502ed4998',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=1ff8c0b49c5e',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -57,6 +57,7 @@
       return value;
     }
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'list'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
+    let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
       if(boot.readError&&!window.storage)throw Error();
@@ -67,7 +68,7 @@
     SEASON_START=isoToNum(season.start);SEASON_END=isoToNum(season.end);
     const notice=make('section',null,'ledger-notice');notice.id='ledger-notice';notice.setAttribute('aria-live','polite');notice.setAttribute('role','status');
     const message=make('p');notice.append(message,button('Retry saving',retry),button('Back up current work',()=>exportData()),button('Restore backup',pickImport));document.body.append(notice);
-    function status(){notice.hidden=!blocked&&!failed.size;message.textContent=blocked?'Saved records could not be read. Keep a recovery backup, then restore a valid Life Ledger backup.':'Your latest changes are in this tab but could not be saved. Retry or back up before closing.';app.inert=blocked||busy;const label=document.getElementById('ledger-draft-status');if(label)label.textContent=failed.size?'Not saved on this device':busy||pending.size?'Saving changes…':dirty()?'Draft saved on this device. Use Save day to log it.':dayEntryFor(state.logDate)?'Saved day':'New day';}
+    function status(){notice.hidden=!blocked&&!failed.size;message.textContent=blocked?'Saved records could not be read. Keep a recovery backup, then restore a valid Life Ledger backup.':'Your latest changes are in this tab but could not be saved. Retry or back up before closing.';app.inert=blocked||busy;const label=document.getElementById('ledger-draft-status');if(label)label.textContent=failed.size?'Not saved on this device':busy||pending.size?'Saving changes…':dirty()?'Draft saved · ready to log':dayEntryFor(state.logDate)?'Saved day':'New day';}
     function write(key,value){
       if(blocked){status();return false;}
       if(window.storage?.get&&window.storage?.set){const job=(pending.get(key)||Promise.resolve()).then(async()=>{try{await window.storage.set(key,value);if((await window.storage.get(key))?.value!==value)throw Error();failed.delete(key);return true;}catch{failed.set(key,value);return false;}finally{if(pending.get(key)===job)pending.delete(key);status();}});pending.set(key,job);status();return job;}
@@ -81,8 +82,8 @@
     const originalLoad=loadDraftFor;
     loadDraftFor=function(date){originalLoad(date);const d=drafts.days[date];if(d){state.draft={...freshDraft(),...clone(d.units)};state.draftMood=d.mood||0;state.draftNote=d.note||'';}state.draftScreen=clone((d||dayEntryFor(date))?.screen||emptyScreen());state.draftLeisure=clone((d||dayEntryFor(date))?.leisure||emptyLeisure());};
     let seenToday=todayISO();
-    state.logMode=drafts.mode;state.logDate=validDate(drafts.selected)&&drafts.selected<=seenToday?drafts.selected:seenToday;loadDraftFor(state.logDate);
-    function selectDate(date){if(blocked||busy||!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return false;}remember();state.logDate=date;loadDraftFor(date);drafts.selected=date;write(DRAFTKEY,JSON.stringify(drafts));state.cardIndex=0;render();document.getElementById('ledger-log')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return true;}
+    state.logMode=drafts.mode;state.logDate=seenToday;loadDraftFor(state.logDate);
+    function selectDate(date){if(blocked||busy||!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return false;}remember();dashboardView='today';state.logDate=date;loadDraftFor(date);drafts.selected=date;write(DRAFTKEY,JSON.stringify(drafts));state.cardIndex=0;render();document.getElementById('ledger-view-today')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return true;}
     // Use calendar dates, count the complete final day, and keep entries outside the season as history.
     compute=function(allDays,goals){
       const today=todayISO(),now=isoToNum(today),end=SEASON_END+86400000;
@@ -154,7 +155,7 @@
       busy=true;status();const ok=await write(KEY,JSON.stringify(next));
       // A failed day save is retried explicitly with Save day, never as a stale queued snapshot.
       if(!ok){busy=false;failed.delete(KEY);failed.set(DRAFTKEY,JSON.stringify(drafts));status();toast('Day not logged. Your draft is still here. Retry saving, then use Save day.');return;}
-      state.days=next;lastUndo={date,before:before?clone(before):null,after:JSON.stringify(dayEntryFor(date))};
+      leisureOpen=false;state.days=next;lastUndo={date,before:before?clone(before):null,after:JSON.stringify(dayEntryFor(date))};
       delete drafts.days[date];loadDraftFor(date);await write(DRAFTKEY,JSON.stringify(drafts));busy=false;celebrate(progressBefore,compute(state.days,state.goals),date);render();toast('Saved '+pretty(date),'Undo',undoLast);
     }
     commit=saveDay;
@@ -260,10 +261,17 @@
       const time=n=>{const seconds=Math.round(Math.abs(n)*60);return Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');};
       usage.textContent=time(used)+' used · '+(remaining<0?time(remaining)+' over budget':time(remaining)+' remaining');
       usage.classList.toggle('ledger-leisure-over',remaining<0);
-      clock.textContent=drafts.leisureTimer?(Date.now()-drafts.leisureTimer.startedAt>=86400000?'24-hour timer limit reached. Stop and review minutes.':remaining<=0?'Time is up. Stop the timer when you stop playing.':'Timer running · keeps time when you leave this app.'):'Gaming time for '+(state.logDate===todayISO()?'today':pretty(state.logDate));
+      const level=remaining<=0?'empty':earned>0&&remaining/earned<=.2?'low':'ready';
+      for(const id of ['leisure-budget-meter','leisure-preview-meter']){const meter=document.getElementById(id);if(!meter)continue;meter.max=rule.gaming;meter.value=Math.max(0,remaining);meter.dataset.level=level;meter.setAttribute('aria-valuetext',time(Math.max(0,remaining))+' remaining of '+rule.gaming+' minutes');}
+      const preview=document.getElementById('leisure-preview-time'),meta=document.getElementById('leisure-preview-meta');
+      if(preview)preview.textContent=remaining<0?time(remaining)+' over budget':earned?time(remaining)+' remaining':'Gaming is locked';
+      if(meta)meta.textContent=earned?time(used)+' used of '+rule.gaming+' min'+(drafts.leisureTimer?' · Timer running':''):leisureCount(state.draft)>=rule.habits?'Save day to unlock '+rule.gaming+' minutes':Math.max(0,rule.habits-leisureCount(state.draft))+' more habits to unlock '+rule.gaming+' minutes';
+
+      clock.textContent=drafts.leisureTimer?(Date.now()-drafts.leisureTimer.startedAt>=86400000?'24-hour timer limit reached. Stop and review minutes.':remaining<=0?'Time is up. Stop the timer when you stop playing.':'Timer running · keeps time when you leave this app.'):(state.logDate===todayISO()?'Today’s gaming time':pretty(state.logDate)+' · History');
     }
     function leisureMinutesDialog(){
       if(blocked||busy||drafts.leisureTimer)return;
+      closeLeisure();
       const date=state.logDate,dialog=make('dialog',null,'ledger-dialog');dialog.setAttribute('aria-labelledby','leisure-minutes-title');
       const title=make('h2','Gaming time · '+pretty(date));title.id='leisure-minutes-title';
       const form=make('form'),label=make('label','Total gaming minutes for this day'),input=make('input'),error=make('p',null,'ledger-error');error.setAttribute('role','alert');
@@ -275,10 +283,11 @@
         state.draftLeisure={...(state.draftLeisure||emptyLeisure()),gamingMinutes:minutes};remember();render();dialog.close();toast('Minutes kept in your draft. Save day to log them.');
       });
       dialog.append(title,make('p','Include gaming outside the timer. You can record more than your allowance to keep the tracking honest.','ledger-help'),form);
-      dialog.addEventListener('close',()=>{dialog.remove();document.getElementById('leisure-minutes')?.focus();});document.body.append(dialog);dialog.showModal();input.focus();input.select();
+      dialog.addEventListener('close',()=>{dialog.remove();openLeisure();document.getElementById('leisure-minutes')?.focus();});document.body.append(dialog);dialog.showModal();input.focus();input.select();
     }
     function leisureSettings(){
       if(blocked||busy)return;
+      closeLeisure();
       const dialog=make('dialog',null,'ledger-dialog');dialog.setAttribute('aria-labelledby','ledger-leisure-settings-title');
       const title=make('h2','Earned Leisure settings');title.id='ledger-leisure-settings-title';
       const form=make('form'),error=make('p',null,'ledger-error'),fields={};error.setAttribute('role','alert');
@@ -296,7 +305,7 @@
           render();if(ok){dialog.close();toast('Leisure rule saved.');}else error.textContent='Rule is only in this tab. Retry Save rule before closing.';
         }catch(err){error.textContent=err.message;}finally{submit.disabled=false;}
       });
-      dialog.append(title,form);dialog.addEventListener('close',()=>{dialog.remove();document.getElementById('leisure-settings')?.focus();});document.body.append(dialog);dialog.showModal();fields.habits.focus();
+      dialog.append(title,form);dialog.addEventListener('close',()=>{dialog.remove();openLeisure();document.getElementById('leisure-settings')?.focus();});document.body.append(dialog);dialog.showModal();fields.habits.focus();
     }
     function leisurePanel(){
       const date=state.logDate,rule=leisureRule(),count=leisureCount(state.draft),savedCount=leisureCount(dayEntryFor(date)?.units),l=state.draftLeisure||emptyLeisure();
@@ -308,8 +317,8 @@
       const amounts=leisureHabits().filter(h=>HCFG[h].kind!=='count').map(h=>label(h)+': '+leisureTarget(h)+' '+HCFG[h].unit);
       if(amounts.length)info.append(make('p','A full quantity check-in: '+amounts.join(' · ')+'.','ledger-help'));
       heading.append(title,info);panel.append(heading);
-      const progress=make('p',count+' / '+rule.habits+' completed · '+savedCount+' saved','ledger-leisure-progress');progress.id='leisure-progress';panel.append(progress);
-      const meter=make('progress');meter.max=rule.habits;meter.value=Math.min(count,rule.habits);meter.setAttribute('aria-label','Completed habits toward gaming');panel.append(meter);
+      const progress=make('p',count+' habits complete · '+savedCount+' saved · '+rule.habits+' to unlock','ledger-leisure-progress');progress.id='leisure-progress';panel.append(progress);
+      const meter=make('progress',null,'ledger-time-meter');meter.id='leisure-budget-meter';meter.max=rule.gaming;meter.value=0;meter.setAttribute('aria-label','Gaming time remaining');panel.append(meter);
       const statusText=unlocked?rule.gaming+' minutes of gaming unlocked.':count>=rule.habits?'Save day to unlock '+rule.gaming+' minutes of gaming.':(rule.habits-count)+' more to unlock '+rule.gaming+' minutes of gaming.';
       const feedback=make('p',statusText,'ledger-help');feedback.id='leisure-status';feedback.setAttribute('role','status');panel.append(feedback);
       if(rule.habits>leisureHabits().length)panel.append(make('p','Only '+leisureHabits().length+' habits are enabled. Edit the rule or restore habits to make this target reachable.','ledger-help'));
@@ -332,7 +341,7 @@
         panel.append(make('p',l.readingDone?'Reading Reset complete.':'Finishing below target? Reading Reset · '+rule.reading+' extra minutes.','ledger-help'));
         const reset=button(l.readingDone?'Undo Reading Reset':'I completed my Reading Reset',()=>record('readingDone',!l.readingDone));reset.id='leisure-readingDone';panel.append(reset);
       }
-      if(JSON.stringify(dayEntryFor(date)?.leisure||emptyLeisure())!==JSON.stringify(l))panel.append(make('p','Check-in kept in your draft. Save day to log it.','ledger-help'));
+      if(JSON.stringify(dayEntryFor(date)?.leisure||emptyLeisure())!==JSON.stringify(l))panel.append(make('p','Draft saved · tap Save day to log this.','ledger-help'));
       if(!today)panel.append(make('p',pretty(date)+' · This allowance cannot be used today.','ledger-help'));
       const history=make('details',null,'ledger-screen-patterns');history.open=leisureHistoryOpen;history.addEventListener('toggle',()=>leisureHistoryOpen=history.open);
       const rows=make('ul');let total=0;
@@ -341,6 +350,78 @@
       const edit=button('Edit leisure rule',leisureSettings);edit.id='leisure-settings';panel.append(edit);
       return panel;
     }
+    function closeLeisure(){leisureOpen=false;document.getElementById('ledger-leisure-sheet')?.close();}
+    function openLeisure(){if(blocked||busy)return;leisureOpen=true;render();document.getElementById('ledger-leisure-close')?.focus();}
+    function setDashboardView(view){
+      if(blocked||busy||!['today','progress','history'].includes(view))return;
+      remember();dashboardView=view;leisureOpen=false;
+      if(view==='progress'&&state.openSections.relics===undefined)state.openSections.relics=true;
+      if(view==='history')historyOpen=true;
+      if(view==='today'&&state.logDate!==todayISO()){state.logDate=todayISO();loadDraftFor(state.logDate);}
+      render();window.scrollTo({top:0,behavior:'instant'});document.getElementById('ledger-nav-'+view)?.focus({preventScroll:true});
+    }
+    function composeDashboard(log,data,earned){
+      if(!log)return;
+      const panes={};
+      for(const [key,title]of [['today','Today'],['progress','Progress'],['history','History']]){
+        const pane=make('section',null,'ledger-view');pane.id='ledger-view-'+key;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','ledger-nav-'+key);pane.hidden=dashboardView!==key;panes[key]=pane;app.append(pane);
+      }
+      const move=(selector,pane)=>{const node=app.querySelector(selector);if(node)pane.append(node);return node;};
+      const intro=make('div',null,'ledger-day-heading');
+      intro.append(make('div',state.logDate===todayISO()?new Date(state.logDate+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Editing '+pretty(state.logDate),'eyebrow'),make('h1',state.logDate===todayISO()?'Make today count.':'Your saved day','cinzel'));
+      const awards=button(earned.length+' achievements',()=>{state.openSections.relics=true;setDashboardView('progress');});awards.classList.add('ledger-awards-link');intro.append(awards);panes.today.append(intro);
+      const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open Earned Leisure timer and controls');
+      const previewHead=make('span',null,'ledger-preview-heading');previewHead.append(make('span','Earned Leisure'),make('span','Open ›','ledger-preview-open'));
+      const previewTime=make('strong');previewTime.id='leisure-preview-time';const previewMeta=make('span',null,'ledger-help');previewMeta.id='leisure-preview-meta';
+      const previewMeter=make('progress',null,'ledger-time-meter');previewMeter.id='leisure-preview-meter';previewMeter.setAttribute('aria-label','Gaming time remaining');preview.append(previewHead,previewTime,previewMeter,previewMeta);panes.today.append(preview);
+      const panel=app.querySelector('#ledger-leisure');
+      if(panel){
+        const sheet=make('dialog',null,'ledger-dialog ledger-sheet');sheet.id='ledger-leisure-sheet';sheet.setAttribute('aria-labelledby','ledger-leisure-title');
+        const close=button('Done',()=>{closeLeisure();document.getElementById('ledger-leisure-preview')?.focus();});close.id='ledger-leisure-close';close.classList.add('ledger-sheet-close');
+        const save=button('Save day',()=>{leisureOpen=false;saveDay();});save.classList.add('ledger-primary');
+        sheet.append(close,panel,save);app.append(sheet);sheet.addEventListener('cancel',e=>{e.preventDefault();closeLeisure();document.getElementById('ledger-leisure-preview')?.focus();});
+        if(leisureOpen&&!state.levelInfo&&!state.achvQueue?.length)sheet.showModal();else leisureOpen=false;
+      }
+      const screen=app.querySelector('#ledger-screen');
+      if(screen){const fold=make('details',null,'ledger-screen-fold');fold.id='ledger-screen-fold';fold.open=screenOpen;fold.addEventListener('toggle',()=>screenOpen=fold.open);fold.append(make('summary','Screen Discipline · '+(state.draftScreen?.guardrail?'guardrail set':'set a guardrail')),screen);panes.today.append(fold);}
+      const wrap=move('.ledger-log-wrap',panes.today)||log;
+      if(wrap===log)panes.today.append(log);
+      // Check-ins remain the main action. The existing list/card forms and their
+      // event handlers are moved intact, so drafts and quantity entry stay native.
+      const mode=log.querySelector('[data-act="logmode"]')?.parentNode;
+      if(mode&&state.logMode==='list'){
+        const filters=make('div',null,'ledger-habit-filters');
+        for(const [value,title]of [[false,'All habits'],[true,'Remaining']]){const b=button(title,()=>{remainingOnly=value;render();document.getElementById('ledger-filter-'+(value?'remaining':'all'))?.focus();});b.id='ledger-filter-'+(value?'remaining':'all');b.setAttribute('aria-pressed',String(remainingOnly===value));filters.append(b);}
+        mode.after(filters);
+        let left=0;
+        for(const row of log.querySelectorAll('.row')){const control=row.querySelector('[data-habit]'),habit=control?.dataset.habit;if(!habit)continue;const complete=state.draft[habit]>=leisureTarget(habit);row.classList.toggle('ledger-habit-complete',complete);row.hidden=remainingOnly&&complete;if(!complete)left++;}
+        if(remainingOnly&&!left)filters.after(make('p','All your habits are checked in. Save your day to bank the progress.','ledger-help'));
+      }
+      const oldActions=log.querySelector('#ledger-draft-status')?.parentNode;
+      // Date navigation lives with the date field; achievement access lives above.
+      if(oldActions){for(const b of [...oldActions.querySelectorAll('button')])if(b.textContent.startsWith('Achievements'))b.remove();}
+      for(const jump of app.querySelectorAll('.ledger-jump'))jump.remove();
+      move('.ledger-identity',panes.progress);move('#ledger-season-summary',panes.progress);move('.ledger-overall',panes.progress);
+      const relic=app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel');if(relic)panes.progress.append(relic);
+      move('.ledger-values-heading',panes.progress);move('.ledger-values-info',panes.progress);
+      move('.ledger-values',panes.progress);
+      panes.history.append(make('h1','Your record','cinzel ledger-view-title'),make('p','Revisit a day, see your consistency, or keep a backup.','ledger-help'));
+      move('#ledger-history',panes.history);
+      for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
+      const toolsPanel=make('details',null,'ledger-manage');toolsPanel.append(make('summary','Manage Ledger & backups'));
+      const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);panes.history.append(toolsPanel);
+      const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'),clear);panes.today.append(options);}
+      const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
+      const saveRow=make('div',null,'ledger-save-row');saveRow.hidden=dashboardView!=='today';
+      const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}dock.append(saveRow);
+      const running=button('Gaming timer running · Open',openLeisure);running.id='ledger-running-timer';running.hidden=!drafts.leisureTimer;running.classList.add('ledger-running-timer');dock.append(running);
+      const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');
+      const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
+      for(const [key,title]of [['today','Today'],['progress','Progress'],['history','History']]){const b=button('',()=>setDashboardView(key));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
+      nav.addEventListener('keydown',e=>{const keys=['today','progress','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();setDashboardView(keys[next]);});
+      dock.append(nav);app.append(dock);log.querySelector('.ledger-save-inline')?.remove();
+    }
+
     const originalQuest=questLog,originalSettings=settingsView,originalDeckChrome=updateDeckChrome;
     function withLiteralUnits(fn){const units=Object.fromEntries(Object.entries(HCFG).map(([key,c])=>[key,c.unit]));try{Object.values(HCFG).forEach(c=>c.unit=esc(c.unit));return fn();}finally{for(const [key,unit]of Object.entries(units))HCFG[key].unit=unit;}}
     questLog=function(draft){const days=compute(state.days,state.goals).days,existing=days.find(d=>d.date===state.logDate),count=days.filter(d=>d.date<=state.logDate).length;const draw=()=>originalQuest(draft,existing?.day||count+1);return state.logMode==='list'?withLiteralUnits(draw):draw();};
@@ -357,7 +438,7 @@
       originalRender();
       const data=compute(state.days,state.goals),earned=ACHV.filter(a=>a.test(data));
       for(const heading of app.querySelectorAll('.eyebrow'))if(heading.textContent.startsWith('The Five Values')){
-        const info=make('details',null,'ledger-progress-info'),summary=make('summary','i');summary.setAttribute('aria-label','How values and achievements work');info.open=progressInfoOpen;info.addEventListener('toggle',()=>progressInfoOpen=info.open);
+        const info=make('details',null,'ledger-progress-info ledger-values-info'),summary=make('summary','i');summary.setAttribute('aria-label','How values and achievements work');info.open=progressInfoOpen;info.addEventListener('toggle',()=>progressInfoOpen=info.open);
         info.append(summary,make('p','Each habit earns a share of its season goal, up to 99. A value averages its enabled habits; Life Level averages your active values. Decimal numbers show progress between whole levels. Only Save day counts toward values and achievements. Editing a saved date replaces its totals. Achievements use saved days in the current season, including earlier entries.','ledger-help'));heading.after(info);
       }
       const reward=app.querySelector('dialog.ledger-reward');
@@ -365,7 +446,7 @@
       else if(rewardOpener){app.querySelector(rewardOpener)?.focus();rewardOpener=null;}
       for(const relic of app.querySelectorAll('[data-act="relic"]')){const a=ACHV[+relic.dataset.idx];relic.setAttribute('role','button');relic.setAttribute('tabindex','0');relic.setAttribute('aria-label',a.name+(a.test(data)?' · Earned':' · Locked'));relic.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();relic.click();}});}
 
-      const log=app.querySelector('[data-act="logdate"]')?.closest('.panel');if(log){log.id='ledger-log';const actions=make('div',null,'ledger-actions');actions.append(button('Today',()=>selectDate(todayISO())),button('Yesterday',()=>selectDate(numToISO(isoToNum(todayISO())-86400000))));const stateLabel=make('p',null,'ledger-help');stateLabel.id='ledger-draft-status';stateLabel.setAttribute('role','status');actions.append(stateLabel);const achievements=button('Achievements · '+earned.length+' earned',()=>{state.openSections.relics=true;clearCelebrations();render();app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel')?.scrollIntoView({block:'start'});});actions.append(achievements);log.prepend(actions);if(saveFeedback){const feedback=make('p',saveFeedback,'ledger-save-feedback');feedback.id='ledger-save-feedback';feedback.setAttribute('role','status');log.prepend(feedback);}const dateInput=log.querySelector('[data-act="logdate"]');dateInput.setAttribute('aria-label','Date to log');dateInput.parentNode.classList.add('ledger-date-row');const note=log.querySelector('[data-act="note"]');note?.setAttribute('aria-label','Daily note');}
+      const log=app.querySelector('[data-act="logdate"]')?.closest('.panel');if(log){log.id='ledger-log';const actions=make('div',null,'ledger-actions');actions.append(button('Today',()=>selectDate(todayISO())),button('Yesterday',()=>selectDate(numToISO(isoToNum(todayISO())-86400000))));const stateLabel=make('p',null,'ledger-help');stateLabel.id='ledger-draft-status';stateLabel.setAttribute('role','status');actions.append(stateLabel);const achievements=button('Achievements · '+earned.length+' earned',()=>{dashboardView='progress';state.openSections.relics=true;clearCelebrations();render();app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel')?.scrollIntoView({block:'start'});});actions.append(achievements);log.prepend(actions);if(saveFeedback){const feedback=make('p',saveFeedback,'ledger-save-feedback');feedback.id='ledger-save-feedback';feedback.setAttribute('role','status');log.prepend(feedback);}const dateInput=log.querySelector('[data-act="logdate"]');dateInput.setAttribute('aria-label','Date to log');dateInput.parentNode.classList.add('ledger-date-row');const note=log.querySelector('[data-act="note"]');note?.setAttribute('aria-label','Daily note');}
       const bar=app.querySelector('.appbar');if(bar){const jump=button('Log today',()=>selectDate(todayISO()));bar.after(jump);jump.classList.add('ledger-jump');}
       if(log&&HABITS.includes('Screen Discipline'))log.querySelector('[data-act="logdate"]')?.parentNode.after(screenPanel());
       if(log)log.querySelector('[data-act="logdate"]')?.parentNode.after(leisurePanel());
@@ -378,11 +459,13 @@
       for(const el of app.querySelectorAll('[data-act="toggle"],[data-act="num"],[data-act="inc"],[data-act="dec"]')){const h=el.dataset.habit;if(!h)continue;const act=el.dataset.act;el.setAttribute('aria-label',(act==='toggle'?'Mark complete: ':act==='inc'?'Increase ':act==='dec'?'Decrease ':'Amount for ')+label(h));if(act==='toggle')el.setAttribute('aria-pressed',String(state.draft[h]>0));}
       for(const el of app.querySelectorAll('[data-act="mood"]'))el.setAttribute('aria-pressed',String(state.draftMood===+el.dataset.v));
       const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');if(prev){prev.disabled=state.cardIndex===0;prev.setAttribute('aria-label','Previous habit');}if(next)next.disabled=state.cardIndex>=HABITS.length-1;
-      status();
+      composeDashboard(log,data,earned);
+      paintLeisureClock();status();
     };
     app.addEventListener('click',e=>{
       const el=e.target.closest('[data-act]');if(!el)return;if(blocked||busy){e.stopImmediatePropagation();return;}
       const act=el.dataset.act;
+      if(act==='achvAll')dashboardView='progress';
       if(act==='reset'){e.stopImmediatePropagation();remember();seasonDialog();}
       if(act==='clear'){e.stopImmediatePropagation();confirmAction('Clear this draft?','Saved days remain in your history. Save day is required to replace an existing entry.','Clear draft',()=>{state.draft=freshDraft();state.draftMood=0;state.draftNote='';state.draftScreen=emptyScreen();state.draftLeisure=emptyLeisure();remember();render();});}
       if(act==='delmetric'){e.stopImmediatePropagation();removeMetric(el.dataset.id);}
