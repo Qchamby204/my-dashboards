@@ -23,6 +23,7 @@ const settle=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requ
 const screenshot=name=>page.screenshot({path:output+'/'+name+'.png'});
 try{
   await go('life-ledger.html');await page.waitForFunction(()=>!!window.LedgerDays);await settle();
+  await page.locator('#ledger-screen-fold > summary').click();
   await page.locator('#screen-guardrail').selectOption('evening');
   await page.getByRole('button',{name:'Caught myself scrolling',exact:true}).click();
   await page.locator('#screen-trigger').selectOption('habit');
