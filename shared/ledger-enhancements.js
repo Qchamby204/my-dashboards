@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=d61490850e85',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=63f502ed4998',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -22,10 +22,17 @@
     const resets={task:'Phone away · 10 minutes on my next task',read:'Phone away · read for 10 minutes',walk:'Phone away · take a 10-minute walk'};
     const emptyScreen=()=>({guardrail:'',slips:[]});
     const hasScreen=s=>!!s&&(!!s.guardrail||s.slips.length>0);
+    const DEFAULT_LEISURE={habits:8,gaming:45,reading:20};
+    const emptyLeisure=()=>({gamingMinutes:0,readingDone:false});
+    const hasLeisure=l=>!!l&&(l.gamingMinutes>0||l.readingDone);
+    function validLeisureRule(r){
+      if(!plain(r)||!Number.isInteger(r.habits)||r.habits<1||r.habits>100||!Number.isInteger(r.gaming)||r.gaming<1||r.gaming>60||!Number.isInteger(r.reading)||r.reading<1||r.reading>120)throw Error('Use 1–100 habits, 1–60 gaming minutes and 1–120 reading minutes.');
+    }
+    function validLeisure(l){if(!plain(l)||!finite(l.gamingMinutes)||l.gamingMinutes>1440||typeof l.readingDone!=='boolean')throw Error('Invalid Earned Leisure entry.');}
     function validScreen(s){
       if(!plain(s)||!Object.hasOwn(guardrails,s.guardrail)||!Array.isArray(s.slips)||s.slips.length>100||s.slips.some(v=>!plain(v)||!Object.hasOwn(triggers,v.trigger)||!Object.hasOwn(resets,v.action)||typeof v.recovered!=='boolean'))throw Error('Invalid Screen Discipline entry.');
     }
-    function validEntry(d){if(!plain(d)||!plain(d.units)||Object.values(d.units).some(v=>!finite(v))||d.note!==undefined&&typeof d.note!=='string'||d.mood!==undefined&&(!Number.isInteger(d.mood)||d.mood<0||d.mood>5))throw Error('A daily entry is invalid.');if(d.screen!==undefined)validScreen(d.screen);}
+    function validEntry(d){if(!plain(d)||!plain(d.units)||Object.values(d.units).some(v=>!finite(v))||d.note!==undefined&&typeof d.note!=='string'||d.mood!==undefined&&(!Number.isInteger(d.mood)||d.mood<0||d.mood>5))throw Error('A daily entry is invalid.');if(d.screen!==undefined)validScreen(d.screen);if(d.leisure!==undefined)validLeisure(d.leisure);}
     function validate(field,value){
       safeKeys(value);
       if(field==='days'){
@@ -43,6 +50,8 @@
       }else if(field==='season'){if(!plain(value)||!validDate(value.start)||!validDate(value.end)||value.start>value.end||isoToNum(value.end)-isoToNum(value.start)>731*86400000)throw Error('Choose a season end on or after its start, within two years.');}
       else if(field==='drafts'){
         if(!plain(value)||!plain(value.days)||!validDate(value.selected)||!['cards','list'].includes(value.mode))throw Error('Invalid unfinished entries.');
+        if(value.leisureRule!==undefined)validLeisureRule(value.leisureRule);
+        if(value.leisureTimer!==undefined&&(!plain(value.leisureTimer)||!finite(value.leisureTimer.startedAt)||value.leisureTimer.startedAt===0))throw Error('Invalid leisure timer.');
         for(const [date,d]of Object.entries(value.days)){if(!validDate(date))throw Error('Invalid draft date.');validEntry(d);}
       }
       return value;
@@ -66,11 +75,11 @@
     }
     store.set=write;
     async function retry(){if(blocked||busy)return;for(const [key,value]of [...failed])await write(key,value);status();}
-    function currentEntry(){return {units:clone(state.draft),mood:state.draftMood||0,note:state.draftNote||'',...(hasScreen(state.draftScreen)?{screen:clone(state.draftScreen)}:{})};}
-    function dirty(){const saved=dayEntryFor(state.logDate);return HABITS.some(h=>(saved?.units?.[h]||0)!==(state.draft[h]||0))||(saved?.mood||0)!==(state.draftMood||0)||(saved?.note||'')!==(state.draftNote||'')||JSON.stringify(saved?.screen||emptyScreen())!==JSON.stringify(state.draftScreen||emptyScreen());}
+    function currentEntry(){return {units:clone(state.draft),mood:state.draftMood||0,note:state.draftNote||'',...(hasScreen(state.draftScreen)?{screen:clone(state.draftScreen)}:{}),...(hasLeisure(state.draftLeisure)?{leisure:clone(state.draftLeisure)}:{})};}
+    function dirty(){const saved=dayEntryFor(state.logDate);return HABITS.some(h=>(saved?.units?.[h]||0)!==(state.draft[h]||0))||(saved?.mood||0)!==(state.draftMood||0)||(saved?.note||'')!==(state.draftNote||'')||JSON.stringify(saved?.screen||emptyScreen())!==JSON.stringify(state.draftScreen||emptyScreen())||JSON.stringify(saved?.leisure||emptyLeisure())!==JSON.stringify(state.draftLeisure||emptyLeisure());}
     function remember(){if(blocked||busy||!validDate(state.draftFor))return;if(dirty())drafts.days[state.draftFor]=currentEntry();else delete drafts.days[state.draftFor];drafts.selected=state.draftFor;drafts.mode=state.logMode;write(DRAFTKEY,JSON.stringify(drafts));}
     const originalLoad=loadDraftFor;
-    loadDraftFor=function(date){originalLoad(date);const d=drafts.days[date];if(d){state.draft={...freshDraft(),...clone(d.units)};state.draftMood=d.mood||0;state.draftNote=d.note||'';}state.draftScreen=clone((d||dayEntryFor(date))?.screen||emptyScreen());};
+    loadDraftFor=function(date){originalLoad(date);const d=drafts.days[date];if(d){state.draft={...freshDraft(),...clone(d.units)};state.draftMood=d.mood||0;state.draftNote=d.note||'';}state.draftScreen=clone((d||dayEntryFor(date))?.screen||emptyScreen());state.draftLeisure=clone((d||dayEntryFor(date))?.leisure||emptyLeisure());};
     let seenToday=todayISO();
     state.logMode=drafts.mode;state.logDate=validDate(drafts.selected)&&drafts.selected<=seenToday?drafts.selected:seenToday;loadDraftFor(state.logDate);
     function selectDate(date){if(blocked||busy||!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return false;}remember();state.logDate=date;loadDraftFor(date);drafts.selected=date;write(DRAFTKEY,JSON.stringify(drafts));state.cardIndex=0;render();document.getElementById('ledger-log')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return true;}
@@ -134,11 +143,13 @@
     async function saveDay(force=false){
       if(blocked||busy)return;const date=state.logDate;if(!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return;}
       if(Object.values(state.draft).some(v=>!finite(v))){toast('Use a valid, non-negative number for each entry.');return;}
-      if(!HABITS.some(h=>state.draft[h]>0)&&!state.draftMood&&!state.draftNote.trim()&&!hasScreen(state.draftScreen)&&!force){confirmAction('Save an empty day?','This records the date with no check-ins or note.','Save day',()=>saveDay(true));return;}
+      checkpointLeisureTimer(false);
+      if(!HABITS.some(h=>state.draft[h]>0)&&!state.draftMood&&!state.draftNote.trim()&&!hasScreen(state.draftScreen)&&!hasLeisure(state.draftLeisure)&&!force){confirmAction('Save an empty day?','This records the date with no check-ins or note.','Save day',()=>saveDay(true));return;}
       remember();const progressBefore=compute(state.days,state.goals),before=dayEntryFor(date),entry={...clone(before||{}),date,units:clone(before?.units||{})};
       for(const h of HABITS){delete entry.units[h];if(state.draft[h]>0)entry.units[h]=state.draft[h];}
       delete entry.mood;delete entry.note;if(state.draftMood)entry.mood=state.draftMood;if(state.draftNote.trim())entry.note=state.draftNote.trim();
       delete entry.screen;if(hasScreen(state.draftScreen))entry.screen=clone(state.draftScreen);
+      delete entry.leisure;if(hasLeisure(state.draftLeisure))entry.leisure=clone(state.draftLeisure);
       const next=state.days.filter(d=>d.date!==date).concat([entry]).sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map((d,i)=>({...d,day:i+1}));
       busy=true;status();const ok=await write(KEY,JSON.stringify(next));
       // A failed day save is retried explicitly with Save day, never as a stale queued snapshot.
@@ -216,6 +227,120 @@
       details.append(make('p','Manual notes, including drafts. No notes does not mean no scrolling.','ledger-help'));panel.append(details);
       return panel;
     }
+    // Daily leisure is derived from saved check-ins, never an accumulating bank.
+    let leisureInfoOpen=false,leisureHistoryOpen=false;
+    const leisureRule=()=>drafts.leisureRule||DEFAULT_LEISURE;
+    const leisureHabits=()=>HABITS.filter(h=>h!=='Screen Discipline');
+    const leisureTarget=h=>HCFG[h].kind==='count'?1:(HCFG[h].def||1);
+    const leisureCount=units=>leisureHabits().filter(h=>Number(units?.[h]||0)>=leisureTarget(h)).length;
+    const localISO=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const timerEnd=()=>Math.min(Date.now(),(drafts.leisureTimer?.startedAt||Date.now())+86400000);
+    function timerMinutes(date){
+      if(!drafts.leisureTimer)return 0;
+      const start=new Date(date+'T00:00:00'),end=new Date(start);end.setDate(end.getDate()+1);
+      return Math.max(0,Math.min(timerEnd(),end.getTime())-Math.max(drafts.leisureTimer.startedAt,start.getTime()))/60000;
+    }
+    // Split a session at local midnight. Elapsed wall time survives suspension and
+    // reload; saving mid-session checkpoints it exactly once before continuing.
+    function checkpointLeisureTimer(stop){
+      if(!drafts.leisureTimer)return;
+      const end=timerEnd(),started=drafts.leisureTimer.startedAt;
+      for(let cursor=started;cursor<end;){
+        const date=localISO(new Date(cursor)),boundary=new Date(date+'T00:00:00');boundary.setDate(boundary.getDate()+1);
+        const until=Math.min(end,boundary.getTime()),entry=date===state.logDate?currentEntry():clone(drafts.days[date]||dayEntryFor(date)||{units:{}});
+        entry.leisure={...emptyLeisure(),...entry.leisure};entry.leisure.gamingMinutes=Math.min(1440,entry.leisure.gamingMinutes+(until-cursor)/60000);
+        drafts.days[date]=entry;if(date===state.logDate)state.draftLeisure=clone(entry.leisure);cursor=until;
+      }
+      if(stop||Date.now()-started>=86400000)delete drafts.leisureTimer;else drafts.leisureTimer.startedAt=Math.max(started,end);
+    }
+    function paintLeisureClock(){
+      const usage=document.getElementById('leisure-usage'),clock=document.getElementById('leisure-clock');if(!usage||!clock)return;
+      const rule=leisureRule(),earned=leisureCount(state.draft)>=rule.habits&&leisureCount(dayEntryFor(state.logDate)?.units)>=rule.habits?rule.gaming:0;
+      const used=(state.draftLeisure?.gamingMinutes||0)+timerMinutes(state.logDate),remaining=earned-used;
+      const time=n=>{const seconds=Math.round(Math.abs(n)*60);return Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');};
+      usage.textContent=time(used)+' used · '+(remaining<0?time(remaining)+' over budget':time(remaining)+' remaining');
+      usage.classList.toggle('ledger-leisure-over',remaining<0);
+      clock.textContent=drafts.leisureTimer?(Date.now()-drafts.leisureTimer.startedAt>=86400000?'24-hour timer limit reached. Stop and review minutes.':remaining<=0?'Time is up. Stop the timer when you stop playing.':'Timer running · keeps time when you leave this app.'):'Gaming time for '+(state.logDate===todayISO()?'today':pretty(state.logDate));
+    }
+    function leisureMinutesDialog(){
+      if(blocked||busy||drafts.leisureTimer)return;
+      const date=state.logDate,dialog=make('dialog',null,'ledger-dialog');dialog.setAttribute('aria-labelledby','leisure-minutes-title');
+      const title=make('h2','Gaming time · '+pretty(date));title.id='leisure-minutes-title';
+      const form=make('form'),label=make('label','Total gaming minutes for this day'),input=make('input'),error=make('p',null,'ledger-error');error.setAttribute('role','alert');
+      input.type='number';input.inputMode='decimal';input.min='0';input.max='1440';input.step='any';input.required=true;input.value=fmt(state.draftLeisure?.gamingMinutes||0);input.id='leisure-manual-minutes';label.append(input);
+      const actions=make('div',null,'ledger-actions'),submit=make('button','Save minutes','ledger-button');submit.type='submit';actions.append(button('Cancel',()=>dialog.close()),submit);form.append(label,error,actions);
+      form.addEventListener('submit',e=>{
+        e.preventDefault();if(blocked||busy||state.logDate!==date)return;
+        const minutes=Number(input.value);if(input.value.trim()===''||!finite(minutes)||minutes>1440){error.textContent='Enter 0–1,440 minutes.';return;}
+        state.draftLeisure={...(state.draftLeisure||emptyLeisure()),gamingMinutes:minutes};remember();render();dialog.close();toast('Minutes kept in your draft. Save day to log them.');
+      });
+      dialog.append(title,make('p','Include gaming outside the timer. You can record more than your allowance to keep the tracking honest.','ledger-help'),form);
+      dialog.addEventListener('close',()=>{dialog.remove();document.getElementById('leisure-minutes')?.focus();});document.body.append(dialog);dialog.showModal();input.focus();input.select();
+    }
+    function leisureSettings(){
+      if(blocked||busy)return;
+      const dialog=make('dialog',null,'ledger-dialog');dialog.setAttribute('aria-labelledby','ledger-leisure-settings-title');
+      const title=make('h2','Earned Leisure settings');title.id='ledger-leisure-settings-title';
+      const form=make('form'),error=make('p',null,'ledger-error'),fields={};error.setAttribute('role','alert');
+      for(const [key,text,max]of [['habits','Completed habits to unlock',100],['gaming','Gaming minutes',60],['reading','Reading Reset minutes',120]]){
+        const label=make('label',text),input=make('input');input.type='number';input.inputMode='numeric';input.min='1';input.max=String(max);input.step='1';input.required=true;input.value=leisureRule()[key];input.id='leisure-rule-'+key;label.append(input);form.append(label);fields[key]=input;
+      }
+      const actions=make('div',null,'ledger-actions'),submit=make('button','Save rule','ledger-button');submit.type='submit';
+      actions.append(button('Cancel',()=>dialog.close()),submit);form.append(error,actions);
+      form.addEventListener('submit',async e=>{
+        e.preventDefault();if(blocked||busy)return;
+        try{
+          const rule=Object.fromEntries(Object.entries(fields).map(([k,input])=>[k,Number(input.value)]));validLeisureRule(rule);
+          if(rule.habits>leisureHabits().length)throw Error('Choose no more than '+leisureHabits().length+' enabled habits. Screen Discipline is excluded.');
+          remember();drafts.leisureRule=rule;submit.disabled=true;const ok=await write(DRAFTKEY,JSON.stringify(drafts));
+          render();if(ok){dialog.close();toast('Leisure rule saved.');}else error.textContent='Rule is only in this tab. Retry Save rule before closing.';
+        }catch(err){error.textContent=err.message;}finally{submit.disabled=false;}
+      });
+      dialog.append(title,form);dialog.addEventListener('close',()=>{dialog.remove();document.getElementById('leisure-settings')?.focus();});document.body.append(dialog);dialog.showModal();fields.habits.focus();
+    }
+    function leisurePanel(){
+      const date=state.logDate,rule=leisureRule(),count=leisureCount(state.draft),savedCount=leisureCount(dayEntryFor(date)?.units),l=state.draftLeisure||emptyLeisure();
+      const unlocked=count>=rule.habits&&savedCount>=rule.habits,today=date===todayISO();
+      const panel=make('section',null,'ledger-screen ledger-leisure');panel.id='ledger-leisure';panel.setAttribute('aria-labelledby','ledger-leisure-title');
+      const heading=make('div',null,'ledger-screen-heading'),title=make('h3','Earned Leisure');title.id='ledger-leisure-title';
+      const info=make('details',null,'ledger-progress-info'),summary=make('summary','i');summary.setAttribute('aria-label','How Earned Leisure works');info.open=leisureInfoOpen;info.addEventListener('toggle',()=>leisureInfoOpen=info.open);
+      info.append(summary,make('p','Save '+rule.habits+' completed habits to unlock '+rule.gaming+' minutes of gaming for that date. Each habit counts once; Screen Discipline is excluded. No banking or carryover. Below target, finish with '+rule.reading+' extra minutes of reading. A Reading Reset does not unlock gaming or add habit credit. Gaming still counts toward your combined screen-time limit. This is a manual commitment, not an app blocker.','ledger-help'));
+      const amounts=leisureHabits().filter(h=>HCFG[h].kind!=='count').map(h=>label(h)+': '+leisureTarget(h)+' '+HCFG[h].unit);
+      if(amounts.length)info.append(make('p','A full quantity check-in: '+amounts.join(' · ')+'.','ledger-help'));
+      heading.append(title,info);panel.append(heading);
+      const progress=make('p',count+' / '+rule.habits+' completed · '+savedCount+' saved','ledger-leisure-progress');progress.id='leisure-progress';panel.append(progress);
+      const meter=make('progress');meter.max=rule.habits;meter.value=Math.min(count,rule.habits);meter.setAttribute('aria-label','Completed habits toward gaming');panel.append(meter);
+      const statusText=unlocked?rule.gaming+' minutes of gaming unlocked.':count>=rule.habits?'Save day to unlock '+rule.gaming+' minutes of gaming.':(rule.habits-count)+' more to unlock '+rule.gaming+' minutes of gaming.';
+      const feedback=make('p',statusText,'ledger-help');feedback.id='leisure-status';feedback.setAttribute('role','status');panel.append(feedback);
+      if(rule.habits>leisureHabits().length)panel.append(make('p','Only '+leisureHabits().length+' habits are enabled. Edit the rule or restore habits to make this target reachable.','ledger-help'));
+      const record=(key,value)=>{
+        if(blocked||busy||date!==state.logDate)return;
+        if(today&&date!==todayISO()){checkDay();toast('The day changed. Use today’s leisure controls.');return;}
+        state.draftLeisure={...(state.draftLeisure||emptyLeisure()),[key]:value};remember();render();document.getElementById('leisure-'+key)?.focus();
+      };
+      const usage=make('p',null,'ledger-leisure-progress');usage.id='leisure-usage';panel.append(usage);
+      const clock=make('p',null,'ledger-help');clock.id='leisure-clock';panel.append(clock);
+      const timerActions=make('div',null,'ledger-actions');
+      if(drafts.leisureTimer)timerActions.append(button('Stop gaming timer',()=>{if(blocked||busy)return;checkpointLeisureTimer(true);remember();render();toast('Gaming minutes kept in your draft. Save day to log them.');}));
+      else if(today)timerActions.append(button(unlocked?'Start gaming timer':'Track unearned gaming',()=>{
+        if(blocked||busy||drafts.leisureTimer)return;
+        if(date!==todayISO()||state.logDate!==date){checkDay();return;}
+        remember();drafts.leisureTimer={startedAt:Date.now()};write(DRAFTKEY,JSON.stringify(drafts));render();
+      }));
+      const manual=button('Edit gaming minutes',leisureMinutesDialog);manual.id='leisure-minutes';manual.disabled=!!drafts.leisureTimer;timerActions.append(manual);panel.append(timerActions);
+      if(!unlocked||l.readingDone){
+        panel.append(make('p',l.readingDone?'Reading Reset complete.':'Finishing below target? Reading Reset · '+rule.reading+' extra minutes.','ledger-help'));
+        const reset=button(l.readingDone?'Undo Reading Reset':'I completed my Reading Reset',()=>record('readingDone',!l.readingDone));reset.id='leisure-readingDone';panel.append(reset);
+      }
+      if(JSON.stringify(dayEntryFor(date)?.leisure||emptyLeisure())!==JSON.stringify(l))panel.append(make('p','Check-in kept in your draft. Save day to log it.','ledger-help'));
+      if(!today)panel.append(make('p',pretty(date)+' · This allowance cannot be used today.','ledger-help'));
+      const history=make('details',null,'ledger-screen-patterns');history.open=leisureHistoryOpen;history.addEventListener('toggle',()=>leisureHistoryOpen=history.open);
+      const rows=make('ul');let total=0;
+      for(let i=6;i>=0;i--){const day=numToISO(isoToNum(date)-i*86400000),entry=day===state.logDate?{leisure:state.draftLeisure}:(drafts.days[day]||dayEntryFor(day)),minutes=(entry?.leisure?.gamingMinutes||0)+timerMinutes(day);total+=minutes;rows.append(make('li',pretty(day)+' · '+(minutes>0?fmt(minutes)+' min gaming':'No gaming time logged')));}
+      history.append(make('summary','Last 7 days · '+fmt(total)+' min gaming'),rows);panel.append(history);
+      const edit=button('Edit leisure rule',leisureSettings);edit.id='leisure-settings';panel.append(edit);
+      return panel;
+    }
     const originalQuest=questLog,originalSettings=settingsView,originalDeckChrome=updateDeckChrome;
     function withLiteralUnits(fn){const units=Object.fromEntries(Object.entries(HCFG).map(([key,c])=>[key,c.unit]));try{Object.values(HCFG).forEach(c=>c.unit=esc(c.unit));return fn();}finally{for(const [key,unit]of Object.entries(units))HCFG[key].unit=unit;}}
     questLog=function(draft){const days=compute(state.days,state.goals).days,existing=days.find(d=>d.date===state.logDate),count=days.filter(d=>d.date<=state.logDate).length;const draw=()=>originalQuest(draft,existing?.day||count+1);return state.logMode==='list'?withLiteralUnits(draw):draw();};
@@ -243,6 +368,8 @@
       const log=app.querySelector('[data-act="logdate"]')?.closest('.panel');if(log){log.id='ledger-log';const actions=make('div',null,'ledger-actions');actions.append(button('Today',()=>selectDate(todayISO())),button('Yesterday',()=>selectDate(numToISO(isoToNum(todayISO())-86400000))));const stateLabel=make('p',null,'ledger-help');stateLabel.id='ledger-draft-status';stateLabel.setAttribute('role','status');actions.append(stateLabel);const achievements=button('Achievements · '+earned.length+' earned',()=>{state.openSections.relics=true;clearCelebrations();render();app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel')?.scrollIntoView({block:'start'});});actions.append(achievements);log.prepend(actions);if(saveFeedback){const feedback=make('p',saveFeedback,'ledger-save-feedback');feedback.id='ledger-save-feedback';feedback.setAttribute('role','status');log.prepend(feedback);}const dateInput=log.querySelector('[data-act="logdate"]');dateInput.setAttribute('aria-label','Date to log');dateInput.parentNode.classList.add('ledger-date-row');const note=log.querySelector('[data-act="note"]');note?.setAttribute('aria-label','Daily note');}
       const bar=app.querySelector('.appbar');if(bar){const jump=button('Log today',()=>selectDate(todayISO()));bar.after(jump);jump.classList.add('ledger-jump');}
       if(log&&HABITS.includes('Screen Discipline'))log.querySelector('[data-act="logdate"]')?.parentNode.after(screenPanel());
+      if(log)log.querySelector('[data-act="logdate"]')?.parentNode.after(leisurePanel());
+      paintLeisureClock();
       const seasonInfo=make('section',null,'ledger-season-summary');seasonInfo.id='ledger-season-summary';const archived=state.days.filter(d=>!d.date||d.date<season.start||d.date>season.end).length;seasonInfo.append(make('strong',todayISO()<season.start?'Season starts '+pretty(season.start):'Season: '+pretty(season.start)+' to '+pretty(season.end)),make('p',archived+' earlier or outside-season entries kept in Saved days.'));if(log)log.before(seasonInfo);
       if(state.logDate<season.start||state.logDate>season.end){const info=make('p','This date is outside the current season. Saving keeps it in your history.','ledger-help');log?.prepend(info);}
       const reset=app.querySelector('[data-act="reset"]');if(reset)reset.textContent='Start new season';
@@ -257,18 +384,19 @@
       const el=e.target.closest('[data-act]');if(!el)return;if(blocked||busy){e.stopImmediatePropagation();return;}
       const act=el.dataset.act;
       if(act==='reset'){e.stopImmediatePropagation();remember();seasonDialog();}
-      if(act==='clear'){e.stopImmediatePropagation();confirmAction('Clear this draft?','Saved days remain in your history. Save day is required to replace an existing entry.','Clear draft',()=>{state.draft=freshDraft();state.draftMood=0;state.draftNote='';state.draftScreen=emptyScreen();remember();render();});}
+      if(act==='clear'){e.stopImmediatePropagation();confirmAction('Clear this draft?','Saved days remain in your history. Save day is required to replace an existing entry.','Clear draft',()=>{state.draft=freshDraft();state.draftMood=0;state.draftNote='';state.draftScreen=emptyScreen();state.draftLeisure=emptyLeisure();remember();render();});}
       if(act==='delmetric'){e.stopImmediatePropagation();removeMetric(el.dataset.id);}
       if(act==='restoreHabits'){e.stopImmediatePropagation();confirmAction('Restore the default habits?','Original habit names, locations and visibility return. Your custom habits and saved entries stay.','Restore habits',()=>{for(const h of Object.keys(DEFAULT_HCFG))for(const field of ['renames','moves','hidden','crit'])delete userModel[field][h];saveModel();rebuildModel();render();});}
     },true);
     app.addEventListener('click',e=>{const act=e.target.closest('[data-act]')?.dataset.act;if(['toggle','inc','dec','mood','logmode'].includes(act)){remember();status();}});
-    app.addEventListener('input',e=>{if(blocked||busy)return;const act=e.target.dataset.act;if(act==='note'){state.draftNote=e.target.value;remember();}else if(act==='num'){const text=e.target.value.trim(),n=text===''?0:Number(text),ok=finite(n)&&/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text);e.target.setAttribute('aria-invalid',String(!ok));if(ok){state.draft[e.target.dataset.habit]=n;remember();}}});
-    app.addEventListener('change',e=>{const el=e.target,act=el.dataset.act;if(act==='logdate'){e.stopImmediatePropagation();const date=el.value;if(!selectDate(date))el.value=state.logDate;}else if(act==='num'){e.stopImmediatePropagation();const text=el.value.trim(),n=text===''?0:Number(text);if(!finite(n)||!/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text)){el.value=state.draft[el.dataset.habit]||0;toast('Use a valid, non-negative number.');}else{state.draft[el.dataset.habit]=n;remember();}el.setAttribute('aria-invalid','false');}},true);
+    app.addEventListener('input',e=>{if(blocked||busy)return;const act=e.target.dataset.act;if(act==='note'){state.draftNote=e.target.value;remember();}else if(act==='num'){const text=e.target.value.trim(),n=text===''?0:Number(text),ok=finite(n)&&/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text);e.target.setAttribute('aria-invalid',String(!ok));if(ok){state.draft[e.target.dataset.habit]=n;remember();document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}}});
+    app.addEventListener('change',e=>{const el=e.target,act=el.dataset.act;if(act==='logdate'){e.stopImmediatePropagation();const date=el.value;if(!selectDate(date))el.value=state.logDate;}else if(act==='num'){e.stopImmediatePropagation();const text=el.value.trim(),n=text===''?0:Number(text);if(!finite(n)||!/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text)){el.value=state.draft[el.dataset.habit]||0;toast('Use a valid, non-negative number.');}else{state.draft[el.dataset.habit]=n;remember();}el.setAttribute('aria-invalid','false');document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}},true);
     window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('dialog[open]'))e.stopImmediatePropagation();},true);
     window.addEventListener('beforeunload',e=>{remember();if(failed.size||pending.size||busy){e.preventDefault();e.returnValue='';}});
     function checkDay(){if(busy||blocked)return;const today=todayISO();if(today!==seenToday){const follow=state.logDate===seenToday;remember();seenToday=today;if(follow){state.logDate=today;loadDraftFor(today);}render();}}
     document.addEventListener('visibilitychange',()=>{if(document.hidden)remember();else{checkDay();render();}});
     window.addEventListener('pageshow',()=>{checkDay();render();});setInterval(checkDay,60000);
+    setInterval(()=>{checkDay();paintLeisureClock();},1000);
     window.LedgerDays=Object.freeze({selectDate,setSeason,parseBackup,saveDay,remember,retry,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
     render();
   }
