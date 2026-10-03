@@ -1,0 +1,43 @@
+name: Life Ledger browser checks
+on:
+  pull_request:
+    paths:
+      - 'life-ledger.html'
+      - 'shared/ledger-*.js'
+      - 'shared/ledger-*.css'
+      - 'shared/atlas-theme.js'
+      - 'atlas/tests/ledger-browser.py'
+      - '.github/workflows/ledger-ui.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install playwright==1.57.0
+      - run: python -m playwright install --with-deps chromium webkit
+      - name: Verify Ledger in Chromium and WebKit
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/ledger-ui-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for n in $(seq 1 30); do curl -fsS http://127.0.0.1:8765/life-ledger.html >/dev/null && break || sleep 1; done
+          failed=0
+          for browser in chromium webkit; do
+            LEDGER_BROWSER="$browser" python atlas/tests/ledger-browser.py || failed=1
+          done
+          test "$failed" = 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: life-ledger-ui
+          path: artifacts/ledger-ui/
+          retention-days: 7
