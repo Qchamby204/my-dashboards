@@ -32,7 +32,7 @@ async function boot({records={},blocked=false,width=390,realModel=false,nowISO='
     get firstElementChild(){return this.children[0]||null;}
     removeChild(n){n.remove();}
     get isConnected(){return this===document.body||this===document.head||!!this.parentNode?.isConnected;}
-    append(...a){a.forEach(n=>this.appendChild(n));}appendChild(n){this.children.push(n);n.parentNode=this;return n;}prepend(n){this.children.unshift(n);n.parentNode=this;}
+    append(...a){a.forEach(n=>this.appendChild(n));}appendChild(n){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(x=>x!==n);this.children.push(n);n.parentNode=this;return n;}prepend(n){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(x=>x!==n);this.children.unshift(n);n.parentNode=this;}
     before(n){const p=this.parentNode;p.children.splice(p.children.indexOf(this),0,n);n.parentNode=p;}
     after(n){const p=this.parentNode;p.children.splice(p.children.indexOf(this)+1,0,n);n.parentNode=p;}
     remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(n=>n!==this);this.parentNode=null;const removeIDs=n=>{if(n.id)ids.delete(n.id);n.children.forEach(removeIDs);};removeIDs(this);}
@@ -141,9 +141,9 @@ test('metric deletion uses the metric record and default-habit restore is functi
  const h=await boot();h.run(`state.metrics=[{id:'m_read',name:'Reading notes',unit:'notes',readings:[]}];userModel.renames.Read='Changed';userModel.hidden.Make=true;rebuildModel();`);h.act('delmetric',{id:'m_read'});assert.equal(h.run('state.metrics.length'),1);h.clickText('Delete metric');await h.settle();assert.equal(h.run('state.metrics.length'),0);assert.deepEqual(JSON.parse(h.storage.get('lifeledger:metrics:v1')),[]);
  h.act('restoreHabits');h.clickText('Restore habits');await h.settle();assert.equal(h.run('label("Read")'),'Read');assert.equal(h.run('HABITS.includes("Make")'),true);
 });
-test('reopening restores the selected historical date and its unfinished note',async()=>{
+test('reopening starts on Today and preserves historical unfinished work',async()=>{
  const h=await boot();h.api.selectDate('2026-09-05');h.run("state.draftNote='Continue this entry'");h.api.remember();
- const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.logDate'),'2026-09-05');assert.equal(again.run('state.draftNote'),'Continue this entry');assert.equal(again.run('state.days.length'),0);
+ const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('state.logDate'),'2026-09-07');again.api.selectDate('2026-09-05');assert.equal(again.run('state.draftNote'),'Continue this entry');assert.equal(again.run('state.days.length'),0);
 });
 test('Undo preserves a newer draft for the same date through date changes and reopening',async()=>{
  const h=await boot();h.run("state.draftNote='Saved version'");await h.api.saveDay();h.run("state.draftNote='New unfinished version'");h.api.remember();h.api.selectDate('2026-09-06');await h.run('undoLast()');
@@ -191,7 +191,7 @@ test('prior saved entries recover earned achievements on reload without a new sa
  assert(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'));
  assert(h.run('ACHV.find(a=>a.name==="First Reflection").test(compute(state.days,state.goals))'));
  assert.equal(h.storage.get(S),JSON.stringify(rows));assert.equal(h.run('state.achvQueue.length'),0);
- const earned=h.run('ACHV.filter(a=>a.test(compute(state.days,state.goals))).length');h.clickText('Achievements · '+earned+' earned');assert.equal(h.run('state.openSections.relics'),true);assert.equal(h.node('app').querySelector('[data-act="section"][data-key="relics"]').closest('.panel').scrolled,true);
+ const earned=h.run('ACHV.filter(a=>a.test(compute(state.days,state.goals))).length');h.clickText(earned+' achievements');assert.equal(h.run('state.openSections.relics'),true);assert.equal(h.node('ledger-view-progress').hidden,false);
  assert.equal(h.node('app').querySelectorAll('[data-act="relic"][role="button"]').length,h.run('ACHV.length'));
 });
 test('streak award uses the longest calendar streak and survives a later gap',async()=>{
@@ -363,12 +363,12 @@ test('8 completed saved habits unlock 45 minutes; drafts and Screen Discipline d
 });
 
 test('partial quantities do not count as completed; edits and failed saves cannot unlock gaming',async()=>{
- const h=await screenBoot();fillLeisure(h,8);h.run(`state.draft.Read=HCFG.Read.def-1;render()`);assert.match(h.node('leisure-progress').textContent,/7 \/ 8/);
+ const h=await screenBoot();fillLeisure(h,8);h.run(`state.draft.Read=HCFG.Read.def-1;render()`);assert.match(h.node('leisure-progress').textContent,/7 habits complete/);
  const input=h.node('app').querySelector('[data-act="num"][data-habit="Read"]');input.value=String(h.run('HCFG.Read.def'));h.node('app').emit('input',{target:input});assert.match(h.node('leisure-status').textContent,/Save day to unlock/);
  h.localStorage.blockedKey=S;await h.api.saveDay();assert.equal(h.run('state.days.length'),0);assert.match(h.node('leisure-status').textContent,/Save day to unlock/);
  h.localStorage.blockedKey=null;await h.api.retry();await h.api.saveDay();assert.match(h.node('leisure-status').textContent,/45 minutes of gaming unlocked/);
  h.run('state.draft.Read=0;render()');assert.doesNotMatch(h.node('leisure-status').textContent,/unlocked/);await h.api.saveDay();assert.match(h.node('leisure-status').textContent,/1 more/);
- h.run(`userModel.hidden[HABITS.filter(k=>k!=='Screen Discipline'&&state.draft[k]>0)[0]]=true;rebuildModel();render()`);assert.match(h.node('leisure-progress').textContent,/6 \/ 8/);
+ h.run(`userModel.hidden[HABITS.filter(k=>k!=='Screen Discipline'&&state.draft[k]>0)[0]]=true;rebuildModel();render()`);assert.match(h.node('leisure-progress').textContent,/6 habits complete/);
 });
 
 test('a 20-minute Reading Reset saves and backs up without granting habit credit or gaming',async()=>{
@@ -409,4 +409,35 @@ test('a failed timer write is surfaced and retry preserves the running session; 
  h.localStorage.blockedKey=D;stale.click();assert.equal(h.api.failed,1);assert.equal(h.api.drafts.leisureTimer.startedAt,Date.parse(screenNow));h.localStorage.blockedKey=null;await h.api.retry();assert.equal(h.api.failed,0);
  h.at('2026-09-30T09:05:00-05:00');clickLeisure(h,'Stop gaming timer');assert.equal(h.run('state.draftLeisure.gamingMinutes'),5);
  const yesterday=h.node('ledger-leisure').querySelectorAll('button').find(b=>b.textContent==='Track unearned gaming');h.at('2026-10-01T00:01:00-05:00');yesterday.click();assert.equal(h.run('state.logDate'),'2026-10-01');assert.equal(h.api.drafts.leisureTimer,undefined);
+});
+
+test('leisure meters show remaining time, including 40 of 45 used, exhaustion and overruns',async()=>{
+ const h=await screenBoot();fillLeisure(h,8);await h.api.saveDay();h.run('state.levelInfo=null;state.achvQueue=[];state.draftLeisure.gamingMinutes=40;render()');
+ for(const id of ['leisure-budget-meter','leisure-preview-meter']){assert.equal(h.node(id).value,5);assert.equal(h.node(id).max,45);assert.equal(h.node(id).dataset.level,'low');assert.match(h.node(id).getAttribute('aria-valuetext'),/5:00 remaining of 45/);}
+ assert.match(h.node('leisure-preview-time').textContent,/5:00 remaining/);
+ h.run('state.draftLeisure.gamingMinutes=45;render()');assert.equal(h.node('leisure-preview-meter').value,0);
+ h.run('state.draftLeisure.gamingMinutes=50;render()');assert.equal(h.node('leisure-preview-meter').value,0);assert.match(h.node('leisure-preview-time').textContent,/5:00 over budget/);
+ h.run('state.draft.Read=0;state.draftLeisure.gamingMinutes=0;render()');assert.equal(h.node('leisure-preview-meter').value,0);assert.match(h.node('leisure-preview-time').textContent,/locked/);
+});
+
+test('Today, Progress and History compose one copy of the controls and retain edits across navigation',async()=>{
+ const h=await screenBoot();assert.equal(h.node('ledger-view-today').hidden,false);assert.equal(h.node('ledger-view-progress').hidden,true);assert.equal(h.node('ledger-view-history').hidden,true);
+ h.run('state.draft.Read=12');h.api.remember();h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-view-progress').hidden,false);assert.equal(h.node('ledger-view-today').hidden,true);assert.equal(h.node('ledger-nav-progress').getAttribute('aria-selected'),'true');assert.equal(h.run('state.openSections.relics'),true);
+ assert.equal(h.node('app').querySelectorAll('[data-act="commit"]').length,1);assert(h.node('app').querySelector('[data-act="commit"]').closest('#ledger-dock'));
+ h.node('ledger-nav-history').click();assert(h.node('ledger-history').closest('#ledger-view-history'));assert.equal(h.node('ledger-history').open,true);
+ h.node('ledger-nav-today').click();assert.equal(h.run('state.draft.Read'),12);assert(h.node('ledger-log').closest('#ledger-view-today'));assert(h.node('app').querySelector('.ledger-overall').closest('#ledger-view-progress'));
+ h.api.selectDate('2026-09-29');assert.match(h.node('ledger-view-today').textContent,/Editing Sep 29/);h.node('ledger-nav-today').click();assert.equal(h.run('state.logDate'),'2026-09-30');assert.equal(h.run('state.draft.Read'),12);
+});
+
+test('the leisure sheet opens and dismisses with focus return without stopping a running timer',async()=>{
+ const h=await screenBoot();assert.equal(h.node('ledger-leisure-sheet').open,undefined);h.node('ledger-leisure-preview').click();assert.equal(h.node('ledger-leisure-sheet').open,true);
+ clickLeisure(h,'Track unearned gaming');h.node('ledger-leisure-close').click();assert.equal(h.node('ledger-leisure-sheet').open,false);assert.equal(h.document.activeElement.id,'ledger-leisure-preview');assert(h.api.drafts.leisureTimer);
+ h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-running-timer').hidden,false);h.node('ledger-running-timer').click();assert.equal(h.node('ledger-leisure-sheet').open,true);
+ h.node('ledger-leisure-sheet').emit('cancel');assert.equal(h.node('ledger-leisure-sheet').open,false);assert(h.api.drafts.leisureTimer);
+});
+
+test('remaining filter hides completed habits without erasing quantities or changing the full habit list',async()=>{
+ const h=await screenBoot();h.run('state.draft.Read=25;render()');h.node('ledger-filter-remaining').click();
+ const row=h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row');assert.equal(row.hidden,true);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('HABITS.length'),14);
+ h.node('ledger-filter-all').click();assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row').hidden,false);
 });
