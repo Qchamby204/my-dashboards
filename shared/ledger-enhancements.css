@@ -102,3 +102,9 @@ html[data-atlas-app="life-ledger"] .ledger-screen-patterns ul{list-style:none;}
 html[data-atlas-app="life-ledger"] .ledger-screen .ledger-button:active{filter:brightness(.94);}
 html[data-atlas-app="life-ledger"] .ledger-screen :focus-visible{outline:2px solid var(--neo-accent);outline-offset:2px;}
 @media(prefers-contrast:more){html[data-atlas-app="life-ledger"] .ledger-screen{border-color:var(--neo-ink);}}
+
+/* Earned Leisure shares the daily log's compact controls and accessible colors. */
+html[data-atlas-app="life-ledger"] .ledger-leisure{border-left-color:var(--neo-accent);}
+html[data-atlas-app="life-ledger"] .ledger-leisure-progress{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;margin:8px 0;}
+html[data-atlas-app="life-ledger"] .ledger-leisure progress{width:100%;height:10px;accent-color:var(--neo-accent);}
+html[data-atlas-app="life-ledger"] .ledger-leisure-over{color:var(--neo-danger,#c04438);}
