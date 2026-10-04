@@ -162,3 +162,10 @@ html[data-atlas-app="life-ledger"] .ledger-notice{bottom:calc(var(--atlas-bottom
 @keyframes ledgerSheetEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="life-ledger"] .ledger-sheet{animation:none;}}
 @media(prefers-contrast:more){html[data-atlas-app="life-ledger"] :is(.ledger-leisure-preview,.ledger-dock,.ledger-sheet){border-color:var(--neo-ink)!important;}}
+
+html[data-atlas-app="life-ledger"] #app #ledger-quick-reset{width:100%;min-height:44px;font-size:13px!important;margin:4px 0 0;box-shadow:none;background:var(--neo-inset);color:var(--neo-ink);border:1px solid var(--neo-line);border-radius:10px;}
+html[data-atlas-app="life-ledger"] .ledger-wrap-up{border-left:3px solid var(--neo-accent);background:var(--neo-inset);border-radius:12px;padding:12px;margin:12px 0;}
+html[data-atlas-app="life-ledger"] .ledger-wrap-up h4{margin:0 0 6px;font-size:20px;}
+html[data-atlas-app="life-ledger"] .ledger-wrap-up button{width:100%;margin-top:8px;}
+html[data-atlas-app="life-ledger"] #ledger-reset-sheet select{display:block;width:100%;min-height:44px;font:inherit;font-size:16px;color:var(--neo-ink);background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:10px;padding:10px;margin:8px 0 16px;}
+html[data-atlas-app="life-ledger"] #ledger-reset-sheet>button{width:100%;margin-top:10px;}

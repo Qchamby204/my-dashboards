@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=1ff8c0b49c5e',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=c014a446fccc',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -19,7 +19,7 @@
     function safeKeys(o){if(o&&typeof o==='object')for(const k of Object.keys(o)){if(['__proto__','prototype','constructor'].includes(k))throw Error('Invalid record key.');safeKeys(o[k]);}}
     const guardrails={'':'Choose one for today',feeds:'No YouTube / Instagram feeds today',work:'Phone out of reach during work blocks',evening:'Phone charges out of reach this evening'};
     const triggers={'':'Optional: what pulled you in?',bored:'Boredom',stress:'Stress',avoid:'Avoiding a task',habit:'Opened it automatically'};
-    const resets={task:'Phone away · 10 minutes on my next task',read:'Phone away · read for 10 minutes',walk:'Phone away · take a 10-minute walk'};
+    const resets={task:'Phone away · 10 minutes on my next task',read:'Phone away · read for 10 minutes',walk:'Phone away · walk Hudson for 10 minutes'};
     const emptyScreen=()=>({guardrail:'',slips:[]});
     const hasScreen=s=>!!s&&(!!s.guardrail||s.slips.length>0);
     const DEFAULT_LEISURE={habits:8,gaming:45,reading:20};
@@ -57,7 +57,7 @@
       return value;
     }
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'list'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
-    let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false;
+    let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
       if(boot.readError&&!window.storage)throw Error();
@@ -184,6 +184,35 @@
       const max=Math.max(0,...Object.values(reasons)),top=Object.keys(reasons).filter(k=>reasons[k]===max).map(k=>triggers[k]);
       return {rows,guarded,slips,recovered,recorded,top};
     }
+    function beginScreenReset(){
+      if(blocked||busy)return;
+      if(state.logDate!==todayISO()){remember();state.logDate=todayISO();loadDraftFor(state.logDate);}
+      const slips=state.draftScreen.slips;
+      if(!slips.length||slips.at(-1).recovered){
+        if(slips.length>=100){toast('Today’s slip log is full. Use your existing Screen Discipline controls.');return;}
+        const prior=Object.keys({...Object.fromEntries(state.days.filter(d=>d.date).map(d=>[d.date,d])),...drafts.days}).filter(d=>d<=todayISO()).sort().reverse().map(d=>(drafts.days[d]||dayEntryFor(d))?.screen?.slips?.at(-1)).find(Boolean);
+        slips.push({trigger:'',action:slips.at(-1)?.action||prior?.action||'task',recovered:false});remember();
+      }
+      leisureOpen=false;resetOpen=true;render();document.getElementById('screen-reset-action')?.focus();
+    }
+    function resetSheet(){
+      if(!resetOpen)return;
+      const date=state.logDate,last=state.draftScreen.slips.at(-1);
+      if(date!==todayISO()||!last||last.recovered||state.levelInfo||state.achvQueue?.length){resetOpen=false;return;}
+      const sheet=make('dialog',null,'ledger-dialog ledger-sheet');sheet.id='ledger-reset-sheet';sheet.setAttribute('aria-labelledby','screen-reset-title');
+      const close=()=>{resetOpen=false;sheet.close();document.getElementById('ledger-quick-reset')?.focus();};
+      const heading=make('h2','Take back the next 10 minutes');heading.id='screen-reset-title';
+      sheet.append(heading,make('p','Close the feed. Put your phone out of reach. Choose one small action.','ledger-help'));
+      const valid=()=>{if(blocked||busy)return false;if(state.logDate!==date||date!==todayISO()){resetOpen=false;checkDay();render();toast('A new day has started. Start a reset for today.');return false;}return true;};
+      for(const [id,title,options,key]of [['screen-reset-action','My next action',resets,'action'],['screen-reset-trigger','What pulled me in? (optional)',triggers,'trigger']]){
+        const label=make('label',title),select=make('select');select.id=id;
+        for(const [value,text]of Object.entries(options)){const option=make('option',text);option.value=value;select.append(option);}select.value=last[key];
+        select.addEventListener('change',()=>{if(valid()){last[key]=select.value;remember();}});label.append(select);sheet.append(label);
+      }
+      const done=button('I’m back',()=>{if(!valid())return;last.recovered=true;remember();resetOpen=false;render();toast('Reset recorded. Welcome back.');document.getElementById('ledger-quick-reset')?.focus();});done.id='screen-reset-done';done.classList.add('ledger-primary');
+      sheet.append(done,button('Do this now · close',close),make('p','Your reset stays in your draft. Save day to log it.','ledger-help'));
+      sheet.addEventListener('cancel',e=>{e.preventDefault();close();});app.append(sheet);sheet.showModal();
+    }
     function screenPanel(){
       const date=state.logDate,s=state.draftScreen,last=s.slips.at(-1),today=date===todayISO();
       const panel=make('section',null,'ledger-screen');panel.id='ledger-screen';panel.setAttribute('aria-labelledby','ledger-screen-title');
@@ -267,6 +296,8 @@
       if(preview)preview.textContent=remaining<0?time(remaining)+' over budget':earned?time(remaining)+' remaining':'Gaming is locked';
       if(meta)meta.textContent=earned?time(used)+' used of '+rule.gaming+' min'+(drafts.leisureTimer?' · Timer running':''):leisureCount(state.draft)>=rule.habits?'Save day to unlock '+rule.gaming+' minutes':Math.max(0,rule.habits-leisureCount(state.draft))+' more habits to unlock '+rule.gaming+' minutes';
 
+      const wrap=document.getElementById('leisure-wrap-up');if(wrap)wrap.hidden=!drafts.leisureTimer||remaining>0||state.logDate!==todayISO();
+      const running=document.getElementById('ledger-running-timer');if(running)running.textContent=remaining<=0&&state.logDate===todayISO()?'Time’s up · End session':'Gaming timer running · Open';
       clock.textContent=drafts.leisureTimer?(Date.now()-drafts.leisureTimer.startedAt>=86400000?'24-hour timer limit reached. Stop and review minutes.':remaining<=0?'Time is up. Stop the timer when you stop playing.':'Timer running · keeps time when you leave this app.'):(state.logDate===todayISO()?'Today’s gaming time':pretty(state.logDate)+' · History');
     }
     function leisureMinutesDialog(){
@@ -329,6 +360,11 @@
       };
       const usage=make('p',null,'ledger-leisure-progress');usage.id='leisure-usage';panel.append(usage);
       const clock=make('p',null,'ledger-help');clock.id='leisure-clock';panel.append(clock);
+      const wrap=make('section',null,'ledger-wrap-up');wrap.id='leisure-wrap-up';wrap.hidden=true;
+      const wrapTitle=make('h4','Time’s up');wrapTitle.setAttribute('role','status');
+      const end=button('End session',()=>{if(blocked||busy||!drafts.leisureTimer)return;checkpointLeisureTimer(true);remember();render();toast('Session ended. Save day to log your time.');document.getElementById('ledger-leisure-close')?.focus();});end.id='leisure-end-session';
+      const extra=button('Log extra time',()=>{if(blocked||busy||!drafts.leisureTimer)return;checkpointLeisureTimer(true);remember();render();leisureMinutesDialog();});extra.id='leisure-log-extra';
+      wrap.append(wrapTitle,make('p','Your allowance is used. End the session, or record your total if you played longer. The timer keeps counting until you stop it.','ledger-help'),end,extra);panel.append(wrap);
       const timerActions=make('div',null,'ledger-actions');
       if(drafts.leisureTimer)timerActions.append(button('Stop gaming timer',()=>{if(blocked||busy)return;checkpointLeisureTimer(true);remember();render();toast('Gaming minutes kept in your draft. Save day to log them.');}));
       else if(today)timerActions.append(button(unlocked?'Start gaming timer':'Track unearned gaming',()=>{
@@ -419,7 +455,9 @@
       const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
       for(const [key,title]of [['today','Today'],['progress','Progress'],['history','History']]){const b=button('',()=>setDashboardView(key));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
       nav.addEventListener('keydown',e=>{const keys=['today','progress','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();setDashboardView(keys[next]);});
-      dock.append(nav);app.append(dock);log.querySelector('.ledger-save-inline')?.remove();
+      const todayScreen=state.logDate===todayISO()?state.draftScreen:(drafts.days[todayISO()]||dayEntryFor(todayISO()))?.screen;
+      const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';dock.append(quick);
+      dock.append(nav);app.append(dock);log.querySelector('.ledger-save-inline')?.remove();resetSheet();
     }
 
     const originalQuest=questLog,originalSettings=settingsView,originalDeckChrome=updateDeckChrome;
