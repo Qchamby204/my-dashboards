@@ -49,6 +49,19 @@ export function validateLifeMapRecords(input){
     const ids=new Set();for(const t of out.templates){if(!object(t)||!id(t.id)||ids.has(t.id)||!string(t.title,300,true)||!string(t.area??'',120)||!string(t.notes??'',20000)||!Array.isArray(t.tasks)||t.tasks.length>100)throw Error('A project template is invalid.');ids.add(t.id);for(const p of t.tasks){if(!object(p)||!string(p.task,300,true)||!string(p.notes??'',20000)||p.pri&&!['High','Med','Low'].includes(p.pri)||p.tags&&(!Array.isArray(p.tags)||p.tags.length>10||p.tags.some(x=>!string(x,40,true)))||p.links&&(!Array.isArray(p.links)||p.links.length>10||p.links.some(x=>!link(x)))||p.checklist&&(!Array.isArray(p.checklist)||p.checklist.length>100||p.checklist.some(x=>!object(x)||!string(x.text,500,true))))throw Error('A template task is invalid.');}}
   }
   if(out.preferences!==undefined){const p=out.preferences;if(!object(p)||p.hideEmpty!==undefined&&typeof p.hideEmpty!=='boolean'||p.areaOrder!==undefined&&(!Array.isArray(p.areaOrder)||p.areaOrder.length>100||p.areaOrder.some(x=>!string(x,120,true))))throw Error('Area display settings are invalid.');}
+  if(out.mealCoverage!==undefined&&out.mealCoverage!==null){const c=out.mealCoverage;
+    if(!object(c)||!date(c.start)||!Number.isInteger(c.dinners)||c.dinners<1||c.dinners>60||!string(c.note??'',1000)||c.reminderTime!==undefined&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(c.reminderTime)||c.skipDates!==undefined&&(!Array.isArray(c.skipDates)||c.skipDates.length>60||new Set(c.skipDates).size!==c.skipDates.length||c.skipDates.some(d=>!date(d))))throw Error('Choose a first dinner date and 1–60 dinners, with valid skipped dates.');
+  }
+  const blockList=rows=>{
+    if(!Array.isArray(rows)||rows.length>24)throw Error('Use up to 24 time blocks per day.');
+    const ids=new Set();for(const b of rows){if(!object(b)||!id(b.id)||ids.has(b.id)||!string(b.title,300,true)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(b.start)||!Number.isInteger(b.minutes)||b.minutes<5||b.minutes>720||Number(b.start.slice(0,2))*60+Number(b.start.slice(3))+b.minutes>1440||!flag(b,'done')||b.taskId&&!id(b.taskId)||b.category&&!['food','household','family','health','work','admin','rest'].includes(b.category))throw Error('Check the block title, start time and duration.');ids.add(b.id);}
+    const sorted=rows.slice().sort((a,b)=>a.start.localeCompare(b.start));for(let i=1;i<sorted.length;i++){const a=sorted[i-1],b=sorted[i],minute=x=>Number(x.slice(0,2))*60+Number(x.slice(3));if(minute(a.start)+a.minutes>minute(b.start))throw Error('Time blocks overlap. Change their times so each has its own space.');}
+  };
+  if(out.dayPlans!==undefined){
+    if(!object(out.dayPlans)||Object.keys(out.dayPlans).length>1000)throw Error('Daily plans are invalid or exceed 1,000 days.');
+    for(const [d,p] of Object.entries(out.dayPlans)){if(!date(d)||!object(p)||!flag(p,'reviewed')||p.mainTaskId&&!id(p.mainTaskId))throw Error('A daily plan is invalid.');blockList(p.blocks||[]);if(p.focus!==undefined&&p.focus!==null&&(!object(p.focus)||!['task','block'].includes(p.focus.kind)||!id(p.focus.id)))throw Error('The active focus is invalid.');}
+  }
+  if(out.dayTemplates!==undefined){if(!object(out.dayTemplates)||Object.keys(out.dayTemplates).some(k=>!['weekday','weekend'].includes(k)))throw Error('Day templates are invalid.');for(const rows of Object.values(out.dayTemplates))blockList(rows);}
   if(Object.entries(out.checks).some(([k,v])=>!id(k)||!string(v,100))||Object.entries(out.planned).some(([k,v])=>!id(k)||!date(v))||out.log.some(x=>!object(x)||!id(x.id)||x.t!=='proj'||!date(x.d)))throw Error('The backup contains invalid activity records.');
   return out;
 }

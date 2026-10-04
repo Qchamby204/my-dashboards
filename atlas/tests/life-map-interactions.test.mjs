@@ -11,7 +11,7 @@ function harness(){
   const document={activeElement:null,getElementById:id=>Object.values(nodes).find(x=>x.id===id)||null,addEventListener:(type,fn)=>events[type]=fn};
   const app={children:[],contains:el=>Object.values(nodes).includes(el),addEventListener:(type,fn)=>{if(type==='click')clicks.push(fn);},querySelector:selector=>selector.startsWith('.overlay')?dialog:null,
     querySelectorAll:selector=>{
-      if(selector==='[data-act]'||selector==='[data-act],[data-lm]')return Object.values(nodes).filter(x=>x.dataset.act);
+      if(selector==='[data-act]'||selector==='[data-act],[data-lm]'||selector==='[data-act],[data-lm],[data-day],[data-day-field]')return Object.values(nodes).filter(x=>x.dataset.act);
       if(selector.startsWith('[data-act="advance"]'))return [nodes.advance,nodes.tick,nodes.edit,nodes.timeline];
       if(selector.startsWith('details'))return !nodes.help?[]:selector.endsWith('[open]')?(nodes.help.open?[nodes.help]:[]):[nodes.help];
       if(selector.startsWith('[data-act="f"]'))return dialog?[nodes.field]:[];
@@ -19,7 +19,7 @@ function harness(){
     }};
   function node(name,tag='BUTTON',data={}){
     const n={name,id:name,tagName:tag,dataset:data,attrs:{},style:{},inert:false,tabIndex:tag==='BUTTON'?0:-1,classList:{add(){}},setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k];},querySelector:()=>null,
-      closest:selector=>selector==='#app'?app:['[data-act]','[data-act],[data-lm]'].includes(selector)&&n.dataset.act?n:null,
+      closest:selector=>selector==='#app'?app:['[data-act]','[data-act],[data-lm]','[data-act],[data-lm],[data-day],[data-day-field]'].includes(selector)&&n.dataset.act?n:null,
       focus(){document.activeElement=n;},getClientRects:()=>[{}],click(){n.activated=(n.activated||0)+1;}};
     nodes[name]=n;return n;
   }
@@ -62,3 +62,4 @@ test('timeline rows activate once with the keyboard without intercepting text fi
   const h=harness();h.node('timeline').focus();assert.equal(h.node('timeline').tabIndex,0);h.key('Enter');assert.equal(h.node('timeline').activated,1);
   h.click('edit');h.view.editor={kind:'proj',id:'one'};h.render();h.node('field').focus();const event=h.key(' ');assert.equal(event.prevented,undefined);assert.equal(h.view.editor.id,'one');
 });
+
