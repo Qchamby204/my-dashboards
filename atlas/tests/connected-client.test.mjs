@@ -7,7 +7,7 @@ import {readFileSync} from 'node:fs';
 
 const tick=()=>new Promise(setImmediate);
 function nodes(){
-  const map=new Map(),node=id=>{if(!map.has(id))map.set(id,{id,style:{},dataset:{},innerHTML:'',textContent:'',value:'',hidden:false,inert:true,handlers:new Map(),classList:{add(){},remove(){},toggle(){}},addEventListener(t,f){this.handlers.set(t,f);},querySelector:()=>null,querySelectorAll:()=>[],appendChild(){},setAttribute(){},remove(){},focus(){}});return map.get(id);};return {node};
+  const map=new Map(),node=id=>{if(!map.has(id))map.set(id,{id,children:[],matches(){return false;},style:{},dataset:{},innerHTML:'',textContent:'',value:'',hidden:false,inert:true,handlers:new Map(),classList:{add(){},remove(){},toggle(){}},addEventListener(t,f){this.handlers.set(t,f);},querySelector:()=>null,querySelectorAll:()=>[],append(){},appendChild(){},after(){},setAttribute(){},remove(){},focus(){}});return map.get(id);};return {node};
 }
 test('the shipped Life Map script boots with saved data and its editor sends changes through the connected adapter',async()=>{
   for(const kind of ['life-map']){
@@ -81,3 +81,4 @@ test('rejected transactional commit preserves prior records and version',async()
  await h.reply(1,{error:'Another device saved first'},409);assert.equal(await saved,false);assert.deepEqual(JSON.parse(h.window.AtlasConnected.raw()),original);
  const retry=h.window.AtlasConnected.commit(next);assert.equal(JSON.parse(h.pending[2].options.body).version,'v1');await h.reply(2,{saved:true,version:'v2'});assert.equal(await retry,true);
 });
+
