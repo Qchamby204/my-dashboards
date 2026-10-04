@@ -11,9 +11,10 @@ if(start<0||end<0)throw Error('Review Life Map boot extraction');
 script=script.slice(0,start)+script.slice(end);
 const dashboard=(await read('atlas/life-map-dashboard.js')).replaceAll('window.AtlasConnected.clearInputDraft()','window.AtlasConnected?.clearInputDraft()');
 script=script.replaceAll('behavior:"smooth"','behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"');
-script+='\n'+(await read('atlas/life-map-records.mjs')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+(await read('atlas/life-map-workflow-core.mjs')).replace('export function','function')+'\n'+dashboard+'\n'+await read('atlas/life-map-interactions.js')+'\n'+(await read('atlas/life-map-local-store.mjs')).replace('export function','function')+'\n'+await read('atlas/life-map-local.js');
+script+='\n'+(await read('atlas/life-map-records.mjs')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+(await read('atlas/life-map-workflow-core.mjs')).replace('export function','function')+'\n'+dashboard+'\n'+await read('atlas/life-map-day.js')+'\n'+await read('atlas/life-map-interactions.js')+'\n'+(await read('atlas/life-map-local-store.mjs')).replace('export function','function')+'\n'+await read('atlas/life-map-local.js');
 const cssVersion=createHash('sha256').update(await read('atlas/life-map-dashboard.css')).digest('hex').slice(0,12);
-html=html.replace(match[0],()=>'<script>\n'+script+'\n</script>').replace('</head>','<link rel="stylesheet" href="atlas/life-map-dashboard.css?v='+cssVersion+'"></head>');
+const dayCssVersion=createHash('sha256').update(await read('atlas/life-map-day.css')).digest('hex').slice(0,12);
+html=html.replace(match[0],()=>'<script>\n'+script+'\n</script>').replace('</head>','<link rel="stylesheet" href="atlas/life-map-dashboard.css?v='+cssVersion+'"><link rel="stylesheet" href="atlas/life-map-day.css?v='+dayCssVersion+'"></head>');
 // Recovery tools belong after the dashboard, never above its safe-area header.
 const transfer='<section id="atlas-project-transfer" aria-label="Synced project transfer"></section>';
 if(!html.includes(transfer))throw Error('Review Life Map transfer panel placement');
@@ -22,3 +23,4 @@ const transferVersion=createHash('sha256').update(await read('shared/atlas-proje
 html=html.replace('src="shared/atlas-project-transfer.js"','src="shared/atlas-project-transfer.js?v='+transferVersion+'"');
 await writeFile(new URL('life-map.html',root),html);
 console.log('GitHub Life Map prepared with browser-local storage.');
+

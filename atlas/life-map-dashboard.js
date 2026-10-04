@@ -69,7 +69,8 @@
         else if(JSON.stringify(a)!==JSON.stringify(b)){if(!c)throw Error('That item was removed.');for(const k of new Set([...Object.keys(a),...Object.keys(b)])){if(JSON.stringify(a[k])===JSON.stringify(b[k]))continue;if(JSON.stringify(c[k])!==JSON.stringify(b[k]))throw Error('That field has newer changes. Edit it rather than undoing.');if(own(a,k))c[k]=clone(a[k]);else delete c[k];}}
       }
     }
-    for(const key of ['checks','planned','preferences']){const a=before[key]||{},b=after[key]||{};if(JSON.stringify(a)===JSON.stringify(b))continue;out[key]=out[key]||{};for(const k of new Set([...Object.keys(a),...Object.keys(b)])){if(JSON.stringify(a[k])===JSON.stringify(b[k]))continue;if(JSON.stringify(out[key][k])!==JSON.stringify(b[k]))throw Error('There are newer changes to these settings.');if(own(a,k))out[key][k]=clone(a[k]);else delete out[key][k];}}
+    for(const key of ['checks','planned','preferences','dayPlans','dayTemplates']){const a=before[key]||{},b=after[key]||{};if(JSON.stringify(a)===JSON.stringify(b))continue;out[key]=out[key]||{};for(const k of new Set([...Object.keys(a),...Object.keys(b)])){if(JSON.stringify(a[k])===JSON.stringify(b[k]))continue;if(JSON.stringify(out[key][k])!==JSON.stringify(b[k]))throw Error('There are newer changes to these settings.');if(own(a,k))out[key][k]=clone(a[k]);else delete out[key][k];}}
+    if(JSON.stringify(before.mealCoverage)!==JSON.stringify(after.mealCoverage)){if(JSON.stringify(current.mealCoverage)!==JSON.stringify(after.mealCoverage))throw Error('Dinner coverage has newer changes.');if(own(before,'mealCoverage'))out.mealCoverage=clone(before.mealCoverage);else delete out.mealCoverage;}
     return out;
   }
   async function transaction(change,label,type='task_updated',onSuccess,options={}){
@@ -215,7 +216,7 @@
   }
   function choreEditor(e){
     const r=e.repeat||{},mode=e.repeatMode??r.mode??'cycle',unit=e.repeatUnit??r.unit??(e.cad==='Daily'?'day':e.cad==='Monthly'||e.cad==='Quarterly'?'month':e.cad==='Annual'?'year':'week');
-    return field('Chore',input('chore',e.chore,'text','maxlength="300"'))+field('Repeat style',select('repeatMode',mode,[['cycle','Calendar cycle (existing behaviour)'],['fixed','Fixed schedule'],['after','After completion']]))+
+    return field('Chore',input('chore',e.chore,'text','maxlength="300"'))+field('Life area',select('area',e.area,areaOptions()))+field('Repeat style',select('repeatMode',mode,[['cycle','Calendar cycle (existing behaviour)'],['fixed','Fixed schedule'],['after','After completion']]))+
       (mode==='cycle'?field('Cycle',select('cad',e.cad||'Weekly',CADS.map(x=>[x,x]))):'<div class="lm-two-col">'+field('Every',input('repeatEvery',e.repeatEvery??r.every??1,'number','min="1" max="365"'))+field('Unit',select('repeatUnit',unit,[['day','Days'],['week','Weeks'],['month','Months'],['year','Years']]))+'</div>'+field(mode==='fixed'?'First scheduled date':'First due date',input('repeatAnchor',e.repeatAnchor??r.anchor??todayISO(),'date'))+(mode==='fixed'?help('The start date sets the weekday or day of the month. Finishing late does not shift this schedule.'):help('The next due date is calculated from the day you actually complete it.')))+
       '<div class="lm-two-col">'+field('Zone',input('zone',e.zone,'text','maxlength="300"'))+field('Who',input('who',e.who,'text','maxlength="300"'))+'</div>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+
       '<div class="lm-sheet-actions">'+button('Save chore','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?button('Archive chore','archive-chore','data-id="'+esc(e.id)+'"')+button('Delete chore','delete-editor','','lm-danger'):'');
@@ -274,7 +275,7 @@
         if(row.parentId){const g=group(row.parentId);if(!g)throw Error('Choose an existing project.');row.area=g.area||row.area;row.inbox=false;}
         if(!row.task)throw Error('Describe the task first.');if(row.showAfter)row.park='';
       }else if(e.kind==='chore'){
-        for(const k of ['chore','cad','zone','who','notes'])row[k]=String(e[k]??row[k]??'');row.chore=row.chore.trim();row.cad=row.cad||'Weekly';if(!row.chore)throw Error('Name the chore first.');
+        for(const k of ['chore','cad','zone','who','notes','area'])row[k]=String(e[k]??row[k]??'');row.chore=row.chore.trim();row.cad=row.cad||'Weekly';if(!row.chore)throw Error('Name the chore first.');
         const mode=e.repeatMode??e.repeat?.mode??'cycle';
         if(mode==='cycle'){delete row.repeat;delete row.nextDue;}
         else {row.repeat={mode,unit:e.repeatUnit??e.repeat?.unit??'week',every:Number(e.repeatEvery??e.repeat?.every??1),anchor:e.repeatAnchor??e.repeat?.anchor??date};
@@ -467,7 +468,7 @@
     feedback();if(window.scrollTo&&Math.abs((window.scrollY||0)-y)>2)window.scrollTo({top:y,behavior:'instant'});
   };
   // Exposed for the two existing storage adapters and deterministic tests, not a new store.
-  window.LifeMapDashboard={setStatus};
+  window.LifeMapDashboard={setStatus,taskRow,choreRow,choreAction,newTask};
   window.LifeMapWorkflow=Object.freeze({semanticEvents:true,transaction,storeDraft,closeEditor,openEditor,captureSheet,undoPatch,get busy(){return busy;},get hasDraft(){return !!view.qa.txt||!!recoveredEditor||!!view.editor;},snapshot:()=>({...clone(pendingAction?pendingCandidate():S),entryDraft:{version:2,qa:clone(view.qa),editor:clone(recoveredEditor),base:recoveredBase}}),discardDraft:()=>{clearEdit();view.qa={txt:'',area:'',when:'',parse:true,parentId:''};pendingAction=null;lastError='';storeDraft();},get pending(){return !!pendingAction;}});
   let lastDay=todayISO();setInterval(()=>{const day=todayISO();if(day!==lastDay&&!busy&&!view.editor){lastDay=day;render();}},60000);
   window.addEventListener('pagehide',storeDraft);
