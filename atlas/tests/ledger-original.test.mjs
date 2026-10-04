@@ -441,3 +441,18 @@ test('remaining filter hides completed habits without erasing quantities or chan
  const row=h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row');assert.equal(row.hidden,true);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('HABITS.length'),14);
  h.node('ledger-filter-all').click();assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row').hidden,false);
 });
+
+test('time-up actions retain overruns and checkpoint the session only once',async()=>{
+ const h=await screenBoot();fillLeisure(h,8);await h.api.saveDay();h.run('state.levelInfo=null;state.achvQueue=[];render()');clickLeisure(h,'Start gaming timer');
+ h.at('2026-09-30T09:46:00-05:00');h.run('render()');assert.equal(h.node('leisure-wrap-up').hidden,false);assert.match(h.node('ledger-running-timer').textContent,/Time’s up/);
+ h.node('leisure-end-session').click();assert.equal(h.api.drafts.leisureTimer,undefined);assert.equal(h.run('state.draftLeisure.gamingMinutes'),46);assert.equal(h.node('leisure-wrap-up').hidden,true);await h.api.saveDay();assert.equal(h.run('state.days[0].leisure.gamingMinutes'),46);
+ h.run('state.levelInfo=null;state.achvQueue=[];render()');clickLeisure(h,'Start gaming timer');h.at('2026-09-30T09:48:00-05:00');h.run('render()');h.node('leisure-log-extra').click();assert.equal(h.api.drafts.leisureTimer,undefined);assert.equal(h.node('leisure-manual-minutes').value,'48');
+});
+
+test('quick scrolling reset resumes a pending slip, remembers its action and preserves habits and saved history',async()=>{
+ const h=await screenBoot();const units=h.run('JSON.stringify(state.draft)');h.node('ledger-quick-reset').click();assert.equal(h.node('ledger-reset-sheet').open,true);assert.equal(h.run('state.draftScreen.slips.length'),1);
+ h.node('screen-reset-action').value='read';h.node('screen-reset-action').emit('change');h.node('ledger-reset-sheet').emit('cancel');h.node('ledger-quick-reset').click();assert.equal(h.run('state.draftScreen.slips.length'),1);assert.equal(h.node('screen-reset-action').value,'read');
+ h.node('screen-reset-done').click();assert.equal(h.run('state.draftScreen.slips[0].recovered'),true);assert.equal(h.run('JSON.stringify(state.draft)'),units);await h.api.saveDay();
+ const again=await screenBoot({records:Object.fromEntries(h.storage)});again.api.selectDate('2026-09-29');again.node('ledger-quick-reset').click();assert.equal(again.run('state.logDate'),'2026-09-30');assert.equal(again.node('screen-reset-action').value,'read');assert.equal(again.run('state.draftScreen.slips.length'),2);
+ again.at('2026-10-01T00:01:00-05:00');again.node('screen-reset-done').click();assert.equal(again.run('state.logDate'),'2026-10-01');assert.equal(again.run('state.draftScreen.slips.length'),0);assert.equal(again.api.drafts.days['2026-09-30'].screen.slips[1].recovered,false);
+});
