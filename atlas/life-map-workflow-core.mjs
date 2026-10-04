@@ -136,5 +136,58 @@ export function createLifeMapWorkflow(){
     // RFC 5545 folding is in UTF-8 octets, never split a Unicode code point.
     return lines.map(line=>{let out='',count=0;for(const ch of line){const len=new TextEncoder().encode(ch).length;if(count+len>73){out+='\r\n ';count=1;}out+=ch;count+=len;}return out;}).join('\r\n')+'\r\n';
   }
-  return Object.freeze({clone,validDate,plus,week,days,addPeriod,resolveDate,parseCapture,setPlan,capture,parked,open,actionable,classify,todayTasks,sortTasks,groupTasks,projectProgress,search,nextFixed,choreDue,advanceChore,taskTemplate,fromTemplate,calendarReminder});
+  const categories=Object.freeze([['food','Food'],['household','Household'],['family','Family'],['health','Health'],['work','Work & growth'],['admin','Money & admin']]);
+  function categoryFor(record){
+    if(categories.some(([key])=>key===record.category))return record.category;
+    const text=[record.area,record.sub].filter(Boolean).join(' ').toLowerCase();
+    if(/food|meal|grocery|nutrition/.test(text))return 'food';
+    if(/family|baby|relationship|gifts/.test(text))return 'family';
+    if(/health|fitness|sleep/.test(text))return 'health';
+    if(/work|entrepreneur|development/.test(text))return 'work';
+    if(/house|home|garage|vehicle|wardrobe|laundry|chores/.test(text))return 'household';
+    if(record.chore&&!record.area){const words=(record.chore+' '+(record.zone||'')).toLowerCase();
+      if(/meal|grocery|fridge|freezer|food/.test(words))return 'food';
+      if(/baby|family/.test(words))return 'family';
+      if(/workout|exercise|health/.test(words))return 'health';
+      if(/plan the week|calendar|mail|paperwork|budget/.test(words))return 'admin';
+      return 'household';
+    }
+    return 'admin';
+  }
+  // Dinner coverage is a calendar projection, not a record write or food-storage estimate.
+  function dinnerDates(coverage){
+    if(!coverage||!validDate(coverage.start)||!Number.isInteger(coverage.dinners)||coverage.dinners<1||coverage.dinners>60)return [];
+    if(coverage.skipDates?.some(d=>!validDate(d)))return [];
+    const skip=new Set(coverage.skipDates||[]),out=[];
+    for(let i=0;i<120&&out.length<coverage.dinners;i++){const date=plus(coverage.start,i);if(!skip.has(date))out.push(date);}
+    return out;
+  }
+  function mealStatus(coverage,today){
+    const dates=dinnerDates(coverage);if(!dates.length)return {set:false,remaining:0,needsPrep:false};
+    const last=dates.at(-1),remind=plus(last,-1)<coverage.start?coverage.start:plus(last,-1),remaining=dates.filter(d=>d>=today).length;
+    return {set:true,dates,last,remind,remaining,startsLater:today<coverage.start,needsPrep:today>=remind,expired:today>last,nextUncovered:plus(last,1)};
+  }
+  function blockMinutes(time){const [h,m]=String(time).split(':').map(Number);return h*60+m;}
+  function dayRecommendation(state,today,time,{available=0,category=''}={}){
+    const plan=state.dayPlans?.[today],blocks=plan?.blocks||[],minute=blockMinutes(time),food=mealStatus(state.mealCoverage,today);
+    const eligible=p=>actionable(p,today)||open(p)&&p.status!=='Waiting'&&p.due&&p.due<=today;
+    const tasks=state.projects.filter(eligible),getTask=id=>tasks.find(p=>p.id===id);
+    const taskCandidate=(p,why)=>({kind:'task',id:p.id,title:p.task,minutes:available?Math.min(p.effortMinutes||available,available):p.effortMinutes||0,why:why+(available&&(!p.effortMinutes||p.effortMinutes>available)?' Use the next '+available+' minutes to make progress.':'')});
+    const deadlines=sortTasks(tasks.filter(p=>p.due&&p.due<=today),today);
+    if(plan?.focus?.kind==='task'){const p=getTask(plan.focus.id);if(p)return taskCandidate(p,'You started this. Finish it or deliberately change your plan.');}
+    if(plan?.focus?.kind==='block'){const b=blocks.find(b=>b.id===plan.focus.id&&!b.done);if(b){const left=Math.max(0,blockMinutes(b.start)+b.minutes-minute);return {kind:'block',id:b.id,title:b.title,minutes:left,why:left?'You started this block. Continue or change the plan.':'This block’s scheduled time has passed. Finish it or replan.'};}}
+    if(deadlines.length)return taskCandidate(deadlines[0],'A real deadline needs attention: '+deadlines[0].due+'.');
+    const current=blocks.find(b=>!b.done&&blockMinutes(b.start)<=minute&&minute<blockMinutes(b.start)+b.minutes);
+    if(current)return {kind:'block',id:current.id,title:current.title,minutes:Math.max(1,blockMinutes(current.start)+current.minutes-minute),why:'This is your '+current.start+' time block.'};
+    if(!plan?.reviewed)return {kind:'plan',title:'Choose your priority and plan the next block',minutes:5,why:'Today’s plan has not been reviewed yet.'};
+    if(!food.set)return {kind:'food',title:'Check your dinner coverage',minutes:2,why:'Life Map does not yet know which dinners are handled.'};
+    if(food.needsPrep&&!food.startsLater)return {kind:'food',title:food.expired?'Prepare the next dinners':'Prep the next batch of dinners',minutes:available?Math.min(30,available):30,why:food.expired?'Your recorded dinner coverage has ended.':'Your last covered dinner is '+food.last+'. Prep before the gap.'};
+    const fitting=tasks.filter(p=>(!category||categoryFor(p)===category)&&(!available||p.effortMinutes&&p.effortMinutes<=available));
+    const main=fitting.find(p=>p.id===plan.mainTaskId),chosen=sortTasks(fitting.filter(p=>p.plan===today||p.planWeek===week(today)||p.status==='In progress'),today);
+    const p=main||chosen[0];if(p)return taskCandidate(p,main?'This is the main priority you chose for today.':'This task is part of your current plan.');
+    const next=blocks.filter(b=>!b.done&&blockMinutes(b.start)>minute).sort((a,b)=>a.start.localeCompare(b.start))[0];
+    if(next)return {kind:'free',title:'Open time until '+next.start,minutes:blockMinutes(next.start)-minute,why:'Next: '+next.title+'. Rest or choose a task that fits.'};
+    return {kind:'free',title:'No active block right now',minutes:0,why:'Choose rest or leisure, or deliberately bring another task into today.'};
+  }
+  return Object.freeze({clone,validDate,plus,week,days,addPeriod,resolveDate,parseCapture,setPlan,capture,parked,open,actionable,classify,todayTasks,sortTasks,groupTasks,projectProgress,search,nextFixed,choreDue,advanceChore,taskTemplate,fromTemplate,calendarReminder,categories,categoryFor,dinnerDates,mealStatus,blockMinutes,dayRecommendation});
 }

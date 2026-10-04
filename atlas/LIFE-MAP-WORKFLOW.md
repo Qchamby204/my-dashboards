@@ -40,3 +40,14 @@ No in-page timer is presented as background push. Native Web Push, subscriptions
 Sources: `life-map-workflow-core.mjs`, `life-map-dashboard.js`, `life-map-interactions.js`, `life-map-records.mjs`, and the existing local/connected adapters. `node atlas/build-life-map.mjs` regenerates the public page; `npm run build` also prepares private assets.
 
 `node --test atlas/tests/life-map-*.test.mjs atlas/tests/connected-client.test.mjs` checks deterministic rules, preservation, failure modes, native editor state, private versioned saves and generated-script syntax. `python atlas/tests/life-map-browser.py` runs interaction tests on a local server. Set `LM_BROWSER=webkit` for WebKit; `LM_OFFLINE_BROWSER=1` uses an in-memory Chromium harness in restricted workstations. Playwright is test-only, never a production dependency.
+
+
+## Priority overview and category navigation
+
+Home opens with a single current recommendation, foundation status, category summaries and real deadlines. Plan holds the chosen main task, explicit time blocks, and optional weekday/weekend templates. Areas has Food, Household, Family, Health, Work & growth, and Money & admin tabs. Board retains the original Today, weekly plan, progress overview, Next, Horizon, area board, Projects, Chores and Momentum. Category views reference existing task/chore records; they do not create copies or migrate areas.
+
+`mealCoverage` stores the first covered dinner, the number of prepared dinners, optional skipped dates and calendar alert time. One dinner means one household evening covered. Coverage is calculated in calendar dates without writes on opening or midnight. Five dinners Monday–Friday produce a Thursday prep reminder. The reminder remains on Home and Food until coverage is extended or replaced. Skipping an evening retains a dinner and shifts the end/reminder dates. Adding dinners after coverage has expired starts new coverage today. This is a planning projection, not a food-freshness assessment.
+
+The in-app reminder is automatic when opening Life Map. Export calendar alert creates an ICS event with VALARM; the user must import it for an alert while the app is closed. Export again after changing coverage. There is no background push service.
+
+`dayPlans` and `dayTemplates` are optional fields in the existing store and backup format. Starting a task/block pins the recommendation until explicit completion or a change of plan. Passing a block end never completes the block or its linked task. Marking a block done does not complete a linked task. Actual task deadlines are preserved. Time blocks must not overlap and cannot extend past midnight. Inputs persist in a separate browser draft key; saves use the existing transactional adapter, conflict/recovery checks and Undo. Public and private source assemblies share the same UI and validation; publishing the public HTML does not deploy the private Worker.

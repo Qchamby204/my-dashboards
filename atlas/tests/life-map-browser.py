@@ -71,7 +71,7 @@ class LifeMapBrowser(unittest.TestCase):
             print('Browser errors:', self.errors)
         self.ctx.close()
 
-    def load(self, value=None, storage=None):
+    def load(self, value=None, storage=None, home=False):
         if getattr(self, '_loaded', False):
             self.page.close()
             self.new_page()
@@ -90,7 +90,9 @@ class LifeMapBrowser(unittest.TestCase):
               const set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(window.__failWrites&&k==='lifemap_v1')throw Error('quota');return set.call(this,k,v);};
             })();'''.replace('SEEDS', json.dumps(seeds)))
             self.page.goto(BASE + '/life-map.html', wait_until='networkidle')
-        self.page.wait_for_function('!!window.LifeMapWorkflow && !!window.LifeMapLocal')
+        self.page.wait_for_function('!!window.LifeMapWorkflow && !!window.LifeMapLocal && !!window.LifeMapDay')
+        if not home:
+            self.page.evaluate('LifeMapDay.choose("board")')
 
     def state(self):
         return self.page.evaluate('S')
@@ -312,6 +314,102 @@ class LifeMapBrowser(unittest.TestCase):
         self.load(storage={'lifemap_v1':raw})
         self.assertEqual(self.storage()['lifemap_v1'],raw)
         self.assertNotIn('lifemap:before-github:v1',self.storage())
+        self.assertFalse(self.errors)
+
+
+
+    def test_home_and_category_tabs_preserve_records_and_filter_tasks(self):
+        original=board([task('food',area='Food System'),task('work',area='Work — Content')])
+        raw=json.dumps(original,indent=2)
+        self.load(storage={'lifemap_v1':raw},home=True)
+        self.assertTrue(self.page.locator('#lm-day-view-home').is_visible())
+        self.assertFalse(self.page.locator('#lm-day-view-board').is_visible())
+        self.assertEqual(self.storage()['lifemap_v1'],raw)
+        self.page.locator('[data-day="tab"][data-category="food"]').first.click()
+        self.assertEqual(self.page.locator('#lm-category-content [data-lm="edit-task"]').count(),1)
+        self.assertIn('Task food',self.page.locator('#lm-category-content').inner_text())
+        self.page.locator('#lm-category-work').click()
+        self.assertIn('Task work',self.page.locator('#lm-category-content').inner_text())
+        self.assertNotIn('Task food',self.page.locator('#lm-category-content').inner_text())
+        self.page.locator('#lm-day-nav-home').click()
+        self.assertEqual(self.storage()['lifemap_v1'],raw)
+        self.assertFalse(self.errors)
+
+    def test_dinner_coverage_reminder_skip_extension_and_failure(self):
+        self.load(board(),home=True)
+        self.page.locator('[data-day="tab"][data-category="food"]').first.click()
+        self.page.locator('[data-day-field="food.start"]').fill('2026-09-14')
+        self.page.locator('[data-day-field="food.dinners"]').fill('5')
+        self.page.locator('[data-day="save-food"]').click()
+        self.assertEqual(self.state()['mealCoverage']['dinners'],5)
+        self.assertIn('Prep reminder',self.page.locator('.lm-meal-status').inner_text())
+        self.assertIn('2 dinners',self.page.locator('.lm-meal-status').inner_text())
+        self.page.locator('[data-day="skip-dinner"]').click()
+        self.assertIn('2026-09-17',self.state()['mealCoverage']['skipDates'])
+        self.assertIn('Sep 19',self.page.locator('.lm-meal-status').inner_text())
+        self.page.locator('[data-day-field="extraDinners"]').fill('3')
+        self.page.locator('[data-day="add-food"]').click()
+        self.assertEqual(self.state()['mealCoverage']['dinners'],8)
+        self.assertNotIn('Prep reminder ·',self.page.locator('.lm-meal-status').inner_text())
+        with self.page.expect_download() as download:
+            self.page.locator('[data-day="meal-reminder"]').click()
+        self.assertEqual(download.value.suggested_filename,'life-map-dinner-reminder.ics')
+        self.page.evaluate('window.__failWrites=true')
+        self.page.locator('[data-day-field="extraDinners"]').fill('2')
+        self.page.locator('[data-day="add-food"]').click()
+        self.assertEqual(self.state()['mealCoverage']['dinners'],8)
+        self.page.evaluate('window.__failWrites=false')
+        self.click('retry')
+        self.assertEqual(self.state()['mealCoverage']['dinners'],10)
+        self.assertFalse(self.errors)
+
+    def test_main_priority_blocks_templates_and_explicit_completion(self):
+        self.load(board([task('main',area='Work — Content',due='2026-10-30')]),home=True)
+        self.page.locator('#lm-day-nav-plan').click()
+        self.page.locator('[data-day-field="main"]').select_option('main')
+        self.page.locator('[data-day="save-plan"]').click()
+        self.assertEqual(self.state()['dayPlans'][TODAY]['mainTaskId'],'main')
+        self.assertEqual(self.state()['projects'][0]['due'],'2026-10-30')
+        self.page.locator('.lm-block-editor summary').click()
+        self.page.locator('[data-day-field="block.title"]').fill('Focused work')
+        self.page.locator('[data-day-field="block.start"]').fill('13:00')
+        self.page.locator('[data-day-field="block.minutes"]').fill('30')
+        self.page.locator('[data-day="save-block"]').click()
+        self.assertEqual(len(self.state()['dayPlans'][TODAY]['blocks']),1)
+        self.page.locator('[data-day="save-template"][data-template="weekday"]').click()
+        self.assertEqual(len(self.state()['dayTemplates']['weekday']),1)
+        self.page.locator('#lm-day-nav-home').click()
+        self.assertIn('Focused work',self.page.locator('.lm-now-card').inner_text())
+        self.page.locator('[data-day="focus"]').first.click()
+        self.page.clock.set_fixed_time(dt.datetime(2026,9,17,20,tzinfo=dt.timezone.utc))
+        self.page.evaluate('render()')
+        self.assertIn('Focused work',self.page.locator('.lm-now-card').inner_text())
+        self.assertFalse(self.state()['dayPlans'][TODAY]['blocks'][0]['done'])
+        self.page.locator('[data-day="block-done"]').click()
+        self.assertTrue(self.state()['dayPlans'][TODAY]['blocks'][0]['done'])
+        self.assertEqual(self.state()['projects'][0]['status'],'Not started')
+        self.assertFalse(self.errors)
+
+    def test_new_navigation_layout_keyboard_and_food_draft_recovery(self):
+        self.load(board(),home=True)
+        self.page.locator('#lm-day-nav-home').focus()
+        self.page.keyboard.press('ArrowRight')
+        self.assertTrue(self.page.locator('#lm-day-view-plan').is_visible())
+        self.page.locator('#lm-day-nav-areas').click()
+        self.page.locator('[data-day-field="food.note"]').fill('Prepared dinners draft')
+        storage=self.storage()
+        self.load(storage=storage,home=True)
+        self.page.locator('#lm-day-nav-areas').click()
+        self.assertEqual(self.page.locator('[data-day-field="food.note"]').input_value(),'Prepared dinners draft')
+        for width,height in [(320,740),(844,390),(390,844)]:
+            self.page.set_viewport_size({'width':width,'height':height})
+            self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),width+1)
+        self.page.locator('#lm-day-nav-home').click()
+        out=ROOT/'artifacts/life-map-tests'
+        out.mkdir(parents=True,exist_ok=True)
+        self.page.screenshot(path=str(out/f'{BROWSER}-priority-home.png'),full_page=True)
+        self.page.locator('#lm-day-nav-areas').click()
+        self.page.screenshot(path=str(out/f'{BROWSER}-food-coverage.png'),full_page=True)
         self.assertFalse(self.errors)
 
 
