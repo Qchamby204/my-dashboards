@@ -296,7 +296,7 @@
       if(preview)preview.textContent=remaining<0?time(remaining)+' over budget':earned?time(remaining)+' remaining':'Gaming is locked';
       if(meta)meta.textContent=earned?time(used)+' used of '+rule.gaming+' min'+(drafts.leisureTimer?' · Timer running':''):leisureCount(state.draft)>=rule.habits?'Save day to unlock '+rule.gaming+' minutes':Math.max(0,rule.habits-leisureCount(state.draft))+' more habits to unlock '+rule.gaming+' minutes';
 
-      const wrap=document.getElementById('leisure-wrap-up');if(wrap)wrap.hidden=!drafts.leisureTimer||remaining>0||state.logDate!==todayISO();
+      const wrap=document.getElementById('leisure-wrap-up');if(wrap){wrap.hidden=!drafts.leisureTimer||remaining>0||state.logDate!==todayISO();const actions=document.getElementById('leisure-timer-actions');if(actions)actions.hidden=!wrap.hidden;clock.hidden=!wrap.hidden;}
       const running=document.getElementById('ledger-running-timer');if(running)running.textContent=remaining<=0&&state.logDate===todayISO()?'Time’s up · End session':'Gaming timer running · Open';
       clock.textContent=drafts.leisureTimer?(Date.now()-drafts.leisureTimer.startedAt>=86400000?'24-hour timer limit reached. Stop and review minutes.':remaining<=0?'Time is up. Stop the timer when you stop playing.':'Timer running · keeps time when you leave this app.'):(state.logDate===todayISO()?'Today’s gaming time':pretty(state.logDate)+' · History');
     }
@@ -365,7 +365,7 @@
       const end=button('End session',()=>{if(blocked||busy||!drafts.leisureTimer)return;checkpointLeisureTimer(true);remember();render();toast('Session ended. Save day to log your time.');document.getElementById('ledger-leisure-close')?.focus();});end.id='leisure-end-session';
       const extra=button('Log extra time',()=>{if(blocked||busy||!drafts.leisureTimer)return;checkpointLeisureTimer(true);remember();render();leisureMinutesDialog();});extra.id='leisure-log-extra';
       wrap.append(wrapTitle,make('p','Your allowance is used. End the session, or record your total if you played longer. The timer keeps counting until you stop it.','ledger-help'),end,extra);panel.append(wrap);
-      const timerActions=make('div',null,'ledger-actions');
+      const timerActions=make('div',null,'ledger-actions');timerActions.id='leisure-timer-actions';
       if(drafts.leisureTimer)timerActions.append(button('Stop gaming timer',()=>{if(blocked||busy)return;checkpointLeisureTimer(true);remember();render();toast('Gaming minutes kept in your draft. Save day to log them.');}));
       else if(today)timerActions.append(button(unlocked?'Start gaming timer':'Track unearned gaming',()=>{
         if(blocked||busy||drafts.leisureTimer)return;
