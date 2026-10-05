@@ -39,6 +39,15 @@ const editionUI = await readFile(new URL('atlas/edition-refresh-ui.mjs', root), 
 const ledgerUI = await readFile(new URL('atlas/ledger-ui.mjs', root), 'utf8');
 await writeFile(new URL('server/assets.mjs', out), `export const hub=${JSON.stringify(hub)};\nexport const connected=${JSON.stringify(connected)};\nexport const workModel=${JSON.stringify(workModel)};\nexport const workUI=${JSON.stringify(workUI)};\nexport const connectUI=${JSON.stringify(connectUI)};\nexport const cadenceModel=${JSON.stringify(cadenceModel)};\nexport const cadenceUI=${JSON.stringify(cadenceUI)};\nexport const cadenceCatalog=${JSON.stringify(cadenceCatalog)};\nexport const budgetUI=${JSON.stringify(budgetUI)};\nexport const commitmentsModel=${JSON.stringify(commitmentsModel)};\nexport const commitmentsUI=${JSON.stringify(commitmentsUI)};\nexport const agendaModel=${JSON.stringify(agendaModel)};\nexport const agendaUI=${JSON.stringify(agendaUI)};\nexport const searchModel=${JSON.stringify(searchModel)};\nexport const searchUI=${JSON.stringify(searchUI)};\nexport const html=${JSON.stringify(html)};\nexport const css=${JSON.stringify(css)};\nexport const js=${JSON.stringify(js)};\nexport const theme=${JSON.stringify(theme)};\nexport const model=${JSON.stringify(model)};\nexport const ledgerModel=${JSON.stringify(ledgerModel)};\nexport const ledgerUI=${JSON.stringify(ledgerUI)};\nexport const editionUI=${JSON.stringify(editionUI)};\nexport const reflectionUI=${JSON.stringify(reflectionUI)};\nexport const communicationModel=${JSON.stringify(communicationModel)};\nexport const communicationUI=${JSON.stringify(communicationUI)};\nexport const heraldModel=${JSON.stringify(heraldModel)};\nexport const heraldUI=${JSON.stringify(heraldUI)};\n`);
 await cp(new URL('atlas/worker.mjs', root), new URL('server/index.js', out));
+const calendarHTML=await readFile(new URL('atlas/apple-calendar-page.html',root),'utf8');
+const calendarCSS=await readFile(new URL('atlas/apple-calendar-page.css',root),'utf8');
+const calendarJS=await readFile(new URL('atlas/apple-calendar-page.js',root),'utf8');
+await writeFile(new URL('server/apple-calendar-assets.mjs',out),`export const calendarHTML=${JSON.stringify(calendarHTML)};\nexport const calendarCSS=${JSON.stringify(calendarCSS)};\nexport const calendarJS=${JSON.stringify(calendarJS)};\n`);
+for(const name of ['apple-calendar-core.mjs','apple-calendar-api.mjs'])await cp(new URL('atlas/'+name,root),new URL('server/'+name,out));
+await cp(new URL('atlas/vendor/',root),new URL('server/vendor/',out),{recursive:true});
+
+
+
 // Sites registers Worker modules from the server directory. Flatten this shared
 // dependency into that directory while keeping a single source for both apps.
 const editions = await readFile(new URL('atlas/courier-editions.mjs', root), 'utf8');
