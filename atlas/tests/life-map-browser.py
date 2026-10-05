@@ -453,7 +453,10 @@ class LifeMapBrowser(unittest.TestCase):
         self.page.locator('#lm-calendar-link').fill(link)
         self.page.locator('[data-day="calendar-import-link"]').click()
         self.assertEqual(self.page.locator('.lm-error').count(),0)
-        self.assertEqual(self.storage(),before)
+        self.assertEqual(self.storage()['lifemap_v1'],before['lifemap_v1'])
+        self.assertEqual(self.state()['projects'],original['projects'])
+        self.assertNotIn('#calendar-day=',json.dumps(self.storage()))
+        self.assertNotIn('Walk Hudson tomorrow',json.dumps(self.storage()))
         self.assertFalse(self.errors)
 
     def test_apple_calendar_standalone_return_carries_day_without_opener(self):
