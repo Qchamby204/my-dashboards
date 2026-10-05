@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import {createHash} from 'node:crypto';
 
 function app(name,saved,options={}){
   const key=name==='crucible'?'crucible':'chef',version=key==='chef'?1:2;
@@ -24,9 +25,9 @@ test('Fit Foodie imports every recipe page once and retains all 200 existing rec
   const a=app('chef',chefState());
   const separators=new Set([14,24,29,33,37,43,46,68,74,78,82,94,97,103,108]);
   const expected=Array.from({length:109},(_,i)=>i+2).filter(p=>!separators.has(p));
-  assert.deepEqual(a.json('RECIPES.filter(x=>x.source).map(x=>x.source.page)'),expected);
-  assert.equal(a.run('RECIPES.length'),294);
-  assert.equal(a.run('new Set(RECIPES.map(x=>x.id)).size'),294);
+  assert.deepEqual(a.json('RECIPES.filter(x=>x.tags.includes("fitfoodie")).map(x=>x.source.page)'),expected);
+  assert.equal(a.run('RECIPES.length'),449);
+  assert.equal(a.run('new Set(RECIPES.map(x=>x.id)).size'),449);
   assert.equal(a.run('RECIPES.filter(x=>x.source).every(x=>x.steps.every(s=>!/^Page\\b/i.test(s)))'),true);
   assert.equal(a.run('BY_ID["ff-002"].steps.length'),6);
   assert.equal(a.run('RECIPES.filter(x=>!x.source).length'),200);
@@ -197,4 +198,54 @@ test('Clear-week Undo cannot overwrite grocery checks changed afterward',()=>{
 
 test('household feedback changes discovery priority and survives ordinary state updates',()=>{
  const a=app('chef',chefState());const id=a.run('RECIPES[0].id');a.run(`setState({recipeFeedback:{[RECIPES[0].id]:{verdict:'again',reason:'Family favourite',note:'Use less salt'}}})`);assert.equal(a.run('trustedRank(RECIPES[0])'),2);a.run('setState({checked:{eggs:true}})');assert.equal(a.json('state.recipeFeedback')[id].note,'Use less salt');a.run(`setState({recipeFeedback:{[RECIPES[0].id]:{verdict:'not-again'}}})`);assert.equal(a.run('trustedRank(RECIPES[0])'),-1);
+});
+
+
+test('Recipe Book imports source content faithfully and consolidates repeated posts',()=>{
+  const a=app('chef',chefState());
+  const imported=a.json('RECIPES.filter(x=>x.id.startsWith("rb-"))');
+  assert.equal(imported.length,155);
+  const content=imported.map(x=>[x.id,x.name,x.ingredients.map(i=>i.raw),x.steps]);
+  assert.equal(createHash('sha256').update(JSON.stringify(content)).digest('hex'),'ab16c20713d25914462feea6f9e10477988f23832234f2c5b1afefc91b9a1b67');
+  assert.equal(imported.filter(x=>x.name==='Cinnamon Rolls').length,1);
+  assert.equal(imported.find(x=>x.name==='Cinnamon Rolls').source.references.length,2);
+  const crunch=imported.filter(x=>x.name==='Sheet Pan Crunchwrap Supreme');
+  assert.equal(crunch.length,1);assert.equal(crunch[0].source.references.length,2);
+  assert.ok(crunch[0].ingredients.some(i=>i.raw==='⅓ cup sour cream or Greek yogurt'));
+  assert.equal(imported.some(x=>x.name==='Korean Fried Chicken Sandwich (healthy)'),false);
+  assert.ok(a.run('sourceDetails(BY_ID["ff-100"])').includes('DPwn1NRkQUO'));
+  assert.ok(a.run('sourceDetails(BY_ID["ff-100"])').includes('380°F'));
+  assert.equal(imported.filter(x=>x.name==='Fuet Tartare').length,2);
+  assert.equal(a.writes.length,0);assert.deepEqual(a.json('state.plan'),chefState().plan);
+});
+test('Recipe Book filters, creator and method search work independently of Fit Foodie',()=>{
+  const a=app('chef',chefState());
+  a.run('ui.source="recipebook"');assert.equal(a.run('discoverList().length'),156);
+  a.run('ui.search="@studiobyferi"');assert.equal(a.run('discoverList().length'),1);
+  a.run('ui.search="slippery dough"');assert.equal(a.run('discoverList().length'),1);
+  a.run('ui.search="";ui.meal="drink"');assert.equal(a.run('discoverList().length'),8);
+  a.run('ui.meal="all";ui.time=20');assert.equal(a.run('discoverList().filter(x=>x.id.startsWith("rb-")).length'),0);
+  a.run('ui.source="fitfoodie";ui.time=0');assert.equal(a.run('discoverList().length'),94);
+});
+test('Recipe Book batches scale measured ingredients without inventing servings or per-item quantities',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});
+  const pasta=a.json('RECIPES.find(x=>x.name==="High Protein Creamy Tomato Pasta")');
+  assert.equal(pasta.servings,1);assert.equal(pasta.portionUnit,'batch');
+  assert.equal(a.run('portionLabel(BY_ID['+JSON.stringify(pasta.id)+'])'),'Batches');
+  assert.equal(a.run('planRecipe("mon","dinner",'+JSON.stringify(pasta.id)+',2)'),true);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='pasta of choice').q,'32 ounces');
+  assert.equal(a.run('scaledQty("",2)'),'');
+  const pumpkin=a.json('RECIPES.find(x=>x.name==="Pumpkin Spice Protein Loaf").ingredients[0]');
+  assert.equal(a.run('ingredientText('+JSON.stringify(pumpkin)+',1)'),pumpkin.raw);
+  assert.equal(a.run('ingredientText('+JSON.stringify(pumpkin)+',2)'),'360 g canned pumpkin puree');
+  const pancakes=a.json('RECIPES.find(x=>x.name==="Nutella Stuffed Mini Pancakes")');
+  const nutella=pancakes.ingredients.find(i=>i.raw.includes('per pancake'));
+  assert.equal(nutella.fixedBatch,true);
+  assert.equal(a.run('ingredientFactor('+JSON.stringify(nutella)+',2)'),1);
+  const html=a.run('cardHtml(BY_ID['+JSON.stringify(pasta.id)+'],false)');
+  assert.ok(html.includes('Batches'));assert.ok(!html.includes('nullg protein'));
+  assert.ok(html.includes('rel="noopener noreferrer"'));
+  const drink=a.json('RECIPES.find(x=>x.name.startsWith("Jalapeño Lime Infused"))');
+  assert.ok(!drink.ingredients.some(i=>i.n.includes('quart-sized jar')));
+  assert.ok(drink.equipment.includes('A quart-sized jar'));
 });
