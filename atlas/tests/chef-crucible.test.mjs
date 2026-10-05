@@ -249,3 +249,21 @@ test('Recipe Book batches scale measured ingredients without inventing servings 
   assert.ok(!drink.ingredients.some(i=>i.n.includes('quart-sized jar')));
   assert.ok(drink.equipment.includes('A quart-sized jar'));
 });
+
+
+test('Chef opens alphabetically without ratings or feedback reshuffling the collection',()=>{
+ const a=app('chef',{...chefState(),ratings:{b01:5},recipeFeedback:{b01:{verdict:'again'}}});
+ assert.equal(a.run('ui.sort'),'name');
+ assert.equal(a.run('discoverList().every((x,i,all)=>i===0||recipeNameOrder(all[i-1],x)<=0)'),true);
+ assert.equal(a.writes.length,0);assert.deepEqual(a.json('state.plan'),chefState().plan);
+});
+test('Category browsing shows each matching recipe once under alphabetized meal groups',()=>{
+ const a=app('chef',chefState());a.run('ui.sort="category";ui.source="recipebook"');
+ assert.equal(a.run('discoverList().every((x,i,all)=>i===0||RECIPE_TYPES.indexOf(all[i-1].meal)<RECIPE_TYPES.indexOf(x.meal)||all[i-1].meal===x.meal&&recipeNameOrder(all[i-1],x)<=0)'),true);
+ const list=a.json('discoverList()'),html=a.run('recipeCardsHtml(discoverList(),true,true)');
+ assert.equal((html.match(/class="recipe-category"/g)||[]).length,new Set(list.map(x=>x.meal)).size);
+ assert.equal((html.match(/class="card" data-id=/g)||[]).length,list.length);
+ for(const recipe of list)assert.equal(html.split('data-id="'+recipe.id+'"').length-1,1);
+ a.run('ui.meal="drink"');const drinks=a.run('recipeCardsHtml(discoverList(),true,true)');
+ assert.equal((drinks.match(/class="recipe-category"/g)||[]).length,1);assert.ok(drinks.includes('Drink <span>8 recipes'));
+});

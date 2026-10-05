@@ -46,6 +46,9 @@ details.cat .chips{margin-top:8px}
 .filters label{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
 .count{color:var(--muted);font-size:13px;margin:4px 0 10px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.cards>.recipe-category{grid-column:1/-1;margin:24px 0 4px;font-size:1.3rem;line-height:1.4;color:var(--text)}
+.recipe-category span{font:400 .85rem/1.4 system-ui,sans-serif;color:var(--muted);margin-left:8px}
+.cards>.recipe-category:first-child{margin-top:0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:8px}
 .card .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .card h3{font-size:14px;font-weight:500;color:var(--ink);line-height:1.3}
@@ -124,7 +127,7 @@ footer .row{justify-content:center}
     <div class="panel">
       <h2>What do you have?</h2>
       <div class="row" style="margin-bottom:8px">
-        <span class="notice" id="ing-selected">Nothing picked yet. Recipes rank by how many of your picks they use.</span>
+        <span class="notice" id="ing-selected">Nothing picked yet. Choose ingredients to narrow the recipes.</span>
         <button class="ghost" id="ing-clear" style="margin-left:auto;font-size:12px">Clear picks</button>
       </div>
       <div id="ing-cats"></div>
@@ -144,7 +147,7 @@ footer .row{justify-content:center}
         <div class="chips" id="meal-chips"></div>
         <label>Cookbook <select id="f-source"><option value="all">All recipes</option><option value="fitfoodie">Fit Foodie</option><option value="recipebook">Recipe Book</option></select></label>
         <label>Time <select id="f-time"><option value="0">Any</option><option value="20">20 min or less</option><option value="35">35 min or less</option><option value="60">60 min or less</option></select></label>
-        <label>Sort <select id="f-sort"><option value="match">Best match</option><option value="rating">My rating</option><option value="protein">Protein</option><option value="time">Fastest</option><option value="name">Name</option><option value="shuffle">Shuffle</option></select></label>
+        <label>Sort <select id="f-sort"><option value="name">Alphabetical (A–Z)</option><option value="category">Category</option><option value="match">Best match</option><option value="rating">My rating</option><option value="protein">Protein</option><option value="time">Fastest</option><option value="shuffle">Shuffle</option></select></label>
         <input type="text" id="f-search" aria-label="Search recipes by name, ingredient or cookbook section" placeholder="Search recipe, ingredient or cookbook section" style="flex:1;min-width:160px">
       </div>
       <div class="count" id="count"></div>
@@ -921,7 +924,7 @@ function deleteRecipe(id){
 }
 
 /* session-only UI state */
-const ui = {tab:'ingredients',meal:'all',time:0,sort:'match',source:'all',picks:new Set(),mood:null,search:'',shuffleKeys:{}};
+const ui = {tab:'ingredients',meal:'all',time:0,sort:'name',source:'all',picks:new Set(),mood:null,search:'',shuffleKeys:{}};
 
 /* ---------- pure functions ---------- */
 function timeOk(x){return !ui.time || (Number.isFinite(x.time)&&x.time<=ui.time);}
@@ -942,6 +945,7 @@ function matchInfo(x){
   return {have,total:x.ingredients.length,pct:have/x.ingredients.length};
 }
 function trustedRank(x){const f=state.recipeFeedback?.[x.id];return f?.verdict==='again'?2:f?.verdict==='not-again'?-1:0;}
+function recipeNameOrder(a,b){return a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'});}
 function discoverList(){
   let list = availableRecipes().filter(x=>mealOk(x)&&timeOk(x)&&sourceOk(x)&&searchOk(x));
   if(ui.tab==='ingredients'){
@@ -962,7 +966,8 @@ function discoverList(){
     rating:(a,b)=>rating(b)-rating(a)||a.name.localeCompare(b.name),
     protein:(a,b)=>(b.protein??-1)-(a.protein??-1),
     time:(a,b)=>(a.time??Infinity)-(b.time??Infinity),
-    name:(a,b)=>a.name.localeCompare(b.name),
+    name:recipeNameOrder,
+    category:(a,b)=>RECIPE_TYPES.indexOf(a.meal)-RECIPE_TYPES.indexOf(b.meal)||recipeNameOrder(a,b),
     shuffle:(a,b)=>ui.shuffleKeys[a.id]-ui.shuffleKeys[b.id]
   };
   return list.sort(sorters[ui.sort]);
@@ -1118,7 +1123,7 @@ function renderIngredients(){
     return `<details class="cat" ${picked?'open':''}><summary>${label}<span>${picked?picked+' picked':names.length}</span></summary><div class="chips">${
       names.map(([n,k])=>`<button class="chip ${ui.picks.has(n)?'on':''}" data-pick="${esc(n)}">${esc(n)}</button>`).join('')}</div></details>`;
   }).join('');
-  $('#ing-selected').textContent = ui.picks.size ? `${ui.picks.size} picked: ${[...ui.picks].join(', ')}` : 'Nothing picked yet. Recipes rank by how many of your picks they use.';
+  $('#ing-selected').textContent = ui.picks.size ? `${ui.picks.size} picked: ${[...ui.picks].join(', ')}` : 'Nothing picked yet. Choose ingredients to narrow the recipes.';
 }
 function renderMoods(){
   $('#moods').innerHTML = MOODS.map(([k,label])=>`<button class="chip ${ui.mood===k?'on':''}" data-mood="${k}">${label}</button>`).join('');
@@ -1182,11 +1187,18 @@ function recipeFeedback(id){
   const form=dialog.querySelector('form');form.elements.verdict.value=old.verdict||'again';form.elements.reason.value=old.reason||'';form.elements.note.value=old.note||'';
   form.onsubmit=e=>{e.preventDefault();if(setState({recipeFeedback:{...state.recipeFeedback,[id]:{verdict:form.elements.verdict.value,reason:form.elements.reason.value,note:form.elements.note.value.trim(),reviewedAt:new Date().toISOString()}}}))dialog.close();else dialog.querySelector('[role=status]').textContent='Feedback was not saved. Please retry.';};dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
 }
+function recipeCardsHtml(list,showMatch,grouped=false){
+  if(!grouped)return list.map(x=>cardHtml(x,showMatch)).join('');
+  return RECIPE_TYPES.map(meal=>{
+    const recipes=list.filter(x=>x.meal===meal).sort(recipeNameOrder);
+    return recipes.length?`<h2 class="recipe-category">${cap(meal)} <span>${recipes.length} recipe${recipes.length===1?'':'s'}</span></h2>`+recipes.map(x=>cardHtml(x,showMatch)).join(''):'';
+  }).join('');
+}
 function renderCards(){
   const list = discoverList();
-  const hint = ui.tab==='ingredients' ? (ui.picks.size?'':' Pick ingredients above to rank by what you have.') : (ui.mood?'':' Pick a mood above, or browse.');
+  const hint = ui.tab==='ingredients' ? (ui.picks.size?'':' Choose ingredients above to narrow the recipes.') : (ui.mood?'':' Pick a mood above, or browse.');
   $('#count').textContent = `${list.length} recipe${list.length===1?'':'s'}.`+hint;
-  $('#cards').innerHTML = list.length ? list.map(x=>cardHtml(x,true)).join('') : '<div class="empty">Nothing matches. Loosen the time filter or pick more ingredients.</div>';
+  $('#cards').innerHTML = list.length ? recipeCardsHtml(list,true,ui.sort==='category') : '<div class="empty">Nothing matches. Loosen the time filter or pick more ingredients.</div>';
 }
 function renderPlanner(){
   const opts = m=>`<option value="">${m==='all'?'':'Pick a '+m}</option>`+availableRecipes().filter(x=>x.meal===m).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
@@ -1206,7 +1218,7 @@ function renderPlanner(){
   }).join('')).join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
 }
 function renderFavourites(){
-  const list = availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]||state.recipeFeedback?.[x.id]?.verdict==='again').sort((a,b)=>(state.ratings[b.id]||0)-(state.ratings[a.id]||0)||a.name.localeCompare(b.name));
+  const list = availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]||state.recipeFeedback?.[x.id]?.verdict==='again').sort(recipeNameOrder);
   $('#fav-count').textContent = list.length ? `${list.length} saved, rated, or in your rotation.` : '';
   $('#fav-cards').innerHTML = list.length ? list.map(x=>cardHtml(x,false)).join('') : '<div class="empty">Tap the heart or the stars on any recipe and it lands here.</div>';
 }
