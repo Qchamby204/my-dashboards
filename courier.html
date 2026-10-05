@@ -685,7 +685,7 @@ function wireEvents() {
   const a = $('audio');
   a.addEventListener('timeupdate', onTick); a.addEventListener('ended', onEnded);
   a.addEventListener('play',()=>{playbackMessage('');render();});
-  a.addEventListener('pause',()=>{if(!a.ended&&!playPending){playbackWanted=false;clearPlaybackRetry();}savePosition();render();});
+  a.addEventListener('pause',()=>{if(a.paused&&!a.ended&&!playPending){playbackWanted=false;clearPlaybackRetry();}savePosition();render();});
   a.addEventListener('durationchange',updatePlayback);a.addEventListener('ratechange',updatePlayback);a.addEventListener('seeked',onTick);
   a.addEventListener('error',()=>{
     if(!ui.current)return;
