@@ -18,6 +18,7 @@ from planning import resilient_plan, same_topic
 from publication import edition
 from retire_frontpage import retire
 from source_health import SourceHealth, fetch_items as fetch_fresh_items
+from sports import balanced_sports_items
 from story_memory import assign_story_identity, plan_records
 
 _BASE_CLAUDE = courier.claude
@@ -211,6 +212,8 @@ def normal_main():
         ))
 
     courier.log("== Shared story plan")
+    if "sports" in items_by_block:
+        items_by_block["sports"] = balanced_sports_items(items_by_block["sports"])
     story_plan, planning_method, dropped = resilient_plan(courier, sources, items_by_block, history)
     story_plan = assign_story_identity(story_plan, manifest_before, courier.TODAY)
     _scope_newsletters(sources, story_plan)

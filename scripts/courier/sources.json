@@ -273,8 +273,16 @@
   },
   "sports": {
     "label": "Sports",
-    "brief": "NHL, NFL, CFL and NBA. Lead with the Winnipeg Jets and Blue Bombers, then the league-wide stories, scores from the last 24 hours, injuries, trades, and what is on tonight. Assume the listener wants to hold his own in any sports conversation in Winnipeg.",
+    "brief": "Give a broad overview of NHL and NFL highlights, not just the local teams. The Las Vegas Raiders are the priority NFL team; the Winnipeg Jets are the priority NHL team. Lead with meaningful current Raiders and Jets news, then cover the biggest league-wide results and performances, upsets, injuries, trades, standings implications and upcoming games. Make room for both NFL and NHL when current sourced highlights exist. Keep Winnipeg Blue Bombers/CFL and NBA coverage concise when meaningful. Use confirmed scores and dates, distinguish preseason from regular season, and never invent a game, result or update. If the feeds lack NFL/Raiders coverage, spend a search on that gap; if NHL is missing, use the other search there. On a quiet or off day, briefly give the next scheduled matchup only when verified instead of forcing old highlights. Keep the whole Sports segment inside its allocated share of the 30-minute edition.",
     "feeds": [
+      {
+        "outlet": "ESPN NFL",
+        "url": "https://www.espn.com/espn/rss/nfl/news"
+      },
+      {
+        "outlet": "ESPN NHL",
+        "url": "https://www.espn.com/espn/rss/nhl/news"
+      },
       {
         "outlet": "Globe and Mail Hockey",
         "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/hockey/"
@@ -297,6 +305,8 @@
       }
     ],
     "prefer_web": [
+      "NFL.com",
+      "Raiders.com",
       "TSN",
       "Sportsnet",
       "ESPN",
