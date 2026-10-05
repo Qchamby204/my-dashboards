@@ -12,7 +12,7 @@ const S='forge:sessions:v2',D='forge:draft:v1',L='forge:live:v1',R='forge:rest:v
 const file=o=>({size:100,text:async()=>JSON.stringify(o)});
 const draft={'PUSH-0-0':{sets:[{w:'10',r:'4'}],note:'Keep note',done:false}};
 const decode=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
-async function boot({records={},blocked=false,width=390,wakeLock,goals=false}={}){
+async function boot({records={},blocked=false,width=390,wakeLock,goals=false,audioSession,AudioContext,userAgent='',enhanced=true}={}){
   let now=Date.parse('2026-09-08T12:00:00-05:00'),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{
     constructor(){this.events=new Map();}
@@ -66,13 +66,14 @@ async function boot({records={},blocked=false,width=390,wakeLock,goals=false}={}
   document.createElement=tag=>new Element(tag);document.createElementNS=(_,tag)=>new Element(tag);document.getElementById=id=>ids.get(id)||null;document.querySelector=s=>document.body.querySelector(s);document.querySelectorAll=s=>document.body.querySelectorAll(s);
   document.body.innerHTML=html.slice(html.indexOf('<body>')+6,html.indexOf('<script>',html.indexOf('<body>')));
   const storage=new Map(Object.entries(records)),localStorage={blocked,writeBlocked:false,blockedKey:null,getItem(k){if(this.blocked)throw Error('Blocked');return storage.get(k)??null;},setItem(k,v){if(this.blocked||this.writeBlocked||this.blockedKey===k)throw Error('Storage unavailable');storage.set(k,String(v));}};
-  const window=new Events();window.innerWidth=width;window.innerHeight=844;window.matchMedia=q=>({matches:q.includes('max-width')?width<=700:true,addEventListener(){}});window.AtlasForgeBoot={raw:{...records},readError:blocked};window.scrollTo=()=>{};
+  const window=new Events();window.AudioContext=AudioContext;window.innerWidth=width;window.innerHeight=844;window.matchMedia=q=>({matches:q.includes('max-width')?width<=700:true,addEventListener(){}});window.AtlasForgeBoot={raw:{...records},readError:blocked};window.scrollTo=()=>{};
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
   class BlobURL extends URL{static createObjectURL(blob){const id='blob:'+(++serial);blobs.set(id,blob);return id;}static revokeObjectURL(id){blobs.delete(id);}}
   const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{wakeLock},location:{hash:''},FormData:class{constructor(form){this.values=form.querySelectorAll('input,select,textarea').filter(n=>n.getAttribute('name')).map(n=>[n.getAttribute('name'),n.value]);}*[Symbol.iterator](){yield* this.values;}get(name){return this.values.find(([key])=>key===name)?.[1]??null;}},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
   let legacyError;try{vm.runInContext(original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
   if(goals)for(const file of ['forge-goal-plans.js','forge-goal-model.js'])vm.runInContext(readFileSync(new URL('../../shared/'+file,import.meta.url),'utf8'),context);
-  vm.runInContext(enhancement,context);
+  Object.assign(context.navigator,{audioSession,userAgent});
+  if(enhanced)vm.runInContext(enhancement,context);
   if(goals)vm.runInContext(readFileSync(new URL('../../shared/forge-goals.js',import.meta.url),'utf8'),context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
   return {run,node,document,window,context,api:window.ForgeSession,localStorage,storage,downloads,legacyError,
     at(date){now=new Date(date).getTime();},flush(){for(const [id,t]of [...timers])if(t.due<=now&&timers.delete(id))t.fn();},
@@ -81,6 +82,77 @@ async function boot({records={},blocked=false,width=390,wakeLock,goals=false}={}
 }
 
 
+
+function audioMock(){
+  const contexts=[],events=[];let type='auto',musicPlaying=true;
+  const session={get type(){return type;},set type(v){type=v;events.push('type:'+v);}};
+  class AudioContext{
+    constructor(){this.state='running';this.currentTime=0;this.destination={};this.oscillators=[];this.deferResume=false;contexts.push(this);events.push('construct');if(type!=='ambient')musicPlaying=false;}
+    resume(){events.push('resume');this.state='running';if(type!=='ambient')musicPlaying=false;return this.deferResume?new Promise(resolve=>{this.finishResume=resolve;}):Promise.resolve();}
+    suspend(){events.push('suspend');this.state='suspended';return Promise.resolve();}
+    close(){events.push('close');this.state='closed';return Promise.resolve();}
+    createOscillator(){const osc={frequency:{},connect(){},disconnect(){},start(){},stop(){}};this.oscillators.push(osc);return osc;}
+    createGain(){return {connect(){},disconnect(){},gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}}};}
+  }
+  return {contexts,events,session,AudioContext,get musicPlaying(){return musicPlaying;}};
+}
+for(const enhanced of [false,true])test(`${enhanced?'enhanced':'original'} rest timer mixes with music, suspends during countdown and releases after its alert`,async()=>{
+  const audio=audioMock(),h=await boot({enhanced,audioSession:audio.session,AudioContext:audio.AudioContext,userAgent:'iPhone'});
+  h.run('startTimer(1)');await h.settle();
+  assert.deepEqual(audio.events,['type:ambient','construct','resume','suspend']);
+  const ctx=audio.contexts[0];assert.equal(ctx.state,'suspended');assert.equal(ctx.oscillators.length,0);assert.equal(audio.musicPlaying,true);
+  h.at('2026-09-08T12:00:02-05:00');h.run('tickTimer()');await h.settle();
+  assert.equal(ctx.oscillators.length,3);assert.equal(audio.musicPlaying,true);
+  ctx.oscillators.forEach(osc=>osc.onended());await h.settle();
+  assert.equal(ctx.state,'closed');assert.equal(h.run('audioCtx'),null);
+});
+test('stopping or pausing rest releases audio and resuming rest rearms a suspended mixable alert',async()=>{
+  const audio=audioMock(),h=await boot({audioSession:audio.session,AudioContext:audio.AudioContext});
+  h.run('startTimer(60)');await h.settle();h.api.pauseRest();assert.equal(audio.contexts[0].state,'closed');
+  h.api.pauseRest();await h.settle();assert.equal(audio.contexts[1].state,'suspended');
+  h.run('stopTimer()');assert.equal(audio.contexts[1].state,'closed');assert.equal(audio.musicPlaying,true);
+});
+test('shortening rest to zero alerts once and extending finished rest rearms audio',async()=>{
+  const audio=audioMock(),h=await boot({audioSession:audio.session,AudioContext:audio.AudioContext});
+  h.run('startTimer(30)');await h.settle();h.api.adjustRest(-30);await h.settle();
+  const first=audio.contexts[0];assert.equal(first.oscillators.length,3);first.oscillators.forEach(osc=>osc.onended());
+  h.api.adjustRest(30);await h.settle();assert.equal(audio.contexts[1].state,'suspended');assert.equal(h.run('timer.fired'),false);
+  h.at('2026-09-08T12:00:31-05:00');h.run('tickTimer()');await h.settle();
+  assert.equal(audio.contexts[1].oscillators.length,3);assert.equal(audio.musicPlaying,true);
+});
+test('iOS without a usable mixing API retains the visual timer without claiming audio',async()=>{
+  for(const audioSession of [undefined,{set type(v){throw Error('Unsupported');}}, {get type(){return 'auto';},set type(v){}}]){
+    const audio=audioMock(),h=await boot({audioSession,AudioContext:audio.AudioContext,userAgent:'iPhone'});
+    h.run('startTimer(1)');await h.settle();assert.equal(audio.contexts.length,0);assert.equal(h.run('timer.total'),1);
+    h.at('2026-09-08T12:00:02-05:00');h.run('tickTimer()');await h.settle();assert.equal(h.node('forge-rest-time').textContent,'0:00');
+  }
+});
+test('dismissing an alert while audio resume is pending cannot play a stale beep',async()=>{
+  const audio=audioMock(),h=await boot({audioSession:audio.session,AudioContext:audio.AudioContext});
+  h.run('startTimer(1)');await h.settle();const ctx=audio.contexts[0];ctx.deferResume=true;
+  h.at('2026-09-08T12:00:02-05:00');h.run('tickTimer()');await h.settle();h.run('stopTimer()');ctx.finishResume();await h.settle();
+  assert.equal(ctx.state,'closed');assert.equal(ctx.oscillators.length,0);assert.equal(h.run('audioCtx'),null);
+});
+test('backgrounding Forge closes timer audio without changing its saved countdown',async()=>{
+  const audio=audioMock(),h=await boot({audioSession:audio.session,AudioContext:audio.AudioContext});
+  h.run('startTimer(60)');await h.settle();const saved=h.storage.get(R),ctx=audio.contexts[0];
+  h.document.hidden=true;h.document.emit('visibilitychange');await h.settle();
+  assert.equal(ctx.state,'closed');assert.equal(h.storage.get(R),saved);
+  h.at('2026-09-08T12:01:01-05:00');h.document.emit('visibilitychange');await h.settle();
+  assert.equal(ctx.oscillators.length,0);assert.equal(h.run('timer.fired'),true);
+});
+test('audio failures do not stop countdown completion or timer cleanup',async()=>{
+  for(const fail of ['construct','resume','suspend']){
+    const audio=audioMock();class FailingAudio extends audio.AudioContext{
+      constructor(){super();if(fail==='construct')throw Error('Unavailable');}
+      resume(){return fail==='resume'?Promise.reject(Error('Denied')):super.resume();}
+      suspend(){return fail==='suspend'?Promise.reject(Error('Failed')):super.suspend();}
+    }
+    const h=await boot({audioSession:audio.session,AudioContext:FailingAudio});h.run('startTimer(1)');await h.settle();
+    h.at('2026-09-08T12:00:02-05:00');h.run('tickTimer()');await h.settle();assert.equal(h.run('timer.fired'),true);
+    h.run('stopTimer()');assert.equal(h.run('audioCtx'),null);
+  }
+});
 
 test('live pause excludes elapsed pause time and persists a paused rest timer',async()=>{
  const h=await boot();assert.equal(h.legacyError,undefined);h.act('live',{key:'PUSH'});h.run('startTimer(90)');h.at('2026-09-08T12:00:20-05:00');h.api.pauseLive();assert.equal(h.api.elapsedMs(),20000);
