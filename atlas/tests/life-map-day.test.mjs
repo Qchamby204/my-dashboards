@@ -86,6 +86,11 @@ test('due routines come before optional work, but deadlines and current blocks s
  b.projects.pop();b.dayPlans={[today]:{blocks:[{id:'gym',title:'Gym',start:'09:00',minutes:60}]}};
  assert.equal(M.dayRecommendation(b,today,'09:00',{routines}).id,'gym');
 });
+test('reviewing today still surfaces available work without a chosen main priority',()=>{
+ const b=board([task('next',{pri:'High'})],{dayPlans:{[today]:{reviewed:true,blocks:[]}}});
+ assert.equal(M.dayRecommendation(b,today,'09:00').id,'next');
+ assert.equal(M.dayRecommendation(b,today,'09:00').kind,'task');
+});
 test('reset only chooses known-duration work that fits and keeps waiting/future tasks out',()=>{
  const b=board([task('short',{plan:today,effortMinutes:10}),task('long',{plan:today,effortMinutes:60}),task('unknown',{plan:today}),task('wait',{plan:today,status:'Waiting',effortMinutes:5}),task('future',{plan:'2026-10-06',effortMinutes:5})],{mealCoverage:{start:today,dinners:5},dayPlans:{[today]:{reviewed:true,mainTaskId:'long',blocks:[]}}});
  assert.equal(M.dayRecommendation(b,today,'09:00',{available:15}).id,'short');
@@ -103,4 +108,3 @@ test('calendar alert uses the coverage reminder date and an actual VALARM',()=>{
  const f=M.mealStatus({start:today,dinners:5},today),ics=M.calendarReminder({id:'dinner',title:'Prep next dinners',date:f.remind});
  assert.match(ics,/DTSTART:20261008T090000/);assert.match(ics,/BEGIN:VALARM/);
 });
-

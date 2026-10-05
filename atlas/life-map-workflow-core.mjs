@@ -188,6 +188,7 @@ export function createLifeMapWorkflow(){
     if(!plan?.reviewed&&!blocks.length)return {kind:'plan',title:'Look over today and choose the next step',minutes:5,why:'Review your to-dos and make room for the responsibilities that matter today.'};
     const next=blocks.filter(b=>!b.done&&blockMinutes(b.start)>minute).sort((a,b)=>a.start.localeCompare(b.start))[0];
     if(next)return {kind:'free',title:'Open time until '+next.start,minutes:blockMinutes(next.start)-minute,why:'Next: '+next.title+'. Rest or choose a task that fits.'};
+    if(fitting.length)return taskCandidate(sortTasks(fitting,today)[0],'Your next available to-do. Start it or make a deliberate plan for this time.');
     return {kind:'free',title:'No active block right now',minutes:0,why:'Choose rest or leisure, or deliberately bring another task into today.'};
   }
   return Object.freeze({clone,validDate,plus,week,days,addPeriod,resolveDate,parseCapture,setPlan,capture,parked,open,actionable,classify,todayTasks,sortTasks,groupTasks,projectProgress,search,nextFixed,choreDue,advanceChore,taskTemplate,fromTemplate,calendarReminder,categories,categoryFor,dinnerDates,mealStatus,blockMinutes,dayRecommendation});
