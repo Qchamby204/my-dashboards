@@ -62,10 +62,10 @@
     search.addEventListener('input',renderList);branch.addEventListener('change',renderList);
     function measure(){
       const top=Math.ceil(hud.getBoundingClientRect().bottom);root.style.setProperty('--neural-toolbar-top',top+'px');
-      root.style.setProperty('--neural-content-top',Math.ceil(toolbar.getBoundingClientRect().bottom+8)+'px');
+      root.style.setProperty('--neural-content-top',Math.ceil((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom+8)+'px');
     }
     function available(){
-      const top=Math.max(hud.getBoundingClientRect().bottom,toolbar.getBoundingClientRect().bottom)+16;
+      const top=(window.AtlasPageNavigation?hud.getBoundingClientRect().bottom:Math.max(hud.getBoundingClientRect().bottom,toolbar.getBoundingClientRect().bottom))+16;
       const bottom=Math.max(top+60,Math.min(window.innerHeight-100,legend.getBoundingClientRect().top-44));
       const padding=getComputedStyle(hud),left=Math.max(16,parseFloat(padding.paddingLeft)||0),right=Math.max(16,parseFloat(padding.paddingRight)||0);
       return {x:left,y:top,w:Math.max(80,window.innerWidth-left-right),h:Math.max(60,bottom-top)};

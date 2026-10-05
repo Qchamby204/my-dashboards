@@ -36,7 +36,7 @@
     queued=false;
     const chrome=document.querySelector('.appbar'),connection=document.querySelector('.connected-toolbar');
     insets(connection);
-    const bottom=document.querySelector(root.dataset.atlasApp==='courier'?'#player':'.tabbar');
+    const bottom=document.querySelector('.atlas-page-shell,#atlas-page-navigation,.atlas-page-native')||document.querySelector(root.dataset.atlasApp==='courier'?'#player':'.tabbar');
     for(const el of [chrome,connection,bottom])if(el&&observer&&!observed.has(el)){observed.add(el);observer.observe(el);}
     set('--atlas-connection-h',height(connection)+'px');
     set('--atlas-top-h',height(connection)+height(chrome)+'px');

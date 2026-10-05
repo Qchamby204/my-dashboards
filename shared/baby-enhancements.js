@@ -66,7 +66,7 @@
       if(!found.length)cards.append(make('p','No matching topics. Try another word or clear the filters.','baby-empty'));
     }
     [search,area,age,saved].forEach(e=>e.addEventListener(e===search?'input':'change',renderList));
-    function measure(){root.style.setProperty('--baby-toolbar-top',Math.ceil(hud.getBoundingClientRect().bottom)+'px');root.style.setProperty('--baby-content-top',Math.ceil(toolbar.getBoundingClientRect().bottom+8)+'px');}
+    function measure(){root.style.setProperty('--baby-toolbar-top',Math.ceil(hud.getBoundingClientRect().bottom)+'px');root.style.setProperty('--baby-content-top',Math.ceil((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom+8)+'px');}
     function paintSave(){
       notice.hidden=!blocked&&!dirty;noticeText.textContent=blocked?'Saved notes could not be read. Back up the original record before restoring a valid file.':"Changes are in this tab, but could not be saved. Retry or back up your notes before closing.";
       const s=$('baby-note-status');if(s)s.textContent=blocked?'Editing paused to protect saved notes.':dirty?'Not saved on this device.':'Saved on this device';
@@ -146,8 +146,8 @@
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)'),originalAnimate=animateTo;
     animateTo=function(s,x,y){if(reduced.matches){stopAnim();scale=s;px=x;py=y;applyT();}else originalAnimate(s,x,y);};
     const originalInsets=insets;
-    insets=function(ignoreSheet){return {...originalInsets(ignoreSheet),top:Math.max(hud.getBoundingClientRect().bottom,toolbar.getBoundingClientRect().bottom)+16};};
-    ensureVisible=function(node){if(!node)return;const top=toolbar.getBoundingClientRect().bottom+16,bottom=Math.max(top+60,sheet.classList.contains('show')?sheet.getBoundingClientRect().top-18:innerHeight-60),p=node.parent||node;animateTo(scale,innerWidth/2-(node.tx*.68+p.tx*.32)*scale,(top+bottom)/2-(node.ty*.68+p.ty*.32)*scale);};
+    insets=function(ignoreSheet){return {...originalInsets(ignoreSheet),top:(window.AtlasPageNavigation?hud.getBoundingClientRect().bottom:Math.max(hud.getBoundingClientRect().bottom,toolbar.getBoundingClientRect().bottom))+16};};
+    ensureVisible=function(node){if(!node)return;const top=(window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom+16,bottom=Math.max(top+60,sheet.classList.contains('show')?sheet.getBoundingClientRect().top-18:innerHeight-60),p=node.parent||node;animateTo(scale,innerWidth/2-(node.tx*.68+p.tx*.32)*scale,(top+bottom)/2-(node.ty*.68+p.ty*.32)*scale);};
     refreshProgress=function(){const n=LEAVES.filter(hasNotes).length;$('progFill').style.width=(100*n/Math.max(1,LEAVES.length)).toFixed(1)+'%';$('progTxt').textContent=n+' topics with notes, decisions or links';};
     // The legacy speech shortcut must not also run when a focused control uses Space.
     body.addEventListener('keydown',e=>{if(e.key===' '&&e.target.closest('button,[role="button"],[role="checkbox"]'))e.stopPropagation();});
