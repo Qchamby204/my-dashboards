@@ -569,7 +569,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.storage()['lifemap_v1'],initial['lifemap_v1'])
         self.page.locator('[data-day="view-selected-day"]').click()
         self.assertEqual(self.page.locator('[data-ops-row-id]').count(),4)
-        self.page.locator('[data-day="ops-start"][data-id="ops:daily:0"]').click()
+        self.page.locator('[data-ops-row-id="ops:daily:0"] [data-day="ops-start"]').click()
         self.assertIn('My morning review',self.page.locator('.lm-now-card').inner_text())
         self.assertEqual(self.state()['projects'],original['projects'])
         self.assertEqual(self.state()['dayPlans'][TODAY]['focus'],{'kind':'ops','id':'ops:daily:0'})
