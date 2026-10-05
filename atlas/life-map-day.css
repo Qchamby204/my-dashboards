@@ -17,6 +17,7 @@ html[data-atlas-app="life-map"] .lm-day-panel>:first-child{margin-top:0}
 html[data-atlas-app="life-map"] .lm-day-panel>:last-child{margin-bottom:0}
 html[data-atlas-app="life-map"] .lm-day-panel>.lm-help+ :is(a,button){margin-top:4px}
 html[data-atlas-app="life-map"] .lm-day-button{min-height:44px;padding:10px 14px;font-family:inherit;white-space:normal}
+html[data-atlas-app="life-map"] .lm-day-panel a.lm-day-button{display:inline-flex;align-items:center;justify-content:center;vertical-align:top;text-decoration:none}
 html[data-atlas-app="life-map"] .lm-day-button:active,html[data-atlas-app="life-map"] .lm-foundation:active,html[data-atlas-app="life-map"] .lm-category-card:active{transform:scale(.98)}
 html[data-atlas-app="life-map"] .lm-day-primary{color:var(--neo-ink,var(--txt));border-color:var(--neo-accent,var(--gold));background:var(--neo-surface-strong,var(--card2))}
 html[data-atlas-app="life-map"] .lm-now-card{border-left:3px solid var(--neo-accent,var(--gold));padding-left:16px}
