@@ -6,6 +6,9 @@ const localDay=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 const zone=params.get('zone')||Intl.DateTimeFormat().resolvedOptions().timeZone||'America/Winnipeg';
 $('#day').value=params.get('day')||localDay();$('#zone-label').textContent='Times in '+zone;
 const status=s=>{$('#status').textContent=s;};
+const boardURL=day=>publicOrigin+'/my-dashboards/life-map.html#board'+(day?'?day='+day:'');
+let dayLink='';
+$('#board-link').href=boardURL($('#day').value);
 async function api(path,method='GET',body){let response;try{response=await fetch('/api/apple-calendar/'+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});}catch{throw Error('Connection lost. Try again.');}let data;try{data=await response.json();}catch{throw Error('Sign in to your private Atlas workspace and try again.');}if(!response.ok)throw Error(data.error||'The calendar request could not be completed.');return data;}
 async function run(fn){if(busy)return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);try{await fn();}catch(e){status(e.message);}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=false);}}
 function render(){
@@ -23,17 +26,22 @@ function showEvents(){
  $('#events').replaceChildren();const fmt=new Intl.DateTimeFormat(undefined,{timeZone:zone,hour:'numeric',minute:'2-digit'});
  for(const e of snapshot.events){const row=document.createElement('article');row.className='event';const title=document.createElement('strong');title.textContent=e.title;const detail=document.createElement('p');detail.textContent=(e.allDay?'All day':fmt.format(new Date(e.start))+' – '+fmt.format(new Date(e.end)))+' · '+e.calendar;row.append(title,detail);$('#events').append(row);}
  if(!snapshot.events.length){const p=document.createElement('p');p.textContent='No events in your selected calendars for this day.';$('#events').append(p);}
- $('#refresh-status').textContent='Refreshed '+new Date(snapshot.refreshedAt).toLocaleTimeString();$('#send').hidden=!window.opener||!nonce;$('#download').hidden=false;$('#download-help').hidden=!!window.opener;
+ $('#refresh-status').textContent='Refreshed '+new Date(snapshot.refreshedAt).toLocaleTimeString();$('#send').hidden=!window.opener||!nonce;$('#download').hidden=false;
+ dayLink=publicOrigin+'/my-dashboards/life-map.html#calendar-day='+encodeURIComponent(JSON.stringify({app:'lifemap-calendar-day',version:1,...snapshot}));
+ if(dayLink.length>120000)dayLink='';
+ $('#board-link').href=dayLink||boardURL(snapshot.day);$('#open-day').href=dayLink||boardURL(snapshot.day);$('#open-day').hidden=!dayLink;$('#copy-day').hidden=!dayLink;$('#copy-help').hidden=false;
+ if(!dayLink)$('#copy-help').textContent='This day is too large for a link. Download the calendar day file below, then import it in Life Map → Board → Import calendar day.';
 }
-function returnDay(){if(!snapshot||!window.opener||!nonce)return;for(const origin of allowed)window.opener.postMessage({type:'lifemap-calendar-day',nonce,snapshot},origin);status('Events sent to Life Map. You can close this screen.');}
+function returnDay(openBoard=false){if(!snapshot||!window.opener||!nonce)return;for(const origin of allowed)window.opener.postMessage({type:'lifemap-calendar-day',nonce,snapshot,openBoard},origin);status('Events sent to Life Map. You can close this screen.');}
 async function refresh(){snapshot=await api('events?'+new URLSearchParams({day:$('#day').value,zone}));showEvents();status('Your day is up to date.');returnDay();}
 $('#connect-form').addEventListener('submit',e=>{e.preventDefault();const account=$('#account').value,password=$('#password').value;$('#password').value='';run(async()=>{status('Connecting to Apple…');const data=await api('connect','POST',{account,password});connected=data.connected;calendars=data.calendars;render();status('Connected. Choose Home, Work, or any other calendars you want to show.');});});
 $('#selection-form').addEventListener('submit',e=>{e.preventDefault();run(async()=>{const ids=Array.from(document.querySelectorAll('#calendar-list input:checked'),i=>i.value);if(!ids.length){status('Choose at least one calendar.');return;}await api('select','POST',{ids});await loadStatus();await refresh();});});
 $('#day-form').addEventListener('submit',e=>{e.preventDefault();run(refresh);});
-$('#send').addEventListener('click',returnDay);
+$('#send').addEventListener('click',()=>{returnDay(true);if(window.opener){try{window.opener.focus();window.close();}catch{}}});
+$('#copy-day').addEventListener('click',()=>run(async()=>{if(!dayLink)return;try{await navigator.clipboard.writeText(dayLink);status('Day link copied. Paste it in Life Map → Board → Import calendar day.');}catch{status('Touch and hold Open this day in Life Map, then choose Copy Link.');}}));
 $('#download').addEventListener('click',()=>{if(!snapshot)return;const blob=new Blob([JSON.stringify({app:'lifemap-calendar-day',version:1,...snapshot})],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='life-map-calendar-'+snapshot.day+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 $('#change-calendars').addEventListener('click',()=>{$('#selection').hidden=false;$('#selection').scrollIntoView({block:'start'});});
-$('#disconnect').addEventListener('click',()=>run(async()=>{await api('disconnect','POST',{});connected=false;calendars=[];snapshot=null;render();$('#events').replaceChildren();$('#send').hidden=true;$('#download').hidden=true;status('Disconnected. Revoke the Life Map password at Apple if you no longer need it.');if(nonce&&window.opener)for(const origin of allowed)window.opener.postMessage({type:'lifemap-calendar-disconnected',nonce},origin);}));
+$('#disconnect').addEventListener('click',()=>run(async()=>{await api('disconnect','POST',{});connected=false;calendars=[];snapshot=null;dayLink='';render();$('#events').replaceChildren();$('#send').hidden=true;$('#download').hidden=true;$('#open-day').hidden=true;$('#copy-day').hidden=true;$('#board-link').href=boardURL();status('Disconnected. Revoke the Life Map password at Apple if you no longer need it.');if(nonce&&window.opener)for(const origin of allowed)window.opener.postMessage({type:'lifemap-calendar-disconnected',nonce},origin);}));
 $('#schedule-form').addEventListener('submit',e=>{e.preventDefault();if(!task)return;run(async()=>{await api('schedule','POST',{taskId:task.id,title:task.title,day:$('#task-day').value,calendarId:$('#target-calendar').value,start:$('#start').value,end:$('#end').value,zone});if(nonce&&window.opener)for(const origin of allowed)window.opener.postMessage({type:'lifemap-calendar-scheduled',nonce,scheduled:{taskId:task.id,day:$('#task-day').value}},origin);task=null;render();status('Saved in Apple Calendar.');$('#day').value=$('#task-day').value;await refresh();});});
 run(async()=>{await loadStatus();if(connected&&calendars.some(c=>c.selected))await refresh();});
 })();
