@@ -10,7 +10,7 @@
     if(['crucible', 'neural-map', 'baby-brain', 'the-aqueduct', 'operations-cadence', 'chambers-wealth-hq', 'prospecting-command-center', 'review'].includes(root.dataset.atlasApp)){
       const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=bc2b59393d86',sharedSource).href;document.head.appendChild(sports);
     }
-    const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=life-map-workflow-20260917':'atlas-mobile.js',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
+    const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=f770ee460dc5':'atlas-mobile.js?v=f770ee460dc5',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
     if(root.dataset.atlasApp==='the-herald'){
       const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
@@ -21,7 +21,7 @@
       const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=605f9a4819c6',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
-      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=d81f94bcc8c9',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
+      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=d82ce02ae4ce',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
@@ -42,7 +42,7 @@
     if(root.dataset.atlasApp==='baby-brain'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('babybrain.v1');}catch{boot.readError=true;}
       window.AtlasBabyBoot=boot;
-      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js?v=dd23fe95a77a',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
+      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js?v=5b3856c57f36',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
     }
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1','forge:goals:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
