@@ -141,14 +141,14 @@ export function createLifeMapWorkflow(){
     if(categories.some(([key])=>key===record.category))return record.category;
     const text=[record.area,record.sub].filter(Boolean).join(' ').toLowerCase();
     if(/food|meal|grocery|nutrition/.test(text))return 'food';
-    if(/family|baby|relationship|gifts/.test(text))return 'family';
+    if(/family|baby|relationship|gifts|community|friends/.test(text))return 'family';
     if(/health|fitness|sleep/.test(text))return 'health';
-    if(/work|entrepreneur|development/.test(text))return 'work';
+    if(/work|entrepreneur|development|personal growth|piano|reading/.test(text))return 'work';
     if(/house|home|garage|vehicle|wardrobe|laundry|chores/.test(text))return 'household';
     if(record.chore&&!record.area){const words=(record.chore+' '+(record.zone||'')).toLowerCase();
       if(/meal|grocery|fridge|freezer|food/.test(words))return 'food';
       if(/baby|family/.test(words))return 'family';
-      if(/workout|exercise|health/.test(words))return 'health';
+      if(/workout|exercise|health|meditat|walk.*dog/.test(words))return 'health';
       if(/plan the week|calendar|mail|paperwork|budget/.test(words))return 'admin';
       return 'household';
     }
@@ -168,7 +168,7 @@ export function createLifeMapWorkflow(){
     return {set:true,dates,last,remind,remaining,startsLater:today<coverage.start,needsPrep:today>=remind,expired:today>last,nextUncovered:plus(last,1)};
   }
   function blockMinutes(time){const [h,m]=String(time).split(':').map(Number);return h*60+m;}
-  function dayRecommendation(state,today,time,{available=0,category=''}={}){
+  function dayRecommendation(state,today,time,{available=0,category='',routines=[]}={}){
     const plan=state.dayPlans?.[today],blocks=plan?.blocks||[],minute=blockMinutes(time),food=mealStatus(state.mealCoverage,today);
     const eligible=p=>actionable(p,today)||open(p)&&p.status!=='Waiting'&&p.due&&p.due<=today;
     const tasks=state.projects.filter(eligible),getTask=id=>tasks.find(p=>p.id===id);
@@ -179,14 +179,16 @@ export function createLifeMapWorkflow(){
     if(deadlines.length)return taskCandidate(deadlines[0],'A real deadline needs attention: '+deadlines[0].due+'.');
     const current=blocks.find(b=>!b.done&&blockMinutes(b.start)<=minute&&minute<blockMinutes(b.start)+b.minutes);
     if(current)return {kind:'block',id:current.id,title:current.title,minutes:Math.max(1,blockMinutes(current.start)+current.minutes-minute),why:'This is your '+current.start+' time block.'};
-    if(!plan?.reviewed)return {kind:'plan',title:'Choose your priority and plan the next block',minutes:5,why:'Today’s plan has not been reviewed yet.'};
-    if(!food.set)return {kind:'food',title:'Check your dinner coverage',minutes:2,why:'Life Map does not yet know which dinners are handled.'};
     if(food.needsPrep&&!food.startsLater)return {kind:'food',title:food.expired?'Prepare the next dinners':'Prep the next batch of dinners',minutes:available?Math.min(30,available):30,why:food.expired?'Your recorded dinner coverage has ended.':'Your last covered dinner is '+food.last+'. Prep before the gap.'};
+    const routine=routines.find(c=>(!category||categoryFor(c)===category)&&(!available||c.effortMinutes&&c.effortMinutes<=available));
+    if(routine)return {kind:'chore',id:routine.id,title:routine.chore,category:categoryFor(routine),minutes:routine.effortMinutes||0,why:'This routine is due. Handle the basics before adding optional work.'};
     const fitting=tasks.filter(p=>(!category||categoryFor(p)===category)&&(!available||p.effortMinutes&&p.effortMinutes<=available));
-    const main=fitting.find(p=>p.id===plan.mainTaskId),chosen=sortTasks(fitting.filter(p=>p.plan===today||p.planWeek===week(today)||p.status==='In progress'),today);
+    const main=fitting.find(p=>p.id===plan?.mainTaskId),chosen=sortTasks(fitting.filter(p=>p.plan===today||p.planWeek===week(today)||p.status==='In progress'),today);
     const p=main||chosen[0];if(p)return taskCandidate(p,main?'This is the main priority you chose for today.':'This task is part of your current plan.');
+    if(!plan?.reviewed&&!blocks.length)return {kind:'plan',title:'Look over today and choose the next step',minutes:5,why:'Review your to-dos and make room for the responsibilities that matter today.'};
     const next=blocks.filter(b=>!b.done&&blockMinutes(b.start)>minute).sort((a,b)=>a.start.localeCompare(b.start))[0];
     if(next)return {kind:'free',title:'Open time until '+next.start,minutes:blockMinutes(next.start)-minute,why:'Next: '+next.title+'. Rest or choose a task that fits.'};
+    if(fitting.length)return taskCandidate(sortTasks(fitting,today)[0],'Your next available to-do. Start it or make a deliberate plan for this time.');
     return {kind:'free',title:'No active block right now',minutes:0,why:'Choose rest or leisure, or deliberately bring another task into today.'};
   }
   return Object.freeze({clone,validDate,plus,week,days,addPeriod,resolveDate,parseCapture,setPlan,capture,parked,open,actionable,classify,todayTasks,sortTasks,groupTasks,projectProgress,search,nextFixed,choreDue,advanceChore,taskTemplate,fromTemplate,calendarReminder,categories,categoryFor,dinnerDates,mealStatus,blockMinutes,dayRecommendation});
