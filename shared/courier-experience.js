@@ -40,27 +40,6 @@
     }
   }
 
-  function decorateQueueTime(day){
-    const id=currentId(),audio=$('audio');
-    if(!id||!audio)return;
-    const index=day.blocks.findIndex(block=>block.id===id);
-    if(index<0)return;
-    const current=day.blocks[index];
-    const browserDuration=Number(audio.duration);
-    const currentDuration=Number.isFinite(browserDuration)&&browserDuration>0?browserDuration:exactDuration(current);
-    if(!currentDuration)return;
-    const later=(day.blocks||[]).slice(index+1).filter(block=>block.audio);
-    const laterDurations=later.map(exactDuration);
-    if(laterDurations.some(value=>value===null))return;
-    const elapsed=Math.max(0,Math.min(Number(audio.currentTime)||0,currentDuration));
-    const rate=Number(audio.playbackRate)>0?Number(audio.playbackRate):1;
-    const remaining=(Math.max(0,currentDuration-elapsed)+laterDurations.reduce((sum,value)=>sum+value,0))/rate;
-    const rateText=rate===1?'':` at ${rate}×`;
-    setText($('pQueueTime'),`${fmt(remaining)} left in edition${rateText}`);
-    setText($('railTotal'),fmt(remaining));
-    setText($('railCap'),'Audio left in edition');
-  }
-
   function smartPlayLabel(){
     const button=$('playAll'),day=currentDay();
     if(!button||!day)return;
@@ -73,51 +52,12 @@
     const day=currentDay();
     if(!day)return;
     decorateSectionTimes(day);
-    decorateQueueTime(day);
     smartPlayLabel();
   }
 
-  function enableQueue(){
-    const checkbox=$('pContinue');
-    if(checkbox&&!checkbox.checked){
-      checkbox.checked=true;
-      checkbox.dispatchEvent(new Event('change',{bubbles:true}));
-    }
-  }
-
-  function smartStartTarget(){
-    const resume=$('resumeListening');
-    if(resume&&!resume.hidden)return resume;
-    const unheard=document.querySelector('.block:not(.done):not(.mute) [data-act="play"]');
-    if(unheard&&document.querySelector('.block.done'))return unheard;
-    return null;
-  }
-
-  let skippedSource='';
   function wire(){
-    document.addEventListener('click',event=>{
-      const trigger=event.target.closest?.('#playAll');
-      if(!trigger)return;
-      const target=smartStartTarget();
-      if(!target)return; // untouched first-run behaviour
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      enableQueue();
-      target.click();
-    },true);
-
     const audio=$('audio');
-    audio?.addEventListener('error',()=>{
-      const next=$('pNext'),continueBox=$('pContinue');
-      const source=audio.currentSrc||audio.src||'';
-      if(!source||source===skippedSource||!continueBox?.checked||next?.disabled)return;
-      skippedSource=source;
-      setText($('pStatus'),'Audio unavailable. Skipping to the next section…');
-      setTimeout(()=>{
-        if((audio.currentSrc||audio.src)===source&&continueBox.checked&&!next.disabled)next.click();
-      },500);
-    });
-    audio?.addEventListener('playing',()=>{skippedSource='';refresh();});
+    audio?.addEventListener('playing',refresh);
     for(const event of ['timeupdate','durationchange','ratechange','loadedmetadata','ended'])audio?.addEventListener(event,refresh);
     document.addEventListener('change',refresh,true);
     document.addEventListener('click',()=>queueMicrotask(refresh),true);

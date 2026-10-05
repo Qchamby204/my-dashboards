@@ -2,6 +2,14 @@
 
 Courier remains at `courier.html`. Atlas links to this original dashboard.
 
+New editions have a 30-minute total planning budget, including the weekday Lessons block.
+Each spoken draft is checked against its allocated word ceiling before narration, with one
+shortening pass and a bounded original-text fallback if that edit fails. Measured audio
+duration remains the displayed source of truth; narration pace can vary.
+Sports covers broad NFL and NHL highlights with Las Vegas Raiders and Winnipeg Jets
+priority, plus concise Blue Bombers/CFL and NBA news. NFL and NHL RSS inputs are rotated
+into the bounded source window so a busy hockey feed cannot crowd out football.
+
 ## Publication
 
 An independent weekday timer wakes the workflow, with GitHub cron as a backstop. An automatic run creates an edition when that date is absent, or repairs only missing sections and missing narration in an existing edition. It then publishes audio, commits the manifest, and checks the public manifest and every advertised audio file. A failed live check requests one Pages build before bounded retries. The backstop still performs the public checks when generation is skipped; a successful first check needs no build.
@@ -87,6 +95,13 @@ Section cards show duration text without decorative length gauges. Actual playba
 The original player uses one audio element across sections. Failed audio is reloaded when Play is retried. Continuation skips text-only sections, follows the saved preference, and reports a manual Play action if the browser blocks continuation. Play all explicitly starts the edition again; Resume listening continues an unfinished section in the selected edition.
 
 Measured durations are kept with browser-local listening history and keyed by the actual audio URL. Queue time remains labelled approximate until every remaining audio length is known. Changing playback speed adjusts listening time remaining. No new account or sync service is involved.
+
+Continue all resumes the current unfinished section or the next unheard section, and saves
+automatic continuation as enabled. One player owns the queue, including the short queue.
+The next audio resource is preloaded where the browser allows it. Interrupted play requests
+retry once and resume on readiness; transient network errors retry the saved position once
+before continuing past unavailable audio, which stays unheard. Pause and edition changes
+cancel pending retries. Browser autoplay denial still requires a Play tap.
 
 [Media Session](https://developer.mozilla.org/en-US/docs/Web/API/Media_Session_API) supplies section metadata, playback state, elapsed position, play/pause, Next and seek actions when supported. Browser and iOS behavior varies; this is not a native Live Activity. Unsupported actions leave the page controls working normally.
 
