@@ -6,6 +6,8 @@
   const UI_KEY='lifemap:day-drafts:v1',clone=M.clone;
   let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,related:null,records:false,target:'',calendarLink:null,error:''};
   try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];}}}catch{}
+  function readRoute(){const match=location.hash.match(/^#(home|plan|areas|board)(?:\?(.*))?$/);if(!match)return;ui.tab=match[1];ui.records=false;const day=new URLSearchParams(match[2]||'').get('day');if(M.validDate(day))ui.date=day;}
+  readRoute();
   const attrs=s=>esc(String(s??'')),button=(label,action,extra='',primary=false)=>'<button type="button" class="btn lm-day-button'+(primary?' lm-day-primary':'')+'" data-day="'+action+'" '+extra+'>'+label+'</button>';
   const help=t=>'<p class="lm-help">'+esc(t)+'</p>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
@@ -42,7 +44,7 @@
     if(C?.message)body+='<p class="lm-help" role="status">'+esc(C.message)+'</p>';
     if(saved){body+=events.length?events.map(e=>{const t=calendarTask(e);return '<article class="lm-day-task" data-calendar-event="'+attrs(e.id)+'"><div class="eyebrow">'+esc(calendarTime(e,saved.zone))+' · '+esc(e.calendar)+'</div><h3>'+esc(e.title)+'</h3>'+(t?help('Linked task: '+t.task+(t.status==='Done'?' · Completed':'')):'')+'<div class="lm-inline">'+(t&&M.open(t)?button('Open linked task','calendar-task','data-id="'+attrs(t.id)+'"')+button('Done','complete-task','data-id="'+attrs(t.id)+'"'):'')+button(t?'Change linked task':'Link a task','calendar-link','data-event="'+attrs(e.id)+'"')+'</div></article>';}).join(''):help('No calendar events on this day.');}
     if(ui.calendarLink&&events.some(e=>e.id===ui.calendarLink)){const e=events.find(e=>e.id===ui.calendarLink),linked=calendarTask(e);body+='<div class="lm-day-task"><h3>Link '+esc(e.title)+'</h3>'+field('Life Map task','<select id="lm-calendar-task">'+[['','No linked task'],...S.projects.filter(t=>!t.archived).map(t=>[t.id,t.task])].map(([id,title])=>'<option value="'+attrs(id)+'"'+(linked?.id===id?' selected':'')+'>'+esc(title)+'</option>').join('')+'</select>')+'<div class="lm-inline">'+button('Save link','calendar-save-link')+button('Cancel','calendar-link-cancel')+'</div></div>';}
-    body+='<details class="lm-calendar-transfer"><summary>Import calendar day</summary>'+help('If the connection opens separately from your Home Screen app, download the day there and import it here.')+'<label class="lm-day-field"><span>Calendar day file</span><input id="lm-calendar-import" type="file" accept=".json,application/json"></label></details>';
+    body+='<details class="lm-calendar-transfer"><summary>Import calendar day</summary>'+help('If the calendar opens separately in Safari, choose Copy day link there, then paste it here in your Home Screen app.')+'<label class="lm-day-field"><span>Calendar day link</span><input id="lm-calendar-link" type="text" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste the copied day link"></label>'+button('Import day link','calendar-import-link')+'<label class="lm-day-field"><span>Or import a downloaded calendar day file</span><input id="lm-calendar-import" type="file" accept=".json,application/json"></label></details>';
     return panel('Apple Calendar',body);
   }
   function rightNow(){
@@ -145,6 +147,7 @@
   function handle(action,el){
     const id=el.dataset.id;
     if(action==='calendar-open')return C.open(ui.date);
+    if(action==='calendar-import-link'){C.importLink(document.getElementById('lm-calendar-link').value.trim());ui.error='';return render();}
     if(action==='calendar-schedule'){const task=S.projects.find(t=>t.id===id&&!t.archived);if(task)C.open(ui.date,task);return;}
     if(action==='calendar-task'){const task=S.projects.find(t=>t.id===id&&!t.archived);if(task)return W.openEditor('proj',{...task});return;}
     if(action==='calendar-link'){ui.calendarLink=el.dataset.event;render();document.getElementById('lm-calendar-task')?.focus();return;}
@@ -185,6 +188,8 @@
   }
   const draw=render;
   render=function(){
+    const route='#'+ui.tab+(['board','plan'].includes(ui.tab)&&M.validDate(ui.date)?'?day='+ui.date:'');
+    if(location.hash!==route)history.replaceState(null,'',location.pathname+location.search+route);
     draw();
     const captureLaunch=app.querySelector('#lm-capture-launch');if(captureLaunch)captureLaunch.hidden=!(ui.tab==='board'&&ui.records);
     const children=[...app.children],records=document.createElement('section');records.id='lm-day-records';records.className='lm-day-records';records.hidden=!(ui.tab==='board'&&ui.records);
@@ -213,7 +218,8 @@
   });
   let lastMinute=clock();setInterval(()=>{const next=clock();if(next!==lastMinute&&!document.hidden&&!view.editor&&!W.busy&&!app.querySelector('[data-day-field]:focus')){lastMinute=next;render();}},60000);
 
-  window.addEventListener('lifemap-calendar-update',()=>{if(!view.editor)render();});
+  window.addEventListener('lifemap-calendar-update',event=>{if(event.detail?.imported&&M.validDate(event.detail.day)){ui.date=event.detail.day;ui.tab='board';ui.records=false;}if(!view.editor)render();});
+  window.addEventListener('hashchange',()=>{readRoute();if(!view.editor)render();});
   window.addEventListener('lifemap-calendar-scheduled',event=>{const value=event.detail;if(!value||!M.validDate(value.day))return;commit(next=>{const t=next.projects.find(t=>t.id===value.taskId&&!t.archived);if(t)M.setPlan(t,value.day,todayISO());},'Task scheduled in Apple Calendar',()=>{ui.date=value.day;ui.tab='board';ui.records=false;},{undo:false});});
   app.addEventListener('change',event=>{if(event.target.id!=='lm-calendar-import'||!event.target.files[0])return;C.importDay(event.target.files[0]).then(day=>{ui.date=day;ui.error='';render();}).catch(e=>{ui.error=e.message;render();});});
   setInterval(()=>{if(!document.hidden&&!view.editor&&ui.tab==='home'&&!app.querySelector('input:focus,textarea:focus,select:focus'))render();},60000);
