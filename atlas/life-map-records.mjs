@@ -59,7 +59,7 @@ export function validateLifeMapRecords(input){
   };
   if(out.dayPlans!==undefined){
     if(!object(out.dayPlans)||Object.keys(out.dayPlans).length>1000)throw Error('Daily plans are invalid or exceed 1,000 days.');
-    for(const [d,p] of Object.entries(out.dayPlans)){if(!date(d)||!object(p)||!flag(p,'reviewed')||p.mainTaskId&&!id(p.mainTaskId))throw Error('A daily plan is invalid.');blockList(p.blocks||[]);if(p.focus!==undefined&&p.focus!==null&&(!object(p.focus)||!['task','block'].includes(p.focus.kind)||!id(p.focus.id)))throw Error('The active focus is invalid.');}
+    for(const [d,p] of Object.entries(out.dayPlans)){if(!date(d)||!object(p)||!flag(p,'reviewed')||p.mainTaskId&&!id(p.mainTaskId))throw Error('A daily plan is invalid.');blockList(p.blocks||[]);if(p.focus!==undefined&&p.focus!==null&&(!object(p.focus)||!['task','block','ops'].includes(p.focus.kind)||!id(p.focus.id)))throw Error('The active focus is invalid.');}
   }
   if(out.dayTemplates!==undefined){if(!object(out.dayTemplates)||Object.keys(out.dayTemplates).some(k=>!['weekday','weekend'].includes(k)))throw Error('Day templates are invalid.');for(const rows of Object.values(out.dayTemplates))blockList(rows);}
   if(Object.entries(out.checks).some(([k,v])=>!id(k)||!string(v,100))||Object.entries(out.planned).some(([k,v])=>!id(k)||!date(v))||out.log.some(x=>!object(x)||!id(x.id)||x.t!=='proj'||!date(x.d)))throw Error('The backup contains invalid activity records.');

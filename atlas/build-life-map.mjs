@@ -1,5 +1,6 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
+import {lifeMapOpsScript} from './build-life-map-ops.mjs';
 const root=new URL('../',import.meta.url),read=p=>readFile(new URL(p,root),'utf8');
 let html=await read('atlas/life-map-legacy.html');
 const match=html.match(/<script>([\s\S]*?)<\/script>/);
@@ -11,7 +12,7 @@ if(start<0||end<0)throw Error('Review Life Map boot extraction');
 script=script.slice(0,start)+script.slice(end);
 const dashboard=(await read('atlas/life-map-dashboard.js')).replaceAll('window.AtlasConnected.clearInputDraft()','window.AtlasConnected?.clearInputDraft()');
 script=script.replaceAll('behavior:"smooth"','behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"');
-script+='\n'+(await read('atlas/life-map-records.mjs')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+(await read('atlas/life-map-workflow-core.mjs')).replace('export function','function')+'\n'+dashboard+'\n'+await read('atlas/apple-calendar-client.js')+'\n'+await read('atlas/life-map-day.js')+'\n'+await read('atlas/life-map-interactions.js')+'\n'+(await read('atlas/life-map-local-store.mjs')).replace('export function','function')+'\n'+await read('atlas/life-map-local.js');
+script+='\n'+(await read('atlas/life-map-records.mjs')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+(await read('atlas/life-map-workflow-core.mjs')).replace('export function','function')+'\n'+dashboard+'\n'+await read('atlas/apple-calendar-client.js')+'\n'+await lifeMapOpsScript(root)+'\n'+await read('atlas/life-map-day.js')+'\n'+await read('atlas/life-map-interactions.js')+'\n'+(await read('atlas/life-map-local-store.mjs')).replace('export function','function')+'\n'+await read('atlas/life-map-local.js');
 const cssVersion=createHash('sha256').update(await read('atlas/life-map-dashboard.css')).digest('hex').slice(0,12);
 const dayCssVersion=createHash('sha256').update(await read('atlas/life-map-day.css')).digest('hex').slice(0,12);
 html=html.replace(match[0],()=>'<script>\n'+script+'\n</script>').replace('</head>','<link rel="stylesheet" href="atlas/life-map-dashboard.css?v='+cssVersion+'"><link rel="stylesheet" href="atlas/life-map-day.css?v='+dayCssVersion+'"></head>');
@@ -23,4 +24,3 @@ const transferVersion=createHash('sha256').update(await read('shared/atlas-proje
 html=html.replace('src="shared/atlas-project-transfer.js"','src="shared/atlas-project-transfer.js?v='+transferVersion+'"');
 await writeFile(new URL('life-map.html',root),html);
 console.log('GitHub Life Map prepared with browser-local storage.');
-

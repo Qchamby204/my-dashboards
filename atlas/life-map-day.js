@@ -3,8 +3,9 @@
   'use strict';
   const M=createLifeMapWorkflow(),D=window.LifeMapDashboard,W=window.LifeMapWorkflow;
   const C=window.LifeMapCalendar;
+  const OPS=window.AtlasConnected?null:window.LifeMapOperations;
   const UI_KEY='lifemap:day-drafts:v1',clone=M.clone;
-  let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,related:null,records:false,target:'',calendarLink:null,error:''};
+  let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,related:null,records:false,target:'',calendarLink:null,error:'',opsCadence:'daily',opsPicks:new Set(),opsOpen:false};
   try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];}}}catch{}
   function readRoute(){const match=location.hash.match(/^#(home|plan|areas|board)(?:\?(.*))?$/);if(!match)return;ui.tab=match[1];ui.records=false;const day=new URLSearchParams(match[2]||'').get('day');if(M.validDate(day))ui.date=day;}
   readRoute();
@@ -23,6 +24,22 @@
   function choose(tab,category){ui.tab=tab;ui.records=false;if(category)ui.category=category;ui.error='';render();window.scrollTo?.({top:0,behavior:'instant'});document.getElementById('lm-day-nav-'+tab)?.focus({preventScroll:true});}
   function editPlan(next,date,fn){next.dayPlans??={};next.dayPlans[date]??={reviewed:false,mainTaskId:'',blocks:[]};next.dayPlans[date].blocks??=[];fn(next.dayPlans[date]);}
   function commit(change,message,success,options={}){return W.transaction(change,message,'day_planned',()=>{ui.error='';success?.();recordUI();},options);}
+  const opsLabels={daily:'Daily',weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',annually:'Annual',adhoc:'Ad hoc'};
+  function opsRows(day=ui.date){try{return OPS?.rows(day)||[];}catch{return [];}}
+  const opsFind=(id,day=ui.date)=>opsRows(day).find(t=>t.id===id);
+  const opsPlanned=(day=ui.date)=>opsRows(day).filter(t=>t.selected);
+  function opsChange(change,label,undo=true){const ticket=change();ui.error='';render();toast(label);if(undo)undoToast(label,()=>{try{OPS.undo(ticket);ui.error='';render();toast('Ops change undone');}catch(e){ui.error=e.message;render();}});}
+  function opsPicker(){
+    if(!OPS)return '';let all;try{all=OPS.rows(ui.date);}catch(e){return panel('Operations Cadence','<h2>Operations Cadence</h2>'+help(e.message)+'<a class="btn lm-day-button" href="operations-cadence.html">Open Ops Cadence</a>');}
+    const eligible=all.filter(t=>t.status!=='Done'&&t.plan!==ui.date);ui.opsPicks=new Set([...ui.opsPicks].filter(id=>eligible.some(t=>t.id===id)));
+    const rows=all.filter(t=>t.group===ui.opsCadence),count=all.filter(t=>t.selected&&t.status!=='Done').length;
+    let body='<div class="lm-day-section-title"><h2>Operations Cadence</h2>'+info('How Ops tasks join your day','Pick tasks across the cadences and add them to a date. Each task has one planned date; picking another moves it. Checkmarks, custom tasks, names, notes and completion history use Ops Cadence’s records in this browser. Daily, weekly, monthly, quarterly and annual checkmarks reset on their existing cadence. Ad hoc tasks stay complete until reopened in Ops.')+'</div>';
+    body+='<div class="'+(ui.tab==='areas'?'lm-two-col':'')+'">'+(ui.tab==='areas'?field('Build work for',input('date',ui.date,'date')):'')+field('Cadence',select('opsCadence',ui.opsCadence,Object.entries(opsLabels)))+'</div>'+help(count+' Ops task'+(count===1?'':'s')+' planned for '+fmtDay(ui.date)+'. Select what belongs in this day.');
+    body+='<div class="lm-ops-choices">'+rows.map(t=>'<label class="lm-ops-choice"><input type="checkbox" data-ops-pick="'+attrs(t.id)+'"'+(ui.opsPicks.has(t.id)?' checked':'')+(t.status==='Done'||t.plan===ui.date?' disabled':'')+'><span><strong>'+esc(t.title)+'</strong><span class="lm-help">'+esc([t.system,t.schedule,t.status==='Done'?'Completed for this period':t.plan===ui.date?'Scheduled for this day':t.plan?'Move from '+fmtDay(t.plan):'Not scheduled',t.due?'Deadline '+fmtDay(t.due):t.season?'Season: '+t.season:''].filter(Boolean).join(' · '))+'</span></span></label>').join('')+'</div>';
+    body+='<div class="lm-inline lm-ops-actions">'+button('Add selected to day'+(ui.opsPicks.size?' · '+ui.opsPicks.size:''),'ops-add',ui.opsPicks.size?'':'disabled',true)+button('View this day’s Board','view-selected-day')+'<a class="btn lm-day-button" href="operations-cadence.html">Open Ops Cadence</a></div>';
+    return panel('Operations Cadence',body);
+  }
+  function opsTaskRow(t){return '<article class="lm-day-task" data-day-row-id="'+attrs(t.id)+'" data-ops-row-id="'+attrs(t.id)+'"><div class="eyebrow">Ops Cadence · '+opsLabels[t.group]+'</div><h3>'+esc(t.title)+'</h3>'+help([t.system,t.schedule,t.status==='Done'?'Completed':t.due?'Deadline '+fmtDay(t.due):'Scheduled for this day'].filter(Boolean).join(' · '))+'<div class="lm-inline">'+(t.status==='Done'?'':(ui.date===todayISO()?button('Start this task','ops-start','data-id="'+attrs(t.id)+'"'):'')+(t.canComplete?button('Done','ops-complete','data-id="'+attrs(t.id)+'"'):ui.date<todayISO()?button('Move to today','ops-today','data-id="'+attrs(t.id)+'"'):'')+button('Schedule in Apple Calendar','calendar-schedule','data-id="'+attrs(t.id)+'"')+button('Remove from this day','ops-remove','data-id="'+attrs(t.id)+'"'))+'</div></article>';}
   function coverageText(food){
     if(!food.set)return 'Set your dinner coverage';
     if(food.expired)return 'Dinner coverage has ended';
@@ -35,7 +52,7 @@
   const scheduled=date=>S.projects.filter(t=>!t.archived&&t.plan===date);
   const dayRoutines=date=>S.chores.filter(c=>!c.archived&&S.planned?.[c.id]===date);
   function dayTaskRow(t){return '<article class="lm-day-task'+(ui.target===t.id?' lm-day-target':'')+'" data-day-row-id="'+attrs(t.id)+'">'+D.taskRow(t)+'<div class="lm-inline">'+(M.open(t)&&t.status!=='Waiting'&&ui.date===todayISO()?button('Start this task','focus','data-kind="task" data-id="'+attrs(t.id)+'"'):'')+button('Schedule in Apple Calendar','calendar-schedule','data-id="'+attrs(t.id)+'"')+button('Related area','tab','data-tab="areas" data-category="'+M.categoryFor(t)+'"')+'</div></article>';}
-  const calendarTask=e=>S.projects.find(t=>!t.archived&&t.id===((S.calendarLinks||[]).find(x=>x.eventId===e.id)?.taskId??e.taskId));
+  const calendarTask=e=>{const id=(S.calendarLinks||[]).find(x=>x.eventId===e.id)?.taskId??e.taskId;return S.projects.find(t=>!t.archived&&t.id===id)||opsFind(id,ui.tab==='home'?todayISO():ui.date);};
   const calendarTime=(e,zone)=>e.allDay?'All day':new Intl.DateTimeFormat(undefined,{timeZone:zone,hour:'numeric',minute:'2-digit'}).format(new Date(e.start))+' – '+new Intl.DateTimeFormat(undefined,{timeZone:zone,hour:'numeric',minute:'2-digit'}).format(new Date(e.end));
   function calendarPanel(){
     const saved=C?.snapshot(ui.date),events=saved?.events||[];
@@ -43,13 +60,13 @@
     body+=help(saved?'Last refreshed '+new Date(saved.refreshedAt).toLocaleString()+'. Refresh to pick up calendar changes.':'Connect your selected iCloud calendars to see your real schedule here.');
     if(C?.message)body+='<p class="lm-help" role="status">'+esc(C.message)+'</p>';
     if(saved){body+=events.length?events.map(e=>{const t=calendarTask(e);return '<article class="lm-day-task" data-calendar-event="'+attrs(e.id)+'"><div class="eyebrow">'+esc(calendarTime(e,saved.zone))+' · '+esc(e.calendar)+'</div><h3>'+esc(e.title)+'</h3>'+(t?help('Linked task: '+t.task+(t.status==='Done'?' · Completed':'')):'')+'<div class="lm-inline">'+(t&&M.open(t)?button('Open linked task','calendar-task','data-id="'+attrs(t.id)+'"')+button('Done','complete-task','data-id="'+attrs(t.id)+'"'):'')+button(t?'Change linked task':'Link a task','calendar-link','data-event="'+attrs(e.id)+'"')+'</div></article>';}).join(''):help('No calendar events on this day.');}
-    if(ui.calendarLink&&events.some(e=>e.id===ui.calendarLink)){const e=events.find(e=>e.id===ui.calendarLink),linked=calendarTask(e);body+='<div class="lm-day-task"><h3>Link '+esc(e.title)+'</h3>'+field('Life Map task','<select id="lm-calendar-task">'+[['','No linked task'],...S.projects.filter(t=>!t.archived).map(t=>[t.id,t.task])].map(([id,title])=>'<option value="'+attrs(id)+'"'+(linked?.id===id?' selected':'')+'>'+esc(title)+'</option>').join('')+'</select>')+'<div class="lm-inline">'+button('Save link','calendar-save-link')+button('Cancel','calendar-link-cancel')+'</div></div>';}
+    if(ui.calendarLink&&events.some(e=>e.id===ui.calendarLink)){const e=events.find(e=>e.id===ui.calendarLink),linked=calendarTask(e);body+='<div class="lm-day-task"><h3>Link '+esc(e.title)+'</h3>'+field('Life Map task','<select id="lm-calendar-task">'+[['','No linked task'],...S.projects.filter(t=>!t.archived).map(t=>[t.id,t.task]),...opsPlanned().map(t=>[t.id,'Ops · '+t.task])].map(([id,title])=>'<option value="'+attrs(id)+'"'+(linked?.id===id?' selected':'')+'>'+esc(title)+'</option>').join('')+'</select>')+'<div class="lm-inline">'+button('Save link','calendar-save-link')+button('Cancel','calendar-link-cancel')+'</div></div>';}
     body+='<details class="lm-calendar-transfer"><summary>Import calendar day</summary>'+help('If the calendar opens separately in Safari, choose Copy day link there, then paste it here in your Home Screen app.')+'<label class="lm-day-field"><span>Calendar day link</span><input id="lm-calendar-link" type="text" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste the copied day link"></label>'+button('Import day link','calendar-import-link')+'<label class="lm-day-field"><span>Or import a downloaded calendar day file</span><input id="lm-calendar-import" type="file" accept=".json,application/json"></label></details>';
     return panel('Apple Calendar',body);
   }
   function rightNow(){
     const events=C?.active(todayISO())||[],saved=C?.snapshot(todayISO());
-    if(!events.length)return candidateCard(recommend());
+    if(!events.length){const focus=S.dayPlans?.[todayISO()]?.focus,active=focus?.kind==='ops'?opsPlanned(todayISO()).find(t=>t.id===focus.id):null,candidate=recommend(),base=S.projects.find(t=>t.id===candidate.id),chosen=opsPlanned(todayISO()).find(t=>t.status!=='Done');const ops=active?.status!=='Done'&&active?active:!(focus?.kind==='ops'?active?.status!=='Done'&&active:focus?.id)&&!['food','chore'].includes(candidate.kind)&&!(base&&(base.plan===todayISO()||base.status==='In progress'||base.due&&base.due<=todayISO()))?chosen:null;if(ops)return '<div class="lm-now-card"><div class="eyebrow">Right now · Ops Cadence</div><h2>'+esc(ops.title)+'</h2>'+help(active?'Started Ops task':ops.system||'Selected work for today')+'<div class="lm-inline">'+(!active?button('Start this task','ops-start','data-id="'+attrs(ops.id)+'"',true):'')+button('Done','ops-complete','data-id="'+attrs(ops.id)+'"')+button('View this day','view-day-task','data-id="'+attrs(ops.id)+'"')+button('Change focus','change-focus')+'</div></div>';return candidateCard(candidate);}
     const e=events[0],task=calendarTask(e);
     return '<div class="lm-now-card"><div class="eyebrow">Right now · Apple Calendar</div><h2>'+esc(e.title)+'</h2>'+help(calendarTime(e,saved.zone)+' · '+e.calendar)+(!C.fresh(todayISO())?help('Based on calendar last refreshed '+new Date(saved.refreshedAt).toLocaleTimeString()+'. Refresh today’s Board if your schedule changed.'):'')+(task?help('Linked task: '+task.task+(task.status==='Done'?' · Completed':'')):'')+(events.length>1?help(events.length+' calendar events overlap right now. Check today’s Board.'):'')+'<div class="lm-inline">'+(task&&M.open(task)?button('Open linked task','calendar-task','data-id="'+attrs(task.id)+'"',true)+button('Done','complete-task','data-id="'+attrs(task.id)+'"'):'')+button('View this day','view-day-task',task?'data-id="'+attrs(task.id)+'"':'')+'</div></div>';
   }
@@ -60,6 +77,7 @@
     html+=panel('Choose a day','<div class="lm-inline">'+button('← Previous day','day-step','data-step="-1"')+button('Next day →','day-step','data-step="1"')+'</div>'+field('Day to view',input('date',ui.date,'date')));
     if(today)html+=panel('Right now',rightNow());
     html+=calendarPanel();
+    const ops=opsPlanned();if(ops.length)html+=panel('Scheduled operations','<div class="lm-day-section-title"><h2>Operations for this day</h2>'+button('Choose Ops tasks','ops-picker')+'</div>'+ops.map(opsTaskRow).join(''));
     html+=panel('Scheduled tasks','<div class="lm-day-section-title"><h2>Scheduled for '+(today?'today':fmtDay(ui.date))+'</h2>'+button('Build this day','tab','data-tab="plan"')+'</div>'+(open.length?M.sortTasks(open,ui.date).map(dayTaskRow).join(''):help('No tasks scheduled for this day. Use Build around your day to pull in related tasks.')));
     if(deadline.length)html+=panel('Deadlines','<h2>Deadlines needing attention</h2>'+deadline.map(dayTaskRow).join(''));
     if(routines.length)html+=panel('Scheduled routines','<h2>Scheduled routines</h2>'+routines.map(c=>'<article class="lm-day-task" data-day-row-id="'+attrs(c.id)+'">'+(today?D.choreRow(c):'<strong>'+esc(c.chore)+'</strong>'+help('Scheduled for '+fmtDay(ui.date)))+'<div class="lm-inline">'+button('Remove from this day','unschedule-routine','data-id="'+attrs(c.id)+'"')+'</div></article>').join(''));
@@ -74,7 +92,7 @@
     household:['Home & maintenance','Kitchen reset, laundry and cleaning; renovations, vehicles and seasonal maintenance.','',''],
     family:['Family & relationships','Make room for time with your wife and the people you want to show up for. Keep family commitments visible.','baby-brain.html','Open Baby Brain'],
     health:['Health & morning routine','Getting ready, meditation, walking the dog and the gym. Protect these blocks before the day fills up.','workout-forge.html','Open Forge'],
-    work:['Work & personal growth','Business development, client work, filming/content and an admin wrap-up. Leave room for piano and reading too.','',''],
+    work:['Work & personal growth','Build your day from Ops Cadence, business development, client work and content.','operations-cadence.html','Open Ops Cadence'],
     admin:['Money & life admin','Budget reviews, mail, documents, renewals and appointments. Separate real deadlines from work that can wait.','chambers-wealth-hq.html','Open Wealth HQ']
   };
   const starters=[['Morning','Get ready','health',30],['Morning','Meditation','health',10],['Morning','Walk the dog','health',20],['Morning','Gym','health',60],['Work','Business development','work',60],['Work','Client requests','work',45],['Work','Content / filming','work',45],['Work','Admin & day wrap-up','work',20],['Home & evening','Kitchen & home reset','household',15],['Home & evening','Renovation / maintenance','household',45],['Home & evening','Prepare dinners','food',45],['Home & evening','Time together','family',30],['Home & evening','Piano','work',20],['Home & evening','Read before bed','rest',20],['Home & evening','Deliberate downtime','rest',60]];
@@ -82,8 +100,8 @@
     const p=plan(todayISO()),food=M.mealStatus(S.mealCoverage,todayISO()),main=S.projects.find(t=>t.id===p.mainTaskId&&M.open(t));
     const cards=[
       ['food','Food',coverageText(food),food.needsPrep?'Prep next batch':food.set?'Coverage set':'Needs a check','areas','food'],
-      ['plan','Today’s to-dos',openTasks().filter(t=>t.plan===todayISO()).length+' chosen for today',p.reviewed?'Reviewed':'Review your day','plan',''],
-      ['day','Day view',scheduled(todayISO()).filter(M.open).length+' scheduled tasks remaining','Open today’s Board','board',''],
+      ['plan','Today’s to-dos',(openTasks().filter(t=>t.plan===todayISO()).length+opsPlanned(todayISO()).filter(t=>t.status!=='Done').length)+' chosen for today',p.reviewed?'Reviewed':'Review your day','plan',''],
+      ['day','Day view',(scheduled(todayISO()).filter(M.open).length+opsPlanned(todayISO()).filter(t=>t.status!=='Done').length)+' scheduled tasks remaining','Open today’s Board','board',''],
       ['home','Household',S.chores.filter(c=>!c.archived&&M.categoryFor(c)==='household'&&!isChecked(c)&&(c.cad==='Daily'||plannedToday(c)||c.repeat&&M.choreDue(c,todayISO())<=todayISO())).length+' essential routines open','Check the basics','areas','household']
     ];
     return '<div class="lm-foundation-grid">'+cards.map(([key,title,text,state,tab,category])=>'<button type="button" class="btn lm-foundation" data-day="tab" data-tab="'+tab+'" data-category="'+category+'"'+(key==='food'&&food.needsPrep?' data-attention="true"':'')+'><span class="eyebrow">'+title+'</span><strong>'+esc(text)+'</strong><small>'+esc(state)+' ›</small></button>').join('')+'</div>';
@@ -129,13 +147,14 @@
     const tasks=M.sortTasks(openTasks().filter(p=>M.categoryFor(p)===key),todayISO()),chores=S.chores.filter(c=>!c.archived&&M.categoryFor(c)===key);
     let html=heading('Life areas',title,button('+ Task','area-task','data-category="'+key+'"',true));
     html+='<div class="lm-category-tabs" role="tablist" aria-label="Life categories">'+M.categories.map(([k,t])=>'<button class="btn lm-day-button" id="lm-category-'+k+'" type="button" role="tab" aria-controls="lm-category-content" aria-selected="'+(key===k)+'" tabindex="'+(key===k?0:-1)+'" data-day="category" data-category="'+k+'">'+t+'</button>').join('')+'</div>';
-    html+='<section id="lm-category-content" role="tabpanel" aria-labelledby="lm-category-'+key+'">'+panel(title+' overview','<h2>'+guides[key][0]+'</h2>'+help(guides[key][1])+(guides[key][2]?'<a class="btn lm-day-button" href="'+guides[key][2]+'">'+guides[key][3]+' ↗</a>':''))+(key==='food'?foodView():'')+panel(title+' tasks','<h2>Tasks & projects</h2>'+(tasks.length?tasks.map(p=>D.taskRow(p)).join(''):help('No open tasks in this category.')))+panel(title+' routines','<div class="lm-day-section-title"><h2>Recurring responsibilities</h2>'+button('+ Routine','area-routine','data-category="'+key+'"')+'</div>'+(chores.length?chores.map(c=>D.choreRow(c)).join(''):help('No routines recorded here yet. Add what actually needs repeating in your life.')))+'</section>';
+    html+='<section id="lm-category-content" role="tabpanel" aria-labelledby="lm-category-'+key+'">'+panel(title+' overview','<h2>'+guides[key][0]+'</h2>'+help(guides[key][1])+(guides[key][2]?'<a class="btn lm-day-button" href="'+guides[key][2]+'">'+guides[key][3]+' ↗</a>':''))+(key==='food'?foodView():key==='work'?opsPicker():'')+panel(title+' tasks','<h2>Tasks & projects</h2>'+(tasks.length?tasks.map(p=>D.taskRow(p)).join(''):help('No open tasks in this category.')))+panel(title+' routines','<div class="lm-day-section-title"><h2>Recurring responsibilities</h2>'+button('+ Routine','area-routine','data-category="'+key+'"')+'</div>'+(chores.length?chores.map(c=>D.choreRow(c)).join(''):help('No routines recorded here yet. Add what actually needs repeating in your life.')))+'</section>';
     return html;
   }
   function planView(){
     let html=heading('Choose what belongs in your day','Build around your day',button('Today','plan-today'));
     html+=panel('Schedule onto a day',field('Schedule tasks for',input('date',ui.date,'date'))+help('Choose a life area below to find related tasks and routines. Schedule them onto this date; use your calendar for times.')+button('View this day’s Board','view-selected-day'));
-    html+=panel('Build around your life','<h2>Build around your day</h2>'+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+starters.map((row,i)=>row[0]===group?button(row[1],'related-tasks','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
+    html+=panel('Build around your life','<h2>Build around your day</h2>'+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+(group==='Work'&&OPS?button('Operations Cadence','ops-picker'):'')+starters.map((row,i)=>row[0]===group?button(row[1],'related-tasks','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
+    if(ui.opsOpen)html+=opsPicker();
     if(ui.related!==null){
       const row=starters[ui.related],queries=[/get ready|morning|prepar/,/meditat/,/dog|hudson|walk/,/gym|workout|train|exercise/,/business development|prospect|outreach/,/client|request/,/content|film|video/,/admin|wrap|email/,/kitchen|reset|tidy/,/renovat|repair|maintenance/,/meal|dinner|prep|grocery/,/wife|johanna|together|date night|relationship/,/piano|music/,/read|book/,/leisure|downtime|hobby/],all=openTasks().filter(t=>t.status!=='Waiting'),availableRoutines=S.chores.filter(c=>!c.archived),match=t=>queries[ui.related].test([t.task,t.chore,t.sub,t.notes].filter(Boolean).join(' ').toLowerCase());
       const exact=all.filter(match),exactRoutines=availableRoutines.filter(match),fallback=!exact.length&&!exactRoutines.length,tasks=M.sortTasks(fallback?all.filter(t=>M.categoryFor(t)===row[2]):exact,ui.date),routines=fallback?availableRoutines.filter(c=>M.categoryFor(c)===row[2]):exactRoutines;
@@ -146,10 +165,16 @@
   }
   function handle(action,el){
     const id=el.dataset.id;
+    if(action==='ops-picker'){ui.opsOpen=true;if(ui.tab==='board')ui.tab='plan';render();document.querySelector('[aria-label="Operations Cadence"]')?.scrollIntoView({block:'start'});return;}
+    if(action==='ops-add'){const ids=[...ui.opsPicks];return opsChange(()=>OPS.scheduleMany(ids,ui.date),ids.length+' Ops tasks added to '+fmtDay(ui.date),true);}
+    if(action==='ops-today')return opsChange(()=>OPS.schedule(id,todayISO()),'Ops task moved to today');
+    if(action==='ops-remove')return opsChange(()=>OPS.remove(id,ui.date),'Ops task removed from this day');
+    if(action==='ops-complete')return opsChange(()=>OPS.complete(id,ui.tab==='home'?todayISO():ui.date),'Ops task completed');
+    if(action==='ops-start'){const t=opsFind(id,todayISO());if(!t||!t.selected||t.status==='Done')throw Error('Choose an open Ops task scheduled for today.');return commit(next=>editPlan(next,todayISO(),p=>{p.focus={kind:'ops',id};}),'Ops focus started',()=>{ui.tab='home';ui.reset=false;});}
     if(action==='calendar-open')return C.open(ui.date);
     if(action==='calendar-import-link'){C.importLink(document.getElementById('lm-calendar-link').value.trim());ui.error='';return render();}
-    if(action==='calendar-schedule'){const task=S.projects.find(t=>t.id===id&&!t.archived);if(task)C.open(ui.date,task);return;}
-    if(action==='calendar-task'){const task=S.projects.find(t=>t.id===id&&!t.archived);if(task)return W.openEditor('proj',{...task});return;}
+    if(action==='calendar-schedule'){const task=S.projects.find(t=>t.id===id&&!t.archived)||opsFind(id);if(task)C.open(ui.date,task);return;}
+    if(action==='calendar-task'){const task=S.projects.find(t=>t.id===id&&!t.archived);if(task)return W.openEditor('proj',{...task});if(opsFind(id)){choose('board');app.querySelector('[data-ops-row-id="'+CSS.escape(id)+'"]')?.scrollIntoView({block:'center'});}return;}
     if(action==='calendar-link'){ui.calendarLink=el.dataset.event;render();document.getElementById('lm-calendar-task')?.focus();return;}
     if(action==='calendar-link-cancel'){ui.calendarLink=null;render();return;}
     if(action==='calendar-save-link'){const eventId=ui.calendarLink,taskId=document.getElementById('lm-calendar-task').value;return commit(next=>{next.calendarLinks=(next.calendarLinks||[]).filter(x=>x.eventId!==eventId);next.calendarLinks.push({eventId,taskId});},'Calendar task linked',()=>{ui.calendarLink=null;},{undo:false});}
@@ -160,7 +185,7 @@
     if(action==='reset'){ui.reset=true;return commit(next=>editPlan(next,todayISO(),p=>{delete p.focus;}),'Ready to restart');}
     if(action==='reset-close'){ui.reset=false;render();return;}
     if(action==='change-focus')return commit(next=>editPlan(next,todayISO(),p=>{delete p.focus;}),'Focus cleared',()=>{ui.tab='plan';ui.date=todayISO();});
-    if(action==='complete-task')return D.setStatus(id,'Done');
+    if(action==='complete-task'){if(opsFind(id,ui.tab==='home'?todayISO():ui.date))return opsChange(()=>OPS.complete(id,ui.tab==='home'?todayISO():ui.date),'Ops task completed');return D.setStatus(id,'Done');}
     if(action==='focus')return commit(next=>editPlan(next,todayISO(),p=>{if(el.dataset.kind==='task'){const task=next.projects.find(t=>t.id===id&&M.open(t)&&t.status!=='Waiting');if(!task)throw Error('Choose an available task.');task.inbox=false;task.plan=todayISO();}p.focus={kind:el.dataset.kind,id};}),'Focus started',()=>{ui.tab='home';ui.reset=false;});
     if(action==='complete-routine')return D.choreAction(id,'done');
     if(action==='new-todo')return W.openEditor('proj',{task:'',status:'Not started',pri:'Med',inbox:false,plan:ui.date});
@@ -211,7 +236,7 @@
     else ui[scope]=el.value;
     recordUI();
   });
-  app.addEventListener('change',event=>{const key=event.target.dataset?.dayField;if(key==='date'){if(M.validDate(ui.date)){ui.main=null;ui.block=null;recordUI();render();}}else if(key==='available')render();});
+  app.addEventListener('change',event=>{const key=event.target.dataset?.dayField;if(key==='date'){if(M.validDate(ui.date)){ui.main=null;ui.block=null;ui.opsPicks.clear();recordUI();render();}}else if(key==='available'||key==='opsCadence')render();if(event.target.dataset?.opsPick){const id=event.target.dataset.opsPick;if(event.target.checked)ui.opsPicks.add(id);else ui.opsPicks.delete(id);const btn=app.querySelector('[data-day="ops-add"]');if(btn){btn.disabled=!ui.opsPicks.size;btn.textContent='Add selected to day'+(ui.opsPicks.size?' · '+ui.opsPicks.size:'');}}});
   app.addEventListener('keydown',event=>{
     const el=event.target.closest?.('[role="tab"][data-day]');if(!el||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
     event.preventDefault();const buttons=[...el.parentNode.querySelectorAll('[role="tab"]')],i=buttons.indexOf(el),j=event.key==='Home'?0:event.key==='End'?buttons.length-1:(i+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;buttons[j].click();
@@ -220,7 +245,9 @@
 
   window.addEventListener('lifemap-calendar-update',event=>{if(event.detail?.imported&&M.validDate(event.detail.day)){ui.date=event.detail.day;ui.tab='board';ui.records=false;}if(!view.editor)render();});
   window.addEventListener('hashchange',()=>{readRoute();if(!view.editor)render();});
-  window.addEventListener('lifemap-calendar-scheduled',event=>{const value=event.detail;if(!value||!M.validDate(value.day))return;commit(next=>{const t=next.projects.find(t=>t.id===value.taskId&&!t.archived);if(t)M.setPlan(t,value.day,todayISO());},'Task scheduled in Apple Calendar',()=>{ui.date=value.day;ui.tab='board';ui.records=false;},{undo:false});});
+  window.addEventListener('lifemap-calendar-scheduled',event=>{const value=event.detail;if(!value||!M.validDate(value.day))return;if(opsFind(value.taskId,value.day)){try{ui.date=value.day;ui.tab='board';ui.records=false;opsChange(()=>OPS.schedule(value.taskId,value.day),'Ops task scheduled in Apple Calendar',false);}catch(e){ui.error='The calendar event was saved, but its Ops date could not be saved: '+e.message;render();}return;}commit(next=>{const t=next.projects.find(t=>t.id===value.taskId&&!t.archived);if(t)M.setPlan(t,value.day,todayISO());},'Task scheduled in Apple Calendar',()=>{ui.date=value.day;ui.tab='board';ui.records=false;},{undo:false});});
+  window.addEventListener('storage',event=>{if(OPS&&event.key===OPS.key&&!view.editor)render();});
+  document.addEventListener('visibilitychange',()=>{if(OPS&&!document.hidden&&!view.editor)render();});
   app.addEventListener('change',event=>{if(event.target.id!=='lm-calendar-import'||!event.target.files[0])return;C.importDay(event.target.files[0]).then(day=>{ui.date=day;ui.error='';render();}).catch(e=>{ui.error=e.message;render();});});
   setInterval(()=>{if(!document.hidden&&!view.editor&&ui.tab==='home'&&!app.querySelector('input:focus,textarea:focus,select:focus'))render();},60000);
   window.LifeMapDay=Object.freeze({choose,showRecords:()=>{ui.tab='board';ui.records=true;render();},get view(){return ui.tab;},get category(){return ui.category;}});

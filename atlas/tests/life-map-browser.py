@@ -488,7 +488,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.state()['projects'],original['projects'])
         self.assertFalse(self.errors)
 
-    def test_apple_calendar_private_popup_schedules_existing_task(self):
+    def _calendar_schedules_existing_task(self,ops=False):
         private='https://atlas-os-quinton.qchambers123018.chatgpt.site'
         saved=[]
         snapshot=dict(day=TODAY,zone='America/Winnipeg',refreshedAt='2026-09-17T18:00:00.000Z',events=[])
@@ -509,10 +509,13 @@ class LifeMapBrowser(unittest.TestCase):
                 route.fulfill(status=200,content_type='text/html',body=html);return
             route.fulfill(status=200,content_type='application/json',body=json.dumps(body))
         self.ctx.route(private+'/**',mock)
-        self.load(board([task('p1',task='Walk Hudson',plan=TODAY,due='2026-10-30')]),home=True)
+        value=board([task('p1',task='Walk Hudson',plan=TODAY,due='2026-10-30')])
+        self.load(storage={'lifemap_v1':json.dumps(value),'operationsCadence.v1':json.dumps({'overrides':{'daily:0':'Walk Hudson'},'daily:0':{'note':'Keep Ops notes'},'sched':{'daily:0':TODAY}})},home=True)
+        task_id='ops:daily:0' if ops else 'p1'
+        before=self.storage()['lifemap_v1']
         self.page.locator('#lm-day-nav-board').click()
         with self.page.expect_popup() as opened:
-            self.page.locator('[data-day="calendar-schedule"][data-id="p1"]').click()
+            self.page.locator('[data-day="calendar-schedule"][data-id="'+task_id+'"]').click()
         popup=opened.value
         popup.wait_for_selector('#schedule-panel:not([hidden])')
         self.assertEqual(popup.locator('#task-title').input_value(),'Walk Hudson')
@@ -524,14 +527,110 @@ class LifeMapBrowser(unittest.TestCase):
         popup.locator('#schedule-form button').click()
         self.page.wait_for_function('LifeMapCalendar.snapshot("2026-09-17")?.events.length===1')
         self.assertEqual(self.page.get_by_role('button',name='Undo',exact=True).count(),0)
-        self.assertEqual(saved[0]['taskId'],'p1')
+        self.assertEqual(saved[0]['taskId'],task_id)
         self.assertEqual(saved[0]['calendarId'],'a'*32)
         self.assertIn('Walk Hudson',self.page.locator('[aria-label="Apple Calendar"]').inner_text())
         self.assertEqual(self.state()['projects'][0]['due'],'2026-10-30')
+        if ops:
+            self.assertEqual(self.storage()['lifemap_v1'],before)
+            self.assertEqual(json.loads(self.storage()['operationsCadence.v1'])['sched']['daily:0'],TODAY)
+            self.assertIn('Linked task: Walk Hudson',self.page.locator('[aria-label="Apple Calendar"]').inner_text())
         out=ROOT/'artifacts/life-map-tests';out.mkdir(parents=True,exist_ok=True)
         self.page.screenshot(path=str(out/f'{BROWSER}-apple-calendar-board.png'),full_page=True)
         popup.screenshot(path=str(out/f'{BROWSER}-apple-calendar-private.png'),full_page=True)
         popup.close()
+        self.assertFalse(self.errors)
+
+    def test_apple_calendar_private_popup_schedules_existing_task(self):
+        self._calendar_schedules_existing_task()
+
+    def test_apple_calendar_private_popup_schedules_ops_source_task(self):
+        self._calendar_schedules_existing_task(ops=True)
+
+    def test_ops_picker_builds_day_without_duplicating_records(self):
+        original=board([task('keep',task='Client proposal',area='Work — Content',due='2026-10-30',notes='Keep my notes')])
+        ops={'custom':{'monthly':[{'cid':'cone','t':'Custom compliance review','sys':'CRM'}]},'overrides':{'daily:0':'My morning review'},'daily:0':{'note':'Keep Ops notes'},'log':[{'id':'lone','text':'One-off account follow-up','due':'2026-09-21','done':False,'category':'Client Service'}],'extra':{'keep':True}}
+        self.load(storage={'lifemap_v1':json.dumps(original),'operationsCadence.v1':json.dumps(ops)},home=True)
+        initial=self.storage()
+        self.page.locator('#lm-day-nav-areas').click()
+        self.page.locator('#lm-category-work').click()
+        self.assertEqual(self.storage()['operationsCadence.v1'],initial['operationsCadence.v1'])
+        self.assertEqual(self.storage()['lifemap_v1'],initial['lifemap_v1'])
+        self.page.locator('[data-ops-pick="ops:daily:0"]').check()
+        for cadence,id in [('weekly','ops:weekly:0'),('monthly','ops:monthly:cone'),('adhoc','ops:log:lone')]:
+            self.page.locator('#lm-day-field-opsCadence').select_option(cadence)
+            self.page.locator('[data-ops-pick="'+id+'"]').check()
+        self.assertIn('Deadline',self.page.locator('[data-ops-pick="ops:log:lone"]').locator('..').inner_text())
+        self.assertIn('4',self.page.locator('[data-day="ops-add"]').inner_text())
+        self.page.locator('[data-day="ops-add"]').click()
+        saved=json.loads(self.storage()['operationsCadence.v1'])
+        self.assertEqual(saved['sched'],{'daily:0':TODAY,'weekly:0':TODAY,'monthly:cone':TODAY,'log:lone':TODAY})
+        for key in ops:self.assertEqual(saved[key],ops[key])
+        self.assertEqual(self.storage()['lifemap_v1'],initial['lifemap_v1'])
+        self.page.locator('[data-day="view-selected-day"]').click()
+        self.assertEqual(self.page.locator('[data-ops-row-id]').count(),4)
+        self.page.locator('[data-day="ops-start"][data-id="ops:daily:0"]').click()
+        self.assertIn('My morning review',self.page.locator('.lm-now-card').inner_text())
+        self.assertEqual(self.state()['projects'],original['projects'])
+        self.assertEqual(self.state()['dayPlans'][TODAY]['focus'],{'kind':'ops','id':'ops:daily:0'})
+        self.page.locator('[data-day="ops-complete"][data-id="ops:daily:0"]').click()
+        done=json.loads(self.storage()['operationsCadence.v1'])
+        self.assertTrue(done['daily:0']['done'])
+        self.assertEqual(done['daily:0']['note'],'Keep Ops notes')
+        self.assertEqual(done['events'][-1]['planDate'],TODAY)
+        self.assertNotIn('daily:0',done['sched'])
+        self.assertEqual(self.state()['projects'],original['projects'])
+        self.page.locator('#undoToast button').click()
+        self.assertEqual(json.loads(self.storage()['operationsCadence.v1']),saved)
+        self.page.locator('#lm-day-nav-areas').click()
+        self.page.locator('#lm-category-work').click()
+        self.page.locator('#lm-day-field-date').fill('2026-09-21')
+        self.page.locator('#lm-day-field-opsCadence').select_option('daily')
+        self.page.locator('[data-ops-pick="ops:daily:0"]').check()
+        self.page.locator('[data-day="ops-add"]').click()
+        self.assertEqual(json.loads(self.storage()['operationsCadence.v1'])['sched']['daily:0'],'2026-09-21')
+        self.assertEqual(len(json.loads(self.storage()['operationsCadence.v1'])['sched']),4)
+        for theme in ['light','dark']:
+            self.page.evaluate('(theme)=>AtlasAppearance.set(theme)',theme)
+            for width,height in [(320,740),(393,852),(844,390)]:
+                self.page.set_viewport_size(dict(width=width,height=height))
+                self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),width+1)
+                errors=self.page.locator('.lm-ops-choice').evaluate_all("""els=>els.flatMap(el=>{
+                    const r=el.getBoundingClientRect(),box=el.querySelector('input').getBoundingClientRect(),text=el.querySelector('span').getBoundingClientRect();
+                    return r.height<44||text.left-box.right<12||text.right>r.right-10?['tight Ops row']:[];
+                })""")
+                self.assertEqual(errors,[],f'{theme} {width} Ops picker')
+        out=ROOT/'artifacts/life-map-tests';out.mkdir(parents=True,exist_ok=True)
+        self.page.set_viewport_size(dict(width=393,height=852))
+        self.page.screenshot(path=str(out/f'{BROWSER}-ops-picker.png'),full_page=True)
+        self.assertFalse(self.errors)
+
+    @unittest.skipIf(OFFLINE,'Two real tabs require the local HTTP origin')
+    def test_ops_source_completion_refreshes_life_map_day(self):
+        source={'__periodsV1':True,'sched':{'weekly:0':TODAY},'weekly:0':{'note':'Preserve this note'}}
+        self.load(storage={'lifemap_v1':json.dumps(board()),'operationsCadence.v1':json.dumps(source)},home=True)
+        self.page.locator('#lm-day-nav-board').click()
+        self.assertEqual(self.page.locator('[data-ops-row-id="ops:weekly:0"]').count(),1)
+        other=self.ctx.new_page();other.set_default_timeout(5000)
+        other.clock.set_fixed_time(dt.datetime(2026,9,17,18,tzinfo=dt.timezone.utc))
+        other.on('pageerror',lambda e:self.errors.append(str(e)))
+        other.goto(BASE+'/operations-cadence.html',wait_until='networkidle')
+        other.evaluate("active='weekly';render();")
+        other.locator('#taskList .check').first.click()
+        self.page.wait_for_function("JSON.parse(localStorage.getItem('operationsCadence.v1')).events?.some(e=>e.key==='weekly:0'&&e.planDate==='2026-09-17')")
+        self.page.wait_for_function("document.querySelector('[data-ops-row-id=\"ops:weekly:0\"]')?.textContent.includes('Completed')")
+        actual=json.loads(self.storage()['operationsCadence.v1'])
+        self.assertNotIn('weekly:0',actual['sched'])
+        self.assertEqual(actual['weekly:0']['note'],'Preserve this note')
+        self.assertEqual(self.state()['projects'],[])
+        self.page.locator('#lm-day-nav-areas').click();self.page.locator('#lm-category-work').click()
+        self.page.locator('#lm-day-field-opsCadence').select_option('weekly')
+        self.assertTrue(self.page.locator('[data-ops-pick="ops:weekly:0"]').is_disabled())
+        self.page.locator('#lm-day-field-date').fill('2026-09-21')
+        self.assertFalse(self.page.locator('[data-ops-pick="ops:weekly:0"]').is_disabled())
+        self.page.locator('[data-ops-pick="ops:weekly:0"]').check();self.page.locator('[data-day="ops-add"]').click()
+        other.wait_for_function("state.sched?.['weekly:0']==='2026-09-21'")
+        other.close()
         self.assertFalse(self.errors)
 
     def test_life_areas_routines_and_personal_day_starters(self):
