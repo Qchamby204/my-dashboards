@@ -15,7 +15,9 @@ test('the shipped Life Map script boots with saved data and its editor sends cha
     raw.planned={older:'2026-08-01'};
     raw.projects=[{id:'project-one',task:'A room plan',area:'Home',status:'Not started',notes:'Original note',pri:'High',sub:'',due:''}];
     const window={AtlasConnected:{raw:()=>JSON.stringify(raw),save:s=>saves.push(structuredClone(s)),commit:s=>{saves.push(structuredClone(s));return true;}},addEventListener(){},scrollTo(){},innerWidth:1200};
-    const context=vm.createContext({window,document,navigator:{},location:{href:'https://atlas.test/apps/'+kind},URL,Date,Blob,TextEncoder,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});
+    const location={href:'https://atlas.test/apps/'+kind,origin:'https://atlas.test',pathname:'/apps/'+kind,search:'',hash:''};
+    const history={replaceState(_state,_title,path){const url=new URL(path,location.href);Object.assign(location,{href:url.href,hash:url.hash});}};
+    const context=vm.createContext({window,document,navigator:{},location,history,URLSearchParams,URL,Date,Blob,TextEncoder,setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame:f=>f()});
     vm.runInContext(connected['/connected/'+kind+'-main.js'][0],context);await tick();assert.equal(typeof window.acceptConnectedState,'function');assert.equal(saves.length,0);assert.equal(vm.runInContext('S.planned.older',context),'2026-08-01');
     {
       vm.runInContext("view.editor=Object.assign({kind:'proj'},S.projects[0],{status:'Done'});saveEditor()",context);assert.equal(saves.at(-1).projects[0].status,'Done');assert.equal(saves.at(-1).projects[0].notes,'Original note');
@@ -81,4 +83,3 @@ test('rejected transactional commit preserves prior records and version',async()
  await h.reply(1,{error:'Another device saved first'},409);assert.equal(await saved,false);assert.deepEqual(JSON.parse(h.window.AtlasConnected.raw()),original);
  const retry=h.window.AtlasConnected.commit(next);assert.equal(JSON.parse(h.pending[2].options.body).version,'v1');await h.reply(2,{saved:true,version:'v2'});assert.equal(await retry,true);
 });
-
