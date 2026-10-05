@@ -44,7 +44,7 @@ test('invalid or stale selections, corrupt storage, quota failure and future com
 test('Ops completion history retains the selected day after its scheduling enhancement spends the pin',()=>{
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1],date=class extends Date{constructor(...args){super(...(args.length?args:[clock()]));}static now(){return clock();}};
  const context={Date:date,Map,Math,state:{sched:{'weekly:0':today},'weekly:0':{note:'Keep this'}}};
- const source="const lifeMapCompletedPins=new Map();function keyFor(sid,i){return sid+':'+i;}function save(){}function getEvents(){return state.events??=[];}"+script.slice(script.indexOf('function isoDay('),script.indexOf('/* One-time:'))+script.slice(script.indexOf('function addEvent('),script.indexOf('// Read changes made in Life Map'));
+ const source=script.match(/function parseDate\(s\) \{[^\n]+/)[0]+"const lifeMapCompletedPins=new Map();function keyFor(sid,i){return sid+':'+i;}function save(){}function getEvents(){return state.events??=[];}"+script.slice(script.indexOf('function isoDay('),script.indexOf('/* One-time:'))+script.slice(script.indexOf('function addEvent('),script.indexOf('// Read changes made in Life Map'));
  vm.createContext(context);vm.runInContext(source,context);vm.runInContext("set('weekly',0,{done:true});delete state.sched['weekly:0'];addEvent({kind:'cadence',cadence:'weekly',key:'weekly:0',label:'Weekly review'});",context);
  assert.equal(context.state.events[0].planDate,today);assert.equal(context.state['weekly:0'].note,'Keep this');assert.equal(context.state['weekly:0'].p,'W2026-09-14');
 });
