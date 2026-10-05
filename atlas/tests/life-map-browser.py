@@ -428,7 +428,7 @@ class LifeMapBrowser(unittest.TestCase):
             self.page.evaluate('(theme)=>window.AtlasAppearance.set(theme)',theme)
             for width in [320,393]:
                 self.page.set_viewport_size({'width':width,'height':852})
-                for tab in ['home','plan','areas']:
+                for tab in ['home','plan','areas','board']:
                     self.page.evaluate('(tab)=>window.LifeMapDay.choose(tab,"food")',tab)
                     if tab=='plan':
                         self.page.locator('.lm-block-editor').evaluate_all('els=>els.forEach(el=>el.open=true)')
