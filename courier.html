@@ -275,7 +275,7 @@
     <p id="pStatus" role="status" aria-live="polite"></p>
   </div>
 </div>
-<audio id="audio" preload="none" playsinline></audio>
+<audio id="audio" preload="auto" playsinline></audio>
 
 <script>
 // ---------- constants ----------
@@ -469,6 +469,8 @@ function renderDays() {
 // ---------- playback ----------
 // One audio element keeps user-initiated playback across section changes.
 let sourceEpoch = 0, resumeListener = null, lastSave = 0;
+let playbackWanted = false, playPending = false, playBlocked = false, playbackRetry = null, interruptedRetries = 0, networkRetries = 0;
+let nextPreload = null, nextPreloadURL = '';
 const measuredDurations = new Map(Object.entries(state.durations||{}).filter(([,v])=>Number.isFinite(v)&&v>0));
 const durationKey = (d,b) => `${d.date}/${b.id}/${b.audio}`;
 function currentBlock() { return day()?.blocks.find(b => b.id === ui.current); }
@@ -499,32 +501,60 @@ function clearResume() {
   if(resumeListener)$('audio').removeEventListener('loadedmetadata',resumeListener);
   resumeListener=null;
 }
+function clearPlaybackRetry() { clearTimeout(playbackRetry);playbackRetry=null; }
+function pausePlayback() { playbackWanted=false;clearPlaybackRetry();$('audio').pause();savePosition(); }
+function enableContinuation() { ui.queue=true;state.continueNext=true;store.set('state',state);preloadNext(); }
+function preloadNext() {
+  const url=ui.queue&&ui.current?nextAudio()?.audio:'';
+  if(url===nextPreloadURL)return;
+  if(!nextPreload&&url){nextPreload=document.createElement('audio');nextPreload.preload='auto';}
+  nextPreloadURL=url||'';
+  if(nextPreload){if(url)nextPreload.src=url;else nextPreload.removeAttribute('src');nextPreload.load();}
+}
+function continueAll() {
+  ui.shortQueue=null;enableContinuation();
+  const d=day(),heard=state.listened[d?.date]||[],current=currentBlock();
+  const b=(current?.audio&&!heard.includes(current.id)?current:null)||resumeBlock()||d?.blocks.find(b=>b.audio&&!heard.includes(b.id))||d?.blocks.find(b=>b.audio);
+  if(!b){notice('This edition has no audio. Open a section to read it.');return;}
+  // Continue is never a pause toggle and never restarts an unfinished section.
+  if(ui.current===b.id&&!$('audio').error&&!$('audio').ended){requestPlay();updatePlayback();preloadNext();}
+  else play(b.id,{resume:!heard.includes(b.id),restart:true});
+}
 function playbackMessage(message) { $('pStatus').textContent=message; }
 function requestPlay() {
   const a=$('audio'),ticket=sourceEpoch;
+  playbackWanted=true;playBlocked=false;playPending=true;clearPlaybackRetry();
   playbackMessage('');
   // A denied request leaves a clear manual resume action, including on mobile.
   let attempt;try{attempt=a.play();}catch(error){attempt=Promise.reject(error);}
-  return Promise.resolve(attempt).catch(error=>{
-    if(ticket!==sourceEpoch||error?.name==='AbortError')return;
+  return Promise.resolve(attempt).then(()=>{if(ticket===sourceEpoch){playPending=false;updatePlayback();}},error=>{
+    if(ticket!==sourceEpoch)return;
+    playPending=false;
+    if(!playbackWanted)return;
+    if(error?.name==='AbortError'){
+      playbackMessage('Loading the next section…');
+      // A source handoff can interrupt play(). Retry once, then let canplay resume it.
+      if(interruptedRetries++===0)playbackRetry=setTimeout(()=>{if(ticket===sourceEpoch&&playbackWanted&&!playBlocked)requestPlay();},250);
+      return;
+    }
+    playBlocked=true;
     playbackMessage(error?.name==='NotAllowedError' ? 'Tap Play to continue listening.' : 'This audio could not play. Try Play again, or choose Next.');
     updatePlayback();
   });
 }
-function play(id,{resume=true,restart=false}={}) {
+function play(id,{resume=true,restart=false,retry=false}={}) {
   const d=day(),b=d?.blocks.find(x=>x.id===id),a=$('audio');
   if(!b)return;
   if(ui.shortQueue&&!ui.shortQueue.includes(id))ui.shortQueue=null;
   if(!b.audio){ui.open=id;render();return;}
   if(ui.current===id&&!restart&&!a.error){
-    if(a.paused||a.ended)requestPlay();else{a.pause();savePosition();}
+    if(a.paused||a.ended)requestPlay();else pausePlayback();
     updatePlayback();return;
   }
-  savePosition();clearResume();sourceEpoch++;
+  savePosition();clearResume();clearPlaybackRetry();sourceEpoch++;interruptedRetries=0;if(!retry)networkRetries=0;playBlocked=false;
   ui.current=id;ui.open=id;
   state.lastPlayed={day:d.date,id};store.set('state',state);
   const ticket=sourceEpoch,pos=resume?Number(state.positions[posKey(d.date,id)])||0:0;
-  a.src=b.audio;a.playbackRate=state.rate;
   resumeListener=()=>{
     if(ticket!==sourceEpoch)return;
     clearResume();
@@ -537,15 +567,16 @@ function play(id,{resume=true,restart=false}={}) {
     updatePlayback();
   };
   a.addEventListener('loadedmetadata',resumeListener);
+  a.src=b.audio;a.playbackRate=state.rate;
   $('player').classList.add('on');
   $('pNow').textContent=`${b.label}: ${b.title}`;
   updateMediaMetadata();
-  requestPlay();render();
+  requestPlay();preloadNext();render();
 }
 function next() {
   const b=nextAudio();
   if(b)play(b.id,{resume:false});
-  else{$('audio').pause();updatePlayback();}
+  else{pausePlayback();updatePlayback();}
 }
 function playbackTiming() {
   const d=day(),b=currentBlock(),a=$('audio');if(!d||!b)return null;
@@ -554,7 +585,7 @@ function playbackTiming() {
   const elapsed=Math.max(0,Math.min(Number(a.currentTime)||0,duration??Infinity));
   const rate=Number(a.playbackRate)>0?Number(a.playbackRate):1;
   const later=d.blocks.slice(d.blocks.findIndex(x=>x.id===b.id)+1).filter(x=>x.audio&&(!ui.shortQueue||ui.shortQueue.includes(x.id)));
-  const lengths=[b,...later].map(x=>measuredDurations.get(durationKey(d,x))??null);
+  const lengths=[b,...later].map(x=>measuredDurations.get(durationKey(d,x))||(Number(x.durationSeconds)>0?Number(x.durationSeconds):null));
   const estimated=lengths.some(x=>x===null);
   const total=[b,...later].reduce((sum,x,i)=>sum+(lengths[i]??Math.max(0,Number(x.minutes)||0)*60),0);
   return {elapsed,duration,rate,remaining:duration===null?null:Math.max(0,duration-elapsed)/rate,
@@ -593,11 +624,12 @@ function updateMediaPosition(t) {
 function wireMediaControls() {
   const session=globalThis.navigator?.mediaSession;if(!session?.setActionHandler)return;
   const seek=seconds=>{const a=$('audio');if(Number.isFinite(a.duration)&&a.duration>0&&Number.isFinite(seconds)){a.currentTime=Math.max(0,Math.min(a.duration,seconds));onTick();savePosition();}};
-  const handlers={play:()=>{if(ui.current&&($('audio').paused||$('audio').error))play(ui.current);},pause:()=>{$('audio').pause();savePosition();},
+  const handlers={play:()=>{if(ui.current&&($('audio').paused||$('audio').error))play(ui.current);},pause:pausePlayback,
     nexttrack:next,seekbackward:event=>seek($('audio').currentTime-(event.seekOffset||15)),seekforward:event=>seek($('audio').currentTime+(event.seekOffset||15)),seekto:event=>seek(event.seekTime)};
   for(const [action,handler]of Object.entries(handlers)){try{session.setActionHandler(action,handler);}catch{}}
 }
 function onTick() {
+  if($('audio').ended){onEnded();return;}
   updatePlayback();
   if(Date.now()-lastSave>5000){lastSave=Date.now();savePosition();}
 }
@@ -608,7 +640,7 @@ function onEnded() {
   const positions={...state.positions};delete positions[posKey(d.date,ui.current)];
   setState({listened,positions});
   if(ui.queue&&nextAudio())next();
-  else{updatePlayback();playbackMessage(nextAudio()?'Section finished. Choose Next when you are ready.':'End of this edition’s audio.');}
+  else{playbackWanted=false;clearPlaybackRetry();updatePlayback();playbackMessage(nextAudio()?'Section finished. Choose Next when you are ready.':'End of this edition’s audio.');}
 }
 
 // ---------- event wiring ----------
@@ -637,30 +669,41 @@ function wireEvents() {
     if (sec) sec.scrollIntoView({ behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth", block: 'center' });
   });
   $('day').addEventListener('change', e => {
-    const a = $('audio'); savePosition();clearResume();sourceEpoch++;a.pause();ui.current=null;a.removeAttribute('src');a.load();
+    const a = $('audio'); pausePlayback();clearResume();sourceEpoch++;playPending=false;ui.current=null;a.removeAttribute('src');a.load();preloadNext();
     playbackMessage('');ui.current = null; ui.shortQueue=null; ui.day = e.target.value; ui.open = null;
     $('player').classList.remove('on'); render();
     updateMediaMetadata();updateMediaPosition();
   });
   $('rate').addEventListener('change', e => setState({ rate: Number(e.target.value) }));
   $('shortListen').addEventListener('click',()=>{ui.shortQueue=shortQueue();ui.shortRate=state.rate;render();});
-  $('playAll').addEventListener('click', () => {ui.shortQueue=null; const first=day()?.blocks.find(b=>b.audio);if(!first){notice('This edition has no audio. Open a section to read it.');return;}ui.queue=true;play(first.id,{resume:false,restart:true}); });
+  $('playAll').addEventListener('click', continueAll);
   $('resumeListening').addEventListener('click',()=>{const b=resumeBlock();if(b&&(ui.current!==b.id||$('audio').paused||$('audio').error))play(b.id);});
   $('pToggle').addEventListener('click', () => { if(ui.current)play(ui.current); });
-  $('pContinue').addEventListener('change',e=>{ui.queue=e.target.checked;state.continueNext=ui.queue;store.set('state',state);});
+  $('pContinue').addEventListener('change',e=>{ui.queue=e.target.checked;state.continueNext=ui.queue;store.set('state',state);preloadNext();});
   $('pNext').addEventListener('click', next);
   $('pSeek').addEventListener('input', e => { const a = $('audio'); if (Number.isFinite(a.duration)&&a.duration>0){a.currentTime=e.target.value/1000*a.duration;updatePlayback();savePosition();} });
   const a = $('audio');
   a.addEventListener('timeupdate', onTick); a.addEventListener('ended', onEnded);
   a.addEventListener('play',()=>{playbackMessage('');render();});
-  a.addEventListener('pause',()=>{savePosition();render();});
+  a.addEventListener('pause',()=>{if(!a.ended&&!playPending){playbackWanted=false;clearPlaybackRetry();}savePosition();render();});
   a.addEventListener('durationchange',updatePlayback);a.addEventListener('ratechange',updatePlayback);a.addEventListener('seeked',onTick);
-  a.addEventListener('error',()=>{if(ui.current){playbackMessage('This audio is unavailable. Try Play again, or choose Next.');updatePlayback();}});
+  a.addEventListener('error',()=>{
+    if(!ui.current)return;
+    const ticket=sourceEpoch,b=currentBlock(),position=Number(a.currentTime)||Number(state.positions[posKey(ui.day,ui.current)])||0;
+    if(playbackWanted&&a.error?.code===2&&networkRetries++===0){
+      state.positions[posKey(ui.day,ui.current)]=position;playbackMessage('Connection interrupted. Retrying this section…');
+      playbackRetry=setTimeout(()=>{if(ticket===sourceEpoch&&playbackWanted)play(b.id,{resume:true,restart:true,retry:true});},500);
+    }else if(playbackWanted&&ui.queue&&nextAudio()){
+      playbackMessage('Audio unavailable. Continuing to the next section…');
+      playbackRetry=setTimeout(()=>{if(ticket===sourceEpoch&&playbackWanted&&ui.queue){notice('Could not play '+escapeText(b.label)+'. It remains unheard; you can retry it later.');next();}},500);
+    }else{playBlocked=true;playbackMessage('This audio is unavailable. Try Play again, or choose Next.');updatePlayback();}
+  });
   a.addEventListener('waiting',()=>{if(ui.current&&!a.paused)playbackMessage('Buffering audio…');});
-  a.addEventListener('playing',()=>{playbackMessage('');updatePlayback();});
+  a.addEventListener('canplay',()=>{if(playbackWanted&&!playPending&&!playBlocked&&a.paused)requestPlay();});
+  a.addEventListener('playing',()=>{playPending=false;playbackMessage('');updatePlayback();preloadNext();});
   wireMediaControls();
   window.addEventListener('pagehide',savePosition);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)savePosition();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)savePosition();else if(a.ended)onEnded();else if(playbackWanted&&!playPending&&!playBlocked&&a.paused)requestPlay();});
   $('export').addEventListener('click', exportState);
   $('importBtn').addEventListener('click', () => $('importFile').click());
   $('importFile').addEventListener('change', e => { if (e.target.files[0]) importState(e.target.files[0]); e.target.value = ''; });
@@ -709,6 +752,7 @@ async function init() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 <script type="module" src="shared/atlas-workflow.js?v=courier-practice-20260908"></script>
+<script src="shared/courier-experience.js?v=584a220ca7b2" defer></script>
 <script src="shared/atlas-refinements.js?v=54aa0f1d0514" defer></script>
 </body>
 </html>
