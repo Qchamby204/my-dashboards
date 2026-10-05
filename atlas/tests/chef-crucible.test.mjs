@@ -27,6 +27,8 @@ test('Fit Foodie imports every recipe page once and retains all 200 existing rec
   assert.deepEqual(a.json('RECIPES.filter(x=>x.source).map(x=>x.source.page)'),expected);
   assert.equal(a.run('RECIPES.length'),294);
   assert.equal(a.run('new Set(RECIPES.map(x=>x.id)).size'),294);
+  assert.equal(a.run('RECIPES.filter(x=>x.source).every(x=>x.steps.every(s=>!/^Page\\b/i.test(s)))'),true);
+  assert.equal(a.run('BY_ID["ff-002"].steps.length'),6);
   assert.equal(a.run('RECIPES.filter(x=>!x.source).length'),200);
   assert.equal(a.run('RECIPES.every(x=>x.ingredients.length&&x.steps.length&&validServings(x.servings))'),true);
   assert.equal(a.writes.length,0);
