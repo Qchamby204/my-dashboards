@@ -32,10 +32,19 @@ test('ad hoc completion preserves the true deadline and updates the Ops log',()=
 });
 test('explicit recurrence overrides a bucket and clamps dates without DST drift',()=>{
  const a=fixture({recur:{'daily:0':{kind:'weekday',wd:1}},'daily:0':{done:true,p:today,lastDone:today}});assert.equal(a.ops.find('ops:daily:0','2026-09-18').status,'Done');assert.equal(a.ops.find('ops:daily:0','2026-09-21').status,'Not started');assert.equal(a.ops.find('ops:daily:0',today).schedule,'Every Monday');
+ assert.equal(a.ops.occurrence({kind:'weekday',wd:1,start:'2026-09-21'},today),null);assert.equal(a.ops.occurrence({kind:'weekday',wd:1,start:'2026-09-21'},'2026-09-21'),'2026-09-21');
  assert.equal(a.ops.occurrence({kind:'monthday',day:31},'2026-02-28'),'2026-02-28');assert.equal(a.ops.occurrence({kind:'yearly',month:1,day:29},'2027-02-28'),'2027-02-28');assert.equal(a.ops.occurrence({kind:'everyn',n:3,anchor:'2026-03-05'},'2026-03-08'),'2026-03-08');
 });
 test('invalid or stale selections, corrupt storage, quota failure and future completion never replace records',()=>{
  const a=fixture({extra:'keep'}),raw=a.data.get(a.ops.key);assert.throws(()=>a.ops.scheduleMany(['ops:daily:0','gone'],today));assert.equal(a.data.get(a.ops.key),raw);a.storage.setItem=()=>{throw Error('quota');};assert.throws(()=>a.ops.schedule('ops:daily:0',today),/could not be saved/);assert.equal(a.data.get(a.ops.key),raw);
  const b=fixture('{broken');assert.throws(()=>b.ops.schedule('ops:daily:0',today),/recover/);assert.equal(b.data.get(b.ops.key),'{broken');
  const c=fixture();c.ops.schedule('ops:daily:0','2026-09-18');const future=c.data.get(c.ops.key);assert.throws(()=>c.ops.complete('ops:daily:0','2026-09-18'));assert.equal(c.data.get(c.ops.key),future);
+});
+
+test('Ops completion history retains the selected day after its scheduling enhancement spends the pin',()=>{
+ const script=html.match(/<script>([\s\S]*?)<\/script>/)[1],date=class extends Date{constructor(...args){super(...(args.length?args:[clock()]));}static now(){return clock();}};
+ const context={Date:date,Map,Math,state:{sched:{'weekly:0':today},'weekly:0':{note:'Keep this'}}};
+ const source="const lifeMapCompletedPins=new Map();function keyFor(sid,i){return sid+':'+i;}function save(){}function getEvents(){return state.events??=[];}"+script.slice(script.indexOf('function isoDay('),script.indexOf('/* One-time:'))+script.slice(script.indexOf('function addEvent('),script.indexOf('// Read changes made in Life Map'));
+ vm.createContext(context);vm.runInContext(source,context);vm.runInContext("set('weekly',0,{done:true});delete state.sched['weekly:0'];addEvent({kind:'cadence',cadence:'weekly',key:'weekly:0',label:'Weekly review'});",context);
+ assert.equal(context.state.events[0].planDate,today);assert.equal(context.state['weekly:0'].note,'Keep this');assert.equal(context.state['weekly:0'].p,'W2026-09-14');
 });

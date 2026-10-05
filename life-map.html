@@ -2017,14 +2017,15 @@ function createLifeMapOperations(catalog,storage,now=()=>Date.now()){
   const dayOf=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const today=()=>dayOf(new Date(now())),utc=d=>new Date(d+'T12:00:00Z'),iso=d=>d.toISOString().slice(0,10);
   function period(group,day){const d=utc(day),y=d.getUTCFullYear(),m=d.getUTCMonth();if(group==='daily')return day;if(group==='weekly'){d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return 'W'+iso(d);}if(group==='monthly')return 'M'+y+'-'+m;if(group==='quarterly')return 'Q'+y+'-'+Math.floor(m/3);if(group==='annually')return 'Y'+y;return 'perm';}
-  function occurrence(rule,day){
+  function calendarOccurrence(rule,day){
     if(!rule)return null;const d=utc(day),y=d.getUTCFullYear(),m=d.getUTCMonth(),clamp=(year,month,n)=>new Date(Date.UTC(year,month,Math.min(n,new Date(Date.UTC(year,month+1,0)).getUTCDate()),12));
     if(rule.kind==='weekday'){const wd=Number(rule.wd);if(!Number.isInteger(wd)||wd<0||wd>6)return null;d.setUTCDate(d.getUTCDate()-((d.getUTCDay()-wd+7)%7));return iso(d);}
     if(rule.kind==='monthday'){const n=Number(rule.day);if(!Number.isInteger(n)||n<1||n>31)return null;let c=clamp(y,m,n);if(c>d)c=clamp(y,m-1,n);return iso(c);}
     if(rule.kind==='yearly'){const n=Number(rule.day),month=Number(rule.month);if(!Number.isInteger(n)||n<1||n>31||!Number.isInteger(month)||month<0||month>11)return null;let c=clamp(y,month,n);if(c>d)c=clamp(y-1,month,n);return iso(c);}
-    if(rule.kind==='everyn'){const n=Number(rule.n),a=validDay(rule.anchor)?utc(rule.anchor):d;if(!Number.isInteger(n)||n<1||n>3650||a>d)return null;a.setUTCDate(a.getUTCDate()+Math.floor((d-a)/86400000/n)*n);return iso(a);}
+    if(rule.kind==='everyn'){const n=Number(rule.n),a=validDay(rule.anchor)?utc(rule.anchor):d;if(!Number.isInteger(n)||n<1||n>36500||a>d)return null;a.setUTCDate(a.getUTCDate()+Math.floor((d-a)/86400000/n)*n);return iso(a);}
     return null;
   }
+  function occurrence(rule,day){const value=calendarOccurrence(rule,day);return value&&(!rule.start||validDay(rule.start)&&value>=rule.start)?value:null;}
   function read(){
     if(!storage)throw Error('Ops Cadence storage is unavailable in this browser.');
     let raw;try{raw=storage.getItem(key);}catch{throw Error('Ops Cadence could not be read. Your records are unchanged.');}
