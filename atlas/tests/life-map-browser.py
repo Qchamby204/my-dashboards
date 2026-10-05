@@ -438,6 +438,10 @@ class LifeMapBrowser(unittest.TestCase):
                         for(const panel of pane.querySelectorAll('.lm-day-panel')){
                             if(parseFloat(getComputedStyle(panel).paddingLeft)<20)errors.push('tight card padding');
                         }
+                        for(const label of pane.querySelectorAll('.lm-foundation .eyebrow')){
+                            const css=getComputedStyle(label);
+                            if(!/\s/.test(label.textContent.trim())&&label.getBoundingClientRect().height>parseFloat(css.lineHeight)+1)errors.push('broken card label: '+label.textContent);
+                        }
                         for(const help of pane.querySelectorAll('.lm-help')){
                             const next=help.nextElementSibling;
                             if(!next||!next.matches('a,button,.lm-inline')||!next.getClientRects().length)continue;
