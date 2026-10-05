@@ -92,7 +92,7 @@ class LifeMapBrowser(unittest.TestCase):
             self.page.goto(BASE + '/life-map.html', wait_until='networkidle')
         self.page.wait_for_function('!!window.LifeMapWorkflow && !!window.LifeMapLocal && !!window.LifeMapDay')
         if not home:
-            self.page.evaluate('LifeMapDay.choose("board")')
+            self.page.evaluate('LifeMapDay.showRecords()')
 
     def state(self):
         return self.page.evaluate('S')
@@ -363,34 +363,36 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.state()['mealCoverage']['dinners'],10)
         self.assertFalse(self.errors)
 
-    def test_main_priority_blocks_templates_and_explicit_completion(self):
-        self.load(board([task('main',area='Work — Content',due='2026-10-30')]),home=True)
+    def test_related_task_scheduling_and_day_board_keep_existing_records(self):
+        legacy={'reviewed':True,'blocks':[{'id':'old','title':'Old time block','start':'13:00','minutes':30}]}
+        original=board([task('main',task='Business development calls',area='Work — Content',due='2026-10-30'),task('other',task='Client review',area='Work — Content',plan='2026-09-18'),task('today',plan=TODAY)],dayPlans={TODAY:legacy},dayTemplates={'weekday':legacy['blocks']})
+        self.load(original,home=True)
+        self.assertNotIn('Old time block',self.page.locator('.lm-now-card').inner_text())
         self.page.locator('#lm-day-nav-plan').click()
-        self.page.get_by_text('Choose from your open to-dos',exact=True).click()
-        self.page.locator('[data-day="choose-todo"][data-id="main"]').click()
-        self.page.locator('[data-day="save-plan"]').click()
-        self.assertEqual(self.state()['projects'][0]['plan'],TODAY)
-        self.assertTrue(self.state()['dayPlans'][TODAY]['reviewed'])
-        self.assertEqual(self.page.locator('[data-day-field="main"]').count(),0)
-        self.assertEqual(self.state()['projects'][0]['due'],'2026-10-30')
-        self.page.locator('.lm-block-editor summary').filter(has_text='Add a time block').click()
-        self.page.locator('[data-day-field="block.title"]').fill('Focused work')
-        self.page.locator('[data-day-field="block.start"]').fill('13:00')
-        self.page.locator('[data-day-field="block.minutes"]').fill('30')
-        self.page.locator('[data-day="save-block"]').click()
-        self.assertEqual(len(self.state()['dayPlans'][TODAY]['blocks']),1)
-        self.page.locator('[data-day="save-template"][data-template="weekday"]').click()
-        self.assertEqual(len(self.state()['dayTemplates']['weekday']),1)
-        self.page.locator('#lm-day-nav-home').click()
-        self.assertIn('Focused work',self.page.locator('.lm-now-card').inner_text())
-        self.page.locator('[data-day="focus"]').first.click()
-        self.page.clock.set_fixed_time(dt.datetime(2026,9,17,20,tzinfo=dt.timezone.utc))
-        self.page.evaluate('render()')
-        self.assertIn('Focused work',self.page.locator('.lm-now-card').inner_text())
-        self.assertFalse(self.state()['dayPlans'][TODAY]['blocks'][0]['done'])
-        self.page.locator('[data-day="block-done"]').click()
-        self.assertTrue(self.state()['dayPlans'][TODAY]['blocks'][0]['done'])
-        self.assertEqual(self.state()['projects'][0]['status'],'Not started')
+        self.assertEqual(self.page.locator('[data-day="save-block"]').count(),0)
+        self.assertNotIn('Repeat your ideal day',self.page.locator('#lm-day-view-plan').inner_text())
+        self.page.locator('[data-day-field="date"]').fill('2026-09-18')
+        self.page.get_by_text('Work',exact=True).click()
+        self.page.locator('[data-day="related-tasks"][data-index="4"]').click()
+        self.assertIn('Business development calls',self.page.locator('[aria-label="Related tasks"]').inner_text())
+        self.assertNotIn('Client review',self.page.locator('[aria-label="Related tasks"]').inner_text())
+        self.page.locator('[data-day="schedule-related"][data-id="main"]').click()
+        self.assertTrue(self.page.locator('#lm-day-view-board').is_visible())
+        self.assertIn('Business development calls',self.page.locator('[aria-label="Scheduled tasks"]').inner_text())
+        self.assertIn('Client review',self.page.locator('[aria-label="Scheduled tasks"]').inner_text())
+        self.assertNotIn('Task today',self.page.locator('[aria-label="Scheduled tasks"]').inner_text())
+        main=next(t for t in self.state()['projects'] if t['id']=='main')
+        self.assertEqual(main['plan'],'2026-09-18')
+        self.assertEqual(main['due'],'2026-10-30')
+        self.assertEqual(self.state()['dayPlans'][TODAY]['blocks'],legacy['blocks'])
+        self.assertEqual(self.state()['dayTemplates']['weekday'],legacy['blocks'])
+        self.page.locator('[data-day="plan-today"]').click()
+        self.page.locator('[data-day="focus"][data-id="today"]').last.click()
+        self.assertIn('Task today',self.page.locator('.lm-now-card').inner_text())
+        self.page.locator('[data-day="view-day-task"][data-id="today"]').click()
+        self.assertTrue(self.page.locator('[data-day-row-id="today"]').is_visible())
+        self.page.locator('[data-day="complete-task"][data-id="today"]').click()
+        self.assertEqual(next(t for t in self.state()['projects'] if t['id']=='today')['status'],'Done')
         self.assertFalse(self.errors)
 
     def test_life_areas_routines_and_personal_day_starters(self):
@@ -411,14 +413,11 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertNotIn('Walk the dog',self.page.locator('.lm-now-card').inner_text())
         self.page.locator('#lm-day-nav-plan').click()
         self.page.get_by_text('Morning',exact=True).click()
-        self.page.locator('[data-day="starter-block"][data-index="3"]').click()
-        self.assertEqual(self.page.locator('[data-day-field="block.title"]').input_value(),'Gym')
+        self.page.locator('[data-day="related-tasks"][data-index="2"]').click()
         self.assertFalse(self.state().get('dayPlans'))
-        self.page.locator('[data-day-field="block.start"]').fill('14:00')
-        self.page.locator('[data-day="save-block"]').click()
-        self.assertEqual(self.state()['dayPlans'][TODAY]['blocks'][0]['title'],'Gym')
-        self.page.locator('#lm-day-nav-home').click()
-        self.assertIn('Gym',self.page.locator('.lm-next-block').inner_text())
+        self.page.locator('[data-day="schedule-related"]').click()
+        self.assertEqual(self.state()['planned'][self.state()['chores'][0]['id']],TODAY)
+        self.assertIn('Walk the dog',self.page.locator('[aria-label="Scheduled routines"]').inner_text())
         self.assertFalse(self.errors)
 
     def test_spacing_between_copy_actions_headings_and_fields(self):
@@ -429,7 +428,7 @@ class LifeMapBrowser(unittest.TestCase):
             self.page.evaluate('(theme)=>window.AtlasAppearance.set(theme)',theme)
             for width in [320,393]:
                 self.page.set_viewport_size({'width':width,'height':852})
-                for tab in ['home','plan','areas']:
+                for tab in ['home','plan','areas','board']:
                     self.page.evaluate('(tab)=>window.LifeMapDay.choose(tab,"food")',tab)
                     if tab=='plan':
                         self.page.locator('.lm-block-editor').evaluate_all('els=>els.forEach(el=>el.open=true)')
@@ -489,7 +488,7 @@ class LifeMapBrowser(unittest.TestCase):
                 self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),width+1)
                 if width==393:
                     self.page.screenshot(path=str(out/f'{BROWSER}-{tab}-phone-fields.png'),full_page=True)
-        self.page.evaluate('window.LifeMapDay.choose("board")')
+        self.page.evaluate('window.LifeMapDay.showRecords()')
         self.assertTrue(self.page.locator('#lm-capture-launch').is_visible())
         self.assertFalse(self.errors)
 

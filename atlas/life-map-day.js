@@ -3,8 +3,8 @@
   'use strict';
   const M=createLifeMapWorkflow(),D=window.LifeMapDashboard,W=window.LifeMapWorkflow;
   const UI_KEY='lifemap:day-drafts:v1',clone=M.clone;
-  let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,error:''};
-  try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];if(saved.block&&M.validDate(saved.date))ui.date=saved.date;}}}catch{}
+  let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,related:null,records:false,target:'',error:''};
+  try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];}}}catch{}
   const attrs=s=>esc(String(s??'')),button=(label,action,extra='',primary=false)=>'<button type="button" class="btn lm-day-button'+(primary?' lm-day-primary':'')+'" data-day="'+action+'" '+extra+'>'+label+'</button>';
   const help=t=>'<p class="lm-help">'+esc(t)+'</p>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
@@ -17,7 +17,7 @@
   const openTasks=()=>S.projects.filter(M.open);
   const clock=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
   const recordUI=()=>{try{localStorage.setItem(UI_KEY,JSON.stringify({food:ui.food,block:ui.block,main:ui.main,date:ui.date}));}catch{ui.error='Your draft could not be saved. Keep this page open until you save it.';}};
-  function choose(tab,category){ui.tab=tab;if(category)ui.category=category;ui.error='';render();window.scrollTo?.({top:0,behavior:'instant'});document.getElementById('lm-day-nav-'+tab)?.focus({preventScroll:true});}
+  function choose(tab,category){ui.tab=tab;ui.records=false;if(category)ui.category=category;ui.error='';render();window.scrollTo?.({top:0,behavior:'instant'});document.getElementById('lm-day-nav-'+tab)?.focus({preventScroll:true});}
   function editPlan(next,date,fn){next.dayPlans??={};next.dayPlans[date]??={reviewed:false,mainTaskId:'',blocks:[]};next.dayPlans[date].blocks??=[];fn(next.dayPlans[date]);}
   function commit(change,message,success){return W.transaction(change,message,'day_planned',()=>{ui.error='';success?.();recordUI();});}
   function coverageText(food){
@@ -27,7 +27,26 @@
     return food.remaining+' dinner'+(food.remaining===1?'':'s')+' covered · through '+fmtDay(food.last);
   }
   const dueRoutines=()=>S.chores.filter(c=>!c.archived&&!isChecked(c)&&(c.repeat?M.choreDue(c,todayISO())<=todayISO():c.cad==='Daily'||plannedToday(c)));
-  const recommend=(options={})=>M.dayRecommendation(S,todayISO(),clock(),{routines:dueRoutines(),...options});
+  const recommend=(options={})=>{const day=S.dayPlans?.[todayISO()]||{},state={...S,dayPlans:{...S.dayPlans,[todayISO()]:{...day,blocks:[],mainTaskId:'',focus:day.focus?.kind==='task'?day.focus:undefined}}};return M.dayRecommendation(state,todayISO(),clock(),{routines:dueRoutines(),...options});};
+  const areaName=category=>({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',rest:'Life Admin & Documents'}[category]||'');
+  const scheduled=date=>S.projects.filter(t=>!t.archived&&t.plan===date);
+  const dayRoutines=date=>S.chores.filter(c=>!c.archived&&S.planned?.[c.id]===date);
+  function dayTaskRow(t){return '<article class="lm-day-task'+(ui.target===t.id?' lm-day-target':'')+'" data-day-row-id="'+attrs(t.id)+'">'+D.taskRow(t)+'<div class="lm-inline">'+(M.open(t)&&t.status!=='Waiting'&&ui.date===todayISO()?button('Start this task','focus','data-kind="task" data-id="'+attrs(t.id)+'"'):'')+button('Related area','tab','data-tab="areas" data-category="'+M.categoryFor(t)+'"')+'</div></article>';}
+  function boardView(){
+    if(!M.validDate(ui.date))return heading('Your scheduled tasks','Choose a day')+panel('Choose a day',field('Day to view',input('date',ui.date,'date'))+help('Choose a valid date to see its scheduled tasks.'));
+    const today=ui.date===todayISO(),tasks=scheduled(ui.date),open=tasks.filter(M.open),done=tasks.filter(t=>t.status==='Done'),deadline=M.sortTasks(openTasks().filter(t=>t.due&&(today?t.due<=ui.date:t.due===ui.date)&&!tasks.some(p=>p.id===t.id)),ui.date),routines=dayRoutines(ui.date);
+    let html=heading('Your scheduled tasks',today?'Today’s Board':fmtDay(ui.date)+' Board',button('Today','plan-today'));
+    html+=panel('Choose a day','<div class="lm-inline">'+button('← Previous day','day-step','data-step="-1"')+button('Next day →','day-step','data-step="1"')+'</div>'+field('Day to view',input('date',ui.date,'date')));
+    if(today)html+=panel('Right now',candidateCard(recommend()));
+    html+=panel('Scheduled tasks','<div class="lm-day-section-title"><h2>Scheduled for '+(today?'today':fmtDay(ui.date))+'</h2>'+button('Build this day','tab','data-tab="plan"')+'</div>'+(open.length?M.sortTasks(open,ui.date).map(dayTaskRow).join(''):help('No tasks scheduled for this day. Use Build around your day to pull in related tasks.')));
+    if(deadline.length)html+=panel('Deadlines','<h2>Deadlines needing attention</h2>'+deadline.map(dayTaskRow).join(''));
+    if(routines.length)html+=panel('Scheduled routines','<h2>Scheduled routines</h2>'+routines.map(c=>'<article class="lm-day-task" data-day-row-id="'+attrs(c.id)+'">'+(today?D.choreRow(c):'<strong>'+esc(c.chore)+'</strong>'+help('Scheduled for '+fmtDay(ui.date)))+'<div class="lm-inline">'+button('Remove from this day','unschedule-routine','data-id="'+attrs(c.id)+'"')+'</div></article>').join(''));
+    if(today){const basics=dueRoutines().filter(c=>!routines.some(r=>r.id===c.id));if(basics.length)html+=panel('Due routines','<h2>The basics due today</h2>'+basics.map(c=>D.choreRow(c)).join(''));}
+    if(done.length)html+=panel('Completed scheduled tasks','<details class="lm-block-editor"><summary>Completed · '+done.length+'</summary>'+done.map(dayTaskRow).join('')+'</details>');
+    html+=panel('All records',button('All records & projects','records')+help('Browse the full task map, projects, chores and history.'));
+    return html;
+  }
+
   const guides={
     food:['Meals & groceries','Prepared dinners, the next grocery shop and your next prep session.','the-chef.html','Open Chef'],
     household:['Home & maintenance','Kitchen reset, laundry and cleaning; renovations, vehicles and seasonal maintenance.','',''],
@@ -42,18 +61,17 @@
     const cards=[
       ['food','Food',coverageText(food),food.needsPrep?'Prep next batch':food.set?'Coverage set':'Needs a check','areas','food'],
       ['plan','Today’s to-dos',openTasks().filter(t=>t.plan===todayISO()).length+' chosen for today',p.reviewed?'Reviewed':'Review your day','plan',''],
-      ['time','Time blocks',(p.blocks||[]).length?(p.blocks.filter(b=>b.done).length+' of '+p.blocks.length+' blocks done'):'No blocks set for today',(p.blocks||[]).some(b=>!b.done)?'Follow your plan':'Set or review','plan',''],
+      ['day','Day view',scheduled(todayISO()).filter(M.open).length+' scheduled tasks remaining','Open today’s Board','board',''],
       ['home','Household',S.chores.filter(c=>!c.archived&&M.categoryFor(c)==='household'&&!isChecked(c)&&(c.cad==='Daily'||plannedToday(c)||c.repeat&&M.choreDue(c,todayISO())<=todayISO())).length+' essential routines open','Check the basics','areas','household']
     ];
     return '<div class="lm-foundation-grid">'+cards.map(([key,title,text,state,tab,category])=>'<button type="button" class="btn lm-foundation" data-day="tab" data-tab="'+tab+'" data-category="'+category+'"'+(key==='food'&&food.needsPrep?' data-attention="true"':'')+'><span class="eyebrow">'+title+'</span><strong>'+esc(text)+'</strong><small>'+esc(state)+' ›</small></button>').join('')+'</div>';
   }
   function candidateCard(c){
     let actions='';
-    if(c.kind==='task')actions=button('Start','focus','data-kind="task" data-id="'+attrs(c.id)+'"',true)+button('Done','complete-task','data-id="'+attrs(c.id)+'"');
-    else if(c.kind==='block')actions=button('Continue / start','focus','data-kind="block" data-id="'+attrs(c.id)+'"',true)+button('Done','block-done','data-date="'+todayISO()+'" data-id="'+attrs(c.id)+'"');
+    if(c.kind==='task')actions=button('Start','focus','data-kind="task" data-id="'+attrs(c.id)+'"',true)+button('Done','complete-task','data-id="'+attrs(c.id)+'"')+button('View this day','view-day-task','data-id="'+attrs(c.id)+'"');
     else if(c.kind==='chore')actions=button('Done','complete-routine','data-id="'+attrs(c.id)+'"',true)+button('View routines','tab','data-tab="areas" data-category="'+attrs(c.category)+'"');
     else if(c.kind==='food')actions=button('Open Food','tab','data-tab="areas" data-category="food"',true);
-    else if(c.kind==='plan')actions=button('Plan today','tab','data-tab="plan"',true);
+    else if(c.kind==='plan')actions=button('Build today','tab','data-tab="plan"',true);
     else actions=button('Choose a task','tab','data-tab="board"')+'<a class="btn lm-day-button" href="life-ledger.html">Leisure in Life Ledger ↗</a>';
     return '<div class="lm-now-card"><div class="eyebrow">Right now'+(c.minutes?' · '+c.minutes+' min':'')+'</div><h2>'+esc(c.title)+'</h2>'+help(c.why)+'<div class="lm-inline">'+actions+button('Change plan','change-focus')+'</div></div>';
   }
@@ -64,11 +82,11 @@
     }).join('')+'</div>';
   }
   function homeView(){
-    const c=recommend(),p=plan(todayISO()),upcoming=(p.blocks||[]).filter(b=>!b.done&&M.blockMinutes(b.start)>M.blockMinutes(clock())).sort((a,b)=>a.start.localeCompare(b.start))[0];
+    const c=recommend();
     let html=heading(niceToday(),'A clear next move.',button('I’m off track','reset'));
-    html+=panel('Right now',candidateCard(c)+(upcoming?'<div class="lm-next-block"><span class="eyebrow">Next block · '+upcoming.start+'</span><strong>'+esc(upcoming.title)+'</strong></div>':''));
-    if(ui.reset)html+=panel('Restart the next block','<h2>Restart from here</h2>'+help('Choose the time you actually have. Your unfinished tasks stay available.')+field('Minutes available',select('available',ui.available,[[10,'10 minutes'],[25,'25 minutes'],[45,'45 minutes'],[60,'60 minutes']]))+candidateCard(recommend({available:Number(ui.available)}))+button('Close reset','reset-close'));
-    html+=panel('Foundations','<div class="lm-day-section-title"><h2>Keep life running</h2>'+info('How foundations work','Real deadlines come first, followed by your current block, a due prep reminder, due routines and chosen to-dos. Started work stays in focus until you finish or change it. Nothing is completed by the clock.')+'</div>'+foundationCards());
+    html+=panel('Right now',candidateCard(c)+ '<div class="lm-inline">'+button('Today’s scheduled tasks','view-day-task')+'</div>');
+    if(ui.reset)html+=panel('Return to your day','<h2>Restart from here</h2>'+help('Choose the time you actually have. Your unfinished tasks stay available.')+field('Minutes available',select('available',ui.available,[[10,'10 minutes'],[25,'25 minutes'],[45,'45 minutes'],[60,'60 minutes']]))+candidateCard(recommend({available:Number(ui.available)}))+button('Close reset','reset-close'));
+    html+=panel('Foundations','<div class="lm-day-section-title"><h2>Keep life running</h2>'+info('How foundations work','Real deadlines, due prep reminders, due routines and scheduled to-dos stay in view. Started work stays in focus until you finish or change it. Nothing is completed by the clock.')+'</div>'+foundationCards());
     const routines=dueRoutines();if(routines.length)html+=panel('Due routines','<div class="lm-day-section-title"><h2>The basics due today</h2>'+button('All routines','tab','data-tab="board"')+'</div>'+routines.slice(0,5).map(c=>D.choreRow(c)).join(''));
     html+=panel('Your life areas','<h2>Your life areas</h2>'+categoryCards());
     const due=M.sortTasks(openTasks().filter(p=>p.due&&p.due<=M.plus(todayISO(),7)),todayISO()).slice(0,3);
@@ -93,17 +111,15 @@
     return html;
   }
   function planView(){
-    const p=plan(),main=ui.main??p.mainTaskId??'',b=ui.block||{title:'',start:'09:00',minutes:30,category:'work',taskId:''},tasks=openTasks().filter(t=>t.status!=='Waiting');
-    let html=heading('Make room for what matters','Your day',button('Today','plan-today'));
-    const today=ui.date===todayISO(),chosen=M.sortTasks(tasks.filter(t=>t.plan===ui.date||t.due&&t.due<=ui.date),ui.date),suggested=M.sortTasks(tasks.filter(t=>M.actionable(t,ui.date)&&!chosen.some(c=>c.id===t.id)),ui.date).slice(0,5);
-    html+=panel('Today’s to-dos','<h2>'+ (today?'Today’s to-dos':'To-dos for '+fmtDay(ui.date))+'</h2>'+help('Start with deadlines and essentials. Choose a small amount of work, then give it space in the time blocks below.')+(chosen.length?chosen.map(t=>D.taskRow(t)).join(''):help('No to-dos chosen for this day yet.'))+(suggested.length?'<details class="lm-block-editor"><summary>Choose from your open to-dos</summary>'+suggested.map(t=>'<div class="lm-time-block"><strong>'+esc(t.task)+'</strong><div class="lm-inline">'+button(today?'Add to Today':'Add to this day','choose-todo','data-id="'+attrs(t.id)+'"')+button('Give it a time','task-block','data-id="'+attrs(t.id)+'"')+'</div></div>').join('')+'</details>':'')+'<div class="lm-inline">'+button('+ To-do','new-todo')+button(p.reviewed?'Reviewed · review again':'I’ve reviewed this day','save-plan')+'</div><details class="lm-block-editor"><summary>Plan a different day</summary>'+field('Day to view',input('date',ui.date,'date'))+'</details>');
-    const blocks=(p.blocks||[]).slice().sort((a,b)=>a.start.localeCompare(b.start));
-    html+=panel('Time blocks','<div class="lm-day-section-title"><h2>Time blocks</h2>'+info('Following blocks','Starting a block keeps it on Home until you finish or change focus. Passing the scheduled end does not mark it complete. Completing a block does not automatically complete its linked task.')+'</div>'+
-      (blocks.length?blocks.map(block=>'<article class="lm-time-block'+(block.done?' lm-block-done':'')+'"><div><span class="eyebrow">'+block.start+' · '+block.minutes+' min</span><strong>'+esc(block.title)+'</strong></div><div class="lm-inline">'+(ui.date===todayISO()&&!block.done?button('Start','focus','data-kind="block" data-id="'+attrs(block.id)+'"'):'')+button(block.done?'Reopen':'Done','block-done','data-date="'+ui.date+'" data-id="'+attrs(block.id)+'"')+button('Edit','edit-block','data-id="'+attrs(block.id)+'"')+button('Remove','remove-block','data-id="'+attrs(block.id)+'"')+'</div></article>').join(''):help('Add a few blocks for your ideal day. Keep space between them for real life.'))+
-      '<details class="lm-block-editor"'+(ui.block?' open':'')+'><summary>'+(b.id?'Edit time block':'Add a time block')+'</summary>'+field('Block title',input('block.title',b.title,'text','maxlength="300" placeholder="Meal prep, focused work, family time…"'))+'<div class="lm-two-col">'+field('Start time',input('block.start',b.start,'time'))+field('Minutes',input('block.minutes',b.minutes,'number','min="5" max="720" step="5"'))+'</div>'+field('Category',select('block.category',b.category,[...M.categories,['rest','Rest & leisure']]))+field('Link an existing task (optional)',select('block.taskId',b.taskId||'',[['','No linked task'],...tasks.map(t=>[t.id,t.task])]))+'<div class="lm-inline">'+button(b.id?'Save block':'Add block','save-block','',true)+(ui.block?button('Discard block draft','discard-block'):'')+'</div></details>');
-    html+=panel('Build around your life','<h2>Build around your day</h2>'+help('Use a starting point, choose its time, then save it. These suggestions do not add tasks or claim anything is done.')+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+starters.map((row,i)=>row[0]===group?button(row[1],'starter-block','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
-    html+=panel('Ideal day templates','<h2>Repeat your ideal day</h2>'+help('Save these blocks as a weekday or weekend template, then reuse them on a day you choose. Existing blocks are retained; overlaps are checked.')+
-      '<div class="lm-inline">'+button('Save weekday template','save-template','data-template="weekday"'+(!blocks.length?' disabled':''))+button('Save weekend template','save-template','data-template="weekend"'+(!blocks.length?' disabled':''))+'</div><div class="lm-inline">'+button('Use weekday template','use-template-day','data-template="weekday"'+(!S.dayTemplates?.weekday?.length?' disabled':''))+button('Use weekend template','use-template-day','data-template="weekend"'+(!S.dayTemplates?.weekend?.length?' disabled':''))+'</div>');
+    let html=heading('Choose what belongs in your day','Build around your day',button('Today','plan-today'));
+    html+=panel('Schedule onto a day',field('Schedule tasks for',input('date',ui.date,'date'))+help('Choose a life area below to find related tasks and routines. Schedule them onto this date; use your calendar for times.')+button('View this day’s Board','view-selected-day'));
+    html+=panel('Build around your life','<h2>Build around your day</h2>'+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+starters.map((row,i)=>row[0]===group?button(row[1],'related-tasks','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
+    if(ui.related!==null){
+      const row=starters[ui.related],queries=[/get ready|morning|prepar/,/meditat/,/dog|hudson|walk/,/gym|workout|train|exercise/,/business development|prospect|outreach/,/client|request/,/content|film|video/,/admin|wrap|email/,/kitchen|reset|tidy/,/renovat|repair|maintenance/,/meal|dinner|prep|grocery/,/wife|johanna|together|date night|relationship/,/piano|music/,/read|book/,/leisure|downtime|hobby/],all=openTasks().filter(t=>t.status!=='Waiting'),availableRoutines=S.chores.filter(c=>!c.archived),match=t=>queries[ui.related].test([t.task,t.chore,t.sub,t.notes].filter(Boolean).join(' ').toLowerCase());
+      const exact=all.filter(match),exactRoutines=availableRoutines.filter(match),fallback=!exact.length&&!exactRoutines.length,tasks=M.sortTasks(fallback?all.filter(t=>M.categoryFor(t)===row[2]):exact,ui.date),routines=fallback?availableRoutines.filter(c=>M.categoryFor(c)===row[2]):exactRoutines;
+      const action=(item,kind)=>{const date=kind==='task'?item.plan:S.planned?.[item.id],already=date===ui.date;return '<article class="lm-day-task"><strong>'+esc(item.task||item.chore)+'</strong>'+help(already?'Scheduled for '+fmtDay(ui.date):date?'Currently scheduled '+fmtDay(date):kind==='task'&&item.due?'Deadline '+fmtDay(item.due):'Not scheduled for a day')+'<div class="lm-inline">'+button(already?'Scheduled':date?'Move to '+fmtDay(ui.date):'Schedule for '+fmtDay(ui.date),'schedule-related','data-kind="'+kind+'" data-id="'+attrs(item.id)+'"'+(already?' disabled':''),!already)+'</div></article>';};
+      html+=panel('Related tasks','<div class="lm-day-section-title"><h2>'+esc(row[1])+'</h2>'+button('Close','close-related')+'</div>'+help(fallback?'No direct matches. Other items in this life area are shown below.':'Related tasks and routines from your existing records.')+(tasks.length||routines.length?tasks.map(t=>action(t,'task')).join('')+routines.map(c=>action(c,'chore')).join(''):help('No related tasks or routines recorded yet.'))+button('+ Related task','new-related-task','data-index="'+ui.related+'"'));
+    }
     return html;
   }
   function handle(action,el){
@@ -116,20 +132,19 @@
     if(action==='change-focus')return commit(next=>editPlan(next,todayISO(),p=>{delete p.focus;}),'Focus cleared',()=>{ui.tab='plan';ui.date=todayISO();});
     if(action==='complete-task')return D.setStatus(id,'Done');
     if(action==='focus')return commit(next=>editPlan(next,todayISO(),p=>{if(el.dataset.kind==='task'){const task=next.projects.find(t=>t.id===id&&M.open(t)&&t.status!=='Waiting');if(!task)throw Error('Choose an available task.');task.inbox=false;task.plan=todayISO();}p.focus={kind:el.dataset.kind,id};}),'Focus started',()=>{ui.tab='home';ui.reset=false;});
-    if(action==='block-done')return commit(next=>editPlan(next,el.dataset.date||ui.date,p=>{const b=p.blocks.find(b=>b.id===id);if(!b)throw Error('Block not found.');b.done=!b.done;if(b.done&&p.focus?.id===id)delete p.focus;}),'Block updated');
-    if(action==='edit-block'){ui.block=clone(plan().blocks.find(b=>b.id===id));recordUI();render();return;}
-    if(action==='remove-block')return commit(next=>editPlan(next,ui.date,p=>{p.blocks=p.blocks.filter(b=>b.id!==id);if(p.focus?.id===id)delete p.focus;}),'Block removed');
-    if(action==='discard-block'){ui.block=null;recordUI();render();return;}
     if(action==='complete-routine')return D.choreAction(id,'done');
     if(action==='new-todo')return W.openEditor('proj',{task:'',status:'Not started',pri:'Med',inbox:false,plan:ui.date});
     if(action==='area-routine')return W.openEditor('chore',{chore:'',cad:'Daily',area:{food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'}[el.dataset.category]});
-    if(action==='choose-todo')return commit(next=>{const t=next.projects.find(t=>t.id===id);M.setPlan(t,ui.date,todayISO());},'To-do added to your day');
-    if(action==='task-block'){const t=S.projects.find(t=>t.id===id);ui.block={title:t.task,start:'09:00',minutes:t.effortMinutes||30,category:M.categoryFor(t),taskId:id};recordUI();render();document.querySelector('.lm-block-editor[open]')?.scrollIntoView({block:'center'});return;}
-    if(action==='starter-block'){const row=starters[Number(el.dataset.index)];if(!row)return;ui.block={title:row[1],start:'09:00',minutes:row[3],category:row[2],taskId:''};recordUI();render();document.querySelector('.lm-block-editor[open]')?.scrollIntoView({block:'center'});return;}
-    if(action==='save-plan')return commit(next=>editPlan(next,ui.date,p=>{p.reviewed=true;}),'Day reviewed',()=>{ui.main=null;});
-    if(action==='save-block'){const b=ui.block||{};if(!b.title?.trim()){ui.error='Give the block a title.';render();return;}return commit(next=>editPlan(next,ui.date,p=>{const row={id:b.id||uid(),title:b.title.trim(),start:b.start||'09:00',minutes:Number(b.minutes||30),category:b.category||'work',taskId:b.taskId||'',done:!!b.done};const i=p.blocks.findIndex(x=>x.id===row.id);if(i<0)p.blocks.push(row);else p.blocks[i]=row;}),'Time block saved',()=>{ui.block=null;});}
-    if(action==='save-template')return commit(next=>{next.dayTemplates??={};next.dayTemplates[el.dataset.template]=plan().blocks.map(b=>({...clone(b),done:false}));},'Ideal day template saved');
-    if(action==='use-template-day')return commit(next=>editPlan(next,ui.date,p=>{for(const b of next.dayTemplates?.[el.dataset.template]||[])p.blocks.push({...clone(b),id:uid(),done:false});}),'Ideal day blocks added');
+    if(action==='records'){ui.tab='board';ui.records=true;render();window.scrollTo?.({top:0,behavior:'instant'});return;}
+    if(action==='day-board'){ui.records=false;render();return;}
+    if(action==='day-step'){ui.date=M.plus(ui.date,Number(el.dataset.step));ui.target='';render();return;}
+    if(action==='view-selected-day'){ui.target='';return choose('board');}
+    if(action==='view-day-task'){ui.date=todayISO();ui.target=id||'';choose('board');if(id)app.querySelector('[data-day-row-id="'+CSS.escape(id)+'"]')?.scrollIntoView({block:'center'});return;}
+    if(action==='related-tasks'){ui.related=Number(el.dataset.index);render();document.querySelector('[aria-label="Related tasks"]')?.scrollIntoView({block:'start'});return;}
+    if(action==='close-related'){ui.related=null;render();return;}
+    if(action==='new-related-task'){const row=starters[Number(el.dataset.index)];return W.openEditor('proj',{task:row[1],area:areaName(row[2]),status:'Not started',pri:'Med',inbox:false,plan:ui.date});}
+    if(action==='schedule-related'){if(!M.validDate(ui.date))throw Error('Choose a valid day.');return commit(next=>{if(el.dataset.kind==='task'){const t=next.projects.find(t=>t.id===id&&M.open(t)&&t.status!=='Waiting');if(!t)throw Error('This task is no longer available.');M.setPlan(t,ui.date,todayISO());}else{if(!next.chores.some(c=>c.id===id&&!c.archived))throw Error('This routine is no longer available.');next.planned??={};next.planned[id]=ui.date;}editPlan(next,ui.date,p=>{p.reviewed=true;});},'Scheduled for '+fmtDay(ui.date),()=>{ui.tab='board';ui.records=false;ui.target=id;});}
+    if(action==='unschedule-routine')return commit(next=>{if(next.planned?.[id]===ui.date)delete next.planned[id];},'Routine removed from this day');
     if(action==='save-food'){const f=ui.food||S.mealCoverage||{start:todayISO(),dinners:5,note:'',reminderTime:'09:00'};return commit(next=>{next.mealCoverage={start:f.start,dinners:Number(f.dinners),note:f.note||'',reminderTime:f.reminderTime||'09:00',skipDates:String(f.skipText??(f.skipDates||[]).join(', ')).split(',').map(x=>x.trim()).filter(Boolean)};},'Dinner coverage saved',()=>{ui.food=null;});}
     if(action==='discard-food'){ui.food=null;recordUI();render();return;}
     if(action==='add-food')return commit(next=>{if(!next.mealCoverage)throw Error('Record dinner coverage first.');if(M.mealStatus(next.mealCoverage,todayISO()).expired){next.mealCoverage.start=todayISO();next.mealCoverage.dinners=Number(ui.extraDinners||3);next.mealCoverage.skipDates=[];}else next.mealCoverage.dinners+=Number(ui.extraDinners||3);},'Dinner coverage extended');
@@ -144,18 +159,18 @@
   const draw=render;
   render=function(){
     draw();
-    const captureLaunch=app.querySelector('#lm-capture-launch');if(captureLaunch&&ui.tab!=='board')captureLaunch.hidden=true;
-    const children=[...app.children],board=document.createElement('section');board.id='lm-day-view-board';board.className='lm-day-view';board.setAttribute('role','tabpanel');board.setAttribute('aria-labelledby','lm-day-nav-board');board.hidden=ui.tab!=='board';
-    for(const node of children)if(!node.matches('.appbar,.lm-capture,dialog,.lm-fab,.lm-tools'))board.append(node);
+    const captureLaunch=app.querySelector('#lm-capture-launch');if(captureLaunch)captureLaunch.hidden=!(ui.tab==='board'&&ui.records);
+    const children=[...app.children],records=document.createElement('section');records.id='lm-day-records';records.className='lm-day-records';records.hidden=!(ui.tab==='board'&&ui.records);
+    for(const node of children)if(!node.matches('.appbar,.lm-capture,dialog,.lm-fab,.lm-tools'))records.append(node);
     const main=document.createElement('section');main.id='lm-day-view-'+ui.tab;main.className='lm-day-view';main.setAttribute('role','tabpanel');main.setAttribute('aria-labelledby','lm-day-nav-'+ui.tab);
-    if(ui.tab!=='board')main.innerHTML=(ui.tab==='home'?homeView():ui.tab==='plan'?planView():areasView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
-    else if(ui.error)board.insertAdjacentHTML('afterbegin','<p class="lm-error" role="alert">'+esc(ui.error)+'</p>');
-    const anchor=app.querySelector('.lm-capture')||app.querySelector('.appbar');if(ui.tab!=='board')anchor?.after(main);app.append(board);for(const key of ['home','plan','areas'])if(key!==ui.tab){const pane=document.createElement('section');pane.id='lm-day-view-'+key;pane.hidden=true;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','lm-day-nav-'+key);app.append(pane);}
+    main.innerHTML=(ui.tab==='board'?(ui.records?heading('Full Life Map','All records',button('Day view','day-board')):boardView()):ui.tab==='home'?homeView():ui.tab==='plan'?planView():areasView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
+    const anchor=app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);
+    for(const key of ['home','plan','areas','board'])if(key!==ui.tab){const pane=document.createElement('section');pane.id='lm-day-view-'+key;pane.hidden=true;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','lm-day-nav-'+key);app.append(pane);}
     const nav=document.createElement('nav');nav.className='lm-day-dock';nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Map views');
     nav.innerHTML=[['home','⌂','Home'],['plan','◷','Plan'],['areas','◈','Areas'],['board','▦','Board']].map(([key,icon,title])=>'<button type="button" class="btn" id="lm-day-nav-'+key+'" role="tab" aria-selected="'+(ui.tab===key)+'" aria-controls="lm-day-view-'+key+'" tabindex="'+(ui.tab===key?0:-1)+'" data-day="tab" data-tab="'+key+'"><span aria-hidden="true">'+icon+'</span><strong>'+title+'</strong></button>').join('');app.append(nav);
     W.busy&&app.querySelectorAll('[data-day]').forEach(el=>el.disabled=true);
   };
-  document.addEventListener('click',event=>{const el=event.target.closest?.('[data-lm="inbox"]');if(el&&ui.tab!=='board')ui.tab='board';},true);
+  document.addEventListener('click',event=>{const el=event.target.closest?.('[data-lm="inbox"]');if(el){ui.tab='board';ui.records=true;}},true);
   app.addEventListener('click',event=>{const el=event.target.closest?.('[data-day]');if(!el)return;event.stopImmediatePropagation();if(W.busy)return;try{const result=handle(el.dataset.day,el);if(result?.catch)result.catch(e=>{ui.error=e.message;render();});}catch(e){ui.error=e.message;render();}},true);
   app.addEventListener('input',event=>{
     const el=event.target.closest?.('[data-day-field]');if(!el)return;const [scope,key]=el.dataset.dayField.split('.');
@@ -170,5 +185,5 @@
     event.preventDefault();const buttons=[...el.parentNode.querySelectorAll('[role="tab"]')],i=buttons.indexOf(el),j=event.key==='Home'?0:event.key==='End'?buttons.length-1:(i+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;buttons[j].click();
   });
   let lastMinute=clock();setInterval(()=>{const next=clock();if(next!==lastMinute&&!document.hidden&&!view.editor&&!W.busy&&!app.querySelector('[data-day-field]:focus')){lastMinute=next;render();}},60000);
-  window.LifeMapDay=Object.freeze({choose,get view(){return ui.tab;},get category(){return ui.category;}});
+  window.LifeMapDay=Object.freeze({choose,showRecords:()=>{ui.tab='board';ui.records=true;render();},get view(){return ui.tab;},get category(){return ui.category;}});
 })();
