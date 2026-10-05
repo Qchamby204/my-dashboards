@@ -2,6 +2,10 @@ import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 export const refinedPages=['life-ledger','workout-forge','the-aqueduct','the-hourglass','communication-trainer','the-herald','prospecting-command-center','operations-cadence','courier','baby-brain','neural-map','chambers-wealth-hq'];
 const root=new URL('../',import.meta.url);
+// Courier owns its playback layer; load its current version before shared refinements.
+const courierPath=new URL('courier.html',root),courier=await readFile(courierPath,'utf8');
+const experienceHash=createHash('sha256').update(await readFile(new URL('shared/courier-experience.js',root))).digest('hex').slice(0,12);
+await writeFile(courierPath,courier.replace(/shared\/courier-experience\.js\?v=[a-zA-Z0-9-]+/g,'shared/courier-experience.js?v='+experienceHash));
 for(const ext of ['css','js']){
   const asset='shared/atlas-refinements.'+ext;
   const digest=createHash('sha256').update(await readFile(new URL(asset,root))).digest('hex').slice(0,12);
