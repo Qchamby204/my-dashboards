@@ -421,6 +421,41 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertIn('Gym',self.page.locator('.lm-next-block').inner_text())
         self.assertFalse(self.errors)
 
+    def test_spacing_between_copy_actions_headings_and_fields(self):
+        self.load(board([task('urgent',due=TODAY)]),home=True)
+        out=ROOT/'artifacts/life-map-tests'
+        out.mkdir(parents=True,exist_ok=True)
+        for theme in ['light','dark']:
+            self.page.evaluate('(theme)=>window.AtlasAppearance.set(theme)',theme)
+            for width in [320,393]:
+                self.page.set_viewport_size({'width':width,'height':852})
+                for tab in ['home','plan','areas']:
+                    self.page.evaluate('(tab)=>window.LifeMapDay.choose(tab,"food")',tab)
+                    if tab=='plan':
+                        self.page.locator('.lm-block-editor').evaluate_all('els=>els.forEach(el=>el.open=true)')
+                    violations=self.page.evaluate('''()=>{
+                        const pane=document.querySelector('.lm-day-view:not([hidden])'),errors=[];
+                        for(const panel of pane.querySelectorAll('.lm-day-panel')){
+                            if(parseFloat(getComputedStyle(panel).paddingLeft)<20)errors.push('tight card padding');
+                        }
+                        for(const help of pane.querySelectorAll('.lm-help')){
+                            const next=help.nextElementSibling;
+                            if(!next||!next.matches('a,button,.lm-inline')||!next.getClientRects().length)continue;
+                            if(next.getBoundingClientRect().top-help.getBoundingClientRect().bottom<12)errors.push('copy touches action');
+                        }
+                        for(const label of pane.querySelectorAll('.lm-day-field')){
+                            if(!label.getClientRects().length)continue;
+                            const span=label.querySelector('span'),input=label.querySelector('input,select');
+                            if(input&&input.getBoundingClientRect().top-span.getBoundingClientRect().bottom<9)errors.push('label touches field');
+                        }
+                        return errors;
+                    }''')
+                    self.assertEqual(violations,[],f'{theme} {width} {tab}')
+                    self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),width+1)
+                    if width==393:
+                        self.page.screenshot(path=str(out/f'{BROWSER}-spacing-{tab}-{theme}.png'),full_page=True)
+        self.assertFalse(self.errors)
+
     def test_phone_native_fields_fit_cards_without_overlap(self):
         self.page.emulate_media(color_scheme='dark')
         self.page.add_init_script("Object.defineProperty(navigator,'standalone',{value:true});Object.defineProperty(navigator,'userAgent',{value:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148'});")
