@@ -141,6 +141,11 @@ test('pause cancels an interrupted handoff retry and canplay cannot restart it',
   const h=harness();h.audio.reject={name:'AbortError'};h.run("play('a')");await new Promise(resolve=>setImmediate(resolve));
   h.media.handlers.pause();h.audio.reject=null;h.flushTimers();h.audio.dispatchEvent(new Event('canplay'));assert.equal(h.audio.paused,true);
 });
+test('a stale pause event from the previous resource cannot disable a playing handoff',async()=>{
+  const h=harness();h.run("play('a')");h.audio.metadata(120);await new Promise(resolve=>setImmediate(resolve));h.audio.finish();
+  h.audio.metadata(180);await new Promise(resolve=>setImmediate(resolve));h.audio.dispatchEvent(new Event('pause'));
+  assert.equal(h.run('playbackWanted'),true);assert.equal(h.audio.paused,false);
+});
 test('a transient network failure retries once at the saved position, then skips without marking heard',async()=>{
   const h=harness();h.run("play('a')");h.audio.metadata(120);await new Promise(resolve=>setImmediate(resolve));h.audio.currentTime=48;
   h.audio.error={code:2};h.audio.dispatchEvent(new Event('error'));h.flushTimers();h.audio.metadata(120);
