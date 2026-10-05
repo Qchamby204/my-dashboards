@@ -63,5 +63,6 @@ export function validateLifeMapRecords(input){
   }
   if(out.dayTemplates!==undefined){if(!object(out.dayTemplates)||Object.keys(out.dayTemplates).some(k=>!['weekday','weekend'].includes(k)))throw Error('Day templates are invalid.');for(const rows of Object.values(out.dayTemplates))blockList(rows);}
   if(Object.entries(out.checks).some(([k,v])=>!id(k)||!string(v,100))||Object.entries(out.planned).some(([k,v])=>!id(k)||!date(v))||out.log.some(x=>!object(x)||!id(x.id)||x.t!=='proj'||!date(x.d)))throw Error('The backup contains invalid activity records.');
+  if(out.calendarLinks!==undefined&&(!Array.isArray(out.calendarLinks)||out.calendarLinks.length>1000||out.calendarLinks.some(x=>!object(x)||!string(x.eventId,1100,true)||x.taskId!==''&&!id(x.taskId))))throw Error('Calendar task links are invalid.');
   return out;
 }

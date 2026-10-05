@@ -96,3 +96,10 @@ export const appStates = sqliteTable('atlas_app_states', {
   updatedAt:text('updated_at').notNull(),
 },t=>[uniqueIndex('atlas_app_states_owner_kind').on(t.owner,t.kind),
   check('atlas_app_states_kind',sql`${t.kind} IN ('life-map','herald')`)]);
+
+// Calendar credentials are encrypted and deliberately excluded from workspace exports.
+export const appleCalendar = sqliteTable('atlas_apple_calendar', {
+  owner:text('owner').primaryKey(),credentials:text('credentials').notNull(),
+  calendarsJson:text('calendars_json').notNull(),selectedJson:text('selected_json').notNull(),
+  updatedAt:text('updated_at').notNull(),
+});

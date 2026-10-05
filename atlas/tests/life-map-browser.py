@@ -395,6 +395,83 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(next(t for t in self.state()['projects'] if t['id']=='today')['status'],'Done')
         self.assertFalse(self.errors)
 
+    def test_apple_calendar_day_import_links_and_right_now(self):
+        original=board([task('p1',task='Walk Hudson',plan=TODAY,due='2026-10-30'),task('p2',task='Read a chapter',plan=TODAY)])
+        self.load(original,home=True)
+        self.page.locator('#lm-day-nav-board').click()
+        before=self.storage()
+        snapshot=dict(app='lifemap-calendar-day',version=1,day=TODAY,zone='America/Winnipeg',refreshedAt='2026-09-17T18:00:00.000Z',events=[dict(id='cal:event1:today',uid='event1',calendarId='a'*32,calendar='Home',title='Afternoon dog walk',start='2026-09-17T17:45:00.000Z',end='2026-09-17T18:30:00.000Z',allDay=False,busy=True,taskId='p1')])
+        self.page.locator('.lm-calendar-transfer summary').click()
+        self.page.locator('#lm-calendar-import').set_input_files(dict(name='day.json',mimeType='application/json',buffer=json.dumps(snapshot).encode()))
+        self.page.wait_for_function('LifeMapCalendar.snapshot("2026-09-17")?.events.length===1')
+        self.assertEqual(self.storage(),before)
+        self.assertIn('Afternoon dog walk',self.page.locator('[aria-label="Apple Calendar"]').inner_text())
+        self.assertIn('Afternoon dog walk',self.page.locator('.lm-now-card').inner_text())
+        self.assertIn('Linked task: Walk Hudson',self.page.locator('.lm-now-card').inner_text())
+        self.page.locator('[data-day="calendar-link"]').click()
+        self.page.locator('#lm-calendar-task').select_option('p2')
+        self.page.locator('[data-day="calendar-save-link"]').click()
+        self.assertIn('Linked task: Read a chapter',self.page.locator('.lm-now-card').inner_text())
+        self.assertEqual(self.page.get_by_role('button',name='Undo',exact=True).count(),0)
+        self.assertEqual(self.state()['projects'],original['projects'])
+        self.page.locator('[data-day="calendar-link"]').click()
+        self.page.locator('#lm-calendar-task').select_option('')
+        self.page.locator('[data-day="calendar-save-link"]').click()
+        self.assertNotIn('Linked task:',self.page.locator('.lm-now-card').inner_text())
+        self.page.clock.set_fixed_time(dt.datetime(2026,9,17,18,6,tzinfo=dt.timezone.utc))
+        self.page.locator('#lm-day-nav-home').click()
+        self.assertIn('Based on calendar last refreshed',self.page.locator('.lm-now-card').inner_text())
+        self.page.clock.set_fixed_time(dt.datetime(2026,9,17,18,31,tzinfo=dt.timezone.utc))
+        self.page.locator('#lm-day-nav-home').click()
+        self.assertNotIn('Afternoon dog walk',self.page.locator('.lm-now-card').inner_text())
+        self.assertFalse(self.errors)
+
+    def test_apple_calendar_private_popup_schedules_existing_task(self):
+        private='https://atlas-os-quinton.qchambers123018.chatgpt.site'
+        saved=[]
+        snapshot=dict(day=TODAY,zone='America/Winnipeg',refreshedAt='2026-09-17T18:00:00.000Z',events=[])
+        html=(ROOT/'atlas/apple-calendar-page.html').read_text().replace('<link rel="stylesheet" href="/apple-calendar.css">','<style>'+(ROOT/'atlas/apple-calendar-page.css').read_text()+'</style>')
+        script=(ROOT/'atlas/apple-calendar-page.js').read_text().replace("publicOrigin='https://qchamby204.github.io'","publicOrigin='"+BASE+"'")
+        html=html.replace('<script src="/apple-calendar-page.js" defer></script>','<script>'+script+'</script>')
+        def mock(route):
+            url=route.request.url
+            if '/api/apple-calendar/status' in url:
+                body=dict(connected=True,calendars=[dict(id='a'*32,name='Home',writable=True,selected=True)])
+            elif '/api/apple-calendar/events' in url:
+                body=snapshot
+            elif '/api/apple-calendar/schedule' in url:
+                value=route.request.post_data_json;saved.append(value)
+                snapshot['events']=[dict(id='cal:scheduled:today',uid='scheduled',calendarId='a'*32,calendar='Home',title=value['title'],start='2026-09-17T14:00:00.000Z',end='2026-09-17T14:30:00.000Z',allDay=False,busy=True,taskId=value['taskId'])]
+                body=dict(saved=True,taskId=value['taskId'],day=value['day'])
+            else:
+                route.fulfill(status=200,content_type='text/html',body=html);return
+            route.fulfill(status=200,content_type='application/json',body=json.dumps(body))
+        self.ctx.route(private+'/**',mock)
+        self.load(board([task('p1',task='Walk Hudson',plan=TODAY,due='2026-10-30')]),home=True)
+        self.page.locator('#lm-day-nav-board').click()
+        with self.page.expect_popup() as opened:
+            self.page.locator('[data-day="calendar-schedule"][data-id="p1"]').click()
+        popup=opened.value
+        popup.wait_for_selector('#schedule-panel:not([hidden])')
+        self.assertEqual(popup.locator('#task-title').input_value(),'Walk Hudson')
+        self.assertEqual(popup.locator('#password').input_value(),'')
+        for width,height in [(320,740),(393,852),(844,390)]:
+            popup.set_viewport_size(dict(width=width,height=height))
+            self.assertLessEqual(popup.evaluate('document.documentElement.scrollWidth'),width+1)
+        popup.set_viewport_size(dict(width=393,height=852))
+        popup.locator('#schedule-form button').click()
+        self.page.wait_for_function('LifeMapCalendar.snapshot("2026-09-17")?.events.length===1')
+        self.assertEqual(self.page.get_by_role('button',name='Undo',exact=True).count(),0)
+        self.assertEqual(saved[0]['taskId'],'p1')
+        self.assertEqual(saved[0]['calendarId'],'a'*32)
+        self.assertIn('Walk Hudson',self.page.locator('[aria-label="Apple Calendar"]').inner_text())
+        self.assertEqual(self.state()['projects'][0]['due'],'2026-10-30')
+        out=ROOT/'artifacts/life-map-tests';out.mkdir(parents=True,exist_ok=True)
+        self.page.screenshot(path=str(out/f'{BROWSER}-apple-calendar-board.png'),full_page=True)
+        popup.screenshot(path=str(out/f'{BROWSER}-apple-calendar-private.png'),full_page=True)
+        popup.close()
+        self.assertFalse(self.errors)
+
     def test_life_areas_routines_and_personal_day_starters(self):
         self.load(board(),home=True)
         original=self.storage()['lifemap_v1']
