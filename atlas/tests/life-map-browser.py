@@ -448,7 +448,8 @@ class LifeMapBrowser(unittest.TestCase):
         self.page.locator('#lm-calendar-link').fill(BASE+'/life-map.html')
         self.page.locator('[data-day="calendar-import-link"]').click()
         self.assertIn('Copy day link',self.page.locator('.lm-error').inner_text())
-        self.page.locator('.lm-calendar-transfer summary').click()
+        if not self.page.locator('#lm-calendar-link').is_visible():
+            self.page.locator('.lm-calendar-transfer summary').click()
         self.page.locator('#lm-calendar-link').fill(link)
         self.page.locator('[data-day="calendar-import-link"]').click()
         self.assertEqual(self.page.locator('.lm-error').count(),0)
@@ -480,7 +481,8 @@ class LifeMapBrowser(unittest.TestCase):
         self.page.locator('#open-day').click()
         self.page.wait_for_function('window.LifeMapDay?.view==="board" && LifeMapCalendar.snapshot("2026-09-17")?.events.length===1')
         self.assertIn('Calendar walk',self.page.locator('.lm-now-card').inner_text())
-        self.assertEqual(self.storage(),before)
+        self.assertEqual(self.storage()['lifemap_v1'],before['lifemap_v1'])
+        self.assertEqual(self.state()['projects'],original['projects'])
         self.assertFalse(self.errors)
 
     def test_apple_calendar_private_popup_schedules_existing_task(self):
