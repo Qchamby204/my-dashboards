@@ -26,6 +26,11 @@ html[data-atlas-app="life-map"] .lm-category-tabs button[aria-selected="true"]{c
 html[data-atlas-app="life-map"] .lm-day-field{display:flex;flex-direction:column;gap:7px;font-size:.86rem;margin:12px 0;min-width:0}
 html[data-atlas-app="life-map"] .lm-day-field input,html[data-atlas-app="life-map"] .lm-day-field select{width:100%;min-height:46px;min-width:0;font-size:16px;font-family:inherit;padding:10px;border:1px solid var(--neo-line,var(--line));border-radius:10px;background:var(--neo-bg,var(--bg));color:var(--neo-ink,var(--txt))}
 html[data-atlas-app="life-map"] .lm-day-field option{color:var(--neo-ink,var(--txt));background:var(--neo-bg,var(--bg))}
+/* iOS native date/time controls otherwise size themselves beyond their grid track. */
+html[data-atlas-app="life-map"] #app .lm-day-field :is(input,select){display:block;box-sizing:border-box;inline-size:100%;max-inline-size:100%;min-inline-size:0}
+html[data-atlas-app="life-map"] #app .lm-day-field input:is([type="date"],[type="time"]){-webkit-appearance:none;appearance:none;text-align:left}
+html[data-atlas-app="life-map"] #app .lm-day-field input::-webkit-date-and-time-value{min-width:0;text-align:left}
+html[data-atlas-app="life-map"] #app .lm-day-field input::-webkit-datetime-edit{min-width:0;padding:0}
 html[data-atlas-app="life-map"] .lm-meal-status{padding:15px;border:1px solid var(--neo-line,var(--line));border-radius:12px;margin:12px 0}
 html[data-atlas-app="life-map"] .lm-meal-status strong{font-size:1.25rem;line-height:1.4;display:block}
 html[data-atlas-app="life-map"] .lm-meal-status progress{width:100%;height:10px;accent-color:var(--neo-accent,var(--gold));margin-top:12px}
@@ -44,6 +49,7 @@ html[data-atlas-app="life-map"] .lm-day-view{min-width:0;overflow-wrap:anywhere}
 html[data-atlas-app="life-map"] .lm-day-button:focus-visible,html[data-atlas-app="life-map"] .lm-day-dock button:focus-visible,html[data-atlas-app="life-map"] .lm-category-card:focus-visible,html[data-atlas-app="life-map"] .lm-foundation:focus-visible{outline:2px solid var(--neo-accent,var(--gold));outline-offset:3px}
 @media(min-width:760px){html[data-atlas-app="life-map"] .lm-foundation-grid{grid-template-columns:repeat(4,minmax(0,1fr))}html[data-atlas-app="life-map"] .lm-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:420px){html[data-atlas-app="life-map"] .lm-day-panel{padding:15px}html[data-atlas-app="life-map"] .lm-day-heading{align-items:flex-start}html[data-atlas-app="life-map"] .lm-day-heading>.lm-day-button{max-width:105px}}
+@media(max-width:540px){html[data-atlas-app="life-map"] .lm-day-view .lm-two-col{grid-template-columns:minmax(0,1fr);gap:0}}
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="life-map"] :is(.lm-day-button,.lm-category-card,.lm-foundation):active{transform:none}html[data-atlas-app="life-map"] .lm-day-view{scroll-behavior:auto}}
 @media(prefers-reduced-transparency:reduce){html[data-atlas-app="life-map"] .lm-day-dock{backdrop-filter:none}}
 @media(prefers-contrast:more){html[data-atlas-app="life-map"] :is(.lm-day-dock,.lm-foundation,.lm-category-card,.lm-time-block,.lm-meal-status){border-color:currentColor}}

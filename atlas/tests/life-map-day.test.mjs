@@ -70,16 +70,21 @@ test('scheduled blocks surface in their window and are never completed by the cl
  b.dayPlans[today].focus={kind:'block',id:'prep'};
  assert.equal(M.dayRecommendation(b,today,'18:00').id,'prep');
 });
-test('unreviewed planning, dinner coverage and the chosen main priority have a defined order',()=>{
+test('existing to-dos do not require a priority form or unknown dinner coverage',()=>{
  const b=board([task('main',{plan:today,effortMinutes:20})]);
- assert.equal(M.dayRecommendation(b,today,'09:00').kind,'plan');
- b.dayPlans={[today]:{reviewed:true,mainTaskId:'main',blocks:[]}};
- assert.equal(M.dayRecommendation(b,today,'09:00').kind,'food');
- b.mealCoverage={start:today,dinners:5};
  assert.equal(M.dayRecommendation(b,today,'09:00').id,'main');
- assert.equal(M.dayRecommendation(b,'2026-10-08','09:00').kind,'plan');
- b.dayPlans['2026-10-08']={reviewed:true,blocks:[]};
+ b.dayPlans={[today]:{reviewed:true,blocks:[]}};
+ assert.equal(M.dayRecommendation(b,today,'09:00').id,'main');
+ b.mealCoverage={start:today,dinners:5};
  assert.equal(M.dayRecommendation(b,'2026-10-08','09:00').kind,'food');
+});
+test('due routines come before optional work, but deadlines and current blocks stay first',()=>{
+ const b=board([task('optional',{plan:today})]),routines=[{id:'laundry',chore:'Laundry',category:'household'}];
+ assert.equal(M.dayRecommendation(b,today,'09:00',{routines}).id,'laundry');
+ b.projects.push(task('due',{due:today}));
+ assert.equal(M.dayRecommendation(b,today,'09:00',{routines}).id,'due');
+ b.projects.pop();b.dayPlans={[today]:{blocks:[{id:'gym',title:'Gym',start:'09:00',minutes:60}]}};
+ assert.equal(M.dayRecommendation(b,today,'09:00',{routines}).id,'gym');
 });
 test('reset only chooses known-duration work that fits and keeps waiting/future tasks out',()=>{
  const b=board([task('short',{plan:today,effortMinutes:10}),task('long',{plan:today,effortMinutes:60}),task('unknown',{plan:today}),task('wait',{plan:today,status:'Waiting',effortMinutes:5}),task('future',{plan:'2026-10-06',effortMinutes:5})],{mealCoverage:{start:today,dinners:5},dayPlans:{[today]:{reviewed:true,mainTaskId:'long',blocks:[]}}});
