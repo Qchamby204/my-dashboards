@@ -1,6 +1,11 @@
 
 /* Home / Plan / Areas / Board navigation, in the suite's existing visual language. */
 html[data-atlas-app="life-map"] .lm-day-view[hidden]{display:none!important}
+html[data-atlas-app="life-map"] .lm-day-records[hidden]{display:none!important}
+html[data-atlas-app="life-map"] .lm-day-task{padding:16px 0;border-bottom:1px solid var(--neo-line,var(--line));min-width:0}
+html[data-atlas-app="life-map"] .lm-day-task:last-child{border-bottom:0}
+html[data-atlas-app="life-map"] .lm-day-task>.lm-inline{margin-bottom:0}
+html[data-atlas-app="life-map"] .lm-day-task.lm-day-target{border-left:3px solid var(--neo-accent,var(--gold));padding-left:12px;scroll-margin-top:calc(var(--atlas-top-h,80px) + 20px)}
 html[data-atlas-app="life-map"] #app{padding-bottom:calc(108px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)))}
 html[data-atlas-app="life-map"] .lm-day-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:24px 0}
 html[data-atlas-app="life-map"] .lm-day-heading>div{min-width:0}
