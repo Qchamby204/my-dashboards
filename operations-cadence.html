@@ -1156,8 +1156,8 @@ function isoDay(d) {
   d = d || new Date();
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
-function periodFor(sid) {
-  const d = new Date(), y = d.getFullYear();
+function periodFor(sid, from) {
+  const d = from ? new Date(from) : new Date(), y = d.getFullYear();
   if (sid === 'daily')     return isoDay(d);
   if (sid === 'weekly')  { const t = new Date(d); t.setHours(0,0,0,0); t.setDate(t.getDate() - ((t.getDay()+6)%7)); return 'W' + isoDay(t); }
   if (sid === 'monthly')   return 'M' + y + '-' + d.getMonth();
@@ -1269,12 +1269,26 @@ function setOverride(sid, i, label, orig) {
 // ---------- completion event log (analysis backbone) ----------
 function getEvents() { if (!Array.isArray(state.events)) state.events = []; return state.events; }
 function addEvent(ev) {
+  // A Life Map selection uses the same pin. Keep its day in completion history.
+  if (ev.kind === 'log' && !ev.logId && typeof ev.key === 'string' && ev.key.startsWith('log:')) ev.logId = ev.key.slice(4);
+  const planKey = ev.kind === 'cadence' ? ev.key : ev.kind === 'log' ? 'log:' + ev.logId : '';
+  const planDate = state.sched && state.sched[planKey];
+  const rule = ev.kind === 'cadence' ? state.recur && state.recur[planKey] : null;
+  const sameCycle = planDate && (ev.kind === 'log' || (rule ? lastOccurrence(rule, parseDate(planDate)) === lastOccurrence(rule) : periodFor(ev.cadence, parseDate(planDate)) === periodFor(ev.cadence)));
+  if (sameCycle) { ev.planDate = planDate; delete state.sched[planKey]; }
   getEvents().push(Object.assign({
     id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     ts: Date.now()
   }, ev));
   save();
 }
+// Read changes made in Life Map without disrupting text being entered here.
+function refreshOpsFromLifeMap() {
+  state = load();
+  if ((!document.activeElement || !document.activeElement.matches('input,textarea,select')) && !document.getElementById('uiDlg')) render();
+}
+window.addEventListener('storage', event => { if (event.key === STORE_KEY) refreshOpsFromLifeMap(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshOpsFromLifeMap(); });
 function removeLastEvent(pred) {
   const e = getEvents();
   for (let i = e.length - 1; i >= 0; i--) {
