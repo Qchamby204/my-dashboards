@@ -26,6 +26,7 @@ html[data-atlas-app="life-map"] .lm-next-block{border-top:1px solid var(--neo-li
 html[data-atlas-app="life-map"] .lm-foundation-grid,html[data-atlas-app="life-map"] .lm-category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 html[data-atlas-app="life-map"] .lm-foundation,html[data-atlas-app="life-map"] .lm-category-card{display:flex;flex-direction:column;align-items:flex-start;gap:9px;text-align:left;padding:16px;min-height:124px;border:1px solid var(--neo-line,var(--line));border-radius:16px;background:var(--neo-surface,var(--card));color:var(--neo-ink,var(--txt));box-shadow:none;overflow-wrap:anywhere}
 html[data-atlas-app="life-map"] .lm-foundation strong{font-size:.95rem;font-weight:600;line-height:1.4}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-foundation .eyebrow{font-size:12px!important;letter-spacing:.04em!important;line-height:1.4;overflow-wrap:normal;word-break:normal}
 html[data-atlas-app="life-map"] .lm-foundation small,html[data-atlas-app="life-map"] .lm-category-card span{font-size:.8rem;color:var(--neo-muted,var(--muted));line-height:1.4}
 html[data-atlas-app="life-map"] .lm-foundation[data-attention="true"],html[data-atlas-app="life-map"] .lm-meal-attention{border-color:var(--neo-accent,var(--gold));border-left:3px solid var(--neo-accent,var(--gold))}
 html[data-atlas-app="life-map"] .lm-category-card small{margin-top:auto;color:var(--neo-accent,var(--gold))}
@@ -61,7 +62,7 @@ html[data-atlas-app="life-map"] #lm-capture-launch{bottom:calc(96px + var(--atla
 html[data-atlas-app="life-map"] .lm-day-view{min-width:0;overflow-wrap:anywhere}
 html[data-atlas-app="life-map"] .lm-day-button:focus-visible,html[data-atlas-app="life-map"] .lm-day-dock button:focus-visible,html[data-atlas-app="life-map"] .lm-category-card:focus-visible,html[data-atlas-app="life-map"] .lm-foundation:focus-visible{outline:2px solid var(--neo-accent,var(--gold));outline-offset:3px}
 @media(min-width:760px){html[data-atlas-app="life-map"] .lm-foundation-grid{grid-template-columns:repeat(4,minmax(0,1fr))}html[data-atlas-app="life-map"] .lm-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:420px){html[data-atlas-app="life-map"] .lm-day-panel{padding:20px}html[data-atlas-app="life-map"] .lm-day-heading{align-items:flex-start}html[data-atlas-app="life-map"] .lm-day-heading>.lm-day-button{max-width:105px}}
+@media(max-width:420px){html[data-atlas-app="life-map"] .lm-day-panel{padding:20px}html[data-atlas-app="life-map"] .lm-day-heading{align-items:flex-start}}
 @media(max-width:540px){html[data-atlas-app="life-map"] .lm-day-view .lm-two-col{grid-template-columns:minmax(0,1fr);gap:0}}
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="life-map"] :is(.lm-day-button,.lm-category-card,.lm-foundation):active{transform:none}html[data-atlas-app="life-map"] .lm-day-view{scroll-behavior:auto}}
 @media(prefers-reduced-transparency:reduce){html[data-atlas-app="life-map"] .lm-day-dock{backdrop-filter:none}}
