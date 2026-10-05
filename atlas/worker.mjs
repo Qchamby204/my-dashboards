@@ -1,3 +1,6 @@
+import {calendarAPI} from './apple-calendar-api.mjs';
+import {CalendarError} from './apple-calendar-core.mjs';
+import {calendarHTML,calendarCSS,calendarJS} from './apple-calendar-assets.mjs';
 import {priorityAPI,occupiedSlots} from './priorities-api.mjs';
 import {connectedAPI} from './connected-api.mjs';
 import { cadenceRow, cadenceAPI } from './cadence-api.mjs';
@@ -107,6 +110,7 @@ async function api(request,env,url,owner) {
   const db=env.DB;
   if(!db) throw new HttpError('Your saved workspace is temporarily unavailable. Please try again.',503);
   const path=url.pathname, now=new Date().toISOString();
+  if(path.startsWith('/api/apple-calendar/'))return json(await calendarAPI({db,owner,env,path,method:request.method,b:['GET','HEAD'].includes(request.method)?null:await bodyOf(request),url,now}));
   if(path==='/api/priorities'&&request.method==='POST')return json(await priorityAPI({db,owner,b:await bodyOf(request),now,HttpError}));
   if(path.startsWith('/api/connected/'))return json(await connectedAPI({db,owner,path,method:request.method,b:request.method==='GET'?null:await bodyOf(request),now,HttpError}));
   if(path.startsWith('/api/cadence/')&&['POST','PATCH'].includes(request.method))return json(await cadenceAPI({db,owner,path,method:request.method,b:await bodyOf(request),now,HttpError}));
@@ -451,7 +455,7 @@ export default {
     const url=new URL(request.url);
     const user=request.headers.get('oai-authenticated-user-id');
     // This Worker is deployed only behind the Sites dispatcher, which provides identity.
-    if(!user) return url.pathname.startsWith('/api/') ? json({error:'Sign in to open your workspace.'},401) : new Response(null,{status:302,headers:{Location:'/signin-with-chatgpt?return_to=%2F',...headers}});
+    if(!user) return url.pathname.startsWith('/api/') ? json({error:'Sign in to open your workspace.'},401) : new Response(null,{status:302,headers:{Location:'/signin-with-chatgpt?return_to='+encodeURIComponent(url.pathname+url.search),...headers}});
     if(!['GET','HEAD'].includes(request.method)) {
       const origin=request.headers.get('origin');
       if(!origin || origin!==url.origin) return json({error:'This request is not allowed.'},403);
@@ -459,12 +463,12 @@ export default {
     try {
       if(['/apps/herald','/apps/herald/'].includes(url.pathname)&&['GET','HEAD'].includes(request.method)) return new Response(null,{status:302,headers:{...headers,Location:'https://qchamby204.github.io/my-dashboards/the-herald.html'}});
       if(url.pathname.startsWith('/api/')) return await api(request,env,url,user);
-      const assets={...connected,'/work.mjs':[workModel,'text/javascript; charset=utf-8'],'/work-ui.mjs':[workUI,'text/javascript; charset=utf-8'],'/connect-ui.mjs':[connectUI,'text/javascript; charset=utf-8'],'/cadence.mjs':[cadenceModel,'text/javascript; charset=utf-8'],'/cadence-ui.mjs':[cadenceUI,'text/javascript; charset=utf-8'],'/cadence-catalog.mjs':[cadenceCatalog,'text/javascript; charset=utf-8'],'/budget-ui.mjs':[budgetUI,'text/javascript; charset=utf-8'],'/commitments.mjs':[commitmentsModel,'text/javascript; charset=utf-8'],'/commitments-ui.mjs':[commitmentsUI,'text/javascript; charset=utf-8'],'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[hub,'text/html; charset=utf-8'],'/index.html':[hub,'text/html; charset=utf-8'],'/workspace':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
+      const assets={'/apple-calendar':[calendarHTML,'text/html; charset=utf-8'],'/apple-calendar.css':[calendarCSS,'text/css; charset=utf-8'],'/apple-calendar-page.js':[calendarJS,'text/javascript; charset=utf-8'],...connected,'/work.mjs':[workModel,'text/javascript; charset=utf-8'],'/work-ui.mjs':[workUI,'text/javascript; charset=utf-8'],'/connect-ui.mjs':[connectUI,'text/javascript; charset=utf-8'],'/cadence.mjs':[cadenceModel,'text/javascript; charset=utf-8'],'/cadence-ui.mjs':[cadenceUI,'text/javascript; charset=utf-8'],'/cadence-catalog.mjs':[cadenceCatalog,'text/javascript; charset=utf-8'],'/budget-ui.mjs':[budgetUI,'text/javascript; charset=utf-8'],'/commitments.mjs':[commitmentsModel,'text/javascript; charset=utf-8'],'/commitments-ui.mjs':[commitmentsUI,'text/javascript; charset=utf-8'],'/agenda.mjs':[agendaModel,'text/javascript; charset=utf-8'],'/agenda-ui.mjs':[agendaUI,'text/javascript; charset=utf-8'],'/search.mjs':[searchModel,'text/javascript; charset=utf-8'],'/search-ui.mjs':[searchUI,'text/javascript; charset=utf-8'],'/herald.mjs':[heraldModel,'text/javascript; charset=utf-8'],'/herald-ui.mjs':[heraldUI,'text/javascript; charset=utf-8'],'/communication.mjs':[communicationModel,'text/javascript; charset=utf-8'],'/communication-ui.mjs':[communicationUI,'text/javascript; charset=utf-8'],'/':[hub,'text/html; charset=utf-8'],'/index.html':[hub,'text/html; charset=utf-8'],'/workspace':[html,'text/html; charset=utf-8'],'/style.css':[css,'text/css; charset=utf-8'],'/app.js':[js,'text/javascript; charset=utf-8'],'/theme.js':[theme,'text/javascript; charset=utf-8'],'/model.mjs':[model,'text/javascript; charset=utf-8'],'/ledger.mjs':[ledgerModel,'text/javascript; charset=utf-8'],'/ledger-ui.mjs':[ledgerUI,'text/javascript; charset=utf-8'],'/edition-refresh-ui.mjs':[editionUI,'text/javascript; charset=utf-8'],'/reflection-ui.mjs':[reflectionUI,'text/javascript; charset=utf-8']};
       const asset=assets[url.pathname]; if(!asset || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
       return new Response(request.method==='HEAD'?null:asset[0],{headers:{...headers,'Content-Type':asset[1],
         'Content-Security-Policy':url.pathname.startsWith('/apps/')?"default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'":"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
     } catch(error) {
-      if(error instanceof HttpError) return json({error:error.message},error.status);
+      if(error instanceof HttpError || error instanceof CalendarError) return json({error:error.message},error.status);
       if(/atlas_restore_guard_valid|atlas_priority_|UNIQUE constraint/i.test(error?.message))return json({error:'Your workspace changed or these records conflict. Refresh and review again; nothing from this request was saved.'},409);
       if(error instanceof Error && !/D1|SQL|database/i.test(error.message)) return json({error:error.message},400);
       console.error('Atlas request failed',error?.name);

@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
+<script src="shared/atlas-theme.js?v=871553d8ef57"></script>
 <style>
 :root{
   --bg:#0c0e1a; --card:#141830; --card2:#1a1f3a; --line:rgba(120,130,180,.16);
@@ -80,7 +80,7 @@ a{color:inherit}
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-apple.png?v=8b8862ad8038">
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=239c369fb61e">
 <script src="shared/dashboard-navigation.js?v=e54920f52f1b" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=d8f42dd57933"><link rel="stylesheet" href="atlas/life-map-day.css?v=19f49e6c60eb"></head>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=60704a800ce6"><link rel="stylesheet" href="atlas/life-map-day.css?v=2c091c64b879"></head>
 <body>
 <div id="app"></div>
 <section id="atlas-project-transfer" aria-label="Synced project transfer"></section>
@@ -1286,6 +1286,7 @@ function validateLifeMapRecords(input){
   }
   if(out.dayTemplates!==undefined){if(!object(out.dayTemplates)||Object.keys(out.dayTemplates).some(k=>!['weekday','weekend'].includes(k)))throw Error('Day templates are invalid.');for(const rows of Object.values(out.dayTemplates))blockList(rows);}
   if(Object.entries(out.checks).some(([k,v])=>!id(k)||!string(v,100))||Object.entries(out.planned).some(([k,v])=>!id(k)||!date(v))||out.log.some(x=>!object(x)||!id(x.id)||x.t!=='proj'||!date(x.d)))throw Error('The backup contains invalid activity records.');
+  if(out.calendarLinks!==undefined&&(!Array.isArray(out.calendarLinks)||out.calendarLinks.length>1000||out.calendarLinks.some(x=>!object(x)||!string(x.eventId,1100,true)||x.taskId!==''&&!id(x.taskId))))throw Error('Calendar task links are invalid.');
   return out;
 }
 
@@ -1963,12 +1964,44 @@ function createLifeMapWorkflow(){
   document.addEventListener('visibilitychange',()=>{if(document.hidden)storeDraft();else if(!busy)render();});
 })();
 
+/* Private connection is opened on a user gesture; Apple secrets never enter this app. */
+(()=>{
+'use strict';
+const endpoint='https://atlas-os-quinton.qchambers123018.chatgpt.site',origin=new URL(endpoint).origin,key='lifemap:calendar-day-cache:v1';
+let days={},pending=null,message='';
+try{const raw=sessionStorage.getItem(key);if(raw&&raw.length<1200000)days=JSON.parse(raw);}catch{}
+const date=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!isNaN(Date.parse(v));
+function normalize(raw){
+ if(!raw||!date(raw.day)||typeof raw.zone!=='string'||!Array.isArray(raw.events)||raw.events.length>500||!Number.isFinite(Date.parse(raw.refreshedAt))||Date.parse(raw.refreshedAt)>Date.now()+60000)throw Error('Choose a valid calendar day exported from your private connection.');
+ try{new Intl.DateTimeFormat('en',{timeZone:raw.zone}).format();}catch{throw Error('This calendar day has an invalid time zone.');}
+ const events=raw.events.map(e=>{if(!e||typeof e.id!=='string'||e.id.length>1100||typeof e.title!=='string'||e.title.length>300||typeof e.calendar!=='string'||e.calendar.length>160||typeof e.calendarId!=='string'||e.calendarId.length>32||typeof e.taskId!=='string'||e.taskId.length>200||!Number.isFinite(Date.parse(e.start))||!Number.isFinite(Date.parse(e.end))||e.end<e.start)throw Error('This calendar day has an invalid event.');return {id:e.id,uid:String(e.uid||'').slice(0,512),title:e.title,calendar:e.calendar,calendarId:e.calendarId,taskId:e.taskId,start:e.start,end:e.end,allDay:!!e.allDay,busy:!!e.busy};});
+ return {day:raw.day,zone:raw.zone,refreshedAt:raw.refreshedAt,events};
+}
+function update(snapshot){const clean=normalize(snapshot);days[clean.day]=clean;const sorted=Object.values(days).sort((a,b)=>b.refreshedAt.localeCompare(a.refreshedAt)).slice(0,7);days=Object.fromEntries(sorted.map(s=>[s.day,s]));try{sessionStorage.setItem(key,JSON.stringify(days));}catch{}message='';window.dispatchEvent(new Event('lifemap-calendar-update'));}
+function open(day,task){
+ const nonce=crypto.randomUUID(),zone=Intl.DateTimeFormat().resolvedOptions().timeZone||'America/Winnipeg',url=endpoint+'/apple-calendar?'+new URLSearchParams({day,zone,nonce});
+ const popup=window.open(url+(task?'#task='+encodeURIComponent(JSON.stringify({id:task.id,title:task.task,day})):''),'lifemap-apple-calendar','popup,width=580,height=820');
+ if(!popup){message='Allow the calendar screen to open, then try again.';window.dispatchEvent(new Event('lifemap-calendar-update'));return;}
+ pending={nonce,popup,task:task?{id:task.id,title:task.task,day}:null};message='Calendar connection opened. Return here after refreshing your day.';window.dispatchEvent(new Event('lifemap-calendar-update'));
+}
+window.addEventListener('message',e=>{
+ if(!pending||e.origin!==origin||e.source!==pending.popup||e.data?.nonce!==pending.nonce)return;
+ if(e.data.type==='lifemap-calendar-ready'){e.source.postMessage({type:'lifemap-calendar-request',nonce:pending.nonce,task:pending.task},origin);return;}
+ if(e.data.type==='lifemap-calendar-day'){try{update(e.data.snapshot);}catch(err){message=err.message;window.dispatchEvent(new Event('lifemap-calendar-update'));}}
+ if(e.data.type==='lifemap-calendar-scheduled'){window.dispatchEvent(new CustomEvent('lifemap-calendar-scheduled',{detail:e.data.scheduled}));}
+ if(e.data.type==='lifemap-calendar-disconnected'){days={};try{sessionStorage.removeItem(key);}catch{}message='Apple Calendar disconnected.';window.dispatchEvent(new Event('lifemap-calendar-update'));}
+});
+function snapshot(day){try{return days[day]?normalize(days[day]):null;}catch{return null;}}
+window.LifeMapCalendar=Object.freeze({open,snapshot,get message(){return message;},fresh(day){const s=snapshot(day);return !!s&&Date.now()-Date.parse(s.refreshedAt)<300000;},active(day){const s=snapshot(day);return s?s.events.filter(e=>!e.allDay&&e.busy&&Date.parse(e.start)<=Date.now()&&Date.parse(e.end)>Date.now()):[];},importDay:async file=>{if(file.size>1200000)throw Error('Choose a calendar day smaller than 1.2 MB.');const data=JSON.parse(await file.text());if(data.app!=='lifemap-calendar-day'||data.version!==1)throw Error('Choose a day exported from the Apple Calendar connection.');update(data);return data.day;}});
+})();
+
 /* Priority-led Home and category navigation over the existing Life Map records. */
 (()=>{
   'use strict';
   const M=createLifeMapWorkflow(),D=window.LifeMapDashboard,W=window.LifeMapWorkflow;
+  const C=window.LifeMapCalendar;
   const UI_KEY='lifemap:day-drafts:v1',clone=M.clone;
-  let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,related:null,records:false,target:'',error:''};
+  let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,related:null,records:false,target:'',calendarLink:null,error:''};
   try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];}}}catch{}
   const attrs=s=>esc(String(s??'')),button=(label,action,extra='',primary=false)=>'<button type="button" class="btn lm-day-button'+(primary?' lm-day-primary':'')+'" data-day="'+action+'" '+extra+'>'+label+'</button>';
   const help=t=>'<p class="lm-help">'+esc(t)+'</p>';
@@ -1984,7 +2017,7 @@ function createLifeMapWorkflow(){
   const recordUI=()=>{try{localStorage.setItem(UI_KEY,JSON.stringify({food:ui.food,block:ui.block,main:ui.main,date:ui.date}));}catch{ui.error='Your draft could not be saved. Keep this page open until you save it.';}};
   function choose(tab,category){ui.tab=tab;ui.records=false;if(category)ui.category=category;ui.error='';render();window.scrollTo?.({top:0,behavior:'instant'});document.getElementById('lm-day-nav-'+tab)?.focus({preventScroll:true});}
   function editPlan(next,date,fn){next.dayPlans??={};next.dayPlans[date]??={reviewed:false,mainTaskId:'',blocks:[]};next.dayPlans[date].blocks??=[];fn(next.dayPlans[date]);}
-  function commit(change,message,success){return W.transaction(change,message,'day_planned',()=>{ui.error='';success?.();recordUI();});}
+  function commit(change,message,success,options={}){return W.transaction(change,message,'day_planned',()=>{ui.error='';success?.();recordUI();},options);}
   function coverageText(food){
     if(!food.set)return 'Set your dinner coverage';
     if(food.expired)return 'Dinner coverage has ended';
@@ -1996,13 +2029,32 @@ function createLifeMapWorkflow(){
   const areaName=category=>({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',rest:'Life Admin & Documents'}[category]||'');
   const scheduled=date=>S.projects.filter(t=>!t.archived&&t.plan===date);
   const dayRoutines=date=>S.chores.filter(c=>!c.archived&&S.planned?.[c.id]===date);
-  function dayTaskRow(t){return '<article class="lm-day-task'+(ui.target===t.id?' lm-day-target':'')+'" data-day-row-id="'+attrs(t.id)+'">'+D.taskRow(t)+'<div class="lm-inline">'+(M.open(t)&&t.status!=='Waiting'&&ui.date===todayISO()?button('Start this task','focus','data-kind="task" data-id="'+attrs(t.id)+'"'):'')+button('Related area','tab','data-tab="areas" data-category="'+M.categoryFor(t)+'"')+'</div></article>';}
+  function dayTaskRow(t){return '<article class="lm-day-task'+(ui.target===t.id?' lm-day-target':'')+'" data-day-row-id="'+attrs(t.id)+'">'+D.taskRow(t)+'<div class="lm-inline">'+(M.open(t)&&t.status!=='Waiting'&&ui.date===todayISO()?button('Start this task','focus','data-kind="task" data-id="'+attrs(t.id)+'"'):'')+button('Schedule in Apple Calendar','calendar-schedule','data-id="'+attrs(t.id)+'"')+button('Related area','tab','data-tab="areas" data-category="'+M.categoryFor(t)+'"')+'</div></article>';}
+  const calendarTask=e=>S.projects.find(t=>!t.archived&&t.id===((S.calendarLinks||[]).find(x=>x.eventId===e.id)?.taskId??e.taskId));
+  const calendarTime=(e,zone)=>e.allDay?'All day':new Intl.DateTimeFormat(undefined,{timeZone:zone,hour:'numeric',minute:'2-digit'}).format(new Date(e.start))+' – '+new Intl.DateTimeFormat(undefined,{timeZone:zone,hour:'numeric',minute:'2-digit'}).format(new Date(e.end));
+  function calendarPanel(){
+    const saved=C?.snapshot(ui.date),events=saved?.events||[];
+    let body='<div class="lm-day-section-title"><h2>Apple Calendar</h2>'+button(saved?'Refresh calendar':'Connect / refresh calendar','calendar-open')+'</div>';
+    body+=help(saved?'Last refreshed '+new Date(saved.refreshedAt).toLocaleString()+'. Refresh to pick up calendar changes.':'Connect your selected iCloud calendars to see your real schedule here.');
+    if(C?.message)body+='<p class="lm-help" role="status">'+esc(C.message)+'</p>';
+    if(saved){body+=events.length?events.map(e=>{const t=calendarTask(e);return '<article class="lm-day-task" data-calendar-event="'+attrs(e.id)+'"><div class="eyebrow">'+esc(calendarTime(e,saved.zone))+' · '+esc(e.calendar)+'</div><h3>'+esc(e.title)+'</h3>'+(t?help('Linked task: '+t.task+(t.status==='Done'?' · Completed':'')):'')+'<div class="lm-inline">'+(t&&M.open(t)?button('Open linked task','calendar-task','data-id="'+attrs(t.id)+'"')+button('Done','complete-task','data-id="'+attrs(t.id)+'"'):'')+button(t?'Change linked task':'Link a task','calendar-link','data-event="'+attrs(e.id)+'"')+'</div></article>';}).join(''):help('No calendar events on this day.');}
+    if(ui.calendarLink&&events.some(e=>e.id===ui.calendarLink)){const e=events.find(e=>e.id===ui.calendarLink),linked=calendarTask(e);body+='<div class="lm-day-task"><h3>Link '+esc(e.title)+'</h3>'+field('Life Map task','<select id="lm-calendar-task">'+[['','No linked task'],...S.projects.filter(t=>!t.archived).map(t=>[t.id,t.task])].map(([id,title])=>'<option value="'+attrs(id)+'"'+(linked?.id===id?' selected':'')+'>'+esc(title)+'</option>').join('')+'</select>')+'<div class="lm-inline">'+button('Save link','calendar-save-link')+button('Cancel','calendar-link-cancel')+'</div></div>';}
+    body+='<details class="lm-calendar-transfer"><summary>Import calendar day</summary>'+help('If the connection opens separately from your Home Screen app, download the day there and import it here.')+'<label class="lm-day-field"><span>Calendar day file</span><input id="lm-calendar-import" type="file" accept=".json,application/json"></label></details>';
+    return panel('Apple Calendar',body);
+  }
+  function rightNow(){
+    const events=C?.active(todayISO())||[],saved=C?.snapshot(todayISO());
+    if(!events.length)return candidateCard(recommend());
+    const e=events[0],task=calendarTask(e);
+    return '<div class="lm-now-card"><div class="eyebrow">Right now · Apple Calendar</div><h2>'+esc(e.title)+'</h2>'+help(calendarTime(e,saved.zone)+' · '+e.calendar)+(!C.fresh(todayISO())?help('Based on calendar last refreshed '+new Date(saved.refreshedAt).toLocaleTimeString()+'. Refresh today’s Board if your schedule changed.'):'')+(task?help('Linked task: '+task.task+(task.status==='Done'?' · Completed':'')):'')+(events.length>1?help(events.length+' calendar events overlap right now. Check today’s Board.'):'')+'<div class="lm-inline">'+(task&&M.open(task)?button('Open linked task','calendar-task','data-id="'+attrs(task.id)+'"',true)+button('Done','complete-task','data-id="'+attrs(task.id)+'"'):'')+button('View this day','view-day-task',task?'data-id="'+attrs(task.id)+'"':'')+'</div></div>';
+  }
   function boardView(){
     if(!M.validDate(ui.date))return heading('Your scheduled tasks','Choose a day')+panel('Choose a day',field('Day to view',input('date',ui.date,'date'))+help('Choose a valid date to see its scheduled tasks.'));
     const today=ui.date===todayISO(),tasks=scheduled(ui.date),open=tasks.filter(M.open),done=tasks.filter(t=>t.status==='Done'),deadline=M.sortTasks(openTasks().filter(t=>t.due&&(today?t.due<=ui.date:t.due===ui.date)&&!tasks.some(p=>p.id===t.id)),ui.date),routines=dayRoutines(ui.date);
     let html=heading('Your scheduled tasks',today?'Today’s Board':fmtDay(ui.date)+' Board',button('Today','plan-today'));
     html+=panel('Choose a day','<div class="lm-inline">'+button('← Previous day','day-step','data-step="-1"')+button('Next day →','day-step','data-step="1"')+'</div>'+field('Day to view',input('date',ui.date,'date')));
-    if(today)html+=panel('Right now',candidateCard(recommend()));
+    if(today)html+=panel('Right now',rightNow());
+    html+=calendarPanel();
     html+=panel('Scheduled tasks','<div class="lm-day-section-title"><h2>Scheduled for '+(today?'today':fmtDay(ui.date))+'</h2>'+button('Build this day','tab','data-tab="plan"')+'</div>'+(open.length?M.sortTasks(open,ui.date).map(dayTaskRow).join(''):help('No tasks scheduled for this day. Use Build around your day to pull in related tasks.')));
     if(deadline.length)html+=panel('Deadlines','<h2>Deadlines needing attention</h2>'+deadline.map(dayTaskRow).join(''));
     if(routines.length)html+=panel('Scheduled routines','<h2>Scheduled routines</h2>'+routines.map(c=>'<article class="lm-day-task" data-day-row-id="'+attrs(c.id)+'">'+(today?D.choreRow(c):'<strong>'+esc(c.chore)+'</strong>'+help('Scheduled for '+fmtDay(ui.date)))+'<div class="lm-inline">'+button('Remove from this day','unschedule-routine','data-id="'+attrs(c.id)+'"')+'</div></article>').join(''));
@@ -2049,7 +2101,7 @@ function createLifeMapWorkflow(){
   function homeView(){
     const c=recommend();
     let html=heading(niceToday(),'A clear next move.',button('I’m off track','reset'));
-    html+=panel('Right now',candidateCard(c)+ '<div class="lm-inline">'+button('Today’s scheduled tasks','view-day-task')+'</div>');
+    html+=panel('Right now',rightNow()+ '<div class="lm-inline">'+button('Today’s scheduled tasks','view-day-task')+'</div>');
     if(ui.reset)html+=panel('Return to your day','<h2>Restart from here</h2>'+help('Choose the time you actually have. Your unfinished tasks stay available.')+field('Minutes available',select('available',ui.available,[[10,'10 minutes'],[25,'25 minutes'],[45,'45 minutes'],[60,'60 minutes']]))+candidateCard(recommend({available:Number(ui.available)}))+button('Close reset','reset-close'));
     html+=panel('Foundations','<div class="lm-day-section-title"><h2>Keep life running</h2>'+info('How foundations work','Real deadlines, due prep reminders, due routines and scheduled to-dos stay in view. Started work stays in focus until you finish or change it. Nothing is completed by the clock.')+'</div>'+foundationCards());
     const routines=dueRoutines();if(routines.length)html+=panel('Due routines','<div class="lm-day-section-title"><h2>The basics due today</h2>'+button('All routines','tab','data-tab="board"')+'</div>'+routines.slice(0,5).map(c=>D.choreRow(c)).join(''));
@@ -2089,6 +2141,13 @@ function createLifeMapWorkflow(){
   }
   function handle(action,el){
     const id=el.dataset.id;
+    if(action==='calendar-open')return C.open(ui.date);
+    if(action==='calendar-schedule'){const task=S.projects.find(t=>t.id===id&&!t.archived);if(task)C.open(ui.date,task);return;}
+    if(action==='calendar-task'){const task=S.projects.find(t=>t.id===id&&!t.archived);if(task)return W.openEditor('proj',{...task});return;}
+    if(action==='calendar-link'){ui.calendarLink=el.dataset.event;render();document.getElementById('lm-calendar-task')?.focus();return;}
+    if(action==='calendar-link-cancel'){ui.calendarLink=null;render();return;}
+    if(action==='calendar-save-link'){const eventId=ui.calendarLink,taskId=document.getElementById('lm-calendar-task').value;return commit(next=>{next.calendarLinks=(next.calendarLinks||[]).filter(x=>x.eventId!==eventId);next.calendarLinks.push({eventId,taskId});},'Calendar task linked',()=>{ui.calendarLink=null;},{undo:false});}
+
     if(action==='tab')return choose(el.dataset.tab,el.dataset.category);
     if(action==='category'){ui.category=el.dataset.category;render();document.getElementById('lm-category-'+ui.category)?.focus({preventScroll:true});return;}
     if(action==='plan-today'){ui.date=todayISO();ui.main=null;ui.block=null;recordUI();render();return;}
@@ -2150,6 +2209,11 @@ function createLifeMapWorkflow(){
     event.preventDefault();const buttons=[...el.parentNode.querySelectorAll('[role="tab"]')],i=buttons.indexOf(el),j=event.key==='Home'?0:event.key==='End'?buttons.length-1:(i+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;buttons[j].click();
   });
   let lastMinute=clock();setInterval(()=>{const next=clock();if(next!==lastMinute&&!document.hidden&&!view.editor&&!W.busy&&!app.querySelector('[data-day-field]:focus')){lastMinute=next;render();}},60000);
+
+  window.addEventListener('lifemap-calendar-update',()=>{if(!view.editor)render();});
+  window.addEventListener('lifemap-calendar-scheduled',event=>{const value=event.detail;if(!value||!M.validDate(value.day))return;commit(next=>{const t=next.projects.find(t=>t.id===value.taskId&&!t.archived);if(t)M.setPlan(t,value.day,todayISO());},'Task scheduled in Apple Calendar',()=>{ui.date=value.day;ui.tab='board';ui.records=false;},{undo:false});});
+  app.addEventListener('change',event=>{if(event.target.id!=='lm-calendar-import'||!event.target.files[0])return;C.importDay(event.target.files[0]).then(day=>{ui.date=day;ui.error='';render();}).catch(e=>{ui.error=e.message;render();});});
+  setInterval(()=>{if(!document.hidden&&!view.editor&&ui.tab==='home'&&!app.querySelector('input:focus,textarea:focus,select:focus'))render();},60000);
   window.LifeMapDay=Object.freeze({choose,showRecords:()=>{ui.tab='board';ui.records=true;render();},get view(){return ui.tab;},get category(){return ui.category;}});
 })();
 
@@ -2227,6 +2291,7 @@ function createLifeMapLocalStore(storage,validate){
   return {load,save,get blocked(){return blocked;},get error(){return error;},get raw(){return raw;},get saved(){return saved;}};
 }
 
+
 /* Compose the same dashboard over the existing GitHub browser store. */
 (()=>{
   const local=createLifeMapLocalStore({getItem:k=>localStorage.getItem(k),setItem:(k,v)=>localStorage.setItem(k,v)},validateLifeMapRecords);
@@ -2251,7 +2316,8 @@ function createLifeMapLocalStore(storage,validate){
   S=local.load();render();
 })();
 
+
 </script>
-<script type="module" src="shared/atlas-project-transfer.js?v=3f1383b0bb94"></script>
+<script type="module" src="shared/atlas-project-transfer.js?v=e31432d32d28"></script>
 </body>
 </html>

@@ -77,3 +77,5 @@ html[data-atlas-app="life-map"] .lm-day-button:focus-visible,html[data-atlas-app
 html[data-atlas-app="life-map"] :is(#toast,#undoToast){bottom:calc(102px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)))!important}
 html[data-atlas-app="life-map"] .lm-local-status,html[data-atlas-app="life-map"] #atlas-project-transfer{margin-bottom:16px}
 html.atlas-mobile[data-atlas-app="life-map"]{scroll-padding-bottom:calc(112px + var(--atlas-safe-bottom,0px))}
+
+.lm-day-task h3{margin:12px 0;font-size:1.05rem;line-height:1.4;overflow-wrap:anywhere}.lm-calendar-transfer{margin-top:24px}.lm-calendar-transfer summary{min-height:44px;padding:8px 0;cursor:pointer}
