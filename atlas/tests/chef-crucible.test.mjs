@@ -20,6 +20,69 @@ function app(name,saved,options={}){
 }
 const chefState=()=>({favourites:{b01:true},ratings:{b01:4},plan:{mon:{breakfast:'b01'}},checked:{eggs:true}});
 
+test('Fit Foodie imports every recipe page once and retains all 200 existing recipes',()=>{
+  const a=app('chef',chefState());
+  const separators=new Set([14,24,29,33,37,43,46,68,74,78,82,94,97,103,108]);
+  const expected=Array.from({length:109},(_,i)=>i+2).filter(p=>!separators.has(p));
+  assert.deepEqual(a.json('RECIPES.filter(x=>x.source).map(x=>x.source.page)'),expected);
+  assert.equal(a.run('RECIPES.length'),294);
+  assert.equal(a.run('new Set(RECIPES.map(x=>x.id)).size'),294);
+  assert.equal(a.run('RECIPES.filter(x=>!x.source).length'),200);
+  assert.equal(a.run('RECIPES.every(x=>x.ingredients.length&&x.steps.length&&validServings(x.servings))'),true);
+  assert.equal(a.writes.length,0);
+  assert.deepEqual(a.json('state.plan'),chefState().plan);
+});
+test('cookbook and category search includes sauces and drinks without filling meal slots with them',()=>{
+  const a=app('chef',chefState());
+  a.run('ui.source="fitfoodie"');assert.equal(a.run('discoverList().length'),94);
+  a.run('ui.search="low cal sauces"');assert.equal(a.run('discoverList().length'),3);
+  a.run('ui.search="";ui.meal="drink"');assert.equal(a.run('discoverList().length'),9);
+  assert.equal(a.run('cardHtml(BY_ID["ff-075"],false).includes("data-add")'),false);
+  assert.equal(a.run('planRecipe("mon","dinner","ff-075",2)'),false);
+  assert.equal(a.run('Object.values(fillWeek({})).every(day=>Object.values(day).every(id=>MEALS.includes(BY_ID[id].meal)))'),true);
+});
+test('known cookbook amounts scale and per-pocket quantities use the full batch',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});
+  assert.equal(a.run('planRecipe("mon","dinner","ff-019",4)'),true);
+  const items=a.json('groceryList().flatMap(g=>g.items)');
+  assert.equal(items.find(i=>i.n==='96/4 ground beef').q,'200 g');
+  assert.equal(items.find(i=>i.n==='low carb tortilla').q,'2');
+  assert.equal(items.find(i=>i.n==='american cheese').q,'2 slices');
+  assert.equal(items.find(i=>i.n==='pickle (minced is best)').q,'4');
+  assert.equal(a.run('BY_ID["ff-019"].ingredients[0].q'),'400 g');
+  assert.equal(a.run('BY_ID["ff-002"].ingredients[4].q'),'1/4 cup');
+});
+test('quantity ranges stay ranges and unspecified amounts remain unspecified',()=>{
+  const a=app('chef',chefState());
+  assert.equal(a.run('parseQty("250-300 g")'),null);
+  assert.equal(a.run('scaledQty("250-300 g",2)'),'500–600 g');
+  assert.equal(a.run('scaledQty("1/2-3/4 cup",2)'),'1–1 1/2 cup');
+  assert.equal(a.run('scaledQty("as needed",4)'),'as needed');
+  assert.equal(a.run('parseQty("1 tsp per cup of mixture")'),null);
+});
+test('source timing conflicts and variable nutrition never become zero-minute or zero-calorie claims',()=>{
+  const a=app('chef',chefState());a.run('ui.time=20');
+  assert.equal(a.run('discoverList().some(x=>x.id==="ff-052"||x.id==="ff-069"||x.id==="ff-062")'),false);
+  assert.ok(a.run('sourceDetails(BY_ID["ff-052"])').includes('Timing conflict'));
+  assert.ok(a.run('sourceDetails(BY_ID["ff-049"])').includes('2–6 calories'));
+  assert.equal(a.run('cardHtml(BY_ID["ff-047"],false).includes("nullg protein")'),false);
+  assert.equal(a.run('validServings(200)'),true);
+  assert.equal(a.run('validServings(501)'),false);
+});
+test('grocery lists exclude equipment and prepared filling references',()=>{
+  const a=app('chef',{...chefState(),plan:{mon:{dessert:'ff-047',dinner:'ff-031'}},checked:{}});
+  assert.equal(a.run('groceryList().flatMap(g=>g.items).some(i=>/pipette|mold|buffalo chicken|low cal. ranch sauce/.test(i.n))'),false);
+  assert.ok(a.run('sourceDetails(BY_ID["ff-047"])').includes('silicone molds'));
+  assert.equal(a.run('BY_ID["ff-109"].ingredients.length'),18);
+});
+test('deleting an imported recipe stays local and keeps original recipe records',()=>{
+  const a=app('chef',chefState());assert.equal(a.run('deleteRecipe("ff-002")'),true);
+  a.run('ui.source="fitfoodie"');assert.equal(a.run('discoverList().length'),93);
+  assert.deepEqual(a.json('state.favourites'),{b01:true});assert.deepEqual(a.json('state.plan'),chefState().plan);
+  const reopened=app('chef',JSON.parse(a.records.get('chef:state')));
+  assert.equal(reopened.run('recipeDeleted("ff-002")'),true);assert.equal(reopened.writes.length,0);
+});
+
 test('permanent deletion removes only the chosen recipe and its planned servings, including after reopening',()=>{
   const a=app('chef',{...chefState(),plan:{mon:{breakfast:'b01',lunch:'l01'},tue:{breakfast:'b01'}},portions:{mon:{breakfast:6,lunch:2},tue:{breakfast:3}},ratings:{b01:4,b02:5}});
   assert.equal(a.run('deleteRecipe("b01")'),true);
@@ -88,7 +151,7 @@ test('Chef loads legacy plans without changing recipes, favourites or records',(
   const saved=chefState(),a=app('chef',saved);
   assert.deepEqual(a.json('state.plan'),saved.plan);assert.deepEqual(a.json('state.favourites'),saved.favourites);
   assert.equal(a.writes.length,0);assert.equal(a.run('slotServings("mon","breakfast",BY_ID.b01)'),4);
-  assert.equal(a.run('RECIPES.length'),200);
+  assert.equal(a.run('RECIPES.filter(x=>!x.source).length'),200);
   assert.equal(a.run('RECIPES.every(x=>cardHtml(x,false).includes("data-cook"))'),true);
 });
 test('Declining replacement leaves the plan and servings unchanged',()=>{
