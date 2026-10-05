@@ -1,7 +1,7 @@
 
 /* Home / Plan / Areas / Board navigation, in the suite's existing visual language. */
 html[data-atlas-app="life-map"] .lm-day-view[hidden]{display:none!important}
-html[data-atlas-app="life-map"] #app{padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
+html[data-atlas-app="life-map"] #app{padding-bottom:calc(108px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)))}
 html[data-atlas-app="life-map"] .lm-day-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0}
 html[data-atlas-app="life-map"] .lm-day-heading h1{font-family:'Cinzel',serif;font-size:clamp(1.6rem,5vw,2.35rem);line-height:1.2;letter-spacing:-.025em;margin-top:5px}
 html[data-atlas-app="life-map"] .lm-day-panel{margin:0 0 16px;padding:20px;min-width:0}
@@ -39,12 +39,12 @@ html[data-atlas-app="life-map"] .lm-meal-actions{margin:16px 0}
 html[data-atlas-app="life-map"] .lm-time-block{border:1px solid var(--neo-line,var(--line));border-radius:13px;padding:14px;margin:10px 0;display:grid;gap:10px}
 html[data-atlas-app="life-map"] .lm-time-block strong{display:block;font-size:1rem;line-height:1.4;margin-top:5px;overflow-wrap:anywhere}
 html[data-atlas-app="life-map"] .lm-block-done{opacity:.65}
-html[data-atlas-app="life-map"] .lm-day-dock{position:fixed;z-index:85;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,680px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px));border:1px solid var(--neo-line,var(--line));border-bottom:0;border-radius:20px 20px 0 0;background:var(--neo-surface,var(--card));box-shadow:0 -6px 26px rgba(0,0,0,.13)}
+html[data-atlas-app="life-map"] .lm-day-dock{position:fixed;z-index:85;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,680px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)));border:1px solid var(--neo-line,var(--line));border-bottom:0;border-radius:20px 20px 0 0;background:var(--neo-surface,var(--card));box-shadow:0 -6px 26px rgba(0,0,0,.13)}
 html[data-atlas-app="life-map"] .lm-day-dock button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:55px;border:0;border-radius:12px;font-family:inherit;background:transparent;box-shadow:none;color:var(--neo-muted,var(--muted));padding:5px}
 html[data-atlas-app="life-map"] .lm-day-dock button span{font-size:23px;line-height:1}
 html[data-atlas-app="life-map"] .lm-day-dock button strong{font-size:.75rem;font-weight:500}
 html[data-atlas-app="life-map"] .lm-day-dock button[aria-selected="true"]{color:var(--neo-accent,var(--gold));background:var(--neo-bg,var(--bg))}
-html[data-atlas-app="life-map"] #lm-capture-launch{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+html[data-atlas-app="life-map"] #lm-capture-launch{bottom:calc(96px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)))}
 html[data-atlas-app="life-map"] .lm-day-view{min-width:0;overflow-wrap:anywhere}
 html[data-atlas-app="life-map"] .lm-day-button:focus-visible,html[data-atlas-app="life-map"] .lm-day-dock button:focus-visible,html[data-atlas-app="life-map"] .lm-category-card:focus-visible,html[data-atlas-app="life-map"] .lm-foundation:focus-visible{outline:2px solid var(--neo-accent,var(--gold));outline-offset:3px}
 @media(min-width:760px){html[data-atlas-app="life-map"] .lm-foundation-grid{grid-template-columns:repeat(4,minmax(0,1fr))}html[data-atlas-app="life-map"] .lm-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -55,5 +55,5 @@ html[data-atlas-app="life-map"] .lm-day-button:focus-visible,html[data-atlas-app
 @media(prefers-contrast:more){html[data-atlas-app="life-map"] :is(.lm-day-dock,.lm-foundation,.lm-category-card,.lm-time-block,.lm-meal-status){border-color:currentColor}}
 
 
-html[data-atlas-app="life-map"] :is(#toast,#undoToast){bottom:calc(102px + env(safe-area-inset-bottom,0px))!important}
-html[data-atlas-app="life-map"] .lm-local-status,html[data-atlas-app="life-map"] #atlas-project-transfer{margin-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+html[data-atlas-app="life-map"] :is(#toast,#undoToast){bottom:calc(102px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)))!important}
+html[data-atlas-app="life-map"] .lm-local-status,html[data-atlas-app="life-map"] #atlas-project-transfer{margin-bottom:calc(100px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)))}

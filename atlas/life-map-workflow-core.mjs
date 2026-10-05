@@ -141,14 +141,14 @@ export function createLifeMapWorkflow(){
     if(categories.some(([key])=>key===record.category))return record.category;
     const text=[record.area,record.sub].filter(Boolean).join(' ').toLowerCase();
     if(/food|meal|grocery|nutrition/.test(text))return 'food';
-    if(/family|baby|relationship|gifts/.test(text))return 'family';
+    if(/family|baby|relationship|gifts|community|friends/.test(text))return 'family';
     if(/health|fitness|sleep/.test(text))return 'health';
-    if(/work|entrepreneur|development/.test(text))return 'work';
+    if(/work|entrepreneur|development|personal growth|piano|reading/.test(text))return 'work';
     if(/house|home|garage|vehicle|wardrobe|laundry|chores/.test(text))return 'household';
     if(record.chore&&!record.area){const words=(record.chore+' '+(record.zone||'')).toLowerCase();
       if(/meal|grocery|fridge|freezer|food/.test(words))return 'food';
       if(/baby|family/.test(words))return 'family';
-      if(/workout|exercise|health/.test(words))return 'health';
+      if(/workout|exercise|health|meditat|walk.*dog/.test(words))return 'health';
       if(/plan the week|calendar|mail|paperwork|budget/.test(words))return 'admin';
       return 'household';
     }

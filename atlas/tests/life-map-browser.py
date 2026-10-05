@@ -393,6 +393,34 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.state()['projects'][0]['status'],'Not started')
         self.assertFalse(self.errors)
 
+    def test_life_areas_routines_and_personal_day_starters(self):
+        self.load(board(),home=True)
+        original=self.storage()['lifemap_v1']
+        self.page.locator('#lm-day-nav-areas').click()
+        for category in ['household','family','health','work','admin','food']:
+            self.page.locator('#lm-category-'+category).click()
+            self.assertTrue(self.page.locator('[data-day="area-routine"]').is_visible())
+        self.assertEqual(self.storage()['lifemap_v1'],original)
+        self.page.locator('#lm-category-health').click()
+        self.page.locator('[data-day="area-routine"]').click()
+        self.page.locator('[data-field="chore"]').fill('Walk the dog')
+        self.click('save-editor')
+        self.page.locator('#lm-day-nav-home').click()
+        self.assertIn('Walk the dog',self.page.locator('.lm-now-card').inner_text())
+        self.page.locator('[data-day="complete-routine"]').click()
+        self.assertNotIn('Walk the dog',self.page.locator('.lm-now-card').inner_text())
+        self.page.locator('#lm-day-nav-plan').click()
+        self.page.get_by_text('Morning',exact=True).click()
+        self.page.locator('[data-day="starter-block"][data-index="3"]').click()
+        self.assertEqual(self.page.locator('[data-day-field="block.title"]').input_value(),'Gym')
+        self.assertFalse(self.state().get('dayPlans'))
+        self.page.locator('[data-day-field="block.start"]').fill('14:00')
+        self.page.locator('[data-day="save-block"]').click()
+        self.assertEqual(self.state()['dayPlans'][TODAY]['blocks'][0]['title'],'Gym')
+        self.page.locator('#lm-day-nav-home').click()
+        self.assertIn('Gym',self.page.locator('.lm-next-block').inner_text())
+        self.assertFalse(self.errors)
+
     def test_phone_native_fields_fit_cards_without_overlap(self):
         self.page.emulate_media(color_scheme='dark')
         self.page.add_init_script("Object.defineProperty(navigator,'standalone',{value:true});Object.defineProperty(navigator,'userAgent',{value:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148'});")

@@ -4,7 +4,7 @@
   const M=createLifeMapWorkflow(),D=window.LifeMapDashboard,W=window.LifeMapWorkflow;
   const UI_KEY='lifemap:day-drafts:v1',clone=M.clone;
   let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,error:''};
-  try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];}}}catch{}
+  try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];if(saved.block&&M.validDate(saved.date))ui.date=saved.date;}}}catch{}
   const attrs=s=>esc(String(s??'')),button=(label,action,extra='',primary=false)=>'<button type="button" class="btn lm-day-button'+(primary?' lm-day-primary':'')+'" data-day="'+action+'" '+extra+'>'+label+'</button>';
   const help=t=>'<p class="lm-help">'+esc(t)+'</p>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';

@@ -75,7 +75,7 @@ a{color:inherit}
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-workflow.css">
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=60704a800ce6"><link rel="stylesheet" href="atlas/life-map-day.css?v=3380b54d0181"><link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-32.png?v=0cfc426aae7b">
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=60704a800ce6"><link rel="stylesheet" href="atlas/life-map-day.css?v=2dc01c57d2e0"><link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-32.png?v=0cfc426aae7b">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-64.png?v=c95ca5a4b3ef">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-apple.png?v=8b8862ad8038">
 </head>
@@ -1431,14 +1431,14 @@ function createLifeMapWorkflow(){
     if(categories.some(([key])=>key===record.category))return record.category;
     const text=[record.area,record.sub].filter(Boolean).join(' ').toLowerCase();
     if(/food|meal|grocery|nutrition/.test(text))return 'food';
-    if(/family|baby|relationship|gifts/.test(text))return 'family';
+    if(/family|baby|relationship|gifts|community|friends/.test(text))return 'family';
     if(/health|fitness|sleep/.test(text))return 'health';
-    if(/work|entrepreneur|development/.test(text))return 'work';
+    if(/work|entrepreneur|development|personal growth|piano|reading/.test(text))return 'work';
     if(/house|home|garage|vehicle|wardrobe|laundry|chores/.test(text))return 'household';
     if(record.chore&&!record.area){const words=(record.chore+' '+(record.zone||'')).toLowerCase();
       if(/meal|grocery|fridge|freezer|food/.test(words))return 'food';
       if(/baby|family/.test(words))return 'family';
-      if(/workout|exercise|health/.test(words))return 'health';
+      if(/workout|exercise|health|meditat|walk.*dog/.test(words))return 'health';
       if(/plan the week|calendar|mail|paperwork|budget/.test(words))return 'admin';
       return 'household';
     }
@@ -1966,7 +1966,7 @@ function createLifeMapWorkflow(){
   const M=createLifeMapWorkflow(),D=window.LifeMapDashboard,W=window.LifeMapWorkflow;
   const UI_KEY='lifemap:day-drafts:v1',clone=M.clone;
   let ui={tab:'home',category:'household',date:todayISO(),food:null,block:null,main:null,reset:false,available:25,error:''};
-  try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];}}}catch{}
+  try{const raw=localStorage.getItem(UI_KEY);if(raw&&raw.length<100000){const saved=JSON.parse(raw);if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const k of ['food','block','main'])if(saved[k]!==undefined)ui[k]=saved[k];if(saved.block&&M.validDate(saved.date))ui.date=saved.date;}}}catch{}
   const attrs=s=>esc(String(s??'')),button=(label,action,extra='',primary=false)=>'<button type="button" class="btn lm-day-button'+(primary?' lm-day-primary':'')+'" data-day="'+action+'" '+extra+'>'+label+'</button>';
   const help=t=>'<p class="lm-help">'+esc(t)+'</p>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
