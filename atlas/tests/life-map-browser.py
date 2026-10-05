@@ -441,7 +441,8 @@ class LifeMapBrowser(unittest.TestCase):
                         for(const help of pane.querySelectorAll('.lm-help')){
                             const next=help.nextElementSibling;
                             if(!next||!next.matches('a,button,.lm-inline')||!next.getClientRects().length)continue;
-                            if(next.getBoundingClientRect().top-help.getBoundingClientRect().bottom<12)errors.push('copy touches action');
+                            const gap=next.getBoundingClientRect().top-help.getBoundingClientRect().bottom;
+                            if(gap<12)errors.push('copy touches action: '+help.textContent.slice(0,40)+' ('+gap+'px)');
                         }
                         for(const label of pane.querySelectorAll('.lm-day-field')){
                             if(!label.getClientRects().length)continue;
