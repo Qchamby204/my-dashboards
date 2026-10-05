@@ -366,11 +366,14 @@ class LifeMapBrowser(unittest.TestCase):
     def test_main_priority_blocks_templates_and_explicit_completion(self):
         self.load(board([task('main',area='Work — Content',due='2026-10-30')]),home=True)
         self.page.locator('#lm-day-nav-plan').click()
-        self.page.locator('[data-day-field="main"]').select_option('main')
+        self.page.get_by_text('Choose from your open to-dos',exact=True).click()
+        self.page.locator('[data-day="choose-todo"][data-id="main"]').click()
         self.page.locator('[data-day="save-plan"]').click()
-        self.assertEqual(self.state()['dayPlans'][TODAY]['mainTaskId'],'main')
+        self.assertEqual(self.state()['projects'][0]['plan'],TODAY)
+        self.assertTrue(self.state()['dayPlans'][TODAY]['reviewed'])
+        self.assertEqual(self.page.locator('[data-day-field="main"]').count(),0)
         self.assertEqual(self.state()['projects'][0]['due'],'2026-10-30')
-        self.page.locator('.lm-block-editor summary').click()
+        self.page.locator('.lm-block-editor summary').filter(has_text='Add a time block').click()
         self.page.locator('[data-day-field="block.title"]').fill('Focused work')
         self.page.locator('[data-day-field="block.start"]').fill('13:00')
         self.page.locator('[data-day-field="block.minutes"]').fill('30')
@@ -390,16 +393,50 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.state()['projects'][0]['status'],'Not started')
         self.assertFalse(self.errors)
 
+    def test_phone_native_fields_fit_cards_without_overlap(self):
+        self.page.emulate_media(color_scheme='dark')
+        self.page.add_init_script("Object.defineProperty(navigator,'standalone',{value:true});Object.defineProperty(navigator,'userAgent',{value:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148'});")
+        self.load(board(),home=True)
+        self.page.evaluate("window.AtlasAppearance.set('dark')")
+        self.assertEqual(self.page.locator('html').get_attribute('data-atlas-theme'),'dark')
+        out=ROOT/'artifacts/life-map-tests'
+        out.mkdir(parents=True,exist_ok=True)
+        for width,height in [(320,740),(393,852),(852,393)]:
+            self.page.set_viewport_size({'width':width,'height':height})
+            for tab in ['plan','areas']:
+                self.page.evaluate('(tab)=>window.LifeMapDay.choose(tab,"food")',tab)
+                if tab=='plan':
+                    self.page.locator('.lm-block-editor').evaluate_all('els=>els.forEach(el=>el.open=true)')
+                self.assertFalse(self.page.locator('#lm-capture-launch').is_visible())
+                violations=self.page.locator('.lm-day-view:not([hidden]) .lm-day-field input, .lm-day-view:not([hidden]) .lm-day-field select').evaluate_all('''els=>els.filter(el=>el.getClientRects().length).flatMap(el=>{
+                    const r=el.getBoundingClientRect(),p=el.closest('label').getBoundingClientRect(),c=el.closest('.lm-day-panel').getBoundingClientRect();
+                    const errors=[];
+                    if(r.left<p.left-1||r.right>p.right+1||r.left<c.left||r.right>c.right)errors.push(el.id+' leaves its field/card');
+                    if(el.scrollWidth>el.clientWidth+2&&el.type!=='select-one')errors.push(el.id+' internal overflow');
+                    const pair=el.closest('.lm-two-col');
+                    if(pair)for(const other of pair.querySelectorAll('input'))if(other!==el){const b=other.getBoundingClientRect();if(Math.min(r.right,b.right)>Math.max(r.left,b.left)+1&&Math.min(r.bottom,b.bottom)>Math.max(r.top,b.top)+1)errors.push(el.id+' overlaps '+other.id);}
+                    return errors;
+                })''')
+                self.assertEqual(violations,[])
+                self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),width+1)
+                if width==393:
+                    self.page.screenshot(path=str(out/f'{BROWSER}-{tab}-phone-fields.png'),full_page=True)
+        self.page.evaluate('window.LifeMapDay.choose("board")')
+        self.assertTrue(self.page.locator('#lm-capture-launch').is_visible())
+        self.assertFalse(self.errors)
+
     def test_new_navigation_layout_keyboard_and_food_draft_recovery(self):
         self.load(board(),home=True)
         self.page.locator('#lm-day-nav-home').focus()
         self.page.keyboard.press('ArrowRight')
         self.assertTrue(self.page.locator('#lm-day-view-plan').is_visible())
         self.page.locator('#lm-day-nav-areas').click()
+        self.page.locator('#lm-category-food').click()
         self.page.locator('[data-day-field="food.note"]').fill('Prepared dinners draft')
         storage=self.storage()
         self.load(storage=storage,home=True)
         self.page.locator('#lm-day-nav-areas').click()
+        self.page.locator('#lm-category-food').click()
         self.assertEqual(self.page.locator('[data-day-field="food.note"]').input_value(),'Prepared dinners draft')
         for width,height in [(320,740),(844,390),(390,844)]:
             self.page.set_viewport_size({'width':width,'height':height})
