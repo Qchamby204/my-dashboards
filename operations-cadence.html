@@ -1056,6 +1056,8 @@
 
 <script>
 const STORE_KEY = 'operationsCadence.v1';
+// The scheduling enhancement spends a pin before it writes the completion event.
+const lifeMapCompletedPins = new Map();
 
 const DATA = [
   { id:'daily', label:'Daily', cadence:'Resets each day', tasks:[
@@ -1173,6 +1175,8 @@ function get(sid, i) {
 }
 function set(sid, i, obj) {
   const k = keyFor(sid,i);
+  if (obj && obj.done === true && state.sched && state.sched[k]) lifeMapCompletedPins.set(k, state.sched[k]);
+  else if (obj && obj.done === false) lifeMapCompletedPins.delete(k);
   const base = Object.assign({ done:false, note:'' }, state[k], obj);
   if (obj && obj.done !== undefined) {
     base.p = obj.done ? periodFor(sid) : undefined;
@@ -1272,7 +1276,8 @@ function addEvent(ev) {
   // A Life Map selection uses the same pin. Keep its day in completion history.
   if (ev.kind === 'log' && !ev.logId && typeof ev.key === 'string' && ev.key.startsWith('log:')) ev.logId = ev.key.slice(4);
   const planKey = ev.kind === 'cadence' ? ev.key : ev.kind === 'log' ? 'log:' + ev.logId : '';
-  const planDate = state.sched && state.sched[planKey];
+  const planDate = state.sched && state.sched[planKey] || lifeMapCompletedPins.get(planKey);
+  lifeMapCompletedPins.delete(planKey);
   const rule = ev.kind === 'cadence' ? state.recur && state.recur[planKey] : null;
   const sameCycle = planDate && (ev.kind === 'log' || (rule ? lastOccurrence(rule, parseDate(planDate)) === lastOccurrence(rule) : periodFor(ev.cadence, parseDate(planDate)) === periodFor(ev.cadence)));
   if (sameCycle) { ev.planDate = planDate; delete state.sched[planKey]; }
