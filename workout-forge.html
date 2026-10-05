@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
+<script src="shared/atlas-theme.js?v=1b0e3a5f763f"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -812,7 +812,50 @@ function parseRest(str){
 }
 function clk(sec){ sec=Math.max(0,Math.round(sec)); return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0"); }
 var timerInterval=null, audioCtx=null, timerNode=null, timer=null;
-function beep(){ try{ if(!audioCtx) return; var t=audioCtx.currentTime; [0,0.2,0.4].forEach(function(o){ var osc=audioCtx.createOscillator(),g=audioCtx.createGain(); osc.frequency.value=880; osc.type="sine"; osc.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0001,t+o); g.gain.exponentialRampToValueAtTime(0.32,t+o+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+o+0.16); osc.start(t+o); osc.stop(t+o+0.17); }); }catch(e){} }
+var timerAudioReady=null;
+function releaseTimerAudio(){
+  var ctx=audioCtx; audioCtx=null; timerAudioReady=null;
+  try{ if(ctx) Promise.resolve(ctx.close()).catch(function(){}); }catch(e){}
+}
+function prepareTimerAudio(){
+  releaseTimerAudio();
+  try{
+    // Timer alerts are secondary to music. Select mixing before activating audio.
+    if(navigator.audioSession){
+      navigator.audioSession.type="ambient";
+      if(navigator.audioSession.type!=="ambient") return;
+    } else if(/iPhone|iPad|iPod/.test(navigator.userAgent||"") || navigator.platform==="MacIntel" && navigator.maxTouchPoints>1){
+      return; // Older iOS gets the visual alert rather than interrupting music.
+    }
+    var Ctor=window.AudioContext||window.webkitAudioContext;
+    if(!Ctor) return;
+    var ctx=new Ctor(); audioCtx=ctx;
+    // Unlock in the user's timer gesture, then leave audio suspended while counting.
+    timerAudioReady=Promise.resolve(ctx.resume()).then(function(){
+      if(audioCtx===ctx && ctx.state!=="closed") return ctx.suspend();
+    }).catch(function(){ if(audioCtx===ctx) releaseTimerAudio(); });
+  }catch(e){ releaseTimerAudio(); }
+}
+function beep(){
+  var ctx=audioCtx, finished=timer;
+  if(!ctx || document.hidden){ releaseTimerAudio(); return; }
+  var current=function(){ return audioCtx===ctx && timer===finished && finished.fired && !document.hidden; };
+  Promise.resolve(timerAudioReady).then(function(){
+    if(!current()) return;
+    return Promise.resolve(ctx.resume()).then(function(){
+      if(!current()){ if(audioCtx===ctx) releaseTimerAudio(); return; }
+      var t=ctx.currentTime;
+      [0,0.2,0.4].forEach(function(o,i){
+        var osc=ctx.createOscillator(),g=ctx.createGain();
+        osc.frequency.value=880; osc.type="sine"; osc.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001,t+o); g.gain.exponentialRampToValueAtTime(0.32,t+o+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+o+0.16);
+        osc.onended=function(){ osc.disconnect(); g.disconnect(); if(i===2 && audioCtx===ctx) releaseTimerAudio(); };
+        osc.start(t+o); osc.stop(t+o+0.17);
+      });
+    });
+  }).catch(function(){ if(audioCtx===ctx) releaseTimerAudio(); });
+}
+document.addEventListener("visibilitychange",function(){ if(document.hidden) releaseTimerAudio(); });
 var RING_C=(2*Math.PI*26);
 function ensureTimerNode(){
   if(timerNode) return timerNode;
@@ -826,21 +869,20 @@ function ensureTimerNode(){
     +'<button id="tplus" class="btn" style="padding:7px 12px;border-radius:9px;font-size:11px;font-weight:700;color:#cfd4ea;background:rgba(255,255,255,.06);border:1px solid rgba(120,130,180,.25)">+30s</button>'
     +'<button id="tstop" class="btn" style="padding:7px 12px;border-radius:9px;font-size:11px;font-weight:700;color:#0c0e1a;background:#45c8d8;border:none">Stop</button></div></div>';
   document.body.appendChild(n);
-  n.querySelector("#tplus").onclick=function(){ if(timer){ timer.endAt+=30000; timer.total+=30; timer.fired=false; n.style.borderColor="rgba(69,200,216,.5)"; n.querySelector("#ttime").style.color="#45c8d8"; n.querySelector("#tring").setAttribute("stroke","#45c8d8"); n.querySelector("#tlabel").textContent="Rest"; tickTimer(); } };
+  n.querySelector("#tplus").onclick=function(){ if(timer){ timer.endAt+=30000; timer.total+=30; timer.fired=false; prepareTimerAudio(); n.style.borderColor="rgba(69,200,216,.5)"; n.querySelector("#ttime").style.color="#45c8d8"; n.querySelector("#tring").setAttribute("stroke","#45c8d8"); n.querySelector("#tlabel").textContent="Rest"; tickTimer(); } };
   n.querySelector("#tminus").onclick=function(){ if(timer){ timer.endAt-=30000; timer.total=Math.max(1,timer.total-30); tickTimer(); } };
   n.querySelector("#tstop").onclick=function(){ stopTimer(); };
   timerNode=n; return n;
 }
 function startTimer(sec){
-  if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
-  if(audioCtx && audioCtx.state==="suspended"){ try{ audioCtx.resume(); }catch(e){} }
+  prepareTimerAudio();
   timer={endAt:Date.now()+sec*1000, total:sec, fired:false};
   var n=ensureTimerNode(); n.style.display="flex"; n.style.borderColor="rgba(69,200,216,.5)";
   n.querySelector("#ttime").style.color="#45c8d8"; n.querySelector("#tlabel").textContent="Rest";
   if(!timerInterval) timerInterval=setInterval(tickTimer,200);
   tickTimer();
 }
-function stopTimer(){ timer=null; if(timerNode) timerNode.style.display="none"; if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } }
+function stopTimer(){ timer=null; releaseTimerAudio(); if(timerNode) timerNode.style.display="none"; if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } }
 function tickTimer(){
   if(!timer) return;
   var rem=timer.endAt-Date.now(), n=ensureTimerNode();
