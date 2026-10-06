@@ -96,7 +96,7 @@ test('every current Atlas dashboard appears once, while original resource IDs an
   const originalCatalog=JSON.parse(readFileSync(new URL('../neural-resources.json',import.meta.url),'utf8'));
   for(const cat of originalCatalog)for(const group of cat.groups||[cat])for(const resource of group.tools){
     const tool=h.api.findTools().find(t=>t.id===resource.id);assert(tool,resource.full);
-    for(const door of resource.doors)assert(h.api.destinations(tool).some(d=>d.url===door.url),resource.full);
+    for(const door of resource.doors)assert(h.api.destinations(tool).some(d=>d.url===new URL(door.url,'https://qchamby204.github.io/my-dashboards/').href),resource.full);
   }
   assert.equal(new Set(h.api.findTools().map(t=>t.id)).size,h.api.findTools().length);
   assert(!active.some(t=>/gang-ops|test-booking/.test(t.path)));
@@ -105,7 +105,7 @@ test('resource filters distinguish hosted apps from external and device-only res
   const h=boot();
   assert(h.api.findTools('Courier','','dashboard').length===1);
   assert.equal(h.api.findTools('Courier','','resources').length,0);
-  assert(h.api.findTools('','','needs-link').every(t=>['device','unresolved'].includes(t.resourceType)));
+  assert(h.api.findTools('','','needs-link').every(t=>['device','unresolved','saved'].includes(t.resourceType)));
   h.node('neural-availability').value='dashboard';h.node('neural-availability').emit('change');
   assert.equal(h.document.querySelectorAll('.neural-card').length,h.api.findTools('','','dashboard').length);
   assert(h.document.querySelectorAll('.neural-resource-state').every(n=>n.textContent==='Atlas dashboard'));
@@ -161,7 +161,7 @@ test('keyboard users can open nodes and return focus with Escape or use slash to
 test('catalog review identifies found Drive destinations without claiming chats were verified',()=>{
   const h=boot();
   const resources=h.api.findTools('','','resources');
-  assert.equal(resources.length,22);
+  assert.equal(resources.length,32);
   assert.equal(resources.filter(t=>t.review?.status==='destination-found').length,4);
   const forecast=h.api.findTools('Forecasting')[0];
   assert(forecast.doors.some(d=>d.k==='drive'&&d.label==='Open forecast workbook'));
@@ -170,4 +170,15 @@ test('catalog review identifies found Drive destinations without claiming chats 
   assert.equal(h.api.findTools('Governance Grants')[0].full,'BFC Compensation Plans');
   assert(resources.every(t=>t.review.checkedOn==='2026-10-06'));
   assert(h.document.querySelectorAll('.neural-resource-state').filter(n=>n.textContent==='Drive destination found').length===4);
+});
+
+test('wider inventory includes private sites and saved tools without treating prototypes as hosted apps',()=>{
+ const h=boot();
+ const saved=h.api.findTools('','','saved');
+ assert.equal(saved.length,8);
+ assert.equal(h.api.findTools('Clearbill')[0].privateSite,true);
+ assert.equal(h.api.findTools('Outcomes Lab')[0].privateSite,true);
+ assert.equal(h.api.findTools('Discern')[0].resourceType,'saved');
+ assert.equal(h.api.findTools('Book Economics')[0].doors.length,0);
+ assert.equal(h.api.findTools('','','dashboard').length,16);
 });

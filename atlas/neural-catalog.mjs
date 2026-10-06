@@ -17,7 +17,7 @@ export function buildCatalog(resources, apps) {
       tool.path = app.path; tool.resourceType = 'dashboard'; tool.note = '';
       tool.doors = [{k: 'live', label: 'Open dashboard', url: app.url}, ...(tool.doors || []).filter(d => d.k !== 'live')];
     } else {
-      tool.resourceType = (tool.doors || []).some(d => /^https?:/.test(d.url)) ? 'external' : (tool.doors || []).some(d => /^file:/.test(d.url)) ? 'device' : 'unresolved';
+      tool.resourceType = tool.savedFiles?.length ? 'saved' : (tool.doors || []).some(d => /^https?:/.test(d.url)) ? 'external' : (tool.doors || []).some(d => /^file:/.test(d.url)) ? 'device' : 'unresolved';
     }
   }
   for (const app of apps.filter(a => !used.has(a.path))) {
@@ -37,6 +37,7 @@ export function buildCatalog(resources, apps) {
   const personal = cats.find(c => c.key === 'personal'); personal.position = [-40, 600];
   personal.slots = personal.tools.map((_, i) => [-250, (i - (personal.tools.length - 1) / 2) * 58, 'L']);
   const ent = cats.find(c => c.key === 'ent'); ent.position = [1000, 470];
+  ent.slots = ent.tools.map((_, i) => [250, (i - (ent.tools.length - 1) / 2) * 58, 'R']);
   const bfc = cats.find(c => c.key === 'bfc'); bfc.position = [500, 1000];
   bfc.slots = bfc.tools.map((_, i) => [(i - (bfc.tools.length - 1) / 2) * 210, 200, 'D']);
   return cats;
