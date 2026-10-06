@@ -21,7 +21,7 @@
       const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=605f9a4819c6',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
-      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=14cd8c2a0fd4',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
+      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=c094979b7fa5',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){

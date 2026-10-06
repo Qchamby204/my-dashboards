@@ -59,7 +59,12 @@
                 "url": "https://claude.ai/chat/1058edd3-0a8e-4a30-825c-63c69e38915a"
               }
             ],
-            "id": "t-work-0-0"
+            "id": "t-work-0-0",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Prospects",
@@ -71,7 +76,12 @@
                 "url": "https://claude.ai/chat/32d251db-ed01-4ba3-aaf7-736f45157fca"
               }
             ],
-            "id": "t-work-0-1"
+            "id": "t-work-0-1",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Manitoba DB",
@@ -83,7 +93,12 @@
                 "url": "file:///Users/quintonchambers/Documents/Claude/Projects/Tool%20Vault/Work/Manitoba_Prospect_Database.xlsx"
               }
             ],
-            "id": "t-work-0-2"
+            "id": "t-work-0-2",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Prospecting Pipeline",
@@ -101,7 +116,12 @@
                 "label": "LinkedIn"
               }
             ],
-            "id": "t-work-0-3"
+            "id": "t-work-0-3",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Follow-up System",
@@ -109,7 +129,12 @@
             "file": "Document based follow-up system",
             "doors": [],
             "note": "Lives in the Cowork project Build 12-month prospecting follow-up system. Open it there to grab the newest draft.",
-            "id": "t-work-0-4"
+            "id": "t-work-0-4",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Command Center",
@@ -125,7 +150,12 @@
             "file": "Single file HTML board, cadences per person, bridge phrase library, Today's Rocks",
             "doors": [],
             "note": "Built in the Cowork project Relationship development system. Re-download the newest file there.",
-            "id": "t-work-0-6"
+            "id": "t-work-0-6",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           }
         ]
       },
@@ -177,7 +207,12 @@
                 "url": "https://claude.ai/chat/79cdb6c4-a0f3-499c-8519-3eaa3ddb7358"
               }
             ],
-            "id": "t-work-1-0"
+            "id": "t-work-1-0",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Physician Comp",
@@ -189,7 +224,12 @@
                 "url": "https://claude.ai/chat/2dd5067e-cc9e-47e3-967c-d3fd81f61b88"
               }
             ],
-            "id": "t-work-1-1"
+            "id": "t-work-1-1",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Segmentation",
@@ -201,7 +241,12 @@
                 "url": "file:///Users/quintonchambers/Documents/Claude/Projects/Tool%20Vault/Work/Scotia_WM_Client_Segmentation_Tracker.xlsx"
               }
             ],
-            "id": "t-work-1-2"
+            "id": "t-work-1-2",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Planning Dash",
@@ -209,7 +254,12 @@
             "file": "9 page PDF client template, cover plus 8 category pages",
             "doors": [],
             "note": "Built in the Cowork project Create client dashboard template. Re-export it there.",
-            "id": "t-work-1-3"
+            "id": "t-work-1-3",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Fee Analysis",
@@ -217,7 +267,12 @@
             "file": "FEE ANALYSIS.xlsx, MER comparison, Empire Life vs Scotia",
             "doors": [],
             "note": "Built in the Cowork project Update fee analysis tracker with MER data. Re-download the newest file there.",
-            "id": "t-work-1-4"
+            "id": "t-work-1-4",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Performance",
@@ -225,7 +280,12 @@
             "file": "Performance_Comparison_vs_Dimensional.html, Chart.js dashboard",
             "doors": [],
             "note": "Built in the Cowork project Portfolio performance comparison dashboard. Re-download the newest file there.",
-            "id": "t-work-1-5"
+            "id": "t-work-1-5",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           }
         ]
       },
@@ -262,7 +322,12 @@
                 "url": "https://claude.ai/chat/d501b0f8-0e9e-460c-a1f0-ff12a49d6f6c"
               }
             ],
-            "id": "t-work-2-0"
+            "id": "t-work-2-0",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           },
           {
             "label": "Ops Cadence",
@@ -282,7 +347,12 @@
             "file": "youtube-studio.html, in your Downloads",
             "doors": [],
             "note": "youtube-studio.html sits in Downloads. Commit it to my-dashboards to light its Live door.",
-            "id": "t-work-2-2"
+            "id": "t-work-2-2",
+            "review": {
+              "checkedOn": "2026-10-06",
+              "status": "unlocated",
+              "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+            }
           }
         ]
       }
@@ -322,7 +392,12 @@
             "url": "https://claude.ai/chat/2928f5ba-87cd-43dd-8edd-939d2b39e25c"
           }
         ],
-        "id": "t-ent-0"
+        "id": "t-ent-0",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "unlocated",
+          "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+        }
       },
       {
         "label": "Payday",
@@ -334,7 +409,12 @@
             "url": "https://claude.ai/chat/bb191e3a-4a0f-4f8b-8d69-614d6786457f"
           }
         ],
-        "id": "t-ent-1"
+        "id": "t-ent-1",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "unlocated",
+          "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+        }
       },
       {
         "label": "SWING",
@@ -346,7 +426,12 @@
             "url": "https://claude.ai/chat/1a2b9939-e288-4f42-a316-25dfb3781934"
           }
         ],
-        "id": "t-ent-2"
+        "id": "t-ent-2",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "unlocated",
+          "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+        }
       }
     ]
   },
@@ -363,28 +448,51 @@
     ],
     "tools": [
       {
-        "label": "Governance",
-        "full": "Governance and Grants",
-        "file": "CEO comp, board motion, McConnell grant, reports",
+        "label": "Compensation plans",
+        "full": "BFC Compensation Plans",
+        "file": "Compensation plan documents and board approval PDFs. This folder is not a general grants directory.",
         "doors": [
           {
             "k": "drive",
             "url": "https://drive.google.com/drive/folders/1qqhABPAYAYxhyxI3KUhdaWI49XJysJEx"
           }
         ],
-        "id": "t-bfc-0"
+        "id": "t-bfc-0",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "destination-found",
+          "note": "The linked folder and its document inventory were found. Other governance and grant resources still need locating."
+        },
+        "aliases": [
+          "Governance and Grants",
+          "CEO comp, board motion, McConnell grant, reports"
+        ]
       },
       {
         "label": "Forecasting",
         "full": "BFC Forecasting Tool",
-        "file": "Five-sheet Excel model",
+        "file": "BFC_Forecast_Tool_2yr.xlsx. A newer workbook copy last modified August 24, 2026.",
         "doors": [
+          {
+            "k": "drive",
+            "label": "Open forecast workbook",
+            "url": "https://docs.google.com/spreadsheets/d/1l_dUqqfC7v8J-WIrZfExJJH0Cj953MeF/edit?usp=drivesdk&ouid=104594613459198077407&rtpof=true&sd=true"
+          },
           {
             "k": "chat",
             "url": "https://claude.ai/chat/bc7f85fd-5ea2-4d85-9923-62dee3252475"
           }
         ],
-        "id": "t-bfc-1"
+        "id": "t-bfc-1",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "destination-found",
+          "note": "The workbook was found and readable. This verifies the destination, not its formulas or financial assumptions. The original chat remains unverified."
+        },
+        "aliases": [
+          "BFC Forecasting Tool",
+          "Five-sheet Excel model"
+        ]
       },
       {
         "label": "Resilience",
@@ -392,12 +500,17 @@
         "file": "Single file HTML assessment, 15 questions, email gate, membership CTA",
         "doors": [],
         "note": "Built in the Cowork project Business Resilience Scorecard. Re-download the newest file there.",
-        "id": "t-bfc-2"
+        "id": "t-bfc-2",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "unlocated",
+          "note": "A current web file was not located in the connected Drive and saved-file searches. Original chat links and files on your Mac have not been checked."
+        }
       },
       {
         "label": "Lead Magnets",
         "full": "BFC Lead Magnets",
-        "file": "14 playbook PDFs, one folder",
+        "file": "14 climate playbook and checklist PDFs in the Lead Magnets folder.",
         "doors": [
           {
             "k": "drive",
@@ -408,23 +521,41 @@
             "url": "https://claude.ai/chat/ff2f6520-3287-43e5-bf8a-aac40720c92a"
           }
         ],
-        "id": "t-bfc-3"
+        "id": "t-bfc-3",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "destination-found",
+          "note": "The folder inventory was checked: 14 PDFs were found. The original chat remains unverified."
+        },
+        "aliases": [
+          "BFC Lead Magnets",
+          "14 playbook PDFs, one folder"
+        ]
       },
       {
         "label": "Membership",
         "full": "Membership Growth Blueprint",
-        "file": "BizforClimate_Membership_Growth_Blueprint.docx",
+        "file": "BizforClimate_Membership_Growth_Blueprint.docx. June 2026 business development plan.",
         "doors": [
           {
             "k": "drive",
-            "url": "https://drive.google.com/file/d/1MOIjORYHAlkJbt0zsjpMJZQ2yn7WNaEJ/view"
+            "url": "https://docs.google.com/document/d/1MOIjORYHAlkJbt0zsjpMJZQ2yn7WNaEJ/edit?usp=drivesdk&ouid=104594613459198077407&rtpof=true&sd=true"
           },
           {
             "k": "chat",
             "url": "https://claude.ai/chat/d2386712-623a-47bd-8521-26a591fee899"
           }
         ],
-        "id": "t-bfc-4"
+        "id": "t-bfc-4",
+        "review": {
+          "checkedOn": "2026-10-06",
+          "status": "destination-found",
+          "note": "The document was found and readable. The original chat remains unverified; the plan has not been rewritten for October."
+        },
+        "aliases": [
+          "Membership Growth Blueprint",
+          "BizforClimate_Membership_Growth_Blueprint.docx"
+        ]
       }
     ]
   },

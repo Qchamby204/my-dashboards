@@ -11,7 +11,7 @@
     const toolNodes=[...gNodes.querySelectorAll('.node.tool')],allNodes=[...gNodes.querySelectorAll('.node')];
     const tools=toolNodes.map(n=>n._tool),nodesById=new Map(toolNodes.map(n=>[n._tool.id,n]));
     const routes={}; // Current dashboard routes are generated from Atlas, alongside the map.
-    const resourceLabel=tool=>({dashboard:'Atlas dashboard',external:'External link · not verified',device:'Local file · Mac only',unresolved:'Needs a link'}[tool.resourceType]||'External resource');
+    const resourceLabel=tool=>tool.resourceType==='external'&&tool.review?.status==='destination-found'?'Drive destination found':({dashboard:'Atlas dashboard',external:'External link · not verified',device:'Local file · Mac only',unresolved:'Needs a link'}[tool.resourceType]||'External resource');
     const normal=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     const matchesAvailability=(tool,filter)=>!filter||(filter==='resources'?tool.resourceType!=='dashboard':filter==='needs-link'?['device','unresolved'].includes(tool.resourceType):tool.resourceType===filter);
     function findTools(query='',category='',availability=''){
@@ -44,7 +44,7 @@
     const count=make('p',null,'neural-count');count.setAttribute('role','status');count.setAttribute('aria-live','polite');
     const cards=make('div',null,'neural-cards');
     const about=make('details',null,'neural-about'),summary=make('summary','i');summary.setAttribute('aria-label','About this catalog');
-    about.append(summary,make('p','Atlas dashboards follow the hub inventory. Older chats, documents and local files remain here until reviewed; their availability has not been verified. Favourites and link reviews stay in this browser.'));
+    about.append(summary,make('p','Atlas dashboards follow the hub inventory. Catalog reviews show the check date and what was found. A found Drive destination does not verify every linked chat or the currency of its contents. Older resources remain until you decide whether to keep them. Favourites and link reviews stay in this browser.'));
     list.append(filters,count,about,cards);document.body.appendChild(list);
     function linksFor(tool){
       const wrap=make('div',null,'neural-links');
@@ -54,6 +54,7 @@
       });
       if(tool.resourceType==='unresolved')wrap.appendChild(make('p','The original resource is retained, but its current file or web destination needs locating.','neural-note'));
       else if(tool.note&&tool.resourceType!=='dashboard'&&!routes[tool.full]){const history=make('details',null,'neural-note');history.append(make('summary','Original location note'),make('p',tool.note));wrap.append(history);}
+      if(tool.review){const review=make('details',null,'neural-note');review.append(make('summary','Catalog review · '+tool.review.checkedOn),make('p',tool.review.note));wrap.append(review);}
       if(!wrap.children.length)wrap.appendChild(make('p','No web link is available for this resource yet.','neural-note'));
       return wrap;
     }
