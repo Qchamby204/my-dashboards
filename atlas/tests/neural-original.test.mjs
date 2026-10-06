@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync,existsSync} from 'node:fs';
+import {buildCatalog,hubApps} from '../neural-catalog.mjs';
 const html=readFileSync(new URL('../../neural-map.html',import.meta.url),'utf8');
 const original=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
 const extension=readFileSync(new URL('../../shared/neural-enhancements.js',import.meta.url),'utf8');
@@ -86,6 +87,37 @@ test('available dashboards receive real web routes while original chat doors rem
   }
   const local=h.document.querySelectorAll('.neural-local');assert(local.length>0);assert(local.every(n=>n.querySelector('code')));
   assert(h.document.querySelectorAll('a').every(a=>/^https?:/.test(a.href)));
+});
+test('every current Atlas dashboard appears once, while original resource IDs and doors survive',()=>{
+  const h=boot(),apps=hubApps(readFileSync(new URL('../../index.html',import.meta.url),'utf8'));
+  const active=h.api.findTools('','','dashboard');
+  assert.equal(active.length,apps.length);
+  for(const app of apps){const matching=active.filter(t=>t.path===app.path);assert.equal(matching.length,1,app.path);assert.equal(matching[0].full,app.title);assert(h.api.destinations(matching[0]).some(d=>d.url===app.url));}
+  const originalCatalog=JSON.parse(readFileSync(new URL('../neural-resources.json',import.meta.url),'utf8'));
+  for(const cat of originalCatalog)for(const group of cat.groups||[cat])for(const resource of group.tools){
+    const tool=h.api.findTools().find(t=>t.id===resource.id);assert(tool,resource.full);
+    for(const door of resource.doors)assert(h.api.destinations(tool).some(d=>d.url===door.url),resource.full);
+  }
+  assert.equal(new Set(h.api.findTools().map(t=>t.id)).size,h.api.findTools().length);
+  assert(!active.some(t=>/gang-ops|test-booking/.test(t.path)));
+});
+test('resource filters distinguish hosted apps from external and device-only resources',()=>{
+  const h=boot();
+  assert(h.api.findTools('Courier','','dashboard').length===1);
+  assert.equal(h.api.findTools('Courier','','resources').length,0);
+  assert(h.api.findTools('','','needs-link').every(t=>['device','unresolved'].includes(t.resourceType)));
+  h.node('neural-availability').value='dashboard';h.node('neural-availability').emit('change');
+  assert.equal(h.document.querySelectorAll('.neural-card').length,h.api.findTools('','','dashboard').length);
+  assert(h.document.querySelectorAll('.neural-resource-state').every(n=>n.textContent==='Atlas dashboard'));
+});
+test('a new hub app enters the generated catalog without a separate handwritten entry',()=>{
+  const resources=JSON.parse(readFileSync(new URL('../neural-resources.json',import.meta.url),'utf8'));
+  const apps=hubApps(readFileSync(new URL('../../index.html',import.meta.url),'utf8'));
+  const future={path:'future-tool.html',title:'Future Tool',description:'A future purpose.',url:'https://qchamby204.github.io/my-dashboards/future-tool.html'};
+  const generated=buildCatalog(resources,[...apps,future]);
+  const added=generated.flatMap(c=>(c.groups||[c]).flatMap(g=>g.tools)).find(t=>t.path===future.path);
+  assert(added);assert.equal(added.resourceType,'dashboard');assert.equal(added.doors[0].url,future.url);
+  assert(resources.every(c=>!c.position),'source inventory stays unchanged');
 });
 test('pinch preserves its anchor, never runs legacy pan, and resumes one-finger dragging without a jump',()=>{
   const h=boot({width:1200,reduced:true});h.run('scale=1;tx=0;ty=0;applyT()');
