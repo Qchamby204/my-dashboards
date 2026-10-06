@@ -1,0 +1,17 @@
+import {readFile, writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {buildCatalog, hubApps} from './neural-catalog.mjs';
+const root = new URL('../', import.meta.url);
+const resources = JSON.parse(await readFile(new URL('atlas/neural-resources.json', root), 'utf8'));
+const apps = hubApps(await readFile(new URL('index.html', root), 'utf8'));
+if (!apps.length || apps.some(a => !a.title || !a.path)) throw Error('Invalid Atlas dashboard inventory');
+for (const app of apps) await readFile(new URL(app.path, root));
+const cats = buildCatalog(resources, apps);
+const page = new URL('neural-map.html', root), before = await readFile(page, 'utf8');
+const after = before.replace(/const CATS=\[[\s\S]*?\];\s*(?=const rad=)/, 'const CATS=' + JSON.stringify(cats, null, 2).replaceAll('<', '\\u003c') + ';\n\n');
+if (after === before && !before.includes('"resourceType"')) throw Error('Neural Map catalog marker missing');
+await writeFile(page, after);
+const jsPath = new URL('shared/neural-enhancements.js', root);
+const cssHash = createHash('sha256').update(await readFile(new URL('shared/neural-enhancements.css', root))).digest('hex').slice(0, 12);
+const js = await readFile(jsPath, 'utf8');
+await writeFile(jsPath, js.replace(/neural-enhancements\.css\?v=[a-z0-9]+/g, 'neural-enhancements.css?v=' + cssHash));

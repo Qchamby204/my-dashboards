@@ -29,3 +29,14 @@ html[data-atlas-app="neural-map"][data-neural-view="list"] .atlas-appearance-map
 
 /* Focused daily workflow additions. */
 .neural-links small{display:block;margin:6px 0}.neural-links select{max-width:100%;min-height:44px}.neural-filters input[type=checkbox]{width:22px;height:22px}.neural-card>button{margin:6px}
+
+html[data-atlas-app="neural-map"] .neural-resource-state{font-size:12px;font-weight:650;line-height:1.4;color:var(--neo-ink);background:var(--neo-inset);border:1px solid var(--neo-line);padding:5px 9px;border-radius:8px}
+html[data-atlas-app="neural-map"] .neural-about{max-width:1160px;margin:0 auto 18px;color:var(--neo-muted);font-size:14px;line-height:1.6}
+html[data-atlas-app="neural-map"] .neural-about summary{display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;border:1px solid var(--neo-line);border-radius:50%;font-weight:650;cursor:pointer}
+html[data-atlas-app="neural-map"] .neural-about p{max-width:60ch;padding:12px 0}
+html[data-atlas-app="neural-map"] .neural-note summary{min-height:44px;cursor:pointer;display:flex;align-items:center}
+html[data-atlas-app="neural-map"] .neural-filters label:has(input[type="checkbox"]){flex:0 1 auto;display:flex;align-items:center;gap:8px;min-height:44px}
+html[data-atlas-app="neural-map"] .neural-filters label:has(input[type="search"]){flex:1 1 250px}
+html[data-atlas-app="neural-map"] .neural-card>button{margin:0}
+html[data-atlas-app="neural-map"] :is(button,a,summary):active{filter:brightness(.94)}
+@media(prefers-contrast:more){html[data-atlas-app="neural-map"] :is(.neural-resource-state,.neural-card,.neural-about summary){border-width:2px}}
