@@ -11,9 +11,9 @@
     const toolNodes=[...gNodes.querySelectorAll('.node.tool')],allNodes=[...gNodes.querySelectorAll('.node')];
     const tools=toolNodes.map(n=>n._tool),nodesById=new Map(toolNodes.map(n=>[n._tool.id,n]));
     const routes={}; // Current dashboard routes are generated from Atlas, alongside the map.
-    const resourceLabel=tool=>tool.resourceType==='external'&&tool.review?.status==='destination-found'?'Drive destination found':({dashboard:'Atlas dashboard',external:'External link · not verified',device:'Local file · Mac only',unresolved:'Needs a link'}[tool.resourceType]||'External resource');
+    const resourceLabel=tool=>tool.privateSite?'Private site · access required':tool.resourceType==='external'&&tool.review?.status==='destination-found'?'Drive destination found':({dashboard:'Atlas dashboard',external:'External link · not verified',saved:'Saved source found · no web copy',device:'Local file · Mac only',unresolved:'Needs a link'}[tool.resourceType]||'External resource');
     const normal=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    const matchesAvailability=(tool,filter)=>!filter||(filter==='resources'?tool.resourceType!=='dashboard':filter==='needs-link'?['device','unresolved'].includes(tool.resourceType):tool.resourceType===filter);
+    const matchesAvailability=(tool,filter)=>!filter||(filter==='resources'?tool.resourceType!=='dashboard':filter==='needs-link'?['device','unresolved','saved'].includes(tool.resourceType):tool.resourceType===filter);
     function findTools(query='',category='',availability=''){
       const words=normal(query).trim().split(/\s+/).filter(Boolean);
       return tools.filter(t=>(!category||t.cat.key===category)&&matchesAvailability(t,availability)&&words.every(word=>normal([t.label,t.full,t.file,t.note,t.cat.title,t.sub,...(t.aliases||[])].join(' ')).includes(word)));
@@ -38,7 +38,7 @@
     const option=make('option','All areas');option.value='';branch.appendChild(option);
     CATS.forEach(cat=>{const o=make('option',cat.title);o.value=cat.key;branch.appendChild(o);});branchLabel.appendChild(branch);
     const availabilityLabel=make('label','Resource type'),availability=make('select');availability.id='neural-availability';
-    for(const [value,label] of [['','All tools'],['dashboard','Atlas dashboards'],['resources','External resources'],['needs-link','Needs a web link']]){const o=make('option',label);o.value=value;availability.append(o);}availabilityLabel.append(availability);
+    for(const [value,label] of [['','All tools'],['dashboard','Atlas dashboards'],['resources','External resources'],['saved','Saved files & prototypes'],['needs-link','Needs a web link']]){const o=make('option',label);o.value=value;availability.append(o);}availabilityLabel.append(availability);
     const favOnly=make('input');favOnly.type='checkbox';const favLabel=make('label','Favourites only');favLabel.append(favOnly);filters.append(favLabel);favOnly.addEventListener('change',renderList);
     const clear=button('Clear filters',()=>{search.value='';branch.value='';availability.value='';favOnly.checked=false;renderList();search.focus();});filters.append(searchLabel,branchLabel,availabilityLabel,clear);
     const count=make('p',null,'neural-count');count.setAttribute('role','status');count.setAttribute('aria-live','polite');
@@ -49,9 +49,10 @@
     function linksFor(tool){
       const wrap=make('div',null,'neural-links');
       destinations(tool).forEach(d=>{
-        if(d.web){const a=make('a',d.label||(d.k==='live'?'Open dashboard':d.k==='chat'?'Open chat':d.k==='drive'?'Open Drive':'Open resource'));a.href=d.url;a.target='_blank';a.rel='noopener noreferrer';wrap.appendChild(a);const kind=make('small',d.k==='chat'?'Chat':d.k==='drive'?'Document':d.k==='live'?'Dashboard':'Web resource');wrap.append(kind);const review=make('select');review.setAttribute('aria-label','Link status: '+(d.label||tool.full));for(const [value,label]of [['','Not checked'],['working','I checked: working'],['broken','Needs repair']]){const o=make('option',label);o.value=value;review.append(o);}review.value=linkReview[d.url]?.status||'';review.onchange=()=>{const next={...linkReview,[d.url]:{status:review.value,checkedAt:new Date().toISOString()}};if(savePreference(HEALTHKEY,next))linkReview=next;else review.value=linkReview[d.url]?.status||'';};wrap.append(review);}
+        if(d.web){const a=make('a',d.label||(d.k==='live'?'Open dashboard':d.k==='chat'?'Open chat':d.k==='drive'?'Open Drive':'Open resource'));a.href=d.url;a.target='_blank';a.rel='noopener noreferrer';wrap.appendChild(a);const kind=make('small',d.k==='chat'?'Chat':d.k==='drive'?'Document':d.k==='live'?'Dashboard':d.k==='site'?'Private site':'Web resource');wrap.append(kind);const review=make('select');review.setAttribute('aria-label','Link status: '+(d.label||tool.full));for(const [value,label]of [['','Not checked'],['working','I checked: working'],['broken','Needs repair']]){const o=make('option',label);o.value=value;review.append(o);}review.value=linkReview[d.url]?.status||'';review.onchange=()=>{const next={...linkReview,[d.url]:{status:review.value,checkedAt:new Date().toISOString()}};if(savePreference(HEALTHKEY,next))linkReview=next;else review.value=linkReview[d.url]?.status||'';};wrap.append(review);}
         else if(d.local){const note=make('p','Stored on your computer. This file cannot open from the web dashboard.','neural-local');const path=make('code');try{path.textContent=decodeURI(new URL(d.url).pathname);}catch{path.textContent=d.url;}note.appendChild(path);wrap.appendChild(note);}
       });
+      if(tool.resourceType==='saved')wrap.appendChild(make('p','The saved source is available in your ChatGPT files. No hosted web copy has been established.','neural-note'));
       if(tool.resourceType==='unresolved')wrap.appendChild(make('p','The original resource is retained, but its current file or web destination needs locating.','neural-note'));
       else if(tool.note&&tool.resourceType!=='dashboard'&&!routes[tool.full]){const history=make('details',null,'neural-note');history.append(make('summary','Original location note'),make('p',tool.note));wrap.append(history);}
       if(tool.review){const review=make('details',null,'neural-note');review.append(make('summary','Catalog review · '+tool.review.checkedOn),make('p',tool.review.note));wrap.append(review);}
