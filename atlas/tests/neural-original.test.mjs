@@ -157,3 +157,17 @@ test('keyboard users can open nodes and return focus with Escape or use slash to
   h.window.emit('keydown',{target:tool,key:'/'});assert.equal(h.api.mode,'list');assert.equal(h.document.activeElement,h.node('neural-search'));
   const prevented=h.window.emit('keydown',{target:h.node('neural-search'),key:'/'});assert.equal(prevented.prevented,undefined);
 });
+
+test('catalog review identifies found Drive destinations without claiming chats were verified',()=>{
+  const h=boot();
+  const resources=h.api.findTools('','','resources');
+  assert.equal(resources.length,22);
+  assert.equal(resources.filter(t=>t.review?.status==='destination-found').length,4);
+  const forecast=h.api.findTools('Forecasting')[0];
+  assert(forecast.doors.some(d=>d.k==='drive'&&d.label==='Open forecast workbook'));
+  assert(forecast.doors.some(d=>d.k==='chat'));
+  assert.match(forecast.review.note,/not its formulas/);
+  assert.equal(h.api.findTools('Governance Grants')[0].full,'BFC Compensation Plans');
+  assert(resources.every(t=>t.review.checkedOn==='2026-10-06'));
+  assert(h.document.querySelectorAll('.neural-resource-state').filter(n=>n.textContent==='Drive destination found').length===4);
+});
