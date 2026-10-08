@@ -34,7 +34,10 @@ with sync_playwright() as pw:
             dialog = page.locator('.ledger-reward[open]')
             if not dialog.count():
                 break
-            dialog.locator('[data-act="achvNext"]').click()
+            if dialog.get_by_role('button', name='Continue', exact=True).count():
+                dialog.get_by_role('button', name='Continue', exact=True).click()
+            else:
+                dialog.locator('[data-act="achvNext"]').click()
     try:
         page.goto(BASE + '/life-ledger.html', wait_until='networkidle')
         page.wait_for_function('!!window.LedgerDays && !!window.LedgerRhythm')
@@ -95,11 +98,27 @@ with sync_playwright() as pw:
         page.wait_for_function('!!window.LedgerDays')
         expect(page.locator('#rhythm-week-reduced')).to_have_attribute('aria-pressed', 'true')
         assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 60
+        expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 0')
+        page.get_by_role('textbox', name='Amount for Read', exact=True).fill('250')
+        page.get_by_role('textbox', name='Amount for Read', exact=True).press('Tab')
+        page.locator('[data-act="commit"]').first.click()
+        expect(page.get_by_role('dialog', name='Life · Level 1', exact=True)).to_be_visible()
+        no_overflow()
+        page.screenshot(path=str(OUT / f'{ENGINE}-level-up.png'))
+        dismiss_rewards()
+        expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
+        page.locator('#ledger-nav-progress').click()
+        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('1040 lifetime XP')
+        assert page.locator('.ledger-value-level').count() == 5
+        page.screenshot(path=str(OUT / f'{ENGINE}-lifetime-levels.png'), full_page=True)
+        page.locator('#ledger-nav-today').click()
+        page.reload(wait_until='networkidle')
+        expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
         for width in [320, 430, 1024]:
             page.set_viewport_size({'width': width, 'height': 844})
             no_overflow()
         assert not errors, errors
-        print(ENGINE + ': ongoing goals, catch-up, screen boundary, history and responsive journeys passed')
+        print(ENGINE + ': ongoing goals, catch-up, screen boundary, lifetime levels, history and responsive journeys passed')
     finally:
         page.screenshot(path=str(OUT / f'{ENGINE}-final.png'), full_page=True)
         browser.close()

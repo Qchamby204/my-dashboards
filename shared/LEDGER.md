@@ -2,6 +2,12 @@
 
 The original Life Ledger URL, visual language and device-local records remain in place. This extension changes the goal model and check-in flow without introducing new health or body targets.
 
+## Lifetime leveling
+
+Levels remain part of the system. Saved activity earns 100 XP per existing standard check-in amount (for example, 25 pages, one workout, or 30 minutes of board work). Partial amounts earn proportional XP. Every 1,000 XP adds a level, with no maximum. Each habit contributes to its value and the overall Life Level. Week mode, goal edits, focus choices, calendar gaps and year-end do not change earned XP. Correcting or undoing an entry recalculates that activity. Weekly catch-up contributes only its difference above dated records. Opening the dashboard derives XP from saved history without rewriting it.
+
+The main check-in shows the Life Level and XP to the next level. Progress restores the five-value constellation, habit/value levels, next-level meters and level-up celebrations after verified saves.
+
 ## Goals and progress
 
 Each habit can be an ongoing practice, a milestone, or an actual deadline. Practices have normal and smaller weekly targets, measured in completed days or the habit's amount. Milestones start from a saved baseline of accumulated progress; only actual deadlines require a date. There is no automatic December 31 finish or season reset.
