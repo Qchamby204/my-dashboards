@@ -229,3 +229,21 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 .cc-app[data-atlas-app="the-chef"] #cook-yield { line-height:1.6; }
 @media(max-width:600px) { .cc-app[data-atlas-app="the-chef"] .grocery { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:360px) { .cc-app[data-atlas-app="the-chef"] .chef-picker-filters { grid-template-columns:minmax(0,1fr); } }
+
+/* One preparation supplies dated meal cells across weeks. */
+.cc-app[data-atlas-app="the-chef"] .chef-week-dates { display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin-bottom:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-week-dates strong { flex:1; text-align:center; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] :is(#week-back,#week-next) { width:44px; padding:0; font-size:1.5rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-day-date { display:block; margin-top:.2rem; font:400 .875rem/1.5 var(--neo-font); color:var(--neo-muted); }
+.cc-app[data-atlas-app="the-chef"] #prep-dialog { width:min(40rem,calc(100% - 1.5rem)); max-height:calc(100dvh - var(--cc-top) - var(--cc-bottom) - 2rem); overflow:auto; padding:clamp(1rem,3vw,2rem); }
+.cc-app[data-atlas-app="the-chef"] #prep-close { width:44px; flex:0 0 44px; padding:0; font-size:1.5rem; }
+.cc-app[data-atlas-app="the-chef"] #prep-recipe-name { font-size:1.1rem; font-weight:600; line-height:1.5; }
+.cc-app[data-atlas-app="the-chef"] .chef-prep-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-block:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-prep-fields label { display:grid; gap:.5rem; min-width:0; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-prep-fields input { width:100%; min-width:0; max-width:none; min-height:48px; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] #prep-yield-field[hidden] { display:none!important; }
+.cc-app[data-atlas-app="the-chef"] :is(#prep-coverage,#prep-error) { font-size:1rem; line-height:1.65; overflow-wrap:anywhere; }
+.cc-app[data-atlas-app="the-chef"] #prep-error { color:var(--neo-rose); margin-bottom:1rem; }
+.cc-app[data-atlas-app="the-chef"] :is(#cook-edit-prep,#prep-remove)[hidden] { display:none!important; }
+.cc-app[data-atlas-app="the-chef"] .chef-week-nav button { white-space:normal; overflow-wrap:anywhere; }
+@media(max-width:420px) { .cc-app[data-atlas-app="the-chef"] .chef-prep-fields { grid-template-columns:minmax(0,1fr); } }

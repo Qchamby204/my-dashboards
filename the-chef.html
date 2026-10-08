@@ -96,7 +96,7 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#202936">
-<script src="shared/atlas-theme.js?v=81c97e94d747"></script>
+<script src="shared/atlas-theme.js?v=22152011c355"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
@@ -156,6 +156,7 @@ footer .row{justify-content:center}
   </section>
 
   <section id="tab-planner" class="hidden">
+    <div class="chef-week-dates"><button id="week-back" aria-label="Previous week">‹</button><strong id="week-range"></strong><button id="week-next" aria-label="Next week">›</button><button id="week-current" class="ghost">This week</button></div>
     <nav class="chef-week-nav" aria-label="Weekly meal planning">
       <button data-week-view="week" aria-pressed="true">Week</button>
       <button data-week-view="groceries" aria-pressed="false">Groceries</button>
@@ -163,7 +164,7 @@ footer .row{justify-content:center}
     </nav>
     <div class="panel" id="week-view">
       <h2>This week</h2>
-      <details class="cc-help"><summary aria-label="About planned servings and batches"><span aria-hidden="true">i</span></summary><p><strong>Servings</strong> means the total recipe portions you will make at that meal. For two people, use 2; for two people plus two leftover portions, use 4. A recipe that normally makes 4 scales to half its measured ingredients when you plan 2. Some baked goods count pieces rather than people. <strong>Batches</strong> means copies of the full recipe when its portion yield is unknown: 1 uses the original quantities; 2 doubles measured quantities. Each filled slot adds another preparation to your groceries. Leave a leftover-only slot empty so you do not buy the same batch twice.</p></details>
+      <details class="cc-help"><summary aria-label="About portions and automatic meal planning"><span aria-hidden="true">i</span></summary><p>Plan one preparation: choose its start date, total portions and portions per day. Five portions at one per day fills five consecutive days in the same meal slot, including across weeks. The groceries count that preparation once, in its starting week. Changing a preparation updates all its linked days. Existing single-day plans stay as saved until you edit them.</p></details>
       <div class="summary" id="plan-summary"></div><div id="chef-plan-progress" class="chef-plan-progress"></div>
       <div class="week" id="week"></div>
       <div class="row" style="margin-top:10px">
@@ -179,7 +180,7 @@ footer .row{justify-content:center}
         <button id="g-uncheck" class="ghost">Clear checks</button>
       </div>
       <p id="g-summary" class="summary" role="status"></p>
-      <details class="cc-help"><summary aria-label="About the grocery list"><span aria-hidden="true">i</span></summary><p>Tick an ingredient when you already have it or have bought it. “Still needed” leaves those items out of the copied list. Quantities are recipe totals, not package counts. Unspecified amounts stay flagged for review.</p></details>
+      <details class="cc-help"><summary aria-label="About the grocery list"><span aria-hidden="true">i</span></summary><p>Each preparation is counted once, in the week it starts, even when its portions continue into next week. Tick an ingredient when you already have it or have bought it. “Still needed” leaves those items out of the copied list. Quantities are recipe totals, not package counts. Unspecified amounts stay flagged for review.</p></details>
       <div class="grocery" id="grocery"></div>
       <details class="chef-copy-preview"><summary>Preview Muse list / copy manually</summary><textarea id="g-export" readonly aria-label="Grocery shopping message for Muse" spellcheck="false"></textarea></details>
     </div>
@@ -226,10 +227,27 @@ footer .row{justify-content:center}
   <p id="picker-count" class="summary" role="status" aria-live="polite"></p>
   <div id="picker-results"></div>
 </dialog>
+<dialog id="prep-dialog" aria-labelledby="prep-title">
+  <div class="cc-cook-heading"><h2 id="prep-title">Plan a preparation</h2><button id="prep-close" aria-label="Close preparation editor">×</button></div>
+  <form id="prep-form">
+    <p id="prep-recipe-name"></p>
+    <div class="chef-prep-fields">
+      <label>Starting date <input id="prep-date" type="date" required></label>
+      <label><span id="prep-amount-label">Total portions to make</span><input id="prep-amount" type="number" min="1" max="500" step="1" required></label>
+      <label id="prep-yield-field" hidden>Total portions this batch makes <input id="prep-yield" type="number" min="1" max="500" step="1"></label>
+      <label>Portions per day <input id="prep-per-day" type="number" min="1" max="500" step="1" value="1" required></label>
+    </div>
+    <details class="cc-help"><summary aria-label="About preparation quantities"><span aria-hidden="true">i</span></summary><p>One portion per day is the default: 5 portions covers 5 days. For meals shared by two people, use 2 per day. Recipes with unknown serving yield use full batches for ingredient quantities; enter how many portions the batch will give you. Each day uses portions from the same preparation.</p></details>
+    <p id="prep-original-yield" class="summary"></p>
+    <p id="prep-coverage" role="status" aria-live="polite"></p>
+    <div id="prep-error" role="alert"></div>
+    <div class="row"><button id="prep-save" type="submit" class="primary">Save preparation</button><button id="prep-remove" type="button" class="ghost" hidden>Remove preparation</button></div>
+  </form>
+</dialog>
 <dialog id="cook-dialog" aria-labelledby="cook-title">
   <div class="cc-cook-heading"><h2 id="cook-title"></h2><button id="cook-close" aria-label="Close cooking view">×</button></div>
   <div class="cc-cook-controls"><label for="cook-servings">Servings</label><input id="cook-servings" type="number" min="1" max="500" step="1"><span id="cook-time"></span></div>
-  <p id="cook-yield" class="summary"></p>
+  <p id="cook-yield" class="summary"></p><button id="cook-edit-prep" class="ghost" hidden>Edit preparation</button>
   <details class="cc-help"><summary aria-label="About serving adjustments"><span aria-hidden="true">i</span></summary><p>Servings are total recipe portions, including any you want left over; some baked goods count individual pieces. Batches are full copies of recipes with unknown portion yield. Ingredient quantities follow the chosen amount. Per-item references and alternatives stay as written. Method quantities, timings, and temperatures stay as written; use the scaled ingredient list and check doneness. Changing the amount for a planned meal also updates its groceries. Checklist ticks last for this cooking session.</p></details>
   <div id="cook-source"></div>
   <h3>Ingredients</h3><div id="cook-ingredients" class="cc-cook-checks"></div>
@@ -904,7 +922,7 @@ const store = {
   available(){try{const k=this.key('probe');localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}}
 };
 const migrations = {};
-function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{},portions:{},recipeFeedback:{},deletedRecipes:[]};}
+function defaultState(){return {favourites:{},ratings:{},plan:{},checked:{},groceryChecks:{},portions:{},preparations:{},legacyWeekStart:null,recipeFeedback:{},deletedRecipes:[]};}
 function loadState(){
   const stored = store.get('state');
   if(stored===null) return defaultState();
@@ -930,7 +948,7 @@ function setState(patch){
 // Keep them across ordinary resets/imports so an old plan cannot resurrect a recipe.
 function withoutDeletedRecipes(value,previous=[]){
   const ids=[...new Set([...(Array.isArray(value.deletedRecipes)?value.deletedRecipes:[]),...(Array.isArray(previous)?previous:[])].filter(id=>typeof id==='string'))];
-  const removed=new Set(ids),next={...value,deletedRecipes:ids,favourites:{...value.favourites},ratings:{...value.ratings},plan:{},portions:{...value.portions}};
+  const removed=new Set(ids),next={...value,deletedRecipes:ids,favourites:{...value.favourites},ratings:{...value.ratings},plan:{},portions:{...value.portions},preparations:Object.fromEntries(Object.entries(value.preparations||{}).filter(([key,p])=>p&&!removed.has(p.recipeId)))};
   for(const id of ids){delete next.favourites[id];delete next.ratings[id];}
   for(const [day,meals] of Object.entries(value.plan||{})){
     const kept={...meals},portions={...next.portions[day]};
@@ -944,7 +962,7 @@ function recipeDeleted(id){return state.deletedRecipes.includes(id);}
 function availableRecipes(){return RECIPES.filter(x=>!recipeDeleted(x.id));}
 function deleteRecipe(id){
   const recipe=BY_ID[id];if(!recipe||recipeDeleted(id))return false;
-  const slots=Object.values(state.plan).reduce((n,day)=>n+Object.values(day).filter(value=>value===id).length,0);
+  const slots=Object.values(state.plan).reduce((n,day)=>n+Object.values(day).filter(value=>value===id).length,0)+allPreparations().filter(p=>p.recipeId===id).reduce((n,p)=>n+preparationDays(p).length,0);
   if(!confirm(`Permanently delete “${recipe.name}” from this browser’s recipe library?\n\nIt will be removed from favourites, ratings, and meal suggestions.${slots?' '+slots+' planned meal'+(slots===1?'':'s')+' will also be removed and the grocery list recalculated.':''} Other recipes stay unchanged. This cannot be undone.`))return false;
   if(!setState({deletedRecipes:[...state.deletedRecipes,id]}))return false;
   undoChange=null;renderUndo();
@@ -954,9 +972,77 @@ function deleteRecipe(id){
 }
 
 /* session-only UI state */
-const ui = {tab:'ingredients',meal:'all',time:0,sort:'name',source:'all',picks:new Set(),mood:null,search:'',shuffleKeys:{},weekView:'week',groceryScope:'needed'};
+const ui = {tab:'ingredients',meal:'all',time:0,sort:'name',source:'all',picks:new Set(),mood:null,search:'',shuffleKeys:{},weekView:'week',groceryScope:'needed',weekStart:weekMonday()};
 let mealPicker=null;
+let prepEditor=null;
 function pickerDefaults(){return {search:'',category:'all',ingredient:'all',source:'all',style:'all',time:0,favourites:false};}
+
+/* Dated preparations own their portions; calendar cells are a read-only projection. */
+function localDateKey(date=new Date()){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');}
+function dateValid(key){if(typeof key!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(key))return false;const d=new Date(key+'T12:00:00');return Number.isFinite(d.getTime())&&localDateKey(d)===key;}
+function datePlus(key,days){const d=new Date(key+'T12:00:00');d.setDate(d.getDate()+days);return localDateKey(d);}
+function weekMonday(key=localDateKey()){const d=new Date(key+'T12:00:00');return datePlus(key,-((d.getDay()+6)%7));}
+function prettyDate(key){return new Date(key+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});}
+function legacyWeek(){return dateValid(state.legacyWeekStart)?state.legacyWeekStart:weekMonday();}
+function weekDate(day){return datePlus(ui.weekStart,DAYS.findIndex(d=>d[0]===day));}
+function legacyDay(date){return DAYS.find((d,i)=>datePlus(legacyWeek(),i)===date)?.[0]||'';}
+function validPreparation(p){
+  const recipe=BY_ID[p?.recipeId];
+  return !!recipe&&!recipeDeleted(recipe.id)&&MEALS.includes(recipe.meal)&&dateValid(p.startDate)&&validServings(p.amount)&&validServings(p.portionCount)&&validServings(p.perDay)&&(recipe.portionUnit==='batch'||p.portionCount===p.amount);
+}
+function allPreparations(){return Object.values(state.preparations||{}).filter(validPreparation);}
+function preparationDays(p){
+  if(!validPreparation(p))return [];
+  return Array.from({length:Math.ceil(p.portionCount/p.perDay)},(_,i)=>({date:datePlus(p.startDate,i),count:Math.min(p.perDay,p.portionCount-i*p.perDay),number:i+1}));
+}
+function mealAt(date,meal){
+  for(const prep of allPreparations()){
+    const recipe=BY_ID[prep.recipeId];if(recipe.meal!==meal)continue;
+    const index=Math.round((Date.parse(date+'T00:00:00Z')-Date.parse(prep.startDate+'T00:00:00Z'))/86400000);
+    if(index>=0&&index<Math.ceil(prep.portionCount/prep.perDay))return {recipe,prep,serving:{date,count:Math.min(prep.perDay,prep.portionCount-index*prep.perDay),number:index+1},date,meal};
+  }
+  const day=legacyDay(date),recipe=BY_ID[state.plan[day]?.[meal]];
+  return recipe&&!recipeDeleted(recipe.id)?{recipe,date,meal,legacy:day,amount:slotServings(day,meal,recipe)}:null;
+}
+function weekMeals(){return DAYS.flatMap(([key,label],i)=>MEALS.map(meal=>{const date=datePlus(ui.weekStart,i);return {date,key,label,meal,entry:mealAt(date,meal)};}));}
+function preparationConflict(p,legacySlot=null){
+  for(const d of preparationDays(p)){
+    const entry=mealAt(d.date,BY_ID[p.recipeId].meal);
+    if(!entry||entry.prep?.id===p.id||entry.legacy&&legacySlot===entry.legacy+'|'+entry.meal)continue;
+    return prettyDate(d.date)+' '+entry.meal+' already has '+entry.recipe.name+'. Choose another start date or fewer portions, or remove that preparation first.';
+  }
+  return '';
+}
+function savePreparation(value,legacySlot=null){
+  const p={...value,id:value.id||'prep-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9)};
+  if(!validPreparation(p)){window.AtlasCraftUI?.announce('Enter a valid starting date, cooking amount, total portions and portions per day.');return false;}
+  const conflict=preparationConflict(p,legacySlot);
+  if(conflict){window.AtlasCraftUI?.announce(conflict);return false;}
+  const patch={preparations:{...(state.preparations||{}),[p.id]:p},legacyWeekStart:legacyWeek()};
+  if(legacySlot){
+    const [day,meal]=legacySlot.split('|');
+    const plan=JSON.parse(JSON.stringify(state.plan)),portions=JSON.parse(JSON.stringify(state.portions||{}));
+    if(plan[day]){delete plan[day][meal];if(!Object.keys(plan[day]).length)delete plan[day];}
+    if(portions[day]){delete portions[day][meal];if(!Object.keys(portions[day]).length)delete portions[day];}
+    patch.plan=plan;patch.portions=portions;
+  }
+  const days=preparationDays(p);
+  return commitPlan(patch,`${BY_ID[p.recipeId].name}: ${p.portionCount} portions across ${days.length} days. Groceries counted once.`);
+}
+function removePreparation(id){
+  if(!state.preparations?.[id])return false;
+  const preparations={...state.preparations};delete preparations[id];
+  return commitPlan({preparations},'Preparation and its linked days removed.');
+}
+function clearPlannedWeek(){
+  const entries=weekMeals().map(x=>x.entry).filter(Boolean),ids=new Set(entries.filter(x=>x.prep).map(x=>x.prep.id));
+  if(!entries.length)return false;
+  if(!confirm('Remove the preparations shown this week? Any portions linked to them in other weeks will also be removed. You can Undo this.'))return false;
+  const patch={preparations:Object.fromEntries(Object.entries(state.preparations||{}).filter(([id])=>!ids.has(id))),groceryChecks:{...(state.groceryChecks||{}),[ui.weekStart]:{}}};
+  if(ui.weekStart===legacyWeek())patch.checked={};
+  if(ui.weekStart===legacyWeek()){patch.plan={};patch.portions={};}
+  return commitPlan(patch,'Week’s preparations cleared.');
+}
 
 /* ---------- pure functions ---------- */
 function timeOk(x){return !ui.time || (Number.isFinite(x.time)&&x.time<=ui.time);}
@@ -987,10 +1073,16 @@ function plannerRecipes(meal,filters=pickerDefaults()){
 }
 function plannedRecipes(){
   const selected=new Map();
-  for(const [day,label] of DAYS)for(const meal of MEALS){
+  if(ui.weekStart===legacyWeek())for(const [day,label] of DAYS)for(const meal of MEALS){
     const recipe=BY_ID[state.plan[day]?.[meal]];if(!recipe||recipeDeleted(recipe.id))continue;
     if(!selected.has(recipe.id))selected.set(recipe.id,{recipe,slots:[]});
     selected.get(recipe.id).slots.push({day,label,meal,amount:slotServings(day,meal,recipe)});
+  }
+  for(const prep of allPreparations()){
+    const days=preparationDays(prep);if(!days.some(d=>d.date>=ui.weekStart&&d.date<datePlus(ui.weekStart,7)))continue;
+    const recipe=BY_ID[prep.recipeId];
+    if(!selected.has(recipe.id))selected.set(recipe.id,{recipe,slots:[]});
+    selected.get(recipe.id).slots.push({day:prep.startDate,label:prettyDate(prep.startDate),meal:recipe.meal,amount:prep.amount,prepId:prep.id,portionCount:prep.portionCount,perDay:prep.perDay,endDate:days.at(-1).date});
   }
   return [...selected.values()].sort((a,b)=>recipeNameOrder(a.recipe,b.recipe));
 }
@@ -1105,13 +1197,16 @@ let cookSession=null;
 function openCook(id,slot,trigger){
   const recipe=BY_ID[id];if(!recipe||recipeDeleted(id))return;
   const [day,meal]=slot?slot.split('|'):[];
-  cookSession={id,slot,trigger,servings:slot?slotServings(day,meal,recipe):recipe.servings,checked:{}};
+  const prep=dateValid(day)?mealAt(day,meal)?.prep:null;
+  cookSession={id,slot,trigger,prepId:prep?.id||null,servings:prep?prep.amount:slot?slotServings(day,meal,recipe):recipe.servings,checked:{}};
   document.getElementById('cook-title').textContent=recipe.name;
   document.getElementById('cook-time').textContent=recipeTime(recipe);
   document.getElementById('cook-source').innerHTML=sourceDetails(recipe);
   document.querySelector('label[for="cook-servings"]').textContent=portionLabel(recipe);
   document.getElementById('cook-servings').value=cookSession.servings;
-  document.getElementById('cook-yield').textContent='Original recipe: '+fullYield(recipe)+'.'+(slot?' This amount is saved in your week plan.':'');
+  document.getElementById('cook-servings').readOnly=!!prep;
+  document.getElementById('cook-edit-prep').hidden=!prep;
+  document.getElementById('cook-yield').textContent=prep?`Cook once: ${prep.amount} ${portionLabel(recipe).toLowerCase()} for ${prep.portionCount} portions, ${prettyDate(prep.startDate)}–${prettyDate(preparationDays(prep).at(-1).date)}. The ingredients below are for the whole preparation.`:'Original recipe: '+fullYield(recipe)+'.'+(slot?' This amount is saved in your week plan.':'');
   renderCookIngredients();
   document.getElementById('cook-steps').innerHTML=recipe.steps.map((step,n)=>'<li><label><input type="checkbox" aria-label="Step '+(n+1)+' complete"><span>'+esc(step)+'</span></label></li>').join('');
   document.getElementById('cook-dialog').showModal();
@@ -1123,9 +1218,9 @@ function renderCookIngredients(){
 }
 function groceryList(){
   const agg = {};
-  Object.entries(state.plan).forEach(([dayKey,day])=>Object.entries(day).forEach(([meal,id])=>{
-    const x = BY_ID[id]; if(!x||recipeDeleted(id)) return;
-    const factor=slotServings(dayKey,meal,x)/x.servings;
+  const add=(x,amount)=>{
+    if(!x||recipeDeleted(x.id))return;
+    const factor=amount/x.servings;
     x.ingredients.forEach(i=>{
       if(i.prepared)return;
       const multiplier=ingredientFactor(i,factor);
@@ -1134,7 +1229,9 @@ function groceryList(){
       const p=parseQty(i.q);
       agg[k].qs.push(p?{...p,n:p.n*multiplier}:scaledQty(i.q,multiplier));
     });
-  }));
+  };
+  if(ui.weekStart===legacyWeek())Object.entries(state.plan).forEach(([dayKey,day])=>Object.entries(day).forEach(([meal,id])=>add(BY_ID[id],slotServings(dayKey,meal,BY_ID[id]))));
+  allPreparations().filter(p=>p.startDate>=ui.weekStart&&p.startDate<datePlus(ui.weekStart,7)).forEach(p=>add(BY_ID[p.recipeId],p.amount));
   Object.values(agg).forEach(a=>{
     if(a.qs.every(p=>typeof p==='object')&&a.qs.every(p=>p.key===a.qs[0].key))a.q=fmtNum(a.qs.reduce((sum,p)=>sum+p.n,0))+(a.qs[0].unit?' '+a.qs[0].unit:'');
     else a.q=a.qs.map(p=>typeof p==='string'?(p||'quantity not specified — confirm'):fmtNum(p.n)+(p.unit?' '+p.unit:'')).join(' + ');
@@ -1149,10 +1246,16 @@ function shoppingGroups(){
   return aisles.map(([key,label])=>({label,items:items.filter(x=>aisle(x)===key).sort((a,b)=>a.n.localeCompare(b.n))})).filter(g=>g.items.length);
 }
 function groceryQuantity(item){return item.q.trim()||'Quantity not specified — confirm';}
+function groceryChecked(name){const checks=state.groceryChecks?.[ui.weekStart];return !!(checks?checks[name]:ui.weekStart===legacyWeek()&&state.checked[name]);}
+function saveGroceryChecks(checks){
+  const patch={groceryChecks:{...(state.groceryChecks||{}),[ui.weekStart]:checks}};
+  if(ui.weekStart===legacyWeek())patch.checked=checks;
+  return setState(patch);
+}
 function groceryExport(scope='needed'){
-  const groups=shoppingGroups().map(g=>({...g,items:g.items.filter(x=>scope==='all'||!state.checked[x.n])})).filter(g=>g.items.length);
+  const groups=shoppingGroups().map(g=>({...g,items:g.items.filter(x=>scope==='all'||!groceryChecked(x.n))})).filter(g=>g.items.length);
   if(!groups.length)return '';
-  const heading='GROCERY SHOPPING LIST\nFor this week’s meals in Chef\n\n'+(scope==='all'?'Full ingredient list.':'Only items still needed; ingredients marked as already owned or bought are excluded.')+'\nQuantities below are total recipe amounts. Buy the smallest pack(s) that cover them. Keep different units separate; do not guess quantities marked for confirmation.';
+  const heading='GROCERY SHOPPING LIST\nPreparations starting '+prettyDate(ui.weekStart)+'–'+prettyDate(datePlus(ui.weekStart,6))+'\n\n'+(scope==='all'?'Full ingredient list.':'Only items still needed; ingredients marked as already owned or bought are excluded.')+'\nEach preparation is counted once, including portions for later days. Quantities below are total recipe amounts. Buy the smallest pack(s) that cover them. Keep different units separate; do not guess quantities marked for confirmation.';
   return heading+'\n\n'+groups.map(g=>g.label.toUpperCase()+'\n'+g.items.map(a=>'- '+a.n+' — '+groceryQuantity(a)).join('\n')).join('\n\n');
 }
 function fillWeek(plan){
@@ -1278,25 +1381,27 @@ function renderCards(){
   $('#cards').innerHTML = list.length ? recipeCardsHtml(list,true,ui.sort==='category') : '<div class="empty">Nothing matches. Loosen the time filter or pick more ingredients.</div>';
 }
 function renderPlanner(){
+  $('#week-range').textContent=prettyDate(ui.weekStart)+'–'+prettyDate(datePlus(ui.weekStart,6));
   document.querySelectorAll('[data-week-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.weekView===ui.weekView)));
   for(const [view,id] of [['week','week-view'],['groceries','groceries-view'],['recipes','recipes-view']])$('#'+id).hidden=ui.weekView!==view;
-  $('#week').innerHTML = DAYS.map(([k,label])=>`<div class="day"><h3>${label}</h3>${MEALS.map(m=>{
-    const id = (state.plan[k]||{})[m]||'',recipe=BY_ID[id];
-    return `<div class="slot"><span class="lab">${m}</span><button class="chef-slot-pick ${recipe?'is-planned':''}" data-slot="${k}|${m}" aria-label="${label} ${m}: ${esc(recipe?recipe.name:'choose a recipe')}">${esc(recipe?recipe.name:'Choose '+m)}</button>${recipe?`<button data-unplan="${k}|${m}" aria-label="Remove ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${recipe?`<div class="cc-slot-tools"><label>${portionLabel(recipe)} to make <input type="number" data-portions="${k}|${m}" min="1" max="500" step="1" value="${slotServings(k,m,recipe)}" aria-label="${portionLabel(recipe)} to make for ${label} ${m}"></label><button data-cook="${id}" data-cook-slot="${k}|${m}">Recipe</button></div><span class="chef-slot-yield">Original recipe: ${esc(fullYield(recipe))}</span>`:''}</div>`;
-  }).join('')}</div>`).join('');
-  const n = planCount();
-  $('#plan-summary').textContent = n ? `${n} meals planned · ${plannedRecipes().length} different recipes.` : 'Choose the meals you want to prepare. Leave other slots empty.';
+  $('#week').innerHTML = DAYS.map(([k,label],i)=>{const date=datePlus(ui.weekStart,i);return `<div class="day"><h3>${label} <span class="chef-day-date">${prettyDate(date)}</span></h3>${MEALS.map(m=>{
+    const entry=mealAt(date,m),recipe=entry?.recipe,prep=entry?.prep;
+    const description=prep?`${entry.serving.count} portion${entry.serving.count===1?'':'s'} today · ${entry.serving.number===1?'Cook once today':'From the '+prettyDate(prep.startDate)+' preparation'}`:recipe?'Single-day plan · edit to spread its portions':'';
+    return `<div class="slot"><span class="lab">${m}</span><button class="chef-slot-pick ${recipe?'is-planned':''}" data-slot="${date}|${m}" aria-label="${label} ${m}: ${esc(recipe?recipe.name:'choose a recipe')}">${esc(recipe?recipe.name:'Choose '+m)}</button>${recipe?`<button data-unplan="${date}|${m}" aria-label="Remove ${prep?'preparation for':'single-day plan for'} ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${recipe?`<span class="chef-slot-yield">${esc(description)}</span><div class="cc-slot-tools"><button data-edit-prep="${date}|${m}">${prep?'Edit preparation':'Spread portions'}</button><button data-cook="${recipe.id}" data-cook-slot="${prep?date:entry.legacy}|${m}">Recipe</button></div>`:''}</div>`;
+  }).join('')}</div>`;}).join('');
+  const entries=weekMeals().map(x=>x.entry).filter(Boolean),n=entries.length,batches=new Set(entries.filter(x=>x.prep).map(x=>x.prep.id)).size;
+  $('#plan-summary').textContent = n ? `${n} meals covered · ${batches} shared preparation${batches===1?'':'s'}${entries.some(x=>x.legacy)?' · single-day plans also saved':''}.` : 'Choose a recipe and its total portions. The following days fill automatically.';
   const total=DAYS.length*MEALS.length;
   $('#chef-plan-progress').innerHTML=`<div class="chef-progress-label"><strong>${n}<small> / ${total}</small></strong><span>meal slots planned</span></div><div class="chef-progress-track" role="progressbar" aria-label="Weekly meal slots planned" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${n}"><span style="width:${Math.min(100,n/total*100)}%"></span></div>`;
   renderGroceries();
   $('#week-recipes').innerHTML=weekRecipesHtml();
 }
 function renderGroceries(){
-  const groups = shoppingGroups(),items=groups.flatMap(g=>g.items),needed=items.filter(x=>!state.checked[x.n]).length;
-  $('#g-summary').textContent=items.length?`${needed} items still needed · ${items.length-needed} already owned or bought.`:'Your list will appear when you plan a meal.';
+  const groups = shoppingGroups(),items=groups.flatMap(g=>g.items),needed=items.filter(x=>!groceryChecked(x.n)).length;
+  $('#g-summary').textContent=items.length?`${needed} items still needed · ${items.length-needed} already owned or bought. Each preparation counted once.`:weekMeals().some(x=>x.entry?.prep)?'This week’s meals carry portions from an earlier preparation. Its groceries are listed in the week it starts.':'Your list will appear when you plan a preparation starting this week.';
   $('#g-scope').value=ui.groceryScope;
   $('#grocery').innerHTML = groups.length ? groups.map(g=>`<section class="chef-grocery-group"><h3>${esc(g.label)}</h3>`+g.items.map(a=>{
-    const done = !!state.checked[a.n];
+    const done = groceryChecked(a.n);
     return `<label class="${done?'done':''}"><input type="checkbox" data-check="${esc(a.n)}" ${done?'checked':''} aria-label="Already have or bought ${esc(a.n)}"><span class="chef-grocery-item">${esc(a.n)}<span class="q">${esc(groceryQuantity(a))}</span></span></label>`;
   }).join('')+'</section>').join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
   const message=groceryExport(ui.groceryScope);
@@ -1306,13 +1411,13 @@ function renderGroceries(){
 function weekRecipesHtml(){
   const selected=plannedRecipes();
   if(!selected.length)return '<div class="empty">The recipes you select for the week will appear here.</div>';
-  return selected.map(({recipe:x,slots})=>`<article class="chef-week-recipe"><h3>${esc(x.name)}</h3><p class="summary">${esc(recipeCategory(x))} · ${esc(recipeTime(x))} · Original recipe: ${esc(fullYield(x))}</p><div class="chef-recipe-occurrences">${slots.map(s=>`<button data-cook="${x.id}" data-cook-slot="${s.day}|${s.meal}">${s.label} ${s.meal} · ${s.amount} ${portionLabel(x).toLowerCase()}<span>Open recipe</span></button>`).join('')}</div></article>`).join('');
+  return selected.map(({recipe:x,slots})=>`<article class="chef-week-recipe"><h3>${esc(x.name)}</h3><p class="summary">${esc(recipeCategory(x))} · ${esc(recipeTime(x))} · Original recipe: ${esc(fullYield(x))}</p><div class="chef-recipe-occurrences">${slots.map(s=>`<button data-cook="${x.id}" data-cook-slot="${s.day}|${s.meal}">${s.prepId?`${s.label}–${prettyDate(s.endDate)} · ${s.portionCount} portions · ${s.perDay}/day`:`${s.label} ${s.meal} · ${s.amount} ${portionLabel(x).toLowerCase()}`}<span>${s.prepId?'Cook once · open full preparation':'Open single-day recipe'}</span></button>`).join('')}</div></article>`).join('');
 }
 function openMealPicker(slot,trigger){
   const [day,meal]=slot.split('|');
-  if(!DAYS.some(d=>d[0]===day)||!MEALS.includes(meal))return;
+  if(!dateValid(day)||!MEALS.includes(meal))return;
   mealPicker={slot,day,meal,trigger,filters:pickerDefaults()};
-  $('#picker-title').textContent=DAYS.find(d=>d[0]===day)[1]+' '+meal;
+  $('#picker-title').textContent=prettyDate(day)+' '+meal;
   $('#picker-category').innerHTML='<option value="all">All categories</option>'+pickerCategories(meal).map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
   syncPickerFilters();renderPickerResults();
   $('#meal-picker').showModal();$('#picker-search').focus();
@@ -1327,7 +1432,59 @@ function renderPickerResults(){
   const list=plannerRecipes(mealPicker.meal,mealPicker.filters);
   $('#picker-count').textContent=list.length+' matching recipe'+(list.length===1?'':'s');
   const groups=[...new Set(list.map(recipeCategory))].sort((a,b)=>a.localeCompare(b));
-  $('#picker-results').innerHTML=list.length?groups.map(category=>`<section class="chef-picker-group"><h3>${esc(category)}</h3>${list.filter(x=>recipeCategory(x)===category).map(x=>`<button class="chef-picker-recipe" data-picker-id="${x.id}" ${state.plan[mealPicker.day]?.[mealPicker.meal]===x.id?'aria-current="true"':''}><strong>${esc(x.name)}</strong><span>${esc(x.source?.title||'Chef originals')} · ${esc(recipeTime(x))} · ${esc(fullYield(x))}${state.favourites[x.id]?' · ♥ Favourite':''}</span></button>`).join('')}</section>`).join(''):'<div class="empty">No recipes match these filters. Clear a filter or try another search.</div>';
+  $('#picker-results').innerHTML=list.length?groups.map(category=>`<section class="chef-picker-group"><h3>${esc(category)}</h3>${list.filter(x=>recipeCategory(x)===category).map(x=>`<button class="chef-picker-recipe" data-picker-id="${x.id}" ${mealAt(mealPicker.day,mealPicker.meal)?.recipe.id===x.id?'aria-current="true"':''}><strong>${esc(x.name)}</strong><span>${esc(x.source?.title||'Chef originals')} · ${esc(recipeTime(x))} · ${esc(fullYield(x))}${state.favourites[x.id]?' · ♥ Favourite':''}</span></button>`).join('')}</section>`).join(''):'<div class="empty">No recipes match these filters. Clear a filter or try another search.</div>';
+}
+function openPreparationEditor(recipeId,date,trigger,options={}){
+  const recipe=BY_ID[recipeId];if(!recipe||recipeDeleted(recipeId)||!MEALS.includes(recipe.meal))return;
+  const existing=options.id?state.preparations?.[options.id]:null,sameRecipe=existing?.recipeId===recipeId;
+  prepEditor={recipeId,trigger,id:existing?.id||null,legacySlot:options.legacySlot||null};
+  $('#prep-title').textContent=existing?'Edit preparation':'Plan a preparation';
+  $('#prep-recipe-name').textContent=recipe.name;
+  $('#prep-date').value=existing?.startDate||date;
+  $('#prep-amount-label').textContent=recipe.portionUnit==='batch'?'Full batches to cook':'Total portions to make';
+  $('#prep-amount').value=sameRecipe?existing.amount:options.amount||recipe.servings;
+  $('#prep-per-day').value=existing?.perDay||1;
+  $('#prep-yield-field').hidden=recipe.portionUnit!=='batch';
+  $('#prep-yield').required=recipe.portionUnit==='batch';
+  $('#prep-yield').value=sameRecipe?existing.portionCount:'';
+  $('#prep-original-yield').textContent='Original recipe: '+fullYield(recipe)+'.'+(recipe.portionUnit==='batch'?' Enter the number of portions you expect from the batch.':' Ingredients scale to the total portions you make.');
+  $('#prep-remove').hidden=!existing;
+  updatePreparationPreview();$('#prep-dialog').showModal();$('#prep-amount').focus();
+}
+function preparationDraft(){
+  if(!prepEditor)return null;
+  const recipe=BY_ID[prepEditor.recipeId],amount=Number($('#prep-amount').value);
+  return {id:prepEditor.id||undefined,recipeId:recipe.id,startDate:$('#prep-date').value,amount,portionCount:recipe.portionUnit==='batch'?Number($('#prep-yield').value):amount,perDay:Number($('#prep-per-day').value)};
+}
+function updatePreparationPreview(){
+  const draft=preparationDraft(),days=draft?preparationDays(draft):[];
+  $('#prep-error').textContent='';
+  if(!days.length){$('#prep-coverage').textContent='Enter the cooking amount, total portions and portions per day to see your days.';$('#prep-save').disabled=true;return;}
+  const partial=days.at(-1).count<draft.perDay?` The last day uses ${days.at(-1).count} remaining portion${days.at(-1).count===1?'':'s'}.`:'';
+  $('#prep-coverage').textContent=`${draft.portionCount} portions · ${draft.perDay} per day · ${days.length} days: ${prettyDate(days[0].date)}–${prettyDate(days.at(-1).date)}.${partial} Groceries count this preparation once.`;
+  const conflict=preparationConflict(draft,prepEditor.legacySlot);
+  $('#prep-error').textContent=conflict;$('#prep-save').disabled=!!conflict;
+}
+function editMealPreparation(slot,trigger){
+  const [date,meal]=slot.split('|'),entry=mealAt(date,meal);if(!entry)return;
+  openPreparationEditor(entry.recipe.id,date,trigger,entry.prep?{id:entry.prep.id}:{legacySlot:entry.legacy+'|'+meal,amount:entry.amount});
+}
+function fillPreparationWeek(){
+  const preparations={...(state.preparations||{})},occupied=new Set(weekMeals().filter(x=>x.entry).map(x=>x.date+'|'+x.meal)),used=new Set(weekMeals().filter(x=>x.entry).map(x=>x.entry.recipe.id));
+  for(const meal of MEALS)for(let i=0;i<7;i++){
+    const date=datePlus(ui.weekStart,i);if(occupied.has(date+'|'+meal))continue;
+    let run=1;while(i+run<7&&!occupied.has(datePlus(date,run)+'|'+meal))run++;
+    let pool=availableRecipes().filter(x=>x.meal===meal&&x.portionUnit!=='batch'&&!used.has(x.id));
+    if(!pool.length)continue;
+    if(i<5){const quick=pool.filter(x=>Number.isFinite(x.time)&&x.time<=45);if(quick.length)pool=quick;}
+    const weight=x=>1+(state.favourites[x.id]?2:0)+Math.max(0,(state.ratings[x.id]||0)-2);
+    let roll=Math.random()*pool.reduce((sum,x)=>sum+weight(x),0),recipe=pool.at(-1);
+    for(const candidate of pool){roll-=weight(candidate);if(roll<=0){recipe=candidate;break;}}
+    const amount=Math.min(recipe.servings,run);
+    const id='prep-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),prep={id,recipeId:recipe.id,startDate:date,amount,portionCount:amount,perDay:1};
+    preparations[id]=prep;used.add(recipe.id);preparationDays(prep).forEach(d=>occupied.add(d.date+'|'+meal));
+  }
+  return commitPlan({preparations,legacyWeekStart:legacyWeek()},'Empty days filled with shared preparations. Groceries count each preparation once.');
 }
 function renderFavourites(){
   const list = availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]||state.recipeFeedback?.[x.id]?.verdict==='again').sort(recipeNameOrder);
@@ -1406,10 +1563,8 @@ function wireEvents(){
     if(e.target.closest('[data-add]')){
       const day=card.querySelector('[data-day]').value,x=BY_ID[id],input=card.querySelector('[data-plan-servings]');
       if(!input.reportValidity())return;
-      if(planRecipe(day,x.meal,id,Number(input.value))){
-        const updated=document.querySelector(`.card[data-id="${id}"] [data-add]`);
-        if(updated){updated.closest('details').open=true;updated.textContent='Planned';updated.focus({preventScroll:true});}
-      }
+      const date=weekDate(day),entry=mealAt(date,x.meal);
+      openPreparationEditor(id,date,e.target.closest('[data-add]'),{amount:Number(input.value),id:entry?.prep?.id,legacySlot:entry?.legacy?entry.legacy+'|'+x.meal:null});
     }
   };
   $('#cards').addEventListener('click',cardClick);
@@ -1418,6 +1573,8 @@ function wireEvents(){
     const b=e.target.closest('[data-week-view]');if(!b)return;
     ui.weekView=b.dataset.weekView;renderPlanner();
   });
+  for(const [id,shift] of [['week-back',-7],['week-next',7]])$('#'+id).addEventListener('click',()=>{ui.weekStart=datePlus(ui.weekStart,shift);renderPlanner();});
+  $('#week-current').addEventListener('click',()=>{ui.weekStart=weekMonday();renderPlanner();});
   $('#picker-close').addEventListener('click',()=>$('#meal-picker').close());
   $('#meal-picker').addEventListener('close',()=>{
     const target=mealPicker?.trigger?.isConnected?mealPicker.trigger:document.querySelector(`[data-slot="${mealPicker?.slot}"]`);
@@ -1429,25 +1586,38 @@ function wireEvents(){
   $('#picker-reset').addEventListener('click',()=>{mealPicker.filters=pickerDefaults();syncPickerFilters();renderPickerResults();});
   $('#picker-results').addEventListener('click',e=>{
     const b=e.target.closest('[data-picker-id]');if(!b||!mealPicker)return;
-    if(planRecipe(mealPicker.day,mealPicker.meal,b.dataset.pickerId))$('#meal-picker').close();
-  });
-  $('#week').addEventListener('change',e=>{
-    const portions=e.target.closest('[data-portions]');
-    if(portions){
-      if(!portions.reportValidity())return;
-      const [k,m]=portions.dataset.portions.split('|');
-      if(!planRecipe(k,m,state.plan[k][m],Number(portions.value)))portions.value=slotServings(k,m,BY_ID[state.plan[k][m]]);
-      document.querySelector(`[data-portions="${k}|${m}"]`)?.focus({preventScroll:true});return;
-    }
+    const date=mealPicker.day,id=b.dataset.pickerId,trigger=mealPicker.trigger,entry=mealAt(date,mealPicker.meal);
+    const options={id:entry?.prep?.id,legacySlot:entry?.legacy?entry.legacy+'|'+mealPicker.meal:null,amount:entry?.recipe.id===id?entry.amount:undefined};
+    $('#meal-picker').addEventListener('close',()=>openPreparationEditor(id,date,trigger,options),{once:true});$('#meal-picker').close();
   });
   $('#week').addEventListener('click',e=>{
     const pick=e.target.closest('[data-slot]');if(pick){openMealPicker(pick.dataset.slot,pick);return;}
+    const edit=e.target.closest('[data-edit-prep]');if(edit){editMealPreparation(edit.dataset.editPrep,edit);return;}
     const b=e.target.closest('[data-unplan]');if(!b)return;
-    const [k,m]=b.dataset.unplan.split('|');planRecipe(k,m,'');
-    document.querySelector(`[data-slot="${k}|${m}"]`)?.focus({preventScroll:true});
+    const [date,meal]=b.dataset.unplan.split('|'),entry=mealAt(date,meal);
+    if(entry?.prep){if(confirm('Remove this preparation and all '+preparationDays(entry.prep).length+' linked days? You can Undo this.'))removePreparation(entry.prep.id);}
+    else if(entry?.legacy)planRecipe(entry.legacy,meal,'');
+    document.querySelector(`[data-slot="${date}|${meal}"]`)?.focus({preventScroll:true});
   });
-  $('#plan-fill').addEventListener('click',()=>commitPlan({plan:fillWeek(state.plan)},'Empty meal slots filled.'));
-  $('#plan-clear').addEventListener('click',()=>{if(planCount()&&confirm('Clear the whole week?'))commitPlan({plan:{},portions:{},checked:{}},'Week cleared.');});
+  $('#plan-fill').addEventListener('click',fillPreparationWeek);
+  $('#plan-clear').addEventListener('click',clearPlannedWeek);
+  $('#prep-close').addEventListener('click',()=>$('#prep-dialog').close());
+  $('#prep-dialog').addEventListener('close',()=>{
+    const date=$('#prep-date').value,meal=BY_ID[prepEditor?.recipeId]?.meal;
+    const target=prepEditor?.trigger?.isConnected?prepEditor.trigger:document.querySelector(`[data-slot="${date}|${meal}"]`);
+    target?.focus({preventScroll:true});prepEditor=null;
+  });
+  $('#prep-form').addEventListener('input',updatePreparationPreview);
+  $('#prep-form').addEventListener('submit',e=>{
+    e.preventDefault();if(!e.target.reportValidity()||!prepEditor)return;
+    const draft=preparationDraft();
+    if(savePreparation(draft,prepEditor.legacySlot))$('#prep-dialog').close();
+    else $('#prep-error').textContent=preparationConflict(draft,prepEditor.legacySlot)||'Could not save this preparation. Your previous plan is unchanged.';
+  });
+  $('#prep-remove').addEventListener('click',()=>{
+    if(!prepEditor?.id)return;
+    if(confirm('Remove this preparation and all its linked days? You can Undo this.')&&removePreparation(prepEditor.id))$('#prep-dialog').close();
+  });
   $('#plan-undo').addEventListener('click',undoPlan);
   document.addEventListener('click',e=>{const b=e.target.closest('[data-cook]');if(b)openCook(b.dataset.cook,b.dataset.cookSlot||null,b);});
   $('#cook-close').addEventListener('click',()=>$('#cook-dialog').close());
@@ -1455,8 +1625,14 @@ function wireEvents(){
     const target=cookSession?.trigger?.isConnected?cookSession.trigger:cookSession?.slot?document.querySelector(`[data-cook-slot="${cookSession.slot}"]`):null;
     target?.focus({preventScroll:true});
   });
+  $('#cook-edit-prep').addEventListener('click',()=>{
+    const prep=state.preparations?.[cookSession?.prepId];if(!prep)return;
+    const trigger=cookSession.trigger;
+    $('#cook-dialog').addEventListener('close',()=>openPreparationEditor(prep.recipeId,prep.startDate,trigger,{id:prep.id}),{once:true});$('#cook-dialog').close();
+  });
   $('#cook-servings').addEventListener('change',e=>{
     if(!e.target.reportValidity()||!cookSession)return;
+    if(cookSession.prepId){e.target.value=state.preparations[cookSession.prepId].amount;return;}
     const servings=Number(e.target.value);
     if(cookSession.slot){const [d,m]=cookSession.slot.split('|');if(!planRecipe(d,m,cookSession.id,servings)){e.target.value=cookSession.servings;return;}}
     cookSession.servings=servings;renderCookIngredients();
@@ -1464,10 +1640,10 @@ function wireEvents(){
   $('#cook-ingredients').addEventListener('change',e=>{const c=e.target.closest('[data-cook-ingredient]');if(c&&cookSession)cookSession.checked[Number(c.dataset.cookIngredient)]=c.checked;});
   $('#grocery').addEventListener('change',e=>{
     const c=e.target.closest('[data-check]'); if(!c) return;
-    const checked={...state.checked}; if(c.checked) checked[c.dataset.check]=true; else delete checked[c.dataset.check];
-    setState({checked});
+    const checked={...(state.groceryChecks?.[ui.weekStart]||(ui.weekStart===legacyWeek()?state.checked:{}))}; if(c.checked) checked[c.dataset.check]=true; else delete checked[c.dataset.check];
+    saveGroceryChecks(checked);
   });
-  $('#g-uncheck').addEventListener('click',()=>setState({checked:{}}));
+  $('#g-uncheck').addEventListener('click',()=>saveGroceryChecks({}));
   $('#g-scope').addEventListener('change',e=>{ui.groceryScope=e.target.value;renderGroceries();});
   $('#g-copy').addEventListener('click',async()=>{
     const text=groceryExport(ui.groceryScope);if(!text)return;

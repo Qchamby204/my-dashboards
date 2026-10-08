@@ -21,6 +21,96 @@ function app(name,saved,options={}){
 }
 const chefState=()=>({favourites:{b01:true},ratings:{b01:4},plan:{mon:{breakfast:'b01'}},checked:{eggs:true}});
 
+test('Five portions fills five dated meals from one preparation and buys the ingredients once',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05"');
+  assert.equal(a.run('savePreparation({id:"five",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1})'),true);
+  assert.deepEqual(a.json('preparationDays(state.preparations.five).map(d=>[d.date,d.count])'),[['2026-10-05',1],['2026-10-06',1],['2026-10-07',1],['2026-10-08',1],['2026-10-09',1]]);
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),5);
+  assert.equal(a.run('mealAt("2026-10-10","breakfast")'),null);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'5');
+  assert.deepEqual(a.json('state.plan'),{});
+  assert.equal(a.json('plannedRecipes()')[0].slots.length,1);
+  assert.equal((a.run('weekRecipesHtml()').match(/data-cook-slot=/g)||[]).length,1);
+  assert.ok(a.run('weekRecipesHtml()').includes('5 portions · 1/day'));
+});
+
+test('A preparation crosses weeks, months and daylight-saving dates without buying it twice',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-26"');
+  assert.equal(a.run('savePreparation({id:"carry",recipeId:"b01",startDate:"2026-10-30",amount:5,portionCount:5,perDay:1})'),true);
+  assert.deepEqual(a.json('preparationDays(state.preparations.carry).map(d=>d.date)'),['2026-10-30','2026-10-31','2026-11-01','2026-11-02','2026-11-03']);
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),3);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'5');
+  a.run('ui.weekStart="2026-11-02"');
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),2);
+  assert.equal(a.run('groceryList().length'),0);
+  assert.equal(a.run('plannedRecipes()[0].slots[0].amount'),5);
+  assert.ok(a.run('weekRecipesHtml()').includes('Cook once'));
+});
+
+test('Editing, removing and Undo update every linked day while retaining unrelated records',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{},recipeFeedback:{b01:{note:'Keep this'}}});a.run('ui.weekStart="2026-10-05"');
+  a.run('savePreparation({id:"five",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1})');
+  assert.equal(a.run('savePreparation({...state.preparations.five,amount:3,portionCount:3})'),true);
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),3);
+  assert.equal(a.run('mealAt("2026-10-08","breakfast")'),null);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'3');
+  assert.equal(a.run('undoPlan()'),true);assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),5);
+  assert.equal(a.run('removePreparation("five")'),true);assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),0);
+  assert.equal(a.run('undoPlan()'),true);assert.equal(a.run('state.preparations.five.portionCount'),5);
+  assert.equal(a.json('state.recipeFeedback').b01.note,'Keep this');assert.equal(a.records.get('unrelated'),'preserve');
+});
+
+test('Preparation conflicts, invalid quantities and failed writes preserve the saved plan',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05";savePreparation({id:"five",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1})');
+  const raw=a.records.get('chef:state');
+  assert.equal(a.run('savePreparation({id:"overlap",recipeId:"b02",startDate:"2026-10-07",amount:2,portionCount:2,perDay:1})'),false);
+  assert.equal(a.records.get('chef:state'),raw);assert.match(a.messages.at(-1),/already has/);
+  for(const patch of ['startDate:"2026-02-30"','perDay:0','amount:2.5','portionCount:4'])assert.equal(a.run('savePreparation({...state.preparations.five,'+patch+'})'),false);
+  assert.equal(a.records.get('chef:state'),raw);
+  const failure=app('chef',{...chefState(),plan:{}},{failSave:true}),before=failure.json('state');
+  assert.equal(failure.run('savePreparation({id:"five",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1})'),false);
+  assert.deepEqual(failure.json('state'),before);assert.equal(failure.run('canUndo()'),false);
+});
+
+test('Unknown batch yields require a portion count; two portions per day retain the final partial day',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05";globalThis.pastaId=RECIPES.find(x=>x.name==="High Protein Creamy Tomato Pasta").id');
+  assert.equal(a.run('savePreparation({id:"batch",recipeId:pastaId,startDate:"2026-10-05",amount:1,portionCount:0,perDay:1})'),false);
+  assert.equal(a.run('savePreparation({id:"batch",recipeId:pastaId,startDate:"2026-10-05",amount:1,portionCount:5,perDay:2})'),true);
+  assert.deepEqual(a.json('preparationDays(state.preparations.batch).map(d=>d.count)'),[2,2,1]);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='pasta of choice').q,'16 ounces');
+});
+
+test('Legacy plans do not migrate on opening, and explicitly spreading one preserves other slots',()=>{
+  const saved={...chefState(),plan:{mon:{breakfast:'b01',lunch:'l01'}},portions:{mon:{breakfast:5,lunch:2}},legacyWeekStart:'2026-10-05'};
+  const a=app('chef',saved);a.run('ui.weekStart="2026-10-05"');assert.equal(a.writes.length,0);
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),2);
+  assert.equal(a.run('savePreparation({id:"spread",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1},"mon|breakfast")'),true);
+  assert.deepEqual(a.json('state.plan'),{mon:{lunch:'l01'}});assert.deepEqual(a.json('state.portions'),{mon:{lunch:2}});
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),6);
+  const reopened=app('chef',JSON.parse(a.records.get('chef:state')));reopened.run('ui.weekStart="2026-10-05"');assert.equal(reopened.run('weekMeals().filter(x=>x.entry).length'),6);assert.equal(reopened.writes.length,0);
+  assert.equal(a.run('deleteRecipe("b01")'),true);assert.deepEqual(a.json('state.preparations'),{});assert.deepEqual(a.json('state.plan'),{mon:{lunch:'l01'}});
+});
+
+test('Grocery checks stay with their shopping week and do not hide next week’s fresh requirements',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{},legacyWeekStart:'2026-10-05'});
+  a.run('ui.weekStart="2026-10-05";savePreparation({id:"one",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1});saveGroceryChecks({eggs:true})');
+  assert.ok(!a.run('groceryExport()').includes('- eggs —'));
+  a.run('ui.weekStart="2026-10-12";savePreparation({id:"two",recipeId:"b01",startDate:"2026-10-12",amount:5,portionCount:5,perDay:1})');
+  assert.ok(a.run('groceryExport()').includes('- eggs — 5'));
+  a.run('ui.weekStart="2026-10-05"');assert.equal(a.run('groceryChecked("eggs")'),true);
+  a.run('saveGroceryChecks({})');assert.equal(a.run('groceryChecked("eggs")'),false);
+});
+
+test('Automatic fill uses shared preparations and leaves manually scheduled meals intact',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05";savePreparation({id:"manual",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1})');
+  assert.equal(a.run('fillPreparationWeek()'),true);
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),28);
+  assert.equal(a.run('state.preparations.manual.portionCount'),5);
+  assert.equal(a.run('preparationDays(state.preparations.manual).length'),5);
+  assert.deepEqual(a.json('state.plan'),{});
+  assert.equal(a.run('allPreparations().every(p=>p.perDay===1&&preparationDays(p).every(d=>d.date>=ui.weekStart&&d.date<datePlus(ui.weekStart,7)))'),true);
+});
+
 test('Planner filters combine real categories, ingredients, cookbook, time and favourites without changing the plan',()=>{
   const a=app('chef',chefState()),before=a.json('state');
   assert.ok(a.json('pickerCategories("dinner")').includes('Chicken'));
