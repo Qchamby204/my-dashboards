@@ -525,7 +525,7 @@
       if(prev){prev.disabled=idx===0;prev.setAttribute('aria-label','Previous habit');}
       if(next){next.disabled=idx>=n-1;next.setAttribute('aria-label','Next habit');}
       const counter=document.getElementById('deckCounter');if(counter){counter.setAttribute('aria-live','polite');counter.setAttribute('aria-atomic','true');}
-      [...app.querySelectorAll('.ledger-habit-card')].forEach((card,i)=>{card.inert=i!==idx;card.setAttribute('aria-hidden',String(i!==idx));card.setAttribute('role','group');card.setAttribute('aria-label',label(HABITS[i])+' · '+(i+1)+' of '+n);});
+      [...app.querySelectorAll('.ledger-habit-card')].forEach((card,i)=>{const info=card.querySelector('.ledger-card-definition');if(info)info.hidden=i!==idx;card.inert=i!==idx;card.setAttribute('aria-hidden',String(i!==idx));card.setAttribute('role','group');card.setAttribute('aria-label',label(HABITS[i])+' · '+(i+1)+' of '+n);});
     };
     const originalLevelView=levelUpView,originalAchievementView=achvView;
     function rewardDialog(markup){return markup.replace('<div class="overlay"','<dialog class="overlay ledger-reward"').replace(/<\/div>$/, '</dialog>');}

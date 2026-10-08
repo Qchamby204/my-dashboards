@@ -14,7 +14,7 @@ Each habit can be an ongoing practice, a milestone, or an actual deadline. Pract
 
 Lasting totals include saved past records, undated legacy history, and remembered weekly catch-up. Recent weekly rhythm is shown separately. Future-dated entries do not count yet. Earned achievements remain claimed after smaller weeks, goal changes, or Undo. Archived season settings remain available in backups.
 
-Up to three focus habits appear in the main check-in. All other enabled habits remain available through Show all habits and goal settings. LinkedIn Strategy is excluded from active habits; its historical entries remain stored and exported.
+Today starts with the complete daily habit card deck. Up to three weekly focus habits appear beneath it as a separate plan. Cards and List both include every enabled habit; choosing a focus never hides a habit. Inactive cards are excluded from keyboard and screen-reader navigation. LinkedIn Strategy is excluded from active habits; its historical entries remain stored and exported.
 
 Blank days are unknown. A dated check-in can explicitly record "Didn't do" or return to unknown. Quick catch-up records a whole remembered weekly total and optionally completed-day count. It adds only the difference above individually dated entries, so filling in those dates later does not double count. It does not invent daily dates or streaks.
 
