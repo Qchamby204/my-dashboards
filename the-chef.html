@@ -96,11 +96,11 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#202936">
-<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
+<script src="shared/atlas-theme.js?v=81c97e94d747"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=e766e9fd2772">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=c697a59925b3">
 <script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-32.png?v=41e1e3906c07">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-64.png?v=9b7a6325c0c0">
@@ -156,8 +156,14 @@ footer .row{justify-content:center}
   </section>
 
   <section id="tab-planner" class="hidden">
-    <div class="panel">
+    <nav class="chef-week-nav" aria-label="Weekly meal planning">
+      <button data-week-view="week" aria-pressed="true">Week</button>
+      <button data-week-view="groceries" aria-pressed="false">Groceries</button>
+      <button data-week-view="recipes" aria-pressed="false">Week’s recipes</button>
+    </nav>
+    <div class="panel" id="week-view">
       <h2>This week</h2>
+      <details class="cc-help"><summary aria-label="About planned servings and batches"><span aria-hidden="true">i</span></summary><p><strong>Servings</strong> means the total recipe portions you will make at that meal. For two people, use 2; for two people plus two leftover portions, use 4. A recipe that normally makes 4 scales to half its measured ingredients when you plan 2. Some baked goods count pieces rather than people. <strong>Batches</strong> means copies of the full recipe when its portion yield is unknown: 1 uses the original quantities; 2 doubles measured quantities. Each filled slot adds another preparation to your groceries. Leave a leftover-only slot empty so you do not buy the same batch twice.</p></details>
       <div class="summary" id="plan-summary"></div><div id="chef-plan-progress" class="chef-plan-progress"></div>
       <div class="week" id="week"></div>
       <div class="row" style="margin-top:10px">
@@ -165,13 +171,21 @@ footer .row{justify-content:center}
         <button id="plan-clear" class="ghost">Clear week</button>
       </div>
     </div>
-    <div class="panel">
+    <div class="panel" id="groceries-view" hidden>
       <h2>Grocery list</h2>
-      <div class="row" style="margin-bottom:6px">
-        <button id="g-copy">Copy list</button>
-        <button id="g-uncheck" class="ghost">Uncheck all</button>
+      <div class="chef-grocery-actions">
+        <label>List to copy <select id="g-scope"><option value="needed">Still needed</option><option value="all">Everything</option></select></label>
+        <button id="g-copy" class="primary">Copy for Muse</button>
+        <button id="g-uncheck" class="ghost">Clear checks</button>
       </div>
+      <p id="g-summary" class="summary" role="status"></p>
+      <details class="cc-help"><summary aria-label="About the grocery list"><span aria-hidden="true">i</span></summary><p>Tick an ingredient when you already have it or have bought it. “Still needed” leaves those items out of the copied list. Quantities are recipe totals, not package counts. Unspecified amounts stay flagged for review.</p></details>
       <div class="grocery" id="grocery"></div>
+      <details class="chef-copy-preview"><summary>Preview Muse list / copy manually</summary><textarea id="g-export" readonly aria-label="Grocery shopping message for Muse" spellcheck="false"></textarea></details>
+    </div>
+    <div class="panel" id="recipes-view" hidden>
+      <h2>Week’s recipes</h2>
+      <div id="week-recipes"></div>
     </div>
   </section>
 
@@ -197,10 +211,26 @@ footer .row{justify-content:center}
     <p id="storage-warn" class="warn hidden" style="text-align:center">Storage is unavailable in this browser. Nothing will be saved between visits.</p>
   </footer>
 </main>
+<dialog id="meal-picker" aria-labelledby="picker-title">
+  <div class="cc-cook-heading"><h2 id="picker-title">Choose a meal</h2><button id="picker-close" aria-label="Close recipe picker">×</button></div>
+  <label class="cc-field" for="picker-search">Find a recipe</label>
+  <input id="picker-search" type="search" placeholder="Recipe, ingredient or cookbook section" autocomplete="off">
+  <div class="chef-picker-filters">
+    <label>Category <select id="picker-category"><option value="all">All categories</option></select></label>
+    <label>Ingredient <select id="picker-ingredient"><option value="all">Any ingredient</option><option value="chicken">Chicken</option><option value="beef">Beef</option><option value="pork">Pork</option><option value="turkey">Turkey</option><option value="seafood">Fish & seafood</option><option value="eggs">Eggs</option><option value="beans">Beans & lentils</option></select></label>
+    <label>Cookbook <select id="picker-source"><option value="all">All recipes</option><option value="original">Chef originals</option><option value="fitfoodie">Fit Foodie</option><option value="recipebook">Recipe Book</option></select></label>
+    <label>Style <select id="picker-style"><option value="all">Any style</option><option value="quick">Quick meals</option><option value="batch">Batch prep</option><option value="freezer">Freezer friendly</option><option value="blackstone">Blackstone</option><option value="comfort">Comfort food</option><option value="light">Light and fresh</option><option value="datenight">Date night</option></select></label>
+    <label>Time <select id="picker-time"><option value="0">Any time</option><option value="20">20 min or less</option><option value="35">35 min or less</option><option value="60">60 min or less</option></select></label>
+  </div>
+  <div class="chef-picker-toolbar"><label><input id="picker-favourites" type="checkbox"> Favourites only</label><button id="picker-reset" class="ghost">Clear filters</button></div>
+  <p id="picker-count" class="summary" role="status" aria-live="polite"></p>
+  <div id="picker-results"></div>
+</dialog>
 <dialog id="cook-dialog" aria-labelledby="cook-title">
   <div class="cc-cook-heading"><h2 id="cook-title"></h2><button id="cook-close" aria-label="Close cooking view">×</button></div>
   <div class="cc-cook-controls"><label for="cook-servings">Servings</label><input id="cook-servings" type="number" min="1" max="500" step="1"><span id="cook-time"></span></div>
-  <details class="cc-help"><summary aria-label="About serving adjustments"><span aria-hidden="true">i</span></summary><p>Ingredient quantities follow servings or batches, as labelled. Method quantities, timings, and temperatures stay as written; check doneness. Checklist ticks last for this cooking session.</p></details>
+  <p id="cook-yield" class="summary"></p>
+  <details class="cc-help"><summary aria-label="About serving adjustments"><span aria-hidden="true">i</span></summary><p>Servings are total recipe portions, including any you want left over; some baked goods count individual pieces. Batches are full copies of recipes with unknown portion yield. Ingredient quantities follow the chosen amount. Per-item references and alternatives stay as written. Method quantities, timings, and temperatures stay as written; use the scaled ingredient list and check doneness. Changing the amount for a planned meal also updates its groceries. Checklist ticks last for this cooking session.</p></details>
   <div id="cook-source"></div>
   <h3>Ingredients</h3><div id="cook-ingredients" class="cc-cook-checks"></div>
   <h3>Method</h3><ol id="cook-steps" class="cc-cook-checks"></ol>
@@ -924,13 +954,46 @@ function deleteRecipe(id){
 }
 
 /* session-only UI state */
-const ui = {tab:'ingredients',meal:'all',time:0,sort:'name',source:'all',picks:new Set(),mood:null,search:'',shuffleKeys:{}};
+const ui = {tab:'ingredients',meal:'all',time:0,sort:'name',source:'all',picks:new Set(),mood:null,search:'',shuffleKeys:{},weekView:'week',groceryScope:'needed'};
+let mealPicker=null;
+function pickerDefaults(){return {search:'',category:'all',ingredient:'all',source:'all',style:'all',time:0,favourites:false};}
 
 /* ---------- pure functions ---------- */
 function timeOk(x){return !ui.time || (Number.isFinite(x.time)&&x.time<=ui.time);}
 function sourceOk(x){return ui.source==='all'||x.tags.includes(ui.source);}
 function recipeTime(x){return Number.isFinite(x.time)?x.time+' min':x.portionUnit==='batch'?'Total time not listed':'Timing varies';}
 function recipeYield(x){return x.yieldLabel||x.servings+' serv';}
+function fullYield(x){return x.yieldLabel||x.servings+' servings';}
+function recipeCategory(x){return cap(x.source?.category||x.meal);}
+function pickerCategories(meal){return [...new Set(availableRecipes().filter(x=>x.meal===meal).map(recipeCategory))].sort((a,b)=>a.localeCompare(b));}
+function pickerIngredient(x,key){
+  if(!key||key==='all')return true;
+  const patterns={chicken:/\bchicken\b/,beef:/\b(?:beef|steak|brisket)\b/,pork:/\b(?:pork|bacon|ham|prosciutto|chorizo)\b/,turkey:/\bturkey\b/,seafood:/\b(?:fish|salmon|tuna|shrimp|prawns?|cod|tilapia|haddock|halibut|trout|sardines?|scallops?|crab|lobster|mussels?)\b/,eggs:/\beggs?\b/,beans:/\b(?:beans?|lentils?|chickpeas?)\b/};
+  return !!patterns[key]&&x.ingredients.some(i=>!(/\b(?:stock|broth|bouillon)\b/i.test(i.n))&&patterns[key].test(i.n.toLowerCase()));
+}
+function plannerRecipes(meal,filters=pickerDefaults()){
+  const terms=filters.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  return availableRecipes().filter(x=>{
+    if(x.meal!==meal)return false;
+    if(filters.category!=='all'&&recipeCategory(x)!==filters.category)return false;
+    if(!pickerIngredient(x,filters.ingredient))return false;
+    if(filters.source==='original'?!!x.source:filters.source!=='all'&&!x.tags.includes(filters.source))return false;
+    if(filters.style!=='all'&&!(x.tags.includes(filters.style)||filters.style==='quick'&&Number.isFinite(x.time)&&x.time<=30))return false;
+    if(filters.time&&(!Number.isFinite(x.time)||x.time>filters.time))return false;
+    if(filters.favourites&&!state.favourites[x.id])return false;
+    const text=[x.name,...x.ingredients.map(i=>i.n),...x.steps,x.source?.title,x.source?.author,recipeCategory(x)].join(' ').toLowerCase();
+    return terms.every(term=>text.includes(term));
+  }).sort(recipeNameOrder);
+}
+function plannedRecipes(){
+  const selected=new Map();
+  for(const [day,label] of DAYS)for(const meal of MEALS){
+    const recipe=BY_ID[state.plan[day]?.[meal]];if(!recipe||recipeDeleted(recipe.id))continue;
+    if(!selected.has(recipe.id))selected.set(recipe.id,{recipe,slots:[]});
+    selected.get(recipe.id).slots.push({day,label,meal,amount:slotServings(day,meal,recipe)});
+  }
+  return [...selected.values()].sort((a,b)=>recipeNameOrder(a.recipe,b.recipe));
+}
 function ingredientLabel(i){return (i.section?i.section+' · ':'')+i.n;}
 function ingredientFactor(i,factor){return i.fixedBatch?1:factor;}
 function ingredientText(i,factor=1){return i.raw&&ingredientFactor(i,factor)===1?i.raw:[scaledQty(i.q,ingredientFactor(i,factor)),ingredientLabel(i)].filter(Boolean).join(' ');}
@@ -1048,6 +1111,7 @@ function openCook(id,slot,trigger){
   document.getElementById('cook-source').innerHTML=sourceDetails(recipe);
   document.querySelector('label[for="cook-servings"]').textContent=portionLabel(recipe);
   document.getElementById('cook-servings').value=cookSession.servings;
+  document.getElementById('cook-yield').textContent='Original recipe: '+fullYield(recipe)+'.'+(slot?' This amount is saved in your week plan.':'');
   renderCookIngredients();
   document.getElementById('cook-steps').innerHTML=recipe.steps.map((step,n)=>'<li><label><input type="checkbox" aria-label="Step '+(n+1)+' complete"><span>'+esc(step)+'</span></label></li>').join('');
   document.getElementById('cook-dialog').showModal();
@@ -1073,11 +1137,24 @@ function groceryList(){
   }));
   Object.values(agg).forEach(a=>{
     if(a.qs.every(p=>typeof p==='object')&&a.qs.every(p=>p.key===a.qs[0].key))a.q=fmtNum(a.qs.reduce((sum,p)=>sum+p.n,0))+(a.qs[0].unit?' '+a.qs[0].unit:'');
-    else a.q=a.qs.map(p=>typeof p==='string'?p:fmtNum(p.n)+(p.unit?' '+p.unit:'')).join(' + ');
+    else a.q=a.qs.map(p=>typeof p==='string'?(p||'quantity not specified — confirm'):fmtNum(p.n)+(p.unit?' '+p.unit:'')).join(' + ');
   });
   return CATS.map(([c,label])=>({c,label,items:Object.values(agg).filter(a=>a.c===c).sort((a,b)=>a.n.localeCompare(b.n))})).filter(g=>g.items.length);
 }
 function planCount(){return Object.values(state.plan).reduce((s,d)=>s+Object.keys(d).length,0);}
+function shoppingGroups(){
+  const items=groceryList().flatMap(g=>g.items);
+  const aisles=[['produce','Produce'],['protein','Meat, seafood & protein'],['dairy','Dairy & eggs'],['starch','Grains, bread & starches'],['pantry','Pantry & sauces'],['baking','Baking']];
+  const aisle=x=>/\beggs?\b/i.test(x.n)?'dairy':['veg','fruit'].includes(x.c)?'produce':x.c;
+  return aisles.map(([key,label])=>({label,items:items.filter(x=>aisle(x)===key).sort((a,b)=>a.n.localeCompare(b.n))})).filter(g=>g.items.length);
+}
+function groceryQuantity(item){return item.q.trim()||'Quantity not specified — confirm';}
+function groceryExport(scope='needed'){
+  const groups=shoppingGroups().map(g=>({...g,items:g.items.filter(x=>scope==='all'||!state.checked[x.n])})).filter(g=>g.items.length);
+  if(!groups.length)return '';
+  const heading='GROCERY SHOPPING LIST\nFor this week’s meals in Chef\n\n'+(scope==='all'?'Full ingredient list.':'Only items still needed; ingredients marked as already owned or bought are excluded.')+'\nQuantities below are total recipe amounts. Buy the smallest pack(s) that cover them. Keep different units separate; do not guess quantities marked for confirmation.';
+  return heading+'\n\n'+groups.map(g=>g.label.toUpperCase()+'\n'+g.items.map(a=>'- '+a.n+' — '+groceryQuantity(a)).join('\n')).join('\n\n');
+}
 function fillWeek(plan){
   const used = new Set(Object.values(plan).flatMap(d=>Object.values(d)));
   const weight = x=>1+(state.favourites[x.id]?2:0)+Math.max(0,(state.ratings[x.id]||0)-2);
@@ -1201,21 +1278,56 @@ function renderCards(){
   $('#cards').innerHTML = list.length ? recipeCardsHtml(list,true,ui.sort==='category') : '<div class="empty">Nothing matches. Loosen the time filter or pick more ingredients.</div>';
 }
 function renderPlanner(){
-  const opts = m=>`<option value="">${m==='all'?'':'Pick a '+m}</option>`+availableRecipes().filter(x=>x.meal===m).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  document.querySelectorAll('[data-week-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.weekView===ui.weekView)));
+  for(const [view,id] of [['week','week-view'],['groceries','groceries-view'],['recipes','recipes-view']])$('#'+id).hidden=ui.weekView!==view;
   $('#week').innerHTML = DAYS.map(([k,label])=>`<div class="day"><h3>${label}</h3>${MEALS.map(m=>{
-    const id = (state.plan[k]||{})[m]||'';
-    return `<div class="slot"><span class="lab">${m}</span><select data-slot="${k}|${m}" aria-label="${label} ${m}">${opts(m)}</select>${id?`<button data-unplan="${k}|${m}" aria-label="Remove ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${id?`<div class="cc-slot-tools"><label>${portionLabel(BY_ID[id])} <input type="number" data-portions="${k}|${m}" min="1" max="500" step="1" value="${slotServings(k,m,BY_ID[id])}" aria-label="${portionLabel(BY_ID[id])} for ${label} ${m}"></label><button data-cook="${id}" data-cook-slot="${k}|${m}">Cook</button></div>`:''}</div>`;
+    const id = (state.plan[k]||{})[m]||'',recipe=BY_ID[id];
+    return `<div class="slot"><span class="lab">${m}</span><button class="chef-slot-pick ${recipe?'is-planned':''}" data-slot="${k}|${m}" aria-label="${label} ${m}: ${esc(recipe?recipe.name:'choose a recipe')}">${esc(recipe?recipe.name:'Choose '+m)}</button>${recipe?`<button data-unplan="${k}|${m}" aria-label="Remove ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${recipe?`<div class="cc-slot-tools"><label>${portionLabel(recipe)} to make <input type="number" data-portions="${k}|${m}" min="1" max="500" step="1" value="${slotServings(k,m,recipe)}" aria-label="${portionLabel(recipe)} to make for ${label} ${m}"></label><button data-cook="${id}" data-cook-slot="${k}|${m}">Recipe</button></div><span class="chef-slot-yield">Original recipe: ${esc(fullYield(recipe))}</span>`:''}</div>`;
   }).join('')}</div>`).join('');
-  document.querySelectorAll('[data-slot]').forEach(s=>{const [k,m]=s.dataset.slot.split('|');s.value=(state.plan[k]||{})[m]||'';});
   const n = planCount();
-  $('#plan-summary').textContent = n ? `${n} meals planned. Grocery quantities follow each meal’s servings or batches.` : 'Empty week. Add recipes from any card, or pick straight from the slots.';
+  $('#plan-summary').textContent = n ? `${n} meals planned · ${plannedRecipes().length} different recipes.` : 'Choose the meals you want to prepare. Leave other slots empty.';
   const total=DAYS.length*MEALS.length;
   $('#chef-plan-progress').innerHTML=`<div class="chef-progress-label"><strong>${n}<small> / ${total}</small></strong><span>meal slots planned</span></div><div class="chef-progress-track" role="progressbar" aria-label="Weekly meal slots planned" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${n}"><span style="width:${Math.min(100,n/total*100)}%"></span></div>`;
-  const groups = groceryList();
-  $('#grocery').innerHTML = groups.length ? groups.map(g=>`<h4>${g.label.toUpperCase()}</h4>`+g.items.map(a=>{
+  renderGroceries();
+  $('#week-recipes').innerHTML=weekRecipesHtml();
+}
+function renderGroceries(){
+  const groups = shoppingGroups(),items=groups.flatMap(g=>g.items),needed=items.filter(x=>!state.checked[x.n]).length;
+  $('#g-summary').textContent=items.length?`${needed} items still needed · ${items.length-needed} already owned or bought.`:'Your list will appear when you plan a meal.';
+  $('#g-scope').value=ui.groceryScope;
+  $('#grocery').innerHTML = groups.length ? groups.map(g=>`<section class="chef-grocery-group"><h3>${esc(g.label)}</h3>`+g.items.map(a=>{
     const done = !!state.checked[a.n];
-    return `<label class="${done?'done':''}"><input type="checkbox" data-check="${esc(a.n)}" ${done?'checked':''}> ${esc(a.n)}<span class="q">${esc(a.q)}</span></label>`;
-  }).join('')).join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
+    return `<label class="${done?'done':''}"><input type="checkbox" data-check="${esc(a.n)}" ${done?'checked':''} aria-label="Already have or bought ${esc(a.n)}"><span class="chef-grocery-item">${esc(a.n)}<span class="q">${esc(groceryQuantity(a))}</span></span></label>`;
+  }).join('')+'</section>').join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
+  const message=groceryExport(ui.groceryScope);
+  $('#g-export').value=message|| (items.length?'Everything is checked. Choose “Everything” to copy the full list.':'Plan a meal to create a shopping list.');
+  $('#g-copy').disabled=!message;
+}
+function weekRecipesHtml(){
+  const selected=plannedRecipes();
+  if(!selected.length)return '<div class="empty">The recipes you select for the week will appear here.</div>';
+  return selected.map(({recipe:x,slots})=>`<article class="chef-week-recipe"><h3>${esc(x.name)}</h3><p class="summary">${esc(recipeCategory(x))} · ${esc(recipeTime(x))} · Original recipe: ${esc(fullYield(x))}</p><div class="chef-recipe-occurrences">${slots.map(s=>`<button data-cook="${x.id}" data-cook-slot="${s.day}|${s.meal}">${s.label} ${s.meal} · ${s.amount} ${portionLabel(x).toLowerCase()}<span>Open recipe</span></button>`).join('')}</div></article>`).join('');
+}
+function openMealPicker(slot,trigger){
+  const [day,meal]=slot.split('|');
+  if(!DAYS.some(d=>d[0]===day)||!MEALS.includes(meal))return;
+  mealPicker={slot,day,meal,trigger,filters:pickerDefaults()};
+  $('#picker-title').textContent=DAYS.find(d=>d[0]===day)[1]+' '+meal;
+  $('#picker-category').innerHTML='<option value="all">All categories</option>'+pickerCategories(meal).map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  syncPickerFilters();renderPickerResults();
+  $('#meal-picker').showModal();$('#picker-search').focus();
+}
+function syncPickerFilters(){
+  const f=mealPicker.filters;
+  for(const key of ['search','category','ingredient','source','style','time'])$('#picker-'+key).value=String(f[key]);
+  $('#picker-favourites').checked=f.favourites;
+}
+function renderPickerResults(){
+  if(!mealPicker)return;
+  const list=plannerRecipes(mealPicker.meal,mealPicker.filters);
+  $('#picker-count').textContent=list.length+' matching recipe'+(list.length===1?'':'s');
+  const groups=[...new Set(list.map(recipeCategory))].sort((a,b)=>a.localeCompare(b));
+  $('#picker-results').innerHTML=list.length?groups.map(category=>`<section class="chef-picker-group"><h3>${esc(category)}</h3>${list.filter(x=>recipeCategory(x)===category).map(x=>`<button class="chef-picker-recipe" data-picker-id="${x.id}" ${state.plan[mealPicker.day]?.[mealPicker.meal]===x.id?'aria-current="true"':''}><strong>${esc(x.name)}</strong><span>${esc(x.source?.title||'Chef originals')} · ${esc(recipeTime(x))} · ${esc(fullYield(x))}${state.favourites[x.id]?' · ♥ Favourite':''}</span></button>`).join('')}</section>`).join(''):'<div class="empty">No recipes match these filters. Clear a filter or try another search.</div>';
 }
 function renderFavourites(){
   const list = availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]||state.recipeFeedback?.[x.id]?.verdict==='again').sort(recipeNameOrder);
@@ -1302,20 +1414,34 @@ function wireEvents(){
   };
   $('#cards').addEventListener('click',cardClick);
   $('#fav-cards').addEventListener('click',cardClick);
+  $('.chef-week-nav').addEventListener('click',e=>{
+    const b=e.target.closest('[data-week-view]');if(!b)return;
+    ui.weekView=b.dataset.weekView;renderPlanner();
+  });
+  $('#picker-close').addEventListener('click',()=>$('#meal-picker').close());
+  $('#meal-picker').addEventListener('close',()=>{
+    const target=mealPicker?.trigger?.isConnected?mealPicker.trigger:document.querySelector(`[data-slot="${mealPicker?.slot}"]`);
+    target?.focus({preventScroll:true});mealPicker=null;
+  });
+  $('#picker-search').addEventListener('input',e=>{mealPicker.filters.search=e.target.value;renderPickerResults();});
+  for(const key of ['category','ingredient','source','style','time'])$('#picker-'+key).addEventListener('change',e=>{mealPicker.filters[key]=key==='time'?Number(e.target.value):e.target.value;renderPickerResults();});
+  $('#picker-favourites').addEventListener('change',e=>{mealPicker.filters.favourites=e.target.checked;renderPickerResults();});
+  $('#picker-reset').addEventListener('click',()=>{mealPicker.filters=pickerDefaults();syncPickerFilters();renderPickerResults();});
+  $('#picker-results').addEventListener('click',e=>{
+    const b=e.target.closest('[data-picker-id]');if(!b||!mealPicker)return;
+    if(planRecipe(mealPicker.day,mealPicker.meal,b.dataset.pickerId))$('#meal-picker').close();
+  });
   $('#week').addEventListener('change',e=>{
     const portions=e.target.closest('[data-portions]');
     if(portions){
       if(!portions.reportValidity())return;
       const [k,m]=portions.dataset.portions.split('|');
-      planRecipe(k,m,state.plan[k][m],Number(portions.value));
+      if(!planRecipe(k,m,state.plan[k][m],Number(portions.value)))portions.value=slotServings(k,m,BY_ID[state.plan[k][m]]);
       document.querySelector(`[data-portions="${k}|${m}"]`)?.focus({preventScroll:true});return;
     }
-    const s=e.target.closest('[data-slot]');if(!s)return;
-    const [k,m]=s.dataset.slot.split('|');
-    if(!planRecipe(k,m,s.value))s.value=state.plan[k]?.[m]||'';
-    document.querySelector(`[data-slot="${k}|${m}"]`)?.focus({preventScroll:true});
   });
   $('#week').addEventListener('click',e=>{
+    const pick=e.target.closest('[data-slot]');if(pick){openMealPicker(pick.dataset.slot,pick);return;}
     const b=e.target.closest('[data-unplan]');if(!b)return;
     const [k,m]=b.dataset.unplan.split('|');planRecipe(k,m,'');
     document.querySelector(`[data-slot="${k}|${m}"]`)?.focus({preventScroll:true});
@@ -1342,11 +1468,18 @@ function wireEvents(){
     setState({checked});
   });
   $('#g-uncheck').addEventListener('click',()=>setState({checked:{}}));
-  $('#g-copy').addEventListener('click',()=>{
-    const text=groceryList().map(g=>g.label+'\n'+g.items.map(a=>`  ${state.checked[a.n]?'[x]':'[ ]'} ${a.n} (${a.q})`).join('\n')).join('\n\n');
-    if(!text){alert('Nothing to copy yet.');return;}
-    if(!navigator.clipboard?.writeText){alert('Copy is unavailable. Select the list and copy it by hand.');return;}
-    navigator.clipboard.writeText(text).then(()=>{$('#g-copy').textContent='Copied';setTimeout(()=>$('#g-copy').textContent='Copy list',900);},()=>alert('Could not copy. Select the list and copy it by hand.'));
+  $('#g-scope').addEventListener('change',e=>{ui.groceryScope=e.target.value;renderGroceries();});
+  $('#g-copy').addEventListener('click',async()=>{
+    const text=groceryExport(ui.groceryScope);if(!text)return;
+    try{
+      if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(text);
+      $('#g-copy').textContent='Copied';window.AtlasCraftUI?.announce('Grocery list copied. Paste it into Muse.');
+      setTimeout(()=>$('#g-copy').textContent='Copy for Muse',1500);
+    }catch(e){
+      const preview=$('#g-export');preview.closest('details').open=true;preview.focus();preview.select();
+      window.AtlasCraftUI?.announce('Select and copy the highlighted shopping list, then paste it into Muse.');
+    }
   });
   $('#export').addEventListener('click',exportState);
   $('#import').addEventListener('click',()=>$('#import-file').click());

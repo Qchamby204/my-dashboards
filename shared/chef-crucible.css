@@ -186,3 +186,46 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 
 /* Focused daily workflow additions. */
 .growth-dialog{max-width:520px;width:calc(100% - 32px);color:var(--text);background:var(--panel,#202936);border:1px solid var(--line,#596477);border-radius:16px;padding:24px}.growth-dialog::backdrop{background:#0009}.growth-dialog form,.growth-dialog label{display:grid;gap:10px}.growth-dialog input,.growth-dialog select,.growth-dialog textarea{font:inherit;font-size:16px;min-height:44px}.growth-dialog button{margin-top:8px}
+
+/* Chef weekly planning: one task per view, with searchable recipe selection. */
+.cc-app[data-atlas-app="the-chef"] .chef-week-nav { display:flex; gap:.35rem; padding:.4rem; margin-bottom:1.25rem; border:1px solid var(--neo-line); border-radius:18px; background:var(--neo-inset); }
+.cc-app[data-atlas-app="the-chef"] .chef-week-nav button { flex:1; min-width:0; font-size:.95rem; padding:.6rem .35rem; border-radius:13px; }
+.cc-app[data-atlas-app="the-chef"] .chef-week-nav button[aria-pressed="true"] { color:var(--neo-accent)!important; border-color:var(--neo-accent)!important; box-shadow:var(--neo-small); }
+.cc-app[data-atlas-app="the-chef"] :is(#week-view,#groceries-view,#recipes-view)[hidden] { display:none!important; }
+.cc-app[data-atlas-app="the-chef"] .chef-slot-pick { width:100%; text-align:left; white-space:normal; overflow-wrap:anywhere; padding:.7rem; line-height:1.45; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-slot-pick:not(.is-planned) { color:var(--neo-muted)!important; box-shadow:none; background:transparent!important; border-style:dashed!important; }
+.cc-app[data-atlas-app="the-chef"] .chef-slot-yield { grid-column:1/-1; font-size:.875rem; line-height:1.5; color:var(--neo-muted); }
+.cc-app[data-atlas-app="the-chef"] .cc-slot-tools label { flex-wrap:wrap; }
+.cc-app[data-atlas-app="the-chef"] .cc-slot-tools input { width:4.5rem; }
+.cc-app[data-atlas-app="the-chef"] .grocery { columns:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; align-items:start; }
+.cc-app[data-atlas-app="the-chef"] .chef-grocery-group { min-width:0; padding:1rem; border:1px solid var(--neo-line); border-radius:16px; }
+.cc-app[data-atlas-app="the-chef"] .chef-grocery-group h3 { margin:0 0 .75rem; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] .grocery label { padding:.6rem 0; align-items:flex-start; }
+.cc-app[data-atlas-app="the-chef"] .chef-grocery-item { display:grid; gap:.25rem; min-width:0; overflow-wrap:anywhere; font-size:1rem; line-height:1.5; }
+.cc-app[data-atlas-app="the-chef"] .grocery .q { margin:0; max-width:none; text-align:left; font:500 .9rem/1.5 var(--neo-font); color:var(--neo-muted); }
+.cc-app[data-atlas-app="the-chef"] .chef-grocery-actions { display:flex; align-items:end; flex-wrap:wrap; gap:.75rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-grocery-actions label { display:grid; gap:.35rem; font-size:.9rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-copy-preview { margin-top:1.5rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-copy-preview summary { cursor:pointer; font-size:.95rem; display:flex; align-items:center; }
+.cc-app[data-atlas-app="the-chef"] #g-export { display:block; width:100%; min-height:20rem; padding:1rem; margin-top:.75rem; font:1rem/1.7 var(--neo-font); resize:vertical; }
+.cc-app[data-atlas-app="the-chef"] .chef-week-recipe { border-top:1px solid var(--neo-line); padding:1.25rem 0; }
+.cc-app[data-atlas-app="the-chef"] .chef-week-recipe h3 { font-size:1.1rem; overflow-wrap:anywhere; }
+.cc-app[data-atlas-app="the-chef"] .chef-recipe-occurrences { display:flex; flex-wrap:wrap; gap:.75rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-recipe-occurrences button { text-align:left; font-size:1rem; padding:.75rem 1rem; white-space:normal; }
+.cc-app[data-atlas-app="the-chef"] .chef-recipe-occurrences button span { display:block; font-size:.875rem; color:var(--neo-muted); margin-top:.3rem; }
+.cc-app[data-atlas-app="the-chef"] #meal-picker { width:min(48rem,calc(100% - 1.5rem)); max-height:calc(100dvh - var(--cc-top) - var(--cc-bottom) - 2rem); overflow:auto; padding:clamp(1rem,3vw,2rem); }
+.cc-app[data-atlas-app="the-chef"] #picker-close { flex:0 0 44px; width:44px; padding:0; font-size:1.5rem; }
+.cc-app[data-atlas-app="the-chef"] #picker-search { width:100%; min-height:48px; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; margin-block:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-filters label { display:grid; gap:.4rem; min-width:0; font-size:.875rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-filters select { width:100%; min-width:0; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-toolbar { display:flex; gap:.75rem; justify-content:space-between; flex-wrap:wrap; align-items:center; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-toolbar label { display:flex; align-items:center; gap:.6rem; font-size:1rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-group h3 { font-size:1rem; margin:1.25rem 0 .6rem; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-recipe { display:block; width:100%; min-width:0; margin-bottom:.65rem; text-align:left; padding:.85rem; white-space:normal; overflow-wrap:anywhere; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-recipe strong { display:block; font-size:1rem; line-height:1.5; }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-recipe span { display:block; margin-top:.3rem; font-size:.875rem; line-height:1.5; color:var(--neo-muted); }
+.cc-app[data-atlas-app="the-chef"] .chef-picker-recipe[aria-current="true"] { border-color:var(--neo-accent)!important; }
+.cc-app[data-atlas-app="the-chef"] #cook-yield { line-height:1.6; }
+@media(max-width:600px) { .cc-app[data-atlas-app="the-chef"] .grocery { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:360px) { .cc-app[data-atlas-app="the-chef"] .chef-picker-filters { grid-template-columns:minmax(0,1fr); } }
