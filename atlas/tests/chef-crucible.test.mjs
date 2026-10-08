@@ -21,6 +21,55 @@ function app(name,saved,options={}){
 }
 const chefState=()=>({favourites:{b01:true},ratings:{b01:4},plan:{mon:{breakfast:'b01'}},checked:{eggs:true}});
 
+test('Planner filters combine real categories, ingredients, cookbook, time and favourites without changing the plan',()=>{
+  const a=app('chef',chefState()),before=a.json('state');
+  assert.ok(a.json('pickerCategories("dinner")').includes('Chicken'));
+  assert.ok(a.run('plannerRecipes("dinner",{...pickerDefaults(),source:"fitfoodie",category:"Chicken"}).length')>0);
+  assert.equal(a.run('plannerRecipes("dinner",{...pickerDefaults(),source:"fitfoodie",category:"Chicken"}).every(x=>x.tags.includes("fitfoodie")&&x.source.category==="Chicken")'),true);
+  assert.equal(a.run('plannerRecipes("breakfast",{...pickerDefaults(),favourites:true})[0].id'),'b01');
+  assert.equal(a.run('plannerRecipes("dinner",{...pickerDefaults(),ingredient:"chicken",source:"original",time:35}).every(x=>!x.source&&x.time<=35&&pickerIngredient(x,"chicken"))'),true);
+  assert.equal(a.run('pickerIngredient({ingredients:[{n:"chicken broth"}]} ,"chicken")'),false);
+  assert.ok(a.run('plannerRecipes("dinner",{...pickerDefaults(),search:"chicken rice"}).length')>0);
+  assert.equal(a.run('plannerRecipes("dinner",{...pickerDefaults(),source:"recipebook",time:20}).some(x=>x.id.startsWith("rb-"))'),false);
+  assert.deepEqual(a.json('state'),before);assert.equal(a.writes.length,0);
+});
+
+test('Weekly recipe reference groups repeated recipes and keeps each preparation amount separate',()=>{
+  const saved={...chefState(),plan:{mon:{breakfast:'b01'},tue:{breakfast:'b01',lunch:'l01'}},portions:{mon:{breakfast:2},tue:{breakfast:8,lunch:3}}};
+  const a=app('chef',saved),selected=a.json('plannedRecipes()');
+  assert.equal(selected.length,2);
+  assert.deepEqual(selected.find(x=>x.recipe.id==='b01').slots.map(x=>x.amount),[2,8]);
+  const html=a.run('weekRecipesHtml()');
+  for(const slot of ['mon|breakfast','tue|breakfast','tue|lunch'])assert.ok(html.includes('data-cook-slot="'+slot+'"'));
+  assert.ok(html.includes('Monday breakfast · 2 servings'));assert.ok(html.includes('Tuesday breakfast · 8 servings'));
+  assert.deepEqual(a.json('state.plan'),saved.plan);assert.equal(a.writes.length,0);
+  a.run('deleteRecipe("b01")');
+  assert.equal(a.run('plannedRecipes().some(x=>x.recipe.id==="b01")'),false);
+  assert.ok(!a.run('weekRecipesHtml()').includes('mon|breakfast'));
+});
+
+test('Muse shopping message totals repeated preparations, omits owned items and groups eggs with dairy',()=>{
+  const a=app('chef',{...chefState(),plan:{mon:{breakfast:'b01'},tue:{breakfast:'b01'}},portions:{mon:{breakfast:2},tue:{breakfast:8}},checked:{potatoes:true}});
+  const text=a.run('groceryExport()');
+  assert.ok(text.includes('GROCERY SHOPPING LIST'));assert.ok(text.includes('- eggs — 10'));
+  assert.ok(text.includes('DAIRY & EGGS'));assert.ok(!text.includes('- potatoes —'));
+  assert.ok(a.run('groceryExport("all")').includes('- potatoes — 7 1/2'));
+  assert.equal(a.json('shoppingGroups()').find(g=>g.items.some(x=>x.n==='eggs')).label,'Dairy & eggs');
+  a.run('state.checked=Object.fromEntries(groceryList().flatMap(g=>g.items).map(x=>[x.n,true]))');
+  assert.equal(a.run('groceryExport()'),'');assert.ok(a.run('groceryExport("all")').includes('- eggs — 10'));
+  assert.equal(a.writes.length,0);
+});
+
+test('Muse export preserves batch quantities, missing amounts and incompatible units without guessing',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});
+  a.run('const batch=RECIPES.find(x=>x.name==="Sea Moss Fruit Gummies");planRecipe("mon","dessert",batch.id,2)');
+  const text=a.run('groceryExport()');
+  assert.ok(text.includes('- fruit juice — 2 cup'));assert.match(text,/Sea moss — quantity not specified — confirm/);
+  a.run('RECIPES.push({id:"quantity-fixture",name:"Fixture",meal:"dinner",servings:1,tags:[],steps:["Cook"],ingredients:[{c:"pantry",n:"oil",q:"1 tbsp"},{c:"pantry",n:"oil",q:"20 ml"},{c:"pantry",n:"salt",q:""},{c:"pantry",n:"salt",q:"1 tsp"}]});BY_ID["quantity-fixture"]=RECIPES.at(-1);planRecipe("mon","dinner","quantity-fixture",1)');
+  assert.ok(a.run('groceryExport()').includes('- oil — 1 tbsp + 20 ml'));
+  assert.ok(a.run('groceryExport()').includes('- salt — quantity not specified — confirm + 1 tsp'));
+});
+
 test('Fit Foodie imports every recipe page once and retains all 200 existing recipes',()=>{
   const a=app('chef',chefState());
   const separators=new Set([14,24,29,33,37,43,46,68,74,78,82,94,97,103,108]);
