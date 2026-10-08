@@ -1,60 +1,31 @@
-# Original Life Ledger: seasons and daily entries
+# Life Ledger: ongoing progress and weekly rhythm
 
-This extension loads only in the original `life-ledger.html` through the shared theme. Atlas remains the reference hub. The original dashboard, catalog, goals, stored history and URL remain in place. Changes cover calendar and storage mechanics, navigation and controls; no new health, exercise, nutrition or body targets are introduced.
+The original Life Ledger URL, visual language and device-local records remain in place. This extension changes the goal model and check-in flow without introducing new health or body targets.
 
-## Requested season
+## Goals and progress
 
-The request arrived September 7, 2026 in America/Winnipeg (September 8 UTC). Tomorrow is September 8, so the fixed default season is **2026-09-08 through 2026-12-31**. This default never moves forward on refresh. An explicitly saved season choice takes precedence.
+Each habit can be an ongoing practice, a milestone, or an actual deadline. Practices have normal and smaller weekly targets, measured in completed days or the habit's amount. Milestones start from a saved baseline of accumulated progress; only actual deadlines require a date. There is no automatic December 31 finish or season reset.
 
-Starting a new season changes its date bounds without deleting logged days. Saved days outside those dates, including undated legacy entries, stay in storage and backups. Totals include only dated entries within the season and no later than the device's current local day. The end date includes the whole final calendar day. Season history numbering restarts at one. Empty habit groups remain numeric. Existing streaks now use adjacent calendar dates.
+Lasting totals include saved past records, undated legacy history, and remembered weekly catch-up. Recent weekly rhythm is shown separately. Future-dated entries do not count yet. Earned achievements remain claimed after smaller weeks, goal changes, or Undo. Archived season settings remain available in backups.
 
-## Daily use
+Up to three focus habits appear in the main check-in. All other enabled habits remain available through Show all habits and goal settings. LinkedIn Strategy is excluded from active habits; its historical entries remain stored and exported.
 
-- Open Ledger and choose Log today. The existing List view is the initial preference; Cards remains available and the preference is remembered.
-- Record check-ins and a note, then use Save day. Drafts save separately on this device as fields change, so a saved draft is not counted as a logged day.
-- Today, Yesterday and the date picker switch dates without discarding unfinished entries. Saved days lists both logged dates and unfinished drafts, with older dates available through Show earlier days.
-- A new page load opens today. On returning from the background or crossing local midnight, a view following Today advances to the new day; older drafts remain accessible.
-- Saving an existing date updates that date and keeps values belonging to hidden or unknown habits. Undo affects only the last saved date and retains unrelated later work.
-- Clear requires confirmation and clears only the draft until Save day is used. Start new season uses an in-page date form and preserves history. Metric deletion now writes the metric record, and the default-habit restore button no longer calls a missing function.
+Blank days are unknown. A dated check-in can explicitly record "Didn't do" or return to unknown. Quick catch-up records a whole remembered weekly total and optionally completed-day count. It adds only the difference above individually dated entries, so filling in those dates later does not double count. It does not invent daily dates or streaks.
+
+## Screen time
+
+The leisure controls now track scrolling and video games combined, with a fixed daily boundary of strictly less than 60 minutes. There is no habit-based gaming unlock or reading penalty. The manual timer measures only sessions started in Ledger; it does not access system Screen Time or block apps. Confirm or edit the full day's total, including usage outside the timer, to update the habit. Exactly 60 minutes does not qualify. A timer crossing midnight splits its recorded minutes by local date.
+
+Legacy gaming totals and reading-reset fields are retained. An old gaming-only record does not automatically confirm a combined screen total. Guardrails, slips and reset notes remain separate from the daily outcome.
 
 ## Storage and backups
 
-| Record | Key |
-| --- | --- |
-| Logged days | `lifeledger:v2` |
-| Goal settings | `lifeledger:goals:v2` |
-| Habit settings | `lifeledger:model:v1` |
-| Measurements | `lifeledger:metrics:v1` |
-| Season bounds | `lifeledger:season:v1` |
-| Unfinished daily entries and view preference | `lifeledger:drafts:v1` |
+Existing keys remain `lifeledger:v2`, `lifeledger:goals:v2`, `lifeledger:model:v1`, `lifeledger:metrics:v1`, `lifeledger:season:v1`, and `lifeledger:drafts:v1`. Weekly goal settings, focus, week choices, catch-up and earned achievement names live inside `drafts.rhythm`, included in version 3 backups. Opening the app does not migrate or rewrite saved history. The prior season and habit simplifiers are skipped when the ongoing core is loaded.
 
-Writes verify readback. Failed writes display a notice with Retry and Backup. A failed Save day leaves the draft and existing history in memory; after restoring saving, use Save day again. Day writes update by date, preventing duplicate dates on retry. Browser storage remains device-specific, and saving cannot guarantee protection from browser eviction or device loss.
+Drafts persist separately from saved days. Saving updates by date and preserves hidden or unknown habit values. Undo affects only the last saved date. Writes verify readback; failed saves show Retry and Backup and do not claim success. Backups validate structures before confirmed restore. Older backups remain accepted and omitted fields preserve current values. Malformed records block editing and offer the original bytes in a recovery download. Browser storage remains specific to this device.
 
-Version 3 backups contain the original four record groups plus season and unfinished entries. Version 1/2 and legacy day-list backups remain accepted. Fields omitted by older backups preserve their current values. Restore validates dates and structures and asks for confirmation before replacement. Import failures remain visible and retryable. Multi-record restore is not an atomic database transaction; keep the backup if any write fails.
-
-The theme captures original saved bytes before boot. If malformed records are detected, editing and saving are blocked and a recovery download preserves those bytes. A recovery file is for repair, not normal import. A valid backup can replace the unreadable state after explicit confirmation. Existing private Atlas transfer accepts version 3 while retaining its established restriction to check-ins and notes; no new data is transferred automatically.
+The private Atlas transfer remains restricted to its established check-ins and notes; the new fields are not transferred automatically.
 
 ## Verification
 
-Tests run the original engine with generic reading and creative-work fixtures. They cover the fixed Winnipeg start date, season bounds and local midnight, draft restoration, update-by-date, hidden data preservation, failed writes, targeted Undo, confirmed backups and restores, invalid records, empty groups, card navigation, literal unit text and repaired buttons.
-
-Shared safe-area and keyboard behavior is extended with 44 px controls, 16 px inputs, wrapping date/actions rows and labels/state for habit controls. Existing light, dark and system appearance is retained. Physical iPhone layout, home-screen mode, keyboard behavior, downloads and assistive-technology interaction have not been verified on a device in this pass.
-
-## Reported Forge and Life Map safe-area issue
-
-The same batch responds to the reported Dynamic Island clearance issue. Both original headers explicitly consume the safe-area inset. The connected Life Map's outer toolbar owns that inset, avoiding duplicate top padding in nested chrome. Forge's full-screen session uses the outer panel's inset once instead of applying it again inside. Life Map's editor and Forge's confirmation dialogs use the visible viewport and safe areas.
-
-An iPhone home-screen window receives conservative fallback clearance (64 px portrait top; 64 px landscape sides) with the larger native inset retained. This is a spacing policy, not device-model detection or a claim that every iPhone reports zero insets. Normal browser tabs and desktop windows do not receive the fallback. Orientation, resume and viewport changes recompute the spacing. The native mechanism follows [WebKit's safe-area guidance](https://webkit.org/blog/7929/designing-websites-for-iphone-x/). Automated checks verify mode/orientation selection and preserved asset delivery; physical Dynamic Island rendering remains unverified.
-
-## Screen Discipline and browser verification (September 30, 2026)
-
-Screen Discipline provides one daily guardrail, an explicit “Caught myself
-scrolling” action, an optional slip trigger, and a choice of practical resets for
-the next ten minutes. “I did this reset” records follow-through; Undo remains
-available. The seven-day view separates days without notes from recorded slips.
-The existing “Under 1 Hour” habit remains a separate manual outcome.
-
-This was already added on main while the Library/mobile batch was in progress.
-The batch retains that implementation and verifies its rendered mobile flow,
-including Save day and reopening a closed tab. It does not add a second scrolling
-tracker or change previously saved records. See MOBILE.md for exact test scope.
+`node --test atlas/tests/ledger-original.test.mjs atlas/tests/ledger-rhythm.test.mjs` exercises saved-data compatibility, weekly calculation, catch-up deduplication, unknown/missed days, fixed screen-time boundaries, timer checkpoints, drafts, failed writes, backups, Undo and navigation. `atlas/tests/ledger-browser.py` covers isolated mobile browser journeys in Chromium and WebKit through the Life Ledger UI workflow. Physical iPhone and home-screen behavior requires separate device verification.

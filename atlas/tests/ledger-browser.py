@@ -1,4 +1,4 @@
-"""Public Life Ledger journeys in isolated browser profiles; never real records."""
+"""Ongoing Life Ledger journeys in isolated profiles; never real records."""
 import datetime as dt
 import json
 import os
@@ -9,124 +9,95 @@ BASE = os.getenv('LEDGER_BASE_URL', 'http://127.0.0.1:8765')
 ENGINE = os.getenv('LEDGER_BROWSER', 'chromium')
 OUT = Path('artifacts/ledger-ui')
 OUT.mkdir(parents=True, exist_ok=True)
-DAY = '2026-10-03'
-units = {'Read': 25, 'YouTube Strategy': 1, 'Communication Drill': 1,
-         'Run / Work Out': 1, 'Supplements': 1, 'Sleep': 7.5,
-         'Chambers Wealth': 1, 'LinkedIn Strategy': 1}
-records = [{'date': DAY, 'units': units, 'leisure': {'gamingMinutes': 40, 'readingDone': False}},
-           {'date': '2026-10-02', 'units': {'Read': 10}, 'note': 'Historical note'}]
-seed = {'lifeledger:v2': json.dumps(records), 'atlas.appearance.v1': 'dark',
-        'lifeledger:migration:season-20260915:v1': 'done',
-        'lifeledger:migration:tap-habits-20260916:v1': 'done'}
+DAY = '2026-10-08'
+records = [{'date': DAY, 'units': {'Read': 25, 'LinkedIn Strategy': 1},
+            'leisure': {'gamingMinutes': 40, 'readingDone': False}},
+           {'date': '2025-10-02', 'units': {'Read': 10}, 'note': 'Historical note'}]
+seed = {'lifeledger:v2': json.dumps(records), 'atlas.appearance.v1': 'dark'}
 with sync_playwright() as pw:
     browser = getattr(pw, ENGINE).launch(headless=True)
     context = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True,
                                   has_touch=True, timezone_id='America/Winnipeg', reduced_motion='reduce')
     page = context.new_page()
-    page.set_default_timeout(7000)
-    page.clock.set_fixed_time(dt.datetime(2026, 10, 3, 17, tzinfo=dt.timezone.utc))
+    page.set_default_timeout(10000)
+    page.clock.set_fixed_time(dt.datetime(2026, 10, 8, 17, tzinfo=dt.timezone.utc))
     page.add_init_script("""(() => {if(!localStorage.getItem('ledger-ui-fixture')){
       for(const [k,v]of Object.entries(SEED))localStorage.setItem(k,v);
       localStorage.setItem('ledger-ui-fixture','1');}})();""".replace('SEED', json.dumps(seed)))
     errors = []
     page.on('pageerror', lambda e: errors.append(str(e)))
     page.route('**/*', lambda route: route.continue_() if route.request.url.startswith(BASE) else route.abort())
-    def settle():
-        page.evaluate('() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))')
     def no_overflow():
-        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), 'Horizontal page overflow'
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), 'Horizontal overflow'
+    def dismiss_rewards():
+        for _ in range(40):
+            dialog = page.locator('.ledger-reward[open]')
+            if not dialog.count():
+                break
+            dialog.locator('[data-act="achvNext"]').click()
     try:
         page.goto(BASE + '/life-ledger.html', wait_until='networkidle')
-        page.wait_for_function('!!window.LedgerDays && !!window.LedgerSimplify20260916')
-        settle()
-        expect(page.locator('#ledger-view-today')).to_be_visible()
-        expect(page.locator('#ledger-view-progress')).to_be_hidden()
-        expect(page.locator('#leisure-preview-time')).to_have_text('5:00 remaining')
-        assert page.locator('#leisure-preview-meter').evaluate('(el) => el.value / el.max') == 5 / 45
-        assert page.locator('#leisure-preview-meter').get_attribute('data-level') == 'low'
-        assert page.locator('[data-act="commit"]').is_visible()
+        page.wait_for_function('!!window.LedgerDays && !!window.LedgerRhythm')
+        expect(page.locator('#ledger-rhythm')).to_be_visible()
+        assert page.evaluate('localStorage.getItem("lifeledger:v2")') == seed['lifeledger:v2']
+        assert not page.locator('[data-habit="LinkedIn Strategy"]').count()
+        assert page.locator('#ledger-rhythm .ledger-rhythm-row').count() == 3
         no_overflow()
         page.screenshot(path=str(OUT / f'{ENGINE}-today.png'), full_page=True)
+        page.locator('#rhythm-week-reduced').click()
+        expect(page.locator('#rhythm-week-reduced')).to_have_attribute('aria-pressed', 'true')
+        assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 35
+        page.get_by_role('button', name='Choose focus habits', exact=True).click()
+        expect(page.get_by_role('dialog')).to_be_visible()
+        assert page.get_by_role('dialog').get_by_role('checkbox').count() == 13
+        page.get_by_role('button', name='Save focus', exact=True).click()
+        expect(page.get_by_role('dialog')).to_have_count(0)
+        page.get_by_role('button', name='Edit goal for Read', exact=True).click()
+        page.locator('#rhythm-goal-type').select_option('deadline')
+        page.locator('#rhythm-goal-target').fill('100')
+        page.locator('#rhythm-goal-due').fill('2027-02-01')
+        page.get_by_role('button', name='Save goal', exact=True).click()
+        expect(page.locator('#ledger-rhythm')).to_contain_text('Due')
+        page.get_by_role('button', name='Quick catch-up', exact=True).first.click()
+        page.locator('#rhythm-catchup-week').select_option('2026-10-05')
+        page.locator('#rhythm-catchup-habit').select_option('Read')
+        page.locator('#rhythm-catchup-amount').fill('50')
+        page.locator('#rhythm-catchup-sessions').fill('2')
+        page.get_by_role('button', name='Save weekly total', exact=True).click()
+        expect(page.locator('#rhythm-catchup-title')).to_have_count(0)
+        dismiss_rewards()
+        assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 60
+        assert len(json.loads(page.evaluate('localStorage.getItem("lifeledger:v2")'))) == 2
         page.locator('#ledger-leisure-preview').click()
         expect(page.locator('#ledger-leisure-sheet')).to_be_visible()
-        page.screenshot(path=str(OUT / f'{ENGINE}-leisure.png'))
-        page.get_by_role('button', name='Start gaming timer', exact=True).click()
-        page.clock.set_fixed_time(dt.datetime(2026, 10, 3, 17, 2, tzinfo=dt.timezone.utc))
-        page.wait_for_function("document.getElementById('leisure-preview-meter').value === 3")
-        page.locator('#ledger-leisure-close').click()
-        expect(page.locator('#ledger-leisure-sheet')).to_be_hidden()
-        page.locator('#ledger-nav-progress').click()
-        expect(page.locator('#ledger-view-progress')).to_be_visible()
-        expect(page.locator('#ledger-view-today')).to_be_hidden()
-        page.screenshot(path=str(OUT / f'{ENGINE}-progress.png'), full_page=True)
-        page.locator('#ledger-running-timer').click()
-        page.get_by_role('button', name='Stop gaming timer', exact=True).click()
-        expect(page.locator('#leisure-usage')).to_have_text('42:00 used · 3:00 remaining')
-        page.get_by_role('button', name='Start gaming timer', exact=True).click()
-        page.clock.set_fixed_time(dt.datetime(2026, 10, 3, 17, 6, tzinfo=dt.timezone.utc))
-        expect(page.locator('#leisure-wrap-up')).to_be_visible()
-        page.screenshot(path=str(OUT / f'{ENGINE}-time-up.png'))
-        page.locator('#leisure-end-session').click()
-        expect(page.locator('#leisure-usage')).to_have_text('46:00 used · 1:00 over budget')
-        page.get_by_role('button', name='Start gaming timer', exact=True).click()
-        page.clock.set_fixed_time(dt.datetime(2026, 10, 3, 17, 8, tzinfo=dt.timezone.utc))
-        page.locator('#leisure-log-extra').click()
-        expect(page.locator('#leisure-manual-minutes')).to_have_value('48')
-        page.locator('#leisure-manual-minutes').fill('50')
-        page.get_by_role('button', name='Save minutes', exact=True).click()
-        expect(page.locator('#ledger-leisure-sheet')).to_be_visible()
-        expect(page.locator('#leisure-usage')).to_have_text('50:00 used · 5:00 over budget')
-        assert page.locator('#leisure-budget-meter').evaluate('(el) => el.value') == 0
-        page.locator('#ledger-leisure-close').click()
-        page.locator('#ledger-nav-today').click()
-        page.locator('#ledger-filter-remaining').click()
-        expect(page.locator('[data-act="num"][data-habit="Read"]')).to_be_hidden()
-        page.locator('#ledger-filter-all').click()
-        page.locator('#ledger-quick-reset').click()
-        expect(page.locator('#ledger-reset-sheet')).to_be_visible()
-        page.locator('#screen-reset-action').select_option('read')
-        page.screenshot(path=str(OUT / f'{ENGINE}-scrolling-reset.png'))
-        page.keyboard.press('Escape')
-        page.locator('#ledger-quick-reset').click()
-        expect(page.locator('#screen-reset-action')).to_have_value('read')
-        assert page.evaluate('state.draftScreen.slips.length') == 1
-        page.locator('#screen-reset-done').click()
-        assert page.evaluate('state.draftScreen.slips[0].recovered')
-
-        page.locator('[data-act="num"][data-habit="Read"]').fill('30')
-        page.locator('[data-act="num"][data-habit="Read"]').blur()
-        page.locator('[data-act="commit"]').click()
-        page.wait_for_function("JSON.parse(localStorage.getItem('lifeledger:v2')).find(d=>d.date==='2026-10-03').units.Read===30")
-        if page.locator('dialog.ledger-reward[open]').count():
-            page.keyboard.press('Escape')
-        page.locator('#ledger-nav-history').click()
-        expect(page.locator('#ledger-history')).to_be_visible()
-        settle()
-        assert page.evaluate("[...document.querySelectorAll('.ledger-toast')].every(t => t.getBoundingClientRect().bottom <= document.getElementById('ledger-dock').getBoundingClientRect().top)"), 'Save feedback overlaps navigation'
-        page.screenshot(path=str(OUT / f'{ENGINE}-history.png'), full_page=True)
-        page.get_by_role('button', name='Oct 2, 2026', exact=False).click()
-        expect(page.locator('#ledger-view-today')).to_be_visible()
-        assert page.evaluate('state.logDate') == '2026-10-02'
-        page.reload(wait_until='networkidle')
-        page.wait_for_function('!!window.LedgerDays && !!window.LedgerSimplify20260916')
-        assert page.evaluate('state.logDate') == DAY
-        assert page.evaluate("JSON.parse(localStorage.getItem('lifeledger:v2')).find(d=>d.date==='2026-10-02').note") == 'Historical note'
-        expect(page.locator('#leisure-preview-time')).to_have_text('5:00 over budget')
-        # Rotation, narrow phone, desktop and keyboard-sized visual viewport.
-        for width, height in [(844, 390), (320, 568), (1280, 800), (390, 460)]:
-            page.set_viewport_size({'width': width, 'height': height})
-            settle()
-            no_overflow()
-            page.locator('#ledger-leisure-preview').click()
+        expect(page.locator('#ledger-leisure')).to_contain_text('total unknown')
+        for minutes, outcome in [(59, 1), (60, 0)]:
             page.locator('#leisure-minutes').click()
-            box = page.locator('#leisure-manual-minutes').bounding_box()
-            assert box and 0 <= box['x'] and box['x'] + box['width'] <= width + 1
-            page.get_by_role('button', name='Cancel', exact=True).click()
-            page.locator('#ledger-leisure-close').click()
+            page.locator('#leisure-manual-minutes').fill(str(minutes))
+            page.get_by_role('button', name='Confirm total', exact=True).click()
+            page.wait_for_function('!document.getElementById("leisure-manual-minutes")')
+            assert page.evaluate('state.draft["Screen Discipline"]') == outcome
+            assert page.evaluate('state.draft.Read') == 25
+        page.locator('#ledger-leisure-close').click()
+        page.locator('[data-act="commit"]').first.click()
+        page.wait_for_function('JSON.parse(localStorage.getItem("lifeledger:v2")).some(d=>d.leisure?.screenMinutes===60)')
+        dismiss_rewards()
+        saved = json.loads(page.evaluate('localStorage.getItem("lifeledger:v2")'))
+        assert next(d for d in saved if d['date'] == DAY)['units']['LinkedIn Strategy'] == 1
+        for view in ['progress', 'history', 'today']:
+            page.locator('#ledger-nav-' + view).click()
+            expect(page.locator('#ledger-view-' + view)).to_be_visible()
+            no_overflow()
+            page.screenshot(path=str(OUT / f'{ENGINE}-{view}.png'), full_page=True)
+        page.reload(wait_until='networkidle')
+        page.wait_for_function('!!window.LedgerDays')
+        expect(page.locator('#rhythm-week-reduced')).to_have_attribute('aria-pressed', 'true')
+        assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 60
+        for width in [320, 430, 1024]:
+            page.set_viewport_size({'width': width, 'height': 844})
+            no_overflow()
         assert not errors, errors
-        print(ENGINE + ': daily flow, time remaining, timer, sheet, edits, saved history and viewport checks passed')
+        print(ENGINE + ': ongoing goals, catch-up, screen boundary, history and responsive journeys passed')
     finally:
-        page.screenshot(path=str(OUT / f'{ENGINE}-last-state.png'))
-        (OUT / f'{ENGINE}-errors.json').write_text(json.dumps(errors, indent=2))
-        context.close()
+        page.screenshot(path=str(OUT / f'{ENGINE}-final.png'), full_page=True)
         browser.close()

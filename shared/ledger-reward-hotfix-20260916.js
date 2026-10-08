@@ -7,7 +7,7 @@
   // One-time requested season reset. This stays separate from the reward logic,
   // but loading it here lets existing Life Ledger pages pick up the migration
   // without rewriting the large original dashboard file.
-  if(source){
+  if(source&&!window.LedgerRhythm){
     const seasonReset=document.createElement('script');
     seasonReset.src=new URL('ledger-season-reset-20260915.js?v=1',source).href;
     seasonReset.defer=true;
