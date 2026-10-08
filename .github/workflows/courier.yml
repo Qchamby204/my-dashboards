@@ -34,6 +34,8 @@ concurrency:
 
 jobs:
   build:
+    # Publications paused at the owner's request. Restore this condition to resume.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 75
     steps:
