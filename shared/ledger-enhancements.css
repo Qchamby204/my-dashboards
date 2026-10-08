@@ -192,4 +192,5 @@ html[data-atlas-app="life-ledger"] #ledger-reset-sheet select{display:block;widt
 html[data-atlas-app="life-ledger"] #ledger-reset-sheet>button{width:100%;margin-top:10px;}
 
 
-.ledger-dialog label.ledger-focus-choice{display:flex;align-items:center;gap:12px;}
+html[data-atlas-app="life-ledger"] .ledger-dialog label.ledger-focus-choice{display:flex;align-items:center;gap:12px;}
+html[data-atlas-app="life-ledger"] .ledger-dialog [hidden]{display:none!important;}
