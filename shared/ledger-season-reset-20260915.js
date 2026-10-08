@@ -1,5 +1,6 @@
 (()=>{
   'use strict';
+  if(window.LedgerRhythm)return; // Ongoing progress replaces the old season migration.
   if(document.documentElement.dataset.atlasApp!=='life-ledger')return;
   const MARKER='lifeledger:migration:season-20260915:v1';
   const FROM={start:'2026-09-08',end:'2026-12-31'};

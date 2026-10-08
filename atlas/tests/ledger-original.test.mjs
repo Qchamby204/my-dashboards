@@ -75,25 +75,25 @@ async function boot({records={},blocked=false,width=390,realModel=false,nowISO='
   class BlobURL extends URL{static createObjectURL(blob){const id='blob:'+(++serial);blobs.set(id,blob);return id;}static revokeObjectURL(id){blobs.delete(id);}}
   const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,URLSearchParams,location:{search:'',pathname:'/life-ledger.html'},history:{replaceState(){}},Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
   let legacyError;try{vm.runInContext(realModel?fullOriginal:original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
-  vm.runInContext(enhancement,context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
+  vm.runInContext(readFileSync(new URL('../../shared/ledger-rhythm-core.js',import.meta.url),'utf8'),context);vm.runInContext(enhancement,context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
   return {run,node,document,window,context,api:window.LedgerDays,localStorage,storage,downloads,legacyError,
     at(date){now=new Date(date).getTime();},flush(){for(const [id,t]of [...timers])if(t.due<=now&&timers.delete(id))t.fn();},
     settle:async()=>{for(let i=0;i<30;i++)await Promise.resolve();},act(action,extra={}){const el=document.createElement('button');el.dataset={act:action,...extra};return node('app').emit('click',{target:el});},
     clickText(text){const scope=document.querySelectorAll('dialog[open]').at(-1)||document;const b=scope.querySelectorAll('button').find(n=>n.textContent===text);assert(b,'Missing button '+text);b.click();}};
 }
 
-test('requested season starts September 8 locally and keeps earlier days intact',async()=>{
+test('ongoing totals include earlier history without rewriting saved bytes',async()=>{
  const rows=[{date:'2026-09-07',units:{Read:8},note:'Earlier note'},{date:'2026-09-08',units:{Read:2}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
- assert.equal(h.legacyError,undefined);assert.equal(h.api.blocked,false);assert.equal(h.api.season.start,'2026-09-08');assert.equal(h.run('todayISO()'),'2026-09-07');assert.equal(h.run('compute(state.days,state.goals).days.length'),0);assert.equal(h.run('state.days.length'),2);
- assert.match(h.node('ledger-season-summary').textContent,/Sep 8, 2026/);h.at('2026-09-08T00:01:00-05:00');assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),2);assert.equal(h.run('compute(state.days,state.goals).history[0].day'),1);assert.equal(h.storage.get(S),JSON.stringify(rows));
+ assert.equal(h.legacyError,undefined);assert.equal(h.api.blocked,false);assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),8);assert.equal(h.storage.get(S),JSON.stringify(rows));
+ h.at('2026-09-08T00:01:00-05:00');assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),10);assert.equal(h.run('compute(state.days,state.goals).expectedLevel'),0);assert.equal(h.node('ledger-season-summary'),undefined);
 });
-test('new season changes dates without erasing records and survives reload as a fixed date',async()=>{
- const h=await boot({records:{[S]:JSON.stringify([{date:'2026-09-07',units:{Read:4}}])}});assert(await h.api.setSeason({start:'2026-09-10',end:'2026-12-31'}));assert.equal(h.run('state.days.length'),1);
- const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.api.season.start,'2026-09-10');assert.equal(again.run('state.days.length'),1);assert.equal(again.run('compute(state.days,state.goals).life.level'),0);
+test('archived season settings survive but no longer reset lasting totals',async()=>{
+ const h=await boot({records:{[S]:JSON.stringify([{date:'2026-09-07',units:{Read:4}}])}});assert(await h.api.setSeason({start:'2026-09-10',end:'2026-12-31'}));
+ const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.api.season.start,'2026-09-10');assert.equal(again.run('compute(state.days,state.goals).habit.Read.total'),4);assert.equal(again.node('app').querySelector('[data-act="reset"]'),null);
 });
-test('calendar totals exclude dates after season end or today and include the final day',async()=>{
- const rows=[{date:'2026-09-08',units:{Read:2}},{date:'2026-12-31',units:{Read:3}},{date:'2027-01-01',units:{Read:5}}];const h=await boot({records:{[S]:JSON.stringify(rows)}});h.at('2026-12-31T23:30:00-06:00');
- assert.equal(h.run('compute(state.days,state.goals).daysLeft'),1);assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),5);h.at('2027-01-01T00:01:00-06:00');assert.equal(h.run('compute(state.days,state.goals).elapsed'),1);assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),5);
+test('year-end does not stop progress and future entries stay excluded',async()=>{
+ const rows=[{date:'2026-09-08',units:{Read:2}},{date:'2026-12-31',units:{Read:3}},{date:'2027-01-01',units:{Read:5}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
+ h.at('2026-12-31T23:30:00-06:00');assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),5);h.at('2027-01-01T00:01:00-06:00');assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),10);
 });
 test('draft values and notes survive date switching and refresh without being logged',async()=>{
  const h=await boot();h.run(`state.draft.Read=7;state.draftNote='Unfinished';state.draftMood=3;`);h.api.remember();h.api.selectDate('2026-09-06');assert.equal(h.run('state.draft.Read'),0);h.run(`state.draftNote='Separate'`);h.api.remember();h.api.selectDate('2026-09-07');assert.equal(h.run('state.draftNote'),'Unfinished');
@@ -119,7 +119,7 @@ test('older backups preserve new season and current drafts; invalid files do not
  assert.throws(()=>h.api.parseBackup({app:'wrong',days:[]}));assert.throws(()=>h.api.parseBackup({days:[{date:'2026-02-30',units:{}}]}));assert.throws(()=>h.api.parseBackup({days:[{date:'2026-09-07',units:{Read:-1}}]}));assert.throws(()=>h.api.parseBackup({days:[],season:{start:'2026-10-01',end:'2026-09-01'}}));assert.throws(()=>h.api.parseBackup(JSON.parse('{"days":[],"model":{"__proto__":{}}}')));
 });
 test('clear and reset controls confirm first; corrupt original bytes remain recoverable',async()=>{
- const h=await boot();h.run('state.draft.Read=5');h.act('clear');assert.equal(h.run('state.draft.Read'),5);h.clickText('Clear draft');await h.settle();assert.equal(h.run('state.draft.Read'),0);h.act('reset');assert(h.document.querySelector('dialog[open]'));assert.equal(h.api.season.start,'2026-09-08');
+ const h=await boot();h.run('state.draft.Read=5');h.act('clear');assert.equal(h.run('state.draft.Read'),5);h.clickText('Clear draft');await h.settle();assert.equal(h.run('state.draft.Read'),0);h.act('reset');assert.equal(h.document.querySelector('dialog[open]'),null);assert.equal(h.api.season.start,'2026-09-08');
  const broken=await boot({records:{[S]:'[broken'}});assert.equal(broken.api.blocked,true);broken.run('exportData()');const recovery=JSON.parse(await broken.downloads.at(-1).blob.text());assert.equal(recovery.records[S],'[broken');assert.equal(broken.storage.get(S),'[broken');
 });
 test('empty pillars remain numeric and streaks require adjacent calendar dates',async()=>{
@@ -127,7 +127,7 @@ test('empty pillars remain numeric and streaks require adjacent calendar dates',
  h.run(`userModel.hidden={Read:true,Make:true};rebuildModel();`);assert.equal(h.run('compute(state.days,state.goals).life.level'),0);assert(h.run('compute(state.days,state.goals).pillars.every(p=>Number.isFinite(p.level))'));h.run('render()');
 });
 test('future log dates are refused; labels and card boundaries expose usable state',async()=>{
- const h=await boot();assert.equal(h.api.selectDate('2026-09-08'),false);assert.equal(h.run('state.logDate'),'2026-09-07');assert.equal(h.run('state.logMode'),'list');assert.equal(h.node('app').querySelector('[data-act="toggle"]').getAttribute('aria-label'),'Mark complete: Make');
+ const h=await boot();assert.equal(h.api.selectDate('2026-09-08'),false);assert.equal(h.run('state.logDate'),'2026-09-07');assert.equal(h.run('state.logMode'),'list');h.node('ledger-show-all').click();assert.equal(h.node('app').querySelector('[data-act="toggle"][data-habit="Make"]').getAttribute('aria-label'),'Mark complete: Make');
  h.run(`state.logMode='cards';render()`);assert.equal(h.node('deckPrev').disabled,true);h.run('goCard(1)');assert.equal(h.node('deckNext').disabled,true);assert.equal(h.node('deckPrev').disabled,false);
 });
 test('midnight follows Today and retains the previous unfinished entry in history',async()=>{
@@ -167,13 +167,10 @@ test('first saved day updates all five values and queues Season Opens after dura
  assert.match(h.node('app').textContent,/Achievement Unlocked|Level Up/);
 });
 
-test('fractions show in every value and constellation before any whole level is reached',async()=>{
+test('lasting totals show real amounts without year-end levels or pace judgments',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('HABITS.forEach(k=>state.draft[k]=1)');await h.api.saveDay();
- assert.equal(h.run('compute(state.days,state.goals).pillars.every(p=>p.level===0)'),true);
- const cards=h.node('app').querySelectorAll('[data-act="pillar"]');assert.equal(cards.length,5);
- for(const card of cards)assert.match(card.textContent,/0\.[1-9]\d\/99/);
- assert.match(h.node('ledger-save-feedback').textContent,/Growth \+0\.63/);
- const info=h.node('app').querySelector('.ledger-progress-info');assert.equal(info.open,false);info.open=true;info.emit('toggle');h.run('render()');assert.equal(h.node('app').querySelector('.ledger-progress-info').open,true);
+ assert.equal(h.node('app').querySelectorAll('[data-act="pillar"]').length,5);assert.match(h.node('app').querySelector('.ledger-lasting').textContent,/1 pages recorded overall/);
+ assert.doesNotMatch(h.node('app').querySelector('.ledger-lasting').textContent,/\/99|pace|Dec 31/);assert.match(h.node('ledger-save-feedback').textContent,/progress is recorded/);
 });
 test('a failed or pending write earns nothing; retry verifies data before showing rewards',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');h.localStorage.blockedKey=S;await h.api.saveDay();
@@ -182,9 +179,9 @@ test('a failed or pending write earns nothing; retry verifies data before showin
 });
 test('unchanged resaves do not repeat rewards and editing only changes the affected value',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();await h.api.saveDay();
- assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.match(h.node('ledger-save-feedback').textContent,/No change/);
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.match(h.node('ledger-save-feedback').textContent,/up to date/);
  h.run('state.draft.Read=2');await h.api.saveDay();assert.equal(h.run('state.days.length'),1);assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),2);
- assert.match(h.node('ledger-save-feedback').textContent,/Growth \+/);assert.doesNotMatch(h.node('ledger-save-feedback').textContent,/Health|Wealth|Discipline|Connection/);
+ assert.match(h.node('ledger-save-feedback').textContent,/progress is recorded/);assert.doesNotMatch(h.node('ledger-save-feedback').textContent,/Health|Wealth|Discipline|Connection/);
 });
 test('prior saved entries recover earned achievements on reload without a new save',async()=>{
  const rows=[{date:'2026-09-08',units:{Read:1},note:'A reflection'}],h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:{[S]:JSON.stringify(rows)}});
@@ -209,20 +206,19 @@ test('reflection milestones and nonconsecutive entries use existing season histo
  for(const name of ['First Reflection','Pages of Your Own','Finding Your Rhythm','Locked In'])assert(h.run('ACHV.find(a=>a.name==='+JSON.stringify(name)+').test(compute(state.days,state.goals))'),name);
  assert.equal(h.run('compute(state.days,state.goals).life.exact'),0);
 });
-test('Undo and a new season reconcile rewards while keeping the saved history',async()=>{
+test('Undo updates totals while earned awards and archived season metadata remain',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();await h.run('undoLast()');
- assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),false);
- h.run('state.draft.Read=1');await h.api.saveDay();await h.api.setSeason({start:'2026-09-09',end:'2026-12-31'});assert.equal(h.run('state.days.length'),1);assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),false);
+ assert.equal(h.run('state.days.length'),0);assert.equal(h.run('state.achvQueue.length'),0);assert(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'));
+ h.run('state.draft.Read=1');await h.api.saveDay();await h.api.setSeason({start:'2026-09-09',end:'2026-12-31'});assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),1);
 });
 test('reward dialogs are named native modals and Escape returns focus to Save Day',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();
  const modal=h.node('app').querySelector('dialog.ledger-reward');assert.equal(modal.open,true);assert.equal(modal.getAttribute('aria-label'),'Season Opens');modal.emit('cancel');
  assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.node('app').querySelector('dialog.ledger-reward'),null);assert.equal(h.document.activeElement.dataset.act,'commit');
 });
-test('a level crossing celebrates once, then reveals achievements without losing them',async()=>{
+test('a concrete reading milestone celebrates without a separate life-level popup',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=250');await h.api.saveDay();
- assert.equal(h.run('state.levelInfo.kicker'),'Level Up');assert(h.run('state.achvQueue.some(a=>a.name==="First Book")'));h.act('closeLevel');
- assert.equal(h.run('state.levelInfo'),null);assert.equal(h.node('app').querySelector('dialog.ledger-reward').getAttribute('aria-label'),'First Book');
+ assert.equal(h.run('state.levelInfo'),null);assert(h.run('state.achvQueue.some(a=>a.name==="First Book")'));assert.equal(h.node('app').querySelector('dialog.ledger-reward').getAttribute('aria-label'),'First Book');
 });
 
 test('async publication of a day waits for verified storage before progress and rewards',async()=>{
@@ -234,7 +230,7 @@ test('async publication of a day waits for verified storage before progress and 
 test('restoring a backup clears stale popups and derives achievements from restored dates',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=1');await h.api.saveDay();
  h.context.backup=file({days:[{date:'2026-09-07',units:{Read:1}}]});await h.run('importData(backup)');h.clickText('Restore backup');await h.settle();
- assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('state.days.length'),1);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),false);
+ assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('state.days.length'),1);assert.equal(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'),true);
 });
 
 test('habit logging omits reflection inputs and retains saved reflections when updating a day',async()=>{
@@ -293,7 +289,7 @@ test('saving and undoing Screen Discipline preserve other units, notes, mood and
  chooseScreen(h,'screen-guardrail','work');h.node('screen-slip').click();await h.api.saveDay();
  const saved=JSON.parse(h.storage.get(S))[0];assert.deepEqual(saved.units,rows[0].units);assert.equal(saved.note,'Keep me');assert.equal(saved.mood,3);assert.equal(saved.screen.slips.length,1);
  h.node('screen-recovery').click();await h.run('undoLast()');assert.equal(h.run('state.days[0].screen'),undefined);assert.equal(h.run('state.draftScreen.slips[0].recovered'),true);
- await h.api.saveDay();await h.api.setSeason({start:'2026-10-01',end:'2026-12-31'});assert.equal(h.run('state.days[0].screen.slips.length'),1);assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),0);
+ await h.api.saveDay();await h.api.setSeason({start:'2026-10-01',end:'2026-12-31'});assert.equal(h.run('state.days[0].screen.slips.length'),1);assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),1);
 });
 
 test('backup round-trip retains saved and draft interventions and old backups remain valid',async()=>{
@@ -348,76 +344,55 @@ const fillLeisure=(h,n)=>h.run(`state.draft=freshDraft();HABITS.filter(k=>k!=='S
 
 const clickLeisure=(h,text)=>{const b=h.node('ledger-leisure').querySelectorAll('button').find(b=>b.textContent===text);assert(b,'Missing leisure button '+text);b.click();};
 
-test('8 completed saved habits unlock 45 minutes; drafts and Screen Discipline do not',async()=>{
- const h=await screenBoot();assert.equal(h.storage.has(D),false);assert.match(h.node('leisure-status').textContent,/8 more to unlock 45/);
- fillLeisure(h,7);h.run(`state.draft['Screen Discipline']=1;render()`);await h.api.saveDay();assert.match(h.node('leisure-status').textContent,/1 more to unlock/);
- fillLeisure(h,8);assert.match(h.node('leisure-status').textContent,/Save day to unlock 45/);await h.api.saveDay();assert.match(h.node('leisure-status').textContent,/45 minutes of gaming unlocked/);assert.match(h.node('leisure-usage').textContent,/0:00 used · 45:00 remaining/);
- clickLeisure(h,'Start gaming timer');h.at('2026-09-30T09:20:00-05:00');h.run('render()');assert.match(h.node('leisure-usage').textContent,/20:00 used · 25:00 remaining/);
- // Save during a running session checkpoints elapsed time once, and keeps running.
- await h.api.saveDay();await h.api.saveDay();assert.equal(h.run('state.days[0].leisure.gamingMinutes'),20);
- const reload=await screenBoot({records:Object.fromEntries(h.storage),nowISO:'2026-09-30T09:30:00-05:00'});assert.match(reload.node('leisure-usage').textContent,/30:00 used · 15:00 remaining/);
- clickLeisure(reload,'Stop gaming timer');assert.equal(reload.run('state.draftLeisure.gamingMinutes'),30);await reload.api.saveDay();await reload.api.saveDay();assert.equal(reload.run('state.days.length'),1);assert.equal(reload.run('state.days[0].leisure.gamingMinutes'),30);
- fillLeisure(reload,9);await reload.api.saveDay();assert.match(reload.node('leisure-usage').textContent,/30:00 used · 15:00 remaining/);
- reload.at('2026-10-01T00:01:00-05:00');reload.window.emit('pageshow');assert.match(reload.node('leisure-usage').textContent,/0:00 used · 0:00 remaining/);
- reload.api.selectDate('2026-09-30');assert(!reload.node('ledger-leisure').textContent.includes('Start gaming timer'));assert.match(reload.node('ledger-leisure').textContent,/cannot be used today/);
+test('screen time has a fixed daily limit without habit gating and legacy gaming stays unknown',async()=>{
+ const h=await screenBoot({records:{[S]:JSON.stringify([{date:'2026-09-30',units:{},leisure:{gamingMinutes:40,readingDone:true}}])}});
+ assert.equal(h.node('leisure-preview-meter').max,60);assert.equal(h.node('leisure-preview-meter').value,20);assert.match(h.node('leisure-preview-meta').textContent,/Total not confirmed/);assert.match(h.node('ledger-leisure').textContent,/Earlier gaming record: 40/);
+ assert.doesNotMatch(h.node('ledger-leisure').textContent,/unlock|unearned|Reading Reset/);assert.equal(h.run('state.draft["Screen Discipline"]'),0);assert.equal(JSON.parse(h.storage.get(S))[0].leisure.gamingMinutes,40);
 });
 
-test('partial quantities do not count as completed; edits and failed saves cannot unlock gaming',async()=>{
- const h=await screenBoot();fillLeisure(h,8);h.run(`state.draft.Read=HCFG.Read.def-1;render()`);assert.match(h.node('leisure-progress').textContent,/7 habits complete/);
- const input=h.node('app').querySelector('[data-act="num"][data-habit="Read"]');input.value=String(h.run('HCFG.Read.def'));h.node('app').emit('input',{target:input});assert.match(h.node('leisure-status').textContent,/Save day to unlock/);
- h.localStorage.blockedKey=S;await h.api.saveDay();assert.equal(h.run('state.days.length'),0);assert.match(h.node('leisure-status').textContent,/Save day to unlock/);
- h.localStorage.blockedKey=null;await h.api.retry();await h.api.saveDay();assert.match(h.node('leisure-status').textContent,/45 minutes of gaming unlocked/);
- h.run('state.draft.Read=0;render()');assert.doesNotMatch(h.node('leisure-status').textContent,/unlocked/);await h.api.saveDay();assert.match(h.node('leisure-status').textContent,/1 more/);
- h.run(`userModel.hidden[HABITS.filter(k=>k!=='Screen Discipline'&&state.draft[k]>0)[0]]=true;rebuildModel();render()`);assert.match(h.node('leisure-progress').textContent,/6 habits complete/);
+test('59 minutes confirms the outcome, exactly 60 does not, and editing totals preserves other units',async()=>{
+ const h=await screenBoot();h.run('state.draft.Read=7;render()');
+ for(const [value,credit]of [[59,1],[60,0],[61,0],[0,1]]){h.node('leisure-minutes').click();h.node('leisure-manual-minutes').value=String(value);h.document.querySelector('dialog.ledger-dialog form').emit('submit');assert.equal(h.run('state.draft["Screen Discipline"]'),credit);assert.equal(h.run('state.draft.Read'),7);await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),credit);}
 });
 
-test('a 20-minute Reading Reset saves and backs up without granting habit credit or gaming',async()=>{
- const h=await screenBoot();assert.match(h.node('ledger-leisure').textContent,/Reading Reset · 20 extra minutes/);h.node('leisure-readingDone').click();
- assert.equal(h.run('state.draftLeisure.readingDone'),true);assert.equal(h.run('state.draft.Read'),0);assert.equal(h.run('state.days.length'),0);
- await h.api.saveDay();assert.equal(h.run('state.days[0].leisure.readingDone'),true);assert.equal(h.run('compute(state.days,state.goals).life.exact'),0);assert.match(h.node('leisure-usage').textContent,/0:00 remaining/);
- h.node('leisure-readingDone').click();h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());assert.equal(pack.days[0].leisure.readingDone,true);assert.equal(pack.drafts.days['2026-09-30'].leisure,undefined);
- const restored=await screenBoot();await restored.run('importData')(file(pack));restored.clickText('Restore backup');await restored.settle();assert.equal(restored.run('state.days[0].leisure.readingDone'),true);assert.equal(restored.run('state.draftLeisure.readingDone'),false);
- await restored.api.saveDay(true);assert.equal(restored.run('state.days[0].leisure'),undefined);await restored.run('undoLast()');assert.equal(restored.run('state.days[0].leisure.readingDone'),true);
+test('legacy reading and gaming records round-trip without adding new penalties',async()=>{
+ const rows=[{date:'2026-09-29',units:{Read:10},leisure:{gamingMinutes:50,readingDone:true}}],h=await screenBoot({records:{[S]:JSON.stringify(rows)}});h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());
+ assert.deepEqual(pack.days.map(({day,...row})=>row),rows);const restored=await screenBoot();await restored.run('importData')(file(pack));restored.clickText('Restore backup');await restored.settle();assert.deepEqual(JSON.parse(restored.storage.get(S)).map(({day,...row})=>row),rows);
 });
 
-test('editable leisure rules survive reload and backup; invalid rules and entries are rejected',async()=>{
- const h=await screenBoot();h.node('leisure-settings').click();for(const [k,v]of Object.entries({habits:6,gaming:30,reading:15}))h.node('leisure-rule-'+k).value=String(v);
- h.document.querySelector('dialog.ledger-dialog form').emit('submit');await h.settle();assert.match(h.node('leisure-status').textContent,/6 more to unlock 30/);
- const again=await screenBoot({records:Object.fromEntries(h.storage)});assert.match(again.node('ledger-leisure').textContent,/Reading Reset · 15 extra minutes/);again.run('exportData()');const pack=JSON.parse(await again.downloads.at(-1).blob.text());assert.deepEqual(pack.drafts.leisureRule,{habits:6,gaming:30,reading:15});
- assert.doesNotThrow(()=>again.api.parseBackup(pack));
- for(const rule of [{habits:0,gaming:30,reading:15},{habits:6.5,gaming:30,reading:15},{habits:6,gaming:999,reading:15}])assert.throws(()=>again.api.parseBackup({...pack,drafts:{...pack.drafts,leisureRule:rule}}),/Use 1/);
- assert.throws(()=>again.api.parseBackup({days:[{date:'2026-09-30',units:{},leisure:{gamingUsed:'yes',readingDone:false}}]}),/Invalid Earned Leisure/);
+test('legacy leisure rules remain valid in backups while malformed screen totals are refused',async()=>{
+ const h=await screenBoot();h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());pack.drafts.leisureRule={habits:6,gaming:30,reading:15};assert.doesNotThrow(()=>h.api.parseBackup(pack));
+ for(const leisure of [{gamingMinutes:0,readingDone:false,screenMinutes:-1,screenConfirmed:true},{gamingMinutes:0,readingDone:false,screenConfirmed:true}])assert.throws(()=>h.api.parseBackup({days:[{date:'2026-09-30',units:{},leisure}]}),/Invalid screen-time/);
 });
 
 test('unearned gaming is tracked, a session crossing midnight splits by local date, and no allowance carries over',async()=>{
- const h=await screenBoot({nowISO:'2026-09-30T23:50:00-05:00'});clickLeisure(h,'Track unearned gaming');h.at('2026-10-01T00:10:00-05:00');h.window.emit('pageshow');
- assert.equal(h.run('state.logDate'),'2026-10-01');assert.match(h.node('leisure-usage').textContent,/10:00 used · 10:00 over budget/);clickLeisure(h,'Stop gaming timer');
- assert.equal(h.run('state.draftLeisure.gamingMinutes'),10);assert.equal(h.api.drafts.days['2026-09-30'].leisure.gamingMinutes,10);await h.api.saveDay();
- h.api.selectDate('2026-09-30');assert.equal(h.run('state.draftLeisure.gamingMinutes'),10);await h.api.saveDay();assert.equal(h.run('state.days.length'),2);
+ const h=await screenBoot({nowISO:'2026-09-30T23:50:00-05:00'});clickLeisure(h,'Start screen-time timer');h.at('2026-10-01T00:10:00-05:00');h.window.emit('pageshow');
+ assert.equal(h.run('state.logDate'),'2026-10-01');assert.match(h.node('leisure-usage').textContent,/10:00 recorded · 50:00 to the limit/);clickLeisure(h,'Stop screen-time timer');
+ assert.equal(h.run('state.draftLeisure.screenMinutes'),10);assert.equal(h.api.drafts.days['2026-09-30'].leisure.screenMinutes,10);await h.api.saveDay();
+ h.api.selectDate('2026-09-30');assert.equal(h.run('state.draftLeisure.screenMinutes'),10);await h.api.saveDay();assert.equal(h.run('state.days.length'),2);
 });
 
 test('manual tracking supports over-budget minutes and edits without changing any habit',async()=>{
  const h=await screenBoot();fillLeisure(h,8);await h.api.saveDay();const units=h.run('JSON.stringify(state.draft)');
  h.node('leisure-minutes').click();h.node('leisure-manual-minutes').value='55';h.document.querySelector('dialog.ledger-dialog form').emit('submit');
- assert.match(h.node('leisure-usage').textContent,/55:00 used · 10:00 over budget/);assert.equal(h.run('JSON.stringify(state.draft)'),units);await h.api.saveDay();
- const reload=await screenBoot({records:Object.fromEntries(h.storage)});assert.equal(reload.run('state.draftLeisure.gamingMinutes'),55);assert.match(reload.node('ledger-leisure').textContent,/Last 7 days · 55 min gaming/);
- reload.run('exportData()');const pack=JSON.parse(await reload.downloads.at(-1).blob.text());assert.equal(pack.days[0].leisure.gamingMinutes,55);
+ assert.match(h.node('leisure-usage').textContent,/55:00 recorded · 5:00 to the limit/);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('state.draft["Screen Discipline"]'),1);await h.api.saveDay();
+ const reload=await screenBoot({records:Object.fromEntries(h.storage)});assert.equal(reload.run('state.draftLeisure.screenMinutes'),55);assert.match(reload.node('ledger-leisure').textContent,/55 min total/);
+ reload.run('exportData()');const pack=JSON.parse(await reload.downloads.at(-1).blob.text());assert.equal(pack.days[0].leisure.screenMinutes,55);
 });
 
 test('a failed timer write is surfaced and retry preserves the running session; stale start controls cannot start yesterday',async()=>{
- const h=await screenBoot(),stale=h.node('ledger-leisure').querySelectorAll('button').find(b=>b.textContent==='Track unearned gaming');
+ const h=await screenBoot(),stale=h.node('ledger-leisure').querySelectorAll('button').find(b=>b.textContent==='Start screen-time timer');
  h.localStorage.blockedKey=D;stale.click();assert.equal(h.api.failed,1);assert.equal(h.api.drafts.leisureTimer.startedAt,Date.parse(screenNow));h.localStorage.blockedKey=null;await h.api.retry();assert.equal(h.api.failed,0);
- h.at('2026-09-30T09:05:00-05:00');clickLeisure(h,'Stop gaming timer');assert.equal(h.run('state.draftLeisure.gamingMinutes'),5);
- const yesterday=h.node('ledger-leisure').querySelectorAll('button').find(b=>b.textContent==='Track unearned gaming');h.at('2026-10-01T00:01:00-05:00');yesterday.click();assert.equal(h.run('state.logDate'),'2026-10-01');assert.equal(h.api.drafts.leisureTimer,undefined);
+ h.at('2026-09-30T09:05:00-05:00');clickLeisure(h,'Stop screen-time timer');assert.equal(h.run('state.draftLeisure.screenMinutes'),5);
+ const yesterday=h.node('ledger-leisure').querySelectorAll('button').find(b=>b.textContent==='Start screen-time timer');h.at('2026-10-01T00:01:00-05:00');yesterday.click();assert.equal(h.run('state.logDate'),'2026-10-01');assert.equal(h.api.drafts.leisureTimer,undefined);
 });
 
-test('leisure meters show remaining time, including 40 of 45 used, exhaustion and overruns',async()=>{
- const h=await screenBoot();fillLeisure(h,8);await h.api.saveDay();h.run('state.levelInfo=null;state.achvQueue=[];state.draftLeisure.gamingMinutes=40;render()');
- for(const id of ['leisure-budget-meter','leisure-preview-meter']){assert.equal(h.node(id).value,5);assert.equal(h.node(id).max,45);assert.equal(h.node(id).dataset.level,'low');assert.match(h.node(id).getAttribute('aria-valuetext'),/5:00 remaining of 45/);}
- assert.match(h.node('leisure-preview-time').textContent,/5:00 remaining/);
- h.run('state.draftLeisure.gamingMinutes=45;render()');assert.equal(h.node('leisure-preview-meter').value,0);
- h.run('state.draftLeisure.gamingMinutes=50;render()');assert.equal(h.node('leisure-preview-meter').value,0);assert.match(h.node('leisure-preview-time').textContent,/5:00 over budget/);
- h.run('state.draft.Read=0;state.draftLeisure.gamingMinutes=0;render()');assert.equal(h.node('leisure-preview-meter').value,0);assert.match(h.node('leisure-preview-time').textContent,/locked/);
+test('screen meters show the fixed 60-minute boundary and remain independent of other habits',async()=>{
+ const h=await screenBoot();h.run('state.draftLeisure.screenMinutes=55;render()');
+ for(const id of ['leisure-budget-meter','leisure-preview-meter']){assert.equal(h.node(id).value,5);assert.equal(h.node(id).max,60);assert.equal(h.node(id).dataset.level,'low');}
+ h.run('state.draftLeisure.screenMinutes=60;render()');assert.equal(h.node('leisure-preview-meter').value,0);assert.match(h.node('leisure-preview-time').textContent,/Daily limit reached/);
+ h.run('state.draftLeisure.screenMinutes=65;render()');assert.match(h.node('leisure-preview-time').textContent,/5:00 over the limit/);
+ h.run('state.draftLeisure.screenMinutes=0;render()');assert.equal(h.node('leisure-preview-meter').value,60);
 });
 
 test('Today, Progress and History compose one copy of the controls and retain edits across navigation',async()=>{
@@ -431,22 +406,22 @@ test('Today, Progress and History compose one copy of the controls and retain ed
 
 test('the leisure sheet opens and dismisses with focus return without stopping a running timer',async()=>{
  const h=await screenBoot();assert.equal(h.node('ledger-leisure-sheet').open,undefined);h.node('ledger-leisure-preview').click();assert.equal(h.node('ledger-leisure-sheet').open,true);
- clickLeisure(h,'Track unearned gaming');h.node('ledger-leisure-close').click();assert.equal(h.node('ledger-leisure-sheet').open,false);assert.equal(h.document.activeElement.id,'ledger-leisure-preview');assert(h.api.drafts.leisureTimer);
+ clickLeisure(h,'Start screen-time timer');h.node('ledger-leisure-close').click();assert.equal(h.node('ledger-leisure-sheet').open,false);assert.equal(h.document.activeElement.id,'ledger-leisure-preview');assert(h.api.drafts.leisureTimer);
  h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-running-timer').hidden,false);h.node('ledger-running-timer').click();assert.equal(h.node('ledger-leisure-sheet').open,true);
  h.node('ledger-leisure-sheet').emit('cancel');assert.equal(h.node('ledger-leisure-sheet').open,false);assert(h.api.drafts.leisureTimer);
 });
 
 test('remaining filter hides completed habits without erasing quantities or changing the full habit list',async()=>{
  const h=await screenBoot();h.run('state.draft.Read=25;render()');h.node('ledger-filter-remaining').click();
- const row=h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row');assert.equal(row.hidden,true);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('HABITS.length'),14);
+ const row=h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row');assert.equal(row.hidden,true);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('HABITS.length'),13);
  h.node('ledger-filter-all').click();assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row').hidden,false);
 });
 
 test('time-up actions retain overruns and checkpoint the session only once',async()=>{
- const h=await screenBoot();fillLeisure(h,8);await h.api.saveDay();h.run('state.levelInfo=null;state.achvQueue=[];render()');clickLeisure(h,'Start gaming timer');
- h.at('2026-09-30T09:46:00-05:00');h.run('render()');assert.equal(h.node('leisure-wrap-up').hidden,false);assert.match(h.node('ledger-running-timer').textContent,/Time’s up/);
- h.node('leisure-end-session').click();assert.equal(h.api.drafts.leisureTimer,undefined);assert.equal(h.run('state.draftLeisure.gamingMinutes'),46);assert.equal(h.node('leisure-wrap-up').hidden,true);await h.api.saveDay();assert.equal(h.run('state.days[0].leisure.gamingMinutes'),46);
- h.run('state.levelInfo=null;state.achvQueue=[];render()');clickLeisure(h,'Start gaming timer');h.at('2026-09-30T09:48:00-05:00');h.run('render()');h.node('leisure-log-extra').click();assert.equal(h.api.drafts.leisureTimer,undefined);assert.equal(h.node('leisure-manual-minutes').value,'48');
+ const h=await screenBoot();fillLeisure(h,8);await h.api.saveDay();h.run('state.levelInfo=null;state.achvQueue=[];render()');clickLeisure(h,'Start screen-time timer');
+ h.at('2026-09-30T10:06:00-05:00');h.run('render()');assert.equal(h.node('leisure-wrap-up').hidden,false);assert.match(h.node('ledger-running-timer').textContent,/Time’s up/);
+ h.node('leisure-end-session').click();assert.equal(h.api.drafts.leisureTimer,undefined);assert.equal(h.run('state.draftLeisure.screenMinutes'),66);assert.equal(h.node('leisure-wrap-up').hidden,true);await h.api.saveDay();assert.equal(h.run('state.days[0].leisure.screenMinutes'),66);
+ h.run('state.levelInfo=null;state.achvQueue=[];render()');clickLeisure(h,'Start screen-time timer');h.at('2026-09-30T10:08:00-05:00');h.run('render()');h.node('leisure-log-extra').click();assert.equal(h.api.drafts.leisureTimer,undefined);assert.equal(h.node('leisure-manual-minutes').value,68);
 });
 
 test('quick scrolling reset resumes a pending slip, remembers its action and preserves habits and saved history',async()=>{

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
-<meta name="description" content="Life Ledger, a season-long habit RPG. Max every value to 99 by Dec 31."/>
-<title>Life Ledger, Road to 99</title>
+<meta name="description" content="Life Ledger: lasting progress, flexible weekly goals and easy catch-up."/>
+<title>Life Ledger · Your ongoing progress</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
+<script src="shared/ledger-rhythm-core.js?v=c14632ba86c4"></script>
+<script src="shared/atlas-theme.js?v=719bca6227e3"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -162,16 +163,16 @@ function rebuildModel(){
   Object.keys(userModel.renames||{}).forEach(function(k){ if(userModel.renames[k]) SHORT[k]=userModel.renames[k]; });
   PILLARS = cloneObj(DEFAULT_PILLARS);
   var hidden=userModel.hidden||{}, moves=userModel.moves||{};
-  PILLARS.forEach(function(p){ p.habits=p.habits.filter(function(h){ if(hidden[h]) return false; if(moves[h] && moves[h]!==p.key) return false; return true; }); });
+  PILLARS.forEach(function(p){ p.habits=p.habits.filter(function(h){ if(h==="LinkedIn Strategy" || hidden[h]) return false; if(moves[h] && moves[h]!==p.key) return false; return true; }); });
   function pById(pk){ for(var i=0;i<PILLARS.length;i++){ if(PILLARS[i].key===pk) return PILLARS[i]; } return null; }
-  function addTo(pk,h){ var p=pById(pk)||PILLARS[0]; if(p.habits.indexOf(h)<0) p.habits.push(h); }
+  function addTo(pk,h){ if(h==="LinkedIn Strategy") return; var p=pById(pk)||PILLARS[0]; if(p.habits.indexOf(h)<0) p.habits.push(h); }
   Object.keys(moves).forEach(function(h){ if(hidden[h]) return; if(DEFAULT_HCFG[h]) addTo(moves[h],h); });
   (userModel.added||[]).forEach(function(a){ if(!a||!a.key||hidden[a.key]) return; addTo(moves[a.key]||a.pillar||PILLARS[0].key, a.key); });
   HABITS=[]; PILLARS.forEach(function(p){ p.habits.forEach(function(h){ if(HABITS.indexOf(h)<0) HABITS.push(h); }); });
   HABIT_PILLAR={}; PILLARS.forEach(function(p){ p.habits.forEach(function(h){ HABIT_PILLAR[h]=p; }); });
 }
 rebuildModel();
-function label(h){ return SHORT[h]||h; }
+function label(h){ return h==="Screen Discipline"?"Screen time under 1 hour":SHORT[h]||h; }
 function fmt(n){ return (Math.round(n*10)/10).toString(); }
 function todayISO(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function fmtDay(iso){ if(!iso) return ""; var p=iso.split("-"); return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
@@ -449,7 +450,7 @@ function questLog(draft,dayNum){
   var filled=HABITS.filter(function(h){return draft[h]>0;}).length;
   var mode=state.logMode||"cards";
   var h='<div class="panel" style="padding:16px">';
-  h+='<div class="ledger-log-heading" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><div class="eyebrow" style="color:#f0b73e">Day '+dayNum+' \u00b7 Gather XP</div><div class="cinzel" style="font-size:17px;color:#eef0fb;margin-top:2px">Log a Day</div></div><div style="text-align:right"><div class="mono" style="font-size:19px;color:#2fd180;font-weight:700">'+filled+'/'+HABITS.length+'</div><div class="eyebrow" style="font-size:9px">logged</div></div></div>';
+  h+='<div class="ledger-log-heading" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><div class="eyebrow" style="color:#f0b73e">Check-ins</div><div class="cinzel" style="font-size:17px;color:#eef0fb;margin-top:2px">Log activity</div></div><div style="text-align:right"><div class="mono" style="font-size:19px;color:#2fd180;font-weight:700">'+filled+'/'+HABITS.length+'</div><div class="eyebrow" style="font-size:9px">logged</div></div></div>';
   var isToday = state.logDate===todayISO(); var hasEntry = !!dayEntryFor(state.logDate);
   var lastISO=lastLoggedISO(), lag=daysAgoFrom(lastISO);
   var lastTxt = lastISO===null ? "Nothing logged yet"
@@ -834,7 +835,7 @@ function habitsView(){
   var inp='background:rgba(255,255,255,.05);border:1px solid rgba(150,160,200,.22);color:#eef0fb;border-radius:8px;padding:6px 8px;font-family:inherit;font-size:12px;outline:none;color-scheme:dark';
   var h='<div class="overlay" role="dialog" aria-modal="true" style="align-items:flex-start;overflow-y:auto"><div class="panel" style="max-width:480px;width:100%;margin:40px 0;padding:20px">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div><div class="eyebrow" style="color:#9d7bff">Edit Habits</div><div class="cinzel" style="font-size:18px;color:#eef0fb;margin-top:2px">Add, rename & move</div></div><button class="btn" data-act="closeHabits" style="padding:8px 16px;border-radius:10px;font-size:12px;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f);font-weight:600">Done</button></div>';
-  h+='<div style="font-size:11px;color:#8089a8;margin-bottom:14px">Rename a habit, move it to another value, or hide ones you don\u2019t track. Hidden habits keep their past data. Set goals in \u201cEdit goals.\u201d</div>';
+  h+='<div style="font-size:11px;color:#8089a8;margin-bottom:14px">Rename a habit, move it to another value, or hide ones you don\u2019t track. Hidden habits keep their past data. Weekly goals and milestones are in \u201cEdit goals.\u201d</div>';
   PILLARS.forEach(function(p){
     h+='<div style="margin-top:14px;display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:99px;background:'+p.color+'"></span><span class="eyebrow" style="color:'+p.color+'">'+esc(p.title)+'</span></div>';
     if(!p.habits.length) h+='<div style="font-size:11px;color:#5f667f;font-style:italic;padding:6px 6px">No habits here.</div>';
@@ -850,7 +851,7 @@ function habitsView(){
       h+='</div>';
     });
   });
-  var hk=Object.keys(userModel.hidden||{}).filter(function(k){return userModel.hidden[k];});
+  var hk=Object.keys(userModel.hidden||{}).filter(function(k){return k!=="LinkedIn Strategy" && userModel.hidden[k];});
   if(hk.length){
     h+='<div style="margin-top:16px"><span class="eyebrow" style="color:#6f7798">Hidden</span></div>';
     hk.forEach(function(k){
@@ -866,7 +867,7 @@ function habitsView(){
   h+='</div>';
   h+='<div style="display:flex;gap:7px;margin-top:8px">';
   h+='<input data-act="nh" data-field="unit" value="'+esc(nh.unit||"")+'" placeholder="unit (minutes, reps\u2026)" style="flex:1;'+inp+'"/>';
-  h+='<input data-act="nh" data-field="goal" inputmode="decimal" value="'+(nh.goal!=null?nh.goal:"")+'" placeholder="season goal" style="width:108px;'+inp+'"/>';
+  h+='<input data-act="nh" data-field="goal" inputmode="decimal" value="'+(nh.goal!=null?nh.goal:"")+'" placeholder="milestone amount" style="width:108px;'+inp+'"/>';
   h+='</div>';
   h+='<textarea data-act="nh" data-field="crit" rows="2" placeholder="what counts (optional definition)" style="width:100%;margin-top:8px;resize:vertical;'+inp+';font-size:11px;color:#c4cae4;line-height:1.45">'+esc(nh.crit||"")+'</textarea>';
   h+='<button class="btn cinzel" data-act="addhabit" style="margin-top:11px;width:100%;padding:10px;border-radius:10px;font-size:13px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,#c2a3ff,#9d7bff)">\u2795 Add habit</button>';
@@ -1439,7 +1440,7 @@ app.addEventListener("click",function(e){
       while(HCFG[key]||DEFAULT_HCFG[key]){ key=base+"_"+(i++); }
       var g=parseFloat(nh.goal); if(isNaN(g)||g<=0) g=100;
       var unit=(nh.unit&&String(nh.unit).trim())||"reps";
-      userModel.added.push({key:key,label:String(nh.name).trim(),pillar:nh.pillar||"HEALTH",unit:unit,kind:(nh.kind==="count"?"count":"qty"),step:1,def:1,goal:g,chunk:1,noun:unit.replace(/s$/,"")||"unit",outcome:"Goal: "+g+" "+unit+" by Dec 31",crit:(nh.crit||"").trim()});
+      userModel.added.push({key:key,label:String(nh.name).trim(),pillar:nh.pillar||"HEALTH",unit:unit,kind:(nh.kind==="count"?"count":"qty"),step:1,def:1,goal:g,chunk:1,noun:unit.replace(/s$/,"")||"unit",outcome:"Milestone: "+g+" "+unit,crit:(nh.crit||"").trim()});
       delete userModel.hidden[key];
       state.newHabit={name:"",pillar:nh.pillar||"HEALTH",unit:"",kind:nh.kind||"qty",goal:"",crit:""};
       saveModel(); rebuildModel(); state.draft[key]=state.draft[key]||0; render(); toast("\u2795 Added "+String(nh.name).trim());
@@ -1639,4 +1640,3 @@ function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent
 <script src="shared/atlas-refinements.js?v=54aa0f1d0514" defer></script>
 </body>
 </html>
-

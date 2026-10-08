@@ -1,5 +1,13 @@
 name: Life Ledger browser checks
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'life-ledger.html'
+      - 'shared/ledger-*'
+      - 'shared/atlas-theme.js'
+      - 'atlas/tests/ledger-browser.py'
+      - '.github/workflows/ledger-ui.yml'
   pull_request:
     paths:
       - 'life-ledger.html'

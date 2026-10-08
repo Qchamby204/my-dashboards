@@ -1,6 +1,7 @@
 /* Life Ledger simplification: binary daily habits, calibrated goals, and a quieter dashboard. */
 (()=>{
   'use strict';
+  if(window.LedgerRhythm)return; // Ongoing progress replaces the old season migration.
   if(document.documentElement.dataset.atlasApp!=='life-ledger'||window.LedgerSimplify20260916)return;
 
   const MARKER='lifeledger:migration:tap-habits-20260916:v1';
