@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="shared/ledger-rhythm-core.js?v=7dc936ebde7d"></script>
-<script src="shared/atlas-theme.js?v=18b125484272"></script>
+<script src="shared/atlas-theme.js?v=ffbed1b73a94"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -420,13 +420,13 @@ var HABIT_EMOJI={
 function habitEmoji(hk){ if(HABIT_EMOJI[hk]) return HABIT_EMOJI[hk]; var p=HABIT_PILLAR[hk]; var byP={HEALTH:"\ud83d\udcaa",GROWTH:"\ud83d\udcda",WEALTH:"\ud83d\udcb0",DISCIPLINE:"\u2696\ufe0f",CONNECTION:"\ud83e\udd1d"}; return (p&&byP[p.key])||"\u2728"; }
 function deckCard(hk,draft){
   var c=HCFG[hk]||DEFAULT_HCFG[hk]||{unit:"",kind:"qty",step:1}, p=HABIT_PILLAR[hk]||{color:"#f0b73e",glow:"rgba(240,183,62,.4)",title:""}, v=draft[hk]||0;
-  var h='<div style="flex:0 0 100%;width:100%;box-sizing:border-box;padding:8px 12px 6px;display:flex;flex-direction:column;align-items:center;text-align:center;min-height:296px">';
+  var h='<div class="ledger-habit-card" style="flex:0 0 100%;width:100%;box-sizing:border-box;padding:8px 12px 6px;display:flex;flex-direction:column;align-items:center;text-align:center;min-height:296px">';
   h+='<div style="width:78px;height:78px;border-radius:99px;display:grid;place-items:center;font-size:38px;background:radial-gradient(circle at 30% 25%,'+p.color+'33,transparent 72%);border:1px solid '+p.color+'55;box-shadow:0 0 24px '+p.glow+';margin-top:8px">'+habitEmoji(hk)+'</div>';
   h+='<div class="cinzel" style="font-size:18px;color:#eef0fb;font-weight:600;margin-top:14px;line-height:1.2">'+esc(label(hk))+'</div>';
   h+='<div class="eyebrow" style="font-size:9px;color:'+p.color+';margin-top:4px">'+esc(p.title)+'</div>';
   if(c.crit){
     var showInfo=state.infoHabit===hk;
-    h+='<button class="btn tap" data-act="hinfo" data-habit="'+esc(hk)+'" style="margin-top:8px;font-size:10px;color:#9aa2c0;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.2);border-radius:99px;padding:3px 11px">\u24d8 '+(showInfo?"hide":"what counts")+'</button>';
+    h+='<button class="btn tap" data-act="hinfo" data-habit="'+esc(hk)+'" aria-expanded="'+showInfo+'" aria-label="What counts for '+esc(label(hk))+'" style="margin-top:8px;font-size:10px;color:#9aa2c0;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.2);border-radius:99px;padding:3px 11px">\u24d8 '+(showInfo?"hide":"what counts")+'</button>';
     if(showInfo) h+='<div style="margin-top:9px;max-width:300px;font-size:10.5px;color:#aab2d0;line-height:1.5;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.14);border-radius:10px;padding:10px 12px">'+esc(c.crit)+'</div>';
   }
   h+='<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;margin:8px 0">';
@@ -435,9 +435,9 @@ function deckCard(hk,draft){
     h+='<button class="btn tap" data-act="toggle" data-habit="'+esc(hk)+'" style="width:98px;height:98px;border-radius:99px;background:'+(done?p.color:"rgba(255,255,255,.05)")+';border:2px solid '+(done?p.color:"rgba(150,160,200,.3)")+';display:grid;place-items:center;'+(done?'box-shadow:0 0 28px '+p.glow:'')+'">'+(done?'<svg width="42" height="42" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7" fill="none" stroke="#0c0e1a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<span style="font-size:13px;color:#8089a8;font-weight:600">tap</span>')+'</button>';
     h+='<div style="font-size:12px;color:'+(done?"#2fd180":"#8089a8")+';margin-top:13px;font-weight:600">'+(done?"Done today \u2713":"Mark it done")+'</div>';
   } else {
-    h+='<div style="display:flex;align-items:center;gap:14px">';
+    h+='<div class="ledger-amount-controls" style="display:flex;align-items:center;gap:14px">';
     h+='<button class="btn tap" data-act="dec" data-habit="'+esc(hk)+'" style="width:48px;height:48px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(150,160,200,.25);color:#cfd4ea;font-size:26px;line-height:1">\u2013</button>';
-    h+='<div style="min-width:100px"><input class="num" data-act="num" data-habit="'+esc(hk)+'" inputmode="decimal" value="'+v+'" style="width:100px;font-size:30px;font-weight:700;text-align:center;padding:4px 0;background:transparent;border:none;border-bottom:2px solid '+(v>0?p.color:"rgba(150,160,200,.25)")+';border-radius:0"/><div style="font-size:11px;color:#8089a8;margin-top:3px">'+esc(c.unit)+'</div></div>';
+    h+='<div style="class="ledger-amount-field"><input class="num" data-act="num" data-habit="'+esc(hk)+'" inputmode="decimal" value="'+v+'" style="width:100px;font-size:30px;font-weight:700;text-align:center;padding:4px 0;background:transparent;border:none;border-bottom:2px solid '+(v>0?p.color:"rgba(150,160,200,.25)")+';border-radius:0"/><div style="font-size:11px;color:#8089a8;margin-top:3px">'+esc(c.unit)+'</div></div>';
     h+='<button class="btn tap" data-act="inc" data-habit="'+esc(hk)+'" style="width:48px;height:48px;border-radius:99px;background:'+p.color+';color:#0c0e1a;font-size:26px;line-height:1;font-weight:700;box-shadow:0 6px 16px -7px '+p.glow+'">+</button>';
     h+='</div>';
     h+='<div style="font-size:10px;color:#6f7798;margin-top:12px">+'+c.step+' per tap</div>';

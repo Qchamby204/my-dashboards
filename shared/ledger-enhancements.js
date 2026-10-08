@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=700d4a070efe',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=7f57765a0e5c',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -60,7 +60,7 @@
       return value;
     }
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'list'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
-    let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false,allHabitsOpen=false;
+    let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
       if(boot.readError&&!window.storage)throw Error();
@@ -85,7 +85,7 @@
     const originalLoad=loadDraftFor;
     loadDraftFor=function(date){originalLoad(date);const d=drafts.days[date];if(d){state.draft={...freshDraft(),...clone(d.units)};state.draftMood=d.mood||0;state.draftNote=d.note||'';}state.draftMissed=clone((d||dayEntryFor(date))?.missed||[]);state.draftScreen=clone((d||dayEntryFor(date))?.screen||emptyScreen());state.draftLeisure=clone((d||dayEntryFor(date))?.leisure||emptyLeisure());};
     let seenToday=todayISO();
-    state.logMode=drafts.mode;state.logDate=seenToday;loadDraftFor(state.logDate);
+    state.logMode='cards';state.logDate=seenToday;loadDraftFor(state.logDate);
     function selectDate(date){if(blocked||busy||!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return false;}remember();dashboardView='today';state.logDate=date;loadDraftFor(date);drafts.selected=date;write(DRAFTKEY,JSON.stringify(drafts));state.cardIndex=0;render();document.getElementById('ledger-view-today')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return true;}
     // Keep storage bytes and archived settings; adapt old quantity habits in memory.
     const tapDays=['Run / Work Out','YouTube Strategy','LinkedIn Strategy','Household Chore','Walk Hud'];
@@ -361,7 +361,9 @@
       const move=(selector,pane)=>{const node=app.querySelector(selector);if(node)pane.append(node);return node;};
       const intro=make('div',null,'ledger-day-heading');
       intro.append(make('div',state.logDate===todayISO()?new Date(state.logDate+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Editing '+pretty(state.logDate),'eyebrow'),make('h1',state.logDate===todayISO()?'Your check-in':'Your saved day','cinzel'));
-      const awards=button(earned.length+' achievements',()=>{state.openSections.relics=true;setDashboardView('progress');});awards.classList.add('ledger-awards-link');const levelLink=button('Life Level '+data.life.level+' · '+fmt(data.life.remaining)+' XP to next level',()=>setDashboardView('progress'));levelLink.id='ledger-life-level';levelLink.classList.add('ledger-level-link');intro.append(levelLink,awards);panes.today.append(intro);move('#ledger-rhythm',panes.today);
+      const awards=button(earned.length+' achievements',()=>{state.openSections.relics=true;setDashboardView('progress');});awards.classList.add('ledger-awards-link');const levelLink=button('Life Level '+data.life.level+' · '+fmt(data.life.remaining)+' XP to next level',()=>setDashboardView('progress'));levelLink.id='ledger-life-level';levelLink.classList.add('ledger-level-link');intro.append(levelLink,awards);panes.today.append(intro);
+      const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
+      move('#ledger-rhythm',panes.today);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
       const previewHead=make('span',null,'ledger-preview-heading');previewHead.append(make('span','Screen time · under 1 hour'),make('span','Open ›','ledger-preview-open'));
       const previewTime=make('strong');previewTime.id='leisure-preview-time';const previewMeta=make('span',null,'ledger-help');previewMeta.id='leisure-preview-meta';
@@ -376,12 +378,6 @@
       }
       const screen=app.querySelector('#ledger-screen');
       if(screen){const fold=make('details',null,'ledger-screen-fold');fold.id='ledger-screen-fold';fold.open=screenOpen;fold.addEventListener('toggle',()=>screenOpen=fold.open);fold.append(make('summary','Screen Discipline · '+(state.draftScreen?.guardrail?'guardrail set':'set a guardrail')),screen);panes.today.append(fold);}
-      const wrap=move('.ledger-log-wrap',panes.today)||log;
-      if(wrap===log)panes.today.append(log);
-      // Check-ins remain the main action. The existing list/card forms and their
-      // event handlers are moved intact, so drafts and quantity entry stay native.
-      const focusButton=button(allHabitsOpen?'Show focus habits':'Show all habits',()=>{allHabitsOpen=!allHabitsOpen;state.cardIndex=0;render();});focusButton.id='ledger-show-all';focusButton.setAttribute('aria-pressed',String(allHabitsOpen));log.prepend(focusButton);
-      if(!allHabitsOpen&&focusHabits().length)log.querySelector('[data-act="logmode"][data-mode="cards"]')?.remove();
       const mode=log.querySelector('[data-act="logmode"]')?.parentNode;
       if(mode&&state.logMode==='list'){
         const filters=make('div',null,'ledger-habit-filters');
@@ -428,7 +424,7 @@
     function rhythmPanel(){
       const panel=make('section',null,'panel ledger-rhythm');panel.id='ledger-rhythm';
       const week=R.weekStart(state.logDate),mode=preferences().weeks?.[week]||'normal',head=make('div',null,'ledger-rhythm-heading');
-      head.append(make('h2','Your weekly rhythm','cinzel'),detailsInfo('About weekly rhythm','Your chosen rhythm is a guide for this week. Smaller weeks change the target, never your accumulated progress. Blank check-ins stay unknown. Weekly catch-up records remembered totals without inventing dates.'));
+      head.append(make('h2','This week’s focus','cinzel'),detailsInfo('About weekly rhythm','Your chosen rhythm is a guide for this week. Smaller weeks change the target, never your accumulated progress. Blank check-ins stay unknown. Weekly catch-up records remembered totals without inventing dates.'));
       panel.append(head,make('p',fmtDay(week)+' – '+fmtDay(R.addDays(week,6)),'ledger-help'));
       const choices=make('div',null,'ledger-actions');
       for(const [value,text]of [['normal','Normal week'],['reduced','Smaller week']]){const b=button(text,async()=>{if(await saveRhythm({...preferences(),weeks:{...(preferences().weeks||{}),[week]:value}}))toast('Week updated. Your progress stays earned.');});b.id='rhythm-week-'+value;b.setAttribute('aria-pressed',String(mode===value));choices.append(b);}panel.append(choices);
@@ -512,7 +508,7 @@
       if(tools){const b=button('Quick catch-up',catchupDialog);tools.append(b);}
       const storageNote=app.querySelector('.ledger-storage-note');if(storageNote)storageNote.textContent='Saved on this device · export a backup to keep or move your record';
       if(log){log.before(rhythmPanel());
-        for(const row of log.querySelectorAll('.row')){const control=row.querySelector('[data-habit]'),h=control?.dataset.habit;if(!h)continue;
+        for(const row of log.querySelectorAll('.row,.ledger-habit-card')){const control=row.querySelector('[data-habit]'),h=control?.dataset.habit;if(!h)continue;
           const meta=make('div',null,'ledger-checkin-state'),statusText=make('span',state.draft[h]>0?'Recorded':state.draftMissed?.includes(h)?'Didn’t do':'Not recorded');meta.append(statusText);
           const missed=button(state.draftMissed?.includes(h)?'Leave unknown':'Didn’t do',()=>{if(blocked||busy)return;const set=new Set(state.draftMissed||[]);if(set.has(h))set.delete(h);else{set.add(h);state.draft[h]=0;}state.draftMissed=[...set];remember();render();});missed.classList.add('ledger-missed');missed.setAttribute('aria-label',(state.draftMissed?.includes(h)?'Leave unknown: ':'Did not do: ')+label(h));meta.append(missed);row.append(meta);
         }
@@ -521,13 +517,16 @@
 
     const originalQuest=questLog,originalSettings=settingsView,originalDeckChrome=updateDeckChrome;
     function withLiteralUnits(fn){const units=Object.fromEntries(Object.entries(HCFG).map(([key,c])=>[key,c.unit]));try{Object.values(HCFG).forEach(c=>c.unit=esc(c.unit));return fn();}finally{for(const [key,unit]of Object.entries(units))HCFG[key].unit=unit;}}
-    questLog=function(draft){
-      const all=HABITS,groups=PILLARS,focused=focusHabits();
-      if(!allHabitsOpen&&focused.length){state.logMode='list';HABITS=focused;PILLARS=groups.map(p=>({...p,habits:p.habits.filter(h=>focused.includes(h))}));}
-      try{return withLiteralUnits(()=>originalQuest(draft,1));}finally{HABITS=all;PILLARS=groups;}
-    };
+    questLog=function(draft){return withLiteralUnits(()=>originalQuest(draft,1));};
     settingsView=function(){return withLiteralUnits(()=>originalSettings());};
-    updateDeckChrome=function(idx,n){originalDeckChrome(idx,n);const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');if(prev)prev.disabled=idx===0;if(next)next.disabled=idx>=n-1;};
+    updateDeckChrome=function(idx,n){
+      originalDeckChrome(idx,n);
+      const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');
+      if(prev){prev.disabled=idx===0;prev.setAttribute('aria-label','Previous habit');}
+      if(next){next.disabled=idx>=n-1;next.setAttribute('aria-label','Next habit');}
+      const counter=document.getElementById('deckCounter');if(counter){counter.setAttribute('aria-live','polite');counter.setAttribute('aria-atomic','true');}
+      [...app.querySelectorAll('.ledger-habit-card')].forEach((card,i)=>{card.inert=i!==idx;card.setAttribute('aria-hidden',String(i!==idx));card.setAttribute('role','group');card.setAttribute('aria-label',label(HABITS[i])+' · '+(i+1)+' of '+n);});
+    };
     const originalLevelView=levelUpView,originalAchievementView=achvView;
     function rewardDialog(markup){return markup.replace('<div class="overlay"','<dialog class="overlay ledger-reward"').replace(/<\/div>$/, '</dialog>');}
     levelUpView=info=>rewardDialog(originalLevelView(info));
@@ -560,6 +559,8 @@
       for(const el of app.querySelectorAll('[data-act="mood"]'))el.setAttribute('aria-pressed',String(state.draftMood===+el.dataset.v));
       const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');if(prev){prev.disabled=state.cardIndex===0;prev.setAttribute('aria-label','Previous habit');}if(next)next.disabled=state.cardIndex>=HABITS.length-1;
       composeDashboard(log,data,earned);
+      updateDeckChrome(state.cardIndex,HABITS.length);
+      for(const mode of log?.querySelectorAll('[data-act="logmode"]')||[])mode.setAttribute('aria-pressed',String(mode.dataset.mode===state.logMode));
       paintLeisureClock();status();
     };
     app.addEventListener('click',e=>{

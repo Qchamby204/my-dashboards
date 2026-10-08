@@ -127,8 +127,8 @@ test('empty pillars remain numeric and streaks require adjacent calendar dates',
  h.run(`userModel.hidden={Read:true,Make:true};rebuildModel();`);assert.equal(h.run('compute(state.days,state.goals).life.level'),0);assert(h.run('compute(state.days,state.goals).pillars.every(p=>Number.isFinite(p.level))'));h.run('render()');
 });
 test('future log dates are refused; labels and card boundaries expose usable state',async()=>{
- const h=await boot();assert.equal(h.api.selectDate('2026-09-08'),false);assert.equal(h.run('state.logDate'),'2026-09-07');assert.equal(h.run('state.logMode'),'list');h.node('ledger-show-all').click();assert.equal(h.node('app').querySelector('[data-act="toggle"][data-habit="Make"]').getAttribute('aria-label'),'Mark complete: Make');
- h.run(`state.logMode='cards';render()`);assert.equal(h.node('deckPrev').disabled,true);h.run('goCard(1)');assert.equal(h.node('deckNext').disabled,true);assert.equal(h.node('deckPrev').disabled,false);
+ const h=await boot();assert.equal(h.api.selectDate('2026-09-08'),false);assert.equal(h.run('state.logDate'),'2026-09-07');assert.equal(h.run('state.logMode'),'cards');assert.equal(h.node('app').querySelectorAll('.ledger-habit-card').length,2);assert.equal(h.node('app').querySelector('[data-act="toggle"][data-habit="Make"]').getAttribute('aria-label'),'Mark complete: Make');
+ h.run(`state.logMode='cards';render()`);assert.equal(h.node('deckPrev').disabled,true);assert.equal(h.node('app').querySelectorAll('.ledger-habit-card')[1].inert,true);h.run('goCard(1)');assert.equal(h.node('app').querySelectorAll('.ledger-habit-card')[1].inert,false);assert.equal(h.node('deckNext').disabled,true);assert.equal(h.node('deckPrev').disabled,false);
 });
 test('midnight follows Today and retains the previous unfinished entry in history',async()=>{
  const h=await boot();h.run(`state.draftNote='Keep tonight'`);h.api.remember();h.at('2026-09-08T00:01:00-05:00');h.window.emit('pageshow');assert.equal(h.run('state.logDate'),'2026-09-08');assert.equal(h.run('state.draftNote'),'');assert.equal(h.api.drafts.days['2026-09-07'].note,'Keep tonight');assert.match(h.node('ledger-history').textContent,/Draft/);
@@ -396,7 +396,7 @@ test('screen meters show the fixed 60-minute boundary and remain independent of 
 });
 
 test('Today, Progress and History compose one copy of the controls and retain edits across navigation',async()=>{
- const h=await screenBoot();assert.equal(h.node('ledger-view-today').hidden,false);assert.equal(h.node('ledger-view-progress').hidden,true);assert.equal(h.node('ledger-view-history').hidden,true);
+ const h=await screenBoot();const today=h.node('ledger-view-today'),children=[...today.children];assert(children.indexOf(h.node('ledger-log').closest('.ledger-log-wrap'))<children.indexOf(h.node('ledger-rhythm')));assert(children.indexOf(h.node('ledger-rhythm'))<children.indexOf(h.node('ledger-leisure-preview')));assert.equal(h.node('ledger-view-today').hidden,false);assert.equal(h.node('ledger-view-progress').hidden,true);assert.equal(h.node('ledger-view-history').hidden,true);
  h.run('state.draft.Read=12');h.api.remember();h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-view-progress').hidden,false);assert.equal(h.node('ledger-view-today').hidden,true);assert.equal(h.node('ledger-nav-progress').getAttribute('aria-selected'),'true');assert.equal(h.run('state.openSections.relics'),true);
  assert.equal(h.node('app').querySelectorAll('[data-act="commit"]').length,1);assert(h.node('app').querySelector('[data-act="commit"]').closest('#ledger-dock'));
  h.node('ledger-nav-history').click();assert(h.node('ledger-history').closest('#ledger-view-history'));assert.equal(h.node('ledger-history').open,true);
@@ -412,7 +412,7 @@ test('the leisure sheet opens and dismisses with focus return without stopping a
 });
 
 test('remaining filter hides completed habits without erasing quantities or changing the full habit list',async()=>{
- const h=await screenBoot();h.run('state.draft.Read=25;render()');h.node('ledger-filter-remaining').click();
+ const h=await screenBoot();h.run("state.logMode='list';state.draft.Read=25;render()");h.node('ledger-filter-remaining').click();
  const row=h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row');assert.equal(row.hidden,true);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('HABITS.length'),13);
  h.node('ledger-filter-all').click();assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row').hidden,false);
 });
