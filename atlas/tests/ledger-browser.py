@@ -53,6 +53,8 @@ with sync_playwright() as pw:
         assert page.evaluate('localStorage.getItem("lifeledger:v2")') == seed['lifeledger:v2']
         assert not page.locator('[data-habit="LinkedIn Strategy"]').count()
         assert page.locator('#ledger-rhythm .ledger-rhythm-row').count() == 3
+        assert page.locator('.ledger-card-xp').count() == 13
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_have_text('+100 XP per check-in')
         assert page.locator('.ledger-habit-card').count() == 13
         expect(page.locator('#deckCounter')).to_have_text('1 / 13')
         assert page.evaluate('''(() => {const deck=document.querySelector('.ledger-log-wrap'),focus=document.querySelector('#ledger-rhythm');return !!(deck.compareDocumentPosition(focus)&Node.DOCUMENT_POSITION_FOLLOWING);})()''')
@@ -158,6 +160,7 @@ with sync_playwright() as pw:
         assert page.locator('.ledger-habit-card[aria-hidden="true"]').count() == 12
         page.get_by_role('button', name='Previous habit', exact=True).click()
         go_card('Read')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_have_text('+10 pages · +40 XP per tap')
         page.get_by_role('button', name='Did not do: Read', exact=True).click()
         expect(page.get_by_role('button', name='Leave unknown: Read', exact=True)).to_be_visible()
         page.get_by_role('button', name='Leave unknown: Read', exact=True).click()
