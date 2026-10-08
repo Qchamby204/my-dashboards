@@ -1,0 +1,179 @@
+// Generated Communicator entry from shared/atlas-theme.js.
+/* Shared appearance preference. Run in <head> before styles to avoid a light flash. */
+(() => {
+  'use strict';
+  const root = document.documentElement;
+  if (!root.classList.contains('atlas-neumo') || window.AtlasAppearance) return;
+  // Extend the existing pages in place. Their HTML, records, and URLs remain theirs.
+  const sharedSource=document.currentScript?.src;
+  if(sharedSource&&document.head){
+    // Sports styling only: no record access or changes to dashboard behavior.
+    if(['crucible', 'neural-map', 'baby-brain', 'the-aqueduct', 'operations-cadence', 'chambers-wealth-hq', 'prospecting-command-center', 'review'].includes(root.dataset.atlasApp)){
+      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=bc2b59393d86',sharedSource).href;document.head.appendChild(sports);
+    }
+    const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=f770ee460dc5':'atlas-mobile.js?v=f770ee460dc5',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
+    if(root.dataset.atlasApp==='the-herald'){
+      const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
+    }
+    if(root.dataset.atlasApp==='the-hourglass'){
+      const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=ff0a80190552',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
+    }
+    if(root.dataset.atlasApp==='communication-trainer'){
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=9875c1591fc3',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+    }
+    if(root.dataset.atlasApp==='neural-map'){
+      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=58a835078483',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
+    }
+    // Apply interface assets without republishing reference pages with embedded data.
+    if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
+      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=805c48b4fcb5',sharedSource).href;document.head.appendChild(polish);
+      const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=54aa0f1d0514',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
+    }
+    if(root.dataset.atlasApp==='prospecting-command-center'&&!window.AtlasProspectingPrivate){
+      // Retain the saved bytes before the legacy boot can attempt migration.
+      const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
+      window.AtlasProspectingBoot=boot;
+      const records=document.createElement('script');records.type='module';records.src=new URL('prospecting-records.mjs?v=messages-20260909',sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=1bd2f03eabd8',sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
+    }
+    if(root.dataset.atlasApp==='operations-cadence'){
+      const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('operationsCadence.v1');}catch{boot.readError=true;}
+      window.AtlasOperationsBoot=boot;
+      const operations=document.createElement('script');operations.src=new URL('operations-enhancements.js?v=16917b1905ec',sharedSource).href;operations.defer=true;document.head.appendChild(operations);
+    }
+    if(root.dataset.atlasApp==='baby-brain'){
+      const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('babybrain.v1');}catch{boot.readError=true;}
+      window.AtlasBabyBoot=boot;
+      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js?v=5b3856c57f36',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
+    }
+    if(root.dataset.atlasApp==='workout-forge'){
+      const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1','forge:goals:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
+      window.AtlasForgeBoot=boot;
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=bf128a576813',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+    }
+    if(root.dataset.atlasApp==='life-ledger'){
+      const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
+      window.AtlasLedgerBoot=boot;
+      const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=3fd648b366f5',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+    }
+  }
+  const key = 'atlas.appearance.v1';
+  const modes = ['light', 'dark', 'system'];
+  const system = window.matchMedia('(prefers-color-scheme: dark)');
+  const valid = value => modes.includes(value);
+  const read = () => { try { return localStorage.getItem(key); } catch { return null; } };
+  const write = value => { try { localStorage.setItem(key, value); } catch { /* In-memory choice still works. */ } };
+  let preference = valid(read()) ? read() : 'system';
+  // Carry only the appearance choice between the two Atlas origins, never app records.
+  const incoming = new URL(location.href);
+  const passed = incoming.searchParams.get('atlas-theme');
+  if (valid(passed)) {
+    preference = passed;
+    write(preference);
+    incoming.searchParams.delete('atlas-theme');
+    try { history.replaceState(history.state, '', incoming.pathname + incoming.search + incoming.hash); } catch { /* Cosmetic URL cleanup is optional. */ }
+  }
+  let trigger, dialog;
+  const chartThemes = new WeakMap();
+  function paintCharts() {
+    if (!window.Chart?.instances) return;
+    const styles = getComputedStyle(root);
+    const color = styles.getPropertyValue('--neo-muted').trim();
+    const grid = styles.getPropertyValue('--neo-line').trim();
+    if (!color || !grid) return;
+    const signature = color + grid;
+    for (const chart of Object.values(window.Chart.instances)) {
+      if (chartThemes.get(chart) === signature) continue;
+      for (const scale of Object.values(chart.options.scales || {})) {
+        if (scale.ticks) scale.ticks.color = color;
+        if (scale.grid) scale.grid.color = grid;
+      }
+      if (chart.options.plugins?.legend?.labels) chart.options.plugins.legend.labels.color = color;
+      chartThemes.set(chart, signature);
+      chart.update('none');
+    }
+  }
+  function apply() {
+    const resolved = preference === 'system' ? (system.matches ? 'dark' : 'light') : preference;
+    root.dataset.atlasTheme = resolved;
+    root.dataset.atlasAppearance = preference;
+    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = resolved === 'dark' ? '#202936' : '#e7ecf2';
+    if (trigger) {
+      trigger.title = 'Appearance: ' + preference;
+      trigger.setAttribute('aria-label', 'Appearance: ' + preference + '. Change color theme');
+    }
+    if (dialog) for (const input of dialog.querySelectorAll('input')) input.checked = input.value === preference;
+    paintCharts();
+    window.dispatchEvent(new CustomEvent('atlas:appearance', { detail: { preference, resolved } }));
+  }
+  function set(value) {
+    if (!valid(value)) return;
+    preference = value;
+    write(value);
+    apply();
+  }
+  window.AtlasAppearance = Object.freeze({ set, get: () => preference });
+  apply();
+  system.addEventListener('change', () => { if (preference === 'system') apply(); });
+  window.addEventListener('storage', event => {
+    if (event.key !== key && event.key !== null) return;
+    preference = valid(event.newValue) ? event.newValue : 'system';
+    apply();
+  });
+  window.addEventListener('pageshow', () => {
+    const saved = read();
+    if (valid(saved)) preference = saved;
+    apply();
+  });
+
+  const files = new Set(['', 'index.html', 'life-map.html', 'life-ledger.html', 'workout-forge.html', 'the-aqueduct.html', 'the-hourglass.html', 'baby-brain.html', 'communication-trainer.html', 'prospecting-command-center.html', 'operations-cadence.html', 'the-herald.html', 'courier.html', 'neural-map.html', 'the-chef.html', 'crucible.html', 'chambers-wealth-hq.html']);
+  function carryPreference(event) {
+    const link = event.target.closest?.('a[href]');
+    if (!link || link.hasAttribute('download')) return;
+    let target;
+    try { target = new URL(link.href, location.href); } catch { return; }
+    const legacy = target.origin === 'https://qchamby204.github.io' && target.pathname.startsWith('/my-dashboards/') && files.has(target.pathname.slice('/my-dashboards/'.length));
+    const workspace = target.origin === 'https://atlas-os-quinton.qchambers123018.chatgpt.site' && target.pathname === '/';
+    if ((!legacy && !workspace) || target.origin === location.origin) return;
+    target.searchParams.set('atlas-theme', preference);
+    link.href = target.href;
+  }
+  document.addEventListener('click', carryPreference, true);
+  document.addEventListener('auxclick', carryPreference, true);
+
+  function mount() {
+    if (!document.body) return;
+    if (!trigger) {
+      trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'atlas-appearance-trigger';
+      trigger.setAttribute('aria-haspopup', 'dialog');
+      trigger.setAttribute('aria-controls', 'atlas-appearance-dialog');
+      trigger.innerHTML = '<span aria-hidden="true">◐</span>';
+      dialog = document.createElement('dialog');
+      dialog.id = 'atlas-appearance-dialog';
+      dialog.setAttribute('aria-labelledby', 'atlas-appearance-title');
+      dialog.innerHTML = '<div class="atlas-appearance-heading"><h2 id="atlas-appearance-title">Appearance</h2><button type="button" class="atlas-appearance-close" aria-label="Close appearance">×</button></div><fieldset><legend>Color theme</legend><label><input type="radio" name="atlas-appearance" value="light"><span><strong>Light</strong><small>Soft mineral surfaces</small></span></label><label><input type="radio" name="atlas-appearance" value="dark"><span><strong>Dark</strong><small>Deep graphite surfaces</small></span></label><label><input type="radio" name="atlas-appearance" value="system"><span><strong>System</strong><small>Follow your device</small></span></label></fieldset>';
+      dialog.querySelector('.atlas-appearance-close').addEventListener('click', () => dialog.close());
+      dialog.addEventListener('change', event => { if (event.target.name === 'atlas-appearance') set(event.target.value); });
+      trigger.addEventListener('click', () => { if (!dialog.open) dialog.showModal(); });
+    }
+    if (!dialog.isConnected) document.body.append(dialog);
+    if (!trigger.isConnected) {
+      const map = ['baby-brain', 'neural-map'].includes(root.dataset.atlasApp);
+      const host = map ? null : document.querySelector('.topbar > div, .appbar, header .bar, .lm-header');
+      trigger.classList.toggle('atlas-appearance-floating', !host);
+      trigger.classList.toggle('atlas-appearance-map', map);
+      (host || document.body).append(trigger);
+    }
+  }
+  function ready() {
+    mount();
+    apply();
+    // Legacy screens rebuild their headers. Reattach the same control after a render.
+    new MutationObserver(() => { mount(); paintCharts(); }).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, { once: true });
+  else ready();
+})();
+

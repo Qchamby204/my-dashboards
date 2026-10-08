@@ -28,6 +28,22 @@
       if(value===undefined)return;
       if(!value||typeof value!=='object'||!['book','understanding'].includes(value.kind)||typeof value.id!=='string'||value.id.length>150||typeof value.title!=='string'||value.title.length>500||typeof value.text!=='string'||!value.text.trim()||value.text.length>20000)throw Error('Invalid Library practice source.');
     }
+    function validateCrucibleSource(value){
+      if(value===undefined)return;
+      if(!value||typeof value!=='object'||!['block','statement','arsenal','daily','note'].includes(value.kind)||typeof value.id!=='string'||!value.id||value.id.length>150||typeof value.title!=='string'||value.title.length>500||typeof value.text!=='string'||!value.text.trim()||value.text.length>20000)throw Error('Invalid investing practice source.');
+    }
+    function startPreparedPractice(request){
+      const drill=DRILLS.find(d=>d.id===request.drillId);if(!drill||typeof request.topic!=='string'||!request.topic.trim())return false;
+      validateCrucibleSource(request.source);
+      if(draftProblem||unsaved.size){toast('Keep your current work first','Retry saving or export your unfinished practice before starting.');return false;}
+      const begin=()=>{
+        stopRec();stopTimer();curDrill={id:crypto.randomUUID(),drill,topic:{cat:'investing',text:request.topic,crucibleSource:copy(request.source)},scores:drill.rubric.map(()=>3),tx:'',recSecs:0,nextFocus:''};
+        timerLeft=drill.time;remainingMs=timerLeft*1000;timerSession=curDrill;deadline=null;curPage='train';lastSaveError='';rememberPractice();render();window.scrollTo(0,0);
+      };
+      let draft=curDrill||Store.get(DRAFT,null);if(draft?.id&&S.reps.some(r=>r.id===draft.id))draft=null;
+      if(draft)uiConfirm('Start this investing practice?','Your unfinished practice will be replaced. Save it first if you want to keep it.','Start investing practice',begin);else begin();
+      return true;
+    }
     let libraryRequest=null,libraryError='';
     function readLibraryRequest(){
       libraryRequest=null;libraryError='';
@@ -64,7 +80,7 @@
     function validateDraft(value){
       if(value===null)return null;
       if(!value||typeof value!=='object'||Array.isArray(value)||value.schemaVersion!==1||typeof value.id!=='string'||!value.id||typeof value.drillId!=='string'||!value.topic||typeof value.topic.text!=='string'||typeof value.topic.cat!=='string'||!Array.isArray(value.scores)||!value.scores.length||value.scores.some(n=>!Number.isInteger(n)||n<1||n>5)||typeof value.tx!=='string'||typeof value.recSecs!=='number'||!Number.isFinite(value.recSecs)||value.recSecs<0||typeof value.remainingMs!=='number'||!Number.isFinite(value.remainingMs)||value.remainingMs<0||value.deadline!==null&&(typeof value.deadline!=='number'||!Number.isFinite(value.deadline))||value.gradePaste!==undefined&&typeof value.gradePaste!=='string')throw Error('The unfinished practice could not be read.');
-      validateLibrarySource(value.topic.librarySource);return copy(value);
+      validateLibrarySource(value.topic.librarySource);validateCrucibleSource(value.topic.crucibleSource);return copy(value);
     }
     function draftSnapshot(){if(!curDrill)return null;return {schemaVersion:1,id:curDrill.id,drillId:curDrill.drill.id,topic:copy(curDrill.topic),scores:curDrill.scores.slice(),tx:curDrill.tx||'',recSecs:(curDrill.recSecs||0)+(recOn&&recT0?Math.max(0,(Date.now()-recT0)/1000):0),remainingMs:deadline!==null?Math.max(0,deadline-Date.now()):remainingMs??timerLeft*1000,deadline,prepOpen:!!curDrill.prepOpen,graded:!!curDrill.graded,gradePaste:curDrill.gradePaste||'',nextFocus:curDrill.nextFocus||''};}
     function rememberPractice(){if(!curDrill?.id||draftProblem)return false;return Store.set(DRAFT,draftSnapshot());}
@@ -183,7 +199,7 @@
       if(!curDrill)return false;stopRec();stopTimer();const session=curDrill,{drill,topic,scores}=session;if(S.reps.some(r=>r.id===session.id)){toast('This practice is already saved','Your current draft is kept. Start a new practice to record a separate attempt.');return false;}
       if(scores.length!==drill.rubric.length||scores.some(n=>!Number.isInteger(n)||n<1||n>5)){lastSaveError='Choose a score from 1 to 5 for each rubric item.';status();return false;}
       const previous=S.reps.filter(r=>r.drill===drill.name),best=previous.reduce((n,r)=>Math.max(n,r.score),0),score=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*20),beforeXP=xp();
-      const entry={id:session.id,date:new Date().toISOString(),drill:drill.name,skill:drill.skill,topic:topic.text,score,transcript:session.tx||'',recSecs:session.recSecs||0,rubricScores:scores.slice(),nextFocus:session.nextFocus||'',...(topic.librarySource?{librarySource:copy(topic.librarySource)}:{})};
+      const entry={id:session.id,date:new Date().toISOString(),drill:drill.name,skill:drill.skill,topic:topic.text,score,transcript:session.tx||'',recSecs:session.recSecs||0,rubricScores:scores.slice(),nextFocus:session.nextFocus||'',...(topic.librarySource?{librarySource:copy(topic.librarySource)}:{}),...(topic.crucibleSource?{crucibleSource:copy(topic.crucibleSource)}:{}),scoreOrigin:'self',rubricVersion:1};
       const next=[...S.reps,entry];if(!writeProgress('reps',next)){toast('Practice not saved','Your transcript and scores are still here. Try Save practice again.');return false;}
       S.reps=next;const topicKey=normT(topic.text);if(topicKey&&!S.retired.includes(topicKey)){S.retired=[...S.retired,topicKey];Store.set('retiredTopics',S.retired);}
       lastSaved={...entry,xp:xp()-beforeXP,first:previous.length===0,best:previous.length>0&&score>best};lastSaveError='';curDrill=null;timerSession=null;remainingMs=null;Store.set(DRAFT,null);nav('progress');toast('Practice saved',lastSaved.xp+' XP added'+(lastSaved.best?' · New personal best':lastSaved.first?' · First practice for this drill':''));return true;
@@ -215,7 +231,7 @@
       return html;
     };
     function recoveryBanner(){const saved=curDrill||Store.get(DRAFT,null);if(!saved&&!draftProblem)return '';if(saved?.id&&S.reps.some(r=>r.id===saved.id)&&!draftProblem)return '';return '<section class="card communication-resume"><h2>'+(draftProblem?'Unfinished practice unavailable':'Unfinished practice')+'</h2><p>'+esc(draftProblem||curDrill?.topic.text||saved?.topic?.text||'Your draft is saved on this device.')+'</p><div class="flex">'+(!draftProblem?'<button class="btn" onclick="CommunicationImprovements.resumePractice()">Resume practice</button>':'<button class="btn ghost" onclick="exportData()">Export recovery backup</button>')+'<button class="btn ghost" onclick="CommunicationImprovements.discardPractice()">Discard draft</button></div></section>';}
-    function repeatPrompt(key){const rep=S.reps.find(r=>r.id===key||JSON.stringify([r.date,r.drill,r.topic])===key),drill=DRILLS.find(d=>d.name===rep?.drill);if(!rep||!drill)return;const begin=()=>{stopRec();stopTimer();curPage='train';curDrill={id:crypto.randomUUID(),drill,topic:{text:rep.topic,cat:'custom',...(rep.librarySource?{librarySource:copy(rep.librarySource)}:{})},scores:drill.rubric.map(()=>3),tx:'',recSecs:0,nextFocus:rep.nextFocus||''};timerLeft=drill.time;timerSession=curDrill;remainingMs=timerLeft*1000;deadline=null;rememberPractice();render();};if(curDrill)uiConfirm('Repeat this prompt?','This replaces your unfinished practice. Save it first if you want to retain it.','Repeat prompt',begin);else begin();}
+    function repeatPrompt(key){const rep=S.reps.find(r=>r.id===key||JSON.stringify([r.date,r.drill,r.topic])===key),drill=DRILLS.find(d=>d.name===rep?.drill);if(!rep||!drill)return;const begin=()=>{stopRec();stopTimer();curPage='train';curDrill={id:crypto.randomUUID(),drill,topic:{text:rep.topic,cat:'custom',...(rep.librarySource?{librarySource:copy(rep.librarySource)}:{}),...(rep.crucibleSource?{crucibleSource:copy(rep.crucibleSource)}:{})},scores:drill.rubric.map(()=>3),tx:'',recSecs:0,nextFocus:rep.nextFocus||''};timerLeft=drill.time;timerSession=curDrill;remainingMs=timerLeft*1000;deadline=null;rememberPractice();render();};if(draftProblem||unsaved.size){toast('Keep your current work first','Retry saving or export your unfinished practice before repeating.');return;}let draft=curDrill||Store.get(DRAFT,null);if(draft?.id&&S.reps.some(r=>r.id===draft.id))draft=null;if(draft)uiConfirm('Repeat this prompt?','This replaces your unfinished practice. Save it first if you want to retain it.','Repeat prompt',begin);else begin();}
     function comparisons(){const rows=S.reps.map((rep,index)=>({rep,index})).filter(x=>typeof x.rep.topic==='string').slice().reverse().slice(0,12);return '<section class="card"><h2>Repeat & compare</h2><p>Use the same prompt and rubric. Scores are your assessments, not an objective measure of skill.</p>'+rows.map(({rep,index})=>{const previous=S.reps.slice(0,index).filter(r=>r.drill===rep.drill&&normT(r.topic)===normT(rep.topic)).at(-1);return '<details><summary>'+esc(rep.topic)+' · '+rep.score+'/100</summary><p>'+esc(rep.drill)+' · '+recordDay(rep.date)+'</p>'+(previous?'<p>Previous '+previous.score+'/100 → Latest '+rep.score+'/100</p><details><summary>Earlier transcript</summary><p class="communication-transcript">'+esc(previous.transcript||'No saved transcript')+'</p></details>':'<p>First saved attempt for this prompt.</p>')+'<p class="communication-transcript">'+esc(rep.transcript||'No saved transcript')+'</p>'+(rep.nextFocus?'<p>Next focus: '+esc(rep.nextFocus)+'</p>':'')+'<button class="btn" data-repeat-prompt="'+esc(rep.id||JSON.stringify([rep.date,rep.drill,rep.topic]))+'">Repeat this prompt</button></details>';}).join('')+(!rows.length?'<p>Save a practice to establish your first comparison.</p>':'')+'</section>';}
     function recentHistory(){const recent=sorted(S.reps).reverse().slice(0,8);if(!recent.length)return '';return '<div class="card communication-history"><h2>Recent practice</h2>'+recent.map(r=>'<details><summary><span><b>'+esc(r.drill)+'</b><span class="muted">'+esc(r.topic)+'</span></span><span>'+r.score+'/100 · '+recordDay(r.date)+'</span></summary>'+(typeof r.transcript==='string'&&r.transcript?'<p class="communication-transcript">'+esc(r.transcript)+'</p>':'<p class="muted">No transcript was saved for this practice.</p>')+'</details>').join('')+'</div>';}
     const oldDash=pageDash,oldTrain=pageTrain,oldProgress=pageProgress;
@@ -240,11 +256,11 @@
     };
     function validateBackup(raw){
       if(!raw||typeof raw!=='object'||Array.isArray(raw)||!['reps','assessments','grades'].some(key=>Array.isArray(raw[key])))throw Error('Use an exported Communication Trainer progress file.');
-      const allowed=new Set([...Object.keys(fields),'topics','goalNote','proCatsAdded',DRAFT]),out={};
+      const allowed=new Set([...Object.keys(fields),'topics','goalNote','proCatsAdded',DRAFT,'crucible']),out={};
       const arrays=new Set(['reps','assessments','grades','pendingGrades','customTopics','retiredTopics','catsEnabled']);
       const objects=new Set(['lessonsDone','prepNotes','refreshed']);
       for(const [key,value]of Object.entries(raw)){
-        if(!allowed.has(key))continue;if(key===DRAFT){out[key]=validateDraft(value);continue;}if(key==='topicBank'){out[key]=validateTopicBank(value);continue;}if(value===null&&key!=='bankUpdated')continue;
+        if(!allowed.has(key))continue;if(key==='crucible'){if(!window.CrucibleCurriculum)throw Error('Investing curriculum is still loading. Try again.');out[key]=window.CrucibleCurriculum.validate(value);continue;}if(key===DRAFT){out[key]=validateDraft(value);continue;}if(key==='topicBank'){out[key]=validateTopicBank(value);continue;}if(value===null&&key!=='bankUpdated')continue;
         if(arrays.has(key)&&!Array.isArray(value))throw Error('Invalid progress list.');
         if(objects.has(key)&&(!value||typeof value!=='object'||Array.isArray(value)))throw Error('Invalid progress details.');
         if(['city','goalNote'].includes(key)&&typeof value!=='string')throw Error('Invalid text field.');
@@ -254,7 +270,7 @@
         const object=item=>item&&typeof item==='object'&&!Array.isArray(item);
         const score=item=>Number.isFinite(item)&&item>=0&&item<=100;
         if(key==='reps'&&value.some(item=>typeof item.drill!=='string'||typeof item.topic!=='string'||typeof item.skill!=='string'||!score(item.score)))throw Error('Invalid practice score.');
-        if(key==='reps'){value.forEach(r=>validateLibrarySource(r.librarySource));const ids=value.filter(item=>item.id!==undefined).map(item=>item.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length||value.some(item=>item.transcript!==undefined&&typeof item.transcript!=='string'||item.recSecs!==undefined&&(!Number.isFinite(item.recSecs)||item.recSecs<0)||item.rubricScores!==undefined&&(!Array.isArray(item.rubricScores)||item.rubricScores.some(n=>!Number.isInteger(n)||n<1||n>5))))throw Error('Invalid saved practice details.');}
+        if(key==='reps'){value.forEach(r=>{validateLibrarySource(r.librarySource);validateCrucibleSource(r.crucibleSource);});const ids=value.filter(item=>item.id!==undefined).map(item=>item.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length||value.some(item=>item.transcript!==undefined&&typeof item.transcript!=='string'||item.recSecs!==undefined&&(!Number.isFinite(item.recSecs)||item.recSecs<0)||item.rubricScores!==undefined&&(!Array.isArray(item.rubricScores)||item.rubricScores.some(n=>!Number.isInteger(n)||n<1||n>5))))throw Error('Invalid saved practice details.');}
         if(key==='assessments'&&value.some(item=>!object(item.scores)||SKILLS.some(skill=>!score(item.scores[skill.id]))))throw Error('Invalid assessment scores.');
         if(key==='grades'&&value.some(item=>!score(item.overall)||!object(item.scores)||typeof item.topic!=='string'||typeof item.drill!=='string'||Object.values(item.scores).some(n=>n!==null&&(!Number.isFinite(n)||n<1||n>10))))throw Error('Invalid saved grade.');
         if(key==='pendingGrades'&&value.some(item=>typeof item.topic!=='string'||typeof item.drill!=='string'))throw Error('Invalid pending feedback.');
@@ -267,7 +283,7 @@
       }
       return out;
     }
-    Store.load=function(raw){const data=validateBackup(raw);for(const [key,value]of Object.entries(data))Store.set(key,value);return data;};
+    Store.load=function(raw){const data=validateBackup(raw);for(const [key,value]of Object.entries(data)){if(key==='crucible'){window.CrucibleCurriculum.replace(value);}else Store.set(key,value);}return data;};
     importData=async function(input){
       const file=input.files?.[0];if(!file)return;
       try{
@@ -275,7 +291,7 @@
         const data=validateBackup(JSON.parse(await file.text()));
         uiConfirm('Import this progress?','Progress categories present in this file will replace their current values. Categories missing from an older backup will be kept.','Import',()=>{
           stopRec();stopTimer();const imported=Store.load(data);for(const [key,field]of Object.entries(fields))if(Object.hasOwn(imported,key))S[field]=copy(imported[key]);lastSaved=null;lastSaveError='';if(Object.hasOwn(imported,DRAFT)){draftProblem=null;try{restorePractice(imported[DRAFT]);}catch(error){draftProblem=error.message;curDrill=null;}}render();
-          if(!unsaved.size)uiNote('Progress imported.');else toast('Import retained in this page','Retry saving or export before closing.');
+          if(!unsaved.size&&!window.CrucibleCurriculum?.pending)uiNote('Progress imported.');else toast('Import retained in this page','Retry saving or export before closing.');
         });
       }catch(error){uiNote(error instanceof SyntaxError?'This is not a valid JSON progress file.':error.message||'Could not read this file.');}
       finally{input.value='';}
@@ -409,7 +425,8 @@
     readLibraryRequest();window.addEventListener('hashchange',()=>{readLibraryRequest();render();});
     let savedDraftRaw;try{savedDraftRaw=localStorage.getItem('mc_'+DRAFT);}catch{diskAvailable=false;}
     if(savedDraftRaw!=null)try{restorePractice(JSON.parse(savedDraftRaw));}catch(error){draftProblem=error.message||'Could not read the unfinished practice.';}
-    window.CommunicationImprovements=Object.freeze({validateBackup,rememberPractice,resumePractice,leavePractice,discardPractice,editTopics,saveTopics,selectTopicCategory,cleanTopicLines,get unsaved(){return unsaved.size;}});
+    window.CommunicationImprovements=Object.freeze({validateBackup,startPreparedPractice,rememberPractice,resumePractice,leavePractice,discardPractice,editTopics,saveTopics,selectTopicCategory,cleanTopicLines,get unsaved(){return unsaved.size;}});
+    window.dispatchEvent?.(new Event('communicator-ready'));
     render();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

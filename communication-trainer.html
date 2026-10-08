@@ -9,11 +9,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Communicator">
-<title>Master Communicator · Training Studio</title>
+<title>Communicator · Learn & Practise</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
+<script src="shared/communicator-theme.js?v=513444d5314c"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -148,6 +148,10 @@ canvas{max-width:100%}
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
+<link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
+<link rel="stylesheet" href="shared/communicator-integration.css?v=f82e2df2986e">
+<script src="shared/communicator-curriculum.js?v=de1af9629005" defer></script>
+<script src="shared/communicator-integration.js?v=c709b29c491c" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-32.png?v=96c42cc2e926">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-64.png?v=4e14ee0602b0">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-apple.png?v=71d764739e7e">
@@ -157,7 +161,7 @@ canvas{max-width:100%}
 <body>
 <div class="appbar">
   <a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">&#8962;</a>
-  <h1>Master <span>Communicator</span></h1>
+  <h1><span>Communicator</span></h1>
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
     <span class="appbar-pill" id="barPill">0</span>
   </div>
@@ -480,6 +484,13 @@ const DRILLS = [
   rubric:['Evidence and mechanism, no fluff','Conceded a real limitation unprompted','Invited further scrutiny, stayed composed']},
 ];
 
+// Investing reps use the same timer, transcript, rubric and saved history.
+DRILLS.push(
+ {id:'crucible-explain',skill:'technical',name:'Explain an Analysis',time:90,cats:['investing'],steps:t=>[`Your topic: <b>${t}</b>`,'Audience: an informed client. Purpose: make the analysis useful for a decision.','State your conclusion, explain the mechanism, and give one concrete example or calculation.','Name one limitation and end with what it means for the client.'],rubric:['Mechanism and example were accurate','Clear explanation without undefined jargon','Limit and client implication were explicit']},
+ {id:'crucible-defend',skill:'persuade',name:'Defend with Evidence',time:90,cats:['investing'],steps:t=>[`The challenge: <b>${t}</b>`,'Audience: a thoughtful skeptic. Restate the strongest opposing case fairly.','Respond with a mechanism and a source you have checked. Say the date and context for any figure.','Concede one limitation and invite a question that could change your view.'],rubric:['Opposing case was represented fairly','Response used specific, checked evidence','Conceded a limit and invited scrutiny']},
+ {id:'crucible-statement',skill:'technical',name:'Explain a Filing',time:120,cats:['investing'],steps:t=>[`Your checkpoint: <b>${t}</b>`,'Audience: an investment colleague. Use a real filing you have worked through.','Walk through the chain from the reported figure to the economic interpretation.','Explain your calculation, one red flag or uncertainty, and what evidence you would check next.'],rubric:['Reconciled the figures and explained the mechanism','Showed the calculation and its source','Identified uncertainty and the next check']}
+);
+
 /* ============ STATE ============ */
 let S = {
   assessments: Store.get('assessments', []),     // [{date, scores:{skill:0-100}}]
@@ -699,7 +710,7 @@ function drawRadar(canvasId, datasets){ // datasets: [{scores, color, fill}]
 }
 
 /* ============ NAV / PAGES ============ */
-const PAGES=[['dash','Home','\u25c8'],['learn','Learn','\u25a4'],['train','Train','\u26a1'],['topics','Topics','\u2726'],['progress','Growth','\u25b2']];
+const PAGES=[['dash','Today','\u25c8'],['learn','Learn','\u25a4'],['train','Practice','\u26a1'],['topics','Topics','\u2726'],['progress','Progress','\u25b2']];
 let curPage='dash';
 let lastPage=null;
 function nav(p){ curPage=p; render(); }
@@ -856,11 +867,12 @@ function pageTrain(){
   </div>
   <div class="card">
     <h3>Drill library</h3>
-    ${DRILLS.map(d=>`<div class="topicitem"><span><b>${d.name}</b> <span class="muted">· ${SKILLS.find(s=>s.id===d.skill).name} · ${d.time}s</span></span><button class="btn ghost" style="padding:5px 12px" onclick="startDrillById('${d.id}')">Go</button></div>`).join('')}
+    ${DRILLS.filter(d=>!d.id.startsWith('crucible-')).map(d=>`<div class="topicitem"><span><b>${d.name}</b> <span class="muted">· ${SKILLS.find(s=>s.id===d.skill).name} · ${d.time}s</span></span><button class="btn ghost" style="padding:5px 12px" onclick="startDrillById('${d.id}')">Go</button></div>`).join('')}
   </div>`;
 }
 function startDrill(skillId){
-  const pool = skillId? DRILLS.filter(d=>d.skill===skillId) : DRILLS;
+  const available=DRILLS.filter(d=>!d.id.startsWith('crucible-'));
+  const pool = skillId? available.filter(d=>d.skill===skillId) : available;
   launchDrill(pick(pool));
 }
 function startDrillById(id){ launchDrill(DRILLS.find(d=>d.id===id)); }
@@ -887,7 +899,7 @@ function retireCurrent(){
 function drillView(){
   const {drill,topic}=curDrill;
   const sk=SKILLS.find(s=>s.id===drill.skill);
-  const catName = DEFAULT_TOPICS[topic.cat]?.name || 'Custom';
+  const catName = topic.cat==='investing'?'Investing curriculum':DEFAULT_TOPICS[topic.cat]?.name || 'Custom';
   return `
   <div class="drillcard">
     <div class="tag">${sk.name} · ${drill.name}</div>
