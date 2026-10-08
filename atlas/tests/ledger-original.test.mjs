@@ -449,3 +449,18 @@ test('a failed level-crossing save earns no XP; resaves do not replay the level 
  h.localStorage.blockedKey=null;await h.api.saveDay();assert.equal(h.run('state.levelInfo.title'),'Life · Level 1');await h.api.saveDay();assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('compute(state.days,state.goals).life.xp'),1000);
  const again=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:Object.fromEntries(h.storage)});assert.equal(again.run('compute(state.days,state.goals).life.level'),1);assert.equal(again.run('state.levelInfo'),null);
 });
+
+
+test('annual calibration reaches habit and value 99 at their rhythms and Life 99 at the default focus rhythm',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-10-08T12:00:00-05:00'});
+ h.run(`state.days=Array.from({length:364},(_,i)=>({date:window.LedgerRhythm.addDays('2025-01-06',i),units:Object.fromEntries(HABITS.filter(h=>i%7<window.LedgerRhythm.goal(h,HCFG[h],{}).normal).map(h=>[h,window.LedgerRhythm.xpUnit(HCFG[h])]))}));render()`);
+ assert.equal(h.run('Object.values(compute(state.days,state.goals).habit).filter(h=>HABITS.includes(h.key)).every(h=>h.level===99)'),true);
+ assert.equal(h.run('compute(state.days,state.goals).pillars.every(p=>p.level===99)'),true);
+ h.run(`state.days=state.days.map(d=>({...d,units:Object.fromEntries(Object.entries(d.units).filter(([h])=>['Run / Work Out','Read','Screen Discipline'].includes(h)))}));render()`);
+ assert.equal(h.run('compute(state.days,state.goals).life.level'),99);
+ const before=h.run('JSON.stringify(compute(state.days,state.goals).habit.Read)');
+ await h.api.saveRhythm({focus:['Board Work'],goals:{Read:{type:'practice',mode:'sessions',normal:1,reduced:1,target:250,baseline:0,due:''}},weeks:{'2026-10-05':'reduced'}});
+ assert.equal(h.run('JSON.stringify(compute(state.days,state.goals).habit.Read)'),before);
+ assert.equal(h.run('compute(state.days,state.goals).life.level'),99);
+ const meter=h.node('app').querySelector('.ledger-xp-meter');assert.equal(meter.max,h.run('window.LedgerRhythm.lifeCost'));
+});
