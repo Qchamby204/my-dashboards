@@ -9,6 +9,7 @@ function app(name,saved,options={}){
   const records=new Map([[key+':state',JSON.stringify(saved)],[key+':schema-version',String(version)],['unrelated','preserve']]);
   const writes=[],messages=[],prompts=[];
   const context=vm.createContext({console,setTimeout,clearTimeout,
+    Date:class extends Date{constructor(...args){super(...(args.length?args:[options.clock?.now||options.now||'2026-10-05T12:00:00']));}static now(){return new Date(options.clock?.now||options.now||'2026-10-05T12:00:00').getTime();}},
     window:{AtlasCraftUI:{announce:m=>messages.push(m)}},
     document:options.document||{addEventListener(){},getElementById(){return null;}},
     localStorage:{getItem:k=>records.get(k)??null,setItem(k,v){if(options.failSave)throw Error('storage full');writes.push(k);records.set(k,v);}},
@@ -30,28 +31,126 @@ function chefControls(){
   });
   for(const [,id] of html.matchAll(/\bid="([^"]+)"/g))nodes.set('#'+id,element(id));
   for(const selector of ['nav.tabs','.chef-week-nav'])nodes.set(selector,element(selector));
-  return {nodes,document:{addEventListener(){},getElementById(id){return nodes.get('#'+id)||null;},querySelector(selector){
+  return {nodes,document:{addEventListener(){},querySelectorAll(){return [];},getElementById(id){return nodes.get('#'+id)||null;},querySelector(selector){
     if(selector.startsWith('[data-slot='))return null;
     assert.ok(nodes.has(selector),'Control must exist in the real HTML: '+selector);return nodes.get(selector);
   }}};
 }
 
-test('The actual card Plan button opens days controls and submitting those controls fills the selected days',()=>{
-  const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document});
-  a.run('ui.weekStart="2026-10-05";wireEvents()');
+test('Planning on Wednesday starts today and fills five days without dates or a Monday reset',()=>{
+  const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document,now:'2026-10-07T12:00:00'});
+  a.run('wireEvents()');
   const button={isConnected:true,focus(){}},card={dataset:{id:'b01'},querySelector(){throw Error('No old card serving or calendar controls should be required');}};
   controls.nodes.get('#cards').emit('click',{target:{closest(selector){return selector==='.card'?card:selector==='[data-add]'?button:null;}}});
   assert.equal(controls.nodes.get('#prep-dialog').open,true);assert.equal(controls.nodes.get('#prep-days').value,5);
   assert.equal(controls.nodes.has('#prep-yield'),false);assert.equal(controls.nodes.has('#prep-settings'),false);
   assert.match(controls.nodes.get('#prep-original-yield').textContent,/Recipe yield: 4 portions · from recipe/);
-  controls.nodes.get('#prep-date').value='2026-10-09';controls.nodes.get('#prep-days').value='5';controls.nodes.get('#prep-form').emit('change');
+  assert.equal(controls.nodes.has('#prep-date'),false);assert.equal(controls.nodes.has('#week-back'),false);
+  assert.equal(controls.nodes.has('#week-next'),false);assert.equal(controls.nodes.has('#week-current'),false);
+  controls.nodes.get('#prep-days').value='5';controls.nodes.get('#prep-form').emit('change');
   assert.equal(controls.nodes.get('#prep-save').disabled,false);
-  assert.match(controls.nodes.get('#prep-coverage').textContent,/Oct 9–Oct 13/);
+  assert.match(controls.nodes.get('#prep-coverage').textContent,/Today · 5 days/);
   assert.match(controls.nodes.get('#prep-ingredients').innerHTML,/5 eggs/);
   controls.nodes.get('#prep-form').emit('submit');
   assert.equal(controls.nodes.get('#prep-dialog').open,false);assert.equal(a.run('ui.tab'),'planner');
-  assert.equal(a.run('mealAt("2026-10-13","breakfast").recipe.id'),'b01');assert.equal(a.run('mealAt("2026-10-14","breakfast")'),null);
+  assert.equal(a.run('ui.weekStart'),'2026-10-07');
+  assert.equal(a.run('mealAt("2026-10-11","breakfast").recipe.id'),'b01');assert.equal(a.run('mealAt("2026-10-12","breakfast")'),null);
   assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'5');
+});
+
+test('The rolling window has exactly seven correctly labelled days from any weekday',()=>{
+  for(let day=5;day<=11;day++){
+    const a=app('chef',{...chefState(),plan:{}},{now:'2026-10-'+String(day).padStart(2,'0')+'T12:00:00'});
+    assert.equal(a.run('ui.weekStart'),`2026-10-${String(day).padStart(2,'0')}`);
+    const days=a.json('planningDays()');
+    assert.equal(days.length,7);assert.equal(new Set(days.map(d=>d.key)).size,7);
+    assert.equal(days[0].label,'Today');assert.equal(days[1].label,'Tomorrow');
+    assert.equal(days.at(-1).date,`2026-10-${String(day+6).padStart(2,'0')}`);
+    assert.equal(a.run('weekMeals().length'),28);assert.equal(a.writes.length,0);
+  }
+  const controls=chefControls(),a=app('chef',{...chefState(),plan:{}},{document:controls.document,now:'2026-10-07T12:00:00'});
+  a.run('renderPlanner()');
+  assert.deepEqual(a.json('planningDays().map(d=>d.weekday)'),['Wednesday','Thursday','Friday','Saturday','Sunday','Monday','Tuesday']);
+  assert.match(controls.nodes.get('#week').innerHTML,/<h3>Today <span[^>]*>Wednesday/);
+  assert.match(controls.nodes.get('#week').innerHTML,/<h3>Monday <span[^>]*>Day 6/);
+  assert.ok(!controls.nodes.get('#week').innerHTML.includes('Oct '));
+});
+
+test('Seven days fills across Monday; eight days is rejected by the actual form',()=>{
+  const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document,now:'2026-10-07T12:00:00'});
+  a.run('wireEvents();openPreparationEditor("d08",planningStart(),null)');
+  assert.equal(controls.nodes.get('#prep-days').max,'7');
+  controls.nodes.get('#prep-days').value='8';controls.nodes.get('#prep-form').emit('input');
+  assert.equal(controls.nodes.get('#prep-save').disabled,true);
+  controls.nodes.get('#prep-form').emit('submit');assert.equal(a.writes.length,0);
+  controls.nodes.get('#prep-days').value='7';controls.nodes.get('#prep-form').emit('input');
+  controls.nodes.get('#prep-form').emit('submit');
+  assert.equal(a.run('ui.weekStart'),'2026-10-07');assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),7);
+  assert.equal(a.run('mealAt("2026-10-13","dinner").recipe.id'),'d08');
+  assert.equal(a.run('mealAt("2026-10-14","dinner")'),null);
+  assert.equal(a.run('preparationFactor(allPreparations()[0])'),7/4);
+});
+
+test('A later empty day can cover the rest of the window without navigating to a calendar week',()=>{
+  const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document,now:'2026-10-07T12:00:00'});
+  a.run('wireEvents();savePreparation(daysPlan("d08",planningStart(),5));openPreparationEditor("d02","2026-10-12",null)');
+  assert.equal(controls.nodes.get('#prep-days').value,2);assert.equal(controls.nodes.get('#prep-days').max,'2');
+  controls.nodes.get('#prep-form').emit('submit');
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),7);
+  assert.equal(a.run('mealAt("2026-10-12","dinner").recipe.id'),'d02');
+  assert.equal(a.run('mealAt("2026-10-14","dinner")'),null);
+  assert.equal(a.run('ui.weekStart'),'2026-10-07');
+});
+
+test('Opening on the next day preserves coverage and groceries; checks follow the same preparations',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}},{now:'2026-10-07T12:00:00'});
+  a.run('savePreparation(daysPlan("b01",planningStart(),5,1,"five"));saveGroceryChecks({eggs:true})');
+  const saved=JSON.parse(a.records.get('chef:state'));
+  const reopened=app('chef',saved,{now:'2026-10-08T12:00:00'});
+  assert.equal(reopened.run('weekMeals().filter(x=>x.entry).length'),4);
+  assert.equal(reopened.run('mealAt(ui.weekStart,"breakfast").serving.number'),2);
+  assert.equal(reopened.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'5');
+  assert.equal(reopened.run('groceryChecked("eggs")'),true);
+  assert.ok(!reopened.run('groceryExport()').includes('- eggs —'));
+  assert.deepEqual(reopened.json('state'),saved);assert.equal(reopened.writes.length,0);
+  reopened.run('savePreparation(daysPlan("b01","2026-10-12",2,1,"fresh"))');
+  assert.equal(reopened.run('groceryChecked("eggs")'),false);
+  assert.equal(reopened.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'7');
+});
+
+test('A tab resumed tomorrow advances its view without rewriting saved plans',()=>{
+  const clock={now:'2026-10-07T23:59:00'},controls=chefControls();
+  const a=app('chef',{...chefState(),plan:{},checked:{}},{clock,document:controls.document});
+  a.run('savePreparation(daysPlan("b01",planningStart(),5,1,"five"));renderPlanner=()=>{}');
+  const before=a.json('state'),writes=a.writes.length;clock.now='2026-10-08T00:01:00';
+  a.run('refreshPlanningWindow()');
+  assert.equal(a.run('ui.weekStart'),'2026-10-08');assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),4);
+  assert.deepEqual(a.json('state'),before);assert.equal(a.writes.length,writes);
+});
+
+test('Editing keeps saved coverage while a later two-day plan stays inside the seven-day window',()=>{
+  const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document,now:'2026-10-07T12:00:00'});
+  a.run('savePreparation(daysPlan("b01","2026-10-12",2,1,"later"));openPreparationEditor("b01","2026-10-12",null,{id:"later"})');
+  assert.equal(controls.nodes.get('#prep-days').max,'2');
+  assert.equal(a.run('preparationDraft().startDate'),'2026-10-12');
+  a.run('savePreparation(daysPlan("d08","2026-10-05",10,1,"earlier"));openPreparationEditor("d08","2026-10-07",null,{id:"earlier"})');
+  const before=a.json('state'),writes=a.writes.length;
+  assert.equal(controls.nodes.get('#prep-days').value,10);assert.equal(controls.nodes.get('#prep-days').max,'10');
+  assert.equal(a.run('preparationDraft().startDate'),'2026-10-05');
+  assert.deepEqual(a.json('state'),before);assert.equal(a.writes.length,writes);
+});
+
+test('Legacy weekday plans appear only on their actual days and clearing retains records outside the window',()=>{
+  const saved={...chefState(),plan:{mon:{breakfast:'b01'},wed:{breakfast:'b02'}},portions:{mon:{breakfast:2},wed:{breakfast:3}},legacyWeekStart:'2026-10-05'};
+  const a=app('chef',saved,{now:'2026-10-07T12:00:00'});
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),1);
+  assert.equal(a.run('mealAt("2026-10-07","breakfast").recipe.id'),'b02');
+  assert.equal(a.run('mealAt("2026-10-12","breakfast")'),null);
+  assert.equal(a.json('plannedRecipes()')[0].recipe.id,'b02');assert.equal(a.writes.length,0);
+  a.run('clearPlannedWeek()');
+  assert.deepEqual(a.json('state.plan'),{mon:{breakfast:'b01'}});
+  assert.deepEqual(a.json('state.portions'),{mon:{breakfast:2}});
+  assert.equal(a.run('undoPlan()'),true);assert.deepEqual(a.json('state.plan'),saved.plan);
 });
 
 test('The days editor estimates an imported yield and shows proportional ingredients without asking the user',()=>{
@@ -152,7 +251,7 @@ test('Per-bowl ingredient amounts use one source portion even when the method de
 
 test('The people control scales known and estimated recipes and rejects invalid counts before saving',()=>{
   const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document});
-  a.run('ui.weekStart="2026-10-05";wireEvents();openPreparationEditor("rb-901aee4cbf79","2026-10-09",null)');
+  a.run('wireEvents();openPreparationEditor("rb-901aee4cbf79","2026-10-05",null)');
   controls.nodes.get('#prep-per-day').value='2';controls.nodes.get('#prep-form').emit('input');
   assert.match(controls.nodes.get('#prep-coverage').textContent,/2 people × 5 days = 10 portions/);
   assert.match(controls.nodes.get('#prep-ingredients').innerHTML,/40 ounces pasta/);
@@ -160,8 +259,8 @@ test('The people control scales known and estimated recipes and rejects invalid 
   assert.equal(controls.nodes.get('#prep-save').disabled,true);assert.equal(a.writes.length,0);
   controls.nodes.get('#prep-per-day').value='2';controls.nodes.get('#prep-form').emit('input');
   controls.nodes.get('#prep-form').emit('submit');
-  assert.equal(a.run('mealAt("2026-10-13","dinner").serving.count'),2);
-  assert.equal(a.run('mealAt("2026-10-14","dinner")'),null);
+  assert.equal(a.run('mealAt("2026-10-09","dinner").serving.count'),2);
+  assert.equal(a.run('mealAt("2026-10-10","dinner")'),null);
 });
 
 test('Replacing overlaps is explicit and atomic; Undo restores all affected plans',()=>{
@@ -206,7 +305,7 @@ test('Five portions fills five dated meals from one preparation and buys the ing
   assert.ok(a.run('weekRecipesHtml()').includes('5 portions · 1/day'));
 });
 
-test('A preparation crosses weeks, months and daylight-saving dates without buying it twice',()=>{
+test('A preparation crosses months and daylight-saving dates and appears once in each rolling shopping list',()=>{
   const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-26"');
   assert.equal(a.run('savePreparation({id:"carry",recipeId:"b01",startDate:"2026-10-30",amount:5,portionCount:5,perDay:1})'),true);
   assert.deepEqual(a.json('preparationDays(state.preparations.carry).map(d=>d.date)'),['2026-10-30','2026-10-31','2026-11-01','2026-11-02','2026-11-03']);
@@ -214,7 +313,7 @@ test('A preparation crosses weeks, months and daylight-saving dates without buyi
   assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'5');
   a.run('ui.weekStart="2026-11-02"');
   assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),2);
-  assert.equal(a.run('groceryList().length'),0);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'5');
   assert.equal(a.run('plannedRecipes()[0].slots[0].amount'),5);
   assert.ok(a.run('weekRecipesHtml()').includes('Cook once'));
 });
@@ -303,7 +402,7 @@ test('Weekly recipe reference groups repeated recipes and keeps each preparation
   assert.deepEqual(selected.find(x=>x.recipe.id==='b01').slots.map(x=>x.amount),[2,8]);
   const html=a.run('weekRecipesHtml()');
   for(const slot of ['mon|breakfast','tue|breakfast','tue|lunch'])assert.ok(html.includes('data-cook-slot="'+slot+'"'));
-  assert.ok(html.includes('Monday breakfast · 2 servings'));assert.ok(html.includes('Tuesday breakfast · 8 servings'));
+  assert.ok(html.includes('Today breakfast · 2 servings'));assert.ok(html.includes('Tomorrow breakfast · 8 servings'));
   assert.deepEqual(a.json('state.plan'),saved.plan);assert.equal(a.writes.length,0);
   a.run('deleteRecipe("b01")');
   assert.equal(a.run('plannedRecipes().some(x=>x.recipe.id==="b01")'),false);

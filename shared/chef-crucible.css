@@ -240,7 +240,6 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 .cc-app[data-atlas-app="the-chef"] #prep-recipe-name { font-size:1.1rem; font-weight:600; line-height:1.5; }
 .cc-app[data-atlas-app="the-chef"] .chef-prep-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-block:1rem; }
 .cc-app[data-atlas-app="the-chef"] .chef-prep-fields label { display:grid; gap:.5rem; min-width:0; font-size:1rem; }
-.cc-app[data-atlas-app="the-chef"] .chef-prep-fields label:first-child { grid-column:1/-1; }
 .cc-app[data-atlas-app="the-chef"] .chef-prep-fields :is(input,select) { width:100%; min-width:0; max-width:none; min-height:48px; font-size:1rem; }
 .cc-app[data-atlas-app="the-chef"] .chef-plan-add { margin-block:1rem; }
 .cc-app[data-atlas-app="the-chef"] .chef-card-plan { width:100%; margin-block:.5rem; }
