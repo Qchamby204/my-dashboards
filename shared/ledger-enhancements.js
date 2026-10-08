@@ -52,6 +52,15 @@
       }else if(field==='season'){if(!plain(value)||!validDate(value.start)||!validDate(value.end)||value.start>value.end||isoToNum(value.end)-isoToNum(value.start)>731*86400000)throw Error('Choose a season end on or after its start, within two years.');}
       else if(field==='drafts'){
         if(!plain(value)||!plain(value.days)||!validDate(value.selected)||!['cards','list'].includes(value.mode))throw Error('Invalid unfinished entries.');
+        if(value.archives!==undefined){
+          if(!Array.isArray(value.archives)||value.archives.length>100)throw Error('Invalid progress archive.');
+          for(const a of value.archives){
+            if(!plain(a)||typeof a.id!=='string'||!a.id||a.id.length>120||typeof a.createdAt!=='string'||!Number.isFinite(Date.parse(a.createdAt))||!plain(a.drafts)||a.drafts.archives!==undefined||a.drafts.resetPending!==undefined)throw Error('Invalid progress archive.');
+            validate('days',a.days);validate('drafts',a.drafts);
+          }
+          if(new Set(value.archives.map(a=>a.id)).size!==value.archives.length)throw Error('Repeated progress archive.');
+        }
+        if(value.resetPending!==undefined&&(typeof value.resetPending!=='string'||!value.archives?.some(a=>a.id===value.resetPending)))throw Error('Invalid pending progress reset.');
         if(value.rhythm!==undefined)R.validate(value.rhythm);
         if(value.leisureRule!==undefined)validLeisureRule(value.leisureRule);
         if(value.leisureTimer!==undefined&&(!plain(value.leisureTimer)||!finite(value.leisureTimer.startedAt)||value.leisureTimer.startedAt===0))throw Error('Invalid leisure timer.');
@@ -68,6 +77,7 @@
       if(boot.raw[SEASONKEY])season=JSON.parse(boot.raw[SEASONKEY]);
       if(boot.raw[DRAFTKEY])drafts=JSON.parse(boot.raw[DRAFTKEY]);
     }catch{blocked=true;state.days=[];state.goals={};state.metrics=[];userModel={renames:{},moves:{},hidden:{},added:[],crit:{}};rebuildModel();}
+    if(drafts.resetPending)state.days=[];
     SEASON_START=isoToNum(season.start);SEASON_END=isoToNum(season.end);
     const notice=make('section',null,'ledger-notice');notice.id='ledger-notice';notice.setAttribute('aria-live','polite');notice.setAttribute('role','status');
     const message=make('p');notice.append(message,button('Retry saving',retry),button('Back up current work',()=>exportData()),button('Restore backup',pickImport));document.body.append(notice);
@@ -78,7 +88,7 @@
       try{localStorage.setItem(key,value);if(localStorage.getItem(key)!==value)throw Error();failed.delete(key);status();return true;}catch{failed.set(key,value);status();return false;}
     }
     store.set=write;
-    async function retry(){if(blocked||busy)return;for(const [key,value]of [...failed])await write(key,value);status();}
+    async function retry(){if(blocked||busy)return;for(const [key,value]of [...failed])await write(key,value);if(drafts.resetPending)await finishProgressReset();status();}
     function currentEntry(){return {units:clone(state.draft),missed:clone(state.draftMissed||[]),mood:state.draftMood||0,note:state.draftNote||'',...(hasScreen(state.draftScreen)?{screen:clone(state.draftScreen)}:{}),...(hasLeisure(state.draftLeisure)?{leisure:clone(state.draftLeisure)}:{})};}
     function dirty(){const saved=dayEntryFor(state.logDate);return HABITS.some(h=>(saved?.units?.[h]||0)!==(state.draft[h]||0))||(saved?.mood||0)!==(state.draftMood||0)||(saved?.note||'')!==(state.draftNote||'')||JSON.stringify(saved?.missed||[])!==JSON.stringify(state.draftMissed||[])||JSON.stringify(saved?.screen||emptyScreen())!==JSON.stringify(state.draftScreen||emptyScreen())||JSON.stringify(saved?.leisure||emptyLeisure())!==JSON.stringify(state.draftLeisure||emptyLeisure());}
     function remember(){if(blocked||busy||!validDate(state.draftFor))return;if(dirty())drafts.days[state.draftFor]=currentEntry();else delete drafts.days[state.draftFor];drafts.selected=state.draftFor;drafts.mode=state.logMode;write(DRAFTKEY,JSON.stringify(drafts));}
@@ -156,7 +166,7 @@
     // Keep the original cards and constellation, but show the progress that whole levels hid.
     function confirmAction(title,body,label,fn){const dialog=make('dialog',null,'ledger-dialog');dialog.setAttribute('aria-labelledby','ledger-confirm-title');const heading=make('h2',title);heading.id='ledger-confirm-title';const actions=make('div',null,'ledger-actions');actions.append(button('Cancel',()=>dialog.close()),button(label,async()=>{dialog.close();await fn();}));dialog.append(heading,make('p',body),actions);dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
     async function saveDay(force=false){
-      if(blocked||busy)return;const date=state.logDate;if(!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return;}
+      if(blocked||busy)return;if(drafts.resetPending&&!await finishProgressReset())return;const date=state.logDate;if(!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return;}
       if(Object.values(state.draft).some(v=>!finite(v))){toast('Use a valid, non-negative number for each entry.');return;}
       checkpointLeisureTimer(false);
       if(!HABITS.some(h=>state.draft[h]>0)&&!state.draftMood&&!state.draftNote.trim()&&!hasScreen(state.draftScreen)&&!hasLeisure(state.draftLeisure)&&!force){confirmAction('Save an empty day?','This records the date with no check-ins or note.','Save day',()=>saveDay(true));return;}
@@ -175,6 +185,44 @@
     }
     commit=saveDay;
     undoLast=async function(){if(!lastUndo||blocked||busy)return;const undo=lastUndo,current=dayEntryFor(undo.date);if(JSON.stringify(current)!==undo.after){toast('That day has changed. Open it to edit the latest entry.');return;}remember();const next=state.days.filter(d=>d.date!==undo.date);if(undo.before)next.push(undo.before);next.sort((a,b)=>(a.date||'').localeCompare(b.date||''));busy=true;status();const ok=await write(KEY,JSON.stringify(next));busy=false;if(!ok){failed.delete(KEY);status();toast('Undo could not be saved. Try Undo again.');return;}state.days=next;lastUndo=null;clearCelebrations();saveFeedback='Last day save undone.';if(state.logDate===undo.date)loadDraftFor(undo.date);write(DRAFTKEY,JSON.stringify(drafts));render();toast('Last day save undone.');};
+    // Save the archive and reset intent together before touching the active day key.
+    // A reload can finish that intent after an interrupted or failed second write.
+    async function finishProgressReset(){
+      if(!drafts.resetPending||blocked||busy)return !drafts.resetPending;
+      busy=true;status();const ok=await write(KEY,JSON.stringify(state.days));
+      let finalized=false;
+      if(ok){const next=clone(drafts);delete next.resetPending;finalized=await write(DRAFTKEY,JSON.stringify(next));if(finalized)drafts=next;}
+      busy=false;status();return ok&&finalized;
+    }
+    async function resetProgress(){
+      if(blocked||busy)return false;
+      if(drafts.resetPending)return finishProgressReset();
+      checkpointLeisureTimer(false);remember();await Promise.all([...pending.values()]);
+      if(failed.size){toast('Save or back up your current work before resetting.');return false;}
+      if((drafts.archives||[]).length>=100){toast('Keep a backup before starting another progress record.');return false;}
+      const snapshot=clone(drafts);delete snapshot.archives;delete snapshot.resetPending;
+      const id=new Date().toISOString()+'-'+crypto.randomUUID();
+      const archive={id,createdAt:new Date().toISOString(),days:clone(state.days),drafts:snapshot};
+      const rhythm=clone(preferences());delete rhythm.earned;delete rhythm.catchups;delete rhythm.weeks;
+      for(const g of Object.values(rhythm.goals||{}))g.baseline=0;
+      const next={days:{},selected:todayISO(),mode:'cards',rhythm,archives:[...(drafts.archives||[]),archive],resetPending:id};
+      if(drafts.leisureRule)next.leisureRule=clone(drafts.leisureRule);
+      validate('drafts',next);busy=true;status();const staged=await write(DRAFTKEY,JSON.stringify(next));busy=false;
+      if(!staged){failed.delete(DRAFTKEY);status();toast('Progress was not reset. Your record is still here.');return false;}
+      drafts=next;state.days=[];state.logDate=todayISO();state.logMode='cards';state.cardIndex=0;loadDraftFor(state.logDate);
+      lastUndo=null;clearCelebrations();leisureOpen=screenOpen=resetOpen=false;dashboardView='today';saveFeedback='Progress reset · your previous record is archived.';
+      const ok=await finishProgressReset();render();toast(ok?'Fresh start. Your previous record is in History.':'Fresh start saved. Retry saving to finish the reset.');return true;
+    }
+    function resetProgressDialog(){confirmAction('Reset progress?','Start Life Level, habit levels, values, achievements and weekly progress at zero. Your saved days and unfinished entries are kept in a recoverable archive in History. Your habits and goals stay.','Reset progress',resetProgress);}
+    function progressArchives(){
+      const panel=make('details',null,'ledger-history');panel.id='ledger-progress-archives';panel.append(make('summary','Previous progress · '+(drafts.archives||[]).length+' archives'));
+      for(const a of [...(drafts.archives||[])].reverse()){
+        const record=make('details');record.append(make('summary','Before '+new Date(a.createdAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+' · '+a.days.length+' saved days'));
+        for(const d of a.days){const row=make('p',d.date?pretty(d.date):'Undated entry','ledger-help');row.append(make('span',' · '+Object.entries(d.units).filter(([,n])=>n>0).map(([h,n])=>label(h)+': '+fmt(n)).join(' · ')));if(d.note)row.append(make('span',' · '+d.note));record.append(row);}
+        record.append(button('Restore this progress',()=>{const restored={...clone(drafts),...clone(a.drafts),archives:clone(drafts.archives||[])};delete restored.resetPending;const data={...payload(),days:a.days,drafts:restored};importData({size:JSON.stringify(data).length,text:async()=>JSON.stringify(data)});}));panel.append(record);
+      }
+      return panel;
+    }
     async function setSeason(next){validate('season',next);if(blocked||busy)return false;busy=true;status();const ok=await write(SEASONKEY,JSON.stringify(next));busy=false;if(!ok){failed.delete(SEASONKEY);status();toast('Season date was not saved. Try again.');return false;}season=clone(next);SEASON_START=isoToNum(season.start);SEASON_END=isoToNum(season.end);clearCelebrations();saveFeedback='';render();toast('Season starts '+pretty(season.start)+'. Earlier days are kept.');return true;}
     function seasonDialog(){const dialog=make('dialog',null,'ledger-dialog');dialog.setAttribute('aria-labelledby','ledger-season-title');const heading=make('h2','Start a new season');heading.id='ledger-season-title';const form=make('form'),startLabel=make('label','Start date'),start=make('input'),endLabel=make('label','End date'),end=make('input'),error=make('p',null,'ledger-error');error.setAttribute('role','alert');start.type=end.type='date';start.required=end.required=true;start.value=numToISO(isoToNum(todayISO())+86400000);end.value=season.end<start.value?start.value.slice(0,4)+'-12-31':season.end;startLabel.append(start);endLabel.append(end);const actions=make('div',null,'ledger-actions'),submit=make('button','Start season','ledger-button');submit.type='submit';actions.append(button('Cancel',()=>dialog.close()),submit);form.append(startLabel,endLabel,error,actions);form.addEventListener('submit',async e=>{e.preventDefault();try{validate('season',{start:start.value,end:end.value});submit.disabled=true;if(await setSeason({start:start.value,end:end.value}))dialog.close();else error.textContent='Could not save the season. Try again.';}catch(err){error.textContent=err.message;}finally{submit.disabled=false;}});dialog.append(heading,make('p','Earlier days stay in Saved days and your backup. Only dates within the new season count toward its totals.'),form);dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
     function parseBackup(o){if(Array.isArray(o))o={days:o};if(!plain(o)||o.app!==undefined&&o.app!=='life-ledger'||o.version!==undefined&&![1,2,3].includes(o.version))throw Error('Choose a Life Ledger backup.');const out={};for(const field of Object.keys(keys))if(Object.hasOwn(o,field))out[field]=clone(validate(field,o[field]));if(!out.days)throw Error('No saved days in this file.');return out;}
@@ -398,7 +446,7 @@
       move('#ledger-history',panes.history);
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
       const toolsPanel=make('details',null,'ledger-manage');toolsPanel.append(make('summary','Manage Ledger & backups'));
-      const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);panes.history.append(toolsPanel);
+      const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);toolsPanel.append(button('Reset progress',resetProgressDialog));panes.history.append(toolsPanel);if(drafts.archives?.length)panes.history.append(progressArchives());
       const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);options.append(clear);panes.today.append(options);}
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-save-row');saveRow.hidden=dashboardView!=='today';
@@ -409,7 +457,7 @@
       for(const [key,title]of [['today','Today'],['progress','Progress'],['history','History']]){const b=button('',()=>setDashboardView(key));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
       nav.addEventListener('keydown',e=>{const keys=['today','progress','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();setDashboardView(keys[next]);});
       const todayScreen=state.logDate===todayISO()?state.draftScreen:(drafts.days[todayISO()]||dayEntryFor(todayISO()))?.screen;
-      const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';quick.setAttribute('aria-label',quick.textContent);quick.title=quick.textContent;if(dashboardView==='today'){quick.textContent=todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume reset':'Scrolling reset';saveRow.append(quick);if(saveButton)saveRow.append(saveButton);}else dock.append(quick);
+      const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';quick.setAttribute('aria-label',quick.textContent);quick.title=quick.textContent;if(dashboardView==='today'){quick.textContent=todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume reset':'Scrolling reset';saveRow.append(quick);if(saveButton)saveRow.append(saveButton);}
       dock.append(nav);app.append(dock);log.querySelector('.ledger-save-inline')?.remove();resetSheet();
     }
 
@@ -465,7 +513,7 @@
     }
     function goalsDialog(){
       if(blocked||busy)return;const dialog=make('dialog',null,'ledger-dialog'),title=make('h2','Weekly goals & milestones');title.id='rhythm-goals-title';dialog.setAttribute('aria-labelledby',title.id);dialog.append(title);
-      for(const h of HABITS){const b=button(label(h)+' · '+R.goal(h,HCFG[h],preferences()).type,()=>{dialog.close();goalDialog(h);});b.classList.add('ledger-goal-choice');dialog.append(b);}dialog.append(button('Done',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
+      for(const h of HABITS){const b=button(label(h)+' · '+R.goal(h,HCFG[h],preferences()).type,()=>{dialog.close();goalDialog(h);});b.classList.add('ledger-goal-choice');dialog.append(b);}dialog.append(button('Reset progress',()=>{dialog.close();resetProgressDialog();}),button('Done',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
     }
     function catchupDialog(){
       if(blocked||busy)return;remember();const dialog=make('dialog',null,'ledger-dialog'),title=make('h2','Quick weekly catch-up');title.id='rhythm-catchup-title';dialog.setAttribute('aria-labelledby',title.id);
@@ -592,8 +640,8 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden)remember();else{checkDay();render();}});
     window.addEventListener('pageshow',()=>{checkDay();render();});setInterval(checkDay,60000);
     setInterval(()=>{checkDay();paintLeisureClock();},1000);
-    window.LedgerDays=Object.freeze({selectDate,setSeason,parseBackup,saveDay,remember,retry,saveRhythm,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
-    render();
+    window.LedgerDays=Object.freeze({selectDate,setSeason,resetProgress,parseBackup,saveDay,remember,retry,saveRhythm,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
+    render();if(drafts.resetPending)finishProgressReset().then(()=>render());
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
