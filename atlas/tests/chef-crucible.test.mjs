@@ -10,7 +10,7 @@ function app(name,saved,options={}){
   const writes=[],messages=[],prompts=[];
   const context=vm.createContext({console,setTimeout,clearTimeout,
     window:{AtlasCraftUI:{announce:m=>messages.push(m)}},
-    document:{addEventListener(){},getElementById(){return null;}},
+    document:options.document||{addEventListener(){},getElementById(){return null;}},
     localStorage:{getItem:k=>records.get(k)??null,setItem(k,v){if(options.failSave)throw Error('storage full');writes.push(k);records.set(k,v);}},
     confirm:message=>{prompts.push(message);return options.accept!==false;}
   });
@@ -20,6 +20,119 @@ function app(name,saved,options={}){
   return {run:code=>vm.runInContext(code,context),json:code=>JSON.parse(vm.runInContext('JSON.stringify('+code+')',context)),writes,messages,prompts,records};
 }
 const chefState=()=>({favourites:{b01:true},ratings:{b01:4},plan:{mon:{breakfast:'b01'}},checked:{eggs:true}});
+
+function chefControls(){
+  const html=readFileSync(new URL('../../the-chef.html',import.meta.url),'utf8'),nodes=new Map();
+  const element=id=>({id,value:'',checked:false,hidden:false,disabled:false,open:false,isConnected:true,handlers:{},
+    addEventListener(type,fn,options){(this.handlers[type]??=[]).push({fn,once:options?.once});},
+    emit(type,event={}){for(const h of [...(this.handlers[type]||[])]){h.fn({target:this,currentTarget:this,preventDefault(){},...event});if(h.once)this.handlers[type]=this.handlers[type].filter(x=>x!==h);}},
+    focus(){},setAttribute(){},reportValidity(){return true;},showModal(){this.open=true;},close(){this.open=false;this.emit('close');}
+  });
+  for(const [,id] of html.matchAll(/\bid="([^"]+)"/g))nodes.set('#'+id,element(id));
+  for(const selector of ['nav.tabs','.chef-week-nav'])nodes.set(selector,element(selector));
+  return {nodes,document:{addEventListener(){},getElementById(id){return nodes.get('#'+id)||null;},querySelector(selector){
+    if(selector.startsWith('[data-slot='))return null;
+    assert.ok(nodes.has(selector),'Control must exist in the real HTML: '+selector);return nodes.get(selector);
+  }}};
+}
+
+test('The actual card Plan button opens days controls and submitting those controls fills the selected days',()=>{
+  const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document});
+  a.run('ui.weekStart="2026-10-05";wireEvents()');
+  const button={isConnected:true,focus(){}},card={dataset:{id:'b01'},querySelector(){throw Error('No old card serving or calendar controls should be required');}};
+  controls.nodes.get('#cards').emit('click',{target:{closest(selector){return selector==='.card'?card:selector==='[data-add]'?button:null;}}});
+  assert.equal(controls.nodes.get('#prep-dialog').open,true);assert.equal(controls.nodes.get('#prep-days').value,5);
+  assert.equal(controls.nodes.get('#prep-yield').value,4);assert.equal(controls.nodes.get('#prep-settings').open,false);
+  controls.nodes.get('#prep-date').value='2026-10-09';controls.nodes.get('#prep-days').value='5';controls.nodes.get('#prep-form').emit('change');
+  assert.equal(controls.nodes.get('#prep-save').disabled,false);
+  assert.match(controls.nodes.get('#prep-coverage').textContent,/Oct 9–Oct 13/);
+  assert.match(controls.nodes.get('#prep-ingredients').innerHTML,/5 eggs/);
+  controls.nodes.get('#prep-form').emit('submit');
+  assert.equal(controls.nodes.get('#prep-dialog').open,false);assert.equal(a.run('ui.tab'),'planner');
+  assert.equal(a.run('mealAt("2026-10-13","breakfast").recipe.id'),'b01');assert.equal(a.run('mealAt("2026-10-14","breakfast")'),null);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'5');
+});
+
+test('The days editor requires an imported yield and shows proportional ingredients before saving',()=>{
+  const controls=chefControls(),a=app('chef',{...chefState(),plan:{},checked:{}},{document:controls.document});
+  a.run('ui.weekStart="2026-10-05";wireEvents();openPreparationEditor(RECIPES.find(x=>x.name==="High Protein Creamy Tomato Pasta").id,"2026-10-05",null)');
+  assert.equal(controls.nodes.get('#prep-settings').open,true);assert.equal(controls.nodes.get('#prep-yield').value,'');
+  assert.equal(controls.nodes.get('#prep-save').disabled,true);assert.equal(a.writes.length,0);
+  controls.nodes.get('#prep-yield').value='4';controls.nodes.get('#prep-form').emit('input');
+  assert.equal(controls.nodes.get('#prep-save').disabled,false);assert.match(controls.nodes.get('#prep-ingredients').innerHTML,/20 ounces pasta of choice/);
+  controls.nodes.get('#prep-form').emit('submit');
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),5);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='pasta of choice').q,'20 ounces');
+});
+
+test('Days are the input: five days scales a four-portion recipe to five portions, not five batches',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05"');
+  const recipe=a.json('BY_ID.b01');
+  assert.equal(a.run('savePreparation(daysPlan("b01","2026-10-05",5))'),true);
+  const prep=a.json('allPreparations()[0]');
+  assert.equal(prep.days,5);assert.equal(prep.portionCount,5);assert.equal(prep.sourcePortions,4);
+  assert.equal(a.run('preparationFactor(allPreparations()[0])'),1.25);
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),5);
+  const items=a.json('groceryList().flatMap(g=>g.items)');
+  assert.equal(items.find(i=>i.n==='eggs').q,'5');assert.equal(items.find(i=>i.n==='potatoes').q,'3 3/4');
+  assert.deepEqual(a.json('BY_ID.b01'),recipe);
+  const reopened=app('chef',JSON.parse(a.records.get('chef:state')));reopened.run('ui.weekStart="2026-10-05"');
+  assert.equal(reopened.run('weekMeals().filter(x=>x.entry).length'),5);assert.equal(reopened.writes.length,0);
+});
+
+test('An imported recipe uses its supplied original yield to prorate fractional batches and remembers the yield',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05";globalThis.pastaId=RECIPES.find(x=>x.name==="High Protein Creamy Tomato Pasta").id');
+  assert.equal(a.run('savePreparation(daysPlan(pastaId,"2026-10-05",5))'),false);
+  assert.equal(a.writes.length,0);
+  assert.equal(a.run('savePreparation(daysPlan(pastaId,"2026-10-05",5,1,4,"pasta"))'),true);
+  assert.equal(a.run('state.preparations.pasta.amount'),1.25);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='pasta of choice').q,'20 ounces');
+  assert.equal(a.run('daysPlan(pastaId,"2026-10-12",2).sourcePortions'),4);
+  a.run('savePreparation(daysPlan(pastaId,"2026-10-12",2,1,undefined,"next"));ui.weekStart="2026-10-12"');
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='pasta of choice').q,'8 ounces');
+  assert.equal(a.run('BY_ID[pastaId].servings'),1);
+});
+
+test('Portions per day multiplies the required total without reducing the chosen number of days',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05"');
+  assert.equal(a.run('savePreparation(daysPlan("b01","2026-10-05",5,2,4,"two"))'),true);
+  assert.equal(a.run('state.preparations.two.portionCount'),10);
+  assert.deepEqual(a.json('preparationDays(state.preparations.two).map(d=>d.count)'),[2,2,2,2,2]);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'10');
+  assert.equal(a.run('savePreparation(daysPlan("b01","2026-10-05",3,2,4,"two"))'),true);
+  assert.equal(a.run('weekMeals().filter(x=>x.entry).length'),3);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'6');
+});
+
+test('A corrected original yield scales the recipe without changing the source or previous meal plans',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05"');
+  a.run('savePreparation(daysPlan("b01","2026-10-05",5,1,2,"corrected"))');
+  assert.equal(a.run('preparationFactor(state.preparations.corrected)'),2.5);
+  assert.equal(a.json('groceryList().flatMap(g=>g.items)').find(i=>i.n==='eggs').q,'10');
+  a.run('savePreparation(daysPlan("b01","2026-10-12",2,1,4,"later"))');
+  assert.equal(a.run('preparationFactor(state.preparations.corrected)'),2.5);assert.equal(a.run('BY_ID.b01.servings'),4);
+});
+
+test('Replacing overlaps is explicit and atomic; Undo restores all affected plans and original yields',()=>{
+  const a=app('chef',{...chefState(),plan:{wed:{breakfast:'b01'},sun:{lunch:'l01'}},legacyWeekStart:'2026-10-05',checked:{}});
+  a.run('ui.weekStart="2026-10-05";savePreparation(daysPlan("b01","2026-10-09",5,1,4,"old"))');
+  const raw=a.records.get('chef:state');
+  assert.equal(a.run('savePreparation(daysPlan("b02","2026-10-07",5,1,6,"replacement"))'),false);
+  assert.equal(a.records.get('chef:state'),raw);
+  assert.equal(a.run('savePreparation(daysPlan("b02","2026-10-07",5,1,6,"replacement"),null,true)'),true);
+  assert.equal(a.run('state.preparations.old'),undefined);assert.deepEqual(a.json('state.plan'),{sun:{lunch:'l01'}});
+  assert.equal(a.run('mealAt("2026-10-12","breakfast")'),null);
+  assert.equal(a.run('undoPlan()'),true);assert.equal(a.records.get('chef:state'),raw);
+  const failure=app('chef',JSON.parse(raw),{failSave:true});
+  assert.equal(failure.run('savePreparation(daysPlan("b02","2026-10-07",5,1,6),null,true)'),false);
+  assert.equal(failure.records.get('chef:state'),raw);
+});
+
+test('Invalid durations or missing source yields never save a misleading ingredient calculation',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}}),before=a.json('state');
+  for(const args of ['0,1,4','2.5,1,4','32,1,4','5,0,4','5,1,0','5,1,NaN','31,20,4'])assert.equal(a.run('savePreparation(daysPlan("b01","2026-10-05",'+args+'))'),false);
+  assert.deepEqual(a.json('state'),before);assert.equal(a.writes.length,0);
+});
 
 test('Five portions fills five dated meals from one preparation and buys the ingredients once',()=>{
   const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05"');
@@ -64,7 +177,7 @@ test('Preparation conflicts, invalid quantities and failed writes preserve the s
   const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05";savePreparation({id:"five",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1})');
   const raw=a.records.get('chef:state');
   assert.equal(a.run('savePreparation({id:"overlap",recipeId:"b02",startDate:"2026-10-07",amount:2,portionCount:2,perDay:1})'),false);
-  assert.equal(a.records.get('chef:state'),raw);assert.match(a.messages.at(-1),/already has/);
+  assert.equal(a.records.get('chef:state'),raw);assert.match(a.messages.at(-1),/already have/);
   for(const patch of ['startDate:"2026-02-30"','perDay:0','amount:2.5','portionCount:4'])assert.equal(a.run('savePreparation({...state.preparations.five,'+patch+'})'),false);
   assert.equal(a.records.get('chef:state'),raw);
   const failure=app('chef',{...chefState(),plan:{}},{failSave:true}),before=failure.json('state');
@@ -382,7 +495,7 @@ test('Recipe Book batches scale measured ingredients without inventing servings 
   assert.equal(nutella.fixedBatch,true);
   assert.equal(a.run('ingredientFactor('+JSON.stringify(nutella)+',2)'),1);
   const html=a.run('cardHtml(BY_ID['+JSON.stringify(pasta.id)+'],false)');
-  assert.ok(html.includes('Batches'));assert.ok(!html.includes('nullg protein'));
+  assert.ok(html.includes('Plan days'));assert.ok(!html.includes('data-plan-servings'));assert.ok(!html.includes('nullg protein'));
   assert.ok(html.includes('rel="noopener noreferrer"'));
   const drink=a.json('RECIPES.find(x=>x.name.startsWith("Jalapeño Lime Infused"))');
   assert.ok(!drink.ingredients.some(i=>i.n.includes('quart-sized jar')));
