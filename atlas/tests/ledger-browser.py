@@ -45,6 +45,9 @@ with sync_playwright() as pw:
         assert page.evaluate('localStorage.getItem("lifeledger:v2")') == seed['lifeledger:v2']
         assert not page.locator('[data-habit="LinkedIn Strategy"]').count()
         assert page.locator('#ledger-rhythm .ledger-rhythm-row').count() == 3
+        assert page.locator('.ledger-habit-card').count() == 13
+        expect(page.locator('#deckCounter')).to_have_text('1 / 13')
+        assert page.evaluate('''(() => {const deck=document.querySelector('.ledger-log-wrap'),focus=document.querySelector('#ledger-rhythm');return !!(deck.compareDocumentPosition(focus)&Node.DOCUMENT_POSITION_FOLLOWING);})()''')
         no_overflow()
         page.screenshot(path=str(OUT / f'{ENGINE}-today.png'), full_page=True)
         page.locator('#rhythm-week-reduced').click()
@@ -116,7 +119,34 @@ with sync_playwright() as pw:
         expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
         for width in [320, 430, 1024]:
             page.set_viewport_size({'width': width, 'height': 844})
-            no_overflow()
+            for index in range(13):
+                expect(page.locator('#deckCounter')).to_have_text(f'{index + 1} / 13')
+                assert page.locator('.ledger-habit-card:not([inert])').count() == 1
+                no_overflow()
+                assert page.locator('.ledger-habit-card:not([inert])').evaluate('''card => [...card.querySelectorAll('button,input')].every(el=>{const r=el.getBoundingClientRect(),v=document.getElementById('deckViewport').getBoundingClientRect();return r.width>=44 && r.height>=44 && r.left>=v.left && r.right<=v.right;})'''), 'Clipped or undersized card control'
+                if index < 12:
+                    page.get_by_role('button', name='Next habit', exact=True).click()
+            expect(page.get_by_role('button', name='Next habit', exact=True)).to_be_disabled()
+            for _ in range(12):
+                page.get_by_role('button', name='Previous habit', exact=True).click()
+            page.screenshot(path=str(OUT / f'{ENGINE}-cards-{width}.png'), full_page=True)
+        page.get_by_role('button', name='What counts for Read', exact=True).click()
+        expect(page.get_by_role('button', name='What counts for Read', exact=True)).to_have_attribute('aria-expanded', 'true')
+        page.get_by_role('button', name='Next habit', exact=True).click()
+        assert page.locator('.ledger-habit-card[aria-hidden="true"]').count() == 12
+        page.get_by_role('button', name='Previous habit', exact=True).click()
+        page.get_by_role('button', name='Did not do: Read', exact=True).click()
+        expect(page.get_by_role('button', name='Leave unknown: Read', exact=True)).to_be_visible()
+        page.get_by_role('button', name='Leave unknown: Read', exact=True).click()
+        # This profile is isolated; visual checks may change its appearance only.
+        page.evaluate("localStorage.setItem('atlas.appearance.v1','light')")
+        page.reload(wait_until='networkidle')
+        page.set_viewport_size({'width': 390, 'height': 844})
+        no_overflow()
+        page.screenshot(path=str(OUT / f'{ENGINE}-cards-light.png'), full_page=True)
+        page.locator('#ledger-nav-progress').click()
+        no_overflow()
+        page.screenshot(path=str(OUT / f'{ENGINE}-progress-light.png'), full_page=True)
         assert not errors, errors
         print(ENGINE + ': ongoing goals, catch-up, screen boundary, lifetime levels, history and responsive journeys passed')
     finally:
