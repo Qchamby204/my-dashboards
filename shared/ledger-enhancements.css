@@ -233,3 +233,27 @@ html[data-atlas-app="life-ledger"] #app :is(button,input,select,summary,[tabinde
 html[data-atlas-app="life-ledger"] .ledger-day-progress{display:flex;align-items:center;gap:12px;margin:8px 0;}
 html[data-atlas-app="life-ledger"] .ledger-day-progress .ledger-level-link{width:auto;flex:1;min-width:0;margin:0;}
 html[data-atlas-app="life-ledger"] #app .ledger-awards-link{background:none!important;border:0!important;box-shadow:none!important;white-space:normal;}
+
+/* Second UX pass: compact daily actions, readable forms, consistent selections. */
+html[data-atlas-app="life-ledger"] #app .ledger-save-row #ledger-quick-reset{flex:0 1 88px;width:auto;min-width:44px;min-height:46px;margin:0;padding:6px 8px!important;font-size:12px!important;line-height:1.2;white-space:normal;}
+html[data-atlas-app="life-ledger"] .ledger-save-row .ledger-primary{flex:0 0 auto;}
+html[data-atlas-app="life-ledger"] .ledger-dialog-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--neo-line);}
+html[data-atlas-app="life-ledger"] .ledger-dialog-actions>button{flex:1;min-width:0;}
+html[data-atlas-app="life-ledger"] .ledger-dialog :is(input,select){width:100%;box-sizing:border-box;min-height:44px;font-size:16px!important;padding:10px;border:1px solid var(--neo-line);border-radius:10px;background:var(--neo-inset);color:var(--neo-ink);}
+html[data-atlas-app="life-ledger"] .ledger-focus-count{font-size:14px;line-height:1.5;margin:0 0 12px;color:var(--neo-muted);}
+html[data-atlas-app="life-ledger"] .ledger-dialog label.ledger-focus-choice{min-height:48px;margin:8px 0;padding:8px 12px;border:1px solid var(--neo-line);border-radius:12px;line-height:1.4;}
+html[data-atlas-app="life-ledger"] .ledger-dialog label.ledger-focus-choice:has(input:checked){background:var(--neo-inset);border-color:var(--neo-accent);}
+html[data-atlas-app="life-ledger"] .ledger-dialog .ledger-focus-choice input{width:22px;height:22px;min-height:22px;margin:0;padding:0;flex:0 0 22px;accent-color:var(--neo-accent);}
+html[data-atlas-app="life-ledger"] .ledger-rhythm-row progress,
+html[data-atlas-app="life-ledger"] .ledger-xp-meter{box-shadow:inset 0 0 0 1px var(--neo-line);}
+html[data-atlas-app="life-ledger"] #app .ledger-date-row input{color-scheme:light dark;}
+html[data-atlas-app="life-ledger"][data-atlas-theme="light"] #app .ledger-date-row input{color-scheme:light;}
+html[data-atlas-app="life-ledger"][data-atlas-theme="dark"] #app .ledger-date-row input{color-scheme:dark;}
+
+html[data-atlas-app="life-ledger"] #app .ledger-value-toggle{width:100%;padding:0!important;text-align:left;background:none!important;border:0!important;box-shadow:none!important;color:var(--neo-ink);}
+html[data-atlas-app="life-ledger"] .ledger-rhythm-heading:has(>.ledger-progress-info){flex-wrap:wrap;}
+html[data-atlas-app="life-ledger"] .ledger-rhythm-heading:has(>.ledger-progress-info)>h2{flex:1;min-width:0;min-height:44px;display:flex;align-items:center;}
+html[data-atlas-app="life-ledger"] .ledger-rhythm-heading>.ledger-progress-info{margin:0;}
+html[data-atlas-app="life-ledger"] .ledger-rhythm-heading>.ledger-progress-info[open]{flex:1 0 100%;}
+html[data-atlas-app="life-ledger"] .ledger-rhythm-heading>.ledger-progress-info[open] summary{margin:-56px 0 12px auto;}
+html[data-atlas-app="life-ledger"] .ledger-rhythm-heading:has(>.ledger-progress-info[open])>h2{padding-right:56px;}

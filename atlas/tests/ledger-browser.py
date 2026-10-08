@@ -63,10 +63,16 @@ with sync_playwright() as pw:
         assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 35
         page.get_by_role('button', name='Choose focus habits', exact=True).click()
         expect(page.get_by_role('dialog')).to_be_visible()
+        no_overflow()
+        expect(page.locator('#ledger-focus-count')).to_contain_text('3 of 3 selected')
         assert page.get_by_role('dialog').get_by_role('checkbox').count() == 13
         page.get_by_role('button', name='Save focus', exact=True).click()
         expect(page.get_by_role('dialog')).to_have_count(0)
+        expect(page.locator('#ledger-choose-focus')).to_be_focused()
         page.get_by_role('button', name='Edit goal for Read', exact=True).click()
+        expect(page.locator('#rhythm-goal-normal')).to_have_attribute('step','1')
+        expect(page.locator('#rhythm-goal-normal')).to_have_attribute('max','7')
+        no_overflow()
         expect(page.locator('#rhythm-goal-target')).to_be_hidden()
         expect(page.locator('#rhythm-goal-due')).to_be_hidden()
         page.locator('#rhythm-goal-type').select_option('deadline')
@@ -112,6 +118,7 @@ with sync_playwright() as pw:
         expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 0')
         go_card('Read')
         page.get_by_role('textbox', name='Amount for Read', exact=True).fill('250')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-habit-status')).to_have_text('Recorded')
         page.get_by_role('textbox', name='Amount for Read', exact=True).press('Tab')
         page.locator('[data-act="commit"]').first.click()
         expect(page.get_by_role('dialog', name='Life · Level 1', exact=True)).to_be_visible()
@@ -122,12 +129,18 @@ with sync_playwright() as pw:
         page.locator('#ledger-nav-progress').click()
         expect(page.locator('#ledger-lifetime-levels')).to_contain_text('1040 lifetime XP')
         assert page.locator('.ledger-value-level').count() == 5
+        health=page.locator('.ledger-value-toggle[data-key="HEALTH"]')
+        health.press('Enter')
+        expect(page.locator('.ledger-value-toggle[data-key="HEALTH"]')).to_have_attribute('aria-expanded','true')
+        expect(page.locator('#ledger-value-details-HEALTH')).to_be_visible()
+        expect(page.locator('.ledger-value-toggle[data-key="HEALTH"]')).to_be_focused()
         page.screenshot(path=str(OUT / f'{ENGINE}-lifetime-levels.png'), full_page=True)
         page.locator('#ledger-nav-today').click()
         page.reload(wait_until='networkidle')
         expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
         for width in [320, 430, 1024]:
             page.set_viewport_size({'width': width, 'height': 844})
+            assert page.locator('.ledger-save-row').bounding_box()['height'] <= 76, 'Daily dock is too tall'
             for index in range(13):
                 expect(page.locator('#deckCounter')).to_have_text(f'{index + 1} / 13')
                 assert page.locator('.ledger-habit-card:not([inert])').count() == 1
@@ -156,6 +169,9 @@ with sync_playwright() as pw:
         page.screenshot(path=str(OUT / f'{ENGINE}-cards-light.png'), full_page=True)
         page.locator('#ledger-nav-progress').click()
         no_overflow()
+        page.locator('[aria-label="How lifetime levels work"]').click()
+        no_overflow()
+        assert page.locator('#ledger-lifetime-levels .ledger-progress-info p').bounding_box()['width'] >= 250
         page.screenshot(path=str(OUT / f'{ENGINE}-progress-light.png'), full_page=True)
         assert not errors, errors
         print(ENGINE + ': ongoing goals, catch-up, screen boundary, lifetime levels, history and responsive journeys passed')

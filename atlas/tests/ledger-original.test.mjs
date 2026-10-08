@@ -397,7 +397,7 @@ test('screen meters show the fixed 60-minute boundary and remain independent of 
 
 test('Today, Progress and History compose one copy of the controls and retain edits across navigation',async()=>{
  const h=await screenBoot();const today=h.node('ledger-view-today'),children=[...today.children];assert(children.indexOf(h.node('ledger-log').closest('.ledger-log-wrap'))<children.indexOf(h.node('ledger-rhythm')));assert(children.indexOf(h.node('ledger-rhythm'))<children.indexOf(h.node('ledger-leisure-preview')));assert.equal(h.node('ledger-view-today').hidden,false);assert.equal(h.node('ledger-view-progress').hidden,true);assert.equal(h.node('ledger-view-history').hidden,true);
- h.run('state.draft.Read=12');h.api.remember();h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-view-progress').hidden,false);assert.equal(h.node('ledger-view-today').hidden,true);assert.equal(h.node('ledger-nav-progress').getAttribute('aria-selected'),'true');assert.equal(h.run('state.openSections.relics'),true);
+ h.run('state.draft.Read=12');h.api.remember();h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-view-progress').hidden,false);assert.equal(h.node('ledger-view-today').hidden,true);assert.equal(h.node('ledger-nav-progress').getAttribute('aria-selected'),'true');assert.equal(!!h.run('state.openSections.relics'),false);
  assert.equal(h.node('app').querySelectorAll('[data-act="commit"]').length,1);assert(h.node('app').querySelector('[data-act="commit"]').closest('#ledger-dock'));
  h.node('ledger-nav-history').click();assert(h.node('ledger-history').closest('#ledger-view-history'));assert.equal(h.node('ledger-history').open,true);
  h.node('ledger-nav-today').click();assert.equal(h.run('state.draft.Read'),12);assert(h.node('ledger-log').closest('#ledger-view-today'));assert(h.node('app').querySelector('.ledger-overall').closest('#ledger-view-progress'));
@@ -463,4 +463,11 @@ test('annual calibration reaches habit and value 99 at their rhythms and Life 99
  assert.equal(h.run('JSON.stringify(compute(state.days,state.goals).habit.Read)'),before);
  assert.equal(h.run('compute(state.days,state.goals).life.level'),99);
  const meter=h.node('app').querySelector('.ledger-xp-meter');assert.equal(meter.max,h.run('window.LedgerRhythm.lifeCost'));
+});
+
+
+test('typing a quantity updates check-in state in place and clears an explicit missed state',async()=>{
+ const h=await boot();h.run("state.draftMissed=['Read'];render()");const input=h.node('app').querySelector('[data-act="num"][data-habit="Read"]'),card=input.closest('.ledger-habit-card');input.value='5';h.node('app').emit('input',{target:input});
+ assert.equal(card.querySelector('.ledger-habit-status').textContent,'Recorded');assert.equal(h.run('state.draftMissed.includes("Read")'),false);assert.equal(card.querySelector('.ledger-missed').getAttribute('aria-label'),'Did not do: Read');assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]'),input);
+ input.value='';h.node('app').emit('input',{target:input});assert.equal(card.querySelector('.ledger-habit-status').textContent,'Not recorded');
 });
