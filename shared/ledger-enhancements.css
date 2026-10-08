@@ -229,3 +229,7 @@ html[data-atlas-app="life-ledger"] #app :is(button,input,select,summary,[tabinde
 @media(prefers-reduced-motion:reduce){html[data-atlas-app="life-ledger"] #deckTrack{transition:none!important;}}
 @media(prefers-reduced-transparency:reduce){html[data-atlas-app="life-ledger"] .ledger-dock{background:var(--neo-surface)!important;backdrop-filter:none;}}
 @media(prefers-contrast:more){html[data-atlas-app="life-ledger"] :is(.ledger-dock,.ledger-dialog,#deckViewport){border:1px solid var(--neo-ink)!important;}}
+
+html[data-atlas-app="life-ledger"] .ledger-day-progress{display:flex;align-items:center;gap:12px;margin:8px 0;}
+html[data-atlas-app="life-ledger"] .ledger-day-progress .ledger-level-link{width:auto;flex:1;min-width:0;margin:0;}
+html[data-atlas-app="life-ledger"] #app .ledger-awards-link{background:none!important;border:0!important;box-shadow:none!important;white-space:normal;}

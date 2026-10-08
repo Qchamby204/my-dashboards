@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=7f57765a0e5c',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=4f01b0520458',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -361,7 +361,7 @@
       const move=(selector,pane)=>{const node=app.querySelector(selector);if(node)pane.append(node);return node;};
       const intro=make('div',null,'ledger-day-heading');
       intro.append(make('div',state.logDate===todayISO()?new Date(state.logDate+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Editing '+pretty(state.logDate),'eyebrow'),make('h1',state.logDate===todayISO()?'Your check-in':'Your saved day','cinzel'));
-      const awards=button(earned.length+' achievements',()=>{state.openSections.relics=true;setDashboardView('progress');});awards.classList.add('ledger-awards-link');const levelLink=button('Life Level '+data.life.level+' · '+fmt(data.life.remaining)+' XP to next level',()=>setDashboardView('progress'));levelLink.id='ledger-life-level';levelLink.classList.add('ledger-level-link');intro.append(levelLink,awards);panes.today.append(intro);
+      const awards=button(earned.length+' achievements',()=>{state.openSections.relics=true;setDashboardView('progress');});awards.classList.add('ledger-awards-link');const levelLink=button('Life Level '+data.life.level+' · '+fmt(data.life.remaining)+' XP to next level',()=>setDashboardView('progress'));levelLink.id='ledger-life-level';levelLink.classList.add('ledger-level-link');const progressLinks=make('div',null,'ledger-day-progress');progressLinks.append(levelLink,awards);intro.append(progressLinks);panes.today.append(intro);
       const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
       move('#ledger-rhythm',panes.today);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
@@ -400,7 +400,7 @@
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
       const toolsPanel=make('details',null,'ledger-manage');toolsPanel.append(make('summary','Manage Ledger & backups'));
       const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);panes.history.append(toolsPanel);
-      const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'),clear);panes.today.append(options);}
+      const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);options.append(clear);panes.today.append(options);}
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-save-row');saveRow.hidden=dashboardView!=='today';
       const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}dock.append(saveRow);

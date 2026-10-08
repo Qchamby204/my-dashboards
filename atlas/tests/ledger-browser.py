@@ -29,6 +29,14 @@ with sync_playwright() as pw:
     page.route('**/*', lambda route: route.continue_() if route.request.url.startswith(BASE) else route.abort())
     def no_overflow():
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), 'Horizontal overflow'
+    def go_card(habit):
+        while page.get_by_role('button', name='Previous habit', exact=True).is_enabled():
+            page.get_by_role('button', name='Previous habit', exact=True).click()
+        for _ in range(13):
+            if page.locator('.ledger-habit-card:not([inert]) [data-habit="' + habit + '"]').count():
+                return
+            page.get_by_role('button', name='Next habit', exact=True).click()
+        raise AssertionError('Habit missing from deck: ' + habit)
     def dismiss_rewards():
         for _ in range(40):
             dialog = page.locator('.ledger-reward[open]')
@@ -102,6 +110,7 @@ with sync_playwright() as pw:
         expect(page.locator('#rhythm-week-reduced')).to_have_attribute('aria-pressed', 'true')
         assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 60
         expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 0')
+        go_card('Read')
         page.get_by_role('textbox', name='Amount for Read', exact=True).fill('250')
         page.get_by_role('textbox', name='Amount for Read', exact=True).press('Tab')
         page.locator('[data-act="commit"]').first.click()
@@ -130,11 +139,12 @@ with sync_playwright() as pw:
             for _ in range(12):
                 page.get_by_role('button', name='Previous habit', exact=True).click()
             page.screenshot(path=str(OUT / f'{ENGINE}-cards-{width}.png'), full_page=True)
-        page.get_by_role('button', name='What counts for Read', exact=True).click()
-        expect(page.get_by_role('button', name='What counts for Read', exact=True)).to_have_attribute('aria-expanded', 'true')
+        page.get_by_role('button', name='What counts for Workouts Complete', exact=True).click()
+        expect(page.get_by_role('button', name='What counts for Workouts Complete', exact=True)).to_have_attribute('aria-expanded', 'true')
         page.get_by_role('button', name='Next habit', exact=True).click()
         assert page.locator('.ledger-habit-card[aria-hidden="true"]').count() == 12
         page.get_by_role('button', name='Previous habit', exact=True).click()
+        go_card('Read')
         page.get_by_role('button', name='Did not do: Read', exact=True).click()
         expect(page.get_by_role('button', name='Leave unknown: Read', exact=True)).to_be_visible()
         page.get_by_role('button', name='Leave unknown: Read', exact=True).click()
