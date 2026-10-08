@@ -1162,11 +1162,11 @@ function parseQty(q){
   const unit = m[2].trim();
   return {n,unit,key:unit.toLowerCase().replace(/s$/,'')};
 }
-const FRACTIONS = [[0.25,'1/4'],[0.33,'1/3'],[0.5,'1/2'],[0.67,'2/3'],[0.75,'3/4']];
+const FRACTIONS = [[0.25,'1/4'],[1/3,'1/3'],[0.5,'1/2'],[2/3,'2/3'],[0.75,'3/4']];
 function fmtNum(n){
-  const whole = Math.floor(n), rem = Math.round((n-whole)*100)/100;
-  if(rem===0) return String(whole);
-  const f = FRACTIONS.find(([v])=>Math.abs(v-rem)<0.03);
+  const whole = Math.floor(n), rem = n-whole;
+  if(Math.abs(rem)<1e-8) return String(whole);
+  const f = FRACTIONS.find(([v])=>Math.abs(v-rem)<1e-8);
   if(!f) return String(Math.round(n*100)/100);
   return whole ? `${whole} ${f[1]}` : f[1];
 }
@@ -1428,7 +1428,7 @@ function renderGroceries(){
   $('#grocery').innerHTML = groups.length ? groups.map(g=>`<section class="chef-grocery-group"><h3>${esc(g.label)}</h3>`+g.items.map(a=>{
     const done = groceryChecked(a.n);
     return `<label class="${done?'done':''}"><input type="checkbox" data-check="${esc(a.n)}" ${done?'checked':''} aria-label="Already have or bought ${esc(a.n)}"><span class="chef-grocery-item">${esc(a.n)}<span class="q">${esc(groceryQuantity(a))}</span></span></label>`;
-  }).join('')+'</section>').join('') : '<div class="empty">Plan some meals and the list builds itself.</div>';
+  }).join('')+'</section>').join('') : `<div class="empty">${weekMeals().some(x=>x.entry?.prep)?'No new ingredients this week. These meals are covered by an earlier meal plan.':'Plan some meals and the list builds itself.'}</div>`;
   const message=groceryExport(ui.groceryScope);
   $('#g-export').value=message|| (items.length?'Everything is checked. Choose “Everything” to copy the full list.':'Plan a meal to create a shopping list.');
   $('#g-copy').disabled=!message;
