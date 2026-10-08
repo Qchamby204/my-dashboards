@@ -134,6 +134,14 @@ test('Invalid durations or missing source yields never save a misleading ingredi
   assert.deepEqual(a.json('state'),before);assert.equal(a.writes.length,0);
 });
 
+test('Prorated amounts are not snapped to a nearby kitchen fraction',()=>{
+  const a=app('chef',{...chefState(),plan:{},checked:{}});
+  assert.equal(a.run('scaledQty("1/4 teaspoon",1.25)'),'0.31 teaspoon');
+  assert.equal(a.run('scaledQty("1/2 cup",1.25)'),'0.63 cup');
+  assert.equal(a.run('fmtNum(0.24)'),'0.24');assert.equal(a.run('fmtNum(1/3)'),'1/3');
+  assert.equal(a.run('scaledQty("3 cups",1.25)'),'3 3/4 cups');
+});
+
 test('Five portions fills five dated meals from one preparation and buys the ingredients once',()=>{
   const a=app('chef',{...chefState(),plan:{},checked:{}});a.run('ui.weekStart="2026-10-05"');
   assert.equal(a.run('savePreparation({id:"five",recipeId:"b01",startDate:"2026-10-05",amount:5,portionCount:5,perDay:1})'),true);
