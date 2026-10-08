@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/communicator-theme.js?v=513444d5314c"></script>
+<script src="shared/communicator-theme.js?v=da883a54b037"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -149,9 +149,9 @@ canvas{max-width:100%}
 <link rel="stylesheet" href="shared/atlas-appearance.css">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 <link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
-<link rel="stylesheet" href="shared/communicator-integration.css?v=f82e2df2986e">
+<link rel="stylesheet" href="shared/communicator-integration.css?v=3d2752cecda8">
 <script src="shared/communicator-curriculum.js?v=de1af9629005" defer></script>
-<script src="shared/communicator-integration.js?v=c709b29c491c" defer></script>
+<script src="shared/communicator-integration.js?v=8322717921eb" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-32.png?v=96c42cc2e926">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-64.png?v=4e14ee0602b0">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-apple.png?v=71d764739e7e">
@@ -906,18 +906,18 @@ function drillView(){
     <div class="topic">${esc(topic.text)}</div>
     <div class="muted">Topic feed: ${catName}</div>
     <ol style="margin:14px 0 0 20px;font-size:.95rem">${drill.steps(esc(topic.text)).map(s=>`<li style="margin:6px 0">${s}</li>`).join('')}</ol>
+    ${prepPanel(topic)}
     <div class="timer" id="timer">${fmtT(timerLeft)}</div>
     <div class="flex" style="justify-content:center">
       <button class="btn" id="tbtn" onclick="toggleTimer()">Start timer</button>
-      <button class="btn ghost" onclick="resetRep()">↺ Reset the clock</button>
-      <button class="btn ghost" onclick="togglePrep()">${curDrill.prepOpen?'Hide prep':(S.prepNotes[topic.text]?'📝 Prep (notes saved)':'📚 Prep this topic (15 min)')}</button>
-      <button class="btn ghost" data-learn="${esc(topic.text)}">📋 Learn topic</button>
-      <button class="btn ghost" onclick="launchDrill(curDrill.drill)">New topic</button>
-      <button class="btn ghost" style="color:var(--rose,#f0628a)" onclick="retireCurrent()">\u2715 Not interested</button>
-      <button class="btn ghost" onclick="stopRec();curDrill=null;stopTimer();render()">Back</button>
+      <button class="btn ghost" onclick="stopRec();curDrill=null;stopTimer();render()">Save draft & leave</button>
     </div>
+    <details class="communicator-rep-options"><summary>Practice options</summary><div class="flex">
+      <button class="btn ghost" onclick="resetRep()">↺ Reset the clock</button>
+      <button class="btn ghost" onclick="launchDrill(curDrill.drill)">New topic</button>
+      <button class="btn ghost" onclick="retireCurrent()">Not interested</button>
+    </div></details>
   </div>
-  ${curDrill.prepOpen? prepPanel(topic) : ''}
   <div class="card">
     <h2>Record → transcript → AI grade</h2>
     <p class="muted">Tap record and run the rep — your words transcribe live below (edit anything it misheard). Then copy the grading prompt, paste it to Claude, and paste the JSON grade back into the box. Every grade lands on the trend line in Growth.</p>
@@ -967,21 +967,25 @@ function togglePrep(){ curDrill.prepOpen=!curDrill.prepOpen; render(); }
 function prepInput(el){ S.prepNotes[curDrill.topic.text]=el.value; save(); }
 function prepPanel(topic){
   const outlets = CATEGORY_SOURCES[topic.cat] || CATEGORY_SOURCES.evergreen;
-  const notes = S.prepNotes[topic.text] || PREP_TEMPLATE;
-  const lnk = ([n,u])=>`<a href="${u}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;cursor:pointer">${n} ↗</a>`;
-  return `
-  <div class="card">
-    <div class="tag">15-Minute Prep</div>
-    <h2 style="margin-top:4px">Build informed talking points first</h2>
-    <p class="muted"><b style="color:var(--text)">Protocol:</b> 5 min, scan 2–3 sources below for facts and numbers. 5 min, find the strongest argument on EACH side (steelman). 5 min, fill in the worksheet. Then run the drill from your own notes, not the articles.</p>
-    <h3>Go-to outlets for this category</h3>
-    <div>${outlets.map(lnk).join('')}</div>
-    <h3>Search this exact topic</h3>
-    <div>${searchLinks(topic.text).map(lnk).join('')}</div>
-    <h3>Talking-points worksheet <span class="muted" style="font-weight:400;font-size:.78rem">auto-saves, reappears whenever this topic comes up</span></h3>
-    <textarea rows="14" style="font-family:ui-monospace,monospace;font-size:.85rem;margin-top:6px" oninput="prepInput(this)">${esc(notes)}</textarea>
-    <div class="flex" style="margin-top:10px"><button class="btn ghost" data-learn="${esc(topic.text)}">Copy a prompt to learn this topic</button><span class="muted">Paste it to Claude for facts, both sides, an example, and a question.</span></div>
-  </div>`;
+  const notes = S.prepNotes[topic.text] ?? PREP_TEMPLATE;
+  const source = topic.crucibleSource || topic.librarySource;
+  const lnk = ([n,u])=>`<a href="${u}" target="_blank" rel="noopener" class="pill">${n} ↗</a>`;
+  return `<details class="communicator-preparation" id="communicator-preparation" ${curDrill.prepOpen?'open':''} ontoggle="if(curDrill){curDrill.prepOpen=this.open;window.CommunicationImprovements?.rememberPractice();}">
+    <summary>Learn & prepare${S.prepNotes[topic.text]?.trim()?' · notes saved':''}</summary>
+    <div class="communicator-preparation-body">
+      ${source?`<h3>${esc(source.title)}</h3><p class="communication-transcript">${esc(source.text)}</p>`:''}
+      <label for="communicator-prep-notes">Your talking points</label>
+      <textarea id="communicator-prep-notes" rows="6" oninput="prepInput(this)">${esc(notes)}</textarea>
+      <p class="muted" role="status">Notes save automatically for this topic.</p>
+      <details class="communicator-research"><summary>Research & learning tools</summary>
+        <p class="muted">Check facts, consider both sides, and choose one example.</p>
+        <div class="flex"><button class="btn ghost" data-learn="${esc(topic.text)}">Copy learning prompt</button></div>
+        <h3>Search this topic</h3><div>${searchLinks(topic.text).map(lnk).join('')}</div>
+        ${source?'':`<h3>Sources</h3><div>${outlets.map(lnk).join('')}</div>`}
+      </details>
+      <button type="button" class="btn" onclick="document.getElementById('communicator-preparation').open=false;document.getElementById('tbtn').focus();document.getElementById('timer').scrollIntoView({block:'center'});">Ready to practise</button>
+    </div>
+  </details>`;
 }
 function fmtT(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
 function toggleTimer(){
@@ -1193,14 +1197,14 @@ function pageTopics(){
       <select id="newCat" style="flex:1;min-width:130px">${Object.entries(DEFAULT_TOPICS).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}<option value="custom">Custom (always on)</option></select>
       <button class="btn" onclick="addTopic()">Add</button>
     </div>
-    ${S.customTopics.length? `<div style="margin-top:12px">${S.customTopics.map((t,i)=>`<div class="swipewrap"><div class="swipebg">✕ Remove from rotation</div><div class="topicitem" data-swipe="${esc(t.text)}"><span>${esc(t.text)} <span class="muted">· ${DEFAULT_TOPICS[t.cat]?.name||'Custom'}</span></span><span class="flex" style="gap:6px;flex-wrap:nowrap;align-items:center"><button class="btn ghost" style="padding:4px 11px;font-size:.74rem;white-space:nowrap" data-learn="${esc(t.text)}">Learn ↗</button><button class="tdel" title="Remove" onclick="delTopic(${i})">✕</button></span></div></div>`).join('')}</div>` : ''}
+    ${S.customTopics.length? `<div style="margin-top:12px">${S.customTopics.map((t,i)=>`<div class="swipewrap"><div class="swipebg">✕ Remove from rotation</div><div class="topicitem" data-swipe="${esc(t.text)}"><span>${esc(t.text)} <span class="muted">· ${DEFAULT_TOPICS[t.cat]?.name||'Custom'}</span></span><span class="flex" style="gap:6px;flex-wrap:nowrap;align-items:center"><button class="btn ghost" style="padding:4px 11px;font-size:.74rem;white-space:nowrap" data-learn="${esc(t.text)}">Copy learning prompt</button><button class="tdel" title="Remove" onclick="delTopic(${i})">✕</button></span></div></div>`).join('')}</div>` : ''}
   </div>
   ${Object.entries(DEFAULT_TOPICS).map(([k,v])=>{
     const freshArr=S.refreshed[k]||[]; const fresh=new Set(freshArr.map(t=>t.trim().toLowerCase()));
     return `<div class="card" style="${S.catsEnabled.includes(k)?'':'opacity:.45'}">
       <h3>${v.name} ${freshArr.length?`<span class="tag" style="color:var(--gold)">· ${freshArr.length} fresh</span>`:''}</h3>
       <div style="margin:4px 0 8px">${(CATEGORY_SOURCES[k]||[]).map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;cursor:pointer">${n} ↗</a>`).join('')}</div>
-      ${effectiveItems(k).map(t=>`<div class="swipewrap"><div class="swipebg">\u2715 Remove from rotation</div><div class="topicitem" data-swipe="${esc(t)}"><span>${esc(t)}${fresh.has(t.trim().toLowerCase())?' <span class="tag" style="font-size:.6rem;color:var(--gold)">fresh</span>':''}${S.prepNotes[t]?' <span class="tag" style="font-size:.62rem">prepped</span>':''}</span><span style="display:flex;align-items:center;gap:2px;flex-shrink:0"><button class="btn ghost" style="padding:4px 11px;font-size:.74rem;white-space:nowrap" data-learn="${esc(t)}">Learn ↗</button><button class="tdel" title="Remove from rotation" onclick="retireTopic(this.closest('[data-swipe]')?this.closest('[data-swipe]').dataset.swipe:'', 'Removed:');render()">\u2715</button></span></div></div>`).join('')}
+      ${effectiveItems(k).map(t=>`<div class="swipewrap"><div class="swipebg">\u2715 Remove from rotation</div><div class="topicitem" data-swipe="${esc(t)}"><span>${esc(t)}${fresh.has(t.trim().toLowerCase())?' <span class="tag" style="font-size:.6rem;color:var(--gold)">fresh</span>':''}${S.prepNotes[t]?' <span class="tag" style="font-size:.62rem">prepped</span>':''}</span><span style="display:flex;align-items:center;gap:2px;flex-shrink:0"><button class="btn ghost" style="padding:4px 11px;font-size:.74rem;white-space:nowrap" data-learn="${esc(t)}">Copy learning prompt</button><button class="tdel" title="Remove from rotation" onclick="retireTopic(this.closest('[data-swipe]')?this.closest('[data-swipe]').dataset.swipe:'', 'Removed:');render()">\u2715</button></span></div></div>`).join('')}
     </div>`;}).join('')}
   ${S.retired.length? `<div class="card" style="opacity:.85">
     <h3>Retired · ${S.retired.length} topic${S.retired.length===1?'':'s'}</h3>
@@ -1460,7 +1464,7 @@ function importData(inp){
 document.addEventListener('click', e=>{
   const b = e.target.closest ? e.target.closest('[data-learn]') : null;
   if(!b) return;
-  copyText(learnPrompt(b.getAttribute('data-learn')), 'Learn-prompt copied', 'Paste it into a Claude chat to dig in.');
+  copyText(learnPrompt(b.getAttribute('data-learn')), 'Learning prompt copied', 'Paste it into your assistant to explore the topic.');
 });
 
 render();

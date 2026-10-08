@@ -29,6 +29,21 @@ try{
  await page.locator('#block_b02 summary').click();await page.screenshot({path:output+'/learn.png'});
  await page.locator('#block_b02').getByRole('button',{name:'Practise explaining this · 90 seconds',exact:true}).click();
  assert.equal(await page.locator('#timer').innerText(),'1:30');assert.equal(await page.evaluate(()=>curDrill.topic.crucibleSource.id),'b02');
+ // Learning, sources and notes share one panel; entering practice keeps the topic.
+ assert.equal(await page.getByRole('button',{name:/Prep this topic|Learn topic/}).count(),0);
+ await page.locator('#communicator-preparation>summary').click();
+ assert.match(await page.locator('.communicator-preparation-body').innerText(),/What it unlocks/);
+ await page.locator('#communicator-prep-notes').fill('Use one cash conversion example.');
+ await overflow();await page.screenshot({path:output+'/prepare.png'});
+ const prepTopic=await page.evaluate(()=>curDrill.topic.text);
+ assert.equal(await page.evaluate(t=>S.prepNotes[t],prepTopic),'Use one cash conversion example.');
+ await page.reload();await page.waitForFunction(()=>!!window.CommunicatorLearning);await nav('Practice');
+ assert.equal(await page.locator('#communicator-preparation').getAttribute('open'),'');
+ assert.equal(await page.locator('#communicator-prep-notes').inputValue(),'Use one cash conversion example.');
+ await page.getByRole('button',{name:'Ready to practise',exact:true}).click();
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'tbtn');
+ assert.equal(await page.evaluate(()=>timerInt===null),true);
+ assert.equal(await page.evaluate(()=>curDrill.topic.text),prepTopic);
  await page.locator('#txBox').fill('Earnings can differ from cash flow. I would reconcile the cash conversion chain and inspect the notes before drawing a conclusion.');
  const draftId=await page.evaluate(()=>curDrill.id);await page.reload();await page.waitForFunction(()=>!!window.CommunicatorLearning);await nav('Practice');
  assert.equal(await page.evaluate(()=>curDrill.id),draftId);assert.match(await page.locator('#txBox').inputValue(),/Earnings can differ/);assert.equal(await page.evaluate(()=>recOn),false);
@@ -65,6 +80,20 @@ try{
  await page.locator('#uiDlg').getByRole('button',{name:'Import',exact:true}).click();
  assert.equal(await page.evaluate(()=>Store.dump().practiceDraft.topic.crucibleSource.kind),'arsenal');assert.equal(await page.evaluate(()=>S.reps[0].crucibleSource.kind),'block');
  await go('crucible.html');assert.match(page.url(),/communication-trainer.html#investing$/);assert.equal(await page.locator('#communicator-reference').isVisible(),true);
- assert.equal(await page.evaluate(()=>S.reps.length),1);assert.deepEqual(errors,[]);
+ assert.equal(await page.evaluate(()=>S.reps.length),1);
+ // General topics use the same preparation flow; cleared notes remain cleared.
+ await page.evaluate(()=>CommunicationImprovements.discardPractice());
+ await page.locator('#uiDlg').getByRole('button',{name:'Discard',exact:true}).click();
+ await page.reload();await page.waitForFunction(()=>!!window.CommunicatorLearning);await nav('Practice');
+ await page.evaluate(()=>startDrill());
+ await page.locator('#communicator-preparation>summary').click();
+ assert.equal(await page.locator('#communicator-preparation .communicator-research').count(),1);
+ await page.locator('#communicator-prep-notes').fill('');
+ await page.getByRole('button',{name:'Ready to practise',exact:true}).click();
+ await page.locator('#communicator-preparation>summary').click();
+ assert.equal(await page.locator('#communicator-prep-notes').inputValue(),'');
+ await page.evaluate(()=>document.documentElement.style.fontSize='200%');await overflow();
+ await page.evaluate(()=>document.documentElement.style.fontSize='');
+ assert.deepEqual(errors,[]);
  console.log('Combined mobile journey passed: lessons, filing mastery, evidence reps, drafts, history, both backup formats, legacy routing, portrait and landscape.');
 }finally{await browser.close();server.close();}
