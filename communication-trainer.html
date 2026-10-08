@@ -970,7 +970,8 @@ function prepPanel(topic){
   const notes = S.prepNotes[topic.text] ?? PREP_TEMPLATE;
   const source = topic.crucibleSource || topic.librarySource;
   const lnk = ([n,u])=>`<a href="${u}" target="_blank" rel="noopener" class="pill">${n} ↗</a>`;
-  return `<details class="communicator-preparation" id="communicator-preparation" ${curDrill.prepOpen?'open':''} ontoggle="if(curDrill){curDrill.prepOpen=this.open;window.CommunicationImprovements?.rememberPractice();}">
+  return `<button type="button" class="btn ghost" style="margin-top:16px" data-learn="${esc(topic.text)}">Learn about this topic · copy prompt</button>
+  <details class="communicator-preparation" id="communicator-preparation" ${curDrill.prepOpen?'open':''} ontoggle="if(curDrill){curDrill.prepOpen=this.open;window.CommunicationImprovements?.rememberPractice();}">
     <summary>Learn & prepare${S.prepNotes[topic.text]?.trim()?' · notes saved':''}</summary>
     <div class="communicator-preparation-body">
       ${source?`<h3>${esc(source.title)}</h3><p class="communication-transcript">${esc(source.text)}</p>`:''}
@@ -979,7 +980,6 @@ function prepPanel(topic){
       <p class="muted" role="status">Notes save automatically for this topic.</p>
       <details class="communicator-research"><summary>Research & learning tools</summary>
         <p class="muted">Check facts, consider both sides, and choose one example.</p>
-        <div class="flex"><button class="btn ghost" data-learn="${esc(topic.text)}">Copy learning prompt</button></div>
         <h3>Search this topic</h3><div>${searchLinks(topic.text).map(lnk).join('')}</div>
         ${source?'':`<h3>Sources</h3><div>${outlets.map(lnk).join('')}</div>`}
       </details>
