@@ -44,5 +44,13 @@
     return n;
   }
   function milestone(rows,h,cfg,prefs,today){const g=goal(h,cfg,prefs),amount=Math.max(0,total(rows,h,cfg,prefs,today)-g.baseline);return {goal:g,amount,complete:amount>=g.target,fraction:Math.min(1,amount/g.target)};}
-  window.LedgerRhythm=Object.freeze({REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone});
+  // XP measures recorded activity, independently of goals, dates and weekly mode.
+  function xpUnit(cfg){return cfg.kind==='count'?1:(cfg.def>0?cfg.def:cfg.step>0?cfg.step:1);}
+  function levelProgress(xp){
+    xp=Math.max(0,Math.round(xp*100)/100);
+    const cost=1000,level=Math.floor(xp/cost),into=xp-level*cost;
+    return {xp,level,exact:xp/cost,into,cost,remaining:cost-into,fraction:into/cost};
+  }
+  function experience(amount,cfg){return levelProgress(amount/xpUnit(cfg)*100);}
+  window.LedgerRhythm=Object.freeze({REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone,xpUnit,levelProgress,experience});
 })();

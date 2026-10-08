@@ -22,3 +22,8 @@ test('focus excludes LinkedIn and is limited to three unique choices',()=>{
 test('combined screen-time boundary is strict and old gaming totals do not confirm scrolling',()=>{
  const h=R.SCREEN,c={kind:'count'};assert.equal(R.value({units:{},leisure:{gamingMinutes:40}},h,c),0);assert.equal(R.value({leisure:{screenMinutes:59,screenConfirmed:true}},h,c),1);assert.equal(R.value({units:{[h]:1},leisure:{screenMinutes:60,screenConfirmed:true}},h,c),0);
 });
+
+test('XP normalizes existing check-in amounts; partial work counts and levels continue past 99',()=>{
+ assert.equal(R.experience(25,{kind:'qty',def:25}).xp,100);assert.equal(R.experience(5,{kind:'qty',def:25}).xp,20);assert.equal(R.experience(1,{kind:'count'}).xp,100);
+ const progress=R.levelProgress(100100);assert.equal(progress.level,100);assert.equal(progress.remaining,900);assert.equal(progress.fraction,.1);
+});

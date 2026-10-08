@@ -167,7 +167,7 @@ test('first saved day updates all five values and queues Season Opens after dura
  assert.match(h.node('app').textContent,/Achievement Unlocked|Level Up/);
 });
 
-test('lasting totals show real amounts without year-end levels or pace judgments',async()=>{
+test('lifetime levels and real amounts appear without year-end pace judgments',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('HABITS.forEach(k=>state.draft[k]=1)');await h.api.saveDay();
  assert.equal(h.node('app').querySelectorAll('[data-act="pillar"]').length,5);assert.match(h.node('app').querySelector('.ledger-lasting').textContent,/1 pages recorded overall/);
  assert.doesNotMatch(h.node('app').querySelector('.ledger-lasting').textContent,/\/99|pace|Dec 31/);assert.match(h.node('ledger-save-feedback').textContent,/progress is recorded/);
@@ -216,9 +216,9 @@ test('reward dialogs are named native modals and Escape returns focus to Save Da
  const modal=h.node('app').querySelector('dialog.ledger-reward');assert.equal(modal.open,true);assert.equal(modal.getAttribute('aria-label'),'Season Opens');modal.emit('cancel');
  assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.node('app').querySelector('dialog.ledger-reward'),null);assert.equal(h.document.activeElement.dataset.act,'commit');
 });
-test('a concrete reading milestone celebrates without a separate life-level popup',async()=>{
+test('a reading milestone earns a life level and retains its achievement',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=250');await h.api.saveDay();
- assert.equal(h.run('state.levelInfo'),null);assert(h.run('state.achvQueue.some(a=>a.name==="First Book")'));assert.equal(h.node('app').querySelector('dialog.ledger-reward').getAttribute('aria-label'),'First Book');
+ assert.equal(h.run('state.levelInfo.title'),'Life · Level 1');assert(h.run('state.achvQueue.some(a=>a.name==="First Book")'));assert.equal(h.node('app').querySelector('dialog.ledger-reward').getAttribute('aria-label'),'Life · Level 1');
 });
 
 test('async publication of a day waits for verified storage before progress and rewards',async()=>{
@@ -430,4 +430,22 @@ test('quick scrolling reset resumes a pending slip, remembers its action and pre
  h.node('screen-reset-done').click();assert.equal(h.run('state.draftScreen.slips[0].recovered'),true);assert.equal(h.run('JSON.stringify(state.draft)'),units);await h.api.saveDay();
  const again=await screenBoot({records:Object.fromEntries(h.storage)});again.api.selectDate('2026-09-29');again.node('ledger-quick-reset').click();assert.equal(again.run('state.logDate'),'2026-09-30');assert.equal(again.node('screen-reset-action').value,'read');assert.equal(again.run('state.draftScreen.slips.length'),2);
  again.at('2026-10-01T00:01:00-05:00');again.node('screen-reset-done').click();assert.equal(again.run('state.logDate'),'2026-10-01');assert.equal(again.run('state.draftScreen.slips.length'),0);assert.equal(again.api.drafts.days['2026-09-30'].screen.slips[1].recovered,false);
+});
+
+
+test('XP and levels are independent of week modes, goal amounts, focus and calendar gaps',async()=>{
+ const rows=[{date:'2025-01-01',units:{Read:250}},{date:'2026-09-08',units:{'Run / Work Out':1}}],h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:{[S]:JSON.stringify(rows)}});
+ const xp=h.run('compute(state.days,state.goals).life.xp');assert.equal(xp,1100);assert.equal(h.run('compute(state.days,state.goals).life.level'),1);
+ h.run('state.goals.Read=99999');await h.api.saveRhythm({focus:['Screen Discipline'],weeks:{'2026-09-07':'reduced'}});h.at('2027-01-15T12:00:00-06:00');h.run('render()');
+ assert.equal(h.run('compute(state.days,state.goals).life.xp'),xp);assert.equal(h.storage.get(S),JSON.stringify(rows));assert.match(h.node('ledger-life-level').textContent,/Life Level 1/);
+});
+test('weekly catch-up earns XP once and future entries do not earn XP yet',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:{[S]:JSON.stringify([{date:'2026-09-08',units:{Read:25}},{date:'2026-09-09',units:{Read:25}}])}});
+ await h.api.saveRhythm({catchups:{'2026-09-07':{Read:{amount:50,sessions:2}}}});assert.equal(h.run('compute(state.days,state.goals).life.xp'),200);
+ h.at('2026-09-09T12:00:00-05:00');assert.equal(h.run('compute(state.days,state.goals).life.xp'),200);
+});
+test('a failed level-crossing save earns no XP; resaves do not replay the level reward',async()=>{
+ const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=250');h.localStorage.blockedKey=S;await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);assert.equal(h.run('state.levelInfo'),null);
+ h.localStorage.blockedKey=null;await h.api.saveDay();assert.equal(h.run('state.levelInfo.title'),'Life · Level 1');await h.api.saveDay();assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('compute(state.days,state.goals).life.xp'),1000);
+ const again=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:Object.fromEntries(h.storage)});assert.equal(again.run('compute(state.days,state.goals).life.level'),1);assert.equal(again.run('state.levelInfo'),null);
 });
