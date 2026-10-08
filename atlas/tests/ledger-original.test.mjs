@@ -471,3 +471,34 @@ test('typing a quantity updates check-in state in place and clears an explicit m
  assert.equal(card.querySelector('.ledger-habit-status').textContent,'Recorded');assert.equal(h.run('state.draftMissed.includes("Read")'),false);assert.equal(card.querySelector('.ledger-missed').getAttribute('aria-label'),'Did not do: Read');assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]'),input);
  input.value='';h.node('app').emit('input',{target:input});assert.equal(card.querySelector('.ledger-habit-status').textContent,'Not recorded');
 });
+
+
+test('explicit progress reset archives history, drafts and catch-up, and survives reload and backup restore',async()=>{
+ const rows=[{date:'2026-09-06',units:{Read:9},note:'Keep my history'}];
+ const h=await boot({records:{[S]:JSON.stringify(rows)}});
+ h.run(`state.draft.Read=3;state.draftNote='Keep my draft'`);h.api.remember();
+ await h.api.saveRhythm({focus:['Read'],catchups:{'2026-08-31':{Read:{amount:12,sessions:3}}},earned:['Season Opens']});
+ const before=h.run('compute(state.days,state.goals).life.xp');assert(before>0);
+ assert.equal(await h.api.resetProgress(),true);
+ assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);assert.equal(h.run('state.draft.Read'),0);
+ assert.equal(h.api.drafts.archives.length,1);assert.equal(h.api.drafts.archives[0].days[0].note,'Keep my history');
+ assert.equal(h.api.drafts.archives[0].drafts.days['2026-09-07'].note,'Keep my draft');
+ assert.equal(h.api.drafts.rhythm.catchups,undefined);assert.equal(h.api.drafts.rhythm.earned,undefined);
+ assert.deepEqual(Array.from(h.api.drafts.rhythm.focus),['Read']);
+ const again=await boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('compute(state.days,state.goals).life.xp'),0);assert.equal(again.api.drafts.archives.length,1);
+ again.run('exportData()');const pack=JSON.parse(await again.downloads.at(-1).blob.text());const target=await boot();
+ await target.run('importData')(file(pack));target.clickText('Restore backup');await target.settle();assert.equal(target.api.drafts.archives[0].days[0].note,'Keep my history');
+ h.clickText('Restore this progress');await h.settle();h.clickText('Restore backup');await h.settle();assert.equal(h.run('compute(state.days,state.goals).life.xp'),before);assert.equal(h.run('state.draftNote'),'Keep my draft');
+});
+test('failed archive staging leaves progress intact and does not queue a destructive retry',async()=>{
+ const h=await boot({records:{[S]:JSON.stringify([{date:'2026-09-06',units:{Read:9}}])}});
+ // Fail only the staged archive write, after the pre-reset draft checkpoint succeeds.
+ const set=h.localStorage.setItem.bind(h.localStorage);h.localStorage.setItem=(k,v)=>{if(k===D&&JSON.parse(v).resetPending)throw Error('Full storage');set(k,v);};
+ assert.equal(await h.api.resetProgress(),false);assert.equal(h.run('state.days.length'),1);assert.equal(h.api.drafts.archives,undefined);await h.api.retry();assert.equal(h.run('state.days.length'),1);
+});
+test('interrupted active-history clearing recovers the explicit reset without losing its archive',async()=>{
+ const h=await boot({records:{[S]:JSON.stringify([{date:'2026-09-06',units:{Read:9},note:'Recover me'}])}});
+ h.localStorage.blockedKey=S;assert.equal(await h.api.resetProgress(),true);assert(h.api.drafts.resetPending);assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);
+ const again=await boot({records:Object.fromEntries(h.storage)});await again.settle();assert.equal(again.run('state.days.length'),0);assert.equal(again.api.drafts.resetPending,undefined);assert.equal(again.api.drafts.archives[0].days[0].note,'Recover me');
+ again.run('state.draft.Read=2');await again.api.saveDay();const final=await boot({records:Object.fromEntries(again.storage)});assert.equal(final.run('compute(state.days,state.goals).habit.Read.total'),2);
+});

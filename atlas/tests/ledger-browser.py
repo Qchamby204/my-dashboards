@@ -173,6 +173,28 @@ with sync_playwright() as pw:
         no_overflow()
         assert page.locator('#ledger-lifetime-levels .ledger-progress-info p').bounding_box()['width'] >= 250
         page.screenshot(path=str(OUT / f'{ENGINE}-progress-light.png'), full_page=True)
+        assert page.locator('#ledger-quick-reset').count() == 0
+        page.locator('#ledger-nav-history').click()
+        assert page.locator('#ledger-quick-reset').count() == 0
+        page.get_by_role('button', name='Settings', exact=True).click()
+        page.get_by_role('button', name='Reset progress', exact=True).click()
+        expect(page.get_by_role('dialog', name='Reset progress?', exact=True)).to_be_visible()
+        no_overflow()
+        page.get_by_role('button', name='Reset progress', exact=True).click()
+        expect(page.locator('#ledger-nav-today')).to_have_attribute('aria-selected', 'true')
+        expect(page.locator('#ledger-quick-reset')).to_be_visible()
+        assert page.evaluate('JSON.parse(localStorage.getItem("lifeledger:v2")).length') == 0
+        page.reload(wait_until='networkidle')
+        page.locator('#ledger-nav-progress').click()
+        expect(page.locator('#ledger-lifetime-levels h2')).to_have_text('Life Level 0')
+        page.locator('#ledger-nav-history').click()
+        page.locator('#ledger-progress-archives > summary').click()
+        page.locator('#ledger-progress-archives details > summary').click()
+        expect(page.locator('#ledger-progress-archives')).to_contain_text('Historical note')
+        page.get_by_role('button', name='Restore this progress', exact=True).click()
+        page.get_by_role('button', name='Restore backup', exact=True).click()
+        assert page.evaluate('JSON.parse(localStorage.getItem("lifeledger:v2")).length') > 0
+        no_overflow()
         assert not errors, errors
         print(ENGINE + ': ongoing goals, catch-up, screen boundary, lifetime levels, history and responsive journeys passed')
     finally:
