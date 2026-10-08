@@ -29,6 +29,13 @@ try{
  await page.locator('#block_b02 summary').click();await page.screenshot({path:output+'/learn.png'});
  await page.locator('#block_b02').getByRole('button',{name:'Practise explaining this · 90 seconds',exact:true}).click();
  assert.equal(await page.locator('#timer').innerText(),'1:30');assert.equal(await page.evaluate(()=>curDrill.topic.crucibleSource.id),'b02');
+ // The learning prompt is directly available without opening preparation or research.
+ await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.qaLearningPrompt=text;}}}));
+ const learnCopy=page.getByRole('button',{name:'Learn about this topic · copy prompt',exact:true});
+ assert.equal(await learnCopy.isVisible(),true);
+ assert.equal(await page.locator('#communicator-preparation').getAttribute('open'),null);
+ await learnCopy.click();
+ assert.equal(await page.evaluate(()=>qaLearningPrompt===learnPrompt(curDrill.topic.text)),true);
  // Learning, sources and notes share one panel; entering practice keeps the topic.
  assert.equal(await page.getByRole('button',{name:/Prep this topic|Learn topic/}).count(),0);
  await page.locator('#communicator-preparation>summary').click();
