@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="shared/ledger-rhythm-core.js?v=f29cc703f139"></script>
-<script src="shared/atlas-theme.js?v=6aed49233287"></script>
+<script src="shared/atlas-theme.js?v=05911c6b870b"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -440,7 +440,7 @@ function deckCard(hk,draft){
     h+='<div class="ledger-amount-field"><input class="num" data-act="num" data-habit="'+esc(hk)+'" inputmode="decimal" value="'+v+'" style="width:100px;font-size:30px;font-weight:700;text-align:center;padding:4px 0;background:transparent;border:none;border-bottom:2px solid '+(v>0?p.color:"rgba(150,160,200,.25)")+';border-radius:0"/><div style="font-size:11px;color:#8089a8;margin-top:3px">'+esc(c.unit)+'</div></div>';
     h+='<button class="btn tap" data-act="inc" data-habit="'+esc(hk)+'" style="width:48px;height:48px;border-radius:99px;background:'+p.color+';color:#0c0e1a;font-size:26px;line-height:1;font-weight:700;box-shadow:0 6px 16px -7px '+p.glow+'">+</button>';
     h+='</div>';
-    h+='<div style="font-size:10px;color:#6f7798;margin-top:12px">+'+c.step+' per tap</div>';
+    h+='<div class="ledger-tap-amount" style="font-size:10px;color:#6f7798;margin-top:12px">+'+c.step+' per tap</div>';
   }
   h+='</div></div>';
   return h;

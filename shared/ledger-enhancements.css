@@ -257,3 +257,6 @@ html[data-atlas-app="life-ledger"] .ledger-rhythm-heading>.ledger-progress-info{
 html[data-atlas-app="life-ledger"] .ledger-rhythm-heading>.ledger-progress-info[open]{flex:1 0 100%;}
 html[data-atlas-app="life-ledger"] .ledger-rhythm-heading>.ledger-progress-info[open] summary{margin:-56px 0 12px auto;}
 html[data-atlas-app="life-ledger"] .ledger-rhythm-heading:has(>.ledger-progress-info[open])>h2{padding-right:56px;}
+
+html[data-atlas-app="life-ledger"] #app .ledger-card-xp{margin-top:12px;font-size:14px;line-height:1.5;color:var(--neo-muted);overflow-wrap:anywhere;}
+html[data-atlas-app="life-ledger"] #app .ledger-card-xp strong{color:var(--neo-ink);font-weight:650;}

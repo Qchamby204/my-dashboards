@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=bb16fde19a48',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=ed421ea120e8',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -593,6 +593,16 @@
       if(!rewardOpener&&(state.levelInfo||state.achvQueue?.length)){const active=document.activeElement;rewardOpener=active?.dataset?.act==='relic'?'[data-act="relic"][data-idx="'+active.dataset.idx+'"]':'[data-act="commit"]';}
       if(screenMinutes(state.draftLeisure)>=60)state.draft['Screen Discipline']=0;
       originalRender();
+      for(const [i,card]of [...app.querySelectorAll('.ledger-habit-card')].entries()){
+        const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
+        const xp=Number((amount/R.xpUnit(c)*100).toFixed(2));
+        const hint=make('div',null,'ledger-card-xp');
+        if(c.kind!=='count')hint.append(make('span','+'+fmt(amount)+' '+c.unit+' · '));
+        hint.append(make('strong','+'+xp+' XP'),make('span',c.kind==='count'?' per check-in':' per tap'));
+        hint.title='XP is earned when you save the day.';
+        const old=card.querySelector('.ledger-tap-amount');
+        if(old)old.replaceWith(hint);else card.querySelector('[data-act="toggle"]')?.parentNode.append(hint);
+      }
       const data=compute(state.days,state.goals),earned=ACHV.filter(a=>a.test(data));
       for(const heading of app.querySelectorAll('.eyebrow'))if(heading.textContent.startsWith('The Five Values')){
         const info=make('details',null,'ledger-progress-info ledger-values-info'),summary=make('summary','i');summary.setAttribute('aria-label','How values and achievements work');info.open=progressInfoOpen;info.addEventListener('toggle',()=>progressInfoOpen=info.open);

@@ -502,3 +502,15 @@ test('interrupted active-history clearing recovers the explicit reset without lo
  const again=await boot({records:Object.fromEntries(h.storage)});await again.settle();assert.equal(again.run('state.days.length'),0);assert.equal(again.api.drafts.resetPending,undefined);assert.equal(again.api.drafts.archives[0].days[0].note,'Recover me');
  again.run('state.draft.Read=2');await again.api.saveDay();const final=await boot({records:Object.fromEntries(again.storage)});assert.equal(final.run('compute(state.days,state.goals).habit.Read.total'),2);
 });
+
+
+test('card XP matches actual check-in increments for count and amount habits',async()=>{
+ const h=await boot({realModel:true});
+ const hints=()=>h.node('app').querySelectorAll('.ledger-card-xp').map(n=>n.textContent);
+ assert.equal(hints().length,13);assert(hints().includes('+100 XP per check-in'));
+ assert(hints().includes('+10 pages · +40 XP per tap'));
+ assert(hints().includes('+15 minutes · +50 XP per tap'));
+ assert(hints().includes('+0.5 hours · +6.67 XP per tap'));
+ h.act('inc',{habit:'Read'});await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),40);
+ h.run('render()');assert.equal(hints().filter(t=>t==='+10 pages · +40 XP per tap').length,1);
+});
