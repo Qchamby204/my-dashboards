@@ -1,6 +1,7 @@
 import './sync-icons.mjs';
 import {connectedAssets} from './connected-build.mjs';
 await import('./build-neural.mjs');
+await import('./build-communicator.mjs');
 await import('./build-refinements.mjs');
 await import('./build-navigation.mjs');
 await import('./build-life-map.mjs');

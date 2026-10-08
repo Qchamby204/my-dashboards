@@ -1,0 +1,183 @@
+/* Generated, scoped curriculum styles. */
+.communicator-analysis {
+  --bg:#12100E; --panel:#1B1815; --panel2:#232019; --panel3:#2B2721; --line:#3A322A;
+  --text:#E8E0D4; --muted:#9C8F7D; --gold:#C9A227; --ember:#B4532A; --done:#7A9A5E;
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 8px 24px rgba(0,0,0,.35);
+}
+.communicator-analysis *{box-sizing:border-box}
+.communicator-analysis {
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-weight:300; line-height:1.6; font-size:16px;
+  background-image:radial-gradient(circle at 50% -10%, rgba(201,162,39,.06), transparent 60%);
+  background-attachment:fixed;
+}
+.communicator-analysis .wrap{max-width:1060px;margin:0 auto;padding:28px 20px 96px}
+.communicator-analysis h1,.communicator-analysis h2,.communicator-analysis h3,.communicator-analysis h4{font-family:'Cinzel',Georgia,serif;font-weight:700;letter-spacing:.02em;margin:0}
+.communicator-analysis .num,.communicator-analysis code{font-family:'Space Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.communicator-analysis a{color:var(--gold)}
+.communicator-analysis :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.communicator-analysis header.masthead{text-align:center;padding:18px 0 24px;border-bottom:1px solid var(--line)}
+.communicator-analysis header.masthead h1{font-size:2.4rem;color:var(--gold);letter-spacing:.14em}
+.communicator-analysis header.masthead .sub{color:var(--muted);font-size:.84rem;letter-spacing:.22em;text-transform:uppercase;margin-top:8px}
+.communicator-analysis header.masthead .mission{max-width:660px;margin:16px auto 0;color:var(--muted);font-size:.95rem}
+.communicator-analysis nav.tabs{margin:22px 0 24px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.communicator-analysis nav.tabs .band{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
+.communicator-analysis nav.tabs .bandlabel{
+  font-family:'Space Mono',monospace;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);padding-right:8px;border-right:1px solid var(--line);margin-right:4px
+}
+.communicator-analysis nav.tabs button{
+  font-family:'Cinzel',serif;font-size:.76rem;letter-spacing:.11em;text-transform:uppercase;
+  background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:2px;
+  padding:8px 13px;cursor:pointer;transition:all .15s
+}
+.communicator-analysis nav.tabs button:hover{color:var(--text);border-color:var(--gold)}
+.communicator-analysis nav.tabs button[aria-selected="true"]{background:var(--gold);color:#12100E;border-color:var(--gold);font-weight:700}
+.communicator-analysis .panel{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:22px 24px;margin-bottom:18px;box-shadow:var(--shadow)}
+.communicator-analysis .panel > h2{font-size:1.12rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
+.communicator-analysis .panel > .lede{color:var(--muted);font-size:.92rem;margin:8px 0 16px;max-width:74ch}
+.communicator-analysis .panel h3{font-size:1rem;margin:20px 0 8px;letter-spacing:.04em}
+.communicator-analysis .panel p{max-width:78ch}
+.communicator-analysis .stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.communicator-analysis .stat{flex:1 1 150px;background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:12px 14px}
+.communicator-analysis .stat .k{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.communicator-analysis .stat .v{font-family:'Space Mono',monospace;font-variant-numeric:tabular-nums;font-size:1.55rem;color:var(--gold);line-height:1.2;margin-top:4px}
+.communicator-analysis .stat .n{font-size:.74rem;color:var(--muted)}
+.communicator-analysis .blockhead{display:flex;align-items:baseline;gap:10px;margin:20px 0 6px;flex-wrap:wrap}
+.communicator-analysis .blockhead .tag{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--ember);letter-spacing:.14em;text-transform:uppercase}
+.communicator-analysis .blockhead h3{margin:0}
+.communicator-analysis .blockhead .mins{margin-left:auto;font-family:'Space Mono',monospace;font-size:.74rem;color:var(--muted)}
+.communicator-analysis ul.checks{list-style:none;margin:8px 0 0;padding:0}
+.communicator-analysis ul.checks li{display:flex;gap:12px;align-items:flex-start;padding:9px 10px;border-radius:2px;transition:background .12s}
+.communicator-analysis ul.checks li:hover{background:var(--panel2)}
+.communicator-analysis input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;flex:0 0 auto;width:17px;height:17px;margin-top:4px;
+  border:1px solid var(--line);border-radius:2px;background:var(--bg);cursor:pointer;position:relative
+}
+.communicator-analysis input[type=checkbox]:hover{border-color:var(--gold)}
+.communicator-analysis input[type=checkbox]:checked{background:var(--done);border-color:var(--done)}
+.communicator-analysis input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1px;width:4px;height:9px;border:solid #12100E;border-width:0 2px 2px 0;transform:rotate(42deg)}
+.communicator-analysis ul.checks label{cursor:pointer;font-size:.95rem;flex:1}
+.communicator-analysis ul.checks input:checked + label{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.communicator-analysis textarea{
+  width:100%;min-height:110px;background:var(--bg);color:var(--text);border:1px solid var(--line);
+  border-radius:2px;padding:12px;font-family:'Outfit',sans-serif;font-size:.94rem;line-height:1.6;resize:vertical
+}
+.communicator-analysis textarea:focus{outline:none;border-color:var(--gold)}
+.communicator-analysis .card{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:16px 18px}
+.communicator-analysis .card p{margin:6px 0;font-size:.92rem}
+.communicator-analysis .lbl{font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ember);display:block;margin-top:14px}
+.communicator-analysis .lbl:first-child{margin-top:0}
+.communicator-analysis .lbl.a{color:var(--muted)}
+.communicator-analysis .lbl.b{color:var(--done)}
+.communicator-analysis .lbl.c{color:var(--gold)}
+.communicator-analysis .tier{margin-bottom:26px}
+.communicator-analysis .tierhead{display:flex;align-items:baseline;gap:12px;padding:0 0 8px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.communicator-analysis .tierhead .tn{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ember);letter-spacing:.16em}
+.communicator-analysis .tierhead h3{font-size:1.02rem;color:var(--gold)}
+.communicator-analysis .tierhead .tp{margin-left:auto;font-family:'Space Mono',monospace;font-size:.74rem;color:var(--muted)}
+.communicator-analysis .block{background:var(--panel);border:1px solid var(--line);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.communicator-analysis .block > summary{
+  list-style:none;cursor:pointer;padding:14px 18px;display:flex;gap:12px;align-items:flex-start;
+  background:var(--panel2);transition:background .12s
+}
+.communicator-analysis .block > summary::-webkit-details-marker{display:none}
+.communicator-analysis .block > summary:hover{background:var(--panel3)}
+.communicator-analysis .block > summary .bid{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--gold);flex:0 0 34px;padding-top:2px}
+.communicator-analysis .block > summary .bt{flex:1}
+.communicator-analysis .block > summary .bt b{font-family:'Cinzel',serif;font-size:.98rem;letter-spacing:.03em;display:block}
+.communicator-analysis .block > summary .bt span{font-size:.88rem;color:var(--muted)}
+.communicator-analysis .block > summary .caret{color:var(--muted);font-family:'Space Mono',monospace;font-size:.8rem;padding-top:2px}
+.communicator-analysis .block[open] > summary .caret{color:var(--gold)}
+.communicator-analysis .block .body{padding:16px 18px 18px;border-top:1px solid var(--line)}
+.communicator-analysis .res{margin-top:14px}
+.communicator-analysis .res ul{margin:6px 0 0;padding-left:0;list-style:none}
+.communicator-analysis .res ul li{padding:5px 0 5px 16px;position:relative;font-size:.9rem}
+.communicator-analysis .res ul li::before{content:"›";position:absolute;left:0;color:var(--ember);font-family:'Space Mono',monospace}
+.communicator-analysis .res .q{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:2px;padding:7px 10px;display:block;margin:6px 0}
+.communicator-analysis .res ul.checks li{padding:7px 10px}
+.communicator-analysis .res ul.checks li::before{content:none}
+.communicator-analysis .phase{border:1px solid var(--line);border-radius:3px;margin-bottom:16px;overflow:hidden}
+.communicator-analysis .phase > .ph{background:var(--panel2);padding:12px 16px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.communicator-analysis .phase > .ph .pt{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:.94rem;letter-spacing:.07em}
+.communicator-analysis .phase > .ph .pr{margin-left:auto;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted)}
+.communicator-analysis .phase .rationale{padding:14px 16px;border-top:1px solid var(--line);background:var(--panel)}
+.communicator-analysis .phase .rationale p{margin:0 0 10px;font-size:.91rem}
+.communicator-analysis .phase .rationale p:last-child{margin-bottom:0}
+.communicator-analysis .month{display:flex;gap:12px;padding:12px 16px;border-top:1px solid var(--line);align-items:flex-start}
+.communicator-analysis .month .mno{font-family:'Space Mono',monospace;color:var(--ember);font-size:.76rem;flex:0 0 34px;padding-top:3px}
+.communicator-analysis .month .mb{flex:1}
+.communicator-analysis .month .mb b{font-weight:600;font-size:.95rem}
+.communicator-analysis .month .mb p{margin:4px 0 0;font-size:.88rem;color:var(--muted)}
+.communicator-analysis .month .mb .ref{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--gold);margin-top:5px;display:block}
+.communicator-analysis .ladderscore{display:flex;align-items:baseline;gap:16px;padding-top:6px;border-top:1px solid var(--line);margin-top:4px}
+.communicator-analysis .ladderscore .lsv{font-family:'Space Mono',monospace;font-variant-numeric:tabular-nums;font-size:2rem;color:var(--gold)}
+.communicator-analysis .ladderscore .lsv span{font-size:1rem;color:var(--muted)}
+.communicator-analysis .ladderscore .lsl{font-size:.88rem;color:var(--muted)}
+.communicator-analysis details.level{background:var(--panel);border:1px solid var(--line);border-radius:3px;margin-bottom:10px;overflow:hidden}
+.communicator-analysis details.level.passed{border-color:var(--done)}
+.communicator-analysis details.level.current{border-color:var(--gold)}
+.communicator-analysis details.level > summary{list-style:none;cursor:pointer;padding:14px 18px;display:flex;gap:14px;align-items:flex-start;background:var(--panel2);transition:background .12s}
+.communicator-analysis details.level > summary::-webkit-details-marker{display:none}
+.communicator-analysis details.level > summary:hover{background:var(--panel3)}
+.communicator-analysis details.level .lvnum{font-family:'Space Mono',monospace;font-size:1.1rem;color:var(--gold);flex:0 0 30px;padding-top:2px}
+.communicator-analysis details.level .lvbody{flex:1}
+.communicator-analysis details.level .lvbody b{font-family:'Cinzel',serif;font-size:.98rem;letter-spacing:.03em;display:block}
+.communicator-analysis details.level .lvbody span{font-size:.88rem;color:var(--muted)}
+.communicator-analysis details.level .lvrange{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);white-space:nowrap;padding-top:2px}
+.communicator-analysis details.level .lvtag{font-family:'Outfit',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-size:.62rem;color:var(--done)}
+.communicator-analysis details.level .lvtag.cur{color:var(--gold)}
+.communicator-analysis details.level .caret{color:var(--muted);font-family:'Space Mono',monospace;font-size:.8rem;padding-top:2px}
+.communicator-analysis details.level[open] > summary .caret{color:var(--gold)}
+.communicator-analysis details.level .body{padding:16px 18px 18px;border-top:1px solid var(--line)}
+.communicator-analysis details.level .body ul{margin:6px 0 0;padding-left:0;list-style:none}
+.communicator-analysis details.level .body ul li{padding:5px 0 5px 16px;position:relative;font-size:.9rem}
+.communicator-analysis details.level .body ul li::before{content:"›";position:absolute;left:0;color:var(--ember);font-family:'Space Mono',monospace}
+.communicator-analysis .checkpoint{margin-top:14px;border-left:2px solid var(--ember);background:var(--panel2);padding:12px 16px;border-radius:0 3px 3px 0}
+.communicator-analysis .checkpoint b{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ember);display:block;margin-bottom:6px}
+.communicator-analysis .checkpoint p{margin:0 0 10px;font-size:.92rem}
+.communicator-analysis .cplabel{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.communicator-analysis .cplabel span{font-size:.9rem}
+.communicator-analysis .stage{border:1px solid var(--line);border-radius:3px;margin-bottom:14px;background:var(--panel)}
+.communicator-analysis .stage .sh{display:flex;gap:14px;align-items:baseline;padding:14px 18px;background:var(--panel2);flex-wrap:wrap}
+.communicator-analysis .stage .sh .sn{font-family:'Space Mono',monospace;color:var(--gold);font-size:1.05rem;flex:0 0 auto}
+.communicator-analysis .stage .sh h3{font-size:1rem;color:var(--text)}
+.communicator-analysis .stage .sh .zoom{margin-left:auto;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.communicator-analysis .stage .sb{padding:14px 18px}
+.communicator-analysis .stage .sb .ask{font-size:.92rem;color:var(--muted);margin:0 0 10px;font-style:italic}
+.communicator-analysis .stage .out{margin-top:12px;border-left:2px solid var(--done);padding:8px 12px;background:var(--panel2);font-size:.89rem}
+.communicator-analysis .stage .out b{font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--done);display:block;margin-bottom:3px}
+.communicator-analysis .funnelrow{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:6px 0 20px;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted)}
+.communicator-analysis .funnelrow span.f{border:1px solid var(--line);border-radius:2px;padding:5px 9px;background:var(--panel2)}
+.communicator-analysis .funnelrow span.arw{color:var(--ember)}
+.communicator-analysis table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:10px}
+.communicator-analysis th,.communicator-analysis td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.communicator-analysis th{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.communicator-analysis .tablewrap{overflow-x:auto}
+.communicator-analysis ol.method{list-style:none;counter-reset:m;padding:0;margin:0}
+.communicator-analysis ol.method li{counter-increment:m;position:relative;padding:14px 0 14px 52px;border-bottom:1px solid var(--line)}
+.communicator-analysis ol.method li:last-child{border-bottom:none}
+.communicator-analysis ol.method li::before{content:counter(m,decimal-leading-zero);position:absolute;left:0;top:14px;font-family:'Space Mono',monospace;font-size:.95rem;color:var(--gold)}
+.communicator-analysis ol.method li b{display:block;font-family:'Cinzel',serif;font-size:.98rem;margin-bottom:5px;letter-spacing:.03em}
+.communicator-analysis ol.method li p{margin:4px 0;font-size:.92rem}
+.communicator-analysis ol.method li .trap{font-size:.88rem;color:var(--muted);border-left:2px solid var(--ember);padding-left:10px;margin-top:8px}
+.communicator-analysis ol.method li .trap b{display:inline;font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ember)}
+.communicator-analysis .note{background:var(--panel2);border-left:2px solid var(--gold);padding:12px 16px;margin:14px 0;font-size:.9rem;color:var(--muted)}
+.communicator-analysis .note b{color:var(--text)}
+.communicator-analysis .note p{margin:0 0 9px}
+.communicator-analysis .note p:last-child{margin-bottom:0}
+.communicator-analysis .bar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:10px 20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:20}
+.communicator-analysis .bar .msg{font-size:.8rem;color:var(--muted);margin-left:auto;font-family:'Space Mono',monospace}
+.communicator-analysis button.act{font-family:'Outfit',sans-serif;font-size:.82rem;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:2px;padding:7px 14px;cursor:pointer}
+.communicator-analysis button.act:hover{border-color:var(--gold);color:var(--gold)}
+.communicator-analysis button.act.warn:hover{border-color:var(--ember);color:var(--ember)}
+.communicator-analysis .srcs{font-size:.82rem;color:var(--muted)}
+.communicator-analysis .hidden{display:none}
+@media (prefers-reduced-motion:reduce){.communicator-analysis *{transition:none !important;animation:none !important}
+}
+@media (max-width:600px){.communicator-analysis .wrap{padding:18px 12px 110px}
+.communicator-analysis header.masthead h1{font-size:1.7rem}
+.communicator-analysis .panel{padding:16px 14px}
+.communicator-analysis nav.tabs .bandlabel{border-right:none;width:100%;text-align:center;padding:0 0 2px;margin:0}
+}
