@@ -15,7 +15,7 @@ function app(name,saved,options={}){
     confirm:message=>{prompts.push(message);return options.accept!==false;}
   });
   const html=readFileSync(new URL('../../'+(key==='chef'?'the-chef':'crucible')+'.html',import.meta.url),'utf8');
-  vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],context);
+  vm.runInContext(html.match(key==='crucible'?/<script type="text\/plain" data-crucible-curriculum>([\s\S]*?)<\/script>/:/<script>([\s\S]*?)<\/script>/)[1],context);
   vm.runInContext('render=()=>{}',context);
   return {run:code=>vm.runInContext(code,context),json:code=>JSON.parse(vm.runInContext('JSON.stringify('+code+')',context)),writes,messages,prompts,records};
 }

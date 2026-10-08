@@ -1,0 +1,70 @@
+// Full combined journey in a mobile browser. Physical iPhone QA remains separate.
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {createServer} from 'node:http';
+import {readFileSync,mkdirSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+const {chromium}=createRequire(import.meta.url)('playwright');
+const root=fileURLToPath(new URL('../../',import.meta.url));
+const server=createServer((req,res)=>{try{const file=path.join(root,new URL(req.url,'http://test').pathname);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.mjs':'text/javascript','.png':'image/png'})[path.extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const base=process.env.BASE_URL||`http://127.0.0.1:${server.address().port}/`;
+const output=process.env.QA_OUTPUT||'/tmp/communicator-qa';mkdirSync(output,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:process.env.LIBRARY_CHROMIUM||undefined,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--no-zygote','--single-process']});
+const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'America/Winnipeg',reducedMotion:'reduce',colorScheme:'dark',userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});
+const page=await context.newPage();page.setDefaultTimeout(10000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.route('https://fonts.googleapis.com/**',route=>route.abort());
+await page.route('https://fonts.gstatic.com/**',route=>route.abort());
+const go=async file=>{await page.goto(new URL(file,base).href);await page.waitForFunction(()=>!!window.CommunicatorLearning);};
+const nav=async name=>{await page.locator('#atlas-page-navigation').getByRole('button',{name,exact:true}).click();};
+const overflow=async()=>assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+try{
+ await go('communication-trainer.html');
+ await page.evaluate(()=>{localStorage.setItem('crucible:state',JSON.stringify({checks:{'blocks::b01':true,'stmt::l1_test':true},notes:{'2023-01-03':'Keep this historic note'},tab:'today'}));localStorage.setItem('crucible:schema-version','2');});
+ await page.reload();await page.waitForFunction(()=>!!window.CommunicatorLearning);
+ assert.equal(await page.locator('#atlas-page-navigation button').count(),5);await overflow();await page.screenshot({path:output+'/today.png'});
+ await nav('Learn');await page.getByRole('button',{name:'Investing',exact:true}).click();
+ assert.equal(await page.locator('.communicator-analysis details.block').count(),17);await overflow();
+ await page.locator('#block_b02 summary').click();await page.screenshot({path:output+'/learn.png'});
+ await page.locator('#block_b02').getByRole('button',{name:'Practise explaining this · 90 seconds',exact:true}).click();
+ assert.equal(await page.locator('#timer').innerText(),'1:30');assert.equal(await page.evaluate(()=>curDrill.topic.crucibleSource.id),'b02');
+ await page.locator('#txBox').fill('Earnings can differ from cash flow. I would reconcile the cash conversion chain and inspect the notes before drawing a conclusion.');
+ const draftId=await page.evaluate(()=>curDrill.id);await page.reload();await page.waitForFunction(()=>!!window.CommunicatorLearning);await nav('Practice');
+ assert.equal(await page.evaluate(()=>curDrill.id),draftId);assert.match(await page.locator('#txBox').inputValue(),/Earnings can differ/);assert.equal(await page.evaluate(()=>recOn),false);
+ await page.screenshot({path:output+'/practice.png'});
+ await page.getByRole('button',{name:'Save practice (+10 XP)',exact:true}).click();
+ assert.equal(await page.evaluate(()=>S.reps.length),1);assert.equal(await page.evaluate(()=>S.reps[0].crucibleSource.id),'b02');assert.equal(await page.evaluate(()=>S.reps[0].scoreOrigin),'self');
+ assert.equal(await page.evaluate(()=>window.CrucibleCurriculum.stats().blocks),1);assert.equal(await page.evaluate(()=>window.CrucibleCurriculum.stats().mastery),10);
+ await page.locator('.communicator-investing-progress>summary').click();await page.locator('#communicator-progress-view').selectOption('archive');await page.locator('#archive-search').fill('historic');
+ assert.match(await page.locator('#archive-results').innerText(),/2023-01-03/);await overflow();
+ const backup=await page.evaluate(()=>Store.dump());assert.equal(backup.crucible.state.notes['2023-01-03'],'Keep this historic note');assert.equal(backup.reps.length,1);
+ await nav('Learn');await page.locator('#communicator-reference').selectOption('arsenal');
+ assert.equal(await page.getByRole('button',{name:'Practise this response · 90 seconds',exact:true}).count(),12);
+ await page.getByRole('button',{name:'Practise this response · 90 seconds',exact:true}).first().click();assert.equal(await page.evaluate(()=>curDrill.drill.id),'crucible-defend');
+ await page.locator('#txBox').fill('Keep my unfinished evidence practice.');
+ await page.evaluate(()=>window.CommunicatorLearning.begin('statement','2'));
+ assert.equal(await page.evaluate(()=>curDrill.tx),'Keep my unfinished evidence practice.');
+ // A replacement request must present a confirmation rather than discard the draft.
+ const dialog=page.locator('#uiDlg');assert.equal(await dialog.count(),1);await dialog.getByRole('button',{name:'Cancel',exact:true}).click();
+ await nav('Learn');await page.locator('#communicator-reference').selectOption('today');await page.locator('#ledger').fill('A fresh learning note, kept in Crucible records.');
+ assert.match(await page.evaluate(()=>JSON.parse(localStorage.getItem('crucible:state')).notes[window.CrucibleCurriculum.day()]),/fresh learning note/);
+ await page.locator('#communicator-reference').selectOption('statements');await page.locator('#c_stmt_l2').check();assert.equal(await page.evaluate(()=>window.CrucibleCurriculum.stats().mastery),20);
+ for(const id of ['workflow','method','arc','cadence','blocks','arsenal','statements']){await page.locator('#communicator-reference').selectOption(id);await overflow();}
+ await page.setViewportSize({width:844,height:390});await overflow();await page.screenshot({path:output+'/landscape.png'});
+ await page.setViewportSize({width:390,height:844});
+ await nav('Progress');
+ await page.evaluate(()=>{globalThis.qaBefore=JSON.stringify(S.reps);globalThis.qaDraft=JSON.stringify(Store.dump().practiceDraft);});
+ await page.setInputFiles('#importFile',{name:'crucible.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({tool:'crucible',schemaVersion:2,state:{checks:{'stmt::l3_test':true},notes:{'2020-01-01':'Imported legacy note'},tab:'today'}}))});
+ await page.locator('#uiDlg').getByRole('button',{name:'Import investing progress',exact:true}).click();
+ assert.equal(await page.evaluate(()=>JSON.stringify(S.reps)===qaBefore),true);assert.equal(await page.evaluate(()=>JSON.stringify(Store.dump().practiceDraft)===qaDraft),true);
+ assert.equal(await page.evaluate(()=>window.CrucibleCurriculum.snapshot().state.notes['2020-01-01']),'Imported legacy note');
+ // Combined export restores both record families, including the source-bearing draft.
+ const combined=await page.evaluate(()=>Store.dump());
+ await page.setInputFiles('#importFile',{name:'combined.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(combined))});
+ await page.locator('#uiDlg').getByRole('button',{name:'Import',exact:true}).click();
+ assert.equal(await page.evaluate(()=>Store.dump().practiceDraft.topic.crucibleSource.kind),'arsenal');assert.equal(await page.evaluate(()=>S.reps[0].crucibleSource.kind),'block');
+ await go('crucible.html');assert.match(page.url(),/communication-trainer.html#investing$/);assert.equal(await page.locator('#communicator-reference').isVisible(),true);
+ assert.equal(await page.evaluate(()=>S.reps.length),1);assert.deepEqual(errors,[]);
+ console.log('Combined mobile journey passed: lessons, filing mastery, evidence reps, drafts, history, both backup formats, legacy routing, portrait and landscape.');
+}finally{await browser.close();server.close();}
