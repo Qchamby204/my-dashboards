@@ -53,6 +53,8 @@ with sync_playwright() as pw:
         page.get_by_role('button', name='Save focus', exact=True).click()
         expect(page.get_by_role('dialog')).to_have_count(0)
         page.get_by_role('button', name='Edit goal for Read', exact=True).click()
+        expect(page.locator('#rhythm-goal-target')).to_be_hidden()
+        expect(page.locator('#rhythm-goal-due')).to_be_hidden()
         page.locator('#rhythm-goal-type').select_option('deadline')
         page.locator('#rhythm-goal-target').fill('100')
         page.locator('#rhythm-goal-due').fill('2027-02-01')
