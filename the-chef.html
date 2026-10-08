@@ -96,11 +96,11 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#202936">
-<script src="shared/atlas-theme.js?v=b6a5643637c1"></script>
+<script src="shared/atlas-theme.js?v=6aed49233287"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css">
 <link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=7dc5bbd05ee6">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=ec01755e4090">
 <script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-32.png?v=41e1e3906c07">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-64.png?v=9b7a6325c0c0">
@@ -236,12 +236,10 @@ footer .row{justify-content:center}
     <div class="chef-prep-fields">
       <label>Starting day <select id="prep-date" required></select></label>
       <label>Days to cover <input id="prep-days" type="number" inputmode="numeric" min="1" max="31" step="1" value="5" required></label>
+      <label>People eating <input id="prep-per-day" type="number" inputmode="numeric" min="1" max="500" step="1" value="1" required></label>
     </div>
-    <details id="prep-settings" class="chef-portion-settings"><summary>Portion settings</summary><div class="chef-prep-fields">
-      <label>Portions per day <input id="prep-per-day" type="number" inputmode="numeric" min="1" max="500" step="1" value="1" required></label>
-      <label>Original recipe makes (portions) <input id="prep-yield" type="number" inputmode="decimal" min="0.1" max="500" step="any" required></label>
-    </div><details class="cc-help"><summary aria-label="About portion settings"><span aria-hidden="true">i</span></summary><p>One portion per day is the default. For two people eating one portion each, use 2 per day. If a recipe counts individual pieces, enter how many pieces you want each day. The original yield means the number of portions its unscaled ingredients make. Chef calculates: days × portions per day ÷ original yield.</p></details></details>
     <p id="prep-original-yield" class="summary"></p>
+    <details class="cc-help"><summary aria-label="How Chef calculates portions"><span aria-hidden="true">i</span></summary><p id="prep-yield-basis"></p></details>
     <p id="prep-coverage" role="status" aria-live="polite"></p>
     <details id="prep-ingredients-preview" class="chef-portion-settings"><summary>Scaled ingredients</summary><ul id="prep-ingredients"></ul></details>
     <div id="prep-error" role="alert"></div>
@@ -992,16 +990,192 @@ function legacyWeek(){return dateValid(state.legacyWeekStart)?state.legacyWeekSt
 function weekDate(day){return datePlus(ui.weekStart,DAYS.findIndex(d=>d[0]===day));}
 function planningStart(){const today=localDateKey();return today>=ui.weekStart&&today<datePlus(ui.weekStart,7)?today:ui.weekStart;}
 function legacyDay(date){return DAYS.find((d,i)=>datePlus(legacyWeek(),i)===date)?.[0]||'';}
+/* Meal portions for planning. Source yields and ingredient lists remain unchanged.
+   Estimates are curated from quantities or piece counts and disclosed wherever used. */
+const PLANNING_YIELDS={
+  "rb-918ab6eb4458":[8, "The method offers 8 slices.", true], // Pumpkin Spice Protein Loaf
+  "rb-aceb2ba731a6":[4, "One tray divided into 4 snack portions; fruit quantities are not supplied.", false], // Tie-Dye Strawberry Fruit Roll-Ups
+  "rb-1d666a46f16e":[4, "210 g flour and 3 eggs divided into 4 breakfasts.", false], // Nutella Stuffed Mini Pancakes
+  "rb-dc4c09ec80c4":[4, "12 sliders, with 3 sliders per meal.", false], // Blackened Chicken Tender BLT Sliders
+  "rb-1b381f4834ab":[4, "One pack of rolls and 6 eggs divided into 4 breakfasts.", false], // Breakfast Sliders
+  "rb-a1f78d353b69":[4, "1 lb shrimp divided into 4 meals.", false], // Mango Ginger Shrimp Stir Fry
+  "rb-716baf0e7631":[4, "12 rolls, with 3 rolls per breakfast.", false], // Stuffed Hawaiian Roll French Toast Bake
+  "rb-9dcddaea995b":[8, "5 cups mango divided into 8 dessert portions.", false], // Mango Lime Sorbet
+  "rb-6ec7e0d12b7f":[4, "16 oz chicken divided into 4 meals.", false], // Protein Chip Crusted Chicken Nuggets
+  "rb-10ab161b94ba":[5, "The dough is divided into large 160 g cookies; approximately 5 cookies.", false], // Cinnamon Toast Crunch Cookies
+  "rb-901aee4cbf79":[4, "16 oz dry pasta, with 4 oz per meal.", false], // High Protein Creamy Tomato Pasta
+  "rb-9d5c22852d70":[2, "480 g milk plus mix-ins divided into 2 dessert portions.", false], // Cosmic Brownie Protein Ice Cream
+  "rb-88c3429bf932":[2, "8 oz cooked chicken divided into 2 meals.", false], // Crunchy Cheesy Chicken Caesar Taco
+  "rb-f1b2a81ea8dd":[1, "One jar with 1/2 cup oats.", false], // Carrot Cake Overnight Oats
+  "rb-a670e49214c9":[2, "1 cup flour and 2 eggs divided into 2 breakfasts.", false], // Lemon Poppyseed Pancakes
+  "rb-aaf717acfe87":[12, "One frosted cake divided into 12 slices.", false], // Salted Caramel Carrot Cake
+  "rb-ad920b14a4d7":[2, "200 g dry pasta divided into 2 meals.", false], // Supergreen Pasta
+  "rb-daf8c8c7ec52":[4, "One tray of sliders divided into 4 meals; most amounts are not supplied.", false], // Chopped Italian Grinder Sliders
+  "rb-90723162ccaa":[1, "Two slices of custard toast per breakfast.", false], // Blueberry Custard Toast
+  "rb-f56d48a2180e":[6, "1 1/4 cups flour divided into 6 dessert portions.", false], // Maple Blueberry Sourdough Donut Holes
+  "rb-12932b98559c":[12, "550 g flour divided into 12 cinnamon rolls.", false], // Cinnamon Rolls
+  "rb-5b324d50ec46":[1, "One jar with 1/2 cup oats.", false], // Chocolate Mousse Overnight Oats
+  "rb-e987a62d4b46":[2, "1 pint strawberries divided into 2 dessert portions.", false], // One Ingredient Strawberry Sorbet
+  "rb-0bce2310562a":[8, "Two long loaves and 2 lb bacon divided into 8 sandwiches.", false], // BLT Sandwich
+  "rb-c7370bf0091b":[1, "One whole bagel per meal.", true], // Pizza Bagels (adult version)
+  "rb-f53b0feda003":[2, "4 eggs, with 2 eggs per breakfast.", false], // Cloud Eggs
+  "rb-2b7edcc42cb6":[4, "2 1/2 cups grapes divided into 4 dessert portions.", false], // Grape Sorbet with Lime and Tajin
+  "rb-f6b9fc8ad3f4":[4, "700 g beef and 220 g dry noodles divided into 4 meals.", false], // High Protein Mongolian Beef Noodles
+  "rb-212cf5aaddd8":[5, "The method specifies one wrap per serving, with 5 wraps.", true], // Cheeseburger Sausage Rolls
+  "rb-90761e99f3b8":[12, "Meat, lentils and tomato sauce divided into 12 meals; per-serving extras stay as written.", false], // Bolognese (freezer meal prep)
+  "rb-09d9920d4ad8":[8, "The method makes 48 mini muffins; 6 bites per breakfast.", false], // Mini McGriddle Bites
+  "rb-61e08573b404":[4, "A batch of taco sauce for 4 meals; meat and tortilla quantities are not supplied.", false], // Big Mac Smash Tacos
+  "rb-5636382fa0bc":[8, "2 cups flour divided into 8 biscuits.", false], // Strawberry Biscuits
+  "rb-160e69dff4eb":[8, "One loaf-pan cheesecake divided into 8 slices.", false], // Baby Cheesecake (9 Months & Up)
+  "rb-b300a7e6dd62":[2, "1 cup oats and 2 eggs divided into 2 breakfasts.", false], // Protein Pancakes
+  "rb-82c87ed95ba3":[4, "One brie round and salad divided into 4 meals; fruit amounts are not supplied.", false], // Crispy Brie & Berry Salad
+  "rb-018914b62217":[12, "The method divides the dough into 12 rolls.", true], // Blueberry Muffin Cinnamon Rolls
+  "rb-a4e31d12658b":[8, "1 lb strawberries divided into 8 snack portions.", false], // Super Healthy Gummy Bears
+  "rb-e19addb60baa":[4, "The ingredients list 4 servings of pasta.", true], // Chicken and Mac and Cheese Meal Prep
+  "rb-ce147e14f84d":[2, "One can of tuna and 1 cup cheese divided into 2 meals.", false], // Tuna Fish Sticks
+  "rb-d5b8e39cd01a":[1, "The listed ingredient amounts are for each individual bowl, not all 5 bowls.", true], // Chicken Pesto Bakes
+  "rb-8beb8969a243":[4, "700 g chicken and 225 g dry pasta divided into 4 meals.", false], // High Protein Honey BBQ Chicken Mac & Cheese
+  "rb-b15de06d9943":[1, "One large filled crunch wrap.", false], // Chicken Parm Crunch Wrap
+  "rb-f9d2321cd221":[16, "The large loaf recipe divided into 16 slices.", false], // Ultra Moist Lemon Blueberry Loaf
+  "rb-eeb45bc5c5ce":[4, "Fruit sorbet divided into 4 dessert portions.", false], // Strawberry Lemonade Sorbet
+  "rb-991c0c8548c9":[12, "12 English muffins and 12 slices of cheese.", true], // Make Ahead Breakfast Sandwiches
+  "rb-ae6f1b5d43bc":[1, "One tortilla bowl with 2 eggs.", true], // Egg Bowls (Breakfast Bowls)
+  "rb-8e8eed81c25e":[6, "The method makes about 36 mini muffins; 6 bites per breakfast.", false], // Cinnamon Toast Crunch Pancake Muffins
+  "rb-871da083c313":[12, "3 1/4 cups flour divided into 12 donuts.", false], // Creme Brulee Donuts
+  "rb-d2513a1926de":[4, "Beef and cucumber salad divided into 4 meals.", false], // Cucumber Beef Salad
+  "rb-21b9b96c488b":[4, "400 g dry pasta divided into 4 meals.", false], // Creamy Capsicum Pasta
+  "rb-5742beb4a171":[1, "One jar with 1/2 cup oats.", false], // Gluten Free High Protein Mini Egg Overnight Oats
+  "rb-64d3487f0a68":[6, "7 cups broth plus sausage and tomatoes divided into 6 bowls.", false], // One-Pot Lasagna Soup
+  "rb-6bb20c17b32c":[6, "One pot of lentil, chickpea and tomato soup divided into 6 bowls.", false], // Moroccan Harira
+  "rb-bd1dcca319ef":[9, "The method shapes the dough into 9 biscuits.", true], // Sausage Egg and Cheese Breakfast Biscuits
+  "rb-b4f555eb8834":[8, "The method makes 8 filled tortillas.", true], // Sheet Pan Burritos
+  "rb-eac818a47616":[6, "Protein-bar mixture divided into 6 bars.", false], // Cake Batter Protein Bars
+  "rb-94e17f43be6e":[4, "1 lb chicken divided into 4 meals.", false], // Healthy Chicken Nuggets with Sweet Potato
+  "rb-2435a4e0d98a":[1, "One baked oatmeal with 1/2 cup oats.", false], // Cookie Baked Oatmeal
+  "rb-291aaaa6749a":[8, "Fruit gummy mixture divided into 8 snack portions.", false], // Homemade Peach Ring Gummies
+  "rb-bb7d8449f3e0":[4, "Two large chicken breasts and a bag of tortellini divided into 4 meals.", false], // Marry Me Chicken Cheesy Tortellini
+  "rb-f95716826899":[2, "10 oz tuna and 2 eggs divided into 2 meals.", false], // Tuna Patties
+  "rb-1e15d67a354c":[4, "One marinated-watermelon batch divided into 4 portions.", false], // Watermelon Tuna
+  "rb-60cc1171b2e2":[6, "The method makes 12 biscuits; 2 biscuits per breakfast.", false], // Turkey Broccoli Cheddar Breakfast Biscuits
+  "rb-fc6617eff4e5":[1, "Two filled breakfast tacos.", false], // High-Protein High-Fiber Breakfast Tacos
+  "rb-3131d7b59ab9":[1, "One meal-prep bowl with 150 g cooked chicken.", false], // High-Protein High-Fiber Meal Prep Bowl
+  "rb-8ce61edf8792":[4, "Three cans of tuna and crispy rice divided into 4 meals.", false], // Ensalada de Atun con Arroz Crispy (Crispy Rice Tuna Salad)
+  "rb-fef2c41b4003":[8, "One pull-apart loaf divided into 8 portions.", false], // Blueberry Lemon Pull-Apart Bread
+  "rb-b361c87794a8":[1, "One sweet potato with toppings.", false], // Sweet Potato Toasts
+  "rb-c860e88b90bb":[10, "10 filled wraps.", true], // Korean BBQ Chicken Wraps
+  "rb-c7cc8f09bcba":[4, "32 shrimp and 2 cups cooked rice divided into 4 meals.", false], // Bang Bang Crispy Rice Shrimp Salad
+  "rb-7ef23556318c":[6, "The method divides the dough into 6 filled buns.", true], // Burger-Stuffed Buns
+  "rb-406314e5a86e":[2, "200 g salami divided into 2 portions.", false], // Fuet Tartare
+  "rb-2a4cb23764c2":[4, "One box of pasta divided into 4 meals.", false], // Parmesan Garlic Chicken Bowties
+  "rb-d17e72d68f97":[1, "One filled sandwich; ingredient amounts are not supplied.", false], // Summer Peach & Prosciutto Burrata Sandwich
+  "rb-ac68f3b2f638":[2, "50 g chocolate and fruit divided into 2 dessert portions.", false], // High Fiber Chocolate Raspberry Pistachio Bar
+  "rb-4e907708b95c":[2, "240 ml milk and chia divided into 2 pudding portions.", false], // Blueberry Chia Pudding
+  "rb-d614095d67fc":[9, "9 filled burrito tortillas.", true], // Philly Cheesesteak Burritos
+  "rb-42505047aa68":[6, "A sheet pan with 6 tostadas divided into 6 meals.", false], // Sheet Pan Crunchwraps
+  "rb-5231a4bc872c":[3, "The method splits the salad into 3 jars or bowls.", true], // Asian Style Peanut Chicken Salad Jars
+  "rb-0b8d101f38ed":[10, "One banana loaf divided into 10 slices.", false], // Banana Bread
+  "rb-b60d46abcc8f":[4, "Two sweet potatoes and bowl toppings divided into 4 meals.", false], // Harvest Bowl
+  "rb-fa90047beb1a":[6, "6 eggs and 12 sausage patties divided into 6 breakfast burgers.", false], // Breakfast Smash Burgers
+  "rb-74c692a56bb7":[1, "The burger assembly uses one 4 oz beef ball; jam is a separate batch.", false], // Jalapeno Popper Smashburger with Raspberry Bacon Jam
+  "rb-40852fd9155c":[30, "10 lb chicken divided into 30 burritos; the title is not a confirmed ingredient yield.", false], // Meal-Prep Burritos (180)
+  "rb-4f80d9aeea4e":[6, "One rotisserie chicken and rice divided into 6 meals.", false], // Costco Rotisserie Chicken Rice
+  "rb-0980ae51d2e2":[6, "A sheet pan with 6 tostadas divided into 6 meals.", false], // Sheet Pan Crunchwrap Supreme
+  "rb-bc6a96c8fa32":[6, "1,200 g chicken and 300 g dry rice divided into 6 bowls.", false], // Garlic Herb Grilled Chicken Bowl
+  "rb-16686081ab9d":[1, "One filled hoagie with 8 oz beef.", false], // Smashburger Chopped Cheese
+  "rb-83860ea8659e":[6, "1.2 kg beef divided into 6 meals.", false], // Beef Bulgogi
+  "rb-c403b43cd0a9":[1, "One brioche sandwich with chicken and pasta.", false], // Honey BBQ Chicken & Mac n Cheese Sandwich
+  "rb-ebbb8dc8ae5b":[1, "One breakfast of custard toast.", false], // Custard Toast
+  "rb-a63468204f8a":[6, "6 filled tortilla wraps.", true], // Cheesy Beef Breakfast Burrito
+  "rb-9551a3502c11":[3, "6 slices of bread make 3 sandwiches.", true], // Buffalo Chickpea Salad Sandwich with Ranch Slaw
+  "rb-050496965edf":[4, "1 1/2 cups flour and 4 eggs divided into 4 breakfasts.", false], // Freezer Pancakes
+  "rb-e629d5417a9b":[3, "6 eggs, with 2 eggs per meal.", false], // Modern Jammy Egg Salad
+  "rb-7d4e9d68fd8e":[4, "Two dough sheets divided into 4 meals.", false], // Ice Cube Tray Pizza Pockets
+  "rb-744fccc80a86":[6, "3 cups dry rice divided into 6 meals.", false], // Jollof Rice
+  "rb-00d1cdd23ca3":[4, "500 g chicken and 200 g dry noodles divided into 4 meals.", false], // Chicken Pad Thai
+  "rb-c8fffd0eebeb":[4, "600 g chicken and 200 g dry rice divided into 4 meals.", false], // High Protein Meal Prep Chicken Fried Rice
+  "rb-3552e1dfea40":[5, "The ingredients list 5 chicken breasts for meal-prep portions.", false], // High Protein Meal Prep Chicken Alfredo
+  "rb-f1d78bcd45d3":[4, "One can of coconut milk plus lemons divided into 4 dessert portions.", false], // Lemon Ice Cream
+  "rb-0e7848a3a6f8":[4, "9 tomatoes and cream divided into 4 bowls.", false], // Spicy Tomato Soup with Italian Cheese Bread
+  "rb-74fa8b226438":[4, "1 lb seafood and 2–3 cups cooked rice divided into 4 meals.", false], // Sushi Bake
+  "rb-8e91b725210a":[12, "4 lb chicken divided into 12 meals.", false], // Honey Chipotle Chicken Tenders
+  "rb-40cdb96a1b91":[1, "One baked oatmeal with 1/2 cup oats.", false], // Cinnamon Roll Protein Oats
+  "rb-64646fde1b93":[6, "6 filled English muffins.", true], // High Protein Poor Boy McMuffin
+  "rb-ab7ed222fac2":[1, "One filled wrap with 150 g chicken.", false], // High Protein BBQ Chicken Quesadilla
+  "rb-2ea2df43ebec":[4, "6 cups broth and coconut milk divided into 4 bowls.", false], // Glow Soup
+  "rb-8edeffece433":[10, "3–4 lb roast divided into 10 taco meals.", false], // Shredded Beef Tacos
+  "rb-735b823ca7ee":[2, "The method uses half the eggs per wrap.", false], // Healthy Breakfast Crunchwrap
+  "rb-a340f9cf58ca":[6, "One yogurt cake divided into 6 slices.", false], // 5 Ingredient Blueberry Cake
+  "rb-312ba9ffd9c5":[2, "1 cup flour divided into 2 breakfast bagels.", false], // Homemade Chocolate Chip Bagel
+  "rb-63056ec264b2":[6, "Fruit and drinks divided into 6 popsicles.", false], // Alcoholic Mango Pineapple Popsicles
+  "rb-8cef4dc55f2c":[1, "One filled tortilla wrap.", true], // Low-Calorie Creamy BBQ Chicken Wrap
+  "rb-07a18ef6c58a":[4, "600 g chicken and 250 g dry pasta divided into 4 meals.", false], // High Protein Meal Prep Buffalo Mac n Cheese
+  "rb-7fdb0b4d2b47":[1, "One filled tortilla wrap.", true], // KFC Twister Wrap (Copycat)
+  "rb-9c228a19b04d":[8, "The method shapes the dough into 8 muffins.", true], // Homemade English Muffins
+  "rb-88391ad74644":[3, "Six rice parcels, with 2 parcels per meal.", false], // Spicy Tuna Yaki Onigiri
+  "rb-24f8369c06ba":[4, "The method specifies 4 equal servings.", true], // Jalapeno Popper Mac & Cheese
+  "rb-cc9db1aa79e7":[1, "One stuffed 200 g chicken breast.", true], // Prosciutto-Wrapped Stuffed Chicken Breast
+  "rb-bf9f8e333e6b":[8, "One large filled loaf divided into 8 sandwiches.", false], // Muffuletta (Antipasto Sandwich)
+  "rb-ce3230298491":[4, "350 g grapes divided into 4 snack portions.", false], // Low Calorie Sour Candy Grapes
+  "rb-7077b47fbe4f":[2, "150 g dry pasta divided into 2 meals.", false], // Lazy Sunday Baked Pasta
+  "rb-ad0a92ee714f":[4, "6–7 tomatoes and coconut milk divided into 4 bowls.", false], // Easy Tomato Basil Soup
+  "rb-dd32aeeefe16":[6, "6 apples and one pastry sheet divided into 6 desserts.", false], // Caramelized Apple Puff Pastry Dessert
+  "rb-4fb5ea8955c2":[5, "The method mentions 5 burritos; the combined breakfast and pasta recipe is estimated as 5 meal-prep sets.", false], // Meal Prep: Breakfast Burritos & Mac and Cheese Bowl
+  "rb-35ede23475dc":[1, "One baked oatmeal with 1/2 cup oats.", false], // Chocolate Chip Protein Baked Oats
+  "rb-3dddc081e1cf":[4, "350 g grapes divided into 4 snack portions.", false], // Frozen Sour Candy Grapes
+  "rb-a174175d1023":[6, "2 lb chicken divided into 6 meals.", false], // Chimichurri Chicken Bites
+  "rb-df6de6001b4e":[2, "1 cup flour divided into 2 breakfast bagels.", false], // Homemade Cinnamon Swirl Bagel
+  "rb-39d423719d86":[2, "440 g egg whites divided into 2 breakfasts.", false], // Low Cal Egg White Cups
+  "rb-5a20507164e0":[3, "3 filled whole-grain pitas.", true], // Grilled Chickpea Veggie Pitas
+  "rb-748fe142dece":[5, "The method offers 4–6 servings; planning uses the midpoint of 5.", false], // Carrot Cake Baked Oats
+  "rb-659ce50b2ab4":[4, "1 cup juice divided into 4 gummy snack portions; sea moss base is a separate batch.", false], // Sea Moss Fruit Gummies
+  "b30":[6, "12 muffins, with 2 muffins per breakfast.", false], // Banana Oat Protein Muffins
+  "b39":[6, "12 egg bites, with 2 bites per breakfast.", false], // Bacon Gruyere Egg Bites
+  "ff-002":[5, "10 pancakes, with 2 pancakes per breakfast.", false], // FLUFFY Blueberry Pancakes
+  "ff-003":[4, "8 pancakes, with 2 pancakes per breakfast.", false], // FLUFFY Cottage Cheese Pancakes
+  "ff-004":[6, "30 mini pancakes, with 5 mini pancakes per breakfast.", false], // Baby 2 ingredient Pancakes
+  "ff-005":[4, "8 pieces of French toast, with 2 pieces per breakfast.", false], // Cinnamon Sugar Protein French Toast
+  "ff-006":[5, "15 waffles, with 3 waffles per breakfast.", false], // Freezer Protein Waffles
+  "ff-011":[4, "8 hash brown waffles, with 2 waffles per breakfast.", false], // Waffle Maker Hash Browns
+  "ff-015":[4, "12 sliders, with 3 sliders per meal.", false], // Bacon Cheeseburger Sliders
+  "ff-016":[2, "6 sliders, with 3 sliders per meal.", false], // Cheeseburger Sliders
+  "ff-019":[4, "8 pockets, with 2 pockets per meal.", false], // Cheeseburger Pockets
+  "ff-031":[2, "4 pockets, with 2 pockets per meal.", false], // Buffalo Chicken Pockets
+  "ff-034":[1, "8–10 nuggets per meal.", false], // Spicy Wendy's Chicken Nuggets Dupe
+  "ff-035":[3, "18 nuggets, with 6 nuggets per meal.", false], // Korean Fried Chicken Nuggets
+  "ff-044":[2, "6 taquitos, with 3 taquitos per meal.", false], // Steak & Cheese Taquitos
+  "ff-047":[10, "200 gummies, with 20 gummies per snack portion.", false], // Gummies
+  "ff-048":[1, "25 grapes per snack portion.", false], // Sour Candy Grapes
+  "ff-049":[4, "One fruit batch divided into 4 snack portions; fruit amounts vary.", false], // Sour Candy Fruit Mix
+  "ff-051":[10, "40 donut holes, with 4 donut holes per dessert.", false], // Glazed Donut Holes
+  "ff-052":[10, "30 donut holes, with 3 donut holes per dessert.", false], // Apple Cider Donut Holes
+  "ff-055":[4, "12 donut bites, with 3 bites per dessert.", false], // Easy Baby Protein Donut Bites
+  "ff-056":[4, "12 cinnamon roll bites, with 3 bites per dessert.", false], // Cinnamon Roll Bites
+  "ff-083":[3, "18 pizza bites, with 6 bites per meal.", false], // Pizza Bagel Bites
+  "ff-088":[4, "8 pizza pockets, with 2 pockets per meal.", false], // Pizza Dumplings
+  "ff-092":[4, "One large pizza divided into 4 meals.", false], // Large Meat Lover's Pizza
+  "ff-093":[4, "One large pizza divided into 4 meals.", false], // Large Pepperoni Pizza
+  "ff-098":[4, "8 sliders, with 2 sliders per meal.", false], // Honey Fried Chicken Sliders
+  "ff-110":[2, "10 sushi pieces, with 5 pieces per meal.", false], // Cucumber Sushi Rolls
+};
+function planningYield(recipe){
+  const value=PLANNING_YIELDS[recipe?.id];
+  if(value)return {portions:value[0],basis:value[1],estimated:!value[2]};
+  if(recipe&&recipe.portionUnit!=='batch'&&validYield(recipe.servings))return {portions:recipe.servings,basis:'Serving count supplied with the recipe.',estimated:false};
+  return {portions:4,basis:'One batch divided into 4 portions; the source does not specify its yield.',estimated:true};
+}
+function planningYieldText(recipe){const yieldInfo=planningYield(recipe);return `${yieldInfo.estimated?'Estimated recipe yield':'Recipe yield'}: ${fmtNum(yieldInfo.portions)} portion${yieldInfo.portions===1?'':'s'}`;}
+
 function validYield(n){return Number.isFinite(n)&&n>=0.1&&n<=500;}
-function preparationFactor(p){return p.days!==undefined?p.portionCount/p.sourcePortions:p.amount/BY_ID[p.recipeId].servings;}
-function daysPlan(recipeId,startDate,days,perDay=1,sourcePortions,id){
-  const recipe=BY_ID[recipeId],yieldCount=sourcePortions??state.recipeYields?.[recipeId]??(recipe?.portionUnit==='batch'?null:recipe?.servings);
+function preparationFactor(p){return p.days!==undefined?p.portionCount/planningYield(BY_ID[p.recipeId]).portions:p.amount/BY_ID[p.recipeId].servings;}
+function daysPlan(recipeId,startDate,days,perDay=1,id){
+  const recipe=BY_ID[recipeId],yieldCount=planningYield(recipe).portions;
   return {id,recipeId,startDate,days,perDay,sourcePortions:yieldCount,portionCount:days*perDay,amount:recipe?.servings*days*perDay/yieldCount};
 }
 function validPreparation(p){
   const recipe=BY_ID[p?.recipeId];
   if(!recipe||recipeDeleted(recipe.id)||!MEALS.includes(recipe.meal)||!dateValid(p.startDate)||!validServings(p.portionCount)||!validServings(p.perDay))return false;
-  // Read earlier plans as saved; only explicit saves use the simpler days-based format.
+  // Preserve earlier records and dates. Days-based ingredient factors use automatic recipe yields;
+  // stored yield/amount snapshots only validate old records and are refreshed on explicit Save.
   if(p.days===undefined)return validServings(p.amount)&&(recipe.portionUnit==='batch'||p.portionCount===p.amount);
   return Number.isInteger(p.days)&&p.days>=1&&p.days<=31&&validYield(p.sourcePortions)&&p.portionCount===p.days*p.perDay&&Number.isFinite(p.amount)&&p.amount>0&&Math.abs(p.amount-recipe.servings*p.portionCount/p.sourcePortions)<1e-8;
 }
@@ -1036,12 +1210,11 @@ function preparationConflict(p,legacySlot=null){
 function savePreparation(value,legacySlot=null,replace=false){
   if(!value)return false;
   const p={...value,id:value.id||'prep-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9)};
-  if(!validPreparation(p)){window.AtlasCraftUI?.announce('Choose a starting day, valid days to cover, portions per day and original recipe yield.');return false;}
+  if(!validPreparation(p)){window.AtlasCraftUI?.announce('Choose a starting day, 1–31 days and the number of people eating (up to 500 total portions).');return false;}
   const conflict=preparationConflict(p,legacySlot);
   if(conflict&&!replace){window.AtlasCraftUI?.announce(conflict);return false;}
   const conflicts=replace?preparationConflicts(p,legacySlot):[],removed=new Set(conflicts.filter(e=>e.prep).map(e=>e.prep.id));
   const patch={preparations:{...Object.fromEntries(Object.entries(state.preparations||{}).filter(([id])=>!removed.has(id))),[p.id]:p},legacyWeekStart:legacyWeek()};
-  if(p.days!==undefined)patch.recipeYields={...state.recipeYields,[p.recipeId]:p.sourcePortions};
   const legacySlots=[...(legacySlot?[legacySlot]:[]),...conflicts.filter(e=>e.legacy).map(e=>e.legacy+'|'+e.meal)];
   if(legacySlots.length){
     const plan=JSON.parse(JSON.stringify(state.plan)),portions=JSON.parse(JSON.stringify(state.portions||{}));
@@ -1232,7 +1405,7 @@ function openCook(id,slot,trigger){
   document.getElementById('cook-servings').readOnly=!!prep;
   document.getElementById('cook-edit-prep').hidden=!prep;
   document.getElementById('cook-edit-prep').textContent='Edit days & portions';
-  document.getElementById('cook-yield').textContent=prep?`${preparationDays(prep).length} days · ${prep.perDay} portion${prep.perDay===1?'':'s'} per day · ${prettyDate(prep.startDate)}–${prettyDate(preparationDays(prep).at(-1).date)}. Make ${prep.portionCount} portions using ${fmtNum(preparationFactor(prep))}× the original recipe. The ingredient list below covers all linked days.`:'Original recipe: '+fullYield(recipe)+'.'+(slot?' This amount is saved in your week plan.':'');
+  document.getElementById('cook-yield').textContent=prep?`${preparationDays(prep).length} days · ${prep.perDay} portion${prep.perDay===1?'':'s'} per day · ${prettyDate(prep.startDate)}–${prettyDate(preparationDays(prep).at(-1).date)}. Make ${prep.portionCount} portions using ${fmtNum(preparationFactor(prep))}× the original recipe. The ingredient list below covers all linked days.${prep.days!==undefined?' '+planningYieldText(recipe)+(planningYield(recipe).estimated?' · Chef estimate.':'.'):''}`:'Original recipe: '+fullYield(recipe)+'.'+(slot?' This amount is saved in your week plan.':'');
   renderCookIngredients();
   document.getElementById('cook-steps').innerHTML=recipe.steps.map((step,n)=>'<li><label><input type="checkbox" aria-label="Step '+(n+1)+' complete"><span>'+esc(step)+'</span></label></li>').join('');
   document.getElementById('cook-dialog').showModal();
@@ -1281,7 +1454,8 @@ function groceryExport(scope='needed'){
   const groups=shoppingGroups().map(g=>({...g,items:g.items.filter(x=>scope==='all'||!groceryChecked(x.n))})).filter(g=>g.items.length);
   if(!groups.length)return '';
   const heading='GROCERY SHOPPING LIST\nPreparations starting '+prettyDate(ui.weekStart)+'–'+prettyDate(datePlus(ui.weekStart,6))+'\n\n'+(scope==='all'?'Full ingredient list.':'Only items still needed; ingredients marked as already owned or bought are excluded.')+'\nEach preparation is counted once, including portions for later days. Quantities below are total recipe amounts. Buy the smallest pack(s) that cover them. Keep different units separate; do not guess quantities marked for confirmation.';
-  return heading+'\n\n'+groups.map(g=>g.label.toUpperCase()+'\n'+g.items.map(a=>'- '+a.n+' — '+groceryQuantity(a)).join('\n')).join('\n\n');
+  const estimates=[...new Set(allPreparations().filter(p=>p.days!==undefined&&p.startDate>=ui.weekStart&&p.startDate<datePlus(ui.weekStart,7)&&planningYield(BY_ID[p.recipeId]).estimated).map(p=>BY_ID[p.recipeId].name+' ('+fmtNum(planningYield(BY_ID[p.recipeId]).portions)+' portions in original recipe)'))];
+  return heading+(estimates.length?'\nPortion estimates used: '+estimates.join('; ')+'.':'')+'\n\n'+groups.map(g=>g.label.toUpperCase()+'\n'+g.items.map(a=>'- '+a.n+' — '+groceryQuantity(a)).join('\n')).join('\n\n');
 }
 function fillWeek(plan){
   const used = new Set(Object.values(plan).flatMap(d=>Object.values(d)));
@@ -1458,7 +1632,7 @@ function renderPickerResults(){
   const list=plannerRecipes(mealPicker.meal,mealPicker.filters);
   $('#picker-count').textContent=list.length+' matching recipe'+(list.length===1?'':'s');
   const groups=[...new Set(list.map(recipeCategory))].sort((a,b)=>a.localeCompare(b));
-  $('#picker-results').innerHTML=list.length?groups.map(category=>`<section class="chef-picker-group"><h3>${esc(category)}</h3>${list.filter(x=>recipeCategory(x)===category).map(x=>`<button class="chef-picker-recipe" data-picker-id="${x.id}" ${mealAt(mealPicker.day,mealPicker.meal)?.recipe.id===x.id?'aria-current="true"':''}><strong>${esc(x.name)}</strong><span>${esc(x.source?.title||'Chef originals')} · ${esc(recipeTime(x))} · ${esc(fullYield(x))}${state.favourites[x.id]?' · ♥ Favourite':''}</span></button>`).join('')}</section>`).join(''):'<div class="empty">No recipes match these filters. Clear a filter or try another search.</div>';
+  $('#picker-results').innerHTML=list.length?groups.map(category=>`<section class="chef-picker-group"><h3>${esc(category)}</h3>${list.filter(x=>recipeCategory(x)===category).map(x=>`<button class="chef-picker-recipe" data-picker-id="${x.id}" ${mealAt(mealPicker.day,mealPicker.meal)?.recipe.id===x.id?'aria-current="true"':''}><strong>${esc(x.name)}</strong><span>${esc(x.source?.title||'Chef originals')} · ${esc(recipeTime(x))} · ${esc(planningYieldText(x))}${state.favourites[x.id]?' · ♥ Favourite':''}</span></button>`).join('')}</section>`).join(''):'<div class="empty">No recipes match these filters. Clear a filter or try another search.</div>';
 }
 function openPreparationEditor(recipeId,date,trigger,options={}){
   const recipe=BY_ID[recipeId];if(!recipe||recipeDeleted(recipeId)||!MEALS.includes(recipe.meal))return;
@@ -1472,10 +1646,9 @@ function openPreparationEditor(recipeId,date,trigger,options={}){
   $('#prep-date').value=start;
   $('#prep-days').value=sameRecipe?preparationDays(existing).length:5;
   $('#prep-per-day').value=existing?.perDay||1;
-  const sourcePortions=sameRecipe?(existing.sourcePortions??existing.portionCount/preparationFactor(existing)):state.recipeYields?.[recipeId]??(recipe.portionUnit==='batch'?null:recipe.servings);
-  $('#prep-yield').value=sourcePortions??'';
-  $('#prep-settings').open=!validYield(sourcePortions);
-  $('#prep-original-yield').textContent=validYield(sourcePortions)?`Scaling from ${fmtNum(sourcePortions)} portions in the original recipe. One portion per day is the default.`:'The original recipe has no portion count. Enter how many portions its ingredients make in Portion settings.';
+  const yieldInfo=planningYield(recipe);
+  $('#prep-original-yield').textContent=planningYieldText(recipe)+(yieldInfo.estimated?' · Chef estimate':' · from recipe');
+  $('#prep-yield-basis').textContent=yieldInfo.basis+' One portion per person, per day. Chef calculates days × people, then scales the original ingredients to that total. '+(yieldInfo.estimated?'This is a planning estimate, not a confirmed serving count. ':'')+'Amounts missing from the source remain marked for confirmation in the shopping list.';
   $('#prep-replace').checked=false;
   $('#prep-ingredients-preview').open=false;
   $('#prep-remove').hidden=!existing;
@@ -1483,7 +1656,7 @@ function openPreparationEditor(recipeId,date,trigger,options={}){
 }
 function preparationDraft(){
   if(!prepEditor)return null;
-  return daysPlan(prepEditor.recipeId,$('#prep-date').value,Number($('#prep-days').value),Number($('#prep-per-day').value),Number($('#prep-yield').value),prepEditor.id||undefined);
+  return daysPlan(prepEditor.recipeId,$('#prep-date').value,Number($('#prep-days').value),Number($('#prep-per-day').value),prepEditor.id||undefined);
 }
 function updatePreparationPreview(){
   const draft=preparationDraft(),days=draft?preparationDays(draft):[];
@@ -1491,11 +1664,11 @@ function updatePreparationPreview(){
   $('#prep-replace-field').hidden=true;
   $('#prep-ingredients-preview').hidden=!days.length;
   if(!days.length){
-    $('#prep-coverage').textContent=!validYield(draft?.sourcePortions)?'How many portions does the original recipe make? Enter that above so Chef can scale the ingredients.':'Use 1–31 days and at least 1 portion per day, up to 500 total portions.';
+    $('#prep-coverage').textContent='Use 1–31 days and at least 1 person, up to 500 total portions.';
     $('#prep-save').disabled=true;return;
   }
   const factor=preparationFactor(draft);
-  $('#prep-coverage').textContent=`${days.length} days: ${prettyDate(days[0].date)}–${prettyDate(days.at(-1).date)}. ${draft.perDay} portion${draft.perDay===1?'':'s'} per day = ${draft.portionCount} total. Ingredients: ${fmtNum(factor)}× the original recipe, counted once.`;
+  $('#prep-coverage').textContent=`${days.length} days: ${prettyDate(days[0].date)}–${prettyDate(days.at(-1).date)}. ${draft.perDay} ${draft.perDay===1?'person':'people'} × ${days.length} days = ${draft.portionCount} portions to make. Groceries calculated once for all days.`;
   $('#prep-ingredients').innerHTML=BY_ID[draft.recipeId].ingredients.filter(i=>!i.prepared).map(i=>'<li>'+esc(ingredientText(i,factor))+'</li>').join('');
   const conflict=preparationConflict(draft,prepEditor.legacySlot);
   $('#prep-error').textContent=conflict;$('#prep-replace-field').hidden=!conflict;
@@ -1516,8 +1689,8 @@ function fillPreparationWeek(){
     const weight=x=>1+(state.favourites[x.id]?2:0)+Math.max(0,(state.ratings[x.id]||0)-2);
     let roll=Math.random()*pool.reduce((sum,x)=>sum+weight(x),0),recipe=pool.at(-1);
     for(const candidate of pool){roll-=weight(candidate);if(roll<=0){recipe=candidate;break;}}
-    const amount=Math.min(recipe.servings,run);
-    const id='prep-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),prep={id,recipeId:recipe.id,startDate:date,amount,portionCount:amount,perDay:1};
+    const amount=Math.min(planningYield(recipe).portions,run);
+    const id='prep-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),prep=daysPlan(recipe.id,date,amount,1,id);
     preparations[id]=prep;used.add(recipe.id);preparationDays(prep).forEach(d=>occupied.add(d.date+'|'+meal));
   }
   return commitPlan({preparations,legacyWeekStart:legacyWeek()},'Empty days filled with shared preparations. Groceries count each preparation once.');
