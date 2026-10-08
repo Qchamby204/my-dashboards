@@ -180,5 +180,9 @@ test('wider inventory includes private sites and saved tools without treating pr
  assert.equal(h.api.findTools('Outcomes Lab')[0].privateSite,true);
  assert.equal(h.api.findTools('Discern')[0].resourceType,'saved');
  assert.equal(h.api.findTools('Book Economics')[0].doors.length,0);
- assert.equal(h.api.findTools('','','dashboard').length,16);
+ const expected=hubApps(readFileSync(new URL('../../index.html',import.meta.url),'utf8')).map(app=>app.path).sort();
+ const actual=Array.from(h.api.findTools('','','dashboard'),tool=>tool.path).sort();
+ assert.deepEqual(actual,expected,'Neural Map must include every active Atlas dashboard exactly once');
+ assert(actual.includes('communication-trainer.html'));
+ assert(!actual.includes('crucible.html'),'Crucible is part of Communicator, not a separate dashboard');
 });
