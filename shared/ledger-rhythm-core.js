@@ -46,11 +46,15 @@
   function milestone(rows,h,cfg,prefs,today){const g=goal(h,cfg,prefs),amount=Math.max(0,total(rows,h,cfg,prefs,today)-g.baseline);return {goal:g,amount,complete:amount>=g.target,fraction:Math.min(1,amount/g.target)};}
   // XP measures recorded activity, independently of goals, dates and weekly mode.
   function xpUnit(cfg){return cfg.kind==='count'?1:(cfg.def>0?cfg.def:cfg.step>0?cfg.step:1);}
-  function levelProgress(xp){
+  // Fixed reference rhythms keep level thresholds independent of editable goals.
+  const lifeCost=52*14*100/99;
+  function annualCost(h){return 52*(defaults[h]?.[0]||3)*100/99;}
+  function levelProgress(xp,cost=1000){
     xp=Math.max(0,Math.round(xp*100)/100);
-    const cost=1000,level=Math.floor(xp/cost),into=xp-level*cost;
-    return {xp,level,exact:xp/cost,into,cost,remaining:cost-into,fraction:into/cost};
+    cost=Number.isFinite(cost)&&cost>0?cost:1000;
+    const exact=xp/cost,level=Math.floor(exact+1e-9),into=Math.max(0,Math.round((xp-level*cost)*100)/100);
+    return {xp,level,exact,into,cost,remaining:cost-into,fraction:into/cost};
   }
-  function experience(amount,cfg){return levelProgress(amount/xpUnit(cfg)*100);}
-  window.LedgerRhythm=Object.freeze({REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone,xpUnit,levelProgress,experience});
+  function experience(amount,cfg,h){return levelProgress(amount/xpUnit(cfg)*100,h?annualCost(h):1000);}
+  window.LedgerRhythm=Object.freeze({REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone,xpUnit,annualCost,lifeCost,levelProgress,experience});
 })();

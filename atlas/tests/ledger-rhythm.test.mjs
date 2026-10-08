@@ -27,3 +27,16 @@ test('XP normalizes existing check-in amounts; partial work counts and levels co
  assert.equal(R.experience(25,{kind:'qty',def:25}).xp,100);assert.equal(R.experience(5,{kind:'qty',def:25}).xp,20);assert.equal(R.experience(1,{kind:'count'}).xp,100);
  const progress=R.levelProgress(100100);assert.equal(progress.level,100);assert.equal(progress.remaining,900);assert.equal(progress.fraction,.1);
 });
+
+test('each habit reaches 99 after 52 reference weeks without depending on editable goals',()=>{
+ for(const [h,cfg,weekly] of [['Run / Work Out',{kind:'count'},3],['Read',{kind:'qty',def:25},4],['Screen Discipline',{kind:'count'},7],['Board Work',{kind:'qty',def:30},1],['Custom',{kind:'count'},3]]){
+  const target=52*weekly*R.xpUnit(cfg);
+  assert.equal(R.experience(target,cfg,h).level,99);
+  assert(R.experience(target-R.xpUnit(cfg),cfg,h).level<99);
+  assert.equal(R.experience(target*2,cfg,h).level,198);
+  assert.equal(R.experience(target,cfg,h).into,0);
+ }
+ assert.equal(R.levelProgress(72800,R.lifeCost).level,99);
+ const cost=R.annualCost('Read')+R.annualCost('Screen Discipline');
+ assert.equal(R.levelProgress(52*(4+7)*100,cost).level,99);
+});
