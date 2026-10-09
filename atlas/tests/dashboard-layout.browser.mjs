@@ -43,11 +43,17 @@ async function capture(p,file,view,theme,width,textSize,errors){
    let n;
    while(n=walker.nextNode()){
     if(!n.textContent.trim()||!visible(n.parentElement)||n.parentElement.closest('svg,style,script,textarea'))continue;
-    let skip=false;
-    for(let el=n.parentElement;el;el=el.parentElement){const css=getComputedStyle(el);if(['absolute','fixed'].includes(css.position)||['auto','scroll'].includes(css.overflowX)||['auto','scroll'].includes(css.overflowY)||css.textOverflow==='ellipsis'||css.webkitLineClamp!=='none'){skip=true;break;}if(el===card)break;}
+    let skip=false;const clips=[];
+    for(let el=n.parentElement;el;el=el.parentElement){const css=getComputedStyle(el);if(['absolute','fixed'].includes(css.position)||['auto','scroll'].includes(css.overflowX)||['auto','scroll'].includes(css.overflowY)||css.textOverflow==='ellipsis'||css.webkitLineClamp!=='none'){skip=true;break;}if(el===card)break;if([css.overflowX,css.overflowY].some(v=>v==='hidden'||v==='clip'))clips.push({rect:el.getBoundingClientRect(),x:['hidden','clip'].includes(css.overflowX),y:['hidden','clip'].includes(css.overflowY)});}
     if(skip)continue;
     const range=document.createRange();range.selectNodeContents(n);
-    for(const r of range.getClientRects())if(r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1||r.top<bounds.top-1||r.bottom>bounds.bottom+1))content.push({card:card.className,text:n.textContent.trim().slice(0,90),side:r.right>bounds.right+1?'right':r.left<bounds.left-1?'left':r.bottom>bounds.bottom+1?'bottom':'top'});
+    for(const r of range.getClientRects()){
+     // A carousel's off-screen slides are clipped by its inner viewport.
+     // Compare the text that is painted, while retaining the outer card bounds.
+     let left=r.left,right=r.right,top=r.top,bottom=r.bottom;
+     for(const c of clips){if(c.x){left=Math.max(left,c.rect.left);right=Math.min(right,c.rect.right);}if(c.y){top=Math.max(top,c.rect.top);bottom=Math.min(bottom,c.rect.bottom);}}
+     if(right>left&&bottom>top&&(left<bounds.left-1||right>bounds.right+1||top<bounds.top-1||bottom>bounds.bottom+1))content.push({card:card.className,text:n.textContent.trim().slice(0,90),side:right>bounds.right+1?'right':left<bounds.left-1?'left':bottom>bounds.bottom+1?'bottom':'top'});
+    }
    }
   }
   const tallPills=[...document.querySelectorAll('button')].filter(n=>visible(n)&&n.getBoundingClientRect().height>100&&parseFloat(getComputedStyle(n).borderTopLeftRadius)>32&&!(getComputedStyle(n).backgroundColor==='rgba(0, 0, 0, 0)'&&parseFloat(getComputedStyle(n).borderTopWidth)===0&&getComputedStyle(n).boxShadow==='none')).map(n=>({class:n.className,text:n.textContent.trim().slice(0,90)}));
