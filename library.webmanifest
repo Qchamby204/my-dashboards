@@ -4,8 +4,8 @@
   "start_url": "./the-library.html#home",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1422",
-  "theme_color": "#0b1422",
+  "background_color": "#efeae3",
+  "theme_color": "#efeae3",
   "description": "Books, reading notes, and topic understandings.",
   "icons": [
     {

@@ -34,3 +34,17 @@ jobs:
           node-version: '24'
       - run: npm run build
       - run: npm test
+      - name: Install browser checks
+        run: |
+          npm install --prefix /tmp/atlas-browser --no-save playwright
+          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Check suite views and saves in Chromium
+        env:
+          NODE_PATH: /tmp/atlas-browser/node_modules
+          ATLAS_SCREENSHOTS: artifacts/dashboard-experience
+        run: node atlas/tests/dashboard-experience.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dashboard-experience
+          path: artifacts/dashboard-experience

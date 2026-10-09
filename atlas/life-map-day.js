@@ -125,6 +125,7 @@
     const c=recommend();
     let html=heading(niceToday(),'A clear next move.',button('I’m off track','reset'));
     html+=panel('Right now',rightNow()+ '<div class="lm-inline">'+button('Today’s scheduled tasks','view-day-task')+'</div>');
+    if(!window.AtlasConnected)html+='<section id="atlas-daily-root" aria-label="Daily preparation"></section>';
     if(ui.reset)html+=panel('Return to your day','<h2>Restart from here</h2>'+help('Choose the time you actually have. Your unfinished tasks stay available.')+field('Minutes available',select('available',ui.available,[[10,'10 minutes'],[25,'25 minutes'],[45,'45 minutes'],[60,'60 minutes']]))+candidateCard(recommend({available:Number(ui.available)}))+button('Close reset','reset-close'));
     html+=panel('Foundations','<div class="lm-day-section-title"><h2>Keep life running</h2>'+info('How foundations work','Real deadlines, due prep reminders, due routines and scheduled to-dos stay in view. Started work stays in focus until you finish or change it. Nothing is completed by the clock.')+'</div>'+foundationCards());
     const routines=dueRoutines();if(routines.length)html+=panel('Due routines','<div class="lm-day-section-title"><h2>The basics due today</h2>'+button('All routines','tab','data-tab="board"')+'</div>'+routines.slice(0,5).map(c=>D.choreRow(c)).join(''));
@@ -221,7 +222,7 @@
     for(const node of children)if(!node.matches('.appbar,.lm-capture,dialog,.lm-fab,.lm-tools'))records.append(node);
     const main=document.createElement('section');main.id='lm-day-view-'+ui.tab;main.className='lm-day-view';main.setAttribute('role','tabpanel');main.setAttribute('aria-labelledby','lm-day-nav-'+ui.tab);
     main.innerHTML=(ui.tab==='board'?(ui.records?heading('Full Life Map','All records',button('Day view','day-board')):boardView()):ui.tab==='home'?homeView():ui.tab==='plan'?planView():areasView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
-    const anchor=app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);
+    const anchor=app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);if(!window.AtlasConnected)window.AtlasDaily?.mount();
     for(const key of ['home','plan','areas','board'])if(key!==ui.tab){const pane=document.createElement('section');pane.id='lm-day-view-'+key;pane.hidden=true;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','lm-day-nav-'+key);app.append(pane);}
     const nav=document.createElement('nav');nav.className='lm-day-dock';nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Map views');
     nav.innerHTML=[['home','⌂','Home'],['plan','◷','Plan'],['areas','◈','Areas'],['board','▦','Board']].map(([key,icon,title])=>'<button type="button" class="btn" id="lm-day-nav-'+key+'" role="tab" aria-selected="'+(ui.tab===key)+'" aria-controls="lm-day-view-'+key+'" tabindex="'+(ui.tab===key?0:-1)+'" data-day="tab" data-tab="'+key+'"><span aria-hidden="true">'+icon+'</span><strong>'+title+'</strong></button>').join('');app.append(nav);

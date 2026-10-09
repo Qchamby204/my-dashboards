@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" class="atlas-neumo cc-app" data-atlas-app="crucible">
 <head>
+<script src="shared/atlas-streak.js?v=72cff1161459"></script>
+<script src="shared/atlas-experience.js?v=44f3038a6695" defer></script>
 <script data-communicator-redirect>location.replace(new URL("communication-trainer.html#investing",location.href).href);</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -210,13 +212,13 @@ button.act.warn:hover{border-color:var(--ember);color:var(--ember)}
   nav.tabs .bandlabel{border-right:none;width:100%;text-align:center;padding:0 0 2px;margin:0}
 }
 </style>
-<meta name="theme-color" content="#202936">
-<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
-<link rel="stylesheet" href="shared/atlas-palette.css">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css">
-<link rel="stylesheet" href="shared/atlas-appearance.css">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=practice-20260909">
-<script src="shared/chef-crucible.js?v=craft-20260909" defer></script>
+<meta name="theme-color" content="#efeae3">
+<script src="shared/atlas-theme.js?v=f4de28eed8cc"></script>
+<link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=4a24a113b47e">
+<link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=7dc5bbd05ee6">
+<script src="shared/chef-crucible.js?v=e5c3183ef814" defer></script>
 <link rel="stylesheet" href="shared/remaining-sports.css?v=356e3c6e654e">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/crucible-32.png?v=7e92a70a476c">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/crucible-64.png?v=78533069c7aa">
@@ -982,13 +984,8 @@ function todayItems(d){
 function dayComplete(d){ return state.checks[dateKey(d) + '::l:l1'] === true; }
 
 function streak(){
-  const d = new Date();
-  let n = 0;
-  if (!dayComplete(d)) d.setDate(d.getDate() - 1);
-  for (let i = 0; i <= Object.keys(state.checks).length; i++){
-    if (dayComplete(d)) { n++; d.setDate(d.getDate() - 1); } else break;
-  }
-  return n;
+  const days=Object.keys(state.checks).filter(k=>k.endsWith('::l:l1')&&state.checks[k]).map(k=>k.split('::')[0]);
+  return window.AtlasStreak?window.AtlasStreak.compute(days).current:0;
 }
 
 function countChecked(prefix, ids){
@@ -1037,7 +1034,7 @@ function viewToday(){
   let h = '';
   h += '<div class="stats">';
   h += '<div class="stat"><div class="k">Today</div><div class="v">' + prog(done, ids.length) + '</div><div class="n">' + WEEKDAY_NAME[now.getDay()] + ', ' + dk + '</div></div>';
-  h += '<div class="stat"><div class="k">Ledger streak</div><div class="v"><span class="num">' + streak() + '</span></div><div class="n">consecutive days written</div></div>';
+  h += '<div class="stat"><div class="k">Ledger streak</div><div class="v"><span class="num">' + (window.AtlasStreak?window.AtlasStreak.badge(streak(),'Saved ledger days'):streak()) + '</span></div><div class="n">saved completion days</div></div>';
   h += '<div class="stat"><div class="k">Blocks</div><div class="v">' + prog(blocksDone(), BLOCKS.length) + '</div><div class="n">curriculum complete</div></div>';
   h += '<div class="stat"><div class="k">Statement mastery</div><div class="v"><span class="num">' + statementScore() + '</span> <span class="n" style="font-size:.62rem">/100</span></div><div class="n">earned, not typed in</div></div>';
   h += '<div class="stat"><div class="k">Session</div><div class="v"><span class="num">' + (TAPE.mins + (b ? b.mins : 0) + LEDGER.mins) + '</span></div><div class="n">minutes planned</div></div>';

@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html class="atlas-neumo" data-atlas-app="neural-map" lang="en">
 <head>
+<script src="shared/atlas-streak.js?v=72cff1161459"></script>
+<script src="shared/atlas-experience.js?v=44f3038a6695" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Neural Map">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#09070f">
+<meta name="theme-color" content="#efeae3">
 <title>Neural Map · Quinton Chambers</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=81c97e94d747"></script>
+<script src="shared/atlas-theme.js?v=f4de28eed8cc"></script>
 <style>
   :root{
     --ink:#09070f; --panel:#171423; --panel-2:#1e1a2e; --line:#2a2540;
@@ -108,10 +107,10 @@
   .legend .lg{width:9px;height:9px;border-radius:50%;display:inline-block}
   .hint{position:fixed;bottom:38px;left:0;right:0;text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--faint);letter-spacing:.1em;pointer-events:none;z-index:20}
 </style>
-<link rel="stylesheet" href="shared/atlas-palette.css">
-<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=4a24a113b47e">
+<link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 <link rel="stylesheet" href="shared/remaining-sports.css?v=356e3c6e654e">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/neural-map-32.png?v=6969db2d620a">
@@ -382,57 +381,52 @@ const CATS=[
         "slots": [
           [
             -150,
-            -145,
+            -116,
             "L"
           ],
           [
             -150,
-            -87,
+            -58,
             "L"
           ],
           [
             -150,
-            -29,
+            0,
             "L"
           ],
           [
             -150,
-            29,
+            58,
             "L"
           ],
           [
             -150,
-            87,
-            "L"
-          ],
-          [
-            -150,
-            145,
+            116,
             "L"
           ],
           [
             160,
-            -145,
+            -116,
             "R"
           ],
           [
             160,
-            -87,
+            -58,
             "R"
           ],
           [
             160,
-            -29,
+            0,
             "R"
           ],
           [
             160,
-            29,
+            58,
             "R"
           ],
           [
             160,
-            87,
+            116,
             "R"
           ]
         ],
@@ -598,21 +592,6 @@ const CATS=[
                 "k": "live",
                 "label": "Open dashboard",
                 "url": "https://qchamby204.github.io/my-dashboards/the-aqueduct.html"
-              }
-            ]
-          },
-          {
-            "id": "app-crucible",
-            "label": "The Crucible",
-            "full": "The Crucible",
-            "file": "Analyst training and statement mastery.",
-            "path": "crucible.html",
-            "resourceType": "dashboard",
-            "doors": [
-              {
-                "k": "live",
-                "label": "Open dashboard",
-                "url": "https://qchamby204.github.io/my-dashboards/crucible.html"
               }
             ]
           }
@@ -1189,8 +1168,8 @@ const CATS=[
       },
       {
         "label": "Communicator",
-        "full": "Master Communicator",
-        "file": "Speaking drills and rehearsal.",
+        "full": "Communicator",
+        "file": "Communication practice, investment analysis, and evidence.",
         "doors": [
           {
             "k": "live",
@@ -1502,6 +1481,7 @@ CATS.forEach(cat=>{
 function lerp(a,b,t){return a+(b-a)*t;}
 let last=performance.now();
 function tick(now){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||document.hidden){for(const e of edges)e.pl.setAttribute('opacity','0');return;}
   const dt=(now-last)/1000; last=now;
   for(const e of edges){
     e.phase=(e.phase+dt*0.26)%1; const t=e.phase, u=1-t;

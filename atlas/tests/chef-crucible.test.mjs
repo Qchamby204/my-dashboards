@@ -15,6 +15,7 @@ function app(name,saved,options={}){
     localStorage:{getItem:k=>records.get(k)??null,setItem(k,v){if(options.failSave)throw Error('storage full');writes.push(k);records.set(k,v);}},
     confirm:message=>{prompts.push(message);return options.accept!==false;}
   });
+  vm.runInContext(readFileSync(new URL('../../shared/atlas-streak.js',import.meta.url),'utf8'),context);context.window.AtlasStreak=context.AtlasStreak;
   const html=readFileSync(new URL('../../'+(key==='chef'?'the-chef':'crucible')+'.html',import.meta.url),'utf8');
   vm.runInContext(html.match(key==='crucible'?/<script type="text\/plain" data-crucible-curriculum>([\s\S]*?)<\/script>/:/<script>([\s\S]*?)<\/script>/)[1],context);
   vm.runInContext('render=()=>{}',context);

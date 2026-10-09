@@ -17,6 +17,7 @@ function boot({speech=true,records={}}={}){
     setAttribute(key,value){this.attrs[key]=String(value);}removeAttribute(key){delete this.attrs[key];}
     appendChild(el){this.children.push(el);el.parentNode=this;return el;}append(...els){els.forEach(el=>this.appendChild(el));}before(el){el.parentNode=this;}after(el){el.parentNode=this.parentNode;}
     remove(){this.parentNode=null;}focus(){this.focused=true;}select(){}click(){this.onclick?.();}
+    insertAdjacentHTML(where,html){this.innerHTML=where==='afterbegin'?html+this.innerHTML:this.innerHTML+html;}
     querySelectorAll(){return [];}querySelector(){return null;}addEventListener(){}
     getContext(){return new Proxy({},{get:(obj,key)=>obj[key]??(()=>{}),set:(obj,key,value)=>(obj[key]=value,true)});}
   }
@@ -32,6 +33,7 @@ function boot({speech=true,records={}}={}){
   const context=vm.createContext({getComputedStyle:()=>({getPropertyValue:()=>''}),document,window,localStorage,navigator:{},crypto:{randomUUID:()=> 'practice-'+(++uuidSerial)},Date:Clock,URL,URLSearchParams,location:{hash:'',pathname:'/communication-trainer.html',search:''},history:{replaceState(){}},Blob,console,
     setInterval:fn=>{const id=++nextId;intervals.set(id,fn);return id;},clearInterval:id=>intervals.delete(id),
     setTimeout:fn=>{const id=++nextId;timeouts.set(id,fn);return id;},clearTimeout:id=>timeouts.delete(id)});
+  vm.runInContext(readFileSync(new URL('../../shared/atlas-streak.js',import.meta.url),'utf8'),context);context.window.AtlasStreak=context.AtlasStreak;
   vm.runInContext(original+"\nDRILLS.push({id:'synthetic',name:'Explain clearly',skill:SKILLS[0].id,time:90,steps:()=>['Speak about a familiar topic.'],rubric:['Clear point','Useful example','Clear ending']});\n"+extension,context);
   const run=code=>vm.runInContext(code,context);
   run("uiConfirm=(title,body,label,action)=>{globalThis.importConfirm=action;};uiNote=message=>{globalThis.importMessage=message;};");

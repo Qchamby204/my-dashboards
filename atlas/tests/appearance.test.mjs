@@ -23,10 +23,10 @@ test('appearance resolves before DOM readiness and respects an explicit override
   const auto = boot({ dark: true });
   assert.equal(auto.root.dataset.atlasAppearance, 'system');
   assert.equal(auto.root.dataset.atlasTheme, 'dark');
-  assert.equal(auto.meta.content, '#202936');
+  assert.equal(auto.meta.content, '#1c1a2b');
   const manual = boot({ saved: 'light', dark: true });
   assert.equal(manual.root.dataset.atlasTheme, 'light');
-  assert.equal(manual.meta.content, '#e7ecf2');
+  assert.equal(manual.meta.content, '#efeae3');
   manual.window.AtlasAppearance.set('dark');
   assert.equal(manual.values.get(key), 'dark');
   assert.equal(boot({ saved: manual.values.get(key) }).root.dataset.atlasTheme, 'dark');

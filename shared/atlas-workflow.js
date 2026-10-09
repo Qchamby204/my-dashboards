@@ -1,4 +1,4 @@
-import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary, localBriefing, createPracticeTransfer } from './atlas-workflow-core.mjs';
+import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary, dailyPhase, createPracticeTransfer } from './atlas-workflow-core.mjs';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const prettyDay = day => validDay(day) ? new Date(day + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
@@ -50,31 +50,29 @@ function mountPractice(nextContext = context) {
       if (navigator.locks?.request) await navigator.locks.request('atlas-courier-practice', write); else write();
       feedback = done ? 'Practice saved. It now appears in your Atlas activity.' : 'Completion undone. This lesson is available to practise again.';
     } catch (error) { feedback = error.message || 'Practice could not be saved.'; problem = true; }
-    finally { busy = false; signature = ''; mountPractice(); focusFeedback(); }
+    finally { busy = false; signature = ''; mountPractice(); if(done&&!problem)window.AtlasExperience?.complete(host.querySelector('[data-practice-item="'+button.dataset.practiceItem+'"]')); focusFeedback(); }
   };
 }
 
 function mountHome() {
   const host = document.getElementById('atlas-daily-root'); if (!host) return;
   let summary;
-  try { summary = dailySummary(localStorage, manifest); } catch { host.innerHTML = '<p role="alert">This browser cannot read your daily records. Open each app to check its saved work.</p>'; return; }
-  const brief=localBriefing(summary,manifestState==='ready');
-  const upcoming = summary.due.slice(0, 4), recent = summary.activity.slice(0, 5), next = summary.pending[0];
-  host.className = 'workflow daily-view';
-  host.innerHTML = '<div class="workflow-heading"><div><span class="eyebrow">Daily preparation</span><h2>' + esc(new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })) + '</h2></div><button type="button" class="btn line" id="daily-refresh" aria-label="Refresh daily preparation">Refresh</button></div>' +
-    '<div class="home-briefing"><span class="eyebrow">Today’s briefing</span><p>' + (brief.overdue===null ? 'Life Map deadlines are unavailable in this browser.' : brief.overdue ? brief.overdue + ' overdue project ' + (brief.overdue===1?'deadline needs':'deadlines need') + ' a review.' : brief.dueToday ? brief.dueToday + ' project ' + (brief.dueToday===1?'deadline is':'deadlines are') + ' due today.' : 'No open project deadlines due today or earlier.') + '</p>' +
-    (brief.next?'<p><strong>'+esc(brief.next.title)+'</strong><span class="workflow-meta">'+esc(brief.next.source)+' · '+esc(brief.next.reason)+'</span></p><a class="btn line workflow-link" href="'+brief.next.href+'">Review in '+esc(brief.next.source)+'</a>':'<p class="workflow-meta">Choose a project in Life Map or open Courier for available practice.</p>') + '</div>' +
-    '<div class="daily-grid"><section><div class="workflow-section-heading"><h3>Life Map deadlines</h3><a href="life-map.html">Open Life Map</a></div>' +
-    (upcoming.length ? '<ul class="workflow-list">' + upcoming.map(item => '<li><span><strong>' + esc(item.title) + '</strong><span class="workflow-meta">' + esc(item.area) + '</span></span><span class="workflow-due ' + (item.due <= summary.today ? 'workflow-attention' : '') + '">' + esc(item.reason) + '</span></li>').join('') + '</ul>' + (summary.due.length > 4 ? '<p class="workflow-meta">' + (summary.due.length - 4) + ' more deadlines in Life Map.</p>' : '') : '<p class="workflow-empty">' + (summary.issues.includes('Life Map') ? 'Life Map records could not be read.' : summary.mapPresent ? 'No open deadlines through ' + esc(prettyDay(summary.soon)) + '.' : 'Open Life Map to create or restore projects in this browser.') + '</p>') +
-    '</section><section><div class="workflow-section-heading"><h3>Next practice</h3><a href="courier.html">Open Courier</a></div>' +
-    (manifestState === 'loading' ? '<p class="workflow-empty">Loading published lessons…</p>' : manifestState === 'failed' ? '<p class="workflow-empty">Published lessons could not be loaded. Refresh to try again.</p>' : summary.issues.includes('Courier practice') ? '<p class="workflow-empty">Practice records could not be read. Open Courier to review them.</p>' : next ? '<p class="workflow-meta">' + esc(next.track) + ' · Edition ' + esc(prettyDay(next.day)) + '</p><p><strong>' + esc(next.title) + '</strong></p><a class="btn primary workflow-link" href="courier.html?day=' + encodeURIComponent(next.day) + '#courier-practice">Review practice task</a><p class="workflow-meta">' + summary.pending.length + ' uncompleted lessons in the available editions.</p>' : '<p class="workflow-empty">' + (lessonItems(manifest).length ? 'All available lessons have a recorded practice completion.' : 'No lessons are available in the published editions yet.') + '</p>') +
-    '<p class="workflow-meta">' + summary.practiceCount + ' lessons practised in the last 7 days.</p></section></div>' +
-    '<details class="daily-activity"><summary>Recent activity <span class="workflow-meta">Last 7 days</span></summary>' +
-    (recent.length ? '<ul class="workflow-list">' + recent.map(row => '<li><span><a href="' + row.href + '">' + esc(row.app) + '</a><span class="workflow-meta">' + row.count + ' ' + esc(row.label) + '</span></span><time datetime="' + row.day + '">' + esc(prettyDay(row.day)) + '</time></li>').join('') + '</ul>' : '<p class="workflow-empty">Completed Life Map projects, communication reps, and Courier practice will appear here.</p>') + '</details>' +
-    (summary.issues.length ? '<p class="workflow-error" role="status">Some records could not be read: ' + esc(summary.issues.join(', ')) + '. Other apps remain available.</p>' : '') +
-    '<p class="workflow-meta">From records saved in this browser. Changes stay in their source apps; Atlas OS commitments are in your private workspace.</p>';
-  host.querySelector('#daily-refresh').disabled = manifestState === 'loading';
-  host.querySelector('#daily-refresh').onclick = () => { loadManifest(true); };
+  try { summary = dailySummary(localStorage, manifest); } catch { host.innerHTML = '<p role="alert">Daily records are unavailable. Open the source apps to check your saved work.</p>'; return; }
+  const evening=summary.phase==='evening', day=summary.today;
+  const empty = message => '<p class="workflow-empty">'+esc(message)+'</p>';
+  const list = rows => '<ul class="workflow-list">'+rows.map(r=>'<li>'+r+'</li>').join('')+'</ul>';
+  const edition = manifest?.days?.filter(d=>validDay(d.date)&&d.date<=day).sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const courier = manifestState==='loading'?empty('Loading available editions…'):manifestState==='failed'?empty('Editions are unavailable. Open Courier to check.'):edition?'<p><strong>Edition '+esc(prettyDay(edition.date))+'</strong></p><p class="workflow-meta">'+(edition.date===day?'Today’s published edition.':'Latest available edition. New editions do not mark practice complete.')+'</p><a class="btn primary" href="courier.html?day='+encodeURIComponent(edition.date)+'#listen">Listen to the edition</a>':empty('No published edition is available yet.');
+  const priorities = summary.issues.includes('Life Map')?empty('Life Map priorities could not be read.'):summary.priorities.length?list(summary.priorities.map(p=>'<strong>'+esc(p.title)+'</strong>')):empty('Choose a task in Life Map and schedule it onto today.');
+  const deadlines = summary.issues.includes('Life Map')?empty('Life Map deadlines could not be read.'):summary.due.length?list(summary.due.slice(0,3).map(p=>'<span><strong>'+esc(p.title)+'</strong><small>'+esc(p.reason)+'</small></span>')):empty('No open deadlines in the next seven days.');
+  const completions=summary.activity.filter(a=>a.day===day), deadline=summary.due.find(p=>p.due>=summary.tomorrow);
+  const completed = completions.length?list(completions.map(a=>'<span><strong>'+a.count+' '+esc(a.label)+'</strong><small>'+esc(a.app)+'</small></span>')):empty('No saved completions today. Opening an app does not count.');
+  const ledger = summary.issues.includes('Life Ledger')?empty('Ledger records could not be read. Check Life Ledger.'):summary.ledgerSaved?'<p><strong>Today’s Ledger is saved.</strong></p><a class="btn line" href="life-ledger.html#today">Review your day</a>':'<p>Your day is ready for a check-in or reflection.</p><a class="btn primary" href="life-ledger.html#today">Save today’s Ledger</a>';
+  const next = summary.issues.includes('Life Map')?empty('Tomorrow’s deadlines could not be read.'):deadline?'<p><strong>'+esc(deadline.title)+'</strong></p><p class="workflow-meta">'+(deadline.due===summary.tomorrow?'Due tomorrow':'Next deadline · '+esc(prettyDay(deadline.due)))+'</p>':empty('No open deadline tomorrow or in the next seven days.');
+  const cards=evening?[['Completed today',completed],['Life Ledger',ledger],['Tomorrow’s first deadline',next]]:[['The Courier',courier],['Today’s priorities',priorities],['Deadlines · next seven days',deadlines]];
+  host.className='workflow daily-view';
+  host.innerHTML='<div class="workflow-heading"><div><span class="eyebrow">'+(evening?'Close the day':'Prepare the day')+'</span><h2>'+esc(new Date().toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}))+'</h2></div><button class="btn line" id="daily-refresh" type="button">Refresh</button></div><p class="workflow-meta">'+(evening?'The evening view begins at 18:00 in this device’s local time. It shows saved completions, today’s Ledger and the next deadline.':'The morning view shows the available edition, tasks scheduled onto today and open deadlines through the next seven days.')+' These cards read the source apps; edits stay in those apps.</p><div class="daily-grid">'+cards.map(([title,body])=>'<section><h3>'+title+'</h3>'+body+'</section>').join('')+'</div><nav class="daily-chips" aria-label="Next actions">'+(evening?'<a class="btn line" href="life-ledger.html#today">Evening check-in</a><a class="btn line" href="life-map.html#plan">Plan tomorrow</a>':'<a class="btn line" href="courier.html#listen">Morning briefing</a><a class="btn line" href="life-map.html#plan">Plan your day</a>'+ (new Date().getDay()===0?'<a class="btn line" href="the-chef.html#planner">Plan the week’s meals</a>':''))+'</nav>'+(summary.issues.length?'<p role="status" class="workflow-meta">Unavailable: '+esc(summary.issues.join(', '))+'. Open the source app to review.</p>':'');
+  host.querySelector('#daily-refresh').onclick=()=>loadManifest(true);
 }
 
 async function loadManifest(force = false) {
@@ -84,7 +82,7 @@ async function loadManifest(force = false) {
   catch { manifestState = 'failed'; }
   mountHome();
 }
-window.AtlasDaily = { mount: mountHome };
+window.AtlasDaily = { mount() { mountHome(); if(manifestState==='loading') loadManifest(); } };
 window.AtlasPractice = { mount: mountPractice };
 window.addEventListener('hashchange', () => { if (window.location?.hash === '#courier-practice') { practiceExpanded = true; const panel = document.querySelector('#courier-practice .practice-panel'); if (panel) panel.open = true; } });
 mountHome(); loadManifest();
@@ -93,5 +91,6 @@ window.addEventListener('storage', event => {
   if (event.key === null || WORKFLOW_KEYS.includes(event.key)) { mountHome(); signature = ''; mountPractice(); }
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { mountHome(); signature = ''; mountPractice(); } });
-let lastDay = localDay();
-setInterval(() => { const today = localDay(); if (today !== lastDay) { lastDay = today; mountHome(); } }, 30000);
+window.addEventListener('focus',()=>{mountHome();signature='';mountPractice();});
+let lastDay = localDay(), lastPhase=dailyPhase();
+setInterval(() => { const today = localDay(),phase=dailyPhase(); if (today !== lastDay || phase!==lastPhase) { lastDay = today;lastPhase=phase; mountHome(); } }, 30000);

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html class="atlas-neumo" data-atlas-app="life-ledger" lang="en">
 <head>
+<script src="shared/atlas-streak.js?v=72cff1161459"></script>
+<script src="shared/atlas-experience.js?v=44f3038a6695" defer></script>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
 <meta name="description" content="Life Ledger: lasting progress, flexible weekly goals and easy catch-up."/>
@@ -9,12 +11,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Life Ledger">
-<meta name="theme-color" content="#0c0e1a">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#efeae3">
 <script src="shared/ledger-rhythm-core.js?v=f29cc703f139"></script>
-<script src="shared/atlas-theme.js?v=467802ce057e"></script>
+<script src="shared/atlas-theme.js?v=f4de28eed8cc"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -90,10 +89,10 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 @keyframes sparkfly{0%{opacity:0;transform:rotate(var(--a)) translateY(0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1)}}
 @media(prefers-reduced-motion:reduce){.fill,.orb{transition:none;animation:none}.fill::after,.levelup,.fadeUp{animation:none}#stars span,.spark{animation:none;display:none}}
 </style>
-<link rel="stylesheet" href="shared/atlas-palette.css">
-<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=4a24a113b47e">
+<link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-32.png?v=dfb125a386ef">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-64.png?v=63b2ee04c4c2">
@@ -211,6 +210,7 @@ function isoToNum(iso){ var p=iso.split("-"); return Date.UTC(+p[0],+p[1]-1,+p[2
 function numToISO(ms){ var d=new Date(ms); return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0"); }
 function dateMap(days){ var m={}; days.forEach(function(d){ if(!d.date) return; if(!m[d.date]) m[d.date]={}; HABITS.forEach(function(h){ if((d.units[h]||0)>0) m[d.date][h]=true; }); }); var out={}; Object.keys(m).forEach(function(k){ out[k]=Object.keys(m[k]).length; }); return out; }
 function streaksFrom(dm){
+  if(window.AtlasStreak)return window.AtlasStreak.compute(Object.keys(dm).filter(k=>dm[k]>0),todayISO());
   var dates=Object.keys(dm).filter(function(k){return dm[k]>0;}).sort();
   if(!dates.length) return {current:0,longest:0};
   var longest=1,run=1;
@@ -399,7 +399,7 @@ function pillarCard(p,habit,expected,open){
     p.habits.forEach(function(hk){
       var hs=habit[hk];
       h+='<div style="padding:9px 0;border-bottom:1px solid rgba(120,130,180,.07)">';
-      h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-size:13px;color:#dfe3f4;font-weight:500">'+esc(label(hk))+'</span><span class="mono" style="font-size:11px;color:'+p.color+';white-space:nowrap">'+(hs.streak>=2?'<span style="margin-right:8px">\ud83d\udd25'+hs.streak+'</span>':'')+hs.level+'<span style="color:#6f7798">/99</span></span></div>';
+      h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-size:13px;color:#dfe3f4;font-weight:500">'+esc(label(hk))+'</span><span class="mono" style="font-size:11px;color:'+p.color+';white-space:nowrap">'+(hs.streak>=2?'<span style="margin-right:8px">◷'+hs.streak+'</span>':'')+hs.level+'<span style="color:#6f7798">/99</span></span></div>';
       h+='<div style="margin-top:7px">'+bar(hs.pctTo99,expected/99,p.color,p.glow,6)+'</div>';
       h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span style="font-size:10px;color:#9aa2c0">'+hs.chunksDone+' of '+hs.goalChunks+' '+esc(plural(hs.cfg.noun,hs.goalChunks))+'</span><span class="mono" style="font-size:9.5px;color:#777f9e">'+fmt(hs.total)+' / '+hs.goal+' '+hs.cfg.unit+'</span></div>';
       h+='<div style="font-size:9.5px;color:#5f667f;margin-top:4px;font-style:italic">\ud83c\udfaf Goal by Dec 31: '+hs.goalChunks+' '+esc(plural(hs.cfg.noun,hs.goalChunks))+' ('+hs.goal+' '+hs.cfg.unit+')</div>';
@@ -651,8 +651,8 @@ function consistencyPanel(data){
   var h='';
   function tile(v,l,c){ return '<div style="flex:1;text-align:center;padding:10px 4px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid rgba(120,130,180,.1)"><div class="mono" style="font-size:18px;font-weight:700;color:'+(c||"#eef0fb")+'">'+v+'</div><div class="eyebrow" style="font-size:8px;margin-top:3px">'+l+'</div></div>'; }
   h+='<div style="display:flex;gap:8px">'
-    +tile((stk.current>0?'\ud83d\udd25 ':'')+stk.current,"Current streak",stk.current>0?"#f0b73e":"#eef0fb")
-    +tile(stk.longest,"Longest streak")
+    +tile(window.AtlasStreak?window.AtlasStreak.badge(stk.current,'Current streak'):stk.current,"")
+    +tile('<span class="atlas-streak-value">'+stk.longest+'</span>',"Longest streak")
     +tile(data.bestDay.count,"Best day")
     +tile(data.activeDays,"Days active")+'</div>';
   var tN=isoToNum(todayISO()), w1=0, w2=0;
@@ -1198,7 +1198,7 @@ function render(){
   var nMet=(state.metrics&&state.metrics.length)||0;
   var oT=nMet?(nMet+" metric"+(nMet===1?"":"s")+" tracked"):"No metrics yet";
   var cT=data.days.length+" day"+(data.days.length===1?"":"s")+" logged \u00b7 Level "+data.life.level;
-  var sT=(data.streak.current>0?("\ud83d\udd25 "+data.streak.current+"-day streak"):"No active streak")+" \u00b7 longest "+data.streak.longest;
+  var sT=(data.streak.current>0?("◷ "+data.streak.current+"-day streak"):"No active streak")+" \u00b7 longest "+data.streak.longest;
   var rU=0; ACHV.forEach(function(a){ if(a.test(data)) rU++; });
   var rT=rU+" / "+ACHV.length+" unlocked";
 
@@ -1298,7 +1298,7 @@ function commit(force){
   var fresh=ACHV.filter(function(a){ return a.test(after) && !a.test(before); });
   state.achvQueue=fresh.slice();
   if(fresh.length){ render(); if(navigator.vibrate){ try{ navigator.vibrate([12,60,18]); }catch(e){} } }
-  else if(after.streak.longest>before.streak.longest && after.streak.current===after.streak.longest && after.streak.current>=2) toast("\ud83d\udd25 New longest streak: "+after.streak.current+" days!");
+  else if(after.streak.longest>before.streak.longest && after.streak.current===after.streak.longest && after.streak.current>=2) toast("◷ New longest streak: "+after.streak.current+" days!");
   else if(after.bestDay.count>before.bestDay.count && after.bestDay.count>=5) toast("\u2b50 Best day yet: "+after.bestDay.count+" habits logged!");
   else toast(merged?("\u269c Added to "+fmtDay(date)):("\u269c "+fmtDay(date)+" saved"),"Undo",undoLast);
 }

@@ -231,9 +231,9 @@ function render(){
 }
 function openCapture(projectId=null,task=null,seed=null){
   if(!loaded||loadedWeek!==week||busy){error('Wait for your workspace to finish loading or saving before adding a task.');return;}
-  editing=task;draftId=task?.id||newId();capturePriorityDay=!task&&seed?.priority?today:null;
+  editing=task;draftId=task?.id||newId();capturePriorityDay=!task&&seed?.priority?workUI.priorityDay():null;
   const form=$('#task-form');form.reset();$('#task-error').textContent='';
-  $('#task-dialog-title').textContent=task?'Edit task':capturePriorityDay?'Pin a task to Today':'Add a task';
+  $('#task-dialog-title').textContent=task?'Edit task':capturePriorityDay?'Pin a task to '+(capturePriorityDay===today?'Today':'Tomorrow'):'Add a task';
   $('#task-priority-note').hidden=!capturePriorityDay;$('#task-details').open=false;$('#task-submit').textContent=capturePriorityDay?'Save priority':task?'Save changes':'Add task';
   $('#task-record-status').hidden=!task||task.status==='open';$('#task-record-status').textContent=task&&task.status!=='open'?`${task.status==='done'?'Completed':'Archived'} commitment. Saving details keeps this status.`:'';
   $('#app-select').innerHTML=APPS.filter(a=>a.group!=='Archive').map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('');
@@ -253,7 +253,7 @@ async function mutate(task,action){
   if(hasDraft()){error('Save or discard your draft before changing other records.');return;}
   if(busy)return;busy=true;error('');$('#save-state').textContent='Saving…';
   try {
-    await api('/api/tasks/'+encodeURIComponent(task.id),'PATCH',{revision:task.revision,action,day:today,week_start:week});
+    await api('/api/tasks/'+encodeURIComponent(task.id),'PATCH',{revision:task.revision,action,day:action==='focus'?workUI.priorityDay():today,week_start:week});
     await load();
     const current=data.tasks.find(t=>t.id===task.id);
     toast(({complete:'Task completed.',reopen:'Task reopened.',archive:'Task archived.',restore:'Task restored.',focus:'Today updated.',plan:'Added to the selected week.'})[action]||'Saved.',

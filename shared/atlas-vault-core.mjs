@@ -9,7 +9,7 @@ export const TOOLS = [
   { id: 'prospecting', name: 'Prospecting', keys: ['hq_v1', 'qc3_stages', 'qc3_notes', 'qc3_aum', 'qc3_followups', 'qc3_cancel', 'qc3_excluded_companies', 'qc3_log', 'qc_reengage_v1', 'qc_reengage_log_v1'] },
   { id: 'operations', name: 'Operations Cadence', keys: ['operationsCadence.v1'] },
   { id: 'herald', name: 'The Herald', keys: ['herald:v1'] },
-  { id: 'communicator', name: 'Master Communicator', keys: ['assessments', 'reps', 'lessonsDone', 'customTopics', 'retiredTopics', 'catsEnabled', 'city', 'prepNotes', 'refreshed', 'bankUpdated', 'grades', 'pendingGrades', 'proCatsAdded'].map(key => 'mc_' + key) },
+  { id: 'communicator', name: 'Master Communicator', keys: ['profile', 'assessments', 'reps', 'lessonsDone', 'customTopics', 'retiredTopics', 'catsEnabled', 'city', 'prepNotes', 'refreshed', 'bankUpdated', 'grades', 'pendingGrades', 'proCatsAdded'].map(key => 'mc_' + key) },
   { id: 'map', name: 'Life Map', keys: ['lifemap_v1'] },
   { id: 'aqueduct', name: 'The Aqueduct', keys: ['aqueduct:v2'] },
   { id: 'wealth', name: 'Wealth HQ (legacy)', keys: ['climb_a', 'climb_h'] },
@@ -17,7 +17,7 @@ export const TOOLS = [
   { id: 'hourglass', name: 'The Hourglass', keys: ['hourglass:v1'] },
   { id: 'courier', name: 'Courier', keys: ['courier:state', 'courier:schema-version', 'courier:practice:v1'] },
   { id: 'neural', name: 'Neural Map', keys: ['neural:favourites:v1','neural:link-review:v1'] },
-  { id: 'appearance', name: 'Appearance', keys: ['atlas.appearance.v1'] }
+  { id: 'appearance', name: 'Appearance', keys: ['atlas.appearance.v1','atlas.streaks.hidden.v1'] }
 ];
 const byKey = new Map(TOOLS.flatMap(tool => tool.keys.map(key => [key, tool])));
 const forbidden = new Set(['__proto__', 'constructor', 'prototype']);
@@ -42,7 +42,9 @@ function inspect(value, depth = 0, budget = { left: 200000 }) {
 function checkValue(key, raw) {
   if (typeof raw !== 'string') throw new VaultError('Every stored entry must be text. Invalid entry: ' + key);
   if (sizeOf(raw) > MAX_BYTES) throw new VaultError('An entry exceeds the 20 MB limit.');
+  if(key==='mc_profile'){let profile;try{profile=JSON.parse(raw);}catch{throw new VaultError('Invalid practice goal.');}if(!record(profile)||profile.goal!==undefined&&!['clarity','confidence','listen'].includes(profile.goal))throw new VaultError('Invalid practice goal.');}
   if (key === 'courier:practice:v1') parsePractice(raw);
+  if(key==='atlas.streaks.hidden.v1'){if(!['true','false'].includes(raw))throw new VaultError('The streak preference is invalid.');return false;}
   if (key === 'atlas.appearance.v1') {
     if (!['light', 'dark', 'system'].includes(raw)) throw new VaultError('The appearance preference is invalid.');
     return false;

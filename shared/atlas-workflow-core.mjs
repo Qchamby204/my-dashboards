@@ -1,8 +1,10 @@
+import {dailyPhase} from './atlas-day-phase.mjs';
+export {dailyPhase,EVENING_HOUR} from './atlas-day-phase.mjs';
 import { lessonItems } from './courier-lessons.mjs';
 export { lessonItems } from './courier-lessons.mjs';
 /* Read-only app projections and explicit, browser-local Courier practice records. */
 export const PRACTICE_KEY = 'courier:practice:v1';
-export const WORKFLOW_KEYS = ['lifemap_v1', 'mc_reps', 'hq_v1', 'qc3_log', 'operationsCadence.v1', PRACTICE_KEY];
+export const WORKFLOW_KEYS = ['lifemap_v1', 'mc_reps', 'hq_v1', 'qc3_log', 'operationsCadence.v1', 'lifeledger:v2', PRACTICE_KEY];
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = (v, limit = 500) => typeof v === 'string' ? v.slice(0, limit) : '';
 const list = v => Array.isArray(v) ? v : [];
@@ -17,7 +19,8 @@ export function validDay(value) {
   const [y, m, d] = value.split('-').map(Number), date = new Date(Date.UTC(y, m - 1, d));
   return y >= 1900 && date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
-function plusDays(day, amount) { const d = new Date(day + 'T12:00:00'); d.setDate(d.getDate() + amount); return localDay(d); }
+export function plusDays(day, amount) { const d = new Date(day + 'T12:00:00'); d.setDate(d.getDate() + amount); return localDay(d); }
+export const planningDay = (now = new Date()) => plusDays(localDay(now), dailyPhase(now) === 'evening' ? 1 : 0);
 export function parsePractice(raw) {
   if (raw === null) return { version: 1, revision: 0, completions: {} };
   if (typeof raw !== 'string' || new TextEncoder().encode(raw).length > 4 * 1024 * 1024) throw Error('Practice records exceed the supported size. Export a backup before changing them.');
@@ -78,7 +81,11 @@ export function dailySummary(storage, manifest, now = new Date()) {
   let hqPresent = false; try { hqPresent = storage.getItem('hq_v1') !== null; } catch { hqPresent = true; }
   const legacy = !hqPresent ? read('qc3_log', 'Legacy Prospecting', [], true) : [];
   let practice; try { practice = readPractice(storage).value; } catch { issues.push('Courier practice'); practice = parsePractice(null); }
+  const ledger = read('lifeledger:v2', 'Life Ledger', [], true);
+  const ledgerSaved = !issues.includes('Life Ledger') && ledger.some(d => object(d) && d.date === today);
   const projects = list(map?.projects).filter(object);
+  const focus = map?.dayPlans?.[today]?.focus;
+  const priorities = projects.filter(p => p.status !== 'Done' && (p.plan === today || focus?.kind === 'task' && focus.id === p.id)).sort((a,b) => Number(b.id === focus?.id) - Number(a.id === focus?.id)).slice(0,3).map(p => ({id:text(p.id,120),title:text(p.task)||'Untitled project'}));
   if (map && !Array.isArray(map.projects)) issues.push('Life Map');
   const due = projects.filter(p => p.status !== 'Done' && validDay(p.due) && p.due <= soon).map(p => ({ id: text(p.id, 120), title: text(p.task) || 'Untitled project', area: text(p.area, 100), due: p.due, reason: p.due < today ? 'Overdue' : p.due === today ? 'Due today' : 'Due ' + p.due }));
   due.sort((a, b) => a.due.localeCompare(b.due) || a.title.localeCompare(b.title));
@@ -95,7 +102,7 @@ export function dailySummary(storage, manifest, now = new Date()) {
   for (const r of reps) if (object(r)) add(localDay(r.date), 'Master Communicator', 'practice reps', 'communication-trainer.html');
   for (const c of completed) add(c.completedDay, 'Courier', 'lessons practised', 'courier.html?day=' + encodeURIComponent(c.day));
   const activity = [...groups.values()].sort((a, b) => b.day.localeCompare(a.day) || a.app.localeCompare(b.app));
-  return { today, soon, due, pending, practiceCount: completed.filter(c => inWeek(c.completedDay)).length, activity, issues: [...new Set(issues)], mapPresent: map !== null, prospecting: prospectingSummary(hqPresent ? current || {} : null, legacy, now) };
+  return { today, tomorrow:plusDays(today,1), phase:dailyPhase(now), priorities, ledgerSaved, soon, due, pending, practiceCount: completed.filter(c => inWeek(c.completedDay)).length, activity, issues: [...new Set(issues)], mapPresent: map !== null, prospecting: prospectingSummary(hqPresent ? current || {} : null, legacy, now) };
 }
 
 export function localBriefing(summary,lessonsReady=true) {

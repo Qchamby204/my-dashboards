@@ -1,13 +1,16 @@
+@font-face{font-family:Figtree;font-weight:400;font-style:normal;font-display:swap;src:url("https://qchamby204.github.io/my-dashboards/shared/fonts/figtree-400.ttf") format("truetype");}
+@font-face{font-family:Figtree;font-weight:600;font-style:normal;font-display:swap;src:url("https://qchamby204.github.io/my-dashboards/shared/fonts/figtree-600.ttf") format("truetype");}
+@font-face{font-family:Figtree;font-weight:700;font-style:normal;font-display:swap;src:url("https://qchamby204.github.io/my-dashboards/shared/fonts/figtree-700.ttf") format("truetype");}
 /* Atlas Neumorphism: one material system for the full application suite. */
 :root.atlas-neumo {
   color-scheme: var(--neo-scheme, light);
-  --neo-canvas: #e7ecf2;
-  --neo-surface: #e7ecf2;
-  --neo-inset: #e2e8ef;
-  --neo-ink: #27344a;
-  --neo-muted: #53637b;
-  --neo-faint: #56667b;
-  --neo-line: #c0cad6;
+  --neo-canvas: #efeae3;
+  --neo-surface: #efeae3;
+  --neo-inset: #e7e0d6;
+  --neo-ink: #2d2c2b;
+  --neo-muted: #6a635a;
+  --neo-faint: #6a635a;
+  --neo-line: #d2cabe;
   --neo-accent: #77551a;
   --neo-accent-soft: #eee3c9;
   --neo-blue: #245b94;
@@ -16,13 +19,13 @@
   --neo-violet: #6140a0;
   --neo-cyan: #176579;
   --neo-orange: #965018;
-  --neo-raised: 9px 9px 22px #c5ceda, -9px -9px 22px #ffffff;
-  --neo-small: 4px 4px 9px #c4cdd9, -4px -4px 9px #ffffff;
-  --neo-pressed: inset 4px 4px 9px #c1cbd8, inset -4px -4px 9px #ffffff;
-  --neo-well: inset 2px 2px 5px #c0cad7, inset -2px -2px 5px #ffffff;
-  --neo-float: 18px 18px 45px #b6c1d1, -10px -10px 30px #ffffff;
-  --neo-radius: 22px;
-  --neo-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --neo-raised: 9px 9px 22px #d2cabe, -9px -9px 22px #ffffff;
+  --neo-small: 4px 4px 9px #d2cabe, -4px -4px 9px #ffffff;
+  --neo-pressed: inset 4px 4px 9px #d2cabe, inset -4px -4px 9px #ffffff;
+  --neo-well: inset 2px 2px 5px #d2cabe, inset -2px -2px 5px #ffffff;
+  --neo-float: 18px 18px 45px #d2cabe, -10px -10px 30px #ffffff;
+  --neo-radius: 24px;
+  --neo-font: "Figtree", ui-rounded, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --bg: var(--neo-canvas); --void: var(--neo-canvas); --deep: var(--neo-canvas);
   --ink: var(--neo-canvas); --ink-2: var(--neo-inset);
@@ -66,7 +69,7 @@ html.atlas-neumo, .atlas-neumo body {
   background: var(--neo-surface) !important;
   color: var(--neo-ink) !important;
   border: 1px solid var(--neo-edge-ccd5e1) !important;
-  border-radius: 13px;
+  border-radius: 999px;
   box-shadow: var(--neo-small);
   text-shadow: none !important;
   min-height: 44px;
@@ -79,7 +82,7 @@ html.atlas-neumo, .atlas-neumo body {
 .atlas-neumo :is(button,.btn):disabled { opacity: .55; box-shadow: none; cursor: not-allowed; }
 .atlas-neumo :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea) {
   background: var(--neo-inset) !important; color: var(--neo-ink) !important;
-  border: 1px solid var(--neo-edge-bec9d8) !important; border-radius: 12px;
+  border: 1px solid var(--neo-edge-bec9d8) !important; border-radius: 14px;
   box-shadow: var(--neo-well); padding: 11px 13px; font-size: 1rem;
 }
 .atlas-neumo :is(input,textarea)::placeholder { color: var(--neo-faint) !important; opacity: 1; }
@@ -217,7 +220,7 @@ html.atlas-neumo, .atlas-neumo body {
 .atlas-neumo[data-atlas-app="baby-brain"] .sheet-hd :is(h2,.path) { padding-right: 96px; }
 .atlas-neumo[data-atlas-app="baby-brain"] .rdbtn { right: 66px; }
 .atlas-neumo[data-atlas-app="baby-brain"] :is(.why,.why .body,.qlist li) { color: var(--neo-ink); font-size: 15px; line-height: 1.65; }
-.atlas-neumo[data-atlas-app="baby-brain"] :is(.lk,.qlist li) { background: var(--neo-inset); border-color: var(--neo-edge-bfcbda); border-radius: 12px; }
+.atlas-neumo[data-atlas-app="baby-brain"] :is(.lk,.qlist li) { background: var(--neo-inset); border-color: var(--neo-edge-bfcbda); border-radius: 14px; }
 .atlas-neumo[data-atlas-app="neural-map"] .pop .door { min-height: 44px; box-shadow: var(--neo-small); }
 .atlas-neumo[data-atlas-app="neural-map"] .pop { padding: 22px; }
 
@@ -312,6 +315,41 @@ html.atlas-neumo, .atlas-neumo body {
   .atlas-neumo :is(.panel,.card,.tool,.app-card,button,input,select,textarea) { box-shadow: none !important; border: 1px solid CanvasText !important; }
 }
 @media (max-width: 720px) {
-  :root.atlas-neumo { --neo-raised: 5px 5px 13px #c3cddb,-5px -5px 13px #ffffff; --neo-radius: 18px; }
+  :root.atlas-neumo { --neo-raised: 5px 5px 13px #d2cabe,-5px -5px 13px #ffffff; --neo-radius: 24px; }
   .atlas-neumo :is(.panel,.card,.tool,.module,.qcard) { padding: 17px; }
 }
+
+/* October 2026 warm material and shared interaction contract. */
+:root.atlas-neumo{--neo-sun:#f2b33d;--neo-life:#b8543b;--neo-work:#3a69b8;--neo-learning:#6e58b5;--neo-system:#367a5b;--neo-radius-input:14px}
+:root.atlas-neumo[data-atlas-theme="dark"]{--neo-life:#f29a82;--neo-work:#8db3f2;--neo-learning:#b9a6f0;--neo-system:#8ed1af}
+html.atlas-neumo body :is(h1,h2,h3,h4,.cinzel,.mono,.num,.brand,.appbar-title,.eyebrow,.fg-kicker,.kicker,.section-title){font-family:var(--neo-font)!important;text-transform:none!important;font-variant-numeric:tabular-nums;letter-spacing:normal}
+html.atlas-neumo body :is(h1,h2,h3,h4){font-weight:600;letter-spacing:-.025em}
+html.atlas-neumo body :is(.card,.panel,.fg-goal-card,.topic-card,.practice-panel,.workflow.daily-view){border-radius:24px!important}
+html.atlas-neumo body :is(button,.btn,.chip,.pill,.segment,.segmented){border-radius:999px}
+html.atlas-neumo :is(button,a.hub-card,.atlas-starter,.hub-recent):active:not(:disabled){box-shadow:var(--neo-pressed)!important;transition:none!important}
+.atlas-mark{width:36px;height:36px;flex:none;color:var(--neo-life)}
+.atlas-empty .atlas-mark,.workflow-empty .atlas-mark,.quiet-message .atlas-mark{display:block;margin-bottom:12px}
+.atlas-signature{background:color-mix(in srgb,var(--neo-sun) 20%,var(--neo-surface))!important;border-color:color-mix(in srgb,var(--neo-sun) 40%,var(--neo-line))!important}
+.atlas-streak{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:.875rem;color:var(--neo-muted)}
+.atlas-streak-value{font-weight:600;font-variant-numeric:tabular-nums;color:var(--neo-ink)}
+.atlas-streak-info{position:relative;display:inline-block}
+.atlas-streak-info summary{display:grid;place-items:center;width:44px;height:44px;cursor:pointer;list-style:none;font-size:1rem}
+.atlas-streak-info summary::-webkit-details-marker{display:none}
+.atlas-streak-info p{max-width:40ch;margin:8px 0;font-size:.875rem;font-weight:400;line-height:1.6}
+:root[data-atlas-streaks="hidden"] .atlas-streak-value{display:none!important}
+:root[data-atlas-streaks="hidden"] .atlas-streak-label::before{content:"Counts hidden · "}
+.atlas-completed{box-shadow:var(--neo-pressed)!important;color:var(--neo-green)!important;transition:color .2s ease-out!important;position:relative}
+.atlas-completion-mark{position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;animation:atlas-completion-fade .9s ease-out both}
+.atlas-completion-mark .atlas-mark{width:24px;height:24px;color:var(--neo-green)}
+@keyframes atlas-completion-fade{0%,70%{opacity:1}100%{opacity:0}}
+.atlas-goal-question{padding:24px;margin:20px 0;display:grid;gap:16px;border-radius:24px;background:var(--neo-surface);box-shadow:var(--neo-raised)}
+.atlas-goal-question h2,.atlas-goal-question p{margin:0}
+.atlas-goal-options{display:flex;flex-wrap:wrap;gap:10px}
+.atlas-goal-question [role="status"]{color:var(--neo-muted);font-size:.875rem}
+@media(prefers-reduced-motion:reduce){.atlas-completion-mark{animation:none}.atlas-completed{transition:none!important}}
+
+.daily-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.daily-grid>section{padding:24px;border-radius:24px;background:var(--neo-surface);box-shadow:var(--neo-raised)}.daily-grid h3{margin:0 0 18px}.daily-grid small{display:block;margin-top:6px;color:var(--muted)}.daily-chips{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.daily-view{margin:28px 0}.daily-view .workflow-heading{gap:16px}.daily-grid .btn{margin-top:12px}@media(max-width:800px){.daily-grid{grid-template-columns:1fr}}
+
+html.atlas-neumo button,html.atlas-neumo input,html.atlas-neumo select,html.atlas-neumo textarea{font-family:var(--neo-font)!important;font-variant-numeric:tabular-nums}html.atlas-neumo :is(.quiet-message,.workflow-empty,.empty,.empty-state){line-height:1.7;min-height:64px}html.atlas-neumo .atlas-goal-question button{min-height:44px}html.atlas-neumo[data-atlas-theme="dark"] .atlas-signature{color:var(--neo-ink)}
+
+html.atlas-neumo[data-atlas-streaks="hidden"] .atlas-streak{display:none!important}html.atlas-neumo :is(.stat,.ledger-consistency) .l{font-size:14px}html.atlas-neumo :is(button,.btn,input,select,textarea){max-width:100%}.atlas-streak-info{font-weight:400}.atlas-streak-info summary{min-width:44px;min-height:44px;display:grid;place-items:center;cursor:pointer}

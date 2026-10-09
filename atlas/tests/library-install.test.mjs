@@ -43,7 +43,7 @@ test('Library head contains real markup and complete iOS install metadata', () =
   assert.equal(tag('meta', 'name', 'apple-mobile-web-app-status-bar-style').content, 'black-translucent');
   assert.equal(tag('meta', 'name', 'format-detection').content, 'telephone=no');
   assert.match(tag('meta', 'name', 'viewport').content, /viewport-fit=cover/);
-  assert.equal(tag('meta', 'name', 'theme-color').content, '#0b1422');
+  assert.equal(tag('meta', 'name', 'theme-color').content, '#efeae3');
   const apple = tag('link', 'rel', 'apple-touch-icon');
   assert.equal(apple.sizes, '180x180');
   png(asset(apple.href).bytes, 180);
@@ -72,8 +72,8 @@ test('Library manifest launches the existing Pages route with real, correctly si
   assert.equal(scope.href, new URL('./', page).href);
   assert.ok(new URL(manifest.start_url, url).href.startsWith(scope.href));
   assert.equal(manifest.display, 'standalone');
-  assert.equal(manifest.theme_color, '#0b1422');
-  assert.equal(manifest.background_color, '#0b1422');
+  assert.equal(manifest.theme_color, '#efeae3');
+  assert.equal(manifest.background_color, '#efeae3');
   for (const size of [192, 512]) {
     const icon = manifest.icons.find(item => item.sizes === `${size}x${size}`);
     assert.ok(icon, `${size}px install icon`);
@@ -112,7 +112,7 @@ test('Library starts with 129 unique seed books without writing records or appea
     assert.equal(app.window.LibraryInfo.storageKey, 'atlas.library.v1');
     assert.equal(new Set(app.window.ATLAS_LIBRARY_CATALOG.books.map(b => b.id)).size, 129);
     assert.deepEqual(app.writes, []);
-    assert.equal(app.nodes.get('meta[name=theme-color]').content, '#0b1422');
+    assert.equal(app.nodes.get('meta[name=theme-color]').content, theme==='dark'?'#1c1a2b':'#efeae3');
   }
 });
 

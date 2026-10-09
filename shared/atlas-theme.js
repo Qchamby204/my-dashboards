@@ -8,17 +8,17 @@
   if(sharedSource&&document.head){
     // Sports styling only: no record access or changes to dashboard behavior.
     if(['crucible', 'neural-map', 'baby-brain', 'the-aqueduct', 'operations-cadence', 'chambers-wealth-hq', 'prospecting-command-center', 'review'].includes(root.dataset.atlasApp)){
-      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=bc2b59393d86',sharedSource).href;document.head.appendChild(sports);
+      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=356e3c6e654e',sharedSource).href;document.head.appendChild(sports);
     }
     const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=f770ee460dc5':'atlas-mobile.js?v=f770ee460dc5',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
     if(root.dataset.atlasApp==='the-herald'){
-      const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
+      const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js?v=7b6c431ec5ea',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
     if(root.dataset.atlasApp==='the-hourglass'){
       const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=ff0a80190552',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=605f9a4819c6',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=b6971fc403b9',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=58a835078483',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
@@ -32,7 +32,7 @@
       // Retain the saved bytes before the legacy boot can attempt migration.
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
       window.AtlasProspectingBoot=boot;
-      const records=document.createElement('script');records.type='module';records.src=new URL('prospecting-records.mjs?v=messages-20260909',sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=1bd2f03eabd8',sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
+      const records=document.createElement('script');records.type='module';records.src=new URL('prospecting-records.mjs?v=ed970e53b5fb',sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=6c8ded3d32d5',sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
     }
     if(root.dataset.atlasApp==='operations-cadence'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('operationsCadence.v1');}catch{boot.readError=true;}
@@ -52,8 +52,8 @@
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasLedgerBoot=boot;
-      const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
-      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=f7ffaf086319',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+      const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js?v=038c74b94b00',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=a1dced6be43f',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
     }
   }
   const key = 'atlas.appearance.v1';
@@ -96,7 +96,7 @@
     const resolved = preference === 'system' ? (system.matches ? 'dark' : 'light') : preference;
     root.dataset.atlasTheme = resolved;
     root.dataset.atlasAppearance = preference;
-    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = resolved === 'dark' ? '#202936' : '#e7ecf2';
+    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = resolved === 'dark' ? '#1c1a2b' : '#efeae3';
     if (trigger) {
       trigger.title = 'Appearance: ' + preference;
       trigger.setAttribute('aria-label', 'Appearance: ' + preference + '. Change color theme');
@@ -152,9 +152,10 @@
       dialog = document.createElement('dialog');
       dialog.id = 'atlas-appearance-dialog';
       dialog.setAttribute('aria-labelledby', 'atlas-appearance-title');
-      dialog.innerHTML = '<div class="atlas-appearance-heading"><h2 id="atlas-appearance-title">Appearance</h2><button type="button" class="atlas-appearance-close" aria-label="Close appearance">×</button></div><fieldset><legend>Color theme</legend><label><input type="radio" name="atlas-appearance" value="light"><span><strong>Light</strong><small>Soft mineral surfaces</small></span></label><label><input type="radio" name="atlas-appearance" value="dark"><span><strong>Dark</strong><small>Deep graphite surfaces</small></span></label><label><input type="radio" name="atlas-appearance" value="system"><span><strong>System</strong><small>Follow your device</small></span></label></fieldset>';
+      dialog.innerHTML = '<div class="atlas-appearance-heading"><h2 id="atlas-appearance-title">Appearance</h2><button type="button" class="atlas-appearance-close" aria-label="Close appearance">×</button></div><fieldset><legend>Color theme</legend><label><input type="radio" name="atlas-appearance" value="light"><span><strong>Light</strong><small>Warm stone surfaces</small></span></label><label><input type="radio" name="atlas-appearance" value="dark"><span><strong>Dark</strong><small>Night indigo surfaces</small></span></label><label><input type="radio" name="atlas-appearance" value="system"><span><strong>System</strong><small>Follow your device</small></span></label></fieldset>';
+      const streakField=document.createElement('label');streakField.className='atlas-streak-preference';streakField.innerHTML='<input type="checkbox" name="atlas-streak-hide"><span><strong>Hide streak counts</strong><small>Your saved days stay unchanged</small></span>';dialog.append(streakField);const checkbox=streakField.querySelector('input');checkbox.checked=window.AtlasStreak?.hidden()||false;window.addEventListener('atlas-streak-preference',()=>{checkbox.checked=window.AtlasStreak?.hidden()||false;});window.addEventListener('storage',()=>{checkbox.checked=window.AtlasStreak?.hidden()||false;});
       dialog.querySelector('.atlas-appearance-close').addEventListener('click', () => dialog.close());
-      dialog.addEventListener('change', event => { if (event.target.name === 'atlas-appearance') set(event.target.value); });
+      dialog.addEventListener('change', event => { if (event.target.name === 'atlas-appearance') set(event.target.value); if(event.target.name==='atlas-streak-hide'){if(!window.AtlasStreak?.setHidden(event.target.checked))event.target.checked=window.AtlasStreak?.hidden()||false;} });
       trigger.addEventListener('click', () => { if (!dialog.open) dialog.showModal(); });
     }
     if (!dialog.isConnected) document.body.append(dialog);

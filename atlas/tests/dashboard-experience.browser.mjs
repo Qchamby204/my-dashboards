@@ -1,0 +1,40 @@
+// Browser regression for the approved October suite update. Uses isolated records.
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {createServer} from 'node:http';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const {chromium}=createRequire(import.meta.url)('playwright');
+const root=fileURLToPath(new URL('../../',import.meta.url)),out=process.env.ATLAS_SCREENSHOTS||'/tmp/atlas-experience';mkdirSync(out,{recursive:true});
+const types={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.json':'application/json','.ttf':'font/ttf','.png':'image/png','.webmanifest':'application/manifest+json'};
+const server=createServer((req,res)=>{try{const f=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]));if(!f.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(f)]||'text/plain');res.end(readFileSync(f));}catch{res.writeHead(404);res.end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const origin='http://127.0.0.1:'+server.address().port,browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']}),reports=[];
+const files=['index','life-map','life-ledger','workout-forge','the-chef','baby-brain','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-aqueduct','the-library','courier','communication-trainer','neural-map','quinton-os','review'];
+try{
+ for(const [theme,width]of [['light',390],['dark',390],['light',1440],['dark',320]]){
+  const context=await browser.newContext({viewport:{width,height:900},timezoneId:'America/Winnipeg',colorScheme:theme,reducedMotion:'reduce'});
+  await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const file=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{const data=readFileSync(path.join(root,file));await r.fulfill({body:data,contentType:types[path.extname(file)]||'text/plain'});}catch{await r.abort();}});
+  await context.route('https://fonts.googleapis.com/**',r=>r.abort());await context.route('https://fonts.gstatic.com/**',r=>r.abort());
+  for(const file of files){const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(origin+'/'+file+'.html',{waitUntil:'domcontentloaded'});await p.waitForTimeout(600);
+   const info=await p.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,width:document.documentElement.scrollWidth,bg:getComputedStyle(document.body).backgroundColor,font:getComputedStyle(document.body).fontFamily,questions:document.querySelectorAll('.atlas-goal-question').length,heading:document.querySelector('h1')?.textContent}));reports.push({file,theme,width,errors,...info});
+   await p.screenshot({path:path.join(out,file+'-'+theme+'-'+width+'.png'),fullPage:file==='index'});
+   assert.deepEqual(errors,[],file+' runtime errors');assert.equal(info.overflow,false,file+' '+width+' overflow');
+   if(file==='index'){assert.equal(await p.locator('a.hub-card').count(),16);assert.match(await p.locator('.hub-roster').textContent(),/^16 dashboards/);assert.equal(await p.locator('#hub-recents').isVisible(),false);assert.match(info.font,/Figtree/);}
+   if(file==='life-map'){assert.equal(await p.locator('#atlas-daily-root .daily-grid > section').count(),3);}
+   if(file==='workout-forge'){assert.equal(await p.locator('[data-goal-action="choose-focus"]').count(),4);await p.locator('[data-goal-action="choose-focus"][data-goal="bench"]').click();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('forge:goals:v1')).goal),'bench');await p.reload();await p.waitForTimeout(250);assert.equal(await p.locator('[data-goal-action="choose-focus"]').count(),0);}
+   if(file==='communication-trainer'){await p.locator('[data-communication-goal="clarity"]').click();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('mc_profile')).goal),'clarity');await p.reload();await p.waitForTimeout(400);assert.equal(await p.locator('[data-communication-goal]').count(),0);await p.goto(origin+'/'+file+'.html#investing-today');await p.waitForTimeout(400);if(await p.locator('[data-investing-goal="statements"]').count()){await p.locator('[data-investing-goal="statements"]').click();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('crucible:state')).goal),'statements');}}
+   if(file==='the-library'){await p.locator('[data-action="choose-goal"][data-goal="understand"]').click();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('atlas.library.v1')).goal),'understand');await p.reload();await p.waitForTimeout(250);assert.equal(await p.locator('[data-action="choose-goal"]').count(),0);}
+   if(file==='prospecting-command-center'){assert.equal(await p.evaluate(()=>CONTACTS.length),0);assert.match(await p.locator('body').textContent(),/Import.*contact/i);}
+   if(file==='the-chef'){await p.goto(origin+'/'+file+'.html#planner');assert.equal(await p.locator('#tab-planner').isVisible(),true);}
+   await p.close();
+  }
+  await context.close();
+ }
+ // Date-boundary tests use the real mounted views, synthetic sources and no writes.
+ const context=await browser.newContext({viewport:{width:390,height:844},timezoneId:'America/Winnipeg',reducedMotion:'reduce'}),p=await context.newPage();
+ await p.clock.install({time:new Date('2026-10-11T22:59:50Z')});await p.goto(origin+'/life-map.html');await p.waitForTimeout(500);assert.match(await p.locator('#atlas-daily-root').textContent(),/Prepare the day/);assert.equal(await p.locator('a[href="the-chef.html#planner"]').count(),1);
+ const before=await p.evaluate(()=>localStorage.getItem('lifemap_v1'));await p.clock.fastForward('00:00:40');assert.match(await p.locator('#atlas-daily-root').textContent(),/Close the day/);assert.equal(await p.evaluate(()=>localStorage.getItem('lifemap_v1')),before);
+ await p.goto(origin+'/life-ledger.html#today');await p.waitForTimeout(400);await p.locator('#atlas-appearance-trigger').click();await p.locator('[name="atlas-streak-hide"]').check();assert.equal(await p.evaluate(()=>localStorage.getItem('atlas.streaks.hidden.v1')),'true');await p.close();await context.close();
+ console.log('All suite browser checks passed.');
+}finally{writeFileSync(path.join(out,'audit.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}

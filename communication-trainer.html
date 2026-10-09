@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html class="atlas-neumo" data-atlas-app="communication-trainer" lang="en">
 <head>
+<script src="shared/atlas-streak.js?v=72cff1161459"></script>
+<script src="shared/atlas-experience.js?v=44f3038a6695" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Communicator">
-<meta name="theme-color" content="#0c0a12">
+<meta name="theme-color" content="#efeae3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Communicator">
 <title>Communicator · Learn & Practise</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/communicator-theme.js?v=da883a54b037"></script>
+<script src="shared/communicator-theme.js?v=257e8729a623"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -143,14 +142,14 @@ canvas{max-width:100%}
 @keyframes fade{to{opacity:0;transform:translateY(-8px)}}
 @media(max-width:640px){main,header,nav{padding-left:14px;padding-right:14px}}
 </style>
-<link rel="stylesheet" href="shared/atlas-palette.css">
-<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=4a24a113b47e">
+<link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 <link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
 <link rel="stylesheet" href="shared/communicator-integration.css?v=3d2752cecda8">
-<script src="shared/communicator-curriculum.js?v=de1af9629005" defer></script>
+<script src="shared/communicator-curriculum.js?v=ab77cb9a7f8b" defer></script>
 <script src="shared/communicator-integration.js?v=8322717921eb" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-32.png?v=96c42cc2e926">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-64.png?v=4e14ee0602b0">
@@ -759,7 +758,7 @@ function pageDash(){
     <div class="bar" role="progressbar" aria-label="${nextXP?'Progress to '+levelName(nextXP):'Top rank reached'}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${rankProgress}"><i style="width:${rankProgress}%"></i></div>
   </section>
   <div class="statrow" style="margin-bottom:16px">
-    <div class="stat"><div class="v">${streak()}🔥</div><div class="l">Day streak</div></div>
+    <div class="stat"><div class="v">${window.AtlasStreak?window.AtlasStreak.badge(streak(),'Saved days'):streak()}</div><div class="l">Day streak</div></div>
     <div class="stat"><div class="v">${xp()}</div><div class="l">XP</div></div>
     <div class="stat"><div class="v">${S.reps.length}</div><div class="l">Drills done</div></div>
     <div class="stat"><div class="v" style="font-size:1.05rem">${lvl}</div><div class="l">Level</div><div class="bar" style="margin-top:6px"><i style="width:${Math.round(prog*100)}%"></i></div></div>
@@ -1156,7 +1155,7 @@ function finishDrill(){
   if(prevBestDrill>0 && score>prevBestDrill) toast('New personal best!', `${drill.name}: ${score}/100, beat ${prevBestDrill}`);
   else if(score===100) toast('Flawless rep!', `${drill.name}: a perfect 100`);
   const st=streak();
-  if([3,7,14,30,50,100].includes(st)) toast(`${st}-day streak!`, 'Don\u2019t break the chain.');
+  if([3,7,14,30,50,100].includes(st)) toast(`${st}-day streak!`, 'Your practice is building.');
   curDrill=null; nav('progress');
 }
 
@@ -1331,8 +1330,8 @@ function recordsCard(){
   return `<div class="card records">
     <h2>Consistency</h2>
     <div class="statrow">
-      <div class="stat"><div class="v">${streak()}🔥</div><div class="l">Current streak</div></div>
-      <div class="stat"><div class="v">${longestStreak()}</div><div class="l">Longest streak</div></div>
+      <div class="stat"><div class="v">${window.AtlasStreak?window.AtlasStreak.badge(streak(),'Saved days'):streak()}</div><div class="l">Current streak</div></div>
+      <div class="stat"><div class="v"><span class="atlas-streak-value">${longestStreak()}</span></div><div class="l">Longest streak</div></div>
       <div class="stat"><div class="v">${activeDays()}</div><div class="l">Active days</div></div>
       <div class="stat"><div class="v">${bd.count||0}</div><div class="l">Best day</div></div>
     </div>

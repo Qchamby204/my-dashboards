@@ -117,7 +117,7 @@
       const life={...R.levelProgress(pillars.reduce((sum,p)=>sum+p.xp,0),R.lifeCost),onPace:true,proj:null};
       const sorted=pillars.slice().sort((a,b)=>b.exact-a.exact),balanced=!sorted.length||sorted[0].exact-sorted.at(-1).exact<=6;
       const history=days.map(d=>({day:d.day,done:HABITS.filter(h=>R.value(d,h,HCFG[h])>0).length,life:0}));
-      const dm=dateMap(days.filter(d=>d.date)),streak=streaksFrom(dm),dates=Object.keys(dm).filter(k=>dm[k]>0),bestDay={count:0,date:null};dates.forEach(date=>{if(dm[date]>bestDay.count)Object.assign(bestDay,{count:dm[date],date});});
+      const dm=dateMap(days.filter(d=>d.date));for(const d of days)if(d.date)dm[d.date]=Math.max(1,dm[d.date]||0);const streak=streaksFrom(dm),dates=Object.keys(dm).filter(k=>dm[k]>0),bestDay={count:0,date:null};dates.forEach(date=>{if(dm[date]>bestDay.count)Object.assign(bestDay,{count:dm[date],date});});
       return {habit,pillars,life,identity:'Your lifetime levels',balanced,history,days,consistency:0,active:streak.current,expectedLevel:0,daysLeft:0,elapsed:0,canForecast:false,lead:sorted[0],dateMap:dm,streak,bestDay,activeDays:dates.length};
     };
     // Lifetime XP is derived from saved records. Recorded achievements stay claimed.
@@ -181,7 +181,7 @@
       // A failed day save is retried explicitly with Save day, never as a stale queued snapshot.
       if(!ok){busy=false;failed.delete(KEY);failed.set(DRAFTKEY,JSON.stringify(drafts));status();toast('Day not logged. Your draft is still here. Retry saving, then use Save day.');return;}
       leisureOpen=false;state.days=next;lastUndo={date,before:before?clone(before):null,after:JSON.stringify(dayEntryFor(date))};
-      delete drafts.days[date];loadDraftFor(date);const after=compute(state.days,state.goals);celebrate(progressBefore,after,date);drafts.rhythm={...preferences(),earned:[...new Set([...(preferences().earned||[]),...ACHV.filter(a=>a.test(after)).map(a=>a.name)])]};await write(DRAFTKEY,JSON.stringify(drafts));busy=false;render();toast('Saved '+pretty(date),'Undo',undoLast);
+      delete drafts.days[date];loadDraftFor(date);const after=compute(state.days,state.goals);celebrate(progressBefore,after,date);drafts.rhythm={...preferences(),earned:[...new Set([...(preferences().earned||[]),...ACHV.filter(a=>a.test(after)).map(a=>a.name)])]};await write(DRAFTKEY,JSON.stringify(drafts));busy=false;render();window.AtlasExperience?.complete(document.querySelector('[data-act="commit"]')||document.querySelector('.ledger-save-feedback'));toast('Saved '+pretty(date),'Undo',undoLast);
     }
     commit=saveDay;
     undoLast=async function(){if(!lastUndo||blocked||busy)return;const undo=lastUndo,current=dayEntryFor(undo.date);if(JSON.stringify(current)!==undo.after){toast('That day has changed. Open it to edit the latest entry.');return;}remember();const next=state.days.filter(d=>d.date!==undo.date);if(undo.before)next.push(undo.before);next.sort((a,b)=>(a.date||'').localeCompare(b.date||''));busy=true;status();const ok=await write(KEY,JSON.stringify(next));busy=false;if(!ok){failed.delete(KEY);status();toast('Undo could not be saved. Try Undo again.');return;}state.days=next;lastUndo=null;clearCelebrations();saveFeedback='Last day save undone.';if(state.logDate===undo.date)loadDraftFor(undo.date);write(DRAFTKEY,JSON.stringify(drafts));render();toast('Last day save undone.');};
@@ -661,6 +661,7 @@
     window.addEventListener('beforeunload',e=>{remember();if(failed.size||pending.size||busy){e.preventDefault();e.returnValue='';}});
     function checkDay(){if(busy||blocked)return;const today=todayISO();if(today!==seenToday){const follow=state.logDate===seenToday;remember();seenToday=today;if(follow){state.logDate=today;loadDraftFor(today);}render();}}
     document.addEventListener('visibilitychange',()=>{if(document.hidden)remember();else{checkDay();render();}});
+    window.addEventListener('hashchange',()=>{if(location.hash==='#today'){setDashboardView('today');selectDate(todayISO());}});
     window.addEventListener('pageshow',()=>{checkDay();render();});setInterval(checkDay,60000);
     setInterval(()=>{checkDay();paintLeisureClock();},1000);
     window.LedgerDays=Object.freeze({selectDate,setSeason,resetProgress,parseBackup,saveDay,remember,retry,saveRhythm,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});

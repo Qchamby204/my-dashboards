@@ -41,6 +41,7 @@
   }
   function validate(v){
     if(!plain(v)||v.version!==1||!plain(v.plans))throw Error('This goal training backup is not readable.');
+    if(v.goal!==undefined&&!Object.hasOwn(plans,v.goal))throw Error('Invalid training goal.');
     for(const [id,p]of Object.entries(v.plans)){
       if(!Object.hasOwn(plans,id)||!plain(p)||!Number.isInteger(p.week)||p.week<0||p.week>7||!['d1','d2'].includes(p.day)||!plain(p.done)||!plain(p.completed)||seconds(p.base)<600||seconds(p.base)>3600||seconds(p.base)===null||typeof p.baseConfirmed!=='boolean')throw Error('Invalid goal plan records.');
       for(const [k,entry]of Object.entries(p.done)){

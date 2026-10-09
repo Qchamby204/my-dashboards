@@ -3,10 +3,10 @@ export async function connectedAssets(root){
   const assets={};
   const add=(path,body,type)=>assets[path]=[body,type];
   for(const name of ['atlas-mobile.js','atlas-mobile.css','atlas-refinements.js','atlas-refinements.css']){
-    const body=await readFile(new URL('shared/'+name,root),'utf8'),type=name.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8';
+    const body=await readFile(new URL('shared/'+name,root),'utf8'),type=(/\.m?js$/.test(name))?'text/javascript; charset=utf-8':'text/css; charset=utf-8';
     add('/'+name,body,type);add('/shared/'+name,body,type);
   }
-  for(const name of ['atlas-hub.css','atlas-theme.js','atlas-palette.css','atlas-neumorphism-compat.css','atlas-neumorphism.css','atlas-appearance.css','atlas-workflow.css','atlas-connect.css'])add('/shared/'+name,await readFile(new URL('shared/'+name,root),'utf8'),name.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8');
+  for(const name of ['atlas-hub.css','atlas-hub.js','atlas-activity-core.mjs','atlas-day-phase.mjs','atlas-streak.js','atlas-experience.js','atlas-theme.js','atlas-palette.css','atlas-neumorphism-compat.css','atlas-neumorphism.css','atlas-appearance.css','atlas-workflow.css','atlas-connect.css'])add('/shared/'+name,await readFile(new URL('shared/'+name,root),'utf8'),(/\.m?js$/.test(name))?'text/javascript; charset=utf-8':'text/css; charset=utf-8');
   add('/connected/bootstrap.js',await readFile(new URL('atlas/connected-bootstrap.js',root),'utf8'),'text/javascript; charset=utf-8');
   add('/connected/style.css',`.connected-toolbar{position:sticky;top:0;z-index:500;background:var(--bg,#151a24);color:var(--txt,var(--text,#e6ebf3));border-bottom:1px solid var(--border,#445069);padding:12px 20px;font:14px/1.5 system-ui;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.connected-toolbar a,.connected-toolbar button{color:inherit;font:inherit;min-height:44px;display:inline-flex;align-items:center}.connected-toolbar button{background:transparent;border:1px solid currentColor;border-radius:8px;padding:6px 10px}.connected-toolbar [hidden]{display:none}.connected-toolbar p{margin:0;max-width:65ch}#connected-status{flex:1 1 260px}#connected-app[inert]{opacity:.35}#connected-discard{flex-basis:100%}#connected-app .header{position:relative}#connected-app{min-width:0}`,'text/css; charset=utf-8');
   for(const [kind,file] of [['life-map','atlas/life-map-legacy.html']]){
@@ -26,7 +26,7 @@ export async function connectedAssets(root){
     if(kind==='life-map'){script=script.replaceAll('behavior:"smooth"','behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"');script+='\n'+(await readFile(new URL('atlas/life-map-records.mjs',root),'utf8')).replace('export function','function')+'\nwindow.LifeMapRecords={validate:validateLifeMapRecords};\n'+(await readFile(new URL('atlas/life-map-workflow-core.mjs',root),'utf8')).replace('export function','function')+'\n'+await readFile(new URL('atlas/life-map-dashboard.js',root),'utf8')+'\n'+await readFile(new URL('atlas/apple-calendar-client.js',root),'utf8')+'\n'+await readFile(new URL('atlas/life-map-day.js',root),'utf8')+'\n'+await readFile(new URL('atlas/life-map-interactions.js',root),'utf8');add('/connected/life-map-day.css',await readFile(new URL('atlas/life-map-day.css',root),'utf8'),'text/css; charset=utf-8');add('/connected/life-map-dashboard.css',await readFile(new URL('atlas/life-map-dashboard.css',root),'utf8'),'text/css; charset=utf-8');}
     add('/connected/'+kind+'-main.js',script,'text/javascript; charset=utf-8');
     for(const match of matches)html=html.replace(match[0],'');
-    html=html.replace(/<script type="module" src="shared\/atlas-project-transfer.js"><\/script>/,'');
+    html=html.replace(/<script type="module" src="shared\/(?:atlas-project-transfer|atlas-workflow)\.js(?:\?[^"]*)?"><\/script>/g,'');
     html=html.replaceAll('href="shared/','href="/shared/').replaceAll('src="shared/','src="/shared/').replaceAll('href="index.html"','href="/"');
     if(kind==='life-map')html=html.replace('</head>','<link rel="stylesheet" href="/connected/life-map-dashboard.css"><link rel="stylesheet" href="/connected/life-map-day.css"></head>');
     html=html.replace('</head>','<link rel="stylesheet" href="/connected/style.css"></head>');

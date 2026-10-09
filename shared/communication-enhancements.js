@@ -5,7 +5,8 @@
     if(document.documentElement.dataset.atlasApp!=='communication-trainer'||typeof S==='undefined'||window.CommunicationImprovements)return;
     if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=0f198667d766',source).href;document.head.appendChild(css);}
     const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldToast=toast;
-    const fields={assessments:'assessments',reps:'reps',lessonsDone:'lessonsDone',customTopics:'customTopics',retiredTopics:'retired',catsEnabled:'catsEnabled',city:'city',prepNotes:'prepNotes',refreshed:'refreshed',bankUpdated:'bankUpdated',grades:'grades',pendingGrades:'pendingGrades',topicBank:'topicBank'};
+    const fields={profile:'profile',assessments:'assessments',reps:'reps',lessonsDone:'lessonsDone',customTopics:'customTopics',retiredTopics:'retired',catsEnabled:'catsEnabled',city:'city',prepNotes:'prepNotes',refreshed:'refreshed',bankUpdated:'bankUpdated',grades:'grades',pendingGrades:'pendingGrades',topicBank:'topicBank'};
+    S.profile=Store.get('profile',{});
     const shadow=new Map(),unsaved=new Set();
     const copy=value=>JSON.parse(JSON.stringify(value));
     const originalGet=Store.get.bind(Store);let diskAvailable=Store.usable();
@@ -16,7 +17,8 @@
     const eligible=rows=>rows.filter(r=>Number.isFinite(Date.parse(r.date))&&recordDay(r.date)<=dstr(new Date()));
     activityDates=()=>eligible(S.reps).map(r=>recordDay(r.date));
     repsByDay=()=>{const days={};for(const date of activityDates())days[date]=(days[date]||0)+1;return days;};
-    streak=()=>{const days=new Set(activityDates()),date=new Date();let count=0;if(!days.has(dstr(date)))date.setDate(date.getDate()-1);while(days.has(dstr(date))){count++;date.setDate(date.getDate()-1);}return count;};
+    streak=()=>window.AtlasStreak?window.AtlasStreak.compute(activityDates()).current:0;
+    longestStreak=()=>window.AtlasStreak?window.AtlasStreak.compute(activityDates()).longest:0;
     repsThisWeek=()=>{const since=new Date();since.setDate(since.getDate()-6);return activityDates().filter(date=>date>=dstr(since)).length;};
     bestByDrill=()=>{const best={};for(const r of eligible(S.reps))if(!best[r.drill]||r.score>best[r.drill].score)best[r.drill]={score:r.score,topic:r.topic,date:recordDay(r.date),skill:r.skill};return best;};
     const sorted=rows=>eligible(rows).slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
@@ -202,7 +204,7 @@
       const entry={id:session.id,date:new Date().toISOString(),drill:drill.name,skill:drill.skill,topic:topic.text,score,transcript:session.tx||'',recSecs:session.recSecs||0,rubricScores:scores.slice(),nextFocus:session.nextFocus||'',...(topic.librarySource?{librarySource:copy(topic.librarySource)}:{}),...(topic.crucibleSource?{crucibleSource:copy(topic.crucibleSource)}:{}),scoreOrigin:'self',rubricVersion:1};
       const next=[...S.reps,entry];if(!writeProgress('reps',next)){toast('Practice not saved','Your transcript and scores are still here. Try Save practice again.');return false;}
       S.reps=next;const topicKey=normT(topic.text);if(topicKey&&!S.retired.includes(topicKey)){S.retired=[...S.retired,topicKey];Store.set('retiredTopics',S.retired);}
-      lastSaved={...entry,xp:xp()-beforeXP,first:previous.length===0,best:previous.length>0&&score>best};lastSaveError='';curDrill=null;timerSession=null;remainingMs=null;Store.set(DRAFT,null);nav('progress');toast('Practice saved',lastSaved.xp+' XP added'+(lastSaved.best?' · New personal best':lastSaved.first?' · First practice for this drill':''));return true;
+      lastSaved={...entry,xp:xp()-beforeXP,first:previous.length===0,best:previous.length>0&&score>best};lastSaveError='';curDrill=null;timerSession=null;remainingMs=null;Store.set(DRAFT,null);nav('progress');window.AtlasExperience?.complete(document.querySelector('.communication-last-saved,.communication-save-result,.card'));toast('Practice saved',lastSaved.xp+' XP added'+(lastSaved.best?' · New personal best':lastSaved.first?' · First practice for this drill':''));return true;
     };
     doneLesson=function(id){const next={...S.lessonsDone};if(next[id])delete next[id];else next[id]=true;if(!writeProgress('lessonsDone',next)){toast('Lesson change not saved','Try again when storage is available.');return;}S.lessonsDone=next;lastSaveError='';render();toast(next[id]?'Lesson saved':'Lesson marked incomplete',next[id]?'+15 XP':'Progress updated');};
     submitAssess=function(){if(Object.keys(curAnswers).length<ASSESS.length)return;const scores={};for(const skill of SKILLS){const answers=ASSESS.map((q,i)=>q.s===skill.id?curAnswers[i]:null).filter(n=>n!==null);if(!answers.length||answers.some(n=>!Number.isInteger(n)||n<1||n>5))return;scores[skill.id]=Math.round(answers.reduce((a,b)=>a+b,0)/answers.length*20);}const next=[...S.assessments,{date:new Date().toISOString(),scores}];if(!writeProgress('assessments',next)){toast('Assessment not saved','Your answers are still here. Try saving again.');return;}S.assessments=next;curAnswers={};lastSaveError='';nav('progress');toast('Assessment saved','+25 XP');};
@@ -242,7 +244,7 @@
     saveGradePaste=function(src){const count=S.grades.length;oldGradeSave(src);if(curDrill){if(S.grades.length>count)curDrill.gradePaste='';rememberPractice();render();}};
     render=function(){
       const keep=renderedPage===curPage&&renderedSession===curDrill,x=window.scrollX||0,y=window.scrollY||0;
-      oldRender();if(libraryRequest||libraryError)$('main').insertAdjacentHTML('afterbegin',libraryCard());renderedPage=curPage;renderedSession=curDrill;if(keep)window.scrollTo(x,y);
+      oldRender();if(curPage==='dash'){const labels={clarity:'Explain clearly',confidence:'Speak with confidence',listen:'Listen and respond'};const g=S.profile?.goal;const first=!g&&!S.reps.length&&!S.assessments.length;const html=first?'<section class="card atlas-goal-question"><h2>What would you like practice to help with?</h2><div>'+Object.entries(labels).map(([id,label])=>'<button class="btn" data-communication-goal="'+id+'">'+label+'</button>').join('')+'</div></section>':g?'<section class="card atlas-goal-orientation"><strong>Your aim: '+labels[g]+'.</strong><p>'+({clarity:'Try an impromptu explanation with one clear point and one example.',confidence:'Try a short introduction. Repeat it at a comfortable pace.',listen:'Practise summarising another viewpoint before responding.'}[g])+'</p><button class="btn" onclick="nav(\'train\')">Start your next practice</button></section>':'';if(html)$('main').insertAdjacentHTML('afterbegin',html);}if(libraryRequest||libraryError)$('main').insertAdjacentHTML('afterbegin',libraryCard());renderedPage=curPage;renderedSession=curDrill;if(keep)window.scrollTo(x,y);
       timerUI();recordingUI();status();
       if(curDrill){const host=$('txBox')?.parentElement;if(host){const label=document.createElement('label');label.textContent='One thing to improve next time';const focus=document.createElement('input');focus.id='communication-next-focus';focus.maxLength=300;focus.value=curDrill.nextFocus||'';label.append(focus);host.append(label);}}
       $('txBox')?.setAttribute('aria-label','Practice transcript');$('gradeBox')?.setAttribute('aria-label','Paste JSON feedback');
@@ -269,6 +271,7 @@
         if(['reps','assessments','grades','pendingGrades'].includes(key)&&value.some(item=>!item||typeof item!=='object'||Array.isArray(item)||typeof item.date!=='string'||!Number.isFinite(Date.parse(item.date))))throw Error('Invalid practice record.');
         const object=item=>item&&typeof item==='object'&&!Array.isArray(item);
         const score=item=>Number.isFinite(item)&&item>=0&&item<=100;
+        if(key==='profile'&&(!object(value)||value.goal!==undefined&&!['clarity','confidence','listen'].includes(value.goal)))throw Error('Invalid practice goal.');
         if(key==='reps'&&value.some(item=>typeof item.drill!=='string'||typeof item.topic!=='string'||typeof item.skill!=='string'||!score(item.score)))throw Error('Invalid practice score.');
         if(key==='reps'){value.forEach(r=>{validateLibrarySource(r.librarySource);validateCrucibleSource(r.crucibleSource);});const ids=value.filter(item=>item.id!==undefined).map(item=>item.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length||value.some(item=>item.transcript!==undefined&&typeof item.transcript!=='string'||item.recSecs!==undefined&&(!Number.isFinite(item.recSecs)||item.recSecs<0)||item.rubricScores!==undefined&&(!Array.isArray(item.rubricScores)||item.rubricScores.some(n=>!Number.isInteger(n)||n<1||n>5))))throw Error('Invalid saved practice details.');}
         if(key==='assessments'&&value.some(item=>!object(item.scores)||SKILLS.some(skill=>!score(item.scores[skill.id]))))throw Error('Invalid assessment scores.');
@@ -425,6 +428,7 @@
     readLibraryRequest();window.addEventListener('hashchange',()=>{readLibraryRequest();render();});
     let savedDraftRaw;try{savedDraftRaw=localStorage.getItem('mc_'+DRAFT);}catch{diskAvailable=false;}
     if(savedDraftRaw!=null)try{restorePractice(JSON.parse(savedDraftRaw));}catch(error){draftProblem=error.message||'Could not read the unfinished practice.';}
+    document.addEventListener('click',e=>{const b=e.target.closest('[data-communication-goal]');if(!b||S.profile?.goal||!['clarity','confidence','listen'].includes(b.dataset.communicationGoal))return;const next={goal:b.dataset.communicationGoal};S.profile=next;const saved=Store.set('profile',next);render();if(saved)toast('Your practice aim is saved.');});
     window.CommunicationImprovements=Object.freeze({validateBackup,startPreparedPractice,rememberPractice,resumePractice,leavePractice,discardPractice,editTopics,saveTopics,selectTopicCategory,cleanTopicLines,get unsaved(){return unsaved.size;}});
     window.dispatchEvent?.(new Event('communicator-ready'));
     render();

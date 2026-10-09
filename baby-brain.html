@@ -14,18 +14,17 @@
 -->
 <html class="atlas-neumo" data-atlas-app="baby-brain" lang="en">
 <head>
+<script src="shared/atlas-streak.js?v=72cff1161459"></script>
+<script src="shared/atlas-experience.js?v=44f3038a6695" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Baby Brain">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#09070f">
+<meta name="theme-color" content="#efeae3">
 <meta name="description" content="A second brain for raising a child: sleep, feeding, hygiene, physical and cognitive development, social-emotional growth, environment and stages.">
 <title>Baby Brain · A Second Brain for Raising Our Child</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
+<script src="shared/atlas-theme.js?v=f4de28eed8cc"></script>
 <style>
   :root{
     --ink:#09070f; --panel:#171423; --panel-2:#1e1a2e; --line:#2a2540; --line-2:#3a3358;
@@ -334,10 +333,10 @@
     box-shadow:0 14px 40px -12px rgba(0,0,0,.8)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
-<link rel="stylesheet" href="shared/atlas-palette.css">
-<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
-<link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=4a24a113b47e">
+<link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 <link rel="stylesheet" href="shared/remaining-sports.css?v=356e3c6e654e">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/baby-brain-32.png?v=e6cc7f50830b">
@@ -2993,6 +2992,7 @@ function drawEdges(){
 /* ---------- tween ---------- */
 let tw=null;
 function startTween(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){if(tw)cancelAnimationFrame(tw.id);tw=null;for(const n of VIS){n.cx=n.tx;n.cy=n.ty;n.g?.setAttribute('transform',`translate(${n.cx} ${n.cy})`);}drawEdges();return;}
   if(tw) cancelAnimationFrame(tw.id);
   const t0=performance.now(), D=460;
   const items=VIS.map(n=>({n,sx:n.sx,sy:n.sy,tx:n.tx,ty:n.ty}));
@@ -3009,8 +3009,10 @@ function startTween(){
 }
 
 /* ---------- pulses ---------- */
-let lastT=performance.now();
-(function pulseLoop(now){
+const babyMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+let babyPulseFrame=null,lastT=performance.now();
+function pulseLoop(now){
+  babyPulseFrame=null;if(babyMotion.matches||document.hidden){for(const e of EDGES)e.pulse?.setAttribute('opacity','0');return;}
   const dt=Math.min(.05,(now-lastT)/1000); lastT=now;
   for(const e of EDGES){
     if(!e.pulse) continue;
@@ -3019,8 +3021,10 @@ let lastT=performance.now();
     e.pulse.setAttribute("cy",(u*u*e.y1+2*u*t*e.qy+t*t*e.y2).toFixed(1));
     e.pulse.setAttribute("opacity",(Math.sin(t*Math.PI)*0.9).toFixed(2));
   }
-  requestAnimationFrame(pulseLoop);
-})(performance.now());
+  babyPulseFrame=requestAnimationFrame(pulseLoop);
+}
+function syncBabyMotion(){if(babyPulseFrame!==null)cancelAnimationFrame(babyPulseFrame);babyPulseFrame=null;lastT=performance.now();if(babyMotion.matches){if(tw)cancelAnimationFrame(tw.id);tw=null;startTween();stopAnim();}pulseLoop(lastT);}
+babyMotion.addEventListener('change',syncBabyMotion);document.addEventListener('visibilitychange',syncBabyMotion);pulseLoop(lastT);
 
 /* ---------- highlight ---------- */
 function applyHot(){

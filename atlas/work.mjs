@@ -1,4 +1,6 @@
 import {addDays,monday,localDay} from './model.mjs';
+import {dailyPhase} from '../shared/atlas-day-phase.mjs';
+export const priorityDay=(day,now=new Date())=>dailyPhase(now)==='evening'?addDays(day,1):day;
 import {HERALD_STAGES} from './herald.mjs';
 
 export function workItems(data,day){

@@ -53,7 +53,7 @@ const subById = (tid,sid) => topicById(tid)?.subtopics.find(s=>s.id===sid);
 const scopeKey = (tid,sid='all') => `${tid}:${sid}`;
 const validScope = k => { const [t,s,...rest]=String(k).split(':'); return !rest.length && !!topicById(t) && (s==='all'||!!subById(t,s)); };
 const text = (v,max=Infinity) => typeof v==='string'?v.slice(0,max):'';
-const defaultState = () => ({schemaVersion:1,catalog:clone(seed.books),progress:{},syntheses:{},focus:null,customSubtopics:[],topicOrder:seed.topics.map(t=>t.id),reading:Reading.empty(),createdAt:now(),updatedAt:'',lastBackupAt:''});
+const defaultState = () => ({schemaVersion:1,goal:null,catalog:clone(seed.books),progress:{},syntheses:{},focus:null,customSubtopics:[],topicOrder:seed.topics.map(t=>t.id),reading:Reading.empty(),createdAt:now(),updatedAt:'',lastBackupAt:''});
 let storageError='',blocked=false,rawAtBoot='',conflict=false;
 function withCustomTopics(extras=[]){
  if(!Array.isArray(extras)||extras.length>500)throw new Error('Invalid custom subtopic list. Nothing has been replaced.');
@@ -94,7 +94,8 @@ function normalizeState(raw){
   syntheses[k]=out;
  }
  const focus=raw.focus&&scopeValid(scopeKey(String(raw.focus.topic),String(raw.focus.subtopic)))?{topic:String(raw.focus.topic),subtopic:String(raw.focus.subtopic)}:null;
- return {schemaVersion:1,catalog,progress,syntheses,focus,customSubtopics:clone(customSubtopics),topicOrder:Reading.normalizeOrder(raw.topicOrder,seed.topics.map(t=>t.id)),reading:Reading.normalize(raw.reading,catalog,scopeValid),createdAt:text(raw.createdAt,50)||now(),updatedAt:text(raw.updatedAt,50),lastBackupAt:text(raw.lastBackupAt,50)};
+ if(raw.goal!=null&&!['finish','understand','apply'].includes(raw.goal))throw Error('Invalid Library goal.');
+ return {schemaVersion:1,goal:raw.goal||null,catalog,progress,syntheses,focus,customSubtopics:clone(customSubtopics),topicOrder:Reading.normalizeOrder(raw.topicOrder,seed.topics.map(t=>t.id)),reading:Reading.normalize(raw.reading,catalog,scopeValid),createdAt:text(raw.createdAt,50)||now(),updatedAt:text(raw.updatedAt,50),lastBackupAt:text(raw.lastBackupAt,50)};
 }
 let state=defaultState();
 try{rawAtBoot=localStorage.getItem(KEY)||'';if(rawAtBoot)state=normalizeState(JSON.parse(rawAtBoot));}catch(e){storageError=rawAtBoot?'Saved records could not be read. The original data has not been overwritten. Open Backup & settings to download a recovery copy or restore a backup.':'Browser storage is unavailable. Changes will remain in this open tab only. Export a backup before closing.';blocked=!!rawAtBoot;}
@@ -146,7 +147,7 @@ function saveFeedback(){
 function persist(){
  state.updatedAt=now();
  if(blocked||conflict){saveFeedback();return false;}
- try{localStorage.setItem(KEY,JSON.stringify(state));storageError='';saveFeedback();return true;}
+ try{const next=JSON.stringify(state);localStorage.setItem(KEY,next);if(localStorage.getItem(KEY)!==next)throw Error('Save not verified');storageError='';saveFeedback();return true;}
  catch(e){storageError='Your browser could not save these changes. They are still available in this open tab. Export a backup now; do not close or refresh until you do.';saveFeedback();return false;}
 }
 function toast(msg){$('#toast').textContent=msg;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{$('#toast').hidden=true;},3300);}
@@ -277,7 +278,10 @@ function homeView(){
  if(f){const fs=stats(booksIn(f.topic,f.subtopic));focus=`<span class="eyebrow">Your current focus · ${f.subtopic==='all'?'Priority '+topicRank(f.topic):f.subtopic}</span><h3>${esc(scopeTitle(f.topic,f.subtopic))}</h3><p>${fs.done} of ${fs.total} books completed · ${fs.notes} with notes</p><a class="btn" href="${scopeRoute(f.topic,f.subtopic)}">Continue reading ${icon('arrow')}</a>${focusProgress(f.topic,f.subtopic)}`;}
  else focus=`<span class="eyebrow">A place to begin</span><h3>Choose one topic.<br>Make it your own.</h3><p>Start with a question, not a reading quota.</p><button class="btn" data-action="browse-topics">Explore your topics ${icon('arrow')}</button>`;
  const reading=state.catalog.filter(b=>progress(b.id).status==='reading').sort((a,b)=>(progress(b.id).updatedAt||'').localeCompare(progress(a.id).updatedAt||''));
- return `<section class="intro"><div><div class="eyebrow">Your personal learning library</div><h1>Read deeply.<br>Think clearly.</h1><p>A home for the books you read, the ideas you keep, and the understanding you build.</p><button class="btn accent" style="margin-top:20px" data-action="new-book">${icon('plus')}Add book</button></div><div class="focus-card">${focus}${icon('book','folio')}</div></section><section class="stats" aria-label="Library progress"><div class="stat"><div class="stat-number">${s.done}<span>/ ${s.total}</span></div><div class="stat-label">Books completed</div></div><div class="stat"><div class="stat-number">${s.notes}</div><div class="stat-label">Books with notes</div></div><div class="stat"><div class="stat-number">${saved.length}</div><div class="stat-label">Understandings saved</div></div></section>
+ const goalLabels={finish:'Finish a book',understand:'Understand an idea',apply:'Put an idea to use'};
+ const firstUse=!state.goal&&!Object.keys(state.progress).length&&!Object.keys(state.syntheses).length&&!state.focus;
+ const goal=firstUse?`<section class="atlas-goal-question panel"><h2>What would you like your reading to do?</h2><p>Choose one real aim. You can still explore every topic.</p><div>${Object.entries(goalLabels).map(([g,l])=>`<button class="btn" data-action="choose-goal" data-goal="${g}">${l}</button>`).join('')}</div></section>`:state.goal?`<p class="atlas-goal-orientation"><strong>Your aim: ${goalLabels[state.goal]}.</strong> ${state.goal==='finish'?'Choose a book and set a reading date.':state.goal==='understand'?'Keep a question beside your notes, then distill it in your own words.':'Save one application in your book notes and return to it after trying it.'}</p>`:'';
+ return `${goal}<section class="intro"><div><div class="eyebrow">Your personal learning library</div><h1>Read deeply.<br>Think clearly.</h1><p>A home for the books you read, the ideas you keep, and the understanding you build.</p><button class="btn accent" style="margin-top:20px" data-action="new-book">${icon('plus')}Add book</button></div><div class="focus-card">${focus}${icon('book','folio')}</div></section><section class="stats" aria-label="Library progress"><div class="stat"><div class="stat-number">${s.done}<span>/ ${s.total}</span></div><div class="stat-label">Books completed</div></div><div class="stat"><div class="stat-number">${s.notes}</div><div class="stat-label">Books with notes</div></div><div class="stat"><div class="stat-number">${saved.length}</div><div class="stat-label">Understandings saved</div></div></section>
  ${reading.length?`<section style="margin-bottom:23px"><div class="section-head"><h2>Continue reading</h2><span class="small muted">${reading.length} in progress</span></div><div class="continue-strip">${reading.map(b=>`<article class="continue-book"><span class="eyebrow">${esc(topicById(b.topic)?.short||'Reference')}</span><button class="book-title" data-action="notes" data-id="${b.id}">${esc(b.title)}</button>${progressEditor(b,'desk')}<div class="reading-card-actions"><button class="btn quiet" data-action="notes" data-id="${b.id}">Open notes</button><button class="btn quiet" data-action="stop-reading" data-id="${b.id}">Stop reading</button></div></article>`).join('')}</div></section>`:''}
  <section id="topic-grid-section"><div class="section-head"><div><h2>Explore your topics</h2><p>14 topics. Open a section to set your reading pace. Page totals use editable reference editions.</p></div><div class="row wrap"><button class="btn" data-action="edit-priorities">Set priorities</button><a class="btn quiet" href="#books">All books ${icon('arrow')}</a></div></div><div class="topic-grid">${orderedTopics().map(topicCard).join('')}</div></section>
  <div class="callout section-gap">${icon('info')}<div><strong>Read → reflect → distill.</strong><p>Check off a book as you finish. Keep your notes with it. Then open “Distill understanding” to see those notes together and write a short synthesis. You do not need to finish every book first.</p></div></div>${footer()}`;
@@ -358,7 +362,7 @@ function getTheme(){try{return ['system','light','dark'].includes(localStorage.g
 let themeMode='system';
 function applyTheme(mode,write=false){
  themeMode=mode;const dark=mode==='dark'||(mode==='system'&&matchMedia('(prefers-color-scheme:dark)').matches);
- document.documentElement.dataset.theme=dark?'dark':'light';document.documentElement.dataset.atlasTheme=dark?'dark':'light';document.querySelector('meta[name=theme-color]').content='#0b1422';
+ document.documentElement.dataset.theme=dark?'dark':'light';document.documentElement.dataset.atlasTheme=dark?'dark':'light';document.querySelector('meta[name=theme-color]').content=dark?'#1c1a2b':'#efeae3';
  if(write)try{localStorage.setItem(THEME_KEY,mode);}catch(e){toast('Appearance changed for this tab. Browser storage is unavailable.');}
 }
 function openSettings(){
@@ -449,7 +453,8 @@ function routeAfterEdit(){if(route.view==='books')$('#book-results').innerHTML=b
 document.addEventListener('click',async event=>{
  const el=event.target.closest('[data-action]');if(!el)return;
  const a=el.dataset.action,id=el.dataset.id,key=el.dataset.key;
- if(a==='edit-priorities')openPriorities();
+ if(a==='choose-goal'&&['finish','understand','apply'].includes(el.dataset.goal)&&!state.goal){state.goal=el.dataset.goal;if(persist()){render();toast('Your reading aim is saved.');}}
+ else if(a==='edit-priorities')openPriorities();
  else if(a==='reset-priorities'&&modalContext?.type==='priorities'){modalContext.order=seed.topics.map(t=>t.id);$('#priority-list').innerHTML=priorityRows(modalContext.order);$('#priority-feedback').textContent='Original order restored in this preview. Save to apply.';}
  else if(a==='settings')openSettings();
  else if(a==='close-modal')$('#modal').close();

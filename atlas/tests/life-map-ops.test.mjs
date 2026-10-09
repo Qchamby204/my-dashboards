@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {createLifeMapOperations} from '../life-map-ops.mjs';
 import {lifeMapOpsScript} from '../build-life-map-ops.mjs';
 const root=new URL('../../',import.meta.url),html=await readFile(new URL('operations-cadence.html',root),'utf8'),catalog=vm.runInNewContext('('+html.match(/const DATA = (\[[\s\S]*?\n\]);/)[1]+')');
+process.env.TZ='America/Winnipeg';
 const today='2026-09-17',clock=()=>Date.parse(today+'T18:00:00Z');
 function fixture(value){const data=new Map(value===undefined?[]:[['operationsCadence.v1',typeof value==='string'?value:JSON.stringify(value)]]),writes=[];const storage={getItem:k=>data.get(k)??null,setItem(k,v){writes.push(k);data.set(k,v);},removeItem(k){writes.push(k);data.delete(k);}};return {data,writes,storage,ops:createLifeMapOperations(catalog,storage,clock),state:()=>JSON.parse(data.get('operationsCadence.v1'))};}
 test('all shipped cadences are derived from Ops; opening never writes either board',async()=>{

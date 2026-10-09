@@ -33,7 +33,8 @@
     return `<section class="fg-week-guide" aria-labelledby="fg-week-guide-title"><div class="fg-week-guide-heading"><h3 id="fg-week-guide-title">Suggested goal week</h3><span>4 training days · 2 goals per day</span></div><ol class="fg-week-strip" aria-label="Suggested weekly training order">${days.map(([day,type,first,second,note])=>`<li class="fg-week-day fg-week-${type}"><span class="fg-week-dayname">${day}</span><strong>${first}</strong>${second?`<span class="fg-week-then" aria-label="then">↓</span><strong>${second}</strong>`:''}<small>${note}</small></li>`).join('')}</ol>${info('How to pair the sessions','<p><strong>Follow the order shown.</strong> Warm up, complete your jump work while fresh, then deadlift. On bench and running days, bench comes first. A and B mean the first and second sessions in the selected training week.</p><p><strong>Running order.</strong> In weeks 2–7, Tuesday is the easy run (Run 2), and Saturday is the quality run (Run 1). In week 1, do the baseline trial on Tuesday before the easy run on Saturday. In week 8, do the primer on Tuesday and the final trial on Saturday.</p><p><strong>Combined lower-body days.</strong> These are pairings of your existing plans, not a reduced-volume program. Review the extra split squats, hamstring work and other accessories before stacking both full sessions; shorten the jump block if quality drops.</p><p><strong>Test week.</strong> Follow each plan’s primer, rest and test instructions. Move a test if needed to preserve its prescribed recovery; separate bench and the 5K trial by several hours when possible.</p><p><strong>Flexible days.</strong> This is a suggested rhythm, not a dated schedule. Shift the days to fit your week while preserving recovery. Log each goal separately; the strip does not mark sessions complete.</p>')}</section>`;
   }
   function home(){
-    return `<section class="fg-home" aria-labelledby="fg-title"><header class="fg-section-title"><div><div class="fg-kicker">Separate sessions · 8 weeks</div><h2 id="fg-title">Goal training</h2></div>${info('About goal training','<p>Each goal has two sessions per week and its own set log. Your regular split and its session totals stay separate. A saved session may contain fewer sets than prescribed; its log shows exactly what you did.</p><p>Bench targets 315 lb this block. Deadlift, 5K and dunking are phase one of longer goals.</p>')}</header>${notice()}${suggestedWeek()}<div class="fg-grid">${Object.values(P).map(c=>{
+    const question=!data.goal&&!Object.keys(data.plans).length?`<section class="atlas-goal-question"><h2>What would you like to work toward first?</h2><div>${Object.values(P).map(c=>button(esc(c.title),'choose-focus',`data-goal="${c.id}"`)).join('')}</div></section>`:data.goal?`<p class="atlas-goal-orientation">Your first goal: <strong>${esc(P[data.goal].title)}</strong>. ${button('Continue your chosen plan','open',`data-goal="${data.goal}"`)}</p>`:'';
+    return `${question}<section class="fg-home" aria-labelledby="fg-title"><header class="fg-section-title"><div><div class="fg-kicker">Separate sessions · 8 weeks</div><h2 id="fg-title">Goal training</h2></div>${info('About goal training','<p>Each goal has two sessions per week and its own set log. Your regular split and its session totals stay separate. A saved session may contain fewer sets than prescribed; its log shows exactly what you did.</p><p>Bench targets 315 lb this block. Deadlift, 5K and dunking are phase one of longer goals.</p>')}</header>${notice()}${suggestedWeek()}<div class="fg-grid">${Object.values(P).map(c=>{
       const p=plan(c.id),n=M.next(p),count=Object.keys(p.completed).length;
       const started=Object.keys(p.done).length>0;
       return `<button type="button" class="fg-card fg-${c.color}" data-goal-action="open" data-goal="${c.id}" ${blocked?'disabled':''}><span class="fg-card-top"><span>${esc(c.title)}</span><span class="fg-badge">${c.phase}</span></span><strong class="fg-target">${esc(c.target)} <small>${esc(c.unit)}</small></strong><span class="fg-metric">${esc(M.metric(c.id,p))}</span><span class="fg-progress" role="progressbar" aria-label="${c.title} sessions saved" aria-valuemin="0" aria-valuemax="16" aria-valuenow="${count}"><span style="width:${count/16*100}%"></span></span><span class="fg-card-bottom"><span>${count}/16 sessions</span><span>${n?`Week ${n.week+1} · ${n.day==='d1'?'A':'B'}`:'Block logged'}</span></span><span class="fg-card-cta">${started?'Continue':'Open plan'} <span aria-hidden="true">↗</span></span></button>`;
@@ -111,7 +112,7 @@
       if(latest&&(M.fullTrial(at.e,values)||replacedTrial)){p.base=latest;p.baseConfirmed=true;}else if(replacedTrial){p.base='28:00';p.baseConfirmed=false;}
       status=M.fullTrial(at.e,values)?'Run saved. Paces updated from your latest completed 5K.':'Run saved with your actual distance, mile pace and speed.';
     }
-    persist();paint();document.querySelector(`[data-goal-action="set"][data-key="${k}"]`)?.focus({preventScroll:true});
+    const saved=persist();paint();if(saved)window.AtlasExperience?.complete(document.querySelector(`[data-goal-action="set"][data-key="${k}"]`));document.querySelector(`[data-goal-action="set"][data-key="${k}"]`)?.focus({preventScroll:true});
   }
   function backup(){
     const payload=blocked?{app:'forge-goals-recovery',raw}: {app:'forge-goals',version:1,exportedAt:new Date().toISOString(),goals:data};
@@ -128,6 +129,7 @@
     if(a==='reload'){window.ForgeSession.confirmAction('Reload saved goals?','Download a backup first if this tab has unsaved work.','Reload',()=>location.reload());return;}
     if(blocked)return;
     if(a==='retry'){persist();paint();return;}
+    if(a==='choose-focus'&&Object.hasOwn(P,el.dataset.goal)&&!data.goal){data.goal=el.dataset.goal;if(persist()){paint();open(data.goal);}else paint();return;}
     if(a==='open'||a==='history'){open(el.dataset.goal,a==='history'?Number(el.dataset.week):undefined,el.dataset.day);return;}
     if(a==='home'){active=null;status='';error='';location.hash='';paint();window.scrollTo({top:homeScroll,behavior:'instant'});document.querySelector('[data-goal-action="open"]')?.focus({preventScroll:true});return;}
     if(a==='rest'){startTimer(Number(el.dataset.seconds));return;}
@@ -152,7 +154,7 @@
       p.completed[`${p.week}-${p.day}`]=p.completed[`${p.week}-${p.day}`]||new Date().toISOString();status='Session saved to your goal training log.';
     }
     if(a==='next'){const n=M.next(p);if(n){p.week=n.week;p.day=n.day;}else status='All 16 sessions are saved. Review your week 8 test results.';}
-    persist();paint();
+    const saved=persist();paint();if(saved&&a==='finish')window.AtlasExperience?.complete(document.querySelector('[data-goal-action="finish"]'));
     if(a==='set')document.querySelector('.fg-editor input')?.focus({preventScroll:true});
     if(['week','day','next'].includes(a))document.querySelector('.fg-phase')?.scrollIntoView({block:'start'});
   }
