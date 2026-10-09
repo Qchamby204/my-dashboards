@@ -26,7 +26,7 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disab
 const apps=['index','life-map','life-ledger','workout-forge','the-chef','baby-brain','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-aqueduct','the-library','courier','communication-trainer','neural-map','quinton-os','review'];
 const config=[['light',393,16],['dark',393,16],['dark',320,16],['light',844,16],['dark',393,20]];
 const slug=s=>s.replace(/[^a-z0-9-]/gi,'-').slice(0,70);
-async function settle(p){await p.waitForTimeout(160);await p.evaluate(()=>document.fonts.ready);}
+async function settle(p){await p.waitForTimeout(160);await p.evaluate(()=>Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2000))]));}
 async function capture(p,file,view,theme,width,textSize,errors){
  await settle(p);
  const result=await p.evaluate(()=>{
@@ -51,7 +51,7 @@ async function capture(p,file,view,theme,width,textSize,errors){
  });
  reports.push({file,view,theme,width,textSize,errors:[...errors],...result});
  writeFileSync(path.join(out,'layout-audit.json'),JSON.stringify(reports,null,2));
- await p.screenshot({path:path.join(out,slug(file+'-'+view+'-'+theme+'-'+width+'-'+textSize)+'.png'),fullPage:true,timeout:15000});
+ await p.screenshot({path:path.join(out,slug(file+'-'+view+'-'+theme+'-'+width+'-'+textSize)+'.png'),fullPage:file==='workout-forge'&&view==='home',timeout:15000});
  console.log('Layout',file,view,theme,width,textSize,result.content.length?'CONTENT '+JSON.stringify(result.content):'',result.tallPills.length?'PILLS '+JSON.stringify(result.tallPills):'');
 }
 try{
@@ -60,7 +60,7 @@ try{
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const f=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,f)),contentType:types[path.extname(f)]||'text/plain'});}catch{await r.abort();}});
   await context.addInitScript(raw=>localStorage.setItem('forge:goals:v1',raw),JSON.stringify(goals));
   for(const file of apps){
-   const p=await context.newPage(),errors=[];p.setDefaultTimeout(10000);p.on('pageerror',e=>errors.push(e.message));
+   const p=await context.newPage(),errors=[];p.setDefaultTimeout(10000);p.setDefaultNavigationTimeout(20000);p.on('pageerror',e=>errors.push(e.message));
    await p.goto(origin+'/'+file+'.html',{waitUntil:'domcontentloaded'});await settle(p);
    if(textSize!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+textSize+'px!important}'});
    if(file==='the-herald'){
