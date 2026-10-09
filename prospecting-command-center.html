@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html class="atlas-neumo" data-atlas-app="prospecting-command-center" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prospecting">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Prospecting Command Center | Quinton Chambers</title>
+<meta name="theme-color" content="#0a0e17">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chambers HQ">
+<script src="shared/atlas-theme.js?v=30561a7232c7"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0a0e17;color:#e0e0e0;font-family:'Outfit',system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.5}
+.container{max-width:1200px;margin:0 auto;
+  padding:0 max(14px,env(safe-area-inset-left)) calc(60px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-right))}
+a{color:#8bb4e0}
+h1{font-size:26px;font-weight:700;color:#c9a84c;letter-spacing:.5px}
+.sub{color:#7d8598;font-size:12.5px;margin-top:2px}
+
+/* App chrome. The blurred fill runs up under the Dynamic Island so the clock,
+   signal, wifi and battery never sit on top of content. */
+.homebtn{display:grid;place-items:center;width:33px;height:33px;border-radius:10px;flex-shrink:0;
+  border:1px solid rgba(240,183,62,.35);background:rgba(240,183,62,.10);color:#f0b73e;
+  font-size:15px;line-height:1;text-decoration:none;margin-right:9px}
+.homebtn:active{transform:scale(.93)}
+.appbar{position:sticky;top:0;z-index:60;
+  margin:0 calc(-1 * max(14px,env(safe-area-inset-left)));
+  padding:calc(env(safe-area-inset-top,0px) + 11px) max(14px,env(safe-area-inset-left)) 11px max(14px,env(safe-area-inset-right));
+  background:rgba(10,14,23,.92);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid rgba(201,168,76,.2);
+  display:flex;align-items:center;justify-content:space-between;gap:9px}
+.appbar-title{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:#e6c872;letter-spacing:.04em;white-space:nowrap;line-height:1.1}
+.appbar-sub{font-size:9px;color:#6b7280;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;white-space:nowrap}
+.appbar-pill{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;
+  background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.35);
+  font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#e6c872;white-space:nowrap;flex-shrink:0}
+.iconbtn{width:33px;height:33px;border-radius:10px;border:1px solid #232f48;background:#101728;
+  color:#8a93a8;font-size:13px;display:grid;place-items:center;flex-shrink:0;cursor:pointer}
+
+/* Tabs sit directly beneath the app bar, not under the Dynamic Island. */
+.tabs{display:flex;gap:6px;margin:0 calc(-1 * max(14px,env(safe-area-inset-left))) 14px;
+  overflow-x:auto;scrollbar-width:none;
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + 56px);
+  background:rgba(10,14,23,.94);backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);
+  border-bottom:1px solid #1a2338;
+  padding:9px max(14px,env(safe-area-inset-left));z-index:50}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:#101728;border:1px solid #232f48;color:#8a93a8;padding:9px 16px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap}
+.tab:hover{color:#e0e0e0;border-color:#c9a84c}
+.tab.active{background:linear-gradient(90deg,#c9a84c,#e6c872);color:#0a0e17;border-color:transparent}
+.card{background:#0f1524;border:1px solid #1e2a3f;border-radius:12px;padding:18px;margin-bottom:14px}
+.gold{color:#c9a84c}.green{color:#5fe05f}.blue{color:#8bb4e0}.red{color:#ff8a8a}.amber{color:#e6c872}.mut{color:#6d7688}
+.btn{border:none;border-radius:9px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;background:#1a2744;color:#8bb4e0}
+.btn.primary{background:linear-gradient(90deg,#c9a84c,#e6c872);color:#0a0e17}
+.btn.ghost{background:#131b2e;color:#8a93a8;border:1px solid #232f48}
+.btn.good{background:rgba(95,224,95,.14);color:#5fe05f;border:1px solid rgba(95,224,95,.35)}
+.btn.warn{background:rgba(255,107,107,.12);color:#ff8a8a;border:1px solid rgba(255,107,107,.3)}
+.btn:active{transform:scale(.98)}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.qcard{background:#101728;border:1px solid #232f48;border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s}
+.qcard:hover{border-color:#c9a84c}
+.qcard .qn{font-size:30px;font-weight:800;line-height:1}
+.qcard .ql{font-size:12px;color:#8a93a8;margin-top:4px}
+.qcard .qs{font-size:11px;color:#6d7688;margin-top:8px;line-height:1.45}
+.planstrip{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:10px 16px;margin-bottom:14px;font-size:12.5px;color:#b8a878}
+.statbar{display:flex;gap:18px;flex-wrap:wrap;align-items:center;background:#0f1524;border:1px solid #1e2a3f;border-radius:10px;padding:10px 16px;margin-bottom:14px}
+.statbar .s{font-size:12.5px;color:#8a93a8}.statbar .s b{color:#e0e0e0;font-size:16px}
+.spark{display:flex;align-items:flex-end;gap:2px;height:24px}
+.spark i{display:block;width:8px;background:linear-gradient(180deg,#c9a84c,#6d5a26);border-radius:2px 2px 0 0;min-height:2px}
+.badge{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:1px 7px;margin-right:4px;letter-spacing:.03em}
+.b-warm{background:rgba(230,200,114,.13);color:#e6c872;border:1px solid rgba(230,200,114,.35)}
+.b-cold{background:rgba(139,180,224,.12);color:#8bb4e0;border:1px solid rgba(139,180,224,.3)}
+.b-pos{background:rgba(95,224,95,.12);color:#5fe05f;border:1px solid rgba(95,224,95,.3)}
+.b-neg{background:rgba(255,107,107,.12);color:#ff8a8a;border:1px solid rgba(255,107,107,.3)}
+.b-mid{background:#182238;color:#8a93a8;border:1px solid #232f48}
+.b-due{background:rgba(255,107,107,.14);color:#ff8a8a;border:1px solid rgba(255,107,107,.4)}
+.b-score{background:#182238;color:#c9a84c;border:1px solid #2a3550}
+.row{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid #17203350;flex-wrap:wrap}
+.row:last-child{border-bottom:none}
+.row .who{flex:1;min-width:230px}
+.row .who b{font-size:13.5px}
+.row .who .t{font-size:11.5px;color:#7d8598}
+select,input[type=text],input[type=date],input[type=number],textarea{background:#0d1320;border:1px solid #2a3550;color:#dbe2f0;border-radius:7px;padding:7px 9px;font-size:12.5px;font-family:inherit;color-scheme:dark}
+input[type=text]{min-width:0}
+.secH{display:flex;justify-content:space-between;align-items:baseline;margin:18px 2px 8px}
+.secH h3{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#8a93a8}
+#runner{position:fixed;inset:0;z-index:200;display:none;place-items:center;background:rgba(5,8,14,.9);padding:16px}
+#runner.active{display:grid}
+.runcard{background:#101728;border:1px solid rgba(201,168,76,.5);border-radius:14px;max-width:700px;width:100%;max-height:92vh;overflow-y:auto;padding:22px}
+.runcard textarea{width:100%;min-height:110px;line-height:1.55;font-size:13.5px;margin-top:6px}
+.kbd{display:inline-block;border:1px solid #3a4666;border-radius:4px;background:#0d1320;color:#7d8598;font-size:10px;font-weight:600;padding:0 6px;margin-left:7px;line-height:1.6;vertical-align:middle}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:300;background:#141c30;border:1px solid rgba(201,168,76,.5);color:#e6c872;padding:10px 18px;border-radius:10px;font-size:13px;display:none;max-width:90vw;text-align:center}
+.bar{height:9px;background:#141c30;border-radius:99px;overflow:hidden;margin:5px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#7a6528,#c9a84c);border-radius:99px}
+.funnel td{padding:5px 10px;font-size:12.5px;border-bottom:1px solid #17203350}
+.pill{display:inline-block;background:#131b2e;border:1px solid #232f48;border-radius:999px;padding:4px 12px;font-size:12px;color:#8a93a8;margin:2px 4px 2px 0;cursor:pointer}
+.pill.on{background:rgba(201,168,76,.15);border-color:#c9a84c;color:#e6c872}
+.hidden{display:none}
+@media(max-width:700px){
+  body{font-size:15px}
+  h1{font-size:22px}
+  .container{padding:12px 10px 70px}
+  .tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tab{white-space:nowrap;flex-shrink:0}
+  .btn{padding:12px 16px;min-height:44px}
+  select,input[type=text],input[type=date],input[type=number],textarea{font-size:16px;min-height:40px}
+  .row{row-gap:6px}
+  .row .who{flex:1 1 100%;min-width:0}
+  .row input[type=text]{flex:1 1 100%}
+  .statbar{gap:10px;padding:10px 12px}
+  .statbar .s{font-size:11.5px}
+  .qcard .qn{font-size:26px}
+  .runcard{padding:15px;max-height:94vh;border-radius:12px}
+  .runcard textarea{min-height:150px}
+  .planstrip{font-size:11.5px;gap:6px}
+  .secH h3{font-size:11.5px}
+}
+</style>
+<link rel="stylesheet" href="shared/atlas-palette.css">
+<link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=appearance-1">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=appearance-1">
+<link rel="stylesheet" href="shared/atlas-appearance.css">
+<link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/prospecting-command-center-32.png?v=1432e4d121f5">
+<link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/prospecting-command-center-64.png?v=8f289dc1ebdb">
+<link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/prospecting-command-center-apple.png?v=2f6bd552c03e">
+<link rel="stylesheet" href="shared/dashboard-navigation.css?v=239c369fb61e">
+<script src="shared/dashboard-navigation.js?v=e54920f52f1b" defer></script>
+</head>
+<body>
+<div class="container">
+  <div class="appbar">
+    <a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">&#8962;</a>
+    <div style="min-width:0">
+      <div class="appbar-title">Prospecting</div>
+      <div class="appbar-sub">Command Center</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+      <span class="appbar-pill" id="barPill">0/20</span>
+      <button class="iconbtn" onclick="openTpl()" aria-label="Templates" title="Templates">&#9998;</button>
+      <button class="iconbtn" onclick="exportBackup()" aria-label="Backup" title="Backup">&#8595;</button>
+      <button class="iconbtn" onclick="document.getElementById('impF').click()" aria-label="Restore" title="Restore">&#8593;</button>
+      <input type="file" id="impF" accept=".json" class="hidden" onchange="importBackup(this)">
+    </div>
+  </div>
+  <div style="padding:10px 0 2px">
+    <div class="sub">One pipeline &middot; <span id="subCounts">&hellip;</span> &middot; saves in this browser, back up weekly &middot; <a href="#" onclick="exportCSV();return false;" style="color:#8bb4e0">CSV</a></div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div id="main"></div>
+</div>
+<div id="runner"><div class="runcard" id="runCard"></div></div>
+<div id="tplOv" style="position:fixed;inset:0;z-index:210;display:none;place-items:center;background:rgba(5,8,14,.9);padding:16px"><div class="runcard" id="tplCard" style="border-color:rgba(139,180,224,.5)"></div></div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* ================= DATA ================= */
+const WARM=[];
+const COLD=[];
+/* ================= MODEL ================= */
+const G={avgHH:500000,fee:0.011,payout:0.45,bonus:5000,roToResp:2.47,respToMeet:10,meetToWon:10};
+G.hhFirstYear=aum=>(aum*G.fee*G.payout+G.bonus)*0.5;
+const EV={messaged:15.15,replied:37.38,meeting:373.80};
+EV.won=G.hhFirstYear(G.avgHH);
+const GOAL={won:10};
+GOAL.meetings=GOAL.won*G.meetToWon;                 // 100
+GOAL.responses=GOAL.meetings*G.respToMeet;          // 1000
+GOAL.contacts=Math.round(GOAL.responses*G.roToResp);// 2470
+const SEASON_END=new Date(2026,11,31,23,59,59);
+const TIERS={0:{name:"Never messaged"},1:{name:"Said “later”"},2:{name:"You owe a reply"},3:{name:"Meeting discussed"},4:{name:"Fizzled"},5:{name:"Never replied"},6:{name:"Rest"},7:{name:"Said no"}};
+const DEF_TPL={
+ t0:`Hi {first}, how's your summer been? We've been connected on here for a while and never actually met, figured it's about time. Would love to grab a coffee if you're free in the next couple weeks.`,
+ t1:`Hi {first}, been a while since we chatted. How's your summer been? If you're up for that coffee sometime I'd love to catch up.`,
+ t2:`Hi {first}, just saw your message sitting in my inbox, sorry for the slow reply. How's your summer going?`,
+ t3:`Hi {first}, we talked about grabbing a coffee and it never happened. Still up for it? I'm around the next couple weeks.`,
+ t4:`Hi {first}, been a while! How's your summer been?`,
+ t5:`Hi {first}, how's your summer been? No worries if my last note got buried, just wanted to say hi.`,
+ t6:`(Wait for a trigger event, a new role, promotion, or post, then: “Congrats on the new role, {first}!” Nothing else.)`,
+ t7:`Happy holidays {first}, hope the year has treated you well!`,
+ fu_messaged:`Hi {first}, just bumping this up, I know summer gets busy. How's yours been?`,
+ fu_replied:`Hi {first}, good hearing from you last time. How's the rest of your summer been?`,
+ fu_meeting:`Hi {first}, looking forward to it. Are we still good for our chat?`
+};
+/* ---- message rotation ----
+   One angle gets stale fast. Each situation carries a few variants: the
+   editable template above is always option one, these ride alongside it.
+   Voice rule: reads like a text to a friend. Short, casual, zero sales
+   energy, no em dashes. Seasonal (summer) so an August sweep feels timely. */
+const VAR_BASE_L={t0:'Summer hello',t1:'Catch up',t2:'Sorry, slow reply',t3:'That coffee',t4:'Been a while',t5:'Just saying hi',t6:'Trigger only',t7:'Holiday note',fu_messaged:'Bump',fu_replied:'How\'s summer',fu_meeting:'Still on?'};
+const ALT_TPL={
+ t0:[
+  {l:'Their world',needCo:true,t:`Hi {first}, we've never actually met but I've been meaning to say hi. How are things at {co} these days?`},
+  {l:'Simple hello',t:`Hi {first}, realized we've been connected on here for ages and never said hello. What's keeping you busy this summer?`}
+ ],
+ t1:[
+  {l:'What\'s new',t:`Hi {first}, what's going on in your world these days? Feels like it's been forever.`},
+  {l:'Coffee ask',t:`Hi {first}, I know the timing wasn't right when we last talked, no stress at all. I'd love to catch up over a coffee if you're free in the next couple weeks.`}
+ ],
+ t2:[
+  {l:'How\'ve you been',t:`Hi {first}, my apologies, your last note slipped by me. How have you been?`}
+ ],
+ t3:[
+  {l:'Still owe you',t:`Hi {first}, I still owe you that coffee. Free sometime in the next couple weeks?`}
+ ],
+ t4:[
+  {l:'Your world',t:`Hi {first}, what's going on in your world these days?`},
+  {l:'Thought of you',t:`Hi {first}, thought of you today. How's the summer treating you?`},
+  {l:'Their business',needCo:true,t:`Hi {first}, been too long! How are things going at {co}?`}
+ ],
+ t5:[
+  {l:'Checking in',t:`Hi {first}, just checking in. What's new in your world?`}
+ ],
+ fu_messaged:[
+  {l:'Float it up',t:`Hi {first}, floating this back up in case it got buried. No rush at all.`}
+ ],
+ fu_replied:[
+  {l:'Coffee ask',t:`Hi {first}, I'd love to catch up over a coffee if you're free in the next couple weeks. How's your calendar looking?`},
+  {l:'Your world',t:`Hi {first}, what's going on in your world these days? Feels like it's time for a proper catch-up.`}
+ ],
+ fu_meeting:[
+  {l:'Confirm',t:`Hi {first}, just confirming we're still on. Anything you want me to make sure we cover?`}
+ ]
+};
+function msgKeyFor(c){
+  const s=stg(c);
+  if(s==='pool') return 't'+(c.tier!==null?c.tier:0);
+  return 'fu_'+(DEF_TPL['fu_'+s]?s:'messaged');
+}
+function variantsFor(c){
+  const k=msgKeyFor(c), out=[];
+  if(stg(c)==='pool'&&c.msg) out.push({l:'Prepared for them',t:c.msg});
+  out.push({l:VAR_BASE_L[k]||'Template',t:tpl(k)});
+  (ALT_TPL[k]||[]).forEach(v=>{ if(v.needCo&&!(c.co||'').trim()) return; out.push(v); });
+  return out.map(v=>({l:v.l,t:fill(v.t,c)}));
+}
+const TPL_LABEL={t0:'Warm · Never messaged',t1:'Warm · Said “later”',t2:'Warm · You owe a reply',t3:'Warm · Meeting discussed',t4:'Warm · Fizzled',t5:'Warm · Never replied',t6:'Warm · Rest (trigger only)',t7:'Warm · Said no (annual)',fu_messaged:'Follow-up · after first message',fu_replied:'Follow-up · they replied, book the call',fu_meeting:'Follow-up · meeting confirm'};
+const tpl=k=>((S.tpl||{})[k])||DEF_TPL[k];
+const fill=(t,c)=>String(t).split('{first}').join(c.first||'there').split('{co}').join((c.co||'your business').trim());
+
+const POS_WORDS=['sure','happy','love to','interested','looking forward',"let's",'sounds good','absolutely','yes','of course','keen','open to','would be great'];
+const NEG_WORDS=['already have','not interested','no thank','all set','not looking','have an advisor','no need','unsubscribe'];
+function senti(s){ s=(s||'').toLowerCase(); if(!s) return 'mid'; if(NEG_WORDS.some(k=>s.includes(k))) return 'neg'; if(POS_WORDS.some(k=>s.includes(k))) return 'pos'; return 'mid'; }
+const first=n=>(n||'').replace(/^(Dr\.?|Mr\.?|Ms\.?|Mrs\.?)\s+/i,'').split(/[ ,]/)[0];
+const normUrl=u=>(u||'').trim().toLowerCase().replace(/\/+$/,'');
+/* ================= UNIFY + DEDUP ================= */
+const STAGE_ORDER={pool:0,messaged:1,replied:2,meeting:3,won:4,lost:4,parked:0};
+const COLD_STAGE={pipeline:'pool',reached_out:'messaged',responded:'replied',meeting_set:'meeting',won:'won',lost:'lost'};
+const CONTACTS=[]; const BYUID={}; const URLIX={};
+(function build(){
+  const coldByUrl={};
+  COLD.forEach(r=>{ const u=normUrl(r.url); if(u) coldByUrl[u]=r; });
+  const merged=new Set();
+  COLD.forEach(r=>{
+    const u0=normUrl(r.url);
+    if(u0 && URLIX[u0]) return; // intra-dataset duplicate
+    const self=u0.includes('quinton-chambers');
+    const anon=!((r.name||'').trim()) || (r.name||'').trim().toLowerCase()==='linkedin member' || self;
+    const c={uid:'c'+r.id, name:r.name||'Unknown', first:r.first_name||first(r.name), title:r.position||'', co:r.company||'',
+      url:r.url||'', email:r.email||'', src:'cold', tier:null, score:r.score||0, intel:r.intel||'', news:(r.news&&r.news!=='No recent coverage found')?r.news:'',
+      msg:r.message||'', lastmsg:'', theirs:false, peer:false, mq:null, senti:senti(r.sentiment), sentiRaw:r.sentiment||'', lastDate:r.last_date||'',
+      base: anon?'parked':(COLD_STAGE[r.stage]||'pool')};
+    CONTACTS.push(c); BYUID[c.uid]=c; if(c.url) URLIX[normUrl(c.url)]=c.uid;
+  });
+  WARM.forEach(r=>{
+    const u=normUrl(r.url);
+    const self=u.includes('quinton-chambers');
+    if(u && URLIX[u]){ // url already owned by a surviving contact
+      const c=BYUID[URLIX[u]];
+      if(c && c.src==='cold' && c.tier===null){ // merge warm context into the cold record
+        c.tier=r.p; c.lastmsg=r.lastmsg||''; c.theirs=!!r.theirs; c.peer=!!r.peer; c.mq=r.mq;
+        if(!c.title) c.title=r.title||''; if(!c.co) c.co=r.co||'';
+        c.warmId=r.id; merged.add(r.id);
+      }
+      return; // duplicate either way
+    }
+    if(self){
+      const c={uid:'w'+r.id,name:r.name,first:first(r.name),title:r.title||'',co:r.co||'',url:r.url||'',email:'',src:'warm',tier:r.p,score:null,intel:'',news:'',msg:'',lastmsg:'',theirs:false,peer:true,mq:r.mq,senti:'mid',sentiRaw:'',lastDate:'',base:'parked'};
+      CONTACTS.push(c); BYUID[c.uid]=c; URLIX[u]=c.uid; return;
+    }
+    const c={uid:'w'+r.id, name:r.name, first:first(r.name), title:r.title||'', co:r.co||'', url:r.url||'', email:'',
+      src:'warm', tier:r.p, score:null, intel:'', news:'', msg:'', lastmsg:r.lastmsg||'', theirs:!!r.theirs, peer:!!r.peer,
+      mq:r.mq, senti:'mid', sentiRaw:'', lastDate:'', base: r.p===7?'parked':'pool'};
+    CONTACTS.push(c); BYUID[c.uid]=c; if(c.url) URLIX[normUrl(c.url)]=c.uid;
+  });
+})();
+/* ================= VETTING (industry peers + pitchers) ================= */
+const RX_PEER_T=/(wholesal|portfolio manager|financial advis|investment advis|wealth advis|financial planner\b|financial consult|investment consult|private banker|investment specialist|wealth manag|fund manager|insurance advis|financial security advis|district vice president|regional sales director|private wealth|investment sales|money coach|financial coach|division director|investment counsel|financial services manager)/i;
+const RX_PEER_CO=/\b(rbc|td bank|td wealth|td canada|td securities|td asset|rbc dominion|scotiabank|scotia wealth|scotiamcleod|bmo|nesbitt burns|cibc|wood gundy|national bank|desjardins|edward jones|ig wealth|investors group|sun life|manulife|canada life|great[- ]west|fidelity|mackenzie investments|franklin templeton|invesco|agf|ci financial|ci gam|ci assante|assante|dynamic funds|industrial alliance|ia private wealth|ia financial|raymond james|richardson wealth|wellington[- ]altus|primerica|world financial group|wfg|freedom 55|aviso|credential|qtrade|picton mahoney|purpose invest|atb financial|servus|canadian western bank|pimco|blackrock|vanguard invest|russell invest|hamilton etfs|canaccord|odlum|steadyhand|wealthsimple|harvest etf|bridgehouse|fisher invest)\b/i;
+const RX_PITCH=/(we offer|our services|our platform|our company|my company|i represent|business opportunity|opportunity for you|partnership opportunit|\botc\b|forex|crypto|trading signal|marketer|marketing agency|lead generation|\bseo\b|web design|app develop|outsourc|virtual assistant|franchise|sponsorship|advertis|promot|free trial|passive income|book a demo|schedule a demo|our solution|we help|i help (business|companies|advisors|professionals)|white label|referral partner|we specialize|grow your (business|practice|brand)|boost your|scale your|free consultation|no obligation|video editing|linkedin growth|bookkeeping|virtual cfo|talent solutions|staffing)/i;
+CONTACTS.forEach(c=>{
+  if(!c.peer && (RX_PEER_T.test(c.title||'')||RX_PEER_CO.test(c.co||''))) c.peer=true;
+  if(c.theirs && RX_PITCH.test(c.lastmsg||'')){ c.pitched=true; if(['pool','messaged'].includes(c.base) || (c.base==='replied'&&c.senti!=='pos')) c.base='parked'; }
+});
+/* ================= STATE ================= */
+const KEY='hq_v1';
+let S={stage:{},note:{},fu:{},aum:{},log:[],set:{target:20,replyN:10,fuDays:7,peers:false}};
+function save(){ localStorage.setItem(KEY,JSON.stringify(S)); }
+function load(){
+  const raw=localStorage.getItem(KEY);
+  if(raw){ try{ const o=JSON.parse(raw); Object.assign(S,o); S.set=Object.assign({target:20,replyN:10,fuDays:7,peers:false},o.set||{}); return; }catch(e){} }
+  migrate(); save();
+}
+function migrate(){
+  try{ // prospecting cc
+    const st=JSON.parse(localStorage.getItem('qc3_stages')||'{}');
+    Object.entries(st).forEach(([id,v])=>{ const u='c'+id; if(BYUID[u]&&COLD_STAGE[v]) S.stage[u]=COLD_STAGE[v]; });
+    const notes=JSON.parse(localStorage.getItem('qc3_notes')||'{}');
+    Object.entries(notes).forEach(([id,v])=>{ if(v&&BYUID['c'+id]) S.note['c'+id]=v; });
+    const aum=JSON.parse(localStorage.getItem('qc3_aum')||'{}');
+    Object.entries(aum).forEach(([id,v])=>{ if(BYUID['c'+id]) S.aum['c'+id]=v; });
+    const fu=JSON.parse(localStorage.getItem('qc3_followups')||'{}');
+    Object.entries(fu).forEach(([id,v])=>{ if(v&&BYUID['c'+id]) S.fu['c'+id]=v; });
+    JSON.parse(localStorage.getItem('qc3_cancel')||'[]').forEach(id=>{ if(BYUID['c'+id]) S.stage['c'+id]='parked'; });
+    const ex=new Set(JSON.parse(localStorage.getItem('qc3_excluded_companies')||'[]'));
+    if(ex.size) CONTACTS.forEach(c=>{ if(c.src==='cold'&&ex.has((c.co||'').trim())) S.stage[c.uid]='parked'; });
+    JSON.parse(localStorage.getItem('qc3_log')||'[]').forEach(a=>{ const u='c'+a.id; if(BYUID[u]&&COLD_STAGE[a.to]) S.log.push({uid:u,to:COLD_STAGE[a.to]==='messaged'?'messaged':COLD_STAGE[a.to],ts:a.ts}); });
+  }catch(e){}
+  try{ // reengagement cc — keyed by url or name
+    const RS={'To Contact':'pool','Messaged':'messaged','Replied':'replied','Meeting Booked':'meeting','Client Won':'won','Not Interested':'lost','Skipped':'parked'};
+    const ix={}; WARM.forEach(r=>{ const k=r.url||('name:'+r.name); const u=URLIX[normUrl(r.url)]||('w'+r.id); ix[k]=BYUID[u]?u:('w'+r.id); });
+    const st=JSON.parse(localStorage.getItem('qc_reengage_v1')||'{}');
+    Object.entries(st).forEach(([k,v])=>{
+      const u=ix[k]; if(!u||!BYUID[u]) return;
+      if(v.st&&RS[v.st]&&RS[v.st]!=='pool'){ const nu=RS[v.st]; if(STAGE_ORDER[nu]>=STAGE_ORDER[S.stage[u]||BYUID[u].base]) S.stage[u]=nu; }
+      if(v.rm) S.stage[u]=S.stage[u]==='won'?'won':'parked';
+      if(v.note) S.note[u]=(S.note[u]?S.note[u]+' · ':'')+v.note;
+      if(v.fud) S.fu[u]=v.fud;
+    });
+    JSON.parse(localStorage.getItem('qc_reengage_log_v1')||'[]').forEach(a=>{ const u=ix[a.k]; if(u&&BYUID[u]&&RS[a.to]) S.log.push({uid:u,to:RS[a.to],ts:a.ts}); });
+    S.log.sort((a,b)=>a.ts-b.ts);
+  }catch(e){}
+}
+const stg=c=>S.stage[c.uid]||c.base;
+const note=c=>S.note[c.uid]||'';
+const fu=c=>S.fu[c.uid]||'';
+function logAct(uid,to){ S.log.push({uid,to,ts:Date.now()}); if(S.log.length>30000) S.log=S.log.slice(-25000); }
+const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const today=()=>dayKey(Date.now());
+function plusDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return dayKey(d.getTime()); }
+const daysLeft=()=>Math.max(1,Math.ceil((SEASON_END-new Date())/86400000));
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmt$=n=>'$'+Math.round(n).toLocaleString();
+/* ================= QUEUES ================= */
+function rankOf(c){
+  if(c.src==='warm'||c.tier!==null){
+    const t={1:95,2:90,3:88,0:70,4:65,5:42,6:5,7:0}[c.tier];
+    if(c.tier!==null&&c.src==='cold') return Math.max(t||0,(c.score||0)*0.95);
+    return t||0;
+  }
+  return (c.score||0)*0.95;
+}
+function actionable(c){ const s=stg(c); return s!=='parked'&&s!=='lost'&&s!=='won'; }
+function fuDue(){ const t=today(); return CONTACTS.filter(c=>{const s=stg(c);return fu(c)&&fu(c)<=t&&['messaged','replied','meeting'].includes(s);}).sort((a,b)=>fu(a)<fu(b)?-1:1); }
+function replyQueue(){
+  const t=today();
+  return CONTACTS.filter(c=>stg(c)==='replied'&&(!fu(c)||fu(c)<=t)&&(S.set.peers||!c.peer))
+    .sort((a,b)=>{ const o={pos:0,mid:1,neg:2}; if(o[a.senti]!==o[b.senti]) return o[a.senti]-o[b.senti]; return (b.lastDate||'')<(a.lastDate||'')?-1:1; });
+}
+function freshQueue(){
+  return CONTACTS.filter(c=>stg(c)==='pool'&&(S.set.peers||!c.peer)&&rankOf(c)>=30)
+    .sort((a,b)=>rankOf(b)-rankOf(a));
+}
+function sendsToday(){ const t=today(); return S.log.filter(a=>(a.to==='messaged'||a.to==='followup')&&dayKey(a.ts)===t).length; }
+function streak(){ const days=new Set(S.log.filter(a=>a.to==='messaged'||a.to==='followup').map(a=>dayKey(a.ts))); let n=0; let d=new Date(); if(!days.has(dayKey(d))) d.setDate(d.getDate()-1); while(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1);} return n; }
+function evToday(){ const t=today(); let v=0; S.log.forEach(a=>{ if(dayKey(a.ts)!==t) return;
+  if(a.to==='messaged') v+=EV.messaged; else if(a.to==='followup') v+=3;
+  else if(a.to==='replied') v+=EV.replied-EV.messaged; else if(a.to==='meeting') v+=EV.meeting-EV.replied;
+  else if(a.to==='won') v+=EV.won-EV.meeting; }); return v; }
+/* ================= RUNNER ================= */
+let rQ=[],rI=0,lastUndo=null,runVarIdx=null;
+function pickVar(i){ runVarIdx=i; renderRun(); }
+function runDay(){
+  const remaining=Math.max(0,S.set.target-sendsToday());
+  rQ=[...fuDue(),...replyQueue().slice(0,S.set.replyN),...freshQueue().slice(0,remaining)];
+  const seen=new Set(); rQ=rQ.filter(c=>{ if(seen.has(c.uid)) return false; seen.add(c.uid); return true; });
+  rI=0; lastUndo=null; runVarIdx=null;
+  if(!rQ.length){ toast('Queue clear — target hit, nothing due. Enjoy it.'); return; }
+  document.getElementById('runner').classList.add('active'); renderRun();
+}
+function runOne(uid){ const c=BYUID[uid]; if(!c) return; rQ=[c]; rI=0; runVarIdx=null; document.getElementById('runner').classList.add('active'); renderRun(); }
+function closeRun(){ lastUndo=null; document.getElementById('runner').classList.remove('active'); render(); }
+function scriptFor(c){
+  const vars=variantsFor(c);
+  const i=(runVarIdx!==null&&runVarIdx<vars.length)?runVarIdx:0;
+  return (vars[i]||vars[0]).t;
+}
+function renderRun(){
+  const el=document.getElementById('runCard');
+  if(rI>=rQ.length){
+    el.innerHTML='<div style="text-align:center;padding:34px 10px"><div style="font-size:21px;font-weight:800;color:#5fe05f">Session complete</div>'
+      +'<div class="mut" style="margin:10px 0 4px">'+rQ.length+' worked · '+sendsToday()+' sends today · ≈ '+fmt$(evToday())+' EV created</div>'
+      +'<div class="mut" style="font-size:12px">Same time tomorrow. The compounding is the strategy.</div>'
+      +'<div style="margin-top:16px;display:flex;gap:8px;justify-content:center">'+(lastUndo?'<button class="btn ghost" onclick="undoLast()">↶ Undo last<span class="kbd">Z</span></button>':'')+'<button class="btn primary" onclick="closeRun()">Done</button></div></div>';
+    return;
+  }
+  const c=rQ[rI], s=stg(c);
+  const mode=s==='pool'?'FRESH OUTREACH':s==='messaged'?'FOLLOW-UP DUE':s==='replied'?'REPLY — WORK IT':'MEETING STAGE';
+  const left=rQ.length-rI, pool=freshQueue().length;
+  let h='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px">'
+    +'<b class="gold">'+mode+'</b>'
+    +'<span style="font-size:12.5px"><b class="amber">'+left+'</b> <span class="mut">left this session</span> · <b class="blue">'+pool.toLocaleString()+'</b> <span class="mut">still untouched</span></span>'
+    +(lastUndo?'<button class="btn ghost" style="padding:4px 10px" onclick="undoLast()">↶ Undo<span class="kbd">Z</span></button>':'')
+    +'<button class="btn ghost" style="padding:4px 10px" onclick="closeRun()">✕<span class="kbd">Esc</span></button></div>'
+    +'<div class="bar" style="height:7px;margin-bottom:12px"><i style="width:'+Math.round(rI/rQ.length*100)+'%"></i></div>';
+  h+='<div style="font-size:20px;font-weight:800">'+(c.url?'<a href="'+esc(c.url)+'" target="_blank" style="color:#e0e0e0;text-decoration:none">'+esc(c.name)+' <span style="color:#8bb4e0;font-size:14px">↗</span></a>':esc(c.name))+'</div>';
+  h+='<div style="font-size:14.5px;color:#c9d2e6;margin-top:3px">💼 '+(esc([c.title,c.co].filter(Boolean).join(' · '))||'<span class="mut">no title on file</span>')+'</div>';
+  h+='<div style="margin-top:7px">'
+    +(c.tier!==null?'<span class="badge b-warm">WARM · '+esc(TIERS[c.tier].name)+'</span>':'')
+    +(c.src==='cold'&&c.score?'<span class="badge b-score">SCORE '+c.score+'</span>':'')
+    +(c.senti!=='mid'&&s==='replied'?'<span class="badge b-'+c.senti+'">'+(c.senti==='pos'?'💚 '+esc(c.sentiRaw||'positive'):'🔴 '+esc(c.sentiRaw))+'</span>':'')
+    +(c.pitched?'<span class="badge b-neg">⚠ PITCHED YOU</span>':'')
+    +(c.theirs?'<span class="badge b-due">THEY SPOKE LAST</span>':'')
+    +(fu(c)&&fu(c)<=today()?'<span class="badge b-due">⏰ due '+fu(c)+'</span>':'')+'</div>';
+  if(c.intel) h+='<div style="margin-top:9px;font-size:12.5px;color:#9aa4b8"><b class="gold" style="font-size:10px;letter-spacing:.1em">INTEL</b> '+esc(c.intel)+'</div>';
+  if(c.news) h+='<div style="margin-top:5px;font-size:12.5px;color:#9aa4b8"><b class="gold" style="font-size:10px;letter-spacing:.1em">NEWS</b> '+esc(c.news)+'</div>';
+  if(c.lastmsg) h+='<div style="margin-top:9px;padding:9px 11px;border-left:2px solid #2a3550;color:#9aa4b8;font-size:12.5px;font-style:italic">their last: “'+esc(c.lastmsg)+'”</div>';
+  const vars=variantsFor(c);
+  if(runVarIdx===null||runVarIdx>=vars.length) runVarIdx=(rI+sendsToday())%vars.length;
+  h+='<div style="margin-top:10px"><b class="gold" style="font-size:10px;letter-spacing:.1em">'+(c.lastmsg||['replied','meeting'].includes(s)?'ENGAGEMENT ANGLE':'OPENER')+' — rotate, then make one line theirs</b>';
+  if(vars.length>1){
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 2px">';
+    vars.forEach((v,i)=>{ const on=i===runVarIdx;
+      h+='<button class="btn ghost" style="padding:4px 11px;font-size:11.5px;'+(on?'border-color:#e6c872;color:#e6c872;background:rgba(230,200,114,.1)':'')+'" onclick="pickVar('+i+')">'+esc(v.l)+'</button>';
+    });
+    h+='</div>';
+  }
+  h+='<textarea id="runMsg">'+esc(vars[runVarIdx].t)+'</textarea></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">';
+  h+='<button class="btn" onclick="runCopy()">📋 Copy + Open thread<span class="kbd">C</span></button>';
+  if(c.url) h+='<a class="btn ghost" href="'+esc(c.url)+'" target="_blank" style="text-decoration:none">profile ↗</a>';
+  if(s==='pool') h+='<button class="btn primary" onclick="runAct(\'sent\')">✓ Sent · resurfaces in '+S.set.fuDays+'d <span class="kbd">Enter</span></button>';
+  if(s==='messaged') h+='<button class="btn primary" onclick="runAct(\'followup\')">✓ Sent follow-up · back in '+S.set.fuDays+'d <span class="kbd">Enter</span></button>';
+  if(s==='replied') h+='<button class="btn primary" onclick="runAct(\'waiting\')">✓ Sent my reply · check back in 5d <span class="kbd">Enter</span></button>'
+    +'<button class="btn" onclick="runAct(\'meeting\')">📅 Meeting booked <span class="kbd">M</span></button>';
+  if(s==='meeting') h+='<button class="btn good" onclick="runAct(\'won\')">🏆 Won</button>'
+    +'<button class="btn" onclick="runAct(\'push\')">✓ Sent · nudge in 7d <span class="kbd">Enter</span></button>';
+  if(s==='pool'||s==='messaged') h+='<button class="btn good" onclick="runAct(\'reply\')">💬 Got reply <span class="kbd">R</span></button>';
+  h+='<button class="btn ghost" onclick="runAct(\'skip\')">Skip<span class="kbd">S</span></button>';
+  h+='<button class="btn warn" onclick="runAct(\'park\')" title="Remove from all queues for good — kept in Database under parked">🚫 Not a fit<span class="kbd">X</span></button>';
+  h+='<button class="btn warn" onclick="runAct(\'pitched\')" title="They tried to sell me — remove">⚠ Pitched me<span class="kbd">P</span></button>';
+  if(s==='replied'||s==='meeting') h+='<button class="btn warn" onclick="runAct(\'lost\')" title="Engaged but went dead — kept in Database under lost">✕ Lost</button>';
+  h+='</div>';
+  h+='<div class="mut" style="font-size:11px;margin-top:12px;line-height:1.6">The loop: copy, paste it in LinkedIn, send, come back, tap <b>✓ Sent</b>. That one tap is what schedules them to resurface automatically, so nobody slips. · <b>Skip</b> → back of this session’s queue · <b>Not a fit / Pitched me</b> → removed for good · <b>Lost</b> → engaged but went dead</div>';
+  el.innerHTML=h;
+}
+function undoLast(){
+  if(!lastUndo) return;
+  const L=lastUndo; lastUndo=null;
+  const set=(obj,k,v)=>{ if(v===undefined) delete obj[k]; else obj[k]=v; };
+  set(S.stage,L.u,L.stage); set(S.fu,L.u,L.fu); set(S.note,L.u,L.note); set(S.aum,L.u,L.aum);
+  S.log.length=Math.min(S.log.length,L.logLen);
+  rQ=L.rQ; rI=L.rI; runVarIdx=null; save(); renderRun(); toast('↶ Undone');
+}
+/* LinkedIn blocks pre-filling message text from a link, so the flow stays
+   copy → paste. But it does let a link open the compose thread directly:
+   /messaging/compose/?recipient=<public-id>. Derive the id from the /in/
+   profile slug; anything without one falls back to the profile page. */
+function msgUrl(c){
+  const m=String(c.url||'').match(/linkedin\.com\/in\/([^/?#]+)/i);
+  return m?'https://www.linkedin.com/messaging/compose/?recipient='+m[1]:(c.url||'');
+}
+function runCopy(){
+  const c=rQ[rI]; if(!c) return;
+  const txt=(document.getElementById('runMsg')||{}).value||scriptFor(c);
+  const u=msgUrl(c);
+  const open=()=>{ if(u) window.open(u,'_blank'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(open).catch(open); else open();
+  toast('Copied — paste it into the thread that just opened');
+}
+function runAct(what){
+  const c=rQ[rI]; if(!c){ closeRun(); return; }
+  const u=c.uid;
+  lastUndo={u, stage:S.stage[u], fu:S.fu[u], note:S.note[u], aum:S.aum[u], logLen:S.log.length, rQ:[...rQ], rI};
+  if(what==='skip'){ rQ.push(c); rI++; runVarIdx=null; renderRun(); return; }
+  if(what==='pitched'){ S.stage[u]='parked'; S.fu[u]=''; c.pitched=true; S.note[u]=((S.note[u]||'')+' ⚠ pitched me').trim(); logAct(u,'park'); save(); rI++; runVarIdx=null; renderRun(); return; }
+  if(what==='sent'){ S.stage[u]='messaged'; S.fu[u]=plusDays(S.set.fuDays); logAct(u,'messaged'); }
+  else if(what==='followup'){ S.fu[u]=plusDays(S.set.fuDays); logAct(u,'followup'); }
+  else if(what==='reply'){ S.stage[u]='replied'; S.fu[u]=''; logAct(u,'replied'); }
+  else if(what==='waiting'){ S.fu[u]=plusDays(5); logAct(u,'followup'); }
+  else if(what==='meeting'){ S.stage[u]='meeting'; S.fu[u]=plusDays(7); logAct(u,'meeting'); }
+  else if(what==='push'){ S.fu[u]=plusDays(7); logAct(u,'followup'); }
+  else if(what==='won'){ S.stage[u]='won'; S.fu[u]=''; logAct(u,'won'); const v=prompt('Household AUM?', G.avgHH); if(v) S.aum[u]=Math.max(0,parseInt(v)||G.avgHH); }
+  else if(what==='lost'){ S.stage[u]='lost'; S.fu[u]=''; logAct(u,'lost'); }
+  else if(what==='park'){ S.stage[u]='parked'; S.fu[u]=''; logAct(u,'park'); }
+  if(what!=='skip') save();
+  rI++; runVarIdx=null; renderRun();
+}
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('runner').classList.contains('active')) return;
+  if(e.target&&/TEXTAREA|INPUT|SELECT/.test(e.target.tagName)){ if(e.key==='Escape') e.target.blur(); return; }
+  const c=rQ[rI], s=c?stg(c):null;
+  if(e.key==='Escape') closeRun();
+  else if(e.key==='Enter'){ if(s==='pool')runAct('sent'); else if(s==='messaged')runAct('followup'); else if(s==='replied')runAct('waiting'); else if(s==='meeting')runAct('push'); }
+  else if(e.key==='c'||e.key==='C') runCopy();
+  else if(e.key==='s'||e.key==='S') runAct('skip');
+  else if(e.key==='x'||e.key==='X') runAct('park');
+  else if(e.key==='p'||e.key==='P') runAct('pitched');
+  else if(e.key==='z'||e.key==='Z') undoLast();
+  else if((e.key==='r'||e.key==='R')&&(s==='pool'||s==='messaged')) runAct('reply');
+  else if((e.key==='m'||e.key==='M')&&s==='replied') runAct('meeting');
+});
+/* ================= TEMPLATES EDITOR ================= */
+function openTpl(){ document.getElementById('tplOv').style.display='grid'; renderTpl(); }
+function closeTpl(){ document.getElementById('tplOv').style.display='none'; }
+function setTpl(k,v){ if(!S.tpl) S.tpl={}; v=v.trim(); if(!v||v===DEF_TPL[k]) delete S.tpl[k]; else S.tpl[k]=v; save(); }
+function resetTpl(k){ if(S.tpl) delete S.tpl[k]; save(); renderTpl(); }
+function renderTpl(){
+  const el=document.getElementById('tplCard');
+  let h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b class="blue">✎ MESSAGE TEMPLATES</b><button class="btn ghost" style="padding:4px 10px" onclick="closeTpl()">✕<span class="kbd">Esc</span></button></div>';
+  h+='<div class="mut" style="font-size:12px;margin-bottom:10px">Your voice, your words — edits apply to every future card. <b>{first}</b> becomes their first name. Cold prospects keep their individually written messages.</div>';
+  Object.keys(TPL_LABEL).forEach(k=>{
+    const edited=S.tpl&&S.tpl[k];
+    h+='<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-size:12px;color:#c9a84c">'+TPL_LABEL[k]+'</b>'+(edited?'<span class="mut" style="font-size:11px;cursor:pointer;color:#8bb4e0" onclick="resetTpl(\''+k+'\')">↺ reset to default</span>':'<span class="mut" style="font-size:11px">default</span>')+'</div>';
+    h+='<textarea style="width:100%;min-height:64px;margin-top:4px;font-size:12.5px;line-height:1.5" onchange="setTpl(\''+k+'\',this.value);renderTpl()">'+esc(tpl(k))+'</textarea></div>';
+  });
+  el.innerHTML=h;
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&document.getElementById('tplOv').style.display==='grid'){ if(e.target&&e.target.tagName==='TEXTAREA'){e.target.blur();return;} closeTpl(); } });
+/* ================= VIEWS ================= */
+const TABSDEF=[['today','Today'],['pipe','Pipeline'],['score','Scoreboard'],['base','Database']];
+let tab='today', q='', dbStage='', dbSrc='', page=0;
+function nav(t){ tab=t; page=0; render(); window.scrollTo(0,0); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2400); }
+function statBar(){
+  const t=today(); const sT=sendsToday();
+  let bars=''; for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const n=S.log.filter(a=>(a.to==='messaged'||a.to==='followup')&&dayKey(a.ts)===dayKey(d)).length; bars+='<i title="'+dayKey(d)+': '+n+'" style="height:'+Math.min(24,2+n)+'px"></i>'; }
+  return '<div class="statbar">'
+   +'<span class="s">Today <b>'+sT+'</b>/'+S.set.target+' sends</span>'
+   +'<span class="s">🔥 <b>'+streak()+'</b>-day streak</span>'
+   +'<span class="s green">≈ <b>'+fmt$(evToday())+'</b> EV today</span>'
+   +'<span class="s">🌐 Pool <b>'+freshQueue().length.toLocaleString()+'</b> untouched</span>'
+   +'<span class="spark" title="sends · last 14 days">'+bars+'</span></div>';
+}
+function pageToday(){
+  const due=fuDue(), reps=replyQueue(), fresh=freshQueue();
+  const remaining=Math.max(0,S.set.target-sendsToday());
+  const posN=reps.filter(c=>c.senti==='pos').length;
+  let h='<div class="planstrip"><b class="gold">THE SYSTEM</b><span>❶ Clear follow-ups</span><span>→</span><span>❷ Work the replies (💚 first)</span><span>→</span><span>❸ Send '+S.set.target+' fresh</span><span style="margin-left:auto" class="mut">15–30 min. Everything else is optional.</span></div>';
+  h+=statBar();
+  h+='<div class="card" style="text-align:center;border-color:rgba(201,168,76,.45);padding:24px">'
+    +'<div style="font-size:15px;color:#8a93a8">One button. It queues everything below in the right order.</div>'
+    +'<button class="btn primary" style="font-size:16px;padding:14px 34px;margin-top:12px" onclick="runDay()">▶ Run my day ('+Math.min(due.length+Math.min(reps.length,S.set.replyN)+remaining, due.length+Math.min(reps.length,S.set.replyN)+fresh.length)+' cards)</button></div>';
+  h+='<div class="qgrid">';
+  h+='<div class="qcard" onclick="rQ=fuDue();rI=0;if(rQ.length){document.getElementById(\'runner\').classList.add(\'active\');renderRun();}else toast(\'No follow-ups due\')">'
+    +'<div class="qn '+(due.length?'red':'green')+'">'+due.length+'</div><div class="ql">❶ Follow-ups due</div><div class="qs">People mid-conversation. Letting these slip is where pipelines die. Clear to zero daily.</div></div>';
+  h+='<div class="qcard" onclick="rQ=replyQueue().slice(0,S.set.replyN);rI=0;if(rQ.length){document.getElementById(\'runner\').classList.add(\'active\');renderRun();}else toast(\'Reply backlog clear\')">'
+    +'<div class="qn amber">'+reps.length+'</div><div class="ql">❷ Replies to work <span class="green">('+posN+' 💚 positive)</span></div><div class="qs">They already responded — highest-value contacts you own. Worked '+S.set.replyN+' at a time, warmest first.</div></div>';
+  h+='<div class="qcard" onclick="rQ=freshQueue().slice(0,Math.max(0,S.set.target-sendsToday()));rI=0;if(rQ.length){document.getElementById(\'runner\').classList.add(\'active\');renderRun();}else toast(\'Daily target already hit ✓\')">'
+    +'<div class="qn blue">'+remaining+'</div><div class="ql">❸ Fresh sends left today</div><div class="qs">Best targets first: warm “said later / owe reply / meeting discussed”, then top-scored cold with intel. Industry peers, big-bank staff & pitchers auto-removed.</div></div>';
+  h+='</div>';
+  h+='<div class="card" style="margin-top:14px"><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center"><b class="gold" style="font-size:12px;letter-spacing:.08em">SETTINGS</b>'
+    +'<label class="mut" style="font-size:12.5px">Daily sends <input type="number" min="5" max="100" value="'+S.set.target+'" style="width:64px" onchange="S.set.target=Math.max(1,parseInt(this.value)||20);save();render()"></label>'
+    +'<label class="mut" style="font-size:12.5px">Replies per session <input type="number" min="1" max="50" value="'+S.set.replyN+'" style="width:60px" onchange="S.set.replyN=Math.max(1,parseInt(this.value)||10);save();render()"></label>'
+    +'<label class="mut" style="font-size:12.5px">Auto follow-up (days) <input type="number" min="2" max="30" value="'+S.set.fuDays+'" style="width:56px" onchange="S.set.fuDays=Math.max(1,parseInt(this.value)||7);save()"></label>'
+    +'<label class="mut" style="font-size:12.5px"><input type="checkbox" '+(S.set.peers?'checked':'')+' onchange="S.set.peers=this.checked;save();render()"> include industry peers</label>'
+    +'</div></div>';
+  return h;
+}
+function daysSince(c){
+  const last=[...S.log].reverse().find(a=>a.uid===c.uid);
+  const d=last?dayKey(last.ts):(c.lastDate||null);
+  if(!d) return '';
+  const n=Math.floor((Date.now()-new Date(d+'T00:00:00'))/86400000);
+  return n<=0?'today':n+'d ago';
+}
+function rowHTML(c,showStage){
+  const s=stg(c);
+  const due=fu(c)&&fu(c)<=today();
+  return '<div class="row">'
+   +'<div class="who"><b>'+(c.url?'<a href="'+esc(c.url)+'" target="_blank" style="text-decoration:none;color:#e0e0e0">'+esc(c.name)+' ↗</a>':esc(c.name))+'</b>'
+   +' '+(c.tier!==null?'<span class="badge b-warm">W'+c.tier+'</span>':'<span class="badge b-cold">COLD</span>')
+   +(c.src==='cold'&&c.score?'<span class="badge b-score">'+c.score+'</span>':'')
+   +(s==='replied'&&c.senti!=='mid'?'<span class="badge b-'+c.senti+'">'+(c.senti==='pos'?'💚':'🔴')+'</span>':'')
+   +(c.pitched?'<span class="badge b-neg">⚠</span>':'')
+   +(due?'<span class="badge b-due">⏰</span>':'')
+   +'<div class="t">'+esc([c.title,c.co].filter(Boolean).join(' · '))+(daysSince(c)?' · <span class="mut">'+daysSince(c)+'</span>':'')+'</div></div>'
+   +(showStage?'<select onchange="setStage(\''+c.uid+'\',this.value)">'+['pool','messaged','replied','meeting','won','lost','parked'].map(o=>'<option value="'+o+'"'+(o===s?' selected':'')+'>'+o+'</option>').join('')+'</select>':'')
+   +'<input type="date" value="'+esc(fu(c))+'" title="follow-up" onchange="setFu(\''+c.uid+'\',this.value)">'
+   +'<input type="text" value="'+esc(note(c))+'" placeholder="note…" style="flex:1;min-width:120px" onchange="setNote(\''+c.uid+'\',this.value)">'
+   +'<button class="btn ghost" style="padding:6px 12px" onclick="runOne(\''+c.uid+'\')">▶ Work</button>'
+   +'</div>';
+}
+function setStage(uid,v){ const prev=S.stage[uid]||BYUID[uid].base; S.stage[uid]=v; if(v!==prev&&['messaged','replied','meeting','won','lost'].includes(v)) logAct(uid,v==='messaged'?'messaged':v); if(v==='won'&&!S.aum[uid]) S.aum[uid]=G.avgHH; save(); render(); }
+function setFu(uid,v){ S.fu[uid]=v||''; save(); render(); }
+function setNote(uid,v){ S.note[uid]=v; save(); }
+function setAum(uid,v){ S.aum[uid]=Math.max(0,parseInt(v)||G.avgHH); save(); render(); }
+function pagePipe(){
+  const groups=[['⏰ Overdue follow-ups',CONTACTS.filter(c=>fu(c)&&fu(c)<today()&&['messaged','replied','meeting'].includes(stg(c))).sort((a,b)=>fu(a)<fu(b)?-1:1),'red'],
+    ['📅 Meetings booked',CONTACTS.filter(c=>stg(c)==='meeting'),'green'],
+    ['💬 In conversation (replied)',replyQueue().concat(CONTACTS.filter(c=>stg(c)==='replied'&&fu(c)&&fu(c)>today())),'amber'],
+    ['📨 Awaiting reply (messaged)',CONTACTS.filter(c=>stg(c)==='messaged').sort((a,b)=>(fu(a)||'9')< (fu(b)||'9')?-1:1),'blue']];
+  let h=statBar();
+  groups.forEach(([title,list,col])=>{
+    const evSum=list.reduce((s,c)=>s+(EV[stg(c)]||0),0);
+    h+='<div class="secH"><h3 class="'+col+'">'+title+' · '+list.length+'</h3><span class="mut" style="font-size:12px">≈ '+fmt$(evSum)+' EV</span></div>';
+    if(!list.length){ h+='<div class="card mut" style="padding:12px;font-size:12.5px">Empty — good.</div>'; return; }
+    h+='<div class="card" style="padding:6px 14px">'+list.slice(0,60).map(c=>rowHTML(c,false)).join('')+(list.length>60?'<div class="mut" style="padding:8px;text-align:center;font-size:12px">+'+(list.length-60)+' more — see Database</div>':'')+'</div>';
+  });
+  const won=CONTACTS.filter(c=>stg(c)==='won');
+  h+='<div class="secH"><h3 class="green">🏆 Won · '+won.length+'</h3></div><div class="card" style="padding:6px 14px">';
+  if(!won.length) h+='<div class="mut" style="padding:10px;font-size:12.5px">First household pending. The math says it comes.</div>';
+  won.forEach(c=>{ const a=S.aum[c.uid]||G.avgHH;
+    h+='<div class="row"><div class="who"><b>'+esc(c.name)+'</b><div class="t">'+esc(c.co||'')+'</div></div>'
+     +'<label class="mut" style="font-size:12px">AUM $ <input type="number" value="'+a+'" style="width:110px" onchange="setAum(\''+c.uid+'\',this.value)"></label>'
+     +'<span class="green" style="font-size:12.5px;font-weight:700">'+fmt$(G.hhFirstYear(a))+' first-yr</span></div>'; });
+  h+='</div>';
+  return h;
+}
+function pageScore(){
+  const counts={pool:0,messaged:0,replied:0,meeting:0,won:0,lost:0,parked:0};
+  CONTACTS.forEach(c=>counts[stg(c)]++);
+  const contacted=counts.messaged+counts.replied+counts.meeting+counts.won+counts.lost;
+  const responses=counts.replied+counts.meeting+counts.won;
+  const meetings=counts.meeting+counts.won;
+  const wonAUM=CONTACTS.filter(c=>stg(c)==='won').reduce((s,c)=>s+(S.aum[c.uid]||G.avgHH),0);
+  const needPerDay=Math.max(0,(GOAL.contacts-contacted)/daysLeft());
+  const bar=(v,g,col)=>'<div style="display:flex;justify-content:space-between;font-size:12.5px"><span>'+v.toLocaleString()+' / '+g.toLocaleString()+'</span><span class="mut">'+Math.min(100,Math.round(v/g*100))+'%</span></div><div class="bar"><i style="width:'+Math.min(100,v/g*100)+'%;background:'+col+'"></i></div>';
+  let h=statBar();
+  h+='<div class="card" style="text-align:center;border-color:rgba(201,168,76,.4)">'
+    +'<div class="mut" style="font-size:12px;letter-spacing:.1em">THE ONLY NUMBER THAT MATTERS</div>'
+    +'<div style="font-size:44px;font-weight:800;color:#c9a84c;line-height:1.15">'+Math.ceil(needPerDay)+' <span style="font-size:16px;color:#8a93a8">sends/day</span></div>'
+    +'<div class="mut" style="font-size:12.5px">keeps you on course for <b class="green">'+GOAL.won+' households won</b> by Dec 31 ('+daysLeft()+' days left) · at the historical 40.5% response rate</div></div>';
+  h+='<div class="card"><h3 class="gold" style="font-size:13px;margin-bottom:10px">SEASON GOALS · model-derived from '+GOAL.won+' households</h3>';
+  h+='<div style="margin-bottom:8px"><b class="blue" style="font-size:12.5px">Contacted</b>'+bar(contacted,GOAL.contacts,'linear-gradient(90deg,#1a2744,#8bb4e0)')+'</div>';
+  h+='<div style="margin-bottom:8px"><b style="color:#7dd8a0;font-size:12.5px">Responses</b>'+bar(responses,GOAL.responses,'linear-gradient(90deg,#1a3326,#7dd8a0)')+'</div>';
+  h+='<div style="margin-bottom:8px"><b class="amber" style="font-size:12.5px">Meetings</b>'+bar(meetings,GOAL.meetings,'linear-gradient(90deg,#3d2e10,#e6c872)')+'</div>';
+  h+='<div style="margin-bottom:8px"><b class="green" style="font-size:12.5px">Households won</b>'+bar(counts.won,GOAL.won,'linear-gradient(90deg,#1a3d1a,#5fe05f)')+'</div>';
+  h+='<div><b class="gold" style="font-size:12.5px">AUM captured</b>'+bar(wonAUM,GOAL.won*G.avgHH,'linear-gradient(90deg,#3d3010,#c9a84c)')+'</div></div>';
+  const rr=contacted?responses/contacted:0, mr=responses?meetings/responses:0, wr=meetings?counts.won/meetings:0;
+  h+='<div class="card"><h3 class="gold" style="font-size:13px;margin-bottom:8px">FUNNEL · actual vs model</h3><table class="funnel" style="width:100%">'
+    +'<tr><td>Contacted → Response</td><td><b>'+(rr*100).toFixed(1)+'%</b></td><td class="mut">model '+(100/G.roToResp).toFixed(1)+'%</td></tr>'
+    +'<tr><td>Response → Meeting</td><td><b>'+(mr*100).toFixed(1)+'%</b></td><td class="mut">model '+(100/G.respToMeet).toFixed(0)+'%</td></tr>'
+    +'<tr><td>Meeting → Won</td><td><b>'+(wr*100).toFixed(1)+'%</b></td><td class="mut">model '+(100/G.meetToWon).toFixed(0)+'%</td></tr>'
+    +'<tr><td>Pipeline EV (open stages)</td><td colspan="2"><b class="green">'+fmt$(counts.messaged*EV.messaged+counts.replied*EV.replied+counts.meeting*EV.meeting)+'</b></td></tr></table>'
+    +'<div class="mut" style="font-size:11px;margin-top:8px">EV = first-year after-tax value × stage conversion odds. Response→meeting is your leverage point: '+counts.replied+' replies are sitting in stage ❷.</div></div>';
+  return h;
+}
+function pageBase(){
+  let list=CONTACTS.filter(c=>{
+    if(dbStage&&stg(c)!==dbStage) return false;
+    if(dbSrc==='warm'&&c.tier===null) return false;
+    if(dbSrc==='cold'&&c.src!=='cold') return false;
+    if(!S.set.peers&&c.peer&&!dbStage) return false;
+    if(q){ const s=(c.name+' '+c.title+' '+c.co).toLowerCase(); if(!s.includes(q.toLowerCase())) return false; }
+    return true;
+  }).sort((a,b)=>rankOf(b)-rankOf(a));
+  let h='<div class="card" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+    +'<input type="text" id="dbq" placeholder="Search name, title, company…" value="'+esc(q)+'" style="flex:1;min-width:220px" oninput="dbSearch(this.value)">'
+    +'<select onchange="dbStage=this.value;page=0;render()"><option value="">All stages</option>'+['pool','messaged','replied','meeting','won','lost','parked'].map(o=>'<option'+(dbStage===o?' selected':'')+'>'+o+'</option>').join('')+'</select>'
+    +'<select onchange="dbSrc=this.value;page=0;render()"><option value="">Warm + cold</option><option value="warm"'+(dbSrc==='warm'?' selected':'')+'>Warm only</option><option value="cold"'+(dbSrc==='cold'?' selected':'')+'>Cold only</option></select>'
+    +'<span class="mut" style="font-size:12px">'+list.length.toLocaleString()+' contacts</span></div>';
+  const show=list.slice(0,(page+1)*100);
+  h+='<div class="card" style="padding:6px 14px">'+show.map(c=>rowHTML(c,true)).join('')+'</div>';
+  if(show.length<list.length) h+='<div style="text-align:center"><button class="btn ghost" onclick="page++;render(true)">Show 100 more ('+(list.length-show.length).toLocaleString()+' left)</button></div>';
+  return h;
+}
+let _dq=null; function dbSearch(v){ q=v; page=0; clearTimeout(_dq); _dq=setTimeout(()=>render(true),160); }
+function render(keep){
+  document.getElementById('tabs').innerHTML=TABSDEF.map(([id,l])=>{
+    let extra=''; if(id==='today'){const n=fuDue().length; if(n) extra=' <span class="red">('+n+')</span>';}
+    return '<button class="tab'+(tab===id?' active':'')+'" onclick="nav(\''+id+'\')">'+l+extra+'</button>';
+  }).join('');
+  document.getElementById('subCounts').textContent=CONTACTS.length.toLocaleString()+' unique contacts · '+CONTACTS.filter(c=>c.tier!==null).length.toLocaleString()+' warm · '+CONTACTS.filter(c=>c.tier===null).length.toLocaleString()+' cold';
+  var _bp=document.getElementById('barPill');
+  if(_bp){ var _s=sendsToday(), _t=S.set.target; _bp.innerHTML='<span>'+_s+'/'+_t+'</span><span style="width:6px;height:6px;border-radius:99px;background:'+(_s>=_t?'#5fe05f':'#c9a84c')+'"></span>'; }
+  const y=window.scrollY;
+  document.getElementById('main').innerHTML=({today:pageToday,pipe:pagePipe,score:pageScore,base:pageBase})[tab]();
+  if(keep) window.scrollTo(0,y);
+}
+/* ================= EXPORT ================= */
+function exportBackup(){
+  try{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'chambers-hq',version:1,exportedAt:new Date().toISOString(),state:S})],{type:'application/json'}));
+    a.download='chambers_hq_backup_'+today()+'.json'; a.click(); toast('Backup exported ✓');
+  }catch(e){ toast('Export failed'); }
+}
+function importBackup(inp){
+  const f=inp.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{ try{ const o=JSON.parse(e.target.result); if(o&&o.state){ S=o.state; S.set=Object.assign({target:20,replyN:10,fuDays:7,peers:false},S.set||{}); save(); render(); toast('Backup restored ✓'); } else toast('Not a Chambers HQ backup'); }catch(err){ toast('Could not read that file'); } };
+  rd.readAsText(f); inp.value='';
+}
+function exportCSV(){
+  const rows=[['Name','LinkedIn','Source','Tier','Score','Title','Company','Stage','FollowUp','Sentiment','Note','AUM']];
+  CONTACTS.forEach(c=>rows.push([c.name,c.url,c.tier!==null?'warm':'cold',c.tier??'',c.score??'',c.title,c.co,stg(c),fu(c),c.sentiRaw,note(c),S.aum[c.uid]||'']));
+  const csv=rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='chambers_hq_'+today()+'.csv'; a.click();
+}
+/* ================= BOOT ================= */
+load(); render();
+
+/* Ask the browser to treat this data as persistent. Browsers evict storage from
+   sites you have not visited recently, and all eight tools live in that storage.
+   This is a request, not a guarantee, which is why the Vault backup still matters. */
+(function(){
+  try{
+    if(navigator.storage && navigator.storage.persist && navigator.storage.persisted){
+      navigator.storage.persisted().then(function(already){
+        if(!already) navigator.storage.persist();
+      }).catch(function(){});
+    }
+  }catch(e){}
+})();
+
+</script>
+</body>
+</html>
