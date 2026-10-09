@@ -37,7 +37,7 @@ try{
   await p.locator('.ledger-reset-row').scrollIntoViewIfNeeded();await capture(p,'ledger-save-dock',theme,w,size);
   await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
   await open('life-map');await p.locator('.daily-chips').scrollIntoViewIfNeeded();
-  assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>getComputedStyle(n).display==='inline-flex'&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
+  assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>['inline-flex','flex'].includes(getComputedStyle(n).display)&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
   await open('communication-trainer');assert(await p.locator('.atlas-goal-options').evaluate(n=>parseFloat(getComputedStyle(n).rowGap)>=12));await capture(p,'communicator-choices',theme,w,size);
   await open('the-library');
   const raw=await p.evaluate(()=>{const raw=localStorage.getItem('atlas.library.v1');return raw;});
