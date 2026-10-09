@@ -119,7 +119,7 @@ with sync_playwright() as pw:
         assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 60
         expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 0')
         go_card('Read')
-        page.get_by_role('textbox', name='Amount for Read', exact=True).fill('250')
+        page.get_by_role('textbox', name='Amount for Read', exact=True).fill('1000')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-habit-status')).to_have_text('Recorded')
         page.get_by_role('textbox', name='Amount for Read', exact=True).press('Tab')
         page.locator('[data-act="commit"]').first.click()
@@ -129,7 +129,7 @@ with sync_playwright() as pw:
         dismiss_rewards()
         expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
         page.locator('#ledger-nav-progress').click()
-        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('1040 lifetime XP')
+        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('4040 lifetime XP')
         assert page.locator('.ledger-value-level').count() == 5
         health=page.locator('.ledger-value-toggle[data-key="HEALTH"]')
         health.press('Enter')
