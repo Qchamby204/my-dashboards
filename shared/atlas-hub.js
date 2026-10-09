@@ -1,6 +1,7 @@
 import {parseActivity,STORAGE_KEY} from './atlas-activity-core.mjs';
 const cards=[...document.querySelectorAll('.hub-card')],catalog=new Map(cards.map(c=>[new URL(c.href).pathname.split('/').at(-1).replace('.html',''),c]));
 catalog.set('library',catalog.get('the-library'));
+catalog.set('prospecting-command-center',catalog.get('prospecting-command-center')||catalog.get('prospecting'));
 function refresh(){
   const now=new Date(),hour=now.getHours(),greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
   document.getElementById('hub-greeting').textContent=greeting+', Quinton.';

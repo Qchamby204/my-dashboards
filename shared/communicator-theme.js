@@ -9,7 +9,7 @@
   if(sharedSource&&document.head){
     // Sports styling only: no record access or changes to dashboard behavior.
     if(['crucible', 'neural-map', 'baby-brain', 'the-aqueduct', 'operations-cadence', 'chambers-wealth-hq', 'prospecting-command-center', 'review'].includes(root.dataset.atlasApp)){
-      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=356e3c6e654e',sharedSource).href;document.head.appendChild(sports);
+      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=a9239f1402d6',sharedSource).href;document.head.appendChild(sports);
     }
     const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=f770ee460dc5':'atlas-mobile.js?v=f770ee460dc5',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
     if(root.dataset.atlasApp==='the-herald'){
@@ -102,7 +102,7 @@
       trigger.title = 'Appearance: ' + preference;
       trigger.setAttribute('aria-label', 'Appearance: ' + preference + '. Change color theme');
     }
-    if (dialog) for (const input of dialog.querySelectorAll('input')) input.checked = input.value === preference;
+    if (dialog) for (const input of dialog.querySelectorAll('input')) input.checked = input.name === 'atlas-streak-hide' ? (window.AtlasStreak?.hidden()||false) : input.value === preference;
     paintCharts();
     window.dispatchEvent(new CustomEvent('atlas:appearance', { detail: { preference, resolved } }));
   }

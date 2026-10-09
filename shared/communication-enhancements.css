@@ -53,7 +53,7 @@
 [data-atlas-app="communication-trainer"] .communication-topic-refresh :is(textarea,.flex){margin-bottom:12px}
 [data-atlas-app="communication-trainer"] .communication-topic-refresh .flex input{flex:1;width:auto}
 [data-atlas-app="communication-trainer"] #communication-topic-editor{box-sizing:border-box;width:min(660px,calc(100vw - 32px));max-height:calc(var(--atlas-visible-height,100dvh) - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;border:1px solid var(--neo-line);border-radius:24px;padding:24px;color:var(--text);background:var(--bg);box-shadow:var(--neo-float);margin:auto}
-[data-atlas-app="communication-trainer"] #communication-topic-editor::backdrop{background:rgba(0,0,0,.65)}
+[data-atlas-app="communication-trainer"] #communication-topic-editor::backdrop{background:var(--neo-surface)}
 [data-atlas-app="communication-trainer"] #communication-topic-editor textarea{resize:vertical;min-height:180px}
 [data-atlas-app="communication-trainer"] #communication-topic-editor :is(button,select){min-height:44px;touch-action:manipulation}
 [data-atlas-app="communication-trainer"] #communication-topic-count{font-size:13px;margin:8px 0}
@@ -64,34 +64,34 @@
 @media(max-width:480px){[data-atlas-app="communication-trainer"] #communication-topic-editor{padding:20px 16px}[data-atlas-app="communication-trainer"] .communication-topic-actions button{flex:1}}
 
 /* Sports-game progression, using the trainer's existing XP and rank thresholds. */
-html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard){border-radius:12px!important;box-shadow:0 5px 16px color-mix(in srgb,var(--neo-ink) 7%,transparent);}
-html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.appbar h1,.card h2,.drillcard h2){font-family:'Barlow Condensed',var(--neo-font,sans-serif)!important;font-weight:700;letter-spacing:.025em;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard){border-radius:24px!important;box-shadow:0 5px 16px color-mix(in srgb,var(--neo-ink) 7%,transparent);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.appbar h1,.card h2,.drillcard h2){font-family:var(--neo-font),var(--neo-font,sans-serif)!important;font-weight:700;letter-spacing:.025em;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar{border-bottom:2px solid var(--neo-accent)!important;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar h1{font-size:21px;white-space:normal;line-height:1.05;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar-pill{border-radius:5px;border-color:var(--neo-accent)!important;box-shadow:none;font-variant-numeric:tabular-nums;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .card h2{font-size:25px;text-transform:uppercase;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career{background:linear-gradient(125deg,#142035,#24344c)!important;border:1px solid #40516a!important;border-top:3px solid #ecc263!important;color:#f5f7fc;padding:24px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar-pill{border-radius:24px;border-color:var(--neo-accent)!important;box-shadow:none;font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .card h2{font-size:25px;text-transform:none;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career{background:var(--neo-surface)!important;border:1px solid var(--neo-line)!important;border-top:3px solid var(--neo-line)!important;color:var(--neo-ink);padding:24px;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#c9d5e6;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-xp{padding:6px 10px;border:1px solid #6f6447;border-radius:4px;color:#f4cf7c;font-weight:700;font-variant-numeric:tabular-nums;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career h2{color:#f5f7fc!important;font-size:clamp(2.3rem,7vw,3.6rem);line-height:1.05;margin:14px 0 20px;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-rank-line{display:flex;justify-content:space-between;align-items:baseline;gap:14px;color:#d7e1ef;font-size:14px;line-height:1.5;margin-bottom:8px;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-rank-line strong{color:#f4cf7c;font-variant-numeric:tabular-nums;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .stat{border-radius:8px;border-top:2px solid var(--neo-accent);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:none;font-weight:700;color:var(--neo-ink);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-xp{padding:6px 10px;border:1px solid var(--neo-line);border-radius:24px;color:var(--neo-accent);font-weight:700;font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career h2{color:var(--neo-ink)!important;font-size:clamp(2.3rem,7vw,3.6rem);line-height:1.05;margin:14px 0 20px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-rank-line{display:flex;justify-content:space-between;align-items:baseline;gap:14px;color:var(--neo-ink);font-size:14px;line-height:1.5;margin-bottom:8px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-rank-line strong{color:var(--neo-accent);font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .stat{border-radius:24px;border-top:2px solid var(--neo-accent);}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .stat .v{font-variant-numeric:tabular-nums;font-weight:700;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .stat:nth-child(3n+1){border-top-color:var(--neo-green);}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .stat:nth-child(3n+2){border-top-color:var(--neo-blue);}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .bar{position:relative;isolation:isolate;border-radius:3px;min-height:9px;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .bar i{border-radius:2px;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .bar::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--neo-inset) calc(10% - 2px),var(--neo-inset) 10%);}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career .bar{background:#34445a!important;box-shadow:none;height:12px;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career .bar i{background:linear-gradient(90deg,#d5a742,#f4d281)!important;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career .bar::after{background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),#34445a calc(10% - 2px),#34445a 10%);}
-html.atlas-neumo[data-atlas-app="communication-trainer"] #nav button{border-radius:7px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .bar{position:relative;isolation:isolate;border-radius:24px;min-height:9px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .bar i{border-radius:24px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .bar::after{content:"";position:absolute;inset:0;pointer-events:none;background:var(--neo-surface);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career .bar{background:var(--neo-surface)!important;box-shadow:none;height:12px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career .bar i{background:var(--neo-surface)!important;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career .bar::after{background:var(--neo-surface);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #nav button{border-radius:24px;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #nav button.active{border-top:2px solid var(--neo-accent)!important;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.communication-saved,.records){border-left:3px solid var(--neo-green)!important;}
 @media(max-width:600px){html.atlas-neumo[data-atlas-app="communication-trainer"] .statrow{grid-template-columns:repeat(2,minmax(0,1fr));}html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career{padding:20px;}}
-@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard,.stat){border-color:var(--neo-ink)!important;}html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career{border-color:#f4d281!important;}}
+@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard,.stat){border-color:var(--neo-ink)!important;}html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career{border-color:var(--neo-line)!important;}}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career :is(h2,span,strong){color:CanvasText!important;}html.atlas-neumo[data-atlas-app="communication-trainer"] .bar::after{display:none;}html.atlas-neumo[data-atlas-app="communication-trainer"] .bar i{background:Highlight!important;forced-color-adjust:none;}}
 
 /* Focused daily workflow additions. */
@@ -102,9 +102,9 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] main{padding-bottom:cal
 html.atlas-neumo[data-atlas-app="communication-trainer"] .grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .grid3{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
 html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard,.rubric,.grid>*){min-width:0}
-html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard)>.tag{display:inline-block;width:auto;max-width:100%;border-radius:4px;padding:5px 9px;line-height:1.4;white-space:normal}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard)>.tag{display:inline-block;width:auto;max-width:100%;border-radius:24px;padding:5px 9px;line-height:1.4;white-space:normal}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .likert{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0 24px}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .likert button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:48px;padding:10px 8px;font-size:14px;line-height:1.4;white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:none;border:1px solid var(--neo-line)!important;border-radius:7px;background:var(--neo-inset)!important;color:var(--neo-ink)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .likert button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:48px;padding:10px 8px;font-size:14px;line-height:1.4;white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:none;border:1px solid var(--neo-line)!important;border-radius:24px;background:var(--neo-inset)!important;color:var(--neo-ink)!important}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .likert .assessment-value{font-family:var(--mono);font-size:12px;opacity:.7}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .likert button.sel{border:2px solid var(--neo-accent)!important;background:var(--neo-surface)!important;color:var(--neo-accent)!important;font-weight:700;box-shadow:inset 0 -3px 0 var(--neo-accent)!important}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .q{font-size:16px;line-height:1.6;margin-top:22px}
@@ -127,7 +127,7 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] :is(button,summary,inpu
 
 html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .lhead{padding:4px 10px;gap:8px}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:1;min-width:0;min-height:48px;border:0!important;box-shadow:none!important;background:transparent!important;color:var(--neo-ink)!important;text-align:left;padding:8px;font:inherit;font-size:16px;line-height:1.5;overflow-wrap:normal}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .check{width:44px;height:44px;min-width:44px;border-radius:7px;border:1px solid var(--neo-line)!important;color:var(--neo-ink)!important;background:var(--neo-inset)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .check{width:44px;height:44px;min-width:44px;border-radius:24px;border:1px solid var(--neo-line)!important;color:var(--neo-ink)!important;background:var(--neo-inset)!important}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .lesson .check.done{border-color:var(--neo-green)!important;color:var(--neo-green)!important}
 
 html.atlas-neumo[data-atlas-app="communication-trainer"] :is(#radarDash,#radarProg){display:block;width:100%}
@@ -140,3 +140,6 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-radar-le
 .communication-library .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;margin:4px 6px 4px 0;text-decoration:none;white-space:normal}
 .communication-library p,.communication-library summary{overflow-wrap:anywhere}
 .communication-library summary{min-height:44px;padding-block:10px;cursor:pointer}
+
+/* Approved suite material; native layout and controls remain intact. */
+html.atlas-neumo[data-atlas-app] :is(h1,h2,h3,.appbar-title,.statbig,.hg-title,.brand-title){font-family:var(--neo-font)!important;letter-spacing:-.025em;text-transform:none!important}

@@ -9,13 +9,13 @@
 .cc-app header.masthead,.cc-app body>header { max-width:1120px; margin:auto; text-align:left; border:0; background:none; padding:calc(var(--cc-top) + 1rem) 0 1.25rem; }
 .cc-app body>header { padding-inline:max(1rem,env(safe-area-inset-left),var(--cc-side)) max(1rem,env(safe-area-inset-right),var(--cc-side)); }
 .cc-app header .bar { position:static; display:flex; align-items:center; justify-content:space-between; flex-wrap:nowrap; padding:0; margin:0 0 1.25rem; border:0; border-radius:0; background:none!important; box-shadow:none; }
-.cc-app .cc-home { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; padding:.5rem .75rem; border-radius:13px; text-decoration:none; color:var(--neo-accent); font-weight:600; box-shadow:var(--neo-small); }
+.cc-app .cc-home { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; padding:.5rem .75rem; border-radius:24px; text-decoration:none; color:var(--neo-accent); font-weight:600; box-shadow:var(--neo-small); }
 .cc-app header h1,.cc-app header.masthead h1 { font-size:clamp(1.9rem,5vw,2.7rem); letter-spacing:-.035em; line-height:1.15; color:var(--neo-ink); }
 .cc-app header.masthead .sub { font-size:.8rem; letter-spacing:.08em; margin-top:.75rem; }
 .cc-app nav.tabs { margin:0 0 1.75rem; gap:.65rem; align-items:stretch; }
 .cc-app nav.tabs .band { flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; padding:.4rem; scrollbar-width:thin; scroll-padding:1rem; }
 .cc-app nav.tabs .bandlabel { flex:0 0 6.5rem; width:auto; text-align:left; border:0; padding:0 .25rem; margin:0; font-size:.7rem; letter-spacing:.07em; }
-.cc-app nav.tabs button { flex:0 0 auto; min-height:44px; padding:.65rem 1rem; font-size:.9rem; letter-spacing:0; text-transform:none; border-radius:13px; transition:color 120ms,background-color 120ms; }
+.cc-app nav.tabs button { flex:0 0 auto; min-height:44px; padding:.65rem 1rem; font-size:.9rem; letter-spacing:0; text-transform:none; border-radius:24px; transition:color 120ms,background-color 120ms; }
 .cc-app :is(button,summary,a,input,select,textarea) { touch-action:manipulation; scroll-margin-block:1rem; }
 .cc-app :is(button,summary):active { opacity:.8; }
 .cc-app :is(button,select,input[type=text],summary) { min-height:44px; }
@@ -43,12 +43,12 @@
 .cc-app input[type=checkbox]::after { content:none; }
 .cc-app :is(.checks li,.cplabel,.grocery label) { min-height:48px; align-items:center; gap:.75rem; }
 .cc-app ul.checks label { padding:.5rem 0; }
-.cc-app .tablewrap { border-radius:14px; }
+.cc-app .tablewrap { border-radius:24px; }
 .cc-app :is(.card,.day,.slot,.lvbody,.mb,.bt) { min-width:0; }
 .cc-app :is(.card h3,.slot,.blockhead,.level summary) { overflow-wrap:anywhere; }
 .cc-app footer { border:0; padding:0; }
 /* Crucible: retain its two navigation bands, curriculum and statement ladder. */
-.cc-app[data-atlas-app="crucible"] :is(.stat,.block,.level,.phase,.stage) { border-radius:18px; border-color:var(--neo-line); box-shadow:var(--neo-small); }
+.cc-app[data-atlas-app="crucible"] :is(.stat,.block,.level,.phase,.stage) { border-radius:24px; border-color:var(--neo-line); box-shadow:var(--neo-small); }
 .cc-app[data-atlas-app="crucible"] .stats { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1rem; margin-bottom:1.75rem; }
 .cc-app[data-atlas-app="crucible"] .stat { padding:1rem; background:var(--neo-surface); }
 .cc-app[data-atlas-app="crucible"] .stat .k { font-size:.7rem; letter-spacing:.06em; }
@@ -61,7 +61,7 @@
 .cc-app[data-atlas-app="crucible"] textarea { min-height:10rem; font-size:1rem; }
 .cc-app[data-atlas-app="crucible"] .level.current { border:2px solid var(--neo-accent); }
 .cc-app[data-atlas-app="crucible"] .level.passed { border-color:var(--neo-green); }
-.cc-app[data-atlas-app="crucible"] .checkpoint { border-radius:12px; }
+.cc-app[data-atlas-app="crucible"] .checkpoint { border-radius:24px; }
 /* Chef: give recipes, stars and the weekly planner usable space. */
 .cc-app[data-atlas-app="the-chef"] nav.tabs { flex-wrap:nowrap; overflow-x:auto; padding:.4rem; }
 .cc-app[data-atlas-app="the-chef"] nav.tabs button { flex:1 0 auto; }
@@ -85,7 +85,7 @@
 .cc-app[data-atlas-app="the-chef"] details.more :is(ul,ol) { font-size:.95rem; line-height:1.65; }
 .cc-app[data-atlas-app="the-chef"] details.more h4 { font-size:.8rem; }
 .cc-app[data-atlas-app="the-chef"] .week { grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr)); gap:1rem; }
-.cc-app[data-atlas-app="the-chef"] .day { padding:1rem; border-radius:18px; }
+.cc-app[data-atlas-app="the-chef"] .day { padding:1rem; border-radius:24px; }
 .cc-app[data-atlas-app="the-chef"] .slot { grid-template-columns:minmax(0,1fr) 44px; gap:.3rem .5rem; margin:.85rem 0; }
 .cc-app[data-atlas-app="the-chef"] .slot .lab { grid-column:1/-1; font-size:.75rem; }
 .cc-app[data-atlas-app="the-chef"] .grocery label { align-items:center; font-size:.95rem; }
@@ -97,7 +97,7 @@
   .cc-app .level .lvrange { white-space:normal; max-width:5rem; }
 }
 @media(prefers-reduced-motion:reduce) { .cc-app * { scroll-behavior:auto!important; animation:none!important; transition:none!important; } .cc-app button:active { transform:none!important; } }
-@media(prefers-reduced-transparency:reduce) { .cc-app dialog::backdrop { backdrop-filter:none!important; background:#101722dd!important; } }
+@media(prefers-reduced-transparency:reduce) { .cc-app dialog::backdrop { backdrop-filter:none!important; background:var(--neo-surface)!important; } }
 @media(prefers-contrast:more) { .cc-app :is(.panel,.card,.stat,.day,button,input,select,textarea,summary) { border:1px solid currentColor!important; box-shadow:none!important; } }
 
 /* Keep added history, planning, and cooking controls in the same material system. */
@@ -118,7 +118,7 @@
 .cc-app .cc-recipe-options .actions { display:grid; gap:1rem; padding-block:.5rem; }
 .cc-app .cc-cook-open { margin-top:auto; width:100%; }
 .cc-app .cc-slot-tools { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; }
-.cc-app .cc-undo { position:fixed; bottom:calc(var(--cc-bottom) + 1rem); left:50%; transform:translateX(-50%); width:min(36rem,calc(100% - 2rem)); z-index:40; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.75rem 1rem; border:1px solid var(--neo-line); border-radius:18px; background:var(--neo-surface); box-shadow:var(--neo-float); }
+.cc-app .cc-undo { position:fixed; bottom:calc(var(--cc-bottom) + 1rem); left:50%; transform:translateX(-50%); width:min(36rem,calc(100% - 2rem)); z-index:40; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.75rem 1rem; border:1px solid var(--neo-line); border-radius:24px; background:var(--neo-surface); box-shadow:var(--neo-float); }
 .cc-app .cc-undo[hidden] { display:none; }
 .cc-app:has(.cc-undo:not([hidden])) main.wrap { padding-bottom:calc(var(--cc-bottom) + 9rem); }
 .cc-app #cook-dialog { width:min(48rem,calc(100% - 1.5rem)); max-height:calc(100dvh - var(--cc-top) - var(--cc-bottom) - 2rem); overflow:auto; padding:clamp(1rem,3vw,2rem); }
@@ -135,49 +135,49 @@
 
 /* Chef sports-menu presentation; Crucible retains its existing appearance. */
 html.atlas-neumo[data-atlas-app="the-chef"] {
-  --chef-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --chef-display:var(--neo-font),"Arial Narrow",Impact,sans-serif;
   --neo-radius:6px;--neo-raised:0 8px 24px #0002,inset 0 1px 0 #ffffff12;
   --neo-small:inset 0 1px 0 #ffffff12;--neo-pressed:inset 0 2px 6px #0003;--neo-well:inset 0 2px 5px #0002;
   --chef-top:#f6f9fd;--chef-bottom:#dce5f0;--chef-gold:#bd8613;
 }
 html.atlas-neumo[data-atlas-app="the-chef"][data-atlas-theme="dark"] {
-  --neo-canvas:#09121f;--neo-surface:#142237;--neo-inset:#0b1626;--neo-ink:#f0f5ff;
+  --neo-canvas:#09121f;--neo-surface:#142237;--neo-inset:var(--neo-surface);--neo-ink:#f0f5ff;
   --neo-muted:#a7bad2;--neo-faint:#9cafc8;--neo-line:#334a66;--neo-accent:#ffcf58;
   --neo-blue:#60c8ff;--neo-green:#59e4ac;--neo-rose:#ff87a7;--neo-violet:#be9cff;--neo-orange:#ffab70;
   --chef-top:#1b2e48;--chef-bottom:#101e31;--chef-gold:#ffcf58;
 }
-html.atlas-neumo[data-atlas-app="the-chef"] body {background:linear-gradient(125deg,transparent 25%,#4576ad0b 25%,#4576ad0b 43%,transparent 43%),var(--neo-canvas)!important;}
-html.atlas-neumo[data-atlas-app="the-chef"] body>header {background:#102039!important;border-bottom:2px solid #60c8ff;margin-bottom:24px;}
-html.atlas-neumo[data-atlas-app="the-chef"] header h1 {font:800 clamp(2.5rem,6vw,3.5rem)/1 var(--chef-display)!important;letter-spacing:.02em;text-transform:uppercase;color:#f0f5ff;}
-html.atlas-neumo[data-atlas-app="the-chef"] header :is(.cc-home,button) {background:#1c344f!important;color:#edf6ff!important;border:1px solid #426184!important;}
-html.atlas-neumo[data-atlas-app="the-chef"] header .cc-help :is(summary,p) {color:#b4c7df;}
-html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,#cook-dialog) {border:1px solid var(--neo-line)!important;border-radius:6px!important;background:linear-gradient(145deg,var(--chef-top),var(--chef-bottom))!important;box-shadow:var(--neo-raised);}
+html.atlas-neumo[data-atlas-app="the-chef"] body {background:var(--neo-surface)!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] body>header {background:var(--neo-surface)!important;border-bottom:2px solid var(--neo-line);margin-bottom:24px;}
+html.atlas-neumo[data-atlas-app="the-chef"] header h1 {font:800 clamp(2.5rem,6vw,3.5rem)/1 var(--chef-display)!important;letter-spacing:.02em;text-transform:none;color:var(--neo-ink);}
+html.atlas-neumo[data-atlas-app="the-chef"] header :is(.cc-home,button) {background:var(--neo-surface)!important;color:var(--neo-ink)!important;border:1px solid var(--neo-line)!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] header .cc-help :is(summary,p) {color:var(--neo-ink);}
+html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,#cook-dialog) {border:1px solid var(--neo-line)!important;border-radius:24px!important;background:var(--neo-surface)!important;box-shadow:var(--neo-raised);}
 html.atlas-neumo[data-atlas-app="the-chef"] .card {border-top:3px solid var(--neo-blue)!important;}
 html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel>h2,.card h3,.day h3,#cook-title) {font-family:var(--chef-display)!important;font-weight:700;letter-spacing:.015em;}
-html.atlas-neumo[data-atlas-app="the-chef"] .panel>h2 {font-size:1.5rem;text-transform:uppercase;}
+html.atlas-neumo[data-atlas-app="the-chef"] .panel>h2 {font-size:1.5rem;text-transform:none;}
 html.atlas-neumo[data-atlas-app="the-chef"] .card h3 {font-size:1.625rem;line-height:1.15;}
-html.atlas-neumo[data-atlas-app="the-chef"] .day h3 {font-size:1.25rem;text-transform:uppercase;}
-html.atlas-neumo[data-atlas-app="the-chef"] :is(button,select,input:not([type="checkbox"]),.cc-home,.chip,.badge,.tag,details.cat) {border-radius:4px!important;}
+html.atlas-neumo[data-atlas-app="the-chef"] .day h3 {font-size:1.25rem;text-transform:none;}
+html.atlas-neumo[data-atlas-app="the-chef"] :is(button,select,input:not([type="checkbox"]),.cc-home,.chip,.badge,.tag,details.cat) {border-radius:24px!important;}
 html.atlas-neumo[data-atlas-app="the-chef"] :is(button,select,input) {border-color:var(--neo-line)!important;}
-html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs {background:var(--neo-inset)!important;border:1px solid var(--neo-line);border-radius:4px;}
-html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs button {font-family:var(--chef-display)!important;font-size:1.125rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs {background:var(--neo-inset)!important;border:1px solid var(--neo-line);border-radius:24px;}
+html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs button {font-family:var(--chef-display)!important;font-size:1.125rem;font-weight:700;letter-spacing:.04em;text-transform:none;box-shadow:none;}
 html.atlas-neumo[data-atlas-app="the-chef"] nav.tabs button.on {border-bottom:3px solid var(--neo-blue)!important;color:var(--neo-blue)!important;}
-html.atlas-neumo[data-atlas-app="the-chef"] .primary {background:#ffcf58!important;color:#102039!important;border-color:#ffcf58!important;font-weight:700;}
+html.atlas-neumo[data-atlas-app="the-chef"] .primary {background:var(--neo-surface)!important;color:var(--neo-ink)!important;border-color:var(--neo-line)!important;font-weight:700;}
 html.atlas-neumo[data-atlas-app="the-chef"] .meta {display:flex;flex-wrap:wrap;gap:8px;}
-html.atlas-neumo[data-atlas-app="the-chef"] .meta>span {flex:1;min-width:75px;background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:3px;padding:8px;font-size:.8125rem;}
+html.atlas-neumo[data-atlas-app="the-chef"] .meta>span {flex:1;min-width:75px;background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:24px;padding:8px;font-size:.8125rem;}
 html.atlas-neumo[data-atlas-app="the-chef"] .meta b {font:800 1.75rem/1 var(--chef-display);color:var(--neo-blue);font-variant-numeric:tabular-nums;}
 html.atlas-neumo[data-atlas-app="the-chef"] .meta>span:nth-child(3) b {color:var(--neo-green);}
-html.atlas-neumo[data-atlas-app="the-chef"] .badge {font-family:var(--chef-display);font-size:.875rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+html.atlas-neumo[data-atlas-app="the-chef"] .badge {font-family:var(--chef-display);font-size:.875rem;font-weight:700;letter-spacing:.05em;text-transform:none;}
 html.atlas-neumo[data-atlas-app="the-chef"] .cc-recipe-options {border-top:1px solid var(--neo-line);}
 html.atlas-neumo[data-atlas-app="the-chef"] .cc-delete-recipe {margin-top:14px;min-height:44px;color:var(--neo-rose)!important;border-color:var(--neo-rose)!important;background:transparent!important;box-shadow:none;}
-html.atlas-neumo[data-atlas-app="the-chef"] .chef-plan-progress {padding:14px;background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:4px;margin:14px 0 20px;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-plan-progress {padding:14px;background:var(--neo-inset);border:1px solid var(--neo-line);border-radius:24px;margin:14px 0 20px;}
 html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label {display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
 html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label strong {font:800 2.75rem/1 var(--chef-display);color:var(--chef-gold);font-variant-numeric:tabular-nums;}
 html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label small {font-size:1.25rem;color:var(--neo-muted);}
 html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-label>span {font-size:.875rem;color:var(--neo-muted);}
-html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track {height:12px;position:relative;border:1px solid var(--neo-line);background:var(--neo-inset);border-radius:2px;overflow:hidden;}
-html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track>span {display:block;height:100%;background:linear-gradient(90deg,#bd8613,var(--chef-gold));box-shadow:inset 0 1px 0 #fff6;}
-html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track::after {content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100% / 28 - 2px),var(--neo-inset) calc(100% / 28 - 2px),var(--neo-inset) calc(100% / 28));}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track {height:12px;position:relative;border:1px solid var(--neo-line);background:var(--neo-inset);border-radius:24px;overflow:hidden;}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track>span {display:block;height:100%;background:var(--neo-surface);box-shadow:var(--neo-raised);}
+html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track::after {content:"";position:absolute;inset:0;pointer-events:none;background:var(--neo-surface);}
 html.atlas-neumo[data-atlas-app="the-chef"] .grocery label.done {color:var(--neo-green);}
 html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:checked) {color:var(--neo-green);}
 @media(prefers-reduced-transparency:reduce),(prefers-contrast:more){html.atlas-neumo[data-atlas-app="the-chef"] :is(.panel,.card,.day,#cook-dialog){background:var(--neo-surface)!important;backdrop-filter:none;}}
@@ -185,11 +185,11 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-chef"] .chef-progress-track>span{background:Highlight!important;forced-color-adjust:none;}}
 
 /* Focused daily workflow additions. */
-.growth-dialog{max-width:520px;width:calc(100% - 32px);color:var(--text);background:var(--panel,#202936);border:1px solid var(--line,#596477);border-radius:16px;padding:24px}.growth-dialog::backdrop{background:#0009}.growth-dialog form,.growth-dialog label{display:grid;gap:10px}.growth-dialog input,.growth-dialog select,.growth-dialog textarea{font:inherit;font-size:16px;min-height:44px}.growth-dialog button{margin-top:8px}
+.growth-dialog{max-width:520px;width:calc(100% - 32px);color:var(--text);background:var(--neo-surface);border:1px solid var(--line,var(--neo-line));border-radius:24px;padding:24px}.growth-dialog::backdrop{background:var(--neo-surface)}.growth-dialog form,.growth-dialog label{display:grid;gap:10px}.growth-dialog input,.growth-dialog select,.growth-dialog textarea{font:inherit;font-size:16px;min-height:44px}.growth-dialog button{margin-top:8px}
 
 /* Chef weekly planning: one task per view, with searchable recipe selection. */
-.cc-app[data-atlas-app="the-chef"] .chef-week-nav { display:flex; gap:.35rem; padding:.4rem; margin-bottom:1.25rem; border:1px solid var(--neo-line); border-radius:18px; background:var(--neo-inset); }
-.cc-app[data-atlas-app="the-chef"] .chef-week-nav button { flex:1; min-width:0; font-size:.95rem; padding:.6rem .35rem; border-radius:13px; }
+.cc-app[data-atlas-app="the-chef"] .chef-week-nav { display:flex; gap:.35rem; padding:.4rem; margin-bottom:1.25rem; border:1px solid var(--neo-line); border-radius:24px; background:var(--neo-inset); }
+.cc-app[data-atlas-app="the-chef"] .chef-week-nav button { flex:1; min-width:0; font-size:.95rem; padding:.6rem .35rem; border-radius:24px; }
 .cc-app[data-atlas-app="the-chef"] .chef-week-nav button[aria-pressed="true"] { color:var(--neo-accent)!important; border-color:var(--neo-accent)!important; box-shadow:var(--neo-small); }
 .cc-app[data-atlas-app="the-chef"] :is(#week-view,#groceries-view,#recipes-view)[hidden] { display:none!important; }
 .cc-app[data-atlas-app="the-chef"] .chef-slot-pick { width:100%; text-align:left; white-space:normal; overflow-wrap:anywhere; padding:.7rem; line-height:1.45; font-size:1rem; }
@@ -198,7 +198,7 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 .cc-app[data-atlas-app="the-chef"] .cc-slot-tools label { flex-wrap:wrap; }
 .cc-app[data-atlas-app="the-chef"] .cc-slot-tools input { width:4.5rem; }
 .cc-app[data-atlas-app="the-chef"] .grocery { columns:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; align-items:start; }
-.cc-app[data-atlas-app="the-chef"] .chef-grocery-group { min-width:0; padding:1rem; border:1px solid var(--neo-line); border-radius:16px; }
+.cc-app[data-atlas-app="the-chef"] .chef-grocery-group { min-width:0; padding:1rem; border:1px solid var(--neo-line); border-radius:24px; }
 .cc-app[data-atlas-app="the-chef"] .chef-grocery-group h3 { margin:0 0 .75rem; font-size:1rem; }
 .cc-app[data-atlas-app="the-chef"] .grocery label { padding:.6rem 0; align-items:flex-start; }
 .cc-app[data-atlas-app="the-chef"] .chef-grocery-item { display:grid; gap:.25rem; min-width:0; overflow-wrap:anywhere; font-size:1rem; line-height:1.5; }
@@ -243,7 +243,7 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 .cc-app[data-atlas-app="the-chef"] .chef-prep-fields :is(input,select) { width:100%; min-width:0; max-width:none; min-height:48px; font-size:1rem; }
 .cc-app[data-atlas-app="the-chef"] .chef-plan-add { margin-block:1rem; }
 .cc-app[data-atlas-app="the-chef"] .chef-card-plan { width:100%; margin-block:.5rem; }
-.cc-app[data-atlas-app="the-chef"] .chef-portion-settings { margin-block:1rem; padding:1rem; border:1px solid var(--neo-line); border-radius:14px; }
+.cc-app[data-atlas-app="the-chef"] .chef-portion-settings { margin-block:1rem; padding:1rem; border:1px solid var(--neo-line); border-radius:24px; }
 .cc-app[data-atlas-app="the-chef"] .chef-portion-settings>summary { min-height:44px; display:flex; align-items:center; cursor:pointer; font-weight:600; }
 .cc-app[data-atlas-app="the-chef"] .chef-portion-settings>summary::after { content:'+'; margin-left:auto; }
 .cc-app[data-atlas-app="the-chef"] .chef-portion-settings[open]>summary::after { content:'−'; }
@@ -256,3 +256,6 @@ html.atlas-neumo[data-atlas-app="the-chef"] .cc-cook-checks label:has(input:chec
 .cc-app[data-atlas-app="the-chef"] :is(#cook-edit-prep,#prep-remove)[hidden] { display:none!important; }
 .cc-app[data-atlas-app="the-chef"] .chef-week-nav button { white-space:normal; overflow-wrap:anywhere; }
 @media(max-width:420px) { .cc-app[data-atlas-app="the-chef"] .chef-prep-fields { grid-template-columns:minmax(0,1fr); } }
+
+/* Approved suite material; native layout and controls remain intact. */
+html.atlas-neumo[data-atlas-app] :is(h1,h2,h3,.appbar-title,.statbig,.hg-title,.brand-title){font-family:var(--neo-font)!important;letter-spacing:-.025em;text-transform:none!important}
