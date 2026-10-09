@@ -6,7 +6,7 @@ import {createServer} from 'node:http';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const {chromium}=createRequire(import.meta.url)('playwright');
-const root=fileURLToPath(new URL('../../',import.meta.url)),out=process.env.ATLAS_SCREENSHOTS||'/tmp/atlas-experience';mkdirSync(out,{recursive:true});
+const root=path.resolve(fileURLToPath(new URL('../../',import.meta.url))),out=process.env.ATLAS_SCREENSHOTS||'/tmp/atlas-experience';mkdirSync(out,{recursive:true});
 const types={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.json':'application/json','.ttf':'font/ttf','.png':'image/png','.webmanifest':'application/manifest+json'};
 const server=createServer((req,res)=>{try{const f=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]));if(!f.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(f)]||'text/plain');res.end(readFileSync(f));}catch{res.writeHead(404);res.end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin='http://127.0.0.1:'+server.address().port,browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']}),reports=[];

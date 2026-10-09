@@ -10,7 +10,7 @@
   function decorate(){
     document.querySelectorAll('.workflow-empty,.empty,.empty-state,.quiet-message').forEach(n=>{if(!n.querySelector('.atlas-mark'))n.insertAdjacentHTML('afterbegin',mark);});
     const app=document.documentElement.dataset.atlasApp;
-    const selector={'life-ledger':'#ledger-log','workout-forge':'.fg-detail-title,.fg-home','courier':'#player','atlas-os':'.today-work','the-library':'.focus-card','communication-trainer':'.atlas-goal-question'}[app];
+    const selector={'life-ledger':'.ledger-save-row','workout-forge':'.fg-detail-title,.fg-card','courier':'#player','atlas-os':'.today-work','the-library':'.focus-card','communication-trainer':'.atlas-goal-question'}[app];
     if(selector){const panels=[...document.querySelectorAll(selector)].filter(n=>n.getClientRects().length);document.querySelectorAll('.atlas-signature').forEach(n=>{if(n!==panels[0])n.classList.remove('atlas-signature');});panels[0]?.classList.add('atlas-signature');}
   }
   function ready(){decorate();let pending=false;new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;decorate();});}).observe(document.body,{childList:true,subtree:true});}
