@@ -1,0 +1,20 @@
+name: Remove public prospecting history
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/privacy-history.yml']
+permissions:
+  contents: write
+concurrency:
+  group: privacy-history
+  cancel-in-progress: false
+jobs:
+  sanitize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Preserve safe current pages and rewrite affected paths
+        run: bash scripts/sanitize-prospecting-history.sh

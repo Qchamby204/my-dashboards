@@ -75,10 +75,24 @@
       }
       for(const uid of Object.keys(out.merges||{})){const seen=new Set([uid]);let next=out.merges[uid];while(next){if(seen.has(next))throw Error('Duplicate links contain a cycle.');seen.add(next);next=out.merges[next];}}
       if(own(input,'linkedin'))out.linkedin=validateLinkedIn(input.linkedin);
+      if(own(input,'privateContacts'))out.privateContacts=validatePrivateContacts({app:'atlas-private-contacts',version:1,contacts:input.privateContacts}).contacts;
       return out;
     }
 
 function conversationValue(v){if(!plain(v)||!['reply','later','resolved'].includes(v.status)||typeof v.seenThrough!=='string'||!Number.isFinite(Date.parse(v.seenThrough))||v.status==='later'&&!day(v.date))throw Error('Invalid conversation review.');return {status:v.status,seenThrough:v.seenThrough,date:v.status==='later'?v.date:''};}
+export function validatePrivateContacts(input){
+  if(!plain(input)||input.app!=='atlas-private-contacts'||input.version!==1||!Array.isArray(input.contacts)||input.contacts.length>20000||Object.keys(input).some(k=>!['app','version','contacts'].includes(k)))throw Error('Choose an Atlas private contact import.');
+  const ids=new Set(),strings=['uid','name','first','title','co','url','email','src','intel','news','msg','lastmsg','senti','sentiRaw','lastDate','base'],numbers=['tier','score','mq','warmId'],booleans=['theirs','peer','pitched'];
+  const contacts=input.contacts.map(c=>{
+    if(!plain(c)||!/^([cw]\d+(?:-[a-f0-9]{12})?|li-[a-f0-9]{24})$/.test(c.uid)||ids.has(c.uid)||Object.keys(c).some(k=>![...strings,...numbers,...booleans].includes(k)))throw Error('Invalid private contact identity.');ids.add(c.uid);
+    const out={};for(const k of strings){if(typeof c[k]!=='string'||c[k].length>100000)throw Error('Invalid private contact details.');out[k]=c[k];}
+    if(!stages.includes(c.base)||!['cold','warm'].includes(c.src)||!['mid','pos','neg'].includes(c.senti))throw Error('Invalid private contact status.');
+    if(c.url){let u;try{u=new URL(c.url);}catch{throw Error('Invalid contact link.');}if(!['http:','https:'].includes(u.protocol)||u.username||u.password||!/(^|\.)linkedin\.com$/.test(u.hostname))throw Error('Invalid contact link.');}
+    for(const k of numbers)if(own(c,k)){if(c[k]!==null&&(!Number.isFinite(c[k])||c[k]<0))throw Error('Invalid private contact value.');out[k]=c[k];}
+    for(const k of booleans)if(own(c,k)){if(typeof c[k]!=='boolean')throw Error('Invalid private contact flag.');out[k]=c[k];}
+    return out;
+  });return {app:input.app,version:1,contacts};
+}
 export {profileURL,validateLinkedIn,validateState,mergeLinkedIn};
 export const emptyState=()=>validateState({stage:{},note:{},fu:{},aum:{},log:[]});
 
@@ -109,6 +123,7 @@ export function mergeProgress(current,incoming,{baseline=null,choices={}}={}){
   }
   const logs=new Map(current.log.map(a=>[JSON.stringify(a),a]));if(baseline){const incomingLogs=new Set(incoming.log.map(a=>JSON.stringify(a)));for(const a of baseline.log)if(!incomingLogs.has(JSON.stringify(a)))logs.delete(JSON.stringify(a));}for(const a of incoming.log)logs.set(JSON.stringify(a),a);next.log=[...logs.values()].sort((a,b)=>a.ts-b.ts);
   if(incoming.linkedin){const a=current.linkedin,b=incoming.linkedin;next.linkedin=a&&a.exportedOn>b.exportedOn?mergeLinkedIn(b,a):mergeLinkedIn(a,b);}
+  if(incoming.privateContacts)next.privateContacts=[...new Map([...(current.privateContacts||[]),...incoming.privateContacts].map(c=>[c.uid,c])).values()];
   return {next:validateState(next),conflicts};
 }
 export function mergeDuplicates(state,contacts,primary,choices={}){
@@ -129,4 +144,4 @@ export function undoDuplicateMerge(state,primary){
   for(const key of Object.keys(undo.before)){next[key]??={};for(const uid of undo.members)if(same(next[key][uid],undo.after[key]?.[uid])){if(own(undo.before[key],uid))next[key][uid]=undo.before[key][uid];else delete next[key][uid];}}
   delete next.mergeUndo[primary];return validateState(next);
 }
-if(typeof window!=='undefined')window.ProspectingRecords={profileURL,validateLinkedIn,validateState,mergeLinkedIn,emptyState,primaryID,conversationDue,duplicateGroups,mergeProgress,mergeDuplicates,undoDuplicateMerge};
+if(typeof window!=='undefined')window.ProspectingRecords={profileURL,validateLinkedIn,validatePrivateContacts,validateState,mergeLinkedIn,emptyState,primaryID,conversationDue,duplicateGroups,mergeProgress,mergeDuplicates,undoDuplicateMerge};

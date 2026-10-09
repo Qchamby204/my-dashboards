@@ -10,12 +10,12 @@
     const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k),plain=o=>o!==null&&typeof o==='object'&&!Array.isArray(o);
     const day=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v+'T12:00:00Z'))&&new Date(v+'T12:00:00Z').toISOString().slice(0,10)===v;
     const safeKey=k=>typeof k==='string'&&/^[\w-]{1,100}$/.test(k)&&!['__proto__','prototype','constructor'].includes(k);
-    const originalContacts=CONTACTS.map(c=>({...c}));let appliedLinkedIn,appliedMerges,linkedInFilter='';
+    const originalContacts=CONTACTS.map(c=>({...c}));let appliedLinkedIn,appliedMerges,appliedPrivate,linkedInFilter='';
     const cloud=window.ProspectingSync;
     const {profileURL,validateLinkedIn}=window.ProspectingRecords;
     const mergeLinkedIn=input=>window.ProspectingRecords.mergeLinkedIn(S.linkedin,input);
     function overlayContacts(dataset){
-      const contacts=originalContacts.map(c=>({...c})),byURL=new Map(),byID=new Map(contacts.map(c=>[c.uid,c]));
+      const contacts=(S.privateContacts||originalContacts).map(c=>({...c})),byURL=new Map(),byID=new Map(contacts.map(c=>[c.uid,c]));
       for(const c of contacts){const url=profileURL(c.url);if(url){if(!byURL.has(url))byURL.set(url,[]);byURL.get(url).push(c);}}
       for(const item of dataset?.contacts||[]){
         let matches=byURL.get(item.url);
@@ -34,10 +34,10 @@
       }return contacts;
     }
     function applyLinkedIn(){
-      if(appliedLinkedIn===S.linkedin&&appliedMerges===S.merges)return;
+      if(appliedLinkedIn===S.linkedin&&appliedMerges===S.merges&&appliedPrivate===S.privateContacts)return;
       const contacts=overlayContacts(S.linkedin),current=new Map(CONTACTS.map(c=>[c.uid,c]));for(const c of contacts){if(own(current.get(c.uid)||{},'pitched'))c.pitched=current.get(c.uid).pitched;}CONTACTS.splice(0,CONTACTS.length,...contacts.filter(c=>window.ProspectingRecords.primaryID(S,c.uid)===c.uid));
       for(const k of Object.keys(BYUID))delete BYUID[k];for(const k of Object.keys(URLIX))delete URLIX[k];
-      for(const c of contacts)BYUID[c.uid]=c;for(const c of CONTACTS)if(c.url)URLIX[normUrl(c.url)]=c.uid;appliedLinkedIn=S.linkedin;appliedMerges=S.merges;
+      for(const c of contacts)BYUID[c.uid]=c;for(const c of CONTACTS)if(c.url)URLIX[normUrl(c.url)]=c.uid;appliedLinkedIn=S.linkedin;appliedMerges=S.merges;appliedPrivate=S.privateContacts;
     }
     let logIndex,logRef,logLength,logTail,logMerges;
     function messageActivity(c){
@@ -96,6 +96,24 @@
     const restoreDialog=make('dialog');restoreDialog.id='prospecting-restore';restoreDialog.setAttribute('aria-label','Restore prospecting backup');document.body.appendChild(restoreDialog);
     const linkedInDialog=make('dialog');linkedInDialog.id='prospecting-linkedin-import';linkedInDialog.setAttribute('aria-label','Update LinkedIn contacts');document.body.appendChild(linkedInDialog);
     const linkedInInput=make('input');linkedInInput.type='file';linkedInInput.accept='.json,application/json';linkedInInput.hidden=true;linkedInInput.addEventListener('change',()=>importLinkedIn(linkedInInput));document.body.appendChild(linkedInInput);
+    const privateInput=make('input');privateInput.type='file';privateInput.accept='.json,application/json';privateInput.hidden=true;document.body.appendChild(privateInput);
+    function choosePrivateContacts(){if(unreadable||readBlocked||unsaved){toast('Save or recover your progress first.');return;}privateInput.click();}
+    privateInput.addEventListener('change',async()=>{
+      const file=privateInput.files?.[0];privateInput.value='';if(!file)return;
+      try{
+        if(file.size>10*1024*1024)throw Error('Choose a private import smaller than 10 MB.');
+        const pack=window.ProspectingRecords.validatePrivateContacts(JSON.parse(await file.text()));
+        const expected=cloud?JSON.stringify(S):localStorage.getItem(KEY),next={...S,privateContacts:[...new Map([...(S.privateContacts||[]),...pack.contacts].map(c=>[c.uid,c])).values()]};validateState(next);
+        linkedInDialog.replaceChildren(make('h2','Import your private contacts'),make('p',pack.contacts.length.toLocaleString()+' contacts. Your saved notes, stages and follow-up dates stay attached to their existing identifiers.'),button('Cancel',()=>linkedInDialog.close()));
+        const issue=make('p');issue.setAttribute('role','alert');linkedInDialog.appendChild(issue);
+        linkedInDialog.appendChild(button('Import contacts',async()=>{
+          try{if(unreadable||readBlocked||unsaved)throw Error('Recover your progress first.');if((cloud?JSON.stringify(S):localStorage.getItem(KEY))!==expected)throw Error('Progress changed. Reload and review this import again.');
+            const raw=JSON.stringify(next);if(cloud)await cloud.commit(next);else{localStorage.setItem(KEY,raw);if(localStorage.getItem(KEY)!==raw)throw Error('Saving could not be confirmed. Reload before retrying.');}
+            S=next;tab='base';page=0;render();linkedInDialog.close();toast('Private contacts imported.');
+          }catch(e){issue.textContent=e.message;}
+        }));if(!linkedInDialog.open)linkedInDialog.showModal();
+      }catch(e){toast(e.message||'This private import could not be read.');}
+    });
     let importToken=0,importBusy=false;linkedInDialog.addEventListener('cancel',e=>{if(importBusy)e.preventDefault();});
     function chooseLinkedIn(){if(unreadable||readBlocked||unsaved){toast('Save or recover your current progress before updating LinkedIn.');return;}linkedInInput.click();}
     async function importLinkedIn(input){
@@ -156,7 +174,7 @@
       const count=(page+1)*100,shown=list.slice(0,count);return '<div class="card">'+(shown.length?shown.map(c=>rowHTML(c,true)).join(''):'<p>No matching contacts. Try another word or clear the filters.</p>')+'</div>'+(list.length>count?'<button class="btn ghost" onclick="page++;ProspectingImprovements.refreshResults()">Show 100 more ('+(list.length-count)+' left)</button>':'');
     }
     pageBase=function(){
-      const list=databaseMatches();return '<div class="prospecting-import-strip"><button class="btn ghost" onclick="ProspectingImprovements.chooseLinkedIn()">Update LinkedIn</button><span>'+(S.linkedin?'LinkedIn export · '+esc(S.linkedin.exportedOn):'')+'</span></div><div class="card prospecting-filters"><label>Find a prospect<input type="search" id="dbq" placeholder="Name, company, email, or note" value="'+esc(q)+'" oninput="dbSearch(this.value)"></label><label>Stage<select onchange="dbStage=this.value;page=0;ProspectingImprovements.refreshResults()"><option value="">All stages</option>'+stages.map(v=>'<option value="'+v+'"'+(dbStage===v?' selected':'')+'>'+v+'</option>').join('')+'</select></label><label>Source<select onchange="dbSrc=this.value;page=0;ProspectingImprovements.refreshResults()"><option value="">Warm + cold</option><option value="warm"'+(dbSrc==='warm'?' selected':'')+'>Warm only</option><option value="cold"'+(dbSrc==='cold'?' selected':'')+'>Cold only</option></select></label><label>LinkedIn activity<select onchange="ProspectingImprovements.filterLinkedIn(this.value)">'+[['','All contacts'],['imported','In LinkedIn export'],['new','Added from LinkedIn'],['received','Last message received'],['sent','Last message sent'],['none','No recorded messages']].map(([v,t])=>'<option value="'+v+'"'+(linkedInFilter===v?' selected':'')+'>'+t+'</option>').join('')+'</select></label><button class="btn ghost" onclick="ProspectingImprovements.clearFilters()">Clear filters</button><span id="prospecting-result-count" role="status" aria-live="polite">'+list.length+' contacts</span></div><div id="prospecting-results">'+resultsHTML(list)+'</div>';
+      const list=databaseMatches();return '<div class="prospecting-import-strip"><button class="btn ghost" onclick="ProspectingImprovements.chooseLinkedIn()">Update LinkedIn</button><button class="btn ghost" onclick="ProspectingImprovements.choosePrivateContacts()">Import private contacts</button><span>'+(S.linkedin?'LinkedIn export · '+esc(S.linkedin.exportedOn):'')+'</span></div><div class="card prospecting-filters"><label>Find a prospect<input type="search" id="dbq" placeholder="Name, company, email, or note" value="'+esc(q)+'" oninput="dbSearch(this.value)"></label><label>Stage<select onchange="dbStage=this.value;page=0;ProspectingImprovements.refreshResults()"><option value="">All stages</option>'+stages.map(v=>'<option value="'+v+'"'+(dbStage===v?' selected':'')+'>'+v+'</option>').join('')+'</select></label><label>Source<select onchange="dbSrc=this.value;page=0;ProspectingImprovements.refreshResults()"><option value="">Warm + cold</option><option value="warm"'+(dbSrc==='warm'?' selected':'')+'>Warm only</option><option value="cold"'+(dbSrc==='cold'?' selected':'')+'>Cold only</option></select></label><label>LinkedIn activity<select onchange="ProspectingImprovements.filterLinkedIn(this.value)">'+[['','All contacts'],['imported','In LinkedIn export'],['new','Added from LinkedIn'],['received','Last message received'],['sent','Last message sent'],['none','No recorded messages']].map(([v,t])=>'<option value="'+v+'"'+(linkedInFilter===v?' selected':'')+'>'+t+'</option>').join('')+'</select></label><button class="btn ghost" onclick="ProspectingImprovements.clearFilters()">Clear filters</button><span id="prospecting-result-count" role="status" aria-live="polite">'+list.length+' contacts</span></div><div id="prospecting-results">'+resultsHTML(list)+'</div>';
     };
     function refreshResults(){
       const host=document.getElementById('prospecting-results');if(tab!=='base'||!host)return;const list=databaseMatches();host.innerHTML=resultsHTML(list);document.getElementById('prospecting-result-count').textContent=list.length+' contacts';labelRows(host);
@@ -254,7 +272,7 @@
     variantsFor=c=>c.linkedin&&lastActivity(c)?[{l:'Write for this conversation',t:''},...originalVariants(c).filter(v=>v.l!=='Prepared for them')]:originalVariants(c);
     const originalRender=render;
     render=function(keep){
-      applyLinkedIn();for(const c of CONTACTS)if(c.linkedin&&lastActivity(c))c.theirs=activityKind(c)==='received';originalRender(keep);const main=document.getElementById('main');labelRows(main);
+      applyLinkedIn();for(const c of CONTACTS)if(c.linkedin&&lastActivity(c))c.theirs=activityKind(c)==='received';originalRender(keep);const main=document.getElementById('main');labelRows(main);if(!CONTACTS.length){const empty=make('section',null,'panel atlas-empty');empty.append(make('p','Import your contacts to start a follow-up. Your records stay in this browser.'),button('Import private contacts',choosePrivateContacts));main.prepend(empty);}
       main.querySelectorAll('.qcard').forEach((n,i)=>n.setAttribute('onclick',"ProspectingImprovements.startQueue('"+['due','replies','fresh'][i]+"')"));
       const run=main.querySelector('[onclick="runDay()"]');if(run)run.textContent='Run my day ('+dayQueue().length+' contacts)';
       const plan=main.querySelector('.planstrip');if(plan)plan.textContent='Follow-ups first, then replies, then fresh outreach up to your daily send target.';
@@ -273,7 +291,7 @@
       S=validateState({stage:{},note:{},fu:{},aum:{},log:[]});
     }
     window.ProspectingImprovements=Object.freeze({
-      getState:()=>validateState(S),coverage,messageActivity,replyPending,suggestedFollowup,
+      getState:()=>validateState(S),choosePrivateContacts,coverage,messageActivity,replyPending,suggestedFollowup,
       acceptState(next){S=validateState(next);appliedLinkedIn=undefined;appliedMerges=undefined;lastUndo=null;render(true);},
       draftOpen:()=>!!document.querySelector('dialog[open]')||document.getElementById('runner').classList.contains('active')||document.getElementById('tplOv').style.display==='grid'||!!document.activeElement?.closest('input,textarea,select'),
       async applyState(next){next=validateState(next);if(unreadable||readBlocked)throw Error('Recover saved progress first.');if(cloud)await cloud.commit(next);else{const old=localStorage.getItem(KEY);if(old!==null&&JSON.stringify(validateState(JSON.parse(old)))!==JSON.stringify(validateState(S)))throw Error('Progress changed in another tab. Reload before applying this review.');const raw=JSON.stringify(next);localStorage.setItem(KEY,raw);if(localStorage.getItem(KEY)!==raw)throw Error('The save could not be confirmed.');}S=next;appliedLinkedIn=undefined;appliedMerges=undefined;lastUndo=null;unsaved=false;render(true);},
