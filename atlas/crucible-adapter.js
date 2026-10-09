@@ -40,7 +40,7 @@ function goalView(){
  return prompt+viewToday();
 }
 function chooseGoal(goal){if(!['evaluate','statements','process'].includes(goal)||recordProblem||pending)return false;readRecords();if(recordProblem||state.goal)return false;const next=copy(state);next.goal=goal;if(!write(next))return false;state=next;return true;}
-if(typeof document!=='undefined')document.addEventListener('click',e=>{const b=e.target.closest('[data-investing-goal]');if(b&&chooseGoal(b.dataset.investingGoal))window.dispatchEvent(new HashChangeEvent('hashchange'));});
+if(typeof document!=='undefined')document.addEventListener('click',e=>{const b=e.target.closest('[data-investing-goal]');if(b&&chooseGoal(b.dataset.investingGoal))location.hash='#investing-'+({evaluate:'blocks',statements:'statements',process:'workflow'}[b.dataset.investingGoal]);});
 window.CrucibleCurriculum=Object.freeze({
   BLOCKS,STATEMENTS,ARSENAL,BENCH,TAPE,LEDGER,
   view:id=>(VIEWS_FOR_COMMUNICATOR[id]||viewBlocks)(),

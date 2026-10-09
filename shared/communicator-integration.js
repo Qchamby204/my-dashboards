@@ -97,13 +97,17 @@
     document.addEventListener('change',event=>{
       if(event.target.id==='communicator-reference'){reference=event.target.value;render();return;}
       if(event.target.id==='communicator-progress-view'){progressView=event.target.value;rerenderKeep();return;}
-      const cb=event.target.closest?.('.communicator-analysis input[data-key]');if(cb){const saved=curriculum.change('checks',cb.dataset.key,cb.checked);rerenderKeep();if(!saved)toast('Investing change not saved','Export your progress or retry saving before closing.');}
+      const cb=event.target.closest?.('.communicator-analysis input[data-key]');if(cb){const saved=curriculum.change('checks',cb.dataset.key,cb.checked);rerenderKeep();if(saved&&cb.checked){const current=[...document.querySelectorAll('.communicator-analysis input[data-key]')].find(n=>n.dataset.key===cb.dataset.key);window.AtlasExperience?.complete(current?.closest('label')||current?.parentElement);}if(!saved)toast('Investing change not saved','Export your progress or retry saving before closing.');}
     });
     document.addEventListener('input',event=>{
       if(event.target.id==='ledger'&&event.target.closest('.communicator-analysis')){const saved=curriculum.change('notes',curriculum.day(),event.target.value);if(!saved)toast('Learning note not saved','Your text is kept in this page. Export or retry before closing.');}
       if(event.target.id==='archive-search'&&event.target.closest('.communicator-analysis')){const result=curriculum.search(event.target.value);document.getElementById('archive-results').innerHTML=result.html;document.getElementById('archive-count').textContent=result.count+' saved days or entries';}
     });
-    function route(){if(location.hash==='#investing'){track='investing';reference='blocks';nav('learn');}}
+    function route(){const match=location.hash.match(/^#investing(?:-([a-z]+))?$/);if(!match)return;
+      const saved=curriculum.snapshot().state,aim={evaluate:'blocks',statements:'statements',process:'workflow'}[saved.goal];
+      const existing=Object.values(saved.checks).some(Boolean)||Object.values(saved.notes).some(v=>v.trim());
+      track='investing';reference=references.some(([id])=>id===match[1])?match[1]:(aim|| (existing?'blocks':'today'));nav('learn');
+    }
     window.addEventListener('hashchange',route);
     window.CommunicatorLearning=Object.freeze({source,begin,open,curriculum});route();render();
   }

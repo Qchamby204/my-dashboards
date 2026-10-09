@@ -68,14 +68,14 @@ html[data-atlas-app="workout-forge"] .forge-record-dialog>.panel{box-sizing:bord
 /* Sports-menu styling, scoped to Forge's existing surfaces and controls. */
 html.atlas-neumo[data-atlas-app="workout-forge"] {
  --forge-display:var(--neo-font),"Arial Narrow",Impact,sans-serif;
- --neo-radius:6px;--neo-raised:0 8px 24px #0002,inset 0 1px 0 #ffffff12;
- --neo-small:inset 0 1px 0 #ffffff12;--neo-pressed:inset 0 2px 6px #0003;--neo-well:inset 0 2px 5px #0002;
+
+
  --forge-top:var(--neo-surface);--forge-bottom:var(--neo-inset);--forge-gold:#bd8613;
 }
 html.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme="dark"] {
- --neo-canvas:#09121f;--neo-surface:#142237;--neo-inset:var(--neo-surface);--neo-ink:#f0f5ff;
- --neo-muted:#a7bad2;--neo-faint:#9cafc8;--neo-line:#334a66;--neo-accent:#ffcf58;
- --neo-blue:#60c8ff;--neo-green:#59e4ac;--neo-rose:#ff87a7;--neo-violet:#be9cff;--neo-orange:#ffab70;
+
+
+
  --forge-top:var(--neo-surface);--forge-bottom:var(--neo-inset);--forge-gold:#ffcf58;
 }
 html.atlas-neumo[data-atlas-app="workout-forge"] body {background:var(--neo-surface)!important;}

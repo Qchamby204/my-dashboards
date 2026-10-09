@@ -34,11 +34,11 @@
 /* Courier sports-menu presentation; all tokens are scoped to this dashboard. */
 html.atlas-neumo[data-atlas-app="courier"] {
   --courier-display:var(--neo-font),"Arial Narrow",Impact,sans-serif;
-  --neo-radius:6px;
-  --neo-raised:0 8px 24px #0002,inset 0 1px 0 #ffffff12;
-  --neo-small:inset 0 1px 0 #ffffff12;
-  --neo-pressed:inset 0 2px 6px #0003;
-  --neo-well:inset 0 2px 5px #0002;
+
+
+
+
+
   --courier-panel-top:#f6f9fd;
   --courier-panel-bottom:#dce5f0;
   --courier-gold:#bd8613;
@@ -46,10 +46,10 @@ html.atlas-neumo[data-atlas-app="courier"] {
   --fainter:var(--neo-line);
 }
 html.atlas-neumo[data-atlas-app="courier"][data-atlas-theme="dark"] {
-  --neo-canvas:#09121f;--neo-surface:#142237;--neo-inset:var(--neo-surface);
-  --neo-ink:#f0f5ff;--neo-muted:#a7bad2;--neo-faint:#9cafc8;--neo-line:#334a66;
-  --neo-accent:#ffcf58;--neo-blue:#60c8ff;--neo-green:#59e4ac;
-  --neo-rose:#ff87a7;--neo-violet:#be9cff;--neo-orange:#ffab70;
+
+
+
+
   --courier-panel-top:#1b2e48;--courier-panel-bottom:#101e31;
   --courier-gold:#ffcf58;--courier-track:#334a66;
 }
