@@ -16,6 +16,39 @@ const enhancement=readFileSync(new URL('../../shared/ledger-enhancements.js',imp
 const S='lifeledger:v2',D='lifeledger:drafts:v1',C='lifeledger:season:v1';
 const file=o=>({size:100,text:async()=>JSON.stringify(o)});
 const decode=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
+
+test('saving from a stale tab preserves another window’s unrelated saved date',async()=>{
+ const base=[{date:'2026-09-05',units:{Read:1}}],h=await boot({records:{[S]:JSON.stringify(base)}});
+ h.storage.set(S,JSON.stringify([...base,{date:'2026-09-06',units:{Read:9}}]));h.run('state.draft.Read=4');await h.api.saveDay();
+ assert.equal(JSON.parse(h.storage.get(S)).length,3);assert.equal(h.run('state.days.find(d=>d.date==="2026-09-06").units.Read'),9);
+});
+test('competing edits to the same day keep remote history and the local draft',async()=>{
+ const h=await boot({records:{[S]:JSON.stringify([{date:'2026-09-07',units:{Read:1}}])}});
+ h.storage.set(S,JSON.stringify([{date:'2026-09-07',units:{Read:9}}]));h.run('state.draft.Read=4');await h.api.saveDay();
+ assert.equal(JSON.parse(h.storage.get(S))[0].units.Read,9);assert.equal(h.run('state.draft.Read'),4);assert.equal(h.node('ledger-notice').hidden,false);assert.match(h.node('ledger-notice').textContent,/Another window/);
+});
+test('hidden habit history retains its Life and value XP',async()=>{
+ const h=await boot({realModel:true,records:{[S]:JSON.stringify([{date:'2026-09-07',units:{Read:250}}])}}),before=h.run('compute(state.days,state.goals)');
+ h.run('userModel.hidden.Read=true;rebuildModel();render()');const after=h.run('compute(state.days,state.goals)');
+ assert.equal(after.life.xp,before.life.xp);assert.equal(after.pillars.find(p=>p.key==='GROWTH').xp,before.pillars.find(p=>p.key==='GROWTH').xp);
+});
+test('the saved List preference survives reopening while new records start in Cards',async()=>{
+ const h=await boot({records:{[D]:JSON.stringify({days:{},selected:'2026-09-07',mode:'list'})}});
+ assert.equal(h.run('state.logMode'),'list');assert.equal((await boot()).run('state.logMode'),'cards');
+});
+test('independent draft dates merge and competing current drafts require review',async()=>{
+ const initial={days:{},selected:'2026-09-07',mode:'cards'},h=await boot({records:{[D]:JSON.stringify(initial)}});
+ h.storage.set(D,JSON.stringify({...initial,days:{'2026-09-06':{units:{Read:9}}}}));h.run('state.draft.Read=4');h.api.remember();
+ assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-06'].units.Read,9);
+ assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].units.Read,4);
+ const remote=JSON.parse(h.storage.get(D));remote.days['2026-09-07'].units.Read=8;h.storage.set(D,JSON.stringify(remote));h.run('state.draft.Read=5');await h.api.saveDay();
+ assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].units.Read,8);assert.equal(h.run('state.draft.Read'),5);assert.equal(h.run('state.days.length'),0);
+});
+test('reset archives the latest history from another window before clearing it',async()=>{
+ const h=await boot({records:{[S]:JSON.stringify([{date:'2026-09-05',units:{Read:1}}])}});
+ h.storage.set(S,JSON.stringify([{date:'2026-09-05',units:{Read:2}},{date:'2026-09-06',units:{Read:3}}]));await h.api.resetProgress();
+ assert.equal(JSON.parse(h.storage.get(S)).length,0);assert.equal(h.api.drafts.archives[0].days.length,2);assert.equal(h.api.drafts.archives[0].days[0].units.Read,2);
+});
 async function boot({records={},blocked=false,width=390,realModel=false,nowISO='2026-09-07T22:49:00-05:00'}={}){
   let now=Date.parse(nowISO),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{
@@ -152,9 +185,9 @@ test('Undo preserves a newer draft for the same date through date changes and re
 });
 test('asynchronous draft saving remains pending until the latest queued write is verified',async()=>{
  const h=await boot();const writes=[];h.window.storage={set:(key,value)=>new Promise(resolve=>writes.push(()=>{h.storage.set(key,value);resolve();})),get:async key=>({value:h.storage.get(key)})};
- h.run("state.draftNote='First'");h.api.remember();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Saving changes/);
- h.run("state.draftNote='Latest'");h.api.remember();writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Saving changes/);
- writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Draft saved/);assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].note,'Latest');
+ h.run("state.draftNote='First'");h.api.remember();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Storing draft/);
+ h.run("state.draftNote='Latest'");h.api.remember();writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Storing draft/);
+ writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Draft stored/);assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].note,'Latest');
 });
 
 // Keep the production catalogue and five-value model for reward regressions.
@@ -216,9 +249,9 @@ test('reward dialogs are named native modals and Escape returns focus to Save Da
  const modal=h.node('app').querySelector('dialog.ledger-reward');assert.equal(modal.open,true);assert.equal(modal.getAttribute('aria-label'),'Season Opens');modal.emit('cancel');
  assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.node('app').querySelector('dialog.ledger-reward'),null);assert.equal(h.document.activeElement.dataset.act,'commit');
 });
-test('a reading milestone earns a life level and retains its achievement',async()=>{
+test('a reading milestone earns a value level and retains its achievement',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=250');await h.api.saveDay();
- assert.equal(h.run('state.levelInfo.title'),'Life · Level 1');assert(h.run('state.achvQueue.some(a=>a.name==="First Book")'));assert.equal(h.node('app').querySelector('dialog.ledger-reward').getAttribute('aria-label'),'Life · Level 1');
+ assert.equal(h.run('state.levelInfo.title'),'Growth · Level 1');assert(h.run('state.achvQueue.some(a=>a.name==="First Book")'));assert.equal(h.node('app').querySelector('dialog.ledger-reward').getAttribute('aria-label'),'Growth · Level 1');
 });
 
 test('async publication of a day waits for verified storage before progress and rewards',async()=>{
@@ -311,7 +344,7 @@ test('malformed screen imports are rejected and corrupt original bytes remain re
 
 test('failed draft writes keep the intervention for retry and recovery backup',async()=>{
  const h=await screenBoot();h.localStorage.blockedKey=D;h.node('screen-slip').click();assert.equal(h.api.failed,1);assert.equal(h.run('state.draftScreen.slips.length'),1);
- assert.match(h.node('ledger-draft-status').textContent,/Not saved/);h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());assert.equal(pack.drafts.days['2026-09-30'].screen.slips.length,1);
+ assert.match(h.node('ledger-draft-status').textContent,/Changes need saving/);h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());assert.equal(pack.drafts.days['2026-09-30'].screen.slips.length,1);
  h.localStorage.blockedKey=null;await h.api.retry();assert.equal(h.api.failed,0);assert.equal(screenDraft(h).slips.length,1);
 });
 
@@ -435,9 +468,9 @@ test('quick scrolling reset resumes a pending slip, remembers its action and pre
 
 test('XP and levels are independent of week modes, goal amounts, focus and calendar gaps',async()=>{
  const rows=[{date:'2025-01-01',units:{Read:250}},{date:'2026-09-08',units:{'Run / Work Out':1}}],h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:{[S]:JSON.stringify(rows)}});
- const xp=h.run('compute(state.days,state.goals).life.xp');assert.equal(xp,1100);assert.equal(h.run('compute(state.days,state.goals).life.level'),1);
+ const xp=h.run('compute(state.days,state.goals).life.xp');assert.equal(xp,1100);assert.equal(h.run('compute(state.days,state.goals).life.level'),0);
  h.run('state.goals.Read=99999');await h.api.saveRhythm({focus:['Screen Discipline'],weeks:{'2026-09-07':'reduced'}});h.at('2027-01-15T12:00:00-06:00');h.run('render()');
- assert.equal(h.run('compute(state.days,state.goals).life.xp'),xp);assert.equal(h.storage.get(S),JSON.stringify(rows));assert.match(h.node('ledger-life-level').textContent,/Life Level 1/);
+ assert.equal(h.run('compute(state.days,state.goals).life.xp'),xp);assert.equal(h.storage.get(S),JSON.stringify(rows));assert.match(h.node('ledger-life-level').textContent,/Life Level 0/);
 });
 test('weekly catch-up earns XP once and future entries do not earn XP yet',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:{[S]:JSON.stringify([{date:'2026-09-08',units:{Read:25}},{date:'2026-09-09',units:{Read:25}}])}});
@@ -446,22 +479,23 @@ test('weekly catch-up earns XP once and future entries do not earn XP yet',async
 });
 test('a failed level-crossing save earns no XP; resaves do not replay the level reward',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('state.draft.Read=250');h.localStorage.blockedKey=S;await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);assert.equal(h.run('state.levelInfo'),null);
- h.localStorage.blockedKey=null;await h.api.saveDay();assert.equal(h.run('state.levelInfo.title'),'Life · Level 1');await h.api.saveDay();assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('compute(state.days,state.goals).life.xp'),1000);
- const again=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:Object.fromEntries(h.storage)});assert.equal(again.run('compute(state.days,state.goals).life.level'),1);assert.equal(again.run('state.levelInfo'),null);
+ h.localStorage.blockedKey=null;await h.api.saveDay();assert.equal(h.run('state.levelInfo.title'),'Growth · Level 1');await h.api.saveDay();assert.equal(h.run('state.levelInfo'),null);assert.equal(h.run('compute(state.days,state.goals).life.xp'),1000);
+ const again=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00',records:Object.fromEntries(h.storage)});assert.equal(again.run('compute(state.days,state.goals).life.level'),0);assert.equal(again.run('state.levelInfo'),null);
 });
 
 
-test('annual calibration reaches habit and value 99 at their rhythms and Life 99 at the default focus rhythm',async()=>{
+test('annual calibration reaches habit and value 99 at their rhythms and Life 99 across the complete normal rhythm',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-10-08T12:00:00-05:00'});
  h.run(`state.days=Array.from({length:364},(_,i)=>({date:window.LedgerRhythm.addDays('2025-01-06',i),units:Object.fromEntries(HABITS.filter(h=>i%7<window.LedgerRhythm.goal(h,HCFG[h],{}).normal).map(h=>[h,window.LedgerRhythm.xpUnit(HCFG[h])]))}));render()`);
  assert.equal(h.run('Object.values(compute(state.days,state.goals).habit).filter(h=>HABITS.includes(h.key)).every(h=>h.level===99)'),true);
  assert.equal(h.run('compute(state.days,state.goals).pillars.every(p=>p.level===99)'),true);
- h.run(`state.days=state.days.map(d=>({...d,units:Object.fromEntries(Object.entries(d.units).filter(([h])=>['Run / Work Out','Read','Screen Discipline'].includes(h)))}));render()`);
  assert.equal(h.run('compute(state.days,state.goals).life.level'),99);
+ h.run(`state.days=state.days.map(d=>({...d,units:Object.fromEntries(Object.entries(d.units).filter(([h])=>['Run / Work Out','Read','Screen Discipline'].includes(h)))}));render()`);
+ assert.equal(h.run('compute(state.days,state.goals).life.level'),22);
  const before=h.run('JSON.stringify(compute(state.days,state.goals).habit.Read)');
  await h.api.saveRhythm({focus:['Board Work'],goals:{Read:{type:'practice',mode:'sessions',normal:1,reduced:1,target:250,baseline:0,due:''}},weeks:{'2026-10-05':'reduced'}});
  assert.equal(h.run('JSON.stringify(compute(state.days,state.goals).habit.Read)'),before);
- assert.equal(h.run('compute(state.days,state.goals).life.level'),99);
+ assert.equal(h.run('compute(state.days,state.goals).life.level'),22);
  const meter=h.node('app').querySelector('.ledger-xp-meter');assert.equal(meter.max,h.run('window.LedgerRhythm.lifeCost'));
 });
 

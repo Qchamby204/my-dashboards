@@ -9,9 +9,10 @@
   const number=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
   const plain=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
   const defaults={'Read':[4,2],'Run / Work Out':[3,1],'Communication Drill':[3,1],'YouTube Strategy':[5,2],'Screen Discipline':[7,7],'Supplements':[7,7],'Sleep':[7,7],'Chambers Wealth':[5,3],'Prep For Next Day':[5,2],'Household Chore':[5,2],'Money Check-In':[5,2],'Board Work':[1,1],'Walk Hud':[5,3]};
-  function goal(h,cfg,prefs){const pair=defaults[h]||[3,1];return {type:'practice',normal:pair[0],reduced:pair[1],mode:'sessions',target:cfg.chunk||1,baseline:0,due:'',...(prefs?.goals?.[h]||{})};}
+  function goal(h,cfg,prefs){const pair=defaults[h]||[3,1];return {type:'practice',normal:pair[0],reduced:pair[1],mode:'sessions',target:cfg.chunk||1,baseline:0,due:'',...(h==='Sleep'?{minimum:cfg.def||7.5}:{}),...(prefs?.goals?.[h]||{})};}
   function focus(habits,prefs){return (prefs?.focus||['Run / Work Out','Read',SCREEN]).filter(h=>h!==REMOVED&&habits.includes(h)).slice(0,3);}
   function value(entry,h,cfg){
+    if(entry?.missed?.includes(h))return 0;
     if(h===SCREEN){const l=entry?.leisure;if((l?.screenMinutes??l?.gamingMinutes??0)>=60)return 0;if(l?.screenConfirmed)return 1;}
     const v=entry?.units?.[h]||0;return cfg?.kind==='count'||binary.has(h)?(v>0?1:0):v;
   }
@@ -19,7 +20,7 @@
     if(!plain(p))throw Error('Invalid weekly settings.');
     if(p.focus!==undefined&&(!Array.isArray(p.focus)||p.focus.length>3||new Set(p.focus).size!==p.focus.length||p.focus.some(h=>typeof h!=='string'||h===REMOVED)))throw Error('Choose up to three focus habits.');
     if(p.goals!==undefined){if(!plain(p.goals))throw Error('Invalid goal settings.');for(const g of Object.values(p.goals)){
-      if(!plain(g)||!['practice','milestone','deadline'].includes(g.type)||!['sessions','amount'].includes(g.mode)||!number(g.normal)||g.normal<=0||!number(g.reduced)||g.reduced<=0||g.reduced>g.normal||!number(g.target)||g.target<=0||!number(g.baseline)||g.due!==''&&!validDate(g.due)||g.type==='deadline'&&!validDate(g.due)||g.mode==='sessions'&&(g.normal>7||g.reduced>7||!Number.isInteger(g.normal)||!Number.isInteger(g.reduced)))throw Error('Use valid targets, a smaller-week target no higher than the normal target, and a date for a deadline.');
+      if(!plain(g)||!['practice','milestone','deadline'].includes(g.type)||!['sessions','amount'].includes(g.mode)||!number(g.normal)||g.normal<=0||!number(g.reduced)||g.reduced<=0||g.reduced>g.normal||!number(g.target)||g.target<=0||!number(g.baseline)||g.minimum!==undefined&&(!number(g.minimum)||g.minimum<=0||g.minimum>24)||g.due!==''&&!validDate(g.due)||g.type==='deadline'&&!validDate(g.due)||g.mode==='sessions'&&(g.normal>7||g.reduced>7||!Number.isInteger(g.normal)||!Number.isInteger(g.reduced)))throw Error('Use valid targets, a smaller-week target no higher than the normal target, and a date for a deadline.');
     }}
     if(p.weeks!==undefined&&(!plain(p.weeks)||Object.entries(p.weeks).some(([date,mode])=>!validDate(date)||weekStart(date)!==date||!['normal','reduced'].includes(mode))))throw Error('Invalid week choice.');
     if(p.catchups!==undefined){if(!plain(p.catchups)||Object.keys(p.catchups).length>520)throw Error('Invalid weekly catch-up.');for(const [date,rows]of Object.entries(p.catchups)){
@@ -31,11 +32,14 @@
   }
   function weekly(rows,h,cfg,prefs,week,today){
     const end=addDays(week,6),cut=end<today?end:today,days=rows.filter(d=>validDate(d.date)&&d.date>=week&&d.date<=cut);
-    const amount=days.reduce((s,d)=>s+value(d,h,cfg),0),sessions=days.filter(d=>value(d,h,cfg)>0).length;
+    const amount=days.reduce((s,d)=>s+value(d,h,cfg),0),minimum=goal(h,cfg,prefs).minimum||0,sessions=days.filter(d=>value(d,h,cfg)>0&&value(d,h,cfg)>=minimum).length;
     const known=days.filter(d=>value(d,h,cfg)>0||d.missed?.includes(h)||h===SCREEN&&d.leisure?.screenConfirmed).length;
-    const report=prefs?.catchups?.[week]?.[h],reportedSessions=Math.max(sessions,report?.sessions||0);
     const span=week>today?0:Math.min(7,Math.round((Date.parse(cut)-Date.parse(week))/86400000)+1);
-    return {week,amount:Math.max(amount,report?.amount||0),sessions:reportedSessions,datedAmount:amount,datedSessions:sessions,unlogged:Math.max(0,span-known),reported:!!report};
+    const report=prefs?.catchups?.[week]?.[h],misses=days.filter(d=>d.missed?.includes(h)||h===SCREEN&&d.leisure?.screenConfirmed&&value(d,h,cfg)===0||minimum>0&&value(d,h,cfg)>0&&value(d,h,cfg)<minimum).length;
+    const conflict=!!report&&report.sessions>span-misses;
+    // A contradictory remembered total must be reviewed, never override dated evidence.
+    const accepted=conflict?null:report,reportedSessions=Math.max(sessions,accepted?.sessions||0);
+    return {week,amount:Math.max(amount,accepted?.amount||0),sessions:reportedSessions,datedAmount:amount,datedSessions:sessions,unlogged:Math.max(0,span-known),misses,span,reported:!!report,conflict};
   }
   function total(rows,h,cfg,prefs,today){
     // Undated legacy entries count toward lasting progress, never a recent week.
@@ -47,7 +51,9 @@
   // XP measures recorded activity, independently of goals, dates and weekly mode.
   function xpUnit(cfg){return cfg.kind==='count'?1:(cfg.def>0?cfg.def:cfg.step>0?cfg.step:1);}
   // Fixed reference rhythms keep level thresholds independent of editable goals.
-  const lifeCost=52*14*100/99;
+  // The complete original catalogue has 62 standard check-ins in a normal week.
+  // This fixed budget stays independent of visibility, focus and editable goals.
+  const lifeCost=52*62*100/99;
   function annualCost(h){return 52*(defaults[h]?.[0]||3)*100/99;}
   function levelProgress(xp,cost=1000){
     xp=Math.max(0,Math.round(xp*100)/100);
@@ -56,5 +62,26 @@
     return {xp,level,exact,into,cost,remaining:cost-into,fraction:into/cost};
   }
   function experience(amount,cfg,h){return levelProgress(amount/xpUnit(cfg)*100,h?annualCost(h):1000);}
-  window.LedgerRhythm=Object.freeze({REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone,xpUnit,annualCost,lifeCost,levelProgress,experience});
+  const stable=v=>v===undefined?'undefined':JSON.stringify(v,(_,x)=>plain(x)?Object.fromEntries(Object.keys(x).filter(k=>k!=='day').sort().map(k=>[k,x[k]])):x);
+  function merge(base,mine,latest,path='record'){
+    if(stable(mine)===stable(base))return latest;
+    if(stable(latest)===stable(base)||stable(mine)===stable(latest))return mine;
+    if(plain(mine)&&plain(latest)&&(plain(base)||base===undefined)){
+      const result={};for(const k of new Set([...Object.keys(base||{}),...Object.keys(mine),...Object.keys(latest)])){const v=merge(base?.[k],mine[k],latest[k],path+'.'+k);if(v!==undefined)result[k]=v;}return result;
+    }
+    if(path.endsWith('.earned')&&Array.isArray(mine)&&Array.isArray(latest)&&(base||[]).every(v=>mine.includes(v)&&latest.includes(v)))return [...new Set([...latest,...mine])];
+    throw Error('Another window changed '+path+'. Your draft is kept here; review the latest record before replacing it.');
+  }
+  function mergeDays(base,mine,latest){
+    const map=rows=>Object.fromEntries(rows.filter(d=>d.date).map(d=>[d.date,d]));
+    const b=map(base),m=map(mine),l=map(latest),dated=[];
+    for(const date of new Set([...Object.keys(b),...Object.keys(m),...Object.keys(l)])){
+      // Daily entries are a single edit: two competing versions require review.
+      const value=stable(m[date])===stable(b[date])?l[date]:stable(l[date])===stable(b[date])||stable(m[date])===stable(l[date])?m[date]:(()=>{throw Error('Another window changed '+date+'. Your draft is kept here; review the latest record before replacing it.');})();
+      if(value)dated.push(value);
+    }
+    const legacy=merge(base.filter(d=>!d.date),mine.filter(d=>!d.date),latest.filter(d=>!d.date),'undated history');
+    return [...legacy,...dated.sort((a,b)=>a.date.localeCompare(b.date))].map((d,i)=>({...d,day:i+1}));
+  }
+  window.LedgerRhythm=Object.freeze({REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone,xpUnit,annualCost,lifeCost,levelProgress,experience,stable,merge,mergeDays});
 })();

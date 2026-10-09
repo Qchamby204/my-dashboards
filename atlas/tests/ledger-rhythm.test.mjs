@@ -36,7 +36,30 @@ test('each habit reaches 99 after 52 reference weeks without depending on editab
   assert.equal(R.experience(target*2,cfg,h).level,198);
   assert.equal(R.experience(target,cfg,h).into,0);
  }
- assert.equal(R.levelProgress(72800,R.lifeCost).level,99);
+ assert.equal(R.levelProgress(52*62*100,R.lifeCost).level,99);
+ assert.equal(R.levelProgress(52*14*100,R.lifeCost).level,22);
  const cost=R.annualCost('Read')+R.annualCost('Screen Discipline');
  assert.equal(R.levelProgress(52*(4+7)*100,cost).level,99);
+});
+
+test('explicit missed Screen Discipline overrides a previously confirmed total',()=>{
+ const row={units:{[R.SCREEN]:1},missed:[R.SCREEN],leisure:{screenMinutes:55,screenConfirmed:true}};
+ assert.equal(R.value(row,R.SCREEN,{kind:'count'}),0);
+ assert.equal(R.total([row],R.SCREEN,{kind:'count'},{},today),0);
+});
+test('catch-up cannot override dated missed days',()=>{
+ const rows=[0,1,2,3].map(n=>({date:R.addDays(week,n),units:{},missed:['Read']})),prefs={catchups:{[week]:{Read:{amount:100,sessions:4}}}};
+ assert.equal(R.weekly(rows,'Read',cfg,prefs,week,today).conflict,true);
+ assert.equal(R.total(rows,'Read',cfg,prefs,today),0);
+});
+test('partial sleep earns amount XP but only target nights count in weekly sessions',()=>{
+ const sleep={kind:'qty',def:7.5},rows=[{date:week,units:{Sleep:.5}},{date:R.addDays(week,1),units:{Sleep:8}}];
+ assert.equal(R.weekly(rows,'Sleep',sleep,{},week,today).sessions,1);
+ assert.equal(R.total(rows,'Sleep',sleep,{},today),8.5);
+ assert.equal(R.weekly(rows,'Sleep',sleep,{goals:{Sleep:{minimum:8.5}}},week,today).sessions,0);
+});
+test('three-way day merge preserves independent dates and rejects competing edits',()=>{
+ const base=[{date:week,units:{Read:1},day:1}],mine=[...base,{date:R.addDays(week,1),units:{Read:2}}],remote=[...base,{date:R.addDays(week,2),units:{Read:3}}];
+ assert.equal(R.mergeDays(base,mine,remote).length,3);
+ assert.throws(()=>R.mergeDays(base,[{...base[0],units:{Read:2}}],[{...base[0],units:{Read:3}}]),/Another window/);
 });
