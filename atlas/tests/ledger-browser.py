@@ -198,6 +198,20 @@ with sync_playwright() as pw:
         page.get_by_role('button', name='Restore backup', exact=True).click()
         assert page.evaluate('JSON.parse(localStorage.getItem("lifeledger:v2")).length') > 0
         no_overflow()
+        page.locator('#ledger-nav-today').click()
+        for habit, value in [('Sleep', '7'), ('Read', '13'), ('Board Work', '45')]:
+            go_card(habit)
+            input_field = page.get_by_role('textbox', name='Amount for ' + habit, exact=True)
+            input_field.fill(value)
+            done = page.get_by_role('button', name='Confirm amount and next habit: ' + habit, exact=True)
+            box = done.bounding_box()
+            assert box['width'] >= 44 and box['height'] >= 44
+            done.press('Enter')
+            assert page.locator('.ledger-habit-card:not([inert])').get_attribute('aria-label').split(' · ')[0] != habit
+            go_card(habit)
+            expect(page.get_by_role('textbox', name='Amount for ' + habit, exact=True)).to_have_value(value)
+            no_overflow()
+        page.screenshot(path=str(OUT / f'{ENGINE}-amount-done.png'), full_page=True)
         assert not errors, errors
         print(ENGINE + ': ongoing goals, catch-up, screen boundary, lifetime levels, history and responsive journeys passed')
     finally:

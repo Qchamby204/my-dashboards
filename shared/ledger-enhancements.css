@@ -260,3 +260,5 @@ html[data-atlas-app="life-ledger"] .ledger-rhythm-heading:has(>.ledger-progress-
 
 html[data-atlas-app="life-ledger"] #app .ledger-card-xp{margin-top:12px;font-size:14px;line-height:1.5;color:var(--neo-muted);overflow-wrap:anywhere;}
 html[data-atlas-app="life-ledger"] #app .ledger-card-xp strong{color:var(--neo-ink);font-weight:650;}
+
+html[data-atlas-app="life-ledger"] #app .ledger-amount-done{width:78px;height:78px;border-radius:50%;margin-top:12px;padding:0;display:grid;place-items:center;font-weight:600;border:2px solid var(--neo-line);}

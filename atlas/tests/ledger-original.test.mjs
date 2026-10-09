@@ -514,3 +514,25 @@ test('card XP matches actual check-in increments for count and amount habits',as
  h.act('inc',{habit:'Read'});await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),40);
  h.run('render()');assert.equal(hints().filter(t=>t==='+10 pages · +40 XP per tap').length,1);
 });
+
+
+test('amount Done confirms the typed quantity and advances without changing it or saving the day',async()=>{
+ const h=await boot({realModel:true});
+ for(const [habit,amount]of [['Sleep','7'],['Read','13'],['Board Work','45']]){
+  h.run('goCard(HABITS.indexOf('+JSON.stringify(habit)+'))');
+  const card=h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')];
+  const input=card.querySelector('[data-act="num"]');input.value=amount;
+  card.querySelector('.ledger-amount-done').click();
+  assert.equal(h.run('state.draft['+JSON.stringify(habit)+']'),Number(amount));
+  assert.equal(h.run('state.cardIndex'),h.run('HABITS.indexOf('+JSON.stringify(habit)+')')+1);
+  assert.equal(h.api.drafts.days['2026-09-07'].units[habit],Number(amount));
+  assert.equal(h.run('state.days.length'),0);assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);
+ }
+ assert.equal(h.node('app').querySelectorAll('.ledger-amount-done').length,3);
+});
+test('amount Done keeps invalid input on its card for correction',async()=>{
+ const h=await boot({realModel:true});h.run('goCard(HABITS.indexOf("Read"))');
+ const card=h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')];
+ const input=card.querySelector('[data-act="num"]');input.value='-4';card.querySelector('.ledger-amount-done').click();
+ assert.equal(h.run('state.cardIndex'),h.run('HABITS.indexOf("Read")'));assert.equal(input.getAttribute('aria-invalid'),'true');assert.equal(h.document.activeElement,input);assert.equal(h.run('state.draft.Read'),0);
+});
