@@ -361,7 +361,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app]:not([data-atlas-app="atlas-hub"]) :
 html.atlas-neumo.atlas-neumo[data-atlas-app] :is(.panel,.card,.rail-card,.qcard,.runcard,.neural-card,.baby-topic,.review-panel,.review-pattern,.review-hero,.hg-overview,.focus-card,.stat,.review-stat,.hg-stat,.courier-edition-progress,.fg-exercise){background:var(--neo-surface)!important;background-image:none!important;color:var(--neo-ink)!important;border:1px solid var(--neo-line)!important;border-radius:24px!important;box-shadow:var(--neo-raised)!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app] :is(button,.btn,.pill,.chip,.badge){border-radius:999px!important;box-shadow:var(--neo-small)}
 /* A whole-card action is still a content surface, even when it is a button. */
-html.atlas-neumo.atlas-neumo[data-atlas-app] :is(.card,.panel,.tool,.module,.qcard,.runcard,.drillcard,.topic-card,.fg-card,.baby-topic,.neural-card){border-radius:24px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app] :is(.card,.panel,.tool,.module,.qcard,.runcard,.drillcard,.topic-card,.fg-card,.baby-topic,.neural-card,.ledger-leisure-preview){border-radius:24px!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app] :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){border-radius:14px!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app] :is(h1,h2,h3,.appbar-title,.hg-title){color:var(--neo-ink)!important;font-family:var(--neo-font)!important;text-transform:none!important}
 html.atlas-neumo[data-atlas-app=library]{--ink:var(--neo-ink);--bg:var(--neo-canvas);--paper:var(--neo-inset);--glass:var(--neo-surface)}
@@ -374,3 +374,17 @@ html.atlas-neumo.atlas-neumo[data-atlas-app] :is(.hg-meter>i,.courier-progress-t
 html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-webkit-progress-bar{background:var(--neo-inset)!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-webkit-progress-value{background:var(--neo-accent)!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-moz-progress-bar{background:var(--neo-accent)!important}
+
+/* Content labels can wrap without acquiring the silhouette of a pill. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] .cat .chip{border-radius:14px!important;text-align:left;white-space:normal;overflow-wrap:anywhere}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .week{grid-template-columns:repeat(7,minmax(0,1fr))}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .calendar-grid>div{min-width:0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .calendar-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+@media(max-width:560px){
+ html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .week{grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
+ html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .day{min-width:0}
+ html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .day .pip{min-width:44px;min-height:44px}
+ html.atlas-neumo.atlas-neumo[data-atlas-app="quinton-os"] .mobilejump{flex-wrap:wrap;justify-content:flex-start}
+ html.atlas-neumo.atlas-neumo[data-atlas-app="quinton-os"] .mobilejump a{flex:1 1 auto}
+}

@@ -30,7 +30,11 @@ async function settle(p){await p.waitForTimeout(160);await p.evaluate(()=>Promis
 async function capture(p,file,view,theme,width,textSize,errors){
  await settle(p);
  const result=await p.evaluate(()=>{
-  const visible=n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden';
+  const visible=n=>{
+   if(!n.checkVisibility({checkVisibilityCSS:true,checkOpacity:true}))return false;
+   for(let el=n;el;el=el.parentElement)if(el.tagName==='DETAILS'&&!el.open&&!el.querySelector(':scope > summary')?.contains(n))return false;
+   return !!n.getClientRects().length;
+  };
   const selector='.fg-card,.card,.panel,.topic-card,.qcard,.runcard,.drillcard,.neural-card,.baby-topic,.fg-exercise,.fg-editor';
   const content=[];
   for(const card of document.querySelectorAll(selector)){
@@ -40,13 +44,13 @@ async function capture(p,file,view,theme,width,textSize,errors){
    while(n=walker.nextNode()){
     if(!n.textContent.trim()||!visible(n.parentElement)||n.parentElement.closest('svg,style,script,textarea'))continue;
     let skip=false;
-    for(let el=n.parentElement;el&&el!==card;el=el.parentElement){const css=getComputedStyle(el);if(['absolute','fixed'].includes(css.position)||['auto','scroll'].includes(css.overflowX)||['auto','scroll'].includes(css.overflowY)||css.textOverflow==='ellipsis'||css.webkitLineClamp!=='none'){skip=true;break;}}
+    for(let el=n.parentElement;el;el=el.parentElement){const css=getComputedStyle(el);if(['absolute','fixed'].includes(css.position)||['auto','scroll'].includes(css.overflowX)||['auto','scroll'].includes(css.overflowY)||css.textOverflow==='ellipsis'||css.webkitLineClamp!=='none'){skip=true;break;}if(el===card)break;}
     if(skip)continue;
     const range=document.createRange();range.selectNodeContents(n);
     for(const r of range.getClientRects())if(r.width&&r.height&&(r.left<bounds.left-1||r.right>bounds.right+1||r.top<bounds.top-1||r.bottom>bounds.bottom+1))content.push({card:card.className,text:n.textContent.trim().slice(0,90),side:r.right>bounds.right+1?'right':r.left<bounds.left-1?'left':r.bottom>bounds.bottom+1?'bottom':'top'});
    }
   }
-  const tallPills=[...document.querySelectorAll('button')].filter(n=>visible(n)&&n.getBoundingClientRect().height>100&&parseFloat(getComputedStyle(n).borderTopLeftRadius)>32).map(n=>({class:n.className,text:n.textContent.trim().slice(0,90)}));
+  const tallPills=[...document.querySelectorAll('button')].filter(n=>visible(n)&&n.getBoundingClientRect().height>100&&parseFloat(getComputedStyle(n).borderTopLeftRadius)>32&&!(getComputedStyle(n).backgroundColor==='rgba(0, 0, 0, 0)'&&parseFloat(getComputedStyle(n).borderTopWidth)===0&&getComputedStyle(n).boxShadow==='none')).map(n=>({class:n.className,text:n.textContent.trim().slice(0,90)}));
   return {overflow:document.documentElement.scrollWidth>innerWidth+1,content,tallPills,forgeCards:[...document.querySelectorAll('.fg-card')].filter(visible).map(n=>({radius:parseFloat(getComputedStyle(n).borderTopLeftRadius),padding:parseFloat(getComputedStyle(n).paddingLeft)}))};
  });
  reports.push({file,view,theme,width,textSize,errors:[...errors],...result});
@@ -71,7 +75,7 @@ try{
    // The menu holds all native page entries, including those behind More.
    const entries=await p.locator('#atlas-page-menu [data-page-key]').evaluateAll(nodes=>nodes.map(n=>({key:n.dataset.pageKey,title:n.textContent.trim()})));
    if(file==='life-ledger')for(const view of ['today','progress','history']){await p.locator('#ledger-nav-'+view).click();await capture(p,file,view,theme,width,textSize,errors);}
-   if(file==='life-map')for(const view of await p.locator('.lm-day-dock button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('data-view')).filter(Boolean))){await p.locator('.lm-day-dock button[data-view="'+view+'"]').click();await capture(p,file,view,theme,width,textSize,errors);}
+   if(file==='life-map')for(const view of await p.locator('.lm-day-dock button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('data-tab')).filter(Boolean))){await p.locator('.lm-day-dock button[data-tab="'+view+'"]').click();await capture(p,file,view,theme,width,textSize,errors);}
    for(const entry of entries){
     if(file==='baby-brain'||file==='neural-map')continue; // Their toolbar opens action dialogs, not pages.
     await p.locator('#atlas-page-menu [data-page-key]').evaluateAll((nodes,key)=>nodes.find(n=>n.dataset.pageKey===key)?.click(),entry.key);
