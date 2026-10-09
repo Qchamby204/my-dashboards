@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="The Herald">
 <meta name="theme-color" content="#efeae3">
 
-<script src="shared/atlas-theme.js?v=58660f62447e"></script>
+<script src="shared/atlas-theme.js?v=48f818c7c869"></script>
 <style>
 :root{
   --ink:#0b0d13; --panel:#12151d; --panel2:#171b26; --border:#242a3a; --border2:#2e3548;
@@ -200,7 +200,7 @@ nav.tabs::-webkit-scrollbar{display:none}
 </style>
 <link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=b8dd212924b9">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=1e0cb481a90d">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=805c48b4fcb5">
 <link rel="stylesheet" href="shared/herald-sports.css?v=72cbb3533c09">
@@ -1011,15 +1011,15 @@ function renderCalendar(){
   </div>`:'<div class="empty">Everything unpublished already has a date. Add a script in the vault and it will appear here.</div>'}
  </div>
  <div class="card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+  <div class="calendar-heading">
    <button class="btn sm line" onclick="calNav(-1)">&#8249; prev</button>
    <h2 style="margin:0">${monthName}</h2>
    <button class="btn sm line" onclick="calNav(1)">next &#8250;</button>
   </div>
   <div class="hint">One square, one day. <span style="color:#e6c872">&#9632;</span> long form &middot; <span style="color:#b79bff">&#9679;</span> short. Tap a day to see it, schedule to it, or clear it.</div>
-  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:9px;letter-spacing:.08em;color:#6b7280;text-align:center;margin-bottom:4px">
+  <div class="calendar-grid" style="font-size:9px;letter-spacing:.08em;color:#6b7280;text-align:center;margin-bottom:4px">
    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">${cells}</div>
+  <div class="calendar-grid">${cells}</div>
  </div>
  ${calSel?`<div class="card">
   <h3 style="margin-top:0">${new Date(calSel+'T12:00').toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'})}</h3>

@@ -6,6 +6,7 @@ import * as work from '../work.mjs';
 import * as model from '../model.mjs';
 import {previewDatabase} from '../preview.mjs';
 import worker from '../../dist/server/index.js';
+process.env.TZ='America/Winnipeg';
 
 const day='2026-09-07';
 const payload=id=>({id,title:'Finish an outline',app_id:'life-map',project_id:null,week_start:day,due_date:null,minutes:30,focus_day:day});

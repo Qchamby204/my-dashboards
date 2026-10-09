@@ -24,7 +24,7 @@ permissions:
 jobs:
   regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,4 +47,39 @@ jobs:
         if: always()
         with:
           name: dashboard-experience
-          path: artifacts/dashboard-experience
+          path: artifacts/dashboard-*
+  layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {theme: light, width: 393, textSize: 16}
+          - {theme: dark, width: 393, textSize: 16}
+          - {theme: dark, width: 320, textSize: 16}
+          - {theme: light, width: 844, textSize: 16}
+          - {theme: dark, width: 393, textSize: 20}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run build
+      - run: |
+          npm install --prefix /tmp/atlas-browser --no-save playwright
+          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Check populated screens and editors
+        timeout-minutes: 8
+        env:
+          NODE_PATH: /tmp/atlas-browser/node_modules
+          ATLAS_SCREENSHOTS: artifacts/dashboard-layout
+          ATLAS_LAYOUT_CASE: '["${{ matrix.theme }}", ${{ matrix.width }}, ${{ matrix.textSize }}]'
+        run: node atlas/tests/dashboard-layout.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dashboard-layout-${{ matrix.theme }}-${{ matrix.width }}-${{ matrix.textSize }}
+          path: artifacts/dashboard-layout
