@@ -24,7 +24,7 @@ for(const [id,completed]of [['bench',['0-d1','0-d2','1-d1']],['deadlift',['0-d1'
 M.validate(goals);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']}),reports=[];
 const apps=['index','life-map','life-ledger','workout-forge','the-chef','baby-brain','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-aqueduct','the-library','courier','communication-trainer','neural-map','quinton-os','review'];
-const config=[['light',393,16],['dark',393,16],['dark',320,16],['light',844,16],['dark',393,20]];
+const config=process.env.ATLAS_LAYOUT_CASE?[JSON.parse(process.env.ATLAS_LAYOUT_CASE)]:[['light',393,16],['dark',393,16],['dark',320,16],['light',844,16],['dark',393,20]];
 const slug=s=>s.replace(/[^a-z0-9-]/gi,'-').slice(0,70);
 async function settle(p){await p.waitForTimeout(160);await p.evaluate(()=>Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2000))]));}
 async function capture(p,file,view,theme,width,textSize,errors){
@@ -52,7 +52,7 @@ async function capture(p,file,view,theme,width,textSize,errors){
  reports.push({file,view,theme,width,textSize,errors:[...errors],...result});
  writeFileSync(path.join(out,'layout-audit.json'),JSON.stringify(reports,null,2));
  await p.screenshot({path:path.join(out,slug(file+'-'+view+'-'+theme+'-'+width+'-'+textSize)+'.png'),fullPage:file==='workout-forge'&&view==='home',timeout:15000});
- console.log('Layout',file,view,theme,width,textSize,result.content.length?'CONTENT '+JSON.stringify(result.content):'',result.tallPills.length?'PILLS '+JSON.stringify(result.tallPills):'');
+ console.log('Layout',file,view,theme,width,textSize,result.content.length?'CONTENT '+JSON.stringify(result.content.slice(0,6)):'',result.tallPills.length?'PILLS '+JSON.stringify(result.tallPills.slice(0,6)):'');
 }
 try{
  for(const [theme,width,textSize]of config){
@@ -60,6 +60,7 @@ try{
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const f=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,f)),contentType:types[path.extname(f)]||'text/plain'});}catch{await r.abort();}});
   await context.addInitScript(raw=>localStorage.setItem('forge:goals:v1',raw),JSON.stringify(goals));
   for(const file of apps){
+   console.log('Opening',file,theme,width,textSize);
    const p=await context.newPage(),errors=[];p.setDefaultTimeout(10000);p.setDefaultNavigationTimeout(20000);p.on('pageerror',e=>errors.push(e.message));
    await p.goto(origin+'/'+file+'.html',{waitUntil:'domcontentloaded'});await settle(p);
    if(textSize!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+textSize+'px!important}'});
@@ -86,5 +87,5 @@ try{
   await context.close();
  }
  const bad=reports.filter(r=>r.errors.length||r.overflow||r.content.length||r.tallPills.length||r.forgeCards.some(c=>c.radius>24||c.padding<24));
- console.log(JSON.stringify({views:reports.length,failures:bad},null,2));assert.deepEqual(bad,[],'content screens fit within their cards');
+ console.log(JSON.stringify({views:reports.length,failures:bad.map(r=>({file:r.file,view:r.view,overflow:r.overflow,errors:r.errors,content:r.content.slice(0,6),tallPills:r.tallPills.slice(0,6)}))},null,2));assert.equal(bad.length,0,'content screens fit within their cards; see layout-audit.json');
 }finally{writeFileSync(path.join(out,'layout-audit.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
