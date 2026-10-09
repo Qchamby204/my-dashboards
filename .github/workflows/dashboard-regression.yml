@@ -43,8 +43,13 @@ jobs:
           NODE_PATH: /tmp/atlas-browser/node_modules
           ATLAS_SCREENSHOTS: artifacts/dashboard-experience
         run: node atlas/tests/dashboard-experience.browser.mjs
+      - name: Check populated screens, secondary pages and larger text
+        env:
+          NODE_PATH: /tmp/atlas-browser/node_modules
+          ATLAS_SCREENSHOTS: artifacts/dashboard-layout
+        run: node atlas/tests/dashboard-layout.browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dashboard-experience
-          path: artifacts/dashboard-experience
+          path: artifacts/dashboard-*
