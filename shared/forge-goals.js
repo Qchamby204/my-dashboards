@@ -89,7 +89,9 @@
     if(state.goals&&state.goals!==data){data=state.goals;try{raw=localStorage.getItem(KEY);blocked=false;failed=false;}catch{failed=true;error='Could not read saved goal training.';}}
     // The regular split remains mounted, keeping its own draft and live workout intact.
     const goalOpen=!!active;document.getElementById('app').classList.toggle('fg-goal-open',goalOpen);
+    const app=document.getElementById('app');app.querySelector('.fg-starting-point')?.remove();
     host.innerHTML=active?detail():home();
+    if(!active){const prompt=host.querySelector('.atlas-goal-question,.atlas-goal-orientation');if(prompt){prompt.classList.add('fg-starting-point');app.querySelector('.appbar')?.after(prompt);}}
   }
   function focusTitle(){document.getElementById('fg-detail-title')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
   function open(id,week,day){

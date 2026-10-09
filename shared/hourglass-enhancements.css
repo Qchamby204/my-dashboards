@@ -29,3 +29,6 @@
 
 /* Focused daily workflow additions. */
 .hourglass-upcoming-row{flex-wrap:wrap}.hourglass-upcoming-row>a{white-space:normal;text-decoration:none}
+
+[data-atlas-app="the-hourglass"] .hourglass-upcoming-row>a{grid-column:2 / -1;justify-self:start;padding:10px 14px;line-height:1.4}
+@media(max-width:480px){[data-atlas-app="the-hourglass"] .hourglass-upcoming-row>a{grid-row:3}}

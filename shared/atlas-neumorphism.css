@@ -367,3 +367,8 @@ html.atlas-neumo.atlas-neumo[data-atlas-app] .atlas-signature{background:color-m
 html.atlas-neumo.atlas-neumo[data-atlas-app] :is(button,.btn):active:not(:disabled),html.atlas-neumo.atlas-neumo[data-atlas-app] .atlas-completed{box-shadow:var(--neo-pressed)!important}
 
 html.atlas-neumo.atlas-neumo[data-atlas-app] :is(.bar,.bartrack,.wf-track,.review-bar,.hg-meter,.courier-progress-track,.chef-progress-track,.progress-track)::after{display:none!important}
+
+html.atlas-neumo.atlas-neumo[data-atlas-app] :is(.hg-meter>i,.courier-progress-track>span,.chef-progress-track>span,.progress-fill){background:var(--neo-accent)!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-webkit-progress-bar{background:var(--neo-inset)!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-webkit-progress-value{background:var(--neo-accent)!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-moz-progress-bar{background:var(--neo-accent)!important}
