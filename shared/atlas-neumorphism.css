@@ -3,6 +3,7 @@
 @font-face{font-family:Figtree;font-weight:700;font-style:normal;font-display:swap;src:url("https://qchamby204.github.io/my-dashboards/shared/fonts/figtree-700.ttf") format("truetype");}
 /* Atlas Neumorphism: one material system for the full application suite. */
 :root.atlas-neumo {
+  --neo-content-surface:#f8f5f0;
   color-scheme: var(--neo-scheme, light);
   --neo-canvas: #efeae3;
   --neo-surface: #efeae3;
@@ -376,6 +377,11 @@ html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-webkit-progr
 html.atlas-neumo.atlas-neumo[data-atlas-app] .page-progress-track::-moz-progress-bar{background:var(--neo-accent)!important}
 
 /* Content labels can wrap without acquiring the silhouette of a pill. */
+html.atlas-neumo[data-atlas-theme="dark"]{--neo-content-surface:#252236}
+html.atlas-neumo.atlas-neumo[data-atlas-app] a.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;line-height:1.4;text-align:center;text-decoration:none;white-space:normal}
+html.atlas-neumo.atlas-neumo[data-atlas-app] .daily-chips{gap:12px}
+html.atlas-neumo.atlas-neumo[data-atlas-app] .atlas-goal-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;margin-top:20px}
+html.atlas-neumo.atlas-neumo[data-atlas-app] .atlas-goal-options button{width:100%;padding:14px 18px;min-height:52px;text-align:left;line-height:1.45;border-radius:14px!important;box-shadow:none}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] .cat .chip{border-radius:14px!important;text-align:left;white-space:normal;overflow-wrap:anywhere}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .week{grid-template-columns:repeat(7,minmax(0,1fr))}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}

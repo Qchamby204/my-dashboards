@@ -5,6 +5,16 @@
    Progress is empty on first use; the seed contains catalogue metadata only. */
 (() => {
 'use strict';
+// Standalone iPhone windows may report zero safe-area insets after rotation.
+function libraryInsets(){
+ if(typeof navigator==='undefined'||!document.documentElement?.style?.setProperty)return;
+ const phone=/iPhone/.test(navigator.userAgent)&&(navigator.standalone===true||matchMedia('(display-mode: standalone)').matches),portrait=innerHeight>=innerWidth;
+ document.documentElement.style.setProperty('--library-safe-top',phone&&portrait?'max(64px, env(safe-area-inset-top, 0px))':'env(safe-area-inset-top, 0px)');
+ document.documentElement.style.setProperty('--library-safe-side',phone&&!portrait?'max(64px, env(safe-area-inset-left, 0px))':'0px');
+ document.documentElement.style.setProperty('--atlas-safe-bottom',phone?'max(21px, env(safe-area-inset-bottom, 0px))':'env(safe-area-inset-bottom, 0px)');
+}
+libraryInsets();window.addEventListener('resize',libraryInsets);window.addEventListener('orientationchange',libraryInsets);
+
 const seed = window.ATLAS_LIBRARY_CATALOG;
 const Reading=window.LibraryReading, pageReferences=window.ATLAS_LIBRARY_PAGES||{};
 let TOPICS = JSON.parse(JSON.stringify(seed.topics));
@@ -280,7 +290,7 @@ function homeView(){
  const reading=state.catalog.filter(b=>progress(b.id).status==='reading').sort((a,b)=>(progress(b.id).updatedAt||'').localeCompare(progress(a.id).updatedAt||''));
  const goalLabels={finish:'Finish a book',understand:'Understand an idea',apply:'Put an idea to use'};
  const firstUse=!state.goal&&!Object.keys(state.progress).length&&!Object.keys(state.syntheses).length&&!state.focus;
- const goal=firstUse?`<section class="atlas-goal-question panel"><h2>What would you like your reading to do?</h2><p>Choose one real aim. You can still explore every topic.</p><div>${Object.entries(goalLabels).map(([g,l])=>`<button class="btn" data-action="choose-goal" data-goal="${g}">${l}</button>`).join('')}</div></section>`:state.goal?`<p class="atlas-goal-orientation"><strong>Your aim: ${goalLabels[state.goal]}.</strong> ${state.goal==='finish'?'Choose a book and set a reading date.':state.goal==='understand'?'Keep a question beside your notes, then distill it in your own words.':'Save one application in your book notes and return to it after trying it.'}</p>`:'';
+ const goal=firstUse?`<section class="atlas-goal-question panel"><h2>What would you like your reading to do?</h2><p>Choose one real aim. You can still explore every topic.</p><div class="atlas-goal-options">${Object.entries(goalLabels).map(([g,l])=>`<button class="btn" data-action="choose-goal" data-goal="${g}">${l}</button>`).join('')}</div></section>`:state.goal?`<p class="atlas-goal-orientation"><strong>Your aim: ${goalLabels[state.goal]}.</strong> ${state.goal==='finish'?'Choose a book and set a reading date.':state.goal==='understand'?'Keep a question beside your notes, then distill it in your own words.':'Save one application in your book notes and return to it after trying it.'}</p>`:'';
  return `${goal}<section class="intro"><div><div class="eyebrow">Your personal learning library</div><h1>Read deeply.<br>Think clearly.</h1><p>A home for the books you read, the ideas you keep, and the understanding you build.</p><button class="btn accent" style="margin-top:20px" data-action="new-book">${icon('plus')}Add book</button></div><div class="focus-card">${focus}${icon('book','folio')}</div></section><section class="stats" aria-label="Library progress"><div class="stat"><div class="stat-number">${s.done}<span>/ ${s.total}</span></div><div class="stat-label">Books completed</div></div><div class="stat"><div class="stat-number">${s.notes}</div><div class="stat-label">Books with notes</div></div><div class="stat"><div class="stat-number">${saved.length}</div><div class="stat-label">Understandings saved</div></div></section>
  ${reading.length?`<section style="margin-bottom:23px"><div class="section-head"><h2>Continue reading</h2><span class="small muted">${reading.length} in progress</span></div><div class="continue-strip">${reading.map(b=>`<article class="continue-book"><span class="eyebrow">${esc(topicById(b.topic)?.short||'Reference')}</span><button class="book-title" data-action="notes" data-id="${b.id}">${esc(b.title)}</button>${progressEditor(b,'desk')}<div class="reading-card-actions"><button class="btn quiet" data-action="notes" data-id="${b.id}">Open notes</button><button class="btn quiet" data-action="stop-reading" data-id="${b.id}">Stop reading</button></div></article>`).join('')}</div></section>`:''}
  <section id="topic-grid-section"><div class="section-head"><div><h2>Explore your topics</h2><p>14 topics. Open a section to set your reading pace. Page totals use editable reference editions.</p></div><div class="row wrap"><button class="btn" data-action="edit-priorities">Set priorities</button><a class="btn quiet" href="#books">All books ${icon('arrow')}</a></div></div><div class="topic-grid">${orderedTopics().map(topicCard).join('')}</div></section>

@@ -13,6 +13,12 @@ For interface changes, read `.agents/skills/apple-design/SKILL.md` and apply its
 - Add gesture physics or dependencies only when an actual requested gesture needs them. Native scrolling and discrete press feedback are sufficient for ordinary lists and forms.
 - Respect reduced motion, reduced transparency, and increased contrast without losing state feedback.
 
+## Content and control hierarchy
+
+- Content records must have a distinct format: recipe cards, activity cards and reading records need a clear title, concise metadata, separated details and a primary action. Use the shared palette without blending every record into the surrounding panel.
+- Use pills for compact actions. Text-only titles and navigation links must not inherit raised button surfaces. Choices need even spacing and consistent alignment; disclosures need separate rows with an explicit expansion indicator.
+- Inspect scrolled, populated and expanded states visually. Geometric containment checks alone do not establish good hierarchy, safe-area clearance or spacing.
+
 ## Implementation and records
 
 - Extend the existing interface in place. Keep unrelated dashboards unchanged.

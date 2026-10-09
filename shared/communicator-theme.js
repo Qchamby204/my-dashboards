@@ -19,7 +19,7 @@
       const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=ff0a80190552',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=b6971fc403b9',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=8bbca265f548',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=58a835078483',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
@@ -54,7 +54,7 @@
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasLedgerBoot=boot;
       const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js?v=038c74b94b00',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
-      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=2ce70f3ac70a',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=a8b8925d3507',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
     }
   }
   const key = 'atlas.appearance.v1';
