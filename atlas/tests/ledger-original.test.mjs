@@ -49,6 +49,10 @@ test('reset archives the latest history from another window before clearing it',
  h.storage.set(S,JSON.stringify([{date:'2026-09-05',units:{Read:2}},{date:'2026-09-06',units:{Read:3}}]));await h.api.resetProgress();
  assert.equal(JSON.parse(h.storage.get(S)).length,0);assert.equal(h.api.drafts.archives[0].days.length,2);assert.equal(h.api.drafts.archives[0].days[0].units.Read,2);
 });
+test('verified Web Lock drafts do not queue unchanged writes on page close',async()=>{
+ const h=await boot();h.context.navigator.locks={request:async(name,fn)=>fn()};h.run('state.draft.Read=4');h.api.remember();await h.settle();
+ assert.equal(h.window.emit('beforeunload').prevented,undefined);assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].units.Read,4);
+});
 async function boot({records={},blocked=false,width=390,realModel=false,nowISO='2026-09-07T22:49:00-05:00'}={}){
   let now=Date.parse(nowISO),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{

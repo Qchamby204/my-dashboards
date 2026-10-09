@@ -63,3 +63,7 @@ test('three-way day merge preserves independent dates and rejects competing edit
  assert.equal(R.mergeDays(base,mine,remote).length,3);
  assert.throws(()=>R.mergeDays(base,[{...base[0],units:{Read:2}}],[{...base[0],units:{Read:3}}]),/Another window/);
 });
+test('canonical comparisons retain custom fields named day while ignoring row indices',()=>{
+ assert.notEqual(R.stable({units:{day:1}}),R.stable({units:{day:2}}));
+ assert.equal(R.mergeDays([{date:week,day:1,units:{Read:1}}],[{date:week,day:9,units:{Read:1}}],[{date:week,day:1,units:{Read:2}}])[0].units.Read,2);
+});

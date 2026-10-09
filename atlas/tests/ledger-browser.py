@@ -196,7 +196,7 @@ with sync_playwright() as pw:
         expect(page.locator('#ledger-progress-archives')).to_contain_text('Historical note')
         page.get_by_role('button', name='Restore this progress', exact=True).click()
         page.get_by_role('button', name='Restore backup', exact=True).click()
-        assert page.evaluate('JSON.parse(localStorage.getItem("lifeledger:v2")).length') > 0
+        page.wait_for_function('!document.getElementById("app").inert && JSON.parse(localStorage.getItem("lifeledger:v2")).length > 0')
         no_overflow()
         page.locator('#ledger-nav-today').click()
         for habit, value in [('Sleep', '7'), ('Read', '13'), ('Board Work', '45')]:

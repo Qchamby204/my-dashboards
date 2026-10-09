@@ -62,7 +62,7 @@
     return {xp,level,exact,into,cost,remaining:cost-into,fraction:into/cost};
   }
   function experience(amount,cfg,h){return levelProgress(amount/xpUnit(cfg)*100,h?annualCost(h):1000);}
-  const stable=v=>v===undefined?'undefined':JSON.stringify(v,(_,x)=>plain(x)?Object.fromEntries(Object.keys(x).filter(k=>k!=='day').sort().map(k=>[k,x[k]])):x);
+  const stable=v=>v===undefined?'undefined':JSON.stringify(v,(_,x)=>plain(x)?Object.fromEntries(Object.keys(x).sort().map(k=>[k,x[k]])):x);
   function merge(base,mine,latest,path='record'){
     if(stable(mine)===stable(base))return latest;
     if(stable(latest)===stable(base)||stable(mine)===stable(latest))return mine;
@@ -74,10 +74,10 @@
   }
   function mergeDays(base,mine,latest){
     const map=rows=>Object.fromEntries(rows.filter(d=>d.date).map(d=>[d.date,d]));
-    const b=map(base),m=map(mine),l=map(latest),dated=[];
+    const b=map(base),m=map(mine),l=map(latest),dated=[],entryKey=row=>stable(row&&Object.fromEntries(Object.entries(row).filter(([key])=>key!=='day')));
     for(const date of new Set([...Object.keys(b),...Object.keys(m),...Object.keys(l)])){
       // Daily entries are a single edit: two competing versions require review.
-      const value=stable(m[date])===stable(b[date])?l[date]:stable(l[date])===stable(b[date])||stable(m[date])===stable(l[date])?m[date]:(()=>{throw Error('Another window changed '+date+'. Your draft is kept here; review the latest record before replacing it.');})();
+      const value=entryKey(m[date])===entryKey(b[date])?l[date]:entryKey(l[date])===entryKey(b[date])||entryKey(m[date])===entryKey(l[date])?m[date]:(()=>{throw Error('Another window changed '+date+'. Your draft is kept here; review the latest record before replacing it.');})();
       if(value)dated.push(value);
     }
     const legacy=merge(base.filter(d=>!d.date),mine.filter(d=>!d.date),latest.filter(d=>!d.date),'undated history');

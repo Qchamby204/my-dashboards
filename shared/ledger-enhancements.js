@@ -96,6 +96,7 @@
     function accepted(key,value){observed.set(key,value);written.set(key,value);failed.delete(key);conflicts.delete(key);if(key===DRAFTKEY)drafts=JSON.parse(value);if(key===GOALKEY)state.goals=JSON.parse(value);if(key===METRICKEY)state.metrics=JSON.parse(value);if(key===MODELKEY){userModel=JSON.parse(value);rebuildModel();}}
     function write(key,value,replace=false){
       if(blocked){status();return false;}
+      if(value===observed.get(key)&&!failed.has(key)&&!pending.has(key)){written.set(key,value);return true;}
       if(window.storage?.get&&window.storage?.set){const job=(pending.get(key)||Promise.resolve()).then(async()=>{try{let next;try{next=reconcile(key,value,(await window.storage.get(key))?.value??null,replace);}catch(err){conflicts.add(key);throw err;}await window.storage.set(key,next);if((await window.storage.get(key))?.value!==next)throw Error();accepted(key,next);return true;}catch{failed.set(key,value);return false;}finally{if(pending.get(key)===job)pending.delete(key);status();}});pending.set(key,job);status();return job;}
       const persist=()=>{try{let next;try{next=reconcile(key,value,localStorage.getItem(key),replace);}catch(err){conflicts.add(key);throw err;}localStorage.setItem(key,next);if(localStorage.getItem(key)!==next)throw Error();accepted(key,next);status();return true;}catch{failed.set(key,value);status();return false;}};
       // Serialize read/merge/write across browser tabs when Web Locks is available.
