@@ -83,3 +83,33 @@ jobs:
         with:
           name: dashboard-layout-${{ matrix.theme }}-${{ matrix.width }}-${{ matrix.textSize }}
           path: artifacts/dashboard-layout
+
+  content-cards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run build
+      - run: |
+          npm install --prefix /tmp/atlas-browser --no-save playwright
+          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps ${{ matrix.engine }}
+      - name: Check cards and standalone phone layouts
+        env:
+          NODE_PATH: /tmp/atlas-browser/node_modules
+          ATLAS_SCREENSHOTS: artifacts/card-hierarchy
+          ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node atlas/tests/card-hierarchy.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: content-cards-${{ matrix.engine }}
+          path: artifacts/card-hierarchy

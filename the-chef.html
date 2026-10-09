@@ -2,7 +2,7 @@
 <html lang="en" class="atlas-neumo cc-app" data-atlas-app="the-chef">
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
-<script src="shared/atlas-experience.js?v=8115db07bf37" defer></script>
+<script src="shared/atlas-experience.js?v=ced247988011" defer></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Chef</title>
@@ -96,11 +96,11 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#efeae3">
-<script src="shared/atlas-theme.js?v=48f818c7c869"></script>
+<script src="shared/atlas-theme.js?v=ddd0a5c759ac"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=1e0cb481a90d">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=a0290a740ea4">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=e4a165acb01b">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=2ac226436e52">
 <script src="shared/chef-crucible.js?v=e5c3183ef814" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-32.png?v=41e1e3906c07">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-64.png?v=9b7a6325c0c0">
@@ -1570,16 +1570,17 @@ function cardHtml(x,showMatch){
     const cls = showMatch && ui.picks.size ? (ui.picks.has(i.n)?'have':'need') : '';
     return `<li class="${cls}">${i.raw?esc(i.raw):`<span class="mono" style="font-size:11px;color:var(--muted)">${esc(i.q)}</span> ${esc(ingredientLabel(i))}`}</li>`;
   }).join('');
-  return `<div class="card" data-id="${x.id}">
+  return `<article class="card recipe-card" data-id="${x.id}" aria-label="${esc(x.name)}">
     <div class="top"><h3>${esc(x.name)}</h3><span class="badge">${x.meal}</span></div>
-    <div class="meta"><span>${esc(recipeTime(x))}</span><span>${esc(recipeYield(x))}</span>${Number.isFinite(x.protein)?`<span><b>${x.protein}</b>g protein</span>`:''}</div>
+    <div class="meta recipe-facts"><span><small>Time</small><strong>${esc(recipeTime(x))}</strong></span><span><small>Yield</small><strong>${esc(recipeYield(x))}</strong></span>${Number.isFinite(x.protein)?`<span><small>Protein</small><strong>${x.protein} g</strong></span>`:''}</div>
     ${x.source?`<div class="notice">${sourceNotice(x)}</div>`:''}
     ${match}
     <div class="tags">${x.tags.slice(0,3).map(t=>`<span class="tag">${TAG_LABELS[t]||t}</span>`).join('')}</div>
-    <button class="primary cc-cook-open" data-cook="${x.id}">Cook this recipe</button>
+    <div class="recipe-main-actions"><button class="primary cc-cook-open" data-cook="${x.id}">Cook this recipe</button>
     ${MEALS.includes(x.meal)?'<button class="chef-card-plan" data-add>Plan days</button>':''}
-    <button data-cooked>I've cooked this · ${state.recipeFeedback?.[x.id]?.verdict==='again'?'In our rotation':state.recipeFeedback?.[x.id]?.verdict==='not-again'?'Not again':'Make again?'}</button>
+    </div>
     <details class="more cc-recipe-options"><summary>Recipe options${fav?' · Saved':''}${rating?' · '+rating+'/5':''}</summary>
+    <button data-cooked>I've cooked this · ${state.recipeFeedback?.[x.id]?.verdict==='again'?'In our rotation':state.recipeFeedback?.[x.id]?.verdict==='not-again'?'Not again':'Make again?'}</button>
     <div class="actions">
       <div class="row" style="gap:4px">
         <div class="stars">${[1,2,3,4,5].map(n=>`<button data-rate="${n}" class="${n<=rating?'on':''}" aria-label="Rate ${esc(x.name)} ${n} out of 5" aria-pressed="${n===rating}" title="${n} star">&#9733;</button>`).join('')}</div>
@@ -1591,7 +1592,7 @@ function cardHtml(x,showMatch){
       <h4>INGREDIENTS</h4><ul>${ing}</ul>
       <h4>METHOD</h4><ol>${x.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
     </details>
-  </div>`;
+  </article>`;
 }
 function recipeFeedback(id){
   const old=state.recipeFeedback?.[id]||{},dialog=document.createElement('dialog');dialog.className='growth-dialog';

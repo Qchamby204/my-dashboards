@@ -5,6 +5,16 @@
    Progress is empty on first use; the seed contains catalogue metadata only. */
 (() => {
 'use strict';
+// Standalone iPhone windows may report zero safe-area insets after rotation.
+function libraryInsets(){
+ if(typeof navigator==='undefined'||!document.documentElement?.style?.setProperty)return;
+ const phone=/iPhone/.test(navigator.userAgent)&&(navigator.standalone===true||matchMedia('(display-mode: standalone)').matches),portrait=innerHeight>=innerWidth;
+ document.documentElement.style.setProperty('--library-safe-top',phone&&portrait?'max(64px, env(safe-area-inset-top, 0px))':'env(safe-area-inset-top, 0px)');
+ document.documentElement.style.setProperty('--library-safe-side',phone&&!portrait?'max(64px, env(safe-area-inset-left, 0px))':'0px');
+ document.documentElement.style.setProperty('--atlas-safe-bottom',phone?'max(21px, env(safe-area-inset-bottom, 0px))':'env(safe-area-inset-bottom, 0px)');
+}
+libraryInsets();window.addEventListener('resize',libraryInsets);window.addEventListener('orientationchange',libraryInsets);
+
 const seed = window.ATLAS_LIBRARY_CATALOG;
 const Reading=window.LibraryReading, pageReferences=window.ATLAS_LIBRARY_PAGES||{};
 let TOPICS = JSON.parse(JSON.stringify(seed.topics));
