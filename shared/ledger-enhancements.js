@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=e197a7bdb92e',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=4720718ba493',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -30,7 +30,7 @@
     function validLeisureRule(r){
       if(!plain(r)||!Number.isInteger(r.habits)||r.habits<1||r.habits>100||!Number.isInteger(r.gaming)||r.gaming<1||r.gaming>60||!Number.isInteger(r.reading)||r.reading<1||r.reading>120)throw Error('Use 1–100 habits, 1–60 gaming minutes and 1–120 reading minutes.');
     }
-    function validLeisure(l){if(!plain(l)||!finite(l.gamingMinutes)||l.gamingMinutes>1440||typeof l.readingDone!=='boolean'||l.screenMinutes!==undefined&&(!finite(l.screenMinutes)||l.screenMinutes>1440)||l.screenConfirmed!==undefined&&(typeof l.screenConfirmed!=='boolean'||l.screenConfirmed&&!finite(l.screenMinutes)))throw Error('Invalid screen-time entry.');}
+    function validLeisure(l){if(!plain(l)||!finite(l.gamingMinutes)||l.gamingMinutes>1440||typeof l.readingDone!=='boolean'||l.screenMinutes!==undefined&&(!finite(l.screenMinutes)||l.screenMinutes>1440)||l.screenConfirmed!==undefined&&(typeof l.screenConfirmed!=='boolean'||l.screenConfirmed&&!finite(l.screenMinutes)))throw Error('Invalid screen-time entry.');if(l.discernReceipt!==undefined){const d=l.discernReceipt;if(!plain(d)||typeof d.id!=='string'||!validDate(d.date)||!finite(d.generatedAt)||!finite(d.phoneMinutes)||!finite(d.otherDeviceMinutes)||d.phoneMinutes+d.otherDeviceMinutes>1440||d.source!=='user-confirmed-native-report'||!Number.isInteger(d.observedThresholdLowerBound)||d.observedThresholdLowerBound<0||d.observedThresholdLowerBound>d.phoneMinutes||typeof d.emergencyReleased!=='boolean')throw Error('Invalid Discern usage receipt.');}}
     function validScreen(s){
       if(!plain(s)||!Object.hasOwn(guardrails,s.guardrail)||!Array.isArray(s.slips)||s.slips.length>100||s.slips.some(v=>!plain(v)||!Object.hasOwn(triggers,v.trigger)||!Object.hasOwn(resets,v.action)||typeof v.recovered!=='boolean'))throw Error('Invalid Screen Discipline entry.');
     }
@@ -62,6 +62,8 @@
         }
         if(value.resetPending!==undefined&&(typeof value.resetPending!=='string'||!value.archives?.some(a=>a.id===value.resetPending)))throw Error('Invalid pending progress reset.');
         if(value.rhythm!==undefined)R.validate(value.rhythm);
+        if(value.discernOtherDeviceMinutes!==undefined&&(!finite(value.discernOtherDeviceMinutes)||value.discernOtherDeviceMinutes>1440))throw Error('Invalid other-device screen time.');
+        if(value.discernOtherDeviceDate!==undefined&&!validDate(value.discernOtherDeviceDate))throw Error('Invalid other-device screen date.');
         if(value.leisureRule!==undefined)validLeisureRule(value.leisureRule);
         if(value.leisureTimer!==undefined&&(!plain(value.leisureTimer)||!finite(value.leisureTimer.startedAt)||value.leisureTimer.startedAt===0))throw Error('Invalid leisure timer.');
         for(const [date,d]of Object.entries(value.days)){if(!validDate(date))throw Error('Invalid draft date.');validEntry(d);}
@@ -406,6 +408,44 @@
       dialog.append(title,make('p','Include all scrolling and video games, including time outside the timer. Work, content creation and purposeful reading are excluded. Exactly 60 minutes does not meet “under one hour”.','ledger-help'),form);
       dialog.addEventListener('close',()=>{dialog.remove();openLeisure();document.getElementById('leisure-minutes')?.focus();});document.body.append(dialog);dialog.showModal();input.focus();input.select();
     }
+    function discernPanel(date,l){
+      const B=window.DiscernBridge;if(!B)return null;
+      const card=make('details',null,'ledger-screen-patterns');card.id='ledger-discern-bridge';
+      card.append(make('summary','Discern · phone protection and usage'));
+      const send=make('section',null,'ledger-discern-record');send.append(make('h4','Today’s phone allowance'));
+      const label=make('label','Gaming / scrolling on other devices (minutes)'),input=make('input');input.type='number';input.inputMode='decimal';input.min='0';input.max='1440';input.step='any';input.value=drafts.discernOtherDeviceDate===date?drafts.discernOtherDeviceMinutes||0:0;label.append(input);send.append(label);
+      const note=make('p',null,'ledger-help');send.append(note);
+      const snapshot=()=>B.makeAllowance({date,allowanceMinutes:leisureRule().gaming,otherDeviceMinutes:Number(input.value),recordedTotalMinutes:l.screenConfirmed?screenMinutes(l):null});
+      const paint=()=>{try{const p=snapshot();note.textContent=B.effectivePhoneBudget(p)+' phone minutes after other-device time · expires at midnight';}catch(err){note.textContent=err.message;}};
+      input.addEventListener('change',()=>{if(blocked||busy)return;const n=Number(input.value);if(input.value.trim()===''||!finite(n)||n>1440){toast('Use 0–1,440 other-device minutes.');return;}drafts.discernOtherDeviceMinutes=n;drafts.discernOtherDeviceDate=date;remember();paint();});
+      const actions=make('div',null,'ledger-actions'),open=make('a','Send allowance to Discern','ledger-button');open.href='discern://phone';
+      open.addEventListener('click',e=>{try{if(blocked||busy||date!==todayISO()||input.value.trim()==='')throw Error('Choose today and enter other-device minutes first.');open.href=B.allowanceURL(snapshot());}catch(err){e.preventDefault();toast(err.message);}});
+      const download=button('Export allowance file',()=>{try{if(blocked||busy||input.value.trim()==='')return;const p=snapshot(),url=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'})),a=make('a');a.href=url;a.download='discern-allowance-'+date+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(err){toast(err.message);}});
+      open.setAttribute('aria-disabled',String(date!==todayISO()));download.disabled=date!==todayISO();actions.append(open,download);send.append(actions,detailsInfo('About the Discern allowance','Uses the current daily under-one-hour rule. Other-device minutes are entered separately: do not put a combined phone-and-gaming total in that field. Discern caps the combined allowance at 59 minutes. This is an explicit daily transfer, not background syncing; the native app must be installed for the link to open. File export works as a fallback.'));
+      const receive=make('section',null,'ledger-discern-record');receive.append(make('h4','Return a confirmed usage report'));
+      const text=make('textarea');text.setAttribute('aria-label','Paste Discern usage JSON');text.placeholder='Paste the usage copied from Discern';text.rows=3;
+      const receiveActions=make('div',null,'ledger-actions'),file=make('input');file.type='file';file.accept='application/json,.json';file.hidden=true;
+      receiveActions.append(button('Review pasted usage',()=>{try{reviewDiscernUsage(B.parseUsage(text.value));}catch(err){toast(err.message);}}),button('Import usage file',()=>file.click()));
+      file.addEventListener('change',async()=>{const f=file.files?.[0];file.value='';if(!f)return;try{if(f.size>8192)throw Error('Choose a report smaller than 8 KB.');reviewDiscernUsage(B.parseUsage(await f.text()));}catch(err){toast(err.message);}});
+      receive.append(text,receiveActions,file,make('p','Exact iOS usage is private to Discern’s native report. You confirm its number, add other devices once, and review the combined total here. Import replaces that date’s total; Save day records progress.','ledger-help'));
+      if(l.discernReceipt)receive.append(make('p','Last transfer: '+fmt(l.discernReceipt.phoneMinutes)+' phone + '+fmt(l.discernReceipt.otherDeviceMinutes)+' other-device minutes · user-confirmed Discern report','ledger-help'));
+      card.append(send,receive);paint();return card;
+    }
+    function reviewDiscernUsage(report){
+      if(blocked||busy)return;
+      if(drafts.leisureTimer){toast('Stop the screen-time timer before importing a combined total.');return;}
+      const existing=(drafts.days[report.date]||dayEntryFor(report.date))?.leisure;
+      if(existing?.discernReceipt?.id===report.id||state.logDate===report.date&&state.draftLeisure?.discernReceipt?.id===report.id){toast('This report is already in your record or draft.');return;}
+      closeLeisure();
+      const dialog=make('dialog',null,'ledger-dialog');dialog.setAttribute('aria-labelledby','discern-review-title');const title=make('h2','Review Discern usage');title.id='discern-review-title';
+      dialog.append(title,make('p',pretty(report.date)+' · '+fmt(report.phoneMinutes)+' phone + '+fmt(report.otherDeviceMinutes)+' other-device = '+fmt(report.totalMinutes)+' minutes'),make('p','User-confirmed native report'+(report.emergencyReleased?' · emergency release was used':''),'ledger-help'),make('p','This replaces the combined screen total for this date. It does not add minutes a second time. Save day afterwards to record progress.','ledger-help'));
+      const actions=make('div',null,'ledger-actions');actions.append(button('Cancel',()=>dialog.close()),button('Use this total',()=>{
+        if(blocked||busy||drafts.leisureTimer)return;
+        if(state.logDate!==report.date&&!selectDate(report.date))return;
+        state.draftLeisure={...emptyLeisure(),...state.draftLeisure,screenMinutes:report.totalMinutes,screenConfirmed:true,discernReceipt:{id:report.id,date:report.date,generatedAt:report.generatedAt,phoneMinutes:report.phoneMinutes,otherDeviceMinutes:report.otherDeviceMinutes,source:report.source,observedThresholdLowerBound:report.observedThresholdLowerBound,emergencyReleased:report.emergencyReleased}};
+        state.draft['Screen Discipline']=report.totalMinutes<60?1:0;state.draftMissed=(state.draftMissed||[]).filter(h=>h!=='Screen Discipline');if(report.totalMinutes>=60)state.draftMissed.push('Screen Discipline');remember();dialog.close();render();toast('Combined total added to your draft. Save day to record it.');
+      }));dialog.append(actions);dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
+    }
     function leisurePanel(){
       const date=state.logDate,l=state.draftLeisure||emptyLeisure(),today=date===todayISO(),panel=make('section',null,'ledger-screen ledger-leisure');panel.id='ledger-leisure';panel.setAttribute('aria-labelledby','ledger-leisure-title');
       const header=make('div',null,'ledger-screen-heading'),title=make('h3','Screen Time');title.id='ledger-leisure-title';header.append(title,detailsInfo('About screen time','A manual total of scrolling and video games combined. Stay under 60 minutes each day. The timer tracks only sessions you start; it cannot read your phone’s Screen Time or block apps. Confirm the full day’s total to update the under-one-hour habit. Legacy gaming records stay preserved and are not assumed to be total screen time.'));panel.append(header);
@@ -419,6 +459,7 @@
       if(drafts.leisureTimer)actions.append(button('Stop screen-time timer',()=>{if(blocked||busy)return;checkpointLeisureTimer(true);remember();render();toast('Session minutes kept in your draft.');}));
       else if(today)actions.append(button('Start screen-time timer',()=>{if(blocked||busy||drafts.leisureTimer)return;if(date!==todayISO()||state.logDate!==date){checkDay();return;}remember();state.draft['Screen Discipline']=0;state.draftLeisure={...l,screenMinutes:screenMinutes(l),screenConfirmed:false};drafts.leisureTimer={startedAt:Date.now()};remember();render();}));
       const manual=button('Confirm or edit total',leisureMinutesDialog);manual.id='leisure-minutes';manual.disabled=!!drafts.leisureTimer;actions.append(manual);panel.append(actions);
+      const bridge=discernPanel(date,l);if(bridge)panel.append(bridge);
       if(!today)panel.append(make('p',pretty(date)+' · Historical daily total','ledger-help'));
       const history=make('details',null,'ledger-screen-patterns');history.open=leisureHistoryOpen;history.addEventListener('toggle',()=>leisureHistoryOpen=history.open);history.append(make('summary','Last seven days · recorded screen time'));
       const rows=make('ul');for(let i=6;i>=0;i--){const day=R.addDays(date,-i),entry=day===date?{leisure:l}:(drafts.days[day]||dayEntryFor(day)),prior=entry?.leisure;rows.append(make('li',fmtDay(day)+' · '+(prior?.screenConfirmed?fmt(prior.screenMinutes)+' min total':prior?.gamingMinutes>0?fmt(prior.gamingMinutes)+' min gaming · total unknown':'Total not recorded')));}history.append(rows);panel.append(history);return panel;
@@ -718,3 +759,4 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
+
