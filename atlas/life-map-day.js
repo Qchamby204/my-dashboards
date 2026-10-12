@@ -121,11 +121,17 @@
       return '<button type="button" class="btn lm-category-card" data-day="tab" data-tab="areas" data-category="'+key+'"><strong>'+title+'</strong><span>'+rows.length+' open task'+(rows.length===1?'':'s')+(due?' · '+due+' deadlines soon':'')+(routines?' · '+routines+' routines due':'')+'</span><small>Open ›</small></button>';
     }).join('')+'</div>';
   }
+  function completedRecap(){
+    const rows=M.completedToday(S,todayISO(),opsRows(todayISO()));if(!rows.length)return '';
+    const row=r=>'<li><span class="lm-completed-check" aria-hidden="true">✓</span><div><strong>'+esc(r.title||'Completed item')+'</strong><span class="lm-help">'+esc(r.kind)+'</span></div></li>';
+    return '<section class="panel lm-day-panel lm-completed-recap" aria-label="What you moved forward today"><div class="lm-day-section-title"><h2>What you moved forward today</h2>'+info('About today’s completed work','Tasks completed today, routine check-ins and dated Ops completions appear here from their existing saved records. Reopened tasks and undone check-ins drop out. Opening this view earns nothing.')+'</div><p class="lm-completed-count">'+rows.length+' completed today</p><ul>'+rows.slice(0,3).map(row).join('')+'</ul>'+(rows.length>3?'<details><summary>See all '+rows.length+' completions</summary><ul>'+rows.slice(3).map(row).join('')+'</ul></details>':'')+'</section>';
+  }
   function homeView(){
     const c=recommend();
     let html=heading(niceToday(),'A clear next move.',button('I’m off track','reset'));
     if(!window.AtlasConnected)html+='<section id="atlas-daily-root" aria-label="Daily preparation"></section>';
     html+=panel('Right now',rightNow()+ '<div class="lm-inline">'+button('Today’s scheduled tasks','view-day-task')+'</div>');
+    html+=completedRecap();
     if(ui.reset)html+=panel('Return to your day','<h2>Restart from here</h2>'+help('Choose the time you actually have. Your unfinished tasks stay available.')+field('Minutes available',select('available',ui.available,[[10,'10 minutes'],[25,'25 minutes'],[45,'45 minutes'],[60,'60 minutes']]))+candidateCard(recommend({available:Number(ui.available)}))+button('Close reset','reset-close'));
     html+=panel('Foundations','<div class="lm-day-section-title"><h2>Keep life running</h2>'+info('How foundations work','Real deadlines, due prep reminders, due routines and scheduled to-dos stay in view. Started work stays in focus until you finish or change it. Nothing is completed by the clock.')+'</div>'+foundationCards());
     const routines=dueRoutines();if(routines.length)html+=panel('Due routines','<div class="lm-day-section-title"><h2>The basics due today</h2>'+button('All routines','tab','data-tab="board"')+'</div>'+routines.slice(0,5).map(c=>D.choreRow(c)).join(''));

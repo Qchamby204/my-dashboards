@@ -149,6 +149,17 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(len(self.state()['log']), 0)
         self.assertFalse(self.errors)
 
+    def test_home_recap_follows_saved_completion_and_undo(self):
+        self.load(board([task('one', plan='2026-09-17')]), home=True)
+        self.assertEqual(self.page.locator('.lm-completed-recap').count(), 0)
+        self.page.evaluate("LifeMapDashboard.setStatus('one','Done')")
+        self.page.wait_for_selector('.lm-completed-recap')
+        self.assertIn('Task one', self.page.locator('.lm-completed-recap').inner_text())
+        self.assertIn('1 completed today', self.page.locator('.lm-completed-recap').inner_text())
+        self.page.locator('#undoToast button').click()
+        self.assertEqual(self.page.locator('.lm-completed-recap').count(), 0)
+        self.assertFalse(self.errors)
+
     def test_project_children_checklist_and_waiting(self):
         self.load()
         self.open_section('proj')
