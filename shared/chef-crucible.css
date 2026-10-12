@@ -288,5 +288,5 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] details.cat[open]>summar
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] details.cat>summary span{font-size:.8125rem;white-space:nowrap}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] details.cat .chips{padding:0 16px 16px;gap:10px;margin:0}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] #ing-clear{margin:8px 0 0!important;box-shadow:none}
-html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] body::before{content:'';position:fixed;z-index:60;top:0;left:0;right:0;height:var(--cc-top);background:var(--neo-surface);pointer-events:none}
 @media(max-width:360px){html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] .recipe-card{padding:20px!important}}
+
