@@ -506,12 +506,11 @@
     function rewardPhoto(r){const image=make('img',null,'ledger-reward-photo');image.src=r.photo;image.alt='';image.loading='lazy';return image;}
     async function resizeRewardPhoto(file){
       if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>8*1024*1024)throw Error('Choose a JPEG, PNG or WebP photo under 8 MB.');
-      const url=URL.createObjectURL(file),image=new Image();
-      try{await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(Error('This photo could not be opened. Try a JPEG.'));image.src=url;});
+      const source=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('This photo could not be read. Try another photo.'));reader.readAsDataURL(file);}),image=new Image();
+      await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(Error('This photo could not be opened. Try a JPEG.'));image.src=source;});
         const canvas=document.createElement('canvas'),scale=Math.min(1,480/Math.max(image.naturalWidth,image.naturalHeight));canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#efeae3';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
         for(const quality of [.8,.65,.5,.35,.2]){const photo=canvas.toDataURL('image/jpeg',quality);if(photo.length<=40000)return photo;}
         throw Error('This photo has too much detail. Try cropping it first.');
-      }finally{URL.revokeObjectURL(url);}
     }
     function personalRewardDialog(id){
       const existing=(drafts.rewards||[]).find(r=>r.id===id),life=compute(state.days,state.goals).life;
