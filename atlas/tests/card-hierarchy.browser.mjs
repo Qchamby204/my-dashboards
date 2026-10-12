@@ -72,6 +72,24 @@ try{
   await open('life-map');await p.locator('.daily-chips').scrollIntoViewIfNeeded();
   assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>['inline-flex','flex'].includes(getComputedStyle(n).display)&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
   await open('communication-trainer');assert(await p.locator('.atlas-goal-options').evaluate(n=>parseFloat(getComputedStyle(n).rowGap)>=12));await capture(p,'communicator-choices',theme,w,size);
+  await p.waitForFunction(()=>!!window.CommunicatorLadder);
+  assert.equal(await p.evaluate(()=>CommunicatorLadder.snapshot().completed),0);
+  await capture(p,'communicator-ladder',theme,w,size,p.locator('.cl-next'));
+  await p.locator('.cl-roadmap summary').click();await capture(p,'communicator-ladder-expanded',theme,w,size,p.locator('.cl-next'));
+  assert.equal(await p.locator('[data-ladder-start="handle-objection"]').count(),0,'later challenges preview without bypassing prerequisites');
+  await p.locator('[data-ladder-start="clear-point"]').first().click();assert(await p.locator('#txBox').isVisible());
+  assert(await p.locator('.card.rubric button[onclick="finishDrill()"]').isDisabled(),'unperformed challenge cannot be saved');
+  await p.locator('#txBox').fill('A plan helps you choose what matters, compare the tradeoffs, and decide what to do next. Here is a fictional example of choosing between two goals.');
+  await p.locator('.card.rubric input[type="range"]').evaluateAll(ns=>ns.forEach(n=>{n.value='4';n.dispatchEvent(new Event('input',{bubbles:true}));}));
+  await p.locator('[data-ladder-performed]').check();await p.locator('.card.rubric button[onclick="finishDrill()"]').click();
+  assert.match(await p.locator('.cl-receipt').textContent(),/Challenge completed/);assert.match(await p.locator('.cl-receipt').textContent(),/80.*100 self-score/s);
+  assert.equal(await p.evaluate(()=>S.reps.length),1);assert.equal(await p.evaluate(()=>xp()),10);
+  await capture(p,'communicator-ladder-saved',theme,w,size,p.locator('.cl-receipt'));
+  await p.reload();await settle(p);assert.equal(await p.evaluate(()=>CommunicatorLadder.snapshot().completed),1);
+  await p.locator('[data-ladder-start="make-it-land"]').first().click();await p.locator('#txBox').fill('My unfinished second challenge.');
+  await p.reload();await settle(p);
+  await p.getByRole('button',{name:'Resume practice',exact:true}).click();assert.equal(await p.locator('#txBox').inputValue(),'My unfinished second challenge.');assert.equal(await p.evaluate(()=>recOn),false);
+  await capture(p,'communicator-ladder-draft',theme,w,size,p.locator('.drillcard'));
   await open('the-library');
   const raw=await p.evaluate(()=>{const raw=localStorage.getItem('atlas.library.v1');return raw;});
   if(await p.locator('[data-action="choose-goal"]').count())await p.locator('[data-action="choose-goal"]').first().click();
@@ -86,4 +104,5 @@ try{
  }
  console.log(JSON.stringify({views:reports.length,engine,failures:0}));
 }finally{writeFileSync(path.join(out,'card-hierarchy-audit.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
+
 
