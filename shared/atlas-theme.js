@@ -53,7 +53,7 @@
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasLedgerBoot=boot;
       const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js?v=038c74b94b00',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
-      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=5154211470de',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=b0ec1e6f88ef',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
     }
   }
   const key = 'atlas.appearance.v1';
@@ -176,6 +176,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, { once: true });
   else ready();
 })();
+
 
 
 
