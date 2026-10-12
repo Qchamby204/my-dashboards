@@ -212,8 +212,50 @@ with sync_playwright() as pw:
             expect(page.get_by_role('textbox', name='Amount for ' + habit, exact=True)).to_have_value(value)
             no_overflow()
         page.screenshot(path=str(OUT / f'{ENGINE}-amount-done.png'), full_page=True)
+        # Discern exchange: use a new isolated profile and no real records.
+        exchange_context = browser.new_context(viewport={'width': 320, 'height': 844}, is_mobile=True, has_touch=True, timezone_id='America/Winnipeg', reduced_motion='reduce')
+        exchange = exchange_context.new_page()
+        exchange.clock.set_fixed_time(dt.datetime(2026, 10, 8, 17, tzinfo=dt.timezone.utc))
+        exchange.on('pageerror', lambda e: errors.append(str(e)))
+        exchange.goto(BASE + '/life-ledger.html', wait_until='networkidle')
+        exchange.wait_for_function('!!window.LedgerDays && !!window.DiscernBridge')
+        exchange.locator('#ledger-leisure-preview').click()
+        exchange.locator('#ledger-discern-bridge > summary').click()
+        exchange.get_by_label('Gaming / scrolling on other devices (minutes)', exact=True).fill('10')
+        exchange.get_by_label('Gaming / scrolling on other devices (minutes)', exact=True).press('Tab')
+        with exchange.expect_download() as download_info:
+            exchange.get_by_role('button', name='Export allowance file', exact=True).click()
+        download = download_info.value
+        allowance = json.loads(Path(download.path()).read_text())
+        assert allowance['allowanceMinutes'] == 60 and allowance['otherDeviceMinutes'] == 10
+        assert allowance['date'] == DAY
+        assert exchange.evaluate('DiscernBridge.effectivePhoneBudget(' + json.dumps(allowance) + ')') == 49
+        report = {'app': 'discern', 'kind': 'discern-usage', 'version': 1, 'id': 'a1234567-1234-4123-8123-123456789abc', 'date': DAY, 'generatedAt': 1791478800000, 'phoneMinutes': 20, 'otherDeviceMinutes': 10, 'totalMinutes': 30, 'source': 'user-confirmed-native-report', 'observedThresholdLowerBound': 20, 'emergencyReleased': False}
+        report['generatedAt'] = exchange.evaluate('Date.now()')
+        exchange.get_by_label('Paste Discern usage JSON', exact=True).fill(json.dumps(report))
+        exchange.get_by_role('button', name='Review pasted usage', exact=True).click()
+        expect(exchange.get_by_role('dialog', name='Review Discern usage', exact=True)).to_be_visible()
+        assert exchange.evaluate('state.days.length') == 0
+        exchange.get_by_role('button', name='Use this total', exact=True).click()
+        assert exchange.evaluate('state.draftLeisure.screenMinutes') == 30
+        assert exchange.evaluate('state.days.length') == 0
+        exchange.evaluate('LedgerDays.saveDay()')
+        exchange.wait_for_function('state.days.length===1 && !document.getElementById("app").inert')
+        assert exchange.evaluate('state.days[0].leisure.screenMinutes') == 30
+        assert exchange.evaluate('state.days[0].leisure.discernReceipt.id') == report['id']
+        before_xp = exchange.evaluate('compute(state.days,state.goals).life.xp')
+        exchange.locator('#ledger-leisure-preview').click()
+        exchange.locator('#ledger-discern-bridge > summary').click()
+        exchange.get_by_label('Paste Discern usage JSON', exact=True).fill(json.dumps(report))
+        exchange.get_by_role('button', name='Review pasted usage', exact=True).click()
+        assert exchange.get_by_role('dialog', name='Review Discern usage', exact=True).count() == 0
+        assert exchange.evaluate('compute(state.days,state.goals).life.xp') == before_xp
+        assert exchange.evaluate('state.days[0].leisure.screenMinutes') == 30
+        exchange.screenshot(path=str(OUT / f'{ENGINE}-discern-exchange.png'), full_page=True)
+        exchange_context.close()
         assert not errors, errors
         print(ENGINE + ': ongoing goals, catch-up, screen boundary, lifetime levels, history and responsive journeys passed')
     finally:
         page.screenshot(path=str(OUT / f'{ENGINE}-final.png'), full_page=True)
         browser.close()
+
