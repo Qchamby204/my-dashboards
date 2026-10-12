@@ -49,3 +49,8 @@ test('Ops completion history retains the selected day after its scheduling enhan
  vm.createContext(context);vm.runInContext(source,context);vm.runInContext("set('weekly',0,{done:true});delete state.sched['weekly:0'];addEvent({kind:'cadence',cadence:'weekly',key:'weekly:0',label:'Weekly review'});",context);
  assert.equal(context.state.events[0].planDate,today);assert.equal(context.state['weekly:0'].note,'Keep this');assert.equal(context.state['weekly:0'].p,'W2026-09-14');
 });
+
+test('recap dates reflect actual completion, not the originally scheduled date',()=>{
+ const a=fixture();const ticket=a.ops.complete('ops:daily:0',today);assert.equal(a.ops.find('ops:daily:0',today).completedOn,today);a.ops.undo(ticket);assert.equal(a.ops.find('ops:daily:0',today).completedOn,'');
+ const old=fixture({'weekly:0':{done:true,p:a.ops.period('weekly',today),lastDone:'2026-09-15'}});assert.equal(old.ops.find('ops:weekly:0',today).completedOn,'2026-09-15');
+});

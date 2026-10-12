@@ -89,6 +89,8 @@ try{
   await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
   await open('life-map');await p.locator('.daily-chips').scrollIntoViewIfNeeded();
   assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>['inline-flex','flex'].includes(getComputedStyle(n).display)&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
+  await p.evaluate(async()=>{await LifeMapWorkflow.transaction(next=>{next.projects.push({id:'recap-example',task:'Prepare the nursery shelf',area:'Family & Baby',status:'Not started',pri:'Med'});},'Added task','task_created');await LifeMapDashboard.setStatus('recap-example','Done');});
+  await p.locator('#lm-day-nav-home').click();assert.match(await p.locator('.lm-completed-recap').textContent(),/Prepare the nursery shelf/);await capture(p,'life-map-completed-today',theme,w,size,p.locator('.lm-completed-recap'));
   await open('communication-trainer');assert(await p.locator('.atlas-goal-options').evaluate(n=>parseFloat(getComputedStyle(n).rowGap)>=12));await capture(p,'communicator-choices',theme,w,size);
   await p.waitForFunction(()=>!!window.CommunicatorLadder);
   assert.equal(await p.evaluate(()=>CommunicatorLadder.snapshot().completed),0);
@@ -119,6 +121,8 @@ try{
   await p.locator('.stats').scrollIntoViewIfNeeded();await capture(p,'library-stats',theme,w,size);
   assert(await p.locator('.continue-book .book-title').first().evaluate(n=>getComputedStyle(n).boxShadow==='none'&&parseFloat(getComputedStyle(n).borderTopWidth)===0),'book title is a text control');
   await capture(p,'library-reading-record',theme,w,size,p.locator('.continue-book').first());
+  await p.locator('.library-bookshelf').scrollIntoViewIfNeeded();await capture(p,'library-bookshelf',theme,w,size,p.locator('.library-bookshelf'));
+  await p.locator('.continue-book [data-action=log-pages]').first().click();await capture(p,'library-log-pages',theme,w,size,p.locator('.continue-book').first());
   assert.deepEqual(runtime,[]);await c.close();
  }
  console.log(JSON.stringify({views:reports.length,engine,failures:0}));

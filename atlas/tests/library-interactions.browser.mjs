@@ -26,6 +26,7 @@ try{
   await p.goto(base+'#home');await settled();assert.equal(await p.locator('.topic-card').count(),14);assert.equal(await records(),null);
   assert.equal(await p.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(x=>x.id);return ids.length===new Set(ids).size;}),true,'no colliding SVG IDs');
   assert.equal(await p.locator('.badge-symbol').first().evaluate(e=>getComputedStyle(e).animationName),'none');
+  assert.equal(await p.locator('.library-bookshelf .shelf-book').count(),3);assert.equal(await p.locator('.library-bookshelf .book-jacket').count(),3);
   await photo('home');
   await p.locator('.topic-card').first().click();await settled();
   assert.deepEqual(await p.locator('[data-learning-sub]').evaluateAll(es=>es.map(e=>e.dataset.learningSub)),['1A','1C','1B','1E','1D','1F','1G']);
@@ -57,9 +58,9 @@ try{
   await row.getByRole('button',{name:'Resume reading',exact:true}).click();assert.equal((await records()).progress[id].status,'reading');
   await row.locator('[data-action=notes]').first().click();await p.locator('#note-notes').fill('Keep this note when toggling and logging pages.');await p.getByRole('button',{name:'Done',exact:true}).click();await settled();
   await p.goto(base+'#home');await settled();
-  const card=p.locator('.continue-book').first();assert.equal(await card.locator('[data-progress-page]').inputValue(),'64');
+  const card=p.locator('.continue-book').first();await card.getByRole('button',{name:'Log pages',exact:true}).click();assert.equal(await card.locator('[data-progress-page]').inputValue(),'64');
   await card.locator('[data-progress-page]').fill('123');await card.getByRole('button',{name:'+10',exact:true}).click();assert.equal(await card.locator('[data-progress-page]').inputValue(),'128');
-  await card.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],128);assert.equal((await records()).progress[id].status,'reading','a full bar does not silently mark completion');
+  await card.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],128);assert.match(await card.locator('[data-progress-feedback]').textContent(),/64 pages closer to finishing/);assert.equal((await records()).progress[id].status,'reading','a full bar does not silently mark completion');
   // Corrections work in both directions and do not overwrite the reference edition count.
   await card.locator('[data-progress-page]').fill('50');await card.getByRole('button',{name:'Save',exact:true}).click();assert.equal((await records()).reading.pagesRead[id],50);assert.equal((await records()).reading.pageCounts[id],undefined);
   await p.locator('[data-action=log-focus-progress]').click();editor=p.locator('#modal [data-progress-form]');
@@ -91,6 +92,7 @@ try{
   assert.equal(await pace(),Math.ceil(((await remaining())+(await todayRead()))/10));
   await logRow.locator('[data-progress-page]').fill('56');await logRow.getByRole('button',{name:'Save',exact:true}).click();await settled();await assertGoal();
   await p.goto(base+'#home');await settled();
+  await p.locator('.continue-book').getByRole('button',{name:'Log pages',exact:true}).click();
   await p.locator('.continue-book [data-progress-page]').fill('60');await p.locator('.continue-book').getByRole('button',{name:'Save',exact:true}).click();await settled();
   assert.equal((await records()).reading.goals['1:all'],deadline);
   await p.locator('[data-action=log-focus-progress]').click();await p.locator('#modal [data-progress-page]').fill('70');await p.locator('#modal').getByRole('button',{name:'Save',exact:true}).click();

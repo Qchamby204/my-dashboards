@@ -108,3 +108,10 @@ test('calendar alert uses the coverage reminder date and an actual VALARM',()=>{
  const f=M.mealStatus({start:today,dinners:5},today),ics=M.calendarReminder({id:'dinner',title:'Prep next dinners',date:f.remind});
  assert.match(ics,/DTSTART:20261008T090000/);assert.match(ics,/BEGIN:VALARM/);
 });
+
+test('completed recap counts only dated completions, deduplicates routines and follows undo',()=>{
+ const state=board([task('today',{status:'Done',doneAt:today}),task('old',{status:'Done',doneAt:'2026-10-04'}),task('reopened',{doneAt:today}),task('archived',{status:'Done',doneAt:today,archived:true})],{chores:[{id:'routine',chore:'Walk Hudson'}],choreHistory:[{choreId:'routine',date:today,status:'done'},{choreId:'routine',date:today,status:'done'},{choreId:'routine',date:today,status:'skipped'}]});
+ const ops=[{id:'ops:1',title:'Review',status:'Done',completedOn:today},{id:'ops:2',title:'Older',status:'Done',completedOn:'2026-10-04'}],raw=JSON.stringify(state);
+ assert.deepEqual(M.completedToday(state,today,ops).map(r=>r.title),['Task today','Walk Hudson','Review']);assert.equal(JSON.stringify(state),raw);
+ state.projects[0].status='Not started';state.choreHistory=[];assert.equal(M.completedToday(state,today,[]).length,0);assert.equal(M.completedToday(state,'bad',ops).length,0);
+});

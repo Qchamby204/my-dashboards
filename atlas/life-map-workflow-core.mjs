@@ -191,5 +191,13 @@ export function createLifeMapWorkflow(){
     if(fitting.length)return taskCandidate(sortTasks(fitting,today)[0],'Your next available to-do. Start it or make a deliberate plan for this time.');
     return {kind:'free',title:'No active block right now',minutes:0,why:'Choose rest or leisure, or deliberately bring another task into today.'};
   }
-  return Object.freeze({clone,validDate,plus,week,days,addPeriod,resolveDate,parseCapture,setPlan,capture,parked,open,actionable,classify,todayTasks,sortTasks,groupTasks,projectProgress,search,nextFixed,choreDue,advanceChore,taskTemplate,fromTemplate,calendarReminder,categories,categoryFor,dinnerDates,mealStatus,blockMinutes,dayRecommendation});
+  function completedToday(state,today,ops=[]){
+    if(!validDate(today))return [];
+    const rows=[],seen=new Set(),add=(kind,id,title)=>{const key=kind+':'+id;if(!id||seen.has(key))return;seen.add(key);rows.push({kind,id,title});};
+    for(const t of state.projects||[])if(!t.archived&&t.status==='Done'&&t.doneAt===today)add('Task',t.id,t.task);
+    for(const h of state.choreHistory||[]){if(h.date!==today||h.status!=='done')continue;const c=(state.chores||[]).find(c=>c.id===h.choreId&&!c.archived);if(c)add('Routine',c.id,c.chore);}
+    for(const t of ops)if(t.status==='Done'&&t.completedOn===today)add('Ops',t.id,t.title);
+    return rows;
+  }
+  return Object.freeze({completedToday,clone,validDate,plus,week,days,addPeriod,resolveDate,parseCapture,setPlan,capture,parked,open,actionable,classify,todayTasks,sortTasks,groupTasks,projectProgress,search,nextFixed,choreDue,advanceChore,taskTemplate,fromTemplate,calendarReminder,categories,categoryFor,dinnerDates,mealStatus,blockMinutes,dayRecommendation});
 }
