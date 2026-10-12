@@ -1,0 +1,32 @@
+/* A short practice loop over the original timer, drafts, rubric and verified saves. */
+(()=>{
+ function start(){
+  const M=window.CommunicatorLadderModel,P=window.CommunicationImprovements;
+  if(!M||!P||!window.CommunicatorLearning||window.CommunicatorLadder)return;
+  const oldDash=pageDash,oldTrain=pageTrain,oldProgress=pageProgress,oldDrill=drillView,oldRender=render;
+  const snap=()=>M.snapshot(S.reps,dstr(new Date()));
+  const button=(text,id)=>'<button class="btn" type="button" data-ladder-start="'+id+'">'+text+'</button>';
+  function home(){const s=snap(),c=s.next;return '<section class="card cl-next"><div class="cl-heading"><span class="cl-kicker">Skill ladder</span><span>'+s.completed+' / '+s.total+' completed</span></div><h2>'+esc(c.title)+'</h2><p>'+esc(c.focus)+'</p><div class="cl-meta"><span>'+c.time+' seconds</span><span>'+(c.best===null?'First attempt':'Best self-score · '+c.best+'/100')+'</span></div><div class="cl-actions">'+button(s.completed===s.total?'Repeat this challenge':'Start next challenge',c.id)+'</div><progress max="'+s.total+'" value="'+s.completed+'" aria-label="Completed skill-ladder challenges"></progress><details class="cl-roadmap"><summary>See your ladder</summary>'+s.stages.map((stage,i)=>'<article class="cl-stage"><div class="cl-stage-heading"><span class="cl-step">'+(i+1)+'</span><div><h3>'+esc(stage.title)+'</h3><span class="cl-state">'+(stage.passed&&stage.unlocked?'Completed':stage.unlocked?'Ready':'Up next')+'</span></div></div><p>'+esc(stage.focus)+'</p>'+(stage.best!==null?'<p class="cl-score">Best self-score '+stage.best+'/100 · '+stage.attempts+' saved attempt'+(stage.attempts===1?'':'s')+'</p>':'')+(stage.unlocked?button(stage.passed?'Repeat & improve':'Start challenge',stage.id):'<p class="cl-lock">Complete the previous challenge to unlock.</p>')+'</article>').join('')+'</details><details class="cl-info"><summary>ⓘ How progress works</summary><p>Complete the attempt, review your rubric, and save. A self-score of at least 4/5 on every item completes a challenge and opens the next one. Scores reflect your own review, not an objective assessment.</p><p>Saved attempts use the existing 10 XP reward. No extra XP for opening a page, and no penalty for taking a break. Your ladder stays on this device and travels with your existing backup.</p></details></section>';}
+  function putAfterResume(html,card){const resume=html.match(/^<section class="card communication-resume">[\s\S]*?<\/section>/)?.[0]||'';return resume+card+html.slice(resume.length);}
+  pageDash=()=>putAfterResume(oldDash(),home());
+  pageTrain=()=>curDrill?oldTrain():putAfterResume(oldTrain(),home());
+  function receipt(rep){
+   const s=snap(),stage=s.stages.find(c=>c.id===rep.challenge.id),prior=S.reps.filter(r=>r.id!==rep.id&&r.challenge?.id===rep.challenge.id),before=M.snapshot(prior,dstr(new Date())).stages.find(c=>c.id===stage.id),passed=stage.passed&&stage.unlocked,newBest=before.best!==null&&rep.score>before.best,firstPass=passed&&!before.passed;
+   return '<section class="card communication-saved cl-receipt" role="status"><span class="cl-kicker">'+(firstPass?'Challenge completed':newBest?'Personal best':'Attempt saved')+'</span><h2>'+esc(stage.title)+'</h2><div class="cl-result">'+rep.score+'<span>/100 self-score</span></div><p>+10 XP · '+(before.best===null?'Your first saved attempt':newBest?'Improved your best by '+(rep.score-before.best)+' points':'Previous best '+before.best+'/100')+'</p><p>'+(firstPass?'Next challenge unlocked.':passed?'Repeat whenever you want to sharpen this skill.':'Aim for 4/5 on each rubric item to complete this challenge.')+'</p><div class="cl-actions">'+button(!passed?'Try this challenge again':s.completed===s.total?'Repeat a challenge':'Start next challenge',!passed?stage.id:s.next.id)+'</div></section>';
+  }
+  pageProgress=()=>{let html=oldProgress(),rep=P.lastSaved;if(rep?.challenge)html=html.replace(/<section class="card communication-saved"[\s\S]*?<\/section>/,receipt(rep));return html+home();};
+  drillView=()=>{let html=oldDrill(),c=curDrill?.topic.challenge;if(!c)return html;const stage=M.get(c.id);
+   html=html.replace(/<button[^>]*onclick="launchDrill\(curDrill.drill\)"[^>]*>New topic<\/button>/,'').replace(/<button[^>]*onclick="retireCurrent\(\)"[^>]*>[\s\S]*?Not interested<\/button>/,'');
+   const cue=stage.interruption?'<section class="card cl-interruption"><h2>Halfway challenge</h2>'+(c.revealed?'<p role="status">'+esc(stage.interruption)+'</p>':'<button class="btn ghost" type="button" data-ladder-reveal>Reveal the interruption</button>')+'</section>':'';
+   html=html.replace('<div class="card rubric">',cue+'<div class="card rubric"><label class="cl-performed"><input type="checkbox" data-ladder-performed '+(c.performed?'checked':'')+'>I completed this challenge out loud or in writing.</label>');
+   return html;
+  };
+  render=()=>{oldRender();if(curDrill?.topic.challenge){const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!curDrill.topic.challenge.performed;}};
+  document.addEventListener('click',e=>{const b=e.target.closest?.('[data-ladder-start]');if(b){P.startChallengePractice(b.dataset.ladderStart);return;}if(e.target.closest?.('[data-ladder-reveal]')&&curDrill?.topic.challenge){curDrill.topic.challenge.revealed=true;P.rememberPractice();render();}});
+  document.addEventListener('change',e=>{if(e.target.matches?.('[data-ladder-performed]')&&curDrill?.topic.challenge){curDrill.topic.challenge.performed=e.target.checked;P.rememberPractice();const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!e.target.checked;}});
+  window.CommunicatorLadder=Object.freeze({snapshot:snap});render();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+ window.addEventListener('communicator-ready',start);
+ window.addEventListener('communicator-learning-ready',start);
+})();

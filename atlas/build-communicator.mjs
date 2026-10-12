@@ -26,9 +26,10 @@ const theme=await readFile(new URL('shared/atlas-theme.js',root),'utf8');
 const version=createHash('sha256').update(await readFile(new URL('shared/communication-enhancements.js',root))).digest('hex').slice(0,12);
 await writeFile(new URL('shared/communicator-theme.js',root),'// Generated Communicator entry from shared/atlas-theme.js.\n'+theme.replace(/communication-enhancements\.js\?v=[a-z0-9]+/g,'communication-enhancements.js?v='+version));
 let html=await readFile(new URL('communication-trainer.html',root),'utf8');
-for(const asset of ['communicator-theme.js','communicator-curriculum.js','communicator-curriculum.css','communicator-integration.js','communicator-integration.css']){
+for(const asset of ['communicator-theme.js','communicator-curriculum.js','communicator-curriculum.css','communicator-integration.js','communicator-integration.css','communicator-ladder-model.js','communicator-ladder.js','communicator-ladder.css']){
   const hash=createHash('sha256').update(await readFile(new URL('shared/'+asset,root))).digest('hex').slice(0,12);
   const pattern=new RegExp('shared/'+asset.replaceAll('.','\\.')+'(?:\\?v=[a-zA-Z0-9-]+)?','g');
   html=html.replace(pattern,'shared/'+asset+'?v='+hash);
 }
 await writeFile(new URL('communication-trainer.html',root),html);
+

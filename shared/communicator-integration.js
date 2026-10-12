@@ -109,8 +109,9 @@
       track='investing';reference=references.some(([id])=>id===match[1])?match[1]:(aim|| (existing?'blocks':'today'));nav('learn');
     }
     window.addEventListener('hashchange',route);
-    window.CommunicatorLearning=Object.freeze({source,begin,open,curriculum});route();render();
+    window.CommunicatorLearning=Object.freeze({source,begin,open,curriculum});route();render();window.dispatchEvent?.(new Event('communicator-learning-ready'));
   }
   window.addEventListener('communicator-ready',start);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
