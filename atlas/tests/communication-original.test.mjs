@@ -8,6 +8,14 @@ const original=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(match=>ma
 const extension=readFileSync(new URL('../../shared/communication-enhancements.js',import.meta.url),'utf8');
 
 let uuidSerial=0;
+test('ladder attempts require completion, use verified XP and preserve metadata through reload and backup',()=>{
+ const h=boot();assert.equal(h.api.startChallengePractice('clear-point'),true);assert.equal(h.run('curDrill.drill.skill'),'clarity');h.run('curDrill.scores=[4,4,4]');assert.equal(h.run('finishDrill()'),false);assert.equal(h.run('S.reps.length'),0);
+ h.run('curDrill.topic.challenge.performed=true');h.localStorage.blockedKey='mc_reps';assert.equal(h.run('finishDrill()'),false);assert.equal(h.run('S.reps.length'),0);assert.equal(h.run('xp()'),0);
+ h.localStorage.blockedKey=null;assert.equal(h.run('finishDrill()'),true);assert.equal(h.run('xp()'),10);assert.equal(h.run('S.reps[0].challenge.id'),'clear-point');const payload=h.run('Store.dump()');const restored=boot({records:Object.fromEntries(h.storage)});assert.equal(restored.run('S.reps[0].challenge.performed'),true);assert.equal(h.api.validateBackup(payload).reps[0].challenge.id,'clear-point');
+});
+test('ladder drafts resume without microphone and cannot bypass unlocks or lose existing work',()=>{
+ const h=boot();assert.equal(h.api.startChallengePractice('handle-objection'),false);h.api.startChallengePractice('clear-point');h.run("curDrill.tx='My unfinished explanation';window.CommunicationImprovements.rememberPractice()");const again=boot({records:Object.fromEntries(h.storage)});assert.equal(again.run('curDrill.topic.challenge.id'),'clear-point');assert.equal(again.run('recOn'),false);assert.equal(again.run('curDrill.tx'),'My unfinished explanation');again.api.startChallengePractice('clear-point');assert.equal(again.run('curDrill.tx'),'My unfinished explanation');again.run('importConfirm()');assert.equal(again.run('curDrill.topic.challenge.performed'),false);
+});
 function boot({speech=true,records={}}={}){
   const nodes=new Map(),events=new Map(),windowEvents=new Map(),intervals=new Map(),timeouts=new Map(),engines=[];let now=Date.parse('2026-09-08T12:00:00Z'),nextId=0;
   class Element{
@@ -34,6 +42,7 @@ function boot({speech=true,records={}}={}){
     setInterval:fn=>{const id=++nextId;intervals.set(id,fn);return id;},clearInterval:id=>intervals.delete(id),
     setTimeout:fn=>{const id=++nextId;timeouts.set(id,fn);return id;},clearTimeout:id=>timeouts.delete(id)});
   vm.runInContext(readFileSync(new URL('../../shared/atlas-streak.js',import.meta.url),'utf8'),context);context.window.AtlasStreak=context.AtlasStreak;
+  vm.runInContext(readFileSync(new URL('../../shared/communicator-ladder-model.js',import.meta.url),'utf8'),context);
   vm.runInContext(original+"\nDRILLS.push({id:'synthetic',name:'Explain clearly',skill:SKILLS[0].id,time:90,steps:()=>['Speak about a familiar topic.'],rubric:['Clear point','Useful example','Clear ending']});\n"+extension,context);
   const run=code=>vm.runInContext(code,context);
   run("uiConfirm=(title,body,label,action)=>{globalThis.importConfirm=action;};uiNote=message=>{globalThis.importMessage=message;};");
@@ -183,3 +192,4 @@ test('Library source stays attached to draft and saved practice without changing
   app.run('finishDrill()');assert.equal(app.run('S.reps.at(-1).librarySource.text'),'A useful idea');
   assert.throws(()=>app.run("window.CommunicationImprovements.validateBackup({reps:[{date:new Date().toISOString(),topic:'Idea',skill:'clarity',drill:'Drill',score:60,librarySource:{kind:'book',id:'x',title:'title',text:''}}]})"));
 });
+
