@@ -503,15 +503,29 @@
       const next=Rewards.enjoy(drafts.rewards||[],id,compute(state.days,state.goals).life,new Date().toISOString());
       const ok=await writePersonalRewards(next);if(ok)toast('Reward recorded as enjoyed.');return ok;
     }
+    function rewardPhoto(r){const image=make('img',null,'ledger-reward-photo');image.src=r.photo;image.alt='';image.loading='lazy';return image;}
+    async function resizeRewardPhoto(file){
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>8*1024*1024)throw Error('Choose a JPEG, PNG or WebP photo under 8 MB.');
+      const url=URL.createObjectURL(file),image=new Image();
+      try{await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(Error('This photo could not be opened. Try a JPEG.'));image.src=url;});
+        const canvas=document.createElement('canvas'),scale=Math.min(1,480/Math.max(image.naturalWidth,image.naturalHeight));canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#efeae3';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
+        for(const quality of [.8,.65,.5,.35,.2]){const photo=canvas.toDataURL('image/jpeg',quality);if(photo.length<=40000)return photo;}
+        throw Error('This photo has too much detail. Try cropping it first.');
+      }finally{URL.revokeObjectURL(url);}
+    }
     function personalRewardDialog(id){
       const existing=(drafts.rewards||[]).find(r=>r.id===id),life=compute(state.days,state.goals).life;
       const dialog=make('dialog',null,'ledger-dialog ledger-personal-editor');dialog.setAttribute('aria-labelledby','ledger-personal-title');
       const title=make('h2',existing?'Edit your reward':'Plan something to look forward to');title.id='ledger-personal-title';
       const form=make('form'),rewardLabel=make('label','Reward'),reward=make('input'),levelLabel=make('label','Life Level'),level=make('input'),error=make('p',null,'ledger-error');error.setAttribute('role','alert');
       reward.required=true;reward.maxLength=120;reward.placeholder='A new book, a meal out, a day trip…';reward.value=existing?.title||'';level.type='number';level.required=true;level.min=life.level+1;level.max=10000;level.step=1;level.value=existing?.target||life.level+1;
+      let photo=existing?.photo||'',photoTicket=0,preparingPhoto=false;
+      const photoLabel=make('label','Reward photo (optional)'),photoInput=make('input'),preview=make('div',null,'ledger-reward-photo-preview');photoInput.type='file';photoInput.accept='image/jpeg,image/png,image/webp';photoLabel.append(photoInput);
+      const showPhoto=()=>{preview.replaceChildren();if(photo){preview.append(rewardPhoto({photo}),button('Remove photo',()=>{photoTicket++;preparingPhoto=false;submit.disabled=false;error.textContent='';photo='';photoInput.value='';showPhoto();}));}};showPhoto();
+      photoInput.addEventListener('change',async()=>{const file=photoInput.files[0],ticket=++photoTicket;if(!file)return;preparingPhoto=true;submit.disabled=true;error.textContent='Preparing photo…';try{const next=await resizeRewardPhoto(file);if(ticket===photoTicket){photo=next;showPhoto();error.textContent='';}}catch(err){if(ticket===photoTicket)error.textContent=err.message;}finally{if(ticket===photoTicket){preparingPhoto=false;submit.disabled=false;}}});
       rewardLabel.append(reward);levelLabel.append(level);const submit=make('button','Save reward','ledger-button');submit.type='submit';
-      const actions=make('div',null,'ledger-actions');actions.append(button('Cancel',()=>dialog.close()),submit);form.append(rewardLabel,levelLabel,make('p','Your saved Life Level is '+life.level+'. Choose a future level.','ledger-help'),error,actions);
-      form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;try{if(await savePersonalReward({title:reward.value,target:level.value},id))dialog.close();else error.textContent='Could not save this reward. Your entries are still here; try again.';}catch(err){error.textContent=err.message;}finally{submit.disabled=false;}});
+      const actions=make('div',null,'ledger-actions');actions.append(button('Cancel',()=>dialog.close()),submit);form.append(rewardLabel,levelLabel,photoLabel,preview,make('p','Your saved Life Level is '+life.level+'. Choose a future level.','ledger-help'),error,actions);
+      form.addEventListener('submit',async e=>{e.preventDefault();if(preparingPhoto)return;submit.disabled=true;try{if(await savePersonalReward({title:reward.value,target:level.value,photo},id))dialog.close();else error.textContent='Could not save this reward. Your entries are still here; try again.';}catch(err){error.textContent=err.message;}finally{submit.disabled=false;}});
       dialog.append(title,form,detailsInfo('About personal rewards','Pick a reward you would genuinely enjoy and a reachable milestone. Rewards use saved Life Level XP only. They do not award extra XP, change habit goals, make purchases or extend your screen allowance. Mark enjoyed only after you have taken the reward. Editing saved activity recalculates availability; enjoyed rewards stay recorded. A progress reset archives rewards with the old record.'));
       dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();reward.focus();
     }
@@ -520,7 +534,7 @@
       if(!Rewards)return null;const rewardData=personalRewards(data),panel=make('section',null,'panel ledger-personal-rewards');panel.id=compact?'ledger-reward-preview':'ledger-personal-rewards';
       const heading=make('div',null,'ledger-personal-heading');heading.append(make('h2',compact?'Your next reward':'Rewards to look forward to'),detailsInfo('How rewards work','Plan a reward at a future Life Level. Only saved XP counts; drafts do not unlock rewards. There is no missed-day penalty or extra XP for claiming. Rewards and their enjoyed dates are included in your existing backup.'));panel.append(heading);
       const shown=compact?(rewardData.next?[rewardData.next]:[]):rewardData.pending;
-      for(const r of shown){const card=make('article',null,'ledger-personal-record');card.dataset.rewardId=r.id;const head=make('div',null,'ledger-personal-heading');head.append(make('h3',r.title),make('span','Life Level '+r.target,'ledger-personal-level'));card.append(head,make('p',r.ready?'Ready to enjoy':fmt(r.remaining)+' XP to this reward','ledger-personal-state'));
+      for(const r of shown){const card=make('article',null,'ledger-personal-record');card.dataset.rewardId=r.id;if(r.photo)card.append(rewardPhoto(r));const head=make('div',null,'ledger-personal-heading');head.append(make('h3',r.title),make('span','Life Level '+r.target,'ledger-personal-level'));card.append(head,make('p',r.ready?'Ready to enjoy':fmt(r.remaining)+' XP to this reward','ledger-personal-state'));
         const meter=make('progress');meter.max=1;meter.value=r.progress;meter.setAttribute('aria-label','Progress toward '+r.title);card.append(meter);
         const actions=make('div',null,'ledger-personal-actions');if(compact)actions.append(button(r.ready?'View your earned reward':'View rewards',viewPersonalRewards));else{
           if(r.ready)actions.append(button('Mark enjoyed',()=>confirmAction('Enjoyed this reward?',r.title+' · Life Level '+r.target+'. This records the reward without changing your XP.','Mark enjoyed',async()=>{try{await enjoyPersonalReward(r.id);}catch(err){toast(err.message);}})));
@@ -530,7 +544,7 @@
       }
       if(!shown.length)panel.append(make('p',compact?'Give your next milestone something personal to look forward to.':'Choose a reward you would enjoy, then tie it to a future Life Level.','ledger-help'));
       if(!compact||!shown.length)panel.append(button('Plan a reward',()=>personalRewardDialog()));
-      if(!compact&&rewardData.enjoyed.length){const history=make('details',null,'ledger-personal-history');history.append(make('summary','Rewards enjoyed · '+rewardData.enjoyed.length));for(const r of rewardData.enjoyed){const card=make('article',null,'ledger-personal-record');card.append(make('h3',r.title),make('p','Life Level '+r.target+' · '+new Date(r.claimedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}),'ledger-help'));history.append(card);}panel.append(history);}
+      if(!compact&&rewardData.enjoyed.length){const history=make('details',null,'ledger-personal-history');history.append(make('summary','Rewards enjoyed · '+rewardData.enjoyed.length));for(const r of rewardData.enjoyed){const card=make('article',null,'ledger-personal-record');if(r.photo)card.append(rewardPhoto(r));card.append(make('h3',r.title),make('p','Life Level '+r.target+' · Enjoyed '+new Date(r.claimedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}),'ledger-help'));history.append(card);}panel.append(history);}
       return panel;
     }
 
