@@ -394,3 +394,15 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] .calendar-heading{disp
  html.atlas-neumo.atlas-neumo[data-atlas-app="quinton-os"] .mobilejump{flex-wrap:wrap;justify-content:flex-start}
  html.atlas-neumo.atlas-neumo[data-atlas-app="quinton-os"] .mobilejump a{flex:1 1 auto}
 }
+
+/* Discrete touch feedback, shared by the personal dashboard controls. */
+html.atlas-neumo[data-atlas-app] :is(button,.btn,.ledger-button,.forge-button){-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+html.atlas-neumo[data-atlas-app] :is(button,.btn,.ledger-button,.forge-button):active:not(:disabled){filter:brightness(.94);box-shadow:var(--neo-pressed)!important;}
+html.atlas-neumo[data-atlas-app] :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid var(--neo-accent)!important;outline-offset:3px;}
+html.atlas-neumo[data-atlas-app] :is(.chef-tonight-kicker,.cl-kicker){font-weight:700;letter-spacing:.08em;}
+@media(prefers-reduced-motion:no-preference){
+ html.atlas-neumo[data-atlas-app] :is(button,.btn,.ledger-button,.forge-button){transition:background-color 120ms ease,border-color 120ms ease,box-shadow 100ms ease;}
+ html.atlas-neumo[data-atlas-app] :is(.cl-receipt,.forge-summary){animation:atlas-saved-arrive 160ms ease-out;}
+ @keyframes atlas-saved-arrive{from{opacity:.65}to{opacity:1}}
+}
+@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app] :is(.chef-meal-record,.ledger-personal-record,.cl-stage,.forge-saved-gain){border:2px solid currentColor!important;}}
