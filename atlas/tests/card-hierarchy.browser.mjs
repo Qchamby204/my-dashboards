@@ -20,6 +20,39 @@ try{
   await c.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const f=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,f)),contentType:types[path.extname(f)]||'text/plain'});}catch{await r.abort();}});
   const p=await c.newPage();p.setDefaultTimeout(10000);const runtime=[];p.on('pageerror',e=>runtime.push(e.message));
   async function open(file,hash=''){await p.goto(origin+'/'+file+'.html'+hash,{waitUntil:'domcontentloaded'});await settle(p);if(size!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});}
+  await open('workout-forge');
+  const lift=await p.evaluate(()=>{
+    const it=allItems(dayBy('PUSH')).find(it=>it.n==='Barbell bench press'),id=it.id,name=it.n;
+    const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+    state.sessions=[7,3].map(n=>({date:ago(n),type:'PUSH',items:{[id]:{name,feedback:'smooth',prescription:{name,sets:it.sets,reps:it.reps},sets:Array.from({length:it.sets},()=>({w:'200',r:'5'}))}}}));
+    state.draft={};state.openDay='PUSH';save();saveDraft();render();return {id,sets:it.sets};
+  });
+  const progression=p.locator('[data-progression-id="'+lift.id+'"]');
+  assert.match(await progression.textContent(),/Ready for a small increase/);
+  assert.match(await progression.locator('.fp-target').textContent(),/205 lbs/);
+  await progression.locator('summary').click();assert.equal(await p.evaluate(()=>state.openDay),'PUSH','disclosure does not collapse workout');await capture(p,'forge-progression-expanded',theme,w,size,progression);
+  await progression.locator('[data-act="progression-step"]').selectOption('2.5');
+  assert.match(await progression.locator('.fp-target').textContent(),/202.5 lbs/);
+  await progression.locator('summary').click();await progression.locator('[data-act="progression-step"]').selectOption('5');
+  await progression.locator('[data-act="progression-use"]').click();
+  assert.equal(await p.evaluate(id=>state.draft[id].sets[0].w,lift.id),'205');
+  assert.equal(await p.evaluate(id=>state.draft[id].sets[0].r,lift.id),'','planned reps are not recorded as performed');
+  assert(await progression.locator('[data-act="progression-use"]').isDisabled(),'existing input cannot be overwritten');
+  for(let i=0;i<lift.sets;i++)await p.locator('[data-act="setr"][data-id="'+lift.id+'"][data-set="'+i+'"]').fill('5');
+  await progression.locator('[data-act="progression-feedback"]').selectOption('smooth');
+  await capture(p,'forge-progression',theme,w,size,progression);
+  await p.locator('[data-act="log"][data-key="PUSH"]').click();
+  assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].feedback,lift.id),'smooth');
+  if(await p.locator('[data-act="closepr"]').count())await p.locator('[data-act="closepr"]').click();
+  await p.reload();await settle(p);
+  assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].prescription.sets,lift.id),lift.sets,'feedback and target survive reload');
+  assert.equal(await p.evaluate(id=>state.progressionSettings[id],lift.id),5);
+  await p.locator('[data-act="day"][data-key="PUSH"]').click();
+  await progression.locator('[data-act="progression-feedback"]').selectOption('pain');
+  assert.match(await progression.textContent(),/Pause this exercise/);assert.equal(await progression.locator('[data-act="progression-use"]').count(),0);
+  await capture(p,'forge-progression-pause',theme,w,size,progression);
+  await p.evaluate(id=>{delete state.draft[id];state.live={key:'PUSH',exIdx:orderedItems(dayBy('PUSH')).findIndex(it=>it.id===id),startedAt:Date.now(),hidden:false};render();},lift.id);
+  await capture(p,'forge-progression-live',theme,w,size,p.locator('.overlay .forge-progression'));
   await open('the-chef');
   assert(await p.locator('#ing-cats').evaluate(n=>{const rows=[...n.children].map(x=>x.getBoundingClientRect());return rows.every((r,i)=>!i||r.top-rows[i-1].bottom>=11);}), 'ingredient groups have separate rows');
   await p.locator('#ing-cats').scrollIntoViewIfNeeded();await capture(p,'chef-ingredients',theme,w,size);
@@ -53,3 +86,4 @@ try{
  }
  console.log(JSON.stringify({views:reports.length,engine,failures:0}));
 }finally{writeFileSync(path.join(out,'card-hierarchy-audit.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
+

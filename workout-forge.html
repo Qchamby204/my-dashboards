@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="The Forge">
 <meta name="theme-color" content="#efeae3">
-<script src="shared/atlas-theme.js?v=73490ebca603"></script>
+<script src="shared/atlas-theme.js?v=2b4b5b921d34"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -85,8 +85,10 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/workout-forge-apple.png?v=275a085fe2f1">
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=239c369fb61e">
 <script src="shared/dashboard-navigation.js?v=e54920f52f1b" defer></script>
+<link rel="stylesheet" href="shared/forge-progression.css?v=b96f9c39085a">
 </head>
 <body>
+<script src="shared/forge-progression.js?v=d7fdead885d9"></script>
 <div class="wrap" id="app"></div>
 <script>
 "use strict";
@@ -288,19 +290,25 @@ function nameForEid(k){
   return k;
 }
 function repRange(str){ var m=String(str||"").match(/\d+/g); if(!m||!m.length) return null; var lo=+m[0], hi=m.length>1?+m[1]:+m[0]; return {lo:lo,hi:hi}; }
-function progressionHint(it,eid,dayKey){
-  if(it.track!=="load") return null;
-  var prev=lastSets(eid); if(!prev||!prev.length) return null;
-  var rr=repRange(it.reps); if(!rr) return null;
-  var sets=prev.filter(function(s){ return parseFloat(s.w)&&parseFloat(s.r); });
-  if(!sets.length) return null;
-  var topW=0; sets.forEach(function(s){ var w=parseFloat(s.w); if(w>topW) topW=w; });
-  var allTop=sets.every(function(s){ return parseFloat(s.r)>=rr.hi; });
-  var anyBelow=sets.some(function(s){ return parseFloat(s.r)<rr.lo; });
-  var inc=(dayKey==="LEGS")?10:5;
-  if(allTop) return {txt:"\u2191 coach: all sets hit "+rr.hi+"+ \u2014 load "+(topW+inc)+" lbs",col:"#2fd180"};
-  if(anyBelow) return {txt:"\u21bb coach: own "+topW+" lbs \u2014 reps before load",col:"#f0b73e"};
-  return {txt:"\u2192 coach: add a rep at "+topW+" lbs, then load",col:"#45c8d8"};
+function progressionFor(it,eid){
+  if((state.draft[eid]||{}).feedback==='pain')return {kind:'pause',title:'Pause this exercise',reason:'Pain is flagged for this session. Stop this movement and review it before using a weight target.',load:null,step:ForgeProgression.setting((state.progressionSettings||{})[eid],effName(it))};
+  return ForgeProgression.suggest({item:it,id:eid,name:effName(it),sessions:state.sessions,today:todayISO(),step:(state.progressionSettings||{})[eid]});
+}
+function progressionView(it,eid){
+  var p=progressionFor(it,eid),dr=state.draft[eid]||{},filled=(dr.sets||[]).some(function(s){return s.w||s.r;});
+  var h='<div class="forge-progression" data-progression-id="'+eid+'"><div class="fp-heading">Next session · '+esc(p.title)+'</div>';
+  if(p.load==null||p.kind==='reduce')h+='<div class="fp-hint">'+esc(p.reason)+'</div>';
+  if(p.load!=null)h+='<div class="fp-target">'+p.load+' lbs · '+p.sets+' × '+esc(it.reps)+'</div>';
+  if(p.load!=null)h+='<button type="button" data-act="progression-use" data-id="'+eid+'" '+(filled?'disabled':'')+'>Use target</button>'+(filled?'<div class="fp-hint">Your entered sets stay as they are.</div>':'');
+  h+='<label>How did this session feel?<select data-act="progression-feedback" data-id="'+eid+'" aria-label="Effort for '+esc(effName(it))+'">';
+  [['','Not recorded'],['smooth','Clean · 2+ left'],['hard','Hard · 0–1 left'],['missed','Missed minimum'],['pain','Pain · stop']].forEach(function(o){h+='<option value="'+o[0]+'" '+(dr.feedback===o[0]?'selected':'')+'>'+o[1]+'</option>';});
+  h+='</select></label><details><summary>ⓘ Why this target?</summary><p>'+esc(p.reason)+'</p><p>“Clean” means good form with at least two reps left; “Hard” means zero to one left or form slipping. Suggestions use saved regular-workout sessions for this exact exercise. They do not change eight-week goal plans. Use the same weight convention each time: total barbell load or the weight of one dumbbell.</p>';
+  if(p.kind!=='manual'){
+    h+='<label>Smallest available increase (lbs)<select data-act="progression-step" data-id="'+eid+'" aria-label="Weight increment for '+esc(effName(it))+'">';
+    [1,2.5,5,10].forEach(function(v){h+='<option value="'+v+'" '+(p.step===v?'selected':'')+'>'+v+' lbs</option>';});h+='</select></label>';
+  }
+  h+='<p>Two complete sessions with clean reps and reserve are required for an increase. This is Forge’s conservative rule, not an individualized training prescription. Review the suggestion before using it.</p><p><a href="https://acsm.org/resistance-training-guidelines-update-2026/" target="_blank" rel="noopener">Training principles · ACSM</a></p></details></div>';
+  return h;
 }
 function sessionVolume(x){ var v=0; Object.keys(x.items||{}).forEach(function(k){ var it=x.items[k]; ((it&&it.sets)||[]).forEach(function(s){ var w=parseFloat(s.w), r=parseFloat(s.r); if(w&&r) v+=w*r; }); }); return Math.round(v); }
 
@@ -429,8 +437,7 @@ function setRows(it, accent, dayKey){
     h+='</div>';
   }
   h+='</div>';
-  var ph=progressionHint(it,eid,dayKey);
-  if(ph) h+='<div style="margin-top:8px"><span class="mono" style="font-size:10px;font-weight:700;color:'+ph.col+';background:'+ph.col+'1a;border:1px solid '+ph.col+'44;border-radius:99px;padding:3px 10px;white-space:nowrap">'+ph.txt+'</span></div>';
+  h+=progressionView(it,eid);
   // overload trend
   var hist=exHistory(eid);
   if(hist.length>=2){
@@ -1116,7 +1123,7 @@ function finishLive(){
 }
 
 /* ---------- state + render ---------- */
-var state={sessions:[],draft:{},openDay:null,swaps:{},swapOpen:null,plateOpen:false,bar:45,plateW:135,live:null,chartEx:null,prCel:null,order:{},openSections:{}};
+var state={progressionSettings:{},sessions:[],draft:{},openDay:null,swaps:{},swapOpen:null,plateOpen:false,bar:45,plateW:135,live:null,chartEx:null,prCel:null,order:{},openSections:{}};
 var app=document.getElementById("app");
 
 function section(key,title,accent,teaser,content){
@@ -1233,6 +1240,8 @@ function render(){
 var KEY="forge:sessions:v2", SWAPKEY="forge:swaps:v1", DRAFTKEY="forge:draft:v1";
 function save(){ store.set(KEY,JSON.stringify(state.sessions)); }
 function saveDraft(){ store.set(DRAFTKEY,JSON.stringify(state.draft)); }
+var PROGRESSIONKEY="forge:progression-settings:v1";
+function saveProgressionSettings(){ store.set(PROGRESSIONKEY,JSON.stringify(state.progressionSettings)); }
 var LIVEKEY="forge:live:v1";
 function saveLive(){ store.set(LIVEKEY,JSON.stringify(state.live)); }
 var ORDERKEY="forge:order:v1";
@@ -1246,7 +1255,7 @@ function logDay(key,durMin){
     var eid=effId(it); var dr=state.draft[eid]; if(!dr) return;
     if(it.track==="load"){
       var sets=(dr.sets||[]).filter(function(s){ return s.w||s.r; }).map(function(s){ return {w:s.w||"",r:s.r||""}; });
-      if(sets.length||dr.done){ items[eid]={done:!!dr.done,sets:sets,name:effName(it)}; if(dr.note&&dr.note.trim()) items[eid].note=dr.note.trim(); any=true; }
+      if(sets.length||dr.done||dr.feedback==="pain"){ items[eid]={done:!!dr.done,sets:sets,name:effName(it),prescription:{sets:it.sets,reps:it.reps,name:effName(it)}}; if(ForgeProgression.feedbacks.indexOf(dr.feedback)>=0) items[eid].feedback=dr.feedback; if(dr.note&&dr.note.trim()) items[eid].note=dr.note.trim(); if(sets.length||dr.done) any=true; }
     } else if(it.track==="cardio"){
       var mn=(dr.min!=null&&dr.min!=="")?+dr.min:0;
       if(mn>0||dr.done){ items[eid]={done:true,min:mn,mode:dr.mode||"",name:effName(it)}; if(dr.note&&dr.note.trim()) items[eid].note=dr.note.trim(); any=true; }
@@ -1266,7 +1275,7 @@ function logDay(key,durMin){
 }
 
 function exportData(){
-  try{ var payload={app:"forge",version:2,exportedAt:new Date().toISOString(),sessions:state.sessions,swaps:state.swaps,order:state.order};
+  try{ var payload={app:"forge",version:2,exportedAt:new Date().toISOString(),sessions:state.sessions,swaps:state.swaps,order:state.order,progressionSettings:state.progressionSettings};
     var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}); var url=URL.createObjectURL(blob);
     var a=document.createElement("a"); a.href=url; a.download="forge-training-"+todayISO()+".json"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(url);},1000); toast("Backup exported \u2713");
@@ -1274,7 +1283,7 @@ function exportData(){
 }
 function importData(file){
   var r=new FileReader();
-  r.onload=function(){ try{ var o=JSON.parse(r.result); var ss=Array.isArray(o)?o:o.sessions; if(Array.isArray(ss)){ state.sessions=ss.filter(function(x){ return x && typeof x==="object" && x.date && x.type; }); if(o && o.swaps && typeof o.swaps==="object"){ state.swaps=o.swaps; store.set(SWAPKEY,JSON.stringify(state.swaps)); } if(o && o.order && typeof o.order==="object"){ state.order=o.order; saveOrder(); } save(); render(); toast("Imported \u2713 ("+state.sessions.length+" sessions)"); } else toast("No sessions in that file"); }catch(e){ toast("Couldn\u2019t read that file"); } };
+  r.onload=function(){ try{ var o=JSON.parse(r.result); var ss=Array.isArray(o)?o:o.sessions; if(Array.isArray(ss)){ state.sessions=ss.filter(function(x){ return x && typeof x==="object" && x.date && x.type; }); if(o && o.swaps && typeof o.swaps==="object"){ state.swaps=o.swaps; store.set(SWAPKEY,JSON.stringify(state.swaps)); } if(o && o.progressionSettings && typeof o.progressionSettings==="object" && !Array.isArray(o.progressionSettings)){ state.progressionSettings={}; Object.keys(o.progressionSettings).forEach(function(k){if([1,2.5,5,10].indexOf(o.progressionSettings[k])>=0 && k!=="__proto__" && k!=="constructor") state.progressionSettings[k]=o.progressionSettings[k];}); saveProgressionSettings(); } if(o && o.order && typeof o.order==="object"){ state.order=o.order; saveOrder(); } save(); render(); toast("Imported \u2713 ("+state.sessions.length+" sessions)"); } else toast("No sessions in that file"); }catch(e){ toast("Couldn\u2019t read that file"); } };
   r.onerror=function(){ toast("Couldn\u2019t read that file"); };
   r.readAsText(file);
 }
@@ -1310,6 +1319,14 @@ app.addEventListener("click",function(e){
   if(e.target.classList && e.target.classList.contains("overlay")){ if(state.plateOpen){ state.plateOpen=false; render(); return; } }
   var el=e.target.closest("[data-act]"); if(!el) return;
   var act=el.dataset.act, key=el.dataset.key, id=el.dataset.id;
+  if(act==="progression-use"){
+    var pit=itemById(id),pd=state.draft[id]||{done:false,sets:[]};
+    if(!pit||(pd.sets||[]).some(function(s){return s.w||s.r;})) return;
+    var target=progressionFor(pit,id); if(target.load==null)return;
+    pd.sets=Array.from({length:target.sets},function(){return {w:String(target.load),r:""};});
+    pd.done=false; delete pd.feedback; state.draft[id]=pd; saveDraft(); render();toast("Weight filled · enter actual reps as you lift");return;
+  }
+  if(e.target.closest('.forge-progression'))return;
   if(act==="setw"||act==="setr"||act==="note") return;
   if(act==="cmin"){
     var dr=state.draft[id]||{sets:[]};
@@ -1419,6 +1436,11 @@ app.addEventListener("input",function(e){
   dr.sets[si][field]=el.value.trim(); state.draft[id]=dr; saveDraft();
 });
 app.addEventListener("change",function(e){
+  var feedback=e.target.closest('[data-act="progression-feedback"]');
+  if(feedback){var fd=state.draft[feedback.dataset.id]||{sets:[]};if(ForgeProgression.feedbacks.indexOf(feedback.value)>=0)fd.feedback=feedback.value;else delete fd.feedback;state.draft[feedback.dataset.id]=fd;saveDraft();render();return;}
+  var step=e.target.closest('[data-act="progression-step"]');
+  if(step){state.progressionSettings[step.dataset.id]=ForgeProgression.setting(step.value,"");saveProgressionSettings();render();return;}
+
   var pw=e.target.closest('[data-act="platew"]'); if(pw){ var n=parseFloat(pw.value); state.plateW=isNaN(n)?0:Math.max(0,n); render(); return; }
   var fi=e.target.closest('#importFile'); if(fi&&fi.files&&fi.files[0]){ importData(fi.files[0]); fi.value=""; }
 });
@@ -1452,7 +1474,7 @@ window.addEventListener("pageshow",function(e){ if(e && e.persisted) dayRollChec
 window.addEventListener("focus",dayRollCheck);
 setInterval(dayRollCheck,60000);
 
-store.get(SWAPKEY).then(function(sw){ if(sw){ try{ var o=JSON.parse(sw); if(o&&typeof o==="object") state.swaps=o; }catch(e){} } return store.get(ORDERKEY); }).then(function(od){ if(od){ try{ var oo=JSON.parse(od); if(oo&&typeof oo==="object") state.order=oo; }catch(e){} } return store.get(KEY); }).then(function(v){ if(v){ try{ var a=JSON.parse(v); if(Array.isArray(a)) state.sessions=a; }catch(e){} } return store.get(DRAFTKEY); }).then(function(dv){ if(dv){ try{ var o=JSON.parse(dv); if(o&&typeof o==="object") state.draft=o; }catch(e){} } return store.get(LIVEKEY); }).then(function(lv){ if(lv){ try{ var lo=JSON.parse(lv); if(lo&&lo.key&&lo.startedAt&&dayBy(lo.key)) state.live=lo; }catch(e){} } render(); });
+store.get(PROGRESSIONKEY).then(function(pv){if(pv){try{var ps=JSON.parse(pv);if(ps&&typeof ps==="object"&&!Array.isArray(ps))state.progressionSettings=ps;}catch(e){}}return store.get(SWAPKEY);}).then(function(sw){ if(sw){ try{ var o=JSON.parse(sw); if(o&&typeof o==="object") state.swaps=o; }catch(e){} } return store.get(ORDERKEY); }).then(function(od){ if(od){ try{ var oo=JSON.parse(od); if(oo&&typeof oo==="object") state.order=oo; }catch(e){} } return store.get(KEY); }).then(function(v){ if(v){ try{ var a=JSON.parse(v); if(Array.isArray(a)) state.sessions=a; }catch(e){} } return store.get(DRAFTKEY); }).then(function(dv){ if(dv){ try{ var o=JSON.parse(dv); if(o&&typeof o==="object") state.draft=o; }catch(e){} } return store.get(LIVEKEY); }).then(function(lv){ if(lv){ try{ var lo=JSON.parse(lv); if(lo&&lo.key&&lo.startedAt&&dayBy(lo.key)) state.live=lo; }catch(e){} } render(); });
 render();
 
 /* Ask the browser to treat this data as persistent. Browsers evict storage from
@@ -1474,3 +1496,4 @@ render();
 <script src="shared/forge-goals.js?v=e1090dc45da8"></script>
 </body>
 </html>
+
