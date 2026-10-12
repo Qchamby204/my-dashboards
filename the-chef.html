@@ -96,11 +96,11 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#efeae3">
-<script src="shared/atlas-theme.js?v=73490ebca603"></script>
+<script src="shared/atlas-theme.js?v=e7c6d329fb19"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
-<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=a0290a740ea4">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=e90a2f1108ae">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=a06ab46a838a">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=7d180aaadd3d">
 <script src="shared/chef-crucible.js?v=e5c3183ef814" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-32.png?v=41e1e3906c07">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-64.png?v=9b7a6325c0c0">
@@ -166,7 +166,7 @@ footer .row{justify-content:center}
       <details class="cc-help"><summary aria-label="About days and automatic meal planning"><span aria-hidden="true">i</span></summary><p>Plan from today across the next seven days. Choose a recipe, days to cover and people eating. Chef fills consecutive days and calculates the ingredients automatically. Tap a later day to start another meal there. Editing a saved meal plan updates all its linked days.</p></details>
       <button id="plan-add" class="primary chef-plan-add">Add a meal</button>
       <div class="summary" id="plan-summary"></div><div id="chef-plan-progress" class="chef-plan-progress"></div>
-      <div class="week" id="week"></div>
+      <section id="chef-tonight" hidden></section><div class="week" id="week"></div>
       <div class="row" style="margin-top:10px">
         <button id="plan-fill" class="primary">Fill empty slots</button>
         <button id="plan-clear" class="ghost">Clear plan</button>
@@ -252,7 +252,7 @@ footer .row{justify-content:center}
   <details class="cc-help"><summary aria-label="About serving adjustments"><span aria-hidden="true">i</span></summary><p>Servings are total recipe portions, including any you want left over; some baked goods count individual pieces. Batches are full copies of recipes with unknown portion yield. Ingredient quantities follow the chosen amount. Per-item references and alternatives stay as written. Method quantities, timings, and temperatures stay as written; use the scaled ingredient list and check doneness. Changing the amount for a planned meal also updates its groceries. Checklist ticks last for this cooking session.</p></details>
   <div id="cook-source"></div>
   <h3>Ingredients</h3><div id="cook-ingredients" class="cc-cook-checks"></div>
-  <h3>Method</h3><ol id="cook-steps" class="cc-cook-checks"></ol>
+  <h3>Method</h3><p id="cook-step-progress" role="status"></p><ol id="cook-steps" class="cc-cook-checks"></ol>
 </dialog>
 
 <script>
@@ -1429,8 +1429,13 @@ function openCook(id,slot,trigger){
   document.getElementById('cook-yield').textContent=prep?`${preparationDays(prep).length} days · ${prep.perDay} portion${prep.perDay===1?'':'s'} per day · ${preparationCoverage(prep)}. Make ${prep.portionCount} portions using ${fmtNum(preparationFactor(prep))}× the original recipe. The ingredient list below covers all linked days.${prep.days!==undefined?' '+planningYieldText(recipe)+(planningYield(recipe).estimated?' · Chef estimate.':'.'):''}`:'Original recipe: '+fullYield(recipe)+'.'+(slot?' This amount is saved in your week plan.':'');
   renderCookIngredients();
   document.getElementById('cook-steps').innerHTML=recipe.steps.map((step,n)=>'<li><label><input type="checkbox" aria-label="Step '+(n+1)+' complete"><span>'+esc(step)+'</span></label></li>').join('');
+  updateCookingProgress();
   document.getElementById('cook-dialog').showModal();
   document.getElementById('cook-close').focus();
+}
+function updateCookingProgress(){
+  const steps=[...document.querySelectorAll('#cook-steps input')],done=steps.filter(s=>s.checked).length;
+  document.getElementById('cook-step-progress').textContent=done===steps.length&&steps.length?'All steps checked · enjoy your meal':done+' of '+steps.length+' steps checked';
 }
 function renderCookIngredients(){
   const recipe=BY_ID[cookSession.id],factor=cookSession.factor??cookSession.servings/recipe.servings;
@@ -1613,6 +1618,11 @@ function renderCards(){
   $('#count').textContent = `${list.length} recipe${list.length===1?'':'s'}.`+hint;
   $('#cards').innerHTML = list.length ? recipeCardsHtml(list,true,ui.sort==='category') : '<div class="empty">Nothing matches. Loosen the time filter or pick more ingredients.</div>';
 }
+function mealArtwork(recipe){
+  const meal=recipe.meal,colors={breakfast:['#ddad63','#856344','#74905d'],lunch:['#83a075','#507153','#d0a265'],dinner:['#c68d67','#965c43','#6d8c67'],dessert:['#b38ca9','#846384','#dab47b']},c=colors[meal]||colors.dinner;
+  // Decorative food illustration by meal category; not a photograph of this recipe.
+  return `<svg class="chef-meal-art" viewBox="0 0 240 140" aria-hidden="true" focusable="false"><rect width="240" height="140" rx="18" fill="${c[0]}" opacity=".22"/><ellipse cx="122" cy="78" rx="70" ry="48" fill="#342b2b" opacity=".12"/><ellipse cx="120" cy="70" rx="68" ry="47" fill="#f3ede1"/><ellipse cx="120" cy="70" rx="53" ry="35" fill="none" stroke="${c[0]}" stroke-width="2"/><path d="M86 53 Q116 30 149 59 L151 82 Q116 102 87 80Z" fill="${c[1]}"/><path d="M93 57 Q120 40 144 60 M94 67 Q120 51 144 70 M95 77 Q120 62 141 80" fill="none" stroke="${c[0]}" stroke-width="5" stroke-linecap="round"/><ellipse cx="157" cy="85" rx="13" ry="7" transform="rotate(-30 157 85)" fill="${c[2]}"/><ellipse cx="157" cy="70" rx="12" ry="6" transform="rotate(32 157 70)" fill="${c[2]}"/><circle cx="80" cy="79" r="6" fill="${c[0]}"/><circle cx="83" cy="65" r="5" fill="${c[2]}"/></svg>`;
+}
 function renderPlanner(){
   ui.weekStart=localDateKey();
   document.querySelectorAll('[data-week-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.weekView===ui.weekView)));
@@ -1620,8 +1630,11 @@ function renderPlanner(){
   $('#week').innerHTML = planningDays().map(({date,label,weekday,number})=>{return `<div class="day"><h3>${label} <span class="chef-day-date">${number<=2?weekday:'Day '+number}</span></h3>${MEALS.map(m=>{
     const entry=mealAt(date,m),recipe=entry?.recipe,prep=entry?.prep;
     const description=prep?`Day ${entry.serving.number} of ${preparationDays(prep).length} · ${entry.serving.count} portion${entry.serving.count===1?'':'s'}`:recipe?'Single-day plan · edit to choose days':'';
-    return `<div class="slot"><span class="lab">${m}</span><button class="chef-slot-pick ${recipe?'is-planned':''}" data-slot="${date}|${m}" aria-label="${label} ${m}: ${esc(recipe?recipe.name:'choose a recipe')}">${esc(recipe?recipe.name:'Choose '+m)}</button>${recipe?`<button data-unplan="${date}|${m}" aria-label="Remove ${prep?'meal plan for':'single-day plan for'} ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${recipe?`<span class="chef-slot-yield">${esc(description)}</span><div class="cc-slot-tools"><button data-edit-prep="${date}|${m}">${prep?'Edit days':'Plan more days'}</button><button data-cook="${recipe.id}" data-cook-slot="${prep?date:entry.legacy}|${m}">Recipe</button></div>`:''}</div>`;
+    return `<div class="slot ${recipe?'chef-meal-record':''}" data-meal="${m}">${recipe?mealArtwork(recipe):''}<span class="lab">${m}</span><button class="chef-slot-pick ${recipe?'is-planned':''}" data-slot="${date}|${m}" aria-label="${label} ${m}: ${esc(recipe?recipe.name:'choose a recipe')}">${esc(recipe?recipe.name:'Choose '+m)}</button>${recipe?`<button data-unplan="${date}|${m}" aria-label="Remove ${prep?'meal plan for':'single-day plan for'} ${label} ${m}" title="Remove">&times;</button>`:'<span></span>'}${recipe?`<span class="chef-slot-yield">${esc(description)}</span><div class="cc-slot-tools"><button data-edit-prep="${date}|${m}">${prep?'Edit days':'Plan more days'}</button><button data-cook="${recipe.id}" data-cook-slot="${prep?date:entry.legacy}|${m}">Start cooking</button></div>`:''}</div>`;
   }).join('')}</div>`;}).join('');
+  const tonight=$('#chef-tonight');
+  const dinner=mealAt(localDateKey(),'dinner');tonight.hidden=!dinner;
+  tonight.innerHTML=dinner?mealArtwork(dinner.recipe)+`<div><p class="chef-tonight-kicker">Tonight’s dinner</p><h2>${esc(dinner.recipe.name)}</h2><p>${esc(recipeTime(dinner.recipe))} · ${dinner.prep?dinner.serving.count+' portions planned':'Planned for today'}</p><button data-cook="${dinner.recipe.id}" data-cook-slot="${dinner.prep?localDateKey():dinner.legacy}|dinner">Start cooking</button></div>`:'';
   const entries=weekMeals().map(x=>x.entry).filter(Boolean),n=entries.length,batches=new Set(entries.filter(x=>x.prep).map(x=>x.prep.id)).size;
   $('#plan-summary').textContent = n ? `${n} meals covered · ${batches} meal plan${batches===1?'':'s'}${entries.some(x=>x.legacy)?' · single-day plans also saved':''}.` : 'Choose a recipe and how many days you want it to last.';
   const total=DAYS.length*MEALS.length;
@@ -1872,6 +1885,7 @@ function wireEvents(){
   });
   $('#plan-undo').addEventListener('click',undoPlan);
   document.addEventListener('click',e=>{const b=e.target.closest('[data-cook]');if(b)openCook(b.dataset.cook,b.dataset.cookSlot||null,b);});
+  $('#cook-steps').addEventListener('change',updateCookingProgress);
   $('#cook-close').addEventListener('click',()=>$('#cook-dialog').close());
   $('#cook-dialog').addEventListener('close',()=>{
     const target=cookSession?.trigger?.isConnected?cookSession.trigger:cookSession?.slot?document.querySelector(`[data-cook-slot="${cookSession.slot}"]`):null;
