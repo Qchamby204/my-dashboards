@@ -15,6 +15,10 @@ for(const path of paths){let source=await readFile(new URL(path,root),'utf8');
   source=source.replace(/<script src="(?:\/)?shared\/atlas-streak\.js(?:\?v=[^"]*)?"><\/script>\s*/g,'').replace(/<script src="(?:\/)?shared\/atlas-experience\.js(?:\?v=[^"]*)?" defer><\/script>\s*/g,'');
   const prefix=path==='atlas/index.html'?'/':'';
   source=source.replace(/(<head[^>]*>)/,'$1\n<script src="'+prefix+'shared/atlas-streak.js?v='+assets.get('shared/atlas-streak.js')+'"></script>\n<script src="'+prefix+'shared/atlas-experience.js?v='+assets.get('shared/atlas-experience.js')+'" defer></script>');
+  if(['life-map.html','the-library.html','life-ledger.html','workout-forge.html','communication-trainer.html','the-chef.html'].includes(path)){
+    source=source.replace(/<script src="shared\/reminder-entry\.js(?:\?v=[^"]*)?" defer><\/script>\s*/g,'');
+    source=source.replace('</head>','<script src="shared/reminder-entry.js" defer></script>\n</head>');
+  }
   source=source.replace(/((?:\/)?shared\/[a-zA-Z0-9_-]+\.(?:css|js|mjs)|[a-zA-Z0-9_-]+\.webmanifest)(?:\?v=[a-zA-Z0-9_.-]+)?/g,(m,p)=>assets.has(p.replace(/^\//,''))?p+'?v='+assets.get(p.replace(/^\//,'')):m);
   source=source.replace(/<meta name="theme-color" content="#[a-fA-F0-9]+">/g,'<meta name="theme-color" content="#efeae3">');
   await writeFile(new URL(path,root),source);
