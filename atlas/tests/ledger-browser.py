@@ -37,9 +37,9 @@ with sync_playwright() as pw:
                 return
             page.get_by_role('button', name='Next habit', exact=True).click()
         raise AssertionError('Habit missing from deck: ' + habit)
-    def dismiss_rewards():
+    def dismiss_rewards(target=page):
         for _ in range(40):
-            dialog = page.locator('.ledger-reward[open]')
+            dialog = target.locator('.ledger-reward[open]')
             if not dialog.count():
                 break
             if dialog.get_by_role('button', name='Continue', exact=True).count():
@@ -243,6 +243,7 @@ with sync_playwright() as pw:
         exchange.wait_for_function('state.days.length===1 && !document.getElementById("app").inert')
         assert exchange.evaluate('state.days[0].leisure.screenMinutes') == 30
         assert exchange.evaluate('state.days[0].leisure.discernReceipt.id') == report['id']
+        dismiss_rewards(exchange)
         before_xp = exchange.evaluate('compute(state.days,state.goals).life.xp')
         exchange.locator('#ledger-leisure-preview').click()
         exchange.locator('#ledger-discern-bridge > summary').click()
