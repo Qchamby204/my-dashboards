@@ -33,3 +33,5 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-stage.is-ready{outl
 html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-stage-heading{flex-wrap:wrap;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-mastery{font-size:.85rem;line-height:1.5;padding-block:.7rem;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-unlock-bridge{display:grid;gap:.6rem;margin:1rem 0;padding:1rem;border-radius:18px;border:1px solid var(--neo-accent);background:var(--neo-content-surface);}
+
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-receipt>.cl-emblem{display:flex;margin:0 0 .85rem;}
