@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const context=vm.createContext({});vm.runInContext(readFileSync(new URL('../../shared/ledger-rewards-core.js',import.meta.url),'utf8'),context);const M=context.LedgerRewards;
+const date='2026-10-12T18:00:00Z',life={level:2,xp:250};
+const reward=(extra={})=>({id:'one',title:'A new book',target:3,startXP:250,createdAt:date,...extra});
+test('plans require a meaningful title and a future saved level',()=>{assert.equal(M.plan({title:' A new book ',target:'3'},life,date,'one').title,'A new book');assert.throws(()=>M.plan({title:'',target:3},life,date,'one'));assert.throws(()=>M.plan({title:'Book',target:2},life,date,'one'));});
+test('preview uses saved XP, respects planning baseline and clamps corrections',()=>{const rows=[reward()];let s=M.view(rows,{level:2,xp:275},100);assert.equal(s.next.progress,.5);assert.equal(s.next.remaining,25);assert.equal(s.next.ready,false);s=M.view(rows,{level:1,xp:100},100);assert.equal(s.next.progress,0);assert.equal(s.next.remaining,200);});
+test('threshold unlocks without claiming or awarding XP',()=>{const rows=[reward()],raw=JSON.stringify(rows),s=M.view(rows,{level:3,xp:300},100);assert.equal(s.next.ready,true);assert.equal(s.next.remaining,0);assert.equal(JSON.stringify(rows),raw);assert.equal(s.enjoyed.length,0);});
+test('enjoy requires earned progress and cannot be recorded twice',()=>{assert.throws(()=>M.enjoy([reward()],'one',life,date));const rows=M.enjoy([reward()],'one',{level:3,xp:300},date);assert.equal(rows[0].claimedAt,date);assert.throws(()=>M.enjoy(rows,'one',{level:3,xp:300},date));});
+test('enjoyed history stays recorded when XP is corrected',()=>{const rows=[reward({claimedAt:date})];const s=M.view(rows,{level:0,xp:0},100);assert.equal(s.enjoyed.length,1);assert.equal(s.pending.length,0);});
+test('preview selects a ready reward before the next future reward',()=>{const s=M.view([reward({id:'two',target:5}),reward()],{level:3,xp:300},100);assert.equal(s.next.id,'one');});
+test('earned and enjoyed records cannot be rewritten as future plans',()=>{assert.throws(()=>M.plan({title:'Other',target:4},{level:3,xp:300},date,'one',reward()));assert.throws(()=>M.plan({title:'Other',target:4},life,date,'one',reward({claimedAt:date})));});
+test('duplicate IDs, bad dates, excessive titles and invalid numbers are rejected',()=>{assert.throws(()=>M.validate([reward(),reward()]));for(const extra of [{createdAt:'bad'},{title:'x'.repeat(121)},{target:1.5},{startXP:-1},{claimedAt:'bad'}])assert.throws(()=>M.validate([reward(extra)]));});

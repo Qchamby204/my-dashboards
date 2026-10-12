@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=4720718ba493',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=8bd50f61a9f1',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -22,7 +22,7 @@
     const resets={task:'Phone away · 10 minutes on my next task',read:'Phone away · read for 10 minutes',walk:'Phone away · walk Hudson for 10 minutes'};
     const emptyScreen=()=>({guardrail:'',slips:[]});
     const hasScreen=s=>!!s&&(!!s.guardrail||s.slips.length>0);
-    const R=window.LedgerRhythm;
+    const R=window.LedgerRhythm,Rewards=window.LedgerRewards;
     if(!R)return;
     const DEFAULT_LEISURE={habits:1,gaming:60,reading:20};
     const emptyLeisure=()=>({gamingMinutes:0,readingDone:false});
@@ -61,6 +61,7 @@
           if(new Set(value.archives.map(a=>a.id)).size!==value.archives.length)throw Error('Repeated progress archive.');
         }
         if(value.resetPending!==undefined&&(typeof value.resetPending!=='string'||!value.archives?.some(a=>a.id===value.resetPending)))throw Error('Invalid pending progress reset.');
+        if(value.rewards!==undefined){if(!Rewards)throw Error('Personal rewards could not load. Reload before restoring.');Rewards.validate(value.rewards);}
         if(value.rhythm!==undefined)R.validate(value.rhythm);
         if(value.discernOtherDeviceMinutes!==undefined&&(!finite(value.discernOtherDeviceMinutes)||value.discernOtherDeviceMinutes>1440))throw Error('Invalid other-device screen time.');
         if(value.discernOtherDeviceDate!==undefined&&!validDate(value.discernOtherDeviceDate))throw Error('Invalid other-device screen date.');
@@ -186,6 +187,8 @@
         if(key){const h=after.habit[key];state.levelInfo={kicker:'Outcome Reached',title:h.chunksDone+' '+plural(h.cfg.noun,h.chunksDone),detail:label(key)+' · '+fmt(h.total)+' '+h.cfg.unit+' recorded overall.'};}
       }
       saveFeedback='Saved '+pretty(date)+' · '+(HABITS.some(h=>after.habit[h].total>before.habit[h].total)?'Your progress is recorded.':'Your record is up to date.');
+      const unlocked=Rewards?(drafts.rewards||[]).filter(r=>!r.claimedAt&&before.life.level<r.target&&after.life.level>=r.target):[];
+      if(unlocked.length){const first=unlocked[0];state.levelInfo={kicker:'Reward unlocked',title:first.title,detail:'You reached Life Level '+first.target+'. Your reward is ready in Progress.'+(unlocked.length>1?' '+(unlocked.length-1)+' more reward'+(unlocked.length===2?'':'s')+' unlocked.':'')};saveFeedback+=' · Reward ready: '+first.title;}
       if(after.life.xp>before.life.xp)saveFeedback+=' · +'+fmt(after.life.xp-before.life.xp)+' XP';
       if(state.achvQueue.length)saveFeedback+=' · '+state.achvQueue.length+' new achievement'+(state.achvQueue.length===1?'':'s');
     }
@@ -477,6 +480,60 @@
       if(view==='today'&&state.logDate!==todayISO()){state.logDate=todayISO();loadDraftFor(state.logDate);}
       render();window.scrollTo({top:0,behavior:'instant'});document.getElementById('ledger-nav-'+view)?.focus({preventScroll:true});
     }
+    function personalRewards(data){return Rewards.view(drafts.rewards||[],data.life,R.lifeCost);}
+    async function writePersonalRewards(rows){
+      if(blocked||busy)return false;Rewards.validate(rows);
+      const base=R.stable(drafts.rewards||[]);remember();busy=true;status();await Promise.all([...pending.values()]);if(failed.size||conflicts.size||R.stable(drafts.rewards||[])!==base){busy=false;status();toast('Save or review the latest changes before editing rewards.');return false;}
+      const next={...clone(drafts),rewards:clone(rows)};validate('drafts',next);
+      const ok=await write(DRAFTKEY,JSON.stringify(next));busy=false;
+      if(!ok){failed.delete(DRAFTKEY);status();toast('Reward change was not saved. Try again; your existing record is kept.');return false;}
+      render();return true;
+    }
+    async function savePersonalReward(input,id){
+      if(!Rewards||blocked||busy)return false;const rows=drafts.rewards||[],existing=id?rows.find(r=>r.id===id):null;
+      if(id&&!existing)throw Error('This reward could not be found.');
+      const reward=Rewards.plan(input,compute(state.days,state.goals).life,new Date().toISOString(),crypto.randomUUID(),existing);
+      const next=existing?rows.map(r=>r.id===id?reward:r):rows.concat(reward);
+      return writePersonalRewards(next);
+    }
+    async function enjoyPersonalReward(id){
+      if(!Rewards||blocked||busy)return false;
+      try{const raw=window.storage?.get?(await window.storage.get(KEY))?.value??null:localStorage.getItem(KEY),latest=raw===null?[]:validate('days',JSON.parse(raw));if(R.stable(latest)!==R.stable(state.days)){toast('Saved progress changed in another window. Reload before recording this reward.');return false;}}
+      catch{toast('Saved progress could not be checked. Your reward is still available.');return false;}
+      const next=Rewards.enjoy(drafts.rewards||[],id,compute(state.days,state.goals).life,new Date().toISOString());
+      const ok=await writePersonalRewards(next);if(ok)toast('Reward recorded as enjoyed.');return ok;
+    }
+    function personalRewardDialog(id){
+      const existing=(drafts.rewards||[]).find(r=>r.id===id),life=compute(state.days,state.goals).life;
+      const dialog=make('dialog',null,'ledger-dialog ledger-personal-editor');dialog.setAttribute('aria-labelledby','ledger-personal-title');
+      const title=make('h2',existing?'Edit your reward':'Plan something to look forward to');title.id='ledger-personal-title';
+      const form=make('form'),rewardLabel=make('label','Reward'),reward=make('input'),levelLabel=make('label','Life Level'),level=make('input'),error=make('p',null,'ledger-error');error.setAttribute('role','alert');
+      reward.required=true;reward.maxLength=120;reward.placeholder='A new book, a meal out, a day trip…';reward.value=existing?.title||'';level.type='number';level.required=true;level.min=life.level+1;level.max=10000;level.step=1;level.value=existing?.target||life.level+1;
+      rewardLabel.append(reward);levelLabel.append(level);const submit=make('button','Save reward','ledger-button');submit.type='submit';
+      const actions=make('div',null,'ledger-actions');actions.append(button('Cancel',()=>dialog.close()),submit);form.append(rewardLabel,levelLabel,make('p','Your saved Life Level is '+life.level+'. Choose a future level.','ledger-help'),error,actions);
+      form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;try{if(await savePersonalReward({title:reward.value,target:level.value},id))dialog.close();else error.textContent='Could not save this reward. Your entries are still here; try again.';}catch(err){error.textContent=err.message;}finally{submit.disabled=false;}});
+      dialog.append(title,form,detailsInfo('About personal rewards','Pick a reward you would genuinely enjoy and a reachable milestone. Rewards use saved Life Level XP only. They do not award extra XP, change habit goals, make purchases or extend your screen allowance. Mark enjoyed only after you have taken the reward. Editing saved activity recalculates availability; enjoyed rewards stay recorded. A progress reset archives rewards with the old record.'));
+      dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();reward.focus();
+    }
+    function viewPersonalRewards(){setDashboardView('progress');document.getElementById('ledger-personal-rewards')?.scrollIntoView({block:'start'});}
+    function personalRewardsPanel(data,compact=false){
+      if(!Rewards)return null;const rewardData=personalRewards(data),panel=make('section',null,'panel ledger-personal-rewards');panel.id=compact?'ledger-reward-preview':'ledger-personal-rewards';
+      const heading=make('div',null,'ledger-personal-heading');heading.append(make('h2',compact?'Your next reward':'Rewards to look forward to'),detailsInfo('How rewards work','Plan a reward at a future Life Level. Only saved XP counts; drafts do not unlock rewards. There is no missed-day penalty or extra XP for claiming. Rewards and their enjoyed dates are included in your existing backup.'));panel.append(heading);
+      const shown=compact?(rewardData.next?[rewardData.next]:[]):rewardData.pending;
+      for(const r of shown){const card=make('article',null,'ledger-personal-record');card.dataset.rewardId=r.id;const head=make('div',null,'ledger-personal-heading');head.append(make('h3',r.title),make('span','Life Level '+r.target,'ledger-personal-level'));card.append(head,make('p',r.ready?'Ready to enjoy':fmt(r.remaining)+' XP to this reward','ledger-personal-state'));
+        const meter=make('progress');meter.max=1;meter.value=r.progress;meter.setAttribute('aria-label','Progress toward '+r.title);card.append(meter);
+        const actions=make('div',null,'ledger-personal-actions');if(compact)actions.append(button(r.ready?'View your earned reward':'View rewards',viewPersonalRewards));else{
+          if(r.ready)actions.append(button('Mark enjoyed',()=>confirmAction('Enjoyed this reward?',r.title+' · Life Level '+r.target+'. This records the reward without changing your XP.','Mark enjoyed',async()=>{try{await enjoyPersonalReward(r.id);}catch(err){toast(err.message);}})));
+          else actions.append(button('Edit reward',()=>personalRewardDialog(r.id)));
+          const remove=button('Remove',()=>confirmAction('Remove this reward?',r.title+' will be removed. Your saved activity and XP stay.','Remove reward',()=>writePersonalRewards((drafts.rewards||[]).filter(old=>old.id!==r.id))));remove.classList.add('ledger-personal-secondary');actions.append(remove);
+        }card.append(actions);panel.append(card);
+      }
+      if(!shown.length)panel.append(make('p',compact?'Give your next milestone something personal to look forward to.':'Choose a reward you would enjoy, then tie it to a future Life Level.','ledger-help'));
+      if(!compact||!shown.length)panel.append(button('Plan a reward',()=>personalRewardDialog()));
+      if(!compact&&rewardData.enjoyed.length){const history=make('details',null,'ledger-personal-history');history.append(make('summary','Rewards enjoyed · '+rewardData.enjoyed.length));for(const r of rewardData.enjoyed){const card=make('article',null,'ledger-personal-record');card.append(make('h3',r.title),make('p','Life Level '+r.target+' · '+new Date(r.claimedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}),'ledger-help'));history.append(card);}panel.append(history);}
+      return panel;
+    }
+
     function composeDashboard(log,data,earned){
       if(!log)return;
       const panes={};
@@ -488,7 +545,7 @@
       intro.append(make('div',state.logDate===todayISO()?new Date(state.logDate+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Editing '+pretty(state.logDate),'eyebrow'),make('h1',state.logDate===todayISO()?'Your check-in':'Your saved day','cinzel'));
       const awards=button(earned.length+' achievements',()=>{state.openSections.relics=true;setDashboardView('progress');app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel')?.scrollIntoView({block:'start'});});awards.classList.add('ledger-awards-link');const levelLink=button('Life Level '+data.life.level+' · '+fmt(Math.ceil(data.life.remaining))+' XP to next level',()=>setDashboardView('progress'));levelLink.id='ledger-life-level';levelLink.classList.add('ledger-level-link');const progressLinks=make('div',null,'ledger-day-progress');progressLinks.append(levelLink,awards);intro.append(progressLinks);panes.today.append(intro);
       const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
-      move('#ledger-rhythm',panes.today);
+      move('#ledger-rhythm',panes.today);const rewardPreview=personalRewardsPanel(data,true);if(rewardPreview)panes.today.append(rewardPreview);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
       const previewHead=make('span',null,'ledger-preview-heading');previewHead.append(make('span','Screen time · under 1 hour'),make('span','Open ›','ledger-preview-open'));
       const previewTime=make('strong');previewTime.id='leisure-preview-time';const previewMeta=make('span',null,'ledger-help');previewMeta.id='leisure-preview-meta';
@@ -516,7 +573,7 @@
       // Date navigation lives with the date field; achievement access lives above.
       if(oldActions){for(const b of [...oldActions.querySelectorAll('button')])if(b.textContent.startsWith('Achievements'))b.remove();}
       for(const jump of app.querySelectorAll('.ledger-jump'))jump.remove();
-      move('.ledger-identity',panes.progress);move('#ledger-season-summary',panes.progress);move('.ledger-overall',panes.progress);panes.progress.append(recentPanel());
+      move('.ledger-identity',panes.progress);move('#ledger-season-summary',panes.progress);move('.ledger-overall',panes.progress);const personalRewards=personalRewardsPanel(data);if(personalRewards)panes.progress.append(personalRewards);panes.progress.append(recentPanel());
       const relic=app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel');
       move('.ledger-values-heading',panes.progress);move('.ledger-values-info',panes.progress);
       move('.ledger-values',panes.progress);if(relic)panes.progress.append(relic);
@@ -758,9 +815,10 @@
     window.addEventListener('hashchange',()=>{if(location.hash==='#today'){setDashboardView('today');selectDate(todayISO());}});
     window.addEventListener('pageshow',()=>{checkDay();render();});setInterval(checkDay,60000);
     setInterval(()=>{checkDay();paintLeisureClock();},1000);
-    window.LedgerDays=Object.freeze({selectDate,setSeason,resetProgress,parseBackup,saveDay,remember,retry,saveRhythm,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
+    window.LedgerDays=Object.freeze({selectDate,setSeason,resetProgress,parseBackup,saveDay,remember,retry,saveRhythm,savePersonalReward,enjoyPersonalReward,personalRewardDialog,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
     render();if(drafts.resetPending)finishProgressReset().then(()=>render());
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
+
 
