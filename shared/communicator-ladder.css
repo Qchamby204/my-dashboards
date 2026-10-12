@@ -24,3 +24,14 @@ html[data-atlas-app="communication-trainer"] .cl-performed input{appearance:auto
 html[data-atlas-app="communication-trainer"] .cl-performed input::after{content:none}
 @media(max-width:360px){html[data-atlas-app="communication-trainer"] .cl-next,html[data-atlas-app="communication-trainer"] .cl-receipt{padding:18px}.cl-stage{padding:16px}.cl-actions .btn{width:100%}}
 @media(prefers-contrast:more){.cl-next,.cl-stage,.cl-receipt{border:2px solid currentColor}}
+
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-emblem{display:inline-flex;width:52px;height:52px;border:1px solid var(--neo-line);border-radius:17px;align-items:center;justify-content:center;background:var(--neo-content-surface);color:var(--neo-muted);flex:none;margin:.6rem 0;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-emblem svg{width:28px;height:28px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-emblem.is-earned{color:var(--neo-accent);border-color:var(--neo-accent);background:color-mix(in srgb,var(--neo-accent) 12%,var(--neo-surface));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--neo-accent) 35%,transparent);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-stage.is-earned{border-inline-start:3px solid var(--neo-accent);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-stage.is-ready{outline:1px solid var(--neo-accent);outline-offset:2px;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-stage-heading{flex-wrap:wrap;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-mastery{font-size:.85rem;line-height:1.5;padding-block:.7rem;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-unlock-bridge{display:grid;gap:.6rem;margin:1rem 0;padding:1rem;border-radius:18px;border:1px solid var(--neo-accent);background:var(--neo-content-surface);}
+
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-receipt>.cl-emblem{display:flex;margin:0 0 .85rem;}

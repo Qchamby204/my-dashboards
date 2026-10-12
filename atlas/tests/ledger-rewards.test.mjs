@@ -13,3 +13,11 @@ test('enjoyed history stays recorded when XP is corrected',()=>{const rows=[rewa
 test('preview selects a ready reward before the next future reward',()=>{const s=M.view([reward({id:'two',target:5}),reward()],{level:3,xp:300},100);assert.equal(s.next.id,'one');});
 test('earned and enjoyed records cannot be rewritten as future plans',()=>{assert.throws(()=>M.plan({title:'Other',target:4},{level:3,xp:300},date,'one',reward()));assert.throws(()=>M.plan({title:'Other',target:4},life,date,'one',reward({claimedAt:date})));});
 test('duplicate IDs, bad dates, excessive titles and invalid numbers are rejected',()=>{assert.throws(()=>M.validate([reward(),reward()]));for(const extra of [{createdAt:'bad'},{title:'x'.repeat(121)},{target:1.5},{startXP:-1},{claimedAt:'bad'}])assert.throws(()=>M.validate([reward(extra)]));});
+
+test('reward photos survive edits, claiming and JSON backup; removal is explicit',()=>{
+ const photo='data:image/jpeg;base64,/9j/2Q==',row=M.plan({title:'Book',target:3,photo},life,date,'photo');
+ assert.equal(M.plan({title:'Bookshop',target:4},life,date,'other',row).photo,photo);
+ assert.equal(M.plan({title:'Bookshop',target:4,photo:''},life,date,'other',row).photo,undefined);
+ const restored=JSON.parse(JSON.stringify(M.enjoy([row],'photo',{level:3,xp:300},date)));M.validate(restored);assert.equal(restored[0].photo,photo);
+ for(const invalid of ['https://example.com/image.jpg','data:image/svg+xml;base64,AAAA','data:image/jpeg;base64,'+'A'.repeat(40000)])assert.throws(()=>M.plan({title:'Book',target:3,photo:invalid},life,date,'x'));
+});

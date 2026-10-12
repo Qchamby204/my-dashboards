@@ -266,11 +266,17 @@ with sync_playwright() as pw:
         editor = reward_page.locator('dialog.ledger-personal-editor[open]')
         editor.get_by_label('Reward', exact=True).fill('An afternoon at the bookstore')
         editor.get_by_label('Life Level', exact=True).fill('1')
+        import base64
+        photo_data = reward_page.evaluate("""() => {const c=document.createElement('canvas');c.width=480;c.height=300;const x=c.getContext('2d');x.fillStyle='#b89764';x.fillRect(0,0,480,300);x.fillStyle='#f3ede1';x.fillRect(140,50,200,210);x.fillStyle='#77551a';x.font='28px serif';x.fillText('Bookstore',173,150);return c.toDataURL('image/png').split(',')[1];}""")
+        editor.get_by_label('Reward photo (optional)', exact=True).set_input_files({'name':'bookstore.png','mimeType':'image/png','buffer':base64.b64decode(photo_data)})
+        expect(editor.locator('.ledger-reward-photo')).to_be_visible()
         reward_page.screenshot(path=str(OUT / f'{ENGINE}-personal-reward-editor.png'), full_page=True)
         editor.get_by_role('button', name='Save reward', exact=True).click()
         reward_page.wait_for_function('LedgerDays.drafts.rewards?.length===1 && !document.getElementById("app").inert')
         assert reward_page.evaluate('compute(state.days,state.goals).life.xp') == 0
         assert reward_page.evaluate('state.days.length') == 0
+        assert reward_page.evaluate('LedgerDays.drafts.rewards[0].photo.startsWith("data:image/jpeg;base64,")')
+        assert reward_page.evaluate('LedgerDays.drafts.rewards[0].photo.length <= 40000')
         reward_page.locator('#ledger-reward-preview').get_by_role('button', name='View rewards', exact=True).click()
         assert reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Mark enjoyed', exact=True).count() == 0
         reward_page.screenshot(path=str(OUT / f'{ENGINE}-personal-reward-planned.png'), full_page=True)

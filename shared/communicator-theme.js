@@ -48,13 +48,13 @@
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1','forge:goals:v1','forge:progression-settings:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasForgeBoot=boot;
-      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=0bb77db2a7ce',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=b4b0df4f7a2c',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasLedgerBoot=boot;
       const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js?v=038c74b94b00',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
-      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=5154211470de',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=3f6cf669e780',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
     }
   }
   const key = 'atlas.appearance.v1';

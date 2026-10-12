@@ -5,14 +5,14 @@
  function validate(rows){
   if(!Array.isArray(rows)||rows.length>50)throw Error('Keep at most 50 personal rewards.');
   const ids=new Set();
-  for(const r of rows){if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!r.id||r.id.length>120||ids.has(r.id)||typeof r.title!=='string'||!r.title.trim()||r.title.length>120||!Number.isInteger(r.target)||r.target<1||r.target>10000||typeof r.startXP!=='number'||!Number.isFinite(r.startXP)||r.startXP<0||!date(r.createdAt)||r.claimedAt!==undefined&&!date(r.claimedAt))throw Error('Invalid personal reward.');ids.add(r.id);}
+  for(const r of rows){if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!r.id||r.id.length>120||ids.has(r.id)||typeof r.title!=='string'||!r.title.trim()||r.title.length>120||!Number.isInteger(r.target)||r.target<1||r.target>10000||typeof r.startXP!=='number'||!Number.isFinite(r.startXP)||r.startXP<0||!date(r.createdAt)||r.claimedAt!==undefined&&!date(r.claimedAt))throw Error('Invalid personal reward.');if(r.photo!==undefined&&(typeof r.photo!=='string'||r.photo.length>40000||!/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(r.photo)))throw Error('Choose a smaller JPEG reward photo.');ids.add(r.id);}
   return rows;
  }
  function plan(input,life,now,id,existing){
   const title=String(input.title||'').trim(),target=Number(input.target);
   if(existing&&(existing.claimedAt||life.level>=existing.target))throw Error('An earned reward stays as recorded. Plan another reward for a future level.');
   if(!Number.isInteger(target)||target<=life.level)throw Error('Choose a Life Level above your saved current level.');
-  const reward={id:existing?.id||id,title,target,startXP:existing?.startXP??life.xp,createdAt:existing?.createdAt||now};validate([reward]);return reward;
+  const reward={id:existing?.id||id,title,target,startXP:existing?.startXP??life.xp,createdAt:existing?.createdAt||now};if(input.photo!==undefined){if(input.photo)reward.photo=input.photo;}else if(existing?.photo)reward.photo=existing.photo;validate([reward]);return reward;
  }
  function view(rows,life,cost){
   validate(rows);const sorted=rows.slice().sort((a,b)=>a.target-b.target||a.createdAt.localeCompare(b.createdAt));

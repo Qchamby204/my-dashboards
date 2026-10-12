@@ -44,6 +44,11 @@ try{
   await p.locator('[data-act="log"][data-key="PUSH"]').click();
   assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].feedback,lift.id),'smooth');
   if(await p.locator('[data-act="closepr"]').count())await p.locator('[data-act="closepr"]').click();
+  await p.evaluate(({id,sets})=>{state.draft[id]={sets:Array.from({length:sets},()=>({w:'205',r:'6'})),feedback:'smooth'};state.openDay='PUSH';render();},lift);
+  await p.locator('[data-act="log"][data-key="PUSH"]').click();
+  if(await p.locator('[data-act="closepr"]').count())await p.locator('[data-act="closepr"]').click();
+  assert.match(await p.locator('.forge-saved-gain').textContent(),new RegExp(lift.sets+' more reps at the same 205 lb'));
+  await capture(p,'forge-saved-improvement',theme,w,size,p.locator('#forge-session-summary'));
   await p.reload();await settle(p);
   assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].prescription.sets,lift.id),lift.sets,'feedback and target survive reload');
   assert.equal(await p.evaluate(id=>state.progressionSettings[id],lift.id),5);
@@ -69,6 +74,13 @@ try{
   const thirdDay=p.locator('#week .day').nth(2);await thirdDay.scrollIntoViewIfNeeded();await capture(p,'chef-planner-scrolled',theme,w,size);
   assert(await p.locator('body>header').evaluate(n=>n.getBoundingClientRect().bottom<0),'planner scrolls past the header');
   assert(await p.locator('.atlas-page-dock').isVisible(),'page navigation remains available after scrolling');
+  await p.evaluate(()=>{const recipe=availableRecipes().find(r=>r.meal==='dinner');savePreparation(daysPlan(recipe.id,localDateKey(),3,2));render();});
+  await p.reload();await settle(p);if(size!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});
+  await p.locator('#chef-tonight').scrollIntoViewIfNeeded();await capture(p,'chef-tonight',theme,w,size,p.locator('#chef-tonight'));
+  assert.equal(await p.locator('#week .chef-meal-record').count(),3);
+  await capture(p,'chef-meal-board',theme,w,size,p.locator('#week .day').first());
+  await p.locator('#chef-tonight [data-cook]').click();await p.locator('#cook-steps input').first().check();
+  assert.match(await p.locator('#cook-step-progress').textContent(),/^1 of/);await capture(p,'chef-cooking-steps',theme,w,size,p.locator('#cook-dialog'));await p.keyboard.press('Escape');
   await open('life-ledger');
   assert.equal(await p.locator('.ledger-save-row #ledger-quick-reset').count(),0,'reset is separate from saving');assert(await p.locator('.ledger-reset-row #ledger-quick-reset').count());
   assert(await p.locator('.ledger-card-heading').first().evaluate(n=>{const r=n.getBoundingClientRect();return r.width>200&&r.height>=44;}),'activity heading uses the card width');
@@ -90,7 +102,8 @@ try{
   await p.locator('[data-ladder-performed]').check();await p.locator('.card.rubric button[onclick="finishDrill()"]').click();
   assert.match(await p.locator('.cl-receipt').textContent(),/Challenge completed/);assert.match(await p.locator('.cl-receipt').textContent(),/80.*100 self-score/s);
   assert.equal(await p.evaluate(()=>S.reps.length),1);assert.equal(await p.evaluate(()=>xp()),10);
-  await capture(p,'communicator-ladder-saved',theme,w,size,p.locator('.cl-receipt'));
+  assert.equal(await p.locator('.cl-receipt .cl-emblem.is-earned').count(),1);assert.match(await p.locator('.cl-unlock-bridge').textContent(),/Make the idea land/);
+  await p.locator('#toasts .toast').waitFor({state:'detached'});await capture(p,'communicator-ladder-saved',theme,w,size,p.locator('.cl-receipt'));
   await p.reload();await settle(p);assert.equal(await p.evaluate(()=>CommunicatorLadder.snapshot().completed),1);
   await p.locator('[data-ladder-start="make-it-land"]').first().click();await p.locator('#txBox').fill('My unfinished second challenge.');
   await p.reload();await settle(p);
