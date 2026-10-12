@@ -255,9 +255,46 @@ with sync_playwright() as pw:
         assert exchange.evaluate('state.days[0].leisure.screenMinutes') == 30
         exchange.screenshot(path=str(OUT / f'{ENGINE}-discern-exchange.png'), full_page=True)
         exchange_context.close()
+        reward_context = browser.new_context(viewport={'width': 320, 'height': 844}, is_mobile=True, has_touch=True, timezone_id='America/Winnipeg', reduced_motion='reduce')
+        reward_page = reward_context.new_page()
+        reward_page.on('pageerror', lambda e: errors.append(str(e)))
+        reward_page.route('**/*', lambda route: route.continue_() if route.request.url.startswith(BASE) else route.abort())
+        reward_page.clock.set_fixed_time(dt.datetime(2026, 10, 8, 17, tzinfo=dt.timezone.utc))
+        reward_page.goto(BASE + '/life-ledger.html')
+        reward_page.wait_for_function('!!window.LedgerDays')
+        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='Plan a reward', exact=True).click()
+        editor = reward_page.locator('dialog.ledger-personal-editor[open]')
+        editor.get_by_label('Reward', exact=True).fill('An afternoon at the bookstore')
+        editor.get_by_label('Life Level', exact=True).fill('1')
+        reward_page.screenshot(path=str(OUT / f'{ENGINE}-personal-reward-editor.png'), full_page=True)
+        editor.get_by_role('button', name='Save reward', exact=True).click()
+        reward_page.wait_for_function('LedgerDays.drafts.rewards?.length===1 && !document.getElementById("app").inert')
+        assert reward_page.evaluate('compute(state.days,state.goals).life.xp') == 0
+        assert reward_page.evaluate('state.days.length') == 0
+        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='View rewards', exact=True).click()
+        assert reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Mark enjoyed', exact=True).count() == 0
+        reward_page.screenshot(path=str(OUT / f'{ENGINE}-personal-reward-planned.png'), full_page=True)
+        reward_page.locator('#ledger-nav-today').click()
+        reward_page.evaluate('state.draft.Read=Math.ceil(LedgerRhythm.lifeCost/100)*LedgerRhythm.xpUnit(HCFG.Read);LedgerDays.saveDay()')
+        reward_page.wait_for_function('compute(state.days,state.goals).life.level>=1 && !document.getElementById("app").inert')
+        assert reward_page.evaluate('state.levelInfo.kicker') == 'Reward unlocked'
+        dismiss_rewards(reward_page)
+        before_reward_xp = reward_page.evaluate('compute(state.days,state.goals).life.xp')
+        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='View your earned reward', exact=True).click()
+        reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Mark enjoyed', exact=True).click()
+        reward_page.get_by_role('dialog', name='Enjoyed this reward?', exact=True).get_by_role('button', name='Mark enjoyed', exact=True).click()
+        reward_page.wait_for_function('!!LedgerDays.drafts.rewards[0].claimedAt && !document.getElementById("app").inert')
+        assert reward_page.evaluate('compute(state.days,state.goals).life.xp') == before_reward_xp
+        reward_page.locator('.ledger-personal-history summary').click()
+        reward_page.screenshot(path=str(OUT / f'{ENGINE}-personal-reward-enjoyed.png'), full_page=True)
+        assert reward_page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
+        reward_page.reload()
+        reward_page.wait_for_function('!!LedgerDays.drafts.rewards?.[0]?.claimedAt')
+        reward_context.close()
         assert not errors, errors
         print(ENGINE + ': ongoing goals, catch-up, screen boundary, lifetime levels, history and responsive journeys passed')
     finally:
         page.screenshot(path=str(OUT / f'{ENGINE}-final.png'), full_page=True)
         browser.close()
+
 
