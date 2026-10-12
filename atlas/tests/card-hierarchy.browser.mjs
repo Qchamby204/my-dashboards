@@ -44,6 +44,11 @@ try{
   await p.locator('[data-act="log"][data-key="PUSH"]').click();
   assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].feedback,lift.id),'smooth');
   if(await p.locator('[data-act="closepr"]').count())await p.locator('[data-act="closepr"]').click();
+  await p.evaluate(({id,sets})=>{state.draft[id]={sets:Array.from({length:sets},()=>({w:'205',r:'6'})),feedback:'smooth'};state.openDay='PUSH';render();},lift);
+  await p.locator('[data-act="log"][data-key="PUSH"]').click();
+  if(await p.locator('[data-act="closepr"]').count())await p.locator('[data-act="closepr"]').click();
+  assert.match(await p.locator('.forge-saved-gain').textContent(),new RegExp(lift.sets+' more reps at the same 205 lb'));
+  await capture(p,'forge-saved-improvement',theme,w,size,p.locator('#forge-session-summary'));
   await p.reload();await settle(p);
   assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].prescription.sets,lift.id),lift.sets,'feedback and target survive reload');
   assert.equal(await p.evaluate(id=>state.progressionSettings[id],lift.id),5);
