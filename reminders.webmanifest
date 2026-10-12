@@ -1,0 +1,24 @@
+{
+  "id": "./reminders.html",
+  "name": "Atlas Reminders",
+  "short_name": "Reminders",
+  "start_url": "./reminders.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#efeae3",
+  "theme_color": "#efeae3",
+  "icons": [
+    {
+      "src": "shared/icons/compass.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "shared/icons/index-apple.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

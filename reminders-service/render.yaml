@@ -1,0 +1,24 @@
+# Deploy from repository root; one always-on instance with a persistent disk.
+# Paid service: review the host's quoted price before provisioning.
+services:
+  - type: web
+    name: atlas-reminders
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --prefix reminders-service --ignore-scripts
+    startCommand: npm start --prefix reminders-service
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    disk:
+      name: reminder-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: REMINDER_DB
+        value: /var/data/reminders.sqlite
+      - key: PAIRING_TOKEN
+        generateValue: true
+      - key: VAPID_SUBJECT
+        sync: false
