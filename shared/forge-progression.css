@@ -1,0 +1,11 @@
+html[data-atlas-app="workout-forge"] .forge-progression{margin-top:14px;padding:14px;border-radius:24px;border:1px solid var(--neo-line, #b9aea1);background:var(--neo-content-surface, #f8f5f0);color:var(--neo-ink, #302b27);overflow-wrap:anywhere;min-width:0;font-family:inherit}
+.forge-progression .fp-heading{font-size:14px;font-weight:700;line-height:1.4;margin-bottom:6px}
+.forge-progression .fp-target{font-size:16px;font-weight:650;margin-bottom:10px;line-height:1.5}
+.forge-progression label{display:block;font-size:13px;line-height:1.5;margin-top:10px}
+html[data-atlas-app="workout-forge"] .forge-progression select{display:block;max-width:100%;width:100%;min-height:44px;margin-top:6px;padding:10px;border-radius:14px;font:inherit;font-size:14px;color:inherit;background:var(--neo-inset, #e5ded5);border:1px solid var(--neo-line, #b9aea1)}
+html[data-atlas-app="workout-forge"] .forge-progression button{min-height:44px;max-width:100%;white-space:normal;padding:10px 16px;border-radius:99px;background:var(--neo-accent, #9a6c40);color:var(--neo-on-accent, #fff);font:inherit;font-size:14px;border:0;cursor:pointer}
+.forge-progression button:disabled{opacity:.55;cursor:default}
+.forge-progression details{margin-top:10px;font-size:13px;line-height:1.6}
+.forge-progression summary{cursor:pointer;min-height:44px;padding:10px 0;font-weight:600}
+.forge-progression details p{margin:8px 0}
+.forge-progression .fp-hint{font-size:12px;line-height:1.5;margin-top:8px}
