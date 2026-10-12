@@ -427,7 +427,11 @@
       const receiveActions=make('div',null,'ledger-actions'),file=make('input');file.type='file';file.accept='application/json,.json';file.hidden=true;
       receiveActions.append(button('Review pasted usage',()=>{try{reviewDiscernUsage(B.parseUsage(text.value));}catch(err){toast(err.message);}}),button('Import usage file',()=>file.click()));
       file.addEventListener('change',async()=>{const f=file.files?.[0];file.value='';if(!f)return;try{if(f.size>8192)throw Error('Choose a report smaller than 8 KB.');reviewDiscernUsage(B.parseUsage(await f.text()));}catch(err){toast(err.message);}});
-      receive.append(text,receiveActions,file,make('p','Exact iOS usage is private to Discern’s native report. You confirm its number, add other devices once, and review the combined total here. Import replaces that date’s total; Save day records progress.','ledger-help'));
+      const paste=button('Paste usage from Discern',async()=>{try{if(blocked||busy)return;if(!navigator.clipboard?.readText)throw Error('Clipboard access is unavailable. Import a file or use manual paste below.');reviewDiscernUsage(B.parseUsage(await navigator.clipboard.readText()));}catch(err){manualPaste.open=true;toast('Use file import or paste the copied report below.');}});
+      const normalActions=make('div',null,'ledger-actions');normalActions.append(paste,button('Import usage file',()=>file.click()));
+      const manualPaste=make('details',null,'ledger-discern-paste ledger-screen-patterns');manualPaste.append(make('summary','Paste the copied report manually'),text,receiveActions.firstChild);
+      receive.append(normalActions,file,manualPaste,make('p','Review phone and other-device minutes together, then Save day. A new report replaces the date’s total.','ledger-help'),detailsInfo('About confirmed usage','Exact iOS usage stays in Discern’s private native report. You enter the number shown there and add other-device time once. This local, user-confirmed transfer does not automatically read or sync your phone.'));
+
       if(l.discernReceipt)receive.append(make('p','Last transfer: '+fmt(l.discernReceipt.phoneMinutes)+' phone + '+fmt(l.discernReceipt.otherDeviceMinutes)+' other-device minutes · user-confirmed Discern report','ledger-help'));
       card.append(send,receive);paint();return card;
     }
