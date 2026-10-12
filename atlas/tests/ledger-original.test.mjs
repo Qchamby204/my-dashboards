@@ -16,6 +16,19 @@ const enhancement=readFileSync(new URL('../../shared/ledger-enhancements.js',imp
 const S='lifeledger:v2',D='lifeledger:drafts:v1',C='lifeledger:season:v1';
 const file=o=>({size:100,text:async()=>JSON.stringify(o)});
 const decode=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
+test('personal rewards use saved levels, never drafts or extra XP, and persist in backups',async()=>{
+ const h=await boot();assert.equal(await h.api.savePersonalReward({title:'A new book',target:1}),true);const id=h.api.drafts.rewards[0].id;
+ h.run('state.draft.Read=Math.ceil(window.LedgerRhythm.lifeCost/100)*window.LedgerRhythm.xpUnit(HCFG.Read)');await assert.rejects(()=>h.api.enjoyPersonalReward(id));assert.equal(h.run('compute(state.days,state.goals).life.level'),0);
+ await h.api.saveDay();const xp=h.run('compute(state.days,state.goals).life.xp'),bytes=h.storage.get(S);assert.equal(h.run('state.levelInfo.kicker'),'Reward unlocked');assert.equal(await h.api.enjoyPersonalReward(id),true);assert.equal(h.run('compute(state.days,state.goals).life.xp'),xp);assert.equal(h.storage.get(S),bytes);
+ await assert.rejects(()=>h.api.enjoyPersonalReward(id));const again=await boot({records:Object.fromEntries(h.storage)});assert(again.api.drafts.rewards[0].claimedAt);again.run('exportData()');const pack=JSON.parse(await again.downloads.at(-1).blob.text());assert.equal(pack.drafts.rewards[0].title,'A new book');
+});
+test('failed reward writes and stale saved progress do not claim a reward',async()=>{
+ const h=await boot();await h.api.savePersonalReward({title:'An outing',target:1});const id=h.api.drafts.rewards[0].id;h.run('state.draft.Read=1000');await h.api.saveDay();h.localStorage.blockedKey=D;assert.equal(await h.api.enjoyPersonalReward(id),false);assert.equal(h.api.drafts.rewards[0].claimedAt,undefined);h.localStorage.blockedKey=null;
+ h.storage.set(S,'[]');assert.equal(await h.api.enjoyPersonalReward(id),false);assert.equal(h.api.drafts.rewards[0].claimedAt,undefined);
+});
+test('personal rewards archive on explicit reset and older backups retain them',async()=>{
+ const h=await boot();await h.api.savePersonalReward({title:'Dinner out',target:1});const old={app:'life-ledger',version:3,days:[]};await h.run('importData')(file(old));h.clickText('Restore backup');await h.settle();assert.equal(h.api.drafts.rewards[0].title,'Dinner out');await h.api.resetProgress();assert.equal(h.api.drafts.archives[0].drafts.rewards[0].title,'Dinner out');assert.equal(h.api.drafts.rewards,undefined);
+});
 
 test('saving from a stale tab preserves another window’s unrelated saved date',async()=>{
  const base=[{date:'2026-09-05',units:{Read:1}}],h=await boot({records:{[S]:JSON.stringify(base)}});
@@ -112,7 +125,7 @@ async function boot({records={},blocked=false,width=390,realModel=false,nowISO='
   class BlobURL extends URL{static createObjectURL(blob){const id='blob:'+(++serial);blobs.set(id,blob);return id;}static revokeObjectURL(id){blobs.delete(id);}}
   const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,URLSearchParams,location:{search:'',pathname:'/life-ledger.html'},history:{replaceState(){}},Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
   let legacyError;try{vm.runInContext(realModel?fullOriginal:original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
-  vm.runInContext(readFileSync(new URL('../../shared/ledger-rhythm-core.js',import.meta.url),'utf8'),context);vm.runInContext(enhancement,context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
+  vm.runInContext(readFileSync(new URL('../../shared/ledger-rhythm-core.js',import.meta.url),'utf8'),context);vm.runInContext(readFileSync(new URL('../../shared/ledger-rewards-core.js',import.meta.url),'utf8'),context);vm.runInContext(enhancement,context);for(let i=0;i<30;i++)await Promise.resolve();const run=s=>vm.runInContext(s,context),node=id=>ids.get(id);
   return {run,node,document,window,context,api:window.LedgerDays,localStorage,storage,downloads,legacyError,
     at(date){now=new Date(date).getTime();},flush(){for(const [id,t]of [...timers])if(t.due<=now&&timers.delete(id))t.fn();},
     settle:async()=>{for(let i=0;i<30;i++)await Promise.resolve();},act(action,extra={}){const el=document.createElement('button');el.dataset={act:action,...extra};return node('app').emit('click',{target:el});},
@@ -574,3 +587,4 @@ test('amount Done keeps invalid input on its card for correction',async()=>{
  const input=card.querySelector('[data-act="num"]');input.value='-4';card.querySelector('.ledger-amount-done').click();
  assert.equal(h.run('state.cardIndex'),h.run('HABITS.indexOf("Read")'));assert.equal(input.getAttribute('aria-invalid'),'true');assert.equal(h.document.activeElement,input);assert.equal(h.run('state.draft.Read'),0);
 });
+
