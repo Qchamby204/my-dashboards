@@ -26,7 +26,7 @@ try{
   await p.goto(base+'#home');await settled();assert.equal(await p.locator('.topic-card').count(),14);assert.equal(await records(),null);
   assert.equal(await p.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(x=>x.id);return ids.length===new Set(ids).size;}),true,'no colliding SVG IDs');
   assert.equal(await p.locator('.badge-symbol').first().evaluate(e=>getComputedStyle(e).animationName),'none');
-  assert.equal(await p.locator('.library-bookshelf .shelf-book').count(),3);assert.equal(await p.locator('.library-bookshelf .book-jacket').count(),3);
+  assert.equal(await p.locator('.library-bookshelf .shelf-book').count(),3);assert.equal(await p.locator('.library-bookshelf [data-action=start-reading]').first().getAttribute('data-id'),'b-1A-03','up next follows the prioritised topic and its first learning section');assert.equal(await p.locator('.library-bookshelf .book-jacket').count(),3);
   await photo('home');
   await p.locator('.topic-card').first().click();await settled();
   assert.deepEqual(await p.locator('[data-learning-sub]').evaluateAll(es=>es.map(e=>e.dataset.learningSub)),['1A','1C','1B','1E','1D','1F','1G']);
