@@ -30,7 +30,7 @@ try{
   const progression=p.locator('[data-progression-id="'+lift.id+'"]');
   assert.match(await progression.textContent(),/Ready for a small increase/);
   assert.match(await progression.locator('.fp-target').textContent(),/205 lbs/);
-  await progression.locator('summary').click();assert.equal(await p.evaluate(()=>state.openDay),'PUSH','disclosure does not collapse workout');
+  await progression.locator('summary').click();assert.equal(await p.evaluate(()=>state.openDay),'PUSH','disclosure does not collapse workout');await capture(p,'forge-progression-expanded',theme,w,size,progression);
   await progression.locator('[data-act="progression-step"]').selectOption('2.5');
   assert.match(await progression.locator('.fp-target').textContent(),/202.5 lbs/);
   await progression.locator('summary').click();await progression.locator('[data-act="progression-step"]').selectOption('5');
