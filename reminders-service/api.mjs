@@ -48,8 +48,8 @@ export function createAPI({db,pairingToken,publicKey,send,origin='https://qchamb
    }
    if(url.pathname==='/test'&&req.method==='POST'){
     if(!device.active)return reply({error:'This subscription expired. Pair again.'},409,cors);
-    if(db.prepare("SELECT 1 FROM deliveries WHERE device=? AND key LIKE 'test:%' AND at>?").get(device.id,now-60000))return reply({error:'Wait a minute before sending another test.'},429,cors);
-    const key='test:'+now;
+    if(db.prepare("SELECT 1 FROM deliveries WHERE device=? AND key LIKE '!test:%' AND at>?").get(device.id,now-60000))return reply({error:'Wait a minute before sending another test.'},429,cors);
+    const key='!test:'+now;
     db.prepare("INSERT INTO deliveries(device,key,day,status,at) VALUES (?,?,?,'sending',?)").run(device.id,key,localParts(now,JSON.parse(device.prefs).timezone).date,now);
     try{await send(JSON.parse(device.subscription),payload({app:'life-map',title:'Reminders are connected. Tap to open Life Map.'},key));}
     catch(e){db.prepare("UPDATE deliveries SET status='failed' WHERE device=? AND key=?").run(device.id,key);if([404,410].includes(e.statusCode))db.prepare('UPDATE devices SET active=0 WHERE id=?').run(device.id);return reply({error:'Test was not confirmed. Check connection and pair again if needed.'},502,cors);}

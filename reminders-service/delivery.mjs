@@ -19,7 +19,7 @@ export async function dispatch(db,send,now=Date.now()){
    // Claim before I/O. An ambiguous network failure is not retried: avoid duplicate nudges.
    const claim=db.prepare("INSERT OR IGNORE INTO deliveries(device,key,day,status,at) VALUES (?,?,?,'sending',?)").run(d.id,item.key,item.date,now);
    if(!claim.changes)continue;
-   const count=db.prepare("SELECT COUNT(*) AS n FROM deliveries WHERE device=? AND day=? AND status IN ('sending','accepted','unknown')").get(d.id,item.date).n;
+   const count=db.prepare("SELECT COUNT(*) AS n FROM deliveries WHERE device=? AND day=? AND key NOT LIKE '!test:%' AND status IN ('sending','accepted','unknown')").get(d.id,item.date).n;
    if(count>6){db.prepare("UPDATE deliveries SET status='daily-limit' WHERE device=? AND key=?").run(d.id,item.key);continue;}
    try{
     await send(JSON.parse(d.subscription),payload(item.reminder,item.key));
