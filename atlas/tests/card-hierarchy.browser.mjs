@@ -63,6 +63,12 @@ try{
   await capture(p,'chef-recipe',theme,w,size,card);
   await card.locator('details.more').last().locator('summary').click();await capture(p,'chef-recipe-expanded',theme,w,size,card);
   await card.locator('[data-cook]').click();assert(await p.locator('dialog[open]').isVisible(),'recipe opens cooking view');await p.keyboard.press('Escape');
+  await open('the-chef','#planner');
+  assert(await p.locator('body').evaluate(n=>['none','normal'].includes(getComputedStyle(n,'::before').content)),'Chef has no fixed blank status-area overlay');
+  if(w<h)assert(await p.locator('body>header').evaluate(n=>parseFloat(getComputedStyle(n).paddingTop)>=64),'initial header keeps iPhone status-area clearance');
+  const thirdDay=p.locator('#week .day').nth(2);await thirdDay.scrollIntoViewIfNeeded();await capture(p,'chef-planner-scrolled',theme,w,size);
+  assert(await p.locator('body>header').evaluate(n=>n.getBoundingClientRect().bottom<0),'planner scrolls past the header');
+  assert(await p.locator('.atlas-page-dock').isVisible(),'page navigation remains available after scrolling');
   await open('life-ledger');
   assert.equal(await p.locator('.ledger-save-row #ledger-quick-reset').count(),0,'reset is separate from saving');assert(await p.locator('.ledger-reset-row #ledger-quick-reset').count());
   assert(await p.locator('.ledger-card-heading').first().evaluate(n=>{const r=n.getBoundingClientRect();return r.width>200&&r.height>=44;}),'activity heading uses the card width');
@@ -104,5 +110,6 @@ try{
  }
  console.log(JSON.stringify({views:reports.length,engine,failures:0}));
 }finally{writeFileSync(path.join(out,'card-hierarchy-audit.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
+
 
 
