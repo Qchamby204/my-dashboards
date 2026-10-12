@@ -232,8 +232,8 @@ with sync_playwright() as pw:
         assert exchange.evaluate('DiscernBridge.effectivePhoneBudget(' + json.dumps(allowance) + ')') == 49
         report = {'app': 'discern', 'kind': 'discern-usage', 'version': 1, 'id': 'a1234567-1234-4123-8123-123456789abc', 'date': DAY, 'generatedAt': 1791478800000, 'phoneMinutes': 20, 'otherDeviceMinutes': 10, 'totalMinutes': 30, 'source': 'user-confirmed-native-report', 'observedThresholdLowerBound': 20, 'emergencyReleased': False}
         report['generatedAt'] = exchange.evaluate('Date.now()')
-        exchange.get_by_label('Paste Discern usage JSON', exact=True).fill(json.dumps(report))
-        exchange.get_by_role('button', name='Review pasted usage', exact=True).click()
+        exchange.evaluate("report => Object.defineProperty(navigator, 'clipboard', {configurable: true, value: {readText: async () => JSON.stringify(report)}})", report)
+        exchange.get_by_role('button', name='Paste usage from Discern', exact=True).click()
         expect(exchange.get_by_role('dialog', name='Review Discern usage', exact=True)).to_be_visible()
         assert exchange.evaluate('state.days.length') == 0
         exchange.get_by_role('button', name='Use this total', exact=True).click()
@@ -247,6 +247,7 @@ with sync_playwright() as pw:
         before_xp = exchange.evaluate('compute(state.days,state.goals).life.xp')
         exchange.locator('#ledger-leisure-preview').click()
         exchange.locator('#ledger-discern-bridge > summary').click()
+        exchange.locator('details.ledger-discern-paste > summary').click()
         exchange.get_by_label('Paste Discern usage JSON', exact=True).fill(json.dumps(report))
         exchange.get_by_role('button', name='Review pasted usage', exact=True).click()
         assert exchange.get_by_role('dialog', name='Review Discern usage', exact=True).count() == 0
