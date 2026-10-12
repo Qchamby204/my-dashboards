@@ -301,8 +301,8 @@ function progressionView(it,eid){
   if(p.load!=null)h+='<div class="fp-target">'+p.load+' lbs · '+p.sets+' × '+esc(it.reps)+'</div>';
   if(p.load!=null)h+='<button type="button" data-act="progression-use" data-id="'+eid+'" '+(filled?'disabled':'')+'>Use target</button>'+(filled?'<div class="fp-hint">Your entered sets stay as they are.</div>':'');
   h+='<label>How did this session feel?<select data-act="progression-feedback" data-id="'+eid+'" aria-label="Effort for '+esc(effName(it))+'">';
-  [['','Not recorded'],['smooth','Clean reps · at least 2 left'],['hard','Hard · 0–1 reps left or form slipped'],['missed','Could not reach the minimum reps'],['pain','Pain · pause this exercise']].forEach(function(o){h+='<option value="'+o[0]+'" '+(dr.feedback===o[0]?'selected':'')+'>'+o[1]+'</option>';});
-  h+='</select></label><details><summary>ⓘ Why this target?</summary><p>'+esc(p.reason)+'</p><p>Suggestions use saved regular-workout sessions for this exact exercise. They do not change eight-week goal plans. Use the same weight convention each time: total barbell load or the weight of one dumbbell.</p>';
+  [['','Not recorded'],['smooth','Clean · 2+ left'],['hard','Hard · 0–1 left'],['missed','Missed minimum'],['pain','Pain · stop']].forEach(function(o){h+='<option value="'+o[0]+'" '+(dr.feedback===o[0]?'selected':'')+'>'+o[1]+'</option>';});
+  h+='</select></label><details><summary>ⓘ Why this target?</summary><p>'+esc(p.reason)+'</p><p>“Clean” means good form with at least two reps left; “Hard” means zero to one left or form slipping. Suggestions use saved regular-workout sessions for this exact exercise. They do not change eight-week goal plans. Use the same weight convention each time: total barbell load or the weight of one dumbbell.</p>';
   if(p.kind!=='manual'){
     h+='<label>Smallest available increase (lbs)<select data-act="progression-step" data-id="'+eid+'" aria-label="Weight increment for '+esc(effName(it))+'">';
     [1,2.5,5,10].forEach(function(v){h+='<option value="'+v+'" '+(p.step===v?'selected':'')+'>'+v+' lbs</option>';});h+='</select></label>';
