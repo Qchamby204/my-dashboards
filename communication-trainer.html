@@ -12,7 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Communicator">
 <title>Communicator · Learn & Practise</title>
-<script src="shared/communicator-theme.js?v=e52d8a58e83f"></script>
+<script src="shared/communicator-ladder-model.js?v=5fb000ca0236"></script>
+<script src="shared/communicator-theme.js?v=535d33007df5"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -150,12 +151,14 @@ canvas{max-width:100%}
 <link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
 <link rel="stylesheet" href="shared/communicator-integration.css?v=3d2752cecda8">
 <script src="shared/communicator-curriculum.js?v=8193a8745de9" defer></script>
-<script src="shared/communicator-integration.js?v=e0f0c150ea17" defer></script>
+<script src="shared/communicator-integration.js?v=f58fc8866b91" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-32.png?v=96c42cc2e926">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-64.png?v=4e14ee0602b0">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-apple.png?v=71d764739e7e">
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=239c369fb61e">
 <script src="shared/dashboard-navigation.js?v=e54920f52f1b" defer></script>
+<link rel="stylesheet" href="shared/communicator-ladder.css?v=f6b80a73c1b0">
+<script src="shared/communicator-ladder.js?v=c629067dd744" defer></script>
 </head>
 <body>
 <div class="appbar">
@@ -866,11 +869,11 @@ function pageTrain(){
   </div>
   <div class="card">
     <h3>Drill library</h3>
-    ${DRILLS.filter(d=>!d.id.startsWith('crucible-')).map(d=>`<div class="topicitem"><span><b>${d.name}</b> <span class="muted">· ${SKILLS.find(s=>s.id===d.skill).name} · ${d.time}s</span></span><button class="btn ghost" style="padding:5px 12px" onclick="startDrillById('${d.id}')">Go</button></div>`).join('')}
+    ${DRILLS.filter(d=>!d.id.startsWith('crucible-')&&!d.ladder).map(d=>`<div class="topicitem"><span><b>${d.name}</b> <span class="muted">· ${SKILLS.find(s=>s.id===d.skill).name} · ${d.time}s</span></span><button class="btn ghost" style="padding:5px 12px" onclick="startDrillById('${d.id}')">Go</button></div>`).join('')}
   </div>`;
 }
 function startDrill(skillId){
-  const available=DRILLS.filter(d=>!d.id.startsWith('crucible-'));
+  const available=DRILLS.filter(d=>!d.id.startsWith('crucible-')&&!d.ladder);
   const pool = skillId? available.filter(d=>d.skill===skillId) : available;
   launchDrill(pick(pool));
 }
@@ -1598,3 +1601,4 @@ function uiErr(msg){ var e=document.getElementById("uiErr"); if(e) e.textContent
 <script src="shared/atlas-refinements.js?v=54aa0f1d0514" defer></script>
 </body>
 </html>
+
