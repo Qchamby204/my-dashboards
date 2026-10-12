@@ -12,6 +12,16 @@ const S='forge:sessions:v2',D='forge:draft:v1',L='forge:live:v1',R='forge:rest:v
 const file=o=>({size:100,text:async()=>JSON.stringify(o)});
 const draft={'PUSH-0-0':{sets:[{w:'10',r:'4'}],note:'Keep note',done:false}};
 const decode=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
+test('progression effort and increments survive verified saves, backup and restore',async()=>{
+ const h=await boot();h.run(`state.progressionSettings={'PUSH-0-0':2.5};saveProgressionSettings();state.draft={'PUSH-0-0':{sets:[{w:'50',r:'5'},{w:'50',r:'5'}],feedback:'smooth'}}`);
+ await h.run(`logDay('PUSH')`);assert.equal(h.run(`state.sessions[0].items['PUSH-0-0'].feedback`),'smooth');assert.equal(h.run(`state.sessions[0].items['PUSH-0-0'].prescription.sets`),2);
+ h.run('exportData()');const backup=JSON.parse(await h.downloads.at(-1).blob.text());assert.equal(backup.progressionSettings['PUSH-0-0'],2.5);
+ const next=await boot();await next.run('importData') (file(backup));next.clickText('Restore backup');await next.settle();assert.equal(next.run(`state.progressionSettings['PUSH-0-0']`),2.5);assert.equal(next.run(`state.sessions[0].items['PUSH-0-0'].feedback`),'smooth');
+});
+test('pain without performed work does not create a workout; it travels with other saved work',async()=>{
+ const h=await boot();h.run(`state.draft={'PUSH-0-0':{sets:[],feedback:'pain'}}`);await h.run(`logDay('PUSH')`);assert.equal(h.run('state.sessions.length'),0);
+ h.run(`state.draft['PUSH-0-1']={min:10,sets:[]}`);await h.run(`logDay('PUSH')`);assert.equal(h.run(`state.sessions[0].items['PUSH-0-0'].feedback`),'pain');
+});
 async function boot({records={},blocked=false,width=390,wakeLock,goals=false,audioSession,AudioContext,userAgent='',enhanced=true}={}){
   let now=Date.parse('2026-09-08T12:00:00-05:00'),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{
@@ -70,6 +80,7 @@ async function boot({records={},blocked=false,width=390,wakeLock,goals=false,aud
   class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
   class BlobURL extends URL{static createObjectURL(blob){const id='blob:'+(++serial);blobs.set(id,blob);return id;}static revokeObjectURL(id){blobs.delete(id);}}
   const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{wakeLock},location:{hash:''},FormData:class{constructor(form){this.values=form.querySelectorAll('input,select,textarea').filter(n=>n.getAttribute('name')).map(n=>[n.getAttribute('name'),n.value]);}*[Symbol.iterator](){yield* this.values;}get(name){return this.values.find(([key])=>key===name)?.[1]??null;}},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
+  vm.runInContext(readFileSync(new URL('../../shared/forge-progression.js',import.meta.url),'utf8'),context);context.ForgeProgression=context.window.ForgeProgression;
   let legacyError;try{vm.runInContext(original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
   if(goals)for(const file of ['forge-goal-plans.js','forge-goal-model.js'])vm.runInContext(readFileSync(new URL('../../shared/'+file,import.meta.url),'utf8'),context);
   Object.assign(context.navigator,{audioSession,userAgent});
@@ -364,3 +375,4 @@ test('completed 5K updates training paces while a later shorter trial preserves 
  goalClick(h,'week',{week:'4'});goalClick(h,'set',{key:'4-d1-0-0'});form=fillGoal(h,{w:'12:00',distance:'1',unit:'mi'});h.node('app').emit('submit',{target:form});assert.equal(h.window.ForgeGoals.snapshot().plans.run.base,'27:00');
  goalClick(h,'set',{key:'4-d1-0-0'});goalClick(h,'clear',{key:'4-d1-0-0'});assert.equal(h.window.ForgeGoals.snapshot().plans.run.base,'27:00');
 });
+
