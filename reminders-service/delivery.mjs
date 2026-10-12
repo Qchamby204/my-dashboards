@@ -15,6 +15,8 @@ export async function dispatch(db,send,now=Date.now()){
  for(const d of db.prepare('SELECT * FROM devices WHERE active=1').all()){
   const p=JSON.parse(d.prefs);
   for(const item of dueOccurrences(p,now,d.created)){
+   const current=db.prepare('SELECT active,revision FROM devices WHERE id=?').get(d.id);
+   if(!current?.active||current.revision!==d.revision)break; // pause/edit/disconnect during an earlier send
    if(db.prepare('SELECT 1 FROM skips WHERE device=? AND reminder=? AND day=?').get(d.id,item.reminder.id,item.date))continue;
    // Claim before I/O. An ambiguous network failure is not retried: avoid duplicate nudges.
    const claim=db.prepare("INSERT OR IGNORE INTO deliveries(device,key,day,status,at) VALUES (?,?,?,'sending',?)").run(d.id,item.key,item.date,now);

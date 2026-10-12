@@ -94,3 +94,11 @@ test('real web-push library encrypts payload with VAPID and a bounded TTL',()=>{
  const keys=webpush.generateVAPIDKeys();const request=webpush.generateRequestDetails(sub,JSON.stringify({title:'Test'}),{TTL:600,vapidDetails:{subject:'mailto:operator@example.com',publicKey:keys.publicKey,privateKey:keys.privateKey}});
  assert.equal(request.headers.TTL,600);assert(request.headers.Authorization.startsWith('vapid '));assert(Buffer.isBuffer(request.body));assert(!request.body.toString().includes('Test'));
 });
+
+test('pause or disconnect during a send prevents later deliveries from the old snapshot',async()=>{
+ for(const mode of ['pause','disconnect']){const f=await fixture(),p=defaults();p.reminders.push({...p.reminders[0],id:'another'});await f.req('/device','PUT',{prefs:p,revision:1},f.token);let n=0;
+ await dispatch(f.db,async()=>{n++;if(mode==='disconnect')await f.req('/device','DELETE',undefined,f.token);else await f.req('/device','PUT',{prefs:{...p,paused:true},revision:2},f.token);},morning);assert.equal(n,1);f.db.close();}
+});
+test('explicit test notifications do not consume the scheduled daily cap',async()=>{
+ const f=await fixture(),p=defaults();p.reminders=Array.from({length:6},(_,i)=>({...p.reminders[0],id:'r'+i}));await f.req('/device','PUT',{prefs:p,revision:1},f.token);await f.req('/test','POST',{},f.token);let n=0;await dispatch(f.db,async()=>n++,morning);assert.equal(n,6);f.db.close();
+});
