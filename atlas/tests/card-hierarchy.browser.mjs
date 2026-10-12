@@ -114,13 +114,14 @@ try{
   await open('the-library');
   const raw=await p.evaluate(()=>{const raw=localStorage.getItem('atlas.library.v1');return raw;});
   if(await p.locator('[data-action="choose-goal"]').count())await p.locator('[data-action="choose-goal"]').first().click();
-  await p.evaluate(()=>{const s=JSON.parse(localStorage.getItem('atlas.library.v1'));const b=s.catalog[0];s.progress[b.id]={status:'reading',takeaway:'',notes:'',questions:'',application:'',completedAt:''};localStorage.setItem('atlas.library.v1',JSON.stringify(s));});
+  await p.evaluate(()=>{const s=JSON.parse(localStorage.getItem('atlas.library.v1'));const b=s.catalog[0];s.progress[b.id]={status:'reading',takeaway:'',notes:'',questions:'',application:'',completedAt:''};const finished=s.catalog[1],d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');s.progress[finished.id]={status:'done',takeaway:'Keep the process simple enough to repeat.',notes:'',questions:'',application:'',completedAt:day};localStorage.setItem('atlas.library.v1',JSON.stringify(s));});
   await p.reload();await settle(p);if(size!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});
   if(w<h)assert(await p.locator('.topbar').evaluate(n=>parseFloat(getComputedStyle(n).paddingTop)>=64),'standalone header clears the status area');
   assert(await p.locator('.stat').evaluateAll(ns=>ns.every(n=>getComputedStyle(n,'::after').display==='none')),'stat decorations cannot cross text');
   await p.locator('.stats').scrollIntoViewIfNeeded();await capture(p,'library-stats',theme,w,size);
   assert(await p.locator('.continue-book .book-title').first().evaluate(n=>getComputedStyle(n).boxShadow==='none'&&parseFloat(getComputedStyle(n).borderTopWidth)===0),'book title is a text control');
   await capture(p,'library-reading-record',theme,w,size,p.locator('.continue-book').first());
+  assert.equal(await p.locator('.finished-shelf .shelf-book').count(),1);assert.match(await p.locator('.finished-shelf blockquote').textContent(),/Keep the process/);
   await p.locator('.library-bookshelf').scrollIntoViewIfNeeded();await capture(p,'library-bookshelf',theme,w,size,p.locator('.library-bookshelf'));
   await p.locator('.continue-book [data-action=log-pages]').first().click();await capture(p,'library-log-pages',theme,w,size,p.locator('.continue-book').first());
   assert.deepEqual(runtime,[]);await c.close();
