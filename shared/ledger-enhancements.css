@@ -1,7 +1,8 @@
 /* Extend the original mineral / graphite appearance and mobile safe areas. */
 html[data-atlas-app="life-ledger"] .ledger-personal-rewards{padding:24px;margin:20px 0;border:1px solid var(--neo-line);border-radius:24px;background:var(--neo-content-surface);color:var(--neo-ink);min-width:0;overflow-wrap:anywhere}
 .ledger-personal-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.ledger-personal-heading h2{font:700 1.2rem/1.4 var(--neo-font);letter-spacing:-.02em;margin:0}
+.ledger-personal-heading h2{font:700 1.2rem/1.4 var(--neo-font);letter-spacing:-.02em;margin:0;flex:1;min-width:0}
+.ledger-personal-rewards>.ledger-personal-heading{flex-wrap:nowrap}
 .ledger-personal-heading h3,.ledger-personal-history h3{font:600 1rem/1.5 var(--neo-font);margin:0;flex:1;min-width:0}
 .ledger-personal-level{font-size:.8rem;color:var(--neo-muted);line-height:1.6}
 .ledger-personal-record{margin:18px 0;padding:20px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);min-width:0}
@@ -16,6 +17,7 @@ html[data-atlas-app="life-ledger"] .ledger-personal-secondary{background:transpa
 .ledger-personal-history summary{min-height:44px;padding:12px 0;cursor:pointer;font-weight:600}
 .ledger-personal-editor label{display:flex;flex-direction:column;gap:8px;margin:16px 0}
 .ledger-personal-editor input{font:inherit;font-size:16px;min-height:44px;border-radius:14px;padding:12px;max-width:100%;width:100%;color:var(--neo-ink);background:var(--neo-inset);border:1px solid var(--neo-line)}
+html[data-atlas-app="life-ledger"] .ledger-personal-editor button[type="submit"]{background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:0!important;box-shadow:none!important}
 html[data-atlas-app="life-ledger"] .ledger-reward .levelup{overflow-wrap:anywhere}
 @media(max-width:360px){html[data-atlas-app="life-ledger"] .ledger-personal-rewards{padding:18px}.ledger-personal-record{padding:16px}.ledger-personal-actions .ledger-button{width:100%}}
 @media(prefers-contrast:more){.ledger-personal-record{border:2px solid currentColor}}
