@@ -41,7 +41,7 @@ for(const [theme,width,size] of [['light',393,16],['dark',320,16],['dark',393,20
  await p.evaluate(()=>Storage.prototype.setItem=function(){throw Error('Storage full');});await p.locator('#save').click();assert.match(await p.locator('#feedback').textContent(),/Storage full/);
  assert.deepEqual(errors,[]);await c.close();
 }
-const c=await browser.newContext({viewport:{width:393,height:852}});await c.addInitScript(()=>localStorage.setItem('atlas.reminders.device.v1',JSON.stringify({endpoint:'https://delivery.test',token:'x'.repeat(43)})));
+const c=await browser.newContext({viewport:{width:393,height:852}});await c.addInitScript(()=>{localStorage.setItem('atlas.reminders.device.v1',JSON.stringify({endpoint:'https://delivery.test',token:'x'.repeat(43)}));Object.defineProperty(window,'Notification',{value:{permission:'granted',requestPermission:async()=> 'granted'}});});
 const p=await c.newPage();let prefs=defaults(),revision=1,fail=false,removed=false;
 await p.route('https://delivery.test/**',async route=>{const r=route.request(),endpoint=new URL(r.url()).pathname;if(r.method()==='OPTIONS')return route.fulfill({status:204,headers:{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'*'}});let body={prefs,revision,active:true,history:[]},status=200;
  if(r.method()==='PUT'){if(fail){status=503;body={error:'Service offline. Changes not saved.'};}else{prefs=r.postDataJSON().prefs;revision++;body={prefs,revision,active:true,history:[]};}}
