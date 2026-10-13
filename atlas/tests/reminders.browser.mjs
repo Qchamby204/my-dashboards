@@ -49,6 +49,7 @@ await p.route('https://delivery.test/**',async route=>{const r=route.request(),e
  await route.fulfill({status,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(body)});
 });
 await p.goto(origin+'/reminders.html');await p.waitForFunction(()=>document.getElementById('status').textContent==='Push connected');
+await p.locator('#completion-setup').evaluate(el=>el.open=true);await p.locator('#completion-setup').screenshot({path:path.join(out,'completion-setup-393.png')});
 await p.locator('#paused').check();await p.locator('#save').click();await p.waitForFunction(()=>document.getElementById('feedback').textContent.includes('paused on this device'));assert(prefs.paused);
 await p.locator('[data-action="skip"]').first().click();await p.waitForFunction(()=>document.getElementById('feedback').textContent.includes('Skipped for today'));
 fail=true;await p.locator('#paused').uncheck();await p.locator('#save').click();await p.waitForFunction(()=>document.getElementById('feedback').textContent.includes('Service offline'));assert(prefs.paused,'failed save leaves server paused');
@@ -78,7 +79,7 @@ assert(await sp.locator('#connect').isEnabled());assert.equal(await sp.evaluate(
 // The activity bridge has no network traffic until explicitly linked, and sends no records.
 for(const [file,app,recordKey] of [['the-library.html','library','atlas.library.v1'],['life-ledger.html','ledger','lifeledger:v2']]){
  const ac=await browser.newContext({viewport:{width:320,height:852},isMobile:true,hasTouch:true});const ap=await ac.newPage();let posts=[],requests=0,offline=false;
- await ap.route(origin+'/'+file,route=>route.fulfill({contentType:'text/html',body:'<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body><script src="shared/reminder-entry.js"></script></body>'}));
+ await ap.route(origin+'/'+file,route=>route.fulfill({contentType:'text/html',body:'<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body><script src="shared/reminder-entry.js"></script></body>'}));
  await ap.route('https://atlas-reminders.onrender.com/completion',async route=>{requests++;const r=route.request();if(offline)return route.abort();if(r.method()==='POST')posts.push(r.postDataJSON());await route.fulfill({status:r.method()==='OPTIONS'?204:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'*'},body:r.method()==='OPTIONS'?undefined:JSON.stringify({day:'2026-10-13',timezone:'America/Winnipeg',synced:true})});});
  await ap.goto(origin+'/'+file);await ap.waitForSelector('[data-reminder-completion] input',{state:'attached'});assert.equal(requests,0,'unlinked dashboard sends no activity');
  await ap.locator('[data-reminder-completion] summary').click();await ap.getByLabel('Completion code',{exact:true}).fill('c'.repeat(43));await ap.getByRole('button',{name:'Link this dashboard',exact:true}).click();await ap.waitForFunction(()=>document.querySelector('[data-status]').textContent.includes('No activity logged'));
