@@ -1,6 +1,6 @@
-const ASSETS=["index.html","manifest.json","favicon.svg","assets/dashboard-Dx3tnBXR.css","assets/dashboard-QjBj0uy1.js"];
+const ASSETS=["index.html","manifest.json","favicon.svg","assets/dashboard-DbhTyZMA.js","assets/dashboard-Dx3tnBXR.css"];
 const PREFIX='northplan-dashboard:'+self.registration.scope;
-const CACHE=PREFIX+'96ec76daf55c';
+const CACHE=PREFIX+'92bd2361d913';
 const url=path=>new URL(path,self.registration.scope).href;
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(url)))));
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE_UPDATE')self.skipWaiting();});

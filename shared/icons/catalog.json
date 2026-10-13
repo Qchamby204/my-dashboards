@@ -25,5 +25,6 @@
   "compass-open.html": "compass",
   "atlas/life-map-legacy.html": "life-map",
   "atlas/index.html": "index",
-  "reminders.html": "reminders"
+  "reminders.html": "reminders",
+  "northplan.html": "index"
 }
