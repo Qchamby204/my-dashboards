@@ -1,12 +1,13 @@
 import {parseActivity,STORAGE_KEY} from './atlas-activity-core.mjs';
-const cards=[...document.querySelectorAll('.hub-card')],catalog=new Map(cards.map(c=>[new URL(c.href).pathname.split('/').at(-1).replace('.html',''),c]));
+const cards=[...document.querySelectorAll('.hub-card')],catalog=new Map(cards.map(c=>[c.dataset.hubId||new URL(c.href).pathname.split('/').at(-1).replace('.html',''),c]));
 catalog.set('library',catalog.get('the-library'));
 catalog.set('prospecting-command-center',catalog.get('prospecting-command-center')||catalog.get('prospecting'));
 function refresh(){
   const now=new Date(),hour=now.getHours(),greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
   document.getElementById('hub-greeting').textContent=greeting+', Quinton.';
   document.getElementById('hub-date').textContent=now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
-  document.querySelector('.hub-roster').textContent=cards.length+' dashboards · 4 areas';
+  const areas=document.querySelectorAll('main > section[data-area]').length;
+  document.querySelector('.hub-roster').textContent=cards.length+' apps and tools · '+areas+' areas';
   const host=document.getElementById('hub-recents');host.replaceChildren();
   try{
     const events=parseActivity(localStorage.getItem(STORAGE_KEY)).events.filter(e=>['open','launch'].includes(e.type)&&Date.parse(e.at)<=Date.now()).sort((a,b)=>Date.parse(b.at)-Date.parse(a.at));

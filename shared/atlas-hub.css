@@ -1,4 +1,90 @@
-*{box-sizing:border-box}html{font:100%/1.5 var(--neo-font,ui-rounded,system-ui,sans-serif)}body{margin:0;background:var(--neo-canvas);color:var(--neo-ink)}a{color:inherit;text-decoration:none}.hub-wrap{max-width:1180px;margin:auto;padding:calc(24px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px))}
-header{padding:28px 32px 32px;margin-bottom:40px;border:1px solid transparent;border-radius:24px;background:var(--neo-sun);color:#2d2c2b;position:relative}.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-right:48px}.hub-brand{display:flex;align-items:center;gap:12px;font-size:1.125rem;font-weight:600;min-height:44px}.hub-brand .atlas-mark{width:42px;height:42px;color:#2d2c2b}.hub-brand .atlas-mark path{stroke:var(--neo-sun)}.hub-roster{font-size:.875rem;font-variant-numeric:tabular-nums}header h1{font-size:clamp(2rem,4vw,2.5rem);font-weight:600;letter-spacing:-.04em;line-height:1.15;margin:28px 0 0;color:inherit!important}.hub-intro{font-size:1rem;margin:12px 0 0;color:inherit}.hub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}main>section{--hub-color:var(--neo-life);margin-top:40px}main>section[data-area="work"]{--hub-color:var(--neo-work)}main>section[data-area="learning"]{--hub-color:var(--neo-learning)}main>section[data-area="system"]{--hub-color:var(--neo-system)}h2{font-size:1.125rem;font-weight:600;margin:0 0 18px;color:var(--neo-ink)}h3{font-size:1.0625rem;font-weight:600;line-height:1.35;margin:0}.hub-card{display:flex;align-items:flex-start;gap:16px;padding:24px;min-height:144px;border:1px solid color-mix(in srgb,var(--hub-color) 14%,var(--neo-line));border-radius:24px;background:color-mix(in srgb,var(--hub-color) 12%,var(--neo-surface));box-shadow:var(--neo-small);overflow-wrap:anywhere;transition:box-shadow .15s,border-color .15s}.hub-card>div{min-width:0}.hub-card p{font-size:.875rem;line-height:1.6;color:var(--neo-muted);margin:8px 0 0}.hub-icon{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:50%;background:color-mix(in srgb,var(--hub-color) 20%,var(--neo-surface));color:var(--hub-color);font-size:1.5rem}.hub-card:hover{border-color:var(--hub-color)}.hub-card:active,.hub-recent:active{box-shadow:var(--neo-pressed);transition:none}.hub-recents{margin:0 0 40px}.hub-recent-row{display:flex;flex-wrap:wrap;gap:12px}.hub-recent{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:10px 20px;border-radius:999px;background:var(--neo-surface);box-shadow:var(--neo-small);font-size:.875rem;font-weight:600}a:focus-visible,summary:focus-visible{outline:3px solid var(--neo-accent);outline-offset:4px}footer{margin-top:40px;border-top:1px solid var(--neo-line);padding-top:16px;color:var(--neo-muted);font-size:.875rem}summary{cursor:pointer;min-height:44px;padding:10px 0}.hub-archive{display:flex;gap:12px 24px;flex-wrap:wrap;padding:10px 0}.hub-archive>a{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline;text-underline-offset:4px}.hub-skip{position:fixed;top:-80px;left:16px;padding:12px;background:var(--neo-canvas);z-index:99}.hub-skip:focus{top:12px}
-:root[data-atlas-theme="dark"] header{background:#26233a;border-color:var(--neo-line);color:var(--neo-ink)}:root[data-atlas-theme="dark"] .hub-brand .atlas-mark{color:var(--neo-sun)}:root[data-atlas-theme="dark"] .hub-brand .atlas-mark path{stroke:#26233a}
-@media(max-width:900px){.hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.hub-wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}header{padding:24px}.bar{gap:10px}.hub-roster{font-size:.875rem}.hub-grid{grid-template-columns:1fr;gap:16px}.hub-card{min-height:124px}.hub-recent{flex:1 1 auto}}@media(prefers-reduced-motion:reduce){.hub-card{transition:none}}@media(prefers-contrast:more){.hub-card,header{border:2px solid var(--neo-ink)}}@media(forced-colors:active){.hub-card,.hub-icon,header,.hub-recent{border:1px solid CanvasText}}
+/* Atlas is a directory. Keep its toolbar out of the shared progress-track skin. */
+* { box-sizing: border-box; }
+html { font: 100%/1.5 var(--neo-font,system-ui,sans-serif); }
+body { margin: 0; background: var(--neo-canvas); color: var(--neo-ink); }
+a { color: inherit; text-decoration: none; }
+[hidden] { display: none !important; }
+.hub-wrap {
+  max-width: 1180px; margin: auto;
+  padding: calc(24px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));
+}
+.hub-header {
+  padding: 24px 28px; border: 1px solid transparent; border-radius: 24px;
+  background: var(--neo-sun); color: #2d2c2b;
+}
+html.atlas-neumo[data-atlas-app="atlas-hub"] .hub-toolbar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 16px;
+  padding: 0; margin: 0; width: 100%; min-width: 0; min-height: 44px; height: auto;
+  background: transparent !important; box-shadow: none !important; border: 0; border-radius: 0;
+}
+.hub-brand {
+  display: inline-flex; align-items: center; gap: 10px; min-width: 0;
+  min-height: 44px; font-size: 1.125rem; font-weight: 600;
+}
+.hub-brand .atlas-mark { width: 36px; height: 36px; flex: none; color: #2d2c2b; }
+.hub-brand .atlas-mark path { stroke: var(--neo-sun); }
+.hub-toolbar > .atlas-appearance-trigger { margin-left: auto; flex: 0 0 44px; }
+html.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header h1 {
+  font-size: clamp(1.75rem,4vw,2.5rem); font-weight: 600;
+  letter-spacing: -.035em; line-height: 1.15; margin: 22px 0 0; color: inherit !important;
+}
+.hub-intro { font-size: 1rem; line-height: 1.5; margin: 10px 0 0; color: inherit; }
+.hub-roster { font-size: .8125rem; line-height: 1.5; margin: 10px 0 0; font-variant-numeric: tabular-nums; }
+.hub-areas { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 16px 0 24px; }
+.hub-areas a { display: inline-flex; align-items: center; min-height: 44px; font-size: .875rem; font-weight: 600; color: var(--neo-muted); }
+.hub-areas a:hover { color: var(--neo-accent); }
+.hub-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+main > section { --hub-color: var(--neo-life); margin-top: 32px; }
+main > section:first-child { margin-top: 0; }
+main > section[data-area="work"] { --hub-color: var(--neo-work); }
+main > section[data-area="learning"] { --hub-color: var(--neo-learning); }
+main > section[data-area="system"] { --hub-color: var(--neo-system); }
+h2 { font-size: 1.125rem; font-weight: 600; margin: 0 0 16px; color: var(--neo-ink); scroll-margin-top: calc(16px + env(safe-area-inset-top,0px)); }
+h3 { font-size: 1.0625rem; font-weight: 600; line-height: 1.35; margin: 0; }
+.hub-card {
+  display: flex; align-items: flex-start; gap: 14px; padding: 22px; min-height: 136px; min-width: 0;
+  border: 1px solid color-mix(in srgb,var(--hub-color) 14%,var(--neo-line)); border-radius: 24px;
+  background: color-mix(in srgb,var(--hub-color) 12%,var(--neo-surface)); box-shadow: var(--neo-small);
+  overflow-wrap: anywhere; transition: box-shadow .15s,border-color .15s;
+}
+.hub-card > div { min-width: 0; flex: 1; }
+.hub-card p { font-size: .875rem; line-height: 1.5; color: var(--neo-muted); margin: 7px 0 0; }
+.hub-icon {
+  display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%;
+  background: color-mix(in srgb,var(--hub-color) 20%,var(--neo-surface)); color: var(--hub-color); font-size: 1.375rem;
+}
+.hub-private { display: inline-block; margin-top: 5px; font-size: .75rem; font-weight: 600; color: var(--neo-accent); }
+.hub-card:hover { border-color: var(--hub-color); }
+.hub-card:active,.hub-recent:active { box-shadow: var(--neo-pressed); transition: none; }
+.hub-recents { margin: 0 0 28px; }
+.hub-recent-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.hub-recent {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 48px; min-width: 0; max-width: 100%;
+  padding: 10px 18px; border-radius: 999px; background: var(--neo-surface); box-shadow: var(--neo-small);
+  font-size: .875rem; font-weight: 600; overflow-wrap: anywhere;
+}
+a:focus-visible,summary:focus-visible { outline: 3px solid var(--neo-accent); outline-offset: 4px; }
+footer { margin-top: 32px; border-top: 1px solid var(--neo-line); padding-top: 12px; color: var(--neo-muted); font-size: .875rem; }
+footer details + details { margin-top: 4px; }
+summary { cursor: pointer; min-height: 44px; padding: 10px 0; }
+.hub-archive { display: flex; gap: 12px 24px; flex-wrap: wrap; padding: 8px 0; }
+.hub-archive > a,.hub-saved-tools a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; }
+.hub-saved-tools { max-width: 65ch; padding: 4px 0 12px; }
+.hub-saved-tools p { margin: 0 0 6px; line-height: 1.6; }
+.hub-skip { position: fixed; top: -80px; left: 16px; padding: 12px; background: var(--neo-canvas); z-index: 99; }
+.hub-skip:focus { top: 12px; }
+:root[data-atlas-theme="dark"] .hub-header { background: #26233a; border-color: var(--neo-line); color: var(--neo-ink); }
+:root[data-atlas-theme="dark"] .hub-brand .atlas-mark { color: var(--neo-sun); }
+:root[data-atlas-theme="dark"] .hub-brand .atlas-mark path { stroke: #26233a; }
+@media (max-width: 900px) { .hub-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 560px) {
+  .hub-wrap { padding-top: calc(16px + env(safe-area-inset-top,0px)); padding-left: max(16px,env(safe-area-inset-left,0px)); padding-right: max(16px,env(safe-area-inset-right,0px)); }
+  .hub-header { padding: 20px; }
+  .hub-areas { gap: 4px 16px; margin: 12px 0 20px; }
+  .hub-grid { grid-template-columns: 1fr; gap: 14px; }
+  .hub-card { min-height: 112px; padding: 20px; }
+  .hub-recent { flex: 1 1 auto; }
+}
+@media (prefers-reduced-motion: reduce) { .hub-card { transition: none; } }
+@media (prefers-contrast: more) { .hub-card,.hub-header { border: 2px solid var(--neo-ink); } }
+@media (forced-colors: active) { .hub-card,.hub-icon,.hub-header,.hub-recent { border: 1px solid CanvasText; } }

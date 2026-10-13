@@ -3,8 +3,12 @@ const clean = value => value.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').trim
 export function hubApps(html) {
   return [...html.matchAll(/<a\b[^>]*class="hub-card"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map(([, href, body]) => {
     const url = new URL(href, 'https://qchamby204.github.io/my-dashboards/');
-    return {path: url.pathname.split('/').pop(), url: url.href, title: clean(body.match(/<h3>([\s\S]*?)<\/h3>/)?.[1] || ''), description: clean(body.match(/<p>([\s\S]*?)<\/p>/)?.[1] || '')};
-  }).filter(app => app.path !== 'neural-map.html');
+    const publicDashboard = url.origin === 'https://qchamby204.github.io' && url.pathname.startsWith('/my-dashboards/');
+    const privateProspecting = url.origin === 'https://atlas-os-quinton.qchambers123018.chatgpt.site' && url.pathname === '/apps/prospecting';
+    // Published private tools have their own catalog entries, not local HTML files.
+    if (!publicDashboard && !privateProspecting) return null;
+    return {path: url.pathname === '/apps/prospecting' ? 'prospecting-command-center.html' : url.pathname.split('/').pop(), url: url.href, title: clean(body.match(/<h3>([\s\S]*?)<\/h3>/)?.[1] || ''), description: clean(body.match(/<p>([\s\S]*?)<\/p>/)?.[1] || '')};
+  }).filter(app => app && app.path !== 'neural-map.html');
 }
 const priorRoutes = {'Prospecting Command Center': 'prospecting-command-center.html', 'Operations Cadence': 'operations-cadence.html'};
 export function buildCatalog(resources, apps) {

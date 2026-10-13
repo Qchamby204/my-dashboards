@@ -9,6 +9,11 @@ import worker from '../../dist/server/index.js';
 process.env.TZ='America/Winnipeg';
 
 const day='2026-09-07';
+// Keep daytime capture assertions independent of the wall clock's evening mode.
+class DaytimeDate extends Date {
+  constructor(...args){super(...(args.length?args:['2026-09-07T10:00:00-05:00']));}
+  static now(){return new Date('2026-09-07T10:00:00-05:00').getTime();}
+}
 const payload=id=>({id,title:'Finish an outline',app_id:'life-map',project_id:null,week_start:day,due_date:null,minutes:30,focus_day:day});
 async function request(db,path,method='GET',body,owner='alice'){
  const r=await worker.fetch(new Request('https://atlas.test'+path,{method,headers:{'oai-authenticated-user-id':owner,Origin:'https://atlas.test','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined}),{DB:db});return {status:r.status,data:await r.json()};
@@ -51,7 +56,7 @@ function harness(){
  }
  const form=node('#task-form');form.elements=Object.fromEntries(['title','app_id','project_id','week_start','due_date','minutes'].map(k=>[k,{value:'',disabled:false,focus(){},insertAdjacentHTML(){}}]));form.querySelector=()=>node('#task-submit');form.querySelectorAll=()=>[...Object.values(form.elements),node('#task-submit')];
  const document={querySelector:node,querySelectorAll:()=>[],visibilityState:'visible',addEventListener(t,f){if(!events.has(t))events.set(t,[]);events.get(t).push(f);}};
- const context=vm.createContext({...model,...work,createConnectUI:()=>({page:()=>'',saving:false}),createCadenceUI:()=>({dirty:false,saving:false,home:()=>''}),createBudgetUI:()=>({dirty:false,saving:false}),createCommitmentsUI:()=>({}),createAgendaUI:()=>({}),createSearchUI:()=>({}),createReflectionUI:()=>({dirty:false,saving:false}),createLedgerUI:()=>({dirty:false,saving:false}),createHeraldUI:()=>({dirty:false,saving:false}),createCommunicationUI:()=>({dirty:false,saving:false}),createEditionRefreshUI:()=>({saving:false}),document,window:{addEventListener(){}},location:{hash:'#today'},Date,structuredClone,setInterval(){},setTimeout(){},localDay:()=>day,
+ const context=vm.createContext({...model,...work,priorityDay:day=>work.priorityDay(day,new DaytimeDate()),createConnectUI:()=>({page:()=>'',saving:false}),createCadenceUI:()=>({dirty:false,saving:false,home:()=>''}),createBudgetUI:()=>({dirty:false,saving:false}),createCommitmentsUI:()=>({}),createAgendaUI:()=>({}),createSearchUI:()=>({}),createReflectionUI:()=>({dirty:false,saving:false}),createLedgerUI:()=>({dirty:false,saving:false}),createHeraldUI:()=>({dirty:false,saving:false}),createCommunicationUI:()=>({dirty:false,saving:false}),createEditionRefreshUI:()=>({saving:false}),document,window:{addEventListener(){}},location:{hash:'#today'},Date:DaytimeDate,structuredClone,setInterval(){},setTimeout(){},localDay:()=>day,
  FormData:class{constructor(f){this.fields=Object.entries(f.elements).filter(([,e])=>!e.disabled).map(([k,e])=>[k,e.value]);}[Symbol.iterator](){return this.fields[Symbol.iterator]();}},
  fetch:(path,options)=>new Promise(resolve=>pending.push({path,options,resolve}))});
  const run=s=>vm.runInContext(s,context);run(readFileSync(new URL('../work-ui.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace('export function','function'));run(readFileSync(new URL('../app.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,''));
