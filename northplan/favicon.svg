@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2D6A4F"/>
+      <stop offset="100%" stop-color="#1B4332"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#95D5B2"/>
+      <stop offset="100%" stop-color="#52B788"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Stylised leaf/compass pointing north -->
+  <path d="M32 12 C32 12 46 24 46 36 C46 44 40 50 32 50 C24 50 18 44 18 36 C18 24 32 12 32 12Z" fill="url(#leaf)" opacity="0.9"/>
+  <!-- Leaf vein / compass needle -->
+  <line x1="32" y1="16" x2="32" y2="46" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+  <line x1="25" y1="32" x2="32" y2="26" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <line x1="39" y1="32" x2="32" y2="26" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <line x1="24" y1="38" x2="32" y2="32" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <line x1="40" y1="38" x2="32" y2="32" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <!-- Small north arrow tip -->
+  <polygon points="32,11 29,17 35,17" fill="white" opacity="0.85"/>
+</svg>
