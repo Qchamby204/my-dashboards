@@ -102,3 +102,32 @@ test('pause or disconnect during a send prevents later deliveries from the old s
 test('explicit test notifications do not consume the scheduled daily cap',async()=>{
  const f=await fixture(),p=defaults();p.reminders=Array.from({length:6},(_,i)=>({...p.reminders[0],id:'r'+i}));await f.req('/device','PUT',{prefs:p,revision:1},f.token);await f.req('/test','POST',{},f.token);let n=0;await dispatch(f.db,async()=>n++,morning);assert.equal(n,6);f.db.close();
 });
+
+test('completion link is scoped to activity, hashed, revocable and date-bound',async()=>{
+ const f=await fixture(),issued=await f.req('/completion-link','POST',{},f.token);assert.equal(issued.status,201);const token=issued.body.token;
+ assert(!JSON.stringify(f.db.prepare('SELECT * FROM completion_links').all()).includes(token));
+ assert.equal((await f.req('/device','GET',undefined,token)).status,401);
+ assert.equal((await f.req('/completion','GET',undefined,f.token)).status,401);
+ const info=(await f.req('/completion','GET',undefined,token)).body;assert.equal(info.day,'2026-10-13');assert.equal(info.timezone,'America/Winnipeg');
+ for(const b of [{app:'life-map',day:info.day,done:true},{app:'library',day:'2026-10-12',done:true},{app:'ledger',day:info.day,done:1}])assert.equal((await f.req('/completion','POST',b,token)).status,400);
+ assert.equal((await f.req('/completion','POST',{app:'library',day:info.day,done:true},token)).status,200);
+ const replacement=await f.req('/completion-link','POST',{},f.token);assert.equal((await f.req('/completion','GET',undefined,token)).status,401);
+ await f.req('/device','DELETE',undefined,f.token);assert.equal((await f.req('/completion','GET',undefined,replacement.body.token)).status,401);assert.equal(f.db.prepare('SELECT COUNT(*) n FROM completions').get().n,0);f.db.close();
+});
+test('synced activity suppresses only its dashboard, resets next day, and respects corrections',async()=>{
+ let sent=[];const f=await fixture(async(_,p)=>sent.push(p));const p=defaults();p.quietStart=p.quietEnd='00:00';p.reminders.forEach(r=>r.time='08:00');await f.req('/device','PUT',{prefs:p,revision:1},f.token);
+ const token=(await f.req('/completion-link','POST',{},f.token)).body.token;
+ await f.req('/completion','POST',{app:'library',day:'2026-10-13',done:true},token);
+ await f.req('/completion','POST',{app:'ledger',day:'2026-10-13',done:true},token);
+ await f.req('/completion','POST',{app:'ledger',day:'2026-10-13',done:false},token);
+ await dispatch(f.db,async(_,p)=>sent.push(p),morning);assert.deepEqual(sent.map(p=>p.title),['Life Map','Life Ledger']);
+ assert.equal(f.db.prepare("SELECT status FROM deliveries WHERE key LIKE '%reading%'").get().status,'completed');
+ assert.equal((await f.req('/device','GET',undefined,f.token)).body.completion.find(r=>r.app==='library').done,1);
+ sent=[];await dispatch(f.db,async(_,p)=>sent.push(p),morning+86400000);assert.equal(sent.length,3);f.db.close();
+});
+test('one device completion never suppresses another device and tests still send',async()=>{
+ let count=0;const f=await fixture(async()=>count++),p=defaults();p.reminders=p.reminders.filter(r=>r.app==='library');p.reminders[0].time='08:00';await f.req('/device','PUT',{prefs:p,revision:1},f.token);
+ await f.req('/devices','POST',{pairingToken,subscription:{...sub,endpoint:'https://web.push.apple.com/another'},prefs:p});
+ const token=(await f.req('/completion-link','POST',{},f.token)).body.token;await f.req('/completion','POST',{app:'library',day:'2026-10-13',done:true},token);
+ await dispatch(f.db,async()=>count++,morning);assert.equal(count,1);await f.req('/test','POST',{},f.token);assert.equal(count,2);f.db.close();
+});

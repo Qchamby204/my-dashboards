@@ -4,6 +4,7 @@ const root=new URL('../',import.meta.url),hash=s=>createHash('sha256').update(s)
 const excluded=new Set(['gang-ops-roadmap.html','test-booking-downtown.html','test-booking-fort-garry.html']);
 const assets=new Map();for(const name of await readdir(new URL('shared/',root)))if(/\.(js|mjs|css)$/.test(name))assets.set('shared/'+name,hash(await readFile(new URL('shared/'+name,root))));
 for(const name of await readdir(root))if(name.endsWith('.webmanifest'))assets.set(name,hash(await readFile(new URL(name,root))));
+const entryURL=new URL('shared/reminder-entry.js',root);let entry=await readFile(entryURL,'utf8');entry=entry.replace(/shared\/reminder-completion\.js(?:\?v=[a-zA-Z0-9_.-]+)?/g,'shared/reminder-completion.js?v='+assets.get('shared/reminder-completion.js'));await writeFile(entryURL,entry);assets.set('shared/reminder-entry.js',hash(entry));
 const themeURL=new URL('shared/atlas-theme.js',root);let theme=await readFile(themeURL,'utf8');
 for(const [path,digest]of assets){const file=path.slice(7);if(!path.startsWith('shared/')||file==='atlas-theme.js'||file==='communicator-theme.js')continue;theme=theme.replace(new RegExp(file.replaceAll('.','\\.')+'(?:\\?v=[a-zA-Z0-9_.-]+)?','g'),file+'?v='+digest);}
 await writeFile(themeURL,theme);assets.set('shared/atlas-theme.js',hash(theme));
