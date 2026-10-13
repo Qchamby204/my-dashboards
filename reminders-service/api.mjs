@@ -28,16 +28,34 @@ export function createAPI({db,pairingToken,publicKey,send,origin='https://qchamb
     const id=existing?.id||randomUUID(),token=newToken();
     // Re-pairing replaces this same subscription, preventing duplicate deliveries.
     db.prepare('INSERT INTO devices(id,token_hash,subscription,prefs,created,updated) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET token_hash=excluded.token_hash,prefs=excluded.prefs,updated=excluded.updated,revision=devices.revision+1,active=1').run(id,hash(token),JSON.stringify(sub),JSON.stringify(prefs),now,now);
-    return reply({token,...state(db,id)},201,cors);
+    return reply({token,...state(db,id,now)},201,cors);
    }
-   const token=req.headers.get('authorization')?.replace(/^Bearer /,''),device=readDevice(db,token);
+   const token=req.headers.get('authorization')?.replace(/^Bearer /,'');
+   if(url.pathname==='/completion'){
+    const link=typeof token==='string'&&token.length===43?db.prepare('SELECT device FROM completion_links WHERE token_hash=?').get(hash(token)):null;
+    const target=link&&db.prepare('SELECT * FROM devices WHERE id=?').get(link.device);
+    if(!target)return reply({error:'Link this dashboard again from Reminders.'},401,cors);
+    const prefs=JSON.parse(target.prefs),day=localParts(now,prefs.timezone).date;
+    if(req.method==='GET')return reply({day,timezone:prefs.timezone},200,cors);
+    if(req.method==='POST'){
+     if(!['library','ledger'].includes(b.app)||b.day!==day||typeof b.done!=='boolean')return reply({error:'Send today’s Library or Ledger activity only.'},400,cors);
+     db.prepare('INSERT INTO completions(device,app,day,done,updated) VALUES (?,?,?,?,?) ON CONFLICT(device,app,day) DO UPDATE SET done=excluded.done,updated=excluded.updated').run(target.id,b.app,day,b.done?1:0,now);
+     return reply({synced:true,day,done:b.done},200,cors);
+    }
+    return reply({error:'Not found.'},404,cors);
+   }
+   const device=readDevice(db,token);
    if(!device)return reply({error:'Pair this device to manage its reminders.'},401,cors);
-   if(url.pathname==='/device'&&req.method==='GET')return reply(state(db,device.id),200,cors);
+   if(url.pathname==='/completion-link'&&req.method==='POST'){
+    const token=newToken();db.prepare('INSERT INTO completion_links(device,token_hash,created) VALUES (?,?,?) ON CONFLICT(device) DO UPDATE SET token_hash=excluded.token_hash,created=excluded.created').run(device.id,hash(token),now);
+    return reply({token},201,cors);
+   }
+   if(url.pathname==='/device'&&req.method==='GET')return reply(state(db,device.id,now),200,cors);
    if(url.pathname==='/device'&&req.method==='PUT'){
     const prefs=validate(b.prefs);
     const r=db.prepare('UPDATE devices SET prefs=?,revision=revision+1,updated=? WHERE id=? AND revision=?').run(JSON.stringify(prefs),now,device.id,b.revision);
     if(!r.changes)return reply({error:'Settings changed elsewhere. Reload before saving.'},409,cors);
-    return reply(state(db,device.id),200,cors);
+    return reply(state(db,device.id,now),200,cors);
    }
    if(url.pathname==='/device'&&req.method==='DELETE'){db.prepare('DELETE FROM devices WHERE id=?').run(device.id);return reply({removed:true},200,cors);}
    if(url.pathname==='/skip'&&req.method==='POST'){
@@ -59,4 +77,4 @@ export function createAPI({db,pairingToken,publicKey,send,origin='https://qchamb
   }catch{ return reply({error:'Could not save this request. Check the fields and try again.'},400,cors); }
  };
 }
-function state(db,id){const d=db.prepare('SELECT * FROM devices WHERE id=?').get(id);return {prefs:JSON.parse(d.prefs),revision:d.revision,active:!!d.active,history:db.prepare('SELECT key,status,at FROM deliveries WHERE device=? ORDER BY at DESC LIMIT 10').all(id)};}
+function state(db,id,now){const d=db.prepare('SELECT * FROM devices WHERE id=?').get(id);return {prefs:JSON.parse(d.prefs),revision:d.revision,active:!!d.active,completion:db.prepare('SELECT app,day,done,updated FROM completions WHERE device=? AND day=?').all(id,localParts(now,JSON.parse(d.prefs).timezone).date),history:db.prepare('SELECT key,status,at FROM deliveries WHERE device=? ORDER BY at DESC LIMIT 10').all(id)};}

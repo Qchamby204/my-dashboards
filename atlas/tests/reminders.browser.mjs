@@ -41,7 +41,7 @@ for(const [theme,width,size] of [['light',393,16],['dark',320,16],['dark',393,20
  await p.evaluate(()=>Storage.prototype.setItem=function(){throw Error('Storage full');});await p.locator('#save').click();assert.match(await p.locator('#feedback').textContent(),/Storage full/);
  assert.deepEqual(errors,[]);await c.close();
 }
-const c=await browser.newContext({viewport:{width:393,height:852}});await c.addInitScript(()=>localStorage.setItem('atlas.reminders.device.v1',JSON.stringify({endpoint:'https://delivery.test',token:'x'.repeat(43)})));
+const c=await browser.newContext({viewport:{width:393,height:852}});await c.addInitScript(()=>{localStorage.setItem('atlas.reminders.device.v1',JSON.stringify({endpoint:'https://delivery.test',token:'x'.repeat(43)}));Object.defineProperty(window,'Notification',{value:{permission:'granted',requestPermission:async()=> 'granted'}});});
 const p=await c.newPage();let prefs=defaults(),revision=1,fail=false,removed=false;
 await p.route('https://delivery.test/**',async route=>{const r=route.request(),endpoint=new URL(r.url()).pathname;if(r.method()==='OPTIONS')return route.fulfill({status:204,headers:{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'*'}});let body={prefs,revision,active:true,history:[]},status=200;
  if(r.method()==='PUT'){if(fail){status=503;body={error:'Service offline. Changes not saved.'};}else{prefs=r.postDataJSON().prefs;revision++;body={prefs,revision,active:true,history:[]};}}
@@ -49,6 +49,7 @@ await p.route('https://delivery.test/**',async route=>{const r=route.request(),e
  await route.fulfill({status,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(body)});
 });
 await p.goto(origin+'/reminders.html');await p.waitForFunction(()=>document.getElementById('status').textContent==='Push connected');
+await p.locator('#completion-setup').evaluate(el=>el.open=true);await p.locator('#completion-setup').screenshot({path:path.join(out,'completion-setup-393.png')});
 await p.locator('#paused').check();await p.locator('#save').click();await p.waitForFunction(()=>document.getElementById('feedback').textContent.includes('paused on this device'));assert(prefs.paused);
 await p.locator('[data-action="skip"]').first().click();await p.waitForFunction(()=>document.getElementById('feedback').textContent.includes('Skipped for today'));
 fail=true;await p.locator('#paused').uncheck();await p.locator('#save').click();await p.waitForFunction(()=>document.getElementById('feedback').textContent.includes('Service offline'));assert(prefs.paused,'failed save leaves server paused');
@@ -75,5 +76,20 @@ const sp=await stalled.newPage();await sp.goto(origin+'/reminders.html');await s
 assert.match(await sp.locator('#feedback').textContent(),/Waiting for notification permission/);
 await sp.waitForFunction(()=>document.getElementById('feedback').textContent.includes('This step did not finish'));
 assert(await sp.locator('#connect').isEnabled());assert.equal(await sp.evaluate(()=>localStorage.getItem('atlas.reminders.device.v1')),null);await stalled.close();
+// The activity bridge has no network traffic until explicitly linked, and sends no records.
+for(const [file,app,recordKey] of [['the-library.html','library','atlas.library.v1'],['life-ledger.html','ledger','lifeledger:v2']]){
+ const ac=await browser.newContext({viewport:{width:320,height:852},isMobile:true,hasTouch:true});const ap=await ac.newPage();let posts=[],requests=0,offline=false;
+ await ap.route(origin+'/'+file,route=>route.fulfill({contentType:'text/html',body:'<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body><script src="shared/reminder-entry.js"></script></body>'}));
+ await ap.route('https://atlas-reminders.onrender.com/completion',async route=>{requests++;const r=route.request();if(offline)return route.abort();if(r.method()==='POST')posts.push(r.postDataJSON());await route.fulfill({status:r.method()==='OPTIONS'?204:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'*'},body:r.method()==='OPTIONS'?undefined:JSON.stringify({day:'2026-10-13',timezone:'America/Winnipeg',synced:true})});});
+ await ap.goto(origin+'/'+file);await ap.waitForSelector('[data-reminder-completion] input',{state:'attached'});assert.equal(requests,0,'unlinked dashboard sends no activity');
+ await ap.locator('[data-reminder-completion] summary').click();await ap.getByLabel('Completion code',{exact:true}).fill('c'.repeat(43));await ap.getByRole('button',{name:'Link this dashboard',exact:true}).click();await ap.waitForFunction(()=>document.querySelector('[data-status]').textContent.includes('No activity logged'));
+ assert.deepEqual(posts.at(-1),{app,day:'2026-10-13',done:false});
+ const records=app==='library'?{reading:{daily:{'2026-10-13':{book:3}}},progress:{},privateNote:'never upload'}:[{date:'2026-10-13',units:{reading:1},note:'never upload'}];
+ await ap.evaluate(({recordKey,records})=>{localStorage.setItem(recordKey,JSON.stringify(records));window.dispatchEvent(new Event('atlas-reminder-activity'));},{recordKey,records});await ap.waitForFunction(()=>document.querySelector('[data-status]').textContent.includes('reminders will be skipped'));
+ assert.deepEqual(posts.at(-1),{app,day:'2026-10-13',done:true});assert(!JSON.stringify(posts).includes('never upload'));
+ await ap.screenshot({path:path.join(out,'activity-'+app+'-320.png')});assert(!await ap.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1));
+ offline=true;await ap.evaluate(()=>window.dispatchEvent(new Event('atlas-reminder-activity')));await ap.waitForFunction(()=>document.querySelector('[data-status]').textContent.includes('Reminders stay scheduled'));
+ offline=false;await ap.getByRole('button',{name:'Stop sharing activity',exact:true}).click();await ap.waitForFunction(()=>document.querySelector('[data-status]').textContent.includes('sharing stopped'));assert.equal(posts.at(-1).done,false);assert.equal(await ap.evaluate(()=>localStorage.getItem('atlas.reminders.completion.v1')),null);await ac.close();
+}
 console.log(engine+': reminder mobile layouts, local saves, one-time dates, pause, skip, errors and disconnect passed');
 }finally{await browser.close();server.close();}

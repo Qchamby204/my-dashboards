@@ -18,6 +18,9 @@ export async function dispatch(db,send,now=Date.now()){
    const current=db.prepare('SELECT active,revision FROM devices WHERE id=?').get(d.id);
    if(!current?.active||current.revision!==d.revision)break; // pause/edit/disconnect during an earlier send
    if(db.prepare('SELECT 1 FROM skips WHERE device=? AND reminder=? AND day=?').get(d.id,item.reminder.id,item.date))continue;
+   if(['library','ledger'].includes(item.reminder.app)&&db.prepare('SELECT done FROM completions WHERE device=? AND app=? AND day=?').get(d.id,item.reminder.app,item.date)?.done){
+    db.prepare("INSERT OR IGNORE INTO deliveries(device,key,day,status,at) VALUES (?,?,?,'completed',?)").run(d.id,item.key,item.date,now);continue;
+   }
    // Claim before I/O. An ambiguous network failure is not retried: avoid duplicate nudges.
    const claim=db.prepare("INSERT OR IGNORE INTO deliveries(device,key,day,status,at) VALUES (?,?,?,'sending',?)").run(d.id,item.key,item.date,now);
    if(!claim.changes)continue;
@@ -35,5 +38,6 @@ export async function dispatch(db,send,now=Date.now()){
  }
  db.prepare('DELETE FROM deliveries WHERE at<?').run(now-30*86400000);
  db.prepare('DELETE FROM skips WHERE day<?').run(new Date(now-7*86400000).toISOString().slice(0,10));
+ db.prepare('DELETE FROM completions WHERE day<?').run(new Date(now-7*86400000).toISOString().slice(0,10));
  return {accepted,failed};
 }

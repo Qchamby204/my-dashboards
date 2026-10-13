@@ -1,6 +1,8 @@
 import {APPS,defaults,validate,quietAt} from './reminder-core.mjs';
 const $=id=>document.getElementById(id),KEY='atlas.reminders.v1',AUTH='atlas.reminders.device.v1';
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let completionCode='',completionRows=[];
+try{completionCode=localStorage.getItem('atlas.reminders.completion-code.v1')||'';}catch{}
 let prefs=defaults(),connection=null,revision=0,busy=false,healthy=false,blocked=false;
 function tell(s){$('feedback').textContent=s;}
 async function phoneStep(message,start){
@@ -19,8 +21,12 @@ async function call(path,method='GET',data,auth=connection){
  finally{clearTimeout(timer);}
 }
 function showConnection(){
- $('status').textContent=connection?(healthy?'Push connected':'Connection needs attention'):'Not connected';
- $('connection-note').textContent=connection?(healthy?'Schedules are saved with your delivery service. This device receives reminders even when the page is closed.':'The saved connection has not been verified. Reload or pair again to check it.'):'Schedules can be prepared here. Push delivery is not active until the service is deployed and this device is paired.';
+ const denied=connection&&typeof Notification!=='undefined'&&Notification.permission==='denied';
+ $('status').textContent=denied?'Notifications blocked':connection?(healthy?'Push connected':'Connection needs attention'):'Not connected';
+ $('connection-note').textContent=denied?'Allow notifications for Reminders in your phone’s Settings, then reopen this app.':connection?(healthy?'Schedules are saved with your delivery service. This device receives reminders even when the page is closed.':'The saved connection has not been verified. Reload or pair again to check it.'):'Schedules can be prepared here. Push delivery is not active until the service is deployed and this device is paired.';
+ $('completion-code').hidden=!connection;
+ $('completion-feedback').textContent=connection?'Copy this code once, then link Library and Ledger from their usual icons.':'Connect push delivery first to link your dashboards.';
+ $('completion-status').textContent=connection?['library','ledger'].map(app=>APPS[app].name+': '+(completionRows.find(r=>r.app===app)?.done?'activity synced today · reminders skipped':'no activity signal today')).join(' · '):'';
  $('test').hidden=!connection;$('disconnect').hidden=!connection;$('connect').textContent=connection?'Pair again':'Enable notifications';
  if(connection)$('endpoint').value=connection.endpoint;
 }
@@ -42,6 +48,7 @@ function collect(){
  return {id:card.dataset.id,app:val('app'),title:val('title'),time:readTime(card,'time'),enabled:card.querySelector('[data-field="enabled"]').checked,date:val('repeat')==='once'?val('date'):'',days:[...card.querySelectorAll('[data-day]:checked')].map(el=>+el.dataset.day)};
  })});
 }
+function completion(result){completionRows=result.completion||[];}
 function history(rows=[]){$('history').innerHTML=rows.length?rows.map(r=>`<div class="history-row"><strong>${escape(r.status)}</strong> · ${escape(new Date(r.at).toLocaleString('en-CA',{hour12:true}))}</div>`).join(''):'No delivery attempts yet.';}
 async function action(fn){if(busy||blocked)return;busy=true;document.querySelectorAll('main button, main input, main select').forEach(b=>b.disabled=true);try{await fn();}catch(e){tell(e.name==='AbortError'?'The service did not respond. Your edits are still here; check connection before trying again.':e.message||'Could not connect. Your edits are still here.');}finally{busy=false;document.querySelectorAll('main button, main input, main select').forEach(b=>b.disabled=blocked);showConnection();}}
 const zones=[...new Set([prefs.timezone,'America/Winnipeg',Intl.DateTimeFormat().resolvedOptions().timeZone,...(Intl.supportedValuesOf?.('timeZone')||[])])].sort();
@@ -53,7 +60,7 @@ $('add').onclick=()=>{try{prefs=collect();if(prefs.reminders.length>=30)throw Er
 $('list').addEventListener('click',e=>{const button=e.target.closest('[data-action]'),card=button?.closest('[data-id]');if(!card)return;if(button.dataset.action==='remove'){card.remove();tell('Reminder removed from this draft. Save schedules to apply.');}else action(async()=>{await call('/skip','POST',{id:card.dataset.id});tell('Skipped for today. Future occurrences stay scheduled.');});});
 $('save').onclick=()=>action(async()=>{
  const next=collect();
- if(connection){const result=await call('/device','PUT',{prefs:next,revision});revision=result.revision;healthy=result.active;prefs=result.prefs;try{saveLocal(KEY,prefs);}catch{draw();tell('Saved on the delivery service, but this device could not keep a local copy.');return;}history(result.history);tell(prefs.paused?'All reminders paused on this device.':'Schedules saved to the delivery service.');}
+ if(connection){const result=await call('/device','PUT',{prefs:next,revision});revision=result.revision;healthy=result.active;prefs=result.prefs;try{saveLocal(KEY,prefs);}catch{draw();tell('Saved on the delivery service, but this device could not keep a local copy.');return;}completion(result);history(result.history);tell(prefs.paused?'All reminders paused on this device.':'Schedules saved to the delivery service.');}
  else {saveLocal(KEY,next);prefs=next;tell('Schedules saved on this device. Push is not connected yet.');}
  draw();
 });
@@ -76,12 +83,19 @@ $('connect').onclick=()=>action(async()=>{
  const result=await call('/devices','POST',{pairingToken,subscription:sub.toJSON(),prefs:next},{endpoint});
  const auth={endpoint,token:result.token};
  try{saveLocal(AUTH,auth);}catch(e){try{await call('/device','DELETE',undefined,auth);}catch{}throw e;}
- connection=auth;revision=result.revision;healthy=result.active;prefs=result.prefs;$('pairing').value='';$('setup').open=false;history(result.history);draw();tell('Push connected. Send a test to check your phone’s delivery.');
+ connection=auth;revision=result.revision;healthy=result.active;prefs=result.prefs;$('pairing').value='';$('setup').open=false;completion(result);history(result.history);draw();tell('Push connected. Send a test to check your phone’s delivery.');
 });
-$('test').onclick=()=>action(async()=>{await call('/test','POST',{});tell('Test accepted by the push provider. Check your phone’s notifications.');const result=await call('/device');history(result.history);});
+$('completion-code').onclick=()=>action(async()=>{
+ if(completionCode){try{await call('/completion','GET',undefined,{endpoint:connection.endpoint,token:completionCode});}catch{completionCode='';}}
+ if(!completionCode){const result=await call('/completion-link','POST',{});completionCode=result.token;try{localStorage.setItem('atlas.reminders.completion-code.v1',completionCode);}catch{}}
+ $('completion-code-value').value=completionCode;$('completion-code-value').hidden=false;
+ try{await navigator.clipboard.writeText(completionCode);tell('Completion code copied. Paste it in Library and Ledger’s Completion-aware reminders.');}
+ catch{$('completion-code-value').type='text';setTimeout(()=>{$('completion-code-value').focus();$('completion-code-value').select();},0);tell('Select and copy the completion code, then paste it in each dashboard’s footer.');}
+});
+$('test').onclick=()=>action(async()=>{await call('/test','POST',{});tell('Test accepted by the push provider. Check your phone’s notifications.');const result=await call('/device');completion(result);history(result.history);});
 $('disconnect').onclick=()=>action(async()=>{
- await call('/device','DELETE');localStorage.removeItem(AUTH);connection=null;healthy=false;revision=0;
+ await call('/device','DELETE');localStorage.removeItem(AUTH);localStorage.removeItem('atlas.reminders.completion-code.v1');completionCode='';completionRows=[];$('completion-code-value').value='';$('completion-code-value').hidden=true;connection=null;healthy=false;revision=0;
  try{const reg=await navigator.serviceWorker.getRegistration('reminders-sw.js');const sub=await reg?.pushManager.getSubscription();await sub?.unsubscribe();}catch{}
  draw();history();tell('Delivery disconnected for this device. Your draft schedules remain here.');
 });
-if(connection&&!blocked)action(async()=>{const result=await call('/device');prefs=validate(result.prefs);revision=result.revision;healthy=result.active;draw();history(result.history);if(!healthy)tell('Your push subscription expired. Pair again to resume.');});
+if(connection&&!blocked)action(async()=>{const result=await call('/device');prefs=validate(result.prefs);revision=result.revision;healthy=result.active;draw();completion(result);history(result.history);if(!healthy)tell('Your push subscription expired. Pair again to resume.');});

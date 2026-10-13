@@ -101,7 +101,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-apple.png?v=7bf40bcafd72">
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=239c369fb61e">
 <script src="shared/dashboard-navigation.js?v=e54920f52f1b" defer></script>
-<script src="shared/reminder-entry.js?v=710541bc976f" defer></script>
+<script src="shared/reminder-entry.js?v=11626af840f8" defer></script>
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -203,6 +203,7 @@ var store = {
     try {
       if (typeof window!=="undefined" && window.storage && window.storage.set) { window.storage.set(k,v); return; }
       localStorage.setItem(k,v);
+      if(k==='lifeledger:v2'&&localStorage.getItem(k)===v&&typeof window.dispatchEvent==='function')window.dispatchEvent(new Event('atlas-reminder-activity'));
     } catch(e){ mem[k]=v; }
   }
 };
