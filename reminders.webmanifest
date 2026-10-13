@@ -9,16 +9,16 @@
   "theme_color": "#efeae3",
   "icons": [
     {
-      "src": "shared/icons/reminders-192.png?v=58f4792e2956",
+      "src": "shared/icons/reminders-192.png?v=ae55f7e82aa3",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "shared/icons/reminders-512.png?v=dedb1866f6cb",
+      "src": "shared/icons/reminders-512.png?v=fb873bc5d100",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
