@@ -55,5 +55,15 @@ await pc.addInitScript(()=>{
 const pp=await pc.newPage();let paired=false;
 await pp.route('https://delivery.test/**',async route=>{const r=route.request(),endpoint=new URL(r.url()).pathname;let body={};if(endpoint==='/config')body={publicKey:'A'.repeat(87)};if(endpoint==='/devices'){paired=true;body={token:'z'.repeat(43),prefs:r.postDataJSON().prefs,revision:1,active:true,history:[]};}await route.fulfill({status:r.method()==='OPTIONS'?204:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'*'},body:r.method()==='OPTIONS'?undefined:JSON.stringify(body)});});
 await pp.goto(origin+'/reminders.html');await pp.waitForSelector('.reminder');await pp.locator('#setup').evaluate(el=>el.open=true);await pp.locator('#endpoint').fill('https://delivery.test');await pp.locator('#pairing').fill('p'.repeat(40));await pp.locator('#connect').click();await pp.waitForFunction(()=>document.getElementById('status').textContent==='Push connected');assert(paired);assert(await pp.evaluate(()=>window.permissionAsked));assert.equal(await pp.locator('#pairing').inputValue(),'');assert.equal(await pp.evaluate(()=>JSON.parse(localStorage.getItem('atlas.reminders.device.v1')).token),'z'.repeat(43));await pc.close();
+// A stalled native permission prompt must report progress and release the controls.
+const stalled=await browser.newContext();await stalled.addInitScript(()=>{
+ Object.defineProperty(window,'PushManager',{value:function(){}});
+ Object.defineProperty(window,'Notification',{value:{permission:'default',requestPermission:()=>new Promise(()=>{})}});
+ const original=window.setTimeout;window.setTimeout=(fn,ms,...args)=>original(fn,ms===20000?300:ms,...args);
+});
+const sp=await stalled.newPage();await sp.goto(origin+'/reminders.html');await sp.waitForSelector('.reminder');await sp.locator('#setup').evaluate(el=>el.open=true);await sp.locator('#endpoint').fill('https://delivery.test');await sp.locator('#pairing').fill('p'.repeat(40));await sp.locator('#connect').click();
+assert.match(await sp.locator('#feedback').textContent(),/Waiting for notification permission/);
+await sp.waitForFunction(()=>document.getElementById('feedback').textContent.includes('This step did not finish'));
+assert(await sp.locator('#connect').isEnabled());assert.equal(await sp.evaluate(()=>localStorage.getItem('atlas.reminders.device.v1')),null);await stalled.close();
 console.log(engine+': reminder mobile layouts, local saves, one-time dates, pause, skip, errors and disconnect passed');
 }finally{await browser.close();server.close();}

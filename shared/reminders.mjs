@@ -3,6 +3,11 @@ const $=id=>document.getElementById(id),KEY='atlas.reminders.v1',AUTH='atlas.rem
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let prefs=defaults(),connection=null,revision=0,busy=false,healthy=false,blocked=false;
 function tell(s){$('feedback').textContent=s;}
+async function phoneStep(message,start){
+ tell(message);let timer;
+ try{return await Promise.race([start(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(message+' This step did not finish. Close and reopen Reminders from its Home Screen icon, then try again.')),20000);})]);}
+ finally{clearTimeout(timer);}
+}
 function saveLocal(key,value){const raw=JSON.stringify(value);localStorage.setItem(key,raw);if(localStorage.getItem(key)!==raw)throw Error('This device could not save your settings.');}
 try{const raw=localStorage.getItem(KEY);if(raw)prefs=validate(JSON.parse(raw));const auth=localStorage.getItem(AUTH);if(auth){const a=JSON.parse(auth);if(typeof a.token!=='string'||!/^https:\/\//.test(a.endpoint))throw Error();connection=a;}}
 catch{blocked=true;tell('Saved settings could not be read. No changes will overwrite them. Check this browser’s storage before continuing.');}
@@ -53,11 +58,14 @@ $('connect').onclick=()=>action(async()=>{
  const pairingToken=$('pairing').value;if(pairingToken.length<32){$('setup').open=true;throw Error('Enter the private pairing code from your delivery service.');}
  const next=collect();saveLocal(KEY,next);
  // Request on the explicit click before network awaits, as required by iOS.
- const permission=await Notification.requestPermission();if(permission!=='granted')throw Error('Notifications are not allowed. You can change this in your phone’s notification settings.');
+ const permission=await phoneStep('Waiting for notification permission…',()=>Notification.permission==='granted'?'granted':Notification.requestPermission());if(permission!=='granted')throw Error('Notifications are not allowed. You can change this in your phone’s notification settings.');
+ tell('Contacting your reminder service…');
  const config=await call('/config','GET',undefined,{endpoint});
- const reg=await navigator.serviceWorker.register('reminders-sw.js',{scope:'./',updateViaCache:'none'});await navigator.serviceWorker.ready;
+ const reg=await phoneStep('Preparing notifications on this phone…',()=>navigator.serviceWorker.register('reminders-sw.js',{scope:'./',updateViaCache:'none'}));
+ await phoneStep('Activating notifications on this phone…',()=>navigator.serviceWorker.ready);
  const key=Uint8Array.from(atob(config.publicKey.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
- let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
+ let sub=await phoneStep('Checking this phone’s subscription…',()=>reg.pushManager.getSubscription());if(!sub)sub=await phoneStep('Registering this phone with the push provider…',()=>reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key}));
+ tell('Saving your phone’s connection…');
  const result=await call('/devices','POST',{pairingToken,subscription:sub.toJSON(),prefs:next},{endpoint});
  const auth={endpoint,token:result.token};
  try{saveLocal(AUTH,auth);}catch(e){try{await call('/device','DELETE',undefined,auth);}catch{}throw e;}
