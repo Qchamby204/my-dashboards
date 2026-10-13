@@ -16,6 +16,16 @@ for(const [theme,width,size] of [['light',393,16],['dark',320,16],['dark',393,20
  await p.goto(origin+'/reminders.html');await p.waitForSelector('.reminder');await p.evaluate(size=>document.documentElement.style.fontSize=size+'px',size);
  assert.equal(await p.locator('.reminder').count(),3);assert.equal(await p.evaluate(()=>localStorage.getItem('atlas.reminders.v1')),null,'opening does not save defaults');
  await p.locator('#save').click();await p.waitForFunction(()=>document.getElementById('feedback').textContent.includes('saved on this device'));
+ assert.match(await p.locator('.reminder-time').first().textContent(),/^8 AM/);
+ await p.locator('.reminder').first().locator('summary').click();
+ const clock=p.locator('.reminder').first().locator('[data-time-field="time"]');
+ await clock.locator('[data-time-part="hour"]').selectOption('12');await clock.locator('[data-time-part="minute"]').selectOption('00');await clock.locator('[data-time-part="period"]').selectOption('AM');
+ await p.locator('#save').click();await p.waitForFunction(()=>JSON.parse(localStorage.getItem('atlas.reminders.v1')).reminders[0].time==='00:00');
+ assert.match(await p.locator('.reminder-time').first().textContent(),/^12 AM/);
+ await p.locator('.reminder').first().locator('summary').click();await clock.locator('[data-time-part="period"]').selectOption('PM');await p.locator('#save').click();await p.waitForFunction(()=>JSON.parse(localStorage.getItem('atlas.reminders.v1')).reminders[0].time==='12:00');
+ assert.match(await p.locator('.reminder-time').first().textContent(),/^12 PM/);
+ const quiet=p.locator('[data-time-field="quiet-start"]');assert.equal(await quiet.locator('[data-time-part="hour"]').inputValue(),'9');assert.equal(await quiet.locator('[data-time-part="period"]').inputValue(),'PM');
+
  await p.reload();await p.waitForSelector('.reminder');assert.equal(await p.locator('.reminder').count(),3);
  await p.locator('#add').click();assert.equal(await p.locator('.reminder').count(),4);
  const last=p.locator('.reminder').last();await last.locator('[data-field="repeat"]').selectOption('once');await p.locator('#save').click();assert.match(await p.locator('#feedback').textContent(),/Choose a date/);
