@@ -17,7 +17,7 @@ try{
  await p.locator('[data-edit-prep]').first().click();assert.equal(await p.locator('#prep-save').textContent(),'Save changes');await p.locator('#prep-days').fill('1');await p.locator('#prep-close').click();assert.equal(Object.values(JSON.parse(await chefRecord()).preparations)[0].days,prep.days,'Cancel edit keeps saved coverage');
  assert(!await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1));
  await p.goto(origin+'/workout-forge.html');await p.waitForFunction(()=>!!window.ForgeSession);
- if(await p.locator('[data-goal-action="choose-focus"][data-goal="bench"]').count())await p.locator('[data-goal-action="choose-focus"][data-goal="bench"]').click();
+ await p.waitForSelector(".fg-home");
  await p.evaluate(()=>{state.openDay=PROGRAM[0].key;render();});await p.locator('[data-act="live"]').first().click();await p.waitForSelector('.forge-live-panel');
  const first=await p.evaluate(()=>{const items=orderedItems(dayBy(state.live.key)),i=items.findIndex(it=>it.track==='load');state.live.exIdx=i;const id=effId(items[i]);state.draft[id]={sets:[{w:'10',r:''}]};saveDraft();render();return {id,index:i};});
  await p.evaluate(()=>{ForgeSession.goExercise(orderedItems(dayBy(state.live.key)).length-1);});await p.locator('[data-act="livefinish"]').click();await p.waitForSelector('#forge-entry-error');assert.equal(await p.evaluate(()=>state.live.exIdx),first.index,'Finish takes you to incomplete exercise');assert.equal(await p.evaluate(()=>state.sessions.length),0);await p.screenshot({path:path.join(out,'forge-validation-'+theme+'.png')});
