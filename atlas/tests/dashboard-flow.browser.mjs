@@ -11,7 +11,17 @@ try{
  const c=await browser.newContext({viewport:{width:393,height:852},isMobile:true,hasTouch:true,reducedMotion:'reduce',timezoneId:'America/Winnipeg',colorScheme:'dark'}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));const settle=()=>p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
  await p.goto(origin+'/communication-trainer.html');await p.waitForFunction(()=>!!window.CommunicatorLearning);
  await p.evaluate(()=>nav('topics'));await p.locator('.communication-topic-refresh summary').first().click();await p.locator('#cityInput').fill('An unfinished city');await p.locator('#pasteBox').fill('{unfinished topic import');await p.evaluate(()=>window.scrollTo({top:600,behavior:'instant'}));await settle();const topicY=await p.evaluate(()=>scrollY);assert(topicY>100);
- await p.evaluate(()=>nav('progress'));await p.evaluate(()=>nav('topics'));await settle();assert.equal(await p.locator('#cityInput').inputValue(),'An unfinished city');assert.equal(await p.locator('#pasteBox').inputValue(),'{unfinished topic import');await p.screenshot({path:path.join(out,'communicator-place.png')});const returnedY=await p.evaluate(()=>scrollY);assert(Math.abs(returnedY-topicY)<5,'Topics restores scroll: '+topicY+' → '+returnedY);
+ await p.evaluate(()=>nav('progress'));
+ const investing=p.locator('#communicator-investing-progress');
+ assert.equal(await investing.locator('.communicator-investing-content').innerHTML(),'','closed investing history does no reference rendering');
+ await investing.locator('summary').click();
+ await p.locator('#communicator-progress-view').selectOption('archive');
+ await p.locator('#archive-search').fill('unfinished archive search');
+ await p.evaluate(()=>nav('topics'));await p.evaluate(()=>nav('progress'));
+ assert.equal(await p.locator('#communicator-investing-progress').getAttribute('open'),'','expanded investing history remains open after navigation');
+ assert.equal(await p.locator('#communicator-progress-view').inputValue(),'archive');
+ assert.equal(await p.locator('#archive-search').inputValue(),'unfinished archive search');
+ await p.evaluate(()=>nav('topics'));await settle();assert.equal(await p.locator('#cityInput').inputValue(),'An unfinished city');assert.equal(await p.locator('#pasteBox').inputValue(),'{unfinished topic import');await p.screenshot({path:path.join(out,'communicator-place.png')});const returnedY=await p.evaluate(()=>scrollY);assert(Math.abs(returnedY-topicY)<5,'Topics restores scroll: '+topicY+' → '+returnedY);
  await p.evaluate(()=>toggleCat('sports'));await settle();assert.equal(await p.locator('#cityInput').inputValue(),'An unfinished city');assert(Math.abs(await p.evaluate(()=>scrollY)-topicY)<5,'routine category update keeps position');
  await p.locator('#pasteBox').fill(JSON.stringify({sports:['A fresh topic about local hockey']}));await p.evaluate(()=>applyTopicPaste());assert.equal(await p.locator('#pasteBox').inputValue(),'','successful import clears submitted draft');await p.evaluate(()=>nav('progress'));await p.evaluate(()=>nav('topics'));assert.equal(await p.locator('#pasteBox').inputValue(),'','submitted draft does not return');
  await p.screenshot({path:path.join(out,'communicator-place.png')});

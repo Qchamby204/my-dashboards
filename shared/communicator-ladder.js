@@ -26,7 +26,7 @@
   render=()=>{oldRender();if(curDrill?.topic.challenge){const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!curDrill.topic.challenge.performed;}};
   document.addEventListener('click',e=>{const b=e.target.closest?.('[data-ladder-start]');if(b){P.startChallengePractice(b.dataset.ladderStart);return;}if(e.target.closest?.('[data-ladder-reveal]')&&curDrill?.topic.challenge){curDrill.topic.challenge.revealed=true;P.rememberPractice();render();}});
   document.addEventListener('change',e=>{if(e.target.matches?.('[data-ladder-performed]')&&curDrill?.topic.challenge){curDrill.topic.challenge.performed=e.target.checked;P.rememberPractice();const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!e.target.checked;}});
-  window.CommunicatorLadder=Object.freeze({snapshot:snap});render();
+  window.CommunicatorLadder=Object.freeze({snapshot:snap});if(!window.CommunicatorStarting)render();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
  window.addEventListener('communicator-ready',start);

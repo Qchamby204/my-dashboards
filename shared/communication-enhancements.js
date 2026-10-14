@@ -447,7 +447,10 @@
     if(savedDraftRaw!=null)try{restorePractice(JSON.parse(savedDraftRaw));}catch(error){draftProblem=error.message||'Could not read the unfinished practice.';}
     document.addEventListener('click',e=>{const b=e.target.closest('[data-communication-goal]');if(!b||S.profile?.goal||!['clarity','confidence','listen'].includes(b.dataset.communicationGoal))return;const next={goal:b.dataset.communicationGoal};S.profile=next;const saved=Store.set('profile',next);render();if(saved)toast('Your practice aim is saved.');});
     window.CommunicationImprovements=Object.freeze({validateBackup,startPreparedPractice,startChallengePractice,get lastSaved(){return lastSaved;},rememberPractice,resumePractice,leavePractice,discardPractice,editTopics,saveTopics,selectTopicCategory,cleanTopicLines,get unsaved(){return unsaved.size;}});
-    window.dispatchEvent?.(new Event('communicator-ready'));
+    // Install synchronous learning/ladder wrappers before painting the first page.
+    window.CommunicatorStarting=true;
+    try{window.dispatchEvent?.(new Event('communicator-ready'));}
+    finally{window.CommunicatorStarting=false;}
     render();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
