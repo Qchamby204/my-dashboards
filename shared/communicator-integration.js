@@ -39,9 +39,24 @@
     pageDash=()=>{const html=oldDash(),resume=html.match(/^<section class="card communication-resume">[\s\S]*?<\/section>/)?.[0]||'';return resume+todayCard()+html.slice(resume.length);};
     pageTrain=()=>curDrill?oldTrain():oldTrain()+'<section class="card"><h2>Practise your investing knowledge</h2>'+button('Explain my next block · 90 seconds','block-rep',curriculum.nextBlock().id,'')+'<details class="communicator-practice-more"><summary>Other investing exercises</summary><div class="communicator-practice-options">'+button('Evidence & debate','reference','arsenal')+button('Explain my filing checkpoint','statement-rep',String(curriculum.nextStatement().n))+button('Explain my saved learning note','note-rep')+'</div></details></section>';
 
+    function investingProgressBody(){
+      return status()+'<p>'+curriculum.stats().notes+' saved learning notes</p><label for="communicator-progress-view">Review investing work</label><select id="communicator-progress-view"><option value="review"'+(progressView==='review'?' selected':'')+'>Weekly review</option><option value="archive"'+(progressView==='archive'?' selected':'')+'>Learning archive</option></select><div class="communicator-analysis">'+curriculum.view(progressView)+'</div>';
+    }
     function investingProgress(){
       const stats=curriculum.stats();
-      return '<details class="card communicator-investing-progress"><summary>Investing progress · '+stats.blocks+'/'+stats.total+' blocks · '+stats.mastery+'/100 mastery</summary>'+status()+'<p>'+stats.notes+' saved learning notes</p><label for="communicator-progress-view">Review investing work</label><select id="communicator-progress-view"><option value="review"'+(progressView==='review'?' selected':'')+'>Weekly review</option><option value="archive"'+(progressView==='archive'?' selected':'')+'>Learning archive</option></select><div class="communicator-analysis">'+curriculum.view(progressView)+'</div></details>';
+      return '<details id="communicator-investing-progress" class="card communicator-investing-progress"><summary>Investing progress · '+stats.blocks+'/'+stats.total+' blocks · '+stats.mastery+'/100 mastery</summary><div class="communicator-investing-content"></div></details>';
+    }
+    function hydrateInvestingProgress(panel){
+      const content=panel?.querySelector('.communicator-investing-content');
+      if(!panel?.open||!content||content.dataset.loaded)return;
+      content.innerHTML=investingProgressBody();content.dataset.loaded='true';
+      const place=typeof pagePlaces!=='undefined'?pagePlaces.get('progress'):null;
+      for(const [id,value]of Object.entries(place?.fields||{})){
+        const field=document.getElementById(id);if(field&&content.contains(field))field.value=value;
+      }
+      const search=content.querySelector('#archive-search');
+      if(search?.value){const result=curriculum.search(search.value);content.querySelector('#archive-results').innerHTML=result.html;content.querySelector('#archive-count').textContent=result.count+' saved days or entries';}
+      decorate();
     }
     pageProgress=()=>investingProgress()+oldProgress();
     Store.dump=()=>({...oldDump(),crucible:curriculum.snapshot()});
@@ -77,7 +92,7 @@
       }
       document.querySelectorAll('[data-learning-action="track"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.learningValue===track)));
     }
-    render=function(){oldRender();document.querySelectorAll('.season').forEach(n=>n.hidden=true);decorate();};
+    render=function(){oldRender();document.querySelectorAll('.season').forEach(n=>n.hidden=true);decorate();hydrateInvestingProgress(document.getElementById('communicator-investing-progress'));};
     function rerenderKeep(){
       const y=window.scrollY,openIds=[...document.querySelectorAll('.communicator-analysis details[open],.communicator-investing-progress[open]')].map(d=>d.id||d.querySelector('summary')?.textContent||d.className),focused=document.activeElement?.getAttribute('data-key');
       render();for(const d of document.querySelectorAll('.communicator-analysis details,.communicator-investing-progress'))if(openIds.includes(d.id||d.querySelector('summary')?.textContent||d.className))d.open=true;
@@ -94,6 +109,13 @@
       const go=event.target.closest?.('.communicator-analysis [data-go]');if(go){open(go.dataset.go);if(go.dataset.openBlocks)for(const id of go.dataset.openBlocks.split(',')){const block=document.getElementById('block_'+id);if(block)block.open=true;}const target=document.getElementById(go.dataset.target||'block_'+go.dataset.openBlocks?.split(',')[0]);target?.scrollIntoView({block:'start'});return;}
       const week=event.target.closest?.('.communicator-analysis [data-review-week]');if(week){curriculum.week(week.dataset.reviewWeek);rerenderKeep();}
     });
+    // Historical reference tables are built only when their disclosure is opened.
+    // Hydrate in place so keyboard focus and the page's scroll position stay put.
+    document.addEventListener('toggle',event=>{
+      const panel=event.target;
+      if(!panel.matches?.('.communicator-investing-progress')||!panel.open)return;
+      hydrateInvestingProgress(panel);
+    },true);
     document.addEventListener('change',event=>{
       if(event.target.id==='communicator-reference'){reference=event.target.value;render();return;}
       if(event.target.id==='communicator-progress-view'){progressView=event.target.value;rerenderKeep();return;}
@@ -109,7 +131,7 @@
       track='investing';reference=references.some(([id])=>id===match[1])?match[1]:(aim|| (existing?'blocks':'today'));nav('learn');
     }
     window.addEventListener('hashchange',route);
-    window.CommunicatorLearning=Object.freeze({source,begin,open,curriculum});route();render();window.dispatchEvent?.(new Event('communicator-learning-ready'));
+    window.CommunicatorLearning=Object.freeze({source,begin,open,curriculum});route();if(!window.CommunicatorStarting)render();window.dispatchEvent?.(new Event('communicator-learning-ready'));
   }
   window.addEventListener('communicator-ready',start);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

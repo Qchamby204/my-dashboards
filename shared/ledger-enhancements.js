@@ -720,6 +720,24 @@
       const error=make('p',message,'ledger-entry-error');error.id=id;error.setAttribute('role','alert');
       (card.querySelector('.ledger-amount-confirm')||card.lastElementChild).before(error);input.setAttribute('aria-describedby',id);input.setAttribute('aria-invalid','true');input.focus();
     }
+
+    // Draft amount taps do not change saved XP or history. Keep the current card,
+    // its focus, disclosures and text fields in place instead of rebuilding tabs.
+    function changeCardAmount(el,act){
+      if(state.logMode==='list')return false;
+      const h=el.dataset.habit,c=HCFG[h],card=el.closest('.ledger-habit-card');
+      const input=card?.querySelector('[data-act="num"]');
+      if(!input||!c||c.kind==='count')return false;
+      const previous=state.draft[h]||0;
+      const value=act==='inc'?Math.round((previous+c.step)*10)/10:Math.max(0,Math.round((previous-c.step)*10)/10);
+      state.draft[h]=value;input.value=String(value);input.setAttribute('aria-invalid','false');
+      const error=input.getAttribute('aria-describedby');
+      if(error?.startsWith('ledger-amount-error-')){document.getElementById(error)?.remove();input.removeAttribute('aria-describedby');}
+      if(value>0)state.draftMissed=(state.draftMissed||[]).filter(key=>key!==h);
+      remember();refreshCheckinState(h);status();
+      return true;
+    }
+
     function refreshCheckinState(h){
       for(const row of app.querySelectorAll('.row,.ledger-habit-card')){if(row.querySelector('[data-habit]')?.dataset.habit!==h)continue;
         const known=state.draftMissed?.includes(h),status=row.querySelector('.ledger-habit-status');if(status)status.textContent=state.draft[h]>0?'Recorded':known?'Didn’t do':'Not recorded';
@@ -750,6 +768,10 @@
     achvView=()=>rewardDialog(originalAchievementView());
     let rewardOpener=null,progressInfoOpen=false;
     const originalRender=render;
+    // The lifetime interface removes these retired season panels after every
+    // legacy render. Do not calculate their unused tables and forecasts first.
+    forecast=paceCoach=oracle=outcomesPanel=chronicle=consistencyPanel=()=> '';
+    oracleInsights=()=>[];
     render=function(){
       const active=document.activeElement,restoreControl=active?.dataset&&['inc','dec','logmode','pillar'].includes(active.dataset.act)?{...active.dataset}:null;
       if(!rewardOpener&&(state.levelInfo||state.achvQueue?.length)){const active=document.activeElement;rewardOpener=active?.dataset?.act==='relic'?'[data-act="relic"][data-idx="'+active.dataset.idx+'"]':'[data-act="commit"]';}
@@ -760,7 +782,7 @@
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
         avatar.classList.add('ledger-card-avatar');identity.append(title);if(category)identity.append(category);header.append(avatar,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
         const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
-        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';}
+        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';const siblings=[...check.parentNode.children],caption=siblings[siblings.indexOf(check)+1];if(caption?.tagName==='DIV'&&/^(Mark it done|Mark done|Done today)/.test(caption.textContent.trim()))caption.remove();}
         card.style.setProperty('--ledger-card-accent',HABIT_PILLAR[h]?.color||'var(--neo-accent)');
         const xp=Number((amount/R.xpUnit(c)*100).toFixed(2));
         const hint=make('div',null,'ledger-card-xp');
@@ -817,6 +839,7 @@
     app.addEventListener('click',e=>{
       const el=e.target.closest('[data-act]');if(!el)return;if(blocked||busy){e.stopImmediatePropagation();return;}
       const act=el.dataset.act;
+      if((act==='inc'||act==='dec')&&changeCardAmount(el,act)){e.stopImmediatePropagation();return;}
       if(act==='toggle'&&el.dataset.habit==='Screen Discipline'&&state.draftLeisure?.screenConfirmed){e.stopImmediatePropagation();leisureMinutesDialog();return;}
       if(act==='achvAll')dashboardView='progress';
       if(act==='reset'){e.stopImmediatePropagation();return;}

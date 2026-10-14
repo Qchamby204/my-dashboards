@@ -589,3 +589,20 @@ test('amount Done keeps invalid input on its card for correction',async()=>{
  input.value='4';h.node('app').emit('input',{target:input});assert.equal(card.querySelector('.ledger-entry-error'),null);assert.equal(input.getAttribute('aria-describedby'),null);
 });
 
+
+test('card amount taps preserve the existing deck and unrelated drafts until Save day',async()=>{
+ const h=await boot({realModel:true});h.run('goCard(HABITS.indexOf("Read"));state.draftNote="Keep my note"');
+ const card=h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')];
+ const input=card.querySelector('[data-act="num"]'),inc=card.querySelector('[data-act="inc"]'),dec=card.querySelector('[data-act="dec"]');
+ const history=h.node('ledger-history'),dock=h.node('ledger-dock');
+ for(let i=0;i<3;i++)h.node('app').emit('click',{target:inc});
+ assert.equal(h.run('state.draft.Read'),30);assert.equal(input.value,'30');
+ assert.equal(h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')],card);
+ assert.equal(h.node('ledger-history'),history);assert.equal(h.node('ledger-dock'),dock);
+ assert.equal(card.querySelector('.ledger-habit-status').textContent,'Recorded');
+ h.node('app').emit('click',{target:dec});assert.equal(input.value,'20');
+ assert.equal(h.run('state.draftNote'),'Keep my note');assert.equal(h.run('state.days.length'),0);
+ assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);
+ await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),80);
+ assert.equal(h.run('state.days[0].note'),'Keep my note');
+});
