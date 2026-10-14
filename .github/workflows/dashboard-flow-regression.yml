@@ -1,0 +1,35 @@
+name: Dashboard flow checks
+on:
+  push:
+    branches: [main]
+    paths: ['communication-trainer.html', 'shared/library*', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+  pull_request:
+    paths: ['communication-trainer.html', 'shared/library*', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --prefix /tmp/flow-browser --no-save playwright@1.62.1
+      - run: /tmp/flow-browser/node_modules/.bin/playwright install --with-deps ${{ matrix.engine }}
+      - run: node atlas/tests/dashboard-flow.browser.mjs
+        env:
+          NODE_PATH: /tmp/flow-browser/node_modules
+          FLOW_BROWSER: ${{ matrix.engine }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dashboard-flow-${{ matrix.engine }}
+          path: artifacts/dashboard-flow

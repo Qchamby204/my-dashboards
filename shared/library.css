@@ -984,3 +984,7 @@ html.atlas-neumo[data-atlas-app="library"] .shelf-book .btn{white-space:normal;w
 html.atlas-neumo[data-atlas-app="library"] .finished-shelf>summary{padding:1rem 0;cursor:pointer;font-size:1.15rem;font-weight:600;}
 @media(max-width:600px){html.atlas-neumo[data-atlas-app="library"] .book-shelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem;}html.atlas-neumo[data-atlas-app="library"] .book-jacket{min-height:220px;padding:1rem .75rem 1rem 1rem;}}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="library"] .book-jacket{border:2px solid currentColor;box-shadow:none;}}
+
+.library-undo{position:fixed;z-index:160;bottom:calc(150px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100vw - 32px);padding:12px 14px;border:1px solid var(--line);border-radius:20px;background:var(--surface);color:var(--ink);box-shadow:0 8px 28px #0003}.library-undo span{min-width:0;overflow-wrap:anywhere}.library-undo button{flex-shrink:0;min-height:44px}.library-undo .icon-btn{min-width:44px}
+
+@media print{.library-undo{display:none!important}}
