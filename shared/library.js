@@ -111,6 +111,8 @@ let state=defaultState();
 try{rawAtBoot=localStorage.getItem(KEY)||'';if(rawAtBoot)state=normalizeState(JSON.parse(rawAtBoot));}catch(e){storageError=rawAtBoot?'Saved records could not be read. The original data has not been overwritten. Open Backup & settings to download a recovery copy or restore a backup.':'Browser storage is unavailable. Changes will remain in this open tab only. Export a backup before closing.';blocked=!!rawAtBoot;}
 TOPICS=withCustomTopics(state.customSubtopics);
 const ui={q:'',status:'all',topic:'all',understandingQ:'',understandingTopic:'all'};
+const routePlaces=new Map(),tabRoutes={home:'#home',books:'#books',understanding:'#understanding'};
+let pendingBookUndo=null,restoringRoute=false,routeRestoreSerial=0;
 let route={view:'home'},toastTimer=null,modalContext=null,pendingImport=null,modalReturnFocus=null;
 function getBook(id){return state.catalog.find(b=>b.id===id);}
 function progress(id){return state.progress[id]||{status:'unread',takeaway:'',notes:'',questions:'',application:'',updatedAt:''};}
@@ -175,8 +177,16 @@ function readRoute(){
  if(parts[0]==='topic'&&topicById(parts[1]))return {view:'topic',topic:parts[1],subtopic:parts[2]==='all'||subById(parts[1],parts[2])?parts[2]:'all',tab:parts[3]==='distill'?'distill':'books'};
  return {view:['home','books','understanding'].includes(parts[0])?parts[0]:'home'};
 }
-function navigate(hash){if(location.hash===hash){render();window.scrollTo(0,0);}else location.hash=hash;}
-function navHTML(){const view=route.view==='topic'?'home':route.view;return [['home','grid','Topics'],['books','shelves','All books'],['understanding','leaf','My understanding']].map(([v,i,label])=>`<a href="#${v}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''}>${icon(i)}<span>${label}</span></a>`).join('');}
+function routeKey(r=route){return r.view==='topic'?scopeRoute(r.topic,r.subtopic,r.tab):'#'+r.view;}
+function rememberRoute(){
+ const drafts={};for(const el of document.querySelectorAll('#main-content [data-progress-page]'))if(el.id&&el.value!==el.defaultValue)drafts[el.id]={value:el.value,base:el.defaultValue};
+ const open=[...document.querySelectorAll('#main-content details[open]')].map(el=>el.id).filter(Boolean);
+ routePlaces.set(routeKey(),{y:window.scrollY,drafts,open});tabRoutes[route.view==='topic'?'home':route.view]=routeKey();
+}
+function restoreRoute(saved=routePlaces.get(routeKey())){if(saved){for(const [id,draft]of Object.entries(saved.drafts)){const field=document.getElementById(id);if(field&&field.defaultValue===draft.base){field.value=draft.value;if(draft.value!=='')previewProgress(field.closest('[data-progress-form]'),draft.value);const details=field.closest('details');if(details)details.open=true;}}for(const id of saved.open){const el=document.getElementById(id);if(el)el.open=true;}}window.scrollTo({top:saved?.y||0,behavior:'instant'});}
+function navigate(hash){if(location.hash!==hash){rememberRoute();location.hash=hash;}}
+
+function navHTML(){const view=route.view==='topic'?'home':route.view;return [['home','grid','Topics'],['books','shelves','All books'],['understanding','leaf','My understanding']].map(([v,i,label])=>`<a href="${view===v?'#'+v:tabRoutes[v]}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''}>${icon(i)}<span>${label}</span></a>`).join('');}
 function renderSidebar(){
  $('#desktop-nav').innerHTML=navHTML();$('#mobile-nav').innerHTML=navHTML();
  const f=state.focus;
@@ -358,7 +368,7 @@ function render(){
  document.title=(route.view==='topic'?scopeTitle(route.topic,route.subtopic):route.view==='books'?'All books':route.view==='understanding'?'My understanding':'The Library')+' · Atlas OS';
  saveFeedback();replaceIcons();
 }
-function rerenderPreservingScroll(){const y=window.scrollY;render();window.scrollTo(0,y);}
+function rerenderPreservingScroll(){rememberRoute();render();restoreRoute();}
 function modalHeader(eyebrow,title,subtitle=''){return `<div class="dialog-head"><div class="grow"><div class="eyebrow">${esc(eyebrow)}</div><h2 id="modal-title">${esc(title)}</h2>${subtitle?`<p>${esc(subtitle)}</p>`:''}</div><button class="icon-btn" data-action="close-modal" aria-label="Close dialog" autofocus>${icon('close')}</button></div>`;}
 function showModal(html,context){
  const modal=$('#modal');if(!modal.open)modalReturnFocus=document.activeElement;
@@ -455,7 +465,7 @@ function confirmImport(){
  if(blocked&&rawAtBoot)downloadFile(`the-library-unreadable-recovery-${Date.now()}.txt`,rawAtBoot);
  try{localStorage.setItem(KEY,JSON.stringify(replacement));}
  catch(e){$('#import-feedback').innerHTML='<p class="error-text">The browser could not save the restored backup. Current records have not been replaced. Free up storage or use another browser.</p>';return;}
- state=replacement;TOPICS=withCustomTopics(state.customSubtopics);blocked=false;conflict=false;storageError='';rawAtBoot=JSON.stringify(state);pendingImport=null;$('#modal').close();rerenderPreservingScroll();toast('Backup restored. Your books, notes, and understandings are ready.');
+ pendingBookUndo=null;document.getElementById('library-undo')?.remove();state=replacement;TOPICS=withCustomTopics(state.customSubtopics);blocked=false;conflict=false;storageError='';rawAtBoot=JSON.stringify(state);pendingImport=null;$('#modal').close();rerenderPreservingScroll();toast('Backup restored. Your books, notes, and understandings are ready.');
 }
 function publishSynthesis(k){
  if(!validScope(k))return;const s=ensureSynthesis(k);
@@ -472,6 +482,32 @@ function restoreVersion(k,version){
  // A deliberate version restore alters only the draft; the latest published summary remains intact.
  if(s.summary?.trim()&&s.summary!==snap.text&&!window.confirm('Replace the current working draft with this saved version? Your saved understanding and version history will remain unchanged.'))return;
  s.summary=snap.text;s.updatedAt=now();persist();rerenderPreservingScroll();toast('Version restored as your working draft.');
+}
+function removeCustomBook(id){
+ const book=getBook(id);if(!book||!id.startsWith('custom-')||blocked||conflict)return;
+ const before=clone(state),index=state.catalog.findIndex(b=>b.id===id),daily={};
+ for(const [day,rows]of Object.entries(state.reading.daily||{}))if(Object.hasOwn(rows,id))daily[day]=rows[id];
+ const snapshot={id,book:clone(book),index,progress:state.progress[id]?clone(state.progress[id]):undefined,pageCount:state.reading.pageCounts[id],pagesRead:state.reading.pagesRead[id],daily};
+ state.catalog=state.catalog.filter(b=>b.id!==id);delete state.progress[id];delete state.reading.pageCounts[id];delete state.reading.pagesRead[id];for(const rows of Object.values(state.reading.daily||{}))delete rows[id];
+ if(!persist()){state=before;toast('Book could not be removed. Your saved records are kept.');return;}
+ pendingBookUndo=snapshot;$('#modal').close();showBookUndo();
+}
+function undoBookRemoval(){
+ const snap=pendingBookUndo;if(!snap||blocked||conflict)return;if(getBook(snap.id)){toast('This book already exists. Undo did not overwrite it.');return;}
+ const before=clone(state);state.catalog.splice(Math.min(snap.index,state.catalog.length),0,clone(snap.book));
+ if(snap.progress!==undefined)state.progress[snap.id]=clone(snap.progress);
+ if(snap.pageCount!==undefined)state.reading.pageCounts[snap.id]=snap.pageCount;
+ if(snap.pagesRead!==undefined)state.reading.pagesRead[snap.id]=snap.pagesRead;
+ for(const [day,value]of Object.entries(snap.daily)){state.reading.daily[day]??={};state.reading.daily[day][snap.id]=value;}
+ if(!persist()){state=before;toast('Restore could not be saved. Undo is still available.');return;}
+ pendingBookUndo=null;document.getElementById('library-undo')?.remove();rerenderPreservingScroll();toast('Book restored with its notes and reading progress.');
+}
+function showBookUndo(){
+ document.getElementById('library-undo')?.remove();if(!pendingBookUndo)return;
+ const bar=document.createElement('div');bar.id='library-undo';bar.className='library-undo';bar.setAttribute('role','status');
+ const message=document.createElement('span');message.textContent='Removed “'+pendingBookUndo.book.title+'”.';
+ const undo=document.createElement('button');undo.type='button';undo.className='btn accent';undo.textContent='Undo';undo.onclick=undoBookRemoval;
+ const dismiss=document.createElement('button');dismiss.type='button';dismiss.className='icon-btn';dismiss.textContent='×';dismiss.setAttribute('aria-label','Dismiss book removal undo');dismiss.onclick=()=>{pendingBookUndo=null;bar.remove();};bar.append(message,undo,dismiss);document.body.append(bar);
 }
 function routeAfterEdit(){if(route.view==='books')$('#book-results').innerHTML=bookResults();else rerenderPreservingScroll();}
 
@@ -490,11 +526,7 @@ document.addEventListener('click',async event=>{
  else if(a==='clear-reading-goal'){if(validScope(key)){delete state.reading.goals[key];persist();render();toast('Reading goal cleared. Your page progress is kept.');}}
  else if(a==='new-book')openBookEditor(null,el.dataset.topic||'1',el.dataset.subtopic||'all');
  else if(a==='edit-book')openBookEditor(id);
- else if(a==='delete-book'){
-  const b=getBook(id);if(!b||!id.startsWith('custom-'))return;
-  if(!window.confirm(`Remove “${b.title}” and its book notes? Saved topic understandings will stay. Export a backup first to keep a recoverable copy.`))return;
-  state.catalog=state.catalog.filter(book=>book.id!==id);delete state.progress[id];delete state.reading.pageCounts[id];delete state.reading.pagesRead[id];for(const day of Object.values(state.reading.daily||{}))delete day[id];persist();$('#modal').close();toast('Book removed. Saved topic understandings are unchanged.');
- }
+ else if(a==='delete-book')removeCustomBook(id);
  else if(a==='add-pages'){const form=el.closest('[data-progress-form]'),field=form?.querySelector('[data-progress-page]');if(field)previewProgress(form,Math.min(Number(field.max),Number(field.value||0)+Number(el.dataset.pages)));}
  else if(a==='log-focus-progress')openFocusProgress(el.dataset.topic,el.dataset.subtopic);
  else if(a==='skip-book'){setStatus(id,'skipped');routeAfterEdit();toast('Book excluded from reading goals. Your finish dates, notes and pages are kept.');}
@@ -616,7 +648,12 @@ document.addEventListener('submit',event=>{
 });
 $('#modal').addEventListener('close',()=>{modalContext=null;pendingImport=null;rerenderPreservingScroll();if(modalReturnFocus?.isConnected)modalReturnFocus.focus({preventScroll:true});else if(modalReturnFocus?.dataset?.action){const match=[...document.querySelectorAll('[data-action]')].find(el=>el.dataset.action===modalReturnFocus.dataset.action&&el.dataset.id===modalReturnFocus.dataset.id&&el.getClientRects().length);match?.focus({preventScroll:true});}});
 $('#modal').addEventListener('click',e=>{if(e.target===$('#modal')){const r=$('#modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#modal').close();}});
-window.addEventListener('hashchange',()=>{if($('#modal').open)$('#modal').close();render();window.scrollTo(0,0);});
+document.addEventListener('click',event=>{const a=event.target.closest?.('a[href^="#"]');if(a&&a.hash!==location.hash)rememberRoute();},true);
+window.addEventListener('scroll',()=>{if(restoringRoute||routeKey()!==routeKey(readRoute()))return;const key=routeKey(),saved=routePlaces.get(key)||{drafts:{},open:[]};saved.y=window.scrollY;routePlaces.set(key,saved);},{passive:true});
+window.addEventListener('hashchange',()=>{
+ const serial=++routeRestoreSerial;restoringRoute=true;if($('#modal').open)$('#modal').close();render();const saved=routePlaces.get(routeKey());restoreRoute(saved);
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(serial!==routeRestoreSerial)return;restoreRoute(saved);requestAnimationFrame(()=>{if(serial!==routeRestoreSerial)return;restoreRoute(saved);restoringRoute=false;});});else restoringRoute=false;
+});
 window.addEventListener('storage',event=>{
  if(event.key===THEME_KEY){applyTheme(getTheme());const select=$('#theme-select');if(select)select.value=getTheme();return;}
  if(event.key!==KEY)return;

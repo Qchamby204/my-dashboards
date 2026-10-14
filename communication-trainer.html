@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Communicator">
 <title>Communicator · Learn & Practise</title>
 <script src="shared/communicator-ladder-model.js?v=5fb000ca0236"></script>
-<script src="shared/communicator-theme.js?v=a0df34637490"></script>
+<script src="shared/communicator-theme.js?v=67b2efbd466a"></script>
 <style>
 :root{
   --bg:#0c0a12; --panel:#15111e; --panel2:#1d1830; --border:#2c2440;
@@ -716,14 +716,23 @@ function drawRadar(canvasId, datasets){ // datasets: [{scores, color, fill}]
 const PAGES=[['dash','Today','\u25c8'],['learn','Learn','\u25a4'],['train','Practice','\u26a1'],['topics','Topics','\u2726'],['progress','Progress','\u25b2']];
 let curPage='dash';
 let lastPage=null;
-function nav(p){ curPage=p; render(); }
+const pagePlaces=new Map();let renderedDrill=null;
+const draftFields=['gradeBox','gradeBoxP','cityInput','pasteBox','newTopic','newCat'];
+function rememberPage(){
+ if(!lastPage)return;const fields={};for(const id of draftFields){const el=$(id);if(el)fields[id]=el.value;}
+ const open=[...$('main').querySelectorAll('details[open]')].map(el=>el.id||el.querySelector('summary')?.textContent);
+ pagePlaces.set(lastPage,{y:window.scrollY,fields,open,drill:renderedDrill});
+}
+
+function nav(p){ curPage=p;render();const y=pagePlaces.get(p)?.y||0;if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(curPage===p)window.scrollTo({top:y,behavior:'instant'});}); }
 function render(){
+  rememberPage();let place=pagePlaces.get(curPage);if(curPage==='train'&&place?.drill!==curDrill)place=null;
   const w=weeksLeft();
   const bp=$('barPill'); if(bp){ bp.innerHTML='<span>'+xp()+'</span><span style="font-size:9px;letter-spacing:.08em;color:var(--muted);font-weight:600">XP</span>'; }
   $('nav').innerHTML = PAGES.map(([id,l,ic])=>`<button class="${id===curPage||id==='progress'&&curPage==='assess'?'active':''}" onclick="nav('${id}')" aria-label="${l}"><span class="ti">${ic}</span><span class="tl">${l}</span></button>`).join('');
   const season = `<div class="season">Season ends Dec 31, 2026 \u00b7 ${w} week${w===1?'':'s'} left</div>`;
   $('main').innerHTML = season + ({dash:pageDash,assess:pageAssess,learn:pageLearn,train:pageTrain,topics:pageTopics,progress:pageProgress})[curPage]();
-  if(lastPage!==curPage){ window.scrollTo(0,0); lastPage=curPage; }
+  if(place){for(const [id,value] of Object.entries(place.fields)){const el=$(id);if(el)el.value=value;}for(const el of $('main').querySelectorAll('details'))if(place.open.includes(el.id||el.querySelector('summary')?.textContent))el.open=true;}
   if(curPage==='dash'&&latestScores()) drawRadar('radarDash',[{scores:latestScores(),color:'#a479ff',fill:'rgba(164,121,255,.20)'}]);
   if(curPage==='progress'){
     const ds=[];
@@ -733,7 +742,7 @@ function render(){
     if(latestScores()) ds.push({scores:latestScores(),color:'#54d6a4',fill:'rgba(84,214,164,.2)'});
     if(ds.length) drawRadar('radarProg',ds);
   }
-  window.scrollTo(0,0);
+  window.scrollTo({top:place?.y||0,behavior:'instant'});lastPage=curPage;renderedDrill=curPage==='train'?curDrill:null;
 }
 
 /* ============ DASHBOARD ============ */
@@ -1287,7 +1296,7 @@ function applyTopicPaste(){
     S.refreshed[k]=clean; total+=clean.length;
   });
   S.bankUpdated=new Date().toISOString();
-  save(); render();
+  if($('pasteBox'))$('pasteBox').value='';save(); render();
   toast('Topics refreshed', `${total} fresh topics across ${Object.keys(parsed).length} categories.`);
 }
 function clearRefreshed(){
@@ -1301,7 +1310,7 @@ function toggleCat(k){
 }
 function addTopic(){
   const v=$('newTopic').value.trim(); if(!v) return;
-  S.customTopics.push({cat:$('newCat').value, text:v}); save(); render();
+  S.customTopics.push({cat:$('newCat').value, text:v}); $('newTopic').value='';save(); render();
 }
 function delTopic(i){
   var t=S.customTopics[i]; if(!t) return;

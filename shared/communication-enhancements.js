@@ -408,7 +408,7 @@
         if(unsaved.size)throw Error('Retry saving your pending changes first.');syncTopics();const stamp=topicStamp(),categories={...(S.topicBank?.categories||{})};
         for(const [cat,items]of Object.entries(parsed))categories[cat]=uniqueTopics([...cleanTopicLines(items.join('\n')),...categoryItems(cat)]);
         if(!commitTopics({schemaVersion:1,updatedAt:new Date().toISOString(),categories},stamp)){toast('Topics were not saved',lastTopicError);return false;}
-        render();return true;
+        $('pasteBox').value='';render();return true;
       }catch(error){toast('Topics were not saved',error.message);return false;}
     };
     const oldStaleLine=staleLine;
