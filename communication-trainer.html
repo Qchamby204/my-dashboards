@@ -724,7 +724,7 @@ function rememberPage(){
  pagePlaces.set(lastPage,{y:window.scrollY,fields,open,drill:renderedDrill});
 }
 
-function nav(p){ curPage=p; render(); }
+function nav(p){ curPage=p;render();const y=pagePlaces.get(p)?.y||0;requestAnimationFrame(()=>{if(curPage===p)window.scrollTo({top:y,behavior:'instant'});}); }
 function render(){
   rememberPage();let place=pagePlaces.get(curPage);if(curPage==='train'&&place?.drill!==curDrill)place=null;
   const w=weeksLeft();
