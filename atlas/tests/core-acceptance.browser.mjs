@@ -21,7 +21,8 @@ async function keyboard(p,input,app){
  }else assert(!(await p.locator(app==='life-map'?'.lm-day-dock':'#atlas-page-navigation').isVisible()),'navigation yields space to the keyboard');
  const bounds=await input.boundingBox(),limit=app==='life-ledger'?(await p.locator('.ledger-dock').boundingBox()).y:430;assert(bounds.y+bounds.height<=limit-12,'focused field remains above keyboard chrome');
  await p.screenshot({path:path.join(out,app+'-keyboard-'+engine+'.png')});
- await input.blur();await p.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});await p.waitForFunction(()=>!document.documentElement.classList.contains('core-keyboard'));
+ await input.blur();assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'chrome stays stable while the keyboard viewport is still reduced');
+ await p.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});await p.waitForFunction(()=>!document.documentElement.classList.contains('core-keyboard'));
 }
 try{
  for(const theme of ['light','dark']){
@@ -47,7 +48,11 @@ try{
    if(app==='life-ledger'){
     await p.locator('#ledger-habit-picker').selectOption('Read');const input=p.locator('.ledger-habit-card:not([inert]) [data-act="num"]');await input.fill('12');await input.press('Tab');await keyboard(p,input,app);
     await p.reload();await ready(p);assert.equal(await p.evaluate(()=>state.draft.Read),12,'unfinished check-in survives reload');
-    await p.locator('.ledger-save-row').getByRole('button',{name:'Save day',exact:true}).click();await p.waitForFunction(()=>state.days.some(d=>d.units.Read===12));await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===12)),'saved check-in survives reload');
+    await p.locator('#ledger-habit-picker').selectOption('Read');await p.locator('.ledger-habit-card:not([inert]) [data-act="num"]').focus();
+    await p.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{value:430,configurable:true});window.visualViewport.dispatchEvent(new Event('resize'));});
+    const save=p.locator('.ledger-save-row').getByRole('button',{name:'Save day',exact:true});await save.focus();
+    assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'focusing Save keeps its dock above the keyboard');
+    await save.tap();await p.waitForFunction(()=>state.days.some(d=>d.units.Read===12));await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===12)),'first save tap commits and saved check-in survives reload');
    }else if(app==='life-map'){
     const input=p.locator('#qaTxt');await input.fill('Synthetic acceptance task');await input.press('Tab');await keyboard(p,input,app);await p.reload();await ready(p);assert.equal(await p.locator('#qaTxt').inputValue(),'Synthetic acceptance task','unfinished task capture survives reload');
     await p.getByRole('button',{name:'Add task',exact:true}).click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Synthetic acceptance task'));await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Synthetic acceptance task')),'saved task survives reload');

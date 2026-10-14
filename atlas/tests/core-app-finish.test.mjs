@@ -21,10 +21,11 @@ test('control artwork preserves actions and accessible names and is stable acros
  assert.match(h.control.html,/aria-hidden="true" focusable="false"/);assert.equal(h.control.label,'Settings');assert.equal(h.control.dataset.act,'settings');assert.equal(h.control.listener(),42);
  h.redraw();h.window.CoreAppFinish.decorate();assert.equal(h.control.replacements,1);
 });
-test('keyboard chrome follows focused fields and restores immediately after focus leaves',()=>{
+test('keyboard chrome stays stable during a save tap until the viewport restores',()=>{
  const h=harness();h.document.activeElement={tagName:'INPUT'};h.visual.height=430;h.events['viewport-resize']();
  assert(h.classes.has('core-keyboard'));assert.equal(h.style['--core-keyboard-bottom'],'370px');
- h.document.activeElement={tagName:'BODY'};h.events.focusout();h.flush();assert(!h.classes.has('core-keyboard'));
+ h.document.activeElement={tagName:'BUTTON'};h.events.focusout();h.flush();assert(h.classes.has('core-keyboard'),'a save tap must not move the dock while the keyboard is still open');
+ h.visual.height=800;h.events['viewport-resize']();assert(!h.classes.has('core-keyboard'));
  h.visual.scale=2;h.document.activeElement={tagName:'TEXTAREA'};h.events['viewport-resize']();assert(!h.classes.has('core-keyboard'),'zoom does not masquerade as a keyboard');
 });
 test('unrelated dashboards receive no artwork, keyboard listeners or record access',()=>{

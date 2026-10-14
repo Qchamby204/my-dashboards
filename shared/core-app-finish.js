@@ -14,10 +14,14 @@
   icon(document.querySelector('.appbar [data-lm="search"]'),'search');
   if(['life-ledger','workout-forge'].includes(app))icon(document.querySelector('.appbar>div:nth-child(2)>span:not(.appbar-title)'),app==='life-ledger'?'ledger':'plates');
  }
+ let keyboardVisible=false;
  function keyboard(){
   const v=window.visualViewport,editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
   const offset=v&&v.scale===1?Math.max(0,window.innerHeight-v.height-v.offsetTop):0;
-  root.classList.toggle('core-keyboard',editing&&offset>150);
+  // Focus moves to Save before a touch finishes. Keep chrome in place until
+  // the keyboard's viewport gap actually closes, so the first tap can commit.
+  keyboardVisible=offset>150&&(editing||keyboardVisible);
+  root.classList.toggle('core-keyboard',keyboardVisible);
   root.style.setProperty('--core-keyboard-bottom',Math.round(offset)+'px');
   if(editing&&offset>150){
    const rect=document.activeElement?.getBoundingClientRect?.(),dock=app==='life-ledger'?document.querySelector('.ledger-dock'):null;
