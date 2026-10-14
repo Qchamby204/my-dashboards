@@ -1,0 +1,52 @@
+/* Four identities within the established warm-stone / night-indigo system. */
+html.atlas-neumo.core-finished{
+ --core-hero:linear-gradient(145deg,color-mix(in srgb,var(--neo-accent-soft) 24%,var(--neo-content-surface)),var(--neo-content-surface) 70%);
+ --core-edge:color-mix(in srgb,var(--neo-line) 75%,transparent);
+ --core-light:rgb(255 255 255 / .45);
+ --core-lift:0 8px 24px rgb(0 0 0 / .08),inset 0 1px 0 var(--core-light);
+}
+html.atlas-neumo.core-finished[data-atlas-theme="dark"]{--core-light:rgb(255 255 255 / .06);--core-lift:0 8px 24px rgb(0 0 0 / .22),inset 0 1px 0 var(--core-light)}
+html.atlas-neumo.atlas-neumo.core-finished .appbar [data-core-icon] svg{width:21px;height:21px;display:block}
+html.atlas-neumo.atlas-neumo.core-finished .appbar>div:nth-child(2)>[data-core-icon]{display:grid;place-items:center;flex:0 0 20px;color:var(--neo-accent)!important}
+html.atlas-neumo.atlas-neumo.core-finished .appbar>div:nth-child(2)>[data-core-icon] svg{width:20px;height:20px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .appbar,
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] .appbar{padding-top:calc(12px + var(--atlas-safe-top,0px))!important;padding-left:max(16px,var(--atlas-safe-left,0px))!important;padding-right:max(16px,var(--atlas-safe-right,0px))!important}
+
+/* Ledger: the active habit is the daily record, with XP as supporting evidence. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-habit-card{background:var(--core-hero)!important;box-shadow:var(--core-lift)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-card-identity .cinzel{font-size:1.375rem!important;line-height:1.25!important;letter-spacing:-.025em;overflow-wrap:break-word}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-card-heading{gap:16px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-card-xp{font-size:1.0625rem;line-height:1.6}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-xp-save-note{font-size:.875rem;color:var(--neo-muted)}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-habit-card [data-act="toggle"]{border-radius:14px!important;min-height:52px}
+
+/* Life Map: quick capture stays quiet, while the chosen next step anchors the day. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-capture{background:var(--neo-inset)!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card{background:var(--core-hero)!important;box-shadow:var(--core-lift);border-color:var(--core-edge);border-inline-start-color:var(--neo-accent);padding:24px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card h2{font-size:clamp(1.375rem,5vw,1.8rem);line-height:1.25;letter-spacing:-.025em;margin:12px 0}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-day-task h3{font-size:1.125rem;line-height:1.4}
+
+/* Forge: goal records have the typography and separated metadata of a training folio. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card{background:linear-gradient(155deg,var(--neo-content-surface),color-mix(in srgb,var(--fg-accent) 4%,var(--neo-content-surface)))!important;box-shadow:var(--core-lift)!important;border-color:var(--core-edge)!important;border-top-color:var(--fg-accent)!important;gap:16px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target{font-family:var(--neo-font)!important;font-weight:700!important;font-size:clamp(2rem,7vw,3rem);line-height:1.15;letter-spacing:-.035em}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals :is(.fg-badge,.fg-metric,.fg-card-bottom){font-size:.8125rem;line-height:1.5;letter-spacing:0}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-cta{padding-top:14px;border-top:1px solid var(--core-edge);color:var(--fg-accent);font-weight:700}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #app .forge-live-panel{background:var(--neo-content-surface)!important;box-shadow:var(--core-lift)!important}
+
+/* Communicator: the next challenge carries the emphasis; onboarding is a calmer choice group. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-next{background:var(--core-hero)!important;box-shadow:var(--core-lift)!important;border-top:3px solid var(--neo-accent)!important;padding:24px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-next>h2{font-size:clamp(1.5rem,6vw,2rem);line-height:1.2;letter-spacing:-.03em;margin:18px 0 12px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main :is(.cl-stage,.communicator-session){background:var(--neo-content-surface)!important;border-color:var(--core-edge)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-next>progress{height:6px;margin-top:24px}
+html.atlas-neumo.atlas-neumo.core-finished:is([data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) .atlas-goal-question{background:var(--neo-inset)!important;border:1px solid var(--core-edge);box-shadow:none!important}
+html.atlas-neumo.atlas-neumo.core-finished:is([data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) .atlas-goal-question h2{font-size:clamp(1.25rem,4.5vw,1.5rem);line-height:1.35;letter-spacing:-.02em}
+
+/* Floating chrome separates from records and stays usable above the software keyboard. */
+html.atlas-neumo.atlas-neumo.core-finished :is(#atlas-page-navigation,.atlas-page-shell,.lm-day-dock){background:color-mix(in srgb,var(--neo-content-surface) 94%,transparent)!important;backdrop-filter:blur(16px) saturate(110%);-webkit-backdrop-filter:blur(16px) saturate(110%);box-shadow:0 -4px 20px rgb(0 0 0 / .08)!important}
+html.core-finished.core-keyboard :is(.atlas-page-dock,.lm-day-dock){visibility:hidden;pointer-events:none}
+html.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-dock{bottom:var(--core-keyboard-bottom,0px)!important}
+html.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-nav{display:none!important}
+html.core-finished.core-keyboard{scroll-padding-bottom:calc(var(--core-keyboard-bottom,0px) + var(--atlas-bottom-h,70px) + 24px)}
+@media(prefers-reduced-transparency:reduce){html.atlas-neumo.atlas-neumo.core-finished :is(#atlas-page-navigation,.atlas-page-shell,.lm-day-dock){background:var(--neo-content-surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
+@media(prefers-contrast:more){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(.ledger-habit-card,.lm-now-card,.fg-card,.cl-next){box-shadow:none!important;border:2px solid var(--neo-ink)!important}}
+@media(forced-colors:active){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(.ledger-habit-card,.lm-now-card,.fg-card,.cl-next,.atlas-goal-question){background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;box-shadow:none!important}}

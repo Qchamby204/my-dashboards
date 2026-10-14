@@ -113,3 +113,33 @@ jobs:
         with:
           name: content-cards-${{ matrix.engine }}
           path: artifacts/card-hierarchy
+
+  core-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run build
+      - run: |
+          npm install --prefix /tmp/atlas-browser --no-save playwright
+          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps ${{ matrix.engine }}
+      - name: Verify core app saves, drafts, keyboard and accessible chrome
+        env:
+          NODE_PATH: /tmp/atlas-browser/node_modules
+          ATLAS_SCREENSHOTS: artifacts/core-acceptance
+          ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node atlas/tests/core-acceptance.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-acceptance-${{ matrix.engine }}
+          path: artifacts/core-acceptance
