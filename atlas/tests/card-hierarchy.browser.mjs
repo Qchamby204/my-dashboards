@@ -49,7 +49,12 @@ try{
   const p=await c.newPage();p.setDefaultTimeout(10000);const runtime=[];p.on('pageerror',e=>runtime.push(e.message));
   async function open(file,hash=''){await p.goto(origin+'/'+file+'.html'+hash,{waitUntil:'domcontentloaded'});await settle(p);if(size!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});}
   await open('workout-forge');
+  const goalChoices=p.locator('.atlas-goal-question .atlas-goal-options');await goalChoices.waitFor({state:'visible'});
+  assert.equal(await goalChoices.locator('button').count(),4,'all first-goal choices remain available');
+  assert(await goalChoices.locator('button').evaluateAll(ns=>{const rs=ns.map(n=>n.getBoundingClientRect());return rs.every((r,i)=>r.height>=52&&r.width>=44&&(!i||r.top>=rs[i-1].bottom+11||r.left>=rs[i-1].right+11));}),'Forge first-goal choices have full targets and separated rows');
+  await capture(p,'forge-first-goal-choices',theme,w,size,p.locator('.atlas-goal-question'));
   await coreChrome(p,'Forge',w,h);
+
   assert(await p.locator('.fg-card').first().evaluate(n=>getComputedStyle(n).backgroundColor!==getComputedStyle(document.body).backgroundColor),'Forge goal records are distinct from the canvas');await capture(p,'forge-goal-record',theme,w,size,p.locator('.fg-card').first());
   const lift=await p.evaluate(()=>{
     const it=allItems(dayBy('PUSH')).find(it=>it.n==='Barbell bench press'),id=it.id,name=it.n;
