@@ -678,3 +678,8 @@ test('Category browsing shows each matching recipe once under alphabetized meal 
  a.run('ui.meal="drink"');const drinks=a.run('recipeCardsHtml(discoverList(),true,true)');
  assert.equal((drinks.match(/class="recipe-category"/g)||[]).length,1);assert.ok(drinks.includes('Drink <span>8 recipes'));
 });
+
+test('canceling a meal edit preserves saved preparation and all other records',()=>{
+ const controls=chefControls(),a=app('chef',chefState(),{document:controls.document});a.run('wireEvents();renderPlanner=()=>{};openPreparationEditor("b01",localDateKey(),null)');
+ const before=a.records.get('chef:state');controls.nodes.get('#prep-days').value='2';controls.nodes.get('#prep-per-day').value='3';controls.nodes.get('#prep-cancel').emit('click');assert.equal(controls.nodes.get('#prep-dialog').open,false);assert.equal(a.records.get('chef:state'),before);assert.equal(a.writes.length,0);
+});

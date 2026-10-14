@@ -2,9 +2,9 @@ name: Dashboard flow checks
 on:
   push:
     branches: [main]
-    paths: ['communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+    paths: ['the-chef.html', 'workout-forge.html', 'shared/chef-crucible*', 'shared/forge-enhancements*', 'atlas/tests/chef-forge-flow*', 'communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
   pull_request:
-    paths: ['communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+    paths: ['the-chef.html', 'workout-forge.html', 'shared/chef-crucible*', 'shared/forge-enhancements*', 'atlas/tests/chef-forge-flow*', 'communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
 permissions:
   contents: read
 jobs:
@@ -28,8 +28,14 @@ jobs:
         env:
           NODE_PATH: /tmp/flow-browser/node_modules
           FLOW_BROWSER: ${{ matrix.engine }}
+      - run: node atlas/tests/chef-forge-flow.browser.mjs
+        env:
+          NODE_PATH: /tmp/flow-browser/node_modules
+          FLOW_BROWSER: ${{ matrix.engine }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dashboard-flow-${{ matrix.engine }}
-          path: artifacts/dashboard-flow
+          path: |
+            artifacts/dashboard-flow
+            artifacts/chef-forge-flow

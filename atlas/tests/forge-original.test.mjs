@@ -376,3 +376,11 @@ test('completed 5K updates training paces while a later shorter trial preserves 
  goalClick(h,'set',{key:'4-d1-0-0'});goalClick(h,'clear',{key:'4-d1-0-0'});assert.equal(h.window.ForgeGoals.snapshot().plans.run.base,'27:00');
 });
 
+
+test('finish validation returns to the incomplete exercise without losing entries',async()=>{
+ const h=await boot();h.act('live',{key:'PUSH'});h.run(`state.draft['PUSH-0-0']={sets:[{w:'10',r:''}],note:'Keep this'};state.live.exIdx=2;render();finishLive()`);
+ assert.equal(h.run('state.live.exIdx'),0);assert.equal(h.run(`state.draft['PUSH-0-0'].note`),'Keep this');assert.equal(h.run('state.sessions.length'),0);assert.match(h.node('forge-entry-error').textContent,/partial set/);assert.equal(h.context.document.activeElement.dataset.id,'PUSH-0-0');
+});
+test('Escape dismisses confirmation and restores the invoking control',async()=>{
+ const h=await boot();h.act('live',{key:'PUSH'});const finish=h.node('app').querySelector('[data-act="livefinish"]');finish.focus();h.run('finishLive()');h.node('forge-confirm').emit('cancel');assert.equal(h.node('forge-confirm'),undefined);assert.equal(h.context.document.activeElement,finish);assert(h.run('state.live'));assert.equal(h.run('state.sessions.length'),0);
+});

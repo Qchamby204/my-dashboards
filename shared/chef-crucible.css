@@ -305,3 +305,10 @@ html.atlas-neumo[data-atlas-app="the-chef"] #cook-steps label{padding:1rem;min-h
 html.atlas-neumo[data-atlas-app="the-chef"] #cook-steps label:has(input:checked){background:color-mix(in srgb,var(--neo-accent) 12%,var(--neo-surface));border-color:var(--neo-accent);}
 html.atlas-neumo[data-atlas-app="the-chef"] #cook-steps input{width:24px;height:24px;flex:none;accent-color:var(--neo-accent);}
 html.atlas-neumo[data-atlas-app="the-chef"] #cook-steps span::before{content:'STEP ' counter(cook);display:block;font-size:.72rem;letter-spacing:.1em;font-weight:700;}
+
+/* Meal editor: one commit action, a predictable exit, and a separate removal action. */
+.cc-app[data-atlas-app="the-chef"] .chef-editor-actions {display:flex;gap:.75rem;flex-wrap:wrap;justify-content:flex-end;margin-block:1.25rem .75rem;}
+.cc-app[data-atlas-app="the-chef"] .chef-editor-actions button {min-height:48px;flex:1 1 9rem;white-space:normal;}
+.cc-app[data-atlas-app="the-chef"] #prep-close {width:auto;min-width:44px;padding-inline:1rem;font-size:1rem;}
+.cc-app[data-atlas-app="the-chef"] #prep-remove {margin-top:.75rem;min-height:44px;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] :is(#plan-add,#prep-save) {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;}

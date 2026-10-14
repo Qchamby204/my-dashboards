@@ -19,7 +19,7 @@
       const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=ff0a80190552',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=b999c39268d0',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=e887da70b1cf',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=58a835078483',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
@@ -48,7 +48,7 @@
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1','forge:goals:v1','forge:progression-settings:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasForgeBoot=boot;
-      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=b4b0df4f7a2c',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=190ca00e3b64',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
