@@ -18,10 +18,13 @@ async function keyboard(p,input,app){
  await p.waitForFunction(()=>document.documentElement.classList.contains('core-keyboard'));
  if(app==='life-ledger'){
   assert(!(await p.locator('.ledger-nav').isVisible()));const dock=await p.locator('.ledger-dock').boundingBox();assert(dock.y+dock.height<=431,'save dock sits above the simulated keyboard');
+  assert.equal(await p.locator('.ledger-dock').evaluate(n=>getComputedStyle(n).paddingBottom),'7px','keyboard save bar does not retain the Home indicator gap');
  }else assert(!(await p.locator(app==='life-map'?'.lm-day-dock':'#atlas-page-navigation').isVisible()),'navigation yields space to the keyboard');
  const bounds=await input.boundingBox(),limit=app==='life-ledger'?(await p.locator('.ledger-dock').boundingBox()).y:430;assert(bounds.y+bounds.height<=limit-12,'focused field remains above keyboard chrome');
+ assert(await input.evaluate(n=>parseFloat(getComputedStyle(n).fontSize)>=20),'form text follows the larger text setting');
  await p.screenshot({path:path.join(out,app+'-keyboard-'+engine+'.png')});
- await input.blur();await p.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});await p.waitForFunction(()=>!document.documentElement.classList.contains('core-keyboard'));
+ await input.blur();assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'chrome stays stable while the keyboard viewport is still reduced');
+ await p.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});await p.waitForFunction(()=>!document.documentElement.classList.contains('core-keyboard'));
 }
 try{
  for(const theme of ['light','dark']){
@@ -43,11 +46,17 @@ try{
    await p.screenshot({path:path.join(out,app+'-home-'+theme+'.png')});await hero.screenshot({path:path.join(out,app+'-record-'+theme+'.png')});
    await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:20px!important}'});assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)),'large text fits');await p.screenshot({path:path.join(out,app+'-large-text-'+theme+'.png')});
    await p.emulateMedia({contrast:'more'});assert(await hero.evaluate(n=>parseFloat(getComputedStyle(n).borderTopWidth)>=2),'increased contrast defines the record edge');await p.emulateMedia({contrast:'no-preference'});
-   await p.setViewportSize({width:852,height:393});await p.waitForTimeout(100);assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)),'landscape fits');await p.screenshot({path:path.join(out,app+'-landscape-'+theme+'.png')});await p.setViewportSize({width:393,height:852});await p.waitForFunction(()=>innerWidth===393&&innerHeight>=800);
+   await p.setViewportSize({width:852,height:393});await p.waitForTimeout(100);assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)),'landscape fits');
+   const landscape=await hero.boundingBox();assert(landscape.x>=64&&landscape.x+landscape.width<=788,'landscape records clear both reserved side areas');
+   await p.screenshot({path:path.join(out,app+'-landscape-'+theme+'.png')});await p.setViewportSize({width:393,height:852});await p.waitForFunction(()=>innerWidth===393&&innerHeight>=800);
    if(app==='life-ledger'){
     await p.locator('#ledger-habit-picker').selectOption('Read');const input=p.locator('.ledger-habit-card:not([inert]) [data-act="num"]');await input.fill('12');await input.press('Tab');await keyboard(p,input,app);
     await p.reload();await ready(p);assert.equal(await p.evaluate(()=>state.draft.Read),12,'unfinished check-in survives reload');
-    await p.locator('.ledger-save-row').getByRole('button',{name:'Save day',exact:true}).click();await p.waitForFunction(()=>state.days.some(d=>d.units.Read===12));await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===12)),'saved check-in survives reload');
+    await p.locator('#ledger-habit-picker').selectOption('Read');await p.locator('.ledger-habit-card:not([inert]) [data-act="num"]').focus();
+    await p.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{value:430,configurable:true});window.visualViewport.dispatchEvent(new Event('resize'));});
+    const save=p.locator('.ledger-save-row').getByRole('button',{name:'Save day',exact:true});await save.focus();
+    assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'focusing Save keeps its dock above the keyboard');
+    await save.tap();await p.waitForFunction(()=>state.days.some(d=>d.units.Read===12));await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===12)),'first save tap commits and saved check-in survives reload');
    }else if(app==='life-map'){
     const input=p.locator('#qaTxt');await input.fill('Synthetic acceptance task');await input.press('Tab');await keyboard(p,input,app);await p.reload();await ready(p);assert.equal(await p.locator('#qaTxt').inputValue(),'Synthetic acceptance task','unfinished task capture survives reload');
     await p.getByRole('button',{name:'Add task',exact:true}).click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Synthetic acceptance task'));await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Synthetic acceptance task')),'saved task survives reload');

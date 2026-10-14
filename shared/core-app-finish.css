@@ -11,6 +11,8 @@ html.atlas-neumo.atlas-neumo.core-finished .appbar>div:nth-child(2)>[data-core-i
 html.atlas-neumo.atlas-neumo.core-finished .appbar>div:nth-child(2)>[data-core-icon] svg{width:20px;height:20px}
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .appbar,
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] .appbar{padding-top:calc(12px + var(--atlas-safe-top,0px))!important;padding-left:max(16px,var(--atlas-safe-left,0px))!important;padding-right:max(16px,var(--atlas-safe-right,0px))!important}
+html.atlas-neumo.atlas-neumo.core-finished:is([data-atlas-app="life-ledger"],[data-atlas-app="communication-trainer"]) :is(#app.wrap,#main){padding-left:max(16px,var(--atlas-safe-left,0px))!important;padding-right:max(16px,var(--atlas-safe-right,0px))!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .appbar{margin-left:calc(-1 * max(16px,var(--atlas-safe-left,0px)))!important;margin-right:calc(-1 * max(16px,var(--atlas-safe-right,0px)))!important}
 
 /* Ledger: the active habit is the daily record, with XP as supporting evidence. */
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-habit-card{background:var(--core-hero)!important;box-shadow:var(--core-lift)!important}
@@ -46,6 +48,9 @@ html.atlas-neumo.atlas-neumo.core-finished :is(#atlas-page-navigation,.atlas-pag
 html.core-finished.core-keyboard :is(.atlas-page-dock,.lm-day-dock){visibility:hidden;pointer-events:none}
 html.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-dock{bottom:var(--core-keyboard-bottom,0px)!important}
 html.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-nav{display:none!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] .ledger-dock{padding-left:max(14px,var(--atlas-safe-left,0px))!important;padding-right:max(14px,var(--atlas-safe-right,0px))!important;padding-bottom:calc(7px + var(--atlas-safe-bottom,0px))!important}
+html.atlas-neumo.atlas-neumo.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-dock{padding-bottom:7px!important}
+html.atlas-neumo.atlas-neumo.core-finished :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea){font-size:max(1rem,16px)!important}
 html.core-finished.core-keyboard{scroll-padding-bottom:calc(var(--core-keyboard-bottom,0px) + var(--atlas-bottom-h,70px) + 24px)}
 @media(prefers-reduced-transparency:reduce){html.atlas-neumo.atlas-neumo.core-finished :is(#atlas-page-navigation,.atlas-page-shell,.lm-day-dock){background:var(--neo-content-surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
 @media(prefers-contrast:more){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(.ledger-habit-card,.lm-now-card,.fg-card,.cl-next){box-shadow:none!important;border:2px solid var(--neo-ink)!important}}

@@ -10,7 +10,7 @@
     if(['crucible', 'neural-map', 'baby-brain', 'the-aqueduct', 'operations-cadence', 'chambers-wealth-hq', 'prospecting-command-center', 'review'].includes(root.dataset.atlasApp)){
       const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=a9239f1402d6',sharedSource).href;document.head.appendChild(sports);
     }
-    const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=f770ee460dc5':'atlas-mobile.js?v=f770ee460dc5',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
+    const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=b5253dd0b957':'atlas-mobile.js?v=b5253dd0b957',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
     if(root.dataset.atlasApp==='the-herald'){
       const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js?v=7b6c431ec5ea',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
