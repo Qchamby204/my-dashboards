@@ -23,11 +23,12 @@ async function keyboard(p,input,app){
 }
 try{
  for(const theme of ['light','dark']){
-  const context=await browser.newContext({viewport:{width:393,height:852},isMobile:true,hasTouch:true,colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg'});
+  const context=await browser.newContext({viewport:{width:393,height:852},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg'});
   await context.addInitScript(()=>Object.defineProperty(navigator,'standalone',{value:true,configurable:true}));
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const f=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,f)),contentType:types[path.extname(f)]||'text/plain'});}catch{await r.abort();}});
   for(const [app,title,heroSelector]of apps){
    const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(15000);
+   try{
    await p.goto(origin+'/'+app+'.html');await ready(p);
    assert.equal(await p.locator('meta[name="apple-mobile-web-app-title"]').count(),1);assert.equal(await p.locator('meta[name="apple-mobile-web-app-title"]').getAttribute('content'),title);
    assert((await p.locator('link[rel="apple-touch-icon"]').getAttribute('href')).includes('/'+app+'-apple.png'),'Home Screen icon has the app identity');
@@ -57,9 +58,11 @@ try{
     await p.reload();await ready(p);await p.getByRole('button',{name:'Resume practice',exact:true}).click();assert.equal(await p.locator('#txBox').inputValue(),transcript,'unfinished practice survives reload');
     await p.locator('.card.rubric input[type="range"]').evaluateAll(ns=>ns.forEach(n=>{n.value='4';n.dispatchEvent(new Event('input',{bubbles:true}));}));await p.locator('[data-ladder-performed]').check();await p.locator('.card.rubric button[onclick="finishDrill()"] ').click();await p.waitForFunction(()=>S.reps.length===1);await p.reload();await ready(p);assert.equal(await p.evaluate(()=>S.reps[0].transcript),transcript,'saved practice survives reload');
    }
-   assert.deepEqual(errors,[]);reports.push({app,theme,engine,saveAndReload:true,draftAndReload:true,keyboardSimulation:true,accessibleControlNames:true,physicalIPhone:false,physicalVoiceOver:false});await p.close();
+   assert.deepEqual(errors,[]);reports.push({app,theme,engine,saveAndReload:true,draftAndReload:true,keyboardSimulation:true,accessibleControlNames:true,physicalIPhone:false,physicalVoiceOver:false});
+   }catch(error){reports.push({app,theme,engine,error:error.message,physicalIPhone:false,physicalVoiceOver:false});console.error(JSON.stringify({app,theme,error:error.message}));await p.screenshot({path:path.join(out,app+'-failure-'+theme+'.png')}).catch(()=>{});}
+   finally{await p.close();}
   }
   await context.close();
  }
- console.log(JSON.stringify({apps:reports.length,engine,failures:0,physicalDeviceVerified:false}));
+ const failures=reports.filter(r=>r.error);console.log(JSON.stringify({apps:reports.length,engine,failures,physicalDeviceVerified:false}));assert.equal(failures.length,0,'core acceptance cases passed');
 }finally{writeFileSync(path.join(out,'core-acceptance.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
