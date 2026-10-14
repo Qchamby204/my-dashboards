@@ -39,8 +39,19 @@ try{
    assert((await p.locator('link[rel="apple-touch-icon"]').getAttribute('href')).includes('/'+app+'-apple.png'),'Home Screen icon has the app identity');
    assert.equal(await p.locator('.appbar .homebtn svg').getAttribute('aria-hidden'),'true');
    const appearance=p.getByRole('button',{name:/^Appearance:/});await appearance.focus();await p.keyboard.press('Enter');assert(await p.locator('#atlas-appearance-dialog').isVisible());await p.keyboard.press('Escape');await p.waitForFunction(()=>!document.getElementById('atlas-appearance-dialog').open);assert(await appearance.evaluate(n=>n===document.activeElement),'dialog returns focus to its trigger');
+   await appearance.blur();
    assert(await p.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
    const hero=p.locator(heroSelector).first();assert(await hero.evaluate(n=>getComputedStyle(n).backgroundImage!=='none'),'primary record has a distinct material');
+   if(app==='life-ledger'){
+    assert.equal(await hero.locator('.ledger-card-avatar svg').getAttribute('aria-hidden'),'true');
+    assert.equal(await hero.locator('.ledger-card-identity').evaluate(n=>getComputedStyle(n).textAlign),'left');
+    assert.equal(await p.getByRole('button',{name:'Cards',exact:true}).count(),1,'mode labels remain clear with decorative icons');
+   }else if(app==='life-map')assert.equal(await hero.locator('..').evaluate(n=>getComputedStyle(n).boxShadow),'none','next move has one focal surface');
+   else if(app==='workout-forge')assert.equal(await hero.locator('.fg-target small').evaluate(n=>getComputedStyle(n).display),'inline','the unit stays with the target');
+   else{
+    await p.locator('.cl-roadmap>summary').click();assert.equal(await p.locator('.cl-stage-heading').first().evaluate(n=>getComputedStyle(n).display),'grid','stage identities use a stable grid');
+    await p.screenshot({path:path.join(out,app+'-expanded-'+theme+'.png'),fullPage:true});await p.locator('.cl-roadmap>summary').click();await p.evaluate(()=>scrollTo(0,0));
+   }
    const home=await p.locator('.appbar .homebtn').boundingBox();assert(home.y>=64,'standalone header clears the status area');
    writeFileSync(path.join(out,app+'-header-'+theme+'.txt'),await p.locator('.appbar').ariaSnapshot());
    await p.screenshot({path:path.join(out,app+'-home-'+theme+'.png')});await hero.screenshot({path:path.join(out,app+'-record-'+theme+'.png')});
