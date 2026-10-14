@@ -19,6 +19,11 @@
   const offset=v&&v.scale===1?Math.max(0,window.innerHeight-v.height-v.offsetTop):0;
   root.classList.toggle('core-keyboard',editing&&offset>150);
   root.style.setProperty('--core-keyboard-bottom',Math.round(offset)+'px');
+  if(editing&&offset>150){
+   const rect=document.activeElement?.getBoundingClientRect?.(),dock=app==='life-ledger'?document.querySelector('.ledger-dock'):null;
+   const bottom=Math.min(v.offsetTop+v.height,dock?.getBoundingClientRect?.().top??Infinity)-16;
+   if(rect&&rect.bottom>bottom)window.scrollBy?.({top:rect.bottom-bottom,behavior:'instant'});
+  }
  }
  function ready(){
   root.classList.add('core-finished');decorate();keyboard();

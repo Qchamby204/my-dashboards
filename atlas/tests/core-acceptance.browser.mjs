@@ -13,11 +13,13 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.
 const apps=[['life-ledger','Life Ledger','.ledger-habit-card:not([inert])'],['life-map','Life Map','.lm-now-card'],['workout-forge','The Forge','.fg-card'],['communication-trainer','Communicator','.cl-next']];
 async function ready(p){await p.waitForFunction(()=>!!window.CoreAppFinish&&document.documentElement.classList.contains('atlas-mobile'));await p.evaluate(()=>document.fonts.ready);}
 async function keyboard(p,input,app){
+ assert(await input.evaluate(n=>!!(n.getAttribute('aria-label')||n.getAttribute('aria-labelledby')||[...(n.labels||[])].some(l=>l.textContent.trim()))),'focused input has an accessible name');
  await input.focus();await p.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{value:430,configurable:true});window.visualViewport.dispatchEvent(new Event('resize'));});
  await p.waitForFunction(()=>document.documentElement.classList.contains('core-keyboard'));
  if(app==='life-ledger'){
   assert(!(await p.locator('.ledger-nav').isVisible()));const dock=await p.locator('.ledger-dock').boundingBox();assert(dock.y+dock.height<=431,'save dock sits above the simulated keyboard');
  }else assert(!(await p.locator(app==='life-map'?'.lm-day-dock':'#atlas-page-navigation').isVisible()),'navigation yields space to the keyboard');
+ const bounds=await input.boundingBox(),limit=app==='life-ledger'?(await p.locator('.ledger-dock').boundingBox()).y:430;assert(bounds.y+bounds.height<=limit-12,'focused field remains above keyboard chrome');
  await p.screenshot({path:path.join(out,app+'-keyboard-'+engine+'.png')});
  await input.blur();await p.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});await p.waitForFunction(()=>!document.documentElement.classList.contains('core-keyboard'));
 }

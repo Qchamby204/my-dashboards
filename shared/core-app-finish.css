@@ -9,6 +9,8 @@ html.atlas-neumo.core-finished[data-atlas-theme="dark"]{--core-light:rgb(255 255
 html.atlas-neumo.atlas-neumo.core-finished .appbar [data-core-icon] svg{width:21px;height:21px;display:block}
 html.atlas-neumo.atlas-neumo.core-finished .appbar>div:nth-child(2)>[data-core-icon]{display:grid;place-items:center;flex:0 0 20px;color:var(--neo-accent)!important}
 html.atlas-neumo.atlas-neumo.core-finished .appbar>div:nth-child(2)>[data-core-icon] svg{width:20px;height:20px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .appbar,
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] .appbar{padding-top:calc(12px + var(--atlas-safe-top,0px))!important;padding-left:max(16px,var(--atlas-safe-left,0px))!important;padding-right:max(16px,var(--atlas-safe-right,0px))!important}
 
 /* Ledger: the active habit is the daily record, with XP as supporting evidence. */
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-habit-card{background:var(--core-hero)!important;box-shadow:var(--core-lift)!important}
