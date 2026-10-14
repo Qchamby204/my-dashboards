@@ -87,7 +87,7 @@ html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-n
 
 /* Forge gives the number, its unit and the plan title distinct typographic roles. */
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-top>span:first-child{font-size:1rem;font-weight:700;line-height:1.35}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target{display:flex;align-items:baseline;gap:.375rem;flex-wrap:wrap;color:var(--neo-ink)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target{display:flex;align-items:baseline;gap:.375rem;flex-wrap:wrap;min-height:0;color:var(--neo-ink)!important}
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target small{display:inline;font-size:.9375rem;line-height:1.4;margin:0}
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-cta{color:var(--neo-accent)!important;font-size:.875rem}
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals :is(.fg-week-guide-heading h3,.fg-week-dayname){font-size:1rem;line-height:1.35;letter-spacing:0}

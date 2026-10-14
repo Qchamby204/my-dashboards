@@ -52,7 +52,7 @@ try{
    }else if(app==='life-map')assert.equal(await hero.locator('..').evaluate(n=>getComputedStyle(n).boxShadow),'none','next move has one focal surface');
    else if(app==='workout-forge'){
     const target=await hero.locator('.fg-target').boundingBox(),unit=await hero.locator('.fg-target small').boundingBox();
-    assert(unit.x>target.x+20&&Math.abs(unit.y+unit.height-target.y-target.height)<8,'the unit stays beside the target on its baseline');
+    assert(unit.x>target.x+20&&Math.abs(unit.y+unit.height-target.y-target.height)<8,'the unit stays beside the target on its baseline: '+JSON.stringify({target,unit}));
    }
    else{
     await p.locator('.cl-roadmap>summary').click();assert.equal(await p.locator('.cl-stage-heading').first().evaluate(n=>getComputedStyle(n).display),'grid','stage identities use a stable grid');
