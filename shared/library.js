@@ -112,7 +112,7 @@ try{rawAtBoot=localStorage.getItem(KEY)||'';if(rawAtBoot)state=normalizeState(JS
 TOPICS=withCustomTopics(state.customSubtopics);
 const ui={q:'',status:'all',topic:'all',understandingQ:'',understandingTopic:'all'};
 const routePlaces=new Map(),tabRoutes={home:'#home',books:'#books',understanding:'#understanding'};
-let pendingBookUndo=null;
+let pendingBookUndo=null,restoringRoute=false,routeRestoreSerial=0;
 let route={view:'home'},toastTimer=null,modalContext=null,pendingImport=null,modalReturnFocus=null;
 function getBook(id){return state.catalog.find(b=>b.id===id);}
 function progress(id){return state.progress[id]||{status:'unread',takeaway:'',notes:'',questions:'',application:'',updatedAt:''};}
@@ -183,7 +183,7 @@ function rememberRoute(){
  const open=[...document.querySelectorAll('#main-content details[open]')].map(el=>el.id).filter(Boolean);
  routePlaces.set(routeKey(),{y:window.scrollY,drafts,open});tabRoutes[route.view==='topic'?'home':route.view]=routeKey();
 }
-function restoreRoute(){const saved=routePlaces.get(routeKey());if(saved){for(const [id,draft]of Object.entries(saved.drafts)){const field=document.getElementById(id);if(field&&field.defaultValue===draft.base){field.value=draft.value;if(draft.value!=='')previewProgress(field.closest('[data-progress-form]'),draft.value);const details=field.closest('details');if(details)details.open=true;}}for(const id of saved.open){const el=document.getElementById(id);if(el)el.open=true;}}window.scrollTo({top:saved?.y||0,behavior:'instant'});}
+function restoreRoute(saved=routePlaces.get(routeKey())){if(saved){for(const [id,draft]of Object.entries(saved.drafts)){const field=document.getElementById(id);if(field&&field.defaultValue===draft.base){field.value=draft.value;if(draft.value!=='')previewProgress(field.closest('[data-progress-form]'),draft.value);const details=field.closest('details');if(details)details.open=true;}}for(const id of saved.open){const el=document.getElementById(id);if(el)el.open=true;}}window.scrollTo({top:saved?.y||0,behavior:'instant'});}
 function navigate(hash){if(location.hash!==hash){rememberRoute();location.hash=hash;}}
 
 function navHTML(){const view=route.view==='topic'?'home':route.view;return [['home','grid','Topics'],['books','shelves','All books'],['understanding','leaf','My understanding']].map(([v,i,label])=>`<a href="${view===v?'#'+v:tabRoutes[v]}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''}>${icon(i)}<span>${label}</span></a>`).join('');}
@@ -649,8 +649,11 @@ document.addEventListener('submit',event=>{
 $('#modal').addEventListener('close',()=>{modalContext=null;pendingImport=null;rerenderPreservingScroll();if(modalReturnFocus?.isConnected)modalReturnFocus.focus({preventScroll:true});else if(modalReturnFocus?.dataset?.action){const match=[...document.querySelectorAll('[data-action]')].find(el=>el.dataset.action===modalReturnFocus.dataset.action&&el.dataset.id===modalReturnFocus.dataset.id&&el.getClientRects().length);match?.focus({preventScroll:true});}});
 $('#modal').addEventListener('click',e=>{if(e.target===$('#modal')){const r=$('#modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#modal').close();}});
 document.addEventListener('click',event=>{const a=event.target.closest?.('a[href^="#"]');if(a&&a.hash!==location.hash)rememberRoute();},true);
-window.addEventListener('scroll',()=>{if(routeKey()!==routeKey(readRoute()))return;const key=routeKey(),saved=routePlaces.get(key)||{drafts:{},open:[]};saved.y=window.scrollY;routePlaces.set(key,saved);},{passive:true});
-window.addEventListener('hashchange',()=>{if($('#modal').open)$('#modal').close();render();restoreRoute();const key=routeKey();if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(routeKey()===key)restoreRoute();});});
+window.addEventListener('scroll',()=>{if(restoringRoute||routeKey()!==routeKey(readRoute()))return;const key=routeKey(),saved=routePlaces.get(key)||{drafts:{},open:[]};saved.y=window.scrollY;routePlaces.set(key,saved);},{passive:true});
+window.addEventListener('hashchange',()=>{
+ const serial=++routeRestoreSerial;restoringRoute=true;if($('#modal').open)$('#modal').close();render();const saved=routePlaces.get(routeKey());restoreRoute(saved);
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(serial!==routeRestoreSerial)return;restoreRoute(saved);requestAnimationFrame(()=>{if(serial!==routeRestoreSerial)return;restoreRoute(saved);restoringRoute=false;});});else restoringRoute=false;
+});
 window.addEventListener('storage',event=>{
  if(event.key===THEME_KEY){applyTheme(getTheme());const select=$('#theme-select');if(select)select.value=getTheme();return;}
  if(event.key!==KEY)return;

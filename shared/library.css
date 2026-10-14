@@ -988,3 +988,5 @@ html.atlas-neumo[data-atlas-app="library"] .finished-shelf>summary{padding:1rem 
 .library-undo{position:fixed;z-index:160;bottom:calc(150px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100vw - 32px);padding:12px 14px;border:1px solid var(--line);border-radius:20px;background:var(--surface);color:var(--ink);box-shadow:0 8px 28px #0003}.library-undo span{min-width:0;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}.library-undo button{flex-shrink:0;min-height:44px}.library-undo .icon-btn{min-width:44px}
 
 @media print{.library-undo{display:none!important}}
+
+html[data-atlas-app="library"] body{overflow-anchor:none}
