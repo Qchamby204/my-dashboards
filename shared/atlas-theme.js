@@ -18,14 +18,14 @@
       const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=ff0a80190552',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=e887da70b1cf',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=67cfededf44a',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=58a835078483',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
-      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=805c48b4fcb5',sharedSource).href;document.head.appendChild(polish);
+      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=46546c239ad7',sharedSource).href;document.head.appendChild(polish);
       const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=54aa0f1d0514',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
     }
     if(root.dataset.atlasApp==='prospecting-command-center'&&!window.AtlasProspectingPrivate){
@@ -53,7 +53,7 @@
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasLedgerBoot=boot;
       const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js?v=038c74b94b00',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
-      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=3f6cf669e780',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=1f590b48159c',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
     }
   }
   const key = 'atlas.appearance.v1';

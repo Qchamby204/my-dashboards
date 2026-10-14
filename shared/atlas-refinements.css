@@ -72,3 +72,42 @@ html.atlas-refined body{font-size:1rem}
   .atlas-refined :is(.panel,.card,.block,.task,.neural-card,.baby-topic,button,input,select,textarea,summary,dialog){border-color:var(--neo-ink)!important}
   .atlas-refined :is(.muted,.dim,.faint,.eyebrow,.appbar-sub,.workflow-meta){color:var(--neo-ink)!important}
 }
+
+/* Core suite: content, supporting information, and primary actions have distinct weight. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-xp-save-note {display:block;margin-top:.4rem;font-size:.8125rem;line-height:1.45;color:var(--neo-muted);}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-card-xp .ledger-xp-save-note {white-space:normal;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-entry-error {width:100%;margin:.5rem 0;padding:.75rem;border-inline-start:3px solid var(--neo-rose);border-radius:8px;background:var(--neo-inset);color:var(--neo-ink);font-size:.9375rem;line-height:1.5;text-align:left;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-amount-confirm {align-items:center;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-missed,.ledger-progress-info summary) {box-shadow:none;}
+
+/* Forge: workout records stand apart from navigation and editable set controls. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-card,.fg-exercise) {background:var(--neo-content-surface)!important;box-shadow:0 4px 14px color-mix(in srgb,var(--neo-ink) 6%,transparent)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-primary {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;box-shadow:none!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-weeks,.fg-days,.fg-detail-head) button:not([aria-pressed="true"]) {box-shadow:none;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] :is(.fg-card-bottom,.fg-editor small,.fg-session-intro>span,.forge-progression .fp-hint) {font-size:.875rem;line-height:1.5;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .bartrack>.fill {background:var(--neo-accent)!important;}
+
+/* Communicator: a clear next practice, with quieter reference and rank information. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-next,.cl-receipt,.communicator-session,.communication-resume) {background:var(--neo-content-surface)!important;box-shadow:0 4px 14px color-mix(in srgb,var(--neo-ink) 6%,transparent)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-primary,
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-resume .btn:not(.ghost),
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main:not(:has(.communication-resume)) .cl-next>.cl-actions>[data-ladder-start] {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;box-shadow:none!important;font-weight:700;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-meta,.cl-heading,.cl-info,.communication-rank-line) {font-size:.875rem;line-height:1.5;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .bar>i {background:var(--neo-accent)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.communicator-session-actions,.communication-resume) .ghost {box-shadow:none;}
+
+/* Compact metadata should read as information, rather than another raised control. */
+html.atlas-neumo.atlas-neumo:is([data-atlas-app="life-ledger"],[data-atlas-app="life-map"],[data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) :is(.badge,.tag,.chip,.fg-badge,.communication-xp,.appbar-pill) {box-shadow:none;line-height:1.45;}
+@media(forced-colors:active){
+ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-primary,
+ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-resume .btn:not(.ghost),
+ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main:not(:has(.communication-resume)) .cl-next>.cl-actions>[data-ladder-start],
+ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-primary {background:ButtonFace!important;color:ButtonText!important;border:1px solid ButtonText!important;}
+ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .bar>i,
+ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .bartrack>.fill {background:Highlight!important;forced-color-adjust:none;}
+}
+
+@media(prefers-contrast:more){
+ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-next,.cl-receipt,.communicator-session,.communication-resume),
+ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-card,.fg-exercise) {border-color:var(--neo-ink)!important;box-shadow:none!important;}
+}

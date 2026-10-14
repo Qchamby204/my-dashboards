@@ -237,6 +237,7 @@
     drillView=function(){
       let html=oldDrillView().replace('↺ Reset the clock','Restart rep').replace('Record → transcript → AI grade','2 · Review your transcript').replace('Self-score this rep','3 · Score and save').replace('>Log rep (+10 XP)<','>Save practice (+10 XP)<');
       html=html.replace('stopRec();curDrill=null;stopTimer();render()','CommunicationImprovements.leavePractice()');
+      html=html.replace('<button class="btn" onclick="finishDrill()">','<button class="btn communication-primary" onclick="finishDrill()">');
       html=html.replace(/(<textarea id="gradeBox"[^>]*>)[\s\S]*?(<\/textarea>)/,(_,open,close)=>open+esc(curDrill.gradePaste||'')+close);
       html=html.replace('<div class="card rubric">','<div class="card rubric"><p id="communication-practice-status" role="status">'+esc(lastSaveError||'Draft saved on this device')+'</p>'+info('How practice is saved','Your transcript, timer and rubric scores stay in an unfinished draft on this device. Save practice adds one history record and 10 XP. Returning to a draft keeps dictation off until you start it.'));
       html=html.replace(/<p class="muted">Tap record and run the rep[\s\S]*?<\/p>/,info('About dictation and feedback','Dictation creates text, not an audio recording. You can also type or use keyboard dictation. Review the transcript before saving. External feedback is optional.'));

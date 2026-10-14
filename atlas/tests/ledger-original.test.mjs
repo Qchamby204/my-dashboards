@@ -177,7 +177,7 @@ test('empty pillars remain numeric and streaks require adjacent calendar dates',
  h.run(`userModel.hidden={Read:true,Make:true};rebuildModel();`);assert.equal(h.run('compute(state.days,state.goals).life.level'),0);assert(h.run('compute(state.days,state.goals).pillars.every(p=>Number.isFinite(p.level))'));h.run('render()');
 });
 test('future log dates are refused; labels and card boundaries expose usable state',async()=>{
- const h=await boot();assert.equal(h.api.selectDate('2026-09-08'),false);assert.equal(h.run('state.logDate'),'2026-09-07');assert.equal(h.run('state.logMode'),'cards');assert.equal(h.node('app').querySelectorAll('.ledger-habit-card').length,2);assert.equal(h.node('app').querySelector('[data-act="toggle"][data-habit="Make"]').getAttribute('aria-label'),'Mark complete: Make');
+ const h=await boot();assert.equal(h.api.selectDate('2026-09-08'),false);assert.equal(h.run('state.logDate'),'2026-09-07');assert.equal(h.run('state.logMode'),'cards');assert.equal(h.node('app').querySelectorAll('.ledger-habit-card').length,2);assert.equal(h.node('app').querySelector('[data-act="toggle"][data-habit="Make"]').getAttribute('aria-label'),'Mark done: Make');
  h.run(`state.logMode='cards';render()`);assert.equal(h.node('deckPrev').disabled,true);assert.equal(h.node('app').querySelectorAll('.ledger-habit-card')[1].inert,true);h.run('goCard(1)');assert.equal(h.node('app').querySelectorAll('.ledger-habit-card')[1].inert,false);assert.equal(h.node('deckNext').disabled,true);assert.equal(h.node('deckPrev').disabled,false);
 });
 test('midnight follows Today and retains the previous unfinished entry in history',async()=>{
@@ -558,12 +558,12 @@ test('interrupted active-history clearing recovers the explicit reset without lo
 test('card XP matches actual check-in increments for count and amount habits',async()=>{
  const h=await boot({realModel:true});
  const hints=()=>h.node('app').querySelectorAll('.ledger-card-xp').map(n=>n.textContent);
- assert.equal(hints().length,13);assert(hints().includes('+100 XP per check-in'));
- assert(hints().includes('+10 pages · +40 XP per tap'));
- assert(hints().includes('+15 minutes · +50 XP per tap'));
- assert(hints().includes('+0.5 hours · +6.67 XP per tap'));
+ assert.equal(hints().length,13);assert(hints().some(t=>t.startsWith('+100 XP per check-in')));assert(hints().every(t=>t.includes('Earned when you Save day')));
+ assert(hints().some(t=>t.startsWith('+10 pages · +40 XP per tap')));
+ assert(hints().some(t=>t.startsWith('+15 minutes · +50 XP per tap')));
+ assert(hints().some(t=>t.startsWith('+0.5 hours · +6.67 XP per tap')));
  h.act('inc',{habit:'Read'});await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),40);
- h.run('render()');assert.equal(hints().filter(t=>t==='+10 pages · +40 XP per tap').length,1);
+ h.run('render()');assert.equal(hints().filter(t=>t.startsWith('+10 pages · +40 XP per tap')).length,1);
 });
 
 
@@ -585,6 +585,7 @@ test('amount Done keeps invalid input on its card for correction',async()=>{
  const h=await boot({realModel:true});h.run('goCard(HABITS.indexOf("Read"))');
  const card=h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')];
  const input=card.querySelector('[data-act="num"]');input.value='-4';card.querySelector('.ledger-amount-done').click();
- assert.equal(h.run('state.cardIndex'),h.run('HABITS.indexOf("Read")'));assert.equal(input.getAttribute('aria-invalid'),'true');assert.equal(h.document.activeElement,input);assert.equal(h.run('state.draft.Read'),0);
+ assert.equal(h.run('state.cardIndex'),h.run('HABITS.indexOf("Read")'));assert.equal(input.getAttribute('aria-invalid'),'true');assert.equal(h.document.activeElement,input);assert.equal(h.run('state.draft.Read'),0);assert.match(card.querySelector('.ledger-entry-error').textContent,/non-negative amount/);assert.equal(input.getAttribute('aria-describedby'),card.querySelector('.ledger-entry-error').id);
+ input.value='4';h.node('app').emit('input',{target:input});assert.equal(card.querySelector('.ledger-entry-error'),null);assert.equal(input.getAttribute('aria-describedby'),null);
 });
 

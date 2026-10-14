@@ -714,6 +714,12 @@
       }
     }
 
+    function amountError(input,message){
+      const card=input.closest('.ledger-habit-card');if(!card)return;
+      const id='ledger-amount-error-'+HABITS.indexOf(input.dataset.habit);document.getElementById(id)?.remove();
+      const error=make('p',message,'ledger-entry-error');error.id=id;error.setAttribute('role','alert');
+      (card.querySelector('.ledger-amount-confirm')||card.lastElementChild).before(error);input.setAttribute('aria-describedby',id);input.setAttribute('aria-invalid','true');input.focus();
+    }
     function refreshCheckinState(h){
       for(const row of app.querySelectorAll('.row,.ledger-habit-card')){if(row.querySelector('[data-habit]')?.dataset.habit!==h)continue;
         const known=state.draftMissed?.includes(h),status=row.querySelector('.ledger-habit-status');if(status)status.textContent=state.draft[h]>0?'Recorded':known?'Didn’t do':'Not recorded';
@@ -754,20 +760,21 @@
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
         avatar.classList.add('ledger-card-avatar');identity.append(title);if(category)identity.append(category);header.append(avatar,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
         const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
+        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';}
         card.style.setProperty('--ledger-card-accent',HABIT_PILLAR[h]?.color||'var(--neo-accent)');
         const xp=Number((amount/R.xpUnit(c)*100).toFixed(2));
         const hint=make('div',null,'ledger-card-xp');
         if(c.kind!=='count')hint.append(make('span','+'+fmt(amount)+' '+c.unit+' · '));
         hint.append(make('strong','+'+xp+' XP'),make('span',c.kind==='count'?' per check-in':' per tap'));
-        hint.title='XP is earned when you save the day.';
+        hint.title='XP is earned when you save the day.';hint.append(make('span','Earned when you Save day','ledger-xp-save-note'));
         const old=card.querySelector('.ledger-tap-amount');
         if(old)old.replaceWith(hint);else card.querySelector('[data-act="toggle"]')?.parentNode.append(hint);
         if(c.kind!=='count'){
           const done=button('Done',()=>{
             if(blocked||busy)return;
             const input=card.querySelector('[data-act="num"]'),text=input.value.trim(),n=text===''?0:Number(text);
-            if(!finite(n)||!/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text)){input.setAttribute('aria-invalid','true');toast('Use a valid, non-negative amount.');input.focus();return;}
-            if(h==='Sleep'&&n>24||h==='Board Work'&&n>1440){input.setAttribute('aria-invalid','true');toast(h==='Sleep'?'Use at most 24 hours in one day.':'Use at most 1,440 minutes in one day.');input.focus();return;}
+            if(!finite(n)||!/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text)){amountError(input,'Use a valid, non-negative amount.');return;}
+            if(h==='Sleep'&&n>24||h==='Board Work'&&n>1440){amountError(input,h==='Sleep'?'Use at most 24 hours in one day.':'Use at most 1,440 minutes in one day.');return;}
             input.setAttribute('aria-invalid','false');state.draft[h]=n;
             if(n>0)state.draftMissed=(state.draftMissed||[]).filter(key=>key!==h);
             remember();refreshCheckinState(h);goCard(state.cardIndex+1);
@@ -798,7 +805,7 @@
       paintLeisureClock();
       decorateRhythm(log,data);
       const saved=make('details',null,'ledger-history');saved.id='ledger-history';saved.open=historyOpen;const summary=make('summary','Saved days · '+state.days.length+(Object.keys(drafts.days).length?' · '+Object.keys(drafts.days).length+' drafts':''));saved.append(summary);saved.addEventListener('toggle',()=>historyOpen=saved.open);const dates=[...new Set([...state.days.filter(d=>d.date).map(d=>d.date),...Object.keys(drafts.days)])].sort().reverse();dates.slice(0,historyLimit).forEach(date=>{const d=drafts.days[date]||dayEntryFor(date),b=button(pretty(date)+(drafts.days[date]?' · Draft':''),()=>selectDate(date));b.classList.add('ledger-history-day');if(d.note)b.append(make('span',d.note,'ledger-help'));saved.append(b);});if(dates.length>historyLimit)saved.append(button('Show earlier days',()=>{historyLimit+=28;historyOpen=true;render();document.getElementById('ledger-history')?.scrollIntoView({block:'start'});}));if(!dates.length)saved.append(make('p','Your saved dates will appear here.'));if(state.days.some(d=>!d.date))saved.append(make('p','Undated legacy entries remain in your backup.'));log?.after(saved);
-      for(const el of app.querySelectorAll('[data-act="toggle"],[data-act="num"],[data-act="inc"],[data-act="dec"]')){const h=el.dataset.habit;if(!h)continue;const act=el.dataset.act;el.setAttribute('aria-label',(act==='toggle'?'Mark complete: ':act==='inc'?'Increase ':act==='dec'?'Decrease ':'Amount for ')+label(h));if(act==='toggle')el.setAttribute('aria-pressed',String(state.draft[h]>0));}
+      for(const el of app.querySelectorAll('[data-act="toggle"],[data-act="num"],[data-act="inc"],[data-act="dec"]')){const h=el.dataset.habit;if(!h)continue;const act=el.dataset.act;el.setAttribute('aria-label',(act==='toggle'?(state.draft[h]>0?'Mark incomplete: ':'Mark done: '):act==='inc'?'Increase ':act==='dec'?'Decrease ':'Amount for ')+label(h));if(act==='toggle')el.setAttribute('aria-pressed',String(state.draft[h]>0));}
       for(const el of app.querySelectorAll('[data-act="mood"]'))el.setAttribute('aria-pressed',String(state.draftMood===+el.dataset.v));
       const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');if(prev){prev.disabled=state.cardIndex===0;prev.setAttribute('aria-label','Previous habit');}if(next)next.disabled=state.cardIndex>=HABITS.length-1;
       composeDashboard(log,data,earned);
@@ -819,7 +826,7 @@
       if(act==='restoreHabits'){e.stopImmediatePropagation();confirmAction('Restore the default habits?','Original habit names, locations and visibility return. Your custom habits and saved entries stay.','Restore habits',()=>{for(const h of Object.keys(DEFAULT_HCFG))for(const field of ['renames','moves','hidden','crit'])delete userModel[field][h];saveModel();rebuildModel();render();});}
     },true);
     app.addEventListener('click',e=>{const act=e.target.closest('[data-act]')?.dataset.act;if(['toggle','inc','dec','mood','logmode'].includes(act)){state.draftMissed=(state.draftMissed||[]).filter(h=>!(state.draft[h]>0));remember();status();}});
-    app.addEventListener('input',e=>{if(blocked||busy)return;const act=e.target.dataset.act;if(act==='note'){state.draftNote=e.target.value;remember();}else if(act==='num'){const text=e.target.value.trim(),n=text===''?0:Number(text),ok=finite(n)&&/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text);e.target.setAttribute('aria-invalid',String(!ok));if(ok){state.draft[e.target.dataset.habit]=n;if(n>0)state.draftMissed=(state.draftMissed||[]).filter(h=>h!==e.target.dataset.habit);remember();refreshCheckinState(e.target.dataset.habit);document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}}});
+    app.addEventListener('input',e=>{if(blocked||busy)return;const errorId=e.target.getAttribute?.('aria-describedby');if(errorId?.startsWith('ledger-amount-error-')){document.getElementById(errorId)?.remove();e.target.removeAttribute('aria-describedby');}const act=e.target.dataset.act;if(act==='note'){state.draftNote=e.target.value;remember();}else if(act==='num'){const text=e.target.value.trim(),n=text===''?0:Number(text),ok=finite(n)&&/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text);e.target.setAttribute('aria-invalid',String(!ok));if(ok){state.draft[e.target.dataset.habit]=n;if(n>0)state.draftMissed=(state.draftMissed||[]).filter(h=>h!==e.target.dataset.habit);remember();refreshCheckinState(e.target.dataset.habit);document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}}});
     app.addEventListener('change',e=>{const el=e.target,act=el.dataset.act;if(act==='logdate'){e.stopImmediatePropagation();const date=el.value;if(!selectDate(date))el.value=state.logDate;}else if(act==='num'){e.stopImmediatePropagation();const text=el.value.trim(),n=text===''?0:Number(text);if(!finite(n)||!/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text)){el.setAttribute('aria-invalid','true');toast('Use a valid, non-negative number.');return;}else{state.draft[el.dataset.habit]=n;remember();}el.setAttribute('aria-invalid','false');document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}},true);
     window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('dialog[open]'))e.stopImmediatePropagation();},true);
     window.addEventListener('beforeunload',e=>{remember();if(failed.size||conflicts.size||pending.size||busy){e.preventDefault();e.returnValue='';}});
