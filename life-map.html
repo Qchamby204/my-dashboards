@@ -79,7 +79,7 @@ a{color:inherit}
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-apple.png?v=8b8862ad8038">
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=239c369fb61e">
 <script src="shared/dashboard-navigation.js?v=e54920f52f1b" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=91f46e7793ac"><link rel="stylesheet" href="atlas/life-map-day.css?v=0a591a29c128"><script src="shared/reminder-entry.js?v=11626af840f8" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=50e2037cb270"><link rel="stylesheet" href="atlas/life-map-day.css?v=4be8304445ed"><script src="shared/reminder-entry.js?v=11626af840f8" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -1620,7 +1620,7 @@ function createLifeMapWorkflow(){
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
   quickCapture=function(){
     const qa=view.qa,n=(S.projects||[]).filter(p=>M.open(p)&&p.inbox).length;
-    return '<section class="panel lm-capture"><div class="lm-inline"><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="Capture a task…" autocomplete="off" aria-label="Add a task">'+button('Add','quick-add','data-lm-save','lm-primary')+'</div>'+
+    return '<section class="panel lm-capture"><div class="lm-inline lm-quick-entry"><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="Capture a task…" autocomplete="off" aria-label="Add a task">'+button('Add task','quick-add','data-lm-save','lm-primary')+button('Add to Today','quick-add-today','data-lm-save')+'</div>'+
       '<div id="lm-quick-hints" class="lm-inline">'+quickHints()+'</div><div class="lm-capture-meta">'+button('Inbox'+(n?' · '+n:''),'inbox')+button('More options','capture')+(restorePrompt?button('Resume unfinished edit','resume-edit'):'')+'</div>'+
       '<p id="lm-save-state" class="lm-help" aria-live="polite"></p>'+(pendingAction?'<div class="lm-inline">'+button('Retry saving','retry')+button('Discard unsaved change','discard-failed')+'</div>':'')+'</section>';
   };
@@ -1788,10 +1788,10 @@ function createLifeMapWorkflow(){
       if(e.kind==='group'&&current?.area!==row.area)for(const p of next.projects)if(p.parentId===row.id)p.area=row.area;
     },e.kind==='group'?'Project saved':e.kind==='chore'?'Chore saved':'Task saved',e.kind==='group'?'project_updated':e.kind==='chore'?'chore_updated':!current?'task_captured':'task_updated',clearEdit);
   };
-  quickAdd=function(keep=false){
+  quickAdd=function(keep=false,when){
     const top=document.getElementById('qaTxt');if(view.editor?.kind!=='capture'&&top)view.qa.txt=top.value;
-    let rows;try{rows=M.capture(view.qa.txt,view.qa,todayISO(),uid);if(view.qa.links?.length)rows[0].links=view.qa.links.filter(safeLink);}catch(e){lastError=e.message;feedback();return false;}
-    return transaction(next=>{next.projects.push(...rows);},rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
+    let rows;try{rows=M.capture(view.qa.txt,when?{...view.qa,when}:view.qa,todayISO(),uid);if(view.qa.links?.length)rows[0].links=view.qa.links.filter(safeLink);}catch(e){lastError=e.message;feedback();return false;}
+    return transaction(next=>{next.projects.push(...rows);},when==='today'?(rows.length===1?'Task added to Today':rows.length+' tasks added to Today'):rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
   };
   function planTask(id,when){return transaction(next=>{const p=next.projects.find(p=>p.id===id);if(!p)throw Error('Task not found.');M.setPlan(p,when,todayISO());p.updatedAt=todayISO();},'Task plan updated','task_planned',()=>{if(view.editor?.kind==='menu')clearEdit();});}
   function choreAction(id,action){const c=chore(id);if(!c)return false;return transaction(next=>{
@@ -1844,6 +1844,7 @@ function createLifeMapWorkflow(){
   function handle(action,el){
     const id=el.dataset.id;
     if(action==='close'){closeEditor();return;}
+    if(action==='quick-add-today'){const text=document.getElementById('qaTxt')?.value||view.qa.txt;if(text.includes('\n')){view.qa.txt=text;captureSheet('today');}else return quickAdd(false,'today');return;}
     if(action==='quick-add'){const text=document.getElementById('qaTxt')?.value||view.qa.txt;if(text.includes('\n')){view.qa.txt=text;captureSheet();}else quickAdd();return;}
     if(action==='save-capture')return quickAdd();if(action==='add-another')return quickAdd(true);
     if(action==='capture')return captureSheet();if(action==='capture-today')return captureSheet('today');
@@ -2099,7 +2100,17 @@ function createLifeMapOperations(catalog,storage,now=()=>Date.now()){
   const openTasks=()=>S.projects.filter(M.open);
   const clock=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
   const recordUI=()=>{try{localStorage.setItem(UI_KEY,JSON.stringify({food:ui.food,block:ui.block,main:ui.main,date:ui.date}));}catch{ui.error='Your draft could not be saved. Keep this page open until you save it.';}};
-  function choose(tab,category){ui.tab=tab;ui.records=false;if(category)ui.category=category;ui.error='';render();window.scrollTo?.({top:0,behavior:'instant'});document.getElementById('lm-day-nav-'+tab)?.focus({preventScroll:true});}
+  const tabPlaces=new Map();let tabVisit=0;
+  function choose(tab,category,restore=false){
+    const pane=document.getElementById('lm-day-view-'+ui.tab);
+    tabPlaces.set(ui.tab,{y:window.scrollY||0,records:ui.records,date:ui.date,category:ui.category,open:[...(pane?.querySelectorAll('details[open]')||[])].map(el=>el.querySelector('summary')?.textContent)});
+    const saved=restore?tabPlaces.get(tab):null,visit=++tabVisit;
+    ui.tab=tab;ui.records=!!saved?.records;if(saved&&['plan','board'].includes(tab))ui.date=saved.date;if(category)ui.category=category;else if(saved&&tab==='areas')ui.category=saved.category;
+    ui.error='';render();
+    if(saved)for(const el of document.getElementById('lm-day-view-'+tab)?.querySelectorAll('details')||[])if(saved.open.includes(el.querySelector('summary')?.textContent))el.open=true;
+    const settle=()=>{if(visit!==tabVisit||ui.tab!==tab)return;window.scrollTo?.({top:saved?.y||0,behavior:'instant'});document.getElementById('lm-day-nav-'+tab)?.focus({preventScroll:true});};
+    settle();if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(settle));
+  }
   function editPlan(next,date,fn){next.dayPlans??={};next.dayPlans[date]??={reviewed:false,mainTaskId:'',blocks:[]};next.dayPlans[date].blocks??=[];fn(next.dayPlans[date]);}
   function commit(change,message,success,options={}){return W.transaction(change,message,'day_planned',()=>{ui.error='';success?.();recordUI();},options);}
   const opsLabels={daily:'Daily',weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',annually:'Annual',adhoc:'Ad hoc'};
@@ -2144,7 +2155,7 @@ function createLifeMapOperations(catalog,storage,now=()=>Date.now()){
   }
   function rightNow(){
     const events=C?.active(todayISO())||[],saved=C?.snapshot(todayISO());
-    if(!events.length){const focus=S.dayPlans?.[todayISO()]?.focus,active=focus?.kind==='ops'?opsPlanned(todayISO()).find(t=>t.id===focus.id):null,candidate=recommend(),base=S.projects.find(t=>t.id===candidate.id),chosen=opsPlanned(todayISO()).find(t=>t.status!=='Done');const ops=active?.status!=='Done'&&active?active:!(focus?.kind==='ops'?active?.status!=='Done'&&active:focus?.id)&&!['food','chore'].includes(candidate.kind)&&!(base&&(base.plan===todayISO()||base.status==='In progress'||base.due&&base.due<=todayISO()))?chosen:null;if(ops)return '<div class="lm-now-card"><div class="eyebrow">Right now · Ops Cadence</div><h2>'+esc(ops.title)+'</h2>'+help(active?'Started Ops task':ops.system||'Selected work for today')+'<div class="lm-inline">'+(!active?button('Start this task','ops-start','data-id="'+attrs(ops.id)+'"',true):'')+button('Done','ops-complete','data-id="'+attrs(ops.id)+'"')+button('View this day','view-day-task','data-id="'+attrs(ops.id)+'"')+button('Change focus','change-focus')+'</div></div>';return candidateCard(candidate);}
+    if(!events.length){const focus=S.dayPlans?.[todayISO()]?.focus,active=focus?.kind==='ops'?opsPlanned(todayISO()).find(t=>t.id===focus.id):null,candidate=recommend(),base=S.projects.find(t=>t.id===candidate.id),chosen=opsPlanned(todayISO()).find(t=>t.status!=='Done');const ops=active?.status!=='Done'&&active?active:!(focus?.kind==='ops'?active?.status!=='Done'&&active:focus?.id)&&!['food','chore'].includes(candidate.kind)&&!(base&&(base.plan===todayISO()||base.status==='In progress'||base.due&&base.due<=todayISO()))?chosen:null;if(ops)return '<div class="lm-now-card"><div class="eyebrow">Right now · Ops Cadence</div><h2>'+esc(ops.title)+'</h2>'+help(active?'Started Ops task':ops.system||'Selected work for today')+'<div class="lm-inline">'+(!active?button('Start this task','ops-start','data-id="'+attrs(ops.id)+'"',true):'')+button('Done','ops-complete','data-id="'+attrs(ops.id)+'"',!!active)+button('View this day','view-day-task','data-id="'+attrs(ops.id)+'"')+button('Change focus','change-focus')+'</div></div>';return candidateCard(candidate);}
     const e=events[0],task=calendarTask(e);
     return '<div class="lm-now-card"><div class="eyebrow">Right now · Apple Calendar</div><h2>'+esc(e.title)+'</h2>'+help(calendarTime(e,saved.zone)+' · '+e.calendar)+(!C.fresh(todayISO())?help('Based on calendar last refreshed '+new Date(saved.refreshedAt).toLocaleTimeString()+'. Refresh today’s Board if your schedule changed.'):'')+(task?help('Linked task: '+task.task+(task.status==='Done'?' · Completed':'')):'')+(events.length>1?help(events.length+' calendar events overlap right now. Check today’s Board.'):'')+'<div class="lm-inline">'+(task&&M.open(task)?button('Open linked task','calendar-task','data-id="'+attrs(task.id)+'"',true)+button('Done','complete-task','data-id="'+attrs(task.id)+'"'):'')+button('View this day','view-day-task',task?'data-id="'+attrs(task.id)+'"':'')+'</div></div>';
   }
@@ -2186,7 +2197,10 @@ function createLifeMapOperations(catalog,storage,now=()=>Date.now()){
   }
   function candidateCard(c){
     let actions='';
-    if(c.kind==='task')actions=button('Start','focus','data-kind="task" data-id="'+attrs(c.id)+'"',true)+button('Done','complete-task','data-id="'+attrs(c.id)+'"')+button('View this day','view-day-task','data-id="'+attrs(c.id)+'"');
+    if(c.kind==='task'){
+      const active=S.dayPlans?.[todayISO()]?.focus,started=active?.kind==='task'&&active.id===c.id;
+      actions=(!started?button('Start','focus','data-kind="task" data-id="'+attrs(c.id)+'"',true):'')+button('Done','complete-task','data-id="'+attrs(c.id)+'"',started)+button('View this day','view-day-task','data-id="'+attrs(c.id)+'"');
+    }
     else if(c.kind==='chore')actions=button('Done','complete-routine','data-id="'+attrs(c.id)+'"',true)+button('View routines','tab','data-tab="areas" data-category="'+attrs(c.category)+'"');
     else if(c.kind==='food')actions=button('Open Food','tab','data-tab="areas" data-category="food"',true);
     else if(c.kind==='plan')actions=button('Build today','tab','data-tab="plan"',true);
@@ -2264,7 +2278,7 @@ function createLifeMapOperations(catalog,storage,now=()=>Date.now()){
     if(action==='calendar-link-cancel'){ui.calendarLink=null;render();return;}
     if(action==='calendar-save-link'){const eventId=ui.calendarLink,taskId=document.getElementById('lm-calendar-task').value;return commit(next=>{next.calendarLinks=(next.calendarLinks||[]).filter(x=>x.eventId!==eventId);next.calendarLinks.push({eventId,taskId});},'Calendar task linked',()=>{ui.calendarLink=null;},{undo:false});}
 
-    if(action==='tab')return choose(el.dataset.tab,el.dataset.category);
+    if(action==='tab')return choose(el.dataset.tab,el.dataset.category,el.id==='lm-day-nav-'+el.dataset.tab);
     if(action==='category'){ui.category=el.dataset.category;render();document.getElementById('lm-category-'+ui.category)?.focus({preventScroll:true});return;}
     if(action==='plan-today'){ui.date=todayISO();ui.main=null;ui.block=null;recordUI();render();return;}
     if(action==='reset'){ui.reset=true;return commit(next=>editPlan(next,todayISO(),p=>{delete p.focus;}),'Ready to restart');}

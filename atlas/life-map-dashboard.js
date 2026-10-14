@@ -123,7 +123,7 @@
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
   quickCapture=function(){
     const qa=view.qa,n=(S.projects||[]).filter(p=>M.open(p)&&p.inbox).length;
-    return '<section class="panel lm-capture"><div class="lm-inline"><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="Capture a task…" autocomplete="off" aria-label="Add a task">'+button('Add','quick-add','data-lm-save','lm-primary')+'</div>'+
+    return '<section class="panel lm-capture"><div class="lm-inline lm-quick-entry"><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="Capture a task…" autocomplete="off" aria-label="Add a task">'+button('Add task','quick-add','data-lm-save','lm-primary')+button('Add to Today','quick-add-today','data-lm-save')+'</div>'+
       '<div id="lm-quick-hints" class="lm-inline">'+quickHints()+'</div><div class="lm-capture-meta">'+button('Inbox'+(n?' · '+n:''),'inbox')+button('More options','capture')+(restorePrompt?button('Resume unfinished edit','resume-edit'):'')+'</div>'+
       '<p id="lm-save-state" class="lm-help" aria-live="polite"></p>'+(pendingAction?'<div class="lm-inline">'+button('Retry saving','retry')+button('Discard unsaved change','discard-failed')+'</div>':'')+'</section>';
   };
@@ -291,10 +291,10 @@
       if(e.kind==='group'&&current?.area!==row.area)for(const p of next.projects)if(p.parentId===row.id)p.area=row.area;
     },e.kind==='group'?'Project saved':e.kind==='chore'?'Chore saved':'Task saved',e.kind==='group'?'project_updated':e.kind==='chore'?'chore_updated':!current?'task_captured':'task_updated',clearEdit);
   };
-  quickAdd=function(keep=false){
+  quickAdd=function(keep=false,when){
     const top=document.getElementById('qaTxt');if(view.editor?.kind!=='capture'&&top)view.qa.txt=top.value;
-    let rows;try{rows=M.capture(view.qa.txt,view.qa,todayISO(),uid);if(view.qa.links?.length)rows[0].links=view.qa.links.filter(safeLink);}catch(e){lastError=e.message;feedback();return false;}
-    return transaction(next=>{next.projects.push(...rows);},rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
+    let rows;try{rows=M.capture(view.qa.txt,when?{...view.qa,when}:view.qa,todayISO(),uid);if(view.qa.links?.length)rows[0].links=view.qa.links.filter(safeLink);}catch(e){lastError=e.message;feedback();return false;}
+    return transaction(next=>{next.projects.push(...rows);},when==='today'?(rows.length===1?'Task added to Today':rows.length+' tasks added to Today'):rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
   };
   function planTask(id,when){return transaction(next=>{const p=next.projects.find(p=>p.id===id);if(!p)throw Error('Task not found.');M.setPlan(p,when,todayISO());p.updatedAt=todayISO();},'Task plan updated','task_planned',()=>{if(view.editor?.kind==='menu')clearEdit();});}
   function choreAction(id,action){const c=chore(id);if(!c)return false;return transaction(next=>{
@@ -347,6 +347,7 @@
   function handle(action,el){
     const id=el.dataset.id;
     if(action==='close'){closeEditor();return;}
+    if(action==='quick-add-today'){const text=document.getElementById('qaTxt')?.value||view.qa.txt;if(text.includes('\n')){view.qa.txt=text;captureSheet('today');}else return quickAdd(false,'today');return;}
     if(action==='quick-add'){const text=document.getElementById('qaTxt')?.value||view.qa.txt;if(text.includes('\n')){view.qa.txt=text;captureSheet();}else quickAdd();return;}
     if(action==='save-capture')return quickAdd();if(action==='add-another')return quickAdd(true);
     if(action==='capture')return captureSheet();if(action==='capture-today')return captureSheet('today');
