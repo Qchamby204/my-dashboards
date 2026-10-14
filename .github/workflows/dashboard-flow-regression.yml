@@ -2,9 +2,9 @@ name: Dashboard flow checks
 on:
   push:
     branches: [main]
-    paths: ['communication-trainer.html', 'shared/library*', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+    paths: ['communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
   pull_request:
-    paths: ['communication-trainer.html', 'shared/library*', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+    paths: ['communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
 permissions:
   contents: read
 jobs:
