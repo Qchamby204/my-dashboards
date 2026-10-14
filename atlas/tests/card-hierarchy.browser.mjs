@@ -36,8 +36,8 @@ async function coreChrome(p,app,w,h){
   await menu.getByRole('button',{name:app==='Forge'?'Run':'Progress',exact:true}).click();
   assert.equal(await dock.locator('[data-more]').getAttribute('aria-current'),'page','overflow selection stays visible');
   await dock.locator('button').first().click();
-  await p.setViewportSize({width:393,height:852});await settle(p);assert.equal(await dock.locator('[data-more]').count(),0,'rotation or resizing restores the five tabs');
-  await p.setViewportSize({width:w,height:h});await settle(p);assert.equal(await dock.locator('[data-more]').count(),1);
+  await p.setViewportSize({width:393,height:852});await p.waitForFunction(()=>!document.querySelector('#atlas-page-navigation [data-more]'));await settle(p);assert.equal(await dock.locator('[data-more]').count(),0,'rotation or resizing restores the five tabs');
+  await p.setViewportSize({width:w,height:h});await p.waitForFunction(()=>!!document.querySelector('#atlas-page-navigation [data-more]'));await settle(p);assert.equal(await dock.locator('[data-more]').count(),1);
  }
  await capture(p,app.toLowerCase()+'-chrome',await p.evaluate(()=>document.documentElement.dataset.atlasTheme),w,16);
 }

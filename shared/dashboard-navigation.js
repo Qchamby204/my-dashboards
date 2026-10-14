@@ -18,6 +18,7 @@
     'neural-map':{source:'.neural-toolbar',buttons:'button'},
     'workout-forge':{routes:[['home','Forge','#'],['bench','Bench','#goal-bench'],['deadlift','Deadlift','#goal-deadlift'],['dunk','Jump','#goal-dunk'],['run','Run','#goal-run']]}
   };
+  const narrowViewport=window.matchMedia?.('(max-width: 360px)');
   const config=configs[app];if(!config||window.AtlasPageNavigation)return;
   const icons={home:'M3 10 12 3l9 7v10H3z M9 20v-7h6v7',today:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M5.6 18.4 7 17m10-10 1.4-1.4 M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',plan:'M4 5h16v16H4z M7 3v4m10-4v4M4 10h16m-12 4h3m2 0h3m-8 3h3',progress:'M4 20V10m8 10V4m8 16V7',history:'M4 5v5h5 M4 10a8 8 0 1 1 0 5 M12 7v5l3 2',book:'M3 4h7l2 2 2-2h7v16h-7l-2 1-2-1H3z M12 6v15',grid:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',heart:'M12 20 4 12C-1 5 8 0 12 7c4-7 13-2 8 5z',search:'M16 16l5 5 M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',map:'M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2z M9 3v16m6-14v16',target:'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0 M12 10v4m-2-2h4',list:'M8 5h13M8 12h13M8 19h13 M3 5h1m-1 7h1m-1 7h1',more:'M5 12h.01M12 12h.01M19 12h.01'};
   function icon(label){
@@ -76,7 +77,7 @@
     }
     entries=readEntries();if(entries.length<2)return;
     if(!root.classList.contains('atlas-page-navigation'))root.classList.add('atlas-page-navigation');if(!dock)setup();
-    const compact=['communication-trainer','workout-forge'].includes(app)&&window.matchMedia?.('(max-width: 360px)').matches;
+    const compact=['communication-trainer','workout-forge'].includes(app)&&narrowViewport?.matches;
     const visibleCount=entries.length>5?4:compact?3:5,hasMore=entries.length>visibleCount;
     const next=JSON.stringify([visibleCount,entries.map(e=>[e.key,e.title,e.selected,!!e.disabled])]);
     if(next!==signature){
@@ -98,6 +99,7 @@
     new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-selected','aria-pressed','aria-current','disabled']});
     document.addEventListener('click',schedule);window.addEventListener('hashchange',schedule);window.addEventListener('resize',schedule,{passive:true});
     window.visualViewport?.addEventListener('resize',()=>{root.classList.toggle('atlas-page-keyboard',window.innerHeight-window.visualViewport.height>150&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName));});
+    if(narrowViewport?.addEventListener)narrowViewport.addEventListener('change',schedule);else narrowViewport?.addListener?.(schedule);
     reconcile();
   }
   window.AtlasPageNavigation=Object.freeze({reconcile,handles:id=>Object.hasOwn(configs,id)});

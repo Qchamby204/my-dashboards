@@ -28,10 +28,10 @@ function harness(app,selector,labels,narrow=false){
  document={documentElement:root,body,readyState:'complete',activeElement:body,createElement:t=>new Node(t),addEventListener(k,f){(events[k]??=[]).push(f)},querySelector:s=>sources.get(s)||body.querySelector(s)};
  const original=new Node('nav');sources.set(selector,original);body.append(original);
  labels.forEach((title,i)=>{const n=new Node('button');n.textContent=title;n.dataset.tab='page'+i;n.setAttribute('aria-pressed',String(i===0));n.addEventListener('click',()=>{calls.push(i);for(const b of original.children)b.setAttribute('aria-pressed',String(b===n))});original.append(n)});
- const window={matchMedia:()=>({matches:narrow}),addEventListener(k,f){(events[k]??=[]).push(f)}};const location={hash:''};
+ const window={matchMedia:()=>({get matches(){return narrow},addEventListener(key,fn){(events.mediachange??=[]).push(fn)}}),addEventListener(k,f){(events[k]??=[]).push(f)}};const location={hash:''};
  vm.runInNewContext(script,{document,window,location,queueMicrotask:f=>pending.push(f),MutationObserver:class{observe(){}},localStorage:{getItem(){throw Error('Navigation must not read records')},setItem(...a){writes.push(a);throw Error('Navigation must not write records')}}});
  const flush=()=>{for(let i=0;pending.length&&i<20;i++)pending.shift()();assert.equal(pending.length,0)};
- return {resize(value){narrow=value;for(const f of events.resize||[])f();flush();},document,root,body,original,window,location,calls,writes,flush,Node,dock:()=>body.querySelector('#atlas-page-navigation'),menu:()=>body.querySelector('#atlas-page-menu')};
+ return {media(value){narrow=value;for(const f of events.mediachange||[])f();flush();},resize(value){narrow=value;for(const f of events.resize||[])f();flush();},document,root,body,original,window,location,calls,writes,flush,Node,dock:()=>body.querySelector('#atlas-page-navigation'),menu:()=>body.querySelector('#atlas-page-menu')};
 }
 test('bottom page controls invoke existing actions and retain selected state after redraws',()=>{
  const h=harness('the-chef','nav.tabs',['Ingredients','Mood','Planner','Favourites']);
@@ -72,6 +72,6 @@ test('narrow Communicator navigation keeps all pages available and preserves sel
  h.menu().querySelector('.atlas-page-menu-items').children[4].click();h.flush();assert.deepEqual(h.calls,[4]);
  assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');
  h.resize(false);assert.equal(h.dock().children.length,5);assert.equal(h.dock().children[4].getAttribute('aria-current'),'page');
- h.resize(true);assert.equal(h.dock().children.length,4);assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');
+ h.media(true);assert.equal(h.dock().children.length,4);assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');
  assert.deepEqual(h.writes,[]);
 });
