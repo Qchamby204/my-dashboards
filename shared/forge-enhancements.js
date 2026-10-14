@@ -103,8 +103,8 @@
     function sessionItems(day){const items={};allItems(day).forEach(it=>{const eid=effId(it),dr=state.draft[eid];if(!dr)return;const o={done:!!dr.done,name:effName(it)};
       if(dr.note?.trim())o.note=dr.note.trim();
       if(it.track==='load'){o.prescription={name:effName(it),sets:it.sets,reps:it.reps};if(ForgeProgression.feedbacks.includes(dr.feedback))o.feedback=dr.feedback;}
-      if(it.track==='load'){o.sets=(dr.sets||[]).filter(s=>String(s.w??'')!==''||String(s.r??'')!=='').map(s=>{if(!numeric(s.w)||!numeric(s.r)||!Number.isInteger(Number(s.r))||Number(s.r)<=0)throw Object.assign(Error('Complete or clear the partial set for '+effName(it)+'.'),{exerciseId:eid,setIndex:(dr.sets||[]).indexOf(s)});return {w:s.w??'',r:s.r??''};});if(o.sets.length||o.done||o.note||o.feedback==='pain')items[eid]=o;}
-      else if(it.track==='cardio'){o.min=dr.min===''||dr.min==null?0:Number(dr.min);if(!Number.isFinite(o.min)||o.min<0)throw Object.assign(Error('Enter valid minutes for '+effName(it)+'.'),{exerciseId:eid});o.mode=dr.mode||'';if(o.min>0||o.done||o.note)items[eid]=o;}
+      if(it.track==='load'){o.sets=(dr.sets||[]).filter(s=>String(s.w??'')!==''||String(s.r??'')!=='').map(s=>{if(!numeric(s.w)||!numeric(s.r)||!Number.isInteger(Number(s.r))||Number(s.r)<=0)throw Object.assign(Error('Complete or clear the partial set for '+effName(it)+'.'),{exerciseId:eid,setIndex:(dr.sets||[]).indexOf(s),field:numeric(s.w)?'setr':'setw'});return {w:s.w??'',r:s.r??''};});if(o.sets.length||o.done||o.note||o.feedback==='pain')items[eid]=o;}
+      else if(it.track==='cardio'){o.min=dr.min===''||dr.min==null?0:Number(dr.min);if(!Number.isFinite(o.min)||o.min<0)throw Object.assign(Error('Enter valid minutes for '+effName(it)+'.'),{exerciseId:eid,field:'forgemin'});o.mode=dr.mode||'';if(o.min>0||o.done||o.note)items[eid]=o;}
       else if(o.done||o.note)items[eid]=o;
     });return items;}
     function showEntryError(error,key){
@@ -113,8 +113,8 @@
       const scope=app.querySelector('.forge-live-panel')||app;
       document.getElementById('forge-entry-error')?.remove();
       const notice=make('p',error.message,'forge-entry-error');notice.id='forge-entry-error';notice.setAttribute('role','alert');
-      const field=Array.from(scope.querySelectorAll('input')).find(el=>el.dataset.id===error.exerciseId&&(error.setIndex===undefined||Number(el.dataset.set)===error.setIndex));
-      if(field){field.before(notice);field.setAttribute('aria-describedby',notice.id);field.setAttribute('aria-invalid','true');field.focus();field.scrollIntoView({block:'center',behavior:'instant'});}
+      const field=Array.from(scope.querySelectorAll('input')).find(el=>el.dataset.id===error.exerciseId&&(!error.field||el.dataset.act===error.field)&&(error.setIndex===undefined||Number(el.dataset.set)===error.setIndex));
+      if(field){(field.closest('.forge-set-row')||field).before(notice);field.setAttribute('aria-describedby',notice.id);field.setAttribute('aria-invalid','true');field.focus();field.scrollIntoView({block:'center',behavior:'instant'});}
       else scope.append(notice);
     }
     async function commitPending(){
