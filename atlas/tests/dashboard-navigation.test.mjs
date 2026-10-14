@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const script=readFileSync(new URL('../../shared/dashboard-navigation.js',import.meta.url),'utf8');
-function harness(app,selector,labels){
+function harness(app,selector,labels,narrow=false){
  const pending=[],events={},sources=new Map(),calls=[],writes=[];let document;
  class Node{
   constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.dataset={};this.listeners={};this.disabled=false;this.open=false;this.text='';const classes=new Set();this.classList={contains:k=>classes.has(k),add:k=>classes.add(k)};this.style={values:{},setProperty(k,v){this.values[k]=v},getPropertyValue(k){return this.values[k]||''}};}
@@ -28,10 +28,10 @@ function harness(app,selector,labels){
  document={documentElement:root,body,readyState:'complete',activeElement:body,createElement:t=>new Node(t),addEventListener(k,f){(events[k]??=[]).push(f)},querySelector:s=>sources.get(s)||body.querySelector(s)};
  const original=new Node('nav');sources.set(selector,original);body.append(original);
  labels.forEach((title,i)=>{const n=new Node('button');n.textContent=title;n.dataset.tab='page'+i;n.setAttribute('aria-pressed',String(i===0));n.addEventListener('click',()=>{calls.push(i);for(const b of original.children)b.setAttribute('aria-pressed',String(b===n))});original.append(n)});
- const window={addEventListener(k,f){(events[k]??=[]).push(f)}};const location={hash:''};
+ const window={matchMedia:()=>({matches:narrow}),addEventListener(k,f){(events[k]??=[]).push(f)}};const location={hash:''};
  vm.runInNewContext(script,{document,window,location,queueMicrotask:f=>pending.push(f),MutationObserver:class{observe(){}},localStorage:{getItem(){throw Error('Navigation must not read records')},setItem(...a){writes.push(a);throw Error('Navigation must not write records')}}});
  const flush=()=>{for(let i=0;pending.length&&i<20;i++)pending.shift()();assert.equal(pending.length,0)};
- return {document,root,body,original,window,location,calls,writes,flush,Node,dock:()=>body.querySelector('#atlas-page-navigation'),menu:()=>body.querySelector('#atlas-page-menu')};
+ return {resize(value){narrow=value;for(const f of events.resize||[])f();flush();},document,root,body,original,window,location,calls,writes,flush,Node,dock:()=>body.querySelector('#atlas-page-navigation'),menu:()=>body.querySelector('#atlas-page-menu')};
 }
 test('bottom page controls invoke existing actions and retain selected state after redraws',()=>{
  const h=harness('the-chef','nav.tabs',['Ingredients','Mood','Planner','Favourites']);
@@ -62,4 +62,16 @@ test('every multi-view dashboard loads versioned navigation assets, including ge
  const pages=['life-ledger','life-map','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','crucible','the-library','baby-brain','neural-map','workout-forge'];
  for(const page of pages){const html=readFileSync(new URL('../../'+page+'.html',import.meta.url),'utf8');assert.match(html,/shared\/dashboard-navigation\.js\?v=[a-f0-9]{12}/,page);assert.match(html,/shared\/dashboard-navigation\.css\?v=[a-f0-9]{12}/,page);}
  const css=readFileSync(new URL('../../shared/dashboard-navigation.css',import.meta.url),'utf8');assert.match(css,/env\(safe-area-inset-bottom/);assert.match(css,/prefers-contrast/);assert.match(css,/min-height:55px/);
+});
+
+test('narrow Communicator navigation keeps all pages available and preserves selection on resize',()=>{
+ const h=harness('communication-trainer','#nav',['Today','Learn','Practice','Topics','Progress'],true);
+ assert.equal(h.dock().children.length,4);assert.equal(h.menu().querySelector('.atlas-page-menu-items').children.length,5);
+ assert.notEqual(h.dock().children[1].innerHTML,h.dock().children[2].innerHTML,'Learn and Practice have different icons');
+ h.dock().children[3].click();assert.equal(h.menu().open,true);
+ h.menu().querySelector('.atlas-page-menu-items').children[4].click();h.flush();assert.deepEqual(h.calls,[4]);
+ assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');
+ h.resize(false);assert.equal(h.dock().children.length,5);assert.equal(h.dock().children[4].getAttribute('aria-current'),'page');
+ h.resize(true);assert.equal(h.dock().children.length,4);assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');
+ assert.deepEqual(h.writes,[]);
 });

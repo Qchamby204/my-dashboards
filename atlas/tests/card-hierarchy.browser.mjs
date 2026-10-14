@@ -18,6 +18,25 @@ async function prominent(locator,label){
  const luminance=color=>{const rgb=color.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];};
  const [a,b]=colors.map(luminance);assert((Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5,label+' has readable primary-action contrast');
 }
+async function coreChrome(p,app,w,h){
+ const header=p.locator('.appbar'),appearance=header.locator('.atlas-appearance-trigger'),home=header.locator('.homebtn');
+ assert(await appearance.isVisible());const a=await appearance.boundingBox(),b=await home.boundingBox();
+ if(w<=600)assert(Math.abs((a.y+a.height/2)-(b.y+b.height/2))<3,app+' keeps header tools on the same row');
+ const dock=p.locator('#atlas-page-navigation');
+ await p.waitForFunction(()=>!!window.AtlasPageNavigation);
+ const labels=await dock.locator('button>span:last-child').evaluateAll(ns=>ns.map(n=>({label:n.textContent,height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight),width:n.clientWidth,scroll:n.scrollWidth})));
+ assert(labels.every(n=>n.height<=n.line+1&&n.scroll<=n.width+1),app+' navigation labels stay whole: '+JSON.stringify(labels));
+ assert(await dock.locator('button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.height>=44&&r.width>=44&&parseFloat(s.borderRadius)<=12&&parseFloat(s.borderTopWidth)===0;})),app+' uses distinct, full-size navigation targets');
+ if(w<=360){
+  await dock.locator('[data-more]').click();const menu=p.locator('#atlas-page-menu');assert(await menu.isVisible());
+  await menu.getByRole('button',{name:app==='Forge'?'Run':'Progress',exact:true}).click();
+  assert.equal(await dock.locator('[data-more]').getAttribute('aria-current'),'page','overflow selection stays visible');
+  await dock.locator('button').first().click();
+  await p.setViewportSize({width:393,height:852});await settle(p);assert.equal(await dock.locator('[data-more]').count(),0,'rotation or resizing restores the five tabs');
+  await p.setViewportSize({width:w,height:h});await settle(p);assert.equal(await dock.locator('[data-more]').count(),1);
+ }
+ await capture(p,app.toLowerCase()+'-chrome',await p.evaluate(()=>document.documentElement.dataset.atlasTheme),w,16);
+}
 try{
  for(const [theme,w,h,size]of [['light',393,852,16],['dark',393,852,16],['dark',320,740,16],['dark',393,852,20],['dark',852,393,16]]){
   const c=await browser.newContext({viewport:{width:w,height:h},userAgent:ua,isMobile:true,hasTouch:true,colorScheme:theme,timezoneId:'America/Winnipeg',reducedMotion:'reduce'});
@@ -26,6 +45,7 @@ try{
   const p=await c.newPage();p.setDefaultTimeout(10000);const runtime=[];p.on('pageerror',e=>runtime.push(e.message));
   async function open(file,hash=''){await p.goto(origin+'/'+file+'.html'+hash,{waitUntil:'domcontentloaded'});await settle(p);if(size!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});}
   await open('workout-forge');
+  await coreChrome(p,'Forge',w,h);
   assert(await p.locator('.fg-card').first().evaluate(n=>getComputedStyle(n).backgroundColor!==getComputedStyle(document.body).backgroundColor),'Forge goal records are distinct from the canvas');await capture(p,'forge-goal-record',theme,w,size,p.locator('.fg-card').first());
   const lift=await p.evaluate(()=>{
     const it=allItems(dayBy('PUSH')).find(it=>it.n==='Barbell bench press'),id=it.id,name=it.n;
@@ -100,6 +120,7 @@ try{
   await p.locator('#lm-day-nav-home').click();assert.match(await p.locator('.lm-completed-recap').textContent(),/Prepare the nursery shelf/);await capture(p,'life-map-completed-today',theme,w,size,p.locator('.lm-completed-recap'));
   await open('communication-trainer');assert(await p.locator('.atlas-goal-options').evaluate(n=>parseFloat(getComputedStyle(n).rowGap)>=12));await capture(p,'communicator-choices',theme,w,size);
   await p.waitForFunction(()=>!!window.CommunicatorLadder);
+  await coreChrome(p,'Communicator',w,h);
   assert.equal(await p.evaluate(()=>CommunicatorLadder.snapshot().completed),0);
   await prominent(p.locator('.cl-next>.cl-actions>[data-ladder-start]').first(),'Next practice');assert(await p.locator('.cl-next').evaluate(n=>getComputedStyle(n).backgroundColor!==getComputedStyle(document.body).backgroundColor),'Practice card is distinct from the canvas');
   await capture(p,'communicator-ladder',theme,w,size,p.locator('.cl-next'));
