@@ -794,6 +794,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.load(board([task(str(i),plan=TODAY) for i in range(16)]),home=True)
         self.page.locator('#qaTxt').fill('An unfinished thought')
         self.page.locator('#lm-day-nav-board').click()
+        self.page.evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
         self.page.evaluate('window.scrollTo({top:900,behavior:"instant"})')
         self.page.evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
         y=self.page.evaluate('scrollY')
