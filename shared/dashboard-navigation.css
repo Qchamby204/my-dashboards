@@ -32,3 +32,11 @@ html.atlas-page-navigation[data-atlas-app="workout-forge"] :is(.forge-save-notic
 html.atlas-page-navigation[data-atlas-app="baby-brain"] .baby-save-notice{bottom:calc(var(--atlas-page-nav-height) + 12px + var(--atlas-bottom-offset,0px))!important}
 html.atlas-page-navigation[data-atlas-app="neural-map"] .pop{bottom:calc(var(--atlas-page-nav-height) + 12px + var(--atlas-bottom-offset,0px))!important;max-height:calc(var(--atlas-visible-height,100dvh) - var(--atlas-page-nav-height) - 32px - var(--atlas-safe-top,0px))!important}
 html.atlas-page-navigation[data-atlas-app="neural-map"] .hint{bottom:calc(var(--atlas-page-nav-height) + 62px)!important}
+
+/* Core app navigation is a toolbar, not a row of pill actions. */
+html.atlas-neumo.atlas-neumo:is([data-atlas-app="life-ledger"],[data-atlas-app="life-map"],[data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) :is(#atlas-page-navigation,.atlas-page-native) button{
+ border:0!important;border-radius:12px!important;box-shadow:none!important;font-family:var(--neo-font)!important;
+}
+html.atlas-neumo.atlas-neumo:is([data-atlas-app="life-ledger"],[data-atlas-app="life-map"],[data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) :is(#atlas-page-navigation,.atlas-page-native) button>span:last-child{
+ white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal;
+}
