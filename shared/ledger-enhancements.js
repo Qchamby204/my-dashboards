@@ -782,7 +782,7 @@
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
         avatar.classList.add('ledger-card-avatar');identity.append(title);if(category)identity.append(category);header.append(avatar,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
         const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
-        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';}
+        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';const siblings=[...check.parentNode.children],caption=siblings[siblings.indexOf(check)+1];if(caption?.tagName==='DIV'&&/^(Mark it done|Mark done|Done today)/.test(caption.textContent.trim()))caption.remove();}
         card.style.setProperty('--ledger-card-accent',HABIT_PILLAR[h]?.color||'var(--neo-accent)');
         const xp=Number((amount/R.xpUnit(c)*100).toFixed(2));
         const hint=make('div',null,'ledger-card-xp');
