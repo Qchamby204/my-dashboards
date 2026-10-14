@@ -42,3 +42,16 @@ test('category shortcuts and saved-file access have real destinations',()=>{
   assert.match(html,/Advisor Book Economics, Discern, the Admin Workflow Checklist/);
   assert.doesNotMatch(cards.map(c=>c[3]).join(''),/Discern|Chambers Wealth HQ|The Crucible<\/h3>/);
 });
+
+test('private Atlas launches the public Communicator with its ladder assets',async()=>{
+  const {hub}=await import('../../dist/server/assets.mjs');
+  const launches=[...hub.matchAll(/<a class="hub-card" href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+  const communicator=launches.filter(([,href,body])=>body.includes('<h3>Communicator</h3>'));
+  assert.equal(communicator.length,1);
+  assert.equal(communicator[0][1],'https://qchamby204.github.io/my-dashboards/communication-trainer.html');
+  const trainer=readFileSync(new URL('communication-trainer.html',root),'utf8');
+  for(const asset of ['communicator-ladder-model.js','communicator-ladder.js','communicator-ladder.css']){
+    assert(trainer.includes('shared/'+asset+'?v='),asset+' loads from the launched page');
+    assert(existsSync(new URL('shared/'+asset,root)));
+  }
+});
