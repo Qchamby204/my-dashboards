@@ -121,3 +121,11 @@ html.atlas-neumo[data-atlas-app="workout-forge"] .forge-saved-gain{padding:1rem;
 html.atlas-neumo[data-atlas-app="workout-forge"] .forge-saved-gain p{margin:.4rem 0 0;line-height:1.5;}
 html.atlas-neumo[data-atlas-app="workout-forge"] .forge-set-prior{font-size:.75rem!important;line-height:1.4;color:var(--neo-muted)!important;min-width:65px;}
 @media(max-width:380px){html.atlas-neumo[data-atlas-app="workout-forge"] .forge-set-row{flex-wrap:wrap;}html.atlas-neumo[data-atlas-app="workout-forge"] .forge-set-prior{flex-basis:100%!important;padding-left:29px;}}
+
+/* The current step owns emphasis; finishing becomes primary after the last step. */
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-primary {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent)!important;font-weight:700!important;box-shadow:var(--neo-small)!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-secondary {background:var(--neo-surface)!important;color:var(--neo-ink)!important;border:1px solid var(--neo-line)!important;box-shadow:none!important;}
+html[data-atlas-app="workout-forge"] .forge-editor-actions {display:flex;gap:.75rem;flex-wrap:wrap;justify-content:flex-end;}
+html[data-atlas-app="workout-forge"] .forge-editor-actions button {flex:1 1 9rem;margin:0;white-space:normal;}
+html[data-atlas-app="workout-forge"] .forge-entry-error {flex-basis:100%;padding:.75rem;border-left:3px solid var(--neo-rose);color:var(--neo-ink);font-size:1rem;line-height:1.5;}
+html[data-atlas-app="workout-forge"] [aria-invalid="true"] {outline:2px solid var(--neo-rose);outline-offset:2px;}

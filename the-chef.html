@@ -96,11 +96,11 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#efeae3">
-<script src="shared/atlas-theme.js?v=dd595cabae81"></script>
+<script src="shared/atlas-theme.js?v=13fb0e4aec81"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=e90a2f1108ae">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=7d180aaadd3d">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=964790ba23a7">
 <script src="shared/chef-crucible.js?v=e5c3183ef814" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-32.png?v=41e1e3906c07">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-64.png?v=9b7a6325c0c0">
@@ -169,7 +169,7 @@ footer .row{justify-content:center}
       <div class="summary" id="plan-summary"></div><div id="chef-plan-progress" class="chef-plan-progress"></div>
       <section id="chef-tonight" hidden></section><div class="week" id="week"></div>
       <div class="row" style="margin-top:10px">
-        <button id="plan-fill" class="primary">Fill empty slots</button>
+        <button id="plan-fill" class="ghost">Fill empty slots</button>
         <button id="plan-clear" class="ghost">Clear plan</button>
       </div>
     </div>
@@ -230,12 +230,12 @@ footer .row{justify-content:center}
   <div id="picker-results"></div>
 </dialog>
 <dialog id="prep-dialog" aria-labelledby="prep-title">
-  <div class="cc-cook-heading"><h2 id="prep-title">How many days?</h2><button id="prep-close" aria-label="Close meal planner">×</button></div>
+  <div class="cc-cook-heading"><h2 id="prep-title">How many days?</h2><button id="prep-close" class="ghost">Cancel</button></div>
   <form id="prep-form">
     <p id="prep-recipe-name"></p>
     <div class="chef-prep-fields">
-      <label>Days to cover <input id="prep-days" type="number" inputmode="numeric" min="1" max="7" step="1" value="5" required></label>
-      <label>People eating <input id="prep-per-day" type="number" inputmode="numeric" min="1" max="500" step="1" value="1" required></label>
+      <label>Days to cover <input id="prep-days" aria-describedby="prep-coverage prep-error" type="number" inputmode="numeric" min="1" max="7" step="1" value="5" required></label>
+      <label>People eating <input id="prep-per-day" aria-describedby="prep-coverage prep-error" type="number" inputmode="numeric" min="1" max="500" step="1" value="1" required></label>
     </div>
     <p id="prep-original-yield" class="summary"></p>
     <details class="cc-help"><summary aria-label="How Chef calculates portions"><span aria-hidden="true">i</span></summary><p id="prep-yield-basis"></p></details>
@@ -243,7 +243,7 @@ footer .row{justify-content:center}
     <details id="prep-ingredients-preview" class="chef-portion-settings"><summary>Scaled ingredients</summary><ul id="prep-ingredients"></ul></details>
     <div id="prep-error" role="alert"></div>
     <label id="prep-replace-field" class="chef-replace-field" hidden><input id="prep-replace" type="checkbox"> Replace the conflicting meal plans and their linked days. Undo is available.</label>
-    <div class="row"><button id="prep-save" type="submit" class="primary">Fill days &amp; calculate groceries</button><button id="prep-remove" type="button" class="ghost" hidden>Remove meal plan</button></div>
+    <div class="chef-editor-actions"><button id="prep-cancel" type="button" class="ghost">Cancel</button><button id="prep-save" type="submit" class="primary">Save meal plan</button></div><button id="prep-remove" type="button" class="ghost" hidden>Remove meal plan</button>
   </form>
 </dialog>
 <dialog id="cook-dialog" aria-labelledby="cook-title">
@@ -1690,7 +1690,8 @@ function openPreparationEditor(recipeId,date,trigger,options={}){
   const offset=Math.round((Date.parse(startDate+'T12:00:00Z')-Date.parse(ui.weekStart+'T12:00:00Z'))/86400000);
   const maxDays=sameRecipe?Math.max(Math.min(7,Math.max(1,7-offset)),preparationDays(existing).length):7-Math.max(0,offset);
   prepEditor={recipeId,trigger,startDate,maxDays,id:existing?.id||null,legacySlot:options.legacySlot||null};
-  $('#prep-title').textContent=existing?'Edit meal days':'How many days?';
+  $('#prep-title').textContent=existing?'Edit meal plan':'Plan this meal';
+  $('#prep-save').textContent=existing?'Save changes':'Save meal plan';
   $('#prep-recipe-name').textContent=recipe.name;
   $('#prep-days').max=String(maxDays);
   $('#prep-days').value=sameRecipe?preparationDays(existing).length:Math.min(5,maxDays);
@@ -1864,6 +1865,7 @@ function wireEvents(){
   $('#plan-fill').addEventListener('click',fillPreparationWeek);
   $('#plan-clear').addEventListener('click',clearPlannedWeek);
   $('#prep-close').addEventListener('click',()=>$('#prep-dialog').close());
+  $('#prep-cancel').addEventListener('click',()=>$('#prep-dialog').close());
   $('#prep-dialog').addEventListener('close',()=>{
     const date=prepEditor?.startDate,meal=BY_ID[prepEditor?.recipeId]?.meal;
     const target=prepEditor?.trigger?.isConnected?prepEditor.trigger:document.querySelector(`[data-slot="${date}|${meal}"]`);

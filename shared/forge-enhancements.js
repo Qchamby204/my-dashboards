@@ -103,10 +103,20 @@
     function sessionItems(day){const items={};allItems(day).forEach(it=>{const eid=effId(it),dr=state.draft[eid];if(!dr)return;const o={done:!!dr.done,name:effName(it)};
       if(dr.note?.trim())o.note=dr.note.trim();
       if(it.track==='load'){o.prescription={name:effName(it),sets:it.sets,reps:it.reps};if(ForgeProgression.feedbacks.includes(dr.feedback))o.feedback=dr.feedback;}
-      if(it.track==='load'){o.sets=(dr.sets||[]).filter(s=>String(s.w??'')!==''||String(s.r??'')!=='').map(s=>{if(!numeric(s.w)||!numeric(s.r)||!Number.isInteger(Number(s.r))||Number(s.r)<=0)throw Error('Complete or clear the partial set for '+effName(it)+'.');return {w:s.w??'',r:s.r??''};});if(o.sets.length||o.done||o.note||o.feedback==='pain')items[eid]=o;}
-      else if(it.track==='cardio'){o.min=dr.min===''||dr.min==null?0:Number(dr.min);if(!Number.isFinite(o.min)||o.min<0)throw Error('Enter valid minutes.');o.mode=dr.mode||'';if(o.min>0||o.done||o.note)items[eid]=o;}
+      if(it.track==='load'){o.sets=(dr.sets||[]).filter(s=>String(s.w??'')!==''||String(s.r??'')!=='').map(s=>{if(!numeric(s.w)||!numeric(s.r)||!Number.isInteger(Number(s.r))||Number(s.r)<=0)throw Object.assign(Error('Complete or clear the partial set for '+effName(it)+'.'),{exerciseId:eid,setIndex:(dr.sets||[]).indexOf(s),field:numeric(s.w)?'setr':'setw'});return {w:s.w??'',r:s.r??''};});if(o.sets.length||o.done||o.note||o.feedback==='pain')items[eid]=o;}
+      else if(it.track==='cardio'){o.min=dr.min===''||dr.min==null?0:Number(dr.min);if(!Number.isFinite(o.min)||o.min<0)throw Object.assign(Error('Enter valid minutes for '+effName(it)+'.'),{exerciseId:eid,field:'forgemin'});o.mode=dr.mode||'';if(o.min>0||o.done||o.note)items[eid]=o;}
       else if(o.done||o.note)items[eid]=o;
     });return items;}
+    function showEntryError(error,key){
+      if(state.live&&error.exerciseId){const items=orderedItems(dayBy(state.live.key)),index=items.findIndex(it=>effId(it)===error.exerciseId);if(index>=0){state.live.exIdx=index;state.live.hidden=false;render();}}
+      if(!state.live&&key){state.openDay=key;render();}
+      const scope=app.querySelector('.forge-live-panel')||app;
+      document.getElementById('forge-entry-error')?.remove();
+      const notice=make('p',error.message,'forge-entry-error');notice.id='forge-entry-error';notice.setAttribute('role','alert');
+      const field=Array.from(scope.querySelectorAll('input')).find(el=>el.dataset.id===error.exerciseId&&(!error.field||el.dataset.act===error.field)&&(error.setIndex===undefined||Number(el.dataset.set)===error.setIndex));
+      if(field){(field.closest('.forge-set-row')||field).before(notice);field.setAttribute('aria-describedby',notice.id);field.setAttribute('aria-invalid','true');field.focus();field.scrollIntoView({block:'center',behavior:'instant'});}
+      else scope.append(notice);
+    }
     async function commitPending(){
       if(!pendingLog||busy||blocked)return false;busy=true;paintStatus();const job=pendingLog;
       try{
@@ -119,7 +129,7 @@
       }finally{busy=false;render();}
     }
     logDay=async function(key,durMin){
-      if(busy||blocked||pendingLog)return false;const day=dayBy(key);if(!day)return false;let items;try{items=sessionItems(day);}catch(e){toast(e.message);return false;}
+      if(busy||blocked||pendingLog)return false;const day=dayBy(key);if(!day)return false;let items;try{items=sessionItems(day);}catch(e){showEntryError(e,key);return false;}
       if(!Object.values(items).some(o=>o.sets?.length||o.done||o.note||o.min>0)){toast('Nothing recorded yet. You can end the session without logging it.');return false;}
       const live=state.live?.key===key?state.live:null,sess={id:crypto.randomUUID(),date:live?localDay(live.startedAt):todayISO(),type:key,items};
       if(live){sess.startedAt=live.startedAt;sess.elapsedSeconds=Math.floor(elapsedMs(live)/1000);sess.dur=Math.round(sess.elapsedSeconds/60);}else if(durMin!==undefined)sess.dur=durMin;
@@ -129,7 +139,11 @@
       if(!ok){failed.set(JOURNALKEY,'null');paintStatus();toast('Session not logged yet. Your draft is still here.');return false;}
       pendingLog=job;return commitPending();
     };
-    function confirmAction(title,text,okLabel,fn,cancelLabel='Cancel'){document.getElementById('forge-confirm')?.remove();const dialog=make('dialog',null,'forge-confirm');dialog.id='forge-confirm';const h=make('h2',title);h.id='forge-confirm-title';dialog.setAttribute('aria-labelledby',h.id);const cancel=()=>{dialog.close();dialog.remove();};dialog.append(h,make('p',text),button(cancelLabel,cancel),button(okLabel,()=>{cancel();fn();}));document.body.append(dialog);dialog.showModal();}
+    function confirmAction(title,text,okLabel,fn,cancelLabel='Cancel'){
+      document.getElementById('forge-confirm')?.remove();const trigger=document.activeElement,dialog=make('dialog',null,'forge-confirm');dialog.id='forge-confirm';const h=make('h2',title);h.id='forge-confirm-title';const description=make('p',text);description.id='forge-confirm-description';dialog.setAttribute('aria-labelledby',h.id);dialog.setAttribute('aria-describedby',description.id);
+      const cancel=()=>{dialog.close();dialog.remove();if(trigger?.isConnected)trigger.focus({preventScroll:true});};
+      const actions=make('div',null,'forge-editor-actions'),back=button(cancelLabel,cancel),commit=button(okLabel,()=>{cancel();fn();});commit.classList.add('forge-primary');actions.append(back,commit);dialog.append(h,description,actions);dialog.addEventListener('cancel',e=>{e.preventDefault();cancel();});document.body.append(dialog);dialog.showModal();back.focus();
+    }
     function cancelLive(){
       if(!state.live||busy||blocked||pendingLog)return;
       const session=state.live;
@@ -156,7 +170,7 @@
         }finally{busy=false;render();if(!state.live)app.querySelector('[data-act="live"][data-key="'+session.key+'"]')?.focus({preventScroll:true});}
       },'Keep working out');
     }
-    finishLive=function(){if(!state.live||busy||blocked)return;const session=state.live;let items;try{items=sessionItems(dayBy(session.key));}catch(e){toast(e.message);return;}
+    finishLive=function(){if(!state.live||busy||blocked)return;const session=state.live;let items;try{items=sessionItems(dayBy(session.key));}catch(e){showEntryError(e);return;}
       confirmAction('Finish session?',Object.keys(items).length?'Save the entries you recorded and end the clock. Unmarked exercises stay unmarked.':'End the clock without adding an empty session to your history.',Object.keys(items).length?'Save and finish':'End session',async()=>{
         if(state.live!==session)return;if(Object.keys(items).length){await logDay(session.key);return;}const ok=await write(LIVEKEY,'null');if(!ok){failed.set(LIVEKEY,JSON.stringify(state.live));return;}state.live=null;stopTimer();keepAwake(false);stopLiveClock();render();
       });};
@@ -197,6 +211,10 @@
         if(previous){const entry=previous.items[eid];last.append(make('p',previous.date+' · '+(entry.sets?.filter(x=>Number(x.r)>0).map(x=>(x.w||0)+' lb × '+x.r).join(' / ')||[entry.min?entry.min+' minutes':'',entry.mode||''].filter(Boolean).join(' · ')||'Notes only')));if(entry.note)last.append(make('p',entry.note));}else last.append(make('p','No saved entries for this exercise variation yet. Today can establish your baseline.'));label.after(last);
         const done=overlay.querySelector('[data-act="livedone"]'),prev=overlay.querySelector('[data-act="liveprev"]');prev.disabled=live.exIdx===0||!!live.pausedAt;
         if(state.draft[effId(items[live.exIdx])]?.done)done.textContent=live.exIdx===items.length-1?'Already marked done':'Next exercise';
+        const lastExercise=live.exIdx===items.length-1,alreadyDone=!!state.draft[eid]?.done;
+        finish.textContent='Finish workout';finish.classList.add(lastExercise&&alreadyDone?'forge-primary':'forge-secondary');
+        done.classList.add(lastExercise&&alreadyDone?'forge-secondary':'forge-primary');
+        if(lastExercise&&alreadyDone)done.disabled=true;
         const skip=button('Skip for now',()=>goExercise(live.exIdx+1));skip.id='forge-skip';skip.disabled=live.exIdx===items.length-1||!!live.pausedAt;done.parentNode.append(skip);done.parentNode.classList.add('forge-live-actions');
         if(live.pausedAt){const paused=make('p','Session paused. Resume when you are ready.','forge-paused');label.after(paused);overlay.querySelectorAll('input,textarea,[data-act="livedone"],[data-act="livefill"],[data-act="livelater"],[data-act="rest"],[data-act="cmin"],[data-act="cmode"],[data-act="progression-use"],[data-act="progression-feedback"],[data-act="progression-step"]').forEach(e=>e.disabled=true);}
       }
@@ -204,6 +222,7 @@
       if(live?.hidden)app.querySelector('[data-act="liveresume"]')?.setAttribute('title','Workout timer is still running; the screen stays awake while Forge is visible.');
       keepAwake();paintStatus();measure();
     };
+    app.addEventListener('input',e=>{if(e.target.getAttribute?.('aria-invalid')==='true'){e.target.removeAttribute('aria-invalid');e.target.removeAttribute('aria-describedby');document.getElementById('forge-entry-error')?.remove();}});
     // Capture only the changed actions; all other original handlers remain in place.
     app.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const act=el.dataset.act;
       if(blocked||busy||pendingLog){e.preventDefault();e.stopImmediatePropagation();return;}
