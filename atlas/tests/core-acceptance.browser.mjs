@@ -92,6 +92,8 @@ try{
     assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'focusing Save keeps the keyboard layout stable');
     const saveBounds=await save.boundingBox();assert(saveBounds.y>=0&&saveBounds.y+saveBounds.height<=430,'inline Save can be focused above the keyboard');
     await save.tap();await p.waitForFunction(()=>state.days.some(d=>d.units.Read===12));await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===12)),'first save tap commits and saved check-in survives reload');
+    await p.evaluate(()=>localStorage.setItem('lifeledger:v2',JSON.stringify([14,7,1].map(n=>({date:LedgerRhythm.addDays(todayISO(),-n),units:{Read:50}})))));await p.reload();await ready(p);await p.locator('#ledger-nav-achievements').click();assert.match(await p.locator('#ledger-next-milestone').innerText(),/Around /,'sufficient dated activity has an estimated milestone date');await p.screenshot({path:path.join(out,'ledger-achievements-populated-'+theme+'.png'),fullPage:true});
+    await p.getByRole('button',{name:'Earned',exact:true}).click();assert(await p.locator('.ledger-achievement-record').evaluateAll(ns=>ns.length>0&&ns.every(n=>n.dataset.earned==='true')));await p.locator('#ledger-nav-achievements').press('ArrowRight');assert.equal(await p.locator('#ledger-nav-history').getAttribute('aria-selected'),'true','keyboard navigation reaches the fourth tab');
    }else if(app==='life-map'){
     const input=p.locator('#qaTxt');await input.fill('Synthetic acceptance task');await input.press('Tab');
     await p.locator('#lm-day-nav-plan').click();assert.equal(await p.getByRole('heading',{name:'Build around your day',exact:true}).count(),1,'planning has one clear title');
