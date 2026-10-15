@@ -15,7 +15,7 @@
   const input=(key,value,type='text',extra='')=>'<input id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'" type="'+type+'" value="'+attrs(value)+'" '+extra+'>';
   const field=(title,body)=>'<label class="lm-day-field"><span>'+esc(title)+'</span>'+body+'</label>';
   const select=(key,value,options)=>'<select id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'">'+options.map(([v,t])=>'<option value="'+attrs(v)+'"'+(String(v)===String(value)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
-  const heading=(eyebrow,title,action='')=>'<div class="lm-day-heading"><div><div class="eyebrow">'+esc(eyebrow)+'</div><h1>'+esc(title)+'</h1></div>'+action+'</div>';
+  const heading=(eyebrow,title,action='')=>'<div class="lm-day-heading"><div><div class="eyebrow">'+esc(eyebrow)+'</div><h1>'+esc(title)+'</h1></div><div class="lm-inline">'+action+(['plan','areas'].includes(ui.tab)&&view.qa.txt?button('Resume capture','capture'):'')+'</div></div>';
   const panel=(label,body)=>'<section class="panel lm-day-panel" aria-label="'+attrs(label)+'">'+body+'</section>';
   const plan=(date=ui.date)=>S.dayPlans?.[date]||{reviewed:false,mainTaskId:'',blocks:[]};
   const openTasks=()=>S.projects.filter(M.open);
@@ -30,7 +30,7 @@
     ui.error='';render();
     if(saved)for(const el of document.getElementById('lm-day-view-'+tab)?.querySelectorAll('details')||[])if(saved.open.includes(el.querySelector('summary')?.textContent))el.open=true;
     const settle=()=>{if(visit!==tabVisit||ui.tab!==tab)return;window.scrollTo?.({top:saved?.y||0,behavior:'instant'});document.getElementById('lm-day-nav-'+tab)?.focus({preventScroll:true});};
-    settle();if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(settle));
+    settle();if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(()=>{if(document.activeElement===document.getElementById('lm-day-nav-'+tab)&&visit===tabVisit&&ui.tab===tab)window.scrollTo?.({top:saved?.y||0,behavior:'instant'});}));
   }
   function editPlan(next,date,fn){next.dayPlans??={};next.dayPlans[date]??={reviewed:false,mainTaskId:'',blocks:[]};next.dayPlans[date].blocks??=[];fn(next.dayPlans[date]);}
   function commit(change,message,success,options={}){return W.transaction(change,message,'day_planned',()=>{ui.error='';success?.();recordUI();},options);}
@@ -88,7 +88,7 @@
     if(today)html+=panel('Right now',rightNow());
     html+=calendarPanel();
     const ops=opsPlanned();if(ops.length)html+=panel('Scheduled operations','<div class="lm-day-section-title"><h2>Operations for this day</h2>'+button('Choose Ops tasks','ops-picker')+'</div>'+ops.map(opsTaskRow).join(''));
-    html+=panel('Scheduled tasks','<div class="lm-day-section-title"><h2>Scheduled for '+(today?'today':fmtDay(ui.date))+'</h2>'+button('Build this day','tab','data-tab="plan"')+'</div>'+(open.length?M.sortTasks(open,ui.date).map(dayTaskRow).join(''):help('No tasks scheduled for this day. Use Build around your day to pull in related tasks.')));
+    html+=panel('Scheduled tasks','<div class="lm-day-section-title"><h2>Scheduled for '+(today?'today':fmtDay(ui.date))+'</h2>'+button('Build this day','tab','data-tab="plan"')+'</div>'+(open.length?M.sortTasks(open,ui.date).map(dayTaskRow).join(''):help('Nothing scheduled for this day.')));
     if(deadline.length)html+=panel('Deadlines','<h2>Deadlines needing attention</h2>'+deadline.map(dayTaskRow).join(''));
     if(routines.length)html+=panel('Scheduled routines','<h2>Scheduled routines</h2>'+routines.map(c=>'<article class="lm-day-task" data-day-row-id="'+attrs(c.id)+'">'+(today?D.choreRow(c):'<strong>'+esc(c.chore)+'</strong>'+help('Scheduled for '+fmtDay(ui.date)))+'<div class="lm-inline">'+button('Remove from this day','unschedule-routine','data-id="'+attrs(c.id)+'"')+'</div></article>').join(''));
     if(today){const basics=dueRoutines().filter(c=>!routines.some(r=>r.id===c.id));if(basics.length)html+=panel('Due routines','<h2>The basics due today</h2>'+basics.map(c=>D.choreRow(c)).join(''));}
@@ -171,9 +171,9 @@
     return html;
   }
   function planView(){
-    let html=heading('Choose what belongs in your day','Build around your day',button('Today','plan-today'));
-    html+=panel('Schedule onto a day',field('Schedule tasks for',input('date',ui.date,'date'))+help('Choose a life area below to find related tasks and routines. Schedule them onto this date; use your calendar for times.')+button('View this day’s Board','view-selected-day'));
-    html+=panel('Build around your life','<h2>Build around your day</h2>'+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+(group==='Work'&&OPS?button('Operations Cadence','ops-picker'):'')+starters.map((row,i)=>row[0]===group?button(row[1],'related-tasks','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
+    let html=heading('Choose what belongs in your day','Build around your day',button('Today','plan-today')+button('Add task','new-todo'));
+    html+=panel('Schedule onto a day',field('Schedule tasks for',input('date',ui.date,'date'))+help('Choose what belongs on this date.')+button('View this day’s Board','view-selected-day'));
+    html+=panel('Build around your life','<h2>Choose a part of your day</h2>'+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+(group==='Work'&&OPS?button('Operations Cadence','ops-picker'):'')+starters.map((row,i)=>row[0]===group?button(row[1],'related-tasks','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
     if(ui.opsOpen)html+=opsPicker();
     if(ui.related!==null){
       const row=starters[ui.related],queries=[/get ready|morning|prepar/,/meditat/,/dog|hudson|walk/,/gym|workout|train|exercise/,/business development|prospect|outreach/,/client|request/,/content|film|video/,/admin|wrap|email/,/kitchen|reset|tidy/,/renovat|repair|maintenance/,/meal|dinner|prep|grocery/,/wife|johanna|together|date night|relationship/,/piano|music/,/read|book/,/leisure|downtime|hobby/],all=openTasks().filter(t=>t.status!=='Waiting'),availableRoutines=S.chores.filter(c=>!c.archived),match=t=>queries[ui.related].test([t.task,t.chore,t.sub,t.notes].filter(Boolean).join(' ').toLowerCase());
@@ -184,6 +184,7 @@
     return html;
   }
   function handle(action,el){
+    if(action==='capture')return W.captureSheet();
     const id=el.dataset.id;
     if(action==='ops-picker'){ui.opsOpen=true;if(ui.tab==='board')ui.tab='plan';render();document.querySelector('[aria-label="Operations Cadence"]')?.scrollIntoView({block:'start'});return;}
     if(action==='ops-add'){const ids=[...ui.opsPicks];return opsChange(()=>OPS.scheduleMany(ids,ui.date),ids.length+' Ops tasks added to '+fmtDay(ui.date),true);}
@@ -236,12 +237,13 @@
     const route='#'+ui.tab+(['board','plan'].includes(ui.tab)&&M.validDate(ui.date)?'?day='+ui.date:'');
     if(location.hash!==route)history.replaceState(null,'',location.pathname+location.search+route);
     draw();
-    const captureLaunch=app.querySelector('#lm-capture-launch');if(captureLaunch)captureLaunch.hidden=!(ui.tab==='board'&&ui.records);
+    const captureLaunch=app.querySelector('#lm-capture-launch');if(captureLaunch)captureLaunch.hidden=!!view.editor||!(ui.tab==='board'&&ui.records);
+    const capture=app.querySelector('.lm-capture');if(capture)capture.hidden=['plan','areas'].includes(ui.tab);
     const children=[...app.children],records=document.createElement('section');records.id='lm-day-records';records.className='lm-day-records';records.hidden=!(ui.tab==='board'&&ui.records);
-    for(const node of children)if(!node.matches('.appbar,.lm-capture,dialog,.lm-fab,.lm-tools'))records.append(node);
+    for(const node of children)if(!node.matches('.appbar,.lm-capture,.lm-save-feedback,dialog,.lm-fab,.lm-tools'))records.append(node);
     const main=document.createElement('section');main.id='lm-day-view-'+ui.tab;main.className='lm-day-view';main.setAttribute('role','tabpanel');main.setAttribute('aria-labelledby','lm-day-nav-'+ui.tab);
     main.innerHTML=(ui.tab==='board'?(ui.records?heading('Full Life Map','All records',button('Day view','day-board')):boardView()):ui.tab==='home'?homeView():ui.tab==='plan'?planView():areasView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
-    const anchor=app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);if(!window.AtlasConnected)window.AtlasDaily?.mount();
+    const anchor=app.querySelector('.lm-save-feedback')||app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);if(!window.AtlasConnected)window.AtlasDaily?.mount();
     for(const key of ['home','plan','areas','board'])if(key!==ui.tab){const pane=document.createElement('section');pane.id='lm-day-view-'+key;pane.hidden=true;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','lm-day-nav-'+key);app.append(pane);}
     const nav=document.createElement('nav');nav.className='lm-day-dock';nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Map views');
     nav.innerHTML=[['home','⌂','Home'],['plan','◷','Plan'],['areas','◈','Areas'],['board','▦','Board']].map(([key,icon,title])=>'<button type="button" class="btn" id="lm-day-nav-'+key+'" role="tab" aria-selected="'+(ui.tab===key)+'" aria-controls="lm-day-view-'+key+'" tabindex="'+(ui.tab===key?0:-1)+'" data-day="tab" data-tab="'+key+'"><span aria-hidden="true">'+icon+'</span><strong>'+title+'</strong></button>').join('');app.append(nav);

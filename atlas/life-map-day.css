@@ -100,3 +100,5 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-panel {box-
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card {background:var(--neo-content-surface);border:1px solid var(--neo-line);border-inline-start:3px solid var(--neo-accent);border-radius:20px;padding:20px;}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card .lm-help {font-size:.9375rem;line-height:1.6;}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-panel .lm-day-button:not(.lm-day-primary) {box-shadow:none;}
+
+html.atlas-neumo[data-atlas-app="life-map"] .lm-capture[hidden]{display:none!important}

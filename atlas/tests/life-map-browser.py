@@ -100,8 +100,10 @@ class LifeMapBrowser(unittest.TestCase):
 
     def storage(self):
         if OFFLINE:
-            return self.page.evaluate('Object.fromEntries(__store)')
-        return self.page.evaluate('Object.fromEntries(Object.keys(localStorage).map(k=>[k,localStorage.getItem(k)]))')
+            return self.page.evaluate('Object.fromEntries([...__store].filter(([k])=>k!=="atlas:activity:v1"))')
+        # Usage telemetry may flush on navigation; every application record/draft
+        # still participates in the read-only and rollback assertions below.
+        return self.page.evaluate('Object.fromEntries(Object.keys(localStorage).filter(k=>k!=="atlas:activity:v1").map(k=>[k,localStorage.getItem(k)]))')
 
     def open_section(self, key):
         toggle = self.page.locator(f'[data-act="section"][data-key="{key}"]')
