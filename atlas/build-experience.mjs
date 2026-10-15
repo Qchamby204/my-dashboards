@@ -1,6 +1,8 @@
 import {readFile,writeFile,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
+import {versionSharedStylesheets} from './asset-versions.mjs';
 const root=new URL('../',import.meta.url),hash=s=>createHash('sha256').update(s).digest('hex').slice(0,12);
+await versionSharedStylesheets(root);
 const excluded=new Set(['gang-ops-roadmap.html','test-booking-downtown.html','test-booking-fort-garry.html']);
 const assets=new Map();for(const name of await readdir(new URL('shared/',root)))if(/\.(js|mjs|css)$/.test(name))assets.set('shared/'+name,hash(await readFile(new URL('shared/'+name,root))));
 for(const name of await readdir(root))if(name.endsWith('.webmanifest'))assets.set(name,hash(await readFile(new URL(name,root))));

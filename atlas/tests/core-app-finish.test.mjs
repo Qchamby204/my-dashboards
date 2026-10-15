@@ -11,7 +11,7 @@ function harness(app='life-ledger'){
  const mode={dataset:{act:'logmode',mode:'cards'},textContent:'Cards',children:[],listener:()=>17,set innerHTML(value){this.html=value},append(n){this.children.push(n)}};
  const choice={...mode,dataset:{goal:'run',goalAction:'choose-focus'},textContent:'5K run',children:[]};
  const avatar={dataset:{},attrs:{},set innerHTML(value){this.html=value},setAttribute(k,v){this.attrs[k]=v},closest:()=>({querySelector:()=>({dataset:{habit:'Read'}})})};
- const document={documentElement:root,body:{},readyState:'complete',activeElement:{tagName:'BODY'},querySelector:s=>controls.get(s)||null,querySelectorAll:s=>s==='[data-act="logmode"]'?[mode]:s==='.ledger-card-avatar'?[avatar]:s==='.atlas-goal-options [data-goal]'?[choice]:[],createElement:()=>({}),addEventListener(k,f){events[k]=f}};
+ const document={documentElement:root,body:{},readyState:'complete',activeElement:{tagName:'BODY'},querySelector:s=>controls.get(s)||null,querySelectorAll:s=>s==='[data-act="logmode"]'?[mode]:s==='.ledger-card-avatar,.ledger-list-avatar'?[avatar]:s==='.atlas-goal-options [data-goal]'?[choice]:[],createElement:()=>({}),addEventListener(k,f){events[k]=f}};
  const visual={scale:1,height:800,offsetTop:0,addEventListener(k,f){events['viewport-'+k]=f}};
  const window={innerHeight:800,visualViewport:visual};
  const forbidden=()=>{throw Error('Presentation must not access records or network')};

@@ -8,6 +8,8 @@ The earlier aesthetic attempts were published. PR [#103](https://github.com/Qcha
 
 Review of the released Chromium/WebKit screenshots found excessive outlined pills, weak differentiation of text from controls, inconsistent native form surfaces, a neon edge on Ledger’s activity card, redundant level metadata in its header, and XP explanation competing with the check-in. Later passes must review every dashboard; improvements to shared colors alone do not establish consistency.
 
+A separate cache-versioning defect was confirmed: the dynamically loaded Ledger, Forge, Communicator, Hourglass and Baby Brain stylesheets retained older version values after CSS edits; the mobile stylesheet had no version. The files on the server matched the released source, but an existing browser cache could continue displaying an earlier appearance. The build now versions nested CSS dependencies before hashing their script and theme loaders. This is a possible explanation for changes appearing absent on an existing installation, not proof of what any particular device cached.
+
 ## Visual contract
 
 | Element | Direction | Review evidence |

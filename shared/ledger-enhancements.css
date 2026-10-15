@@ -372,6 +372,8 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log :is(#deckPrev,#d
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records{background:var(--neo-content-surface);border:1px solid var(--ledger-separator);border-radius:24px;overflow:hidden}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row{padding:16px!important;border-radius:0;border-bottom:1px solid var(--ledger-separator)!important;background:transparent!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row:last-child{border-bottom:0!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-list-avatar{display:grid;place-items:center;flex:0 0 24px;color:var(--neo-accent);filter:none!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-list-avatar svg{width:22px;height:22px}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.panel,.ledger-history,.ledger-leisure-preview):not(#ledger-log){box-shadow:none!important;background:var(--neo-content-surface)!important;border-color:var(--ledger-separator)!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-habit-card button,.ledger-log-mode button,.ledger-missed):active:not(:disabled){filter:brightness(.94);transform:none!important;box-shadow:none!important}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="life-ledger"]{--ledger-separator:var(--neo-ink)}html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card{border:2px solid var(--neo-ink)!important}html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-log-mode button[aria-pressed="true"]{outline:2px solid currentColor;outline-offset:-2px}}

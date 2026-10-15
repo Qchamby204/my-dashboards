@@ -3,7 +3,7 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='the-hourglass'||typeof S==='undefined'||window.HourglassImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('hourglass-enhancements.css?v=e2960467aff3',source).href;document.head.appendChild(css);}
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('hourglass-enhancements.css?v=d0e0f2b02174',source).href;document.head.appendChild(css);}
     const originalRender=render,originalWire=wire,originalWeeks=viewWeeks,originalSetup=viewSetup,originalToast=toast;
     const clone=value=>JSON.parse(JSON.stringify(value));
     let failed=false,visibleDay='',focusAfter=null;

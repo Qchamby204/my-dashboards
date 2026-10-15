@@ -68,7 +68,7 @@ try{
    await p.screenshot({path:path.join(out,app+'-home-'+theme+'.png')});await hero.screenshot({path:path.join(out,app+'-record-'+theme+'.png')});
    if(app==='life-ledger'){
     await hero.locator('[data-act="hinfo"]').click();await p.screenshot({path:path.join(out,'ledger-definition-'+theme+'.png')});await hero.locator('[data-act="hinfo"]').click();
-    await p.getByRole('button',{name:'List',exact:true}).click();assert(await p.locator('.ledger-list-records .row').count()>=13,'list retains every activity');await p.screenshot({path:path.join(out,'ledger-list-'+theme+'.png')});
+    await p.getByRole('button',{name:'List',exact:true}).click();assert(await p.locator('.ledger-list-records .row').count()>=13,'list retains every activity');assert.equal(await p.locator('.ledger-list-avatar svg').first().getAttribute('aria-hidden'),'true','list artwork uses the same decorative line icons');await p.screenshot({path:path.join(out,'ledger-list-'+theme+'.png')});
     await p.getByRole('button',{name:'Cards',exact:true}).click();await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
    }
    await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:20px!important}'});assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)),'large text fits');await p.screenshot({path:path.join(out,app+'-large-text-'+theme+'.png')});

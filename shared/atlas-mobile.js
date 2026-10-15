@@ -14,7 +14,7 @@
   let viewport=document.querySelector('meta[name="viewport"]');
   if(!viewport){viewport=document.createElement('meta');viewport.name='viewport';document.head.appendChild(viewport);}
   viewport.content='width=device-width, initial-scale=1, viewport-fit=cover';
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('atlas-mobile.css',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('atlas-mobile.css?v=11d4b6af6521',source).href;document.head.appendChild(css);
   let queued=false,observer;const observed=new WeakSet();
   const height=el=>el?Math.ceil(el.getBoundingClientRect().height):0;
   const set=(name,value)=>{if(root.style.getPropertyValue(name)!==value)root.style.setProperty(name,value);};
