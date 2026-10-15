@@ -3,7 +3,7 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='communication-trainer'||typeof S==='undefined'||window.CommunicationImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=050ded3888a8',source).href;document.head.appendChild(css);}
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=5e6c0440e0d7',source).href;document.head.appendChild(css);}
     const ladder=window.CommunicatorLadderModel;
     if(ladder)for(const c of ladder.challenges)if(!DRILLS.some(d=>d.id==='ladder-'+c.id))DRILLS.push(ladder.drill(c.id));
     const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldToast=toast;
@@ -255,7 +255,7 @@
     function recentHistory(){const recent=sorted(S.reps).reverse().slice(0,8);if(!recent.length)return '';return '<div class="card communication-history"><h2>Recent practice</h2>'+recent.map(r=>'<details><summary><span><b>'+esc(r.drill)+'</b><span class="muted">'+esc(r.topic)+'</span></span><span>'+r.score+'/100 · '+recordDay(r.date)+'</span></summary>'+(typeof r.transcript==='string'&&r.transcript?'<p class="communication-transcript">'+esc(r.transcript)+'</p>':'<p class="muted">No transcript was saved for this practice.</p>')+'</details>').join('')+'</div>';}
     const oldDash=pageDash,oldTrain=pageTrain,oldProgress=pageProgress;
     const topicShortcut=()=>'<div class="communication-topic-shortcut"><button id="communication-topic-open" type="button" class="btn ghost" onclick="CommunicationImprovements.editTopics()">Edit topics</button></div>';
-    pageDash=()=>recoveryBanner()+topicShortcut()+oldDash();pageTrain=()=>curDrill?oldTrain():recoveryBanner()+topicShortcut()+oldTrain();
+    pageDash=()=>recoveryBanner()+oldDash();pageTrain=()=>curDrill?oldTrain():recoveryBanner()+topicShortcut()+oldTrain();
     pageProgress=function(){const assessments=S.assessments,reps=S.reps;S.assessments=sorted(assessments);S.reps=sorted(reps);try{let html=oldProgress().replace(/<div class="card"><h2>Recent reps<\/h2>[\s\S]*?(?=\n  <div class="card">\n    <h2>Backup & restore<\/h2>)/,recentHistory());if(lastSaved)html='<section class="card communication-saved" role="status"><h2>Practice saved</h2><p>'+esc(lastSaved.drill)+' · '+lastSaved.score+'/100 · +'+lastSaved.xp+' XP'+(lastSaved.best?' · New personal best':lastSaved.first?' · First practice for this drill':'')+'</p></section>'+html;return comparisons()+html;}finally{S.assessments=assessments;S.reps=reps;}};
     const oldGradeSave=saveGradePaste;
     saveGradePaste=function(src){const count=S.grades.length;oldGradeSave(src);if(curDrill){if(S.grades.length>count)curDrill.gradePaste='';rememberPractice();render();}};

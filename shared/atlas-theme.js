@@ -18,14 +18,14 @@
       const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=46ea09dbda20',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=064f9c0f0f06',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=4f507d271878',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
       const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=c8fd770efb16',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
-      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=0cf1c27de0af',sharedSource).href;document.head.appendChild(polish);
+      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=dd079fd4815b',sharedSource).href;document.head.appendChild(polish);
       const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=54aa0f1d0514',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
     }
     if(root.dataset.atlasApp==='prospecting-command-center'&&!window.AtlasProspectingPrivate){

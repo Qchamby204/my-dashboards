@@ -44,13 +44,11 @@ try{
    assert.equal(await p.locator('.appbar').evaluate(n=>parseFloat(getComputedStyle(n).borderBottomWidth)),1,'header uses one quiet divider');
    assert(await p.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
    const hero=p.locator(heroSelector).first();
-   if(['life-ledger','life-map','workout-forge'].includes(app)){
     assert(await hero.evaluate(n=>{const s=getComputedStyle(n);return s.backgroundImage==='none'&&s.backgroundColor!==getComputedStyle(document.body).backgroundColor;}),'the primary record has a solid surface distinct from the canvas');
     if(app==='life-ledger'){
     const record=await hero.boundingBox(),accessory=await p.locator('.ledger-save-row').boundingBox();
     assert(record.y+record.height<=accessory.y-8,'the complete initial check-in remains above the floating save accessory');
     }else if(app==='life-map')assert(await p.locator('.lm-capture').evaluate(n=>n.previousElementSibling?.getAttribute('aria-label')==='Right now'),'the current task comes before capture in visual and keyboard order');
-   }else assert(await hero.evaluate(n=>getComputedStyle(n).backgroundImage!=='none'),'primary record has a distinct material');
    if(app==='workout-forge'||app==='communication-trainer')assert.equal(await p.locator('.atlas-goal-question').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)','supporting choices do not compete with the focal record');
    if(app==='life-ledger'){
     assert.equal(await hero.locator('.ledger-card-avatar').getAttribute('aria-hidden'),'true');assert.equal(await hero.locator('.ledger-card-avatar').textContent(),await p.evaluate(()=>habitEmoji(HABITS[state.cardIndex])),'card retains its original activity symbol');
@@ -118,6 +116,8 @@ try{
     await p.waitForFunction(()=>!!window.CommunicatorLadder);
     assert.equal(await p.locator('[data-ladder-start]:visible').count(),1,'Today has one next practice');
     assert.equal(await p.locator('.communication-career').count(),0,'rank belongs in Progress');
+    assert.equal(await p.getByRole('button',{name:'Edit topics',exact:true}).count(),0,'Today keeps topic management in its existing section');
+    await p.locator('#atlas-page-navigation').getByRole('button',{name:'Topics',exact:true}).click();assert(await p.getByRole('button',{name:'Edit topics',exact:true}).isVisible(),'topic management remains reachable');await p.locator('#atlas-page-navigation').getByRole('button',{name:'Today',exact:true}).click();
     assert.equal(await p.locator('.communicator-session').count(),0,'investing learning belongs in Learn');
     const other=p.locator('.communication-alternatives>summary').first();await other.focus();await p.keyboard.press('Enter');assert(await p.getByRole('button',{name:'Surprise me',exact:true}).isVisible());await p.keyboard.press('Enter');
     await p.locator('[data-ladder-start="clear-point"]').first().click();const input=p.locator('#txBox');const transcript='A clear plan helps us choose what matters. For example, preparing one decision before a meeting makes the conversation easier. The next step is to write that decision down.';await input.fill(transcript);await keyboard(p,input,app);
