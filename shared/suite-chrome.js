@@ -43,7 +43,7 @@
    if(help){help.classList.add('atlas-header-help');actions.append(help);help.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();help.open=false;help.querySelector('summary')?.focus({preventScroll:true});}});}
   }
   let tools=actions.querySelector('.atlas-header-tools');
-  if(!tools&&app!=='the-chef'){
+  if(!tools&&!['the-chef','courier'].includes(app)){
    tools=document.createElement('details');tools.className='atlas-header-tools';
    const summary=document.createElement('summary');summary.setAttribute('aria-label','App tools');summary.innerHTML=svg('M5 12h.01M12 12h.01M19 12h.01');
    const body=document.createElement('div');body.className='atlas-header-tools-body';tools.append(summary,body);actions.append(tools);
