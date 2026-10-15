@@ -209,7 +209,7 @@
       delete entry.leisure;if(hasLeisure(state.draftLeisure))entry.leisure=clone(state.draftLeisure);
       entry.missed=clone((state.draftMissed||[]).filter(h=>!(entry.units[h]>0)));
       const next=state.days.filter(d=>d.date!==date).concat([entry]).sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map((d,i)=>({...d,day:i+1}));
-      busy=true;status();const ok=await write(KEY,JSON.stringify(next));
+      busy=true;document.querySelectorAll('.ledger-toast').forEach(n=>n.remove());status();const ok=await write(KEY,JSON.stringify(next));
       // A failed day save is retried explicitly with Save day, never as a stale queued snapshot.
       if(!ok){busy=false;failed.delete(KEY);failed.set(DRAFTKEY,JSON.stringify(drafts));status();toast('Day not logged. Your draft is still here. Retry saving, then use Save day.');return;}
       leisureOpen=false;state.days=JSON.parse(written.get(KEY));lastUndo={date,before:before?clone(before):null,after:JSON.stringify(dayEntryFor(date))};

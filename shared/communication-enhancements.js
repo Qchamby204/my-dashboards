@@ -129,7 +129,7 @@
     };
     Store.dump=function(){const result={};for(const [key,field]of Object.entries(fields))result[key]=copy(S[field]);for(const key of ['topics','goalNote','proCatsAdded'])result[key]=Store.get(key,null);result.practiceDraft=curDrill?draftSnapshot():Store.get(DRAFT,null);if(draftProblem)try{result.unreadablePracticeDraft=localStorage.getItem('mc_'+DRAFT);}catch{}return result;};
     Store.usable=()=>diskAvailable&&unsaved.size===0;
-    toast=function(title,sub){oldToast(unsaved.size?'Progress is not fully saved':title,unsaved.size?'Keep this page open and retry, or export your progress.':sub);};
+    toast=function(title,sub){const wrap=$('toasts');if(wrap)wrap.textContent='';oldToast(unsaved.size?'Progress is not fully saved':title,unsaved.size?'Keep this page open and retry, or export your progress.':sub);};
     function timerUI(){
       const value=$('timer'),button=$('tbtn');
       if(value){value.textContent=fmtT(Math.max(0,Math.ceil(timerLeft)));value.setAttribute('role','timer');value.setAttribute('aria-label','Time remaining');value.style.color=timerLeft<=0?'var(--good)':'';}

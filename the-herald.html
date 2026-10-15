@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="The Herald">
 <meta name="theme-color" content="#efeae3">
 
-<script src="shared/atlas-theme.js?v=ab412bc46315"></script>
+<script src="shared/atlas-theme.js?v=9163787379be"></script>
 <style>
 :root{
   --ink:#0b0d13; --panel:#12151d; --panel2:#171b26; --border:#242a3a; --border2:#2e3548;
@@ -207,7 +207,7 @@ nav.tabs::-webkit-scrollbar{display:none}
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-herald-32.png?v=dce7a3f654b0">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-herald-64.png?v=5fc5ba443d5e">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-herald-apple.png?v=8a1621338f3a">
-<link rel="stylesheet" href="shared/suite-chrome.css?v=266d1349c37a">
+<link rel="stylesheet" href="shared/suite-chrome.css?v=4f1a22ef1947">
 <script src="shared/suite-chrome.js?v=4a1e56cd44ed" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=4eb7da022703">
 <script src="shared/dashboard-navigation.js?v=b903770809f3" defer></script>
@@ -465,13 +465,13 @@ function renderVault(){
   <h2>Add a script</h2>
   <div class="hint">Every script lives here and moves along the rail: Draft, then Approved once marketing signs off, then Filmed / Edited, then Scheduled (uploaded with a publish date set), then Published (live). Validate the keyword in vidIQ first, lock the packaging, then run the checklist until the bar is full before sending for approval.</div>
   <div class="row" style="margin-bottom:8px">
-   <input id="nv-title" placeholder="Working title (front-load the exact keyword)" style="flex:2;min-width:200px">
+   <input id="nv-title" aria-label="Working title" placeholder="Working title (front-load the exact keyword)" style="flex:2;min-width:200px">
   </div>
-  <textarea id="nv-script" rows="3" style="margin-bottom:8px" placeholder="Optional: paste the full script now. You can also add it later inside the card."></textarea>
+  <textarea id="nv-script" aria-label="Video script" rows="3" style="margin-bottom:8px" placeholder="Optional: paste the full script now. You can also add it later inside the card."></textarea>
   <div class="row">
-   <input id="nv-kw" placeholder="Target keyword" style="flex:1;min-width:140px">
-   <select id="nv-fmt" style="width:auto"><option value="long">Long form</option><option value="short">Short</option></select>
-   <select id="nv-vert" style="width:auto">${VERTS.map(v=>`<option>${v}</option>`).join('')}</select>
+   <input id="nv-kw" aria-label="Target keyword" placeholder="Target keyword" style="flex:1;min-width:140px">
+   <select id="nv-fmt" aria-label="Video format" style="width:auto"><option value="long">Long form</option><option value="short">Short</option></select>
+   <select id="nv-vert" aria-label="Content vertical" style="width:auto">${VERTS.map(v=>`<option>${v}</option>`).join('')}</select>
    <button class="btn" onclick="addVideo()">Add to vault</button>
   </div>
  </div>
@@ -480,7 +480,7 @@ function renderVault(){
    <h2 style="margin:0">Vault${vaultFilter?' · '+STAGE_L[vaultFilter]:''}</h2>
    <div class="row">
     <button class="btn sm line" onclick="selMode=!selMode;selIds.clear();confirmDel=false;renderAll()">${selMode?'Done':'Select'}</button>
-    <select onchange="vaultFilter=this.value;renderAll()" style="width:auto;font-size:12px;padding:5px 8px">
+    <select aria-label="Filter scripts by status" onchange="vaultFilter=this.value;renderAll()" style="width:auto;font-size:12px;padding:5px 8px">
      <option value="">All stages</option>${STAGES.map(s=>`<option value="${s}" ${vaultFilter===s?'selected':''}>${STAGE_L[s]}</option>`).join('')}
     </select>
    </div>
@@ -550,7 +550,7 @@ function vaultBody(v){
   </div>`:''}
   <div class="row" style="margin-top:10px;justify-content:space-between">
    <div class="row">
-    <select onchange="vById('${v.id}').status=this.value;save();renderAll();" style="width:auto">
+    <select aria-label="Video status" onchange="vById('${v.id}').status=this.value;save();renderAll();" style="width:auto">
      ${STAGES.map(s=>`<option value="${s}" ${v.status===s?'selected':''}>${STAGE_L[s]}</option>`).join('')}
     </select>
     ${v.fmt==='long'?`<button class="btn sm line" onclick="spawnShort('${v.id}')">Spawn short</button>`:''}
@@ -1007,7 +1007,7 @@ function renderCalendar(){
   <h2 style="margin-top:0">Schedule a script</h2>
   <div class="hint">Pick a script, pick a day, done. Or tap any day in the grid below and use Schedule here. Either way it lands on the calendar and in the month list.</div>
   ${unsched.length?`<div class="row">
-   <select id="calPickScript" style="flex:1;min-width:150px">${unsched.map(v=>`<option value="${v.id}">${v.fmt==='short'?'[S] ':'[L] '}${esc(v.title.slice(0,48))}</option>`).join('')}</select>
+   <select id="calPickScript" aria-label="Script to schedule" style="flex:1;min-width:150px">${unsched.map(v=>`<option value="${v.id}">${v.fmt==='short'?'[S] ':'[L] '}${esc(v.title.slice(0,48))}</option>`).join('')}</select>
    <input type="date" id="calPickDate" style="width:auto">
    <button class="btn sm" onclick="schedFromPicker()">Schedule</button>
   </div>`:'<div class="empty">Everything unpublished already has a date. Add a script in the vault and it will appear here.</div>'}
@@ -1034,7 +1034,7 @@ function renderCalendar(){
     <button class="btn sm line" onclick="unschedVid('${v.id}')" style="flex-shrink:0">clear</button>
    </div>`).join(''):'<div class="empty">Nothing scheduled this day yet.</div>'}
   ${unsched.length?`<div class="row" style="margin-top:10px">
-   <select id="calAssign" style="flex:1;min-width:160px">${unsched.map(v=>`<option value="${v.id}">${v.fmt==='short'?'[S] ':'[L] '}${esc(v.title.slice(0,48))}</option>`).join('')}</select>
+   <select id="calAssign" aria-label="Script for this date" style="flex:1;min-width:160px">${unsched.map(v=>`<option value="${v.id}">${v.fmt==='short'?'[S] ':'[L] '}${esc(v.title.slice(0,48))}</option>`).join('')}</select>
    <button class="btn" onclick="schedVid(document.getElementById('calAssign').value,'${calSel}')">Schedule here</button>
   </div>`:''}
  </div>`:''}

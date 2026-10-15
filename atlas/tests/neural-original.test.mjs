@@ -131,7 +131,7 @@ test('dragging a node cannot open it; a deliberate subsequent tap still opens de
   const h=boot({width:1200,reduced:true}),tool=h.node('nodes').querySelector('.node.tool');
   h.pointer('pointerdown',1,100,100,tool);h.pointer('pointermove',1,150,150,tool);h.pointer('pointerup',1,150,150,tool);h.click(tool);assert.equal(h.node('pop').hidden,true);
   h.pointer('pointerdown',2,150,150,tool);h.pointer('pointerup',2,150,150,tool);h.click(tool);assert.equal(h.node('pop').hidden,false);
-  h.node('pop').querySelector('button').click();assert.equal(h.node('pop').hidden,true);assert.equal(h.document.activeElement,tool);
+  h.node('pop').querySelector('button').click();assert.equal(h.node('pop').hidden,true);assert.equal(h.document.activeElement,h.document.querySelector('.neural-map-chooser').querySelector('button'));
 });
 test('first blank tap does not zoom; double tap does, and zoom out works below the old mobile limit',()=>{
   const h=boot({reduced:true});h.api.setMode('map');const initial=h.run('scale');assert(initial<.3);
@@ -150,10 +150,10 @@ test('pulses stop in list, when hidden and with reduced motion, then resume as a
   h.reduce(true);h.frame();assert.equal(h.frames.size,0);h.run('zoomBy(1.3)');assert.equal(h.frames.size,0);
   h.reduce(false);h.frame();assert.equal(h.frames.size,1);h.api.setMode('list');h.frame();assert.equal(h.frames.size,0);
 });
-test('keyboard users can open nodes and return focus with Escape or use slash to find a tool',()=>{
+test('map selection opens every tool through native controls and Escape restores focus',()=>{
   const h=boot({width:1200,reduced:true}),tool=h.node('nodes').querySelector('.node.tool');
-  assert.equal(tool.getAttribute('role'),'button');h.node('nodes').emit('keydown',{target:tool,key:'Enter'});assert.equal(h.node('pop').hidden,false);
-  h.window.emit('keydown',{target:h.document.activeElement,key:'Escape'});assert.equal(h.node('pop').hidden,true);assert.equal(h.document.activeElement,tool);
+  assert.equal(tool.getAttribute('aria-hidden'),'true');const choice=h.node('neural-map-choice');choice.value=String(choice.children.findIndex(o=>o.textContent===(tool._tool.full||tool._tool.label)));h.document.querySelector('.neural-map-chooser').querySelector('button').click();assert.equal(h.node('pop').hidden,false);assert.match(h.node('pop').textContent,new RegExp(tool._tool.full||tool._tool.label));
+  h.window.emit('keydown',{target:h.document.activeElement,key:'Escape'});assert.equal(h.node('pop').hidden,true);assert.equal(h.document.activeElement,h.document.querySelector('.neural-map-chooser').querySelector('button'));
   h.window.emit('keydown',{target:tool,key:'/'});assert.equal(h.api.mode,'list');assert.equal(h.document.activeElement,h.node('neural-search'));
   const prevented=h.window.emit('keydown',{target:h.node('neural-search'),key:'/'});assert.equal(prevented.prevented,undefined);
 });

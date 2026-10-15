@@ -144,6 +144,14 @@ jobs:
         run: |
           node atlas/tests/core-acceptance.browser.mjs
           node atlas/tests/planning-release.browser.mjs
+          node atlas/tests/suite-accessibility.browser.mjs
+      - name: Verify saving, failed-save recovery and feedback materials
+        if: ${{ !cancelled() }}
+        env:
+          NODE_PATH: /tmp/atlas-browser/node_modules
+          ATLAS_SCREENSHOTS: artifacts/core-acceptance
+          ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node atlas/tests/core-feedback.browser.mjs
       - name: Verify floating navigation and scroll behavior across the suite
         env:
           NODE_PATH: /tmp/atlas-browser/node_modules

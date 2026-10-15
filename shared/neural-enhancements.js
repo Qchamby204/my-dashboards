@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='neural-map')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css?v=7c15c604e4fd',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css?v=e5a9d55ebaf7',source).href;document.head.appendChild(css);
   function ready(){
     if(window.NeuralNavigation||typeof CATS==='undefined')return;
     const make=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -31,6 +31,11 @@
     const toolbar=make('nav',null,'neural-toolbar');toolbar.setAttribute('aria-label','Neural Map views');
     const mapButton=button('Map',()=>setMode('map')),listButton=button('List & search',()=>setMode('list'));
     toolbar.append(mapButton,listButton);document.body.appendChild(toolbar);
+    const mapChooser=make('div',null,'neural-map-chooser'),mapLabel=make('label','Choose a tool or area'),mapChoice=make('select');mapChoice.id='neural-map-choice';mapLabel.append(mapChoice);
+    allNodes.forEach((node,i)=>{const o=make('option',node._tool?(node._tool.full||node._tool.label):node._hub?'Area: '+node._hub.title:'All tools');o.value=String(i);mapChoice.append(o);});
+    const showChoice=button('Show',event=>{event.stopPropagation();const node=allNodes[Number(mapChoice.value)];if(node._tool){focusTool(node);openPop(node);}else if(node._hub){closePop();focusCat(node._hub);}else{closePop();animateFit();}});mapChooser.append(mapLabel,showChoice);document.body.append(mapChooser);
+    stage.setAttribute('role','img');stage.setAttribute('aria-label','Resource connections overview. Select any resource with Choose a tool or area.');
+
     const list=make('main',null,'neural-list');list.id='neural-list';
     const filters=make('div',null,'neural-filters');
     const searchLabel=make('label','Find a tool');const search=make('input');search.type='search';search.placeholder='Name, purpose, or file';search.id='neural-search';searchLabel.appendChild(search);
@@ -76,7 +81,7 @@
       root.style.setProperty('--neural-content-top',Math.ceil((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom+8)+'px');
     }
     function available(){
-      const top=(window.AtlasPageNavigation?hud.getBoundingClientRect().bottom:Math.max(hud.getBoundingClientRect().bottom,toolbar.getBoundingClientRect().bottom))+16;
+      const top=Math.max((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom,mapChooser.hidden?0:mapChooser.getBoundingClientRect().bottom)+16;
       const bottom=Math.max(top+60,Math.min(window.innerHeight-100,legend.getBoundingClientRect().top-44));
       const padding=getComputedStyle(hud),left=Math.max(16,parseFloat(padding.paddingLeft)||0),right=Math.max(16,parseFloat(padding.paddingRight)||0);
       return {x:left,y:top,w:Math.max(80,window.innerWidth-left-right),h:Math.max(60,bottom-top)};
@@ -101,20 +106,20 @@
     zoomBy=function(f){stopAnim();const a=available(),mx=a.x+a.w/2,my=a.y+a.h/2,nx=(mx-tx)/scale,ny=(my-ty)/scale,s=clamp(scale*f);animateTo(s,mx-nx*s,my-ny*s);closePop();};
     ['zin','zout','zreset'].forEach((id,i)=>document.getElementById(id).setAttribute('aria-label',['Zoom in','Zoom out','Fit all tools'][i]));
     function setMode(next){
-      mode=next;root.dataset.neuralView=mode;list.hidden=mode!=='list';stage.hidden=mode!=='map';legend.hidden=mode!=='map';hint.hidden=mode!=='map';
+      mode=next;root.dataset.neuralView=mode;mapChooser.hidden=mode!=='map';list.hidden=mode!=='list';stage.hidden=mode!=='map';legend.hidden=mode!=='map';hint.hidden=mode!=='map';
       hud.querySelector('.zoom').hidden=mode!=='map';mapButton.setAttribute('aria-pressed',String(mode==='map'));listButton.setAttribute('aria-pressed',String(mode==='list'));
       closePop();stopAnim();resetGesture();measure();if(mode==='map')fit();syncMotion();
     }
     pop.hidden=true;pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Resource details');
     closePop=function(restore=false){pop.classList.remove('show');pop.hidden=true;if(restore&&returnFocus?.isConnected)returnFocus.focus({preventScroll:true});returnFocus=null;};
     openPop=function(node){
-      const tool=node?._tool;if(!tool)return;returnFocus=node;pop.replaceChildren();
+      const tool=node?._tool;if(!tool)return;returnFocus=node.getAttribute('aria-hidden')==='true'?showChoice:node;pop.replaceChildren();
       const close=button('Close',()=>closePop(true));close.className='neural-close';
       pop.append(close,make('p',[tool.cat.title,tool.sub].filter(Boolean).join(' · '),'neural-category'),make('h3',tool.full||tool.label),make('p',resourceLabel(tool),'neural-resource-state'),make('p',tool.file,'neural-description'),linksFor(tool));
       pop.hidden=false;pop.classList.add('show');pop.style.left='';pop.style.top='';close.focus({preventScroll:true});
     };
     allNodes.forEach(node=>{
-      node.setAttribute('tabindex','0');node.setAttribute('role','button');
+      node.setAttribute('tabindex','-1');node.setAttribute('role','presentation');node.setAttribute('aria-hidden','true');
       node.setAttribute('aria-label',node._tool?'Details for '+(node._tool.full||node._tool.label):node._hub?'Focus '+node._hub.title:'Fit all tools');
     });
     gNodes.addEventListener('keydown',e=>{if(!['Enter',' '].includes(e.key)||e.repeat)return;const node=e.target.closest('.node');if(!node)return;e.preventDefault();if(node._tool)openPop(node);else if(node._hub){closePop();focusCat(node._hub);}else{closePop();animateFit();}});
@@ -187,7 +192,7 @@
     window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',measure);
     if(window.ResizeObserver){const observer=new ResizeObserver(measure);observer.observe(hud);observer.observe(toolbar);}
     css.addEventListener('load',()=>{measure();if(mode==='map')fit();});
-    hint.textContent='Tap a branch to focus · drag or pinch to explore · use List & search to find a tool';
+    hint.textContent='Choose a tool or area · drag or pinch to explore';
     renderList();setMode(mode);
     window.NeuralNavigation=Object.freeze({findTools,destinations,setMode,get mode(){return mode;}});
   }

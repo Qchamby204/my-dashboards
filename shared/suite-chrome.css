@@ -25,3 +25,16 @@ html.atlas-neumo.atlas-neumo .atlas-header-help{position:relative;margin:0!impor
 html.atlas-neumo.atlas-neumo .atlas-header-help>summary{display:grid;place-items:center;width:44px;min-height:44px;padding:0!important;margin:0!important;box-shadow:none!important}
 html.atlas-neumo.atlas-neumo .atlas-header-help>p{position:absolute;z-index:100;right:0;top:calc(100% + 8px);box-sizing:border-box;width:min(280px,calc(100vw - 32px));margin:0;padding:16px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-content-surface,var(--neo-surface));color:var(--neo-ink);font:400 .875rem/1.6 var(--neo-font);box-shadow:0 12px 32px #0002}
 html.atlas-neumo.atlas-neumo .atlas-suite-header :is(button,a,summary):focus-visible{outline:3px solid var(--neo-accent)!important;outline-offset:3px!important}
+
+/* Targets found by the section-by-section browser audit. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] a.pill{min-height:44px;min-width:44px;box-sizing:border-box;display:inline-flex;align-items:center;padding-block:10px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] button{min-height:44px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] button.check{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;flex-basis:44px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="prospecting-command-center"] label:has(input[type="checkbox"]){display:inline-flex;align-items:center;min-height:44px;gap:8px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] :is(button.chip,a.cc-skip){min-width:44px;min-height:44px;box-sizing:border-box}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] :is(a.mobile-brand,a.subtle-link,summary){min-height:44px;min-width:44px;box-sizing:border-box}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] a.subtle-link{display:inline-flex;align-items:center}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] summary{display:flex;align-items:center;gap:8px}
+
+html.atlas-neumo.atlas-neumo :is(.ledger-app-links,.forge-app-links){flex-wrap:wrap;font:400 .875rem/1.5 var(--neo-font)!important;text-transform:none!important;letter-spacing:0!important;align-items:center}
+html.atlas-neumo.atlas-neumo :is(.ledger-app-links,.forge-app-links) a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;color:var(--neo-ink)!important}
