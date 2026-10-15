@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='workout-forge')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=3927f6169bdb',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=b840438980e8',source).href;document.head.append(css);
   function ready(){
     if(window.ForgeSession||typeof state==='undefined')return;
     const RESTKEY='forge:rest:v1',JOURNALKEY='forge:pending-log:v1',keys={sessions:KEY,draft:DRAFTKEY,live:LIVEKEY,swaps:SWAPKEY,order:ORDERKEY,progressionSettings:PROGRESSIONKEY,rest:RESTKEY,pendingLog:JOURNALKEY,goals:'forge:goals:v1'};

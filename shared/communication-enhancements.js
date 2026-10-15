@@ -3,7 +3,7 @@
   const source=document.currentScript?.src;
   function start(){
     if(document.documentElement.dataset.atlasApp!=='communication-trainer'||typeof S==='undefined'||window.CommunicationImprovements)return;
-    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=0f198667d766',source).href;document.head.appendChild(css);}
+    if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('communication-enhancements.css?v=050ded3888a8',source).href;document.head.appendChild(css);}
     const ladder=window.CommunicatorLadderModel;
     if(ladder)for(const c of ladder.challenges)if(!DRILLS.some(d=>d.id==='ladder-'+c.id))DRILLS.push(ladder.drill(c.id));
     const oldRender=render,oldDrillView=drillView,oldLaunch=launchDrill,oldNav=nav,oldToast=toast;

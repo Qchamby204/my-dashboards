@@ -2,6 +2,8 @@
 
 For interface changes, read `.agents/skills/apple-design/SKILL.md` and apply its relevant guidance. This project uses the MIT-licensed skill from https://github.com/emilkowalski/skills/tree/main/skills/apple-design (source blob `66f56807cb503fd482b86c4e0aaee5a080918242`). Its license is retained alongside it.
 
+Use `docs/apple-design-direction.md` for the suite's visual contract and release evidence. Passing interaction tests alone does not establish aesthetic completion. Apply the contract one dashboard at a time and inspect the rendered result before publishing.
+
 ## Established product choices
 
 - Improve one dashboard at a time. Atlas is a passive reference hub.

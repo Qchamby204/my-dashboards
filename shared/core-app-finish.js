@@ -21,8 +21,8 @@
   icon(document.querySelector('.appbar [data-lm="search"]'),'search');
   if(['life-ledger','workout-forge'].includes(app))icon(document.querySelector('.appbar>div:nth-child(2)>span:not(.appbar-title)'),app==='life-ledger'?'ledger':'plates');
   if(app==='life-ledger'){
-   for(const avatar of document.querySelectorAll('.ledger-card-avatar')){
-    const habit=avatar.closest('.ledger-habit-card')?.querySelector('[data-habit]')?.dataset.habit;
+   for(const avatar of document.querySelectorAll('.ledger-card-avatar,.ledger-list-avatar')){
+    const habit=avatar.closest('.ledger-habit-card,.row')?.querySelector('[data-habit]')?.dataset.habit;
     icon(avatar,habitIcons[habit]||'ledger');avatar.setAttribute('aria-hidden','true');
    }
    for(const control of document.querySelectorAll('[data-act="logmode"]'))labeledIcon(control,control.dataset.mode==='cards'?'cards':'list',control.dataset.mode==='cards'?'Cards':'List');

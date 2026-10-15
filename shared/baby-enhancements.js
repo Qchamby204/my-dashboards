@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='baby-brain')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('baby-enhancements.css?v=b1388f1a1399',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('baby-enhancements.css?v=583f758621ec',source).href;document.head.appendChild(css);
   function ready(){
     if(window.BabyNavigation||typeof ALL==='undefined')return;
     const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e;};
