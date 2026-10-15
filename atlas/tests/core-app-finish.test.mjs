@@ -10,7 +10,7 @@ function harness(app='life-ledger'){
  const root={dataset:{atlasApp:app},classList:{add:k=>classes.add(k),toggle(k,value){value?classes.add(k):classes.delete(k)}},style:{setProperty(k,v){style[k]=v}}};
  const mode={dataset:{act:'logmode',mode:'cards'},textContent:'Cards',children:[],listener:()=>17,set innerHTML(value){this.html=value},append(n){this.children.push(n)}};
  const choice={...mode,dataset:{goal:'run',goalAction:'choose-focus'},textContent:'5K run',children:[]};
- const avatar={dataset:{},attrs:{},set innerHTML(value){this.html=value},setAttribute(k,v){this.attrs[k]=v},closest:()=>({querySelector:()=>({dataset:{habit:'Read'}})})};
+ const avatar={html:"📖",dataset:{},attrs:{},set innerHTML(value){this.html=value},setAttribute(k,v){this.attrs[k]=v},closest:()=>({querySelector:()=>({dataset:{habit:'Read'}})})};
  const document={documentElement:root,body:{},readyState:'complete',activeElement:{tagName:'BODY'},querySelector:s=>controls.get(s)||null,querySelectorAll:s=>s==='[data-act="logmode"]'?[mode]:s==='.ledger-card-avatar,.ledger-list-avatar'?[avatar]:s==='.atlas-goal-options [data-goal]'?[choice]:[],createElement:()=>({}),addEventListener(k,f){events[k]=f}};
  const visual={scale:1,height:800,offsetTop:0,addEventListener(k,f){events['viewport-'+k]=f}};
  const window={innerHeight:800,visualViewport:visual};
@@ -23,7 +23,7 @@ test('control artwork preserves actions and accessible names and is stable acros
  const h=harness();assert(h.classes.has('core-finished'));assert.equal(h.control.replacements,1);
  assert.match(h.control.html,/aria-hidden="true" focusable="false"/);assert.equal(h.control.label,'Settings');assert.equal(h.control.dataset.act,'settings');assert.equal(h.control.listener(),42);
  h.redraw();h.window.CoreAppFinish.decorate();assert.equal(h.control.replacements,1);
- assert.equal(h.avatar.dataset.coreIcon,'book');assert.equal(h.avatar.attrs['aria-hidden'],'true');
+ assert.equal(h.avatar.html,'📖','original activity imagery survives decoration and redraws');assert.equal(h.avatar.attrs['aria-hidden'],'true');
  assert.equal(h.mode.children[0].textContent,'Cards');assert.equal(h.mode.listener(),17);assert.equal(h.mode.dataset.act,'logmode');assert.equal(h.mode.children.length,1,'redraw does not duplicate the visible label');
 });
 test('training choice artwork retains the goal action and its visible name',()=>{

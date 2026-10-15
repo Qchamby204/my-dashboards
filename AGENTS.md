@@ -17,6 +17,7 @@ Use `docs/apple-design-direction.md` for the suite's visual contract and release
 
 ## Content and control hierarchy
 
+- Life Ledger keeps its original full-colour habit imagery in cards and lists. Keep navigation and utility icons in the shared line family; do not substitute those for the activity imagery.
 - Content records must have a distinct format: recipe cards, activity cards and reading records need a clear title, concise metadata, separated details and a primary action. Use the shared palette without blending every record into the surrounding panel.
 - Use pills for compact actions. Text-only titles and navigation links must not inherit raised button surfaces. Choices need even spacing and consistent alignment; disclosures need separate rows with an explicit expansion indicator.
 - Inspect scrolled, populated and expanded states visually. Geometric containment checks alone do not establish good hierarchy, safe-area clearance or spacing.
