@@ -2255,8 +2255,8 @@ function createLifeMapOperations(catalog,storage,now=()=>Date.now()){
     return html;
   }
   function planView(){
-    let html=heading('Choose what belongs in your day','Build around your day',button('Today','plan-today')+button('Add task','new-todo'));
-    html+=panel('Schedule onto a day',field('Schedule tasks for',input('date',ui.date,'date'))+help('Choose what belongs on this date.')+button('View this day’s Board','view-selected-day'));
+    let html=heading('Plan','Build around your day',button('Today','plan-today')+button('Add task','new-todo'));
+    html+=panel('Schedule onto a day',field('Schedule tasks for',input('date',ui.date,'date'))+button('View this day’s Board','view-selected-day'));
     html+=panel('Build around your life','<h2>Choose a part of your day</h2>'+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+(group==='Work'&&OPS?button('Operations Cadence','ops-picker'):'')+starters.map((row,i)=>row[0]===group?button(row[1],'related-tasks','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
     if(ui.opsOpen)html+=opsPicker();
     if(ui.related!==null){
