@@ -33,7 +33,7 @@
     toolbar.append(mapButton,listButton);document.body.appendChild(toolbar);
     const mapChooser=make('div',null,'neural-map-chooser'),mapLabel=make('label','Choose a tool or area'),mapChoice=make('select');mapChoice.id='neural-map-choice';mapLabel.append(mapChoice);
     allNodes.forEach((node,i)=>{const o=make('option',node._tool?(node._tool.full||node._tool.label):node._hub?'Area: '+node._hub.title:'All tools');o.value=String(i);mapChoice.append(o);});
-    const showChoice=button('Show',()=>{const node=allNodes[Number(mapChoice.value)];if(node._tool){focusTool(node);openPop(node);}else if(node._hub){closePop();focusCat(node._hub);}else{closePop();animateFit();}});mapChooser.append(mapLabel,showChoice);document.body.append(mapChooser);
+    const showChoice=button('Show',event=>{event.stopPropagation();const node=allNodes[Number(mapChoice.value)];if(node._tool){focusTool(node);openPop(node);}else if(node._hub){closePop();focusCat(node._hub);}else{closePop();animateFit();}});mapChooser.append(mapLabel,showChoice);document.body.append(mapChooser);
     stage.setAttribute('role','img');stage.setAttribute('aria-label','Resource connections overview. Select any resource with Choose a tool or area.');
 
     const list=make('main',null,'neural-list');list.id='neural-list';
@@ -192,7 +192,7 @@
     window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',measure);
     if(window.ResizeObserver){const observer=new ResizeObserver(measure);observer.observe(hud);observer.observe(toolbar);}
     css.addEventListener('load',()=>{measure();if(mode==='map')fit();});
-    hint.textContent='Tap a branch to focus · drag or pinch to explore · use List & search to find a tool';
+    hint.textContent='Choose a tool or area · drag or pinch to explore';
     renderList();setMode(mode);
     window.NeuralNavigation=Object.freeze({findTools,destinations,setMode,get mode(){return mode;}});
   }
