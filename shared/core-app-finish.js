@@ -37,7 +37,8 @@
   keyboardVisible=offset>150&&(editing||keyboardVisible);
   root.classList.toggle('core-keyboard',keyboardVisible);
   root.style.setProperty('--core-keyboard-bottom',Math.round(offset)+'px');
-  if(editing&&offset>150){
+  const saving=app==='life-ledger'&&document.activeElement?.matches?.('#ledger-checkin-save button');
+  if((editing||saving)&&offset>150){
    const rect=document.activeElement?.getBoundingClientRect?.(),dock=app==='life-ledger'?document.querySelector('.ledger-dock'):null;
    const bottom=Math.min(v.offsetTop+v.height,dock?.getBoundingClientRect?.().top??Infinity)-16;
    if(rect&&rect.bottom>bottom)window.scrollBy?.({top:rect.bottom-bottom,behavior:'instant'});

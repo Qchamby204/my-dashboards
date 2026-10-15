@@ -184,7 +184,7 @@ html[data-atlas-app="life-ledger"] .ledger-save-row{display:flex;align-items:cen
 html[data-atlas-app="life-ledger"] .ledger-save-row #ledger-draft-status{flex:1;min-width:0;font-size:12px!important;line-height:1.35;}
 html[data-atlas-app="life-ledger"] #app .ledger-primary,
 html[data-atlas-app="life-ledger"] .ledger-sheet>.ledger-primary{background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:0!important;border-radius:12px!important;font-weight:700;box-shadow:none!important;min-height:46px;padding:11px 20px!important;white-space:nowrap;}
-html[data-atlas-app="life-ledger"] .ledger-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding-top:5px;}
+html[data-atlas-app="life-ledger"] .ledger-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding-top:5px;}
 html[data-atlas-app="life-ledger"] #app .ledger-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:55px;border:0;background:none;box-shadow:none;color:var(--neo-muted);font-size:12px!important;padding:6px;border-radius:10px;}
 html[data-atlas-app="life-ledger"] .ledger-nav svg{width:21px;height:21px;}
 html[data-atlas-app="life-ledger"] #app .ledger-nav button[aria-selected="true"]{color:var(--neo-accent);background:color-mix(in srgb,var(--neo-accent) 9%,transparent);font-weight:700;}
@@ -384,3 +384,25 @@ html.atlas-neumo[data-atlas-app="life-ledger"] [data-reminder-completion]{margin
 html.atlas-neumo[data-atlas-app="life-ledger"] [data-reminder-completion]>summary{min-height:44px;padding:12px 0;color:var(--neo-muted);cursor:pointer}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="life-ledger"]{--ledger-separator:var(--neo-ink)}html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card{border:2px solid var(--neo-ink)!important}html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-log-mode button[aria-pressed="true"]{outline:2px solid currentColor;outline-offset:-2px}}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log :is(.ledger-habit-card,.ledger-log-mode button[aria-pressed="true"]){background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important}}
+
+/* Saving belongs to the check-in; only section navigation floats. */
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-checkin-save{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 0 0;margin-top:16px;border-top:1px solid var(--neo-line)}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-checkin-save #ledger-draft-status{font-size:.8125rem!important;line-height:1.5;margin:0;flex:1 1 100px}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-checkin-save .ledger-primary{min-height:44px;min-width:112px;border-radius:999px!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav button{padding-inline:2px}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav button>span{font-size:.6875rem;line-height:1.3;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-next-milestone{border-inline-start:3px solid var(--neo-accent);padding:24px;margin:24px 0;background:var(--neo-content-surface)!important;box-shadow:none!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-next-milestone h2{font-size:1.5rem;line-height:1.3;margin:12px 0}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-milestone-total{font-size:1rem;margin:12px 0}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-milestone-remaining{font-size:1rem;font-weight:600;margin:12px 0 4px}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-milestone-estimate{font-size:.9375rem;color:var(--neo-muted);line-height:1.5}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-filters{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-filters button{min-height:44px;min-width:64px;box-shadow:none!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-filters button[aria-pressed="true"]{border-color:var(--neo-accent)!important;font-weight:700;box-shadow:inset 0 -2px var(--neo-accent)!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-category{font-size:1rem;font-weight:600;margin:24px 0 8px}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-record{display:flex;width:100%;text-align:left;align-items:flex-start;gap:16px;padding:16px 0;min-height:64px;background:transparent!important;border:0!important;border-bottom:1px solid var(--neo-line)!important;border-radius:0!important;box-shadow:none!important;color:var(--neo-ink)!important;white-space:normal}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-record>span:last-child{min-width:0;display:grid;gap:5px}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-record strong{font-size:1rem;line-height:1.4}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-mark{width:24px;flex:0 0 24px;font-size:21px;color:var(--neo-muted)}
+html.atlas-neumo[data-atlas-app="life-ledger"] [data-earned="true"] .ledger-achievement-mark{color:var(--neo-accent)}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-state{font-size:.8125rem;line-height:1.5;color:var(--neo-muted)}

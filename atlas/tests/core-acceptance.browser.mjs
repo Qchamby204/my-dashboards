@@ -17,10 +17,10 @@ async function keyboard(p,input,app){
  await input.focus();await p.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{value:430,configurable:true});window.visualViewport.dispatchEvent(new Event('resize'));});
  await p.waitForFunction(()=>document.documentElement.classList.contains('core-keyboard'));
  if(app==='life-ledger'){
-  assert(!(await p.locator('.ledger-nav').isVisible()));const dock=await p.locator('.ledger-dock').boundingBox();assert(dock.y+dock.height<=431,'save dock sits above the simulated keyboard');
+  assert(!(await p.locator('.ledger-nav').isVisible()),'navigation yields room to the keyboard');assert.equal(await p.locator('.ledger-dock [data-act="commit"]').count(),0,'saving remains in the check-in');
   assert.equal(await p.locator('.ledger-dock').evaluate(n=>getComputedStyle(n).paddingBottom),'7px','keyboard save bar does not retain the Home indicator gap');
  }else assert(!(await p.locator(app==='life-map'?'.lm-day-dock':'#atlas-page-navigation').isVisible()),'navigation yields space to the keyboard');
- const bounds=await input.boundingBox(),limit=app==='life-ledger'?(await p.locator('.ledger-dock').boundingBox()).y:430;assert(bounds.y+bounds.height<=limit-12,'focused field remains above keyboard chrome');
+ const bounds=await input.boundingBox(),limit=430;assert(bounds.y+bounds.height<=limit-12,'focused field remains above keyboard chrome');
  assert(await input.evaluate(n=>parseFloat(getComputedStyle(n).fontSize)>=20),'form text follows the larger text setting');
  assert.equal(await input.evaluate(n=>parseFloat(getComputedStyle(n).borderTopLeftRadius)),14,'field corners follow the shared form style');
  await p.screenshot({path:path.join(out,app+'-keyboard-'+engine+'.png')});
@@ -46,8 +46,8 @@ try{
    const hero=p.locator(heroSelector).first();
     assert(await hero.evaluate(n=>{const s=getComputedStyle(n);return s.backgroundImage==='none'&&s.backgroundColor!==getComputedStyle(document.body).backgroundColor;}),'the primary record has a solid surface distinct from the canvas');
     if(app==='life-ledger'){
-    const record=await hero.boundingBox(),accessory=await p.locator('.ledger-save-row').boundingBox();
-    assert(record.y+record.height<=accessory.y-8,'the complete initial check-in remains above the floating save accessory');
+    const record=await hero.boundingBox(),navigation=await p.locator('.ledger-nav').boundingBox();
+    assert(record.y+record.height<=navigation.y-8,'the initial check-in clears floating navigation');assert(await p.locator('#ledger-checkin-save').evaluate(n=>getComputedStyle(n).position==='static'&&!!n.closest('#ledger-log')),'saving is embedded in the check-in');
     }else if(app==='life-map')assert(await p.locator('.lm-capture').evaluate(n=>n.previousElementSibling?.getAttribute('aria-label')==='Right now'),'the current task comes before capture in visual and keyboard order');
    if(app==='workout-forge'||app==='communication-trainer')assert.equal(await p.locator('.atlas-goal-question').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)','supporting choices do not compete with the focal record');
    if(app==='life-ledger'){
@@ -81,15 +81,16 @@ try{
     await p.evaluate(()=>scrollTo({top:180,behavior:'instant'}));const todayPlace=await p.evaluate(()=>scrollY);
     await p.locator('#ledger-nav-progress').click();assert.equal(await p.getByRole('heading',{name:'Levels by value',exact:true}).count(),1);
     assert.equal(await p.locator('.ledger-value-key button').count(),5,'every value has a named, reachable chart key');
-    await p.locator('#ledger-nav-history').click();await p.locator('#ledger-nav-today').click();
+    await p.locator('#ledger-nav-achievements').click();assert(await p.getByRole('heading',{name:'Achievements',exact:true}).isVisible());assert(await p.getByRole('region',{name:'Projected next milestone'}).isVisible());await p.screenshot({path:path.join(out,'ledger-achievements-'+theme+'.png'),fullPage:true});await p.locator('#ledger-nav-history').click();await p.locator('#ledger-nav-today').click();
     await p.waitForFunction(y=>Math.abs(scrollY-y)<2,todayPlace);assert.equal(await input.inputValue(),'12','section switches preserve the unfinished check-in');
-    assert.equal(await p.locator('.ledger-save-row .ledger-primary').evaluate(n=>getComputedStyle(n).borderTopLeftRadius),'999px','Save Day follows the shared action shape');
+    assert.equal(await p.locator('.ledger-checkin-save .ledger-primary').evaluate(n=>getComputedStyle(n).borderTopLeftRadius),'999px','Save Day follows the shared action shape');
     await keyboard(p,input,app);
     await p.reload();await ready(p);assert.equal(await p.evaluate(()=>state.draft.Read),12,'unfinished check-in survives reload');
     await p.locator('#ledger-habit-picker').selectOption('Read');await p.locator('.ledger-habit-card:not([inert]) [data-act="num"]').focus();
     await p.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{value:430,configurable:true});window.visualViewport.dispatchEvent(new Event('resize'));});
-    const save=p.locator('.ledger-save-row').getByRole('button',{name:'Save day',exact:true});await save.focus();
-    assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'focusing Save keeps its dock above the keyboard');
+    const save=p.locator('.ledger-checkin-save').getByRole('button',{name:'Save day',exact:true});await save.focus();
+    assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'focusing Save keeps the keyboard layout stable');
+    const saveBounds=await save.boundingBox();assert(saveBounds.y>=0&&saveBounds.y+saveBounds.height<=430,'inline Save can be focused above the keyboard');
     await save.tap();await p.waitForFunction(()=>state.days.some(d=>d.units.Read===12));await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===12)),'first save tap commits and saved check-in survives reload');
    }else if(app==='life-map'){
     const input=p.locator('#qaTxt');await input.fill('Synthetic acceptance task');await input.press('Tab');

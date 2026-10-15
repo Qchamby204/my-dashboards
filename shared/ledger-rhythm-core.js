@@ -83,5 +83,20 @@
     const legacy=merge(base.filter(d=>!d.date),mine.filter(d=>!d.date),latest.filter(d=>!d.date),'undated history');
     return [...legacy,...dated.sort((a,b)=>a.date.localeCompare(b.date))].map((d,i)=>({...d,day:i+1}));
   }
-  window.LedgerRhythm=Object.freeze({REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone,xpUnit,annualCost,lifeCost,levelProgress,experience,stable,merge,mergeDays});
+  // Read-only estimates from dated saved activity; drafts and weekly catch-up
+  // totals never invent individual activity dates or increase the observed pace.
+  function projectMilestones(trackers,today){
+    if(!validDate(today))return [];
+    const start=addDays(today,-27);
+    return trackers.filter(t=>!t.earned&&number(t.current)&&number(t.target)&&t.target>t.current).map(t=>{
+      const dates=new Map();
+      for(const row of t.history||[])if(validDate(row.date)&&row.date>=start&&row.date<=today&&number(row.amount)&&row.amount>0)dates.set(row.date,(dates.get(row.date)||0)+row.amount);
+      const ordered=[...dates.keys()].sort(),span=ordered.length?Math.max(7,Math.round((Date.parse(today)-Date.parse(ordered[0]))/86400000)+1):28;
+      const amount=[...dates.values()].reduce((a,b)=>a+b,0),rate=amount/span,remaining=t.target-t.current;
+      const estimate=ordered.length>=3&&rate>0?Math.max(1,Math.ceil(remaining/rate)):null;
+      const days=estimate&&estimate<=3650?estimate:null;
+      return {...t,remaining,fraction:Math.min(1,t.current/t.target),observedDays:ordered.length,span,rate,days,date:days?addDays(today,days):null};
+    }).sort((a,b)=>((a.days??Infinity)-(b.days??Infinity))||b.fraction-a.fraction||a.name.localeCompare(b.name));
+  }
+  window.LedgerRhythm=Object.freeze({projectMilestones,REMOVED,SCREEN,validDate,addDays,weekStart,goal,focus,value,validate,weekly,total,milestone,xpUnit,annualCost,lifeCost,levelProgress,experience,stable,merge,mergeDays});
 })();

@@ -67,3 +67,15 @@ test('canonical comparisons retain custom fields named day while ignoring row in
  assert.notEqual(R.stable({units:{day:1}}),R.stable({units:{day:2}}));
  assert.equal(R.mergeDays([{date:week,day:1,units:{Read:1}}],[{date:week,day:9,units:{Read:1}}],[{date:week,day:1,units:{Read:2}}])[0].units.Read,2);
 });
+
+test('milestone forecast uses saved calendar pace and ignores future, old and invalid activity',()=>{
+ const events=[{date:'2026-10-01',amount:1},{date:'2026-10-03',amount:1},{date:'2026-10-07',amount:1},{date:'2026-10-09',amount:100},{date:'2026-08-01',amount:100},{date:'invalid',amount:100}];
+ const [p]=R.projectMilestones([{name:'Ten workouts',current:3,target:10,unit:'days',history:events}],today);
+ assert.equal(p.observedDays,3);assert.equal(p.span,8);assert.equal(p.rate,3/8);assert.equal(p.remaining,7);assert.equal(p.days,19);assert.equal(p.date,'2026-10-27');
+});
+test('sparse, absent or stale activity shows remaining progress without a fabricated date',()=>{
+ for(const history of [[],[{date:today,amount:2}],[{date:'2026-08-01',amount:10}]]){const [p]=R.projectMilestones([{name:'Reading',current:20,target:250,history}],today);assert.equal(p.date,null);assert.equal(p.days,null);assert.equal(p.remaining,230);}
+});
+test('earned and corrected milestones do not become phantom upcoming achievements',()=>{
+ const rows=[{name:'Already claimed',earned:true,current:0,target:7},{name:'Completed',current:10,target:10},{name:'Upcoming',current:2,target:10}];const before=JSON.stringify(rows);const result=R.projectMilestones(rows,today);assert.equal(result.length,1);assert.equal(result[0].name,'Upcoming');assert.equal(JSON.stringify(rows),before);assert.equal(R.projectMilestones(rows,'invalid').length,0);
+});
