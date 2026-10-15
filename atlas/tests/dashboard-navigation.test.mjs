@@ -43,7 +43,9 @@ test('scrolling tucks the dock away without jitter and restores it on reversal o
  scroll(228);assert(!h.root.classList.contains('atlas-page-minimized'));
  scroll(300);assert(h.root.classList.contains('atlas-page-minimized'));
  h.emit('keydown',{key:'Tab',target:h.body});assert(!h.root.classList.contains('atlas-page-minimized'),'Tab reveals accessible navigation');
- scroll(380);assert(h.root.classList.contains('atlas-page-minimized'));
+ scroll(360);assert(!h.root.classList.contains('atlas-page-minimized'),'browser scrolling the next focused field into view is not wheel intent');
+ h.emit('wheel',{deltaY:100});
+ scroll(430);assert(h.root.classList.contains('atlas-page-minimized'));
  h.emit('focusin',{target:h.dock().children[0]});assert(!h.root.classList.contains('atlas-page-minimized'),'assistive focus reveals navigation');
  assert.deepEqual(h.writes,[]);
 });
