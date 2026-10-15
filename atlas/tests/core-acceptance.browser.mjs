@@ -91,7 +91,12 @@ try{
     await keyboard(p,input,app);await p.reload();await ready(p);assert.equal(await p.locator('#qaTxt').inputValue(),'Synthetic acceptance task','unfinished task capture survives reload');
     await p.getByRole('button',{name:'Add task',exact:true}).click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Synthetic acceptance task'));await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Synthetic acceptance task')),'saved task survives reload');
    }else if(app==='workout-forge'){
-    await p.locator('[data-goal-action="open"][data-goal="bench"]').click();await p.locator('[data-goal-action="set"]').first().click();const input=p.locator('.fg-editor input[name="w"]');await input.fill('95');await p.locator('.fg-editor input[name="r"]').fill('5');await keyboard(p,input,app);
+    await p.locator('[data-goal-action="open"][data-goal="bench"]').click();
+    assert(await p.locator('.fg-weeks button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect();return r.width>=44&&r.height>=44;})),'week choices have comfortable targets');
+    await p.getByRole('button',{name:'Log next set',exact:true}).click();const input=p.locator('.fg-editor input[name="w"]');await input.fill('95');await p.locator('.fg-editor input[name="r"]').fill('5');
+    await p.locator('#atlas-page-navigation').getByRole('button',{name:'Deadlift',exact:true}).click();await p.locator('#atlas-page-navigation').getByRole('button',{name:'Bench',exact:true}).click();
+    assert.equal(await input.inputValue(),'95','goal navigation preserves the unfinished set');
+    await keyboard(p,input,app);
     await p.reload();await ready(p);assert.equal(await p.locator('.fg-editor input[name="w"]').inputValue(),'95','unfinished training entry survives reload');await p.locator('.fg-editor').getByRole('button',{name:'Save set',exact:true}).click();await p.reload();await ready(p);
     assert(await p.evaluate(()=>Object.values(JSON.parse(localStorage.getItem('forge:goals:v1')).plans.bench.done).some(v=>v.w==='95'&&v.r==='5')),'saved training entry survives reload');
    }else{
