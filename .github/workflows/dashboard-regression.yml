@@ -144,8 +144,19 @@ jobs:
         run: |
           node atlas/tests/core-acceptance.browser.mjs
           node atlas/tests/planning-release.browser.mjs
+      - name: Verify floating navigation and scroll behavior across the suite
+        env:
+          NODE_PATH: /tmp/atlas-browser/node_modules
+          ATLAS_SCREENSHOTS: artifacts/glass-navigation
+          ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node atlas/tests/glass-navigation.browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: core-acceptance-${{ matrix.engine }}
           path: artifacts/core-acceptance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: glass-navigation-${{ matrix.engine }}
+          path: artifacts/glass-navigation

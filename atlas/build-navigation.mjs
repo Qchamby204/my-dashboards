@@ -1,6 +1,6 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-export const navigationPages=['life-ledger','life-map','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','crucible','the-library','baby-brain','neural-map','workout-forge'];
+export const navigationPages=['life-ledger','life-map','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','the-library','baby-brain','neural-map','workout-forge'];
 const root=new URL('../',import.meta.url),hash=async path=>createHash('sha256').update(await readFile(new URL(path,root))).digest('hex').slice(0,12);
 const theme=new URL('shared/atlas-theme.js',root);let source=await readFile(theme,'utf8');
 for(const asset of ['baby-enhancements.js','neural-enhancements.js','atlas-mobile.js']){

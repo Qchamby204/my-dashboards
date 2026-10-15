@@ -44,15 +44,12 @@ html.atlas-neumo.atlas-neumo.core-finished:is([data-atlas-app="workout-forge"],[
 html.atlas-neumo.atlas-neumo.core-finished:is([data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) .atlas-goal-question h2{font-size:clamp(1.25rem,4.5vw,1.5rem);line-height:1.35;letter-spacing:-.02em}
 
 /* Floating chrome separates from records and stays usable above the software keyboard. */
-html.atlas-neumo.atlas-neumo.core-finished :is(#atlas-page-navigation,.atlas-page-shell,.lm-day-dock){background:color-mix(in srgb,var(--neo-content-surface) 94%,transparent)!important;backdrop-filter:blur(16px) saturate(110%);-webkit-backdrop-filter:blur(16px) saturate(110%);box-shadow:0 -4px 20px rgb(0 0 0 / .08)!important}
 html.core-finished.core-keyboard :is(.atlas-page-dock,.lm-day-dock){visibility:hidden;pointer-events:none}
 html.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-dock{bottom:var(--core-keyboard-bottom,0px)!important}
 html.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-nav{display:none!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] .ledger-dock{padding-left:max(14px,var(--atlas-safe-left,0px))!important;padding-right:max(14px,var(--atlas-safe-right,0px))!important;padding-bottom:calc(7px + var(--atlas-safe-bottom,0px))!important}
 html.atlas-neumo.atlas-neumo.core-finished.core-keyboard[data-atlas-app="life-ledger"] .ledger-dock{padding-bottom:7px!important}
 html.atlas-neumo.atlas-neumo.core-finished :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea){font-size:max(1rem,16px)!important}
 html.core-finished.core-keyboard{scroll-padding-bottom:calc(var(--core-keyboard-bottom,0px) + var(--atlas-bottom-h,70px) + 24px)}
-@media(prefers-reduced-transparency:reduce){html.atlas-neumo.atlas-neumo.core-finished :is(#atlas-page-navigation,.atlas-page-shell,.lm-day-dock){background:var(--neo-content-surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
 @media(prefers-contrast:more){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(.ledger-habit-card,.lm-now-card,.fg-card,.cl-next){box-shadow:none!important;border:2px solid var(--neo-ink)!important}}
 @media(forced-colors:active){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(.ledger-habit-card,.lm-now-card,.fg-card,.cl-next,.atlas-goal-question){background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;box-shadow:none!important}}
 

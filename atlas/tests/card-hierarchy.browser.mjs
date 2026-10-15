@@ -30,7 +30,7 @@ async function coreChrome(p,app,w,h){
  await p.waitForFunction(()=>!!window.AtlasPageNavigation);
  const labels=await dock.locator('button>span:last-child').evaluateAll(ns=>ns.map(n=>({label:n.textContent,height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight),width:n.clientWidth,scroll:n.scrollWidth})));
  assert(labels.every(n=>n.height<=n.line+1&&n.scroll<=n.width+1),app+' navigation labels stay whole: '+JSON.stringify(labels));
- assert(await dock.locator('button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.height>=44&&r.width>=44&&parseFloat(s.borderRadius)<=12&&parseFloat(s.borderTopWidth)===0;})),app+' uses distinct, full-size navigation targets');
+ assert(await dock.locator('button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.height>=44&&r.width>=44&&parseFloat(s.borderRadius)>=22&&parseFloat(s.borderTopWidth)===0&&s.boxShadow==='none';})),app+' uses distinct, full-size navigation targets');
  if(w<=360){
   await dock.locator('[data-more]').click();const menu=p.locator('#atlas-page-menu');assert(await menu.isVisible());
   await menu.getByRole('button',{name:app==='Forge'?'Run':'Progress',exact:true}).click();

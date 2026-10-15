@@ -43,3 +43,13 @@ test('all core apps and Aqueduct reserve home-screen phone clearance and update 
   assert.equal(boot('workout-forge',{phone:true}).properties.get('--atlas-standalone-top'),'0px');
   assert.equal(boot('life-map',{standalone:true}).properties.get('--atlas-standalone-top'),'0px');
 });
+
+test('floating navigation owns its bottom clearance across repeated mobile measurements',()=>{
+ const h=boot('life-ledger');
+ h.root.classList.contains=key=>key==='atlas-page-navigation';
+ h.properties.set('--atlas-page-nav-height','188px');h.properties.set('--atlas-bottom-h','188px');
+ for(let refresh=0;refresh<5;refresh++){
+  h.window.AtlasMobile.measure();
+  assert.equal(h.properties.get('--atlas-bottom-h'),'188px','mobile measurement must not remove the floating dock gap');
+ }
+});

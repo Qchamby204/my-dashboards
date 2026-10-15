@@ -11,7 +11,7 @@ await writeFile(themeURL,theme);assets.set('shared/atlas-theme.js',hash(theme));
 const communicatorTheme='// Generated Communicator entry from shared/atlas-theme.js.\n'+theme;await writeFile(new URL('shared/communicator-theme.js',root),communicatorTheme);assets.set('shared/communicator-theme.js',hash(communicatorTheme));
 const paths=[...(await readdir(root)).filter(p=>p.endsWith('.html')&&!excluded.has(p)), 'atlas/life-map-legacy.html','atlas/index.html'];
 for(const path of paths){let source=await readFile(new URL(path,root),'utf8');
-  if(!source.includes('atlas-neumo'))continue;
+  if(!source.includes('atlas-neumo')||source.includes('data-communicator-redirect'))continue;
   source=source.replace(/<link[^>]+(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>\s*/g,'');
   source=source.replace(/<script src="(?:\/)?shared\/atlas-streak\.js(?:\?v=[^"]*)?"><\/script>\s*/g,'').replace(/<script src="(?:\/)?shared\/atlas-experience\.js(?:\?v=[^"]*)?" defer><\/script>\s*/g,'');
   const prefix=path==='atlas/index.html'?'/':'';
