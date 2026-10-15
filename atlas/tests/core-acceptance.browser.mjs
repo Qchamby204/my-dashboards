@@ -82,7 +82,13 @@ try{
     assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'focusing Save keeps its dock above the keyboard');
     await save.tap();await p.waitForFunction(()=>state.days.some(d=>d.units.Read===12));await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===12)),'first save tap commits and saved check-in survives reload');
    }else if(app==='life-map'){
-    const input=p.locator('#qaTxt');await input.fill('Synthetic acceptance task');await input.press('Tab');await keyboard(p,input,app);await p.reload();await ready(p);assert.equal(await p.locator('#qaTxt').inputValue(),'Synthetic acceptance task','unfinished task capture survives reload');
+    const input=p.locator('#qaTxt');await input.fill('Synthetic acceptance task');await input.press('Tab');
+    await p.locator('#lm-day-nav-plan').click();assert.equal(await p.getByRole('heading',{name:'Build around your day',exact:true}).count(),1,'planning has one clear title');
+    assert(!(await p.locator('.lm-capture').isVisible()),'planning keeps capture behind its contextual action');
+    await p.getByRole('button',{name:'Resume capture',exact:true}).click();assert.equal(await p.locator('#lm-capture-text').inputValue(),'Synthetic acceptance task');await p.keyboard.press('Escape');
+    await p.locator('#lm-day-nav-areas').click();assert(!(await p.locator('.lm-capture').isVisible()));
+    await p.locator('#lm-day-nav-home').click();assert.equal(await input.inputValue(),'Synthetic acceptance task','contextual capture retains unfinished work across sections');
+    await keyboard(p,input,app);await p.reload();await ready(p);assert.equal(await p.locator('#qaTxt').inputValue(),'Synthetic acceptance task','unfinished task capture survives reload');
     await p.getByRole('button',{name:'Add task',exact:true}).click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Synthetic acceptance task'));await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Synthetic acceptance task')),'saved task survives reload');
    }else if(app==='workout-forge'){
     await p.locator('[data-goal-action="open"][data-goal="bench"]').click();await p.locator('[data-goal-action="set"]').first().click();const input=p.locator('.fg-editor input[name="w"]');await input.fill('95');await p.locator('.fg-editor input[name="r"]').fill('5');await keyboard(p,input,app);
