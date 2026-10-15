@@ -53,10 +53,12 @@ try{
      }
      await frames(p);await audit(p,app,key,theme);
      if(app==='neural-map'&&await p.locator('#neural-map-choice').isVisible()){
+      await p.screenshot({path:path.join(out,'neural-map-controls-'+theme+'.png')});
       await p.locator('#neural-map-choice').selectOption({label:'Life Ledger'});await p.locator('.neural-map-chooser').getByRole('button',{name:'Show',exact:true}).click();
       assert(await p.getByRole('dialog',{name:'Resource details'}).isVisible());await p.screenshot({path:path.join(out,'neural-map-selection-'+theme+'.png')});await p.keyboard.press('Escape');assert(await p.locator('.neural-map-chooser button').evaluate(n=>n===document.activeElement));
      }
      if(app==='baby-brain'&&await p.locator('#baby-map-choice').isVisible()){
+      await p.screenshot({path:path.join(out,'baby-map-controls-'+theme+'.png')});
       const id=await p.evaluate(()=>BabyNavigation.findTopics('')[0].id);await p.locator('#baby-map-choice').selectOption(id);await p.locator('.baby-map-chooser').getByRole('button',{name:'Show topic',exact:true}).click();
       await p.waitForSelector('#sheet.show');await p.screenshot({path:path.join(out,'baby-map-selection-'+theme+'.png')});await p.keyboard.press('Escape');
      }
