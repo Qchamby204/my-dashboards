@@ -33,10 +33,10 @@
 
     }
     function investingView(){
-      return '<section class="card"><label for="communicator-reference">Investing reference</label><select id="communicator-reference">'+references.map(([id,title])=>'<option value="'+id+'"'+(id===reference?' selected':'')+'>'+title+'</option>').join('')+'</select>'+status()+'</section><div class="communicator-analysis" id="communicator-analysis">'+curriculum.view(reference)+'</div>';
+      return todayCard()+'<section class="card"><label for="communicator-reference">Investing reference</label><select id="communicator-reference">'+references.map(([id,title])=>'<option value="'+id+'"'+(id===reference?' selected':'')+'>'+title+'</option>').join('')+'</select>'+status()+'</section><div class="communicator-analysis" id="communicator-analysis">'+curriculum.view(reference)+'</div>';
     }
     pageLearn=()=>'<section class="card communicator-learning-header"><div class="communication-topic-heading"><h2>Learn</h2>'+button('Communication assessment','assessment')+'</div><div class="communicator-segments" aria-label="Learning subject">'+button('Communication','track','communication',track==='communication'?'':'ghost')+button('Investing','track','investing',track==='investing'?'':'ghost')+'</div></section>'+(track==='investing'?investingView():oldLearn());
-    pageDash=()=>{const html=oldDash(),resume=html.match(/^<section class="card communication-resume">[\s\S]*?<\/section>/)?.[0]||'';return resume+todayCard()+html.slice(resume.length);};
+    pageDash=()=>oldDash()+((curriculum.problem||curriculum.pending)?'<section class="card" aria-label="Investing save recovery">'+status()+'</section>':'');
     pageTrain=()=>curDrill?oldTrain():oldTrain()+'<section class="card"><h2>Practise your investing knowledge</h2>'+button('Explain my next block · 90 seconds','block-rep',curriculum.nextBlock().id,'')+'<details class="communicator-practice-more"><summary>Other investing exercises</summary><div class="communicator-practice-options">'+button('Evidence & debate','reference','arsenal')+button('Explain my filing checkpoint','statement-rep',String(curriculum.nextStatement().n))+button('Explain my saved learning note','note-rep')+'</div></details></section>';
 
     function investingProgressBody(){

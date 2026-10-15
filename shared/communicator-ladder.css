@@ -35,3 +35,10 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-mastery{font-size:.
 html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-unlock-bridge{display:grid;gap:.6rem;margin:1rem 0;padding:1rem;border-radius:18px;border:1px solid var(--neo-accent);background:var(--neo-content-surface);}
 
 html.atlas-neumo[data-atlas-app="communication-trainer"] .cl-receipt>.cl-emblem{display:flex;margin:0 0 .85rem;}
+
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-alternatives>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600;gap:12px;list-style:none}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-alternatives>summary::after{content:'+';margin-inline-start:auto}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-alternatives[open]>summary::after{content:'−'}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-alternative-body{padding-top:16px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-pillar{color:var(--neo-ink);font:inherit;white-space:normal;min-height:44px;cursor:pointer}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-pillar .muted{white-space:normal}
