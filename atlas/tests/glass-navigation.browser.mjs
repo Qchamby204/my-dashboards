@@ -38,6 +38,15 @@ try{
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const file=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await r.abort();}});
   for(const app of files){
    let phase='startup';const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.stack||e.message));p.setDefaultTimeout(12000);
+   await p.addInitScript(()=>{
+    window.navigationTrace=[];
+    window.traceNavigation=row=>{window.navigationTrace.push({t:performance.now(),...row});if(window.navigationTrace.length>80)window.navigationTrace.shift();};
+    for(const type of ['wheel','focusin','focusout','keydown','scroll'])document.addEventListener(type,event=>window.traceNavigation({type,key:event.key,dy:event.deltaY,y:scrollY,target:event.target.tagName,active:document.activeElement?.id||document.activeElement?.tagName,minimized:document.documentElement?.classList.contains('atlas-page-minimized')}),true);
+   });
+   await p.route('**/shared/dashboard-navigation.js*',route=>{
+    const body=readFileSync(path.join(root,'shared/dashboard-navigation.js'),'utf8').replace('const nav=pageNav();',"const nav=pageNav();window.traceNavigation?.({type:'navigation-scroll',y,delta,max,intent:scrollIntentUntil-Date.now(),focused:nav?.contains(document.activeElement),classes:root.className});");
+    return route.fulfill({body,contentType:'text/javascript'});
+   });
    try{
     if(app==='crucible'){
      await p.goto(origin+'/index.html');
@@ -75,7 +84,7 @@ try{
      await p.screenshot({path:path.join(out,app+'-large-narrow-'+theme+'.png')});await p.setViewportSize({width:852,height:393});await p.waitForTimeout(100);const r=await nav.boundingBox();assert(r.x>=12&&r.x+r.width<=840,'landscape navigation fits');await p.screenshot({path:path.join(out,app+'-landscape-'+theme+'.png')});
     }
     assert.deepEqual(errors,[]);reports.push({app,theme,engine,floating:true,scrollDown:true,scrollUp:true,focusReveal:true});
-   }catch(e){reports.push({app,theme,engine,phase,error:e.message,details:await p.evaluate(()=>({y:scrollY,active:document.activeElement?.outerHTML?.slice(0,250),classes:document.documentElement.className,scrollHeight:document.documentElement.scrollHeight,height:innerHeight}))});console.error(JSON.stringify(reports.at(-1)));await p.screenshot({path:path.join(out,app+'-failure-'+theme+'.png')}).catch(()=>{});}
+   }catch(e){reports.push({app,theme,engine,phase,error:e.message,details:await p.evaluate(()=>({y:scrollY,active:document.activeElement?.outerHTML?.slice(0,250),classes:document.documentElement.className,scrollHeight:document.documentElement.scrollHeight,height:innerHeight,trace:window.navigationTrace}))});console.error(JSON.stringify(reports.at(-1)));await p.screenshot({path:path.join(out,app+'-failure-'+theme+'.png')}).catch(()=>{});}
    finally{await p.close()}
   }
   await context.close();
