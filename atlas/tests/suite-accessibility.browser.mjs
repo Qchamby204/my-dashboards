@@ -48,6 +48,12 @@ try{
      await p.keyboard.press('Escape');assert(await summary.evaluate(n=>n===document.activeElement&&!n.parentElement.open));
      await p.screenshot({path:path.join(out,app+'-header-'+theme+'.png')});
     }
+    if(app==='the-herald'){
+     const bar=p.locator('.atlas-header-compact');
+     const tools=bar.locator('.atlas-header-tools>summary');await tools.focus();await p.keyboard.press('Enter');
+     for(const name of ['Sync devices','Export backup','Import backup'])assert(await bar.getByRole('button',{name,exact:true}).isVisible(),name+' remains reachable');
+     await audit(p,app,'header tools',theme);await p.screenshot({path:path.join(out,'herald-header-tools-'+theme+'.png')});await p.keyboard.press('Escape');assert(await tools.evaluate(n=>n===document.activeElement&&!n.parentElement.open));
+    }
     const native=app==='life-ledger'?'.ledger-nav':app==='life-map'?'.lm-day-dock':null;
     const entries=await p.locator(native?native+' button':'#atlas-page-menu [data-page-key],#atlas-page-navigation [data-page-key]').evaluateAll(ns=>[...new Set(ns.map(n=>n.id||n.dataset.pageKey))]);
     await audit(p,app,'initial',theme);
@@ -74,6 +80,14 @@ try{
     }
    }catch(e){reports.push({app,theme,engine,error:e.message});}finally{await p.close();}
   }
+  const courier=await ctx.newPage();
+  try{
+   await courier.goto(origin+'/courier.html');await courier.waitForFunction(()=>!!document.querySelector('.courier-suite-header .atlas-appearance-trigger'));await courier.evaluate(()=>document.fonts.ready);
+   const header=courier.locator('.courier-suite-header');assert.equal((await header.getByRole('heading').textContent()).trim(),'The Courier');assert(await header.getByRole('link',{name:'Atlas',exact:true}).isVisible());
+   const playback=courier.getByRole('group',{name:'Playback controls'});assert(await playback.getByRole('combobox',{name:'Edition',exact:true}).isVisible());assert(await playback.getByRole('button',{name:'Play all',exact:true}).isVisible());assert(await playback.getByRole('button',{name:'Build a 10-minute queue',exact:true}).isVisible());
+   const appearance=header.getByRole('button',{name:/^Appearance:/});await appearance.focus();await courier.keyboard.press('Enter');assert(await courier.locator('#atlas-appearance-dialog').isVisible());await courier.keyboard.press('Escape');assert(await appearance.evaluate(n=>n===document.activeElement));
+   await audit(courier,'courier','header and playback',theme);await courier.screenshot({path:path.join(out,'courier-header-'+theme+'.png')});
+  }catch(e){reports.push({app:'courier',theme,engine,error:e.message});}finally{await courier.close();}
   await ctx.close();
  }
  const issues=reports.flatMap(r=>(r.issues||[]).map(i=>({app:r.app,view:r.view,theme:r.theme,...i}))),errors=reports.filter(r=>r.error);

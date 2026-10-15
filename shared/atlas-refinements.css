@@ -111,3 +111,15 @@ html.atlas-neumo.atlas-neumo:is([data-atlas-app="life-ledger"],[data-atlas-app="
  html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-next,.cl-receipt,.communicator-session,.communication-resume),
  html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-card,.fg-exercise) {border-color:var(--neo-ink)!important;box-shadow:none!important;}
 }
+
+/* Remaining dashboards retain their record formats with quieter content material. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] :is(.operations-section,.task,.log-item){background:var(--neo-content-surface)!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] :is(.panel,.stat,.hourglass-upcoming-row){box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] :is(.panel,.stat,.wrow){box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] :is(.card,.rail-card,.vitem,.scell){box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] :is(.recipe-card,.day,.panel){box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="baby-brain"] .baby-topic{background:var(--neo-content-surface)!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] .neural-card{background:var(--neo-content-surface)!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] :is(.book-card,.reading-card,.understanding-card,.aim-choice){box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="prospecting-command-center"] :is(.qcard,.panel,.statbar){box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .daybtn{box-shadow:none!important}

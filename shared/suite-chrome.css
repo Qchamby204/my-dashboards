@@ -14,7 +14,7 @@ html.atlas-neumo.atlas-neumo .atlas-header-tools-body .appbar-pill{background:tr
 html.atlas-neumo.atlas-neumo .atlas-header-tools-body .operations-backup-tools{display:flex;flex-wrap:wrap;gap:8px;margin:0!important}
 html.atlas-neumo.atlas-neumo .atlas-header-tools-body button{min-height:44px;flex:1;padding:10px 16px!important;box-shadow:none!important;font:500 .875rem/1.4 var(--neo-font)!important}
 html.atlas-neumo.atlas-neumo.atlas-page-navigation{--neo-small:none;--neo-raised:0 3px 12px rgb(0 0 0 / .05);--neo-float:0 12px 32px rgb(0 0 0 / .16);--neo-well:none;--neo-pressed:inset 0 0 0 1px var(--neo-line)}
-html.atlas-neumo.atlas-neumo.atlas-page-navigation:not(:is([data-atlas-app="life-ledger"],[data-atlas-app="life-map"],[data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"])) :is(.panel,.card){background:var(--neo-content-surface,var(--neo-surface))!important;box-shadow:0 4px 16px color-mix(in srgb,var(--neo-ink) 5%,transparent)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.atlas-neumo.atlas-neumo.atlas-page-navigation:not(:is([data-atlas-app="life-ledger"],[data-atlas-app="life-map"],[data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"])) :is(.panel,.card){background:var(--neo-content-surface,var(--neo-surface))!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 @media(prefers-contrast:more){html.atlas-neumo.atlas-neumo .atlas-suite-header :is(.homebtn,.cc-home,.atlas-appearance-trigger,.atlas-header-tools>summary){border-color:currentColor!important}.atlas-header-tools-body{border:2px solid currentColor}}
 @media(forced-colors:active){.atlas-header-tools-body{background:Canvas;color:CanvasText;border-color:CanvasText;box-shadow:none}}
 .atlas-header-tools:not([open]) .atlas-header-tools-body{display:none}
@@ -47,3 +47,13 @@ html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(butt
 html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(button,.tbtn) svg{width:21px;height:21px}
 html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(.brand,.crumb,p){margin:0;max-width:none;white-space:normal;font:400 .875rem/1.5 var(--neo-font);letter-spacing:0;color:var(--neo-muted)}
 html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body [hidden]{display:none!important}
+
+/* Courier keeps its transport controls below the shared identity row. */
+html.atlas-neumo[data-atlas-app="courier"] body>header{display:block!important;padding:0!important;margin-bottom:24px}
+html.atlas-neumo[data-atlas-app="courier"] .courier-suite-header{margin:0!important;background:var(--neo-surface)!important;border-bottom:1px solid var(--neo-line)!important;box-shadow:none!important}
+html.atlas-neumo[data-atlas-app="courier"] .courier-suite-header h1{margin:0!important;display:block!important}
+html.atlas-neumo[data-atlas-app="courier"] .courier-playback-tools{padding:16px max(16px,var(--atlas-safe-right,0px)) 0 max(16px,var(--atlas-safe-left,0px));gap:12px}
+html.atlas-neumo[data-atlas-app="courier"] .courier-edition-stamp{flex-basis:100%;font:400 .8125rem/1.5 var(--neo-font);color:var(--neo-muted);letter-spacing:0;text-transform:none}
+html.atlas-neumo[data-atlas-app="courier"] :is(.courier-playback-tools button,.courier-playback-tools select){box-shadow:none!important;min-height:44px;min-width:44px;border-radius:24px}
+html.atlas-neumo[data-atlas-app="courier"] .courier-playback-tools button:not(.primary){background:transparent!important}
+html.atlas-neumo[data-atlas-app="courier"] :is(.block,.rail,.courier-health){background:var(--neo-content-surface)!important;box-shadow:none!important}
