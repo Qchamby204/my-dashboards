@@ -1,6 +1,7 @@
 (()=>{
   'use strict';
   const M=window.ForgeGoalModel,P=window.ForgeGoalPlans,KEY='forge:goals:v1';
+  const goalPlaces=new Map();let goalVisit=0;
   let data=M.blank(),raw=null,blocked=false,failed=false,active=null,error='',status='',homeScroll=0;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const button=(label,action,attrs='')=>`<button type="button" data-goal-action="${action}" ${attrs}>${label}</button>`;
@@ -80,9 +81,19 @@
     const p=plan(),sec=M.seconds(p.base)/5;
     return `<section class="fg-pace"><form id="fg-base-form"><label>Latest 5K time trial<input name="base" value="${p.baseConfirmed?esc(p.base):''}" placeholder="mm:ss" inputmode="text" required></label><button type="submit">Update paces</button></form>${!p.baseConfirmed?'<p>Preview paces use 28:00 until you log your first time trial.</p>':''}<div class="fg-pace-grid">${[['Easy',`${M.format(sec+60)}–${M.format(sec+90)}`],['Tempo',M.format(sec+15)],['Intervals',M.format(sec-5)]].map(([n,v])=>`<div><small>${n} / km</small><strong>${v}</strong></div>`).join('')}</div></section>`;
   }
+  function rememberGoal(){if(active){const p=plan();goalPlaces.set(active,{y:window.scrollY||0,week:p.week,day:p.day});}}
+  function currentSet(p,w){
+    if(p.draft)return p.draft.key;
+    for(let exercise=0;exercise<w[p.day].length;exercise++)for(let set=0;set<w[p.day][exercise].sets;set++){const key=M.key(p.week,p.day,exercise,set);if(!p.done[key])return key;}
+    return null;
+  }
+  function currentSession(){
+    const {p,w}=selected(),day=name(active,p,p.week,p.day),count=M.counts(active,p,p.week,p.day),key=currentSet(p,w),where=key?M.locate(active,key,p.base):null;
+    return `<section class="fg-current-session" aria-labelledby="fg-session-title"><div class="fg-kicker">Current session · Week ${p.week+1} · ${p.day==='d1'?'A':'B'}</div><h2 id="fg-session-title">${esc(day.title)}</h2><p>${count.logged}/${count.total} sets logged${p.completed[`${p.week}-${p.day}`]?' · Session saved':''}</p>${notice()}<div class="fg-actions">${key?button(p.draft?'Resume unfinished set':'Log next set','next-set',`data-key="${key}" class="fg-primary"`):button(p.completed[`${p.week}-${p.day}`]?'Update saved session':'Finish session','finish','class="fg-primary"')}</div>${where?`<p class="fg-current-next">${p.draft?'Continue':'Next'}: ${esc(where.e.n)} · Set ${where.set+1}${where.week!==p.week||where.day!==p.day?` · Week ${where.week+1} ${where.day==='d1'?'A':'B'}`:''}</p>`:''}</section>`;
+  }
   function detail(){
     const c=P[active],{p,b,w}=selected(),day=name(active,p,p.week,p.day),ct=M.counts(active,p,p.week,p.day),done=p.completed[`${p.week}-${p.day}`];
-    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><div class="fg-detail-title"><div class="fg-kicker">${esc(c.aim)}</div><h2 tabindex="-1" id="fg-detail-title">${esc(c.target)} <small>${esc(c.unit)}</small></h2><p>${esc(M.metric(active,p))}</p></div>${notice()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>The rim is 120 inches. Your best touch is measured from the floor, not the height of your jump. The supplied plan estimates a dunk needs roughly 126–129 inches, depending on your hands.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`W${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?' ✓':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets logged${done?' · Session saved':''}</span></div>${exercises()}${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets logged</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
+    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><div class="fg-detail-title"><div class="fg-kicker">${esc(c.aim)}</div><h2 tabindex="-1" id="fg-detail-title">${esc(c.target)} <small>${esc(c.unit)}</small></h2><p>${esc(M.metric(active,p))}</p></div>${currentSession()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>The rim is 120 inches. Your best touch is measured from the floor, not the height of your jump. The supplied plan estimates a dunk needs roughly 126–129 inches, depending on your hands.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`Week ${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?' ✓':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets logged${done?' · Session saved':''}</span></div>${exercises()}${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets logged</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
   }
   function paint(){
     const host=document.getElementById('forge-goals');if(!host)return;
@@ -96,10 +107,12 @@
   function focusTitle(){document.getElementById('fg-detail-title')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
   function open(id,week,day){
     if(blocked)return;
+    rememberGoal();const place=week===undefined?goalPlaces.get(id):null,visit=++goalVisit;
     if(!active)homeScroll=window.scrollY;
     active=id;error='';status='';const p=editPlan(),n=M.next(p);
-    if(week!==undefined){p.week=week;p.day=day;}else if(p.draft){const at=M.locate(id,p.draft.key,p.base);p.week=at.week;p.day=at.day;}else if(n){p.week=n.week;p.day=n.day;}
+    if(week!==undefined){p.week=week;p.day=day;}else if(p.draft){const at=M.locate(id,p.draft.key,p.base);p.week=at.week;p.day=at.day;}else if(place){p.week=place.week;p.day=place.day;}else if(n){p.week=n.week;p.day=n.day;}
     persist();paint();focusTitle();
+    if(place){window.scrollTo({top:place.y,behavior:'instant'});if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(active===id&&visit===goalVisit&&document.activeElement===document.getElementById('fg-detail-title'))window.scrollTo({top:place.y,behavior:'instant'});});}
     if(location.hash!==`#goal-${id}`)location.hash=`goal-${id}`;
   }
   function saveSet(form){
@@ -133,8 +146,15 @@
     if(a==='retry'){persist();paint();return;}
     if(a==='choose-focus'&&Object.hasOwn(P,el.dataset.goal)&&!data.goal){data.goal=el.dataset.goal;if(persist()){paint();open(data.goal);}else paint();return;}
     if(a==='open'||a==='history'){open(el.dataset.goal,a==='history'?Number(el.dataset.week):undefined,el.dataset.day);return;}
-    if(a==='home'){active=null;status='';error='';location.hash='';paint();window.scrollTo({top:homeScroll,behavior:'instant'});document.querySelector('[data-goal-action="open"]')?.focus({preventScroll:true});return;}
+    if(a==='home'){rememberGoal();active=null;status='';error='';location.hash='';paint();window.scrollTo({top:homeScroll,behavior:'instant'});document.querySelector('[data-goal-action="open"]')?.focus({preventScroll:true});return;}
     if(a==='rest'){startTimer(Number(el.dataset.seconds));return;}
+    if(a==='next-set'){
+      const p=editPlan(),key=p.draft?.key||el.dataset.key,where=M.locate(active,key,p.base);if(!where)return;
+      if(!p.draft)p.draft={key,values:M.defaults(active,p,key)};
+      p.week=where.week;p.day=where.day;status='';error='';persist();paint();
+      const editor=document.querySelector('.fg-editor');editor?.scrollIntoView({block:'center',behavior:'instant'});editor?.querySelector('input')?.focus({preventScroll:true});return;
+    }
+
     const p=editPlan();status='';error='';
     if(a==='week')p.week=Number(el.dataset.week);
     if(a==='day')p.day=el.dataset.day;
@@ -164,6 +184,7 @@
     read();
     window.ForgeGoals=Object.freeze({paint,snapshot:()=>M.clone(data),validate:M.validate,get failed(){return failed;},get blocked(){return blocked;}});
     document.getElementById('app').addEventListener('click',click);
+    document.addEventListener('click',event=>{if(event.target.closest?.('#atlas-page-navigation [data-page-key],#atlas-page-menu [data-page-key]'))rememberGoal();},true);
     document.getElementById('app').addEventListener('input',e=>{
       const f=e.target.closest('.fg-editor');if(!f||blocked)return;
       const p=editPlan();p.draft={key:f.dataset.key,values:Object.fromEntries(new FormData(f))};persist();
@@ -180,7 +201,7 @@
     });
     window.addEventListener('beforeunload',e=>{if(failed){e.preventDefault();e.returnValue='';}});
     window.addEventListener('storage',e=>{if(e.key!==KEY||failed)return;read();paint();});
-    window.addEventListener('hashchange',()=>{const id=location.hash.replace('#goal-','');if(id===active)return;if(Object.hasOwn(P,id))open(id);else{active=null;paint();}});
+    window.addEventListener('hashchange',()=>{const id=location.hash.replace('#goal-','');if(id===active)return;if(Object.hasOwn(P,id))open(id);else{active=null;paint();window.scrollTo({top:homeScroll,behavior:'instant'});}});
     const id=location.hash.replace('#goal-','');if(Object.hasOwn(P,id)&&!blocked)open(id);else paint();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
