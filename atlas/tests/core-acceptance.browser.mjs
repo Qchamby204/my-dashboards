@@ -44,10 +44,12 @@ try{
    assert.equal(await p.locator('.appbar').evaluate(n=>parseFloat(getComputedStyle(n).borderBottomWidth)),1,'header uses one quiet divider');
    assert(await p.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
    const hero=p.locator(heroSelector).first();
-   if(app==='life-ledger'){
-    assert(await hero.evaluate(n=>{const s=getComputedStyle(n);return s.backgroundImage==='none'&&s.backgroundColor!==getComputedStyle(document.body).backgroundColor;}),'the check-in has a solid surface distinct from the canvas');
+   if(app==='life-ledger'||app==='life-map'){
+    assert(await hero.evaluate(n=>{const s=getComputedStyle(n);return s.backgroundImage==='none'&&s.backgroundColor!==getComputedStyle(document.body).backgroundColor;}),'the primary record has a solid surface distinct from the canvas');
+    if(app==='life-ledger'){
     const record=await hero.boundingBox(),accessory=await p.locator('.ledger-save-row').boundingBox();
     assert(record.y+record.height<=accessory.y-8,'the complete initial check-in remains above the floating save accessory');
+    }else assert(await p.locator('.lm-capture').evaluate(n=>n.previousElementSibling?.getAttribute('aria-label')==='Right now'),'the current task comes before capture in visual and keyboard order');
    }else assert(await hero.evaluate(n=>getComputedStyle(n).backgroundImage!=='none'),'primary record has a distinct material');
    if(app==='workout-forge'||app==='communication-trainer')assert.equal(await p.locator('.atlas-goal-question').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)','supporting choices do not compete with the focal record');
    if(app==='life-ledger'){
