@@ -27,7 +27,7 @@ These are product choices derived from Apple’s principles, not measurements ma
 
 ## First reference pass: Life Ledger
 
-Ledger’s check-in leads Today. Level and achievement links follow the log. The header keeps identity and tools in one row. Activity records use solid surfaces and restrained semantic artwork, without neon edges or inset/raised effects. Cards/List becomes a single segmented choice; the activity picker follows the theme. XP remains accurate and visible in a shorter line. Save day retains its floating accessory and navigation recovery behavior. Card and list views, help, progress, history and all record tools remain available.
+Ledger’s check-in leads Today. Level and achievement links follow the log. The header keeps identity and tools in one row. Activity records use solid surfaces with the original full-colour habit imagery, without neon edges or inset/raised effects. The user prefers that activity imagery; navigation and utility controls retain their line icons. Cards/List becomes a single segmented choice; the activity picker follows the theme. XP remains accurate and visible in a shorter line. Save day retains its floating accessory and navigation recovery behavior. Card and list views, help, progress, history and all record tools remain available.
 
 Ledger component styling belongs in `shared/ledger-enhancements.css`; the retired competing Ledger decorations have been removed from `shared/core-app-finish.css`. Do not add a second aesthetic override layer. Data adapters, record formats, rewards and save behavior are outside this visual change.
 

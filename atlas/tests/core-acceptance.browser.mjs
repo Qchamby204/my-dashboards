@@ -51,7 +51,7 @@ try{
    }else assert(await hero.evaluate(n=>getComputedStyle(n).backgroundImage!=='none'),'primary record has a distinct material');
    if(app==='workout-forge'||app==='communication-trainer')assert.equal(await p.locator('.atlas-goal-question').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)','supporting choices do not compete with the focal record');
    if(app==='life-ledger'){
-    assert.equal(await hero.locator('.ledger-card-avatar svg').getAttribute('aria-hidden'),'true');
+    assert.equal(await hero.locator('.ledger-card-avatar').getAttribute('aria-hidden'),'true');assert.equal(await hero.locator('.ledger-card-avatar').textContent(),await p.evaluate(()=>habitEmoji(HABITS[state.cardIndex])),'card retains its original activity symbol');
     assert.equal(await hero.locator('.ledger-card-identity').evaluate(n=>getComputedStyle(n).textAlign),'left');
     assert.equal(await p.getByRole('button',{name:'Cards',exact:true}).count(),1,'mode labels remain clear with decorative icons');
    }else if(app==='life-map')assert.equal(await hero.locator('..').evaluate(n=>getComputedStyle(n).boxShadow),'none','next move has one focal surface');
@@ -68,7 +68,7 @@ try{
    await p.screenshot({path:path.join(out,app+'-home-'+theme+'.png')});await hero.screenshot({path:path.join(out,app+'-record-'+theme+'.png')});
    if(app==='life-ledger'){
     await hero.locator('[data-act="hinfo"]').click();await p.screenshot({path:path.join(out,'ledger-definition-'+theme+'.png')});await hero.locator('[data-act="hinfo"]').click();
-    await p.getByRole('button',{name:'List',exact:true}).click();assert(await p.locator('.ledger-list-records .row').count()>=13,'list retains every activity');assert.equal(await p.locator('.ledger-list-avatar svg').first().getAttribute('aria-hidden'),'true','list artwork uses the same decorative line icons');await p.screenshot({path:path.join(out,'ledger-list-'+theme+'.png')});
+    await p.getByRole('button',{name:'List',exact:true}).click();assert(await p.locator('.ledger-list-records .row').count()>=13,'list retains every activity');assert.equal(await p.locator('.ledger-list-avatar').first().getAttribute('aria-hidden'),'true','original activity imagery stays decorative in the list');await p.screenshot({path:path.join(out,'ledger-list-'+theme+'.png')});
     await p.getByRole('button',{name:'Cards',exact:true}).click();await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
    }
    await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:20px!important}'});assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)),'large text fits');await p.screenshot({path:path.join(out,app+'-large-text-'+theme+'.png')});
