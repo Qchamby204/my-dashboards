@@ -16,11 +16,7 @@ html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .a
 
 /* Ledger content and controls are owned by ledger-enhancements.css. */
 
-/* Life Map: quick capture stays quiet, while the chosen next step anchors the day. */
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-capture{background:var(--neo-inset)!important;box-shadow:none!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card{background:var(--core-hero)!important;box-shadow:var(--core-lift);border-color:var(--core-edge);border-inline-start-color:var(--neo-accent);padding:24px}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card h2{font-size:clamp(1.375rem,5vw,1.8rem);line-height:1.25;letter-spacing:-.025em;margin:12px 0}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-day-task h3{font-size:1.125rem;line-height:1.4}
+/* Life Map content and controls are owned by life-map-day.css. */
 
 /* Forge: goal records have the typography and separated metadata of a training folio. */
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card{background:linear-gradient(155deg,var(--neo-content-surface),color-mix(in srgb,var(--fg-accent) 4%,var(--neo-content-surface)))!important;box-shadow:var(--core-lift)!important;border-color:var(--core-edge)!important;border-top-color:var(--fg-accent)!important;gap:16px}
@@ -60,13 +56,6 @@ html.atlas-neumo.atlas-neumo.core-finished .atlas-goal-options svg{width:22px;he
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),select,textarea){border-radius:14px!important;box-shadow:none!important;background:var(--neo-content-surface)!important}
 
 
-/* Map's capture is a toolbar; the next move is a single card, not a card in a card. */
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-capture{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:24px 0}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-capture-meta .lm-button{background:transparent!important;border-color:transparent!important;box-shadow:none!important;color:var(--neo-muted)!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-day-heading .eyebrow{font-size:.8125rem!important;font-weight:500;line-height:1.5;letter-spacing:.02em;color:var(--neo-muted)!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-day-panel[aria-label="Right now"]{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card{border-radius:24px;padding:24px!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card>.eyebrow{font-size:.8125rem!important;font-weight:600;letter-spacing:.02em;color:var(--neo-accent)!important}
 
 /* Forge gives the number, its unit and the plan title distinct typographic roles. */
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-top>span:first-child{font-size:1rem;font-weight:700;line-height:1.35}
