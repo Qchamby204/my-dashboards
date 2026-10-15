@@ -37,7 +37,7 @@
    tools=document.createElement('details');tools.className='atlas-header-tools';
    const summary=document.createElement('summary');summary.setAttribute('aria-label','App tools');summary.innerHTML=svg('M5 12h.01M12 12h.01M19 12h.01');
    const body=document.createElement('div');body.className='atlas-header-tools-body';tools.append(summary,body);actions.append(tools);
-   tools.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();tools.open=false;summary.focus({preventScroll:true});}});
+   tools.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();tools.open=false;summary.focus({preventScroll:true});}});
   }
   const body=tools?.querySelector('.atlas-header-tools-body');
   if(canvas&&body&&bar._suiteCanvasControls){for(const node of bar._suiteCanvasControls){node.querySelector('.eyebrow')?.setAttribute('hidden','');body.append(node);}bar._suiteCanvasControls=null;if(app==='neural-map'){const help=document.createElement('p');help.textContent='Zoom controls are available in Map. List & search finds any resource.';body.append(help);}}
