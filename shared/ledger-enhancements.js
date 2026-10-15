@@ -570,9 +570,10 @@
     function achievementOverview(data,earned){
       const host=make('div',null,'ledger-achievements'),tracks=achievementTrackers(data,earned),next=!earned.length?tracks.find(t=>t.name==='Season Opens')||tracks[0]:tracks[0];
       if(next){
+        const unit=n=>n===1?next.unit.replace(/days$/,'day').replace(/notes$/,'note').replace(/pages$/,'page').replace(/hours$/,'hour').replace(/minutes$/,'minute'):next.unit;
         const hero=make('section',null,'panel ledger-next-milestone');hero.id='ledger-next-milestone';hero.setAttribute('aria-label','Projected next milestone');
-        hero.append(make('div','Projected next milestone','eyebrow'),make('h2',next.name),make('p',fmt(next.current)+' / '+fmt(next.target)+' '+next.unit,'ledger-milestone-total'));
-        const meter=make('progress',null,'ledger-xp-meter');meter.max=next.target;meter.value=next.current;meter.setAttribute('aria-label',next.name+' progress');hero.append(meter,make('p',fmt(next.remaining)+' '+next.unit+' to go','ledger-milestone-remaining'));
+        hero.append(make('div','Projected next milestone','eyebrow'),make('h2',next.name),make('p',fmt(next.current)+' / '+fmt(next.target)+' '+unit(next.target),'ledger-milestone-total'));
+        const meter=make('progress',null,'ledger-xp-meter');meter.max=next.target;meter.value=next.current;meter.setAttribute('aria-label',next.name+' progress');hero.append(meter,make('p',fmt(next.remaining)+' '+unit(next.remaining)+' to go','ledger-milestone-remaining'));
         hero.append(make('p',next.date?'Around '+new Date(next.date+'T12:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',...(next.date.slice(0,4)!==todayISO().slice(0,4)?{year:'numeric'}:{})})+' at your recent pace.':'Keep recording to build a recent pace.','ledger-milestone-estimate'));
         hero.append(detailsInfo('How the milestone estimate works','Uses dated saved activity from the last 28 days, with at least three active dates and a minimum seven-day observation window. Remaining progress includes your saved lifetime totals. Unfinished entries, future dates and weekly catch-up do not invent dated activity. This is an estimate, not a deadline; it adjusts as your record changes.'));
         host.append(hero);

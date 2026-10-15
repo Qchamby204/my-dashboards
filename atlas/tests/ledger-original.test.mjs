@@ -608,6 +608,7 @@ test('card amount taps preserve the existing deck and unrelated drafts until Sav
 });
 
 test('Achievements has its own overview and filters without saving or replacing current edits',async()=>{
+ const empty=await boot({realModel:true});empty.node('ledger-nav-achievements').click();assert.match(empty.node('ledger-next-milestone').textContent,/1 saved day to go/);
  const rows=[{date:'2026-09-07',units:{Read:10},note:'One reflection'}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});
  h.run('state.draft.Read=25');h.api.remember();const bytes=h.storage.get(S);h.node('ledger-nav-achievements').click();
  assert.equal(h.node('ledger-view-achievements').hidden,false);assert.match(h.node('ledger-view-achievements').textContent,/Projected next milestone/);
