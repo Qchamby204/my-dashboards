@@ -13,6 +13,6 @@
     const selector={'life-ledger':'.ledger-leisure-preview','workout-forge':'.fg-detail-title,.fg-card','courier':'#player','atlas-os':'.today-work','library':'.focus-card','communication-trainer':'.atlas-goal-question'}[app];
     if(selector){const panels=[...document.querySelectorAll(selector)].filter(n=>n.getClientRects().length);document.querySelectorAll('.atlas-signature').forEach(n=>{if(n!==panels[0])n.classList.remove('atlas-signature');});panels[0]?.classList.add('atlas-signature');}
   }
-  function ready(){decorate();let pending=false;new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;decorate();});}).observe(document.body,{childList:true,subtree:true});}
+  function ready(){if(!document.body||document.querySelector('[data-communicator-redirect]'))return;decorate();let pending=false;new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;decorate();});}).observe(document.body,{childList:true,subtree:true});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();

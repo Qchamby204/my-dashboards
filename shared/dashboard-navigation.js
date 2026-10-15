@@ -37,7 +37,7 @@
     const max=list?target.scrollHeight-target.clientHeight:root.scrollHeight-window.innerHeight;
     const y=Math.max(0,Math.min(max,list?target.scrollTop:window.scrollY||0)),delta=y-lastY;lastY=y;
     const nav=pageNav();
-    if(y<24||max-y<8||menu?.open||root.classList.contains('atlas-page-keyboard')||root.classList.contains('core-keyboard')||nav?.querySelector(':focus-visible')){reveal();return;}
+    if(y<24||max-y<8||menu?.open||root.classList.contains('atlas-page-keyboard')||root.classList.contains('core-keyboard')||nav?.contains(document.activeElement)){reveal();return;}
     if(!delta)return;
     if(Date.now()>=scrollIntentUntil){if(delta<0)reveal();travel=0;direction=0;return;}
     const next=Math.sign(delta);if(next!==direction){travel=0;direction=next;}travel+=Math.abs(delta);
@@ -93,6 +93,7 @@
   }
   function reconcile(){
     queued=false;
+    if(pageNav()?.contains(document.activeElement)||menu?.contains(document.activeElement))reveal();
     if(config.native){
       const nav=document.querySelector(config.native);if(!nav)return;
       if(!root.classList.contains('atlas-page-navigation'))root.classList.add('atlas-page-navigation');if(!nav.classList.contains('atlas-page-native'))nav.classList.add('atlas-page-native');
@@ -127,12 +128,16 @@
     new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-selected','aria-pressed','aria-current','disabled']});
     document.addEventListener('click',schedule);window.addEventListener('hashchange',schedule);window.addEventListener('resize',schedule,{passive:true});
     document.addEventListener('scroll',scroll,{capture:true,passive:true});
-    for(const type of ['wheel','touchmove'])document.addEventListener(type,()=>{scrollIntentUntil=Date.now()+1600;},{passive:true});
+    document.addEventListener('wheel',event=>{scrollIntentUntil=Date.now()+1600;if(event.deltaY<0)reveal();},{passive:true});
+    let touchY;
+    document.addEventListener('touchstart',event=>{touchY=event.touches[0]?.clientY;},{passive:true});
+    document.addEventListener('touchmove',event=>{const y=event.touches[0]?.clientY;scrollIntentUntil=Date.now()+1600;if(y>touchY+12)reveal();touchY=y;},{passive:true});
     document.addEventListener('keydown',event=>{
-      if(event.key==='Tab')reveal();
+      if(event.key==='Tab'||pageNav()?.contains(event.target)||menu?.contains(event.target))reveal();
       else if(['ArrowDown','PageDown','End',' '].includes(event.key)&&!/INPUT|TEXTAREA|SELECT/.test(event.target?.tagName))scrollIntentUntil=Date.now()+1600;
     });
-    document.addEventListener('focusin',event=>{if(pageNav()?.contains(event.target)||menu?.contains(event.target))reveal();});
+    const recoverFocus=event=>{if(pageNav()?.contains(event.target)||menu?.contains(event.target))reveal();};
+    document.addEventListener('focus',recoverFocus,true);document.addEventListener('focusin',recoverFocus);
     window.addEventListener('resize',reveal,{passive:true});window.addEventListener('hashchange',reveal);window.addEventListener('pageshow',reveal);
     window.visualViewport?.addEventListener('resize',()=>{root.classList.toggle('atlas-page-keyboard',window.innerHeight-window.visualViewport.height>150&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName));});
     if(narrowViewport?.addEventListener)narrowViewport.addEventListener('change',schedule);else narrowViewport?.addListener?.(schedule);

@@ -73,7 +73,7 @@ test('Forge routes to existing goal pages without introducing storage access',()
  const h=harness('workout-forge','#unused',[]);assert.equal(new Set(h.dock().children.map(n=>n.innerHTML)).size,5,'each destination has a distinct line icon');h.dock().children[2].click();h.flush();assert.equal(h.location.hash,'goal-deadlift');assert.deepEqual(h.writes,[]);
 });
 test('every multi-view dashboard loads versioned navigation assets, including generated Life Map',()=>{
- const pages=['life-ledger','life-map','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','crucible','the-library','baby-brain','neural-map','workout-forge'];
+ const pages=['life-ledger','life-map','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','the-library','baby-brain','neural-map','workout-forge'];
  for(const page of pages){const html=readFileSync(new URL('../../'+page+'.html',import.meta.url),'utf8');assert.match(html,/shared\/dashboard-navigation\.js\?v=[a-f0-9]{12}/,page);assert.match(html,/shared\/dashboard-navigation\.css\?v=[a-f0-9]{12}/,page);}
  const css=readFileSync(new URL('../../shared/dashboard-navigation.css',import.meta.url),'utf8');assert.match(css,/env\(safe-area-inset-bottom/);assert.match(css,/prefers-contrast/);assert.match(css,/min-height:55px/);
 });
@@ -88,4 +88,23 @@ test('narrow Communicator navigation keeps all pages available and preserves sel
  h.resize(false);assert.equal(h.dock().children.length,5);assert.equal(h.dock().children[4].getAttribute('aria-current'),'page');
  h.media(true);assert.equal(h.dock().children.length,4);assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');
  assert.deepEqual(h.writes,[]);
+});
+
+test('focused navigation never tucks away, including repeated focus of the same tab',()=>{
+ const h=harness('the-chef','nav.tabs',['Ingredients','Mood','Planner','Favourites']);
+ const scroll=y=>{h.window.scrollY=y;h.emit('scroll',{target:h.document})};
+ const tab=h.dock().children[0];
+ for(let cycle=0;cycle<3;cycle++){
+  h.document.activeElement=h.body;h.emit('wheel',{deltaY:280});scroll(200+cycle*200);assert(h.root.classList.contains('atlas-page-minimized'));
+  tab.focus();h.emit('focus',{target:tab});assert(!h.root.classList.contains('atlas-page-minimized'));
+  h.emit('wheel',{deltaY:100});scroll(300+cycle*200);tab.focus();assert(!h.root.classList.contains('atlas-page-minimized'),'same focused tab remains available');
+ }
+ h.root.classList.add('atlas-page-minimized');h.emit('keydown',{key:'ArrowRight',target:tab});assert(!h.root.classList.contains('atlas-page-minimized'),'keyboard recovers without a focus change');
+ h.root.classList.add('atlas-page-minimized');h.emit('wheel',{deltaY:-20});assert(!h.root.classList.contains('atlas-page-minimized'),'upward intent recovers even at a scroll boundary');
+});
+test('Crucible redirects without starting legacy presentation scripts',()=>{
+ const html=readFileSync(new URL('../../crucible.html',import.meta.url),'utf8');
+ assert.match(html,/data-communicator-redirect/);assert.match(html,/communication-trainer.html#investing/);
+ assert.equal([...html.matchAll(/<script[^>]+src=/g)].length,0,'no observers start in the leaving document');
+ assert.match(html,/type="text\/plain" data-crucible-curriculum/,'build-time curriculum source remains available');
 });

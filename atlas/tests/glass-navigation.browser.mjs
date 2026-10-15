@@ -12,6 +12,17 @@ const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+decod
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
 const files=['life-ledger','life-map','workout-forge','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','crucible','the-library','baby-brain','neural-map'];
 const core=files.slice(0,4);
+async function settled(p,selector,hidden){
+ await p.waitForFunction(({selector,hidden})=>{
+  const n=document.querySelector(selector);if(!n)return false;
+  return document.documentElement.classList.contains('atlas-page-minimized')===hidden&&getComputedStyle(n).opacity===(hidden?'0':'1')&&n.getAnimations().every(a=>a.playState==='finished');
+ },{selector,hidden});
+}
+async function hiddenHitTargets(nav,points){
+ assert(await nav.locator('button').evaluateAll(ns=>ns.every(n=>getComputedStyle(n).pointerEvents==='none')),'hidden controls cannot receive pointer input');
+ assert(await nav.evaluate((n,points)=>points.every(p=>!n.contains(document.elementFromPoint(p.x,p.y))),points),'hidden navigation cannot intercept underlying taps');
+}
+
 try{
  for(const theme of ['light','dark']){
   // Mobile WebKit rejects mouse.wheel. Use supported wheel input here; the
@@ -19,9 +30,16 @@ try{
   const context=await browser.newContext({viewport:{width:393,height:852},colorScheme:theme,hasTouch:true,isMobile:engine!=='webkit',timezoneId:'America/Winnipeg'});
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const file=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await r.abort();}});
   for(const app of files){
-   const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(12000);
+   const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.stack||e.message));p.setDefaultTimeout(12000);
    try{
-    await p.goto(origin+'/'+app+'.html');await p.waitForFunction(()=>!!window.AtlasPageNavigation&&document.documentElement.classList.contains('atlas-page-navigation'));await p.evaluate(()=>document.fonts.ready);
+    if(app==='crucible'){
+     await p.goto(origin+'/index.html');
+     for(let cycle=0;cycle<3;cycle++){
+      await p.goto(origin+'/crucible.html');await p.waitForURL('**/communication-trainer.html#investing');
+      await p.waitForFunction(()=>!!window.CommunicatorLearning);await p.reload();await p.waitForFunction(()=>!!window.CommunicatorLearning);
+      await p.goto(origin+'/index.html');await p.goBack();await p.waitForFunction(()=>!!window.CommunicatorLearning);
+     }
+    }else await p.goto(origin+'/'+app+'.html');await p.waitForFunction(()=>!!window.AtlasPageNavigation&&document.documentElement.classList.contains('atlas-page-navigation'));await p.evaluate(()=>document.fonts.ready);
     const selector=app==='life-ledger'?'.ledger-nav':app==='life-map'?'.lm-day-dock':'#atlas-page-navigation',nav=p.locator(selector);
     const geometry=await nav.evaluate(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return {x:r.x,right:r.right,bottom:r.bottom,width:r.width,radius:parseFloat(c.borderBottomLeftRadius),border:parseFloat(c.borderBottomWidth),blur:c.backdropFilter||c.webkitBackdropFilter,buttons:[...n.querySelectorAll('button')].map(b=>{const r=b.getBoundingClientRect();return {width:r.width,height:r.height,name:b.getAttribute('aria-label')||b.textContent.trim()}})}});
     assert(geometry.x>=12&&geometry.right<=381,'navigation floats inside both screen edges: '+JSON.stringify(geometry));assert(geometry.bottom<=840,'navigation clears the bottom edge');assert(geometry.radius>=30&&geometry.border>=1,'navigation is a complete capsule');assert.match(geometry.blur,/blur/,'glass material separates navigation from content');assert(geometry.buttons.every(b=>b.width>=44&&b.height>=44&&b.name),'all tabs have touch targets and names');
@@ -31,12 +49,19 @@ try{
     if(app==='baby-brain')await nav.getByRole('button',{name:'Topics',exact:true}).click();
     await p.evaluate(()=>{const space=document.createElement('div');space.id='navigation-test-space';space.style.height='2400px';const list=[...document.querySelectorAll('.baby-list,.neural-list')].find(n=>!n.hidden);(list||document.body).append(space);if(list)list.scrollTop=180;else scrollTo({top:180,behavior:'instant'});document.activeElement?.blur()});await p.waitForTimeout(80);
     assert(!(await p.evaluate(()=>document.documentElement.classList.contains('atlas-page-minimized'))),'programmatic scrolling leaves navigation available');
-    await p.mouse.move(180,300);await p.mouse.wheel(0,280);await p.waitForFunction(()=>document.documentElement.classList.contains('atlas-page-minimized'));await p.waitForTimeout(260);
+    const hitPoints=await buttons.evaluateAll(ns=>ns.map(n=>{const r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}}));
+    await p.mouse.move(180,300);await p.mouse.wheel(0,280);await settled(p,selector,true);await hiddenHitTargets(nav,hitPoints);
     assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'0','tabs tuck away after downward scroll');
     if(app==='life-ledger'){const save=await p.locator('.ledger-save-row').boundingBox();assert(save&&save.y>=0&&save.y+save.height<=840,'save accessory remains reachable');}
     await p.screenshot({path:path.join(out,app+'-scrolled-'+theme+'.png')});
-    await p.mouse.wheel(0,-80);await p.waitForFunction(()=>!document.documentElement.classList.contains('atlas-page-minimized'));await p.waitForTimeout(260);assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'1','upward scroll restores the bar');
-    await p.mouse.wheel(0,180);await p.waitForFunction(()=>document.documentElement.classList.contains('atlas-page-minimized'));await nav.locator('button').first().focus();await p.waitForFunction(()=>!document.documentElement.classList.contains('atlas-page-minimized'));
+    await p.mouse.wheel(0,-80);await settled(p,selector,false);assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'1','upward scroll restores the bar');
+    for(let cycle=0;cycle<3;cycle++){
+     await p.evaluate(()=>document.activeElement?.blur());await p.mouse.wheel(0,180);await settled(p,selector,true);await hiddenHitTargets(nav,hitPoints);
+     const tab=nav.locator('button').first();await tab.focus();await settled(p,selector,false);
+     await p.mouse.wheel(0,80);await tab.focus();await settled(p,selector,false);
+     assert(await tab.evaluate(n=>n===document.activeElement),'repeated focus of the same tab stays reachable');
+     await p.keyboard.press('Tab');await settled(p,selector,false);
+    }
     if(core.includes(app)){
      await p.emulateMedia({reducedMotion:'reduce',contrast:'more'});assert.equal(await nav.evaluate(n=>getComputedStyle(n).transitionDuration),'0s','reduced motion removes sliding');assert(await nav.evaluate(n=>parseFloat(getComputedStyle(n).borderBottomWidth)>=2),'increased contrast defines the capsule');
      await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:20px!important}'});await p.setViewportSize({width:320,height:852});await p.waitForTimeout(100);assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)),'larger text fits on narrow phones');
