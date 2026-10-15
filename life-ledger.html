@@ -15,7 +15,7 @@
 <script src="shared/discern-bridge.js?v=b6e2c9007a13"></script>
 <script src="shared/ledger-rewards-core.js?v=9852902164d1"></script>
 <script src="shared/ledger-rhythm-core.js?v=7e1a7b273642"></script>
-<script src="shared/atlas-theme.js?v=b9d62d25dc9f"></script>
+<script src="shared/atlas-theme.js?v=64d087b665d6"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#090a12}
@@ -96,7 +96,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=46546c239ad7">
-<link rel="stylesheet" href="shared/core-app-finish.css?v=aeadf636f798">
+<link rel="stylesheet" href="shared/core-app-finish.css?v=7e4d5f10ef84">
 <script src="shared/core-app-finish.js?v=d86ab1e6c62f" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-32.png?v=dfb125a386ef">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-64.png?v=63b2ee04c4c2">
@@ -1170,16 +1170,13 @@ function render(){
   var behindLife=Math.max(1,Math.round(data.expectedLevel-data.life.exact));
   var h='';
 
-  /* Sticky chrome: keeps the app title and Life Level always reachable, and its
-     blurred fill runs up under the Dynamic Island so nothing sits behind the clock. */
+  /* Stable identity and tools clear the status area; progress lives below the check-in. */
   h+='<div class="appbar">';
   h+='<a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">\u2302</a>';
   h+='<div style="display:flex;align-items:center;gap:9px;min-width:0">';
-  h+='<span style="color:#f0b73e;font-size:15px;line-height:1">\u269c</span>';
   h+='<span class="appbar-title">Life Ledger</span>';
   h+='</div>';
   h+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
-  h+='<span class="appbar-lvl"><span class="mono" style="font-size:12.5px;font-weight:700;color:#f6e2ad">'+data.life.level+'<span style="color:#7c6a3a">/99</span></span><span style="width:6px;height:6px;border-radius:99px;background:'+(data.life.onPace?"#2fd180":"#f0683e")+';box-shadow:0 0 6px '+(data.life.onPace?"rgba(47,209,128,.8)":"rgba(240,104,62,.8)")+'"></span></span>';
   h+='<button class="btn tap" data-act="settings" aria-label="Settings" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.2);color:#9aa2c0;font-size:14px;display:grid;place-items:center">\u2699</button>';
   h+='</div></div>';
 
