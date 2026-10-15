@@ -18,6 +18,13 @@ async function settled(p,selector,hidden){
   return document.documentElement.classList.contains('atlas-page-minimized')===hidden&&getComputedStyle(n).opacity===(hidden?'0':'1')&&n.getAnimations().every(a=>a.playState==='finished');
  },{selector,hidden});
 }
+async function scrollSettled(p){
+ await p.evaluate(()=>new Promise(resolve=>{
+  let prior='',stable=0;
+  function frame(){const next=JSON.stringify([scrollY,...[...document.querySelectorAll('.baby-list,.neural-list')].map(n=>n.scrollTop)]);stable=next===prior?stable+1:0;prior=next;if(stable>=4)resolve();else requestAnimationFrame(frame);}
+  requestAnimationFrame(frame);
+ }));
+}
 async function hiddenHitTargets(nav,points){
  assert(await nav.locator('button').evaluateAll(ns=>ns.every(n=>getComputedStyle(n).pointerEvents==='none')),'hidden controls cannot receive pointer input');
  assert(await nav.evaluate((n,points)=>points.every(p=>!n.contains(document.elementFromPoint(p.x,p.y))),points),'hidden navigation cannot intercept underlying taps');
@@ -30,7 +37,7 @@ try{
   const context=await browser.newContext({viewport:{width:393,height:852},colorScheme:theme,hasTouch:true,isMobile:engine!=='webkit',timezoneId:'America/Winnipeg'});
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const file=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await r.abort();}});
   for(const app of files){
-   const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.stack||e.message));p.setDefaultTimeout(12000);
+   let phase='startup';const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.stack||e.message));p.setDefaultTimeout(12000);
    try{
     if(app==='crucible'){
      await p.goto(origin+'/index.html');
@@ -50,17 +57,17 @@ try{
     await p.evaluate(()=>{const space=document.createElement('div');space.id='navigation-test-space';space.style.height='2400px';const list=[...document.querySelectorAll('.baby-list,.neural-list')].find(n=>!n.hidden);(list||document.body).append(space);if(list)list.scrollTop=180;else scrollTo({top:180,behavior:'instant'});document.activeElement?.blur()});await p.waitForTimeout(80);
     assert(!(await p.evaluate(()=>document.documentElement.classList.contains('atlas-page-minimized'))),'programmatic scrolling leaves navigation available');
     const hitPoints=await buttons.evaluateAll(ns=>ns.map(n=>{const r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}}));
-    await p.mouse.move(180,300);await p.mouse.wheel(0,280);await settled(p,selector,true);await hiddenHitTargets(nav,hitPoints);
+    await p.mouse.move(180,300);await p.mouse.wheel(0,280);await scrollSettled(p);await settled(p,selector,true);await hiddenHitTargets(nav,hitPoints);
     assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'0','tabs tuck away after downward scroll');
     if(app==='life-ledger'){const save=await p.locator('.ledger-save-row').boundingBox();assert(save&&save.y>=0&&save.y+save.height<=840,'save accessory remains reachable');}
     await p.screenshot({path:path.join(out,app+'-scrolled-'+theme+'.png')});
-    await p.mouse.wheel(0,-80);await settled(p,selector,false);assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'1','upward scroll restores the bar');
+    await p.mouse.wheel(0,-80);await scrollSettled(p);await settled(p,selector,false);assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'1','upward scroll restores the bar');
     for(let cycle=0;cycle<3;cycle++){
-     await p.evaluate(()=>document.activeElement?.blur());await p.mouse.wheel(0,180);await settled(p,selector,true);await hiddenHitTargets(nav,hitPoints);
-     const tab=nav.locator('button').first();await tab.focus();await settled(p,selector,false);
-     await p.mouse.wheel(0,80);await tab.focus();await settled(p,selector,false);
+     phase='cycle '+cycle+' hide';await scrollSettled(p);await p.evaluate(()=>document.activeElement?.blur());await p.mouse.wheel(0,180);await scrollSettled(p);await settled(p,selector,true);await hiddenHitTargets(nav,hitPoints);
+     phase='cycle '+cycle+' focus';const tab=nav.locator('button').first();await tab.focus();await settled(p,selector,false);
+     await p.mouse.wheel(0,80);await scrollSettled(p);await tab.focus();await settled(p,selector,false);
      assert(await tab.evaluate(n=>n===document.activeElement),'repeated focus of the same tab stays reachable');
-     await p.keyboard.press('Tab');await settled(p,selector,false);
+     phase='cycle '+cycle+' Tab';await p.keyboard.press('Tab');await scrollSettled(p);await settled(p,selector,false);
     }
     if(core.includes(app)){
      await p.emulateMedia({reducedMotion:'reduce',contrast:'more'});assert.equal(await nav.evaluate(n=>getComputedStyle(n).transitionDuration),'0s','reduced motion removes sliding');assert(await nav.evaluate(n=>parseFloat(getComputedStyle(n).borderBottomWidth)>=2),'increased contrast defines the capsule');
@@ -68,7 +75,7 @@ try{
      await p.screenshot({path:path.join(out,app+'-large-narrow-'+theme+'.png')});await p.setViewportSize({width:852,height:393});await p.waitForTimeout(100);const r=await nav.boundingBox();assert(r.x>=12&&r.x+r.width<=840,'landscape navigation fits');await p.screenshot({path:path.join(out,app+'-landscape-'+theme+'.png')});
     }
     assert.deepEqual(errors,[]);reports.push({app,theme,engine,floating:true,scrollDown:true,scrollUp:true,focusReveal:true});
-   }catch(e){reports.push({app,theme,engine,error:e.message,details:await p.evaluate(()=>({y:scrollY,active:document.activeElement?.outerHTML?.slice(0,250),classes:document.documentElement.className,scrollHeight:document.documentElement.scrollHeight,height:innerHeight}))});console.error(JSON.stringify(reports.at(-1)));await p.screenshot({path:path.join(out,app+'-failure-'+theme+'.png')}).catch(()=>{});}
+   }catch(e){reports.push({app,theme,engine,phase,error:e.message,details:await p.evaluate(()=>({y:scrollY,active:document.activeElement?.outerHTML?.slice(0,250),classes:document.documentElement.className,scrollHeight:document.documentElement.scrollHeight,height:innerHeight}))});console.error(JSON.stringify(reports.at(-1)));await p.screenshot({path:path.join(out,app+'-failure-'+theme+'.png')}).catch(()=>{});}
    finally{await p.close()}
   }
   await context.close();
