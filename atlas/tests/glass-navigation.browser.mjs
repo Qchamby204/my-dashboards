@@ -27,7 +27,7 @@ try{
     const buttons=nav.locator('button');assert(await buttons.count()>=2);await buttons.nth(1).click();await p.waitForTimeout(120);assert(await nav.locator('[aria-current="page"],[aria-selected="true"]').count()>=1,'selection follows the existing page action');
     if(app==='life-ledger'){await p.locator('#ledger-nav-today').click();await p.waitForTimeout(100);}
     if(app==='baby-brain')await nav.getByRole('button',{name:'Topics',exact:true}).click();
-    await p.evaluate(()=>{const space=document.createElement('div');space.id='navigation-test-space';space.style.height='2400px';const list=[...document.querySelectorAll('.baby-list,.neural-list')].find(n=>!n.hidden);(list||document.body).append(space);if(list)list.scrollTop=180;else scrollTo(0,180);document.activeElement?.blur()});await p.waitForTimeout(80);
+    await p.evaluate(()=>{const space=document.createElement('div');space.id='navigation-test-space';space.style.height='2400px';const list=[...document.querySelectorAll('.baby-list,.neural-list')].find(n=>!n.hidden);(list||document.body).append(space);if(list)list.scrollTop=180;else scrollTo({top:180,behavior:'instant'});document.activeElement?.blur()});await p.waitForTimeout(80);
     assert(!(await p.evaluate(()=>document.documentElement.classList.contains('atlas-page-minimized'))),'programmatic scrolling leaves navigation available');
     await p.mouse.move(180,300);await p.mouse.wheel(0,280);await p.waitForFunction(()=>document.documentElement.classList.contains('atlas-page-minimized'));await p.waitForTimeout(260);
     assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'0','tabs tuck away after downward scroll');
@@ -41,7 +41,7 @@ try{
      await p.screenshot({path:path.join(out,app+'-large-narrow-'+theme+'.png')});await p.setViewportSize({width:852,height:393});await p.waitForTimeout(100);const r=await nav.boundingBox();assert(r.x>=12&&r.x+r.width<=840,'landscape navigation fits');await p.screenshot({path:path.join(out,app+'-landscape-'+theme+'.png')});
     }
     assert.deepEqual(errors,[]);reports.push({app,theme,engine,floating:true,scrollDown:true,scrollUp:true,focusReveal:true});
-   }catch(e){reports.push({app,theme,engine,error:e.message});console.error(JSON.stringify({app,theme,error:e.message}));await p.screenshot({path:path.join(out,app+'-failure-'+theme+'.png')}).catch(()=>{});}
+   }catch(e){reports.push({app,theme,engine,error:e.message,details:await p.evaluate(()=>({y:scrollY,active:document.activeElement?.outerHTML?.slice(0,250),classes:document.documentElement.className,scrollHeight:document.documentElement.scrollHeight,height:innerHeight}))});console.error(JSON.stringify(reports.at(-1)));await p.screenshot({path:path.join(out,app+'-failure-'+theme+'.png')}).catch(()=>{});}
    finally{await p.close()}
   }
   await context.close();

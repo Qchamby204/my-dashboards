@@ -70,7 +70,7 @@ test('Life Ledger retains its native navigation and save dock without proxy acti
  assert.equal(h.dock(),null);assert.equal(h.original.classList.contains('atlas-page-native'),true);assert.equal(h.original.classList.contains('atlas-page-source'),false);h.original.children[1].click();h.flush();assert.deepEqual(h.calls,[1]);assert.deepEqual(h.writes,[]);
 });
 test('Forge routes to existing goal pages without introducing storage access',()=>{
- const h=harness('workout-forge','#unused',[]);h.dock().children[2].click();h.flush();assert.equal(h.location.hash,'goal-deadlift');assert.deepEqual(h.writes,[]);
+ const h=harness('workout-forge','#unused',[]);assert.equal(new Set(h.dock().children.map(n=>n.innerHTML)).size,5,'each destination has a distinct line icon');h.dock().children[2].click();h.flush();assert.equal(h.location.hash,'goal-deadlift');assert.deepEqual(h.writes,[]);
 });
 test('every multi-view dashboard loads versioned navigation assets, including generated Life Map',()=>{
  const pages=['life-ledger','life-map','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','crucible','the-library','baby-brain','neural-map','workout-forge'];
