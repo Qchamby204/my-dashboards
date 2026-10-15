@@ -38,3 +38,12 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="library"] summary{display:flex;alig
 
 html.atlas-neumo.atlas-neumo :is(.ledger-app-links,.forge-app-links){flex-wrap:wrap;font:400 .875rem/1.5 var(--neo-font)!important;text-transform:none!important;letter-spacing:0!important;align-items:center}
 html.atlas-neumo.atlas-neumo :is(.ledger-app-links,.forge-app-links) a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;color:var(--neo-ink)!important}
+
+html.atlas-neumo.atlas-neumo .atlas-map-header{pointer-events:auto!important;z-index:60!important;box-sizing:border-box!important}
+html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-appearance-trigger{position:static!important;inset:auto!important;z-index:auto!important}
+html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(.tools,.zoom){display:flex;position:static;gap:8px;flex-wrap:wrap;pointer-events:auto}
+html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(.tools,.zoom)[hidden]{display:none!important}
+html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(button,.tbtn){width:44px;height:44px;min-width:44px;flex:0 0 44px;border-radius:50%!important;margin:0!important;padding:0!important;background:transparent!important;border:1px solid var(--neo-line)!important;color:var(--neo-ink)!important;display:grid;place-items:center}
+html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(button,.tbtn) svg{width:21px;height:21px}
+html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body :is(.brand,.crumb,p){margin:0;max-width:none;white-space:normal;font:400 .875rem/1.5 var(--neo-font);letter-spacing:0;color:var(--neo-muted)}
+html.atlas-neumo.atlas-neumo .atlas-map-header .atlas-header-tools-body [hidden]{display:none!important}

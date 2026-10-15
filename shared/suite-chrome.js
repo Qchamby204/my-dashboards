@@ -6,13 +6,19 @@
  const homeIcon=svg('M3 10 12 3l9 7v10H3z M9 20v-7h6v7');
  const appearanceIcon=svg('M12 3a9 9 0 1 0 0 18V3z M12 3a9 9 0 0 1 0 18');
  function refresh(){
-  const bar=document.querySelector('.appbar,body>header>.bar');if(!bar)return;
+  const canvas=['baby-brain','neural-map'].includes(app);
+  const bar=document.querySelector('.appbar,body>header>.bar')||(canvas?document.querySelector('header.hud'):null);if(!bar)return;
+  if(canvas&&!bar.dataset.suiteCanvas){
+   const originals=[...bar.children],title=bar.querySelector('h1'),identity=document.createElement('div'),home=document.createElement('a');
+   identity.className='atlas-header-identity';if(title){title.classList.add('appbar-title');identity.append(title);}
+   home.className='homebtn';home.href='index.html';home.setAttribute('aria-label','Atlas');bar.replaceChildren(home,identity);bar._suiteCanvasControls=originals;bar.dataset.suiteCanvas='true';bar.classList.add('atlas-map-header');
+  }
   if(app==='the-chef'){const title=document.querySelector('body>header>h1');if(title){title.classList.add('appbar-title');const identity=document.createElement('div');identity.className='atlas-header-identity';identity.append(title);bar.querySelector('.cc-home')?.after(identity);}}
   if(!bar.classList.contains('atlas-suite-header'))bar.classList.add('atlas-suite-header');
-  const home=bar.querySelector('.homebtn,.cc-home'),appearance=bar.querySelector('.atlas-appearance-trigger');
+  const home=bar.querySelector('.homebtn,.cc-home'),appearance=bar.querySelector('.atlas-appearance-trigger')||(canvas?document.querySelector('.atlas-appearance-trigger'):null);
   if(home&&!home.dataset.suiteHome){home.innerHTML=homeIcon;home.dataset.suiteHome='true';}
   if(appearance&&!appearance.dataset.suiteAppearance){appearance.innerHTML=appearanceIcon;appearance.dataset.suiteAppearance='true';}
-  if(!['operations-cadence','the-hourglass','the-chef'].includes(app))return;
+  if(!['operations-cadence','the-hourglass','the-chef'].includes(app)&&!canvas)return;
   const title=bar.querySelector('.appbar-title'),identity=title?.parentElement;if(!home||!identity)return;
   const oldHome=home.parentElement;
   if(home.parentElement!==bar)bar.prepend(home);
@@ -21,7 +27,7 @@
   if(!identity.classList.contains('atlas-header-identity'))identity.classList.add('atlas-header-identity');
   let actions=bar.querySelector('.atlas-header-actions');
   if(!actions){actions=document.createElement('div');actions.className='atlas-header-actions';bar.append(actions);}
-  if(appearance&&appearance.parentElement!==actions)actions.prepend(appearance);
+  if(appearance&&appearance.parentElement!==actions){appearance.classList.remove('atlas-appearance-map','atlas-appearance-floating');actions.prepend(appearance);}
   if(app==='the-chef'){
    const help=bar.parentElement.querySelector(':scope>.cc-help');
    if(help){help.classList.add('atlas-header-help');actions.append(help);help.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();help.open=false;help.querySelector('summary')?.focus({preventScroll:true});}});}
@@ -34,6 +40,7 @@
    tools.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();tools.open=false;summary.focus({preventScroll:true});}});
   }
   const body=tools?.querySelector('.atlas-header-tools-body');
+  if(canvas&&body&&bar._suiteCanvasControls){for(const node of bar._suiteCanvasControls){node.querySelector('.eyebrow')?.setAttribute('hidden','');body.append(node);}bar._suiteCanvasControls=null;if(app==='neural-map'){const help=document.createElement('p');help.textContent='Zoom controls are available in Map. List & search finds any resource.';body.append(help);}}
   for(const node of bar.querySelectorAll('.appbar-pill,.operations-backup-tools'))if(body&&node.parentElement!==body)body.append(node);
   if(!bar.classList.contains('atlas-header-compact'))bar.classList.add('atlas-header-compact');
  }

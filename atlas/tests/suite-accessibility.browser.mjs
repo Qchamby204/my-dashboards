@@ -40,6 +40,14 @@ try{
    const p=await ctx.newPage();p.setDefaultTimeout(12000);
    try{
     await p.goto(origin+'/'+app+'.html');await p.waitForFunction(()=>!!window.AtlasPageNavigation&&document.documentElement.classList.contains('atlas-page-navigation'));await p.evaluate(()=>document.fonts.ready);
+    if(['baby-brain','neural-map'].includes(app)){
+     const bar=p.locator('.atlas-map-header');await bar.waitFor();assert.equal(await bar.getByRole('link',{name:'Atlas',exact:true}).count(),1);
+     assert(await bar.evaluate(n=>{const rs=[n.querySelector('.homebtn'),n.querySelector('.appbar-title'),n.querySelector('.atlas-appearance-trigger'),n.querySelector('.atlas-header-tools>summary')].map(x=>x.getBoundingClientRect());return Math.max(...rs.map(r=>r.top))-Math.min(...rs.map(r=>r.top))<24;}),'map identity and header actions share one row');
+     const summary=bar.locator('.atlas-header-tools>summary');await summary.focus();await p.keyboard.press('Enter');await audit(p,app,'header tools',theme);await p.screenshot({path:path.join(out,app+'-header-tools-'+theme+'.png')});
+     if(app==='baby-brain')assert(await bar.getByRole('button',{name:'Backup notes',exact:true}).isVisible());
+     await p.keyboard.press('Escape');assert(await summary.evaluate(n=>n===document.activeElement&&!n.parentElement.open));
+     await p.screenshot({path:path.join(out,app+'-header-'+theme+'.png')});
+    }
     const native=app==='life-ledger'?'.ledger-nav':app==='life-map'?'.lm-day-dock':null;
     const entries=await p.locator(native?native+' button':'#atlas-page-menu [data-page-key],#atlas-page-navigation [data-page-key]').evaluateAll(ns=>[...new Set(ns.map(n=>n.id||n.dataset.pageKey))]);
     await audit(p,app,'initial',theme);
