@@ -144,6 +144,7 @@ jobs:
         run: |
           node atlas/tests/core-acceptance.browser.mjs
           node atlas/tests/planning-release.browser.mjs
+          node atlas/tests/suite-accessibility.browser.mjs
       - name: Verify floating navigation and scroll behavior across the suite
         env:
           NODE_PATH: /tmp/atlas-browser/node_modules
