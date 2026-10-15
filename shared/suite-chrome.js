@@ -54,6 +54,7 @@
   for(const node of bar.querySelectorAll('.appbar-pill,.operations-backup-tools'))if(body&&node.parentElement!==body)body.append(node);
   if(app==='the-herald'&&body){
    for(const control of bar.querySelectorAll('.iconbtn,input[type="file"]')){
+    if(control.parentElement===body)continue;
     if(control.tagName==='BUTTON'){control.textContent=control.getAttribute('aria-label');control.classList.remove('iconbtn');}
     const old=control.parentElement;body.append(control);if(old!==bar&&old!==body&&!old.children.length)old.remove();
    }
