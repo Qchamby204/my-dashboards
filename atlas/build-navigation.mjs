@@ -9,11 +9,11 @@ for(const asset of ['baby-enhancements.js','neural-enhancements.js','atlas-mobil
 }
 await writeFile(theme,source);
 const themeHash=await hash('shared/atlas-theme.js'),cssHash=await hash('shared/dashboard-navigation.css'),jsHash=await hash('shared/dashboard-navigation.js');
-for(const page of navigationPages){
+for(const page of [...navigationPages,'courier']){
   const path=new URL(page==='life-map'?'atlas/life-map-legacy.html':page+'.html',root);let html=await readFile(path,'utf8');
   html=html.replace(/shared\/atlas-theme\.js(?:\?v=[a-zA-Z0-9-]+)?/g,'shared/atlas-theme.js?v='+themeHash);
   html=html.replace(/\n?<link rel="stylesheet" href="shared\/dashboard-navigation\.css\?v=[a-z0-9]+">/g,'').replace(/\n?<script src="shared\/dashboard-navigation\.js\?v=[a-z0-9]+" defer><\/script>/g,'');
   for(const ext of ['css','js']){const asset='shared/suite-chrome.'+ext,version=await hash(asset);html=html.replace(new RegExp('\\n?<(?:link|script)[^>]+'+asset.replaceAll('.','\\.')+'[^>]*>(?:</script>)?','g'),'');html=html.replace('</head>',(ext==='css'?'<link rel="stylesheet" href="'+asset+'?v='+version+'">':'<script src="'+asset+'?v='+version+'" defer></script>')+'\n</head>');}
-  html=html.replace('</head>','<link rel="stylesheet" href="shared/dashboard-navigation.css?v='+cssHash+'">\n<script src="shared/dashboard-navigation.js?v='+jsHash+'" defer></script>\n</head>');
+  if(page!=='courier')html=html.replace('</head>','<link rel="stylesheet" href="shared/dashboard-navigation.css?v='+cssHash+'">\n<script src="shared/dashboard-navigation.js?v='+jsHash+'" defer></script>\n</head>');
   await writeFile(path,html);
 }
