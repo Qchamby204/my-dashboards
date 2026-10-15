@@ -6,7 +6,7 @@ const script=readFileSync(new URL('../../shared/dashboard-navigation.js',import.
 function harness(app,selector,labels,narrow=false){
  const pending=[],events={},sources=new Map(),calls=[],writes=[];let document;
  class Node{
-  constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.dataset={};this.listeners={};this.disabled=false;this.open=false;this.text='';const classes=new Set();this.classList={contains:k=>classes.has(k),add:k=>classes.add(k)};this.style={values:{},setProperty(k,v){this.values[k]=v},getPropertyValue(k){return this.values[k]||''}};}
+  constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.dataset={};this.listeners={};this.disabled=false;this.open=false;this.text='';const classes=new Set();this.classList={contains:k=>classes.has(k),add:k=>classes.add(k),toggle(k,on){on?classes.add(k):classes.delete(k)}};this.style={values:{},setProperty(k,v){this.values[k]=v},getPropertyValue(k){return this.values[k]||''}};}
   set className(v){for(const c of v.split(' '))this.classList.add(c)}
   set textContent(v){this.text=v;this.children=[]}get textContent(){return this.text+this.children.map(n=>n.textContent).join('')}
   set innerHTML(v){this.html=v;this.children=[]}get innerHTML(){return this.html||''}
@@ -28,11 +28,25 @@ function harness(app,selector,labels,narrow=false){
  document={documentElement:root,body,readyState:'complete',activeElement:body,createElement:t=>new Node(t),addEventListener(k,f){(events[k]??=[]).push(f)},querySelector:s=>sources.get(s)||body.querySelector(s)};
  const original=new Node('nav');sources.set(selector,original);body.append(original);
  labels.forEach((title,i)=>{const n=new Node('button');n.textContent=title;n.dataset.tab='page'+i;n.setAttribute('aria-pressed',String(i===0));n.addEventListener('click',()=>{calls.push(i);for(const b of original.children)b.setAttribute('aria-pressed',String(b===n))});original.append(n)});
- const window={matchMedia:()=>({get matches(){return narrow},addEventListener(key,fn){(events.mediachange??=[]).push(fn)}}),addEventListener(k,f){(events[k]??=[]).push(f)}};const location={hash:''};
+ const window={scrollY:0,innerHeight:800,matchMedia:()=>({get matches(){return narrow},addEventListener(key,fn){(events.mediachange??=[]).push(fn)}}),addEventListener(k,f){(events[k]??=[]).push(f)}};const location={hash:''};root.scrollHeight=3000;
  vm.runInNewContext(script,{document,window,location,queueMicrotask:f=>pending.push(f),MutationObserver:class{observe(){}},localStorage:{getItem(){throw Error('Navigation must not read records')},setItem(...a){writes.push(a);throw Error('Navigation must not write records')}}});
  const flush=()=>{for(let i=0;pending.length&&i<20;i++)pending.shift()();assert.equal(pending.length,0)};
- return {media(value){narrow=value;for(const f of events.mediachange||[])f();flush();},resize(value){narrow=value;for(const f of events.resize||[])f();flush();},document,root,body,original,window,location,calls,writes,flush,Node,dock:()=>body.querySelector('#atlas-page-navigation'),menu:()=>body.querySelector('#atlas-page-menu')};
+ return {emit(k,e={}){for(const f of events[k]||[])f(e);flush()},media(value){narrow=value;for(const f of events.mediachange||[])f();flush();},resize(value){narrow=value;for(const f of events.resize||[])f();flush();},document,root,body,original,window,location,calls,writes,flush,Node,dock:()=>body.querySelector('#atlas-page-navigation'),menu:()=>body.querySelector('#atlas-page-menu')};
 }
+test('scrolling tucks the dock away without jitter and restores it on reversal or keyboard navigation',()=>{
+ const h=harness('the-chef','nav.tabs',['Ingredients','Mood','Planner','Favourites']);
+ const scroll=y=>{h.window.scrollY=y;h.emit('scroll',{target:h.document})};
+ scroll(200);assert(!h.root.classList.contains('atlas-page-minimized'),'programmatic scrolling does not hide navigation');
+ h.emit('wheel');scroll(220);assert(!h.root.classList.contains('atlas-page-minimized'),'small movement does not flicker');
+ scroll(250);assert(h.root.classList.contains('atlas-page-minimized'));
+ scroll(245);assert(h.root.classList.contains('atlas-page-minimized'),'small reversal does not flicker');
+ scroll(228);assert(!h.root.classList.contains('atlas-page-minimized'));
+ scroll(300);assert(h.root.classList.contains('atlas-page-minimized'));
+ h.emit('keydown',{key:'Tab',target:h.body});assert(!h.root.classList.contains('atlas-page-minimized'),'Tab reveals accessible navigation');
+ scroll(380);assert(h.root.classList.contains('atlas-page-minimized'));
+ h.emit('focusin',{target:h.dock().children[0]});assert(!h.root.classList.contains('atlas-page-minimized'),'assistive focus reveals navigation');
+ assert.deepEqual(h.writes,[]);
+});
 test('bottom page controls invoke existing actions and retain selected state after redraws',()=>{
  const h=harness('the-chef','nav.tabs',['Ingredients','Mood','Planner','Favourites']);
  assert.equal(h.original.classList.contains('atlas-page-source'),true);
