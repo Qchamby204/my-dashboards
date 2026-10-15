@@ -341,3 +341,15 @@ html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-reward-photo-preview{max-
 html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-personal-record:has(.ledger-reward-photo){padding:1rem;border-color:color-mix(in srgb,var(--neo-accent) 40%,var(--neo-line));}
 html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-personal-history[open]{display:grid;gap:1rem;}
 html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-personal-history .ledger-reward-photo{height:130px;}
+
+/* Check-in carries the emphasis; progress is labelled supporting information. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-card-xp{font-size:.875rem!important;line-height:1.5;color:var(--neo-muted)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-card-xp strong{font-weight:600;font-size:inherit}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-primary{border-radius:999px!important;min-height:46px;box-shadow:none!important}
+html[data-atlas-app="life-ledger"] .ledger-level-constellation{padding-top:20px;margin-top:16px;border-top:1px solid var(--neo-line)}
+html[data-atlas-app="life-ledger"] .ledger-level-constellation h3{font-size:1rem;line-height:1.4;margin:0 0 12px}
+html[data-atlas-app="life-ledger"] .ledger-level-constellation svg{max-width:220px!important}
+html[data-atlas-app="life-ledger"] .ledger-level-constellation .orb{filter:none!important}
+html[data-atlas-app="life-ledger"] .ledger-level-constellation [style*="cursor"]{cursor:default!important}
+html[data-atlas-app="life-ledger"] .ledger-value-key{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] .ledger-value-key button{min-height:44px;padding:8px 12px!important;background:transparent!important;box-shadow:none!important;border:1px solid var(--neo-line)!important;text-align:left;font-size:.875rem!important;line-height:1.4}

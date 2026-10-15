@@ -72,6 +72,7 @@
       return value;
     }
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'cards'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
+    const dashboardPlaces=new Map();let dashboardVisit=0;
     let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
@@ -86,7 +87,7 @@
     const notice=make('section',null,'ledger-notice');notice.id='ledger-notice';notice.setAttribute('aria-live','polite');notice.setAttribute('role','status');
     const message=make('p'),review=button('Review latest',()=>confirmAction('Load the latest record?','Another window has newer changes. Export your current work first if you want to keep this draft, then reload to review the saved version.','Reload latest',()=>location.reload()));review.hidden=true;
     notice.append(message,button('Retry saving',retry),button('Back up current work',()=>exportData()),review,button('Restore backup',pickImport));document.body.append(notice);
-    function status(){notice.hidden=!blocked&&!failed.size&&!conflicts.size;review.hidden=!conflicts.size;message.textContent=blocked?'Saved records could not be read. Keep a recovery backup, then restore a valid Life Ledger backup.':conflicts.size?'Another window has newer changes. Your current work is kept in this tab. Back it up, then review the latest record.':'Your latest changes are in this tab but could not be saved. Retry or back up before closing.';app.inert=blocked||busy;const label=document.getElementById('ledger-draft-status');if(label)label.textContent=failed.size||conflicts.size?'Changes need saving':busy||pending.size?'Storing draft…':dirty()?'Draft stored · Save to earn XP':dayEntryFor(state.logDate)?'Progress saved':'New day';}
+    function status(){notice.hidden=!blocked&&!failed.size&&!conflicts.size;review.hidden=!conflicts.size;message.textContent=blocked?'Saved records could not be read. Keep a recovery backup, then restore a valid Life Ledger backup.':conflicts.size?'Another window has newer changes. Your current work is kept in this tab. Back it up, then review the latest record.':'Your latest changes are in this tab but could not be saved. Retry or back up before closing.';app.inert=blocked||busy;const label=document.getElementById('ledger-draft-status');if(label)label.textContent=failed.size||conflicts.size?'Changes need saving':busy?'Saving…':pending.size?'Storing draft…':dirty()?'Draft stored · Save to earn XP':dayEntryFor(state.logDate)?'Progress saved':'New day';}
     function reconcile(key,value,latest,replace){
       const base=observed.get(key)??null;
       if(latest===base||latest===value)return value;
@@ -473,12 +474,17 @@
     }
     function closeLeisure(){leisureOpen=false;document.getElementById('ledger-leisure-sheet')?.close();}
     function openLeisure(){if(blocked||busy)return;leisureOpen=true;render();document.getElementById('ledger-leisure-close')?.focus();}
-    function setDashboardView(view){
+    function setDashboardView(view,restore=false){
       if(blocked||busy||!['today','progress','history'].includes(view))return;
+      dashboardPlaces.set(dashboardView,window.scrollY||0);const visit=++dashboardVisit;
       remember();dashboardView=view;leisureOpen=false;
       if(view==='history')historyOpen=true;
       if(view==='today'&&state.logDate!==todayISO()){state.logDate=todayISO();loadDraftFor(state.logDate);}
-      render();window.scrollTo({top:0,behavior:'instant'});document.getElementById('ledger-nav-'+view)?.focus({preventScroll:true});
+      render();const y=restore?(dashboardPlaces.get(view)||0):0,navId='ledger-nav-'+view;
+      window.scrollTo({top:y,behavior:'instant'});document.getElementById(navId)?.focus({preventScroll:true});
+      if(restore&&typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        if(visit===dashboardVisit&&dashboardView===view&&document.activeElement===document.getElementById(navId))window.scrollTo({top:y,behavior:'instant'});
+      }));
     }
     function personalRewards(data){return Rewards.view(drafts.rewards||[],data.life,R.lifeCost);}
     async function writePersonalRewards(rows){
@@ -602,8 +608,8 @@
       const running=button('Screen-time timer running · Open',openLeisure);running.id='ledger-running-timer';running.hidden=!drafts.leisureTimer;running.classList.add('ledger-running-timer');dock.append(running);
       const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');
       const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
-      for(const [key,title]of [['today','Today'],['progress','Progress'],['history','History']]){const b=button('',()=>setDashboardView(key));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
-      nav.addEventListener('keydown',e=>{const keys=['today','progress','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();setDashboardView(keys[next]);});
+      for(const [key,title]of [['today','Today'],['progress','Progress'],['history','History']]){const b=button('',()=>setDashboardView(key,true));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
+      nav.addEventListener('keydown',e=>{const keys=['today','progress','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%3;else if(e.key==='ArrowLeft')next=(index+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();setDashboardView(keys[next],true);});
       const todayScreen=state.logDate===todayISO()?state.draftScreen:(drafts.days[todayISO()]||dayEntryFor(todayISO()))?.screen;
       const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';quick.setAttribute('aria-label',quick.textContent);quick.title=quick.textContent;if(dashboardView==='today'){quick.textContent=todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume reset':'Scrolling reset';const resetRow=make('div',null,'ledger-reset-row');resetRow.append(quick);panes.today.append(resetRow);}
       dock.append(nav);app.append(dock);log.querySelector('.ledger-save-inline')?.remove();resetSheet();
@@ -686,7 +692,11 @@
       const panel=make('section',null,'panel ledger-overall ledger-lasting');panel.id='ledger-lifetime-levels';
       const head=make('div',null,'ledger-rhythm-heading');head.append(make('h2','Life Level '+data.life.level,'cinzel'),detailsInfo('How lifetime levels work','Saved activity earns 100 XP per standard check-in amount; partial amounts earn partial XP. Habit thresholds are calibrated to reach Level 99 after about 52 weeks at their original normal weekly rhythm. Values use the combined rhythms of their habits. Life Level 99 takes 3,224 standard check-ins, about 52 weeks at the original weekly rhythms across all 13 habits. Your habit XP builds its value and your overall Life Level. Hiding a habit keeps its earned XP. There is no maximum level, annual reset, missed-day penalty or streak multiplier. Weekly targets and goal edits do not change XP. Catch-up counts once. Correcting or undoing an entry recalculates its XP.'));
       panel.append(head,make('p',fmt(data.life.xp)+' lifetime XP · '+fmt(Math.ceil(data.life.remaining))+' XP to Level '+(data.life.level+1),'ledger-rhythm-count'),xpMeter(data.life,'Life'));
-      const map=make('div',null,'ledger-level-constellation');map.innerHTML=constellation(data.pillars.map(p=>({...p,exact:Math.min(99,p.exact)})),data.life,state.active);panel.append(map);
+      const map=make('div',null,'ledger-level-constellation');map.append(make('h3','Levels by value'));
+      const drawing=make('div');drawing.innerHTML=constellation(data.pillars.map(p=>({...p,exact:Math.min(99,p.exact)})),data.life,state.active);drawing.setAttribute('aria-hidden','true');
+      for(const node of drawing.querySelectorAll('[data-act]')){node.removeAttribute('data-act');node.removeAttribute('tabindex');}
+      const key=make('div',null,'ledger-value-key');for(const p of data.pillars){const b=button(p.title+' · Level '+p.level,()=>{state.active=p.key;state.openP=p.key;render();const target=app.querySelector('[data-act="pillar"][data-key="'+p.key+'"]');target?.scrollIntoView({block:'center',behavior:'instant'});target?.focus({preventScroll:true});});key.append(b);}
+      map.append(drawing,key);panel.append(map);
       for(const h of focusHabits()){const progress=data.habit[h],row=make('div',null,'ledger-rhythm-row');row.append(make('strong',label(h)+' · Level '+progress.level),make('p',fmt(progress.total)+' '+HCFG[h].unit+' recorded overall','ledger-rhythm-count'),make('p',fmt(progress.xp)+' XP · '+fmt(Math.ceil(progress.remaining))+' XP to next level','ledger-help'),xpMeter(progress,label(h)));panel.append(row);}return panel;
     }
     function recentPanel(){
