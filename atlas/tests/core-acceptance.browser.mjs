@@ -22,6 +22,7 @@ async function keyboard(p,input,app){
  }else assert(!(await p.locator(app==='life-map'?'.lm-day-dock':'#atlas-page-navigation').isVisible()),'navigation yields space to the keyboard');
  const bounds=await input.boundingBox(),limit=app==='life-ledger'?(await p.locator('.ledger-dock').boundingBox()).y:430;assert(bounds.y+bounds.height<=limit-12,'focused field remains above keyboard chrome');
  assert(await input.evaluate(n=>parseFloat(getComputedStyle(n).fontSize)>=20),'form text follows the larger text setting');
+ assert.equal(await input.evaluate(n=>parseFloat(getComputedStyle(n).borderTopLeftRadius)),14,'field corners follow the shared form style');
  await p.screenshot({path:path.join(out,app+'-keyboard-'+engine+'.png')});
  await input.blur();assert(await p.evaluate(()=>document.documentElement.classList.contains('core-keyboard')),'chrome stays stable while the keyboard viewport is still reduced');
  await p.evaluate(()=>{delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'));});await p.waitForFunction(()=>!document.documentElement.classList.contains('core-keyboard'));
@@ -39,8 +40,24 @@ try{
    assert((await p.locator('link[rel="apple-touch-icon"]').getAttribute('href')).includes('/'+app+'-apple.png'),'Home Screen icon has the app identity');
    assert.equal(await p.locator('.appbar .homebtn svg').getAttribute('aria-hidden'),'true');
    const appearance=p.getByRole('button',{name:/^Appearance:/});await appearance.focus();await p.keyboard.press('Enter');assert(await p.locator('#atlas-appearance-dialog').isVisible());await p.keyboard.press('Escape');await p.waitForFunction(()=>!document.getElementById('atlas-appearance-dialog').open);assert(await appearance.evaluate(n=>n===document.activeElement),'dialog returns focus to its trigger');
+   await appearance.blur();
+   assert.equal(await p.locator('.appbar').evaluate(n=>parseFloat(getComputedStyle(n).borderBottomWidth)),1,'header uses one quiet divider');
    assert(await p.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
    const hero=p.locator(heroSelector).first();assert(await hero.evaluate(n=>getComputedStyle(n).backgroundImage!=='none'),'primary record has a distinct material');
+   if(app==='workout-forge'||app==='communication-trainer')assert.equal(await p.locator('.atlas-goal-question').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)','supporting choices do not compete with the focal record');
+   if(app==='life-ledger'){
+    assert.equal(await hero.locator('.ledger-card-avatar svg').getAttribute('aria-hidden'),'true');
+    assert.equal(await hero.locator('.ledger-card-identity').evaluate(n=>getComputedStyle(n).textAlign),'left');
+    assert.equal(await p.getByRole('button',{name:'Cards',exact:true}).count(),1,'mode labels remain clear with decorative icons');
+   }else if(app==='life-map')assert.equal(await hero.locator('..').evaluate(n=>getComputedStyle(n).boxShadow),'none','next move has one focal surface');
+   else if(app==='workout-forge'){
+    const target=await hero.locator('.fg-target').boundingBox(),unit=await hero.locator('.fg-target small').boundingBox();
+    assert(unit.x>target.x+20&&Math.abs(unit.y+unit.height-target.y-target.height)<8,'the unit stays beside the target on its baseline: '+JSON.stringify({target,unit}));
+   }
+   else{
+    await p.locator('.cl-roadmap>summary').click();assert.equal(await p.locator('.cl-stage-heading').first().evaluate(n=>getComputedStyle(n).display),'grid','stage identities use a stable grid');
+    await p.screenshot({path:path.join(out,app+'-expanded-'+theme+'.png'),fullPage:true});await p.locator('.cl-roadmap>summary').click();await p.evaluate(()=>scrollTo(0,0));
+   }
    const home=await p.locator('.appbar .homebtn').boundingBox();assert(home.y>=64,'standalone header clears the status area');
    writeFileSync(path.join(out,app+'-header-'+theme+'.txt'),await p.locator('.appbar').ariaSnapshot());
    await p.screenshot({path:path.join(out,app+'-home-'+theme+'.png')});await hero.screenshot({path:path.join(out,app+'-record-'+theme+'.png')});

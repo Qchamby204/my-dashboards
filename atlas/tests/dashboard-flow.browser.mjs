@@ -22,6 +22,12 @@ try{
  assert.equal(await p.locator('#communicator-progress-view').inputValue(),'archive');
  assert.equal(await p.locator('#archive-search').inputValue(),'unfinished archive search');
  await p.evaluate(()=>nav('topics'));await settle();assert.equal(await p.locator('#cityInput').inputValue(),'An unfinished city');assert.equal(await p.locator('#pasteBox').inputValue(),'{unfinished topic import');await p.screenshot({path:path.join(out,'communicator-place.png')});const returnedY=await p.evaluate(()=>scrollY);assert(Math.abs(returnedY-topicY)<5,'Topics restores scroll: '+topicY+' → '+returnedY);
+ for(let i=0;i<4;i++){
+  await p.evaluate(()=>{nav('progress');nav('topics');});await settle();
+  assert.equal(await p.locator('.season').count(),0,'integrated redraw never inserts the retired banner');
+  assert(Math.abs(await p.evaluate(()=>scrollY)-topicY)<5,'repeated Topics visits restore the same position');
+  assert.equal(await p.locator('#cityInput').inputValue(),'An unfinished city');assert.equal(await p.locator('#pasteBox').inputValue(),'{unfinished topic import');
+ }
  await p.evaluate(()=>toggleCat('sports'));await settle();assert.equal(await p.locator('#cityInput').inputValue(),'An unfinished city');assert(Math.abs(await p.evaluate(()=>scrollY)-topicY)<5,'routine category update keeps position');
  await p.locator('#pasteBox').fill(JSON.stringify({sports:['A fresh topic about local hockey']}));await p.evaluate(()=>applyTopicPaste());assert.equal(await p.locator('#pasteBox').inputValue(),'','successful import clears submitted draft');await p.evaluate(()=>nav('progress'));await p.evaluate(()=>nav('topics'));assert.equal(await p.locator('#pasteBox').inputValue(),'','submitted draft does not return');
  await p.screenshot({path:path.join(out,'communicator-place.png')});

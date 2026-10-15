@@ -8,18 +8,27 @@ function harness(app='life-ledger'){
  const control={dataset:{act:'settings'},label:'Settings',listener:()=>42,replacements:0,set innerHTML(value){this.html=value;this.replacements++;}};
  controls.set('.appbar [data-act="settings"]',control);
  const root={dataset:{atlasApp:app},classList:{add:k=>classes.add(k),toggle(k,value){value?classes.add(k):classes.delete(k)}},style:{setProperty(k,v){style[k]=v}}};
- const document={documentElement:root,body:{},readyState:'complete',activeElement:{tagName:'BODY'},querySelector:s=>controls.get(s)||null,addEventListener(k,f){events[k]=f}};
+ const mode={dataset:{act:'logmode',mode:'cards'},textContent:'Cards',children:[],listener:()=>17,set innerHTML(value){this.html=value},append(n){this.children.push(n)}};
+ const choice={...mode,dataset:{goal:'run',goalAction:'choose-focus'},textContent:'5K run',children:[]};
+ const avatar={dataset:{},attrs:{},set innerHTML(value){this.html=value},setAttribute(k,v){this.attrs[k]=v},closest:()=>({querySelector:()=>({dataset:{habit:'Read'}})})};
+ const document={documentElement:root,body:{},readyState:'complete',activeElement:{tagName:'BODY'},querySelector:s=>controls.get(s)||null,querySelectorAll:s=>s==='[data-act="logmode"]'?[mode]:s==='.ledger-card-avatar'?[avatar]:s==='.atlas-goal-options [data-goal]'?[choice]:[],createElement:()=>({}),addEventListener(k,f){events[k]=f}};
  const visual={scale:1,height:800,offsetTop:0,addEventListener(k,f){events['viewport-'+k]=f}};
  const window={innerHeight:800,visualViewport:visual};
  const forbidden=()=>{throw Error('Presentation must not access records or network')};
  Object.defineProperty(window,'localStorage',{get:forbidden});
  vm.runInNewContext(script,{document,window,localStorage:new Proxy({},{get:forbidden}),fetch:forbidden,MutationObserver:class{constructor(f){observer=f}observe(){}},queueMicrotask:f=>pending.push(f)});
- return {root,classes,style,control,document,visual,window,events,redraw:()=>observer?.(),flush:()=>pending.splice(0).forEach(f=>f())};
+ return {root,classes,style,control,mode,choice,avatar,document,visual,window,events,redraw:()=>observer?.(),flush:()=>pending.splice(0).forEach(f=>f())};
 }
 test('control artwork preserves actions and accessible names and is stable across redraws',()=>{
  const h=harness();assert(h.classes.has('core-finished'));assert.equal(h.control.replacements,1);
  assert.match(h.control.html,/aria-hidden="true" focusable="false"/);assert.equal(h.control.label,'Settings');assert.equal(h.control.dataset.act,'settings');assert.equal(h.control.listener(),42);
  h.redraw();h.window.CoreAppFinish.decorate();assert.equal(h.control.replacements,1);
+ assert.equal(h.avatar.dataset.coreIcon,'book');assert.equal(h.avatar.attrs['aria-hidden'],'true');
+ assert.equal(h.mode.children[0].textContent,'Cards');assert.equal(h.mode.listener(),17);assert.equal(h.mode.dataset.act,'logmode');assert.equal(h.mode.children.length,1,'redraw does not duplicate the visible label');
+});
+test('training choice artwork retains the goal action and its visible name',()=>{
+ const h=harness('workout-forge');assert.equal(h.choice.dataset.coreIcon,'run');assert.equal(h.choice.dataset.goal,'run');assert.equal(h.choice.dataset.goalAction,'choose-focus');assert.equal(h.choice.children[0].textContent,'5K run');assert.equal(h.choice.listener(),17);
+ h.redraw();assert.equal(h.choice.children.length,1);
 });
 test('keyboard chrome stays stable during a save tap until the viewport restores',()=>{
  const h=harness();h.document.activeElement={tagName:'INPUT'};h.visual.height=430;h.events['viewport-resize']();

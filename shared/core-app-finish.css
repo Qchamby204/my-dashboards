@@ -55,3 +55,52 @@ html.core-finished.core-keyboard{scroll-padding-bottom:calc(var(--core-keyboard-
 @media(prefers-reduced-transparency:reduce){html.atlas-neumo.atlas-neumo.core-finished :is(#atlas-page-navigation,.atlas-page-shell,.lm-day-dock){background:var(--neo-content-surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
 @media(prefers-contrast:more){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(.ledger-habit-card,.lm-now-card,.fg-card,.cl-next){box-shadow:none!important;border:2px solid var(--neo-ink)!important}}
 @media(forced-colors:active){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(.ledger-habit-card,.lm-now-card,.fg-card,.cl-next,.atlas-goal-question){background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;box-shadow:none!important}}
+
+/* Art direction: quiet chrome, readable metadata, one focal record per screen. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] .appbar,
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main) .appbar{background:color-mix(in srgb,var(--neo-surface) 98%,transparent)!important;border-bottom:1px solid var(--neo-line)!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo.core-finished .appbar :is(.appbar-title,h1){font-size:1.125rem!important;line-height:1.3!important;letter-spacing:-.025em!important}
+html.atlas-neumo.atlas-neumo.core-finished .core-icon-label{min-width:0;line-height:1.4}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) .atlas-goal-question{padding:0;border:0!important;background:transparent!important;box-shadow:none!important;margin:1.5rem 0;gap:.75rem}
+html.atlas-neumo.atlas-neumo.core-finished .atlas-goal-question h2{font-size:1.0625rem!important;line-height:1.4!important;font-weight:600}
+html.atlas-neumo.atlas-neumo.core-finished .atlas-goal-options{margin-top:0;gap:12px}
+html.atlas-neumo.atlas-neumo.core-finished .atlas-goal-options button{display:flex;align-items:center;gap:12px;padding:14px!important;background:var(--neo-content-surface)!important;border:1px solid var(--neo-line)!important;font-size:.875rem!important;font-weight:600;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo.core-finished .atlas-goal-options svg{width:22px;height:22px;flex:0 0 22px;color:var(--neo-accent)}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge-goals) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),select,textarea){border-radius:14px!important;box-shadow:none!important;background:var(--neo-content-surface)!important}
+
+/* Ledger uses the same line-art family as navigation, with left-aligned identities. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app :is(.ledger-card-identity,.ledger-card-identity .cinzel,.ledger-card-identity .eyebrow){text-align:left!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-card-avatar{border-radius:14px!important;background:var(--neo-inset)!important;border-color:var(--neo-line)!important;color:var(--neo-accent)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] .ledger-card-avatar svg{width:26px;height:26px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] [data-act="logmode"]{display:flex;align-items:center;justify-content:center;gap:8px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] [data-act="logmode"] svg{width:18px;height:18px;flex:none}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-habit-card{border-top-width:3px;padding:24px!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-checkin-state{padding-top:16px;margin-top:8px;border-top:1px solid var(--core-edge)}
+
+/* Map's capture is a toolbar; the next move is a single card, not a card in a card. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-capture{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:24px 0}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-capture-meta .lm-button{background:transparent!important;border-color:transparent!important;box-shadow:none!important;color:var(--neo-muted)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-day-heading .eyebrow{font-size:.8125rem!important;font-weight:500;line-height:1.5;letter-spacing:.02em;color:var(--neo-muted)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-day-panel[aria-label="Right now"]{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card{border-radius:24px;padding:24px!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-now-card>.eyebrow{font-size:.8125rem!important;font-weight:600;letter-spacing:.02em;color:var(--neo-accent)!important}
+
+/* Forge gives the number, its unit and the plan title distinct typographic roles. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-top>span:first-child{font-size:1rem;font-weight:700;line-height:1.35}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target{display:flex;align-items:baseline;gap:.375rem;flex-wrap:wrap;min-height:0;color:var(--neo-ink)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target small{display:inline;font-size:.9375rem;line-height:1.4;margin:0}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-cta{color:var(--neo-accent)!important;font-size:.875rem}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals :is(.fg-week-guide-heading h3,.fg-week-dayname){font-size:1rem;line-height:1.35;letter-spacing:0}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-week-day{min-height:140px;padding:16px 12px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals :is(.fg-week-day small,.fg-week-guide-heading>span,.fg-kicker){font-size:.8125rem;line-height:1.5;letter-spacing:.02em}
+
+/* A ladder stage stays aligned at every text size; the ready state uses one edge. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading{display:grid;grid-template-columns:36px 20px minmax(0,1fr);align-items:start;gap:8px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading .cl-emblem{width:36px;height:36px;border-radius:12px;margin:0}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading .cl-emblem svg{width:22px;height:22px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-step{width:20px;height:24px;border-radius:0;background:transparent;font-size:.8125rem;color:var(--neo-muted);margin:0}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage h3{font-size:1rem;line-height:1.4;font-weight:700}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage.is-ready{outline:none;border-color:var(--neo-accent)!important}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main :is(.cl-state,.cl-lock,.cl-score){font-size:.8125rem;line-height:1.6}
+@media(prefers-reduced-transparency:reduce){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] .appbar,html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main) .appbar{background:var(--neo-surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .ledger-day-progress :is(.ledger-level-link,.ledger-awards-link){background:transparent!important;border:0!important;box-shadow:none!important;padding:4px 0!important;font-size:.8125rem!important;line-height:1.5;color:var(--neo-muted)!important;text-align:left}
