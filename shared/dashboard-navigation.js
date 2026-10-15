@@ -93,6 +93,7 @@
   }
   function reconcile(){
     queued=false;
+    window.AtlasSuiteChrome?.refresh();
     if(pageNav()?.contains(document.activeElement)||menu?.contains(document.activeElement))reveal();
     if(config.native){
       const nav=document.querySelector(config.native);if(!nav)return;

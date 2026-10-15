@@ -1,0 +1,27 @@
+/* One calm header and material family; records remain separate from floating controls. */
+html.atlas-neumo.atlas-neumo.atlas-page-navigation .atlas-suite-header{background:var(--neo-surface)!important;border-bottom:1px solid var(--neo-line)!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:12px!important}
+html.atlas-neumo.atlas-neumo .atlas-suite-header :is(.homebtn,.cc-home,.atlas-appearance-trigger,.atlas-header-tools>summary){display:inline-grid!important;place-items:center!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;flex:0 0 44px;padding:0!important;margin:0!important;border:1px solid transparent!important;border-radius:50%!important;background:transparent!important;color:var(--neo-ink)!important;box-shadow:none!important;cursor:pointer;touch-action:manipulation}
+html.atlas-neumo.atlas-neumo .atlas-suite-header :is(.homebtn,.cc-home,.atlas-appearance-trigger,.atlas-header-tools>summary):hover{background:var(--neo-inset)!important}
+html.atlas-neumo.atlas-neumo .atlas-suite-header :is(.homebtn,.cc-home,.atlas-appearance-trigger,.atlas-header-tools>summary) svg{width:21px;height:21px;display:block}
+html.atlas-neumo.atlas-neumo .atlas-suite-header .appbar-title{font:700 1.125rem/1.3 var(--neo-font,system-ui)!important;letter-spacing:-.025em!important;white-space:normal!important;text-transform:none!important}
+html.atlas-neumo.atlas-neumo .atlas-suite-header .appbar-sub{font:400 .75rem/1.4 var(--neo-font,system-ui)!important;letter-spacing:0!important;text-transform:none!important;white-space:normal!important;color:var(--neo-muted)!important}
+html.atlas-neumo.atlas-neumo .atlas-suite-header .appbar-title::before{content:none!important}
+html.atlas-neumo.atlas-neumo .atlas-header-compact{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto!important;align-items:center!important;flex-wrap:nowrap!important;padding:calc(12px + var(--atlas-safe-top,0px)) max(16px,var(--atlas-safe-right,0px)) 12px max(16px,var(--atlas-safe-left,0px))!important}
+.atlas-header-identity{min-width:0}.atlas-header-actions{display:flex;align-items:center;gap:4px;min-width:0}.atlas-header-tools{position:relative;margin:0;padding:0}
+html.atlas-neumo.atlas-neumo .atlas-header-tools>summary{list-style:none!important}.atlas-header-tools>summary::-webkit-details-marker{display:none}
+.atlas-header-tools-body{position:absolute;z-index:100;top:calc(100% + 8px);right:0;box-sizing:border-box;width:min(280px,calc(100vw - 32px));padding:16px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-content-surface,var(--neo-surface));color:var(--neo-ink);box-shadow:0 12px 32px #0002;display:grid;gap:12px}
+html.atlas-neumo.atlas-neumo .atlas-header-tools-body .appbar-pill{background:transparent!important;box-shadow:none!important;border:0!important;border-radius:0!important;padding:0!important;white-space:normal!important;font:500 .875rem/1.5 var(--neo-font)!important}
+html.atlas-neumo.atlas-neumo .atlas-header-tools-body .operations-backup-tools{display:flex;flex-wrap:wrap;gap:8px;margin:0!important}
+html.atlas-neumo.atlas-neumo .atlas-header-tools-body button{min-height:44px;flex:1;padding:10px 16px!important;box-shadow:none!important;font:500 .875rem/1.4 var(--neo-font)!important}
+html.atlas-neumo.atlas-neumo.atlas-page-navigation{--neo-small:none;--neo-raised:0 3px 12px rgb(0 0 0 / .05);--neo-float:0 12px 32px rgb(0 0 0 / .16);--neo-well:none;--neo-pressed:inset 0 0 0 1px var(--neo-line)}
+html.atlas-neumo.atlas-neumo.atlas-page-navigation:not(:is([data-atlas-app="life-ledger"],[data-atlas-app="life-map"],[data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"])) :is(.panel,.card){background:var(--neo-content-surface,var(--neo-surface))!important;box-shadow:0 4px 16px color-mix(in srgb,var(--neo-ink) 5%,transparent)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+@media(prefers-contrast:more){html.atlas-neumo.atlas-neumo .atlas-suite-header :is(.homebtn,.cc-home,.atlas-appearance-trigger,.atlas-header-tools>summary){border-color:currentColor!important}.atlas-header-tools-body{border:2px solid currentColor}}
+@media(forced-colors:active){.atlas-header-tools-body{background:Canvas;color:CanvasText;border-color:CanvasText;box-shadow:none}}
+.atlas-header-tools:not([open]) .atlas-header-tools-body{display:none}
+
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] body>header>.atlas-header-compact{padding:0!important;margin-bottom:8px!important}
+
+html.atlas-neumo.atlas-neumo .atlas-header-help{position:relative;margin:0!important;padding:0!important}
+html.atlas-neumo.atlas-neumo .atlas-header-help>summary{display:grid;place-items:center;width:44px;min-height:44px;padding:0!important;margin:0!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo .atlas-header-help>p{position:absolute;z-index:100;right:0;top:calc(100% + 8px);box-sizing:border-box;width:min(280px,calc(100vw - 32px));margin:0;padding:16px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-content-surface,var(--neo-surface));color:var(--neo-ink);font:400 .875rem/1.6 var(--neo-font);box-shadow:0 12px 32px #0002}
+html.atlas-neumo.atlas-neumo .atlas-suite-header :is(button,a,summary):focus-visible{outline:3px solid var(--neo-accent)!important;outline-offset:3px!important}
