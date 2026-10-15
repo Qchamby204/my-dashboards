@@ -1,6 +1,6 @@
-const ASSETS=["index.html","manifest.json","favicon.svg","assets/dashboard-B7VtMk3p.css","assets/dashboard-Bw2yZ2Ix.js","assets/framework-DMp2t5-j.js","assets/planning-model-BedqVdkq.js","assets/planning-screens-CTFF5B_F.css","assets/planning-screens-iR6Gh4Wo.js"];
+const ASSETS=["index.html","manifest.json","favicon.svg","assets/dashboard-B7VtMk3p.css","assets/dashboard-C_9XLKZ7.js","assets/framework-DMp2t5-j.js","assets/planning-model-1OgEoZsw.js","assets/planning-screens-BWc9Kng-.js","assets/planning-screens-MeILxm_d.css"];
 const PREFIX='northplan-dashboard:'+self.registration.scope;
-const CACHE=PREFIX+'a4a8722855a4';
+const CACHE=PREFIX+'832b6063fad8';
 const url=path=>new URL(path,self.registration.scope).href;
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(url)))));
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE_UPDATE')self.skipWaiting();});
