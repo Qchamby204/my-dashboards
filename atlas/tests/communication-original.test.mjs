@@ -55,6 +55,12 @@ function boot({speech=true,records={}}={}){
 }
 function result(text,isFinal=true){const entry=[{transcript:text}];entry.isFinal=isFinal;return {resultIndex:0,results:[entry]};}
 
+test('integrated page redraw never inserts the retired season banner above the saved scroll position',()=>{
+  const h=boot();h.window.CommunicatorLearning={};h.run("nav('topics')");
+  assert(!h.node('main').innerHTML.includes('class="season"'),'the hidden banner must not shift scroll anchors before integration decorates');
+  delete h.window.CommunicatorLearning;h.run("nav('topics')");assert(h.node('main').innerHTML.includes('class="season"'),'standalone legacy rendering keeps its original banner');
+});
+
 test('timer uses elapsed time, preserves fractional pause time and stays accurate through renders',()=>{
   const h=boot();h.begin();h.run('toggleTimer()');h.advance(10400);assert.equal(h.run('timerLeft'),80);
   h.run('togglePrep()');assert.equal(h.node('tbtn').textContent,'Pause');h.run('toggleTimer()');
