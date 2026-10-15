@@ -21,7 +21,7 @@
   view.qa={...view.qa,parse:true,parentId:''};
   const statusNode=()=>document.getElementById('lm-save-state');
   function feedback(){
-    const node=statusNode();if(node){node.textContent=busy?'Saving…':lastError||draftError||(view.editor||view.qa.txt?'Draft kept on this device; not yet added.':'');node.setAttribute('role',lastError||draftError?'alert':'status');}
+    const node=statusNode();if(node){node.textContent=busy?'Saving…':lastError||draftError||(view.editor||view.qa.txt?'Draft kept on this device; not yet added.':'');node.setAttribute('role',lastError||draftError?'alert':'status');if(node.parentElement)node.parentElement.hidden=!node.textContent&&!pendingAction;}
     const editorStatus=document.getElementById('lm-editor-status');if(editorStatus)editorStatus.textContent=busy?'Saving…':lastError||draftError;
     for(const el of app.querySelectorAll('button,input,select,textarea')){if(busy&&!el.disabled){el.dataset.lmBusy='1';el.disabled=true;}else if(!busy&&el.dataset.lmBusy==='1'){el.disabled=false;delete el.dataset.lmBusy;}}
   }
@@ -125,7 +125,7 @@
     const qa=view.qa,n=(S.projects||[]).filter(p=>M.open(p)&&p.inbox).length;
     return '<section class="panel lm-capture"><div class="lm-inline lm-quick-entry"><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="Capture a task…" autocomplete="off" aria-label="Add a task">'+button('Add task','quick-add','data-lm-save','lm-primary')+button('Add to Today','quick-add-today','data-lm-save')+'</div>'+
       '<div id="lm-quick-hints" class="lm-inline">'+quickHints()+'</div><div class="lm-capture-meta">'+button('Inbox'+(n?' · '+n:''),'inbox')+button('More options','capture')+(restorePrompt?button('Resume unfinished edit','resume-edit'):'')+'</div>'+
-      '<p id="lm-save-state" class="lm-help" aria-live="polite"></p>'+(pendingAction?'<div class="lm-inline">'+button('Retry saving','retry')+button('Discard unsaved change','discard-failed')+'</div>':'')+'</section>';
+      '</section>';
   };
   function handledStatus(c){const hs=(S.choreHistory||[]).filter(h=>h.choreId===c.id&&(c.repeat||h.occurrence===periodKey(c.cad)));return hs.at(-1)?.status||(!c.repeat&&oldChecked(c)?'done':'');}
   const oldChecked=isChecked;
@@ -461,6 +461,7 @@
   const baseRender=render;
   render=function(){
     loadDraft();const y=window.scrollY||0;baseRender();const todayPanel=app.querySelector('[data-lm="capture-today"]')?.closest('.panel');if(todayPanel)todayPanel.after(weeklyPanel());else app.querySelector('.appbar')?.after(weeklyPanel());
+    const saveFeedback=document.createElement('section');saveFeedback.className='lm-save-feedback';saveFeedback.setAttribute('aria-label','Save status');saveFeedback.innerHTML='<p id="lm-save-state" class="lm-help" aria-live="polite"></p>'+(pendingAction?'<div class="lm-inline">'+button('Retry saving','retry')+button('Discard unsaved change','discard-failed')+'</div>':'');app.querySelector('.lm-capture')?.after(saveFeedback);
     const dialog=app.querySelector('dialog.lm-sheet-overlay');if(dialog){if(typeof dialog.showModal==='function'&&!dialog.open)dialog.showModal();dialog.addEventListener('cancel',ev=>{ev.preventDefault();closeEditor();});}
     const launch=document.createElement('button');launch.type='button';launch.id='lm-capture-launch';launch.className='btn lm-fab';launch.dataset.lm='capture';launch.setAttribute('aria-label','Capture a task');launch.textContent='+';launch.hidden=!!view.editor;app.appendChild(launch);
     const footer=document.createElement('div');footer.className='lm-tools';footer.innerHTML=button('Capture, saving & reminders','connections')+((S.groups||[]).some(g=>g.archived)?button('Archived projects','archived-groups'):'');app.appendChild(footer);

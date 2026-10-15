@@ -237,13 +237,13 @@
     const route='#'+ui.tab+(['board','plan'].includes(ui.tab)&&M.validDate(ui.date)?'?day='+ui.date:'');
     if(location.hash!==route)history.replaceState(null,'',location.pathname+location.search+route);
     draw();
-    const captureLaunch=app.querySelector('#lm-capture-launch');if(captureLaunch)captureLaunch.hidden=!!view.editor||!(['plan','areas'].includes(ui.tab)||(ui.tab==='board'&&ui.records));
+    const captureLaunch=app.querySelector('#lm-capture-launch');if(captureLaunch)captureLaunch.hidden=!!view.editor||!(ui.tab==='board'&&ui.records);
     const capture=app.querySelector('.lm-capture');if(capture)capture.hidden=['plan','areas'].includes(ui.tab);
     const children=[...app.children],records=document.createElement('section');records.id='lm-day-records';records.className='lm-day-records';records.hidden=!(ui.tab==='board'&&ui.records);
-    for(const node of children)if(!node.matches('.appbar,.lm-capture,dialog,.lm-fab,.lm-tools'))records.append(node);
+    for(const node of children)if(!node.matches('.appbar,.lm-capture,.lm-save-feedback,dialog,.lm-fab,.lm-tools'))records.append(node);
     const main=document.createElement('section');main.id='lm-day-view-'+ui.tab;main.className='lm-day-view';main.setAttribute('role','tabpanel');main.setAttribute('aria-labelledby','lm-day-nav-'+ui.tab);
     main.innerHTML=(ui.tab==='board'?(ui.records?heading('Full Life Map','All records',button('Day view','day-board')):boardView()):ui.tab==='home'?homeView():ui.tab==='plan'?planView():areasView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
-    const anchor=app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);if(!window.AtlasConnected)window.AtlasDaily?.mount();
+    const anchor=app.querySelector('.lm-save-feedback')||app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);if(!window.AtlasConnected)window.AtlasDaily?.mount();
     for(const key of ['home','plan','areas','board'])if(key!==ui.tab){const pane=document.createElement('section');pane.id='lm-day-view-'+key;pane.hidden=true;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','lm-day-nav-'+key);app.append(pane);}
     const nav=document.createElement('nav');nav.className='lm-day-dock';nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Map views');
     nav.innerHTML=[['home','⌂','Home'],['plan','◷','Plan'],['areas','◈','Areas'],['board','▦','Board']].map(([key,icon,title])=>'<button type="button" class="btn" id="lm-day-nav-'+key+'" role="tab" aria-selected="'+(ui.tab===key)+'" aria-controls="lm-day-view-'+key+'" tabindex="'+(ui.tab===key?0:-1)+'" data-day="tab" data-tab="'+key+'"><span aria-hidden="true">'+icon+'</span><strong>'+title+'</strong></button>').join('');app.append(nav);
