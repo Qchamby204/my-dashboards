@@ -79,7 +79,7 @@ html.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme="dark"] {
  --forge-top:var(--neo-surface);--forge-bottom:var(--neo-inset);--forge-gold:#ffcf58;
 }
 html.atlas-neumo[data-atlas-app="workout-forge"] body {background:var(--neo-surface)!important;}
-html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-live-panel,.forge-rest,.forge-confirm,.forge-save-notice) {background:var(--neo-surface)!important;border:1px solid var(--neo-line)!important;border-radius:24px!important;box-shadow:var(--neo-raised);}
+html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-live-panel,.forge-rest,.forge-confirm,.forge-save-notice) {background:var(--neo-content-surface)!important;border:1px solid var(--neo-line)!important;border-radius:24px!important;box-shadow:none;}
 html.atlas-neumo[data-atlas-app="workout-forge"] #app>.appbar {background:var(--neo-surface)!important;border-bottom:2px solid var(--neo-line)!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] .appbar-title {font:800 2rem/1 var(--forge-display)!important;text-transform:none;letter-spacing:.035em;color:var(--neo-ink)!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] .appbar-sub {color:var(--neo-ink)!important;font-size:.75rem;}
@@ -123,7 +123,7 @@ html.atlas-neumo[data-atlas-app="workout-forge"] .forge-set-prior{font-size:.75r
 @media(max-width:380px){html.atlas-neumo[data-atlas-app="workout-forge"] .forge-set-row{flex-wrap:wrap;}html.atlas-neumo[data-atlas-app="workout-forge"] .forge-set-prior{flex-basis:100%!important;padding-left:29px;}}
 
 /* The current step owns emphasis; finishing becomes primary after the last step. */
-html.atlas-neumo[data-atlas-app="workout-forge"] .forge-primary {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent)!important;font-weight:700!important;box-shadow:var(--neo-small)!important;}
+html.atlas-neumo[data-atlas-app="workout-forge"] .forge-primary {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent)!important;font-weight:700!important;box-shadow:none!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] .forge-secondary {background:var(--neo-surface)!important;color:var(--neo-ink)!important;border:1px solid var(--neo-line)!important;box-shadow:none!important;}
 html[data-atlas-app="workout-forge"] .forge-editor-actions {display:flex;gap:.75rem;flex-wrap:wrap;justify-content:flex-end;}
 html[data-atlas-app="workout-forge"] .forge-editor-actions button {flex:1 1 9rem;margin:0;white-space:normal;}

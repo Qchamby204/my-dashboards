@@ -44,12 +44,12 @@ try{
    assert.equal(await p.locator('.appbar').evaluate(n=>parseFloat(getComputedStyle(n).borderBottomWidth)),1,'header uses one quiet divider');
    assert(await p.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
    const hero=p.locator(heroSelector).first();
-   if(app==='life-ledger'||app==='life-map'){
+   if(['life-ledger','life-map','workout-forge'].includes(app)){
     assert(await hero.evaluate(n=>{const s=getComputedStyle(n);return s.backgroundImage==='none'&&s.backgroundColor!==getComputedStyle(document.body).backgroundColor;}),'the primary record has a solid surface distinct from the canvas');
     if(app==='life-ledger'){
     const record=await hero.boundingBox(),accessory=await p.locator('.ledger-save-row').boundingBox();
     assert(record.y+record.height<=accessory.y-8,'the complete initial check-in remains above the floating save accessory');
-    }else assert(await p.locator('.lm-capture').evaluate(n=>n.previousElementSibling?.getAttribute('aria-label')==='Right now'),'the current task comes before capture in visual and keyboard order');
+    }else if(app==='life-map')assert(await p.locator('.lm-capture').evaluate(n=>n.previousElementSibling?.getAttribute('aria-label')==='Right now'),'the current task comes before capture in visual and keyboard order');
    }else assert(await hero.evaluate(n=>getComputedStyle(n).backgroundImage!=='none'),'primary record has a distinct material');
    if(app==='workout-forge'||app==='communication-trainer')assert.equal(await p.locator('.atlas-goal-question').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)','supporting choices do not compete with the focal record');
    if(app==='life-ledger'){
@@ -105,12 +105,15 @@ try{
    }else if(app==='workout-forge'){
     await p.locator('[data-goal-action="open"][data-goal="bench"]').click();
     assert(await p.locator('.fg-weeks button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect();return r.width>=44&&r.height>=44;})),'week choices have comfortable targets');
-    await p.getByRole('button',{name:'Log next set',exact:true}).click();const input=p.locator('.fg-editor input[name="w"]');await input.fill('95');await p.locator('.fg-editor input[name="r"]').fill('5');
+    assert.equal(await p.locator('.fg-set[aria-current="step"]').count(),1,'one set is identified as next');
+    assert.match(await p.locator('.fg-set[aria-current="step"]').textContent(),/Next/);
+    await p.getByRole('button',{name:'Log next set',exact:true}).click();assert.match(await p.locator('.fg-set[aria-current="step"]').textContent(),/Editing/);const input=p.locator('.fg-editor input[name="w"]');await input.fill('95');await p.locator('.fg-editor input[name="r"]').fill('5');
     await p.locator('#atlas-page-navigation').getByRole('button',{name:'Deadlift',exact:true}).click();await p.locator('#atlas-page-navigation').getByRole('button',{name:'Bench',exact:true}).click();
     assert.equal(await input.inputValue(),'95','goal navigation preserves the unfinished set');
     await keyboard(p,input,app);
     await p.reload();await ready(p);assert.equal(await p.locator('.fg-editor input[name="w"]').inputValue(),'95','unfinished training entry survives reload');await p.locator('.fg-editor').getByRole('button',{name:'Save set',exact:true}).click();await p.reload();await ready(p);
     assert(await p.evaluate(()=>Object.values(JSON.parse(localStorage.getItem('forge:goals:v1')).plans.bench.done).some(v=>v.w==='95'&&v.r==='5')),'saved training entry survives reload');
+    assert.equal(await p.locator('.fg-set[aria-current="step"]').getAttribute('data-key'),'0-d1-0-1','next step advances only after the set saves');
    }else{
     await p.waitForFunction(()=>!!window.CommunicatorLadder);
     assert.equal(await p.locator('[data-ladder-start]:visible').count(),1,'Today has one next practice');

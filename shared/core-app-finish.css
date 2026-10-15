@@ -18,12 +18,7 @@ html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .a
 
 /* Life Map content and controls are owned by life-map-day.css. */
 
-/* Forge: goal records have the typography and separated metadata of a training folio. */
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card{background:linear-gradient(155deg,var(--neo-content-surface),color-mix(in srgb,var(--fg-accent) 4%,var(--neo-content-surface)))!important;box-shadow:var(--core-lift)!important;border-color:var(--core-edge)!important;border-top-color:var(--fg-accent)!important;gap:16px}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target{font-family:var(--neo-font)!important;font-weight:700!important;font-size:clamp(2rem,7vw,3rem);line-height:1.15;letter-spacing:-.035em}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals :is(.fg-badge,.fg-metric,.fg-card-bottom){font-size:.8125rem;line-height:1.5;letter-spacing:0}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-cta{padding-top:14px;border-top:1px solid var(--core-edge);color:var(--fg-accent);font-weight:700}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #app .forge-live-panel{background:var(--neo-content-surface)!important;box-shadow:var(--core-lift)!important}
+/* Forge content and controls are owned by forge-goals.css and forge-enhancements.css. */
 
 /* Communicator: the next challenge carries the emphasis; onboarding is a calmer choice group. */
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-next{background:var(--core-hero)!important;box-shadow:var(--core-lift)!important;border-top:3px solid var(--neo-accent)!important;padding:24px}
@@ -58,13 +53,6 @@ html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge
 
 
 /* Forge gives the number, its unit and the plan title distinct typographic roles. */
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-top>span:first-child{font-size:1rem;font-weight:700;line-height:1.35}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target{display:flex;align-items:baseline;gap:.375rem;flex-wrap:wrap;min-height:0;color:var(--neo-ink)!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-target small{display:inline;font-size:.9375rem;line-height:1.4;margin:0}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-card-cta{color:var(--neo-accent)!important;font-size:.875rem}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals :is(.fg-week-guide-heading h3,.fg-week-dayname){font-size:1rem;line-height:1.35;letter-spacing:0}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals .fg-week-day{min-height:140px;padding:16px 12px}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="workout-forge"] #forge-goals :is(.fg-week-day small,.fg-week-guide-heading>span,.fg-kicker){font-size:.8125rem;line-height:1.5;letter-spacing:.02em}
 
 /* A ladder stage stays aligned at every text size; the ready state uses one edge. */
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading{display:grid;grid-template-columns:36px 20px minmax(0,1fr);align-items:start;gap:8px}

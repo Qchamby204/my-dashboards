@@ -25,7 +25,7 @@
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
-      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=46546c239ad7',sharedSource).href;document.head.appendChild(polish);
+      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=0cf1c27de0af',sharedSource).href;document.head.appendChild(polish);
       const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=54aa0f1d0514',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
     }
     if(root.dataset.atlasApp==='prospecting-command-center'&&!window.AtlasProspectingPrivate){
@@ -47,7 +47,7 @@
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1','forge:goals:v1','forge:progression-settings:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasForgeBoot=boot;
-      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=af2ca692329a',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=5125331d455a',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
