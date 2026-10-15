@@ -34,6 +34,11 @@
     const hud=document.querySelector('header.hud'),stage=$('stage'),toolbar=make('nav',null,'baby-toolbar');toolbar.setAttribute('aria-label','Baby Brain views');
     const listButton=button('Topics',()=>setMode('list')),mapButton=button('Map',()=>setMode('map'));
     toolbar.append(listButton,mapButton);document.body.appendChild(toolbar);
+    const mapChooser=make('div',null,'baby-map-chooser'),mapLabel=make('label','Choose a topic'),mapChoice=make('select');mapChoice.id='baby-map-choice';mapLabel.append(mapChoice);
+    ALL.filter(n=>n.depth!==0).forEach(node=>{const o=make('option',node.l);o.value=node.id;mapChoice.append(o);});
+    const showChoice=button('Show topic',()=>{const node=known.get(mapChoice.value);if(node)openTopic(node,showChoice);});mapChooser.append(mapLabel,showChoice);document.body.append(mapChooser);
+    stage.setAttribute('role','img');stage.setAttribute('aria-label','Topic branches overview. Select any topic with Choose a topic.');
+
     const list=make('main',null,'baby-list');list.id='baby-list';
     const filters=make('div',null,'baby-filters');
     function field(title,tag,id){const label=make('label',title),e=make(tag);e.id=id;label.append(e);filters.append(label);return e;}
@@ -78,7 +83,7 @@
       catch{dirty=true;}paintSave();return !dirty;
     };
     function setMode(next){
-      if(!['list','map'].includes(next))return;mode=next;root.dataset.babyView=mode;list.hidden=mode!=='list';stage.hidden=mode!=='map';
+      if(!['list','map'].includes(next))return;mode=next;root.dataset.babyView=mode;mapChooser.hidden=mode!=='map';list.hidden=mode!=='list';stage.hidden=mode!=='map';
       ['legend','hint','prog'].forEach(id=>$(id).hidden=mode!=='map');document.querySelector('.zfab').hidden=mode!=='map';
       ['btnExpand','btnReset'].forEach(id=>$(id).hidden=mode!=='map');listButton.setAttribute('aria-pressed',String(mode==='list'));mapButton.setAttribute('aria-pressed',String(mode==='map'));
       closeSheet(false);searchUI.classList.remove('show');measure();if(mode==='map')animateFit();else renderList();
@@ -139,14 +144,14 @@
     importNotes=function(){const input=make('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',()=>{if(input.files?.[0])restoreFile(input.files[0]);});input.click();};window.babyBrainImport=importNotes;
     showGuide=function(){window.TTS?.stop();$('rdBtn').classList.remove('on');activeNode=null;$('shPath').textContent='Baby Brain';$('shTitle').textContent='Find what you need';body.replaceChildren();
       [['Topics and Map','Topics gives you a searchable list. Choose an area or stage, or show topics with your notes and links. Map keeps the original branches available.'],['Reading and notes','Open a topic and use Read, Notes, or Resources to jump within it. Writing notes is optional. The reference material is already available to read.'],['Saving','Notes save in this browser on this device. They do not sync automatically. Use Back up our notes to keep a copy, and Restore from backup to bring that file to another device.']].forEach(([title,text])=>{const sec=make('section',null,'sec');sec.append(make('h4',title),make('p',text,'why'));body.append(sec);});sheet.classList.add('show');sheet.inert=false;sheet.setAttribute('aria-hidden','false');$('shClose').focus();};
-    const oldRender=render;render=function(){oldRender();gNodes.querySelectorAll('.node').forEach(g=>{g.setAttribute('role','button');g.tabIndex=0;g.setAttribute('aria-label',known.get(g.dataset.id)?.l||'Topic');});};
+    const oldRender=render;render=function(){oldRender();gNodes.querySelectorAll('.node').forEach(g=>{g.setAttribute('role','presentation');g.tabIndex=-1;g.setAttribute('aria-hidden','true');g.setAttribute('aria-label',known.get(g.dataset.id)?.l||'Topic');});};
     gNodes.addEventListener('keydown',e=>{if(!['Enter',' '].includes(e.key)||e.repeat)return;const g=e.target.closest('.node');if(!g)return;e.preventDefault();const n=known.get(g.dataset.id);if(n){if(n.depth===0)collapseAll();else openTopic(n,g);}});
     window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.querySelector('dialog[open]')&&!$('vPanel')?.classList.contains('show')){e.preventDefault();e.stopImmediatePropagation();if(searchUI.classList.contains('show')){searchUI.classList.remove('show');$('btnSearch').focus();}else closeSheet(false);}},true);
     document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty&&!blocked)save();});window.addEventListener('pagehide',()=>{if(dirty&&!blocked)save();});window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)'),originalAnimate=animateTo;
     animateTo=function(s,x,y){if(reduced.matches){stopAnim();scale=s;px=x;py=y;applyT();}else originalAnimate(s,x,y);};
     const originalInsets=insets;
-    insets=function(ignoreSheet){return {...originalInsets(ignoreSheet),top:(window.AtlasPageNavigation?hud.getBoundingClientRect().bottom:Math.max(hud.getBoundingClientRect().bottom,toolbar.getBoundingClientRect().bottom))+16};};
+    insets=function(ignoreSheet){return {...originalInsets(ignoreSheet),top:Math.max((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom,mapChooser.hidden?0:mapChooser.getBoundingClientRect().bottom)+16};};
     ensureVisible=function(node){if(!node)return;const top=(window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom+16,bottom=Math.max(top+60,sheet.classList.contains('show')?sheet.getBoundingClientRect().top-18:innerHeight-60),p=node.parent||node;animateTo(scale,innerWidth/2-(node.tx*.68+p.tx*.32)*scale,(top+bottom)/2-(node.ty*.68+p.ty*.32)*scale);};
     refreshProgress=function(){const n=LEAVES.filter(hasNotes).length;$('progFill').style.width=(100*n/Math.max(1,LEAVES.length)).toFixed(1)+'%';$('progTxt').textContent=n+' topics with notes, decisions or links';};
     // The legacy speech shortcut must not also run when a focused control uses Space.

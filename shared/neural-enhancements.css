@@ -40,3 +40,7 @@ html[data-atlas-app="neural-map"] .neural-filters label:has(input[type="search"]
 html[data-atlas-app="neural-map"] .neural-card>button{margin:0}
 html[data-atlas-app="neural-map"] :is(button,a,summary):active{filter:brightness(.94)}
 @media(prefers-contrast:more){html[data-atlas-app="neural-map"] :is(.neural-resource-state,.neural-card,.neural-about summary){border-width:2px}}
+
+html[data-atlas-app="neural-map"] .neural-map-chooser{position:fixed;z-index:24;top:var(--neural-content-top,100px);left:max(16px,var(--atlas-safe-left,0px));right:max(16px,var(--atlas-safe-right,0px));display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px;padding:12px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);color:var(--neo-ink)}
+.neural-map-chooser label{display:grid;gap:6px;min-width:0;font-size:.875rem}.neural-map-chooser select{width:100%;min-width:0;font:inherit}
+.neural-map-chooser :is(button,select){min-height:44px;min-width:44px}.neural-map-chooser[hidden]{display:none!important}

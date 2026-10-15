@@ -45,3 +45,7 @@ html[data-atlas-app="baby-brain"] :is(button,input,select,textarea,[role="button
 
 /* Focused daily workflow additions. */
 .baby-decisions{padding:16px 0;border-top:1px solid var(--neo-line,#596477)}.baby-decisions label{display:grid;gap:6px;margin:12px 0}.baby-decisions textarea,.baby-decisions input{width:100%;font:inherit;font-size:16px;padding:10px}.baby-decisions a{display:inline-block;margin:8px 0}
+
+html[data-atlas-app="baby-brain"] .baby-map-chooser{position:fixed;z-index:24;top:var(--baby-content-top,140px);left:max(16px,var(--atlas-safe-left,0px));right:max(16px,var(--atlas-safe-right,0px));display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px;padding:12px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);color:var(--neo-ink)}
+.baby-map-chooser label{display:grid;gap:6px;min-width:0;font-size:.875rem}.baby-map-chooser select{width:100%;min-width:0;font:inherit}
+.baby-map-chooser :is(button,select){min-height:44px;min-width:44px}.baby-map-chooser[hidden]{display:none!important}

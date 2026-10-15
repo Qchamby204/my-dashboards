@@ -14,7 +14,7 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.
 const apps=['life-ledger','life-map','workout-forge','communication-trainer','the-aqueduct','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-chef','the-library','baby-brain','neural-map'];
 async function audit(p,app,view,theme){
  const result=await p.evaluate(()=>{
-  const visible=n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'&&!n.closest('[hidden],[inert],[aria-hidden="true"]');};
+  const visible=n=>{for(let a=n.parentElement;a;a=a.parentElement)if(a.tagName==='DETAILS'&&!a.open&&!a.querySelector(':scope>summary')?.contains(n))return false;const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'&&!n.closest('[hidden],[inert],[aria-hidden="true"]');};
   const text=n=>{const c=n.cloneNode(true);c.querySelectorAll('[aria-hidden="true"],svg').forEach(x=>x.remove());return c.textContent.trim().replace(/\s+/g,' ');};
   const name=n=>n.getAttribute('aria-label')||n.getAttribute('aria-labelledby')?.split(/\s+/).map(id=>document.getElementById(id)?.textContent||'').join(' ')||[...(n.labels||[])].map(text).join(' ')||n.getAttribute('title')||(['button','submit','reset'].includes(n.type)?n.value:'')||(['BUTTON','A','SUMMARY'].includes(n.tagName)||n.getAttribute('role')==='button'?text(n):'');
   let checked=0;const issues=[];
@@ -52,6 +52,14 @@ try{
       else{await p.locator('#atlas-page-navigation [data-more]').click();await p.locator('#atlas-page-menu [data-page-key]').evaluateAll((ns,key)=>ns.find(n=>n.dataset.pageKey===key).click(),key);}
      }
      await frames(p);await audit(p,app,key,theme);
+     if(app==='neural-map'&&await p.locator('#neural-map-choice').isVisible()){
+      await p.locator('#neural-map-choice').selectOption({label:'Life Ledger'});await p.locator('.neural-map-chooser').getByRole('button',{name:'Show',exact:true}).click();
+      assert(await p.getByRole('dialog',{name:'Resource details'}).isVisible());await p.screenshot({path:path.join(out,'neural-map-selection-'+theme+'.png')});await p.keyboard.press('Escape');assert(await p.locator('.neural-map-chooser button').evaluate(n=>n===document.activeElement));
+     }
+     if(app==='baby-brain'&&await p.locator('#baby-map-choice').isVisible()){
+      const id=await p.evaluate(()=>BabyNavigation.findTopics('')[0].id);await p.locator('#baby-map-choice').selectOption(id);await p.locator('.baby-map-chooser').getByRole('button',{name:'Show topic',exact:true}).click();
+      await p.waitForSelector('#sheet.show');await p.screenshot({path:path.join(out,'baby-map-selection-'+theme+'.png')});await p.keyboard.press('Escape');
+     }
      await p.locator('main details,#app details,.app details').evaluateAll(ns=>ns.forEach(n=>{if(n.getClientRects().length&&!n.closest('dialog'))n.open=true;}));await frames(p);await audit(p,app,key+' expanded',theme);
     }
    }catch(e){reports.push({app,theme,engine,error:e.message});}finally{await p.close();}
