@@ -44,3 +44,6 @@ html[data-atlas-app="neural-map"] :is(button,a,summary):active{filter:brightness
 html[data-atlas-app="neural-map"] .neural-map-chooser{position:fixed;z-index:24;top:var(--neural-content-top,100px);left:max(16px,var(--atlas-safe-left,0px));right:max(16px,var(--atlas-safe-right,0px));display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px;padding:12px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);color:var(--neo-ink)}
 .neural-map-chooser label{display:grid;gap:6px;min-width:0;font-size:.875rem}.neural-map-chooser select{width:100%;min-width:0;font:inherit}
 .neural-map-chooser :is(button,select){min-height:44px;min-width:44px}.neural-map-chooser[hidden]{display:none!important}
+
+html[data-atlas-app="neural-map"] .neural-filters label:has(input[type="checkbox"]){display:flex;align-items:center;gap:12px;min-height:44px;width:100%;flex-wrap:nowrap}
+html[data-atlas-app="neural-map"] .neural-filters input[type="checkbox"]{appearance:auto;-webkit-appearance:checkbox;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;flex:0 0 24px;order:-1;margin:0;accent-color:var(--neo-accent)}

@@ -22,7 +22,7 @@
       const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=77f5b80f9b5f',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
-      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=34c0099873a7',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
+      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=c8fd770efb16',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
@@ -43,7 +43,7 @@
     if(root.dataset.atlasApp==='baby-brain'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('babybrain.v1');}catch{boot.readError=true;}
       window.AtlasBabyBoot=boot;
-      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js?v=533180a4ca53',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
+      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js?v=61cd63b49fdb',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
     }
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1','forge:goals:v1','forge:progression-settings:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
