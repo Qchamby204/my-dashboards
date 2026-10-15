@@ -60,11 +60,11 @@
     return `<form class="fg-editor" data-key="${k}"><strong>Set ${M.locate(active,k,p.base).set+1}</strong><div class="fg-fields">${fields}</div>${active==='run'?`<p class="fg-run-result" role="status" aria-live="polite">${runResult(v)}</p><small>Use the time and distance for this set. Shorter runs count, including runs under 3 miles.</small>`:''}<div class="fg-actions"><button type="submit" class="fg-primary">${active==='dunk'&&!e.reach?'Mark done':'Save set'}</button>${p.done[k]?button('Clear set','clear',`data-key="${k}"`):''}${button('Close','close-editor')}</div><small>Entries stay in this browser. Unfinished fields are saved as a draft.</small></form>`;
   }
   function exercises(){
-    const {p,w}=selected();
-    return w[p.day].map((e,ei)=>`<section class="fg-exercise ${e.main?'fg-main':''}" aria-labelledby="fg-ex-${ei}"><div class="fg-ex-top"><h3 id="fg-ex-${ei}">${esc(e.n)}</h3><strong>${esc(e.rx)}</strong></div><div class="fg-rest-line"><span>${esc(e.rest)}</span>${restSeconds(e.rest)?button('Start rest','rest',`data-seconds="${restSeconds(e.rest)}" aria-label="Start rest for ${esc(e.n)}"`):''}</div>${e.note?`<p class="fg-ex-note">${esc(e.note)}</p>`:''}<div class="fg-sets">${Array.from({length:e.sets},(_,s)=>{
+    const {p,w}=selected(),next=currentSet(p,w),where=next?M.locate(active,next,p.base):null;
+    return w[p.day].map((e,ei)=>`<section data-current="${where?.week===p.week&&where?.day===p.day&&where?.exercise===ei}" class="fg-exercise ${e.main?'fg-main':''}" aria-labelledby="fg-ex-${ei}"><div class="fg-ex-top"><h3 id="fg-ex-${ei}">${esc(e.n)}</h3><strong>${esc(e.rx)}</strong></div><div class="fg-rest-line"><span>${esc(e.rest)}</span>${restSeconds(e.rest)?button('Start rest','rest',`data-seconds="${restSeconds(e.rest)}" aria-label="Start rest for ${esc(e.n)}"`):''}</div>${e.note?`<p class="fg-ex-note">${esc(e.note)}</p>`:''}<div class="fg-sets">${Array.from({length:e.sets},(_,s)=>{
       const k=M.key(p.week,p.day,ei,s),v=p.done[k];let label=''+(s+1);
       if(v)label=active==='run'?`${v.w}${v.distance?' · '+v.distance+' '+v.unit:''}`:e.reach?v.w+' in':active==='dunk'?'✓':`${v.w!==''?v.w+' × ':''}${v.r}${e.rl?' '+e.rl.toLowerCase():''}`;
-      return button(esc(label),'set',`data-key="${k}" class="fg-set ${v?'fg-done':''}" aria-label="${esc(e.n)}, set ${s+1}, ${v?esc(label):'not logged'}" aria-expanded="${p.draft?.key===k}"`);
+      return button(esc(label+(k===next?' · '+(p.draft?'Editing':'Next'):'')),'set',`data-key="${k}" ${k===next?'aria-current="step"':''} class="fg-set ${v?'fg-done':''}" aria-label="${esc(e.n)}, set ${s+1}, ${v?esc(label):'not logged'}${k===next?', '+(p.draft?'editing':'next set'):''}" aria-expanded="${p.draft?.key===k}"`);
     }).join('')}</div>${p.draft&&M.locate(active,p.draft.key,p.base)?.exercise===ei&&p.draft.key.startsWith(`${p.week}-${p.day}-`)?editor(p.draft.key,e):''}</section>`).join('');
   }
   function runResult(v){

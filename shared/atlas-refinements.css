@@ -81,7 +81,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-amount-c
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-missed,.ledger-progress-info summary) {box-shadow:none;}
 
 /* Forge: workout records stand apart from navigation and editable set controls. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-card,.fg-exercise) {background:var(--neo-content-surface)!important;box-shadow:0 4px 14px color-mix(in srgb,var(--neo-ink) 6%,transparent)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-card,.fg-exercise) {background:var(--neo-content-surface)!important;box-shadow:none!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-primary {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;box-shadow:none!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals :is(.fg-weeks,.fg-days,.fg-detail-head) button:not([aria-pressed="true"]) {box-shadow:none;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] :is(.fg-card-bottom,.fg-editor small,.fg-session-intro>span,.forge-progression .fp-hint) {font-size:.875rem;line-height:1.5;}
