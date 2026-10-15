@@ -40,7 +40,9 @@
     for(const el of [chrome,connection,bottom])if(el&&observer&&!observed.has(el)){observed.add(el);observer.observe(el);}
     set('--atlas-connection-h',height(connection)+'px');
     set('--atlas-top-h',height(connection)+height(chrome)+'px');
-    set('--atlas-bottom-h',height(bottom)+'px');
+    // Floating navigation includes its inset gap and owns this clearance.
+    // Two writers otherwise change page height on every clock refresh.
+    if(!root.classList.contains('atlas-page-navigation'))set('--atlas-bottom-h',height(bottom)+'px');
     const visual=window.visualViewport;
     set('--atlas-visible-height',visual&&visual.scale===1?Math.round(visual.height)+'px':'100dvh');
     set('--atlas-visible-top',visual&&visual.scale===1?Math.round(visual.offsetTop)+'px':'0px');

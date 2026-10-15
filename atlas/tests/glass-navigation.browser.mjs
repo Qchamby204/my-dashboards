@@ -43,10 +43,6 @@ try{
     window.traceNavigation=row=>{window.navigationTrace.push({t:performance.now(),...row});if(window.navigationTrace.length>80)window.navigationTrace.shift();};
     for(const type of ['wheel','focusin','focusout','keydown','scroll'])document.addEventListener(type,event=>window.traceNavigation({type,key:event.key,dy:event.deltaY,y:scrollY,target:event.target.tagName,active:document.activeElement?.id||document.activeElement?.tagName,minimized:document.documentElement?.classList.contains('atlas-page-minimized')}),true);
    });
-   await p.route('**/shared/dashboard-navigation.js*',route=>{
-    const body=readFileSync(path.join(root,'shared/dashboard-navigation.js'),'utf8').replace('const nav=pageNav();',"const nav=pageNav();window.traceNavigation?.({type:'navigation-scroll',y,delta,max,intent:scrollIntentUntil-Date.now(),focused:nav?.contains(document.activeElement),classes:root.className});");
-    return route.fulfill({body,contentType:'text/javascript'});
-   });
    try{
     if(app==='crucible'){
      await p.goto(origin+'/index.html');
