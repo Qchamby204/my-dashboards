@@ -67,7 +67,14 @@ try{
    const landscape=await hero.boundingBox();assert(landscape.x>=64&&landscape.x+landscape.width<=788,'landscape records clear both reserved side areas');
    await p.screenshot({path:path.join(out,app+'-landscape-'+theme+'.png')});await p.setViewportSize({width:393,height:852});await p.waitForFunction(()=>innerWidth===393&&innerHeight>=800);
    if(app==='life-ledger'){
-    await p.locator('#ledger-habit-picker').selectOption('Read');const input=p.locator('.ledger-habit-card:not([inert]) [data-act="num"]');await input.fill('12');await input.press('Tab');await keyboard(p,input,app);
+    await p.locator('#ledger-habit-picker').selectOption('Read');const input=p.locator('.ledger-habit-card:not([inert]) [data-act="num"]');await input.fill('12');await input.press('Tab');
+    await p.evaluate(()=>scrollTo({top:180,behavior:'instant'}));const todayPlace=await p.evaluate(()=>scrollY);
+    await p.locator('#ledger-nav-progress').click();assert.equal(await p.getByRole('heading',{name:'Levels by value',exact:true}).count(),1);
+    assert.equal(await p.locator('.ledger-value-key button').count(),5,'every value has a named, reachable chart key');
+    await p.locator('#ledger-nav-history').click();await p.locator('#ledger-nav-today').click();
+    await p.waitForFunction(y=>Math.abs(scrollY-y)<2,todayPlace);assert.equal(await input.inputValue(),'12','section switches preserve the unfinished check-in');
+    assert.equal(await p.locator('.ledger-save-row .ledger-primary').evaluate(n=>getComputedStyle(n).borderTopLeftRadius),'999px','Save Day follows the shared action shape');
+    await keyboard(p,input,app);
     await p.reload();await ready(p);assert.equal(await p.evaluate(()=>state.draft.Read),12,'unfinished check-in survives reload');
     await p.locator('#ledger-habit-picker').selectOption('Read');await p.locator('.ledger-habit-card:not([inert]) [data-act="num"]').focus();
     await p.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{value:430,configurable:true});window.visualViewport.dispatchEvent(new Event('resize'));});
