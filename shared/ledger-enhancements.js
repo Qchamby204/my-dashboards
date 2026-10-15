@@ -712,7 +712,7 @@
     function decorateRhythm(log,data){
       for(const key of ['forecast','pace','oracle','outcomes','chronicle','consistency'])app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel')?.remove();
       app.querySelector('.ledger-overall')?.replaceWith(lastingProgress(data));
-      const identity=app.querySelector('.ledger-identity');if(identity)identity.innerHTML='<div class="eyebrow">Lifetime progress</div><h1 class="cinzel">Your Life Ledger</h1>';
+      const identity=app.querySelector('.ledger-identity');if(identity)identity.innerHTML='<div class="eyebrow">Lifetime progress</div><h1 class="cinzel">Your progress</h1>';
       const badge=app.querySelector('.appbar-lvl');if(badge)badge.textContent='LV '+data.life.level;
       const tools=app.querySelector('[data-act="export"]')?.parentNode;
       app.querySelector('[data-act="reset"]')?.remove();app.querySelector('[data-act="card"]')?.remove();
