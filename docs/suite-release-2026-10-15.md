@@ -23,7 +23,7 @@ Fault-injection journeys use synthetic, isolated records. They inspect empty, un
 
 Reduced motion and increased contrast are browser-emulated. Reduced-transparency CSS rules are rendered explicitly because Playwright does not expose the operating system setting. This is rendering evidence, not an actual iPhone accessibility-setting result. The original single observer stack on the leaving Crucible document was not captured; the release removes all helper initialization from that document and verifies the entry journeys without errors.
 
-The final map-header follow-up gives Baby Brain and Neural Map the shared Atlas / identity / Appearance / App tools row. Original search, zoom, reset, backup controls and branch text stay available inside App tools. Browser checks cover alignment, names, targets and Escape focus restoration.
+The final map-header follow-up gives Baby Brain and Neural Map the shared Atlas / identity / Appearance / App tools row. The original search, reset, backup controls and branch text stay available in App tools. The maps retain their existing selection and zoom actions. Browser checks cover alignment, names, targets and Escape focus restoration.
 
 ## Required physical iPhone sign-off
 

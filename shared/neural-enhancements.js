@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='neural-map')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css?v=e5a9d55ebaf7',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css?v=37003e59edf2',source).href;document.head.appendChild(css);
   function ready(){
     if(window.NeuralNavigation||typeof CATS==='undefined')return;
     const make=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
