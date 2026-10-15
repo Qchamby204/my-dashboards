@@ -56,6 +56,15 @@ try{
     const geometry=await nav.evaluate(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return {x:r.x,right:r.right,bottom:r.bottom,width:r.width,radius:parseFloat(c.borderBottomLeftRadius),border:parseFloat(c.borderBottomWidth),blur:c.backdropFilter||c.webkitBackdropFilter,buttons:[...n.querySelectorAll('button')].map(b=>{const r=b.getBoundingClientRect();return {width:r.width,height:r.height,name:b.getAttribute('aria-label')||b.textContent.trim()}})}});
     assert(geometry.x>=12&&geometry.right<=381,'navigation floats inside both screen edges: '+JSON.stringify(geometry));assert(geometry.bottom<=840,'navigation clears the bottom edge');assert(geometry.radius>=30&&geometry.border>=1,'navigation is a complete capsule');assert.match(geometry.blur,/blur/,'glass material separates navigation from content');assert(geometry.buttons.every(b=>b.width>=44&&b.height>=44&&b.name),'all tabs have touch targets and names');
     await p.screenshot({path:path.join(out,app+'-floating-'+theme+'.png')});
+    if(['operations-cadence','the-hourglass'].includes(app)){
+     await p.waitForSelector('.atlas-header-compact');
+     assert(await p.locator('.appbar').evaluate(n=>{const controls=[n.querySelector('.homebtn'),n.querySelector('.appbar-title'),n.querySelector('.atlas-appearance-trigger'),n.querySelector('.atlas-header-tools>summary')].map(n=>n.getBoundingClientRect());return Math.max(...controls.map(r=>r.top))-Math.min(...controls.map(r=>r.top))<24;}),'header identity and tools share one row');
+     const tools=p.locator('.atlas-header-tools>summary');await tools.focus();await p.keyboard.press('Enter');
+     assert(await p.locator('.atlas-header-tools-body .appbar-pill').isVisible(),'secondary status is available in tools');
+     if(app==='operations-cadence'){assert(await p.getByRole('button',{name:'Backup',exact:true}).isVisible());assert(await p.getByRole('button',{name:'Restore',exact:true}).isVisible());}
+     await p.keyboard.press('Escape');assert(await tools.evaluate(n=>n===document.activeElement&&!n.parentElement.open),'Escape closes tools and restores focus');
+     await p.screenshot({path:path.join(out,app+'-header-'+theme+'.png')});
+    }
     const buttons=nav.locator('button');assert(await buttons.count()>=2);await buttons.nth(1).click();await p.waitForTimeout(120);assert(await nav.locator('[aria-current="page"],[aria-selected="true"]').count()>=1,'selection follows the existing page action');
     if(app==='life-ledger'){await p.locator('#ledger-nav-today').click();await p.waitForTimeout(100);}
     if(app==='baby-brain')await nav.getByRole('button',{name:'Topics',exact:true}).click();

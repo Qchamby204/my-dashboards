@@ -1,0 +1,43 @@
+/* Header presentation only. Preserve original controls, listeners and record ownership. */
+(()=>{
+ 'use strict';
+ const root=document.documentElement,app=root.dataset.atlasApp;
+ const svg=path=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="'+path+'"/></svg>';
+ const homeIcon=svg('M3 10 12 3l9 7v10H3z M9 20v-7h6v7');
+ const appearanceIcon=svg('M12 3a9 9 0 1 0 0 18V3z M12 3a9 9 0 0 1 0 18');
+ function refresh(){
+  const bar=document.querySelector('.appbar,body>header>.bar');if(!bar)return;
+  if(app==='the-chef'){const title=document.querySelector('body>header>h1');if(title){title.classList.add('appbar-title');const identity=document.createElement('div');identity.className='atlas-header-identity';identity.append(title);bar.querySelector('.cc-home')?.after(identity);}}
+  if(!bar.classList.contains('atlas-suite-header'))bar.classList.add('atlas-suite-header');
+  const home=bar.querySelector('.homebtn,.cc-home'),appearance=bar.querySelector('.atlas-appearance-trigger');
+  if(home&&!home.dataset.suiteHome){home.innerHTML=homeIcon;home.dataset.suiteHome='true';}
+  if(appearance&&!appearance.dataset.suiteAppearance){appearance.innerHTML=appearanceIcon;appearance.dataset.suiteAppearance='true';}
+  if(!['operations-cadence','the-hourglass','the-chef'].includes(app))return;
+  const title=bar.querySelector('.appbar-title'),identity=title?.parentElement;if(!home||!identity)return;
+  const oldHome=home.parentElement;
+  if(home.parentElement!==bar)bar.prepend(home);
+  if(identity.parentElement!==bar)home.after(identity);
+  if(oldHome!==bar&&oldHome!==identity&&!oldHome.children.length)oldHome.remove();
+  if(!identity.classList.contains('atlas-header-identity'))identity.classList.add('atlas-header-identity');
+  let actions=bar.querySelector('.atlas-header-actions');
+  if(!actions){actions=document.createElement('div');actions.className='atlas-header-actions';bar.append(actions);}
+  if(appearance&&appearance.parentElement!==actions)actions.prepend(appearance);
+  if(app==='the-chef'){
+   const help=bar.parentElement.querySelector(':scope>.cc-help');
+   if(help){help.classList.add('atlas-header-help');actions.append(help);help.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();help.open=false;help.querySelector('summary')?.focus({preventScroll:true});}});}
+  }
+  let tools=actions.querySelector('.atlas-header-tools');
+  if(!tools&&app!=='the-chef'){
+   tools=document.createElement('details');tools.className='atlas-header-tools';
+   const summary=document.createElement('summary');summary.setAttribute('aria-label','App tools');summary.innerHTML=svg('M5 12h.01M12 12h.01M19 12h.01');
+   const body=document.createElement('div');body.className='atlas-header-tools-body';tools.append(summary,body);actions.append(tools);
+   tools.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();tools.open=false;summary.focus({preventScroll:true});}});
+  }
+  const body=tools?.querySelector('.atlas-header-tools-body');
+  for(const node of bar.querySelectorAll('.appbar-pill,.operations-backup-tools'))if(body&&node.parentElement!==body)body.append(node);
+  if(!bar.classList.contains('atlas-header-compact'))bar.classList.add('atlas-header-compact');
+ }
+ window.AtlasSuiteChrome=Object.freeze({refresh});
+ document.addEventListener('click',event=>{const tools=document.querySelector('.atlas-header-tools[open],.atlas-header-help[open]');if(tools&&!tools.contains(event.target))tools.open=false;});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
+})();
