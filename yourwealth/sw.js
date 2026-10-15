@@ -1,6 +1,6 @@
-const ASSETS=["index.html","manifest.json","favicon.svg","assets/framework-DMp2t5-j.js","assets/yourwealth-dashboard-CgysDn22.css","assets/yourwealth-dashboard-DqkVeOa5.js"];
+const ASSETS=["index.html","manifest.json","favicon.svg","assets/framework-DMp2t5-j.js","assets/yourwealth-dashboard-BsOIdebs.js","assets/yourwealth-dashboard-CgysDn22.css"];
 const PREFIX='yourwealth-dashboard:'+self.registration.scope;
-const CACHE=PREFIX+'9ed2e92deef9';
+const CACHE=PREFIX+'d4fa697e3dfb';
 const url=path=>new URL(path,self.registration.scope).href;
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(url)))));
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE_UPDATE')self.skipWaiting();});
