@@ -14,7 +14,9 @@ const files=['life-ledger','life-map','workout-forge','communication-trainer','t
 const core=files.slice(0,4);
 try{
  for(const theme of ['light','dark']){
-  const context=await browser.newContext({viewport:{width:393,height:852},colorScheme:theme,hasTouch:true,isMobile:true,timezoneId:'America/Winnipeg'});
+  // Mobile WebKit rejects mouse.wheel. Use supported wheel input here; the
+  // separate core-acceptance suite retains mobile WebKit keyboard/save/layout QA.
+  const context=await browser.newContext({viewport:{width:393,height:852},colorScheme:theme,hasTouch:true,isMobile:engine!=='webkit',timezoneId:'America/Winnipeg'});
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const file=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{await r.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await r.abort();}});
   for(const app of files){
    const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(12000);
