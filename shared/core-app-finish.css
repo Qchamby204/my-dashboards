@@ -21,10 +21,6 @@ html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #app .a
 /* Forge content and controls are owned by forge-goals.css and forge-enhancements.css. */
 
 /* Communicator: the next challenge carries the emphasis; onboarding is a calmer choice group. */
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-next{background:var(--core-hero)!important;box-shadow:var(--core-lift)!important;border-top:3px solid var(--neo-accent)!important;padding:24px}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-next>h2{font-size:clamp(1.5rem,6vw,2rem);line-height:1.2;letter-spacing:-.03em;margin:18px 0 12px}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main :is(.cl-stage,.communicator-session){background:var(--neo-content-surface)!important;border-color:var(--core-edge)!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-next>progress{height:6px;margin-top:24px}
 html.atlas-neumo.atlas-neumo.core-finished:is([data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) .atlas-goal-question{background:var(--neo-inset)!important;border:1px solid var(--core-edge);box-shadow:none!important}
 html.atlas-neumo.atlas-neumo.core-finished:is([data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) .atlas-goal-question h2{font-size:clamp(1.25rem,4.5vw,1.5rem);line-height:1.35;letter-spacing:-.02em}
 
@@ -55,11 +51,4 @@ html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main,#forge
 /* Forge gives the number, its unit and the plan title distinct typographic roles. */
 
 /* A ladder stage stays aligned at every text size; the ready state uses one edge. */
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading{display:grid;grid-template-columns:36px 20px minmax(0,1fr);align-items:start;gap:8px}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading .cl-emblem{width:36px;height:36px;border-radius:12px;margin:0}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading .cl-emblem svg{width:22px;height:22px}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-step{width:20px;height:24px;border-radius:0;background:transparent;font-size:.8125rem;color:var(--neo-muted);margin:0}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage h3{font-size:1rem;line-height:1.4;font-weight:700}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage.is-ready{outline:none;border-color:var(--neo-accent)!important}
-html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main :is(.cl-state,.cl-lock,.cl-score){font-size:.8125rem;line-height:1.6}
 @media(prefers-reduced-transparency:reduce){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] .appbar,html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app] :is(#app,#main) .appbar{background:var(--neo-surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}

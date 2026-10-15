@@ -64,12 +64,12 @@
 @media(max-width:480px){[data-atlas-app="communication-trainer"] #communication-topic-editor{padding:20px 16px}[data-atlas-app="communication-trainer"] .communication-topic-actions button{flex:1}}
 
 /* Sports-game progression, using the trainer's existing XP and rank thresholds. */
-html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard){border-radius:24px!important;box-shadow:0 5px 16px color-mix(in srgb,var(--neo-ink) 7%,transparent);}
+html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.card,.drillcard){border-radius:24px!important;box-shadow:none;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] :is(.appbar h1,.card h2,.drillcard h2){font-family:var(--neo-font),var(--neo-font,sans-serif)!important;font-weight:700;letter-spacing:.025em;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar{border-bottom:2px solid var(--neo-accent)!important;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar h1{font-size:21px;white-space:normal;line-height:1.05;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .appbar-pill{border-radius:24px;border-color:var(--neo-accent)!important;box-shadow:none;font-variant-numeric:tabular-nums;}
-html.atlas-neumo[data-atlas-app="communication-trainer"] .card h2{font-size:25px;text-transform:none;}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .card h2{font-size:1.3125rem;text-transform:none;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career{background:var(--neo-surface)!important;border:1px solid var(--neo-line)!important;border-top:3px solid var(--neo-line)!important;color:var(--neo-ink);padding:24px;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-career-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
 html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:none;font-weight:700;color:var(--neo-ink);}

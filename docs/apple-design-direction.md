@@ -47,3 +47,7 @@ Home presents its existing chosen task before the original capture controls, pre
 ### Forge: session and next set
 
 Goal and exercise records use solid surfaces without lifted shadows. The existing current-session action leads the editor. The next or unfinished set has an explicit Next/Editing label and step semantics; saved sets retain their distinct completion state. Week and day controls remain full-size and quieter, and rest stays with the exercise. No workout records or adapters change.
+
+### Communicator: one practice, quieter alternatives
+
+Today retains one next challenge or unfinished practice. Topic management stays in Topics, practice alternatives and focus remain named disclosures, and learning and progress stay in their existing sections. Challenge, learning and receipt records use solid surfaces; alternatives read as disclosure rows rather than raised panels. Expanded ladder stages retain aligned identities, readiness text and keyboard actions. Timer, transcript, rubric, XP and save behavior are unchanged.

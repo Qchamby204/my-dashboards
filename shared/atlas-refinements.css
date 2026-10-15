@@ -88,7 +88,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] :is(.fg-card-bottom
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .bartrack>.fill {background:var(--neo-accent)!important;}
 
 /* Communicator: a clear next practice, with quieter reference and rank information. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-next,.cl-receipt,.communicator-session,.communication-resume) {background:var(--neo-content-surface)!important;box-shadow:0 4px 14px color-mix(in srgb,var(--neo-ink) 6%,transparent)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-next,.cl-receipt,.communicator-session,.communication-resume) {background:var(--neo-content-surface)!important;box-shadow:none!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-primary,
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-resume .btn:not(.ghost),
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main:not(:has(.communication-resume)) .cl-next>.cl-actions>[data-ladder-start] {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;box-shadow:none!important;font-weight:700;}
