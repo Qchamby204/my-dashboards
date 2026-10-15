@@ -173,7 +173,7 @@ test('career display follows existing XP tiers without changing practice records
  const h=boot();
  for(const [reps,remaining,rank,percent] of [[0,'100 XP to Apprentice','Novice',0],[9,'10 XP to Apprentice','Novice',90],[10,'200 XP to Practitioner','Apprentice',0],[30,'400 XP to Orator','Practitioner',0],[70,'800 XP to Master Communicator','Orator',0],[150,'Top rank reached','Master Communicator',100]]){
   h.run(`S.reps=Array.from({length:${reps}},(_,i)=>({id:String(i),date:'2026-09-08T10:00:00Z',drill:'Explain clearly',topic:'Practice',score:60,skill:SKILLS[0].id}));S.assessments=[];S.lessonsDone={}`);
-  const before=h.run('JSON.stringify(S)'),markup=h.run('pageDash()');
+  const before=h.run('JSON.stringify(S)'),markup=h.run('pageProgress()');
   assert.ok(markup.includes(remaining));assert.ok(markup.includes('<h2>'+rank+'</h2>'));assert.ok(markup.includes('aria-valuenow="'+percent+'"'));assert.equal(h.run('JSON.stringify(S)'),before);
  }
 });

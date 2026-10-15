@@ -100,8 +100,13 @@ try{
     await p.reload();await ready(p);assert.equal(await p.locator('.fg-editor input[name="w"]').inputValue(),'95','unfinished training entry survives reload');await p.locator('.fg-editor').getByRole('button',{name:'Save set',exact:true}).click();await p.reload();await ready(p);
     assert(await p.evaluate(()=>Object.values(JSON.parse(localStorage.getItem('forge:goals:v1')).plans.bench.done).some(v=>v.w==='95'&&v.r==='5')),'saved training entry survives reload');
    }else{
-    await p.waitForFunction(()=>!!window.CommunicatorLadder);await p.locator('[data-ladder-start="clear-point"]').first().click();const input=p.locator('#txBox');const transcript='A clear plan helps us choose what matters. For example, preparing one decision before a meeting makes the conversation easier. The next step is to write that decision down.';await input.fill(transcript);await keyboard(p,input,app);
-    await p.reload();await ready(p);await p.getByRole('button',{name:'Resume practice',exact:true}).click();assert.equal(await p.locator('#txBox').inputValue(),transcript,'unfinished practice survives reload');
+    await p.waitForFunction(()=>!!window.CommunicatorLadder);
+    assert.equal(await p.locator('[data-ladder-start]:visible').count(),1,'Today has one next practice');
+    assert.equal(await p.locator('.communication-career').count(),0,'rank belongs in Progress');
+    assert.equal(await p.locator('.communicator-session').count(),0,'investing learning belongs in Learn');
+    const other=p.locator('.communication-alternatives>summary').first();await other.focus();await p.keyboard.press('Enter');assert(await p.getByRole('button',{name:'Surprise me',exact:true}).isVisible());await p.keyboard.press('Enter');
+    await p.locator('[data-ladder-start="clear-point"]').first().click();const input=p.locator('#txBox');const transcript='A clear plan helps us choose what matters. For example, preparing one decision before a meeting makes the conversation easier. The next step is to write that decision down.';await input.fill(transcript);await keyboard(p,input,app);
+    await p.reload();await ready(p);assert.equal(await p.locator('[data-ladder-start]:visible').count(),0,'unfinished practice leads over a new challenge');await p.getByRole('button',{name:'Resume practice',exact:true}).click();assert.equal(await p.locator('#txBox').inputValue(),transcript,'unfinished practice survives reload');
     await p.locator('.card.rubric input[type="range"]').evaluateAll(ns=>ns.forEach(n=>{n.value='4';n.dispatchEvent(new Event('input',{bubbles:true}));}));await p.locator('[data-ladder-performed]').check();await p.locator('.card.rubric button[onclick="finishDrill()"] ').click();await p.waitForFunction(()=>S.reps.length===1);await p.reload();await ready(p);assert.equal(await p.evaluate(()=>S.reps[0].transcript),transcript,'saved practice survives reload');
    }
    assert.deepEqual(errors,[]);reports.push({app,theme,engine,saveAndReload:true,draftAndReload:true,keyboardSimulation:true,accessibleControlNames:true,physicalIPhone:false,physicalVoiceOver:false});

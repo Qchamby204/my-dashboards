@@ -149,9 +149,9 @@ canvas{max-width:100%}
 <link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
 <link rel="stylesheet" href="shared/communicator-integration.css?v=3d2752cecda8">
 <script src="shared/communicator-curriculum.js?v=8193a8745de9" defer></script>
-<script src="shared/communicator-integration.js?v=c5128e021421" defer></script>
-<link rel="stylesheet" href="shared/communicator-ladder.css?v=f040bb5dca24">
-<script src="shared/communicator-ladder.js?v=59e723aae753" defer></script>
+<script src="shared/communicator-integration.js?v=652524975507" defer></script>
+<link rel="stylesheet" href="shared/communicator-ladder.css?v=bab6ba737cf6">
+<script src="shared/communicator-ladder.js?v=6e7a4cdf1323" defer></script>
 <link rel="stylesheet" href="shared/core-app-finish.css?v=aeadf636f798">
 <script src="shared/core-app-finish.js?v=d86ab1e6c62f" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-32.png?v=96c42cc2e926">
@@ -760,9 +760,8 @@ function paceCoachCard(){
     <p class="muted" style="margin-top:8px">At your current rate you finish the season around <b style="color:var(--text)">${proj.lvl}</b> <span style="font-family:var(--mono)">(${proj.projXP} XP)</span>.${proj.lvl===curLvl?' Keep the streak alive to climb the next tier.':''}</p>
   </div>`;
 }
-function pageDash(){
-  const [lvl,prog]=level(); const sc=latestScores();
-  const suggestion=trainingSuggestion(),weak=SKILLS.find(s=>s.id===suggestion.skill);
+function careerCard(){
+  const [lvl,prog]=level();
   const currentXP=xp(),nextXP=[100,300,700,1500].find(target=>target>currentXP);
   const rankProgress=Math.round(prog*100);
   return `
@@ -778,25 +777,11 @@ function pageDash(){
     <div class="stat"><div class="v">${S.reps.length}</div><div class="l">Drills done</div></div>
     <div class="stat"><div class="v" style="font-size:1.05rem">${lvl}</div><div class="l">Level</div><div class="bar" style="margin-top:6px"><i style="width:${Math.round(prog*100)}%"></i></div></div>
   </div>
-  <div class="grid grid2">
-    <div class="card">
-      <h2>Today’s training</h2>
-      <p><b>${weak.name}</b></p><p class="muted">${esc(suggestion.reason)}</p>
-      <div class="flex" style="margin-top:12px">
-        <button class="btn" onclick="startDrill('${weak.id}')">Start suggested drill</button>
-        <button class="btn ghost" onclick="startDrill()">Surprise me</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Skill profile</h2>
-      ${sc? `<canvas id="radarDash"></canvas>` : `<p class="muted">Your optional monthly check-in and skill radar live in Growth.</p>`}
-    </div>
-  </div>
-  ${paceCoachCard()}
-  <div class="card">
-    <h2>How this works</h2>
-    <p class="muted">Learn a framework, practise it out loud, then choose one thing to improve next time. Suggested drills use your recent practice, chosen focus, and skills due for another turn. Growth keeps your practice history and optional monthly check-ins.</p>
-  </div>`;
+`;
+}
+function pageDash(){
+  const suggestion=trainingSuggestion(),weak=SKILLS.find(s=>s.id===suggestion.skill);
+  return `<details class="card communication-alternatives"><summary>Choose another practice</summary><div class="communication-alternative-body"><h2>${esc(weak.name)}</h2><p class="muted">${esc(suggestion.reason)}</p><div class="flex"><button class="btn ghost" onclick="startDrill('${weak.id}')">Start suggested drill</button><button class="btn ghost" onclick="startDrill()">Surprise me</button><button class="btn ghost" onclick="nav('train')">Browse practice</button><button class="btn ghost" onclick="nav('learn')">Learn a framework</button></div></div></details>`;
 }
 
 /* ============ ASSESS ============ */
@@ -863,7 +848,7 @@ function pageTrain(){
   return `
   <div class="card">
     <h2>Daily drills</h2>
-    <p class="muted">Each drill is 1–2 minutes of deliberate practice: a proven exercise format × a topic from your interest feed. Speak <b>out loud</b>, thinking it doesn’t count. Self-score honestly afterward; scores steer your recommendations.</p>
+    <p class="muted">Choose a skill or a topic. Practise out loud for 1–2 minutes, then review your own attempt.</p>
     <div class="flex" style="margin-top:12px">
       <button class="btn" onclick="startDrill('${weakestSkill()}')">Start suggested drill</button>
       <button class="btn ghost" onclick="startDrill()">Random drill</button>
@@ -874,9 +859,9 @@ function pageTrain(){
     <div class="grid grid3" style="margin-top:8px">
       ${SKILLS.map(sk=>{
         const n=S.reps.filter(r=>r.skill===sk.id).length;
-        return `<div class="stat" style="cursor:pointer;text-align:left" onclick="startDrill('${sk.id}')">
+        return `<button type="button" class="stat communication-pillar" style="text-align:left" onclick="startDrill('${sk.id}')">
           <b>${sk.name}</b><div class="muted" style="font-size:.8rem;margin:4px 0">${sk.desc}</div>
-          <div class="muted" style="font-size:.78rem">${n} reps done</div></div>`;}).join('')}
+          <div class="muted" style="font-size:.78rem">${n} reps done</div></button>`;}).join('')}
     </div>
   </div>
   <div class="card">
@@ -1428,6 +1413,8 @@ function pageProgress(){
   });
   const recent=[...S.reps].reverse().slice(0,8);
   return `
+  ${careerCard()}
+  ${paceCoachCard()}
   <div class="card">
     <h2>Monthly check-in ${S.assessments.length>1?'<span class="muted" style="font-weight:400;font-size:.8rem">(grey = first, gold dashes = projected Dec 31, green = latest)</span>':''}</h2>
     ${sc? `<canvas id="radarProg"></canvas>` : `<p class="muted">An optional reflection on your eight skills. Your check-ins and radar stay here; daily training works without them.</p><button class="btn" onclick="nav('assess')" style="margin-top:8px">Start monthly check-in</button>`}
