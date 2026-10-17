@@ -117,12 +117,12 @@ try{
   await p.locator('#chef-tonight [data-cook]').click();await p.locator('#cook-steps input').first().check();
   assert.match(await p.locator('#cook-step-progress').textContent(),/^1 of/);await capture(p,'chef-cooking-steps',theme,w,size,p.locator('#cook-dialog'));await p.keyboard.press('Escape');
   await open('life-ledger');
-  assert.equal(await p.locator('.ledger-save-row #ledger-quick-reset').count(),0,'reset is separate from saving');assert(await p.locator('.ledger-reset-row #ledger-quick-reset').count());
+  assert.equal(await p.locator('.ledger-save-row #ledger-quick-reset').count(),0,'reset is separate from saving');assert.equal(await p.locator('#ledger-view-today .ledger-reset-row').count(),0);
   assert(await p.locator('.ledger-card-heading').first().evaluate(n=>{const r=n.getBoundingClientRect();return r.width>200&&r.height>=44;}),'activity heading uses the card width');
   assert(await p.locator('.ledger-xp-save-note').first().isVisible(),'XP saving requirement is visible on the card');
   const active=p.locator('.ledger-habit-card[aria-hidden="false"]');await capture(p,'ledger-activity',theme,w,size,active);
-  await p.locator('.ledger-reset-row').scrollIntoViewIfNeeded();await capture(p,'ledger-save-dock',theme,w,size);
-  await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
+  await p.locator('#ledger-checkin-save').scrollIntoViewIfNeeded();await capture(p,'ledger-save-dock',theme,w,size);
+  await p.locator('#ledger-nav-history').click();await p.locator('#ledger-checkin-tools>summary').click();await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
   await open('life-map');await p.locator('.daily-chips').scrollIntoViewIfNeeded();
   assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>['inline-flex','flex'].includes(getComputedStyle(n).display)&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
   await p.evaluate(async()=>{await LifeMapWorkflow.transaction(next=>{next.projects.push({id:'recap-example',task:'Prepare the nursery shelf',area:'Family & Baby',status:'Not started',pri:'Med'});},'Added task','task_created');await LifeMapDashboard.setStatus('recap-example','Done');});
