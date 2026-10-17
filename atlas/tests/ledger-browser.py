@@ -110,7 +110,7 @@ with sync_playwright() as pw:
         dismiss_rewards()
         saved = json.loads(page.evaluate('localStorage.getItem("lifeledger:v2")'))
         assert next(d for d in saved if d['date'] == DAY)['units']['LinkedIn Strategy'] == 1
-        for view in ['progress', 'history', 'today']:
+        for view in ['progress', 'achievements', 'history', 'today']:
             page.locator('#ledger-nav-' + view).click()
             expect(page.locator('#ledger-view-' + view)).to_be_visible()
             no_overflow()
@@ -144,7 +144,9 @@ with sync_playwright() as pw:
         expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
         for width in [320, 430, 1024]:
             page.set_viewport_size({'width': width, 'height': 844})
-            assert page.locator('.ledger-save-row').bounding_box()['height'] <= 76, 'Daily dock is too tall'
+            assert page.locator('#ledger-checkin-save').evaluate("n => getComputedStyle(n).position === 'static' && !!n.closest('#ledger-log')"), 'Save belongs inside the check-in'
+            assert page.locator('.ledger-nav').bounding_box()['height'] <= 90, 'Four navigation tabs share one row'
+            assert page.locator('.ledger-nav button').evaluate_all("ns => {const rs=ns.map(n=>n.getBoundingClientRect());return rs.length===4 && rs.every(r=>r.width>=44 && r.height>=44 && Math.abs(r.top-rs[0].top)<2)}"), 'All sections have full-size targets on one row'
             for index in range(13):
                 expect(page.locator('#deckCounter')).to_have_text(f'{index + 1} / 13')
                 assert page.locator('.ledger-habit-card:not([inert])').count() == 1

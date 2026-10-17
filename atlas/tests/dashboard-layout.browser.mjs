@@ -80,7 +80,7 @@ try{
    await capture(p,file,'home',theme,width,textSize,errors);
    // The menu holds all native page entries, including those behind More.
    const entries=await p.locator('#atlas-page-menu [data-page-key]').evaluateAll(nodes=>nodes.map(n=>({key:n.dataset.pageKey,title:n.textContent.trim()})));
-   if(file==='life-ledger')for(const view of ['today','progress','history']){await p.locator('#ledger-nav-'+view).click();await capture(p,file,view,theme,width,textSize,errors);}
+   if(file==='life-ledger')for(const view of ['today','progress','achievements','history']){await p.locator('#ledger-nav-'+view).click();await capture(p,file,view,theme,width,textSize,errors);}
    if(file==='life-map')for(const view of await p.locator('.lm-day-dock button').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('data-tab')).filter(Boolean))){await p.locator('.lm-day-dock button[data-tab="'+view+'"]').click();await capture(p,file,view,theme,width,textSize,errors);}
    for(const entry of entries){
     if(file==='baby-brain'||file==='neural-map')continue; // Their toolbar opens action dialogs, not pages.

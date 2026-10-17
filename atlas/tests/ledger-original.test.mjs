@@ -202,9 +202,9 @@ test('Undo preserves a newer draft for the same date through date changes and re
 });
 test('asynchronous draft saving remains pending until the latest queued write is verified',async()=>{
  const h=await boot();const writes=[];h.window.storage={set:(key,value)=>new Promise(resolve=>writes.push(()=>{h.storage.set(key,value);resolve();})),get:async key=>({value:h.storage.get(key)})};
- h.run("state.draftNote='First'");h.api.remember();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Storing draft/);
- h.run("state.draftNote='Latest'");h.api.remember();writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Storing draft/);
- writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Draft stored/);assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].note,'Latest');
+ h.run("state.draftNote='First'");h.api.remember();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Keeping changes/);
+ h.run("state.draftNote='Latest'");h.api.remember();writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Keeping changes/);
+ writes.shift()();await h.settle();assert.match(h.node('ledger-draft-status').textContent,/Ready to save/);assert.equal(JSON.parse(h.storage.get(D)).days['2026-09-07'].note,'Latest');
 });
 
 // Keep the production catalogue and five-value model for reward regressions.
@@ -219,7 +219,7 @@ test('first saved day updates all five values and queues Season Opens after dura
 
 test('lifetime levels and real amounts appear without year-end pace judgments',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-09-08T19:00:00-05:00'});h.run('HABITS.forEach(k=>state.draft[k]=1)');await h.api.saveDay();
- assert.equal(h.node('app').querySelectorAll('[data-act="pillar"]').length,5);assert.match(h.node('app').querySelector('.ledger-lasting').textContent,/1 pages recorded overall/);
+ assert.equal(h.node('app').querySelectorAll('[data-act="pillar"]').length,5);assert.equal(h.node('app').querySelector('.ledger-lasting').querySelectorAll('.ledger-rhythm-row').length,0);assert.match(h.node('app').querySelector('.ledger-lasting').textContent,/lifetime XP/);
  assert.doesNotMatch(h.node('app').querySelector('.ledger-lasting').textContent,/\/99|pace|Dec 31/);assert.match(h.node('ledger-save-feedback').textContent,/progress is recorded/);
 });
 test('a failed or pending write earns nothing; retry verifies data before showing rewards',async()=>{
@@ -238,8 +238,8 @@ test('prior saved entries recover earned achievements on reload without a new sa
  assert(h.run('ACHV.find(a=>a.name==="Season Opens").test(compute(state.days,state.goals))'));
  assert(h.run('ACHV.find(a=>a.name==="First Reflection").test(compute(state.days,state.goals))'));
  assert.equal(h.storage.get(S),JSON.stringify(rows));assert.equal(h.run('state.achvQueue.length'),0);
- const earned=h.run('ACHV.filter(a=>a.test(compute(state.days,state.goals))).length');h.clickText(earned+' achievements');assert.equal(h.run('state.openSections.relics'),true);assert.equal(h.node('ledger-view-progress').hidden,false);
- assert.equal(h.node('app').querySelectorAll('[data-act="relic"][role="button"]').length,h.run('ACHV.length'));
+ const earned=h.run('ACHV.filter(a=>a.test(compute(state.days,state.goals))).length');h.clickText(earned+' achievements');assert.equal(h.node('ledger-view-achievements').hidden,false);
+ assert.equal(h.node('app').querySelectorAll('[data-act="relic"]').length,h.run('ACHV.length'));
 });
 test('streak award uses the longest calendar streak and survives a later gap',async()=>{
  const rows=Array.from({length:7},(_,i)=>({date:'2026-09-'+String(i+8).padStart(2,'0'),units:{Read:1}})),h=await boot({realModel:true,nowISO:'2026-09-20T19:00:00-05:00',records:{[S]:JSON.stringify(rows)}});
@@ -448,7 +448,7 @@ test('screen meters show the fixed 60-minute boundary and remain independent of 
 test('Today, Progress and History compose one copy of the controls and retain edits across navigation',async()=>{
  const h=await screenBoot();const today=h.node('ledger-view-today'),children=[...today.children];assert(children.indexOf(h.node('ledger-log').closest('.ledger-log-wrap'))<children.indexOf(h.node('ledger-rhythm')));assert(children.indexOf(h.node('ledger-rhythm'))<children.indexOf(h.node('ledger-leisure-preview')));assert.equal(h.node('ledger-view-today').hidden,false);assert.equal(h.node('ledger-view-progress').hidden,true);assert.equal(h.node('ledger-view-history').hidden,true);
  h.run('state.draft.Read=12');h.api.remember();h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-view-progress').hidden,false);assert.equal(h.node('ledger-view-today').hidden,true);assert.equal(h.node('ledger-nav-progress').getAttribute('aria-selected'),'true');assert.equal(!!h.run('state.openSections.relics'),false);
- assert.equal(h.node('app').querySelectorAll('[data-act="commit"]').length,1);assert(h.node('app').querySelector('[data-act="commit"]').closest('#ledger-dock'));
+ assert.equal(h.node('app').querySelectorAll('[data-act="commit"]').length,1);assert(h.node('app').querySelector('[data-act="commit"]').closest('#ledger-log'));assert.equal(h.node('ledger-dock').querySelector('[data-act="commit"]'),null);
  h.node('ledger-nav-history').click();assert(h.node('ledger-history').closest('#ledger-view-history'));assert.equal(h.node('ledger-history').open,true);
  h.node('ledger-nav-today').click();assert.equal(h.run('state.draft.Read'),12);assert(h.node('ledger-log').closest('#ledger-view-today'));assert(h.node('app').querySelector('.ledger-overall').closest('#ledger-view-progress'));
  h.api.selectDate('2026-09-29');assert.match(h.node('ledger-view-today').textContent,/Editing Sep 29/);h.node('ledger-nav-today').click();assert.equal(h.run('state.logDate'),'2026-09-30');assert.equal(h.run('state.draft.Read'),12);
@@ -605,4 +605,21 @@ test('card amount taps preserve the existing deck and unrelated drafts until Sav
  assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);
  await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),80);
  assert.equal(h.run('state.days[0].note'),'Keep my note');
+});
+
+test('Achievements has its own overview and filters without saving or replacing current edits',async()=>{
+ const empty=await boot({realModel:true});empty.node('ledger-nav-achievements').click();assert.match(empty.node('ledger-next-milestone').textContent,/1 saved day to go/);
+ const rows=[{date:'2026-09-07',units:{Read:10},note:'One reflection'}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});
+ h.run('state.draft.Read=25');h.api.remember();const bytes=h.storage.get(S);h.node('ledger-nav-achievements').click();
+ assert.equal(h.node('ledger-view-achievements').hidden,false);assert.match(h.node('ledger-view-achievements').textContent,/Projected next milestone/);
+ assert.equal(h.node('ledger-view-progress').querySelectorAll('[data-act="relic"]').length,0);
+ h.node('ledger-achievement-filter-earned').click();const earned=h.node('ledger-view-achievements').querySelectorAll('[data-act="relic"]');assert(earned.length>0);assert(earned.every(n=>n.dataset.earned==='true'));
+ h.node('ledger-achievement-filter-upcoming').click();assert(h.node('ledger-view-achievements').querySelectorAll('[data-act="relic"]').every(n=>n.dataset.earned==='false'));
+ h.node('ledger-nav-today').click();assert.equal(h.run('state.draft.Read'),25);assert.equal(h.storage.get(S),bytes);
+});
+test('milestone progress is based on saved entries, changes after verified save and survives reload',async()=>{
+ const rows=[{date:'2026-09-01',units:{Read:20}},{date:'2026-09-03',units:{Read:20}},{date:'2026-09-06',units:{Read:20}}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});
+ h.node('ledger-nav-achievements').click();const before=h.node('ledger-next-milestone').textContent;h.node('ledger-nav-today').click();h.run('state.draft.Read=250');h.api.remember();h.node('ledger-nav-achievements').click();assert.equal(h.node('ledger-next-milestone').textContent,before);
+ h.node('ledger-nav-today').click();await h.api.saveDay();h.node('ledger-nav-achievements').click();assert.notEqual(h.node('ledger-next-milestone').textContent,before);
+ const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});again.node('ledger-nav-achievements').click();assert.equal(again.node('ledger-next-milestone').textContent,h.node('ledger-next-milestone').textContent);
 });

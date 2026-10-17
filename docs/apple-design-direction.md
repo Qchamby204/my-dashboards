@@ -55,3 +55,7 @@ Today retains one next challenge or unfinished practice. Topic management stays 
 ### Remaining suite: shared chrome and content audit
 
 The visual audit covers Operations Cadence, Hourglass, Aqueduct, Herald, Chef, Library, Courier, Baby Brain and Neural Map in light/dark populated and expanded states. Their individual record formats remain intact; ordinary content surfaces lose raised shadows while functional floating controls keep separation. Herald’s backup and sync controls move into its named App tools disclosure. Courier receives the same home/identity/appearance arrangement, with existing edition and playback controls below it; no publication or episode data changes. Atlas remains a passive hub. Physical iPhone verification is still outstanding.
+
+### Ledger check-in and achievements · October 15 follow-up
+
+Save day now belongs to the check-in in normal document flow, below the cards or list. Its status uses Ready to save/Saved/failed feedback; unfinished work remains recoverable. The floating dock only navigates Today, Levels, Achievements and History. Levels omits the three focus-activity summaries. Achievements has a full earned/upcoming overview and a projected next milestone based solely on dated saved activity over the last 28 days. At least three active dates and a minimum seven-day observation window are required before showing an estimated date. Drafts and weekly catch-up do not invent dated pace. Existing awards, lifetime XP and records are preserved.

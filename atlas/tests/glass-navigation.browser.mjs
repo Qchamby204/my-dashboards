@@ -73,7 +73,7 @@ try{
     const hitPoints=await buttons.evaluateAll(ns=>ns.map(n=>{const r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}}));
     await p.mouse.move(180,300);await p.mouse.wheel(0,280);await scrollSettled(p);await settled(p,selector,true);await hiddenHitTargets(nav,hitPoints);
     assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'0','tabs tuck away after downward scroll');
-    if(app==='life-ledger'){const save=await p.locator('.ledger-save-row').boundingBox();assert(save&&save.y>=0&&save.y+save.height<=840,'save accessory remains reachable');}
+    if(app==='life-ledger'){assert(await p.locator('#ledger-checkin-save').evaluate(n=>getComputedStyle(n).position==='static'&&!!n.closest('#ledger-log')),'saving stays with the check-in as navigation minimizes');assert.equal(await p.locator('.ledger-dock [data-act="commit"]').count(),0);}
     await p.screenshot({path:path.join(out,app+'-scrolled-'+theme+'.png')});
     await p.mouse.wheel(0,-80);await scrollSettled(p);await settled(p,selector,false);assert.equal(await nav.evaluate(n=>getComputedStyle(n).opacity),'1','upward scroll restores the bar');
     for(let cycle=0;cycle<3;cycle++){
