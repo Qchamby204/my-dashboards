@@ -7,6 +7,7 @@ import {createHash} from 'node:crypto';
 function app(name,saved,options={}){
   const key=name==='crucible'?'crucible':'chef',version=key==='chef'?1:2;
   const records=new Map([[key+':state',JSON.stringify(saved)],[key+':schema-version',String(version)],['unrelated','preserve']]);
+  if(options.raw!==undefined)records.set(key+':state',options.raw);
   const writes=[],messages=[],prompts=[];
   const context=vm.createContext({console,setTimeout,clearTimeout,
     Date:class extends Date{constructor(...args){super(...(args.length?args:[options.clock?.now||options.now||'2026-10-05T12:00:00']));}static now(){return new Date(options.clock?.now||options.now||'2026-10-05T12:00:00').getTime();}},
@@ -15,6 +16,7 @@ function app(name,saved,options={}){
     localStorage:{getItem:k=>records.get(k)??null,setItem(k,v){if(options.failSave)throw Error('storage full');writes.push(k);records.set(k,v);}},
     confirm:message=>{prompts.push(message);return options.accept!==false;}
   });
+  vm.runInContext(readFileSync(new URL('../../shared/record-guard.js',import.meta.url),'utf8'),context);
   vm.runInContext(readFileSync(new URL('../../shared/atlas-streak.js',import.meta.url),'utf8'),context);context.window.AtlasStreak=context.AtlasStreak;
   const html=readFileSync(new URL('../../'+(key==='chef'?'the-chef':'crucible')+'.html',import.meta.url),'utf8');
   vm.runInContext(html.match(key==='crucible'?/<script type="text\/plain" data-crucible-curriculum>([\s\S]*?)<\/script>/:/<script>([\s\S]*?)<\/script>/)[1],context);
@@ -683,3 +685,11 @@ test('canceling a meal edit preserves saved preparation and all other records',(
  const controls=chefControls(),a=app('chef',chefState(),{document:controls.document});a.run('wireEvents();renderPlanner=()=>{};openPreparationEditor("b01",localDateKey(),null)');
  const before=a.records.get('chef:state');controls.nodes.get('#prep-days').value='2';controls.nodes.get('#prep-per-day').value='3';controls.nodes.get('#prep-cancel').emit('click');assert.equal(controls.nodes.get('#prep-dialog').open,false);assert.equal(a.records.get('chef:state'),before);assert.equal(a.writes.length,0);
 });
+
+ test('Chef preserves a corrupt record and exports its original bytes for recovery',()=>{
+ const a=app('chef',chefState(),{raw:'{broken-chef-record'});assert.equal(a.run('chefRecord.blocked'),true);assert.equal(a.run('setState({favourites:{b02:true}})'),false);assert.equal(a.records.get('chef:state'),'{broken-chef-record');assert.equal(a.run('chefRecord.recovery().originalRaw'),'{broken-chef-record');assert.match(a.messages.at(-1),/could not be read/);
+ });
+ test('Chef merges a stale rating with another tab’s favourite and refuses competing ratings',()=>{
+ const a=app('chef',chefState());const remote={...chefState(),favourites:{b01:true,b02:true}};a.records.set('chef:state',JSON.stringify(remote));assert.equal(a.run('setState({ratings:{b01:4,b02:5}})'),true);assert.equal(a.json('state').favourites.b02,true);
+ a.records.set('chef:state',JSON.stringify({...a.json('state'),ratings:{b01:4,b02:2}}));assert.equal(a.run('setState({ratings:{b01:4,b02:3}})'),false);assert.equal(JSON.parse(a.records.get('chef:state')).ratings.b02,2);assert.equal(a.run('chefRecord.pending.ratings.b02'),3);
+ });

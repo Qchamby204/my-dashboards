@@ -16,7 +16,7 @@
       const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js?v=7b6c431ec5ea',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
     if(root.dataset.atlasApp==='the-hourglass'){
-      const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=46ea09dbda20',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
+      const hourglass=document.createElement('script');hourglass.src=new URL('hourglass-enhancements.js?v=a55b652c5067',sharedSource).href;hourglass.defer=true;document.head.appendChild(hourglass);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
       const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=4f507d271878',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);

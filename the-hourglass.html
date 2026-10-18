@@ -3,6 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
+<script src="shared/record-guard.js?v=f6acb277f94b"></script>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>The Hourglass · Your Time</title>
@@ -11,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Hourglass">
 <meta name="theme-color" content="#efeae3">
-<script src="shared/atlas-theme.js?v=4cb04b202fd3"></script>
+<script src="shared/atlas-theme.js?v=528e43d0d2c3"></script>
 <style>
 :root{--bg:#0c0e1a;--panel:#141830;--panel2:#1a1f3a;--txt:#eef0fb;--muted:#8089a8;--dim:#6f7798;
   --line:rgba(120,130,180,.16);--gold:#f0b73e;--gold2:#f6cf6a;--green:#2fd180;--green2:#9af0c6;
@@ -121,7 +122,12 @@ input:focus,select:focus{border-color:var(--gold)}
    conventions as the rest of the suite. */
 
 var KEY="hourglass:v1";
-function J(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+var hourglassRecord=window.AtlasRecords.open(KEY,{validate:function(v){
+ if(!window.AtlasRecords.plain(v))throw Error('Invalid Hourglass record.');
+ for(var k of ['milestones','companions'])if(v[k]!==undefined&&(!Array.isArray(v[k])||v[k].some(x=>!window.AtlasRecords.plain(x))))throw Error('Invalid '+k+'.');
+ if(v.fin!==undefined&&!window.AtlasRecords.plain(v.fin))throw Error('Invalid financial settings.');
+}});
+function J(k,d){return hourglassRecord.value===undefined?d:hourglassRecord.value;}
 
 var MS_DAY=86400000, MS_WEEK=604800000, DAYS_YR=365.2425, WEEKS_YR=52.1775;
 
@@ -177,7 +183,7 @@ var S=J(KEY,null)||JSON.parse(JSON.stringify(DEF));
     S.__v2=true;
   }
 })();
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function save(){var ok=hourglassRecord.write(S);if(ok)S=hourglassRecord.value;return ok;}
 /* persist the seeded defaults on first load so the Atlas card is live from the
    start, not blank until the first edit */
 try{ if(localStorage.getItem(KEY)==null) save(); }catch(e){}
