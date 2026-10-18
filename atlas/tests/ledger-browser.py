@@ -49,7 +49,8 @@ with sync_playwright() as pw:
     try:
         page.goto(BASE + '/life-ledger.html', wait_until='networkidle')
         page.wait_for_function('!!window.LedgerDays && !!window.LedgerRhythm')
-        expect(page.locator('#ledger-rhythm')).to_be_visible()
+        expect(page.locator('#ledger-rhythm')).to_be_hidden()
+        assert page.locator('#ledger-view-today > *').count() == 2
         assert page.evaluate('localStorage.getItem("lifeledger:v2")') == seed['lifeledger:v2']
         assert not page.locator('[data-habit="LinkedIn Strategy"]').count()
         assert page.locator('#ledger-rhythm .ledger-rhythm-row').count() == 3
@@ -59,9 +60,11 @@ with sync_playwright() as pw:
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_have_text('on Save day')
         assert page.locator('.ledger-habit-card').count() == 13
         expect(page.locator('#deckCounter')).to_have_text('1 / 13')
-        assert page.evaluate('''(() => {const deck=document.querySelector('.ledger-log-wrap'),focus=document.querySelector('#ledger-rhythm');return !!(deck.compareDocumentPosition(focus)&Node.DOCUMENT_POSITION_FOLLOWING);})()''')
+        assert page.locator('#ledger-view-today #ledger-rhythm, #ledger-view-today #ledger-leisure-preview, #ledger-view-today .ledger-day-options').count() == 0
         no_overflow()
         page.screenshot(path=str(OUT / f'{ENGINE}-today.png'), full_page=True)
+        page.locator('#ledger-nav-history').click()
+        page.locator('#ledger-checkin-tools > summary').click()
         page.locator('#rhythm-week-reduced').click()
         expect(page.locator('#rhythm-week-reduced')).to_have_attribute('aria-pressed', 'true')
         assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 35
@@ -105,6 +108,7 @@ with sync_playwright() as pw:
             assert page.evaluate('state.draft["Screen Discipline"]') == outcome
             assert page.evaluate('state.draft.Read') == 25
         page.locator('#ledger-leisure-close').click()
+        page.locator('#ledger-nav-today').click()
         page.locator('[data-act="commit"]').first.click()
         page.wait_for_function('JSON.parse(localStorage.getItem("lifeledger:v2")).some(d=>d.leisure?.screenMinutes===60)')
         dismiss_rewards()
@@ -119,17 +123,18 @@ with sync_playwright() as pw:
         page.wait_for_function('!!window.LedgerDays')
         expect(page.locator('#rhythm-week-reduced')).to_have_attribute('aria-pressed', 'true')
         assert page.evaluate('compute(state.days,state.goals).habit.Read.total') == 60
-        expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 0')
+        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('Life Level 0')
         go_card('Read')
         page.get_by_role('textbox', name='Amount for Read', exact=True).fill('1000')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-habit-status')).to_have_text('Recorded')
         page.get_by_role('textbox', name='Amount for Read', exact=True).press('Tab')
+        page.locator('#ledger-nav-today').click()
         page.locator('[data-act="commit"]').first.click()
         expect(page.get_by_role('dialog', name='Life · Level 1', exact=True)).to_be_visible()
         no_overflow()
         page.screenshot(path=str(OUT / f'{ENGINE}-level-up.png'))
         dismiss_rewards()
-        expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
+        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('Life Level 1')
         page.locator('#ledger-nav-progress').click()
         expect(page.locator('#ledger-lifetime-levels')).to_contain_text('4040 lifetime XP')
         assert page.locator('.ledger-value-level').count() == 5
@@ -141,7 +146,7 @@ with sync_playwright() as pw:
         page.screenshot(path=str(OUT / f'{ENGINE}-lifetime-levels.png'), full_page=True)
         page.locator('#ledger-nav-today').click()
         page.reload(wait_until='networkidle')
-        expect(page.locator('#ledger-life-level')).to_contain_text('Life Level 1')
+        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('Life Level 1')
         for width in [320, 430, 1024]:
             page.set_viewport_size({'width': width, 'height': 844})
             assert page.locator('#ledger-checkin-save').evaluate("n => getComputedStyle(n).position === 'static' && !!n.closest('#ledger-log')"), 'Save belongs inside the check-in'
@@ -182,16 +187,16 @@ with sync_playwright() as pw:
         no_overflow()
         assert page.locator('#ledger-lifetime-levels .ledger-progress-info p').bounding_box()['width'] >= 250
         page.screenshot(path=str(OUT / f'{ENGINE}-progress-light.png'), full_page=True)
-        assert page.locator('#ledger-quick-reset').count() == 0
+        expect(page.locator('#ledger-quick-reset')).to_be_hidden()
         page.locator('#ledger-nav-history').click()
-        assert page.locator('#ledger-quick-reset').count() == 0
+        expect(page.locator('#ledger-quick-reset')).to_be_hidden()
         page.get_by_role('button', name='Settings', exact=True).click()
         page.get_by_role('button', name='Reset progress', exact=True).click()
         expect(page.get_by_role('dialog', name='Reset progress?', exact=True)).to_be_visible()
         no_overflow()
         page.get_by_role('button', name='Reset progress', exact=True).click()
         expect(page.locator('#ledger-nav-today')).to_have_attribute('aria-selected', 'true')
-        expect(page.locator('#ledger-quick-reset')).to_be_visible()
+        expect(page.locator('#ledger-quick-reset')).to_be_hidden()
         assert page.evaluate('JSON.parse(localStorage.getItem("lifeledger:v2")).length') == 0
         page.reload(wait_until='networkidle')
         page.locator('#ledger-nav-progress').click()
@@ -233,6 +238,9 @@ with sync_playwright() as pw:
         exchange.on('pageerror', lambda e: errors.append(str(e)))
         exchange.goto(BASE + '/life-ledger.html', wait_until='networkidle')
         exchange.wait_for_function('!!window.LedgerDays && !!window.DiscernBridge')
+        exchange.locator('#ledger-nav-history').click()
+        if not exchange.locator('#ledger-checkin-tools').evaluate('(n) => n.open'):
+            exchange.locator('#ledger-checkin-tools > summary').click()
         exchange.locator('#ledger-leisure-preview').click()
         exchange.locator('#ledger-discern-bridge > summary').click()
         exchange.get_by_label('Gaming / scrolling on other devices (minutes)', exact=True).fill('10')
@@ -259,6 +267,9 @@ with sync_playwright() as pw:
         assert exchange.evaluate('state.days[0].leisure.discernReceipt.id') == report['id']
         dismiss_rewards(exchange)
         before_xp = exchange.evaluate('compute(state.days,state.goals).life.xp')
+        exchange.locator('#ledger-nav-history').click()
+        if not exchange.locator('#ledger-checkin-tools').evaluate('(n) => n.open'):
+            exchange.locator('#ledger-checkin-tools > summary').click()
         exchange.locator('#ledger-leisure-preview').click()
         exchange.locator('#ledger-discern-bridge > summary').click()
         exchange.locator('details.ledger-discern-paste > summary').click()
@@ -276,7 +287,8 @@ with sync_playwright() as pw:
         reward_page.clock.set_fixed_time(dt.datetime(2026, 10, 8, 17, tzinfo=dt.timezone.utc))
         reward_page.goto(BASE + '/life-ledger.html')
         reward_page.wait_for_function('!!window.LedgerDays')
-        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='Plan a reward', exact=True).click()
+        reward_page.locator('#ledger-nav-progress').click()
+        reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Plan a reward', exact=True).click()
         editor = reward_page.locator('dialog.ledger-personal-editor[open]')
         editor.get_by_label('Reward', exact=True).fill('An afternoon at the bookstore')
         editor.get_by_label('Life Level', exact=True).fill('1')
@@ -291,7 +303,7 @@ with sync_playwright() as pw:
         assert reward_page.evaluate('state.days.length') == 0
         assert reward_page.evaluate('LedgerDays.drafts.rewards[0].photo.startsWith("data:image/jpeg;base64,")')
         assert reward_page.evaluate('LedgerDays.drafts.rewards[0].photo.length <= 40000')
-        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='View rewards', exact=True).click()
+        expect(reward_page.locator('#ledger-personal-rewards')).to_be_visible()
         assert reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Mark enjoyed', exact=True).count() == 0
         reward_page.screenshot(path=str(OUT / f'{ENGINE}-personal-reward-planned.png'), full_page=True)
         reward_page.locator('#ledger-nav-today').click()
@@ -300,7 +312,7 @@ with sync_playwright() as pw:
         assert reward_page.evaluate('state.levelInfo.kicker') == 'Reward unlocked'
         dismiss_rewards(reward_page)
         before_reward_xp = reward_page.evaluate('compute(state.days,state.goals).life.xp')
-        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='View your earned reward', exact=True).click()
+        reward_page.locator('#ledger-nav-progress').click()
         reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Mark enjoyed', exact=True).click()
         reward_page.get_by_role('dialog', name='Enjoyed this reward?', exact=True).get_by_role('button', name='Mark enjoyed', exact=True).click()
         reward_page.wait_for_function('!!LedgerDays.drafts.rewards[0].claimedAt && !document.getElementById("app").inert')

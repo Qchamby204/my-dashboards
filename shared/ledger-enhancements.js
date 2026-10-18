@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=2bc50e0c80d1',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=03f1c12f09b8',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -73,7 +73,7 @@
     }
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'cards'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
     const dashboardPlaces=new Map();let dashboardVisit=0;
-    let achievementFilter='all';
+    let achievementFilter='all',achievementCategory='all',milestoneName=null,checkinToolsOpen=false;
     let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
@@ -567,27 +567,45 @@
       rows.push({name:'Life Level '+(data.life.level+1),current:data.life.xp,target:(data.life.level+1)*R.lifeCost,unit:'XP',history:xp});
       return R.projectMilestones(rows,todayISO());
     }
+    // Badges are vector artwork, with a different motif for each kind of accomplishment.
+    // Their colour is decorative: every award also has a written earned/locked state.
+    function achievementBadge(a,unlocked=false){
+      const n=a.name,motifs={book:'<path d="M8 9c6-2 10 0 16 3 6-3 10-5 16-3v25c-6-2-10 0-16 3-6-3-10-5-16-3Z"/><path d="M24 12v25M12 15l7 2m-7 4 7 2m10-6 7-2m-7 8 7-2"/>',strength:'<path d="M12 18v12m5-16v20m14-20v20m5-16v12M17 24h14M8 21v6m32-6v6"/>',moon:'<path d="M31 9a16 16 0 1 0 8 25A16 16 0 0 1 31 9Z"/><path d="m35 12 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/>',voice:'<rect x="18" y="7" width="12" height="23" rx="6"/><path d="M13 23a11 11 0 0 0 22 0M24 34v7m-6 0h12"/>',home:'<path d="m7 22 17-14 17 14M12 19v20h24V19M20 39V27h8v12"/>',leaf:'<path d="M12 33C6 16 26 11 37 9c0 18-5 30-20 27M11 40l20-23M20 31v-9m0 9h9"/>',star:'<path d="m24 6 5.5 11 12 1.8-8.8 8.6 2.1 12.1L24 33.8l-10.8 5.7 2.1-12.1-8.8-8.6 12-1.8Z"/>',calendar:'<rect x="9" y="12" width="30" height="28" rx="4"/><path d="M16 8v8m16-8v8M9 22h30m-23 9 5 5 11-11"/>',peak:'<path d="m6 38 12-21 6 10 7-17 11 28ZM15 23l3 3 3-3m7-6 3 3 3-3"/>',pen:'<path d="m12 31-3 9 9-3L38 17l-6-6ZM27 16l6 6M13 31l5 6M10 13h9M10 20h6"/>'};
+      const key=/Book|Library/.test(n)?'book':/Session|Iron|Health/.test(n)?'strength':/Rest|Prepared/.test(n)?'moon':/Spoken|Communicator|Record|Content/.test(n)?'voice':/House|Money|Wealth/.test(n)?'home':/Hudson|Growth|Stocked/.test(n)?'leaf':/Reflection|Pages of Your/.test(n)?'pen':a.cat==='Consistency'?'calendar':a.cat==='Mastery'?'peak':'star';
+      const badge=make('span',null,'ledger-achievement-badge');badge.dataset.category=a.cat;badge.dataset.unlocked=String(unlocked);badge.setAttribute('aria-hidden','true');
+      badge.innerHTML='<svg viewBox="0 0 100 112" fill="none"><path class="ledger-badge-body" d="M50 4 89 27v47L50 104 11 74V27Z"/><path class="ledger-badge-rim" d="M50 12 82 31v39L50 95 18 70V31Z"/><g class="ledger-badge-symbol" transform="translate(26 28)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+motifs[key]+'</g>'+(unlocked?'<circle class="ledger-badge-seal" cx="78" cy="88" r="12"/><path class="ledger-badge-check" d="m72 88 4 4 8-9"/>':'')+'</svg>';
+      return badge;
+    }
     function achievementOverview(data,earned){
-      const host=make('div',null,'ledger-achievements'),tracks=achievementTrackers(data,earned),next=!earned.length?tracks.find(t=>t.name==='Season Opens')||tracks[0]:tracks[0];
+      const host=make('div',null,'ledger-achievements'),tracks=achievementTrackers(data,earned),automatic=!earned.length?tracks.find(t=>t.name==='Season Opens')||tracks[0]:tracks[0],next=tracks.find(t=>t.name===milestoneName)||automatic;
+      const collection=make('div',null,'ledger-collection-summary');collection.append(make('strong',String(earned.length)),make('span','of '+ACHV.length+' earned'));const collectionMeter=make('progress');collectionMeter.max=ACHV.length;collectionMeter.value=earned.length;collectionMeter.setAttribute('aria-label','Achievement collection');collection.append(collectionMeter);host.append(collection);
       if(next){
         const unit=n=>n===1?next.unit.replace(/days$/,'day').replace(/notes$/,'note').replace(/pages$/,'page').replace(/hours$/,'hour').replace(/minutes$/,'minute'):next.unit;
         const hero=make('section',null,'panel ledger-next-milestone');hero.id='ledger-next-milestone';hero.setAttribute('aria-label','Projected next milestone');
-        hero.append(make('div','Projected next milestone','eyebrow'),make('h2',next.name),make('p',fmt(next.current)+' / '+fmt(next.target)+' '+unit(next.target),'ledger-milestone-total'));
-        const meter=make('progress',null,'ledger-xp-meter');meter.max=next.target;meter.value=next.current;meter.setAttribute('aria-label',next.name+' progress');hero.append(meter,make('p',fmt(next.remaining)+' '+unit(next.remaining)+' to go','ledger-milestone-remaining'));
-        hero.append(make('p',next.date?'Around '+new Date(next.date+'T12:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',...(next.date.slice(0,4)!==todayISO().slice(0,4)?{year:'numeric'}:{})})+' at your recent pace.':'Keep recording to build a recent pace.','ledger-milestone-estimate'));
-        hero.append(detailsInfo('How the milestone estimate works','Uses dated saved activity from the last 28 days, with at least three active dates and a minimum seven-day observation window. Remaining progress includes your saved lifetime totals. Unfinished entries, future dates and weekly catch-up do not invent dated activity. This is an estimate, not a deadline; it adjusts as your record changes.'));
-        host.append(hero);
+        const award=ACHV.find(a=>a.name===next.name)||{name:next.name,cat:'Mastery'},art=make('div',null,'ledger-milestone-art');art.append(achievementBadge(award));hero.append(art);
+        const copy=make('div',null,'ledger-milestone-copy');copy.append(make('div','Projected next milestone','eyebrow'),make('h2',next.name),make('p',fmt(next.remaining)+' '+unit(next.remaining)+' to go','ledger-milestone-remaining'));
+        const meter=make('progress',null,'ledger-xp-meter');meter.max=next.target;meter.value=next.current;meter.setAttribute('aria-label',next.name+' progress');copy.append(meter,make('p',fmt(next.current)+' / '+fmt(next.target)+' '+unit(next.target)+' · '+Math.floor(next.fraction*100)+'%','ledger-milestone-total'));
+        copy.append(make('p',next.date?'Around '+new Date(next.date+'T12:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',...(next.date.slice(0,4)!==todayISO().slice(0,4)?{year:'numeric'}:{})})+' at your recent pace.':'A projected date appears after three active dates.','ledger-milestone-estimate'));
+        hero.append(copy);const actions=make('div',null,'ledger-milestone-actions');actions.append(button('Continue check-in',()=>setDashboardView('today')));
+        const choices=make('details',null,'ledger-milestone-choices');choices.append(make('summary','Choose milestone'));const choiceLabel=make('label','Work toward'),choice=make('select');choice.id='ledger-milestone-choice';choiceLabel.htmlFor=choice.id;
+        for(const t of tracks){const option=make('option',t.name);option.value=t.name;choice.append(option);}choice.value=next.name;choice.addEventListener('change',()=>{milestoneName=choice.value;render();const d=document.querySelector('.ledger-milestone-choices');if(d)d.open=true;document.getElementById('ledger-milestone-choice')?.focus({preventScroll:true});});choices.append(choiceLabel,choice);actions.append(choices);hero.append(actions);
+        hero.append(detailsInfo('How the milestone estimate works','Uses dated saved activity from the last 28 days, with at least three active dates and a minimum seven-day observation window. Remaining progress includes your saved lifetime totals. Unfinished entries, future dates and weekly catch-up do not invent dated activity. This is an estimate, not a deadline; it adjusts as your record changes.'));host.append(hero);
       }
-      const overview=make('section',null,'panel ledger-achievement-overview');overview.setAttribute('aria-label','Achievement overview');overview.append(make('h2',earned.length+' of '+ACHV.length+' earned'),make('p',(ACHV.length-earned.length)+' still to discover. Earned achievements stay in your collection.','ledger-help'));
+      const overview=make('section',null,'ledger-achievement-overview');overview.setAttribute('aria-label','Achievement overview');const heading=make('div',null,'ledger-collection-heading');heading.append(make('h2','Your collection'),make('span','Tap a badge to explore','ledger-help'));overview.append(heading);
       const filters=make('div',null,'ledger-achievement-filters');filters.setAttribute('role','group');filters.setAttribute('aria-label','Filter achievements');
       for(const [key,title]of [['all','All'],['earned','Earned'],['upcoming','Upcoming']]){const control=button(title,()=>{achievementFilter=key;render();document.getElementById('ledger-achievement-filter-'+key)?.focus({preventScroll:true});});control.id='ledger-achievement-filter-'+key;control.setAttribute('aria-pressed',String(achievementFilter===key));filters.append(control);}overview.append(filters);
-      let count=0;
+      const categoryLabel=make('label','Category','ledger-category-label'),categorySelect=make('select');categorySelect.id='ledger-achievement-category';categoryLabel.htmlFor=categorySelect.id;
+      for(const cat of ['all',...new Set(ACHV.map(a=>a.cat))]){const option=make('option',cat==='all'?'All categories':cat);option.value=cat;categorySelect.append(option);}categorySelect.value=achievementCategory;categorySelect.addEventListener('change',()=>{achievementCategory=categorySelect.value;render();document.getElementById('ledger-achievement-category')?.focus({preventScroll:true});});categoryLabel.append(categorySelect);overview.append(categoryLabel);
+      let count=0;const earnedNames=new Set(earned.map(a=>a.name));
       for(const category of [...new Set(ACHV.map(a=>a.cat))]){
-        const entries=ACHV.map((a,index)=>({a,index,unlocked:a.test(data)})).filter(({a,unlocked})=>a.cat===category&&(achievementFilter==='all'||(achievementFilter==='earned')===unlocked));if(!entries.length)continue;
-        overview.append(make('h3',category,'ledger-achievement-category'));
-        for(const {a,index,unlocked}of entries){const record=make('button',null,'ledger-achievement-record');record.type='button';record.dataset.act='relic';record.dataset.idx=index;record.dataset.earned=String(unlocked);record.setAttribute('aria-label',a.name+' · '+(unlocked?'Earned':'Not yet earned'));const mark=make('span',unlocked?'✓':'◇','ledger-achievement-mark');mark.setAttribute('aria-hidden','true');const copy=make('span');copy.append(make('strong',a.name),make('span',a.desc,'ledger-help'),make('span',unlocked?'Earned':'Not yet earned','ledger-achievement-state'));record.append(mark,copy);overview.append(record);count++;}
+        if(achievementCategory!=='all'&&achievementCategory!==category)continue;
+        const entries=ACHV.map((a,index)=>({a,index,unlocked:earnedNames.has(a.name)})).filter(({a,unlocked})=>a.cat===category&&(achievementFilter==='all'||(achievementFilter==='earned')===unlocked));if(!entries.length)continue;
+        const group=make('section',null,'ledger-achievement-group'),groupHead=make('div',null,'ledger-collection-heading');groupHead.append(make('h3',category,'ledger-achievement-category'),make('span',entries.length+' badges','ledger-help'));group.append(groupHead);const grid=make('div',null,'ledger-achievement-grid');
+        for(const {a,index,unlocked}of entries){const record=make('button',null,'ledger-achievement-record');record.type='button';record.dataset.act='relic';record.dataset.idx=index;record.dataset.earned=String(unlocked);record.setAttribute('aria-label',a.name+' · '+(unlocked?'Earned':'Not yet earned')+' · '+a.desc);record.append(achievementBadge(a,unlocked),make('strong',a.name),make('span',unlocked?'Earned':'Locked','ledger-achievement-state'),make('span',a.desc,'ledger-achievement-requirement'));
+          const track=tracks.find(t=>t.name===a.name);if(track&&!unlocked){const progress=make('progress',null,'ledger-xp-meter');progress.max=track.target;progress.value=track.current;progress.setAttribute('aria-label',a.name+' progress');record.append(progress,make('span',fmt(track.current)+' / '+fmt(track.target)+' '+track.unit,'ledger-achievement-progress'));}grid.append(record);count++;}
+        group.append(grid);overview.append(group);
       }
-      if(!count)overview.append(make('p',achievementFilter==='earned'?'Your first saved check-in or reflection starts your collection.':'You have earned every achievement in this group.','ledger-help'));host.append(overview);return host;
+      if(!count)overview.append(make('p',achievementFilter==='earned'?'Your first saved check-in or reflection starts your collection.':'No achievements in this selection. Try another category.','ledger-collection-empty'));host.append(overview);return host;
     }
 
     function composeDashboard(log,data,earned){
@@ -601,13 +619,13 @@
       intro.append(make('div',state.logDate===todayISO()?new Date(state.logDate+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Editing '+pretty(state.logDate),'eyebrow'),make('h1',state.logDate===todayISO()?'Your check-in':'Your saved day','cinzel'));
       const awards=button(earned.length+' achievements',()=>setDashboardView('achievements'));awards.classList.add('ledger-awards-link');const levelLink=button('Life Level '+data.life.level+' · '+fmt(Math.ceil(data.life.remaining))+' XP to next level',()=>setDashboardView('progress'));levelLink.id='ledger-life-level';levelLink.classList.add('ledger-level-link');const progressLinks=make('div',null,'ledger-day-progress');progressLinks.append(levelLink,awards);panes.today.append(intro);
       const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
-      // The check-in leads Today; saved progress remains available after the log.
-      panes.today.append(progressLinks);
-      move('#ledger-rhythm',panes.today);const rewardPreview=personalRewardsPanel(data,true);if(rewardPreview)panes.today.append(rewardPreview);
+      // Today contains only the check-in. Supporting tools live in History.
+      panes.progress.append(progressLinks);
+      const checkinTools=make('details',null,'ledger-manage');checkinTools.id='ledger-checkin-tools';checkinTools.open=checkinToolsOpen;checkinTools.addEventListener('toggle',()=>checkinToolsOpen=checkinTools.open);checkinTools.append(make('summary','Check-in tools'));move('#ledger-rhythm',checkinTools);panes.history.append(checkinTools);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
       const previewHead=make('span',null,'ledger-preview-heading');previewHead.append(make('span','Screen time · under 1 hour'),make('span','Open ›','ledger-preview-open'));
       const previewTime=make('strong');previewTime.id='leisure-preview-time';const previewMeta=make('span',null,'ledger-help');previewMeta.id='leisure-preview-meta';
-      const previewMeter=make('progress',null,'ledger-time-meter');previewMeter.id='leisure-preview-meter';previewMeter.setAttribute('aria-label','Screen time left to the limit');preview.append(previewHead,previewTime,previewMeter,previewMeta);panes.today.append(preview);
+      const previewMeter=make('progress',null,'ledger-time-meter');previewMeter.id='leisure-preview-meter';previewMeter.setAttribute('aria-label','Screen time left to the limit');preview.append(previewHead,previewTime,previewMeter,previewMeta);checkinTools.append(preview);
       const panel=app.querySelector('#ledger-leisure');
       if(panel){
         const sheet=make('dialog',null,'ledger-dialog ledger-sheet');sheet.id='ledger-leisure-sheet';sheet.setAttribute('aria-labelledby','ledger-leisure-title');
@@ -617,7 +635,7 @@
         if(leisureOpen&&!state.levelInfo&&!state.achvQueue?.length)sheet.showModal();else leisureOpen=false;
       }
       const screen=app.querySelector('#ledger-screen');
-      if(screen){const fold=make('details',null,'ledger-screen-fold');fold.id='ledger-screen-fold';fold.open=screenOpen;fold.addEventListener('toggle',()=>screenOpen=fold.open);fold.append(make('summary','Screen Discipline · '+(state.draftScreen?.guardrail?'guardrail set':'set a guardrail')),screen);panes.today.append(fold);}
+      if(screen){const fold=make('details',null,'ledger-screen-fold');fold.id='ledger-screen-fold';fold.open=screenOpen;fold.addEventListener('toggle',()=>screenOpen=fold.open);fold.append(make('summary','Screen Discipline · '+(state.draftScreen?.guardrail?'guardrail set':'set a guardrail')),screen);checkinTools.append(fold);}
       const mode=log.querySelector('[data-act="logmode"]')?.parentNode;
       if(mode&&state.logMode==='list'){
         const filters=make('div',null,'ledger-habit-filters');
@@ -628,7 +646,7 @@
         if(remainingOnly&&!left)filters.after(make('p','All your habits are checked in. Save your day to bank the progress.','ledger-help'));
       }
       const oldActions=log.querySelector('#ledger-draft-status')?.parentNode;
-      // Date navigation lives with the date field; achievement access lives above.
+      // Date navigation belongs with saved records, outside Today.
       if(oldActions){for(const b of [...oldActions.querySelectorAll('button')])if(b.textContent.startsWith('Achievements'))b.remove();}
       for(const jump of app.querySelectorAll('.ledger-jump'))jump.remove();
       move('.ledger-identity',panes.progress);move('#ledger-season-summary',panes.progress);move('.ledger-overall',panes.progress);const personalRewards=personalRewardsPanel(data);if(personalRewards)panes.progress.append(personalRewards);panes.progress.append(recentPanel());
@@ -636,12 +654,12 @@
       move('.ledger-values-heading',panes.progress);move('.ledger-values-info',panes.progress);
       move('.ledger-values',panes.progress);if(relic)relic.remove();
       panes.achievements.append(make('h1','Achievements','cinzel ledger-view-title'),achievementOverview(data,earned));
-      panes.history.append(make('h1','Your record','cinzel ledger-view-title'),make('p','Revisit a day, catch up, or keep a backup.','ledger-help'));
+      panes.history.prepend(make('h1','Your record','cinzel ledger-view-title'));
       move('#ledger-history',panes.history);
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
       const toolsPanel=make('details',null,'ledger-manage');toolsPanel.append(make('summary','Manage Ledger & backups'));
       const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);toolsPanel.append(button('Reset progress',resetProgressDialog));panes.history.append(toolsPanel);if(drafts.archives?.length)panes.history.append(progressArchives());
-      const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);if(state.logDate===todayISO()){const dateRow=log.querySelector('.ledger-date-row');if(dateRow)options.append(dateRow);}options.append(clear);panes.today.append(options);}
+      const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);if(state.logDate===todayISO()){const dateRow=log.querySelector('.ledger-date-row');if(dateRow)options.append(dateRow);}options.append(clear);panes.history.append(options);}
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-checkin-save');saveRow.id='ledger-checkin-save';
       const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}log.append(saveRow);
@@ -651,7 +669,7 @@
       for(const [key,title]of [['today','Today'],['progress','Levels'],['achievements','Achievements'],['history','History']]){const b=button('',()=>setDashboardView(key,true));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
       nav.addEventListener('keydown',e=>{const keys=['today','progress','achievements','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%keys.length;else if(e.key==='ArrowLeft')next=(index+keys.length-1)%keys.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=keys.length-1;else return;e.preventDefault();setDashboardView(keys[next],true);});
       const todayScreen=state.logDate===todayISO()?state.draftScreen:(drafts.days[todayISO()]||dayEntryFor(todayISO()))?.screen;
-      const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';quick.setAttribute('aria-label',quick.textContent);quick.title=quick.textContent;if(dashboardView==='today'){quick.textContent=todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume reset':'Scrolling reset';const resetRow=make('div',null,'ledger-reset-row');resetRow.append(quick);panes.today.append(resetRow);}
+      const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';quick.setAttribute('aria-label',quick.textContent);quick.title=quick.textContent;const resetRow=make('div',null,'ledger-reset-row');resetRow.append(quick);checkinTools.append(resetRow);
       dock.append(nav);app.append(dock);log.querySelector('.ledger-save-inline')?.remove();resetSheet();
     }
 
@@ -812,10 +830,13 @@
       const card=app.querySelectorAll('.ledger-habit-card')[idx],viewport=document.getElementById('deckViewport'),fit=()=>{if(card?.offsetHeight>0&&viewport)viewport.style.height=card.offsetHeight+'px';};fit();
       if(deckResize)deckResize.disconnect();if(window.ResizeObserver&&card){deckResize=new window.ResizeObserver(fit);deckResize.observe(card);}
     };
-    const originalLevelView=levelUpView,originalAchievementView=achvView;
+    const originalLevelView=levelUpView;
     function rewardDialog(markup){return markup.replace('<div class="overlay"','<dialog class="overlay ledger-reward"').replace(/<\/div>$/, '</dialog>');}
     levelUpView=info=>rewardDialog(originalLevelView(info));
-    achvView=()=>rewardDialog(originalAchievementView());
+    achvView=()=>{
+      const a=state.achvQueue?.[0];if(!a)return '';const data=compute(state.days,state.goals),earned=ACHV.filter(x=>x.test(data)),got=a.test(data),track=achievementTrackers(data,earned).find(t=>t.name===a.name),badge=achievementBadge(a,got);
+      return '<dialog class="overlay ledger-reward ledger-award-detail" role="dialog" aria-modal="true"><div class="panel"><div class="eyebrow">'+esc(a.cat)+' · '+(!state.achvReview?'Achievement Unlocked':got?'Earned':'Locked')+'</div><span class="ledger-achievement-badge" data-category="'+esc(a.cat)+'" data-unlocked="'+got+'">'+badge.innerHTML+'</span><h2>'+esc(a.name)+'</h2><p>'+esc(a.desc)+'</p>'+(track?'<progress class="ledger-xp-meter" max="'+track.target+'" value="'+track.current+'" aria-label="'+esc(a.name)+' progress"></progress><p class="ledger-help">'+fmt(track.current)+' / '+fmt(track.target)+' '+esc(track.unit)+'</p><button class="ledger-button" data-act="milestone" data-name="'+esc(a.name)+'">Make this my next milestone</button>':'')+'<button class="btn" data-act="achvNext">'+(state.achvReview?'Close':state.achvQueue.length>1?'Next':'Continue')+'</button>'+(!state.achvReview?'<button class="btn" data-act="achvAll">See all achievements</button>':'')+'</div></dialog>';
+    };
     let rewardOpener=null,progressInfoOpen=false;
     const originalRender=render;
     // The lifetime interface removes these retired season panels after every
@@ -894,7 +915,7 @@
       const act=el.dataset.act;
       if((act==='inc'||act==='dec')&&changeCardAmount(el,act)){e.stopImmediatePropagation();return;}
       if(act==='toggle'&&el.dataset.habit==='Screen Discipline'&&state.draftLeisure?.screenConfirmed){e.stopImmediatePropagation();leisureMinutesDialog();return;}
-      if(act==='achvAll')dashboardView='achievements';
+      if(act==='milestone'){e.stopImmediatePropagation();milestoneName=el.dataset.name;clearCelebrations();setDashboardView('achievements');document.getElementById('ledger-next-milestone')?.scrollIntoView({block:'start'});return;}if(act==='achvAll')dashboardView='achievements';
       if(act==='reset'){e.stopImmediatePropagation();return;}
       if(act==='settings'){e.stopImmediatePropagation();goalsDialog();}
       if(act==='clear'){e.stopImmediatePropagation();confirmAction('Clear this draft?','Saved days remain in your history. Save day is required to replace an existing entry.','Clear draft',()=>{state.draft=freshDraft();state.draftMood=0;state.draftNote='';state.draftScreen=emptyScreen();state.draftLeisure=emptyLeisure();state.draftMissed=[];remember();render();});}

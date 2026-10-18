@@ -59,3 +59,9 @@ The visual audit covers Operations Cadence, Hourglass, Aqueduct, Herald, Chef, L
 ### Ledger check-in and achievements · October 15 follow-up
 
 Save day now belongs to the check-in in normal document flow, below the cards or list. Its status uses Ready to save/Saved/failed feedback; unfinished work remains recoverable. The floating dock only navigates Today, Levels, Achievements and History. Levels omits the three focus-activity summaries. Achievements has a full earned/upcoming overview and a projected next milestone based solely on dated saved activity over the last 28 days. At least three active dates and a minimum seven-day observation window are required before showing an estimated date. Drafts and weekly catch-up do not invent dated pace. Existing awards, lifetime XP and records are preserved.
+
+### Ledger collection and card-only Today · October 17
+
+Today contains the activity deck or its existing list alternative, basic check-in controls and the inline save action. Progress links, weekly focus, reward previews, screen-time panels, scrolling-reset shortcuts and day-maintenance tools no longer follow the cards. Existing weekly, screen-time and reset tools remain in History’s Check-in tools disclosure; date maintenance lives with History.
+
+Achievements uses illustrated vector badges, written earned/locked states, earned seals, per-award saved progress, state and category filters, and an indigo next-milestone feature. People can choose a milestone from its selector or an award’s detail dialog. The original achievement conditions, claimed awards and projection rules remain authoritative. The selection is a view preference for the current session; choosing a milestone does not save a day or change XP.
