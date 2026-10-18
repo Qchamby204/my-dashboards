@@ -644,6 +644,11 @@ test('unavailable or earned milestone preferences fall back without modifying sa
  }
 });
 
+test('the changing Life Level target is selectable and remembered alongside fixed awards',async()=>{
+ const h=await boot({realModel:true});h.node('ledger-nav-achievements').click();const name='Life Level '+(h.run('compute(state.days,state.goals).life.level')+1),choice=h.node('ledger-milestone-choice');choice.value=name;choice.emit('change');assert.equal(h.node('ledger-milestone-choice').value,name);
+ const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});again.node('ledger-nav-achievements').click();assert.equal(again.node('ledger-milestone-choice').value,name);assert.equal(again.run('state.days.length'),0);
+});
+
 test('the activity deck groups artwork, navigation and one save action without adding Today panels',async()=>{
  const h=await boot({realModel:true}),today=h.node('ledger-view-today'),frame=today.querySelector('.ledger-deck-frame');assert(frame);assert.equal(today.children.length,2);assert(frame.querySelector('#deckViewport'));assert(frame.querySelector('#deckPrev'));assert(frame.querySelector('#deckCounter'));assert(frame.querySelector('#ledger-habit-picker'));assert(frame.querySelector('#ledger-checkin-save'));assert.equal(frame.querySelectorAll('[data-act="commit"]').length,1);
  const first=today.querySelector('.ledger-habit-card');assert(first.querySelector('.ledger-card-art .ledger-card-avatar'));assert.equal(first.querySelector('.ledger-card-avatar').textContent,h.run('habitEmoji(HABITS[0])'));h.run('state.draft.Read=15');h.api.remember();h.node('ledger-nav-achievements').click();h.node('ledger-nav-today').click();assert.equal(h.run('state.draft.Read'),15);assert(h.node('ledger-view-today').querySelector('.ledger-deck-frame'));

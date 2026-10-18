@@ -586,7 +586,9 @@
       return badge;
     }
     function chooseMilestone(name){
-      if(blocked||busy||!ACHV.some(a=>a.name===name))return;
+      if(blocked||busy)return;
+      const data=compute(state.days,state.goals);
+      if(!achievementTrackers(data,ACHV.filter(a=>a.test(data))).some(t=>t.name===name))return;
       drafts.milestoneName=name;write(DRAFTKEY,JSON.stringify(drafts));
     }
     function achievementOverview(data,earned){

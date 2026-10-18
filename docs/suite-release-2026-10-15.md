@@ -22,7 +22,7 @@ Each stage passed its applicable GitHub checks before merging. Public Pages depl
 
 Both milestone entry points now save the chosen award through the existing verified draft/settings writer. Reloads retain the choice; earned or unavailable awards fall back to an eligible upcoming milestone. The preference is included in backups and archived on explicit progress reset. Selecting it does not commit a day or alter saved progress or XP. A failed preference write retains the choice and unfinished check-in in the current tab, with the existing retry/recovery notice.
 
-Local validation passes all 737 Node tests, including preference reload/backup coverage, failed-write retry with an unfinished entry, and earned/unavailable fallback without record writes. The Chromium/WebKit acceptance journeys exercise both entry points through reloads and verify unchanged saved-activity bytes, alongside the existing core-four save/reload, keyboard, responsive layout and feedback checks. Browser results belong to the corresponding Actions run; they do not establish physical iPhone sign-off.
+Local validation passes all 738 Node tests, including preference reload/backup coverage, failed-write retry with an unfinished entry, and earned/unavailable fallback without record writes. The Chromium/WebKit acceptance journeys exercise both entry points through reloads and verify unchanged saved-activity bytes, alongside the existing core-four save/reload, keyboard, responsive layout and feedback checks. Browser results belong to the corresponding Actions run; they do not establish physical iPhone sign-off.
 
 ## Accessibility and feedback verification
 
