@@ -17,7 +17,7 @@ async function keyboard(p,input,app){
  await input.focus();await p.evaluate(()=>{Object.defineProperty(window.visualViewport,'height',{value:430,configurable:true});window.visualViewport.dispatchEvent(new Event('resize'));});
  await p.waitForFunction(()=>document.documentElement.classList.contains('core-keyboard'));
  if(app==='life-ledger'){
-  assert(!(await p.locator('.ledger-nav').isVisible()),'navigation yields room to the keyboard');assert.equal(await p.locator('.ledger-dock [data-act="commit"]').count(),0,'saving remains in the check-in');
+  assert(!(await p.locator('.ledger-nav').isVisible()),'navigation yields room to the keyboard');assert(await p.evaluate(()=>parseFloat(getComputedStyle(document.body).paddingBottom)>=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--core-keyboard-bottom'))),'the keyboard has temporary scrolling clearance');assert.equal(await p.locator('.ledger-dock [data-act="commit"]').count(),0,'saving remains in the check-in');
   assert.equal(await p.locator('.ledger-dock').evaluate(n=>getComputedStyle(n).paddingBottom),'7px','keyboard save bar does not retain the Home indicator gap');
  }else assert(!(await p.locator(app==='life-map'?'.lm-day-dock':'#atlas-page-navigation').isVisible()),'navigation yields space to the keyboard');
  const bounds=await input.boundingBox(),limit=430;assert(bounds.y+bounds.height<=limit-12,'focused field remains above keyboard chrome');

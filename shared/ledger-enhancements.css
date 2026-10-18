@@ -508,3 +508,5 @@ html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-deck-frame:has(.ledger-ha
 html.atlas-neumo[data-atlas-app="life-ledger"] [data-ledger-reminder-tools]{margin:12px 0 0!important;padding:0!important;text-align:left!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] [data-ledger-reminder-tools][hidden]{display:none!important}
 @media(prefers-reduced-motion:reduce){html.atlas-neumo[data-atlas-app="life-ledger"] :is(.ledger-deck-frame,.ledger-card-art){transition:none!important}html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-deck-frame .ledger-card-art{transform:none!important}}
+
+html.atlas-neumo.core-keyboard[data-atlas-app="life-ledger"] body{padding-bottom:calc(var(--core-keyboard-bottom,0px) + 24px)!important}
