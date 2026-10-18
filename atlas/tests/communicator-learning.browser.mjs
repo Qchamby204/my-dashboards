@@ -39,11 +39,14 @@ try{
     await p.evaluate(()=>window.scrollTo(0,0));
     const layout=await p.evaluate(()=>{
      const header=document.querySelector('.communicator-learning-header'),h=header.querySelector('h2').getBoundingClientRect(),b=header.querySelector('[data-learning-action="assessment"]').getBoundingClientRect();
+     const textFits=(n,box=n)=>{const range=document.createRange();range.selectNodeContents(n);const bounds=box.getBoundingClientRect();return [...range.getClientRects()].every(r=>r.left>=bounds.left-1&&r.right<=bounds.right+1&&r.top>=bounds.top-1&&r.bottom<=bounds.bottom+1);};
      return {overflow:document.documentElement.scrollWidth>innerWidth+1,overlap:h.left<b.right&&h.right>b.left&&h.top<b.bottom&&h.bottom>b.top,
-      segments:[...header.querySelectorAll('[data-learning-action="track"]')].map(n=>{const r=document.createRange();r.selectNodeContents(n);const lines=[...r.getClientRects()].filter(r=>r.width&&r.height);return {lines:lines.length,font:parseFloat(getComputedStyle(n).fontSize),width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height};})};
+      chromeFits:textFits(document.querySelector('.appbar>h1'))&&[...document.querySelectorAll('#atlas-page-navigation button>span:last-child')].every(n=>textFits(n,n.parentElement)),
+      segments:[...header.querySelectorAll('[data-learning-action="track"]')].map(n=>{const r=document.createRange();r.selectNodeContents(n);const lines=[...r.getClientRects()].filter(r=>r.width&&r.height);return {fits:textFits(n),lines:lines.length,font:parseFloat(getComputedStyle(n).fontSize),width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height};})};
     });
     assert.equal(layout.overflow,false,'Learn fits '+width+'px at '+size+'px text');assert.equal(layout.overlap,false,'assessment never overlaps Learn');
-    for(const s of layout.segments){assert.equal(s.lines,1,'subject words remain whole');assert(s.font>=size,'subject text follows enlargement');assert(s.width>=44&&s.height>=44);}
+    assert(layout.chromeFits,'header identity and navigation labels fit their controls');
+    for(const s of layout.segments){assert(s.fits,'subject text stays inside its control');assert.equal(s.lines,1,'subject words remain whole');assert(s.font>=size,'subject text follows enlargement');assert(s.width>=44&&s.height>=44);}
     await p.screenshot({path:path.join(out,'communicator-learning-'+theme+'-'+width+'-'+size+'.png')});
     await style.evaluate(n=>n.remove());
    }
