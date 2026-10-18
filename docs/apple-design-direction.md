@@ -65,3 +65,9 @@ Save day now belongs to the check-in in normal document flow, below the cards or
 Today contains the activity deck or its existing list alternative, basic check-in controls and the inline save action. Progress links, weekly focus, reward previews, screen-time panels, scrolling-reset shortcuts and day-maintenance tools no longer follow the cards. Existing weekly, screen-time and reset tools remain in History’s Check-in tools disclosure; date maintenance lives with History.
 
 Achievements uses illustrated vector badges, written earned/locked states, earned seals, per-award saved progress, state and category filters, and an indigo next-milestone feature. People can choose a milestone from its selector or an award’s detail dialog. The original achievement conditions, claimed awards and projection rules remain authoritative. The selection is a view preference for the current session; choosing a milestone does not save a day or change XP.
+
+### Ledger flagship check-in · October 18
+
+Today’s activity record leads with its original full-colour imagery at a larger scale, a quiet value label, a prominent title and a strong commitment control. A single card frame groups the deck, its navigation, activity selector and inline Save day footer. Cards/List and the live entry count form one compact toolbar. Recorded toggles include written feedback beside the check mark. The home view remains focused on check-in cards, without supplementary progress or reward panels.
+
+Eight additional achievements extend saved-day, reading, workout, walking, communication and board-service milestones. The collection grows from 52 to 60 awards. Their requirements use saved totals, retain existing claimed awards, and participate in the existing read-only milestone projection; drafts do not unlock them.

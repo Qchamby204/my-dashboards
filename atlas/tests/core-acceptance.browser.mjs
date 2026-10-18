@@ -52,6 +52,7 @@ try{
    if(app==='workout-forge'||app==='communication-trainer')assert.equal(await p.locator('.atlas-goal-question').evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)','supporting choices do not compete with the focal record');
    if(app==='life-ledger'){
     assert.equal(await hero.locator('.ledger-card-avatar').getAttribute('aria-hidden'),'true');assert.equal(await hero.locator('.ledger-card-avatar').textContent(),await p.evaluate(()=>habitEmoji(HABITS[state.cardIndex])),'card retains its original activity symbol');
+    assert(await hero.locator('.ledger-card-avatar').evaluate(n=>parseFloat(getComputedStyle(n).fontSize)>=64),'activity imagery leads the card');assert(await p.locator('.ledger-deck-frame #ledger-checkin-save').count(),'saving belongs to the card frame');
     assert.equal(await hero.locator('.ledger-card-identity').evaluate(n=>getComputedStyle(n).textAlign),'left');
     assert.equal(await p.getByRole('button',{name:'Cards',exact:true}).count(),1,'mode labels remain clear with decorative icons');
    }else if(app==='life-map')assert.equal(await hero.locator('..').evaluate(n=>getComputedStyle(n).boxShadow),'none','next move has one focal surface');
