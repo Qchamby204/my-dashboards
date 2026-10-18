@@ -33,7 +33,7 @@
 .communicator-loop p{flex:1;margin-bottom:14px}
 .communicator-session-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:.85rem;color:var(--muted)}
 .communicator-segments,.communicator-practice-options{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.communicator-segments .btn{flex:1}
+.communicator-segments .btn{flex:1 0 auto;min-width:0;word-break:normal;overflow-wrap:normal;hyphens:none}
 .communicator-investing-progress>summary{font-weight:600;cursor:pointer;min-height:44px;padding:10px 0}
 .communicator-investing-progress>p{margin:12px 0}
 .communicator-source summary{cursor:pointer;padding:12px 0}
@@ -66,6 +66,18 @@
 @media(prefers-reduced-motion:reduce){.communicator-preparation button:active,.communicator-rep-options button:active{transform:none}}
 
 .communicator-session-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+/* Let learning controls grow with text instead of competing with the heading. */
+html[data-atlas-app="communication-trainer"] .communicator-learning-header .communication-topic-heading{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+html[data-atlas-app="communication-trainer"] .communicator-learning-header .communication-topic-heading h2{flex:1 0 auto;margin:0}
+html[data-atlas-app="communication-trainer"] .communicator-learning-header .communication-topic-heading>.btn{flex:0 1 auto;max-width:100%;font-size:1rem;line-height:1.4;word-break:normal;overflow-wrap:normal}
+html[data-atlas-app="communication-trainer"] .communicator-segments .btn{font-size:1rem;line-height:1.4;min-height:44px;padding:.65rem .9rem}
+html[data-atlas-app="communication-trainer"] .communication-learning-next>h2{font-size:1.5rem;line-height:1.3;letter-spacing:-.025em}
+html[data-atlas-app="communication-trainer"] .communication-learning-next>p{font-size:1rem;line-height:1.5;margin-block:.65rem}
+html[data-atlas-app="communication-trainer"] .communication-learning-next>.btn{font-size:1rem;line-height:1.4;min-height:44px;white-space:normal;margin-top:.4rem}
+html[data-atlas-app="communication-trainer"] .communication-curriculum-about{margin-top:1rem;border-top:1px solid var(--neo-line)}
+html[data-atlas-app="communication-trainer"] .communication-curriculum-about>summary{min-height:44px;padding-block:.75rem;cursor:pointer;font-size:.875rem;line-height:1.5}
+html[data-atlas-app="communication-trainer"] .communication-curriculum-about p{font-size:1rem;line-height:1.6}
+html[data-atlas-app="communication-trainer"] .lesson{scroll-margin-top:calc(var(--atlas-safe-top,0px) + 8rem)}
 .communicator-session-footer details>summary,.communicator-practice-more>summary{min-height:44px;cursor:pointer;padding:12px 0;font-weight:600}
 .communicator-session-footer details>.flex{margin-top:8px}
 .communicator-practice-more{margin-top:16px}
