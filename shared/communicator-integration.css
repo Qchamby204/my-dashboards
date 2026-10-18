@@ -79,7 +79,6 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-cu
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-curriculum-about>summary{min-height:44px;padding-block:.75rem;cursor:pointer;font-size:.875rem;line-height:1.5}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-curriculum-about p{font-size:1rem;line-height:1.6}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .lesson{scroll-margin-top:calc(var(--atlas-safe-top,0px) + 8rem)}
-html.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.communication-learning-primary,.communication-practice-primary){background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;box-shadow:none!important}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main button.communication-pillar{border-radius:14px!important;padding:16px!important;background:var(--neo-content-surface)!important;box-shadow:none!important;border:1px solid var(--neo-line)!important}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-skill-footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:.8125rem;line-height:1.5}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .communication-skill-footer>span:last-child{color:var(--neo-accent);font-weight:600}

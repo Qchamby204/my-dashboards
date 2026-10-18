@@ -147,7 +147,7 @@ canvas{max-width:100%}
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=1b825b198bd6">
 <link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
-<link rel="stylesheet" href="shared/communicator-integration.css?v=c7be5adf3a09">
+<link rel="stylesheet" href="shared/communicator-integration.css?v=c0a1f95dc786">
 <script src="shared/communicator-curriculum.js?v=8193a8745de9" defer></script>
 <script src="shared/communicator-integration.js?v=652524975507" defer></script>
 <link rel="stylesheet" href="shared/communicator-ladder.css?v=42263378e24c">
@@ -824,7 +824,7 @@ function submitAssess(){
 function pageLearn(){
   const lessons=CURRICULUM.flatMap(m=>m.lessons.map(l=>({...l,module:m.title}))),completed=lessons.filter(l=>S.lessonsDone[l.id]).length;
   const next=lessons.find(l=>!S.lessonsDone[l.id]),lesson=next||lessons[0];
-  return `<section class="card communication-learning-next" aria-labelledby="communication-next-lesson"><p class="muted">${completed} / ${lessons.length} lessons completed</p><h2 id="communication-next-lesson">${next?esc(lesson.title):'Communication lessons complete'}</h2><p class="muted">${next?esc(lesson.module):'Revisit a framework or put it into practice.'}</p><button type="button" class="btn communication-learning-primary" onclick="openLearningLesson('${lesson.id}')">${next?(completed?'Continue learning':'Start learning'):'Review first lesson'}</button><details class="communication-curriculum-about"><summary>About the curriculum</summary><p class="muted">Eight modules draw on Minto’s Pyramid Principle, Aristotle’s rhetoric, Monroe’s Motivated Sequence, Cialdini’s influence research, Chris Voss’s negotiation toolkit, improv and media training, and the advisor’s craft. Mark a lesson complete when you have internalized it (+15 XP). Use <b>Practice</b> to apply it in a drill.</p></details></section>`+
+  return `<section class="card communication-learning-next" aria-labelledby="communication-next-lesson"><p class="muted">${completed} / ${lessons.length} lessons completed</p><h2 id="communication-next-lesson">${next?esc(lesson.title):'Communication lessons complete'}</h2><p class="muted">${next?esc(lesson.module):'Revisit a framework or put it into practice.'}</p><button type="button" class="btn communication-primary" onclick="openLearningLesson('${lesson.id}')">${next?(completed?'Continue learning':'Start learning'):'Review first lesson'}</button><details class="communication-curriculum-about"><summary>About the curriculum</summary><p class="muted">Eight modules draw on Minto’s Pyramid Principle, Aristotle’s rhetoric, Monroe’s Motivated Sequence, Cialdini’s influence research, Chris Voss’s negotiation toolkit, improv and media training, and the advisor’s craft. Mark a lesson complete when you have internalized it (+15 XP). Use <b>Practice</b> to apply it in a drill.</p></details></section>`+
   CURRICULUM.map(m=>{
     const sk=SKILLS.find(s=>s.id===m.skill);
     const done=m.lessons.filter(l=>S.lessonsDone[l.id]).length;
@@ -858,7 +858,7 @@ function pageTrain(){
     <h2>Choose your practice</h2>
     <p class="muted">Choose a skill or a topic. Practise out loud for 1–2 minutes, then review your own attempt.</p>
     <div class="flex" style="margin-top:12px">
-      <button class="btn communication-practice-primary" onclick="startDrill('${weakestSkill()}')">Start suggested drill</button>
+      <button class="btn communication-primary" onclick="startDrill('${weakestSkill()}')">Start suggested drill</button>
       <button class="btn ghost" onclick="startDrill()">Random drill</button>
     </div>
   </div>
