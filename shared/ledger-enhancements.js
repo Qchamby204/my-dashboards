@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=03f1c12f09b8',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=ce80f569f8a2',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -162,7 +162,14 @@
     revise('In Balance','All values within 6 levels (Level 10+)',d=>d.pillars.length>0&&d.pillars.every(p=>p.habits.length>0&&p.level>=10)&&Math.max(...d.pillars.map(p=>p.level))-Math.min(...d.pillars.map(p=>p.level))<=6);
     // The old book description promised 250 pages even when a book's configured size differed.
     revise('First Book','Complete one reading milestone',d=>(d.habit.Read?.chunksDone||0)>=1);
+    const extendedMilestones=[
+      ['Reading Room','Read',1500,'Read 1,500 pages'],['Well Read','Read',5000,'Read 5,000 pages'],
+      ['Century of Strength','Run / Work Out',100,'Log 100 workouts'],['A Hundred Walks','Walk Hud',100,'Walk Hudson on 100 days'],
+      ['Practice Makes Progress','Communication Drill',150,'Complete 150 communication drills'],['Community Builder','Board Work',3000,'Record 50 hours of board service']
+    ];
     const additions=[
+      ...extendedMilestones.map(([name,habit,target,desc])=>({cat:'Milestones',name,desc,icon:'\u2727',test:d=>(d.habit[habit]?.total||0)>=target})),
+      ...[['Half-Year of Check-ins',180],['A Year in the Ledger',365]].map(([name,target])=>({cat:'Consistency',name,desc:'Save '+target+' days with a check-in or reflection; no streak required',icon:'\u2736',test:d=>earnedDays(d).length>=target})),
       {cat:'Consistency',name:'Finding Your Rhythm',desc:'Save three days with a check-in or reflection; no streak required',icon:'\u2736',test:d=>earnedDays(d).length>=3},
       {cat:'Milestones',name:'First Reflection',desc:'Save your first daily note',icon:'\u270e',test:d=>d.days.some(day=>!!day.note?.trim())},
       {cat:'Milestones',name:'Pages of Your Own',desc:'Save a daily note on seven different dates',icon:'\u25a4',test:d=>d.days.filter(day=>!!day.note?.trim()).length>=7},
@@ -559,8 +566,9 @@
       const rows=[],add=(name,current,target,unit,events)=>{if(!ACHV.some(a=>a.name===name))return;rows.push({name,current,target,unit,history:events,earned:claimed.has(name)});};
       const habits=[['First Book','Read',HCFG.Read?.chunk||250],['Library Card','Read',(HCFG.Read?.chunk||250)*3],['On the Record','YouTube Strategy',10],['Content Engine','YouTube Strategy',40],['Ten Sessions In','Run / Work Out',10],['Iron Forged','Run / Work Out',50],['Stocked','Supplements',30],['Well Rested','Sleep',100],['Deep Worker','Chambers Wealth',25],['Unplugged','Screen Discipline',30],['Attention Held','Screen Discipline',100],['Prepared Mind','Prep For Next Day',30],['House in Order','Household Chore',50],['Money Minder','Money Check-In',20],['Board Hours','Board Work',600],['Servant Leader','Board Work',1500],['With Hudson','Walk Hud',25],['Well Spoken','Communication Drill',25],['Master Communicator','Communication Drill',75]];
       for(const [name,h,target]of habits)if(HABITS.includes(h))add(name,data.habit[h].total,target,HCFG[h].unit,history(h));
+      for(const [name,h,target]of extendedMilestones)if(HABITS.includes(h))add(name,data.habit[h].total,target,HCFG[h].unit,history(h));
       const saved=earnedDays(data),days=saved.map(d=>({date:d.date,amount:1})),notes=data.days.filter(d=>d.note?.trim()).map(d=>({date:d.date,amount:1}));
-      for(const [name,target]of [['Season Opens',1],['Locked In',7],['Habit Formed',30],['Centurion',100],['Finding Your Rhythm',3],['Ahead of Pace',3]])add(name,saved.length,target,'saved days',days);
+      for(const [name,target]of [['Season Opens',1],['Locked In',7],['Habit Formed',30],['Centurion',100],['Finding Your Rhythm',3],['Ahead of Pace',3],['Half-Year of Check-ins',180],['A Year in the Ledger',365]])add(name,saved.length,target,'saved days',days);
       for(const [name,target]of [['First Reflection',1],['Pages of Your Own',7]])add(name,notes.length,target,'notes',notes);
       const xp=data.days.map(d=>({date:d.date,amount:Object.keys(data.habit).filter(h=>h!==R.REMOVED).reduce((sum,h)=>sum+(d.units[h]||0)/R.xpUnit(data.habit[h].cfg)*100,0)}));
       for(const [name,level]of [['Double Digits',10],['Quarter Master',25],['Halfway Hero',50]])add(name,data.life.xp,level*R.lifeCost,'XP',xp);
@@ -571,7 +579,7 @@
     // Their colour is decorative: every award also has a written earned/locked state.
     function achievementBadge(a,unlocked=false){
       const n=a.name,motifs={book:'<path d="M8 9c6-2 10 0 16 3 6-3 10-5 16-3v25c-6-2-10 0-16 3-6-3-10-5-16-3Z"/><path d="M24 12v25M12 15l7 2m-7 4 7 2m10-6 7-2m-7 8 7-2"/>',strength:'<path d="M12 18v12m5-16v20m14-20v20m5-16v12M17 24h14M8 21v6m32-6v6"/>',moon:'<path d="M31 9a16 16 0 1 0 8 25A16 16 0 0 1 31 9Z"/><path d="m35 12 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/>',voice:'<rect x="18" y="7" width="12" height="23" rx="6"/><path d="M13 23a11 11 0 0 0 22 0M24 34v7m-6 0h12"/>',home:'<path d="m7 22 17-14 17 14M12 19v20h24V19M20 39V27h8v12"/>',leaf:'<path d="M12 33C6 16 26 11 37 9c0 18-5 30-20 27M11 40l20-23M20 31v-9m0 9h9"/>',star:'<path d="m24 6 5.5 11 12 1.8-8.8 8.6 2.1 12.1L24 33.8l-10.8 5.7 2.1-12.1-8.8-8.6 12-1.8Z"/>',calendar:'<rect x="9" y="12" width="30" height="28" rx="4"/><path d="M16 8v8m16-8v8M9 22h30m-23 9 5 5 11-11"/>',peak:'<path d="m6 38 12-21 6 10 7-17 11 28ZM15 23l3 3 3-3m7-6 3 3 3-3"/>',pen:'<path d="m12 31-3 9 9-3L38 17l-6-6ZM27 16l6 6M13 31l5 6M10 13h9M10 20h6"/>'};
-      const key=/Book|Library/.test(n)?'book':/Session|Iron|Health/.test(n)?'strength':/Rest|Prepared/.test(n)?'moon':/Spoken|Communicator|Record|Content/.test(n)?'voice':/House|Money|Wealth/.test(n)?'home':/Hudson|Growth|Stocked/.test(n)?'leaf':/Reflection|Pages of Your/.test(n)?'pen':a.cat==='Consistency'?'calendar':a.cat==='Mastery'?'peak':'star';
+      const key=/Book|Library|Read/.test(n)?'book':/Session|Iron|Health|Strength/.test(n)?'strength':/Rest|Prepared/.test(n)?'moon':/Spoken|Communicator|Record|Content/.test(n)?'voice':/House|Money|Wealth/.test(n)?'home':/Hudson|Walk|Growth|Stocked/.test(n)?'leaf':/Reflection|Pages of Your/.test(n)?'pen':a.cat==='Consistency'?'calendar':a.cat==='Mastery'?'peak':'star';
       const badge=make('span',null,'ledger-achievement-badge');badge.dataset.category=a.cat;badge.dataset.unlocked=String(unlocked);badge.setAttribute('aria-hidden','true');
       badge.innerHTML='<svg viewBox="0 0 100 112" fill="none"><path class="ledger-badge-body" d="M50 4 89 27v47L50 104 11 74V27Z"/><path class="ledger-badge-rim" d="M50 12 82 31v39L50 95 18 70V31Z"/><g class="ledger-badge-symbol" transform="translate(26 28)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+motifs[key]+'</g>'+(unlocked?'<circle class="ledger-badge-seal" cx="78" cy="88" r="12"/><path class="ledger-badge-check" d="m72 88 4 4 8-9"/>':'')+'</svg>';
       return badge;
@@ -645,6 +653,7 @@
         for(const row of log.querySelectorAll('.row')){const control=row.querySelector('[data-habit]'),habit=control?.dataset.habit;if(!habit)continue;const complete=state.draft[habit]>=leisureTarget(habit);row.classList.toggle('ledger-habit-complete',complete);row.hidden=remainingOnly&&complete;if(!complete)left++;}
         if(remainingOnly&&!left)filters.after(make('p','All your habits are checked in. Save your day to bank the progress.','ledger-help'));
       }
+      if(mode){const toolbar=make('div',null,'ledger-checkin-toolbar');mode.before(toolbar);const heading=log.querySelector('.ledger-log-heading');if(heading)toolbar.append(heading);toolbar.append(mode);}
       const oldActions=log.querySelector('#ledger-draft-status')?.parentNode;
       // Date navigation belongs with saved records, outside Today.
       if(oldActions){for(const b of [...oldActions.querySelectorAll('button')])if(b.textContent.startsWith('Achievements'))b.remove();}
@@ -662,7 +671,9 @@
       const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);if(state.logDate===todayISO()){const dateRow=log.querySelector('.ledger-date-row');if(dateRow)options.append(dateRow);}options.append(clear);panes.history.append(options);}
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-checkin-save');saveRow.id='ledger-checkin-save';
-      const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}log.append(saveRow);
+      const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}const viewport=log.querySelector('#deckViewport');
+      if(viewport){const frame=make('div',null,'ledger-deck-frame');viewport.before(frame);frame.append(viewport);const navigation=log.querySelector('#deckPrev')?.parentNode,picker=log.querySelector('.ledger-card-picker');if(navigation){navigation.classList.add('ledger-deck-navigation');if(picker){const counter=picker.querySelector('#deckCounter');if(counter)navigation.prepend(counter);picker.classList.add('ledger-card-switcher');}frame.append(navigation);}if(picker)frame.append(picker);frame.append(saveRow);const bar=log.querySelector('#deckBar')?.parentNode;if(bar){bar.hidden=true;bar.setAttribute('aria-hidden','true');}}
+      else log.append(saveRow);
       const running=button('Screen-time timer running · Open',openLeisure);running.id='ledger-running-timer';running.hidden=!drafts.leisureTimer;running.classList.add('ledger-running-timer');dock.append(running);
       const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');nav.style.setProperty('--atlas-page-count','4');
       const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',achievements:'<path d="M8 3h8v7a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 14v6m-4 1h8"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
@@ -851,9 +862,9 @@
       for(const [i,card]of [...app.querySelectorAll('.ledger-habit-card')].entries()){
         const header=make('div',null,'ledger-card-heading'),identity=make('div',null,'ledger-card-identity');
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
-        avatar.classList.add('ledger-card-avatar');identity.append(title);if(category)identity.append(category);header.append(avatar,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
+        avatar.classList.add('ledger-card-avatar');const art=make('div',null,'ledger-card-art');art.append(avatar);identity.append(title);if(category)header.append(category);header.append(art,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
         const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
-        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';const siblings=[...check.parentNode.children],caption=siblings[siblings.indexOf(check)+1];if(caption?.tagName==='DIV'&&/^(Mark it done|Mark done|Done today)/.test(caption.textContent.trim()))caption.remove();}
+        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';else check.append(make('span','Added to check-in'));const siblings=[...check.parentNode.children],caption=siblings[siblings.indexOf(check)+1];if(caption?.tagName==='DIV'&&/^(Mark it done|Mark done|Done today)/.test(caption.textContent.trim()))caption.remove();}
         card.style.setProperty('--ledger-card-accent','var(--neo-'+({HEALTH:'green',GROWTH:'violet',WEALTH:'accent',DISCIPLINE:'blue',CONNECTION:'rose'}[HABIT_PILLAR[h]?.key]||'accent')+')');
         (card.querySelector('.ledger-amount-controls')||check)?.parentNode.classList.add('ledger-card-entry');
         const xp=Number((amount/R.xpUnit(c)*100).toFixed(2));
