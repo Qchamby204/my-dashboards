@@ -22,12 +22,15 @@ try{
    await p.goto('http://127.0.0.1:'+server.address().port+'/communication-trainer.html');await ready(p);
    const untouched=await records(p);
    assert.equal(await p.locator('.cl-next').count(),1,'Today recommends one challenge');
+   const primaryColor=await p.locator('.cl-actions button').first().evaluate(n=>getComputedStyle(n).backgroundColor);
    await nav(p,'Practice');assert.equal(await p.locator('.cl-next').count(),0,'Practice does not duplicate Today');
    assert(await p.getByRole('heading',{name:'Choose your practice',exact:true}).isVisible());
    assert(await p.getByRole('button',{name:'Go',exact:true}).count()>0,'the drill catalogue is directly available');
    assert(await p.getByRole('heading',{name:'Practise your investing knowledge',exact:true}).isVisible());
+   assert.deepEqual(await p.locator('.communication-pillar').first().evaluate(n=>{const s=getComputedStyle(n);return {radius:s.borderTopLeftRadius,shadow:s.boxShadow};}),{radius:'14px',shadow:'none'},'catalogue records do not inherit raised pill styling');
    await p.screenshot({path:path.join(out,'communicator-catalogue-'+theme+'.png')});
    await nav(p,'Learn');assert.equal(await p.getByRole('button',{name:'Start learning',exact:true}).count(),1);
+   assert.equal(await p.getByRole('button',{name:'Start learning',exact:true}).evaluate(n=>getComputedStyle(n).backgroundColor),primaryColor,'learning uses the established primary action');
    assert.equal(await p.locator('.communication-curriculum-about').getAttribute('open'),null);
    assert.equal(await records(p),untouched,'browsing does not write progress, drafts or XP');
    for(const [width,size]of [[393,16],[393,20],[393,32],[320,32],[844,32]]){
