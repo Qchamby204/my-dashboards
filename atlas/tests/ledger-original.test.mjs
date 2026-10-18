@@ -628,6 +628,25 @@ test('achievement collection supports category filtering and selecting a saved-p
  const rows=[{date:'2026-09-01',units:{Read:20}},{date:'2026-09-03',units:{Read:20}},{date:'2026-09-06',units:{Read:20}}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});const bytes=h.storage.get(S);h.node('ledger-nav-achievements').click();
  const category=h.node('ledger-achievement-category');category.value='Consistency';category.emit('change');const records=h.node('ledger-view-achievements').querySelectorAll('[data-act="relic"]');assert(records.length>0);assert(records.every(n=>h.run('ACHV['+n.dataset.idx+'].cat')==='Consistency'));
  const choice=h.node('ledger-milestone-choice');choice.value='First Book';choice.emit('change');assert.match(h.node('ledger-next-milestone').textContent,/190 pages to go/);assert.equal(h.node('ledger-milestone-choice').value,'First Book');h.node('ledger-nav-today').click();h.node('ledger-nav-achievements').click();assert.equal(h.node('ledger-milestone-choice').value,'First Book');assert.equal(h.storage.get(S),bytes);
+ const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});again.node('ledger-nav-achievements').click();assert.equal(again.node('ledger-milestone-choice').value,'First Book');assert.match(again.node('ledger-next-milestone').textContent,/190 pages to go/);
+ h.run('exportData()');const pack=JSON.parse(await h.downloads.at(-1).blob.text());assert.equal(h.api.parseBackup(pack).drafts.milestoneName,'First Book');
+});
+
+test('a failed milestone write keeps unfinished work and can be retried without saving a day',async()=>{
+ const h=await boot({realModel:true});h.run('state.draft.Read=25');h.api.remember();const before=h.storage.get(D),bytes=h.storage.get(S),xp=h.run('compute(state.days,state.goals).life.xp');h.localStorage.blockedKey=D;h.node('ledger-nav-achievements').click();const choice=h.node('ledger-milestone-choice');choice.value='First Book';choice.emit('change');
+ assert.equal(h.api.failed,1);assert.equal(h.node('ledger-notice').hidden,false);assert.equal(h.node('ledger-milestone-choice').value,'First Book');assert.equal(h.storage.get(D),before);assert.equal(h.storage.get(S),bytes);assert.equal(h.run('compute(state.days,state.goals).life.xp'),xp);
+ h.localStorage.blockedKey=null;await h.api.retry();assert.equal(h.api.failed,0);const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});assert.equal(again.run('state.draft.Read'),25);again.node('ledger-nav-achievements').click();assert.equal(again.node('ledger-milestone-choice').value,'First Book');assert.equal(again.storage.get(S),bytes);
+});
+
+test('unavailable or earned milestone preferences fall back without modifying saved records',async()=>{
+ for(const name of ['Retired award','First Book']){
+  const raw=JSON.stringify({days:{},selected:'2026-09-07',mode:'cards',milestoneName:name}),rows=JSON.stringify([{date:'2026-09-01',units:{Read:300}}]),h=await boot({realModel:true,records:{[D]:raw,[S]:rows}});h.node('ledger-nav-achievements').click();assert.equal(h.api.blocked,false);assert.notEqual(h.node('ledger-milestone-choice').value,name);assert(h.node('ledger-milestone-choice').value);assert.equal(h.storage.get(D),raw);assert.equal(h.storage.get(S),rows);
+ }
+});
+
+test('the changing Life Level target is selectable and remembered alongside fixed awards',async()=>{
+ const h=await boot({realModel:true});h.node('ledger-nav-achievements').click();const name='Life Level '+(h.run('compute(state.days,state.goals).life.level')+1),choice=h.node('ledger-milestone-choice');choice.value=name;choice.emit('change');assert.equal(h.node('ledger-milestone-choice').value,name);
+ const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});again.node('ledger-nav-achievements').click();assert.equal(again.node('ledger-milestone-choice').value,name);assert.equal(again.run('state.days.length'),0);
 });
 
 test('the activity deck groups artwork, navigation and one save action without adding Today panels',async()=>{

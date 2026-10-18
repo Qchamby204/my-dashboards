@@ -2,11 +2,11 @@
 
 The suite keeps its warm stone and night indigo palette, Figtree type, bronze actions and horizon identity. Apple’s guidance informs the hierarchy and behavior; this is a web implementation with its own identity, not a reproduction of native Liquid Glass.
 
-## Publication audit · October 15, 2026
+## Published foundation · updated October 18, 2026
 
-The earlier aesthetic attempts were published. PR [#103](https://github.com/Qchamby204/my-dashboards/pull/103) merged at `f6a43b79ff9dbc60ce4604645dbb325e13f16940`; PR [#105](https://github.com/Qchamby204/my-dashboards/pull/105) merged at `008d93e8a33ba503739c56b8a87817d39da433b4`. Their `shared/core-app-finish.css` and script remain in main. Navigation and header refinements through [#115](https://github.com/Qchamby204/my-dashboards/pull/115) are also merged. The remaining problem is visual craft and consistency, rather than those PRs waiting to ship.
+The earlier aesthetic attempts were published. PR [#103](https://github.com/Qchamby204/my-dashboards/pull/103) merged at `f6a43b79ff9dbc60ce4604645dbb325e13f16940`; PR [#105](https://github.com/Qchamby204/my-dashboards/pull/105) merged at `008d93e8a33ba503739c56b8a87817d39da433b4`. Their `shared/core-app-finish.css` and script remain in main. Navigation and header refinements through [#115](https://github.com/Qchamby204/my-dashboards/pull/115), individual craft passes through [#121](https://github.com/Qchamby204/my-dashboards/pull/121), and Ledger refinements through [#126](https://github.com/Qchamby204/my-dashboards/pull/126) are merged. Physical iPhone sign-off remains outstanding.
 
-Review of the released Chromium/WebKit screenshots found excessive outlined pills, weak differentiation of text from controls, inconsistent native form surfaces, a neon edge on Ledger’s activity card, redundant level metadata in its header, and XP explanation competing with the check-in. Later passes must review every dashboard; improvements to shared colors alone do not establish consistency.
+The October 15 review found excessive outlined pills, weak differentiation of text from controls, inconsistent native form surfaces, a neon edge on Ledger’s activity card, redundant level metadata in its header, and XP explanation competing with the check-in. The later app-specific passes address those findings. Improvements to shared colors and passing interaction tests alone do not establish aesthetic completion; inspect the rendered app and its actual device behavior.
 
 A separate cache-versioning defect was confirmed: the dynamically loaded Ledger, Forge, Communicator, Hourglass and Baby Brain stylesheets retained older version values after CSS edits; the mobile stylesheet had no version. The files on the server matched the released source, but an existing browser cache could continue displaying an earlier appearance. The build now versions nested CSS dependencies before hashing their script and theme loaders. This is a possible explanation for changes appearing absent on an existing installation, not proof of what any particular device cached.
 
@@ -17,7 +17,7 @@ A separate cache-versioning defect was confirmed: the dynamically loaded Ledger,
 | Main task | Put the current record or next useful action first. Supporting progress follows it. | The first phone screen makes its main action obvious, without chrome covering it. |
 | Typography | Figtree; 32px screen title, 21–24px record title, 16px body, 13–14px metadata at the default size. Tight heading tracking, relaxed body leading, proportional scaling with larger text. | Populated, narrow, landscape and larger-text views retain clear reading order. |
 | Content surfaces | Solid, calm cards with a subtle separator against the canvas. Use spacing and alignment before borders. Avoid gradients, glows and raised or inset shadows on ordinary records. | Records remain distinct in both themes, including scrolled and expanded details. |
-| Floating controls | Restrained glass for navigation and its save accessory. Readable labels, defined edges, controlled shadow. Solid material for reduced transparency or increased contrast. | Busy content does not remain readable through labels; hidden controls cannot intercept taps. |
+| Floating controls | Restrained glass for navigation. Ledger’s Save day belongs inside its check-in card. Readable labels, defined edges, controlled shadow. Solid material for reduced transparency or increased contrast. | Busy content does not remain readable through labels; hidden controls cannot intercept taps. |
 | Actions | Bronze for the main commitment, tonal styling for an action within a record, plain styling for secondary links. One or two prominent actions per view. Pills are compact actions, not a treatment for all text. | Controls have visible press, selection and focus states; saved and failed states include words. |
 | Choices | A segmented control is one quiet group with a distinct selected segment. Normalize native fields in each theme. Keep controls at least 44 CSS pixels in each operable dimension. | Touch targets, keyboard navigation and selected state remain clear at increased contrast. |
 | Headers | Home, identity, related tools and Appearance in a stable arrangement. Avoid repeating progress metadata in the header and body. Icons share a consistent line weight and optical size. | Status-area clearance, no clipped titles and no tool wrapping at supported widths. |
@@ -25,13 +25,24 @@ A separate cache-versioning defect was confirmed: the dynamically loaded Ledger,
 
 These are product choices derived from Apple’s principles, not measurements mandated by Apple. Native Dynamic Type, VoiceOver, actual touch physics and Home Screen behavior require physical-device verification.
 
-## First reference pass: Life Ledger
+## Current reference: Life Ledger
 
-Ledger’s check-in leads Today. Level and achievement links follow the log. The header keeps identity and tools in one row. Activity records use solid surfaces with the original full-colour habit imagery, without neon edges or inset/raised effects. The user prefers that activity imagery; navigation and utility controls retain their line icons. Cards/List becomes a single segmented choice; the activity picker follows the theme. XP remains accurate and visible in a shorter line. Save day retains its floating accessory and navigation recovery behavior. Card and list views, help, progress, history and all record tools remain available.
+The header keeps identity and tools in one row. Original full-colour habit imagery stays in activity records; navigation and utility controls retain their line icons. Records use solid surfaces without glows or raised/inset shadows.
+
+| Section | Current arrangement |
+| --- | --- |
+| Today | Check-in cards or the list alternative only, with a compact Cards/List and entry-count toolbar. One frame groups the activity selector, title-led record, original artwork, entry control, Previous/Next and inline Save day. No progress, reward or reminder panels follow it. |
+| Levels | Labelled, quieter lifetime/value progress and personal rewards. The three focus-activity summaries are removed. |
+| Achievements | A collection of 60 illustrated badges, written earned/locked states, earned seals, saved-progress meters, category/state filters and award details. A projected next milestone shows remaining progress and an estimated date when enough saved history exists. |
+| History | Saved days, unfinished entries, archives, backups and management. Weekly focus, screen-time and reset tools stay in Check-in tools; reminders stay in management and preserve their unfinished completion code through redraws. |
+
+Save feedback uses Ready to save, Saved and explicit failure/retry states. Today has one bottom navigation clearance, with extra scrolling room only while the keyboard is visible. The active value supplies a stronger edge and quiet tint; entered-state borders and brief press feedback preserve a clear focal card. Reduced motion disables scale feedback.
+
+Milestone projections use dated saved activity from the last 28 days, at least three active dates and a minimum seven-day observation window. Drafts, future entries and weekly catch-up do not invent pace. Sparse history shows the remaining amount without a fabricated date. Choosing from the selector or badge detail saves the preference through Ledger’s verified draft/settings storage, includes it in backups and retains it across reloads. An earned or unavailable selection falls back to an eligible upcoming milestone. Choosing a milestone does not save a day or change XP. Failed preference writes retain the selection in the current tab and use the existing retry/recovery notice. Explicit progress reset archives the preference with the previous record.
 
 Ledger component styling belongs in `shared/ledger-enhancements.css`; the retired competing Ledger decorations have been removed from `shared/core-app-finish.css`. Do not add a second aesthetic override layer. Data adapters, record formats, rewards and save behavior are outside this visual change.
 
-The remaining dashboards still require individual visual passes against this contract. This release does not establish full-suite aesthetic completion. See [the suite verification record](suite-release-2026-10-15.md) for outstanding real-iPhone checks.
+The app-specific passes below have shipped. See [the suite verification record](suite-release-2026-10-15.md) for their evidence and the outstanding real-iPhone checks. Browser evidence does not complete physical touch, VoiceOver or installed-app sign-off.
 
 ## Primary guidance
 
@@ -55,27 +66,3 @@ Today retains one next challenge or unfinished practice. Topic management stays 
 ### Remaining suite: shared chrome and content audit
 
 The visual audit covers Operations Cadence, Hourglass, Aqueduct, Herald, Chef, Library, Courier, Baby Brain and Neural Map in light/dark populated and expanded states. Their individual record formats remain intact; ordinary content surfaces lose raised shadows while functional floating controls keep separation. Herald’s backup and sync controls move into its named App tools disclosure. Courier receives the same home/identity/appearance arrangement, with existing edition and playback controls below it; no publication or episode data changes. Atlas remains a passive hub. Physical iPhone verification is still outstanding.
-
-### Ledger check-in and achievements · October 15 follow-up
-
-Save day now belongs to the check-in in normal document flow, below the cards or list. Its status uses Ready to save/Saved/failed feedback; unfinished work remains recoverable. The floating dock only navigates Today, Levels, Achievements and History. Levels omits the three focus-activity summaries. Achievements has a full earned/upcoming overview and a projected next milestone based solely on dated saved activity over the last 28 days. At least three active dates and a minimum seven-day observation window are required before showing an estimated date. Drafts and weekly catch-up do not invent dated pace. Existing awards, lifetime XP and records are preserved.
-
-### Ledger collection and card-only Today · October 17
-
-Today contains the activity deck or its existing list alternative, basic check-in controls and the inline save action. Progress links, weekly focus, reward previews, screen-time panels, scrolling-reset shortcuts and day-maintenance tools no longer follow the cards. Existing weekly, screen-time and reset tools remain in History’s Check-in tools disclosure; date maintenance lives with History.
-
-Achievements uses illustrated vector badges, written earned/locked states, earned seals, per-award saved progress, state and category filters, and an indigo next-milestone feature. People can choose a milestone from its selector or an award’s detail dialog. The original achievement conditions, claimed awards and projection rules remain authoritative. The selection is a view preference for the current session; choosing a milestone does not save a day or change XP.
-
-### Ledger flagship check-in · October 18
-
-Today’s activity record leads with its original full-colour imagery at a larger scale, a quiet value label, a prominent title and a strong commitment control. A single card frame groups the deck, its navigation, activity selector and inline Save day footer. Cards/List and the live entry count form one compact toolbar. Recorded toggles include written feedback beside the check mark. The home view remains focused on check-in cards, without supplementary progress or reward panels.
-
-Eight additional achievements extend saved-day, reading, workout, walking, communication and board-service milestones. The collection grows from 52 to 60 awards. Their requirements use saved totals, retain existing claimed awards, and participate in the existing read-only milestone projection; drafts do not unlock them.
-
-### Ledger card composition correction · October 18
-
-The enlarged medallion treatment was rejected as visually weak. Today’s card now leads with its title, places the original activity artwork beside it, and removes the image circle and decorative horizontal rule. A compact native activity selector sits in the top rail. Previous/Next and the explicit save action share one footer. Input controls use a quieter tonal treatment so saving remains the bronze commitment. The change keeps the existing deck, draft/save behavior, activity imagery and achievement collection.
-
-### Ledger card emphasis and page length · October 18
-
-Today uses one bottom navigation clearance. The old app padding and separate reminder footer no longer add empty scroll space after the card. Reminder controls move into History’s management disclosure; the existing DOM and its listeners survive Ledger rendering, preserving an unfinished completion code. Reminder configuration and activity-sync behavior are unchanged. The active value supplies a stronger card edge, a quiet solid tint and entry-state border feedback. Press feedback is brief and disabled under reduced motion.
