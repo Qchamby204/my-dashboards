@@ -75,3 +75,7 @@ Eight additional achievements extend saved-day, reading, workout, walking, commu
 ### Ledger card composition correction · October 18
 
 The enlarged medallion treatment was rejected as visually weak. Today’s card now leads with its title, places the original activity artwork beside it, and removes the image circle and decorative horizontal rule. A compact native activity selector sits in the top rail. Previous/Next and the explicit save action share one footer. Input controls use a quieter tonal treatment so saving remains the bronze commitment. The change keeps the existing deck, draft/save behavior, activity imagery and achievement collection.
+
+### Ledger card emphasis and page length · October 18
+
+Today uses one bottom navigation clearance. The old app padding and separate reminder footer no longer add empty scroll space after the card. Reminder controls move into History’s management disclosure; the existing DOM and its listeners survive Ledger rendering, preserving an unfinished completion code. Reminder configuration and activity-sync behavior are unchanged. The active value supplies a stronger card edge, a quiet solid tint and entry-state border feedback. Press feedback is brief and disabled under reduced motion.

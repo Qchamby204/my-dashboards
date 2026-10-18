@@ -638,3 +638,7 @@ test('extended achievements use saved totals, with no draft unlock or retroactiv
  const rows=[{date:'2026-09-01',units:{Read:1490}}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});const check=()=>h.run('ACHV.find(a=>a.name==="Reading Room").test(compute(state.days,state.goals))');assert.equal(check(),false);h.run('state.draft.Read=10');h.api.remember();assert.equal(check(),false);assert.equal(h.storage.get(S),JSON.stringify(rows));await h.api.saveDay();assert.equal(check(),true);assert(h.run('state.achvQueue.some(a=>a.name==="Reading Room")'));
  const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});assert(again.run('ACHV.find(a=>a.name==="Reading Room").test(compute(state.days,state.goals))'));assert.equal(again.run('ACHV.length'),60);assert.equal(again.run('ACHV.find(a=>a.name==="A Year in the Ledger").test(compute(state.days,state.goals))'),false);
 });
+
+test('the active card accent and entered state follow the deck without writing saved progress',async()=>{
+ const h=await boot({realModel:true}),bytes=h.storage.get(S);let frame=h.node('app').querySelector('.ledger-deck-frame');assert.equal(frame.dataset.entered,'false');h.run('state.draft[HABITS[0]]=1;render()');frame=h.node('app').querySelector('.ledger-deck-frame');assert.equal(frame.dataset.entered,'true');h.run('goCard(HABITS.indexOf("Read"))');assert.equal(h.node('app').querySelector('.ledger-deck-frame').dataset.entered,'false');assert.equal(h.storage.get(S),bytes);assert(h.node('ledger-reminder-tools').closest('#ledger-view-history'));
+});

@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=8b4c2d6afddc',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=03af45d05b63',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -666,7 +666,7 @@
       panes.history.prepend(make('h1','Your record','cinzel ledger-view-title'));
       move('#ledger-history',panes.history);
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
-      const toolsPanel=make('details',null,'ledger-manage');toolsPanel.append(make('summary','Manage Ledger & backups'));
+      const toolsPanel=make('details',null,'ledger-manage');toolsPanel.id='ledger-reminder-tools';toolsPanel.append(make('summary','Manage Ledger & backups'));
       const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);toolsPanel.append(button('Reset progress',resetProgressDialog));panes.history.append(toolsPanel);if(drafts.archives?.length)panes.history.append(progressArchives());
       const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);if(state.logDate===todayISO()){const dateRow=log.querySelector('.ledger-date-row');if(dateRow)options.append(dateRow);}options.append(clear);panes.history.append(options);}
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
@@ -824,12 +824,18 @@
       return true;
     }
 
+    function paintActiveCard(){
+      const frame=app.querySelector('.ledger-deck-frame');if(!frame)return;
+      const h=HABITS[state.cardIndex],key=HABIT_PILLAR[h]?.key;
+      frame.style.setProperty('--ledger-active-accent','var(--neo-'+({HEALTH:'green',GROWTH:'violet',WEALTH:'accent',DISCIPLINE:'blue',CONNECTION:'rose'}[key]||'accent')+')');
+      frame.dataset.entered=String((state.draft[h]||0)>0);
+    }
     function refreshCheckinState(h){
       for(const row of app.querySelectorAll('.row,.ledger-habit-card')){if(row.querySelector('[data-habit]')?.dataset.habit!==h)continue;
         const known=state.draftMissed?.includes(h),status=row.querySelector('.ledger-habit-status');if(status)status.textContent=state.draft[h]>0?'Recorded':known?'Didn’t do':'Not recorded';
         const missed=row.querySelector('.ledger-missed');if(missed){missed.textContent=known?'Leave unknown':'Didn’t do';missed.setAttribute('aria-label',(known?'Leave unknown: ':'Did not do: ')+label(h));}
       }
-      const count=app.querySelector('.ledger-log-heading .mono');if(count)count.textContent=HABITS.filter(h=>state.draft[h]>0).length+' activities entered';
+      const count=app.querySelector('.ledger-log-heading .mono');if(count)count.textContent=HABITS.filter(h=>state.draft[h]>0).length+' activities entered';paintActiveCard();
     }
 
     const originalQuest=questLog,originalSettings=settingsView,originalDeckChrome=updateDeckChrome;
@@ -846,7 +852,7 @@
       [...app.querySelectorAll('.ledger-habit-card')].forEach((card,i)=>{const info=card.querySelector('.ledger-card-definition');if(info)info.hidden=i!==idx;card.inert=i!==idx;card.setAttribute('aria-hidden',String(i!==idx));card.setAttribute('role','group');card.setAttribute('aria-label',label(HABITS[i])+' · '+(i+1)+' of '+n);});
       const picker=document.getElementById('ledger-habit-picker');if(picker)picker.value=HABITS[idx];
       const card=app.querySelectorAll('.ledger-habit-card')[idx],viewport=document.getElementById('deckViewport'),fit=()=>{if(card?.offsetHeight>0&&viewport)viewport.style.height=card.offsetHeight+'px';};fit();
-      if(deckResize)deckResize.disconnect();if(window.ResizeObserver&&card){deckResize=new window.ResizeObserver(fit);deckResize.observe(card);}
+      paintActiveCard();if(deckResize)deckResize.disconnect();if(window.ResizeObserver&&card){deckResize=new window.ResizeObserver(fit);deckResize.observe(card);}
     };
     const originalLevelView=levelUpView;
     function rewardDialog(markup){return markup.replace('<div class="overlay"','<dialog class="overlay ledger-reward"').replace(/<\/div>$/, '</dialog>');}
@@ -922,7 +928,7 @@
       for(const el of app.querySelectorAll('[data-act="toggle"],[data-act="num"],[data-act="inc"],[data-act="dec"]')){const h=el.dataset.habit;if(!h)continue;const act=el.dataset.act;el.setAttribute('aria-label',(act==='toggle'?(state.draft[h]>0?'Mark incomplete: ':'Mark done: '):act==='inc'?'Increase ':act==='dec'?'Decrease ':'Amount for ')+label(h));if(act==='toggle')el.setAttribute('aria-pressed',String(state.draft[h]>0));}
       for(const el of app.querySelectorAll('[data-act="mood"]'))el.setAttribute('aria-pressed',String(state.draftMood===+el.dataset.v));
       const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');if(prev){prev.disabled=state.cardIndex===0;prev.setAttribute('aria-label','Previous habit');}if(next)next.disabled=state.cardIndex>=HABITS.length-1;
-      composeDashboard(log,data,earned);
+      composeDashboard(log,data,earned);window.LedgerReminderTools?.mount();
       updateDeckChrome(state.cardIndex,HABITS.length);
       for(const mode of log?.querySelectorAll('[data-act="logmode"]')||[])mode.setAttribute('aria-pressed',String(mode.dataset.mode===state.logMode));
       paintLeisureClock();status();
