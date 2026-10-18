@@ -169,6 +169,19 @@ test('assessment and lesson failures keep progress unchanged until verified save
  const lesson=h.run('CURRICULUM[0].lessons[0].id');h.localStorage.blockedKey='mc_lessonsDone';h.run('doneLesson('+JSON.stringify(lesson)+')');assert.equal(h.run('xp()'),25);h.localStorage.blockedKey=null;h.run('doneLesson('+JSON.stringify(lesson)+')');assert.equal(h.run('xp()'),40);h.run('doneLesson('+JSON.stringify(lesson)+')');assert.equal(h.run('xp()'),25);
 });
 
+test('learning continuation reads saved completion without writing or awarding XP',()=>{
+ const h=boot(),first=h.run('CURRICULUM[0].lessons[0].id'),second=h.run('CURRICULUM[0].lessons[1].id');
+ const before=JSON.stringify([...h.storage]),xp=h.run('xp()');
+ assert.match(h.run('pageLearn()'),new RegExp('openLearningLesson\\(\''+first+'\'\\)'));
+ assert.match(h.run('pageLearn()'),/>Start learning</);assert.equal(JSON.stringify([...h.storage]),before);assert.equal(h.run('xp()'),xp);
+ h.run('doneLesson('+JSON.stringify(first)+')');const saved=h.storage.get('mc_lessonsDone');
+ const restored=boot({records:{mc_lessonsDone:saved}}),bytes=JSON.stringify([...restored.storage]);
+ assert.match(restored.run('pageLearn()'),new RegExp('openLearningLesson\\(\''+second+'\'\\)'));
+ assert.match(restored.run('pageLearn()'),/>Continue learning</);assert.equal(JSON.stringify([...restored.storage]),bytes);assert.equal(restored.run('xp()'),15);
+ restored.run('S.lessonsDone=Object.fromEntries(CURRICULUM.flatMap(m=>m.lessons.map(l=>[l.id,true])))');
+ assert.match(restored.run('pageLearn()'),/Communication lessons complete/);assert.match(restored.run('pageLearn()'),/>Review first lesson</);
+});
+
 test('career display follows existing XP tiers without changing practice records',()=>{
  const h=boot();
  for(const [reps,remaining,rank,percent] of [[0,'100 XP to Apprentice','Novice',0],[9,'10 XP to Apprentice','Novice',90],[10,'200 XP to Practitioner','Apprentice',0],[30,'400 XP to Orator','Practitioner',0],[70,'800 XP to Master Communicator','Orator',0],[150,'Top rank reached','Master Communicator',100]]){
