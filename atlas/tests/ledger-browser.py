@@ -287,7 +287,8 @@ with sync_playwright() as pw:
         reward_page.clock.set_fixed_time(dt.datetime(2026, 10, 8, 17, tzinfo=dt.timezone.utc))
         reward_page.goto(BASE + '/life-ledger.html')
         reward_page.wait_for_function('!!window.LedgerDays')
-        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='Plan a reward', exact=True).click()
+        reward_page.locator('#ledger-nav-progress').click()
+        reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Plan a reward', exact=True).click()
         editor = reward_page.locator('dialog.ledger-personal-editor[open]')
         editor.get_by_label('Reward', exact=True).fill('An afternoon at the bookstore')
         editor.get_by_label('Life Level', exact=True).fill('1')
@@ -302,7 +303,7 @@ with sync_playwright() as pw:
         assert reward_page.evaluate('state.days.length') == 0
         assert reward_page.evaluate('LedgerDays.drafts.rewards[0].photo.startsWith("data:image/jpeg;base64,")')
         assert reward_page.evaluate('LedgerDays.drafts.rewards[0].photo.length <= 40000')
-        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='View rewards', exact=True).click()
+        expect(reward_page.locator('#ledger-personal-rewards')).to_be_visible()
         assert reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Mark enjoyed', exact=True).count() == 0
         reward_page.screenshot(path=str(OUT / f'{ENGINE}-personal-reward-planned.png'), full_page=True)
         reward_page.locator('#ledger-nav-today').click()
@@ -311,7 +312,7 @@ with sync_playwright() as pw:
         assert reward_page.evaluate('state.levelInfo.kicker') == 'Reward unlocked'
         dismiss_rewards(reward_page)
         before_reward_xp = reward_page.evaluate('compute(state.days,state.goals).life.xp')
-        reward_page.locator('#ledger-reward-preview').get_by_role('button', name='View your earned reward', exact=True).click()
+        reward_page.locator('#ledger-nav-progress').click()
         reward_page.locator('#ledger-personal-rewards').get_by_role('button', name='Mark enjoyed', exact=True).click()
         reward_page.get_by_role('dialog', name='Enjoyed this reward?', exact=True).get_by_role('button', name='Mark enjoyed', exact=True).click()
         reward_page.wait_for_function('!!LedgerDays.drafts.rewards[0].claimedAt && !document.getElementById("app").inert')
