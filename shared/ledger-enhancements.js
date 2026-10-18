@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=ce80f569f8a2',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=8b4c2d6afddc',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -672,7 +672,14 @@
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-checkin-save');saveRow.id='ledger-checkin-save';
       const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}const viewport=log.querySelector('#deckViewport');
-      if(viewport){const frame=make('div',null,'ledger-deck-frame');viewport.before(frame);frame.append(viewport);const navigation=log.querySelector('#deckPrev')?.parentNode,picker=log.querySelector('.ledger-card-picker');if(navigation){navigation.classList.add('ledger-deck-navigation');if(picker){const counter=picker.querySelector('#deckCounter');if(counter)navigation.prepend(counter);picker.classList.add('ledger-card-switcher');}frame.append(navigation);}if(picker)frame.append(picker);frame.append(saveRow);const bar=log.querySelector('#deckBar')?.parentNode;if(bar){bar.hidden=true;bar.setAttribute('aria-hidden','true');}}
+      if(viewport){
+        const frame=make('div',null,'ledger-deck-frame'),rail=make('div',null,'ledger-deck-rail');viewport.before(frame);
+        const navigation=log.querySelector('#deckPrev')?.parentNode,picker=log.querySelector('.ledger-card-picker');
+        if(picker){const counter=picker.querySelector('#deckCounter');picker.classList.add('ledger-card-switcher');const caption=make('span','Activities','ledger-switcher-caption');caption.setAttribute('aria-hidden','true');picker.append(caption);rail.append(picker);if(counter)rail.append(counter);}
+        frame.append(rail,viewport);
+        if(navigation){navigation.classList.add('ledger-deck-navigation');saveRow.prepend(navigation);}frame.append(saveRow);
+        const bar=log.querySelector('#deckBar')?.parentNode;if(bar){bar.hidden=true;bar.setAttribute('aria-hidden','true');}
+      }
       else log.append(saveRow);
       const running=button('Screen-time timer running · Open',openLeisure);running.id='ledger-running-timer';running.hidden=!drafts.leisureTimer;running.classList.add('ledger-running-timer');dock.append(running);
       const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');nav.style.setProperty('--atlas-page-count','4');
@@ -834,7 +841,7 @@
       originalDeckChrome(idx,n);
       const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');
       if(prev){prev.disabled=idx===0;prev.setAttribute('aria-label','Previous habit');}
-      if(next){next.disabled=idx>=n-1;next.setAttribute('aria-label','Next habit');}
+      if(next){next.disabled=idx>=n-1;next.textContent=idx>=n-1?'End':'Next ›';next.setAttribute('aria-label','Next habit');}
       const counter=document.getElementById('deckCounter');if(counter){counter.setAttribute('aria-live','polite');counter.setAttribute('aria-atomic','true');}
       [...app.querySelectorAll('.ledger-habit-card')].forEach((card,i)=>{const info=card.querySelector('.ledger-card-definition');if(info)info.hidden=i!==idx;card.inert=i!==idx;card.setAttribute('aria-hidden',String(i!==idx));card.setAttribute('role','group');card.setAttribute('aria-label',label(HABITS[i])+' · '+(i+1)+' of '+n);});
       const picker=document.getElementById('ledger-habit-picker');if(picker)picker.value=HABITS[idx];
@@ -864,7 +871,7 @@
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
         avatar.classList.add('ledger-card-avatar');const art=make('div',null,'ledger-card-art');art.append(avatar);identity.append(title);if(category)header.append(category);header.append(art,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
         const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
-        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text)text.textContent='Mark done';else check.append(make('span','Added to check-in'));const siblings=[...check.parentNode.children],caption=siblings[siblings.indexOf(check)+1];if(caption?.tagName==='DIV'&&/^(Mark it done|Mark done|Done today)/.test(caption.textContent.trim()))caption.remove();}
+        const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text){text.textContent='Mark done';const mark=make('span','+','ledger-mark-symbol');mark.setAttribute('aria-hidden','true');check.append(mark);}else check.append(make('span','Added to check-in'));const siblings=[...check.parentNode.children],caption=siblings[siblings.indexOf(check)+1];if(caption?.tagName==='DIV'&&/^(Mark it done|Mark done|Done today)/.test(caption.textContent.trim()))caption.remove();}
         card.style.setProperty('--ledger-card-accent','var(--neo-'+({HEALTH:'green',GROWTH:'violet',WEALTH:'accent',DISCIPLINE:'blue',CONNECTION:'rose'}[HABIT_PILLAR[h]?.key]||'accent')+')');
         (card.querySelector('.ledger-amount-controls')||check)?.parentNode.classList.add('ledger-card-entry');
         const xp=Number((amount/R.xpUnit(c)*100).toFixed(2));
