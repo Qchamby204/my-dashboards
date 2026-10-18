@@ -3,6 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
+<script src="shared/record-guard.js?v=f6acb277f94b"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Chef</title>
@@ -96,7 +97,7 @@ footer .row{justify-content:center}
 .notice{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 <meta name="theme-color" content="#efeae3">
-<script src="shared/atlas-theme.js?v=4cb04b202fd3"></script>
+<script src="shared/atlas-theme.js?v=528e43d0d2c3"></script>
 <link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
@@ -119,6 +120,7 @@ footer .row{justify-content:center}
   <p class="cc-explanation">Tell it what you have, or what you want. It plates the week.</p>
 </header>
 <main class="wrap" id="main-content">
+  <div id="storage-warn" class="warn hidden" role="alert" hidden><p data-record-message></p><button id="record-recovery">Download recovery copy</button><button id="record-retry">Retry saving</button><button id="record-review">Reload saved record</button><p>Export this tab’s work before reloading. Use Import to restore a valid Chef backup.</p></div>
   <nav class="tabs" aria-label="Chef sections">
     <button data-tab="ingredients">Ingredients</button>
     <button data-tab="mood">Mood</button>
@@ -212,7 +214,7 @@ footer .row{justify-content:center}
     </div>
     </details>
     <p id="cc-status" class="cc-status" role="status" aria-live="polite"></p>
-    <p id="storage-warn" class="warn hidden" style="text-align:center">Storage is unavailable in this browser. Nothing will be saved between visits.</p>
+
   </footer>
 </main>
 <dialog id="meal-picker" aria-labelledby="picker-title">
@@ -938,14 +940,25 @@ function loadState(){
   }
   return withoutDeletedRecipes({...defaultState(),...data});
 }
-let state = loadState();
-function setState(patch){
-  const next=withoutDeletedRecipes({...state,...patch},store.get('state')?.deletedRecipes);
-  if(!store.set('state',next)){
-    window.AtlasCraftUI?.announce('Could not save. Your previous saved records are unchanged. Export a backup before closing.');
-    render();return false;
+function validChefRecord(v){
+  if(!window.AtlasRecords.plain(v))throw Error('Invalid Chef record.');
+  for(const k of Object.keys(defaultState()).filter(k=>!['deletedRecipes','legacyWeekStart'].includes(k)))if(v[k]!==undefined&&!window.AtlasRecords.plain(v[k]))throw Error('Invalid Chef '+k+'.');
+  if(v.deletedRecipes!==undefined&&(!Array.isArray(v.deletedRecipes)||v.deletedRecipes.some(id=>typeof id!=='string')))throw Error('Invalid deleted recipes.');
+}
+const chefRecord=window.AtlasRecords.open(TOOL+':state',{validate:validChefRecord,normalize:v=>withoutDeletedRecipes(v)});
+let state = chefRecord.value===undefined?defaultState():withoutDeletedRecipes({...defaultState(),...chefRecord.value});
+function storageFeedback(){
+  const box=document.getElementById('storage-warn');if(!box)return;
+  box.hidden=!chefRecord.error;box.classList?.toggle('hidden',!chefRecord.error);
+  const message=box.querySelector?.('[data-record-message]');if(message)message.textContent=chefRecord.error;
+}
+window.addEventListener?.('storage',e=>{if(e.key===TOOL+':state'&&chefRecord.changed(e.newValue))storageFeedback();});
+function setState(patch,restore=false){
+  const next=withoutDeletedRecipes({...(chefRecord.pending||state),...patch},state.deletedRecipes);
+  if(!chefRecord.write(next,{replace:restore,restore})){
+    storageFeedback();window.AtlasCraftUI?.announce('Could not save. '+chefRecord.error);return false;
   }
-  state=next;store.set('schema-version',SCHEMA_VERSION);render();return true;
+  state=chefRecord.value;store.set('schema-version',SCHEMA_VERSION);storageFeedback();render();return true;
 }
 
 // Deletion IDs belong to the same browser record and travel with its backups.
@@ -1763,12 +1776,12 @@ function render(){
 }
 
 /* ---------- export, import, reset ---------- */
-function exportState(){
-  const payload = {tool:TOOL,schemaVersion:SCHEMA_VERSION,exportedAt:new Date().toISOString(),state};
+function exportState(recovery=false){
+  const payload = {tool:TOOL,schemaVersion:SCHEMA_VERSION,exportedAt:new Date().toISOString(),state:chefRecord.pending||state,...(recovery===true||chefRecord.error?{recovery:chefRecord.recovery(),recoveryOnly:chefRecord.blocked}: {})};
   const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `${TOOL}-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `${TOOL}-${new Date().toISOString().slice(0,10)}${chefRecord.error?"-recovery":""}.json`;
   document.body.appendChild(a); a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},60000);
 }
@@ -1777,10 +1790,11 @@ function importState(file){
   reader.onload = ()=>{
     let p; try{p=JSON.parse(reader.result);}catch(e){alert('That file is not valid JSON.');return;}
     if(p.tool!==TOOL){alert(`That file is from ${p.tool||'another tool'}, not ${TOOL}.`);return;}
-    if(!p.state||typeof p.state!=='object'){alert('That file has no state in it.');return;}
+    if(p.recoveryOnly){alert('This is a recovery copy. Keep it safe and choose a known valid Chef backup to restore.');return;}
+    try{window.AtlasRecords.safe(p.state);validChefRecord(p.state);}catch{alert('That file has no valid Chef state.');return;}
     if(!confirm('This replaces everything currently saved in The Chef. Continue?')) return;
     if((p.schemaVersion||1)!==SCHEMA_VERSION){alert('This backup version is not supported.');return;}
-    if(!setState({...defaultState(),...p.state,deletedRecipes:[...state.deletedRecipes,...(Array.isArray(p.state.deletedRecipes)?p.state.deletedRecipes:[])]}))return;
+    if(!setState({...defaultState(),...p.state,deletedRecipes:[...state.deletedRecipes,...(Array.isArray(p.state.deletedRecipes)?p.state.deletedRecipes:[])]},true))return;
     undoChange=null;renderUndo();
   };
   reader.readAsText(file);
@@ -1928,7 +1942,10 @@ function wireEvents(){
       window.AtlasCraftUI?.announce('Select and copy the highlighted shopping list, then paste it into Muse.');
     }
   });
-  $('#export').addEventListener('click',exportState);
+  $('#export').addEventListener('click',()=>exportState());
+  $('#record-recovery').addEventListener('click',()=>exportState(true));
+  $('#record-retry').addEventListener('click',()=>{if(chefRecord.retry()){state=chefRecord.value;render();}storageFeedback();});
+  $('#record-review').addEventListener('click',()=>{if(confirm('Reload the latest saved record? Export this tab’s work first if you need to keep it.'))location.reload();});
   $('#import').addEventListener('click',()=>$('#import-file').click());
   $('#import-file').addEventListener('change',e=>{if(e.target.files[0])importState(e.target.files[0]);e.target.value='';});
   $('#reset').addEventListener('click',resetTool);
@@ -1936,7 +1953,7 @@ function wireEvents(){
 
 /* ---------- init ---------- */
 function init(){
-  if(!store.available()) $('#storage-warn').classList.remove('hidden');
+  storageFeedback();
   wireEvents();
   if(location.hash==='#planner')ui.tab='planner';
   render();

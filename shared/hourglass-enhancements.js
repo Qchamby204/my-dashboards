@@ -6,7 +6,7 @@
     if(source){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('hourglass-enhancements.css?v=d0e0f2b02174',source).href;document.head.appendChild(css);}
     const originalRender=render,originalWire=wire,originalWeeks=viewWeeks,originalSetup=viewSetup,originalToast=toast;
     const clone=value=>JSON.parse(JSON.stringify(value));
-    let failed=false,visibleDay='',focusAfter=null;
+    let failed=!!hourglassRecord.error,visibleDay='',focusAfter=null;
     function localDate(now=new Date()){
       return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     }
@@ -22,13 +22,12 @@
     }
     function saveStatus(){
       let box=document.getElementById('hourglass-save-error');
-      if(!box&&failed){box=document.createElement('div');box.id='hourglass-save-error';box.className='panel';box.setAttribute('role','alert');box.innerHTML='<p>Changes could not be saved on this device. Keep this page open and retry, or download a backup.</p><div class="hourglass-actions"><button type="button" class="btn line" data-hourglass-action="retry">Retry saving</button><button type="button" class="btn line" data-hourglass-action="backup">Download backup</button></div>';document.getElementById('app').prepend(box);}
-      if(box)box.hidden=!failed;
+      if(!box&&failed){box=document.createElement('div');box.id='hourglass-save-error';box.className='panel';box.setAttribute('role','alert');box.innerHTML='<p>Changes could not be saved on this device. Keep this page open and retry, or download a backup.</p><div class="hourglass-actions"><button type="button" class="btn line" data-hourglass-action="retry">Retry saving</button><button type="button" class="btn line" data-hourglass-action="backup">Download backup</button><button type="button" class="btn line" data-hourglass-action="restore">Restore backup</button><input type="file" accept="application/json" data-hourglass-restore hidden><button type="button" class="btn line" data-hourglass-action="reload">Reload saved record</button></div>';document.getElementById('app').prepend(box);}
+      if(box){box.hidden=!failed;const message=box.querySelector('p');if(message)message.textContent=hourglassRecord.error||'Changes could not be saved. Keep this page open and retry, or download a backup.';}
     }
     save=function(){
-      try{const raw=JSON.stringify(S);localStorage.setItem(KEY,raw);if(localStorage.getItem(KEY)!==raw)throw Error('Write not retained');failed=false;}
-      catch{failed=true;}
-      saveStatus();return !failed;
+      const ok=hourglassRecord.write(S);if(ok)S=hourglassRecord.value;failed=!ok;
+      saveStatus();return ok;
     };
     toast=function(message,label,action){originalToast(failed?'Changes are not saved. Retry saving or download a backup.':message,label,action);};
     function upcomingPanel(){
@@ -106,8 +105,8 @@
       else if(S.tab==='reckon')startTicker();
     }
     function backup(){
-      const blob=new Blob([JSON.stringify({tool:'hourglass',schemaVersion:1,exportedAt:new Date().toISOString(),state:S},null,2)],{type:'application/json'});
-      const link=document.createElement('a'),url=URL.createObjectURL(blob);link.href=url;link.download='hourglass-'+localDate()+'.json';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+      const blob=new Blob([JSON.stringify({tool:'hourglass',schemaVersion:1,exportedAt:new Date().toISOString(),state:S,...(hourglassRecord.error?{recovery:hourglassRecord.recovery(),recoveryOnly:hourglassRecord.blocked}: {})},null,2)],{type:'application/json'});
+      const link=document.createElement('a'),url=URL.createObjectURL(blob);link.href=url;link.download='hourglass-'+localDate()+(hourglassRecord.error?'-recovery':'')+'.json';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
     }
     document.addEventListener('click',event=>{
       const target=event.target.closest?.('[data-hourglass-action]');if(!target)return;
@@ -116,12 +115,26 @@
       if(action==='edit')editMilestone(target.dataset.hourglassId);
       if(action==='retry'&&save())toast('Saved on this device.');
       if(action==='backup')backup();
+      if(action==='restore')document.querySelector('[data-hourglass-restore]')?.click();
+      if(action==='reload'&&confirm('Reload the latest saved record? Download this tab’s backup first if you need to keep its work.'))location.reload();
     });
+    document.addEventListener('change',async event=>{
+      const file=event.target.matches?.('[data-hourglass-restore]')&&event.target.files?.[0];if(!file)return;
+      try{
+        if(file.size>3000000)throw Error('Choose a backup smaller than 3 MB.');
+        const pack=JSON.parse(await file.text());if(pack.tool!=='hourglass'||pack.schemaVersion!==1||pack.recoveryOnly)throw Error('Choose a valid Hourglass backup, not a recovery copy.');
+        const next={...clone(DEF),...pack.state};if(!window.AtlasRecords.plain(pack.state))throw Error('Invalid Hourglass state.');
+        if(!confirm('Replace the saved Hourglass record with this backup? Keep a recovery copy first.'))return;
+        if(!hourglassRecord.write(next,{replace:true,restore:true}))throw Error(hourglassRecord.error);
+        S=hourglassRecord.value;failed=false;render();toast('Backup restored on this device.');
+      }catch(e){toast(e.message||'Backup could not be restored.');}finally{event.target.value='';}
+    });
+    window.addEventListener('storage',event=>{if(event.key===KEY&&hourglassRecord.changed(event.newValue)){failed=true;saveStatus();}});
     document.addEventListener('visibilitychange',resume);
     window.addEventListener('pageshow',resume);
     window.addEventListener('pagehide',clearTicker);
     window.HourglassImprovements=Object.freeze({upcoming,calendarDay,updateRecord,removeRecord});
-    render();
+    render();saveStatus();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
