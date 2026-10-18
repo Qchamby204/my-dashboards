@@ -1,8 +1,6 @@
 name: Remove public prospecting history
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/privacy-history.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
