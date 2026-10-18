@@ -23,7 +23,9 @@ try{
   await p.evaluate(()=>localStorage.setItem('hourglass:v1','{unreadable-hourglass'));await p.goto(origin+'/the-hourglass.html');await p.waitForFunction(()=>!!window.HourglassImprovements);assert(await p.locator('#hourglass-save-error').isVisible());assert.equal(await p.evaluate(()=>{S.retireAge=55;return save();}),false);assert.equal(await p.evaluate(()=>localStorage.getItem('hourglass:v1')),'{unreadable-hourglass');
   await p.screenshot({path:path.join(out,'hourglass-read-recovery-'+theme+'.png')});
   const valid={tool:'hourglass',schemaVersion:1,state:{__v2:true,birth:'2000-01-01',healthyAge:90,retireAge:60,created:'2026-01-01',tab:'setup',fin:{currentAUM:'',pace:'',paceUnit:'month',growthPct:0,target:''},milestones:[],companions:[]}};
-  p.once('dialog',d=>d.accept());await p.locator('[data-hourglass-restore]').setInputFiles({name:'hourglass-synthetic.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(valid))});await p.waitForFunction(()=>JSON.parse(localStorage.getItem('hourglass:v1')).retireAge===60);assert(!(await p.locator('#hourglass-save-error').isVisible()));
+  // Keep the unreadable bytes present while the asynchronous file read is pending.
+  await p.evaluate(()=>{const read=File.prototype.text;File.prototype.text=async function(...args){await new Promise(r=>setTimeout(r,150));return read.apply(this,args);};});
+  p.once('dialog',d=>d.accept());await p.locator('[data-hourglass-restore]').setInputFiles({name:'hourglass-synthetic.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(valid))});await p.waitForFunction(()=>{try{return JSON.parse(localStorage.getItem('hourglass:v1'))?.retireAge===60;}catch{return false;}});assert(!(await p.locator('#hourglass-save-error').isVisible()));
   await p.reload();await p.waitForFunction(()=>!!window.HourglassImprovements);assert.equal(await p.evaluate(()=>S.retireAge),60);assert.deepEqual(errors,[]);await c.close();
  }
  console.log(engine+': corrupt-record recovery, exported raw bytes, stale-tab merge/conflict and explicit restore passed');
