@@ -71,3 +71,7 @@ Achievements uses illustrated vector badges, written earned/locked states, earne
 Today’s activity record leads with its original full-colour imagery at a larger scale, a quiet value label, a prominent title and a strong commitment control. A single card frame groups the deck, its navigation, activity selector and inline Save day footer. Cards/List and the live entry count form one compact toolbar. Recorded toggles include written feedback beside the check mark. The home view remains focused on check-in cards, without supplementary progress or reward panels.
 
 Eight additional achievements extend saved-day, reading, workout, walking, communication and board-service milestones. The collection grows from 52 to 60 awards. Their requirements use saved totals, retain existing claimed awards, and participate in the existing read-only milestone projection; drafts do not unlock them.
+
+### Ledger card composition correction · October 18
+
+The enlarged medallion treatment was rejected as visually weak. Today’s card now leads with its title, places the original activity artwork beside it, and removes the image circle and decorative horizontal rule. A compact native activity selector sits in the top rail. Previous/Next and the explicit save action share one footer. Input controls use a quieter tonal treatment so saving remains the bronze commitment. The change keeps the existing deck, draft/save behavior, activity imagery and achievement collection.
