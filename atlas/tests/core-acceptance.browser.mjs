@@ -54,7 +54,7 @@ try{
     assert.equal(await hero.locator('.ledger-card-avatar').getAttribute('aria-hidden'),'true');assert.equal(await hero.locator('.ledger-card-avatar').textContent(),await p.evaluate(()=>habitEmoji(HABITS[state.cardIndex])),'card retains its original activity symbol');
     assert(await hero.locator('.ledger-card-avatar').evaluate(n=>parseFloat(getComputedStyle(n).fontSize)>=64),'activity imagery leads the card');assert(await p.locator('.ledger-deck-frame #ledger-checkin-save').count(),'saving belongs to the card frame');
     assert.equal(await hero.locator('.ledger-card-identity').evaluate(n=>getComputedStyle(n).textAlign),'left');
-    assert.equal(await p.getByRole('button',{name:'Cards',exact:true}).count(),1,'mode labels remain clear with decorative icons');
+    assert.equal(await p.getByRole('button',{name:'Cards',exact:true}).count(),1,'mode labels remain clear with decorative icons');assert(await p.getByRole('button',{name:'Cards',exact:true}).evaluate(n=>{const text=n.querySelector('span');return !text||text.getBoundingClientRect().height<24;}),'Cards label fits one line');
    }else if(app==='life-map')assert.equal(await hero.locator('..').evaluate(n=>getComputedStyle(n).boxShadow),'none','next move has one focal surface');
    else if(app==='workout-forge'){
     const target=await hero.locator('.fg-target').boundingBox(),unit=await hero.locator('.fg-target small').boundingBox();

@@ -471,7 +471,7 @@ html.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme="dark"] .ledger-
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-checkin-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-checkin-toolbar .ledger-log-heading{margin:0!important;flex:1;min-width:0}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-checkin-toolbar .ledger-log-mode{margin:0!important;flex:0 0 auto;gap:0;padding:2px!important;border-radius:999px!important}
-html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-checkin-toolbar .ledger-log-mode button{min-width:44px;min-height:44px;font-size:.8125rem!important;padding:8px 12px!important;border-radius:999px!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-checkin-toolbar .ledger-log-mode button{flex:0 0 auto!important;min-width:72px!important;min-height:44px;white-space:nowrap!important;font-size:.8125rem!important;padding:8px 12px!important;border-radius:999px!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-checkin-toolbar .ledger-log-mode svg{display:none}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-deck-frame{border:1px solid var(--ledger-separator);border-radius:28px;background:var(--neo-content-surface);overflow:hidden}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-deck-frame #deckViewport{border:0!important;border-radius:28px 28px 0 0!important;background:transparent!important}
