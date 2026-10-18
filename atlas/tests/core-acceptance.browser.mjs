@@ -81,7 +81,7 @@ try{
     await p.evaluate(()=>scrollTo({top:180,behavior:'instant'}));const todayPlace=await p.evaluate(()=>scrollY);
     await p.locator('#ledger-nav-progress').click();assert.equal(await p.getByRole('heading',{name:'Levels by value',exact:true}).count(),1);
     assert.equal(await p.locator('.ledger-value-key button').count(),5,'every value has a named, reachable chart key');
-    await p.locator('#ledger-nav-achievements').click();assert(await p.getByRole('heading',{name:'Achievements',exact:true}).isVisible());assert(await p.getByRole('region',{name:'Projected next milestone'}).isVisible());await p.screenshot({path:path.join(out,'ledger-achievements-'+theme+'.png'),fullPage:true});await p.locator('#ledger-nav-history').click();await p.locator('#ledger-nav-today').click();
+    await p.locator('#ledger-nav-achievements').click();assert(await p.getByRole('heading',{name:'Achievements',exact:true}).isVisible());assert(await p.getByRole('region',{name:'Projected next milestone'}).isVisible());assert.equal(await p.locator('#ledger-next-milestone').evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(37, 34, 53)','milestone keeps the indigo surface behind its cream text in both themes');await p.screenshot({path:path.join(out,'ledger-achievements-'+theme+'.png'),fullPage:true});await p.locator('#ledger-nav-history').click();await p.locator('#ledger-nav-today').click();
     await p.waitForFunction(y=>Math.abs(scrollY-y)<2,todayPlace);assert.equal(await input.inputValue(),'12','section switches preserve the unfinished check-in');
     assert.equal(await p.locator('.ledger-checkin-save .ledger-primary').evaluate(n=>getComputedStyle(n).borderTopLeftRadius),'999px','Save Day follows the shared action shape');
     await keyboard(p,input,app);
