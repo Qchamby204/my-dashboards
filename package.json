@@ -10,8 +10,13 @@
     "check:generated": "node atlas/check-generated.mjs"
   },
   "devDependencies": {
-    "drizzle-kit": "0.31.4",
-    "drizzle-orm": "0.44.5",
+    "drizzle-kit": "0.31.11",
+    "drizzle-orm": "0.45.4",
     "vite": "7.3.6"
+  },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.25.12"
+    }
   }
 }
