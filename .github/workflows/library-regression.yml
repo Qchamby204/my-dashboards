@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/actions/setup-test-browsers/**'
+      - '.github/scripts/install-test-browsers.mjs'
+      - '.github/browser-tooling.json'
       - 'the-library.html'
       - 'library.webmanifest'
       - 'shared/library*'
@@ -13,6 +16,9 @@ on:
       - '.github/workflows/library-regression.yml'
   pull_request:
     paths:
+      - '.github/actions/setup-test-browsers/**'
+      - '.github/scripts/install-test-browsers.mjs'
+      - '.github/browser-tooling.json'
       - 'the-library.html'
       - 'library.webmanifest'
       - 'shared/library*'
@@ -21,6 +27,9 @@ on:
       - 'atlas/sync-icons.mjs'
       - 'atlas/tests/library-*'
       - '.github/workflows/library-regression.yml'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
 jobs:
@@ -49,6 +58,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --prefix /tmp/library-browser --no-package-lock --ignore-scripts playwright@1.62.1
-      - run: /tmp/library-browser/node_modules/.bin/playwright install --with-deps --only-shell ${{ matrix.browser }}
-      - run: NODE_PATH=/tmp/library-browser/node_modules LIBRARY_BROWSER=${{ matrix.browser }} node atlas/tests/library-interactions.browser.mjs
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: ${{ matrix.browser }}
+      - run: NODE_PATH="${{ steps.browsers.outputs.node-path }}" LIBRARY_BROWSER=${{ matrix.browser }} node atlas/tests/library-interactions.browser.mjs

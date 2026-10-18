@@ -2,9 +2,12 @@ name: Dashboard flow checks
 on:
   push:
     branches: [main]
-    paths: ['the-chef.html', 'workout-forge.html', 'shared/chef-crucible*', 'shared/forge-enhancements*', 'atlas/tests/chef-forge-flow*', 'communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+    paths: ['.github/actions/setup-test-browsers/**', '.github/scripts/install-test-browsers.mjs', '.github/browser-tooling.json', 'the-chef.html', 'workout-forge.html', 'shared/chef-crucible*', 'shared/forge-enhancements*', 'atlas/tests/chef-forge-flow*', 'communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
   pull_request:
-    paths: ['the-chef.html', 'workout-forge.html', 'shared/chef-crucible*', 'shared/forge-enhancements*', 'atlas/tests/chef-forge-flow*', 'communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+    paths: ['.github/actions/setup-test-browsers/**', '.github/scripts/install-test-browsers.mjs', '.github/browser-tooling.json', 'the-chef.html', 'workout-forge.html', 'shared/chef-crucible*', 'shared/forge-enhancements*', 'atlas/tests/chef-forge-flow*', 'communication-trainer.html', 'shared/library*', 'shared/communication-enhancements.js', 'the-library.html', 'atlas/tests/dashboard-flow*', '.github/workflows/dashboard-flow-regression.yml']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
 jobs:
@@ -22,15 +25,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm install --prefix /tmp/flow-browser --no-save playwright@1.62.1
-      - run: /tmp/flow-browser/node_modules/.bin/playwright install --with-deps ${{ matrix.engine }}
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: ${{ matrix.engine }}
       - run: node atlas/tests/dashboard-flow.browser.mjs
         env:
-          NODE_PATH: /tmp/flow-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           FLOW_BROWSER: ${{ matrix.engine }}
       - run: node atlas/tests/chef-forge-flow.browser.mjs
         env:
-          NODE_PATH: /tmp/flow-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           FLOW_BROWSER: ${{ matrix.engine }}
       - uses: actions/upload-artifact@v4
         if: always()

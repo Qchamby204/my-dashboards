@@ -6,7 +6,8 @@
     "build": "node atlas/build.mjs",
     "db:generate": "drizzle-kit generate",
     "test": "node --test atlas/tests/*.test.mjs",
-    "dev": "vite"
+    "dev": "vite",
+    "check:generated": "node atlas/check-generated.mjs"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.4",
