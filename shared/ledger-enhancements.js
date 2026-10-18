@@ -63,6 +63,7 @@
         if(value.resetPending!==undefined&&(typeof value.resetPending!=='string'||!value.archives?.some(a=>a.id===value.resetPending)))throw Error('Invalid pending progress reset.');
         if(value.rewards!==undefined){if(!Rewards)throw Error('Personal rewards could not load. Reload before restoring.');Rewards.validate(value.rewards);}
         if(value.rhythm!==undefined)R.validate(value.rhythm);
+        if(value.milestoneName!==undefined&&(typeof value.milestoneName!=='string'||!value.milestoneName||value.milestoneName.length>120))throw Error('Invalid milestone preference.');
         if(value.discernOtherDeviceMinutes!==undefined&&(!finite(value.discernOtherDeviceMinutes)||value.discernOtherDeviceMinutes>1440))throw Error('Invalid other-device screen time.');
         if(value.discernOtherDeviceDate!==undefined&&!validDate(value.discernOtherDeviceDate))throw Error('Invalid other-device screen date.');
         if(value.leisureRule!==undefined)validLeisureRule(value.leisureRule);
@@ -73,7 +74,7 @@
     }
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'cards'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
     const dashboardPlaces=new Map();let dashboardVisit=0;
-    let achievementFilter='all',achievementCategory='all',milestoneName=null,checkinToolsOpen=false;
+    let achievementFilter='all',achievementCategory='all',checkinToolsOpen=false;
     let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
@@ -584,8 +585,12 @@
       badge.innerHTML='<svg viewBox="0 0 100 112" fill="none"><path class="ledger-badge-body" d="M50 4 89 27v47L50 104 11 74V27Z"/><path class="ledger-badge-rim" d="M50 12 82 31v39L50 95 18 70V31Z"/><g class="ledger-badge-symbol" transform="translate(26 28)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+motifs[key]+'</g>'+(unlocked?'<circle class="ledger-badge-seal" cx="78" cy="88" r="12"/><path class="ledger-badge-check" d="m72 88 4 4 8-9"/>':'')+'</svg>';
       return badge;
     }
+    function chooseMilestone(name){
+      if(blocked||busy||!ACHV.some(a=>a.name===name))return;
+      drafts.milestoneName=name;write(DRAFTKEY,JSON.stringify(drafts));
+    }
     function achievementOverview(data,earned){
-      const host=make('div',null,'ledger-achievements'),tracks=achievementTrackers(data,earned),automatic=!earned.length?tracks.find(t=>t.name==='Season Opens')||tracks[0]:tracks[0],next=tracks.find(t=>t.name===milestoneName)||automatic;
+      const host=make('div',null,'ledger-achievements'),tracks=achievementTrackers(data,earned),automatic=!earned.length?tracks.find(t=>t.name==='Season Opens')||tracks[0]:tracks[0],next=tracks.find(t=>t.name===drafts.milestoneName)||automatic;
       const collection=make('div',null,'ledger-collection-summary');collection.append(make('strong',String(earned.length)),make('span','of '+ACHV.length+' earned'));const collectionMeter=make('progress');collectionMeter.max=ACHV.length;collectionMeter.value=earned.length;collectionMeter.setAttribute('aria-label','Achievement collection');collection.append(collectionMeter);host.append(collection);
       if(next){
         const unit=n=>n===1?next.unit.replace(/days$/,'day').replace(/notes$/,'note').replace(/pages$/,'page').replace(/hours$/,'hour').replace(/minutes$/,'minute'):next.unit;
@@ -596,7 +601,7 @@
         copy.append(make('p',next.date?'Around '+new Date(next.date+'T12:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',...(next.date.slice(0,4)!==todayISO().slice(0,4)?{year:'numeric'}:{})})+' at your recent pace.':'A projected date appears after three active dates.','ledger-milestone-estimate'));
         hero.append(copy);const actions=make('div',null,'ledger-milestone-actions');actions.append(button('Continue check-in',()=>setDashboardView('today')));
         const choices=make('details',null,'ledger-milestone-choices');choices.append(make('summary','Choose milestone'));const choiceLabel=make('label','Work toward'),choice=make('select');choice.id='ledger-milestone-choice';choiceLabel.htmlFor=choice.id;
-        for(const t of tracks){const option=make('option',t.name);option.value=t.name;choice.append(option);}choice.value=next.name;choice.addEventListener('change',()=>{milestoneName=choice.value;render();const d=document.querySelector('.ledger-milestone-choices');if(d)d.open=true;document.getElementById('ledger-milestone-choice')?.focus({preventScroll:true});});choices.append(choiceLabel,choice);actions.append(choices);hero.append(actions);
+        for(const t of tracks){const option=make('option',t.name);option.value=t.name;choice.append(option);}choice.value=next.name;choice.addEventListener('change',()=>{chooseMilestone(choice.value);render();const d=document.querySelector('.ledger-milestone-choices');if(d)d.open=true;document.getElementById('ledger-milestone-choice')?.focus({preventScroll:true});});choices.append(choiceLabel,choice);actions.append(choices);hero.append(actions);
         hero.append(detailsInfo('How the milestone estimate works','Uses dated saved activity from the last 28 days, with at least three active dates and a minimum seven-day observation window. Remaining progress includes your saved lifetime totals. Unfinished entries, future dates and weekly catch-up do not invent dated activity. This is an estimate, not a deadline; it adjusts as your record changes.'));host.append(hero);
       }
       const overview=make('section',null,'ledger-achievement-overview');overview.setAttribute('aria-label','Achievement overview');const heading=make('div',null,'ledger-collection-heading');heading.append(make('h2','Your collection'),make('span','Tap a badge to explore','ledger-help'));overview.append(heading);
@@ -939,7 +944,7 @@
       const act=el.dataset.act;
       if((act==='inc'||act==='dec')&&changeCardAmount(el,act)){e.stopImmediatePropagation();return;}
       if(act==='toggle'&&el.dataset.habit==='Screen Discipline'&&state.draftLeisure?.screenConfirmed){e.stopImmediatePropagation();leisureMinutesDialog();return;}
-      if(act==='milestone'){e.stopImmediatePropagation();milestoneName=el.dataset.name;clearCelebrations();setDashboardView('achievements');document.getElementById('ledger-next-milestone')?.scrollIntoView({block:'start'});return;}if(act==='achvAll')dashboardView='achievements';
+      if(act==='milestone'){e.stopImmediatePropagation();chooseMilestone(el.dataset.name);clearCelebrations();setDashboardView('achievements');document.getElementById('ledger-next-milestone')?.scrollIntoView({block:'start'});return;}if(act==='achvAll')dashboardView='achievements';
       if(act==='reset'){e.stopImmediatePropagation();return;}
       if(act==='settings'){e.stopImmediatePropagation();goalsDialog();}
       if(act==='clear'){e.stopImmediatePropagation();confirmAction('Clear this draft?','Saved days remain in your history. Save day is required to replace an existing entry.','Clear draft',()=>{state.draft=freshDraft();state.draftMood=0;state.draftNote='';state.draftScreen=emptyScreen();state.draftLeisure=emptyLeisure();state.draftMissed=[];remember();render();});}

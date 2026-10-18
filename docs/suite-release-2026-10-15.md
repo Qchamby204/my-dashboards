@@ -1,4 +1,4 @@
-# Suite completion evidence — October 15, 2026
+# Suite completion evidence — updated October 18, 2026
 
 The browser-verifiable release stages below are complete. The suite is **not signed off as professionally finished**: physical iPhone, VoiceOver and installed Home Screen verification is still required.
 
@@ -6,14 +6,23 @@ The browser-verifiable release stages below are complete. The suite is **not sig
 
 | Stage | Review | Verified behavior |
 | --- | --- | --- |
-| Navigation recovery and startup | PR #106 | Repeated hide → focus → reveal cycles in Chromium and WebKit, including unchanged focus; upward scrolling; hidden hit testing; overflow and selected state. Ledger’s save accessory remains reachable. Crucible’s redirect document loads no interface helpers; direct link, redirect, reload and back cycles produce no runtime errors. Library assertions wait for exact settled opacity and completed animations. |
+| Navigation recovery and startup | PR #106 | Repeated hide → focus → reveal cycles in Chromium and WebKit, including unchanged focus; upward scrolling; hidden hit testing; overflow and selected state. Save was reachable in the original accessory; Ledger now uses inline saving, covered by the later check-in journeys. Crucible’s redirect document loads no interface helpers; direct link, redirect, reload and back cycles produce no runtime errors. Library assertions wait for exact settled opacity and completed animations. |
 | Shared headers and materials | PR #109 | Consistent line icons, single-row Operations Cadence/Hourglass headers, keyboard-operable app tools, quieter surfaces and stronger glass separation. Light/dark final screenshots reviewed. |
 | Life Ledger | PR #110 | Check-in emphasis; labelled, quieter value graphic; consistent Save Day. Section round trips retain scroll and unfinished entries. Draft and saved check-in survive reload. |
 | Life Map | PR #111 | One planning title, shorter instructions, contextual capture, retained original planning tools. Failed-save recovery remains visible in every view. Drafts, food planning, calendar links and saved tasks retain their existing formats and adapters. |
 | Forge | PR #112 | Current session and next set lead. Week controls have comfortable targets. Goal switches preserve unfinished sets and session position. Set/session saves and reloads pass in both engines. |
 | Communicator | PR #113 | One next practice or Resume practice. Alternatives and optional focus are secondary choices. Learning stays in Learn; rank/coaching stay in Progress. Original learning-prompt copy action, investing sources, drafts, records and backups remain available. |
+| Individual visual craft | PRs #116–121 | Ledger’s original activity imagery and calm materials; Life Map’s current action before capture; Forge’s explicit next/editing set; quieter Communicator alternatives; remaining suite headers and record surfaces. Light/dark, populated, expanded, narrow, landscape and larger-text browser views reviewed. |
+| Ledger navigation and achievements | PRs #122–124 | Inline Save day; card-only Today; dedicated Levels, Achievements and History; removal of three focus summaries. Collection of 60 illustrated achievements, saved-progress filters/details and a selectable projected milestone. Drafts do not unlock awards or invent pace. |
+| Ledger card and page length | PRs #125–126 | Title-led card with original artwork and one Previous/Next/Save footer. One bottom navigation clearance; temporary keyboard clearance; reminder controls in History with unfinished input retained. Chromium/WebKit save/reload, keyboard and end-of-page checks passed. PR #126 passed 735 Node tests and all 19 checks at `4568c05af5cf9ad7be0c88e50d786886d7b3ce5a`. |
 
 Each stage passed its applicable GitHub checks before merging. Public Pages deployments are checked separately from the owner-private Site deployment. Public application records remain browser-local. Private Life Map retains its connected adapter. No stage moves or seeds records merely by opening a page.
+
+## Ledger milestone preference · October 18
+
+Both milestone entry points now save the chosen award through the existing verified draft/settings writer. Reloads retain the choice; earned or unavailable awards fall back to an eligible upcoming milestone. The preference is included in backups and archived on explicit progress reset. Selecting it does not commit a day or alter saved progress or XP. A failed preference write retains the choice and unfinished check-in in the current tab, with the existing retry/recovery notice.
+
+Local validation passes all 737 Node tests, including preference reload/backup coverage, failed-write retry with an unfinished entry, and earned/unavailable fallback without record writes. The Chromium/WebKit acceptance journeys exercise both entry points through reloads and verify unchanged saved-activity bytes, alongside the existing core-four save/reload, keyboard, responsive layout and feedback checks. Browser results belong to the corresponding Actions run; they do not establish physical iPhone sign-off.
 
 ## Accessibility and feedback verification
 
