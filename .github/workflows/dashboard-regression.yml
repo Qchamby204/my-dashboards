@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/actions/setup-test-browsers/**'
+      - '.github/scripts/install-test-browsers.mjs'
+      - '.github/browser-tooling.json'
       - 'atlas/**'
       - 'northplan/**'
       - 'yourwealth/**'
@@ -14,6 +17,9 @@ on:
       - '.github/workflows/dashboard-regression.yml'
   pull_request:
     paths:
+      - '.github/actions/setup-test-browsers/**'
+      - '.github/scripts/install-test-browsers.mjs'
+      - '.github/browser-tooling.json'
       - 'atlas/**'
       - 'northplan/**'
       - 'yourwealth/**'
@@ -23,6 +29,9 @@ on:
       - 'drizzle/**'
       - 'package*.json'
       - '.github/workflows/dashboard-regression.yml'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 permissions:
   contents: read
 jobs:
@@ -36,15 +45,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm run build
+      - run: npm run check:generated
       - run: npm test
-      - name: Install browser checks
-        run: |
-          npm install --prefix /tmp/atlas-browser --no-save playwright
-          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps chromium
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: chromium
       - name: Check suite views and saves in Chromium
         env:
-          NODE_PATH: /tmp/atlas-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           ATLAS_SCREENSHOTS: artifacts/dashboard-experience
         run: node atlas/tests/dashboard-experience.browser.mjs
       - uses: actions/upload-artifact@v4
@@ -71,14 +80,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm run build
-      - run: |
-          npm install --prefix /tmp/atlas-browser --no-save playwright
-          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps chromium
+      - run: npm run check:generated
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: chromium
       - name: Check populated screens and editors
         timeout-minutes: 8
         env:
-          NODE_PATH: /tmp/atlas-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           ATLAS_SCREENSHOTS: artifacts/dashboard-layout
           ATLAS_LAYOUT_CASE: '["${{ matrix.theme }}", ${{ matrix.width }}, ${{ matrix.textSize }}]'
         run: node atlas/tests/dashboard-layout.browser.mjs
@@ -102,13 +112,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm run build
-      - run: |
-          npm install --prefix /tmp/atlas-browser --no-save playwright
-          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps ${{ matrix.engine }}
+      - run: npm run check:generated
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: ${{ matrix.engine }}
       - name: Check cards and standalone phone layouts
         env:
-          NODE_PATH: /tmp/atlas-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           ATLAS_SCREENSHOTS: artifacts/card-hierarchy
           ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
         run: node atlas/tests/card-hierarchy.browser.mjs
@@ -132,13 +143,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm run build
-      - run: |
-          npm install --prefix /tmp/atlas-browser --no-save playwright
-          /tmp/atlas-browser/node_modules/.bin/playwright install --with-deps ${{ matrix.engine }}
+      - run: npm run check:generated
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: ${{ matrix.engine }}
       - name: Verify core app saves, drafts, keyboard and accessible chrome
         env:
-          NODE_PATH: /tmp/atlas-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           ATLAS_SCREENSHOTS: artifacts/core-acceptance
           ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
         run: |
@@ -149,13 +161,13 @@ jobs:
       - name: Verify saving, failed-save recovery and feedback materials
         if: ${{ !cancelled() }}
         env:
-          NODE_PATH: /tmp/atlas-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           ATLAS_SCREENSHOTS: artifacts/core-acceptance
           ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
         run: node atlas/tests/core-feedback.browser.mjs
       - name: Verify floating navigation and scroll behavior across the suite
         env:
-          NODE_PATH: /tmp/atlas-browser/node_modules
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           ATLAS_SCREENSHOTS: artifacts/glass-navigation
           ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
         run: node atlas/tests/glass-navigation.browser.mjs

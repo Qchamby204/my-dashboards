@@ -1,0 +1,22 @@
+name: Set up pinned test browsers
+description: Install the published Playwright bindings with matching browser revisions
+inputs:
+  runtime:
+    description: npm or python
+    default: npm
+  browsers:
+    description: Space-separated browser engines
+    default: chromium
+outputs:
+  node-path:
+    description: Test-only Node modules directory
+    value: ${{ steps.install.outputs.node-path }}
+runs:
+  using: composite
+  steps:
+    - id: install
+      shell: bash
+      env:
+        PW_RUNTIME: ${{ inputs.runtime }}
+        PW_BROWSERS: ${{ inputs.browsers }}
+      run: node .github/scripts/install-test-browsers.mjs
