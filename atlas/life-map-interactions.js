@@ -7,6 +7,15 @@
   function find(saved){if(!saved)return null;if(saved.id){const el=document.getElementById(saved.id);if(el&&app.contains(el))return el;}if(!Object.keys(saved.data).length)return null;return [...app.querySelectorAll('[data-act],[data-lm],[data-day],[data-day-field]')].find(el=>el.tagName===saved.tag&&keys.every(k=>el.dataset[k]===saved.data[k]))||null;}
   function focus(el,saved){el?.focus?.({preventScroll:true});if(el&&saved&&typeof saved.start==='number')try{el.setSelectionRange(saved.start,saved.end);}catch{}}
   function decorate(){
+    // Keep the existing save controls reachable while the long form scrolls.
+    const dialog=app.querySelector('dialog.lm-sheet-overlay'),actions=dialog?.querySelector('.lm-sheet-actions');
+    if(actions){
+      const status=dialog.querySelector('#lm-editor-status'),recovery=status?.nextElementSibling;
+      actions.classList.add('lm-sheet-footer');
+      if(recovery?.matches('.lm-inline'))actions.prepend(recovery);
+      if(status)actions.prepend(status);
+      dialog.querySelector('.lm-sheet')?.append(actions);
+    }
     for(const el of app.querySelectorAll('[data-act="advance"],[data-act="tick"],[data-act="plan"],[data-act="edit"],[data-act="editc"]')){
       const a=el.dataset.act,id=el.dataset.id,item=(['tick','plan','editc'].includes(a)?S.chores:S.projects).find(x=>x.id===id);if(!item)continue;const title=item.task||item.chore;let label='Edit '+title;
       if(a==='advance')label=(item.status==='Done'?'Reopen ':'Complete ')+title;

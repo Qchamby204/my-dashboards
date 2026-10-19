@@ -582,8 +582,11 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.storage()['lifemap_v1'],initial['lifemap_v1'])
         self.page.locator('[data-day="view-selected-day"]').click()
         self.assertEqual(self.page.locator('[data-ops-row-id]').count(),4)
+        self.assertTrue(self.page.locator('.lm-now-card [data-day="ops-start"]').is_visible())
+        self.assertNotIn('NaN',self.page.locator('.lm-now-card').inner_text())
         self.page.locator('[data-ops-row-id="ops:daily:0"] [data-day="ops-start"]').click()
         self.assertIn('My morning review',self.page.locator('.lm-now-card').inner_text())
+        self.assertNotIn('NaN',self.page.locator('.lm-now-card').inner_text())
         self.assertEqual(self.state()['projects'],original['projects'])
         self.assertEqual(self.state()['dayPlans'][TODAY]['focus'],{'kind':'ops','id':'ops:daily:0'})
         self.page.locator('[data-day="ops-complete"][data-id="ops:daily:0"]').click()
@@ -692,7 +695,8 @@ class LifeMapBrowser(unittest.TestCase):
                         for(const panel of pane.querySelectorAll('.lm-day-panel')){
                             const card=panel.getAttribute('aria-label')==='Right now'?panel.querySelector('.lm-now-card'):panel;
                             if(!card){errors.push('missing next-move card');continue;}
-                            if(parseFloat(getComputedStyle(card).paddingLeft)<20)errors.push('tight card padding');
+                            const padded=card.querySelector('.lm-feature-body')||card;
+                            if(parseFloat(getComputedStyle(padded).paddingLeft)<20)errors.push('tight card padding');
                             if(card!==panel&&getComputedStyle(panel).boxShadow!=='none')errors.push('nested next-move surface');
                         }
                         for(const label of pane.querySelectorAll('.lm-foundation .eyebrow')){

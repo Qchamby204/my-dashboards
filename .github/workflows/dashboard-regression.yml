@@ -128,6 +128,37 @@ jobs:
           name: dashboard-layout-${{ matrix.theme }}-${{ matrix.width }}-${{ matrix.textSize }}
           path: artifacts/dashboard-layout
 
+  life-map-craft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run check:generated
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: ${{ matrix.engine }}
+      - name: Verify every Life Map opening, category, editor and task journey
+        env:
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
+          ATLAS_SCREENSHOTS: artifacts/life-map-craft
+          ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node atlas/tests/life-map-craft.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: life-map-craft-${{ matrix.engine }}
+          path: artifacts/life-map-craft
+
   content-cards:
     runs-on: ubuntu-latest
     timeout-minutes: 12
