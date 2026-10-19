@@ -58,7 +58,9 @@
    html=html.replace('<div class="card rubric">',cue+'<div class="card rubric"><label class="cl-performed"><input type="checkbox" data-ladder-performed '+(c.performed?'checked':'')+'>I completed this challenge out loud or in writing.</label>');
    return html;
   };
-  render=()=>{oldRender();craft();if(curDrill?.topic.challenge){const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!curDrill.topic.challenge.performed;}};
+  // Same-page redraws restore their position after the final card layout exists.
+  let framedPage=null,framedSession=null;
+  render=()=>{const keep=framedPage===curPage&&framedSession===curDrill,x=window.scrollX,y=window.scrollY;oldRender();craft();framedPage=curPage;framedSession=curDrill;if(keep)window.scrollTo({left:x,top:y,behavior:'instant'});if(curDrill?.topic.challenge){const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!curDrill.topic.challenge.performed;}};
   document.addEventListener('click',e=>{const b=e.target.closest?.('[data-ladder-start]');if(b){P.startChallengePractice(b.dataset.ladderStart);return;}if(e.target.closest?.('[data-ladder-reveal]')&&curDrill?.topic.challenge){curDrill.topic.challenge.revealed=true;P.rememberPractice();render();}});
   document.addEventListener('change',e=>{if(e.target.matches?.('[data-ladder-performed]')&&curDrill?.topic.challenge){curDrill.topic.challenge.performed=e.target.checked;P.rememberPractice();const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!e.target.checked;}});
   window.CommunicatorLadder=Object.freeze({snapshot:snap});if(!window.CommunicatorStarting)render();
