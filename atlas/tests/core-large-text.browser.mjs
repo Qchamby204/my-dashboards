@@ -48,6 +48,8 @@ try{
      await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(p);const result=await inspect(p);assert.equal(result.bodyFont,32,'content text receives 200% sizing');
      const row={app,view:entry,theme,width,engine,...result};reports.push(row);
      if(app==='life-ledger'&&entry==='initial')assert(await p.locator('.ledger-habit-card:not([inert]) .ledger-card-identity .cinzel').evaluate(n=>{const t=document.createTreeWalker(n,NodeFilter.SHOW_TEXT).nextNode(),i=t?.textContent.indexOf('Workouts');if(i<0||i===undefined)return false;const r=document.createRange();r.setStart(t,i);r.setEnd(t,i+8);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'the activity title keeps whole words when text enlarges');
+     if(app==='life-ledger'&&entry==='ledger-nav-achievements')assert(await p.locator('#ledger-view-achievements>.ledger-view-title').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'the collection heading keeps its full word');
+     if(app==='workout-forge'&&i>1)assert(await p.locator('.fg-detail-head>button').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'Back to Forge stays on one line');
      await p.screenshot({path:path.join(out,`${app}-${i}-${theme}-${width}.png`)});
     }
     const first=p.locator('.atlas-page-native button,#atlas-page-navigation button').first();await p.keyboard.press('Tab');await first.focus();assert(await first.evaluate(n=>parseFloat(getComputedStyle(n).outlineWidth)>=2),'navigation retains a visible keyboard focus outline');

@@ -516,3 +516,6 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-checkin-save .ledger
 
 /* Long section titles wrap instead of extending the page at enlarged text. */
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-view-title{overflow-wrap:anywhere;hyphens:auto;min-width:0}
+
+/* Keep the long collection title whole; body text retains its enlarged size. */
+html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-view-achievements>.ledger-view-title{font-size:min(2rem,calc(15vw - 4.8px))!important;white-space:nowrap;overflow-wrap:normal}
