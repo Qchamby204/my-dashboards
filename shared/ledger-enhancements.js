@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=03af45d05b63',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=7c4d447f3126',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -678,7 +678,7 @@
       const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);if(state.logDate===todayISO()){const dateRow=log.querySelector('.ledger-date-row');if(dateRow)options.append(dateRow);}options.append(clear);panes.history.append(options);}
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-checkin-save');saveRow.id='ledger-checkin-save';
-      const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}const viewport=log.querySelector('#deckViewport');
+      const statusLabel=app.querySelector('#ledger-draft-status'),saveButton=log.querySelector('[data-act="commit"]');if(statusLabel)saveRow.append(statusLabel);if(saveButton){saveButton.textContent=state.logDate===todayISO()?'Save day':'Save '+fmtDay(state.logDate);saveButton.classList.add('ledger-primary');saveRow.append(saveButton);}const receipt=log.querySelector('#ledger-save-feedback');if(receipt)saveRow.append(receipt);const viewport=log.querySelector('#deckViewport');
       if(viewport){
         const frame=make('div',null,'ledger-deck-frame'),rail=make('div',null,'ledger-deck-rail');viewport.before(frame);
         const navigation=log.querySelector('#deckPrev')?.parentNode,picker=log.querySelector('.ledger-card-picker');

@@ -56,6 +56,13 @@ try{
   await coreChrome(p,'Forge',w,h);
 
   assert(await p.locator('.fg-card').first().evaluate(n=>getComputedStyle(n).backgroundColor!==getComputedStyle(document.body).backgroundColor),'Forge goal records are distinct from the canvas');await capture(p,'forge-goal-record',theme,w,size,p.locator('.fg-card').first());
+  const goalBytes=await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),guide=p.locator('.fg-week-guide-disclosure');
+  assert.equal(await guide.getAttribute('open'),null,'the weekly guide starts secondary');
+  assert(await p.locator('.fg-grid').evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('.fg-week-guide-disclosure'))&Node.DOCUMENT_POSITION_FOLLOWING)),'goal records precede the training guide');
+  await guide.locator('summary').first().focus();await p.keyboard.press('Enter');assert(await guide.evaluate(n=>n.open),'the weekly guide opens with the keyboard');
+  assert.equal(await guide.locator('.fg-week-day').count(),7,'the original seven-day pairing guide remains available');
+  await capture(p,'forge-weekly-guide',theme,w,size,guide);await guide.locator('summary').first().click();
+  assert.equal(await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),goalBytes,'reading the guide never changes goal records');
   const lift=await p.evaluate(()=>{
     const it=allItems(dayBy('PUSH')).find(it=>it.n==='Barbell bench press'),id=it.id,name=it.n;
     const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
@@ -122,6 +129,12 @@ try{
   assert(await p.locator('.ledger-xp-save-note').first().isVisible(),'XP saving requirement is visible on the card');
   const active=p.locator('.ledger-habit-card[aria-hidden="false"]');await capture(p,'ledger-activity',theme,w,size,active);
   await p.locator('#ledger-checkin-save').scrollIntoViewIfNeeded();await capture(p,'ledger-save-dock',theme,w,size);
+  const ledgerBytes=await p.evaluate(()=>localStorage.getItem('lifeledger:v2'));await p.locator('#ledger-nav-achievements').click();
+  if(w===393&&size===16){const collection=await p.locator('.ledger-collection-heading h2').boundingBox(),dock=await p.locator('.ledger-nav').boundingBox();assert(collection.y+collection.height<dock.y-8,'the collection heading appears on the first phone screen');}
+  await capture(p,'ledger-collection-first-screen',theme,w,size);
+  await p.locator('.ledger-milestone-choices>summary').click();assert(await p.locator('#ledger-milestone-choice').isVisible());await capture(p,'ledger-milestone-choices',theme,w,size,p.locator('#ledger-next-milestone'));
+  await p.locator('#ledger-next-milestone .ledger-progress-info>summary').click();await capture(p,'ledger-milestone-explanation',theme,w,size,p.locator('#ledger-next-milestone'));
+  assert.equal(await p.evaluate(()=>localStorage.getItem('lifeledger:v2')),ledgerBytes,'viewing milestone controls never rewrites saved days');
   await p.locator('#ledger-nav-history').click();await p.locator('#ledger-checkin-tools>summary').click();await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
   await open('life-map');await p.locator('.daily-chips').scrollIntoViewIfNeeded();
   assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>['inline-flex','flex'].includes(getComputedStyle(n).display)&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
