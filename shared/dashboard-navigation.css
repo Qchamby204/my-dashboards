@@ -65,3 +65,8 @@ html.atlas-neumo.atlas-neumo.atlas-page-navigation[data-atlas-app="life-ledger"]
 
 /* Hidden tabs remain reachable by keyboard and assistive focus, but never receive taps. */
 html.atlas-page-navigation.atlas-page-minimized :is(.atlas-page-dock,.atlas-page-native) button{pointer-events:none!important}
+
+/* Compact toolbar labels retain their words as content text enlarges. */
+html.atlas-neumo.atlas-neumo.atlas-page-navigation:is([data-atlas-app="life-map"],[data-atlas-app="workout-forge"],[data-atlas-app="communication-trainer"]) :is(#atlas-page-navigation,.atlas-page-native) button>:is(span:last-child,strong){font-size:clamp(12px,.75rem,14px)!important;line-height:1.25!important;white-space:nowrap!important;overflow-wrap:normal!important}
+html.atlas-neumo.atlas-neumo.atlas-page-navigation[data-atlas-app="life-ledger"] .atlas-page-native button>span:last-child{font-size:clamp(11px,.6875rem,12px)!important;line-height:1.25!important;white-space:nowrap!important;overflow-wrap:normal!important}
+@media(max-width:360px){html.atlas-neumo.atlas-neumo.atlas-page-navigation[data-atlas-app="life-ledger"] .atlas-page-native{grid-template-columns:.8fr .8fr 1.5fr .9fr!important}}
