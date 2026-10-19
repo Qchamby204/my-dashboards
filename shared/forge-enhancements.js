@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='workout-forge')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=d4a02363cc95',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('forge-enhancements.css?v=4e4c77068a0f',source).href;document.head.append(css);
   function ready(){
     if(window.ForgeSession||typeof state==='undefined')return;
     const RESTKEY='forge:rest:v1',JOURNALKEY='forge:pending-log:v1',keys={sessions:KEY,draft:DRAFTKEY,live:LIVEKEY,swaps:SWAPKEY,order:ORDERKEY,progressionSettings:PROGRESSIONKEY,rest:RESTKEY,pendingLog:JOURNALKEY,goals:'forge:goals:v1'};
@@ -216,6 +216,7 @@
         done.classList.add(lastExercise&&alreadyDone?'forge-secondary':'forge-primary');
         if(lastExercise&&alreadyDone)done.disabled=true;
         const skip=button('Skip for now',()=>goExercise(live.exIdx+1));skip.id='forge-skip';skip.disabled=live.exIdx===items.length-1||!!live.pausedAt;done.parentNode.append(skip);done.parentNode.classList.add('forge-live-actions');
+        const record=overlay.querySelector('.forge-live-record');if(record){label.after(record);record.after(done.parentNode);done.parentNode.after(last);}
         if(live.pausedAt){const paused=make('p','Session paused. Resume when you are ready.','forge-paused');label.after(paused);overlay.querySelectorAll('input,textarea,[data-act="livedone"],[data-act="livefill"],[data-act="livelater"],[data-act="rest"],[data-act="cmin"],[data-act="cmode"],[data-act="progression-use"],[data-act="progression-feedback"],[data-act="progression-step"]').forEach(e=>e.disabled=true);}
       }
       app.querySelectorAll('[data-act="setw"],[data-act="setr"]').forEach(e=>{e.setAttribute('aria-label',(e.dataset.act==='setw'?'Weight in pounds':'Repetitions')+', set '+(Number(e.dataset.set)+1));});app.querySelectorAll('[data-act="note"]').forEach(e=>e.setAttribute('aria-label','Exercise notes'));

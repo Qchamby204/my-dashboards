@@ -65,6 +65,8 @@ Browser evidence covers 24 main opening states, each of the six categories, All 
 
 ### Forge: session and next set
 
+Forge home and each of the four goal pages now lead with an illustrated indigo training card and a separate action footer. Goal pages retain a compact title and target context above the current session. Home preserves the four first-goal choices and the selected-plan continuation. Regular workout records have clear titles and metadata, and the active exercise and its actions precede the supporting last-session record. Saved-session rows remain distinct; the decorative layer that hid regular progress fills is removed. Native set fields use 14px corners and large set numbers, with saved/unfinished states and existing handlers preserved. The repeated weekly count is removed from the header and remains in the season panel.
+
 Goal and exercise records use solid surfaces without lifted shadows. The existing current-session action leads the editor. The next or unfinished set has an explicit Next/Editing label and step semantics; saved sets retain their distinct completion state. Week and day controls remain full-size and quieter, and rest stays with the exercise. No workout records or adapters change.
 
 ### Communicator: one practice, quieter alternatives

@@ -23,7 +23,8 @@ async function coreChrome(p,app,w,h){
  assert(await appearance.isVisible());const a=await appearance.boundingBox(),b=await home.boundingBox();
  if(w<=600){
   assert(Math.abs((a.y+a.height/2)-(b.y+b.height/2))<3,app+' keeps header tools on the same row');
-  const badge=await header.locator('.appbar-pill,.appbar-lvl').boundingBox();assert(badge.y>=b.y+b.height&&badge.x>=b.x+b.width,app+' status sits below the title');
+  if(app==='Forge')assert.equal(await header.locator('.appbar-pill').isVisible(),false,'Forge keeps weekly totals in the season record');
+  else{const badge=await header.locator('.appbar-pill,.appbar-lvl').boundingBox();assert(badge.y>=b.y+b.height&&badge.x>=b.x+b.width,app+' status sits below the title');}
   const tool=header.locator('[data-act="plates"],[data-act="settings"]');if(await tool.count()){const r=await tool.boundingBox();assert(Math.abs((r.y+r.height/2)-(b.y+b.height/2))<3,app+' utility stays in the header row');}
  }
  const dock=p.locator('#atlas-page-navigation');
@@ -49,10 +50,10 @@ try{
   const p=await c.newPage();p.setDefaultTimeout(10000);const runtime=[];p.on('pageerror',e=>runtime.push(e.message));
   async function open(file,hash=''){await p.goto(origin+'/'+file+'.html'+hash,{waitUntil:'domcontentloaded'});await settle(p);if(size!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});}
   await open('workout-forge');
-  const goalChoices=p.locator('.atlas-goal-question .atlas-goal-options');await goalChoices.waitFor({state:'visible'});
+  const goalChoices=p.locator('.fg-starting-point .fg-feature-footer');await goalChoices.waitFor({state:'visible'});
   assert.equal(await goalChoices.locator('button').count(),4,'all first-goal choices remain available');
   assert(await goalChoices.locator('button').evaluateAll(ns=>{const rs=ns.map(n=>n.getBoundingClientRect());return rs.every((r,i)=>r.height>=52&&r.width>=44&&(!i||r.top>=rs[i-1].bottom+11||r.left>=rs[i-1].right+11));}),'Forge first-goal choices have full targets and separated rows');
-  await capture(p,'forge-first-goal-choices',theme,w,size,p.locator('.atlas-goal-question'));
+  await capture(p,'forge-first-goal-choices',theme,w,size,p.locator('.fg-starting-point'));
   await coreChrome(p,'Forge',w,h);
 
   assert(await p.locator('.fg-card').first().evaluate(n=>getComputedStyle(n).backgroundColor!==getComputedStyle(document.body).backgroundColor),'Forge goal records are distinct from the canvas');await capture(p,'forge-goal-record',theme,w,size,p.locator('.fg-card').first());

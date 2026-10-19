@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"1b825b198bd6","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"5125331d455a"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"1b825b198bd6","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"a311ddd8eec9"}</script>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="description" content="The Forge: regular workouts and separate eight-week bench, deadlift, 5K and dunk plans, with set logging and rest timers."/>
@@ -80,7 +80,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/forge-goals.css?v=077f6e64f0dd">
+<link rel="stylesheet" href="shared/forge-goals.css?v=8e28c6fca870">
 <link rel="stylesheet" href="shared/forge-progression.css?v=b96f9c39085a">
 <link rel="stylesheet" href="shared/core-app-finish.css?v=75f630081488">
 <script src="shared/core-app-finish.js?v=ea7c5171d7a0" defer></script>
@@ -626,7 +626,7 @@ function dayCard(d){
   var st=stats(), count=st.byType[d.key]||0, open=state.openDay===d.key;
   var done=allItems(d).filter(function(it){ var dr=state.draft[effId(it)]; return dr&&dr.done; }).length;
   var total=allItems(d).length;
-  var h='<div class="panel card" data-act="day" data-key="'+d.key+'" style="padding:15px;border-color:'+(open?d.accent:"rgba(120,130,180,.16)")+';'+(open?"box-shadow:0 0 0 1px "+d.accent+",0 18px 40px -26px "+d.glow+";":"")+'">';
+  var h='<div class="panel card forge-day-card" data-act="day" data-key="'+d.key+'" style="padding:15px;border-color:'+(open?d.accent:"rgba(120,130,180,.16)")+';'+(open?"box-shadow:0 0 0 1px "+d.accent+",0 18px 40px -26px "+d.glow+";":"")+'">';
   h+='<div style="display:flex;align-items:center;gap:12px">';
   h+='<div style="width:46px;height:46px;border-radius:13px;flex-shrink:0;background:radial-gradient(circle at 30% 25%,'+d.accent+'33,#14172400);border:1px solid '+d.accent+'66;display:grid;place-items:center"><span class="cinzel" style="font-size:18px;color:'+d.accent+';font-weight:700">'+esc(d.tag[0])+'</span></div>';
   h+='<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span class="cinzel" style="font-size:15px;color:#eef0fb;font-weight:600">'+esc(d.tag)+'</span><span class="mono" style="font-size:10.5px;color:'+d.accent+'">'+count+' logged</span></div>';
@@ -661,7 +661,7 @@ function history(){
       var lifts=Object.keys(x.items||{}).filter(function(k){return x.items[k]&&x.items[k].sets&&x.items[k].sets.length;}).length;
       var vol=sessionVolume(x);
       var hadPR=Object.keys(x.items||{}).some(function(k){return x.items[k]&&x.items[k].pr;});
-      h+='<div class="row" style="display:flex;align-items:center;gap:11px;padding:9px 8px">';
+      h+='<div class="row forge-log-record" style="display:flex;align-items:center;gap:11px;padding:9px 8px">';
       h+='<span style="width:6px;height:30px;border-radius:9px;background:'+d.accent+';flex-shrink:0"></span>';
       h+='<div style="flex:1;min-width:0"><div style="font-size:13px;color:#dfe3f4;font-weight:500">'+esc(d.tag)+(hadPR?' <span title="PR session" style="font-size:11px">\ud83c\udfc6</span>':'')+'</div><div style="font-size:10px;color:#6f7798">'+fmtDate(x.date)+' \u00b7 '+daysAgo(x.date)+(x.dur?' \u00b7 '+x.dur+' min':'')+(lifts?' \u00b7 '+lifts+' lifts':'')+(vol?' \u00b7 '+vol.toLocaleString()+' lbs moved':'')+'</div></div>';
       h+='<button class="btn tap" data-act="del" data-idx="'+(state.sessions.length-1-idx)+'" aria-label="delete" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.16);color:#8089a8;font-size:14px">\u00d7</button></div>';
@@ -1080,12 +1080,13 @@ function liveView(){
   h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px"><span class="eyebrow" style="font-size:8.5px">Exercise '+(i+1)+' of '+n+'</span><span class="mono" style="font-size:10px;color:'+d.accent+'">'+doneN+'/'+n+' done</span></div>';
   h+='<div class="bartrack" style="height:5px;margin-bottom:15px"><div class="fill" style="width:'+(((i+1)/n)*100).toFixed(1)+'%;background:'+d.accent+'"></div></div>';
   if(i===0&&doneN===0){ h+='<div class="fadeUp" style="display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:12px;background:rgba(69,200,216,.07);border:1px solid rgba(69,200,216,.3);margin-bottom:14px"><span style="font-size:15px">\ud83e\udded</span><div style="font-size:11px;color:#a8ccd4;line-height:1.55">This walks your session in program order. Enter <b>weight \u00d7 reps</b> as you lift (or tap \u201cSame as last time\u201d), then hit <b>Done \u00b7 next</b> \u2014 the rest ring starts itself. <b>Hide</b> keeps the clock running while you browse the app.</div></div>'; }
-  h+='<div class="panel" style="padding:17px;border-color:'+d.accent+'55">';
+  h+='<section class="panel forge-live-record" aria-label="Current exercise" style="padding:17px;border-color:'+d.accent+'55"><header class="forge-live-face">';
   h+='<div class="eyebrow" style="font-size:8px;color:'+d.accent+';margin-bottom:5px">'+esc(secName)+'</div>';
   h+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><span class="cinzel" style="font-size:17px;color:#eef0fb;font-weight:600;line-height:1.25">'+esc(nm)+'</span>'+(it.track==="load"?'<span class="mono" style="font-size:12px;color:'+d.accent+';white-space:nowrap">'+it.sets+'×'+esc(it.reps)+'</span>':(it.s?'<span class="mono" style="font-size:12px;color:'+d.accent+';white-space:nowrap">'+esc(it.s)+'</span>':''))+'</div>';
   h+='<div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">'+chips(it.f)+'</div>';
   if(it.track==="load") h+='<div class="mono" style="font-size:10px;color:#7c84a8;margin-top:7px">rest '+esc(it.rest)+' · '+esc(it.rpe)+'</div>';
   if(it.c) h+='<div style="font-size:11px;color:#8089a8;margin-top:6px;font-style:italic">'+esc(it.c)+'</div>';
+  h+='</header><div class="forge-live-entry">';
   if(it.track==="cardio"){ h+=historyStrip(it,d.accent); h+=cardioRows(it,d.accent); h+=noteBlock(it,d.accent); }
   if(it.track==="load"){
     h+=historyStrip(it,d.accent);
@@ -1094,7 +1095,7 @@ function liveView(){
     var hasCur=curD&&curD.sets&&curD.sets.some(function(s3){return s3.w||s3.r;});
     if(prevS&&prevS.length&&!hasCur){ h+='<button class="btn tap" data-act="livefill" style="margin-top:9px;padding:8px 13px;border-radius:9px;font-size:11px;font-weight:600;color:#cfd4ea;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">\u27f3 Same as last time</button>'; }
   }
-  h+='</div>';
+  h+='</div></section>';
   h+='<div style="display:flex;gap:9px;margin-top:14px">';
   h+='<button class="btn tap" data-act="liveprev" aria-label="previous exercise" style="width:56px;height:52px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.2);color:#cfd4ea;font-size:20px;opacity:'+(i===0?".35":"1")+'">‹</button>';
   if(it.track==="load") h+='<button class="btn tap" data-act="rest" data-sec="'+parseRest(it.rest)+'" style="flex:1;height:52px;border-radius:12px;font-size:12.5px;font-weight:600;color:#45c8d8;background:rgba(69,200,216,.1);border:1px solid rgba(69,200,216,.35)">⏱ '+clk(parseRest(it.rest))+'</button>';
@@ -1499,7 +1500,7 @@ render();
 </script>
 <script src="shared/forge-goal-plans.js?v=85bd29918f45"></script>
 <script src="shared/forge-goal-model.js?v=a444da8614dc"></script>
-<script src="shared/forge-goals.js?v=60ee658e00e6"></script>
+<script src="shared/forge-goals.js?v=c96c1a2c6fcd"></script>
 </body>
 </html>
 
