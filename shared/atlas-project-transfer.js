@@ -1,5 +1,5 @@
-import { parseProjectUpdates, mergeProjectUpdates } from './atlas-project-transfer-core.mjs';
-import { parseBackup, previewRestore, applyRestore, recover, readRecovery } from './atlas-vault-core.mjs';
+import { parseProjectUpdates, mergeProjectUpdates } from './atlas-project-transfer-core.mjs?v=07435819f34e';
+import { parseBackup, previewRestore, applyRestore, recover, readRecovery } from './atlas-vault-core.mjs?v=d3cae43e2f0c';
 import { localDay } from '../atlas/model.mjs';
 const host=document.getElementById('atlas-project-transfer');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

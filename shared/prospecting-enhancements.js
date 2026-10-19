@@ -299,7 +299,7 @@
       validateBackup,validateState,validateLinkedIn,mergeLinkedIn,overlayContacts,importLinkedIn,chooseLinkedIn,profileURL,activityKind,filterLinkedIn(value){linkedInFilter=['imported','new','received','sent','none'].includes(value)?value:'';page=0;refreshResults();},databaseMatches,refreshResults,clearFilters,dayQueue,startQueue,csvCell:cell,get unsaved(){return cloud?cloud.unsaved:unsaved;},get blocked(){return unreadable||readBlocked;}});
     window.addEventListener('beforeunload',e=>{if(unsaved||cloud?.unsaved){e.preventDefault();e.returnValue='';}});
     render();
-    if(!cloud){const review=document.createElement('script');review.src=new URL('prospecting-review.js?v=messages-20260909',source).href;document.head.appendChild(review);}
+    if(!cloud){const review=document.createElement('script');review.src=new URL('prospecting-review.js?v=e9b40c7084e0',source).href;document.head.appendChild(review);}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();

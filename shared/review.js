@@ -1,4 +1,4 @@
-import {STORAGE_KEY,appLabel,parseActivity,summarizeActivity,narrative,patternNotes} from './atlas-activity-core.mjs';
+import {STORAGE_KEY,appLabel,parseActivity,summarizeActivity,narrative,patternNotes} from './atlas-activity-core.mjs?v=fcd93aec54ec';
 
 const $=id=>document.getElementById(id);
 let days=7;

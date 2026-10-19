@@ -17,7 +17,7 @@ function harness(app='life-ledger'){
  const forbidden=()=>{throw Error('Presentation must not access records or network')};
  Object.defineProperty(window,'localStorage',{get:forbidden});
  vm.runInNewContext(script,{document,window,localStorage:new Proxy({},{get:forbidden}),fetch:forbidden,MutationObserver:class{constructor(f){observer=f}observe(){}},queueMicrotask:f=>pending.push(f)});
- return {root,classes,style,control,mode,choice,avatar,document,visual,window,events,redraw:()=>observer?.(),flush:()=>pending.splice(0).forEach(f=>f())};
+ return {root,classes,style,control,mode,choice,avatar,document,visual,window,events,redraw:()=>observer?.([{type:'childList',addedNodes:[{nodeType:1}],removedNodes:[]}]),flush:()=>pending.splice(0).forEach(f=>f())};
 }
 test('control artwork preserves actions and accessible names and is stable across redraws',()=>{
  const h=harness();assert(h.classes.has('core-finished'));assert.equal(h.control.replacements,1);

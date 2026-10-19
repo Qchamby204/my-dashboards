@@ -15,12 +15,15 @@ test('earned achievement and level-up cards remain visible until dismissed',()=>
   assert.doesNotMatch(css,/@keyframes ledgerRewardEnter\s*\{[\s\S]*100%\s*\{[^}]*opacity\s*:\s*0/,'reward entrance animation must never fade the card out at its final frame');
 });
 
-test('Ledger loads a uniquely versioned reward hotfix instead of the September cache key',()=>{
-  assert.match(theme,/ledger-reward-hotfix-20260916\.js/);
+test('modern Ledger boots its current enhancement without superseded migrations',()=>{
+  assert.doesNotMatch(theme,/ledger-reward-hotfix-20260916/);
+  const refinements=readFileSync(new URL('../../shared/atlas-refinements.js',import.meta.url),'utf8');
+  assert.doesNotMatch(refinements,/ledger-simplify-20260916/);
   const js=readFileSync(new URL('../../shared/ledger-enhancements.js',import.meta.url),'utf8');
   const version=createHash('sha256').update(js).digest('hex').slice(0,12);
-  assert.ok(theme.includes('ledger-enhancements.js?v='+version));
-  assert.doesNotMatch(theme,/ledger-enhancements\.js\?v=progress-20260909/);
+  const manifest=JSON.parse(html.match(/id="atlas-runtime-assets">([^<]+)</)[1]);
+  assert.equal(manifest['ledger-enhancements.js'],version);
+  assert(html.indexOf('shared/ledger-rhythm-core.js')<html.indexOf('shared/atlas-theme.js'),'modern record ownership is established before enhancements');
 });
 
 test('runtime hotfix defeats the legacy fade even when stale CSS is present',()=>{

@@ -126,7 +126,7 @@
   }
   function schedule(){if(!queued){queued=true;queueMicrotask(reconcile);}}
   function ready(){
-    new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-selected','aria-pressed','aria-current','disabled']});
+    new MutationObserver(records=>{if(records.some(record=>record.type==='attributes'||[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)||record.target.closest?.(config.source||config.native||'#atlas-page-navigation')))schedule();}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-selected','aria-pressed','aria-current','disabled']});
     document.addEventListener('click',schedule);window.addEventListener('hashchange',schedule);window.addEventListener('resize',schedule,{passive:true});
     document.addEventListener('scroll',scroll,{capture:true,passive:true});
     document.addEventListener('wheel',event=>{scrollIntentUntil=Date.now()+1600;if(event.deltaY<0)reveal();},{passive:true});

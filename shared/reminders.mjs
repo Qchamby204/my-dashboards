@@ -1,4 +1,4 @@
-import {APPS,defaults,validate,quietAt} from './reminder-core.mjs';
+import {APPS,defaults,validate,quietAt} from './reminder-core.mjs?v=7c7de0115b89';
 const $=id=>document.getElementById(id),KEY='atlas.reminders.v1',AUTH='atlas.reminders.device.v1';
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let completionCode='',completionRows=[];

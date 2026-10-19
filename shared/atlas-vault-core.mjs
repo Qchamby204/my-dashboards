@@ -1,5 +1,5 @@
 /* Browser-local Atlas backups. No network requests and no whole-origin writes. */
-import { parsePractice } from './atlas-workflow-core.mjs';
+import { parsePractice } from './atlas-workflow-core.mjs?v=f3f2ad48d818';
 export const MAX_BYTES = 20 * 1024 * 1024;
 export const RECOVERY_KEY = 'atlas.vault.recovery.v2';
 export const LAST_BACKUP_KEY = 'atlas:lastBackup';

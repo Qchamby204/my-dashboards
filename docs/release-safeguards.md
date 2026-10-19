@@ -8,7 +8,9 @@ and commit generated changes before repeating it. Ignored build products in
 
 The always-triggered `Release consistency` workflow provides the uniquely named
 `release-consistency` check for every PR and main push, without path filters.
-Existing jobs that generate files also run this gate before testing. The other
+Existing jobs that generate files also run this gate before testing. The full
+Node test suite and its dependency install run once in Release consistency; the
+dashboard regression job runs its browser journeys and idle-runtime checks. The other
 browser workflows retain their focused triggers; changes to their shared browser
 installer or version pins trigger all six browser workflows.
 

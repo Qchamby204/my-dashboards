@@ -1,4 +1,4 @@
-import {parseActivity,STORAGE_KEY} from './atlas-activity-core.mjs';
+import {parseActivity,STORAGE_KEY} from './atlas-activity-core.mjs?v=fcd93aec54ec';
 const cards=[...document.querySelectorAll('.hub-card')],catalog=new Map(cards.map(c=>[c.dataset.hubId||new URL(c.href).pathname.split('/').at(-1).replace('.html',''),c]));
 catalog.set('library',catalog.get('the-library'));
 catalog.set('prospecting-command-center',catalog.get('prospecting-command-center')||catalog.get('prospecting'));
