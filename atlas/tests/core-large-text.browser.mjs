@@ -35,7 +35,7 @@ async function inspect(p){return p.evaluate(()=>{
  });}
 try{
  for(const theme of ['light','dark'])for(const width of [320,393,852]){
-  const ctx=await browser.newContext({viewport:{width,height:width===852?393:900},colorScheme:theme,reducedMotion:'reduce',contrast:'more'});
+  const ctx=await browser.newContext({viewport:{width,height:width===852?393:900},colorScheme:theme,reducedMotion:'reduce',contrast:'more',timezoneId:'America/Winnipeg'});
   for(const app of ['life-ledger','life-map','workout-forge','communication-trainer']){
    const p=await ctx.newPage();p.setDefaultTimeout(10000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
    try{
@@ -47,7 +47,8 @@ try{
      if(i){if(native)await p.locator('#'+entry).evaluate(n=>n.click());else await p.locator('#atlas-page-menu [data-page-key],#atlas-page-navigation [data-page-key]').evaluateAll((ns,key)=>ns.find(n=>n.dataset.pageKey===key).click(),entry);}
      await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(p);const result=await inspect(p);assert.equal(result.bodyFont,32,'content text receives 200% sizing');
      const row={app,view:entry,theme,width,engine,...result};reports.push(row);
-     if(entry==='initial'||result.issues.length)await p.screenshot({path:path.join(out,`${app}-${i}-${theme}-${width}.png`)});
+     if(app==='life-ledger'&&entry==='initial')assert(await p.locator('.ledger-habit-card:not([inert]) .ledger-card-identity .cinzel').evaluate(n=>{const t=document.createTreeWalker(n,NodeFilter.SHOW_TEXT).nextNode(),i=t?.textContent.indexOf('Workouts');if(i<0||i===undefined)return false;const r=document.createRange();r.setStart(t,i);r.setEnd(t,i+8);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'the activity title keeps whole words when text enlarges');
+     await p.screenshot({path:path.join(out,`${app}-${i}-${theme}-${width}.png`)});
     }
     const first=p.locator('.atlas-page-native button,#atlas-page-navigation button').first();await p.keyboard.press('Tab');await first.focus();assert(await first.evaluate(n=>parseFloat(getComputedStyle(n).outlineWidth)>=2),'navigation retains a visible keyboard focus outline');
     assert.deepEqual(errors,[]);
