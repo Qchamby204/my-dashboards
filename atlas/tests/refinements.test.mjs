@@ -35,7 +35,7 @@ function harness(app='the-herald'){
   const window={};
   vm.runInNewContext(source,{document,window,queueMicrotask:fn=>pending.push(fn),MutationObserver:class{constructor(fn){observer=fn;}observe(){}}});
   function click(n){events.click({target:n});}
-  function redraw(old,next){old.remove();document.activeElement=document.body;observer();return next;}
+  function redraw(old,next){old.remove();document.activeElement=document.body;observer([{type:'childList',addedNodes:[{nodeType:1}],removedNodes:[{nodeType:1}]}]);return next;}
   function key(key,shiftKey=false){const e={key,shiftKey,preventDefault(){this.prevented=true;},stopImmediatePropagation(){}};events.keydown(e);return e;}
   return {document,window,node,events,click,redraw,key,reconcile:()=>window.AtlasRefinements.reconcile()};
 }

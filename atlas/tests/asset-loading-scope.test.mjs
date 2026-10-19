@@ -27,12 +27,12 @@ function snapshot(dir) {
   return Object.fromEntries(files.map(f => [f, createHash('sha256').update(readFileSync(path.join(dir, f))).digest('hex')]));
 }
 
-for (const asset of ['hourglass-enhancements.css', 'hourglass-enhancements.js']) {
-  test(`${asset} invalidates only Hourglass HTML, preserving shared theme and unrelated entries`, () => fixture(dir => {
+for (const [asset, page] of [['hourglass-enhancements.css','the-hourglass'],['hourglass-enhancements.js','the-hourglass'],['ledger-enhancements.css','life-ledger'],['ledger-enhancements.js','life-ledger'],['forge-enhancements.css','workout-forge'],['communication-enhancements.css','communication-trainer'],['operations-enhancements.css','operations-cadence'],['baby-enhancements.css','baby-brain'],['neural-enhancements.css','neural-map'],['prospecting-review.js','prospecting-command-center'],['courier-experience.js','courier']]) {
+  test(`${asset} invalidates only its owning HTML, preserving shared theme and unrelated entries`, () => fixture(dir => {
     build(dir); const before = snapshot(dir);
     appendFileSync(path.join(dir, 'shared', asset), '\n/* Isolated build-scope regression probe. */\n');
     build(dir); const after = snapshot(dir);
-    assert.deepEqual(Object.keys(before).filter(f => before[f] !== after[f]), ['the-hourglass.html']);
+    assert.deepEqual(Object.keys(before).filter(f => before[f] !== after[f]), [page+'.html']);
     const html = readFileSync(path.join(dir, 'the-hourglass.html'), 'utf8');
     assert.equal([...html.matchAll(/<script[^>]+src="shared\/hourglass-enhancements\.js[^"\n]*"[^>]*defer/g)].length, 1);
   }));

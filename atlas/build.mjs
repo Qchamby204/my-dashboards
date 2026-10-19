@@ -1,6 +1,5 @@
 import './sync-icons.mjs';
 import {connectedAssets} from './connected-build.mjs';
-await import('./build-experience.mjs');
 await import('./build-neural.mjs');
 await import('./build-communicator.mjs');
 await import('./build-refinements.mjs');
@@ -8,7 +7,7 @@ await import('./build-navigation.mjs');
 await import('./build-life-map.mjs');
 import { readFile, mkdir, writeFile, cp, rm } from 'node:fs/promises';
 const root = new URL('../', import.meta.url);
-await import('./build-experience.mjs?final');
+await import('./build-experience.mjs');
 const connected=await connectedAssets(root);
 const out = new URL('dist/', root);
 await rm(out, { recursive: true, force: true });

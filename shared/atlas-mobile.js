@@ -7,7 +7,7 @@
   // Review telemetry uses this existing shared bootstrap, but only for the Atlas suite.
   // Dashboards deliberately excluded from suite-wide hooks remain untouched.
   if(source&&trackedApps.has(root.dataset.atlasApp)){
-    const activity=document.createElement('script');activity.src=new URL('atlas-activity.js?v=lifemap-workflow-20260917',source).href;activity.defer=true;document.head.appendChild(activity);
+    const activity=document.createElement('script');activity.src=new URL('atlas-activity.js?v=1f3603b057c7',source).href;activity.defer=true;document.head.appendChild(activity);
   }
   const apps=new Set(['atlas-hub','atlas-os','atlas-connect','life-map','life-ledger','workout-forge','the-aqueduct','the-hourglass','baby-brain','communication-trainer','prospecting-command-center','operations-cadence','the-herald','courier','neural-map','chambers-wealth-hq','review']);
   if(!apps.has(root.dataset.atlasApp)||window.AtlasMobile)return;
@@ -70,7 +70,7 @@
     root.classList.add('atlas-mobile');
     if(window.ResizeObserver)observer=new ResizeObserver(schedule);
     controls();measure();
-    new MutationObserver(controls).observe(document.body,{childList:true,subtree:true});
+    new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))controls();else schedule();}).observe(document.body,{childList:true,subtree:true});
     window.addEventListener('resize',schedule,{passive:true});
     window.addEventListener('orientationchange',schedule,{passive:true});
     window.addEventListener('pageshow',schedule);

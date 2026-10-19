@@ -9,7 +9,7 @@
   // without rewriting the large original dashboard file.
   if(source&&!window.LedgerRhythm){
     const seasonReset=document.createElement('script');
-    seasonReset.src=new URL('ledger-season-reset-20260915.js?v=1',source).href;
+    seasonReset.src=new URL('ledger-season-reset-20260915.js?v=fceaff18e3a5',source).href;
     seasonReset.defer=true;
     document.head.appendChild(seasonReset);
   }

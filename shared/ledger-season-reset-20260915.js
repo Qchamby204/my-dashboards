@@ -9,6 +9,7 @@
   const marked=()=>{try{return localStorage.getItem(MARKER)==='done';}catch{return false;}};
   const mark=()=>{try{localStorage.setItem(MARKER,'done');}catch{/* The season itself is still persisted by Life Ledger. */}};
   async function apply(){
+    if(window.LedgerRhythm)return;
     if(marked())return;
     const api=window.LedgerDays;
     if(!api){if(++attempts<200)setTimeout(apply,50);return;}

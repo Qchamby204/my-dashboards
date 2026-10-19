@@ -1,4 +1,4 @@
-import { TOOLS, MAX_BYTES, LAST_BACKUP_KEY, sizeOf, inventory, createBackup, parseBackup, previewRestore, applyRestore, readRecovery, recover, recoveryBackup } from './atlas-vault-core.mjs';
+import { TOOLS, MAX_BYTES, LAST_BACKUP_KEY, sizeOf, inventory, createBackup, parseBackup, previewRestore, applyRestore, readRecovery, recover, recoveryBackup } from './atlas-vault-core.mjs?v=d3cae43e2f0c';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const bytes = n => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(0) + ' KB' : (n / 1048576).toFixed(1) + ' MB';

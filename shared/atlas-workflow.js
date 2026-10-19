@@ -1,4 +1,4 @@
-import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary, dailyPhase, createPracticeTransfer } from './atlas-workflow-core.mjs';
+import { PRACTICE_KEY, WORKFLOW_KEYS, localDay, validDay, lessonItems, readPractice, setPracticeCompletion, dailySummary, dailyPhase, createPracticeTransfer } from './atlas-workflow-core.mjs?v=f3f2ad48d818';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const prettyDay = day => validDay(day) ? new Date(day + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';

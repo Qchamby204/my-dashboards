@@ -6,51 +6,54 @@
   // Extend the existing pages in place. Their HTML, records, and URLs remain theirs.
   const sharedSource=document.currentScript?.src;
   if(sharedSource&&document.head){
+    let versions={};
+    try{versions=JSON.parse(document.getElementById('atlas-runtime-assets')?.textContent||'{}')||{};}catch{/* Older cached pages use the loader version below. */}
+    const fallback=new URL(sharedSource).searchParams.get('v');
+    const runtimeAsset=name=>name+'?v='+(/^[a-f0-9]{12}$/.test(versions[name])?versions[name]:fallback||'current');
     // Sports styling only: no record access or changes to dashboard behavior.
     if(['crucible', 'neural-map', 'baby-brain', 'the-aqueduct', 'operations-cadence', 'chambers-wealth-hq', 'prospecting-command-center', 'review'].includes(root.dataset.atlasApp)){
-      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL('remaining-sports.css?v=a9239f1402d6',sharedSource).href;document.head.appendChild(sports);
+      const sports=document.createElement('link');sports.rel='stylesheet';sports.href=new URL(runtimeAsset('remaining-sports.css'),sharedSource).href;document.head.appendChild(sports);
     }
-    const mobile=document.createElement('script');mobile.src=new URL(root.dataset.atlasApp==='life-map'?'atlas-mobile.js?v=dde323b762dd':'atlas-mobile.js?v=dde323b762dd',sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
+    const mobile=document.createElement('script');mobile.src=new URL(runtimeAsset('atlas-mobile.js'),sharedSource).href;mobile.defer=true;document.head.appendChild(mobile);
     if(root.dataset.atlasApp==='the-herald'){
-      const herald=document.createElement('script');herald.src=new URL('herald-enhancements.js?v=7b6c431ec5ea',sharedSource).href;herald.defer=true;document.head.appendChild(herald);
+      const herald=document.createElement('script');herald.src=new URL(runtimeAsset('herald-enhancements.js'),sharedSource).href;herald.defer=true;document.head.appendChild(herald);
     }
     if(root.dataset.atlasApp==='communication-trainer'){
-      const trainer=document.createElement('script');trainer.src=new URL('communication-enhancements.js?v=4f507d271878',sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
+      const trainer=document.createElement('script');trainer.src=new URL(runtimeAsset('communication-enhancements.js'),sharedSource).href;trainer.defer=true;document.head.appendChild(trainer);
     }
     if(root.dataset.atlasApp==='neural-map'){
-      const neural=document.createElement('script');neural.src=new URL('neural-enhancements.js?v=c8fd770efb16',sharedSource).href;neural.defer=true;document.head.appendChild(neural);
+      const neural=document.createElement('script');neural.src=new URL(runtimeAsset('neural-enhancements.js'),sharedSource).href;neural.defer=true;document.head.appendChild(neural);
     }
     // Apply interface assets without republishing reference pages with embedded data.
     if(['prospecting-command-center','the-hourglass','workout-forge'].includes(root.dataset.atlasApp)){
-      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL('atlas-refinements.css?v=1b825b198bd6',sharedSource).href;document.head.appendChild(polish);
-      const interactions=document.createElement('script');interactions.src=new URL('atlas-refinements.js?v=54aa0f1d0514',sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
+      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=new URL(runtimeAsset('atlas-refinements.css'),sharedSource).href;document.head.appendChild(polish);
+      const interactions=document.createElement('script');interactions.src=new URL(runtimeAsset('atlas-refinements.js'),sharedSource).href;interactions.defer=true;document.head.appendChild(interactions);
     }
     if(root.dataset.atlasApp==='prospecting-command-center'&&!window.AtlasProspectingPrivate){
       // Retain the saved bytes before the legacy boot can attempt migration.
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('hq_v1');}catch{boot.readError=true;}
       window.AtlasProspectingBoot=boot;
-      const records=document.createElement('script');records.type='module';records.src=new URL('prospecting-records.mjs?v=ed970e53b5fb',sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL('prospecting-enhancements.js?v=6c8ded3d32d5',sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
+      const records=document.createElement('script');records.type='module';records.src=new URL(runtimeAsset('prospecting-records.mjs'),sharedSource).href;records.onload=()=>{const prospects=document.createElement('script');prospects.src=new URL(runtimeAsset('prospecting-enhancements.js'),sharedSource).href;document.head.appendChild(prospects);};document.head.appendChild(records);
     }
     if(root.dataset.atlasApp==='operations-cadence'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('operationsCadence.v1');}catch{boot.readError=true;}
       window.AtlasOperationsBoot=boot;
-      const operations=document.createElement('script');operations.src=new URL('operations-enhancements.js?v=16917b1905ec',sharedSource).href;operations.defer=true;document.head.appendChild(operations);
+      const operations=document.createElement('script');operations.src=new URL(runtimeAsset('operations-enhancements.js'),sharedSource).href;operations.defer=true;document.head.appendChild(operations);
     }
     if(root.dataset.atlasApp==='baby-brain'){
       const boot={raw:null,readError:false};try{boot.raw=localStorage.getItem('babybrain.v1');}catch{boot.readError=true;}
       window.AtlasBabyBoot=boot;
-      const baby=document.createElement('script');baby.src=new URL('baby-enhancements.js?v=b07bc3ecc8d4',sharedSource).href;baby.defer=true;document.head.appendChild(baby);
+      const baby=document.createElement('script');baby.src=new URL(runtimeAsset('baby-enhancements.js'),sharedSource).href;baby.defer=true;document.head.appendChild(baby);
     }
     if(root.dataset.atlasApp==='workout-forge'){
       const boot={raw:{},readError:false};for(const key of ['forge:sessions:v2','forge:draft:v1','forge:live:v1','forge:swaps:v1','forge:order:v1','forge:rest:v1','forge:pending-log:v1','forge:goals:v1','forge:progression-settings:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasForgeBoot=boot;
-      const forge=document.createElement('script');forge.src=new URL('forge-enhancements.js?v=5125331d455a',sharedSource).href;forge.defer=true;document.head.appendChild(forge);
+      const forge=document.createElement('script');forge.src=new URL(runtimeAsset('forge-enhancements.js'),sharedSource).href;forge.defer=true;document.head.appendChild(forge);
     }
     if(root.dataset.atlasApp==='life-ledger'){
       const boot={raw:{},readError:false};for(const key of ['lifeledger:v2','lifeledger:goals:v2','lifeledger:model:v1','lifeledger:metrics:v1','lifeledger:season:v1','lifeledger:drafts:v1']){try{boot.raw[key]=localStorage.getItem(key);}catch{boot.readError=true;}}
       window.AtlasLedgerBoot=boot;
-      const rewardFix=document.createElement('script');rewardFix.src=new URL('ledger-reward-hotfix-20260916.js?v=038c74b94b00',sharedSource).href;rewardFix.defer=true;document.head.appendChild(rewardFix);
-      const ledger=document.createElement('script');ledger.src=new URL('ledger-enhancements.js?v=dadf6c42fc84',sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
+      const ledger=document.createElement('script');ledger.src=new URL(runtimeAsset('ledger-enhancements.js'),sharedSource).href;ledger.defer=true;document.head.appendChild(ledger);
     }
   }
   const key = 'atlas.appearance.v1';
@@ -168,7 +171,7 @@
     mount();
     apply();
     // Legacy screens rebuild their headers. Reattach the same control after a render.
-    new MutationObserver(() => { mount(); paintCharts(); }).observe(document.body, { childList: true, subtree: true });
+    new MutationObserver(records => { if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1))) { mount(); paintCharts(); } }).observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, { once: true });
   else ready();

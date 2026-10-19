@@ -114,6 +114,7 @@
   }
 
   function install(){
+    if(window.LedgerRhythm)return;
     if(window.LedgerSimplify20260916)return;
     if(!window.LedgerDays||typeof state==='undefined'||typeof DEFAULT_HCFG==='undefined'||typeof rebuildModel!=='function'||typeof compute!=='function'||typeof render!=='function'||typeof ACHV==='undefined'||typeof store==='undefined'){
       if(++attempts<240)setTimeout(install,50);

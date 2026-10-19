@@ -17,7 +17,4 @@ for(const ext of ['css','js']){
     const after=before.replace(pattern,asset+'?v='+digest);
     if(after!==before)await writeFile(path,after);
   }
-  const path=new URL('shared/atlas-theme.js',root),before=await readFile(path,'utf8');
-  const after=before.replace(new RegExp('atlas-refinements\\.'+ext+'\\?v=[a-z0-9]+','g'),'atlas-refinements.'+ext+'?v='+digest);
-  if(after!==before)await writeFile(path,after);
 }

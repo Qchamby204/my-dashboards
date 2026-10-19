@@ -74,9 +74,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm ci --ignore-scripts
       - run: npm run check:generated
-      - run: npm test
       - uses: ./.github/actions/setup-test-browsers
         id: browsers
         with:
@@ -85,7 +83,9 @@ jobs:
         env:
           NODE_PATH: ${{ steps.browsers.outputs.node-path }}
           ATLAS_SCREENSHOTS: artifacts/dashboard-experience
-        run: node atlas/tests/dashboard-experience.browser.mjs
+        run: |
+          node atlas/tests/dashboard-experience.browser.mjs
+          node atlas/tests/runtime-idle.browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

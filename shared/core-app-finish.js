@@ -46,7 +46,7 @@
  }
  function ready(){
   root.classList.add('core-finished');decorate();keyboard();
-  new MutationObserver(decorate).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))decorate();}).observe(document.body,{childList:true,subtree:true});
   document.addEventListener('focusin',keyboard);document.addEventListener('focusout',()=>queueMicrotask(keyboard));
   window.visualViewport?.addEventListener('resize',keyboard,{passive:true});
   window.visualViewport?.addEventListener('scroll',keyboard,{passive:true});
