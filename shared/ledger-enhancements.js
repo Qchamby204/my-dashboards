@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=33673861712e',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=6ce4abdb5cab',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -75,7 +75,9 @@
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'cards'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
     const dashboardPlaces=new Map();let dashboardVisit=0;
     let achievementFilter='all',achievementCategory='all',checkinToolsOpen=false;
-    let dashboardView='today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
+    const releaseViews={levels:'progress',achievements:'achievements',history:'history'};
+    const openingSection=location.hash?.slice(1);
+    let dashboardView=Object.hasOwn(releaseViews,openingSection)?releaseViews[openingSection]:'today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
       if(boot.readError&&!window.storage)throw Error();
@@ -114,6 +116,44 @@
     function currentEntry(){return {units:clone(state.draft),missed:clone(state.draftMissed||[]),mood:state.draftMood||0,note:state.draftNote||'',...(hasScreen(state.draftScreen)?{screen:clone(state.draftScreen)}:{}),...(hasLeisure(state.draftLeisure)?{leisure:clone(state.draftLeisure)}:{})};}
     function dirty(){const saved=dayEntryFor(state.logDate);return HABITS.some(h=>(saved?.units?.[h]||0)!==(state.draft[h]||0))||(saved?.mood||0)!==(state.draftMood||0)||(saved?.note||'')!==(state.draftNote||'')||JSON.stringify(saved?.missed||[])!==JSON.stringify(state.draftMissed||[])||JSON.stringify(saved?.screen||emptyScreen())!==JSON.stringify(state.draftScreen||emptyScreen())||JSON.stringify(saved?.leisure||emptyLeisure())!==JSON.stringify(state.draftLeisure||emptyLeisure());}
     function remember(){if(blocked||busy||!validDate(state.draftFor))return;if(dirty())drafts.days[state.draftFor]=currentEntry();else delete drafts.days[state.draftFor];drafts.selected=state.draftFor;drafts.mode=state.logMode;write(DRAFTKEY,JSON.stringify(drafts));}
+    // Home Screen apps can resume an old document indefinitely. Check on resume,
+    // but let the person choose when to leave their current screen.
+    const releaseAsset=new URL(source),loadedRelease=releaseAsset.searchParams.get('v');
+    let availableRelease=null,releaseCheck=null,lastReleaseCheck=0;
+    const updateNotice=make('section',null,'ledger-release-notice');updateNotice.id='ledger-release-notice';updateNotice.setAttribute('role','status');
+    updateNotice.append(make('p','An update is ready'),button('Refresh Ledger',refreshLedger));
+    function mountReleaseNotice(){if(availableRelease)app.querySelector('.appbar')?.after(updateNotice);}
+    async function checkRelease(manual=false){
+      if(typeof fetch!=='function'||typeof DOMParser!=='function'||!/^https?:$/.test(location.protocol))return;
+      if(releaseCheck)return releaseCheck;
+      if(!manual&&Date.now()-lastReleaseCheck<60000)return;
+      lastReleaseCheck=Date.now();
+      releaseCheck=(async()=>{
+        const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+        try{
+          const url=new URL(location.href);url.hash='';url.searchParams.set('ledger-check',String(Date.now()));
+          const response=await fetch(url.href,{cache:'no-store',credentials:'same-origin',redirect:'error',signal:controller.signal});
+          if(!response.ok)throw Error();
+          const page=new DOMParser().parseFromString(await response.text(),'text/html');
+          if(page.documentElement.dataset.atlasApp!=='life-ledger')throw Error();
+          const version=JSON.parse(page.getElementById('atlas-runtime-assets')?.textContent||'{}')[releaseAsset.pathname.split('/').pop()];
+          if(!/^[a-f0-9]{12}$/.test(version))throw Error();
+          availableRelease=version!==loadedRelease?version:null;
+          if(availableRelease)mountReleaseNotice();else updateNotice.remove();
+          if(manual)toast(availableRelease?'An update is ready. Use Refresh Ledger when you are ready.':'Ledger is up to date.');
+        }catch{if(manual)toast('Updates could not be checked. Your current Ledger is still available.');}
+        finally{clearTimeout(timeout);releaseCheck=null;}
+      })();return releaseCheck;
+    }
+    async function refreshLedger(){
+      if(!availableRelease)return;
+      if(blocked||busy||document.querySelector('dialog[open],[aria-invalid="true"]')){toast('Finish this edit before refreshing Ledger.');return;}
+      remember();await Promise.all([...pending.values()]);
+      if(blocked||busy||pending.size||failed.size||conflicts.size||document.querySelector('dialog[open],[aria-invalid="true"]')){status();toast('Save or back up your current work before refreshing Ledger.');return;}
+      const url=new URL(location.href);url.searchParams.delete('ledger-check');url.searchParams.set('ledger-release',availableRelease);
+      url.hash=({progress:'levels',achievements:'achievements',history:'history'})[dashboardView]||'today';
+      location.replace(url.href);
+    }
     const originalLoad=loadDraftFor;
     loadDraftFor=function(date){originalLoad(date);const d=drafts.days[date];if(d){state.draft={...freshDraft(),...clone(d.units)};state.draftMood=d.mood||0;state.draftNote=d.note||'';}state.draftMissed=clone((d||dayEntryFor(date))?.missed||[]);state.draftScreen=clone((d||dayEntryFor(date))?.screen||emptyScreen());state.draftLeisure=clone((d||dayEntryFor(date))?.leisure||emptyLeisure());};
     let seenToday=todayISO();
@@ -692,7 +732,7 @@
       const savedRecords=move('#ledger-history',panes.history);if(savedRecords)checkinTools.before(savedRecords);
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
       const toolsPanel=make('details',null,'ledger-manage');toolsPanel.id='ledger-reminder-tools';toolsPanel.append(make('summary','Manage Ledger & backups'));
-      const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);toolsPanel.append(button('Reset progress',resetProgressDialog));panes.history.append(toolsPanel);if(drafts.archives?.length)panes.history.append(progressArchives());
+      const tools=app.querySelector('[data-act="export"]')?.parentNode;if(tools)toolsPanel.append(tools);move('.ledger-storage-note',toolsPanel);move('.ledger-app-links',toolsPanel);toolsPanel.append(button('Check for updates',()=>checkRelease(true)),button('Reset progress',resetProgressDialog));panes.history.append(toolsPanel);if(drafts.archives?.length)panes.history.append(progressArchives());
       const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);if(state.logDate===todayISO()){const dateRow=log.querySelector('.ledger-date-row');if(dateRow)options.append(dateRow);}options.append(clear);panes.history.append(options);}
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-checkin-save');saveRow.id='ledger-checkin-save';
@@ -958,7 +998,7 @@
       composeDashboard(log,data,earned);window.LedgerReminderTools?.mount();
       updateDeckChrome(state.cardIndex,HABITS.length);
       for(const mode of log?.querySelectorAll('[data-act="logmode"]')||[])mode.setAttribute('aria-pressed',String(mode.dataset.mode===state.logMode));
-      paintLeisureClock();status();
+      paintLeisureClock();status();mountReleaseNotice();
       if(restoreControl)[...app.querySelectorAll('button')].find(b=>b.dataset.act===restoreControl.act&&b.dataset.habit===restoreControl.habit&&b.dataset.mode===restoreControl.mode&&b.dataset.key===restoreControl.key)?.focus({preventScroll:true});
     };
     app.addEventListener('click',e=>{
@@ -979,12 +1019,12 @@
     window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('dialog[open]'))e.stopImmediatePropagation();},true);
     window.addEventListener('beforeunload',e=>{remember();if(failed.size||conflicts.size||pending.size||busy){e.preventDefault();e.returnValue='';}});
     function checkDay(){if(busy||blocked)return;const today=todayISO();if(today!==seenToday){const follow=state.logDate===seenToday;remember();seenToday=today;if(follow){state.logDate=today;loadDraftFor(today);}render();}}
-    document.addEventListener('visibilitychange',()=>{if(document.hidden)remember();else{checkDay();render();}});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)remember();else{checkDay();render();checkRelease();}});
     window.addEventListener('hashchange',()=>{if(location.hash==='#today'){setDashboardView('today');selectDate(todayISO());}});
-    window.addEventListener('pageshow',()=>{checkDay();render();});setInterval(checkDay,60000);
+    window.addEventListener('pageshow',()=>{checkDay();render();checkRelease();});setInterval(checkDay,60000);
     setInterval(()=>{checkDay();paintLeisureClock();},1000);
     window.LedgerDays=Object.freeze({selectDate,setSeason,resetProgress,parseBackup,saveDay,remember,retry,saveRhythm,savePersonalReward,enjoyPersonalReward,personalRewardDialog,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
-    render();if(drafts.resetPending)finishProgressReset().then(()=>render());
+    render();checkRelease();if(drafts.resetPending)finishProgressReset().then(()=>render());
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();

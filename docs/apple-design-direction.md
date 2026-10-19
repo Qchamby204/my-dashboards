@@ -29,6 +29,8 @@ These are product choices derived from Apple’s principles, not measurements ma
 
 The header keeps identity and tools in one row. Original full-colour habit imagery stays in activity records; navigation and utility controls retain their line icons. Records use solid surfaces without glows or raised/inset shadows.
 
+The October 19 phone screenshot still showed the former Levels DOM, including the removed summary row and combined chart panel. An already-open cloud browser tab reproduced that older DOM at the same public address where a refreshed tab displayed all three new opening cards. This establishes that an open document can remain stale; it does not identify the exact lifecycle or address of the user's Home Screen installation. Ledger now checks its versioned enhancement release on launch and resume (at most once per minute), with a cache-bypassing same-origin HTML request. An available update offers a compact Refresh Ledger action; History's management tools also have Check for updates. Refresh waits for verified draft persistence and refuses to navigate over open editors, invalid fields, failed writes or conflicts. It returns to the current section and never clears records. Already-running older code needs one fresh document load to receive this behavior. Physical iPhone confirmation remains outstanding.
+
 | Section | Current arrangement |
 | --- | --- |
 | Today | Check-in cards or the list alternative only, with a compact Cards/List and entry-count toolbar. One frame groups the activity selector, title-led record, original artwork, entry control, Previous/Next and inline Save day. No progress, reward or reminder panels follow it. |
