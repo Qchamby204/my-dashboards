@@ -17,6 +17,8 @@ const nav=(p,name)=>p.locator('#atlas-page-navigation').getByRole('button',{name
 try{
  for(const theme of ['light','dark']){
   const ctx=await browser.newContext({viewport:{width:393,height:900},colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg'}),p=await ctx.newPage(),errors=[];
+  // Exercise the shipped font bytes without depending on an external CDN in CI.
+  await ctx.route('https://qchamby204.github.io/my-dashboards/shared/fonts/**',route=>route.fulfill({body:readFileSync(path.join(root,'shared/fonts',path.basename(new URL(route.request().url()).pathname))),contentType:'font/ttf',headers:{'access-control-allow-origin':'*'}}));
   p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(15000);
   try{
    await p.goto('http://127.0.0.1:'+server.address().port+'/communication-trainer.html');await ready(p);
@@ -36,7 +38,9 @@ try{
    for(const [width,size]of [[393,16],[393,20],[393,32],[320,32],[844,32]]){
     await p.setViewportSize({width,height:900});
     const style=await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});
-    await p.evaluate(()=>window.scrollTo(0,0));
+    // The dock regroups through ResizeObserver/rAF after viewport and text changes.
+    // Measure its painted layout, rather than the old six-item intermediate DOM.
+    await p.evaluate(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));window.scrollTo(0,0);});
     const layout=await p.evaluate(()=>{
      const header=document.querySelector('.communicator-learning-header'),h=header.querySelector('h2').getBoundingClientRect(),b=header.querySelector('[data-learning-action="assessment"]').getBoundingClientRect();
      const textFits=(n,box=n)=>{const range=document.createRange();range.selectNodeContents(n);const bounds=box.getBoundingClientRect();return [...range.getClientRects()].every(r=>r.left>=bounds.left-1&&r.right<=bounds.right+1&&r.top>=bounds.top-1&&r.bottom<=bounds.bottom+1);};
@@ -45,7 +49,7 @@ try{
       segments:[...header.querySelectorAll('[data-learning-action="track"]')].map(n=>{const r=document.createRange();r.selectNodeContents(n);const lines=[...r.getClientRects()].filter(r=>r.width&&r.height);return {fits:textFits(n),lines:lines.length,font:parseFloat(getComputedStyle(n).fontSize),width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height};})};
     });
     assert.equal(layout.overflow,false,'Learn fits '+width+'px at '+size+'px text');assert.equal(layout.overlap,false,'assessment never overlaps Learn');
-    assert(layout.chromeFits,'header identity and navigation labels fit their controls');
+    assert(layout.chromeFits,'header identity and navigation labels fit their controls: '+JSON.stringify({theme,width,size,layout}));
     for(const s of layout.segments){assert(s.fits,'subject text stays inside its control');assert.equal(s.lines,1,'subject words remain whole');assert(s.font>=size,'subject text follows enlargement');assert(s.width>=44&&s.height>=44);}
     await p.screenshot({path:path.join(out,'communicator-learning-'+theme+'-'+width+'-'+size+'.png')});
     await style.evaluate(n=>n.remove());
