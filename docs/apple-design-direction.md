@@ -32,9 +32,9 @@ The header keeps identity and tools in one row. Original full-colour habit image
 | Section | Current arrangement |
 | --- | --- |
 | Today | Check-in cards or the list alternative only, with a compact Cards/List and entry-count toolbar. One frame groups the activity selector, title-led record, original artwork, entry control, Previous/Next and inline Save day. No progress, reward or reminder panels follow it. |
-| Levels | Labelled, quieter lifetime/value progress and personal rewards. The three focus-activity summaries are removed. |
-| Achievements | A collection of 60 illustrated badges, written earned/locked states, earned seals, saved-progress meters, category/state filters and award details. A projected next milestone shows remaining progress and an estimated date when enough saved history exists. |
-| History | Saved days, unfinished entries, archives, backups and management. Weekly focus, screen-time and reset tools stay in Check-in tools; reminders stay in management and preserve their unfinished completion code through redraws. |
+| Levels | An illustrated indigo lifetime-level card leads, with saved XP, next-level progress and a reward action. Value cards follow, then personal rewards. The detailed value map is a disclosure. |
+| Achievements | The chosen projected milestone leads in the same illustrated indigo card, with the collection count in its rail, saved progress and a separate action footer. The 60 illustrated badges, earned/locked states, filters and award details follow. State/category filters share a row where space permits. |
+| History | An illustrated saved-record card leads with the number of dated saved days, latest date, unfinished check-ins and actions to browse the record or open backup tools. Saved entries follow, then check-in tools, management and archives. Reminders preserve their unfinished completion code through redraws. |
 
 Save feedback uses Ready to save, Saved and explicit failure/retry states. Today has one bottom navigation clearance, with extra scrolling room only while the keyboard is visible. Today’s activity face uses a solid deep indigo surface with cream text, brighter value accents and a framed full-colour activity illustration. The activity title has a larger, tighter typographic hierarchy. A separated theme-aware footer groups navigation, save status and Save day. Quantity fields, help and recorded states share the face’s readable colours. Entered-state borders and brief press feedback preserve a clear focal card. Reduced motion disables scale feedback.
 
@@ -66,3 +66,18 @@ Today retains one next challenge or unfinished practice. Topic management stays 
 ### Remaining suite: shared chrome and content audit
 
 The visual audit covers Operations Cadence, Hourglass, Aqueduct, Herald, Chef, Library, Courier, Baby Brain and Neural Map in light/dark populated and expanded states. Their individual record formats remain intact; ordinary content surfaces lose raised shadows while functional floating controls keep separation. Herald’s backup and sync controls move into its named App tools disclosure. Courier receives the same home/identity/appearance arrangement, with existing edition and playback controls below it; no publication or episode data changes. Atlas remains a passive hub. Physical iPhone verification is still outstanding.
+
+## Ledger section completion · October 19, 2026
+
+The opening-card treatment now extends beyond Today to Levels, Achievements and
+History. Every section has a large title, framed illustration, indigo face with
+cream text, and a theme-aware action footer. Supporting value cards, rewards,
+badge filters, saved days and tool disclosures use consistent spacing, rounded
+surfaces and control styles. Native disclosure glyphs in the affected controls
+are drawn in CSS so the controls do not depend on a fallback font glyph.
+
+Existing calculations, saved days, draft handling, reward rules and milestone
+preferences are retained. New browser evidence covers empty/populated records,
+320/393px phones, landscape, both themes, 200% text, long chosen milestone names,
+expanded help and the opening actions. This remains browser evidence rather than
+physical iPhone or VoiceOver sign-off.
