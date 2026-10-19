@@ -148,10 +148,10 @@ canvas{max-width:100%}
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=1b825b198bd6">
 <link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
-<link rel="stylesheet" href="shared/communicator-integration.css?v=0d18bac7021f">
+<link rel="stylesheet" href="shared/communicator-integration.css?v=f06e6dd34adb">
 <script src="shared/communicator-curriculum.js?v=8193a8745de9" defer></script>
 <script src="shared/communicator-integration.js?v=cdc28a15af0e" defer></script>
-<link rel="stylesheet" href="shared/communicator-ladder.css?v=6df2387a57ef">
+<link rel="stylesheet" href="shared/communicator-ladder.css?v=0de976b2de91">
 <script src="shared/communicator-ladder.js?v=e90d1530d6ee" defer></script>
 <link rel="stylesheet" href="shared/core-app-finish.css?v=75f630081488">
 <script src="shared/core-app-finish.js?v=ea7c5171d7a0" defer></script>
@@ -829,7 +829,7 @@ function pageLearn(){
   CURRICULUM.map(m=>{
     const sk=SKILLS.find(s=>s.id===m.skill);
     const done=m.lessons.filter(l=>S.lessonsDone[l.id]).length;
-    return `<div class="card">
+    return `<div class="card communication-module">
       <div class="tag">${sk.name}</div>
       <h2>${m.title} <span class="muted" style="font-weight:400;font-size:.85rem">${done}/${m.lessons.length}</span></h2>
       ${m.lessons.map(l=>`

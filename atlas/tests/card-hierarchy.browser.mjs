@@ -156,7 +156,7 @@ try{
   await p.locator('[data-ladder-performed]').check();await p.locator('.card.rubric button[onclick="finishDrill()"]').click();
   assert.match(await p.locator('.cl-receipt').textContent(),/Challenge completed/);assert.match(await p.locator('.cl-receipt').textContent(),/80.*100 self-score/s);
   assert.equal(await p.evaluate(()=>S.reps.length),1);assert.equal(await p.evaluate(()=>xp()),10);
-  assert.equal(await p.locator('.cl-receipt .cl-emblem.is-earned').count(),1);assert.match(await p.locator('.cl-unlock-bridge').textContent(),/Make the idea land/);
+  assert.equal(await p.locator('.cl-receipt .cm-feature-art').count(),1,'the earned receipt keeps one illustration');assert.equal(await p.locator('.cl-receipt .cm-feature-support>.cl-emblem').count(),0,'the receipt does not repeat its artwork');assert.match(await p.locator('.cl-unlock-bridge').textContent(),/Make the idea land/);
   await p.locator('#toasts .toast').waitFor({state:'detached'});await capture(p,'communicator-ladder-saved',theme,w,size,p.locator('.cl-receipt'));
   await p.reload();await settle(p);assert.equal(await p.evaluate(()=>CommunicatorLadder.snapshot().completed),1);
   await p.locator('[data-ladder-start="make-it-land"]').first().click();await p.locator('#txBox').fill('My unfinished second challenge.');
