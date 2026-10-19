@@ -176,7 +176,7 @@
   }
   function planView(){
     const count=scheduled(ui.date).filter(M.open).length+opsPlanned().filter(t=>t.status!=='Done').length;
-    let html=heading('Plan','Build around your day',button('Add task','new-todo'))+feature('plan','Your plan at a glance',M.validDate(ui.date)?fmtDay(ui.date):'Choose a day',count?count+' task'+(count===1?'':'s')+' scheduled':'Start with one task',help('Choose related tasks and routines from the parts of your day below.'),button('View scheduled tasks','view-selected-day','',true))+daySelector();
+    let html=heading('Plan','Build around your day')+feature('plan','Your plan at a glance',M.validDate(ui.date)?fmtDay(ui.date):'Choose a day',count?count+' task'+(count===1?'':'s')+' scheduled':'Start with one task',help('Choose related tasks and routines from the parts of your day below.'),button('Add task','new-todo','',true)+button('View scheduled tasks','view-selected-day'))+daySelector();
     html+=panel('Build around your life','<h2>Choose a part of your day</h2>'+['Morning','Work','Home & evening'].map(group=>'<details class="lm-block-editor"><summary>'+group+'</summary><div class="lm-inline">'+(group==='Work'&&OPS?button('Operations Cadence','ops-picker'):'')+starters.map((row,i)=>row[0]===group?button(row[1],'related-tasks','data-index="'+i+'"'):'').join('')+'</div></details>').join(''));
     if(ui.opsOpen)html+=opsPicker();
     if(ui.related!==null){
