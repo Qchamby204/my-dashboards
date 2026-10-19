@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","communication-enhancements.js":"4f507d271878"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","communication-enhancements.js":"7134d4edbb5a"}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -148,11 +148,11 @@ canvas{max-width:100%}
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=1b825b198bd6">
 <link rel="stylesheet" href="shared/communicator-curriculum.css?v=909ae4657c9e">
-<link rel="stylesheet" href="shared/communicator-integration.css?v=8d8a73991061">
+<link rel="stylesheet" href="shared/communicator-integration.css?v=f06e6dd34adb">
 <script src="shared/communicator-curriculum.js?v=8193a8745de9" defer></script>
 <script src="shared/communicator-integration.js?v=cdc28a15af0e" defer></script>
-<link rel="stylesheet" href="shared/communicator-ladder.css?v=42263378e24c">
-<script src="shared/communicator-ladder.js?v=1279daa5fe83" defer></script>
+<link rel="stylesheet" href="shared/communicator-ladder.css?v=0de976b2de91">
+<script src="shared/communicator-ladder.js?v=6b3952a175fc" defer></script>
 <link rel="stylesheet" href="shared/core-app-finish.css?v=75f630081488">
 <script src="shared/core-app-finish.js?v=ea7c5171d7a0" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/communication-trainer-32.png?v=96c42cc2e926">
@@ -829,7 +829,7 @@ function pageLearn(){
   CURRICULUM.map(m=>{
     const sk=SKILLS.find(s=>s.id===m.skill);
     const done=m.lessons.filter(l=>S.lessonsDone[l.id]).length;
-    return `<div class="card">
+    return `<div class="card communication-module">
       <div class="tag">${sk.name}</div>
       <h2>${m.title} <span class="muted" style="font-weight:400;font-size:.85rem">${done}/${m.lessons.length}</span></h2>
       ${m.lessons.map(l=>`
@@ -1367,8 +1367,8 @@ function gradesCard(){
       <button class="btn" onclick="saveGradePaste('gradeBoxP')">Log grade</button>
     </div>`;
   if(!gs.length) return `<div class="card">
-    <h2>AI-graded reps · the honest trend</h2>
-    <p class="muted">Self-scores drift; an outside grader doesn't. In Train: record a rep, copy the grading prompt to Claude, then paste the JSON grade back. Every grade lands here on a 0–100 trend line so you can see, in numbers, whether you're actually getting better.</p>
+    <h2>External feedback</h2>
+    <p class="muted">Review optional feedback alongside your own rubric scores. In Practice, copy the grading prompt to your chosen assistant and paste its JSON response back. Saved grades appear on the trend line; they are feedback, not an objective measure of skill.</p>
     ${paste}
   </div>`;
   const last=gs.slice(-20);
@@ -1392,7 +1392,7 @@ function gradesCard(){
     return `<p class="muted" style="font-size:.78rem;margin-top:10px">Delivery mechanics (last 5 recorded): ~${w5} wpm · ${f5} filler words per rep. Conversational sweet spot is ≈140–170 wpm.</p>`; })() : '';
   const recent=[...gs].reverse().slice(0,6).map(g=>`<div class="topicitem"><span><b>${g.overall}/100</b> <span class="muted">· ${esc(g.drill||'rep')} · ${esc((g.topic||'').slice(0,36))}${(g.topic||'').length>36?'…':''}</span>${g.fix?`<br><span class="muted" style="font-size:.76rem;text-transform:none">→ ${esc(g.fix)}</span>`:''}</span><span class="muted" style="flex-shrink:0">${g.date.slice(0,10)}</span></div>`).join('');
   return `<div class="card">
-    <h2>AI-graded reps · the honest trend</h2>
+    <h2>External feedback</h2>
     <div class="statrow">
       <div class="stat"><div class="v">${gs[gs.length-1].overall}</div><div class="l">Latest /100</div></div>
       <div class="stat"><div class="v">${l5!=null? Math.round(l5):'—'}</div><div class="l">Avg last 5</div></div>

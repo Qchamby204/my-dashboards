@@ -24,7 +24,7 @@ async function coreChrome(p,app,w,h){
  if(w<=600){
   assert(Math.abs((a.y+a.height/2)-(b.y+b.height/2))<3,app+' keeps header tools on the same row');
   if(app==='Forge')assert.equal(await header.locator('.appbar-pill').isVisible(),false,'Forge keeps weekly totals in the season record');
-  else{const badge=await header.locator('.appbar-pill,.appbar-lvl').boundingBox();assert(badge.y>=b.y+b.height&&badge.x>=b.x+b.width,app+' status sits below the title');}
+  else assert.equal(await header.locator('.appbar-lvl').isVisible(),false,'Communicator keeps XP in its Progress record');
   const tool=header.locator('[data-act="plates"],[data-act="settings"]');if(await tool.count()){const r=await tool.boundingBox();assert(Math.abs((r.y+r.height/2)-(b.y+b.height/2))<3,app+' utility stays in the header row');}
  }
  const dock=p.locator('#atlas-page-navigation');
@@ -156,7 +156,7 @@ try{
   await p.locator('[data-ladder-performed]').check();await p.locator('.card.rubric button[onclick="finishDrill()"]').click();
   assert.match(await p.locator('.cl-receipt').textContent(),/Challenge completed/);assert.match(await p.locator('.cl-receipt').textContent(),/80.*100 self-score/s);
   assert.equal(await p.evaluate(()=>S.reps.length),1);assert.equal(await p.evaluate(()=>xp()),10);
-  assert.equal(await p.locator('.cl-receipt .cl-emblem.is-earned').count(),1);assert.match(await p.locator('.cl-unlock-bridge').textContent(),/Make the idea land/);
+  assert.equal(await p.locator('.cl-receipt .cm-feature-art').count(),1,'the earned receipt keeps one illustration');assert.equal(await p.locator('.cl-receipt .cm-feature-support>.cl-emblem').count(),0,'the receipt does not repeat its artwork');assert.match(await p.locator('.cl-unlock-bridge').textContent(),/Make the idea land/);
   await p.locator('#toasts .toast').waitFor({state:'detached'});await capture(p,'communicator-ladder-saved',theme,w,size,p.locator('.cl-receipt'));
   await p.reload();await settle(p);assert.equal(await p.evaluate(()=>CommunicatorLadder.snapshot().completed),1);
   await p.locator('[data-ladder-start="make-it-land"]').first().click();await p.locator('#txBox').fill('My unfinished second challenge.');
