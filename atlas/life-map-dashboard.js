@@ -4,7 +4,8 @@
   const M=createLifeMapWorkflow(),clone=M.clone,own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
   const DRAFT_KEY='lifemap:entry-drafts:v2',VIEW_KEY='lifemap:view:v2';
   const project=id=>(S.projects||[]).find(p=>p.id===id),chore=id=>(S.chores||[]).find(c=>c.id===id),group=id=>(S.groups||[]).find(g=>g.id===id);
-  const button=(text,action,attrs='',cls='')=>'<button type="button" class="btn tap lm-button '+cls+'" data-lm="'+action+'" '+attrs+'>'+text+'</button>';
+  const utilityIcons={'⋯':'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>','×':'<path d="m6 6 12 12M6 18 18 6"/>','↑':'<path d="M12 20V4m-7 7 7-7 7 7"/>','↓':'<path d="M12 4v16m-7-7 7 7 7-7"/>','↗':'<path d="M5 19 19 5H7m12 0v12"/>'};
+  const button=(text,action,attrs='',cls='')=>'<button type="button" class="btn tap lm-button '+cls+'" data-lm="'+action+'" '+attrs+'>'+(utilityIcons[text]?'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+utilityIcons[text]+'</svg>':text)+'</button>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
   const select=(key,value,options,extra='')=>'<select data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
   const input=(key,value='',type='text',extra='')=>'<input type="'+type+'" data-lm="field" data-field="'+key+'" value="'+esc(value||'')+'" '+extra+'>';

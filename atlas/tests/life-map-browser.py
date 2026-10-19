@@ -692,7 +692,8 @@ class LifeMapBrowser(unittest.TestCase):
                         for(const panel of pane.querySelectorAll('.lm-day-panel')){
                             const card=panel.getAttribute('aria-label')==='Right now'?panel.querySelector('.lm-now-card'):panel;
                             if(!card){errors.push('missing next-move card');continue;}
-                            if(parseFloat(getComputedStyle(card).paddingLeft)<20)errors.push('tight card padding');
+                            const padded=card.querySelector('.lm-feature-body')||card;
+                            if(parseFloat(getComputedStyle(padded).paddingLeft)<20)errors.push('tight card padding');
                             if(card!==panel&&getComputedStyle(panel).boxShadow!=='none')errors.push('nested next-move surface');
                         }
                         for(const label of pane.querySelectorAll('.lm-foundation .eyebrow')){
