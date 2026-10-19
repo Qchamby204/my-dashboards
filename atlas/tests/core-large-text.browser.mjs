@@ -10,6 +10,7 @@ const root=path.resolve(fileURLToPath(new URL('../../',import.meta.url))),out=pr
 const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.ttf':'font/ttf','.png':'image/png','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const f=path.resolve(root,'.'+new URL(req.url,'http://test').pathname);if(!f.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(f)]||'text/plain');res.end(readFileSync(f));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
+const coreApps=['life-ledger','life-map','workout-forge','communication-trainer'],apps=process.env.ATLAS_TEXT_APPS?.split(',')||coreApps;
 const frames=p=>p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
 async function inspect(p){return p.evaluate(()=>{
  const visible=n=>n.checkVisibility()&&!n.closest('[hidden],[inert],[aria-hidden="true"]')&&!n.closest('details:not([open]) :not(summary)');
@@ -28,18 +29,18 @@ async function inspect(p){return p.evaluate(()=>{
  if(ratios.some(r=>!Number.isFinite(r)||r<4.5))issues.push({problem:'navigation text contrast',ratios});
  if(dock&&parseFloat(getComputedStyle(dock).borderTopWidth)<2)issues.push({problem:'increased-contrast navigation edge'});
  for(const n of nav){const b=n.getBoundingClientRect();if(b.width<43.5||b.height<43.5||b.left<0||b.right>innerWidth+1)issues.push({problem:'navigation bounds',control:key(n),width:b.width});}
- const title=document.querySelector('.appbar .appbar-title,.appbar>h1');if(title&&!fits(title))issues.push({problem:'header text clipped'});
- const bar=document.querySelector('.appbar'),controls=bar?[title,...bar.querySelectorAll('button,a.homebtn')].filter(n=>n&&visible(n)):[];
+ const bar=document.querySelector('.appbar,.atlas-header-compact,body>header'),title=bar?.querySelector('.appbar-title,h1');if(title&&!fits(title))issues.push({problem:'header text clipped'});
+ const controls=bar?[title,...bar.querySelectorAll('button,a[href],summary')].filter(n=>n&&visible(n)):[];
  for(let i=0;i<controls.length;i++)for(let j=i+1;j<controls.length;j++){if(controls[i].contains(controls[j])||controls[j].contains(controls[i]))continue;const a=controls[i].getBoundingClientRect(),b=controls[j].getBoundingClientRect();if(Math.min(a.right,b.right)-Math.max(a.left,b.left)>2&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>2)issues.push({problem:'header overlap',controls:[key(controls[i]),key(controls[j])]});}
  return {issues,bodyFont:parseFloat(getComputedStyle(document.body).fontSize),dockHeight:dock?.getBoundingClientRect().height,minimumNavContrast:Math.min(...ratios)};
  });}
 try{
  for(const theme of ['light','dark'])for(const width of [320,393,852]){
   const ctx=await browser.newContext({viewport:{width,height:width===852?393:900},colorScheme:theme,reducedMotion:'reduce',contrast:'more',timezoneId:'America/Winnipeg'});
-  for(const app of ['life-ledger','life-map','workout-forge','communication-trainer']){
+  for(const app of apps){
    const p=await ctx.newPage();p.setDefaultTimeout(10000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
    try{
-    await p.goto(origin+'/'+app+'.html');await p.waitForFunction(()=>!!window.AtlasPageNavigation&&!!window.CoreAppFinish);await p.evaluate(()=>document.fonts.ready);
+    await p.goto(origin+'/'+app+'.html');await p.waitForFunction(({core,flag})=>!!window.AtlasPageNavigation&&document.documentElement.classList.contains('atlas-page-navigation')&&(!core||!!window.CoreAppFinish)&&(!flag||!!window[flag]),{core:coreApps.includes(app),flag:({'the-chef':'AtlasCraftUI','the-hourglass':'HourglassImprovements','the-aqueduct':'AqueductUI'})[app]});await p.evaluate(()=>document.fonts.ready);
     await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});await frames(p);
     const native=app==='life-ledger'?'.ledger-nav':app==='life-map'?'.lm-day-dock':null;
     const entries=await p.locator(native?native+' button':'#atlas-page-menu [data-page-key],#atlas-page-navigation [data-page-key]').evaluateAll(ns=>[...new Set(ns.map(n=>n.id||n.dataset.pageKey))]);
@@ -58,5 +59,5 @@ try{
   }
   await ctx.close();
  }
- const failed=reports.filter(r=>r.error||r.issues?.length);console.log(JSON.stringify({engine,views:reports.length,failures:failed}));assert.equal(failed.length,0,'core views fit at 200% text with increased contrast');
+ const failed=reports.filter(r=>r.error||r.issues?.length);console.log(JSON.stringify({engine,views:reports.length,failures:failed}));assert.equal(failed.length,0,'selected app views fit at 200% text with increased contrast');
 }finally{writeFileSync(path.join(out,'core-large-text.json'),JSON.stringify(reports,null,2));await browser.close();server.close();}

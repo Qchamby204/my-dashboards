@@ -64,6 +64,36 @@ jobs:
         with:
           name: core-large-text-${{ matrix.engine }}
           path: artifacts/core-large-text
+  supporting-large-text:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: ${{ matrix.engine }}
+      - name: Verify Chef, Hourglass and Aqueduct views at 200 percent text and increased contrast
+        env:
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
+          ATLAS_SCREENSHOTS: artifacts/supporting-large-text
+          ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
+          ATLAS_TEXT_APPS: the-chef,the-hourglass,the-aqueduct
+        run: node atlas/tests/core-large-text.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supporting-large-text-${{ matrix.engine }}
+          path: artifacts/supporting-large-text
   regression:
     runs-on: ubuntu-latest
     timeout-minutes: 20
