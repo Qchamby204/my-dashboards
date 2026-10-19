@@ -63,3 +63,47 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cl-stage .btn{ba
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-next,.cl-receipt)>h2{font-size:1.5rem;line-height:1.3}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-next,.cl-receipt)>p{font-size:1rem;line-height:1.6}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cl-emblem{box-shadow:none!important}
+
+/* Shared opening treatment, retaining the original page nodes and actions. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cm-feature{--cm-face:#342d49;--cm-ink:#f6f0e5;--cm-muted:#ddd6e7;--cm-gold:#e6bd7b;padding:0!important;border:1px solid var(--neo-line)!important;border-radius:24px!important;background:var(--neo-content-surface)!important;box-shadow:none!important;overflow:hidden;min-width:0;margin-bottom:24px}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"][data-atlas-theme="dark"] #main .cm-feature{--cm-face:#3b3352}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-rail{padding:16px 24px;background:var(--cm-face)!important;border-bottom:1px solid #ffffff26;color:var(--cm-muted)!important;font-size:.8125rem;font-weight:600;line-height:1.5}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-rail :is(p,div,span){color:var(--cm-muted)!important;font-size:inherit!important;line-height:inherit;margin:0!important;letter-spacing:0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body{padding:24px;background:var(--cm-face)!important;color:var(--cm-ink)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:20px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-title>:is(h2,h3,.topic){flex:1 1 12rem;min-width:0;font:700 1.75rem/1.15 var(--neo-font)!important;letter-spacing:-.04em!important;color:var(--cm-ink)!important;margin:0!important;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature-art{width:88px;height:88px;flex:0 0 88px;color:var(--cm-gold)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body :is(p,.muted,.cl-meta,.cl-meta span,.communication-rank-line,.communication-rank-line span,.cl-result,.cl-result span){font-size:1rem;line-height:1.5;color:var(--cm-muted)!important;margin:12px 0 0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body .cl-result{font-size:2rem;font-weight:700;color:var(--cm-ink)!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body #timer{color:var(--cm-ink)!important;font-size:3rem;line-height:1.15;font-variant-numeric:tabular-nums;margin:20px 0 0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-footer{padding:16px 24px;margin:0!important;display:flex;justify-content:flex-start!important;flex-wrap:wrap;gap:12px;background:var(--neo-content-surface)!important;border-top:1px solid var(--neo-line)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-footer :is(.btn,button,a){white-space:normal;min-width:44px;min-height:44px;font:600 .9375rem/1.4 var(--neo-font);padding:12px 18px;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-footer .btn:not(.ghost){background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature-support{padding:20px 24px;background:var(--neo-content-surface)}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature-support>:first-child{margin-top:0}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature-support>:last-child{margin-bottom:0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body .bar{background:#ffffff26!important;box-shadow:none!important;height:8px;margin-top:20px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body .bar i{background:var(--cm-gold)!important;box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body .bar::after{content:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.communication-history,.communication-comparisons)>details{padding:16px;margin:12px 0;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface)}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-comparisons summary{min-height:44px;padding:8px 0;cursor:pointer;line-height:1.5;font-weight:600}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] :is(input:not([type=checkbox]),select,textarea){border-radius:14px!important;min-width:0;box-sizing:border-box;font-size:1rem!important;color-scheme:light}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"][data-atlas-theme="dark"] :is(input,select,textarea){color-scheme:dark}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .lesson{padding:14px;margin:12px 0;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface)}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .lesson-title{font-size:1rem;line-height:1.4;font-weight:600}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .topicitem{padding:14px;margin:10px 0;border:1px solid var(--neo-line);border-radius:18px;background:var(--neo-surface);gap:12px}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .rubric{border-top:3px solid var(--neo-accent)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor{border-radius:24px!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .communication-topic-actions{position:sticky;bottom:0;padding:16px 0 0;background:var(--neo-content-surface);border-top:1px solid var(--neo-line)}
+@media(prefers-contrast:more){html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cm-feature{border-width:2px!important}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature{--cm-face:Canvas;--cm-ink:CanvasText;--cm-muted:CanvasText;--cm-gold:CanvasText}}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #barPill{display:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body .communication-rank-line strong{color:var(--cm-ink)!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature-support .communication-curriculum-about{margin:0!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.card,.drillcard){box-shadow:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-rail>.tag{background:transparent!important;border:0!important;padding:0!important;letter-spacing:0!important;text-transform:none!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] .cm-feature-body>span{display:block;margin:12px 0 0;font-size:1rem;line-height:1.5}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor h2{font:700 1.5rem/1.2 var(--neo-font);letter-spacing:-.03em}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor label{font-size:.875rem;line-height:1.4}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor .communication-topic-actions{gap:12px;flex-wrap:wrap}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor .communication-topic-actions button{flex:1 1 8rem;min-width:0;white-space:normal;word-break:normal!important;overflow-wrap:normal}

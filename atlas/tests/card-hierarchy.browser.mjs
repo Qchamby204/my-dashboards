@@ -24,7 +24,7 @@ async function coreChrome(p,app,w,h){
  if(w<=600){
   assert(Math.abs((a.y+a.height/2)-(b.y+b.height/2))<3,app+' keeps header tools on the same row');
   if(app==='Forge')assert.equal(await header.locator('.appbar-pill').isVisible(),false,'Forge keeps weekly totals in the season record');
-  else{const badge=await header.locator('.appbar-pill,.appbar-lvl').boundingBox();assert(badge.y>=b.y+b.height&&badge.x>=b.x+b.width,app+' status sits below the title');}
+  else assert.equal(await header.locator('.appbar-lvl').isVisible(),false,'Communicator keeps XP in its Progress record');
   const tool=header.locator('[data-act="plates"],[data-act="settings"]');if(await tool.count()){const r=await tool.boundingBox();assert(Math.abs((r.y+r.height/2)-(b.y+b.height/2))<3,app+' utility stays in the header row');}
  }
  const dock=p.locator('#atlas-page-navigation');

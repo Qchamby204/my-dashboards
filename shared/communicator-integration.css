@@ -89,3 +89,7 @@ html.atlas-neumo.atlas-neumo.atlas-page-navigation[data-atlas-app="communication
 .communicator-session-footer details>.flex{margin-top:8px}
 .communicator-practice-more{margin-top:16px}
 @media(max-width:650px){.communicator-session-actions{display:grid;grid-template-columns:1fr 1fr}.communicator-session-actions .btn{padding:10px;line-height:1.4}}
+
+/* Daily-routine statistics wrap with large text rather than widening the page. */
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .communicator-analysis .stat{min-width:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .communicator-analysis .stat :is(.k,.n,.v){min-width:0;white-space:normal!important;overflow-wrap:anywhere}
