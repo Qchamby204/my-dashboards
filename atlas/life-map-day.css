@@ -1,6 +1,16 @@
 
 /* Home / Plan / Areas / Board navigation, in the suite's existing visual language. */
 html[data-atlas-app="life-map"] .lm-day-view[hidden]{display:none!important}
+/* One day selector for planning and viewing, ahead of the agenda. */
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-bar{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;margin:0 0 24px;min-width:0}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-bar>.lm-day-field{flex:1 1 10rem;margin:0;min-width:0}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-bar input{width:100%;min-width:0;box-sizing:border-box}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-actions button{min-width:44px;min-height:44px;padding:10px 12px;box-shadow:none!important;font-size:1rem;line-height:1.4}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-actions [data-step]{padding:8px;font-size:1.5rem;line-height:1}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-link{flex-basis:100%}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-heading>.lm-inline{flex:0 1 auto}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-heading .lm-day-button{white-space:normal}
 html[data-atlas-app="life-map"] .lm-day-records[hidden]{display:none!important}
 html[data-atlas-app="life-map"] .lm-day-task{padding:16px 0;border-bottom:1px solid var(--neo-line,var(--line));min-width:0}
 html[data-atlas-app="life-map"] .lm-day-task:last-child{border-bottom:0}

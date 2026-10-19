@@ -361,6 +361,13 @@ test('unsupported screen-awake API does not interrupt workout timing or saving',
 });
 function goalClick(h,action,data={}){const el=h.document.createElement('button');el.dataset={goalAction:action,...data};h.node('app').emit('click',{target:el});}
 function fillGoal(h,values){const form=h.document.querySelector('.fg-editor');for(const [name,value]of Object.entries(values))form.querySelector(`[name="${name}"]`).value=value;h.node('app').emit('input',{target:form.querySelector('input')});return form;}
+test('optional effort and zero bodyweight survive the set-editor redraw and save in the original fields',async()=>{
+ const h=await boot({goals:true});goalClick(h,'open',{goal:'bench'});goalClick(h,'set',{key:'0-d1-0-0'});fillGoal(h,{w:'0',r:'6',e:'8'});
+ const again=await boot({goals:true,records:Object.fromEntries(h.storage)});goalClick(again,'open',{goal:'bench'});const form=again.document.querySelector('.fg-editor');
+ for(const [name,value]of Object.entries({w:'0',r:'6',e:'8'}))assert.equal(form.querySelector(`[name="${name}"]`).value,value);
+ again.node('app').emit('submit',{target:form});const p=again.window.ForgeGoals.snapshot().plans.bench;
+ assert.equal(p.done['0-d1-0-0'].w,'0');assert.equal(p.done['0-d1-0-0'].r,'6');assert.equal(p.done['0-d1-0-0'].e,'8');assert.equal(p.draft,null);
+});
 test('run editor calculates as typed, persists short runs and restores its draft after reopening',async()=>{
  const h=await boot({goals:true});goalClick(h,'open',{goal:'run'});goalClick(h,'set',{key:'0-d1-0-0'});
  let form=fillGoal(h,{w:'15:00',distance:'1.5',unit:'mi'});assert.match(form.querySelector('.fg-run-result').textContent,/10:00.*6.0 mph/);
