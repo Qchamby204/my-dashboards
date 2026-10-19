@@ -46,8 +46,8 @@
     if(!entries.length)return '';
     return `<details class="fg-log"><summary>Goal session log <span>${entries.length} saved</span></summary>${entries.map(({id,k,date,p})=>{const [w,d]=k.split('-'),c=M.counts(id,p,+w,d);return `<button type="button" data-goal-action="history" data-goal="${id}" data-week="${w}" data-day="${d}"><span><strong>${P[id].title}</strong> · Week ${+w+1} ${d==='d1'?'A':'B'}<small>${c.logged}/${c.total} sets logged</small></span><time datetime="${date}">${new Date(date).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</time></button>`;}).join('')}</details>`;
   }
-  function field(label,key,value,type='number',attrs=''){
-    return `<label>${label}<input name="${key}" value="${esc(value||'')}" type="${type}" ${attrs} ${type==='number'?'inputmode="decimal" step="any"':''}></label>`;
+  function field(label,key,value,type='number',attrs='',hint=''){
+    return `<label><span id="fg-label-${key}">${label}</span><input aria-labelledby="fg-label-${key}" name="${key}" value="${esc(value||'')}" type="${type}" ${attrs} ${hint?`aria-describedby="fg-hint-${key}"`:''} ${type==='number'?'inputmode="decimal" step="any"':''}>${hint?`<small id="fg-hint-${key}">${hint}</small>`:''}</label>`;
   }
   function editor(k,e){
     const p=plan(),v=M.defaults(active,p,k);
@@ -55,17 +55,17 @@
     if(active==='run')fields=field('Total time (mm:ss)','w',v.w,'text','inputmode="text" placeholder="15:00" required')+field('Distance completed','distance',v.distance,'number','min="0.001" placeholder="1.5" required')+`<label>Distance unit<select name="unit"><option value="mi" ${v.unit!=='km'?'selected':''}>Miles</option><option value="km" ${v.unit==='km'?'selected':''}>Kilometres</option></select></label>`;
     else if(e.reach)fields=field('Best touch (inches)','w',v.w,'number','min="0.5" max="200" required');
     else if(active==='dunk')fields=field('Weight, reps or note (optional)','w',v.w,'text','maxlength="500" placeholder="e.g. 35 lb × 6 each leg"');
-    else fields=field('Weight (lb; 0 for bodyweight)','w',v.w,'number','min="0"')+field(e.rl||'Reps','r',v.r,'number','min="0.1" required');
-    if(active!=='dunk')fields+=field('RPE (optional)','e',v.e,'number','min="1" max="10"');
-    return `<form class="fg-editor" data-key="${k}"><strong>Set ${M.locate(active,k,p.base).set+1}</strong><div class="fg-fields">${fields}</div>${active==='run'?`<p class="fg-run-result" role="status" aria-live="polite">${runResult(v)}</p><small>Use the time and distance for this set. Shorter runs count, including runs under 3 miles.</small>`:''}<div class="fg-actions"><button type="submit" class="fg-primary">${active==='dunk'&&!e.reach?'Mark done':'Save set'}</button>${p.done[k]?button('Clear set','clear',`data-key="${k}"`):''}${button('Close','close-editor')}</div><small>Entries stay in this browser. Unfinished fields are saved as a draft.</small></form>`;
+    else fields=field('Weight (lb)','w',v.w,'number','min="0"','Use 0 for bodyweight.')+field(e.rl||'Reps','r',v.r,'number','min="0.1" required');
+    const set=M.locate(active,k,p.base).set+1,effort=active!=='dunk'?`<details class="fg-effort" ${v.e?'open':''}><summary>Effort (optional)</summary>${field('RPE (1–10)','e',v.e,'number','min="1" max="10"')}</details>`:'';
+    return `<form class="fg-editor" data-key="${k}" aria-label="${esc(e.n)}, set ${set}"><div class="fg-editor-heading"><strong>Set ${set} of ${e.sets}</strong><span>${p.done[k]?'Editing saved set':'Unfinished entry'}</span></div><div class="fg-fields">${fields}</div>${active==='run'?`<p class="fg-run-result" role="status" aria-live="polite">${runResult(v)}</p><small>Use the time and distance for this set. Shorter runs count, including runs under 3 miles.</small>`:''}${effort}<div class="fg-actions"><button type="submit" class="fg-primary">${active==='dunk'&&!e.reach?'Mark done':'Save set'}</button>${p.done[k]?button('Clear set','clear',`data-key="${k}"`):''}${button('Close','close-editor')}</div><small>Entries stay in this browser. Unfinished fields are saved as a draft.</small></form>`;
   }
   function exercises(){
     const {p,w}=selected(),next=currentSet(p,w),where=next?M.locate(active,next,p.base):null;
-    return w[p.day].map((e,ei)=>`<section data-current="${where?.week===p.week&&where?.day===p.day&&where?.exercise===ei}" class="fg-exercise ${e.main?'fg-main':''}" aria-labelledby="fg-ex-${ei}"><div class="fg-ex-top"><h3 id="fg-ex-${ei}">${esc(e.n)}</h3><strong>${esc(e.rx)}</strong></div><div class="fg-rest-line"><span>${esc(e.rest)}</span>${restSeconds(e.rest)?button('Start rest','rest',`data-seconds="${restSeconds(e.rest)}" aria-label="Start rest for ${esc(e.n)}"`):''}</div>${e.note?`<p class="fg-ex-note">${esc(e.note)}</p>`:''}<div class="fg-sets">${Array.from({length:e.sets},(_,s)=>{
+    return w[p.day].map((e,ei)=>`<section data-current="${where?.week===p.week&&where?.day===p.day&&where?.exercise===ei}" class="fg-exercise ${e.main?'fg-main':''}" aria-labelledby="fg-ex-${ei}"><div class="fg-ex-top"><h3 id="fg-ex-${ei}">${esc(e.n)}</h3><strong>${esc(e.rx)}</strong></div><div class="fg-sets">${Array.from({length:e.sets},(_,s)=>{
       const k=M.key(p.week,p.day,ei,s),v=p.done[k];let label=''+(s+1);
       if(v)label=active==='run'?`${v.w}${v.distance?' · '+v.distance+' '+v.unit:''}`:e.reach?v.w+' in':active==='dunk'?'✓':`${v.w!==''?v.w+' × ':''}${v.r}${e.rl?' '+e.rl.toLowerCase():''}`;
       return button(esc(label+(k===next?' · '+(p.draft?'Editing':'Next'):'')),'set',`data-key="${k}" ${k===next?'aria-current="step"':''} class="fg-set ${v?'fg-done':''}" aria-label="${esc(e.n)}, set ${s+1}, ${v?esc(label):'not logged'}${k===next?', '+(p.draft?'editing':'next set'):''}" aria-expanded="${p.draft?.key===k}"`);
-    }).join('')}</div>${p.draft&&M.locate(active,p.draft.key,p.base)?.exercise===ei&&p.draft.key.startsWith(`${p.week}-${p.day}-`)?editor(p.draft.key,e):''}</section>`).join('');
+    }).join('')}</div>${p.draft&&M.locate(active,p.draft.key,p.base)?.exercise===ei&&p.draft.key.startsWith(`${p.week}-${p.day}-`)?editor(p.draft.key,e):''}<div class="fg-rest-line"><span>Rest · ${esc(e.rest)}</span>${restSeconds(e.rest)?button('Start rest','rest',`data-seconds="${restSeconds(e.rest)}" aria-label="Start rest for ${esc(e.n)}"`):''}</div>${e.note?`<details class="fg-ex-guidance"><summary>Exercise guidance</summary><p class="fg-ex-note">${esc(e.note)}</p></details>`:''}</section>`).join('');
   }
   function runResult(v){
     const stats=M.runStats(v);
