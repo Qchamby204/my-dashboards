@@ -29,6 +29,20 @@ It also removes the hotfix's persistent DOM scan. The Courier cleanup removes a
 second player import. These are request/work reductions, not measured claims
 about real-device launch time or battery use.
 
+## Private bundle follow-up
+
+The final bundle check found six directly referenced chrome files and the
+mobile activity script missing from the private Worker's asset map. Its Figtree
+URLs also pointed at a public origin excluded by the private content policy.
+The packaging follow-up includes those seven scripts/styles, embeds the three
+existing font files as authenticated binary routes, and rewrites only private
+CSS font URLs to the same origin. Public assets and the content policy are
+unchanged. Tests resolve bundled entry references through the actual Worker,
+compare font bytes, and check that anonymous requests remain protected. The
+private hosted Worker still requires its separate deployment. All 791 Node
+tests pass with this follow-up, and the synthetic private Chromium check opens
+the hub and Life Map without missing shared assets.
+
 ## Retained deliberately
 
 - No unreferenced shared runtime asset was established by the filename-reference
