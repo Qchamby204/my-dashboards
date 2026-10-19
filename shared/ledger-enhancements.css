@@ -1,4 +1,6 @@
 /* Extend the original mineral / graphite appearance and mobile safe areas. */
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-release-notice{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;padding:12px 16px;margin:12px 0;border:1px solid var(--neo-line);border-radius:16px;background:var(--neo-content-surface);color:var(--neo-ink)}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-release-notice p{margin:0;font-size:1rem;line-height:1.4}
 html[data-atlas-app="life-ledger"] .ledger-personal-rewards{padding:24px;margin:20px 0;border:1px solid var(--neo-line);border-radius:24px;background:var(--neo-content-surface);color:var(--neo-ink);min-width:0;overflow-wrap:anywhere}
 .ledger-personal-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .ledger-personal-heading h2{font:700 1.2rem/1.4 var(--neo-font);letter-spacing:-.02em;margin:0;flex:1;min-width:0}

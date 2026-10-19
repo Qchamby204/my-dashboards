@@ -186,6 +186,7 @@ jobs:
         run: |
           node atlas/tests/core-acceptance.browser.mjs
           node atlas/tests/ledger-sections.browser.mjs
+          node atlas/tests/ledger-updates.browser.mjs
           node atlas/tests/private-assets.browser.mjs
           node atlas/tests/map-forge-flow.browser.mjs
           node atlas/tests/communicator-learning.browser.mjs
