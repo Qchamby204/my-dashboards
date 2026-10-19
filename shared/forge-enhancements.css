@@ -79,7 +79,7 @@ html.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme="dark"] {
  --forge-top:var(--neo-surface);--forge-bottom:var(--neo-inset);--forge-gold:#ffcf58;
 }
 html.atlas-neumo[data-atlas-app="workout-forge"] body {background:var(--neo-surface)!important;}
-html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-live-panel,.forge-rest,.forge-confirm,.forge-save-notice) {background:var(--neo-content-surface)!important;border:1px solid var(--neo-line)!important;border-radius:24px!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="workout-forge"] :is(.panel,.forge-live-panel,.forge-rest,.forge-confirm,.forge-save-notice) {background:var(--neo-content-surface)!important;border:1px solid var(--neo-line)!important;border-radius:24px!important;box-shadow:none!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] #app>.appbar {background:var(--neo-surface)!important;border-bottom:2px solid var(--neo-line)!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] .appbar-title {font:800 2rem/1 var(--forge-display)!important;text-transform:none;letter-spacing:.035em;color:var(--neo-ink)!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] .appbar-sub {color:var(--neo-ink)!important;font-size:.75rem;}
@@ -87,7 +87,7 @@ html.atlas-neumo[data-atlas-app="workout-forge"] .appbar :is(button,a) {backgrou
 html.atlas-neumo[data-atlas-app="workout-forge"] :is(.cinzel,.eyebrow,.forge-summary h2,.forge-confirm h2) {font-family:var(--forge-display)!important;font-weight:700;letter-spacing:.04em;}
 html.atlas-neumo[data-atlas-app="workout-forge"] .eyebrow {font-size:.875rem!important;line-height:1.3;}
 html.atlas-neumo[data-atlas-app="workout-forge"] :is(button,.homebtn) {border-radius:24px!important;border-color:var(--neo-line)!important;}
-html.atlas-neumo[data-atlas-app="workout-forge"] [data-act="section"] {border-left:3px solid var(--neo-blue)!important;box-shadow:none;}
+html.atlas-neumo[data-atlas-app="workout-forge"] [data-act="section"] {border-left:0!important;border-radius:0!important;box-shadow:none!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] [data-act="day"] {border-left:3px solid var(--forge-gold)!important;box-shadow:none;}
 html.atlas-neumo[data-atlas-app="workout-forge"] :is([data-act="live"],[data-act="livefinish"]) {background:var(--neo-surface)!important;color:var(--neo-ink)!important;border-color:var(--neo-line)!important;}
 html.atlas-neumo[data-atlas-app="workout-forge"] #forge-cancel {color:var(--neo-rose)!important;border-color:var(--neo-rose)!important;background:transparent!important;box-shadow:none;}
