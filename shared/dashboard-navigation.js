@@ -107,8 +107,8 @@
     }
     entries=readEntries();if(entries.length<2)return;
     if(!root.classList.contains('atlas-page-navigation'))root.classList.add('atlas-page-navigation');if(!dock)setup();
-    const compact=['communication-trainer','workout-forge'].includes(app)&&narrowViewport?.matches;
-    const visibleCount=entries.length>5?4:compact?3:5,hasMore=entries.length>visibleCount;
+    const compact=['communication-trainer','workout-forge','the-aqueduct'].includes(app)&&narrowViewport?.matches;
+    const visibleCount=compact?3:entries.length>5?4:5,hasMore=entries.length>visibleCount;
     const next=JSON.stringify([visibleCount,entries.map(e=>[e.key,e.title,e.selected,!!e.disabled])]);
     if(next!==signature){
       const focused=dock.contains(document.activeElement)?document.activeElement.dataset.pageKey||'more':null;

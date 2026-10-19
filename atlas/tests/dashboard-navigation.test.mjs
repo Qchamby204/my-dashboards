@@ -110,3 +110,11 @@ test('Crucible redirects without starting legacy presentation scripts',()=>{
  assert.equal([...html.matchAll(/<script[^>]+src=/g)].length,0,'no observers start in the leaving document');
  assert.match(html,/type="text\/plain" data-crucible-curriculum/,'build-time curriculum source remains available');
 });
+
+test('narrow Aqueduct keeps all work areas reachable and restores a direct selected tab on resize',()=>{
+ const h=harness('the-aqueduct','.tabbar',['Book','Paycheque','Plan','Goals','Wealth','Review'],true);
+ assert.equal(h.dock().children.length,4);assert.equal(h.menu().querySelector('.atlas-page-menu-items').children.length,6);
+ h.dock().children[3].click();assert.equal(h.menu().open,true);
+ h.menu().querySelector('.atlas-page-menu-items').children[3].click();h.flush();assert.deepEqual(h.calls,[3]);assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');
+ h.resize(false);assert.equal(h.dock().children.length,5);assert.equal(h.dock().children[3].getAttribute('aria-current'),'page');assert.deepEqual(h.writes,[]);
+});

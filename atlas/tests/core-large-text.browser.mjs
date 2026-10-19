@@ -23,6 +23,7 @@ async function inspect(p){return p.evaluate(()=>{
   if(!fits(n))issues.push({problem:'control text clipped',control:key(n),text:n.textContent.trim().slice(0,65)});
  }
  const nav=[...(dock?.querySelectorAll('button')||[])].filter(visible);
+ for(const n of nav){const label=n.lastElementChild;if(!label)continue;const r=document.createRange();r.selectNodeContents(label);if([...r.getClientRects()].filter(r=>r.width&&r.height).length!==1)issues.push({problem:'navigation caption wraps',text:label.textContent.trim()});}
  const rgba=s=>{const a=s.match(/[\d.]+/g)?.map(Number);return a&&(s.startsWith('color(srgb')?[...a.slice(0,3),a[3]??1]:[...a.slice(0,3).map(x=>x/255),a[3]??1]);};
  const lum=a=>{const v=a?.slice(0,3).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return v&&.2126*v[0]+.7152*v[1]+.0722*v[2];};
  const under=rgba(getComputedStyle(dock).backgroundColor),ratios=nav.map(n=>{const c=getComputedStyle(n),over=rgba(c.backgroundColor),bg=over.slice(0,3).map((x,i)=>x*over[3]+under[i]*(1-over[3])),a=lum(rgba(c.color)),b=lum(bg);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});
@@ -40,6 +41,7 @@ try{
   for(const app of apps){
    const p=await ctx.newPage();p.setDefaultTimeout(10000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
    try{
+    if(app==='the-hourglass')await p.addInitScript(()=>localStorage.setItem('hourglass:v1',JSON.stringify({__v2:true,birth:'2000-01-01',healthyAge:90,retireAge:60,created:'2026-01-01',tab:'weeks',fin:{currentAUM:'',pace:'',paceUnit:'month',growthPct:0,target:''},milestones:[{id:'test-milestone',label:'A future milestone',emoji:'📌',date:'2027-06-01'}],companions:[{id:'test-bond',label:'A companion',emoji:'🐈',start:'2020-01-01',end:''}]})));
     await p.goto(origin+'/'+app+'.html');await p.waitForFunction(({core,flag})=>!!window.AtlasPageNavigation&&document.documentElement.classList.contains('atlas-page-navigation')&&(!core||!!window.CoreAppFinish)&&(!flag||!!window[flag]),{core:coreApps.includes(app),flag:({'the-chef':'AtlasCraftUI','the-hourglass':'HourglassImprovements','the-aqueduct':'AqueductUI'})[app]});await p.evaluate(()=>document.fonts.ready);
     await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});await frames(p);
     const native=app==='life-ledger'?'.ledger-nav':app==='life-map'?'.lm-day-dock':null;
@@ -52,6 +54,10 @@ try{
      if(app==='life-ledger'&&entry==='ledger-nav-achievements')assert(await p.locator('#ledger-view-achievements>.ledger-view-title').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'the collection heading keeps its full word');
      if(app==='workout-forge'&&i>1)assert(await p.locator('.fg-detail-head>button').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'Back to Forge stays on one line');
      await p.screenshot({path:path.join(out,`${app}-${i}-${theme}-${width}.png`)});
+     if(app==='the-chef'&&entry==='mood'){
+      await p.locator('.filters').scrollIntoViewIfNeeded();await p.screenshot({path:path.join(out,`chef-filters-${theme}-${width}.png`)});
+      const card=p.locator('.recipe-card').first();await card.locator('details.more').last().locator('summary').click();await card.scrollIntoViewIfNeeded();await frames(p);reports.push({app,view:'recipe-expanded',theme,width,engine,...await inspect(p)});await p.screenshot({path:path.join(out,`chef-expanded-${theme}-${width}.png`)});
+     }
     }
     const first=p.locator('.atlas-page-native button,#atlas-page-navigation button').first();await p.keyboard.press('Tab');await first.focus();assert(await first.evaluate(n=>parseFloat(getComputedStyle(n).outlineWidth)>=2),'navigation retains a visible keyboard focus outline');
     assert.deepEqual(errors,[]);

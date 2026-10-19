@@ -72,3 +72,10 @@ html.atlas-neumo.atlas-neumo.atlas-page-navigation[data-atlas-app="life-ledger"]
 @media(max-width:360px){html.atlas-neumo.atlas-neumo.atlas-page-navigation[data-atlas-app="life-ledger"] .atlas-page-native{grid-template-columns:.8fr .8fr 1.5fr .9fr!important}}
 
 @media(prefers-contrast:more){html.atlas-neumo.atlas-neumo.atlas-page-navigation :is(#atlas-page-navigation,.atlas-page-native){background-image:none!important}}
+
+/* Supporting apps keep full tab words while content text enlarges. */
+html.atlas-neumo.atlas-neumo.atlas-page-navigation:is([data-atlas-app="the-chef"],[data-atlas-app="the-hourglass"],[data-atlas-app="the-aqueduct"]) #atlas-page-navigation button>span:last-child{font-size:clamp(12px,.75rem,14px)!important;line-height:1.25!important;white-space:nowrap!important;overflow-wrap:normal!important}
+@media(max-width:360px){
+ html.atlas-neumo.atlas-neumo.atlas-page-navigation:is([data-atlas-app="the-chef"],[data-atlas-app="the-hourglass"],[data-atlas-app="the-aqueduct"]) #atlas-page-navigation button>span:last-child{font-size:12px!important}
+ html.atlas-neumo.atlas-neumo.atlas-page-navigation[data-atlas-app="the-chef"] #atlas-page-navigation{grid-template-columns:1.25fr .75fr .9fr 1.1fr!important}
+}

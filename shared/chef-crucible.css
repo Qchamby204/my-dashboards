@@ -314,3 +314,10 @@ html.atlas-neumo[data-atlas-app="the-chef"] #cook-steps span::before{content:'ST
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] :is(#plan-add,#prep-save) {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;}
 
 .cc-app[data-atlas-app="the-chef"] #prep-dialog .cc-cook-heading h2 {min-width:0;overflow-wrap:anywhere;}
+
+/* Native filter controls shrink within their labelled field on narrow screens. */
+html.atlas-neumo[data-atlas-app="the-chef"] .filters>label{display:flex;flex-direction:column;align-items:stretch;flex:1 1 10rem;min-width:0;max-width:100%;gap:6px}
+html.atlas-neumo[data-atlas-app="the-chef"] .filters select{box-sizing:border-box;width:100%;min-width:0;max-width:100%}
+html.atlas-neumo[data-atlas-app="the-chef"] .filters>input{box-sizing:border-box;flex:1 1 15rem;min-width:0!important;max-width:100%}
+html.atlas-neumo[data-atlas-app="the-chef"] .filters>#meal-chips{flex-basis:100%}
+html.atlas-neumo[data-atlas-app="the-chef"] body>header h1{font-size:clamp(18px,1.125rem,22px)!important;line-height:1.3!important;white-space:nowrap}
