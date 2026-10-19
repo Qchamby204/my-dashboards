@@ -185,6 +185,7 @@ jobs:
           ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
         run: |
           node atlas/tests/core-acceptance.browser.mjs
+          node atlas/tests/private-assets.browser.mjs
           node atlas/tests/map-forge-flow.browser.mjs
           node atlas/tests/communicator-learning.browser.mjs
           node atlas/tests/storage-recovery.browser.mjs
