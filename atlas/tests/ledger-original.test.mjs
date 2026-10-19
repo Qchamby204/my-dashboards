@@ -82,7 +82,7 @@ async function boot({records={},blocked=false,width=390,realModel=false,nowISO='
     get firstElementChild(){return this.children[0]||null;}
     removeChild(n){n.remove();}
     get isConnected(){return this===document.body||this===document.head||!!this.parentNode?.isConnected;}
-    append(...a){a.forEach(n=>this.appendChild(n));}appendChild(n){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(x=>x!==n);this.children.push(n);n.parentNode=this;return n;}prepend(n){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(x=>x!==n);this.children.unshift(n);n.parentNode=this;}
+    append(...a){a.forEach(n=>this.appendChild(n));}appendChild(n){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(x=>x!==n);this.children.push(n);n.parentNode=this;return n;}prepend(...nodes){for(const n of [...nodes].reverse()){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(x=>x!==n);this.children.unshift(n);n.parentNode=this;}}
     before(n){const p=this.parentNode;p.children.splice(p.children.indexOf(this),0,n);n.parentNode=p;}
     after(n){const p=this.parentNode;p.children.splice(p.children.indexOf(this)+1,0,n);n.parentNode=p;}
     remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(n=>n!==this);this.parentNode=null;const removeIDs=n=>{if(n.id)ids.delete(n.id);n.children.forEach(removeIDs);};removeIDs(this);}
@@ -611,7 +611,7 @@ test('Achievements has its own overview and filters without saving or replacing 
  const empty=await boot({realModel:true});empty.node('ledger-nav-achievements').click();assert.match(empty.node('ledger-next-milestone').textContent,/1 saved day to go/);
  const rows=[{date:'2026-09-07',units:{Read:10},note:'One reflection'}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});
  h.run('state.draft.Read=25');h.api.remember();const bytes=h.storage.get(S);h.node('ledger-nav-achievements').click();
- assert.equal(h.node('ledger-view-achievements').hidden,false);assert.match(h.node('ledger-view-achievements').textContent,/Projected next milestone/);
+ assert.equal(h.node('ledger-view-achievements').hidden,false);assert.match(h.node('ledger-view-achievements').textContent,/Next milestone/);
  assert.equal(h.node('ledger-view-progress').querySelectorAll('[data-act="relic"]').length,0);
  h.node('ledger-achievement-filter-earned').click();const earned=h.node('ledger-view-achievements').querySelectorAll('[data-act="relic"]');assert(earned.length>0);assert(earned.every(n=>n.dataset.earned==='true'));
  h.node('ledger-achievement-filter-upcoming').click();assert(h.node('ledger-view-achievements').querySelectorAll('[data-act="relic"]').every(n=>n.dataset.earned==='false'));
@@ -660,4 +660,16 @@ test('extended achievements use saved totals, with no draft unlock or retroactiv
 
 test('the active card accent and entered state follow the deck without writing saved progress',async()=>{
  const h=await boot({realModel:true}),bytes=h.storage.get(S);let frame=h.node('app').querySelector('.ledger-deck-frame');assert.equal(frame.dataset.entered,'false');h.run('state.draft[HABITS[0]]=1;render()');frame=h.node('app').querySelector('.ledger-deck-frame');assert.equal(frame.dataset.entered,'true');h.run('goCard(HABITS.indexOf("Read"))');assert.equal(h.node('app').querySelector('.ledger-deck-frame').dataset.entered,'false');assert.equal(h.storage.get(S),bytes);assert(h.node('ledger-reminder-tools').closest('#ledger-view-history'));
+});
+
+test('History opens with a saved-record summary and keeps browsing and backup tools usable',async()=>{
+ const rows=[{date:'2026-09-28',units:{Read:10},note:'A saved reflection'}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}}),before=h.storage.get(S);
+ h.node('ledger-nav-history').click();const hero=h.node('ledger-record-overview');assert(hero.isConnected);assert.match(hero.textContent,/1 saved day/);assert.match(hero.textContent,/Latest check-in/);
+ hero.querySelectorAll('button').find(b=>b.textContent==='Browse saved days').click();assert.equal(h.node('ledger-history').open,true);
+ hero.querySelectorAll('button').find(b=>b.textContent==='Backup tools').click();assert.equal(h.node('ledger-reminder-tools').open,true);assert.equal(h.storage.get(S),before);
+});
+test('Levels opens with lifetime progress and keeps rewards and value progress in the same section',async()=>{
+ const h=await boot({realModel:true});h.node('ledger-nav-progress').click();const pane=h.node('ledger-view-progress'),hero=h.node('ledger-lifetime-levels');
+ assert(hero.classList.contains('ledger-feature'));assert.match(hero.textContent,/Life Level 0/);assert.match(hero.textContent,/lifetime XP/);assert.equal(hero.querySelector('.ledger-level-constellation'),null);
+ assert(pane.querySelector('.ledger-value-map'));assert(h.node('ledger-personal-rewards').isConnected);assert(hero.querySelectorAll('button').some(b=>b.textContent==='Explore rewards'));
 });
