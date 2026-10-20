@@ -2,7 +2,7 @@
 (()=>{
   if(window.LifeMapInteractions)return;window.LifeMapInteractions=true;
   const originalRender=render;let editorOpen=false,opener=null,lastTrigger=null;
-  const keys=['act','lm','id','key','k','field','area','w','index','group','day','dayField','category','tab'];
+  const keys=['act','lm','id','key','k','field','area','w','index','group','day','dayField','category','tab','date','step'];
   function identity(el){if(!el?.closest?.('#app'))return null;return {id:el.id||'',tag:el.tagName,data:Object.fromEntries(keys.filter(k=>el.dataset?.[k]!==undefined).map(k=>[k,el.dataset[k]])),start:el.selectionStart,end:el.selectionEnd};}
   function find(saved){if(!saved)return null;if(saved.id){const el=document.getElementById(saved.id);if(el&&app.contains(el))return el;}if(!Object.keys(saved.data).length)return null;return [...app.querySelectorAll('[data-act],[data-lm],[data-day],[data-day-field]')].find(el=>el.tagName===saved.tag&&keys.every(k=>el.dataset[k]===saved.data[k]))||null;}
   function focus(el,saved){el?.focus?.({preventScroll:true});if(el&&saved&&typeof saved.start==='number')try{el.setSelectionRange(saved.start,saved.end);}catch{}}
