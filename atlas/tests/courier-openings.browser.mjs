@@ -1,0 +1,43 @@
+// Courier openings, original financial records, and byte-for-byte record preservation.
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {createServer} from 'node:http';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const engines=createRequire(import.meta.url)('playwright'),engine=process.env.ATLAS_BROWSER_ENGINE||'chromium';
+const root=path.resolve(fileURLToPath(new URL('../../',import.meta.url))),out=process.env.ATLAS_SCREENSHOTS||'/tmp/courier-openings';mkdirSync(out,{recursive:true});
+const types={'.mjs':'text/javascript','.json':'application/json','.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.ttf':'font/ttf','.webmanifest':'application/manifest+json'};
+const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+new URL(req.url,'http://test').pathname);if(!file.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(file)]||'text/plain');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
+const wav=Buffer.alloc(44+16000*2*4);wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(16000,24);wav.writeUInt32LE(32000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40);
+const fixture={days:['2026-10-19','2026-10-18'].map((date,i)=>({date,generatedAt:date+'T10:00:00Z',expectedSections:['a','b','c'],budgetMinutes:30,blocks:['a','b','c'].map(id=>({id,label:'Section '+id,title:'A sample section with room for its complete title',minutes:4/60,durationSeconds:4,words:8,script:'A sample transcript retained by the existing reader.',talkingPoints:['A sample talking point.'],sources:[{title:'Sample source',outlet:'Example',url:'https://example.com'}],audio:i?'':origin+'/qa-'+id+'.wav'}))}))};
+try{
+ const profiles=[['light',393,16],['dark',393,16],['light',320,16],['dark',852,16],['light',393,32],['dark',320,32],['light',393,16,'empty']];
+ for(const [theme,width,size,empty]of profiles)for(const kind of ['audio','text','unavailable']){
+  const ctx=await browser.newContext({viewport:{width,height:width===852?393:852},colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg',contrast:size===32?'more':'no-preference'}),p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+  if(!empty)await ctx.addInitScript(()=>{if(!localStorage.getItem('courier:state'))localStorage.setItem('courier:state',JSON.stringify({rate:1,listened:{'2026-10-19':['a']},positions:{'2026-10-19/b':1},durations:{},continueNext:true,lastPlayed:{day:'2026-10-19',id:'b'}}));});
+  await ctx.route('https://qchamby204.github.io/my-dashboards/**',async r=>{try{const f=new URL(r.request().url()).pathname.replace('/my-dashboards/','');await r.fulfill({body:readFileSync(path.join(root,f)),contentType:types[path.extname(f)]||'text/plain'});}catch{await r.abort();}});
+  await p.route('**/courier/manifest.json*',r=>r.fulfill(kind==='unavailable'?{status:503,body:'Unavailable'}:{json:fixture}));await p.route('**/courier/status.json*',r=>r.fulfill({json:{days:[]}}));await p.route('**/qa-*.wav',r=>r.fulfill({contentType:'audio/wav',body:wav}));
+  await p.goto(origin+'/courier.html'+(kind==='text'?'?day=2026-10-18':''));await p.waitForSelector('#courier-opening');if(kind!=='unavailable')await p.waitForFunction(()=>!!window.getCourierContext?.().day);await p.waitForFunction(()=>document.getElementById('courier-opening-title')?.textContent!=='');if(size===32)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});await p.evaluate(()=>document.fonts.ready);
+  const before=await p.evaluate(()=>localStorage.getItem('courier:state')),play=await p.locator('#playAll').elementHandle(),audio=await p.locator('#audio').elementHandle();
+  const g=await p.evaluate(()=>{const n=document.getElementById('courier-opening');return {page:document.documentElement.scrollWidth,card:n.getBoundingClientRect().toJSON(),art:n.querySelector('svg').getBoundingClientRect().toJSON()};});
+  await p.screenshot({path:path.join(out,`courier-opening-${kind}-${theme}-${width}-${size}${empty?'-empty':''}.png`)});
+  if(g.page>width+1)console.log({kind,theme,width,size,g,overflow:await p.evaluate(()=>[...document.querySelectorAll('body *')].filter(n=>n.getClientRects().length&&n.getBoundingClientRect().right>innerWidth+1).slice(0,12).map(n=>({tag:n.tagName,cls:n.className,text:n.textContent.slice(0,50),right:n.getBoundingClientRect().right})))});
+  assert(g.page<=width+1&&g.art.width>180&&g.art.left>=g.card.left&&g.art.right<=g.card.right+1,'opening and original player fit');
+  assert(await p.evaluate(()=>{const n=document.getElementById('courier-opening'),lum=c=>{const a=c.match(/[\d.]+/g).slice(0,3).map(v=>{v=Number(v)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return a[0]*.2126+a[1]*.7152+a[2]*.0722;},bg=lum(getComputedStyle(n).backgroundColor),fg=lum(getComputedStyle(n.querySelector('h1')).color);return (Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05)>=4.5;}),'opening title contrast');
+  assert.equal(await p.locator('#courier-opening #playAll').count(),1);assert(await audio.evaluate(n=>n===document.getElementById('audio')),'original audio element retained');
+  if(kind==='unavailable'){assert(await p.locator('#courier-browse-edition').isDisabled());assert(await p.locator('#playAll').isHidden());}
+  else{
+   assert.equal(await p.locator('.block').count(),3);assert.equal(await p.locator('#courier-opening-date').textContent(),'Edition · '+(kind==='audio'?'2026-10-19':'2026-10-18'));
+   assert.equal(await p.locator('#playAll').isVisible(),kind==='audio');if(kind==='text')assert.equal(await p.locator('.courier-headphones').evaluate(n=>getComputedStyle(n).display),'none');await p.locator('#courier-browse-edition').click();assert(await p.evaluate(()=>scrollY>0),'browse reaches section records');await p.locator('.courier-title-toggle').first().click();await p.locator('.block').first().getByRole('button',{name:'Script',exact:true}).click();assert.match(await p.locator('.block').first().locator('.pane.script').textContent(),/sample transcript/);if(width===393&&size===16&&!empty)await p.screenshot({path:path.join(out,`courier-content-${kind}-${theme}.png`)});
+   assert.equal(await p.evaluate(()=>localStorage.getItem('courier:state')),before,'browsing does not change listening history');
+   if(kind==='audio'){
+    if(!empty){assert.equal(await p.locator('.courier-progress-track').getAttribute('aria-valuenow'),'1');assert.equal(await p.locator('.courier-progress-track').evaluate(n=>getComputedStyle(n,'::after').display),'none');assert(await p.locator('.courier-progress-track>span').evaluate(n=>n.getBoundingClientRect().width>0));}
+    await p.locator('#playAll').click();await p.waitForFunction(()=>!document.getElementById('audio').paused&&document.getElementById('audio').duration>0);assert.equal(await p.evaluate(()=>ui.current),empty?'a':'b');await p.locator('#pToggle').click();assert(await p.locator('#audio').evaluate(n=>n.paused));await p.locator('#pToggle').click();await p.locator('#audio').evaluate(n=>{n.currentTime=n.duration-.1;});await p.waitForFunction(empty=>ui.current===(empty?'b':'c')&&!document.getElementById('audio').paused,!!empty);await p.locator('#pToggle').click();assert(await p.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('courier:state')).positions).length>0));assert(await play.evaluate(n=>n===document.getElementById('playAll')),'original Play all node survives playback redraw');await p.locator('#day').selectOption('2026-10-18');await p.waitForFunction(()=>document.getElementById('courier-opening-title').textContent==='Read at your own pace');assert(await p.locator('#playAll').isHidden());assert(await audio.evaluate(n=>n===document.getElementById('audio')&&n.paused));
+   }
+  }
+  assert.deepEqual(errors,[]);reports.push({kind,theme,width,size,empty:!!empty});await ctx.close();
+ }
+ console.log(engine+': '+reports.length+' Courier openings, unchanged browsing records, original controls and audio node, transcript reading, real audio continuation, saved positions and edition switching passed');
+}finally{writeFileSync(path.join(out,'courier-openings-report.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}

@@ -169,3 +169,10 @@ test('experience decoration leaves playback ownership and short queue duration w
 test('short listening queue excludes heard sections and stops at its final selected section',()=>{
  const h=harness();h.run("manifest.days[0].blocks.forEach((b,i)=>b.minutes=i===0?6:5);state.listened[ui.day]=[];state.rate=1;ui.shortQueue=shortQueue()");assert.equal(h.run('ui.shortQueue.length'),1);h.run('ui.current=ui.shortQueue[0]');assert.equal(h.run('nextAudio()'),null);h.run('state.listened[ui.day]=[ui.shortQueue[0]]');assert.equal(h.run('shortQueue().includes(ui.current)'),false);
 });
+
+test('a late canplay event at section end advances the queue instead of restarting the finished audio',async()=>{
+ const h=harness();h.run("play('a')");h.audio.metadata(120);await new Promise(resolve=>setImmediate(resolve));
+ h.audio.currentTime=120;h.audio.ended=true;h.audio.paused=true;h.audio.dispatchEvent(new Event('canplay'));
+ assert.equal(h.run('ui.current'),'b');assert.equal(h.run("state.listened['2026-09-07'].includes('a')"),true);
+ assert.equal(h.audio.source,'b.mp3');
+});

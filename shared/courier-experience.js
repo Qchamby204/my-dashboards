@@ -48,8 +48,30 @@
     setText(button,(!resume?.hidden||heard)?'Continue all':'Play all');
   }
 
+  let opening=null,openingDay=null;
+  function decorateOpening(day){
+    if(!opening){
+      const header=document.querySelector('body>header'),tools=document.querySelector('.courier-playback-tools'),play=$('playAll');
+      if(!header||!tools||!play)return;
+      opening=document.createElement('section');opening.id='courier-opening';opening.className='courier-opening';
+      opening.innerHTML='<div class="courier-opening-rail"><span id="courier-opening-date">Your briefing</span></div><div class="courier-opening-face"><h1 id="courier-opening-title">Make room to listen</h1><svg class="courier-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false"><circle cx="180" cy="142" r="122" fill="#ffffff0c"/><g stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M88 97 H272 V227 H88 Z" fill="#f1e4c9"/><path d="M110 123 H250 M110 149 H181 M110 174 H181 M110 199 H162"/><g class="courier-headphones"><path d="M62 155 V119 A118 118 0 0 1 298 119 V155" stroke="#9db1c3" stroke-width="15"/><rect x="51" y="136" width="38" height="70" rx="15" fill="#9db1c3"/><rect x="271" y="136" width="38" height="70" rx="15" fill="#9db1c3"/></g><rect x="203" y="155" width="60" height="60" rx="14" fill="#26394b"/><image href="shared/icons/courier-apple.png?v=7706c5e677d5" x="208" y="160" width="50" height="50"/></g></svg><p id="courier-opening-copy">Choose an edition, listen at your pace, or read its sections.</p></div><div class="courier-opening-footer"></div>';
+      header.after(opening);opening.after(tools);
+      const footer=opening.querySelector('.courier-opening-footer');footer.append(play);
+      const browse=document.createElement('button');browse.type='button';browse.id='courier-browse-edition';browse.textContent='Browse edition';browse.onclick=()=>{const target=$('blocks');target.style.scrollMarginTop='24px';target.scrollIntoView({block:'start',behavior:'instant'});};footer.append(browse);
+    }
+    const key=day?.date||'';
+    const audio=day?.blocks?.some(b=>b.audio),signature=key+'|'+!!audio;
+    if(openingDay!==signature){
+      openingDay=signature;opening.dataset.editionKind=day?(audio?'audio':'text'):'unavailable';const dateLabel=$('courier-opening-date');dateLabel.replaceChildren();if(key){dateLabel.append(document.createTextNode('Edition · '));const date=document.createElement('time');date.dateTime=key;date.textContent=key;dateLabel.append(date);}else dateLabel.textContent='Your briefing';
+      setText($('courier-opening-title'),day&&!audio?'Read at your own pace':'Make room to listen');
+      setText($('courier-opening-copy'),day?(audio?'Listen at your pace, then return to the talking points, transcript and sources.':'Read the talking points, transcript and sources in this text-only edition.'):'Choose an edition, listen at your pace, or read its sections.');
+      $('courier-browse-edition').disabled=!day;$('playAll').hidden=!audio;
+    }
+  }
+
   function refresh(){
     const day=currentDay();
+    decorateOpening(day);
     if(!day)return;
     decorateSectionTimes(day);
     smartPlayLabel();
