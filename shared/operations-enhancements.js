@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='operations-cadence')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('operations-enhancements.css?v=fe19635059b4',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('operations-enhancements.css?v=dec686e83e12',source).href;document.head.appendChild(css);
   function ready(){
     if(window.OperationsImprovements||typeof state==='undefined')return;
     const plain=o=>o!==null&&typeof o==='object'&&!Array.isArray(o),own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
@@ -188,6 +188,43 @@
     function focusRow(key,value){const row=[...document.querySelectorAll('[data-operations-key],[data-operations-log]')].find(n=>n.dataset[key]===value);if(row){row.tabIndex=-1;row.focus({preventScroll:true});row.scrollIntoView({block:'center',behavior:'instant'});}}
     renderSearch=function(body){const hits=searchAll(searchQ);body.appendChild(make('p',hits.length+' matches','operations-source'));hits.slice(0,40).forEach(h=>{const b=button(h.where+' · '+h.label,h.go);b.classList.add('operations-search-hit');body.appendChild(b);});if(hits.length>40)body.appendChild(make('p','Showing the first 40 matches. Add more words to narrow your search.','operations-source'));};
     updateOverall=function(){const n=dueRows().length;document.getElementById('ovNums').textContent=String(n);document.getElementById('barPill').textContent=n+' due';document.getElementById('ovBar').style.width='0%';};
+    const openingCopy={
+      today:['Make space for today','Today’s work','See today','See what is due, then capture the work that comes up.'],
+      daily:['Keep the day in order','Daily checklist','See daily tasks','The recurring checks that keep your working day moving.'],
+      weekly:['Set up the week','Weekly checklist','See weekly tasks','Bring the week’s checks and follow-ups into view.'],
+      monthly:['Keep the month on track','Monthly checklist','See monthly tasks','Make room for the checks that come around each month.'],
+      quarterly:['Review the quarter','Quarterly checklist','See quarterly tasks','Step back for the checks that anchor each quarter.'],
+      annually:['Look across the year','Annual checklist','See annual tasks','Keep annual responsibilities and their schedules together.'],
+      adhoc:['Ready for what comes up','As-needed checklist','See as-needed tasks','A reference for work that follows events rather than a fixed rhythm.'],
+      log:['A place for the loose ends','Captured tasks','See captured tasks','Keep one-off work, optional dates and follow-up notes together.'],
+      insights:['See the work you’ve recorded','Insights','See insights','Review your recorded completions and the patterns over time.']
+    };
+    function openingArt(kind){
+      const sheets='<path d="M79 58 H281 V228 H79 Z" fill="#f1e4c9"/><path d="M79 102 H281 M119 45 V73 M241 45 V73"/>';
+      const cells='<path d="M110 130 H139 V155 H110 Z M166 130 H195 V155 H166 Z M222 130 H251 V155 H222 Z M110 177 H139 V202 H110 Z M166 177 H195 V202 H166 Z M222 177 H251 V202 H222 Z"/>';
+      const scenes={
+        today:'<circle cx="174" cy="136" r="74" fill="#d3b375"/><path d="M174 37 V20 M174 252 V235 M75 136 H58 M290 136 H273 M104 66 L92 54 M256 218 L244 206 M104 206 L92 218 M256 54 L244 66 M174 89 V140 L209 164"/><rect x="225" y="170" width="79" height="79" rx="19" fill="#26394b"/><image href="shared/icons/operations-cadence-apple.png?v=cdafe7ba06d1" x="231" y="176" width="67" height="67"/>',
+        daily:'<path d="M85 56 H275 V231 H85 Z" fill="#f1e4c9"/><path d="M140 43 H220 V73 H140 Z" fill="#d3b375"/><path d="M111 106 L120 115 L137 96 M153 109 H246 M111 151 L120 160 L137 141 M153 154 H246 M111 196 L120 205 L137 186 M153 199 H226"/>',
+        weekly:sheets+'<path d="M109 134 H250 M109 166 H250 M109 198 H250" stroke="#6e9b87" stroke-width="7"/>',
+        monthly:sheets+cells,
+        quarterly:'<rect x="43" y="86" width="82" height="134" rx="8" fill="#f1e4c9"/><rect x="139" y="66" width="82" height="154" rx="8" fill="#d3b375"/><rect x="235" y="86" width="82" height="134" rx="8" fill="#a6bd9f"/><path d="M61 116 H107 M61 143 H107 M61 170 H96 M157 97 H203 M157 125 H203 M157 153 H192 M253 116 H299 M253 143 H299 M253 170 H288"/>',
+        annually:sheets+'<circle cx="180" cy="162" r="48"/><path d="M180 128 V164 L201 181 M180 109 V115 M180 209 V215 M127 162 H133 M227 162 H233"/>',
+        adhoc:'<path d="M58 102 H302 V222 H58 Z" fill="#f1e4c9"/><path d="M136 102 V77 H224 V102 M58 146 H302 M151 135 H209 V159 H151 Z" fill="#d3b375"/><path d="M101 182 H132 M228 182 H259"/>',
+        log:'<path d="M69 144 L99 75 H261 L291 144 V226 H69 Z" fill="#f1e4c9"/><path d="M121 62 H239 V167 H121 Z" fill="#a6bd9f"/><path d="M140 91 H218 M140 119 H203 M69 160 H136 L150 183 H210 L224 160 H291"/><path d="M69 160 V226 H291 V160 H224 L210 183 H150 L136 160 Z" fill="#f1e4c9"/>',
+        insights:'<path d="M61 59 H299 V221 H61 Z" fill="#f1e4c9"/><path d="M42 237 H318 M92 187 V151 H128 V187 M162 187 V124 H198 V187 M232 187 V93 H268 V187" fill="#a6bd9f"/><path d="M92 125 L156 99 L203 108 L269 64 M251 64 H269 V82" stroke-width="5"/>'
+      };
+      return '<svg class="operations-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false"><circle cx="180" cy="142" r="122" fill="#ffffff0c"/><g stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">'+scenes[kind]+'</g></svg>';
+    }
+    let openingNode=null,openingView=null;
+    function paintOpening(){
+      const kind=openingCopy[active]?active:'today';
+      if(!openingNode){openingNode=make('section',null,'operations-opening');document.querySelector('main').prepend(openingNode);const layout=document.querySelector('.layout'),summary=document.querySelector('.shell>header');if(layout&&summary)layout.after?.(summary);}
+      if(openingView===kind)return;
+      const c=openingCopy[kind];openingNode.dataset.opening=kind;
+      openingNode.innerHTML='<div class="operations-opening-rail">'+c[1]+'</div><div class="operations-opening-face"><h1>'+c[0]+'</h1>'+openingArt(kind)+'<p>'+c[3]+'</p></div><div class="operations-opening-footer"><button type="button" class="operations-button" data-operations-jump>'+c[2]+'</button></div>';
+      openingNode.querySelector('button').onclick=()=>{const id=kind==='today'?'todayView':kind==='log'?'logView':kind==='insights'?'insightsView':'cadenceView',target=document.getElementById(id),bar=document.querySelector('.appbar');target.style.scrollMarginTop=((bar?.getBoundingClientRect().height||72)+16)+'px';target.scrollIntoView({block:'start',behavior:'instant'});if(kind==='today')document.getElementById('capText')?.focus({preventScroll:true});};
+      openingView=kind;window.scrollTo({top:0,behavior:'instant'});
+    }
     const originalRender=render;
     render=function(){
       // Legacy section markup embeds notes inside a textarea and system labels in chips.
@@ -196,7 +233,7 @@
       tasksFor=sid=>actualTasks(sid).map(x=>({...x,task:{...x.task,sys:escapeHtml(x.task.sys||''),due:x.task.due?escapeHtml(x.task.due):x.task.due}}));
       try{if(active==='today'||active==='log'||active==='insights'){get=actualGet;tasksFor=actualTasks;}originalRender();}finally{get=actualGet;tasksFor=actualTasks;}
       const items=DATA.find(s=>s.id===active)?tasksFor(active):[];[...taskList.children].forEach((li,n)=>{if(items[n])li.dataset.operationsKey=keyFor(active,items[n].i);});
-      for(const row of document.querySelectorAll('.task,.log-item')){const title=row.querySelector('.task-text,.log-text')?.textContent||'task';row.querySelectorAll('.check').forEach(n=>n.setAttribute('aria-label',(n.getAttribute('aria-checked')==='true'?'Mark incomplete: ':'Mark complete: ')+title));row.querySelectorAll('textarea').forEach(n=>n.setAttribute('aria-label','Notes for '+title));}paintNotice();
+      for(const row of document.querySelectorAll('.task,.log-item')){const title=row.querySelector('.task-text,.log-text')?.textContent||'task';row.querySelectorAll('.check').forEach(n=>n.setAttribute('aria-label',(n.getAttribute('aria-checked')==='true'?'Mark incomplete: ':'Mark complete: ')+title));row.querySelectorAll('textarea').forEach(n=>n.setAttribute('aria-label','Notes for '+title));}paintOpening();paintNotice();
     };
     document.querySelector('header .sub').textContent='A checklist for work you complete in your other systems. Salesforce, SharePoint and email records are not connected here.';
     document.querySelector('.overall-label').textContent='Scheduled items due';document.querySelector('.overall-bar').hidden=true;

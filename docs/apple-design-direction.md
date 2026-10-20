@@ -99,6 +99,12 @@ Script Vault, Calendar, Cadence and Metrics each lead with plum/ink title cards 
 
 Browser checks cover all four views in both themes, 320/393px phones, landscape, doubled text and empty records, plus unchanged saved bytes, script creation/reload, retained edits, scheduling and App tools. Physical iPhone and VoiceOver verification remain separate.
 
+### Operations Cadence: a distinct opening for every rhythm
+
+Today, Daily, Weekly, Monthly, Quarterly, Annually, Ad-Hoc, Captured tasks and Insights each lead with a green/ink title card and a full-width clock, clipboard, week agenda, month calendar, quarter folders, annual planner, toolbox, inbox or results scene. Today keeps the original full-colour Operations emblem. Separate footer actions scroll to the existing controls without saving a record. The original scheduled-items summary and explanation follow the workspace. All routine tasks, period resets, notes, completion history, scheduling, capture and backup controls remain in place. Selecting a page returns to its title image; redraws within the same page retain the opening node and the original capture field. Completion summaries and clear actions wrap at enlarged text.
+
+Browser evidence covers nine views across both themes, narrow phones, landscape, doubled text and empty records. It checks unchanged saved bytes and original task counts, capture-node identity, capture/reload, notes, completion and schedule editing. Physical iPhone and VoiceOver checks remain separate.
+
 ### Remaining suite: shared chrome and content audit
 
 The visual audit covers Operations Cadence, Hourglass, Aqueduct, Herald, Chef, Library, Courier, Baby Brain and Neural Map in light/dark populated and expanded states. Their individual record formats remain intact; ordinary content surfaces lose raised shadows while functional floating controls keep separation. Herald’s backup and sync controls move into its named App tools disclosure. Courier receives the same home/identity/appearance arrangement, with existing edition and playback controls below it; no publication or episode data changes. Atlas remains a passive hub. Physical iPhone verification is still outstanding.
