@@ -75,6 +75,10 @@ Today, Learn, Practice, Topics, Progress and the monthly reflection use purple/i
 
 Today retains one next challenge or unfinished practice. Topic management stays in Topics, practice alternatives and focus remain named disclosures, and learning and progress stay in their existing sections. Challenge, learning and receipt records use solid surfaces; alternatives read as disclosure rows rather than raised panels. Expanded ladder stages retain aligned identities, readiness text and keyboard actions. Timer, transcript, rubric, XP and save behavior are unchanged.
 
+### Chef: a distinct opening before the recipe records
+
+Ingredients, Mood, Planner, Groceries, Planned recipes and Favourites each lead with a sage/ink title card and a distinct kitchen illustration. Mood keeps the existing full-colour meal artwork. Recipe cards, tonight’s dinner, portions, preparation dates, ratings and grocery checks retain their original record layouts and behavior. Planner and Groceries move the original Add a meal and Copy for Muse buttons into the opening footer; the same nodes return to their original containers before each redraw. Browsing never changes the saved record. The remaining actions move to the existing choices below the title image. Narrow native filter fields keep full labels in the option picker while ellipsizing the selected value; expanded recipe ratings wrap without shrinking their touch targets.
+
 ### Remaining suite: shared chrome and content audit
 
 The visual audit covers Operations Cadence, Hourglass, Aqueduct, Herald, Chef, Library, Courier, Baby Brain and Neural Map in light/dark populated and expanded states. Their individual record formats remain intact; ordinary content surfaces lose raised shadows while functional floating controls keep separation. Herald’s backup and sync controls move into its named App tools disclosure. Courier receives the same home/identity/appearance arrangement, with existing edition and playback controls below it; no publication or episode data changes. Atlas remains a passive hub. Physical iPhone verification is still outstanding.

@@ -102,7 +102,7 @@ footer .row{justify-content:center}
 <link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/chef-crucible.css?v=964790ba23a7">
+<link rel="stylesheet" href="shared/chef-crucible.css?v=b661a8aa8c43">
 <script src="shared/chef-crucible.js?v=e5c3183ef814" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-32.png?v=41e1e3906c07">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-chef-64.png?v=9b7a6325c0c0">
@@ -128,6 +128,8 @@ footer .row{justify-content:center}
     <button data-tab="planner">Planner</button>
     <button data-tab="favourites">Favourites</button>
   </nav>
+
+  <section id="chef-opening" aria-label="Chef page opening"></section>
 
   <section id="tab-ingredients">
     <div class="panel">
@@ -170,7 +172,7 @@ footer .row{justify-content:center}
     <div class="panel" id="week-view">
       <h2>Next 7 days</h2>
       <details class="cc-help"><summary aria-label="About days and automatic meal planning"><span aria-hidden="true">i</span></summary><p>Plan from today across the next seven days. Choose a recipe, days to cover and people eating. Chef fills consecutive days and calculates the ingredients automatically. Tap a later day to start another meal there. Editing a saved meal plan updates all its linked days.</p></details>
-      <button id="plan-add" class="primary chef-plan-add">Add a meal</button>
+      <div id="chef-plan-action-home"><button id="plan-add" class="primary chef-plan-add">Add a meal</button></div>
       <div class="summary" id="plan-summary"></div><div id="chef-plan-progress" class="chef-plan-progress"></div>
       <section id="chef-tonight" hidden></section><div class="week" id="week"></div>
       <div class="row" style="margin-top:10px">
@@ -182,7 +184,7 @@ footer .row{justify-content:center}
       <h2>Grocery list</h2>
       <div class="chef-grocery-actions">
         <label>List to copy <select id="g-scope"><option value="needed">Still needed</option><option value="all">Everything</option></select></label>
-        <button id="g-copy" class="primary">Copy for Muse</button>
+        <span id="chef-copy-action-home"><button id="g-copy" class="primary">Copy for Muse</button></span>
         <button id="g-uncheck" class="ghost">Clear checks</button>
       </div>
       <p id="g-summary" class="summary" role="status"></p>
@@ -1541,6 +1543,38 @@ const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
+/* Presentation only: keep the original planning and grocery buttons mounted. */
+function chefTitleArtwork(kind){
+  if(kind==='mood')return mealArtwork({meal:ui.meal==='all'?'dinner':ui.meal}).replace('class="chef-meal-art"','class="chef-title-art"');
+  const scenes={
+    ingredients:'<path d="M69 79h182l-21 88H90ZM103 79l27-47m87 47-27-47M116 96l7 51m37-51v51m44-51-7 51"/><path d="M121 76c-25-24-12-43 8-32m-8 32c5-32 32-37 32-15M170 77l17-37m0 0c-3-15 15-17 15-5m-15 5c13-9 28 0 13 11" stroke="#94b6a0"/><circle cx="224" cy="62" r="16" fill="#c68d67" stroke="#c68d67"/>',
+    week:'<rect x="49" y="31" width="181" height="133" rx="13" fill="#ffffff08"/><path d="M49 66h181M86 21v23m106-23v23M75 90h24m18 0h24m18 0h24M75 117h24m18 0h24m18 0h24M75 143h24m18 0h24"/><circle cx="242" cy="136" r="35" fill="#2d403a"/><circle cx="242" cy="136" r="23" opacity=".5"/><path d="M235 135c-10-16 6-25 17-24 0 16-5 23-17 24Z" stroke="#94b6a0"/>',
+    groceries:'<path d="M87 67h146l14 102H73ZM119 67V47c0-37 61-37 61 0v20" fill="#ffffff08"/><path d="m104 98 6 6 12-14m-18 44 6 6 12-14M139 98h61m-61 36h47" stroke="#94b6a0"/>',
+    recipes:'<path d="M160 52c-27-18-58-23-93-16v118c35-7 66-2 93 18 27-20 58-25 93-18V36c-35-7-66-2-93 16Zm0 0v120" fill="#ffffff08"/><path d="M89 65h46m-46 22h46m-46 22h30M190 64c-15 0-15 30 0 30s15-30 0-30Zm0 30v36m30-64v28m-6-28v19c0 13 12 13 12 0V66m-6 28v36" stroke="#94b6a0"/>',
+    favourites:'<rect x="57" y="34" width="206" height="132" rx="14" fill="#ffffff08"/><path d="M57 69h206M79 52h63M84 95h70m-70 24h56m-56 24h90" opacity=".6"/><path d="M213 132c-18-11-37-28-37-43 0-21 25-26 37-9 12-17 37-12 37 9 0 15-19 32-37 43Z" stroke="#cfa69c"/>'
+  };
+  return `<svg class="chef-title-art" viewBox="0 0 320 190" fill="none" aria-hidden="true" focusable="false"><path d="M26 179h268" stroke="currentColor" stroke-opacity=".18"/><circle cx="282" cy="28" r="4" fill="currentColor" opacity=".3"/><g stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${scenes[kind]||scenes.ingredients}</g></svg>`;
+}
+function renderChefOpening(){
+  const root=$('#chef-opening');if(!root)return;
+  for(const [id,home]of [['plan-add','chef-plan-action-home'],['g-copy','chef-copy-action-home']]){const node=$('#'+id),origin=$('#'+home);if(node&&origin)origin.append(node);}
+  const kind=ui.tab==='planner'?ui.weekView:ui.tab;
+  const entries=weekMeals().filter(x=>x.entry).length;
+  const saved=availableRecipes().filter(x=>state.favourites[x.id]||state.ratings[x.id]||state.recipeFeedback?.[x.id]?.verdict==='again').length;
+  const copy={
+    ingredients:['Your kitchen','Cook with what you have','Pick ingredients to find recipes that fit your kitchen.','Choose ingredients','ing-cats'],
+    mood:['Find your next meal','What sounds good?','Choose a mood, then browse the recipe cards below.','Choose a mood','moods'],
+    week:['Next seven days','Plan meals that last',entries?entries+' meal slots covered. Choose a recipe and how many days it should last.':'Choose a recipe, days to cover and people eating. Chef fills the days and totals the ingredients.'],
+    groceries:['From your meal plan','Your grocery list','Check what you already have, then copy the remaining ingredients for your shop.'],
+    recipes:['Your planned meals','Your cooking line-up','Open the recipes covering your next seven days. Their saved portions and preparations stay together.','Browse recipes','browse'],
+    favourites:['Your recipe rotation','Keep the good ones',saved?saved+' saved, rated or in your rotation.':'Favourite or rate a recipe to keep it here for another day.','Browse recipes','browse']
+  }[kind]||[];
+  root.dataset.view=kind;
+  root.innerHTML=`<div class="chef-opening-rail">${copy[0]}</div><div class="chef-opening-face"><h2>${copy[1]}</h2>${chefTitleArtwork(kind)}<p>${esc(copy[2])}</p></div><div class="chef-opening-footer">${copy[3]?`<button type="button" class="primary" data-chef-opening="${copy[4]}">${copy[3]}</button>`:''}</div>`;
+  if(kind==='week')root.querySelector('.chef-opening-footer').append($('#plan-add'));
+  if(kind==='groceries')root.querySelector('.chef-opening-footer').append($('#g-copy'));
+}
+
 function renderTabs(){
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
   $('#tab-ingredients').classList.toggle('hidden',ui.tab!=='ingredients');
@@ -1658,6 +1692,7 @@ function renderPlanner(){
   $('#chef-plan-progress').innerHTML=`<div class="chef-progress-label"><strong>${n}<small> / ${total}</small></strong><span>meal slots planned</span></div><div class="chef-progress-track" role="progressbar" aria-label="Next seven days meal slots planned" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${n}"><span style="width:${Math.min(100,n/total*100)}%"></span></div>`;
   renderGroceries();
   $('#week-recipes').innerHTML=weekRecipesHtml();
+  renderChefOpening();
 }
 function renderGroceries(){
   const groups = shoppingGroups(),items=groups.flatMap(g=>g.items),needed=items.filter(x=>!groceryChecked(x.n)).length;
@@ -1773,8 +1808,11 @@ function render(){
   else if(ui.tab==='planner') renderPlanner();
   else renderFavourites();
   window.AtlasCraftUI?.refresh();
+  renderChefOpening();
   renderUndo();
 }
+
+document.addEventListener('click',event=>{const action=event.target.closest('[data-chef-opening]');if(!action)return;const target=action.dataset.chefOpening;if(target==='browse'){document.querySelector('nav.tabs [data-tab="ingredients"]').click();window.scrollTo({top:0,behavior:'instant'});}else{const node=document.getElementById(target);node?.scrollIntoView({block:'start',behavior:'instant'});node?.querySelector('summary,button,input')?.focus({preventScroll:true});}});
 
 /* ---------- export, import, reset ---------- */
 function exportState(recovery=false){
