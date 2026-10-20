@@ -32,3 +32,23 @@
 
 [data-atlas-app="the-hourglass"] .hourglass-upcoming-row>a{grid-column:2 / -1;justify-self:start;padding:10px 14px;line-height:1.4}
 @media(max-width:480px){[data-atlas-app="the-hourglass"] .hourglass-upcoming-row>a{grid-row:3}}
+
+/* Distinct title images lead each view; live calendars and calculations follow. */
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening{--hourglass-face:#3b314b;--hourglass-cream:#f7efdf;margin:0 0 24px;padding:0;border:1px solid var(--neo-line);border-radius:24px;overflow:hidden;background:var(--hourglass-face);color:var(--hourglass-cream);box-shadow:none}
+html.atlas-neumo[data-atlas-app="the-hourglass"][data-atlas-theme="dark"] .hourglass-opening{--hourglass-face:#463951}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening-rail{padding:16px 24px;border-bottom:1px solid #ffffff26;font-size:.8125rem;line-height:1.5;font-weight:600}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening-face{padding:24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening h1{font:700 2rem/1.15 var(--neo-font)!important;letter-spacing:-.04em;color:var(--hourglass-cream)!important;margin:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-title-art{display:block;width:100%;max-width:360px;height:auto;margin:16px auto 20px}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening-face p{font-size:1rem;line-height:1.55;color:#e5dde8;margin:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening-footer{padding:16px 24px;background:var(--neo-content-surface);border-top:1px solid var(--neo-line);color:var(--neo-ink)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening-footer .btn{width:auto;max-width:100%;min-height:46px;padding:12px 20px;border-radius:999px;font:600 .9375rem/1.4 var(--neo-font);white-space:normal;overflow-wrap:anywhere;background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent)!important;box-shadow:none}
+html.atlas-neumo[data-atlas-app="the-hourglass"] [id$="-content"]{scroll-margin-top:24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] .hg-overview .hg-title{font-size:1.25rem!important;line-height:1.3}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] :is(.hg-meter,.bar)::after{display:none!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] :is(.hg-meter,.bar) i{background:var(--neo-accent)!important}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-hourglass"] .hourglass-opening{--hourglass-face:Canvas;--hourglass-cream:CanvasText}.hourglass-opening-face p{color:CanvasText!important}html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] :is(.hg-meter,.bar) i{background:Highlight!important;forced-color-adjust:none}}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #atlas-page-navigation button{padding-inline:3px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #atlas-page-navigation button>span:last-child{font-size:clamp(11px,3.3vw,12px)!important;line-height:1.25!important;white-space:nowrap!important;overflow-wrap:normal!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] .appbar-title{font-size:clamp(18px,1.125rem,22px)!important;overflow-wrap:normal!important;word-break:normal!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] .appbar-sub{font-size:clamp(12px,.75rem,14px)!important;line-height:1.4}
