@@ -27,10 +27,10 @@ const chefState=()=>({favourites:{b01:true},ratings:{b01:4},plan:{mon:{breakfast
 
 function chefControls(){
   const html=readFileSync(new URL('../../the-chef.html',import.meta.url),'utf8'),nodes=new Map();
-  const element=id=>({id,value:'',checked:false,hidden:false,disabled:false,open:false,isConnected:true,handlers:{},
+  const element=id=>({id,dataset:{},value:'',checked:false,hidden:false,disabled:false,open:false,isConnected:true,handlers:{},
     addEventListener(type,fn,options){(this.handlers[type]??=[]).push({fn,once:options?.once});},
     emit(type,event={}){for(const h of [...(this.handlers[type]||[])]){h.fn({target:this,currentTarget:this,preventDefault(){},...event});if(h.once)this.handlers[type]=this.handlers[type].filter(x=>x!==h);}},
-    focus(){},setAttribute(){},reportValidity(){return true;},showModal(){this.open=true;},close(){this.open=false;this.emit('close');}
+    append(){},querySelector(selector){return selector==='.chef-opening-footer'?{append(){}}:null;},focus(){},setAttribute(){},reportValidity(){return true;},showModal(){this.open=true;},close(){this.open=false;this.emit('close');}
   });
   for(const [,id] of html.matchAll(/\bid="([^"]+)"/g))nodes.set('#'+id,element(id));
   for(const selector of ['nav.tabs','.chef-week-nav'])nodes.set(selector,element(selector));
