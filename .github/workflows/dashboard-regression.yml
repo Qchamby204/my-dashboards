@@ -285,6 +285,37 @@ jobs:
           name: baby-openings-${{ matrix.engine }}
           path: artifacts/baby-openings
 
+  neural-openings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run check:generated
+      - uses: ./.github/actions/setup-test-browsers
+        id: browsers
+        with:
+          browsers: ${{ matrix.engine }}
+      - name: Verify Neural Map openings, original map and resource preferences
+        env:
+          NODE_PATH: ${{ steps.browsers.outputs.node-path }}
+          ATLAS_SCREENSHOTS: artifacts/neural-openings
+          ATLAS_BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node atlas/tests/neural-openings.browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: neural-openings-${{ matrix.engine }}
+          path: artifacts/neural-openings
+
   courier-openings:
     runs-on: ubuntu-latest
     timeout-minutes: 10

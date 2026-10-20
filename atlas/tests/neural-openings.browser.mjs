@@ -1,0 +1,57 @@
+// Illustrated resource opening, original map and preference persistence.
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {createServer} from 'node:http';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const engines=createRequire(import.meta.url)('playwright'),engine=process.env.ATLAS_BROWSER_ENGINE||'chromium';
+const root=path.resolve(fileURLToPath(new URL('../../',import.meta.url))),out=process.env.ATLAS_SCREENSHOTS||'/tmp/neural-openings';mkdirSync(out,{recursive:true});
+const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.png':'image/png','.ttf':'font/ttf','.json':'application/json','.webmanifest':'application/manifest+json'};
+const server=createServer((req,res)=>{try{const f=path.resolve(root,'.'+new URL(req.url,'http://test').pathname);if(!f.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(f)]||'text/plain');res.end(readFileSync(f));}catch{res.writeHead(404);res.end();}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
+try{
+ for(const [theme,width,size]of [['light',393,16],['dark',393,16],['light',320,16],['dark',852,16],['light',393,32],['dark',320,32],['light',1280,16],['dark',1280,32]]){
+  console.log('Checking',theme,width,size);
+  const ctx=await browser.newContext({viewport:{width,height:width===852?393:852},colorScheme:theme,reducedMotion:'reduce',contrast:size===32?'more':'no-preference'}),p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+  await ctx.route('https://qchamby204.github.io/my-dashboards/**',async r=>{try{const f=new URL(r.request().url()).pathname.replace('/my-dashboards/','');await r.fulfill({body:readFileSync(path.join(root,f)),contentType:types[path.extname(f)]||'text/plain'});}catch{await r.abort();}});
+  const ready=async()=>{await p.waitForFunction(()=>!!window.NeuralNavigation&&!!window.AtlasPageNavigation);await p.waitForFunction(()=>getComputedStyle(document.querySelector('.neural-opening')).borderRadius==='24px');await p.evaluate(()=>document.fonts.ready);};
+  await p.goto(origin+'/neural-map.html');await ready();
+  assert.equal(await p.evaluate(()=>NeuralNavigation.mode),width<=700?'list':'map','original device default retained');
+  const tool=await p.evaluate(()=>{const t=NeuralNavigation.findTools('Life Ledger')[0];return {id:t.id,title:t.full,url:NeuralNavigation.destinations(t).find(d=>d.web).url};});
+  const favouriteRaw=JSON.stringify([tool.id,'retained-unknown-resource']),reviewRaw=JSON.stringify({[tool.url]:{status:'working',checkedAt:'2026-10-01T12:00:00.000Z'},'https://example.test/retained':{status:'broken',checkedAt:'2026-09-30T12:00:00.000Z'}});
+  await p.evaluate(({favouriteRaw,reviewRaw})=>{localStorage.setItem('neural:favourites:v1',favouriteRaw);localStorage.setItem('neural:link-review:v1',reviewRaw);},{favouriteRaw,reviewRaw});await p.reload();await ready();
+  if(size===32)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});
+  const stage=await p.locator('#stage').elementHandle(),search=await p.locator('#neural-search').elementHandle(),originalCount=await p.evaluate(()=>NeuralNavigation.findTools('').length);
+  const choose=async label=>{await p.locator('#atlas-page-navigation').getByRole('button',{name:label,exact:true}).click();await p.waitForFunction(label=>NeuralNavigation.mode===(label==='Map'?'map':'list'),label);};
+  const fit=async()=>{await p.waitForFunction(()=>{const n=document.getElementById('nodes').getBoundingClientRect(),c=document.querySelector('.neural-map-chooser').getBoundingClientRect(),l=document.querySelector('.legend').getBoundingClientRect();return n.top>=c.bottom&&n.bottom<=l.top;},null,{timeout:5000}).catch(async e=>{console.log('Map geometry',await p.evaluate(()=>Object.fromEntries(['#nodes','.neural-map-chooser','.legend','.hint'].map(s=>[s,document.querySelector(s).getBoundingClientRect().toJSON()]))));await p.screenshot({path:path.join(out,`neural-fit-failure-${width}-${size}.png`)});throw e;});};
+  if(width>700)await fit();
+  await choose('List & search');assert.equal(await p.locator('.neural-card').count(),originalCount,'all original resources remain');const overflow=await p.locator('.neural-card').evaluateAll(ns=>ns.filter(n=>n.scrollWidth>n.clientWidth+1).map(n=>({title:n.querySelector('h2').textContent,width:n.clientWidth,scroll:n.scrollWidth,children:[...n.querySelectorAll('*')].filter(x=>x.scrollWidth>x.clientWidth+1).map(x=>({tag:x.tagName,cls:x.className,text:x.textContent.slice(0,80),width:x.clientWidth,scroll:x.scrollWidth}))})));assert.deepEqual(overflow,[],'all resource cards contain their original content');assert(await p.locator('.neural-list').evaluate(n=>n.scrollTop===0),'page selection opens at title');
+  assert.equal(await p.locator('.neural-title-art image').count(),1,'original full-colour brain retained');
+  const g=await p.locator('.neural-opening').evaluate(n=>({card:n.getBoundingClientRect().toJSON(),art:n.querySelector('svg').getBoundingClientRect().toJSON(),page:document.documentElement.scrollWidth,list:document.querySelector('.neural-list').scrollWidth}));
+  assert(g.page<=width+1&&g.list<=width+1&&g.art.width>180&&g.art.left>=g.card.left&&g.art.right<=g.card.right+1,'title image fits');
+  assert(await p.locator('.neural-opening').evaluate(n=>{const lum=c=>{const a=c.match(/[\d.]+/g).slice(0,3).map(v=>{v=Number(v)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return a[0]*.2126+a[1]*.7152+a[2]*.0722;},bg=lum(getComputedStyle(n).backgroundColor),fg=lum(getComputedStyle(n.querySelector('h1')).color);return (Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05)>=4.5;}),'title contrast');
+  await p.screenshot({path:path.join(out,`neural-list-${theme}-${width}-${size}.png`)});
+  await p.getByRole('button',{name:'Browse resources',exact:true}).click();assert(await p.locator('#neural-search').evaluate(n=>n===document.activeElement),'Browse reaches original search');
+  assert(await p.locator('.neural-filters').evaluate(n=>n.getBoundingClientRect().top>=document.querySelector('.hud').getBoundingClientRect().bottom),'filters clear header');
+  await p.getByLabel('Favourites only',{exact:true}).check();assert.equal(await p.locator('.neural-card').count(),1);await p.getByLabel('Favourites only',{exact:true}).uncheck();
+  await p.locator('#neural-availability').selectOption('saved');assert.equal(await p.locator('.neural-card').count(),await p.evaluate(()=>NeuralNavigation.findTools('','','saved').length));assert(await p.locator('.neural-card .neural-resource-state').evaluateAll(ns=>ns.every(n=>n.textContent==='Saved source found · no web copy')));
+  await p.getByRole('button',{name:'Clear filters',exact:true}).click();await p.locator('#neural-search').fill(tool.title);assert.equal(await p.locator('.neural-card').count(),1);
+  const card=p.locator('.neural-card');assert.equal(await card.locator('a').first().getAttribute('href'),tool.url,'original destination unchanged');assert.equal(await card.locator('select').first().inputValue(),'working');
+  assert(await p.locator('#neural-search').evaluate((n,size)=>parseFloat(getComputedStyle(n).fontSize)>=size,size),'field respects enlarged text');
+  await p.screenshot({path:path.join(out,`neural-resource-${theme}-${width}-${size}.png`)});
+  assert.equal(await p.evaluate(()=>localStorage.getItem('neural:favourites:v1')),favouriteRaw,'browsing never rewrites favourites');assert.equal(await p.evaluate(()=>localStorage.getItem('neural:link-review:v1')),reviewRaw,'browsing never rewrites link reviews');
+  await card.getByRole('button',{name:'Show '+tool.title+' on map',exact:true}).click();assert(await p.locator('.node.neural-selected').count()===1);await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));assert(await p.locator('.node.neural-selected').evaluate(n=>{const r=n.getBoundingClientRect(),y=r.top+r.height/2;return y>=document.querySelector('.neural-map-chooser').getBoundingClientRect().bottom&&y<=document.querySelector('.legend').getBoundingClientRect().top;}),'Show on map keeps the chosen resource in view after layout observers settle');assert(await stage.evaluate(n=>n===document.getElementById('stage')),'original interactive SVG retained');
+  await choose('Map');await fit();assert(await p.getByRole('heading',{name:'Connected ideas',exact:true}).isVisible());assert(await p.locator('.neural-map-chooser').evaluate(n=>n.scrollWidth<=n.clientWidth+1),'introduction and chooser contained');
+  await p.screenshot({path:path.join(out,`neural-map-${theme}-${width}-${size}.png`)});
+  await p.locator('#neural-map-choice').selectOption({label:tool.title});await p.locator('.neural-map-chooser').getByRole('button',{name:'Show',exact:true}).click();const pop=p.getByRole('dialog',{name:'Resource details'});assert(await pop.isVisible());assert.equal(await pop.locator('h3').textContent(),tool.title);
+  assert(await pop.evaluate(n=>{const r=n.getBoundingClientRect(),h=document.querySelector('.hud').getBoundingClientRect(),d=document.getElementById('atlas-page-navigation').getBoundingClientRect();return r.top>=h.bottom&&r.bottom<=d.top&&n.scrollWidth<=n.clientWidth+1;}),'details clear header and dock');
+  await p.screenshot({path:path.join(out,`neural-details-${theme}-${width}-${size}.png`)});await p.keyboard.press('Escape');assert(await p.locator('.neural-map-chooser button').evaluate(n=>n===document.activeElement),'Escape returns to chooser');
+  await choose('List & search');assert(await p.locator('.neural-list').evaluate(n=>n.scrollTop===0));assert.equal(await p.locator('#neural-search').inputValue(),tool.title,'query survives map navigation');assert(await search.evaluate(n=>n===document.getElementById('neural-search')),'original search node retained');
+  await p.getByRole('button',{name:'Browse resources',exact:true}).click();await p.locator('.neural-card select').first().selectOption('broken');await p.getByRole('button',{name:'★ Favourite',exact:true}).click();await p.reload();await ready();await choose('List & search');await p.getByRole('button',{name:'Browse resources',exact:true}).click();await p.locator('#neural-search').fill(tool.title);
+  assert.equal(await p.locator('.neural-card select').first().inputValue(),'broken','link review survives reload');assert(await p.getByRole('button',{name:'☆ Add favourite',exact:true}).isVisible(),'favourite update survives reload');
+  assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('neural:favourites:v1'))),['retained-unknown-resource'],'unrelated favourites retained');assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('neural:link-review:v1'))['https://example.test/retained'].status),'broken','unrelated reviews retained');
+  assert.deepEqual(errors,[]);reports.push({theme,width,size,views:2});await ctx.close();
+ }
+ console.log(engine+': '+reports.length*2+' Neural Map opening states, original resources/SVG/search, filter and map journeys, unchanged browsing records and preference save/reload passed');
+}finally{writeFileSync(path.join(out,'neural-openings-report.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}

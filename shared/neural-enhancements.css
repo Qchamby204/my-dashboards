@@ -47,3 +47,43 @@ html[data-atlas-app="neural-map"] .neural-map-chooser{position:fixed;z-index:24;
 
 html[data-atlas-app="neural-map"] .neural-filters label:has(input[type="checkbox"]){display:flex;align-items:center;gap:12px;min-height:44px;width:100%;flex-wrap:nowrap}
 html[data-atlas-app="neural-map"] .neural-filters input[type="checkbox"]{appearance:auto;-webkit-appearance:checkbox;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;flex:0 0 24px;order:-1;margin:0;accent-color:var(--neo-accent)}
+
+/* Distinct openings retain the original resource inventory and interactive map. */
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening{--neural-face:#514566;--neural-cream:#f7efdf;max-width:1160px;margin:0 auto 28px;border:1px solid var(--neo-line);border-radius:24px;overflow:hidden;background:var(--neural-face);color:var(--neural-cream)}
+html.atlas-neumo[data-atlas-app="neural-map"][data-atlas-theme="dark"] .neural-opening{--neural-face:#403951}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening-rail{padding:16px 24px;border-bottom:1px solid #ffffff26;font-size:.8125rem;line-height:1.5;font-weight:600}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening-face{padding:24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] .neural-opening h1{margin:0;font:700 2rem/1.15 var(--neo-font)!important;letter-spacing:-.04em;color:var(--neural-cream)!important;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-title-art{display:block;width:100%;max-width:360px;height:auto;margin:16px auto 20px}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening-face p{margin:0;color:#eee3ed;font-size:1rem;line-height:1.55;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening-footer{padding:16px 24px;background:var(--neo-content-surface);border-top:1px solid var(--neo-line)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] .neural-opening-footer button{max-width:100%;min-height:46px;padding:12px 20px;border-radius:999px;background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent);font:600 .9375rem/1.4 var(--neo-font);white-space:normal;overflow-wrap:anywhere;box-shadow:none}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-list{padding-top:8px}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-filters{padding:20px;border:1px solid var(--neo-line);border-radius:24px;background:var(--neo-content-surface)}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-card{background:var(--neo-content-surface);gap:12px}
+html.atlas-neumo[data-atlas-app="neural-map"] .pop h3{font-size:1.25rem;line-height:1.3;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-card h2{margin:0;font-size:1.1875rem;line-height:1.3;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="neural-map"] :is(.neural-category,.neural-resource-state,.neural-count,.neural-filters label,.neural-about,.neural-links small){font-size:.875rem;line-height:1.5}
+html.atlas-neumo[data-atlas-app="neural-map"] :is(.neural-description,.neural-note,.neural-local,.neural-empty){font-size:.9375rem;line-height:1.55}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-local code{font-size:.8125rem;overflow-wrap:anywhere;white-space:normal}
+html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] :is(.neural-list,.pop,.neural-map-chooser) :is(input,select){font-size:1rem!important}
+html.atlas-neumo[data-atlas-app="neural-map"] :is(.neural-links a,.neural-card>button,.neural-filters button,.neural-close){font-size:.875rem;white-space:normal;overflow-wrap:anywhere;max-width:100%}
+html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] :is(.neural-filters select,.neural-links select,.neural-map-chooser select){appearance:none;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;padding:10px 34px 10px 12px!important;border:1px solid var(--neo-line);border-radius:14px;background:linear-gradient(45deg,transparent 50%,var(--neo-ink) 50%) calc(100% - 18px) 50%/5px 5px no-repeat,linear-gradient(135deg,var(--neo-ink) 50%,transparent 50%) calc(100% - 13px) 50%/5px 5px no-repeat,var(--neo-inset)!important;color:var(--neo-ink);min-width:0;max-width:100%}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-chooser{grid-template-columns:minmax(0,1fr) minmax(260px,1fr);padding:18px 24px;gap:20px;max-height:max(80px,calc(var(--atlas-visible-height,100dvh) - var(--neural-content-top,140px) - var(--atlas-page-nav-height,90px) - 230px));overflow:auto}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-intro{min-width:0}
+html.atlas-neumo[data-atlas-app="neural-map"] :is(.neural-opening-kicker,.neural-map-count){margin:0;color:var(--neo-muted);font-size:clamp(13px,.8125rem,18px);line-height:1.5}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-count{margin-top:10px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] .neural-map-intro h1{margin:6px 0 0;font:700 clamp(24px,1.5rem,32px)/1.2 var(--neo-font)!important;letter-spacing:-.03em;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;min-width:0}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-controls label{font-size:.875rem;line-height:1.5}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-controls button{white-space:normal;overflow-wrap:anywhere}
+html.atlas-neumo.atlas-page-navigation[data-atlas-app="neural-map"] .pop{top:var(--neural-content-top,108px)!important;bottom:calc(var(--atlas-page-nav-height,90px) + 12px + var(--atlas-bottom-offset,0px))!important;max-height:calc(var(--atlas-visible-height,100dvh) - var(--neural-content-top,108px) - var(--atlas-page-nav-height,90px) - 12px)!important;height:max-content;max-width:calc(100vw - 28px - var(--atlas-safe-left,0px) - var(--atlas-safe-right,0px))}
+@media(max-width:700px){html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-chooser{grid-template-columns:minmax(0,1fr);gap:14px;padding:16px}html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-controls{grid-template-columns:minmax(0,1fr)}html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-controls button{justify-self:start}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening{--neural-face:Canvas;--neural-cream:CanvasText}html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening-face p{color:CanvasText}html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] :is(.neural-filters select,.neural-links select,.neural-map-chooser select){appearance:auto;background:Canvas!important;color:CanvasText}}
+
+@media(max-height:480px) and (min-width:701px){html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-chooser{padding:10px 16px;gap:16px}html.atlas-neumo[data-atlas-app="neural-map"] .neural-opening-kicker{display:none}html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-intro h1{margin:0}html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-count{margin-top:4px}html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-controls label{display:flex;align-items:center;gap:12px}html.atlas-neumo[data-atlas-app="neural-map"] .neural-map-controls select{flex:1;min-width:0}}
+
+html.atlas-neumo.atlas-neumo[data-atlas-app="neural-map"] .hud h1.appbar-title{font-size:clamp(18px,1.125rem,22px)!important;line-height:1.3!important;white-space:normal;letter-spacing:-.025em}
+
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-links{min-width:0;box-sizing:border-box}
+html.atlas-neumo[data-atlas-app="neural-map"] .neural-links>*{min-width:0;max-width:100%;box-sizing:border-box}
