@@ -49,3 +49,40 @@ html[data-atlas-app="baby-brain"] :is(button,input,select,textarea,[role="button
 html[data-atlas-app="baby-brain"] .baby-map-chooser{position:fixed;z-index:24;top:var(--baby-content-top,140px);left:max(16px,var(--atlas-safe-left,0px));right:max(16px,var(--atlas-safe-right,0px));display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px;padding:12px;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);color:var(--neo-ink)}
 .baby-map-chooser label{display:grid;gap:6px;min-width:0;font-size:.875rem}.baby-map-chooser select{width:100%;min-width:0;font:inherit}
 .baby-map-chooser :is(button,select){min-height:44px;min-width:44px}.baby-map-chooser[hidden]{display:none!important}
+
+/* Topics opens as a book; the original branching map keeps its full canvas. */
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening{--baby-face:#57475e;--baby-cream:#f7efdf;max-width:1100px;margin:0 auto 28px;border:1px solid var(--neo-line);border-radius:24px;overflow:hidden;background:var(--baby-face);color:var(--baby-cream)}
+html.atlas-neumo[data-atlas-app="baby-brain"][data-atlas-theme="dark"] .baby-opening{--baby-face:#483c55}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening-rail{padding:16px 24px;border-bottom:1px solid #ffffff26;font-size:.8125rem;line-height:1.5;font-weight:600}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening-face{padding:24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening h1{margin:0;font:700 2rem/1.15 var(--neo-font)!important;letter-spacing:-.04em;color:var(--baby-cream)!important;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-title-art{display:block;width:100%;max-width:360px;height:auto;margin:16px auto 20px}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening-face p{margin:0;color:#eee3ed;font-size:1rem;line-height:1.55;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening-footer{padding:16px 24px;background:var(--neo-content-surface);border-top:1px solid var(--neo-line)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening-footer button{max-width:100%;min-height:46px;padding:12px 20px;border-radius:999px;background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent);font:600 .9375rem/1.4 var(--neo-font);white-space:normal;overflow-wrap:anywhere;box-shadow:none}
+html.atlas-neumo.atlas-neumo[data-atlas-app="baby-brain"] .hud h1.appbar-title{font-size:clamp(18px,1.125rem,22px)!important;line-height:1.3!important;white-space:normal;letter-spacing:-.025em}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-list{padding-top:8px}
+html.atlas-neumo[data-atlas-app="baby-brain"] .sheet{top:var(--baby-content-top,108px);bottom:calc(var(--atlas-page-nav-height,90px) + var(--atlas-bottom-offset,0px));max-height:calc(var(--atlas-visible-height,100dvh) - var(--baby-content-top,108px) - var(--atlas-page-nav-height,90px));height:auto}
+html.atlas-neumo[data-atlas-app="baby-brain"] .sheet:not(.show){visibility:hidden;pointer-events:none}
+html.atlas-neumo[data-atlas-app="baby-brain"] .sheet-hd{padding:16px 108px 16px 18px}
+html.atlas-neumo[data-atlas-app="baby-brain"] .sheet-hd :is(h2,.path){padding-right:0}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-filters{padding:20px;border:1px solid var(--neo-line);border-radius:24px;background:var(--neo-content-surface)}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-topic{gap:10px;background:var(--neo-content-surface)!important;box-shadow:none!important;border:1px solid var(--neo-line)!important;text-wrap:pretty}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-topic strong{font-size:1.0625rem}
+html.atlas-neumo[data-atlas-app="baby-brain"] :is(.baby-filters label,.baby-path,.baby-meta,.baby-empty,.baby-count,.baby-note-status){font-size:.875rem;line-height:1.5}
+html.atlas-neumo[data-atlas-app="baby-brain"] :is(.baby-filters input,.baby-filters select,.baby-button,.sheet input,.sheet textarea,.sheet .why,.sheet .why.body,.sheet .qlist li){font-size:1rem}
+html.atlas-neumo.atlas-neumo[data-atlas-app="baby-brain"] :is(.baby-list,.sheet,.baby-map-chooser) :is(input,select,textarea){font-size:1rem!important}
+html.atlas-neumo[data-atlas-app="baby-brain"] :is(.baby-filters select,.baby-map-chooser select){appearance:none;text-overflow:ellipsis;padding:10px 34px 10px 12px;border:1px solid var(--neo-line);border-radius:14px;background:linear-gradient(45deg,transparent 50%,var(--neo-ink) 50%) calc(100% - 18px) 50%/5px 5px no-repeat,linear-gradient(135deg,var(--neo-ink) 50%,transparent 50%) calc(100% - 13px) 50%/5px 5px no-repeat,var(--neo-inset);color:var(--neo-ink)}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-chooser{grid-template-columns:minmax(0,1fr) minmax(260px,1fr);padding:18px 24px;gap:20px;max-height:calc(var(--atlas-visible-height,100dvh) - var(--baby-content-top,140px) - var(--atlas-page-nav-height,90px) - 110px);overflow:auto}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-intro{min-width:0}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening-kicker{margin:0 0 6px;color:var(--neo-muted);font-size:.8125rem;line-height:1.5}
+html.atlas-neumo.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-intro h1{margin:0;font:700 1.5rem/1.2 var(--neo-font)!important;letter-spacing:-.03em;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;min-width:0}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-controls label{font-size:.875rem;line-height:1.5}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-controls button{white-space:normal;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-intro .prog{position:static;margin:12px 0 0;max-width:100%;padding:0;border:0;border-radius:0;background:transparent;font:400 .8125rem/1.5 var(--neo-font);letter-spacing:0;white-space:normal;flex-wrap:wrap}
+html.atlas-neumo[data-atlas-app="baby-brain"] .legend{bottom:calc(var(--atlas-page-nav-height,90px) + 8px)}
+html.atlas-neumo[data-atlas-app="baby-brain"] .hint{bottom:calc(var(--atlas-page-nav-height,90px) + 58px)}
+html.atlas-neumo[data-atlas-app="baby-brain"] .zfab{bottom:calc(var(--atlas-page-nav-height,90px) + 58px)}
+@media(max-width:700px){html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-chooser{grid-template-columns:minmax(0,1fr);gap:14px;padding:16px}html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-controls{grid-template-columns:minmax(0,1fr)}html.atlas-neumo[data-atlas-app="baby-brain"] .baby-map-controls button{justify-self:start}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening{--baby-face:Canvas;--baby-cream:CanvasText}html.atlas-neumo[data-atlas-app="baby-brain"] .baby-opening-face p{color:CanvasText}html.atlas-neumo[data-atlas-app="baby-brain"] :is(.baby-filters select,.baby-map-chooser select){appearance:auto;background:Canvas;color:CanvasText}}

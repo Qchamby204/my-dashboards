@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='baby-brain')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('baby-enhancements.css?v=583f758621ec',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('baby-enhancements.css?v=aa6692b4ae0b',source).href;document.head.appendChild(css);
   function ready(){
     if(window.BabyNavigation||typeof ALL==='undefined')return;
     const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e;};
@@ -36,7 +36,9 @@
     toolbar.append(listButton,mapButton);document.body.appendChild(toolbar);
     const mapChooser=make('div',null,'baby-map-chooser'),mapLabel=make('label','Choose a topic'),mapChoice=make('select');mapChoice.id='baby-map-choice';mapLabel.append(mapChoice);
     ALL.filter(n=>n.depth!==0).forEach(node=>{const o=make('option',node.l);o.value=node.id;mapChoice.append(o);});
-    const showChoice=button('Show topic',()=>{const node=known.get(mapChoice.value);if(node)openTopic(node,showChoice);});mapChooser.append(mapLabel,showChoice);document.body.append(mapChooser);
+    const mapIntro=make('div',null,'baby-map-intro');mapIntro.append(make('p','Branching guide','baby-opening-kicker'),make('h1','Follow your curiosity'),$('prog'));
+    const mapControls=make('div',null,'baby-map-controls');
+    const showChoice=button('Show topic',()=>{const node=known.get(mapChoice.value);if(node)openTopic(node,showChoice);});mapControls.append(mapLabel,showChoice);mapChooser.append(mapIntro,mapControls);document.body.append(mapChooser);
     stage.setAttribute('role','img');stage.setAttribute('aria-label','Topic branches overview. Select any topic with Choose a topic.');
 
     const list=make('main',null,'baby-list');list.id='baby-list';
@@ -50,7 +52,10 @@
     option(saved,'All topics','');option(saved,'With my notes or links','notes');
     const clear=button('Clear filters',()=>{search.value=area.value=age.value=saved.value='';renderList();search.focus();});filters.append(clear);
     const count=make('p',null,'baby-count');count.setAttribute('role','status');count.setAttribute('aria-live','polite');
-    const cards=make('div',null,'baby-cards');list.append(filters,count,cards);document.body.append(list);
+    const opening=make('section',null,'baby-opening');opening.setAttribute('aria-labelledby','baby-opening-title');
+    opening.innerHTML='<div class="baby-opening-rail">Family reference · Every stage</div><div class="baby-opening-face"><h1 id="baby-opening-title">Growing, together</h1><svg class="baby-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false"><circle cx="180" cy="140" r="122" fill="#ffffff0c"/><g fill="none" stroke="#d3b789" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M73 221 V86 Q126 72 180 92 Q234 72 287 86 V221 Q234 207 180 227 Q126 207 73 221Z" fill="#f1e4c9"/><path d="M180 92 V227 M92 183 H154 M92 199 H142 M204 183 H266 M204 199 H255"/><path d="M180 91 V55 M180 65 Q144 66 137 35 Q167 30 180 65" fill="#a8bdaf"/><path d="M180 55 Q186 24 217 28 Q214 55 180 55" fill="#c5b1cd"/></g><rect x="139" y="108" width="82" height="64" rx="18" fill="#35405c"/><image href="shared/icons/baby-brain-apple.png?v=51d370f4db07" x="148" y="110" width="64" height="60"/><circle cx="264" cy="51" r="6" fill="#d3b789"/><circle cx="95" cy="49" r="4" fill="#c5b1cd"/></svg><p>A place for the questions, notes and decisions you make together.</p></div>';
+    const openingFooter=make('div',null,'baby-opening-footer');openingFooter.append(button('Browse topics',()=>{list.scrollTo({top:list.scrollTop+filters.getBoundingClientRect().top-list.getBoundingClientRect().top-16,behavior:'instant'});search.focus({preventScroll:true});}));opening.append(openingFooter);
+    const cards=make('div',null,'baby-cards');list.append(opening,filters,count,cards);document.body.append(list);
     const notice=make('div',null,'baby-save-notice');notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');
     const noticeText=make('p');notice.append(noticeText,button('Retry saving',()=>{if(blocked){toast('Back up the unreadable record, then restore a valid notes file.');return;}save();}),button('Back up notes',()=>exportNotes()));document.body.append(notice);
     const body=$('shBody');sheet.setAttribute('aria-labelledby','shTitle');sheet.inert=true;sheet.setAttribute('aria-hidden','true');
@@ -83,7 +88,7 @@
       catch{dirty=true;}paintSave();return !dirty;
     };
     function setMode(next){
-      if(!['list','map'].includes(next))return;mode=next;root.dataset.babyView=mode;mapChooser.hidden=mode!=='map';list.hidden=mode!=='list';stage.hidden=mode!=='map';
+      if(!['list','map'].includes(next))return;mode=next;root.dataset.babyView=mode;mapChooser.hidden=mode!=='map';list.hidden=mode!=='list';stage.hidden=mode!=='map';if(mode==='list')list.scrollTop=0;
       ['legend','hint','prog'].forEach(id=>$(id).hidden=mode!=='map');document.querySelector('.zfab').hidden=mode!=='map';
       ['btnExpand','btnReset'].forEach(id=>$(id).hidden=mode!=='map');listButton.setAttribute('aria-pressed',String(mode==='list'));mapButton.setAttribute('aria-pressed',String(mode==='map'));
       closeSheet(false);searchUI.classList.remove('show');measure();if(mode==='map')animateFit();else renderList();
@@ -104,7 +109,7 @@
       const taskLabel=make('label','Preparation task'),task=make('input');task.placeholder='One concrete next action';task.maxLength=300;taskLabel.append(task);const handoff=make('a','Review task in Life Map');handoff.className='baby-button';handoff.href='life-map.html';handoff.addEventListener('click',e=>{if(!task.value.trim()){e.preventDefault();task.focus();return;}handoff.href='life-map.html#capture='+encodeURIComponent(task.value.trim());});decisions.append(taskLabel,handoff,make('p','Opens a draft for you to review and add. Nothing is completed automatically.'));body.append(decisions);
       const jumps=make('nav',null,'baby-jumps');jumps.setAttribute('aria-label','Topic sections');
       const read=button('Read',()=>body.scrollTo({top:0,behavior:'auto'}));read.classList.add('baby-jump');jumps.append(read);
-      [['Notes','notes'],['Resources','links']].forEach(([name,id])=>{const target=$(id);if(target){const b=button(name,()=>{target.scrollIntoView({block:'start',behavior:'auto'});if(id==='notes')target.focus({preventScroll:true});});b.classList.add('baby-jump');jumps.append(b);}});body.prepend(jumps);
+      [['Notes','notes'],['Resources','links']].forEach(([name,id])=>{const target=$(id);if(target){const b=button(name,()=>{target.style.scrollMarginTop=(jumps.getBoundingClientRect().height+16)+'px';target.scrollIntoView({block:'start',behavior:'instant'});if(id==='notes')target.focus({preventScroll:true});});b.classList.add('baby-jump');jumps.append(b);}});body.prepend(jumps);
       if(notes){notes.setAttribute('aria-label','Our notes and research');notes.disabled=blocked;const s=make('p',null,'baby-note-status');s.id='baby-note-status';s.setAttribute('role','status');notes.after(s);
         notes.addEventListener('input',()=>{if(blocked)return;o.n=notes.value;if(o.n.trim()&&o.s==='empty')o.s='learning';save();markStates(node);refresh(node);});}
       function keyboard(e){if(['Enter',' '].includes(e.key)&&!e.repeat&&e.target.matches('[role="checkbox"],[role="button"]')){e.preventDefault();e.stopPropagation();e.target.click();}}
@@ -151,12 +156,13 @@
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)'),originalAnimate=animateTo;
     animateTo=function(s,x,y){if(reduced.matches){stopAnim();scale=s;px=x;py=y;applyT();}else originalAnimate(s,x,y);};
     const originalInsets=insets;
-    insets=function(ignoreSheet){return {...originalInsets(ignoreSheet),top:Math.max((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom,mapChooser.hidden?0:mapChooser.getBoundingClientRect().bottom)+16};};
+    insets=function(ignoreSheet){const original=originalInsets(ignoreSheet),legend=$('legend');return {...original,top:Math.max((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom,mapChooser.hidden?0:mapChooser.getBoundingClientRect().bottom)+16,bottom:Math.max(original.bottom,legend.hidden?0:innerHeight-legend.getBoundingClientRect().top+16)};};
     ensureVisible=function(node){if(!node)return;const top=(window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom+16,bottom=Math.max(top+60,sheet.classList.contains('show')?sheet.getBoundingClientRect().top-18:innerHeight-60),p=node.parent||node;animateTo(scale,innerWidth/2-(node.tx*.68+p.tx*.32)*scale,(top+bottom)/2-(node.ty*.68+p.ty*.32)*scale);};
-    refreshProgress=function(){const n=LEAVES.filter(hasNotes).length;$('progFill').style.width=(100*n/Math.max(1,LEAVES.length)).toFixed(1)+'%';$('progTxt').textContent=n+' topics with notes, decisions or links';};
+    refreshProgress=function(){const n=LEAVES.filter(hasNotes).length;$('progFill').style.width=(100*n/Math.max(1,LEAVES.length)).toFixed(1)+'%';$('progTxt').textContent=n+(n===1?' topic':' topics')+' with notes, decisions or links';};
     // The legacy speech shortcut must not also run when a focused control uses Space.
     body.addEventListener('keydown',e=>{if(e.key===' '&&e.target.closest('button,[role="button"],[role="checkbox"]'))e.stopPropagation();});
     window.addEventListener('resize',measure);window.visualViewport?.addEventListener('resize',measure);if(window.ResizeObserver)new ResizeObserver(measure).observe(hud);
+    css.addEventListener('load',()=>{measure();if(mode==='map')animateFit();},{once:true});
     ['zin','zout'].forEach((id,i)=>$(id).setAttribute('aria-label',i?'Zoom out':'Zoom in'));
     window.BabyNavigation=Object.freeze({findTopics,setMode,openTopic,safeURL,validate,restoreFile,get mode(){return mode;},get blocked(){return blocked;},get dirty(){return dirty;}});
     render();setMode(mode);paintSave();

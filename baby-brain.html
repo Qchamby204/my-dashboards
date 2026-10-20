@@ -16,7 +16,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","remaining-sports.css":"a9239f1402d6","baby-enhancements.js":"b07bc3ecc8d4"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","remaining-sports.css":"a9239f1402d6","baby-enhancements.js":"d9f0da75f085"}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3210,8 +3210,8 @@ function insets(ignoreSheet){
 }
 function frameFor(nodes,ignoreSheet){
   const b=bounds(nodes), ins=insets(ignoreSheet), pad=22;
-  const availW=Math.max(150,innerWidth-ins.left-ins.right-pad*2);
-  const availH=Math.max(150,innerHeight-ins.top-ins.bottom-pad*2);
+  const availW=Math.max(1,innerWidth-ins.left-ins.right-pad*2);
+  const availH=Math.max(1,innerHeight-ins.top-ins.bottom-pad*2);
   const rawW=Math.max(b.x1-b.x0,1), rawH=Math.max(b.y1-b.y0,1);
   const s=Math.max(0.05,Math.min(1.5,Math.min(availW/rawW,availH/rawH)));
   const cx=ins.left+pad+availW/2, cy=ins.top+pad+availH/2;
