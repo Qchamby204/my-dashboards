@@ -126,7 +126,7 @@
     }
     document.addEventListener('click',event=>{
       const jump=event.target.closest?.('[data-hourglass-jump]');
-      if(jump?.dataset.hourglassJump){const block=document.getElementById('hourglass-'+jump.dataset.hourglassJump+'-content');if(block){block.style.scrollMarginTop=((document.querySelector('.appbar')?.getBoundingClientRect().height||72)+16)+'px';block.scrollIntoView?.({block:'start'});block.querySelector('input')?.focus?.({preventScroll:true});}return;}
+      if(jump?.dataset.hourglassJump){const block=document.getElementById('hourglass-'+jump.dataset.hourglassJump+'-content');if(block){block.style.scrollMarginTop=((document.querySelector('.appbar')?.getBoundingClientRect().height||72)+16)+'px';block.scrollIntoView?.({block:'start',behavior:'instant'});block.querySelector('input')?.focus?.({preventScroll:true});}return;}
       const target=event.target.closest?.('[data-hourglass-action]');if(!target)return;
       const action=target.dataset.hourglassAction;
       if(action==='add')addMilestone();
