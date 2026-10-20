@@ -214,3 +214,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-pr
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="workout-forge"] .fg-feature{--fg-face-ink:CanvasText;--fg-face-muted:CanvasText;--fg-face-accent:CanvasText;background:Canvas!important;border-color:CanvasText}.fg-feature-art{color:CanvasText}}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #forge-goals .fg-fields input{font-size:1.5rem!important;font-weight:650;font-variant-numeric:tabular-nums}
 html.atlas-neumo[data-atlas-app="workout-forge"] .fg-starting-point .fg-primary{grid-column:1/-1}
+
+/* A distinct title illustration leads each training page. */
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature-title{display:block;margin-bottom:8px}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature-art{display:block;width:100%;max-width:360px;height:auto;aspect-ratio:32/19;margin:16px auto 20px;color:var(--fg-face-accent)}
