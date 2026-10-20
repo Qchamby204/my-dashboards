@@ -990,3 +990,21 @@ html.atlas-neumo[data-atlas-app="library"] .finished-shelf>summary{padding:1rem 
 @media print{.library-undo{display:none!important}}
 
 html[data-atlas-app="library"] body{overflow-anchor:none}
+
+/* Illustrated openings retain the original topic symbols and reading records. */
+html.atlas-neumo[data-atlas-app="library"] .library-opening{--library-face:#25384f;--library-cream:#f6efdf;margin:8px 0 28px;border:1px solid var(--neo-line);border-radius:24px;overflow:hidden;background:var(--library-face)!important;color:var(--library-cream)!important;box-shadow:none}
+html.atlas-neumo[data-atlas-app="library"][data-theme="dark"] .library-opening{--library-face:#2b4059}
+html.atlas-neumo[data-atlas-app="library"] .library-opening-rail{padding:16px 24px;border-bottom:1px solid #ffffff26;font-size:.8125rem;line-height:1.5;font-weight:600;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="library"] .library-opening-face{padding:24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] .library-opening h1{font:700 2rem/1.15 var(--neo-font)!important;letter-spacing:-.04em;color:var(--library-cream)!important;max-width:30ch;margin:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="library"] .library-title-art{display:block;width:100%;max-width:360px;height:auto;margin:16px auto 20px}
+html.atlas-neumo[data-atlas-app="library"] .library-opening-face p{font-size:1rem;line-height:1.55;color:#e0e6eb;max-width:65ch;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="library"] .library-opening-footer{display:flex;flex-wrap:wrap;gap:12px;padding:16px 24px;border-top:1px solid var(--neo-line);background:var(--neo-content-surface);color:var(--neo-ink)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] .library-opening-footer .btn{max-width:100%;min-height:46px;white-space:normal;font-size:.9375rem;line-height:1.4;overflow-wrap:anywhere;box-shadow:none}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] .library-opening-footer .primary{background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important}
+html.atlas-neumo[data-atlas-app="library"] .library-focus{margin:0 0 28px}
+html.atlas-neumo[data-atlas-app="library"] .topic-boundary{margin:0 0 20px}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="library"] .library-opening{--library-face:Canvas;--library-cream:CanvasText}.library-opening-face p{color:CanvasText!important}}
+/* Keep page names whole and the floating dock compact at enlarged content text. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] #atlas-page-navigation button{padding-inline:3px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] #atlas-page-navigation button>span:last-child{font-size:clamp(11px,3.3vw,13px)!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important}
