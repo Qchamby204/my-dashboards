@@ -93,6 +93,12 @@ Book, Paycheque, Plan, Goals, Wealth and Review lead with teal/ink title cards, 
 
 Browser checks cover six views across both themes, narrow phones, landscape, doubled text and empty records, plus byte-for-byte record preservation, unchanged income calculations, household save/reload and statement review. Physical iPhone and VoiceOver checks remain separate.
 
+### Herald: story, calendar, rhythm and results
+
+Script Vault, Calendar, Cadence and Metrics each lead with plum/ink title cards and a full-width slate, calendar, rhythm or chart scene. Script Vault keeps the original full-colour gold trumpet emblem. The opening action scrolls immediately to the existing editor or records, clear of the sticky header; it never saves or changes content. The original Assembly rail and season summary follow the active page content, retaining their filters and navigation. The duplicate brand panel yields to the page title. Saved scripts, packaging, scheduling, weekly logs, metrics, sync and backup controls retain their original handlers and record formats. Script-readiness fills are visible again, and enlarged-text header and Metrics labels remain contained.
+
+Browser checks cover all four views in both themes, 320/393px phones, landscape, doubled text and empty records, plus unchanged saved bytes, script creation/reload, retained edits, scheduling and App tools. Physical iPhone and VoiceOver verification remain separate.
+
 ### Remaining suite: shared chrome and content audit
 
 The visual audit covers Operations Cadence, Hourglass, Aqueduct, Herald, Chef, Library, Courier, Baby Brain and Neural Map in light/dark populated and expanded states. Their individual record formats remain intact; ordinary content surfaces lose raised shadows while functional floating controls keep separation. Herald’s backup and sync controls move into its named App tools disclosure. Courier receives the same home/identity/appearance arrangement, with existing edition and playback controls below it; no publication or episode data changes. Atlas remains a passive hub. Physical iPhone verification is still outstanding.
