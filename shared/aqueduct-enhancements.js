@@ -93,6 +93,32 @@
     const recurring=findRecurring(all);if(recurring.length){h+='<details><summary>Repeated charges to review</summary><p>Similar charges can be separate purchases. Review the frequency and monthly amount after adding one to the plan.</p>';for(const r of recurring)h+='<button class="btn line" data-addrec="'+esc(r.key)+'" data-recname="'+esc(r.desc.slice(0,60))+'" data-recamt="'+r.avg+'">Add expense: '+esc(r.desc.slice(0,40))+' · '+fmt(r.avg)+' per charge</button>';h+='</details>';}
     return h+'<p>Category changes apply to this transaction and future imports for the same merchant. '+Object.keys(S.rules).length+' saved rules.</p></section>';
   }
+  // Decorative page identities; all amounts and controls remain in the original views.
+  const openings={
+    book:['Your growing book','Households and momentum','See the book','Follow the households, milestones and trajectory behind your book.'],
+    pay:['Your paycheque','From book to take-home','See income','Trace income from its source through the deductions to your take-home.'],
+    plan:['Give every dollar a place','Your monthly plan','See the plan','Bring expenses, debt and savings together in one monthly picture.'],
+    goals:['What you’re building toward','Goals with a destination','See goals','Keep your goals, dates and contributions in view.'],
+    wealth:['The bigger picture','Accounts and independence','See wealth','See how your accounts, goals and independence fit together.'],
+    review:['Check the real picture','Statements and spending','See the review','Review your statement against the plan, one month at a time.']
+  };
+  function titleArtwork(kind){
+    const scenes={
+      book:'<path d="M50 80 Q110 62 180 88 Q250 62 310 80 V218 Q248 200 180 226 Q112 200 50 218 Z" fill="#f1e4c9"/><path d="M180 88 V226 M72 112 Q110 101 153 115 M72 140 Q110 129 153 143 M72 168 Q110 157 135 167"/><path d="M207 178 L232 151 L251 159 L287 111 M267 111 H287 V131" stroke="#537f7b" stroke-width="6"/>',
+      pay:'<path d="M45 87 H315 V214 H45 Z" fill="#f1e4c9"/><path d="M45 122 H315 M72 151 H153 M72 174 H130 M72 197 H111"/><circle cx="251" cy="171" r="28" fill="#d2a769"/><path d="M251 153 V189 M261 159 H247 Q235 159 246 171 L257 175 Q268 184 241 184"/>',
+      plan:'<path d="M49 73 H311 V225 H49 Z" fill="#f1e4c9"/><path d="M49 111 H311 M87 58 V89 M273 58 V89 M87 140 H117 V166 H87 Z M140 140 H170 V166 H140 Z M193 140 H223 V166 H193 Z M246 140 H276 V166 H246 Z M87 184 H117 V210 H87 Z M140 184 H170 V210 H140 Z"/><path d="M198 195 L217 211 L273 174" stroke="#537f7b" stroke-width="6"/>',
+      goals:'<circle cx="167" cy="150" r="87" fill="#f1e4c9"/><circle cx="167" cy="150" r="58"/><circle cx="167" cy="150" r="27" fill="#d2a769"/><path d="M167 150 L268 64 M249 68 L270 43 L275 64 L296 67 L273 87 Z" fill="#82b5b0"/>',
+      wealth:'<path d="M40 223 L125 110 L171 162 L231 64 L320 223 Z" fill="#719d99"/><path d="M125 110 L171 162 L152 150 L131 161 L114 143 L99 145 M231 64 L259 113 L235 101 L220 115 L210 100" fill="#f1e4c9"/><path d="M55 236 H305 M82 223 V185 H119 V223 M148 223 V163 H185 V223 M214 223 V140 H251 V223" fill="#d2a769"/>',
+      review:'<path d="M81 57 H248 V235 H81 Z" fill="#f1e4c9"/><path d="M110 91 H213 M110 118 H213 M110 145 H177 M110 172 H165 M110 199 H148"/><circle cx="245" cy="184" r="43" fill="#719d99"/><path d="M226 183 L240 197 L265 171 M276 216 L302 242" stroke="#f7efdf" stroke-width="6"/>'
+    };
+    return '<svg class="aqueduct-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false"><circle cx="180" cy="142" r="122" fill="#ffffff0c"/><g stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">'+scenes[kind]+'</g></svg>';
+  }
+  function addOpening(bar){
+    const kind=openings[S.tab]?S.tab:'pay',copy=openings[kind],card=make('section',null,'aqueduct-opening');card.dataset.opening=kind;
+    card.innerHTML='<div class="aqueduct-opening-rail">'+copy[1]+'</div><div class="aqueduct-opening-face"><h1>'+copy[0]+'</h1>'+titleArtwork(kind)+'<p>'+copy[3]+'</p></div><div class="aqueduct-opening-footer"><button type="button" class="btn" data-aqueduct-jump>'+copy[2]+'</button></div>';
+    bar.after(card);
+    card.querySelector('button').onclick=()=>{const target=card.nextElementSibling;if(!target)return;target.style.scrollMarginTop=((bar.getBoundingClientRect().height||72)+16)+'px';target.scrollIntoView({block:'start',behavior:'instant'});};
+  }
   const originalWire=wire,originalRender=render,originalToast=toast;
   toast=function(message,label,action){originalToast(message+(records.unsaved?' Changes are not saved yet.':''),label,action);};
   wire=function(){
@@ -124,7 +150,7 @@
     const nav=app.querySelector('.tabbar'),active=nav?.querySelector('[aria-current="page"]');if(nav&&active)nav.scrollLeft=Math.max(0,active.offsetLeft-(nav.clientWidth-active.offsetWidth)/2);
     const undo=document.getElementById('undoBtn');if(undo)undo.disabled=!UNDO.length;
   };
-  render=function(){if(toolsBar.parentNode)toolsBar.remove();originalRender();const bar=app.querySelector('.appbar');if(bar)bar.after(toolsBar);else app.before(toolsBar);status();};
+  render=function(){if(toolsBar.parentNode)toolsBar.remove();originalRender();const bar=app.querySelector('.appbar');if(bar){addOpening(bar);const nav=app.querySelector('.tabbar');if(records.blocked||records.unsaved)bar.after(toolsBar);else if(nav)nav.before(toolsBar);else app.append(toolsBar);}else app.before(toolsBar);status();};
   window.AqueductUI=Object.freeze({status,backup,payload,parseBackup,importBackup,importStatement,analyze,review,monthRows,matchingRows,removeRecord,clearHouseholds,addHousehold});
   window.addEventListener('beforeunload',e=>{if(records.unsaved){e.preventDefault();e.returnValue='';}});
   save();render();

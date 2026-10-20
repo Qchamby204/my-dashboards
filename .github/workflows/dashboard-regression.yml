@@ -250,6 +250,7 @@ jobs:
           node atlas/tests/chef-openings.browser.mjs
           node atlas/tests/library-openings.browser.mjs
           node atlas/tests/hourglass-openings.browser.mjs
+          node atlas/tests/aqueduct-openings.browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
