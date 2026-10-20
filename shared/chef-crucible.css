@@ -288,7 +288,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] details.cat[open]>summar
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] details.cat>summary span{font-size:.8125rem;white-space:nowrap}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] details.cat .chips{padding:0 16px 16px;gap:10px;margin:0}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] #ing-clear{margin:8px 0 0!important;box-shadow:none}
-@media(max-width:360px){html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] .recipe-card{padding:20px!important}}
+@media(max-width:360px){html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] .panel{padding:16px}html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] .recipe-card{padding:16px!important}}
 
 
 /* The planned week fills with illustrated meal cards. */
