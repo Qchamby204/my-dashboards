@@ -130,7 +130,17 @@ try{
   assert(await p.locator('.ledger-xp-save-note').first().isVisible(),'XP saving requirement is visible on the card');
   const active=p.locator('.ledger-habit-card[aria-hidden="false"]');await capture(p,'ledger-activity',theme,w,size,active);
   await p.locator('#ledger-checkin-save').scrollIntoViewIfNeeded();await capture(p,'ledger-save-dock',theme,w,size);
-  const ledgerBytes=await p.evaluate(()=>localStorage.getItem('lifeledger:v2'));await p.locator('#ledger-nav-achievements').click();
+  const ledgerBytes=await p.evaluate(()=>localStorage.getItem('lifeledger:v2'));
+  await p.locator('#ledger-nav-progress').click();const valueMap=p.locator('#ledger-view-progress .ledger-value-map');
+  assert(await valueMap.isVisible(),'the original value constellation is visible without opening a disclosure');
+  assert.equal(await valueMap.evaluate(n=>n.tagName),'SECTION');assert.equal(await valueMap.locator('svg g.tap').count(),5);
+  assert.equal(await valueMap.locator('.ledger-value-key button').count(),5);
+  assert(await valueMap.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('.ledger-values'))&Node.DOCUMENT_POSITION_FOLLOWING)),'the constellation precedes individual value records');
+  await capture(p,'ledger-value-constellation',theme,w,size,valueMap);
+  const valueShortcut=valueMap.locator('.ledger-value-key button').first();await valueShortcut.click();
+  assert.equal(await p.locator('.ledger-value-toggle').first().getAttribute('aria-expanded'),'true','value shortcuts reveal the corresponding saved progress');
+  assert.equal(await p.evaluate(()=>localStorage.getItem('lifeledger:v2')),ledgerBytes,'viewing the constellation never rewrites saved days');
+  await p.locator('#ledger-nav-achievements').click();
   if(w===393&&size===16){const collection=await p.locator('.ledger-collection-heading h2').boundingBox(),dock=await p.locator('.ledger-nav').boundingBox();assert(collection.y+collection.height<dock.y-8,'the collection heading appears on the first phone screen');}
   await capture(p,'ledger-collection-first-screen',theme,w,size);
   await p.locator('.ledger-milestone-choices>summary').click();assert(await p.locator('#ledger-milestone-choice').isVisible());await capture(p,'ledger-milestone-choices',theme,w,size,p.locator('#ledger-next-milestone'));

@@ -586,3 +586,10 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-art svg{colo
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-art .ledger-badge-symbol{stroke:var(--ledger-feature-accent)!important}
 
 @media(max-width:360px){html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-title{flex-basis:7.5rem}}
+
+/* Keep the original five-value constellation visible beside its saved level key. */
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map{padding:20px;border:1px solid var(--ledger-separator);border-radius:24px;background:var(--neo-content-surface);margin:0 0 16px}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-level-constellation{max-width:360px;margin:0 auto;padding:0;border:0}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-level-constellation svg{max-width:288px!important;margin:0 auto 16px!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-value-key button{overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .tap>.orb:nth-of-type(2){stroke-width:6}

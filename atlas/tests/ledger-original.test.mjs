@@ -671,5 +671,5 @@ test('History opens with a saved-record summary and keeps browsing and backup to
 test('Levels opens with lifetime progress and keeps rewards and value progress in the same section',async()=>{
  const h=await boot({realModel:true});h.node('ledger-nav-progress').click();const pane=h.node('ledger-view-progress'),hero=h.node('ledger-lifetime-levels');
  assert(hero.classList.contains('ledger-feature'));assert.match(hero.textContent,/Life Level 0/);assert.match(hero.textContent,/lifetime XP/);assert.equal(hero.querySelector('.ledger-level-constellation'),null);
- assert(pane.querySelector('.ledger-value-map'));assert(h.node('ledger-personal-rewards').isConnected);assert(hero.querySelectorAll('button').some(b=>b.textContent==='Explore rewards'));
+ const map=pane.querySelector('.ledger-value-map');assert(map);assert.equal(map.tagName,'SECTION');assert(map.querySelector('.ledger-level-constellation'));assert.equal(map.querySelectorAll('.ledger-value-key button').length,5);assert(h.node('ledger-personal-rewards').isConnected);assert(hero.querySelectorAll('button').some(b=>b.textContent==='Explore rewards'));
 });

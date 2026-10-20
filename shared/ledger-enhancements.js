@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=6ce4abdb5cab',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=2f18242d217e',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -724,9 +724,11 @@
       const overall=move('.ledger-overall',panes.progress),map=overall?.querySelector('.ledger-level-constellation');overall?.querySelector('.ledger-feature-footer')?.append(awards);
       if(map)map.remove();
       const relic=app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel');
-      app.querySelector('.ledger-values-heading')?.remove();const valuesHeading=make('div',null,'ledger-section-heading');valuesHeading.append(make('h2','Levels by value'));move('.ledger-values-info',valuesHeading);panes.progress.append(valuesHeading);move('.ledger-values',panes.progress);if(relic)relic.remove();
+      app.querySelector('.ledger-values-heading')?.remove();const valuesHeading=make('div',null,'ledger-section-heading');valuesHeading.append(make('h2','Levels by value'));move('.ledger-values-info',valuesHeading);panes.progress.append(valuesHeading);
+      if(map){const card=make('section',null,'panel ledger-value-map');valuesHeading.querySelector('h2').id='ledger-values-title';card.setAttribute('aria-labelledby','ledger-values-title');map.querySelector('h3')?.remove();card.append(map);panes.progress.append(card);}
+      move('.ledger-values',panes.progress);if(relic)relic.remove();
       const personalRewards=personalRewardsPanel(data);if(personalRewards)panes.progress.append(personalRewards);
-      if(map){const fold=make('details',null,'ledger-history ledger-value-map');fold.append(make('summary','View value map'),map);panes.progress.append(fold);}panes.progress.append(recentPanel());
+      panes.progress.append(recentPanel());
       panes.achievements.append(make('h1','Achievements','cinzel ledger-view-title'),achievementOverview(data,earned));
       panes.history.prepend(make('h1','Your record','cinzel ledger-view-title'),historyFeature());
       const savedRecords=move('#ledger-history',panes.history);if(savedRecords)checkinTools.before(savedRecords);
