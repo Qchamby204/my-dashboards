@@ -57,7 +57,7 @@ html.atlas-neumo[data-atlas-app="courier"] body {
   background:var(--neo-surface)!important;
 }
 html.atlas-neumo[data-atlas-app="courier"] header {
-  background:var(--neo-surface);border-bottom:2px solid var(--neo-line);
+  background:var(--neo-surface);border-bottom:0;
   padding-top:max(28px,env(safe-area-inset-top));margin-bottom:26px;
 }
 html.atlas-neumo[data-atlas-app="courier"] h1 {
@@ -131,3 +131,32 @@ html.atlas-neumo[data-atlas-app="courier"] .head>div {min-width:0;}
 
 /* Approved suite material; native layout and controls remain intact. */
 html.atlas-neumo[data-atlas-app] :is(h1,h2,h3,.appbar-title,.statbig,.hg-title,.brand-title){font-family:var(--neo-font)!important;letter-spacing:-.025em;text-transform:none!important}
+
+/* Illustrated opening before the original listening controls and section records. */
+html.atlas-neumo[data-atlas-app="courier"] .courier-opening{--courier-face:#30485b;--courier-cream:#f7efdf;margin:0 0 24px;padding:0;border:1px solid var(--neo-line);border-radius:24px;overflow:hidden;background:var(--courier-face);color:var(--courier-cream);box-shadow:none}
+html.atlas-neumo[data-atlas-app="courier"][data-atlas-theme="dark"] .courier-opening{--courier-face:#3a4e65}
+html.atlas-neumo[data-atlas-app="courier"] .courier-opening-rail{padding:16px 24px;border-bottom:1px solid #ffffff26;font-size:.8125rem;line-height:1.5;font-weight:600}
+html.atlas-neumo[data-atlas-app="courier"] .courier-opening-face{padding:24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .courier-opening h1{font:700 2rem/1.15 var(--neo-font)!important;letter-spacing:-.04em;color:var(--courier-cream)!important;margin:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="courier"] .courier-title-art{display:block;width:100%;max-width:360px;height:auto;margin:16px auto 20px}
+html.atlas-neumo[data-atlas-app="courier"] .courier-opening-face p{font-size:1rem;line-height:1.55;color:#e5dde8;margin:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="courier"] .courier-opening-footer{padding:16px 24px;background:var(--neo-content-surface);border-top:1px solid var(--neo-line);color:var(--neo-ink)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .courier-opening-footer :is(#playAll,#courier-browse-edition){width:auto;max-width:100%;min-height:46px;padding:12px 20px;border-radius:999px;font:600 .9375rem/1.4 var(--neo-font);white-space:normal;overflow-wrap:anywhere;background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent)!important;box-shadow:none}
+
+
+html.atlas-neumo[data-atlas-app="courier"] #courier-opening{max-width:calc(var(--shell) - 64px);margin:0 auto 24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .courier-opening h1{display:block!important}
+html.atlas-neumo[data-atlas-app="courier"] .courier-opening-footer{display:flex;flex-wrap:wrap;gap:12px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .courier-opening-footer #courier-browse-edition{background:transparent!important;color:var(--neo-ink)!important;border-color:var(--neo-line)!important}
+html.atlas-neumo[data-atlas-app="courier"] .courier-playback-tools{max-width:var(--shell);margin:0 auto 24px;padding:0 32px;min-width:0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .courier-suite-header h1.appbar-title{font-size:clamp(18px,1.125rem,22px)!important;line-height:1.3!important;white-space:normal;overflow-wrap:normal;word-break:normal}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-track::after{display:none!important}
+html.atlas-neumo[data-atlas-app="courier"] .courier-progress-track>span{background:var(--neo-accent)!important;box-shadow:none}
+html.atlas-neumo[data-atlas-app="courier"] :is(.courier-opening,.courier-playback-tools) [hidden]{display:none!important}
+@media(max-width:420px){html.atlas-neumo[data-atlas-app="courier"] #courier-opening{max-width:calc(100% - 32px)}html.atlas-neumo[data-atlas-app="courier"] .courier-playback-tools{padding-inline:16px}}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="courier"] .courier-opening{--courier-face:Canvas;--courier-cream:CanvasText}.courier-opening-face p{color:CanvasText!important}html.atlas-neumo[data-atlas-app="courier"] .courier-progress-track>span{background:Highlight!important;forced-color-adjust:none}}
+@media(max-width:900px){html.atlas-neumo[data-atlas-app="courier"] .rail{grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr))}}
+
+html.atlas-neumo[data-atlas-app="courier"] [data-edition-kind="text"] .courier-headphones{display:none}
+
+html.atlas-neumo[data-atlas-app="courier"] .courier-opening-rail time{display:inline-block;white-space:nowrap}
