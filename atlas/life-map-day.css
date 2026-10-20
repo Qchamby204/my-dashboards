@@ -184,3 +184,8 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-timeline-row{padding:14px;m
 @media(max-width:600px){html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet .lm-two-col{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:380px){html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature :is(.lm-feature-body,.lm-feature-footer){padding:20px}html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature h2{flex-basis:8rem}html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-art{width:72px;height:72px;flex-basis:72px}}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature{border:2px solid var(--neo-ink)}html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-rail{border-color:var(--lm-face-muted)}}
+
+/* Each page opens with a title illustration, with its controls in the footer. */
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-title{display:block;margin-bottom:8px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-art{display:block;width:100%;max-width:360px;height:auto;aspect-ratio:32/19;margin:16px auto 20px;color:var(--lm-face-accent)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-body>.lm-help{margin-top:0}
