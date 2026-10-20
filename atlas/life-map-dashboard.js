@@ -5,6 +5,7 @@
   const DRAFT_KEY='lifemap:entry-drafts:v2',VIEW_KEY='lifemap:view:v2';
   const project=id=>(S.projects||[]).find(p=>p.id===id),chore=id=>(S.chores||[]).find(c=>c.id===id),group=id=>(S.groups||[]).find(g=>g.id===id);
   const utilityIcons={'⋯':'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>','×':'<path d="m6 6 12 12M6 18 18 6"/>','↑':'<path d="M12 20V4m-7 7 7-7 7 7"/>','↓':'<path d="M12 4v16m-7-7 7 7 7-7"/>','↗':'<path d="M5 19 19 5H7m12 0v12"/>'};
+  Object.assign(utilityIcons,{'‹':'<path d="m15 5-7 7 7 7"/>','›':'<path d="m9 5 7 7-7 7"/>'});
   const button=(text,action,attrs='',cls='')=>'<button type="button" class="btn tap lm-button '+cls+'" data-lm="'+action+'" '+attrs+'>'+(utilityIcons[text]?'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+utilityIcons[text]+'</svg>':text)+'</button>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
   const select=(key,value,options,extra='')=>'<select data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
@@ -224,7 +225,16 @@
   }
   function groupEditor(e){return field('Project name',input('title',e.title,'text','maxlength="300"'))+field('Area',select('area',e.area,areaOptions()))+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+'<div class="lm-sheet-actions">'+button('Save project','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?'<div class="lm-inline">'+button('+ Next action','new-task','data-group="'+esc(e.id)+'"')+button('Save as template','save-template','data-id="'+esc(e.id)+'"')+button(e.archived?'Restore project':'Archive completed project',e.archived?'restore-group':'archive-group','data-id="'+esc(e.id)+'"')+'</div>':'');}
   function searchEditor(){const results=M.search(S,view.search||'',{archive:searchArchive});return '<input id="lm-search" data-lm="search-input" data-ui-only value="'+esc(view.search||'')+'" placeholder="Tasks, projects, chores, notes…" aria-label="Search all Life Map"><label class="lm-checkbox"><input type="checkbox" data-lm="search-archive" data-ui-only'+(searchArchive?' checked':'')+'> Include completed and archived</label><div id="lm-search-results">'+results.map(r=>'<button type="button" class="btn lm-search-result" data-lm="'+(r.kind==='task'?'edit-task':r.kind==='chore'?'edit-chore':'edit-group')+'" data-id="'+esc(r.item.id)+'"><strong>'+esc(r.item.task||r.item.title||r.item.chore)+'</strong><small>'+esc(r.kind+' · '+(r.kind==='task'?M.classify(r.item,todayISO()):r.item.area||r.item.cad||'')+(r.item.parentId?' · '+(group(r.item.parentId)?.title||''):''))+'</small></button>').join('')+(view.search&&!results.length?help('No matches. Include completed and archived to search the full history.'):'')+'</div>';}
-  function taskMenu(p){return '<div class="lm-menu">'+[['today','Today'],['tomorrow','Tomorrow'],['wk','This week'],['next','Back to Next'],['inbox','Inbox'],['someday','Someday']].map(([v,t])=>button(t,'plan','data-id="'+esc(p.id)+'" data-when="'+v+'"')).join('')+button(p.status==='Waiting'?'Resume task':'Waiting / follow-up','wait-task','data-id="'+esc(p.id)+'"')+button('Edit / move / defer','edit-task','data-id="'+esc(p.id)+'"')+button('Calendar reminder','reminder','data-id="'+esc(p.id)+'"')+(p.archived?button('Restore task','restore-task','data-id="'+esc(p.id)+'"'):p.status==='Done'?button('Archive completed task','archive-task','data-id="'+esc(p.id)+'"'):'')+'</div>'+(p.links||[]).filter(safeLink).map(x=>'<a class="lm-source-link" target="_blank" rel="noopener noreferrer" href="'+esc(x)+'">'+esc(x)+'</a>').join('');}
+  function planCalendar(e){
+    const selected=M.validDate(e.plan)?e.plan:'',month=e.month||(selected||todayISO()).slice(0,7),first=month+'-01',date=new Date(first+'T12:00:00Z');
+    const offset=(date.getUTCDay()+6)%7,last=new Date(date);last.setUTCMonth(last.getUTCMonth()+1,0);
+    const title=new Intl.DateTimeFormat(undefined,{month:'long',year:'numeric',timeZone:'UTC'}).format(date),label=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});
+    const focus=e.focusDate?.startsWith(month)?e.focusDate:selected.startsWith(month)?selected:todayISO().startsWith(month)?todayISO():first;
+    let days='<span class="lm-calendar-space" aria-hidden="true" style="grid-column:span '+(offset||1)+'"'+(!offset?' hidden':'')+'></span>';
+    for(let day=1;day<=last.getUTCDate();day++){const value=month+'-'+String(day).padStart(2,'0');days+=button(String(day),'pick-plan-date','data-date="'+value+'" aria-label="'+esc(label.format(new Date(value+'T12:00:00Z')))+'" aria-pressed="'+(value===selected)+'" tabindex="'+(value===focus?'0':'-1')+'"'+(value===todayISO()?' aria-current="date"':''),'lm-calendar-day');}
+    return '<section class="lm-calendar" aria-label="Planning calendar"><div class="lm-calendar-heading">'+button('‹','plan-month','data-step="-1" aria-label="Previous month"'+(month==='0001-01'?' disabled':''),'lm-icon')+'<h3 id="lm-calendar-month" aria-live="polite">'+esc(title)+'</h3>'+button('›','plan-month','data-step="1" aria-label="Next month"'+(month==='9999-12'?' disabled':''),'lm-icon')+'</div><div class="lm-calendar-weekdays" aria-hidden="true">'+['Mo','Tu','We','Th','Fr','Sa','Su'].map(d=>'<span>'+d+'</span>').join('')+'</div><div class="lm-calendar-days" role="group" aria-labelledby="lm-calendar-month">'+days+'</div></section>';
+  }
+  function taskMenu(p){return '<div class="lm-menu">'+[['today','Today'],['tomorrow','Tomorrow'],['wk','This week']].map(([v,t])=>button(t,'plan','data-id="'+esc(p.id)+'" data-when="'+v+'"')).join('')+button('Choose date','choose-date','data-id="'+esc(p.id)+'"')+[['next','Back to Next'],['inbox','Inbox'],['someday','Someday']].map(([v,t])=>button(t,'plan','data-id="'+esc(p.id)+'" data-when="'+v+'"')).join('')+button(p.status==='Waiting'?'Resume task':'Waiting / follow-up','wait-task','data-id="'+esc(p.id)+'"')+button('Edit / move / defer','edit-task','data-id="'+esc(p.id)+'"')+button('Calendar reminder','reminder','data-id="'+esc(p.id)+'"')+(p.archived?button('Restore task','restore-task','data-id="'+esc(p.id)+'"'):p.status==='Done'?button('Archive completed task','archive-task','data-id="'+esc(p.id)+'"'):'')+'</div>'+(p.links||[]).filter(safeLink).map(x=>'<a class="lm-source-link" target="_blank" rel="noopener noreferrer" href="'+esc(x)+'">'+esc(x)+'</a>').join('');}
   function bulkEditor(e){const action=e.action||'plan';return help(selection.size+' selected tasks. Real deadlines remain unchanged by planning actions.')+field('Action',select('action',action,[['plan','Schedule / return to Next'],['area','Move to an area'],['group','Move into a project'],['defer','Show again on a date'],['archive','Archive completed tasks'],['restore','Restore archived tasks']]))+
     (action==='plan'?field('When',select('when',e.when||'today',[['today','Today'],['tomorrow','Tomorrow'],['wk','This week'],['next','Next'],['inbox','Inbox'],['someday','Someday']])):action==='area'?field('Area',select('area',e.area,areaOptions())):action==='group'?field('Project',select('parentId',e.parentId,groupOptions())):action==='defer'?field('Show again on',input('showAfter',e.showAfter,'date')):'')+button('Apply to selected','apply-bulk','data-lm-save','lm-primary');}
   function connectionsEditor(){const base=typeof location!=='undefined'?location.origin+location.pathname:'';
@@ -242,6 +252,7 @@
     else if(e.kind==='group'){title=e.id?'Project details':'New project';body=groupEditor(e);}
     else if(e.kind==='search'){title='Search Life Map';body=searchEditor();}
     else if(e.kind==='menu'){const p=project(e.id);title=p?.task||'Task actions';body=p?taskMenu(p):help('This task is no longer available.');}
+    else if(e.kind==='plan-date'){const p=project(e.id);title='Choose a date';body=p?'<p class="lm-plan-task">'+esc(p.task)+'</p>'+field('Plan to work on',input('plan',e.plan,'date','required'))+planCalendar(e)+'<div class="lm-sheet-actions">'+button('Schedule task','save-plan-date','data-lm-save','lm-primary')+button('Back','task-menu','data-id="'+esc(p.id)+'"')+'</div>':help('This task is no longer available.');}
     else if(e.kind==='chore-menu'){const c=chore(e.id);title=c?.chore||'Chore actions';body=c?'<div class="lm-menu">'+button(plannedToday(c)?'Remove from Today':'Add to Today','plan-chore','data-id="'+esc(c.id)+'"')+(!isChecked(c)?button('Complete occurrence','chore-complete','data-id="'+esc(c.id)+'"')+button('Skip this occurrence','skip-chore','data-id="'+esc(c.id)+'"'):'')+button('Reschedule occurrence','reschedule-chore','data-id="'+esc(c.id)+'"')+button('Edit details','edit-chore','data-id="'+esc(c.id)+'"')+'</div>':'';}
     else if(e.kind==='reschedule'){title='Reschedule occurrence';body=field('Next due date',input('nextDue',e.nextDue,'date'))+help('This changes the next occurrence, not its completion history.')+button('Reschedule','save-reschedule','data-lm-save','lm-primary');}
     else if(e.kind==='bulk'){title='Organize selected tasks';body=bulkEditor(e);}
@@ -251,7 +262,7 @@
     else if(e.kind==='reminder'){title='Calendar reminder';body=field('Reminder date',input('date',e.date,'date'))+field('Time (your calendar’s local time)',input('time',e.time||'09:00','time'))+help('Download, import into your calendar, then confirm the event and alert. This is not a background web-push notification.')+button('Export reminder','export-reminder','data-lm-save','lm-primary');}
     else if(e.kind==='archived-groups'){title='Archived projects';body=(S.groups||[]).filter(g=>g.archived).map(g=>'<div class="lm-section-head">'+esc(g.title)+button('Restore','restore-group','data-id="'+esc(g.id)+'"')+'</div>').join('')||help('No archived projects.');}
     else if(e.kind==='connections'){title='Capture, saving & reminders';body=connectionsEditor();}
-    return '<dialog class="overlay lm-sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="lm-sheet-title"><div class="panel lm-sheet"><div class="lm-sheet-header"><h2 id="lm-sheet-title">'+esc(title)+'</h2>'+button('×','close','aria-label="Close"','lm-icon')+'</div><div class="lm-sheet-body">'+body+'<p id="lm-editor-status" class="lm-error" role="alert">'+esc(lastError||draftError)+'</p>'+(pendingAction?'<div class="lm-inline">'+button('Retry saving','retry')+button('Discard unsaved change','discard-failed')+'</div>':'')+'</div></div></dialog>';
+    return '<dialog class="overlay lm-sheet-overlay'+(e.kind==='plan-date'?' lm-date-overlay':'')+'" role="dialog" aria-modal="true" aria-labelledby="lm-sheet-title"><div class="panel lm-sheet"><div class="lm-sheet-header"><h2 id="lm-sheet-title">'+esc(title)+'</h2>'+button('×','close','aria-label="Close"','lm-icon')+'</div><div class="lm-sheet-body">'+body+'<p id="lm-editor-status" class="lm-error" role="alert">'+esc(lastError||draftError)+'</p>'+(pendingAction?'<div class="lm-inline">'+button('Retry saving','retry')+button('Discard unsaved change','discard-failed')+'</div>':'')+'</div></div></dialog>';
   };
   function clearEdit(){view.editor=null;recoveredEditor=null;recoveredBase=null;restorePrompt=false;editorBase=null;window.AtlasConnected?.clearInputDraft?.();}
   function rememberStatus(next,p,status){
@@ -297,7 +308,7 @@
     let rows;try{rows=M.capture(view.qa.txt,when?{...view.qa,when}:view.qa,todayISO(),uid);if(view.qa.links?.length)rows[0].links=view.qa.links.filter(safeLink);}catch(e){lastError=e.message;feedback();return false;}
     return transaction(next=>{next.projects.push(...rows);},when==='today'?(rows.length===1?'Task added to Today':rows.length+' tasks added to Today'):rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
   };
-  function planTask(id,when){return transaction(next=>{const p=next.projects.find(p=>p.id===id);if(!p)throw Error('Task not found.');M.setPlan(p,when,todayISO());p.updatedAt=todayISO();},'Task plan updated','task_planned',()=>{if(view.editor?.kind==='menu')clearEdit();});}
+  function planTask(id,when){return transaction(next=>{const p=next.projects.find(p=>p.id===id);if(!p)throw Error('Task not found.');M.setPlan(p,when,todayISO());p.updatedAt=todayISO();},'Task plan updated','task_planned',()=>{if(['menu','plan-date'].includes(view.editor?.kind))clearEdit();});}
   function choreAction(id,action){const c=chore(id);if(!c)return false;return transaction(next=>{
     const item=next.chores.find(c=>c.id===id),occurrence=item.repeat?M.choreDue(item,todayISO()):periodKey(item.cad);next.choreHistory=next.choreHistory||[];
     if(action==='done'&&!item.repeat&&next.checks[id]===occurrence){delete next.checks[id];next.choreHistory=next.choreHistory.filter(h=>!(h.choreId===id&&h.occurrence===occurrence));return;}
@@ -362,7 +373,11 @@
     if(action==='new-task')return newTask(el.dataset.group||groupFilter);
     if(action==='new-group')return openEditor('group',{title:'',area:view.fArea||''});
     if(action==='new-chore')return openEditor('chore',{chore:'',cad:'Weekly'});
-    if(action==='task-menu')return openEditor('menu',{id});
+    if(action==='task-menu'){const fromCalendar=view.editor?.kind==='plan-date';openEditor('menu',{id});if(fromCalendar)app.querySelector('[data-lm="choose-date"]')?.focus({preventScroll:true});return;}
+    if(action==='choose-date'){const p=project(id);if(p)openEditor('plan-date',{id,plan:p.plan||todayISO()});return;}
+    if(action==='plan-month'){const e=view.editor;if(e?.kind!=='plan-date')return;const date=new Date((e.month||(M.validDate(e.plan)?e.plan:todayISO()).slice(0,7))+'-01T12:00:00Z');date.setUTCMonth(date.getUTCMonth()+Number(el.dataset.step));if(date.getUTCFullYear()<1||date.getUTCFullYear()>9999)return;e.month=date.toISOString().slice(0,7);e.focusDate='';render();return;}
+    if(action==='pick-plan-date'){const e=view.editor;if(e?.kind!=='plan-date'||!M.validDate(el.dataset.date))return;e.plan=el.dataset.date;e.month=e.plan.slice(0,7);e.focusDate=e.plan;lastError='';render();app.querySelector('[data-lm="pick-plan-date"][data-date="'+e.plan+'"]')?.focus({preventScroll:true});return;}
+    if(action==='save-plan-date'){const e=view.editor;if(e?.kind!=='plan-date')return;if(!M.validDate(e.plan)){lastError='Choose a valid planning date.';feedback();return false;}return planTask(e.id,e.plan);}
     if(action==='chore-menu')return openEditor('chore-menu',{id});
     if(action==='save-editor')return saveEditor();if(action==='delete-editor')return delEditor();
     if(action==='plan')return planTask(id,el.dataset.when);
@@ -425,7 +440,7 @@
     if(key==='captureArea'){view.qa.area=value;view.qa.parentId='';}
     else if(key==='captureParent'){view.qa.parentId=value;if(value)view.qa.area=group(value)?.area||'';}
     else if(e){e[key]=value;if(key==='area'&&value)e.inbox=false;if(key==='parentId'&&value){e.area=group(value)?.area||e.area;e.inbox=false;}
-      if(key==='plan'){e.planWeek='';if(value)e.inbox=false;}if(key==='showAfter'&&value){e.park='';e.someday=false;}if(key==='status'&&value!=='Waiting'){e.waitingFor='';e.followUp='';}}
+      if(key==='plan'){e.planWeek='';if(value)e.inbox=false;if(e.kind==='plan-date'&&M.validDate(value)){e.month=value.slice(0,7);e.focusDate=value;}}if(key==='showAfter'&&value){e.park='';e.someday=false;}if(key==='status'&&value!=='Waiting'){e.waitingFor='';e.followUp='';}}
     storeDraft();if(redraw)render();
   }
   app.addEventListener('input',ev=>{
@@ -437,7 +452,7 @@
     if(a==='search-input'){ev.stopImmediatePropagation();view.search=el.value;const start=el.selectionStart;render();const next=document.getElementById('lm-search');next?.focus({preventScroll:true});next?.setSelectionRange(start,start);}
   },true);
   app.addEventListener('change',ev=>{const el=ev.target,a=el.dataset?.lm;if(!a||busy)return;
-    if(a==='field'){ev.stopImmediatePropagation();fieldChange(el,el.tagName==='SELECT');}
+    if(a==='field'){ev.stopImmediatePropagation();fieldChange(el,el.tagName==='SELECT'||view.editor?.kind==='plan-date'&&el.dataset.field==='plan');}
     else if(a==='field-check'){view.editor[el.dataset.field]=el.checked;storeDraft();}
     else if(a==='check-item'){const c=view.editor?.checklist?.[+el.dataset.index];if(c)c.done=el.checked;storeDraft();}
     else if(a==='parse-capture'){view.qa.parse=el.checked;storeDraft();render();}
@@ -445,7 +460,13 @@
     else if(a==='context-filter'){contextFilter=el.value;render();}
   },true);
   app.addEventListener('paste',ev=>{if(ev.target.id==='qaTxt'){const text=ev.clipboardData?.getData('text/plain')||'';if(text.includes('\n')){ev.preventDefault();view.qa.txt=text;captureSheet();}}});
-  app.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='qaTxt'){ev.preventDefault();ev.stopImmediatePropagation();quickAdd();}},true);
+  app.addEventListener('keydown',ev=>{
+    if(ev.key==='Enter'&&ev.target.id==='qaTxt'){ev.preventDefault();ev.stopImmediatePropagation();quickAdd();return;}
+    const date=ev.target.dataset?.lm==='pick-plan-date'?ev.target.dataset.date:null,e=view.editor;
+    if(!date||e?.kind!=='plan-date'||busy)return;
+    const weekday=(new Date(date+'T12:00:00Z').getUTCDay()+6)%7,delta={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7,Home:-weekday,End:6-weekday}[ev.key];
+    if(delta===undefined)return;ev.preventDefault();ev.stopImmediatePropagation();const next=M.plus(date,delta);if(!M.validDate(next)||next<'0001-01-01')return;e.month=next.slice(0,7);e.focusDate=next;render();app.querySelector('[data-lm="pick-plan-date"][data-date="'+next+'"]')?.focus();
+  },true);
   document.addEventListener('change',ev=>{if(ev.target.id==='importFile'&&ev.target.files?.[0])importData(ev.target.files[0]);});
   document.addEventListener('keydown',ev=>{if(ev.ctrlKey||ev.metaKey||ev.altKey||ev.target?.matches?.('input,textarea,select,[contenteditable]'))return;if(ev.key==='n'&&!view.editor){ev.preventDefault();captureSheet();}if(ev.key==='/'&&!view.editor){ev.preventDefault();handle('search',{dataset:{}});}});
   function weeklyPanel(){

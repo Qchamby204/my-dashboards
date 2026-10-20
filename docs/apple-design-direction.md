@@ -135,3 +135,7 @@ preferences are retained. New browser evidence covers empty/populated records,
 320/393px phones, landscape, both themes, 200% text, long chosen milestone names,
 expanded help and the opening actions. This remains browser evidence rather than
 physical iPhone or VoiceOver sign-off.
+
+### Life Map: choose a planning date from task actions
+
+Task actions include Choose date beside Today, Tomorrow and This week. Its focused sheet shows a month calendar, previous/next month controls, a selected day and the existing date field. Arrow keys move between days and across month/year boundaries; Enter selects. Back or closing the sheet leaves the saved task unchanged. Schedule task uses the existing verified planning transaction, failure/retry feedback and Undo. The task’s actual deadline, notes, status and other records remain unchanged. Public and connected builds share this implementation. Browser checks cover calendar clicks, weekday alignment, year navigation, short months, cancellation, empty-date validation, persistence/reload, failure/retry and Undo across both engines and narrow, landscape and enlarged-text layouts.
