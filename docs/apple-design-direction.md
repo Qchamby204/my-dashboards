@@ -77,7 +77,7 @@ Today retains one next challenge or unfinished practice. Topic management stays 
 
 ### Chef: a distinct opening before the recipe records
 
-Ingredients, Mood, Planner, Groceries, Planned recipes and Favourites each lead with a sage/ink title card and a distinct kitchen illustration. Mood keeps the existing full-colour meal artwork. Recipe cards, tonight’s dinner, portions, preparation dates, ratings and grocery checks retain their original record layouts and behavior. Planner and Groceries move the original Add a meal and Copy for Muse buttons into the opening footer; the same nodes return to their original containers before each redraw. Browsing never changes the saved record. The remaining actions move to the existing choices below the title image.
+Ingredients, Mood, Planner, Groceries, Planned recipes and Favourites each lead with a sage/ink title card and a distinct kitchen illustration. Mood keeps the existing full-colour meal artwork. Recipe cards, tonight’s dinner, portions, preparation dates, ratings and grocery checks retain their original record layouts and behavior. Planner and Groceries move the original Add a meal and Copy for Muse buttons into the opening footer; the same nodes return to their original containers before each redraw. Browsing never changes the saved record. The remaining actions move to the existing choices below the title image. Narrow native filter fields keep full labels in the option picker while ellipsizing the selected value; expanded recipe ratings wrap without shrinking their touch targets.
 
 ### Remaining suite: shared chrome and content audit
 
