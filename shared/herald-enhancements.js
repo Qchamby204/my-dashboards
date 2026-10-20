@@ -28,7 +28,29 @@
       const result=document.getElementById('herald-search-count');if(result)result.textContent=shown+' matching script'+(shown===1?'':'s');
     }
     function restoreFields(){for(const [key,value] of Object.entries(drafts())){if(!['nv-title','nv-script','nv-kw','nv-fmt','nv-vert'].includes(key)&&!key.startsWith('pkg-')&&!key.startsWith('herald-title-'))continue;const el=document.getElementById(key);if(el&&el.type!=='file'&&typeof value==='string')el.value=value;}}
+    const openings={
+      vault:['Your next story','Script Vault','Write a script','Shape an idea, refine its packaging and keep every draft together.'],
+      calendar:['Make room for your stories','Publishing calendar','See the calendar','Give each story a date and see the month take shape.'],
+      cadence:['Find your rhythm','Weekly cadence','See this week','Keep your publishing and engagement rhythm in view.'],
+      metrics:['Learn from what lands','Channel metrics','See the results','Review the numbers you’ve recorded and the stories behind them.']
+    };
+    function opening(){
+      const kind=openings[cur]?cur:'vault',c=openings[kind];
+      const scenes={
+        vault:'<path d="M57 75 H244 V224 H57 Z" fill="#f1e4c9"/><path d="M57 111 H244 M80 75 L102 111 M129 75 L151 111 M178 75 L200 111 M80 140 H182 M80 165 H170 M80 190 H147"/><rect x="206" y="131" width="99" height="99" rx="22" fill="#2c3049"/><image href="shared/icons/the-herald-apple.png?v=8a1621338f3a" x="213" y="138" width="85" height="85"/>',
+        calendar:'<path d="M52 76 H308 V225 H52 Z" fill="#f1e4c9"/><path d="M52 116 H308 M94 59 V92 M266 59 V92 M86 143 H116 V168 H86 Z M138 143 H168 V168 H138 Z M190 143 H220 V168 H190 Z M242 143 H272 V168 H242 Z"/><rect x="138" y="187" width="30" height="25" rx="5" fill="#b29dcd"/><rect x="190" y="187" width="30" height="25" rx="5" fill="#b29dcd"/>',
+        cadence:'<path d="M44 75 H316 V224 H44 Z" fill="#f1e4c9"/><path d="M44 111 H316 M83 137 V200 M132 137 V200 M181 137 V200 M230 137 V200 M279 137 V200" stroke="#d0b78b"/><path d="M60 178 H93 L108 143 L124 196 L145 161 H173 L189 139 L207 199 L226 164 H300" stroke="#8e79a9" stroke-width="5"/>',
+        metrics:'<path d="M55 59 H305 V218 H55 Z" fill="#f1e4c9"/><path d="M42 233 H318 M84 188 V157 H115 V188 M141 188 V132 H172 V188 M198 188 V110 H229 V188 M255 188 V88 H282 V188" fill="#b29dcd"/><path d="M84 128 L138 104 L191 114 L271 67 M254 67 H271 V84" stroke-width="5"/>'
+      };
+      return '<section class="herald-opening" data-opening="'+kind+'"><div class="herald-opening-rail">'+c[1]+'</div><div class="herald-opening-face"><h1>'+c[0]+'</h1><svg class="herald-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false"><circle cx="180" cy="142" r="122" fill="#ffffff0c"/><g stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">'+scenes[kind]+'</g></svg><p>'+c[3]+'</p></div><div class="herald-opening-footer"><button class="btn" type="button" data-herald-action="open-view">'+c[2]+'</button></div></section>';
+    }
+    function decorateOpening(){
+      const view=document.getElementById('view'),rail=document.querySelector('.rail-card');
+      if(rail&&rail.previousElementSibling!==view)view.after(rail);
+      if(!document.querySelector('.herald-opening'))view.insertAdjacentHTML?.('afterbegin',opening());
+    }
     function decorate(){
+      decorateOpening();
       if(cur==='vault'){
         const card=document.querySelector('#view .card:last-child');
         if(card&&!document.getElementById('herald-search')){const form=document.createElement('div');form.className='herald-vault-search';form.innerHTML='<label for="herald-search">Search the vault</label><input id="herald-search" type="search" placeholder="Title, script, or keyword" value="'+esc(search)+'"><p id="herald-search-count" aria-live="polite"></p>';card.prepend(form);}
@@ -68,7 +90,8 @@
     document.addEventListener('change',e=>{const el=e.target;if(el.dataset.heraldTitle)rename(el.dataset.heraldTitle,el.value);else if(el.id==='nv-fmt'||el.id==='nv-vert'){drafts()[el.id]=el.value;queue();}});
     document.addEventListener('click',e=>{
       const el=e.target.closest('[data-herald-action]');if(!el)return;
-      if(el.dataset.heraldAction==='retry'){if(persist())toast('Saved on this device.');}
+      if(el.dataset.heraldAction==='open-view'){const target=document.querySelector('#view .card'),bar=document.querySelector('.appbar');if(target){target.style.scrollMarginTop=((bar?.getBoundingClientRect().height||72)+16)+'px';target.scrollIntoView({block:'start',behavior:'instant'});if(cur==='vault')document.getElementById('nv-title')?.focus({preventScroll:true});}}
+      else if(el.dataset.heraldAction==='retry'){if(persist())toast('Saved on this device.');}
       else if(el.dataset.heraldAction==='backup')exportData();
       else if(el.dataset.heraldAction==='copy-script'){const v=vById(el.dataset.id);if(v)copyText(v.script||'','Script copied.');}
     });
