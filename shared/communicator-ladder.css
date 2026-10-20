@@ -117,3 +117,5 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .comm
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-title{display:block;margin-bottom:8px}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-art{display:block;width:100%;max-width:360px;height:auto;aspect-ratio:32/19;margin:16px auto 20px;color:var(--cm-gold)}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-live .cm-feature-art{max-width:200px;margin:8px auto 12px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body .cl-result{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 .4rem}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-body .cl-result>span{font-size:.875rem!important;line-height:1.4;margin:0!important}
