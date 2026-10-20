@@ -1005,3 +1005,6 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="library"] .library-opening-footer .
 html.atlas-neumo[data-atlas-app="library"] .library-focus{margin:0 0 28px}
 html.atlas-neumo[data-atlas-app="library"] .topic-boundary{margin:0 0 20px}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="library"] .library-opening{--library-face:Canvas;--library-cream:CanvasText}.library-opening-face p{color:CanvasText!important}}
+/* Keep page names whole and the floating dock compact at enlarged content text. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] #atlas-page-navigation button{padding-inline:3px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] #atlas-page-navigation button>span:last-child{font-size:clamp(11px,3.3vw,13px)!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important}
