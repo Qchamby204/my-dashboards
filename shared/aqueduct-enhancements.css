@@ -39,3 +39,25 @@ html[data-atlas-app="the-aqueduct"] .toast{bottom:calc(var(--atlas-bottom-h,86px
 .aqueduct-comparisons article{padding:14px;border:1px solid var(--line);border-radius:14px;min-width:0}
 .aqueduct-comparisons dl{margin:0 0 12px}.aqueduct-comparisons dl>div{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 12px}
 .aqueduct-comparisons dd{margin:0;font-variant-numeric:tabular-nums}
+
+/* Illustrated openings precede the original financial records. */
+html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening{--aqueduct-face:#284c50;--aqueduct-cream:#f7efdf;margin:0 0 24px;padding:0;border:1px solid var(--neo-line);border-radius:24px;overflow:hidden;background:var(--aqueduct-face);color:var(--aqueduct-cream);box-shadow:none}
+html.atlas-neumo[data-atlas-app="the-aqueduct"][data-atlas-theme="dark"] .aqueduct-opening{--aqueduct-face:#31535a}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening-rail{padding:16px 24px;border-bottom:1px solid #ffffff26;font-size:.8125rem;line-height:1.5;font-weight:600}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening-face{padding:24px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening h1{font:700 2rem/1.15 var(--neo-font)!important;letter-spacing:-.04em;color:var(--aqueduct-cream)!important;margin:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-title-art{display:block;width:100%;max-width:360px;height:auto;margin:16px auto 20px}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening-face p{font-size:1rem;line-height:1.55;color:#e5dde8;margin:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening-footer{padding:16px 24px;background:var(--neo-content-surface);border-top:1px solid var(--neo-line);color:var(--neo-ink)}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening-footer .btn{width:auto;max-width:100%;min-height:46px;padding:12px 20px;border-radius:999px;font:600 .9375rem/1.4 var(--neo-font);white-space:normal;overflow-wrap:anywhere;background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent)!important;box-shadow:none}
+
+/* Keep identity, undo and appearance in a stable row at enlarged text. */
+html.atlas-neumo[data-atlas-app="the-aqueduct"] #app .appbar{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;align-items:center}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] #app .appbar>div:first-child{grid-column:1;grid-row:1;display:flex;flex-wrap:nowrap!important;gap:6px;min-width:0}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] #app .appbar>.atlas-appearance-trigger{grid-column:2;grid-row:1;justify-self:end}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] #app .appbar>.appbar-pill{grid-column:1/-1;grid-row:2;justify-self:start;max-width:100%;white-space:normal;font-size:12px}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] #app .appbar .appbar-title{font-size:clamp(18px,1.125rem,22px)!important;line-height:1.3;overflow-wrap:normal;word-break:normal;white-space:normal}
+html.atlas-neumo[data-atlas-app="the-aqueduct"] #app .appbar .appbar-sub{font-size:clamp(12px,.75rem,14px)!important;line-height:1.4;letter-spacing:0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] #atlas-page-navigation button{padding-inline:3px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] #atlas-page-navigation button>span:last-child{font-size:clamp(10px,2.8vw,12px)!important;line-height:1.25!important;white-space:nowrap!important;overflow-wrap:normal!important}
+@media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening{--aqueduct-face:Canvas;--aqueduct-cream:CanvasText}.aqueduct-opening-face p{color:CanvasText!important}}
