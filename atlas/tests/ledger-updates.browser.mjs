@@ -53,7 +53,7 @@ try{
  await page.evaluate(()=>window.releaseSave());await page.waitForURL('**/life-ledger.html?ledger-release='+next+'#levels');await page.waitForFunction(()=>!!window.LedgerDays);
  assert(await page.locator('#ledger-lifetime-levels').isVisible(),'refresh returns to the same section');assert.equal(await page.evaluate(()=>localStorage.getItem('lifeledger:v2')),records);
  assert.equal(await page.evaluate(()=>window.LedgerDays.drafts.days[new Date().toLocaleDateString('en-CA')].note),'A draft kept through the update');
- assert.equal(await page.locator('.ledger-day-progress').count(),0);assert.equal(await page.locator('.ledger-feature').count(),3);assert.deepEqual(errors,[]);
+ assert.equal(await page.locator('.ledger-day-progress').count(),0);assert.equal(await page.locator('.ledger-feature').count(),4);assert.equal(await page.locator('#ledger-values-opening').count(),1);assert(await page.locator('#ledger-values-opening').evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('#ledger-lifetime-levels'))&Node.DOCUMENT_POSITION_FOLLOWING)),'refresh retains the constellation as the opening card');assert.deepEqual(errors,[]);
  await page.screenshot({path:path.join(out,'ledger-updated-levels.png')});
  console.log(engine+': Ledger update detection, offline/invalid responses, failed/pending saves, section return and record preservation passed');await context.close();
 }finally{await browser.close();await new Promise(r=>server.close(r));}

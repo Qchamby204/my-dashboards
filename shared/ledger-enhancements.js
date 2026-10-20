@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=2f18242d217e',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=943a0cf727e5',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -721,11 +721,19 @@
       if(oldActions){for(const b of [...oldActions.querySelectorAll('button')])if(b.textContent.startsWith('Achievements'))b.remove();}
       for(const jump of app.querySelectorAll('.ledger-jump'))jump.remove();
       move('.ledger-identity',panes.progress);move('#ledger-season-summary',panes.progress);
-      const overall=move('.ledger-overall',panes.progress),map=overall?.querySelector('.ledger-level-constellation');overall?.querySelector('.ledger-feature-footer')?.append(awards);
+      const overall=app.querySelector('.ledger-overall'),map=overall?.querySelector('.ledger-level-constellation');overall?.querySelector('.ledger-feature-footer')?.append(awards);
       if(map)map.remove();
       const relic=app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel');
-      app.querySelector('.ledger-values-heading')?.remove();const valuesHeading=make('div',null,'ledger-section-heading');valuesHeading.append(make('h2','Levels by value'));move('.ledger-values-info',valuesHeading);panes.progress.append(valuesHeading);
-      if(map){const card=make('section',null,'panel ledger-value-map');valuesHeading.querySelector('h2').id='ledger-values-title';card.setAttribute('aria-labelledby','ledger-values-title');map.querySelector('h3')?.remove();card.append(map);panes.progress.append(card);}
+      app.querySelector('.ledger-values-heading')?.remove();
+      if(map){
+        const card=make('section',null,'panel ledger-value-map ledger-feature');card.id='ledger-values-opening';card.setAttribute('aria-labelledby','ledger-values-title');
+        const rail=make('div',null,'ledger-feature-rail');rail.append(make('span','Life Level '+data.life.level));move('.ledger-values-info',rail);
+        const heading=make('div',null,'ledger-feature-heading'),title=make('h2','Levels by value');title.id='ledger-values-title';heading.append(title);
+        map.querySelector('h3')?.remove();const key=map.querySelector('.ledger-value-key'),footer=make('div',null,'ledger-feature-footer');if(key)footer.append(key);
+        card.append(rail,heading,map,footer);panes.progress.append(card);
+      }
+      if(overall)panes.progress.append(overall);
+      const valuesHeading=make('div',null,'ledger-section-heading');valuesHeading.append(make('h2','Value details'));panes.progress.append(valuesHeading);
       move('.ledger-values',panes.progress);if(relic)relic.remove();
       const personalRewards=personalRewardsPanel(data);if(personalRewards)panes.progress.append(personalRewards);
       panes.progress.append(recentPanel());

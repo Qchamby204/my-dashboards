@@ -133,7 +133,7 @@ try{
   const ledgerBytes=await p.evaluate(()=>localStorage.getItem('lifeledger:v2'));
   await p.locator('#ledger-nav-progress').click();const valueMap=p.locator('#ledger-view-progress .ledger-value-map');
   assert(await valueMap.isVisible(),'the original value constellation is visible without opening a disclosure');
-  assert.equal(await valueMap.evaluate(n=>n.tagName),'SECTION');assert.equal(await valueMap.locator('svg g.tap').count(),5);
+  assert.equal(await valueMap.evaluate(n=>n.tagName),'SECTION');assert(await valueMap.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('#ledger-lifetime-levels'))&Node.DOCUMENT_POSITION_FOLLOWING)),'the constellation is the opening record before lifetime XP');assert.equal(await valueMap.locator('svg g.tap').count(),5);
   assert.equal(await valueMap.locator('.ledger-value-key button').count(),5);
   assert(await valueMap.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('.ledger-values'))&Node.DOCUMENT_POSITION_FOLLOWING)),'the constellation precedes individual value records');
   await capture(p,'ledger-value-constellation',theme,w,size,valueMap);
