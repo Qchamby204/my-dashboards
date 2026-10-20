@@ -40,6 +40,7 @@ function boot({width=390,reduced=false}={}){
       if(this.hidden)return {top:0,bottom:0,left:0,right:0,width:0,height:0};
       if(this.classes.has('hud'))return {top:0,bottom:90,left:0,right:window.innerWidth,width:window.innerWidth,height:90};
       if(this.classes.has('neural-toolbar'))return {top:90,bottom:150,left:0,right:window.innerWidth,width:window.innerWidth,height:60};
+      if(this.classes.has('hint'))return {top:window.innerHeight-105,bottom:window.innerHeight-85,left:0,right:window.innerWidth,width:window.innerWidth,height:20};
       if(this.classes.has('legend'))return {top:window.innerHeight-65,bottom:window.innerHeight,left:0,right:window.innerWidth,width:window.innerWidth,height:65};
       return {top:0,bottom:40,left:0,right:40,width:40,height:40};
     }

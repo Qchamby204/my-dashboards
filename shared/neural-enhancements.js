@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='neural-map')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css?v=37003e59edf2',source).href;document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('neural-enhancements.css?v=8172d9740c82',source).href;document.head.appendChild(css);
   function ready(){
     if(window.NeuralNavigation||typeof CATS==='undefined')return;
     const make=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -33,7 +33,8 @@
     toolbar.append(mapButton,listButton);document.body.appendChild(toolbar);
     const mapChooser=make('div',null,'neural-map-chooser'),mapLabel=make('label','Choose a tool or area'),mapChoice=make('select');mapChoice.id='neural-map-choice';mapLabel.append(mapChoice);
     allNodes.forEach((node,i)=>{const o=make('option',node._tool?(node._tool.full||node._tool.label):node._hub?'Area: '+node._hub.title:'All tools');o.value=String(i);mapChoice.append(o);});
-    const showChoice=button('Show',event=>{event.stopPropagation();const node=allNodes[Number(mapChoice.value)];if(node._tool){focusTool(node);openPop(node);}else if(node._hub){closePop();focusCat(node._hub);}else{closePop();animateFit();}});mapChooser.append(mapLabel,showChoice);document.body.append(mapChooser);
+    const showChoice=button('Show',event=>{event.stopPropagation();const node=allNodes[Number(mapChoice.value)];if(node._tool){focusTool(node);openPop(node);}else if(node._hub){closePop();focusCat(node._hub);}else{closePop();animateFit();}});const mapIntro=make('div',null,'neural-map-intro');mapIntro.append(make('p','Your resource atlas','neural-opening-kicker'),make('h1','Connected ideas'),make('p',tools.length+' tools · '+tools.filter(t=>t.resourceType==='dashboard').length+' Atlas dashboards','neural-map-count'));
+    const mapControls=make('div',null,'neural-map-controls');mapControls.append(mapLabel,showChoice);mapChooser.append(mapIntro,mapControls);document.body.append(mapChooser);
     stage.setAttribute('role','img');stage.setAttribute('aria-label','Resource connections overview. Select any resource with Choose a tool or area.');
 
     const list=make('main',null,'neural-list');list.id='neural-list';
@@ -50,7 +51,10 @@
     const cards=make('div',null,'neural-cards');
     const about=make('details',null,'neural-about'),summary=make('summary','i');summary.setAttribute('aria-label','About this catalog');
     about.append(summary,make('p','Atlas dashboards follow the hub inventory. Catalog reviews show the check date and what was found. A found Drive destination does not verify every linked chat or the currency of its contents. Older resources remain until you decide whether to keep them. Favourites and link reviews stay in this browser.'));
-    list.append(filters,count,about,cards);document.body.appendChild(list);
+    const opening=make('section',null,'neural-opening');opening.setAttribute('aria-labelledby','neural-opening-title');
+    opening.innerHTML='<div class="neural-opening-rail">Resource atlas · Tools & ideas</div><div class="neural-opening-face"><h1 id="neural-opening-title">Tools &amp; ideas</h1><svg class="neural-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false"><circle cx="180" cy="140" r="122" fill="#ffffff0c"/><g fill="none" stroke="#d3b789" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M98 87 L180 140 L274 96 M180 140 L239 219 M180 140 L80 212"/><rect x="44" y="45" width="98" height="77" rx="12" fill="#f1e4c9"/><path d="M63 65 H119 M63 80 H108 M63 95 H99" stroke="#846a94"/><rect x="234" y="62" width="84" height="72" rx="12" fill="#a8bdaf"/><path d="M255 103 L270 88 L286 101 L299 82" stroke="#4d645c"/><rect x="194" y="191" width="100" height="58" rx="12" fill="#c5b1cd"/><path d="M213 210 H274 M213 227 H256" stroke="#675372"/><circle cx="79" cy="212" r="17" fill="#d3b789"/><path d="M71 212 L77 218 L88 205" stroke="#675372"/></g><circle cx="180" cy="140" r="55" fill="#302b49" stroke="#d3b789" stroke-width="2"/><defs><clipPath id="neural-brain-crop"><circle cx="180" cy="140" r="48"/></clipPath></defs><image clip-path="url(#neural-brain-crop)" href="shared/icons/neural-map-apple.png?v=0f7a198e789f" x="132" y="92" width="96" height="96"/><circle cx="183" cy="37" r="5" fill="#a8bdaf"/><circle cx="321" cy="172" r="4" fill="#d3b789"/></svg><p>Find a useful tool. Follow an idea. Keep your favourites close.</p></div>';
+    const openingFooter=make('div',null,'neural-opening-footer');openingFooter.append(button('Browse resources',()=>{list.scrollTo({top:list.scrollTop+filters.getBoundingClientRect().top-list.getBoundingClientRect().top-16,behavior:'instant'});search.focus({preventScroll:true});}));opening.append(openingFooter);
+    list.append(opening,filters,count,about,cards);document.body.appendChild(list);
     function linksFor(tool){
       const wrap=make('div',null,'neural-links');
       destinations(tool).forEach(d=>{
@@ -76,15 +80,17 @@
       if(!found.length)cards.appendChild(make('p','No matching tools. Try another word or clear the filters.','neural-empty'));
     }
     search.addEventListener('input',renderList);branch.addEventListener('change',renderList);availability.addEventListener('change',renderList);
+    let lastMapLayout='';
+    const mapLayoutStamp=()=>JSON.stringify(available());
     function measure(){
       const top=Math.ceil(hud.getBoundingClientRect().bottom);root.style.setProperty('--neural-toolbar-top',top+'px');
       root.style.setProperty('--neural-content-top',Math.ceil((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom+8)+'px');
     }
     function available(){
       const top=Math.max((window.AtlasPageNavigation?hud:toolbar).getBoundingClientRect().bottom,mapChooser.hidden?0:mapChooser.getBoundingClientRect().bottom)+16;
-      const bottom=Math.max(top+60,Math.min(window.innerHeight-100,legend.getBoundingClientRect().top-44));
+      const bottom=Math.min(window.innerHeight-100,legend.getBoundingClientRect().top-10,hint.getBoundingClientRect().top-10);
       const padding=getComputedStyle(hud),left=Math.max(16,parseFloat(padding.paddingLeft)||0),right=Math.max(16,parseFloat(padding.paddingRight)||0);
-      return {x:left,y:top,w:Math.max(80,window.innerWidth-left-right),h:Math.max(60,bottom-top)};
+      return {x:left,y:top,w:Math.max(80,window.innerWidth-left-right),h:Math.max(1,bottom-top)};
     }
     fitTarget=function(){
       if(!BOUNDS)BOUNDS=computeBounds();const a=available(),bw=BOUNDS.x1-BOUNDS.x0,bh=BOUNDS.y1-BOUNDS.y0;
@@ -106,9 +112,9 @@
     zoomBy=function(f){stopAnim();const a=available(),mx=a.x+a.w/2,my=a.y+a.h/2,nx=(mx-tx)/scale,ny=(my-ty)/scale,s=clamp(scale*f);animateTo(s,mx-nx*s,my-ny*s);closePop();};
     ['zin','zout','zreset'].forEach((id,i)=>document.getElementById(id).setAttribute('aria-label',['Zoom in','Zoom out','Fit all tools'][i]));
     function setMode(next){
-      mode=next;root.dataset.neuralView=mode;mapChooser.hidden=mode!=='map';list.hidden=mode!=='list';stage.hidden=mode!=='map';legend.hidden=mode!=='map';hint.hidden=mode!=='map';
+      mode=next;root.dataset.neuralView=mode;mapChooser.hidden=mode!=='map';list.hidden=mode!=='list';if(mode==='list')list.scrollTop=0;stage.hidden=mode!=='map';legend.hidden=mode!=='map';hint.hidden=mode!=='map';
       hud.querySelector('.zoom').hidden=mode!=='map';mapButton.setAttribute('aria-pressed',String(mode==='map'));listButton.setAttribute('aria-pressed',String(mode==='list'));
-      closePop();stopAnim();resetGesture();measure();if(mode==='map')fit();syncMotion();
+      closePop();stopAnim();resetGesture();measure();if(mode==='map'){fit();lastMapLayout=mapLayoutStamp();}syncMotion();
     }
     pop.hidden=true;pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Resource details');
     closePop=function(restore=false){pop.classList.remove('show');pop.hidden=true;if(restore&&returnFocus?.isConnected)returnFocus.focus({preventScroll:true});returnFocus=null;};
@@ -190,7 +196,7 @@
       if(w!==oldSize.w||h!==oldSize.h){resetGesture();stopAnim();if(mode==='map'){closePop();fit();}oldSize={w,h};}
     }
     window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',measure);
-    if(window.ResizeObserver){const observer=new ResizeObserver(measure);observer.observe(hud);observer.observe(toolbar);}
+    if(window.ResizeObserver){const observer=new ResizeObserver(()=>{measure();if(mode!=='map')return;const next=mapLayoutStamp();if(next!==lastMapLayout){stopAnim();closePop();fit();lastMapLayout=next;}});[hud,toolbar,mapChooser,legend,hint].forEach(n=>observer.observe(n));}
     css.addEventListener('load',()=>{measure();if(mode==='map')fit();});
     hint.textContent='Choose a tool or area · drag or pinch to explore';
     renderList();setMode(mode);
