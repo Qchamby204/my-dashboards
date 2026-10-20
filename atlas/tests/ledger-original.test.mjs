@@ -668,8 +668,8 @@ test('History opens with a saved-record summary and keeps browsing and backup to
  hero.querySelectorAll('button').find(b=>b.textContent==='Browse saved days').click();assert.equal(h.node('ledger-history').open,true);
  hero.querySelectorAll('button').find(b=>b.textContent==='Backup tools').click();assert.equal(h.node('ledger-reminder-tools').open,true);assert.equal(h.storage.get(S),before);
 });
-test('Levels opens with lifetime progress and keeps rewards and value progress in the same section',async()=>{
+test('Levels leads with its value constellation and keeps lifetime progress and rewards below',async()=>{
  const h=await boot({realModel:true});h.node('ledger-nav-progress').click();const pane=h.node('ledger-view-progress'),hero=h.node('ledger-lifetime-levels');
  assert(hero.classList.contains('ledger-feature'));assert.match(hero.textContent,/Life Level 0/);assert.match(hero.textContent,/lifetime XP/);assert.equal(hero.querySelector('.ledger-level-constellation'),null);
- const map=pane.querySelector('.ledger-value-map');assert(map);assert.equal(map.tagName,'SECTION');assert(map.querySelector('.ledger-level-constellation'));assert.equal(map.querySelectorAll('.ledger-value-key button').length,5);assert(h.node('ledger-personal-rewards').isConnected);assert(hero.querySelectorAll('button').some(b=>b.textContent==='Explore rewards'));
+ const map=pane.querySelector('.ledger-value-map');assert(map);assert(map.classList.contains('ledger-feature'));assert.equal(map.id,'ledger-values-opening');assert.equal(pane.children.indexOf(map)<pane.children.indexOf(hero),true);assert.equal(map.tagName,'SECTION');assert(map.querySelector('.ledger-level-constellation'));assert.equal(map.querySelectorAll('.ledger-value-key button').length,5);assert(h.node('ledger-personal-rewards').isConnected);assert(hero.querySelectorAll('button').some(b=>b.textContent==='Explore rewards'));
 });
