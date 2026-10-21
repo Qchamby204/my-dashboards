@@ -35,11 +35,11 @@
   const header=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!header||!nav||!nav.checkVisibility())return;
   if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav];for(const node of openingChrome)openingResize.observe(node);}
-  // Navigation owns its measured safe-area clearance. Keeping that live CSS
-  // variable avoids retaining a pre-stylesheet or translated dock position.
+  // Chrome owns its measured safe-area clearance. Keeping those live CSS
+  // variables avoids retaining pre-stylesheet header or dock measurements.
   const fallback=Math.max(0,window.innerHeight-nav.getBoundingClientRect().top);
   const inset=app==='life-ledger'?8:0; // The native Ledger tabs have an 8px top margin inside their shell.
-  const value='max(0px,calc('+window.innerHeight+'px - var(--atlas-page-nav-height,'+fallback+'px) - '+header.getBoundingClientRect().height+'px - 48px + '+inset+'px))';if(root.style.getPropertyValue('--core-opening-height')!==value)root.style.setProperty('--core-opening-height',value);
+  const value='max(0px,calc('+window.innerHeight+'px - var(--atlas-page-nav-height,'+fallback+'px) - var(--atlas-top-h,'+header.getBoundingClientRect().height+'px) - 48px + '+inset+'px))';if(root.style.getPropertyValue('--core-opening-height')!==value)root.style.setProperty('--core-opening-height',value);
   const selectors={'life-ledger':'.ledger-view:not([hidden]) .ledger-deck-frame,.ledger-view:not([hidden]) .ledger-feature','life-map':'.lm-day-view:not([hidden]) .lm-feature','workout-forge':'.fg-feature','communication-trainer':'#main>.cm-feature'};
   const card=[...document.querySelectorAll(selectors[app])].find(n=>n.checkVisibility());
   for(const prior of document.querySelectorAll('.core-opening-card'))if(prior!==card)prior.classList.remove('core-opening-card');
@@ -50,6 +50,7 @@
   if(card.style.getPropertyValue('--core-opening-body-height')!==body)card.style.setProperty('--core-opening-body-height',body);
  }
  function scheduleOpening(){if(!openingQueued){openingQueued=true;requestAnimationFrame(opening);}}
+ function loaded(){window.AtlasMobile?.measure();opening();}
  let keyboardVisible=false;
  function keyboard(){
   const v=window.visualViewport,editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
@@ -75,8 +76,8 @@
   new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))decorate();scheduleOpening();}).observe(document.body,{childList:true,subtree:true});
   new MutationObserver(scheduleOpening).observe(root,{attributes:true,attributeFilter:['class','style']});
   if(window.ResizeObserver)openingResize=new ResizeObserver(scheduleOpening);
-  window.addEventListener('resize',scheduleOpening,{passive:true});window.addEventListener('load',scheduleOpening);window.addEventListener('pageshow',scheduleOpening);document.fonts?.ready.then(scheduleOpening);
-  document.addEventListener('load',scheduleOpening,true);
+  window.addEventListener('resize',scheduleOpening,{passive:true});window.addEventListener('load',loaded);window.addEventListener('pageshow',scheduleOpening);document.fonts?.ready.then(scheduleOpening);
+  document.addEventListener('load',event=>{if(event.target?.tagName==='LINK')loaded();},true);
   document.addEventListener('focusin',keyboard);document.addEventListener('focusout',()=>queueMicrotask(keyboard));
   window.visualViewport?.addEventListener('resize',keyboard,{passive:true});
   window.visualViewport?.addEventListener('scroll',keyboard,{passive:true});

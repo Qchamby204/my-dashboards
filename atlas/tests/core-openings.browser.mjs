@@ -31,7 +31,7 @@ try{
   await ctx.addInitScript(()=>Object.defineProperty(navigator,'standalone',{value:true,configurable:true}));
   await ctx.route('https://qchamby204.github.io/my-dashboards/**',async route=>{try{const file=new URL(route.request().url()).pathname.replace('/my-dashboards/','');await route.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await route.abort();}});
   for(const app of ['life-ledger','life-map','workout-forge','communication-trainer']){
-   const p=await ctx.newPage();p.setDefaultTimeout(15000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
+   const p=await ctx.newPage();await p.bringToFront();p.setDefaultTimeout(15000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
    try{
     await p.goto(origin+'/'+app+'.html');await p.waitForFunction(()=>!!window.CoreAppFinish&&!!window.AtlasPageNavigation);await p.evaluate(()=>document.fonts.ready);
     await inspect(p,app,'initial',theme,width);

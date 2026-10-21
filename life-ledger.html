@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html class="atlas-neumo" data-atlas-app="life-ledger" lang="en">
+<html class="atlas-neumo ledger-starting" data-atlas-app="life-ledger" lang="en">
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","ledger-enhancements.js":"0087c6705694"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","ledger-enhancements.js":"904dc2cf3f05"}</script>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="description" content="Life Ledger: lasting progress, flexible weekly goals and easy catch-up."/>
@@ -13,6 +13,34 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Life Ledger">
 <meta name="theme-color" content="#efeae3">
+<script id="ledger-startup-code">
+(()=>{
+  let opened=false,requested=false,failed=false,slow=false;
+  function feedback(){
+    const message=document.getElementById('ledger-startup-message'),retry=document.getElementById('ledger-startup-retry');
+    if(message)message.textContent=failed?'Ledger couldn’t finish opening. Reload to try again.':slow?'Ledger is taking longer to open. You can wait or reload.':'Opening Life Ledger…';
+    if(retry)retry.hidden=!(failed||slow);
+  }
+  function fail(){if(opened)return;failed=true;feedback();}
+  const timeout=setTimeout(()=>{if(!opened){slow=true;feedback();}},12000);
+  window.AtlasLedgerStartup=Object.freeze({fail,ready(){
+    if(opened||requested||failed)return;requested=true;
+    function reveal(){
+      if(opened||failed)return;opened=true;clearTimeout(timeout);
+      document.documentElement.classList.remove('ledger-starting');
+      document.getElementById('app')?.removeAttribute('aria-busy');
+      document.getElementById('ledger-startup')?.remove();
+      window.AtlasMobile?.measure();window.AtlasPageNavigation?.reconcile();window.CoreAppFinish?.layoutOpening?.();
+    }
+    if(document.readyState==='complete')reveal();else window.addEventListener('load',reveal,{once:true});
+  }});
+  window.addEventListener('error',event=>{
+    const source=event.target?.src||event.target?.href||event.filename||'';
+    if(/\/(?:ledger-(?:enhancements|rhythm-core|rewards-core)\.(?:js|css)|atlas-(?:theme|mobile)\.js)(?:[?#]|$)/.test(source))fail();
+  },true);
+  document.addEventListener('DOMContentLoaded',feedback,{once:true});
+})();
+</script>
 <script src="shared/discern-bridge.js?v=b6e2c9007a13"></script>
 <script src="shared/ledger-rewards-core.js?v=9852902164d1"></script>
 <script src="shared/ledger-rhythm-core.js?v=6a9dcbf12d3c"></script>
@@ -91,6 +119,13 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 .spark{position:absolute;left:50%;top:42%;width:5px;height:5px;border-radius:99px;background:#f6cf6a;box-shadow:0 0 8px rgba(240,183,62,.9);opacity:0;animation:sparkfly 1.05s ease-out .1s forwards;pointer-events:none}
 @keyframes sparkfly{0%{opacity:0;transform:rotate(var(--a)) translateY(0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1)}}
 @media(prefers-reduced-motion:reduce){.fill,.orb{transition:none;animation:none}.fill::after,.levelup,.fadeUp{animation:none}#stars span,.spark{animation:none;display:none}}
+/* Keep the retired overview out of the first paint while the current UI loads. */
+html.ledger-starting #app{visibility:hidden}
+#ledger-startup{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--neo-canvas,#efeae3);color:var(--neo-ink,#24212f);text-align:center}
+#ledger-startup h1{font-size:1.5rem;line-height:1.3;margin:0}
+#ledger-startup p{max-width:30ch;margin:0;line-height:1.5;color:var(--neo-muted,#665f70)}
+#ledger-startup button{min-height:44px;padding:10px 20px;border:1px solid currentColor;border-radius:999px;background:transparent;color:inherit;font:inherit}
+#ledger-startup [hidden]{display:none!important}
 </style>
 <link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
@@ -98,7 +133,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=1b825b198bd6">
 <link rel="stylesheet" href="shared/core-app-finish.css?v=75f630081488">
-<script src="shared/core-app-finish.js?v=2d5c20477dd8" defer></script>
+<script src="shared/core-app-finish.js?v=8b37f5e15bd6" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-32.png?v=dfb125a386ef">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-64.png?v=63b2ee04c4c2">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-apple.png?v=7bf40bcafd72">
@@ -109,7 +144,8 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
-<div class="wrap" id="app"></div>
+<section id="ledger-startup" role="status" aria-live="polite"><h1>Life Ledger</h1><p id="ledger-startup-message">Opening Life Ledger…</p><button id="ledger-startup-retry" type="button" onclick="location.reload()" hidden>Reload Ledger</button><noscript><p>Enable JavaScript to open Life Ledger.</p></noscript></section>
+<div class="wrap" id="app" aria-busy="true"></div>
 
 <script>
 "use strict";
