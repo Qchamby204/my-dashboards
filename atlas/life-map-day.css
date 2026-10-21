@@ -124,7 +124,7 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-category-tabs button{border
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-category-tabs button[aria-selected="true"]{border-bottom-color:var(--neo-accent)!important;color:var(--neo-ink)!important;font-weight:700}
 html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-foundation,.lm-category-card,.lm-project-card){background:var(--neo-content-surface)!important;box-shadow:none!important}
 html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-foundation small,.lm-category-card span){font-size:.8125rem;line-height:1.5}
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task h3{font-size:1.125rem;line-height:1.4}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task h3{font-size:1.3125rem;line-height:1.3;letter-spacing:-.025em}
 html.atlas-neumo[data-atlas-app="life-map"] #app :is(input,select){color-scheme:light}
 html.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme="dark"] #app :is(input,select){color-scheme:dark}
 @media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="life-map"] #app .lm-category-tabs button[aria-selected="true"]{border-bottom-width:3px!important}}
@@ -152,10 +152,10 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-actions [data-step
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-actions [data-step="-1"]::after{transform:rotate(-135deg)}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-category-tabs{margin-bottom:20px}
 /* Tasks remain records rather than buttons floating on an undifferentiated panel. */
-html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-task-row,.lm-day-task){padding:14px;margin:12px 0;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);box-shadow:none;min-width:0}
+html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-task-row,.lm-day-task){padding:20px;margin:16px 0;border:1px solid var(--neo-line);border-radius:20px;background:var(--neo-surface);box-shadow:none;min-width:0}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>.lm-task-row{padding:0;margin:0;border:0;background:transparent}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-task-main{padding:2px 0;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-task-title{font-size:1rem!important;font-weight:650!important;line-height:1.4!important;letter-spacing:-.015em}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-task-title{font-size:1.25rem!important;font-weight:650!important;line-height:1.35!important;letter-spacing:-.015em}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-row-meta{font-size:.8125rem;line-height:1.5;margin-top:6px}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-check{flex:0 0 44px;min-width:44px;min-height:44px;border-radius:50%!important}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>.lm-inline{border-top:1px solid var(--neo-line);padding-top:12px;margin:12px 0 0}
@@ -189,3 +189,30 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-timeline-row{padding:14px;m
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-title{display:block;margin-bottom:8px}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-art{display:block;width:100%;max-width:360px;height:auto;aspect-ratio:32/19;margin:16px auto 20px;color:var(--lm-face-accent)}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-body>.lm-help{margin-top:0}
+
+/* Carry the route card's hierarchy through tasks, routines and expanded planning. */
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>strong{display:block;font-size:1.3125rem;font-weight:650;line-height:1.35;letter-spacing:-.025em}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>.lm-inline{gap:8px 12px;padding-top:16px;margin-top:16px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>.lm-inline .lm-day-button:not(.lm-day-primary){background:transparent!important;border-color:transparent!important;padding-inline:10px;color:var(--neo-muted)!important}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>.lm-inline .lm-day-button:first-child:not(.lm-day-primary){background:var(--neo-inset)!important;color:var(--neo-ink)!important}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task .lm-row-meta{font-size:.875rem;line-height:1.6;margin-top:10px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-block-editor{border:1px solid var(--neo-line);border-radius:20px;padding:4px 16px;margin:14px 0;background:var(--neo-surface)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-block-editor>summary{display:flex;align-items:center;justify-content:space-between;gap:16px;list-style:none;min-height:56px;font-size:1.125rem;font-weight:650;line-height:1.4;letter-spacing:-.02em;padding:12px 0}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-block-editor>summary::-webkit-details-marker{display:none}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-block-editor>summary::after{content:'+';flex:none;font-size:1.5rem;color:var(--neo-muted);font-weight:400}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-block-editor[open]>summary::after{content:'−'}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-block-editor[open]>summary{border-bottom:1px solid var(--neo-line);margin-bottom:16px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-card .lm-help{font-size:.875rem;line-height:1.6;margin-block:12px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-card>.lm-section-head{align-items:flex-start;gap:12px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-chip{border:0!important;border-radius:6px!important;background:var(--neo-inset);font-size:.8125rem;padding:4px 8px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet .lm-field{margin-bottom:24px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet .lm-field>span{margin-bottom:10px;color:var(--neo-ink)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet :is(input:not([type="checkbox"]),select,textarea){background:var(--neo-surface)!important;line-height:1.5;min-height:48px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet-body>.lm-inline .lm-button:not(.lm-primary){border-color:transparent!important;background:var(--neo-inset)!important;box-shadow:none!important}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet .lm-details{padding-top:8px;margin-top:24px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet .lm-details>summary{font-size:1rem;font-weight:600;line-height:1.5;padding-block:14px}
+@media(max-width:420px){html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-task-row,.lm-day-task){padding:16px}html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>.lm-task-row{padding:0}}
+@media(prefers-contrast:more){html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-block-editor,.lm-day-task>.lm-inline .lm-day-button){border-color:var(--neo-ink)!important}}
+
+/* Normalize WebKit's native select face while retaining its original picker. */
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-sheet .lm-sheet-body .lm-field select[id]{appearance:none;-webkit-appearance:none;padding-inline-end:40px;background-image:linear-gradient(45deg,transparent 50%,var(--neo-muted) 50%),linear-gradient(135deg,var(--neo-muted) 50%,transparent 50%)!important;background-position:calc(100% - 21px) 50%,calc(100% - 16px) 50%!important;background-size:5px 5px!important;background-repeat:no-repeat!important}

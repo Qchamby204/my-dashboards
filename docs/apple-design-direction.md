@@ -143,3 +143,15 @@ Task actions include Choose date beside Today, Tomorrow and This week. Its focus
 ### Neural Map: illustrated resource opening
 
 List & search opens with a violet connected-resource scene and the original full-colour brain emblem. Browse resources scrolls to the existing filters and focuses the original search. Map leads with a compact title and actual catalog counts while retaining the original interactive resource diagram, chooser, zoom controls and legend. Resource cards keep full titles, location notes, availability distinctions, original destinations and review disclosures. Detail panels clear the app header and page dock. Selecting List & search returns to the title image while preserving the query. Existing favourites and link-review preferences retain their formats and write only after an explicit change. Browser checks cover both themes, narrow phones, landscape, enlarged text, original map/search identity, filtering, map selection, Escape focus and preference save/reload.
+
+
+### Supporting-card refinement · October 20, 2026
+
+This pass extends the existing title-image direction through Life Ledger, Life Map, Forge and Communicator. The openings, original artwork and Ledger constellation remain intact. Changes are confined to each app's existing CSS and generated asset-version references; HTML structures, JavaScript behavior and saved-record formats are unchanged.
+
+- Ledger: separate activity list cards; stronger value titles; distinct expanded activity records with visible progress tracks; responsive achievement tiles; clearer reward, history and editor spacing.
+- Life Map: stronger task and routine titles; quieter supporting actions; separate Morning/Work/Home disclosures; more comfortable editor labels, fields and planning shortcuts. Native selects retain their picker with a theme-aware face.
+- Forge: roomier exercise records, aligned prescriptions, rectangular set controls with distinct next/saved states, a contained set editor, and clearer regular-workout/history typography.
+- Communicator: module headings provide context above distinct lesson cards; expanded lessons have comfortable reading measures and a separated practice action. Topic, ladder and saved-practice records use stronger titles, aligned metadata and quieter actions.
+
+Validation: 794 existing unit tests passed after installing the pinned project dependencies. WebKit checks passed 18 Ledger section states, 24 Life Map opening states and task/editor journeys, 30 Forge opening states and goal/regular-workout editors, and 96 Communicator opening/reference states with draft/save/reload coverage. The existing enlarged-text matrix passed 132 core views at 200% text and increased contrast. Ledger's update/recovery browser checks also passed. The existing suite accessibility audit passed 258 WebKit views and 52,770 controls with no reported issues. Opening, scrolled and expanded screenshots were visually inspected in both themes. Final committed-tree generation consistency and GitHub checks are required before merge; public deployment is verified separately. Physical iPhone and VoiceOver sign-off remain outstanding.
