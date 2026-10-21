@@ -43,7 +43,6 @@ try{
     if(scenario==='slow-script')await p.waitForFunction(()=>document.getElementById('app').children.length>0);
     assert.equal(await p.locator('#ledger-startup').isVisible(),true,'slow startup has a deliberate loading screen');
     assert.equal(await p.locator('#app').evaluate(n=>getComputedStyle(n).visibility),'hidden','the legacy renderer is never exposed while assets load');
-    if(scenario==='slow-script')await p.screenshot({path:path.join(out,`startup-${scenario}-${theme}-loading.png`)});
     releaseDelay();
    }
    if(failing){
@@ -58,7 +57,7 @@ try{
     await p.locator('#ledger-nav-progress').click();await p.evaluate(()=>dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));assert.equal(await p.locator('#ledger-view-progress').isVisible(),true,'resuming a live window preserves its selected section');
     await p.reload({waitUntil:'domcontentloaded'});await verify(p,'today',false);
    }
-   reports.push({theme,scenario,passed:true});
+   reports.push({theme,scenario,passed:true,frames:await p.evaluate(()=>window.ledgerLaunchFrames)});
   }catch(e){releaseDelay();reports.push({theme,scenario,error:e.message,frames:await p.evaluate(()=>window.ledgerLaunchFrames)});await p.screenshot({path:path.join(out,`startup-${scenario}-${theme}-error.png`)});}finally{releaseDelay();await ctx.close();}
  }
  const failures=reports.filter(r=>r.error);console.log(JSON.stringify({engine,cases:reports.length,failures}));assert.equal(failures.length,0,'Ledger cold launch reveals one current section and recovers failed assets');
