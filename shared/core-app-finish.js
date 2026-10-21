@@ -50,6 +50,7 @@
   if(card.style.getPropertyValue('--core-opening-body-height')!==body)card.style.setProperty('--core-opening-body-height',body);
  }
  function scheduleOpening(){if(!openingQueued){openingQueued=true;requestAnimationFrame(opening);}}
+ function loaded(){window.AtlasMobile?.measure();opening();}
  let keyboardVisible=false;
  function keyboard(){
   const v=window.visualViewport,editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
@@ -75,8 +76,8 @@
   new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))decorate();scheduleOpening();}).observe(document.body,{childList:true,subtree:true});
   new MutationObserver(scheduleOpening).observe(root,{attributes:true,attributeFilter:['class','style']});
   if(window.ResizeObserver)openingResize=new ResizeObserver(scheduleOpening);
-  window.addEventListener('resize',scheduleOpening,{passive:true});window.addEventListener('load',scheduleOpening);window.addEventListener('pageshow',scheduleOpening);document.fonts?.ready.then(scheduleOpening);
-  document.addEventListener('load',scheduleOpening,true);
+  window.addEventListener('resize',scheduleOpening,{passive:true});window.addEventListener('load',loaded);window.addEventListener('pageshow',scheduleOpening);document.fonts?.ready.then(scheduleOpening);
+  document.addEventListener('load',event=>{if(event.target?.tagName==='LINK')loaded();},true);
   document.addEventListener('focusin',keyboard);document.addEventListener('focusout',()=>queueMicrotask(keyboard));
   window.visualViewport?.addEventListener('resize',keyboard,{passive:true});
   window.visualViewport?.addEventListener('scroll',keyboard,{passive:true});
