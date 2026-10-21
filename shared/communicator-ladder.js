@@ -48,7 +48,9 @@
     const rank=main.querySelector('.communication-career');if(rank){const action=make('button','btn communication-primary','Start a practice');action.type='button';action.addEventListener('click',()=>nav('train'));frame(rank,{kind:'progress',rail:rank.querySelector('.communication-career-top'),title:rank.querySelector('h2'),nodes:[rank.querySelector('.communication-rank-line'),rank.querySelector('.bar')],actions:[action]});if(!main.querySelector('.communication-saved'))main.prepend(rank);}
     for(const card of main.querySelectorAll('.communication-saved')){card.querySelector(':scope>.cl-emblem')?.remove();frame(card,{kind:'review',rail:card.querySelector('.cl-kicker')||'Saved practice',title:card.querySelector('h2'),nodes:[card.querySelector('.cl-result'),...card.querySelectorAll(':scope>p')],actions:card.querySelector('.cl-actions')||[]});}
    }
-   if(curPage==='learn'){const lead=main.querySelector(':scope>.cm-feature');if(lead)main.prepend(lead);}
+   const lead=main.querySelector(':scope>.cm-feature');
+   if(lead){main.prepend(lead);if(!lead.classList.contains('cm-feature-live')){const support=lead.querySelector(':scope>.cm-feature-support');if(support){support.classList.add('cm-opening-support');lead.after(support);}}}
+
   }
   function emblem(stage){const paths={'clarity':'M12 4v16M4 12h16M7 7l10 10M17 7L7 17','story':'M5 5h14v14H5zM8 9h8M8 13h5','listen':'M8 16c-6-8 9-15 10-5 0 5-6 3-6 8M11 10c0-3 5-3 4 1','sales':'M4 6h16v10H9l-5 4zM8 10h8','adapt':'M5 10a7 7 0 0 1 13-3l2 3M20 4v6h-6M19 14a7 7 0 0 1-13 3l-2-3M4 20v-6h6'};return '<span class="cl-emblem '+(stage.passed&&stage.unlocked?'is-earned':'')+'" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="'+paths[stage.skill]+'"/></svg></span>';}
   function mastery(s){const best=s.stages.filter(c=>c.best!==null).sort((a,b)=>b.best-a.best)[0];return best?'<p class="cl-mastery">Strongest self-scored challenge · <strong>'+esc(best.title)+'</strong> · '+best.best+'/100</p>':'';}

@@ -48,7 +48,7 @@ try{
      await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await frames(p);const result=await inspect(p);assert.equal(result.bodyFont,32,'content text receives 200% sizing');
      const row={app,view:entry,theme,width,engine,...result};reports.push(row);
      if(app==='life-ledger'&&entry==='initial')assert(await p.locator('.ledger-habit-card:not([inert]) .ledger-card-identity .cinzel').evaluate(n=>{const t=document.createTreeWalker(n,NodeFilter.SHOW_TEXT).nextNode(),i=t?.textContent.indexOf('Workouts');if(i<0||i===undefined)return false;const r=document.createRange();r.setStart(t,i);r.setEnd(t,i+8);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'the activity title keeps whole words when text enlarges');
-     if(app==='life-ledger'&&entry==='ledger-nav-achievements')assert(await p.locator('#ledger-view-achievements>.ledger-view-title').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'the collection heading keeps its full word');
+     if(app==='life-ledger'&&entry==='ledger-nav-achievements')assert(await p.locator('#ledger-next-milestone h2').evaluate(n=>{const b=n.getBoundingClientRect(),r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].every(t=>t.left>=b.left-1&&t.right<=b.right+1);}),'the collection opening title remains contained');
      if(app==='workout-forge'&&i>1)assert(await p.locator('.fg-detail-head>button').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'Back to Forge stays on one line');
      await p.screenshot({path:path.join(out,`${app}-${i}-${theme}-${width}.png`)});
     }
