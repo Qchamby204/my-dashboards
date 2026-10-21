@@ -34,7 +34,7 @@
   if(root.classList.contains('core-keyboard'))return;
   const header=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!header||!nav||!nav.checkVisibility())return;
-  if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav];for(const node of openingChrome)openingResize.observe(node);}
+  if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav,nav.parentElement];for(const node of openingChrome)if(node)openingResize.observe(node);}
   // The sticky header can move during restored scrolling. Its full height
   // defines the opening at the top of the page in every scroll position.
   const room=Math.max(0,Math.floor(nav.getBoundingClientRect().top-header.getBoundingClientRect().height-48));
@@ -73,6 +73,7 @@
   new MutationObserver(scheduleOpening).observe(root,{attributes:true,attributeFilter:['class','style']});
   if(window.ResizeObserver)openingResize=new ResizeObserver(scheduleOpening);
   window.addEventListener('resize',scheduleOpening,{passive:true});window.addEventListener('load',scheduleOpening);window.addEventListener('pageshow',scheduleOpening);document.fonts?.ready.then(scheduleOpening);
+  document.addEventListener('load',scheduleOpening,true);
   document.addEventListener('focusin',keyboard);document.addEventListener('focusout',()=>queueMicrotask(keyboard));
   window.visualViewport?.addEventListener('resize',keyboard,{passive:true});
   window.visualViewport?.addEventListener('scroll',keyboard,{passive:true});
