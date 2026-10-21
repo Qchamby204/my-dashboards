@@ -190,7 +190,7 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-title{display:block
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-art{display:block;width:100%;max-width:360px;height:auto;aspect-ratio:32/19;margin:16px auto 20px;color:var(--lm-face-accent)}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-body>.lm-help{margin-top:0}
 /* The title illustration and its actions form the entire opening screen. */
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view{padding-top:24px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view{padding-top:12px}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-heading[hidden]{display:none!important}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-rail{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-rail>.eyebrow{font:inherit!important;letter-spacing:0!important;text-transform:none;color:inherit!important}

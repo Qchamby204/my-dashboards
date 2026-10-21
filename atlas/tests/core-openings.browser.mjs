@@ -11,7 +11,7 @@ const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript
 const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+new URL(req.url,'http://test').pathname);if(!file.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(file)]||'text/plain');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
 async function inspect(p,app,view,theme,width){
- await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await p.waitForTimeout(150);
+ await p.waitForFunction(()=>!!document.querySelector('.core-opening-card'));await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await p.waitForTimeout(150);
  const result=await p.evaluate(()=>{
   const card=document.querySelector('.core-opening-card'),bar=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!card)return {issues:['missing opening card']};
@@ -20,7 +20,7 @@ async function inspect(p,app,view,theme,width){
   if(b.bottom>n.top-16)issues.push('opening footer behind navigation');
   if(n.top-b.bottom>32)issues.push('supporting content competes with the opening');
   if(document.documentElement.scrollWidth>innerWidth+1)issues.push('horizontal overflow');
-  for(const control of card.querySelectorAll('button,summary,a')){if(!control.checkVisibility())continue;const c=control.getBoundingClientRect();if(c.width<43.5||c.height<43.5||c.left<b.left-1||c.right>b.right+1||c.bottom>b.bottom+1)issues.push('opening control bounds: '+(control.getAttribute('aria-label')||control.textContent).trim());}
+  for(const control of card.querySelectorAll('button,summary,a')){if(!control.checkVisibility()||control.closest('[hidden],[inert],[aria-hidden="true"]'))continue;const c=control.getBoundingClientRect();if(c.width<43.5||c.height<43.5||c.left<b.left-1||c.right>b.right+1||c.bottom>b.bottom+1)issues.push('opening control bounds: '+(control.getAttribute('aria-label')||control.textContent).trim());}
   return {top:b.top,bottom:b.bottom,header:h.bottom,dock:n.top,height:b.height,issues};
  });
  reports.push({app,view,theme,width,...result});await p.screenshot({path:path.join(out,`${app}-${view}-${theme}-${width}.png`)});

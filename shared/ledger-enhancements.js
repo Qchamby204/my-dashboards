@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=ccd92cb9d880',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=1c6f2c62b26c',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -746,7 +746,11 @@
       const clear=log.querySelector('[data-act="clear"]');if(clear){const options=make('details',null,'ledger-day-options');options.append(make('summary','Day options'));if(oldActions)options.append(oldActions);if(state.logDate===todayISO()){const dateRow=log.querySelector('.ledger-date-row');if(dateRow)options.append(dateRow);}options.append(clear);panes.history.append(options);}
       for(const pane of [panes.progress,panes.achievements,panes.history]){
         const opening=pane.querySelector('.ledger-feature');
-        if(opening){for(const heading of pane.querySelectorAll(':scope>.ledger-identity,:scope>.ledger-view-title'))heading.hidden=true;const title=opening.querySelector('h2');title?.setAttribute('aria-level','1');}
+        if(opening){
+          const rail=opening.querySelector('.ledger-feature-rail'),heading=pane.querySelector(':scope>.ledger-view-title,:scope>.ledger-identity h1');
+          if(heading){heading.classList.add('ledger-view-title');if(pane===panes.progress)rail.prepend(heading);else{rail.firstChild?.remove();rail.prepend(heading);}}
+          const identity=pane.querySelector(':scope>.ledger-identity');if(identity)identity.hidden=true;
+        }
       }
       const dock=make('div',null,'tabbar ledger-dock');dock.id='ledger-dock';
       const saveRow=make('div',null,'ledger-checkin-save');saveRow.id='ledger-checkin-save';
@@ -1018,7 +1022,7 @@
       composeDashboard(log,data,earned);window.LedgerReminderTools?.mount();
       updateDeckChrome(state.cardIndex,HABITS.length);
       for(const mode of log?.querySelectorAll('[data-act="logmode"]')||[])mode.setAttribute('aria-pressed',String(mode.dataset.mode===state.logMode));
-      paintLeisureClock();status();mountReleaseNotice();
+      paintLeisureClock();status();mountReleaseNotice();window.CoreAppFinish?.layoutOpening?.();
       if(restoreControl)[...app.querySelectorAll('button')].find(b=>b.dataset.act===restoreControl.act&&b.dataset.habit===restoreControl.habit&&b.dataset.mode===restoreControl.mode&&b.dataset.key===restoreControl.key)?.focus({preventScroll:true});
     };
     // Keep the keyboard and its layout until the tapped action receives click.

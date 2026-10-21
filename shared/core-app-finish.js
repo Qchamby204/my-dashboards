@@ -28,12 +28,13 @@
   if(app==='workout-forge')for(const control of document.querySelectorAll('.atlas-goal-options [data-goal]'))labeledIcon(control,{bench:'plates',deadlift:'plates',run:'run',dunk:'jump'}[control.dataset.goal]||'plates');
   if(app==='communication-trainer')for(const control of document.querySelectorAll('.atlas-goal-options button'))labeledIcon(control,/clearly/i.test(control.textContent)?'speech':/confidence/i.test(control.textContent)?'confidence':'listen');
  }
- let openingQueued=false;
+ let openingQueued=false,openingResize,openingChrome=[];
  function opening(){
   openingQueued=false;
   if(root.classList.contains('core-keyboard'))return;
   const header=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!header||!nav||!nav.checkVisibility())return;
+  if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav];for(const node of openingChrome)openingResize.observe(node);}
   const room=Math.max(0,Math.floor(nav.getBoundingClientRect().top-header.getBoundingClientRect().bottom-48));
   const value=room+'px';if(root.style.getPropertyValue('--core-opening-height')!==value)root.style.setProperty('--core-opening-height',value);
   const selectors={'life-ledger':'.ledger-view:not([hidden]) .ledger-deck-frame,.ledger-view:not([hidden]) .ledger-feature','life-map':'.lm-day-view:not([hidden])>.lm-feature','workout-forge':'.fg-feature','communication-trainer':'#main>.cm-feature'};
@@ -65,12 +66,12 @@
  function ready(){
   root.classList.add('core-finished');decorate();keyboard();scheduleOpening();
   new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))decorate();scheduleOpening();}).observe(document.body,{childList:true,subtree:true});
-  if(window.ResizeObserver){const resize=new ResizeObserver(scheduleOpening);resize.observe(document.documentElement);const bar=document.querySelector('.appbar');if(bar)resize.observe(bar);}
-  window.addEventListener('resize',scheduleOpening,{passive:true});document.fonts?.ready.then(scheduleOpening);
+  if(window.ResizeObserver)openingResize=new ResizeObserver(scheduleOpening);
+  window.addEventListener('resize',scheduleOpening,{passive:true});window.addEventListener('load',scheduleOpening);window.addEventListener('pageshow',scheduleOpening);document.fonts?.ready.then(scheduleOpening);
   document.addEventListener('focusin',keyboard);document.addEventListener('focusout',()=>queueMicrotask(keyboard));
   window.visualViewport?.addEventListener('resize',keyboard,{passive:true});
   window.visualViewport?.addEventListener('scroll',keyboard,{passive:true});
  }
- window.CoreAppFinish=Object.freeze({decorate});
+ window.CoreAppFinish=Object.freeze({decorate,layoutOpening:opening});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();

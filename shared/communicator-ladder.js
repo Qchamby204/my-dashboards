@@ -48,7 +48,7 @@
     const rank=main.querySelector('.communication-career');if(rank){const action=make('button','btn communication-primary','Start a practice');action.type='button';action.addEventListener('click',()=>nav('train'));frame(rank,{kind:'progress',rail:rank.querySelector('.communication-career-top'),title:rank.querySelector('h2'),nodes:[rank.querySelector('.communication-rank-line'),rank.querySelector('.bar')],actions:[action]});if(!main.querySelector('.communication-saved'))main.prepend(rank);}
     for(const card of main.querySelectorAll('.communication-saved')){card.querySelector(':scope>.cl-emblem')?.remove();frame(card,{kind:'review',rail:card.querySelector('.cl-kicker')||'Saved practice',title:card.querySelector('h2'),nodes:[card.querySelector('.cl-result'),...card.querySelectorAll(':scope>p')],actions:card.querySelector('.cl-actions')||[]});}
    }
-   const lead=main.querySelector(':scope>.cm-feature');
+   const lead=main.querySelector('.cm-feature');
    if(lead){main.prepend(lead);if(!lead.classList.contains('cm-feature-live')){const support=lead.querySelector(':scope>.cm-feature-support');if(support){support.classList.add('cm-opening-support');lead.after(support);}}}
 
   }
@@ -72,7 +72,7 @@
   };
   // Same-page redraws restore their position after the final card layout exists.
   let framedPage=null,framedSession=null;
-  render=()=>{const keep=framedPage===curPage&&framedSession===curDrill,x=window.scrollX,y=window.scrollY;oldRender();craft();framedPage=curPage;framedSession=curDrill;if(keep)window.scrollTo({left:x,top:y,behavior:'instant'});if(curDrill?.topic.challenge){const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!curDrill.topic.challenge.performed;}};
+  render=()=>{const keep=framedPage===curPage&&framedSession===curDrill,x=window.scrollX,y=window.scrollY;oldRender();craft();window.CoreAppFinish?.layoutOpening?.();framedPage=curPage;framedSession=curDrill;if(keep)window.scrollTo({left:x,top:y,behavior:'instant'});if(curDrill?.topic.challenge){const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!curDrill.topic.challenge.performed;}};
   document.addEventListener('click',e=>{const b=e.target.closest?.('[data-ladder-start]');if(b){P.startChallengePractice(b.dataset.ladderStart);return;}if(e.target.closest?.('[data-ladder-reveal]')&&curDrill?.topic.challenge){curDrill.topic.challenge.revealed=true;P.rememberPractice();render();}});
   document.addEventListener('change',e=>{if(e.target.matches?.('[data-ladder-performed]')&&curDrill?.topic.challenge){curDrill.topic.challenge.performed=e.target.checked;P.rememberPractice();const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!e.target.checked;}});
   window.CommunicatorLadder=Object.freeze({snapshot:snap});if(!window.CommunicatorStarting)render();

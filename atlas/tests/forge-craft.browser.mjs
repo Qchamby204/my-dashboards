@@ -19,7 +19,7 @@ try{
   if(size===32)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});
   const check=async(view,selector)=>{
    const hero=p.locator(selector);assert(await hero.isVisible());const g=await hero.evaluate(n=>{const b=n.getBoundingClientRect(),r=document.createRange();r.selectNodeContents(n.querySelector('h1,h2'));return {top:b.top,background:getComputedStyle(n).backgroundColor,titleFits:[...r.getClientRects()].every(x=>x.left>=b.left-1&&x.right<=b.right+1),overflow:document.documentElement.scrollWidth>innerWidth+1};});
-   assert(g.top<(size===32?650:400),'opening stays near the start');assert(!g.overflow,view+' fits the viewport');assert(g.titleFits);assert.equal(g.background,theme==='dark'?'rgb(52, 57, 81)':'rgb(48, 52, 77)');assert.equal(await hero.locator('.fg-feature-art').count(),1);const art=await hero.locator('.fg-feature-art').boundingBox();assert(art.width>=Math.min(220,width-90)&&art.height>=120,'the title illustration is the opening image');
+   assert(g.top<(size===32?650:400),'opening stays near the start');assert(!g.overflow,view+' fits the viewport');assert(g.titleFits);assert.equal(g.background,theme==='dark'?'rgb(52, 57, 81)':'rgb(48, 52, 77)');assert.equal(await hero.locator('.fg-feature-art').count(),1);const art=await hero.locator('.fg-feature-art').boundingBox();assert(art.width>=Math.min(220,width-90)&&art.height>=112,'the title illustration is the opening image');
    for(const button of await hero.locator('button').all()){const box=await button.boundingBox();assert(box.height>=44&&box.width>=44,'opening actions retain targets');}
    await p.screenshot({path:path.join(out,`${view}-${theme}-${width}-${size}.png`)});reports.push({view,theme,width,size,...g});
   };

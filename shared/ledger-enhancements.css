@@ -651,12 +651,12 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-list-records>.row[da
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-list-records>.row[data-value="CONNECTION"]{--ledger-list-accent:var(--neo-rose)}
 
 /* The complete opening, including its action footer, clears the page dock. */
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-view{padding-top:24px}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-view{padding-top:12px}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-view>.ledger-log-wrap{margin-top:0!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-day-heading,.ledger-checkin-toolbar,.ledger-identity,.ledger-view-title)[hidden]{display:none!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-deck-frame .ledger-deck-rail{padding:4px 16px;gap:12px}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-card-switcher{width:auto;min-width:100px;flex:1 1 auto;gap:8px}
-html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-deck-rail .ledger-log-mode{flex:0 0 auto;margin:0!important;padding:2px!important;border-radius:999px!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-deck-rail .ledger-log-mode{--neo-content-surface:var(--ledger-record-surface);--neo-inset:color-mix(in srgb,white 8%,var(--ledger-record-surface));flex:0 0 auto;margin:0!important;padding:2px!important;border-radius:999px!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-deck-rail .ledger-log-mode button{min-width:56px;padding:8px!important;border-radius:999px!important;font-size:.8125rem!important}
 html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-deck-rail .ledger-log-mode svg{display:none}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .core-opening-card{min-height:var(--core-opening-height,0px)}
@@ -667,3 +667,5 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map.core-openi
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .core-opening-card .ledger-habit-card{min-height:var(--core-opening-body-height,0px)!important;justify-content:space-between}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card:has(.ledger-amount-controls) .ledger-card-art{height:96px}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card:has(.ledger-amount-controls) .ledger-card-avatar{width:88px!important;height:88px!important;font-size:72px!important}
+
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-rail>.ledger-view-title{font:inherit!important;margin:0!important;letter-spacing:inherit!important;white-space:normal!important}

@@ -267,7 +267,7 @@
       const rail=opening.querySelector('.lm-feature-rail'),date=pageHeading.querySelector('.eyebrow'),footer=opening.querySelector('.lm-feature-footer');
       if(date)rail.append(date);
       for(const action of [...pageHeading.querySelectorAll('.lm-inline>*')])footer.append(action);
-      pageHeading.hidden=true;opening.querySelector('h2')?.setAttribute('aria-level','1');
+      opening.after(pageHeading);pageHeading.querySelector('h1')?.setAttribute('aria-level','2');opening.querySelector('h2')?.setAttribute('aria-level','1');
     }
     const anchor=app.querySelector('.lm-save-feedback')||app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);
     // Keep the chosen action ahead of capture without rebuilding its controls or draft.
@@ -276,7 +276,7 @@
     if(!window.AtlasConnected)window.AtlasDaily?.mount();
     for(const key of ['home','plan','areas','board'])if(key!==ui.tab){const pane=document.createElement('section');pane.id='lm-day-view-'+key;pane.hidden=true;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','lm-day-nav-'+key);app.append(pane);}
     const nav=document.createElement('nav');nav.className='lm-day-dock';nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Map views');
-    nav.innerHTML=[['home','⌂','Home'],['plan','◷','Plan'],['areas','◈','Areas'],['board','▦','Board']].map(([key,icon,title])=>'<button type="button" class="btn" id="lm-day-nav-'+key+'" role="tab" aria-selected="'+(ui.tab===key)+'" aria-controls="lm-day-view-'+key+'" tabindex="'+(ui.tab===key?0:-1)+'" data-day="tab" data-tab="'+key+'"><span aria-hidden="true">'+icon+'</span><strong>'+title+'</strong></button>').join('');app.append(nav);
+    nav.innerHTML=[['home','⌂','Home'],['plan','◷','Plan'],['areas','◈','Areas'],['board','▦','Board']].map(([key,icon,title])=>'<button type="button" class="btn" id="lm-day-nav-'+key+'" role="tab" aria-selected="'+(ui.tab===key)+'" aria-controls="lm-day-view-'+key+'" tabindex="'+(ui.tab===key?0:-1)+'" data-day="tab" data-tab="'+key+'"><span aria-hidden="true">'+icon+'</span><strong>'+title+'</strong></button>').join('');app.append(nav);window.CoreAppFinish?.layoutOpening?.();
     W.busy&&app.querySelectorAll('[data-day]').forEach(el=>el.disabled=true);
   };
   document.addEventListener('click',event=>{const el=event.target.closest?.('[data-lm="inbox"]');if(el){ui.tab='board';ui.records=true;}},true);
