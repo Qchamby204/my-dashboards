@@ -3,7 +3,10 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=1fb63da63e3c',source).href;document.head.append(css);
+  let styled=false,initialized=false;
+  const reveal=()=>{if(styled&&initialized)window.AtlasLedgerStartup?.ready();};
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=1fb63da63e3c',source).href;
+  css.addEventListener('load',()=>{styled=true;reveal();});css.addEventListener('error',()=>window.AtlasLedgerStartup?.fail());document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -1055,7 +1058,7 @@
     window.addEventListener('pageshow',()=>{checkDay();render();checkRelease();});setInterval(checkDay,60000);
     setInterval(()=>{checkDay();paintLeisureClock();},1000);
     window.LedgerDays=Object.freeze({selectDate,setSeason,resetProgress,parseBackup,saveDay,remember,retry,saveRhythm,savePersonalReward,enjoyPersonalReward,personalRewardDialog,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
-    render();checkRelease();if(drafts.resetPending)finishProgressReset().then(()=>render());
+    render();initialized=true;reveal();checkRelease();if(drafts.resetPending)finishProgressReset().then(()=>render());
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
