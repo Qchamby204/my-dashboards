@@ -76,7 +76,7 @@ a{color:inherit}
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-workflow.css?v=1e96bdc671a6">
 <link rel="stylesheet" href="shared/core-app-finish.css?v=75f630081488">
-<script src="shared/core-app-finish.js?v=3c1748cb9253" defer></script>
+<script src="shared/core-app-finish.js?v=62cf6b644e11" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-32.png?v=0cfc426aae7b">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-64.png?v=c95ca5a4b3ef">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-map-apple.png?v=8b8862ad8038">
@@ -2369,12 +2369,12 @@ function createLifeMapOperations(catalog,storage,now=()=>Date.now()){
     for(const node of children)if(!node.matches('.appbar,.lm-capture,.lm-save-feedback,dialog,.lm-fab,.lm-tools'))records.append(node);
     const main=document.createElement('section');main.id='lm-day-view-'+ui.tab;main.className='lm-day-view';main.setAttribute('role','tabpanel');main.setAttribute('aria-labelledby','lm-day-nav-'+ui.tab);
     main.innerHTML=(ui.tab==='board'?(ui.records?heading('Full Life Map','All records',button('Day view','day-board'))+feature('board','Your full record','Projects, tasks & routines',openTasks().length+' open task'+(openTasks().length===1?'':'s'),help((S.groups||[]).filter(g=>!g.archived).length+' projects · '+S.chores.filter(c=>!c.archived).length+' recurring responsibilities'),'<button type="button" class="btn lm-day-button lm-day-primary" data-lm="new-task">Add task</button>'):boardView()):ui.tab==='home'?homeView():ui.tab==='plan'?planView():areasView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
-    const opening=main.querySelector(':scope>.lm-feature'),pageHeading=main.querySelector(':scope>.lm-day-heading');
+    const opening=main.querySelector('.lm-feature'),pageHeading=main.querySelector(':scope>.lm-day-heading');
     if(opening&&pageHeading){
       const rail=opening.querySelector('.lm-feature-rail'),date=pageHeading.querySelector('.eyebrow'),footer=opening.querySelector('.lm-feature-footer');
       if(date)rail.append(date);
       for(const action of [...pageHeading.querySelectorAll('.lm-inline>*')])footer.append(action);
-      opening.after(pageHeading);pageHeading.querySelector('h1')?.setAttribute('aria-level','2');opening.querySelector('h2')?.setAttribute('aria-level','1');
+      (opening.closest('[aria-label="Right now"]')||opening).after(pageHeading);pageHeading.querySelector('h1')?.setAttribute('aria-level','2');opening.querySelector('h2')?.setAttribute('aria-level','1');
     }
     const anchor=app.querySelector('.lm-save-feedback')||app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);
     // Keep the chosen action ahead of capture without rebuilding its controls or draft.

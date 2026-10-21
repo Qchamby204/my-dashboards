@@ -262,12 +262,12 @@
     for(const node of children)if(!node.matches('.appbar,.lm-capture,.lm-save-feedback,dialog,.lm-fab,.lm-tools'))records.append(node);
     const main=document.createElement('section');main.id='lm-day-view-'+ui.tab;main.className='lm-day-view';main.setAttribute('role','tabpanel');main.setAttribute('aria-labelledby','lm-day-nav-'+ui.tab);
     main.innerHTML=(ui.tab==='board'?(ui.records?heading('Full Life Map','All records',button('Day view','day-board'))+feature('board','Your full record','Projects, tasks & routines',openTasks().length+' open task'+(openTasks().length===1?'':'s'),help((S.groups||[]).filter(g=>!g.archived).length+' projects · '+S.chores.filter(c=>!c.archived).length+' recurring responsibilities'),'<button type="button" class="btn lm-day-button lm-day-primary" data-lm="new-task">Add task</button>'):boardView()):ui.tab==='home'?homeView():ui.tab==='plan'?planView():areasView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
-    const opening=main.querySelector(':scope>.lm-feature'),pageHeading=main.querySelector(':scope>.lm-day-heading');
+    const opening=main.querySelector('.lm-feature'),pageHeading=main.querySelector(':scope>.lm-day-heading');
     if(opening&&pageHeading){
       const rail=opening.querySelector('.lm-feature-rail'),date=pageHeading.querySelector('.eyebrow'),footer=opening.querySelector('.lm-feature-footer');
       if(date)rail.append(date);
       for(const action of [...pageHeading.querySelectorAll('.lm-inline>*')])footer.append(action);
-      opening.after(pageHeading);pageHeading.querySelector('h1')?.setAttribute('aria-level','2');opening.querySelector('h2')?.setAttribute('aria-level','1');
+      (opening.closest('[aria-label="Right now"]')||opening).after(pageHeading);pageHeading.querySelector('h1')?.setAttribute('aria-level','2');opening.querySelector('h2')?.setAttribute('aria-level','1');
     }
     const anchor=app.querySelector('.lm-save-feedback')||app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);main.append(records);
     // Keep the chosen action ahead of capture without rebuilding its controls or draft.

@@ -668,4 +668,4 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .core-opening-ca
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card:has(.ledger-amount-controls) .ledger-card-art{height:96px}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card:has(.ledger-amount-controls) .ledger-card-avatar{width:88px!important;height:88px!important;font-size:72px!important}
 
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-rail>.ledger-view-title{font:inherit!important;margin:0!important;letter-spacing:inherit!important;white-space:normal!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-rail>.ledger-view-title{color:var(--ledger-feature-muted)!important;font:inherit!important;margin:0!important;letter-spacing:inherit!important;white-space:normal!important}

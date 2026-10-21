@@ -50,7 +50,7 @@ try{
     await p.locator('.lm-day-date-bar').screenshot({path:path.join(out,'batch2-date-'+theme+'-'+width+'-'+size+'.png')});await style.evaluate(n=>n.remove());
    }
    await p.setViewportSize({width:393,height:900});await p.getByRole('button',{name:'Next day',exact:true}).click();
-   await p.locator('.lm-day-heading [data-day="new-todo"]').click();assert.equal(await p.evaluate(()=>view.editor.plan),dates.tomorrow,'Board Add task uses the selected date');await p.keyboard.press('Escape');
+   await p.locator('.lm-feature-footer [data-day="new-todo"]').click();assert.equal(await p.evaluate(()=>view.editor.plan),dates.tomorrow,'Board Add task uses the selected date');await p.keyboard.press('Escape');
    assert.equal(await p.evaluate(()=>localStorage.getItem('lifemap_v1')),bytes,'opening the editor does not create a task');
 
    await p.goto(origin+'/workout-forge.html#goal-bench');await ready(p,'ForgeGoals');
