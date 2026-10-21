@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=72907ab8e649',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=d67f584e8839',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -905,6 +905,7 @@
       const frame=app.querySelector('.ledger-deck-frame');if(!frame)return;
       const h=HABITS[state.cardIndex],key=HABIT_PILLAR[h]?.key;
       frame.style.setProperty('--ledger-active-accent','var(--neo-'+({HEALTH:'green',GROWTH:'violet',WEALTH:'accent',DISCIPLINE:'blue',CONNECTION:'rose'}[key]||'accent')+')');
+      frame.dataset.value=key||'';
       frame.dataset.entered=String((state.draft[h]||0)>0);
     }
     function refreshCheckinState(h){
@@ -993,7 +994,7 @@
       const log=app.querySelector('[data-act="logdate"]')?.closest('.panel');if(log){log.id='ledger-log';const actions=make('div',null,'ledger-actions');actions.append(button('Today',()=>selectDate(todayISO())),button('Yesterday',()=>selectDate(numToISO(isoToNum(todayISO())-86400000))));const stateLabel=make('p',null,'ledger-help');stateLabel.id='ledger-draft-status';stateLabel.setAttribute('role','status');actions.append(stateLabel);const achievements=button('Achievements · '+earned.length+' earned',()=>{setDashboardView('achievements');});actions.append(achievements);log.prepend(actions);if(saveFeedback){const feedback=make('p',saveFeedback,'ledger-save-feedback');feedback.id='ledger-save-feedback';feedback.setAttribute('role','status');log.prepend(feedback);}const dateInput=log.querySelector('[data-act="logdate"]');dateInput.setAttribute('aria-label','Date to log');dateInput.parentNode.classList.add('ledger-date-row');const note=log.querySelector('[data-act="note"]');note?.setAttribute('aria-label','Daily note');}
       if(log){const heading=log.querySelector('.ledger-log-heading');if(heading){heading.firstElementChild.hidden=true;const count=heading.querySelector('.mono');count.textContent=HABITS.filter(h=>state.draft[h]>0).length+' activities entered';count.parentNode.classList.add('ledger-entry-count');}
         log.querySelector('[data-act="logmode"]')?.parentNode.classList.add('ledger-log-mode');
-        const rows=[...log.querySelectorAll('.row')];if(rows.length){const records=make('div',null,'ledger-list-records');rows[0].before(records);records.append(...rows);for(const row of rows)row.firstElementChild.classList.add('ledger-list-avatar');}
+        const rows=[...log.querySelectorAll('.row')];if(rows.length){const records=make('div',null,'ledger-list-records');rows[0].before(records);records.append(...rows);for(const row of rows){row.firstElementChild.classList.add('ledger-list-avatar');row.dataset.value=HABIT_PILLAR[row.querySelector('[data-habit]')?.dataset.habit]?.key||'';}}
         const counter=log.querySelector('#deckCounter');if(counter){const picker=make('select',null,'ledger-habit-picker');picker.id='ledger-habit-picker';picker.setAttribute('aria-label','Jump to a habit');for(const h of HABITS){const option=make('option',label(h));option.value=h;picker.append(option);}picker.value=HABITS[state.cardIndex];picker.addEventListener('change',()=>{goCard(HABITS.indexOf(picker.value));});counter.parentNode.classList.add('ledger-card-picker');counter.parentNode.firstElementChild.replaceWith(picker);}
       }
       const bar=app.querySelector('.appbar');if(bar){const jump=button('Log today',()=>selectDate(todayISO()));bar.after(jump);jump.classList.add('ledger-jump');}
@@ -1011,6 +1012,15 @@
       paintLeisureClock();status();mountReleaseNotice();
       if(restoreControl)[...app.querySelectorAll('button')].find(b=>b.dataset.act===restoreControl.act&&b.dataset.habit===restoreControl.habit&&b.dataset.mode===restoreControl.mode&&b.dataset.key===restoreControl.key)?.focus({preventScroll:true});
     };
+    // Keep the keyboard and its layout until the tapped action receives click.
+    // Moving focus before click can dismiss it before Done / Save activates.
+    // Native click remains the only activation; scrolling and cancelled taps save nothing.
+    app.addEventListener('mousedown',e=>{
+      if(!e.cancelable||e.button>0)return;
+      const input=document.activeElement,control=e.target.closest('button');
+      if(!input?.matches?.('#ledger-log input.num,#ledger-log textarea')||!control||control.disabled)return;
+      if(control.matches('.ledger-amount-done,[data-act="commit"],[data-act="inc"],[data-act="dec"],[data-act="toggle"],[data-act="cardprev"],[data-act="cardnext"]'))e.preventDefault();
+    });
     app.addEventListener('click',e=>{
       const el=e.target.closest('[data-act]');if(!el)return;if(blocked||busy){e.stopImmediatePropagation();return;}
       const act=el.dataset.act;
