@@ -624,5 +624,5 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value .ledger-rhythm
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-view-progress .ledger-value{border-top-color:var(--ledger-value)!important}
 
 /* An expanded value has room for its activity records on wider layouts. */
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value:has(.ledger-value-toggle[aria-expanded="true"]){grid-column:1/-1}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-values>div:has(.ledger-value-toggle[aria-expanded="true"]){grid-column:1/-1}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value>[id^="ledger-value-details-"]{grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr))}
