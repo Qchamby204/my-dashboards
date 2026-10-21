@@ -21,7 +21,7 @@ async function inspect(p,app,view,theme,width){
   if(n.top-b.bottom>32)issues.push('supporting content competes with the opening');
   if(document.documentElement.scrollWidth>innerWidth+1)issues.push('horizontal overflow');
   for(const control of card.querySelectorAll('button,summary,a')){if(!control.checkVisibility()||control.closest('[hidden],[inert],[aria-hidden="true"]'))continue;const c=control.getBoundingClientRect();if(c.width<43.5||c.height<43.5||c.left<b.left-1||c.right>b.right+1||c.bottom>b.bottom+1)issues.push('opening control bounds: '+(control.getAttribute('aria-label')||control.textContent).trim());}
-  return {top:b.top,bottom:b.bottom,header:h.bottom,dock:n.top,height:b.height,room:document.documentElement.style.getPropertyValue('--core-opening-height'),body:card.style.getPropertyValue('--core-opening-body-height'),scrollY,issues};
+  return {top:b.top,bottom:b.bottom,header:h.bottom,dock:n.top,height:b.height,minHeight:getComputedStyle(card).minHeight,navClearance:document.documentElement.style.getPropertyValue('--atlas-page-nav-height'),viewport:card.querySelector('#deckViewport')?.getBoundingClientRect().height,activity:card.querySelector('.ledger-habit-card:not([inert])')?.getBoundingClientRect().height,room:document.documentElement.style.getPropertyValue('--core-opening-height'),body:card.style.getPropertyValue('--core-opening-body-height'),scrollY,issues};
  });
  reports.push({app,view,theme,width,...result});await p.screenshot({path:path.join(out,`${app}-${view}-${theme}-${width}.png`)});
 }
