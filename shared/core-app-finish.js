@@ -34,18 +34,19 @@
   if(root.classList.contains('core-keyboard'))return;
   const header=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!header||!nav||!nav.checkVisibility())return;
-  if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav,nav.parentElement];for(const node of openingChrome)if(node)openingResize.observe(node);}
-  // The sticky header can move during restored scrolling. Its full height
-  // defines the opening at the top of the page in every scroll position.
-  const room=Math.max(0,Math.floor(nav.getBoundingClientRect().top-header.getBoundingClientRect().height-48));
-  const value=room+'px';if(root.style.getPropertyValue('--core-opening-height')!==value)root.style.setProperty('--core-opening-height',value);
+  if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav];for(const node of openingChrome)openingResize.observe(node);}
+  // Navigation owns its measured safe-area clearance. Keeping that live CSS
+  // variable avoids retaining a pre-stylesheet or translated dock position.
+  const fallback=Math.max(0,window.innerHeight-nav.getBoundingClientRect().top);
+  const inset=app==='life-ledger'?8:0; // The native Ledger tabs have an 8px top margin inside their shell.
+  const value='max(0px,calc('+window.innerHeight+'px - var(--atlas-page-nav-height,'+fallback+'px) - '+header.getBoundingClientRect().height+'px - 48px + '+inset+'px))';if(root.style.getPropertyValue('--core-opening-height')!==value)root.style.setProperty('--core-opening-height',value);
   const selectors={'life-ledger':'.ledger-view:not([hidden]) .ledger-deck-frame,.ledger-view:not([hidden]) .ledger-feature','life-map':'.lm-day-view:not([hidden]) .lm-feature','workout-forge':'.fg-feature','communication-trainer':'#main>.cm-feature'};
   const card=[...document.querySelectorAll(selectors[app])].find(n=>n.checkVisibility());
   for(const prior of document.querySelectorAll('.core-opening-card'))if(prior!==card)prior.classList.remove('core-opening-card');
   if(!card)return;card.classList.add('core-opening-card');
   const rail=card.querySelector(':scope>.ledger-deck-rail,:scope>.ledger-feature-rail,:scope>.lm-feature-rail,:scope>.fg-feature-rail,:scope>.cm-feature-rail');
   const footer=card.querySelector(':scope>.ledger-checkin-save,:scope>.ledger-feature-footer,:scope>.lm-feature-footer,:scope>.fg-feature-footer,:scope>.cm-feature-footer');
-  const body=Math.max(0,room-(rail?.getBoundingClientRect().height||0)-(footer?.getBoundingClientRect().height||0)-2)+'px';
+  const body='max(0px,calc(var(--core-opening-height) - '+((rail?.getBoundingClientRect().height||0)+(footer?.getBoundingClientRect().height||0)+2)+'px))';
   if(card.style.getPropertyValue('--core-opening-body-height')!==body)card.style.setProperty('--core-opening-body-height',body);
   const viewport=card.querySelector('#deckViewport'),activity=card.querySelector('.ledger-habit-card:not([inert])');
   if(viewport&&activity){const height=activity.offsetHeight+'px';if(viewport.style.height!==height)viewport.style.height=height;}
