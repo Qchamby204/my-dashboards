@@ -157,3 +157,7 @@ html.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-ed
 
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .lesson-title{display:grid;grid-template-columns:minmax(0,1fr) 1em;align-items:center;gap:12px}
 html.atlas-neumo[data-atlas-app="communication-trainer"] #main .lesson-title>span{margin:0;justify-self:end;text-align:center;font-size:1rem}
+/* The topic editor keeps a visible preferred action and its native category picker. */
+html.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor .communication-topic-actions button[type="submit"]{background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;box-shadow:none!important;font-weight:650}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor #communication-topic-cancel{border-color:transparent!important;background:transparent!important;box-shadow:none!important}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #communication-topic-editor #communication-topic-category{appearance:none;-webkit-appearance:none;min-height:48px;padding-inline-end:40px;background-color:var(--neo-content-surface)!important;background-image:linear-gradient(45deg,transparent 50%,var(--neo-muted) 50%),linear-gradient(135deg,var(--neo-muted) 50%,transparent 50%)!important;background-position:calc(100% - 21px) 50%,calc(100% - 16px) 50%!important;background-size:5px 5px!important;background-repeat:no-repeat!important}
