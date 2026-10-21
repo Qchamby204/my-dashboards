@@ -3,7 +3,7 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=7391c43220c2',source).href;document.head.append(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=1fb63da63e3c',source).href;document.head.append(css);
   function ready(){
     if(window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
@@ -929,7 +929,6 @@
     }
 
     const originalQuest=questLog,originalSettings=settingsView,originalDeckChrome=updateDeckChrome;
-    let deckResize=null;
     function withLiteralUnits(fn){const units=Object.fromEntries(Object.entries(HCFG).map(([key,c])=>[key,c.unit]));try{Object.values(HCFG).forEach(c=>c.unit=esc(c.unit));return fn();}finally{for(const [key,unit]of Object.entries(units))HCFG[key].unit=unit;}}
     questLog=function(draft){return withLiteralUnits(()=>originalQuest(draft,1));};
     settingsView=function(){return withLiteralUnits(()=>originalSettings());};
@@ -941,8 +940,7 @@
       const counter=document.getElementById('deckCounter');if(counter){counter.setAttribute('aria-live','polite');counter.setAttribute('aria-atomic','true');}
       [...app.querySelectorAll('.ledger-habit-card')].forEach((card,i)=>{const info=card.querySelector('.ledger-card-definition');if(info)info.hidden=i!==idx;card.inert=i!==idx;card.setAttribute('aria-hidden',String(i!==idx));card.setAttribute('role','group');card.setAttribute('aria-label',label(HABITS[i])+' · '+(i+1)+' of '+n);});
       const picker=document.getElementById('ledger-habit-picker');if(picker)picker.value=HABITS[idx];
-      const card=app.querySelectorAll('.ledger-habit-card')[idx],viewport=document.getElementById('deckViewport'),fit=()=>{if(card?.offsetHeight>0&&viewport)viewport.style.height=card.offsetHeight+'px';};fit();
-      paintActiveCard();if(deckResize)deckResize.disconnect();if(window.ResizeObserver&&card){deckResize=new window.ResizeObserver(fit);deckResize.observe(card);}
+      paintActiveCard();
     };
     const originalLevelView=levelUpView;
     function rewardDialog(markup){return markup.replace('<div class="overlay"','<dialog class="overlay ledger-reward"').replace(/<\/div>$/, '</dialog>');}

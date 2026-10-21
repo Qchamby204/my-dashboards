@@ -48,8 +48,6 @@
   const footer=card.querySelector(':scope>.ledger-checkin-save,:scope>.ledger-feature-footer,:scope>.lm-feature-footer,:scope>.fg-feature-footer,:scope>.cm-feature-footer');
   const body='max(0px,calc(var(--core-opening-height) - '+((rail?.getBoundingClientRect().height||0)+(footer?.getBoundingClientRect().height||0)+2)+'px))';
   if(card.style.getPropertyValue('--core-opening-body-height')!==body)card.style.setProperty('--core-opening-body-height',body);
-  const viewport=card.querySelector('#deckViewport'),activity=card.querySelector('.ledger-habit-card:not([inert])');
-  if(viewport&&activity){const height=activity.offsetHeight+'px';if(viewport.style.height!==height)viewport.style.height=height;}
  }
  function scheduleOpening(){if(!openingQueued){openingQueued=true;requestAnimationFrame(opening);}}
  let keyboardVisible=false;
