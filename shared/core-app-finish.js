@@ -58,7 +58,11 @@
   const offset=v&&v.scale===1?Math.max(0,window.innerHeight-v.height-v.offsetTop):0;
   // Focus moves to Save before a touch finishes. Keep chrome in place until
   // the keyboard's viewport gap actually closes, so the first tap can commit.
-  keyboardVisible=offset>150&&(editing||keyboardVisible);
+  const wasKeyboardVisible=keyboardVisible;keyboardVisible=offset>150&&(editing||keyboardVisible);
+  if(keyboardVisible&&!wasKeyboardVisible){
+   const card=document.querySelector('.core-opening-card'),height=card&&window.getComputedStyle?.(card).minHeight;
+   if(height&&height!=='auto')root.style.setProperty('--core-opening-height',height);
+  }
   root.classList.toggle('core-keyboard',keyboardVisible);
   root.style.setProperty('--core-keyboard-bottom',Math.round(offset)+'px');
   const saving=app==='life-ledger'&&document.activeElement?.matches?.('#ledger-checkin-save button');

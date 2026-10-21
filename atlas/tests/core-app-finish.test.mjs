@@ -31,8 +31,9 @@ test('training choice artwork retains the goal action and its visible name',()=>
  h.redraw();assert.equal(h.choice.children.length,1);
 });
 test('keyboard chrome stays stable during a save tap until the viewport restores',()=>{
- const h=harness();h.document.activeElement={tagName:'INPUT'};h.visual.height=430;h.events['viewport-resize']();
+ const h=harness(),query=h.document.querySelector;h.document.querySelector=s=>s==='.core-opening-card'?{}:query(s);h.window.getComputedStyle=()=>({minHeight:'569px'});h.document.activeElement={tagName:'INPUT'};h.visual.height=430;h.events['viewport-resize']();
  assert(h.classes.has('core-keyboard'));assert.equal(h.style['--core-keyboard-bottom'],'370px');
+ assert.equal(h.style['--core-opening-height'],'569px','hiding navigation for the keyboard preserves the opening and its tap targets');
  h.document.activeElement={tagName:'BUTTON'};h.events.focusout();h.flush();assert(h.classes.has('core-keyboard'),'a save tap must not move the dock while the keyboard is still open');
  h.visual.height=800;h.events['viewport-resize']();assert(!h.classes.has('core-keyboard'));
  h.visual.scale=2;h.document.activeElement={tagName:'TEXTAREA'};h.events['viewport-resize']();assert(!h.classes.has('core-keyboard'),'zoom does not masquerade as a keyboard');
