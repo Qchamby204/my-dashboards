@@ -13,10 +13,10 @@ function harness(app='life-ledger'){
  const avatar={html:"📖",dataset:{},attrs:{},set innerHTML(value){this.html=value},setAttribute(k,v){this.attrs[k]=v},closest:()=>({querySelector:()=>({dataset:{habit:'Read'}})})};
  const document={documentElement:root,body:{},readyState:'complete',activeElement:{tagName:'BODY'},querySelector:s=>controls.get(s)||null,querySelectorAll:s=>s==='[data-act="logmode"]'?[mode]:s==='.ledger-card-avatar,.ledger-list-avatar'?[avatar]:s==='.atlas-goal-options [data-goal]'?[choice]:[],createElement:()=>({}),addEventListener(k,f){events[k]=f}};
  const visual={scale:1,height:800,offsetTop:0,addEventListener(k,f){events['viewport-'+k]=f}};
- const window={innerHeight:800,visualViewport:visual};
+ const window={innerHeight:800,visualViewport:visual,addEventListener(k,f){events['window-'+k]=f}};
  const forbidden=()=>{throw Error('Presentation must not access records or network')};
  Object.defineProperty(window,'localStorage',{get:forbidden});
- vm.runInNewContext(script,{document,window,localStorage:new Proxy({},{get:forbidden}),fetch:forbidden,MutationObserver:class{constructor(f){observer=f}observe(){}},queueMicrotask:f=>pending.push(f)});
+ vm.runInNewContext(script,{document,window,localStorage:new Proxy({},{get:forbidden}),fetch:forbidden,MutationObserver:class{constructor(f){observer=f}observe(){}},requestAnimationFrame:()=>0,queueMicrotask:f=>pending.push(f)});
  return {root,classes,style,control,mode,choice,avatar,document,visual,window,events,redraw:()=>observer?.([{type:'childList',addedNodes:[{nodeType:1}],removedNodes:[]}]),flush:()=>pending.splice(0).forEach(f=>f())};
 }
 test('control artwork preserves actions and accessible names and is stable across redraws',()=>{
@@ -31,8 +31,9 @@ test('training choice artwork retains the goal action and its visible name',()=>
  h.redraw();assert.equal(h.choice.children.length,1);
 });
 test('keyboard chrome stays stable during a save tap until the viewport restores',()=>{
- const h=harness();h.document.activeElement={tagName:'INPUT'};h.visual.height=430;h.events['viewport-resize']();
+ const h=harness(),query=h.document.querySelector;h.document.querySelector=s=>s==='.core-opening-card'?{}:query(s);h.window.getComputedStyle=()=>({minHeight:'569px'});h.document.activeElement={tagName:'INPUT'};h.visual.height=430;h.events['viewport-resize']();
  assert(h.classes.has('core-keyboard'));assert.equal(h.style['--core-keyboard-bottom'],'370px');
+ assert.equal(h.style['--core-opening-height'],'569px','hiding navigation for the keyboard preserves the opening and its tap targets');
  h.document.activeElement={tagName:'BUTTON'};h.events.focusout();h.flush();assert(h.classes.has('core-keyboard'),'a save tap must not move the dock while the keyboard is still open');
  h.visual.height=800;h.events['viewport-resize']();assert(!h.classes.has('core-keyboard'));
  h.visual.scale=2;h.document.activeElement={tagName:'TEXTAREA'};h.events['viewport-resize']();assert(!h.classes.has('core-keyboard'),'zoom does not masquerade as a keyboard');

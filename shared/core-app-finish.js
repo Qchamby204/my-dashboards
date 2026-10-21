@@ -28,13 +28,39 @@
   if(app==='workout-forge')for(const control of document.querySelectorAll('.atlas-goal-options [data-goal]'))labeledIcon(control,{bench:'plates',deadlift:'plates',run:'run',dunk:'jump'}[control.dataset.goal]||'plates');
   if(app==='communication-trainer')for(const control of document.querySelectorAll('.atlas-goal-options button'))labeledIcon(control,/clearly/i.test(control.textContent)?'speech':/confidence/i.test(control.textContent)?'confidence':'listen');
  }
+ let openingQueued=false,openingResize,openingChrome=[];
+ function opening(){
+  openingQueued=false;
+  if(root.classList.contains('core-keyboard'))return;
+  const header=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
+  if(!header||!nav||!nav.checkVisibility())return;
+  if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav];for(const node of openingChrome)openingResize.observe(node);}
+  // Navigation owns its measured safe-area clearance. Keeping that live CSS
+  // variable avoids retaining a pre-stylesheet or translated dock position.
+  const fallback=Math.max(0,window.innerHeight-nav.getBoundingClientRect().top);
+  const inset=app==='life-ledger'?8:0; // The native Ledger tabs have an 8px top margin inside their shell.
+  const value='max(0px,calc('+window.innerHeight+'px - var(--atlas-page-nav-height,'+fallback+'px) - '+header.getBoundingClientRect().height+'px - 48px + '+inset+'px))';if(root.style.getPropertyValue('--core-opening-height')!==value)root.style.setProperty('--core-opening-height',value);
+  const selectors={'life-ledger':'.ledger-view:not([hidden]) .ledger-deck-frame,.ledger-view:not([hidden]) .ledger-feature','life-map':'.lm-day-view:not([hidden]) .lm-feature','workout-forge':'.fg-feature','communication-trainer':'#main>.cm-feature'};
+  const card=[...document.querySelectorAll(selectors[app])].find(n=>n.checkVisibility());
+  for(const prior of document.querySelectorAll('.core-opening-card'))if(prior!==card)prior.classList.remove('core-opening-card');
+  if(!card)return;card.classList.add('core-opening-card');
+  const rail=card.querySelector(':scope>.ledger-deck-rail,:scope>.ledger-feature-rail,:scope>.lm-feature-rail,:scope>.fg-feature-rail,:scope>.cm-feature-rail');
+  const footer=card.querySelector(':scope>.ledger-checkin-save,:scope>.ledger-feature-footer,:scope>.lm-feature-footer,:scope>.fg-feature-footer,:scope>.cm-feature-footer');
+  const body='max(0px,calc(var(--core-opening-height) - '+((rail?.getBoundingClientRect().height||0)+(footer?.getBoundingClientRect().height||0)+2)+'px))';
+  if(card.style.getPropertyValue('--core-opening-body-height')!==body)card.style.setProperty('--core-opening-body-height',body);
+ }
+ function scheduleOpening(){if(!openingQueued){openingQueued=true;requestAnimationFrame(opening);}}
  let keyboardVisible=false;
  function keyboard(){
   const v=window.visualViewport,editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
   const offset=v&&v.scale===1?Math.max(0,window.innerHeight-v.height-v.offsetTop):0;
   // Focus moves to Save before a touch finishes. Keep chrome in place until
   // the keyboard's viewport gap actually closes, so the first tap can commit.
-  keyboardVisible=offset>150&&(editing||keyboardVisible);
+  const wasKeyboardVisible=keyboardVisible;keyboardVisible=offset>150&&(editing||keyboardVisible);
+  if(keyboardVisible&&!wasKeyboardVisible){
+   const card=document.querySelector('.core-opening-card'),height=card&&window.getComputedStyle?.(card).minHeight;
+   if(height&&height!=='auto')root.style.setProperty('--core-opening-height',height);
+  }
   root.classList.toggle('core-keyboard',keyboardVisible);
   root.style.setProperty('--core-keyboard-bottom',Math.round(offset)+'px');
   const saving=app==='life-ledger'&&document.activeElement?.matches?.('#ledger-checkin-save button');
@@ -45,12 +71,16 @@
   }
  }
  function ready(){
-  root.classList.add('core-finished');decorate();keyboard();
-  new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))decorate();}).observe(document.body,{childList:true,subtree:true});
+  root.classList.add('core-finished');decorate();keyboard();scheduleOpening();
+  new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))decorate();scheduleOpening();}).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(scheduleOpening).observe(root,{attributes:true,attributeFilter:['class','style']});
+  if(window.ResizeObserver)openingResize=new ResizeObserver(scheduleOpening);
+  window.addEventListener('resize',scheduleOpening,{passive:true});window.addEventListener('load',scheduleOpening);window.addEventListener('pageshow',scheduleOpening);document.fonts?.ready.then(scheduleOpening);
+  document.addEventListener('load',scheduleOpening,true);
   document.addEventListener('focusin',keyboard);document.addEventListener('focusout',()=>queueMicrotask(keyboard));
   window.visualViewport?.addEventListener('resize',keyboard,{passive:true});
   window.visualViewport?.addEventListener('scroll',keyboard,{passive:true});
  }
- window.CoreAppFinish=Object.freeze({decorate});
+ window.CoreAppFinish=Object.freeze({decorate,layoutOpening:opening});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();

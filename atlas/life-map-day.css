@@ -189,6 +189,14 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-timeline-row{padding:14px;m
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-title{display:block;margin-bottom:8px}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-art{display:block;width:100%;max-width:360px;height:auto;aspect-ratio:32/19;margin:16px auto 20px;color:var(--lm-face-accent)}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-body>.lm-help{margin-top:0}
+/* The title illustration and its actions form the entire opening screen. */
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view{padding-top:12px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-heading[hidden]{display:none!important}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-rail{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature-rail>.eyebrow{font:inherit!important;letter-spacing:0!important;text-transform:none;color:inherit!important}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature.core-opening-card{display:flex;flex-direction:column;min-height:var(--core-opening-height,0px)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .core-opening-card>.lm-feature-body{display:flex;flex-direction:column;min-height:var(--core-opening-body-height,0px)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .core-opening-card .lm-feature-art{flex:1 0 112px;height:0;min-height:112px;aspect-ratio:auto}
 
 /* Carry the route card's hierarchy through tasks, routines and expanded planning. */
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-task>strong{display:block;font-size:1.3125rem;font-weight:650;line-height:1.35;letter-spacing:-.025em}

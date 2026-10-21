@@ -141,7 +141,7 @@ try{
   assert.equal(await p.locator('.ledger-value-toggle').first().getAttribute('aria-expanded'),'true','value shortcuts reveal the corresponding saved progress');
   assert.equal(await p.evaluate(()=>localStorage.getItem('lifeledger:v2')),ledgerBytes,'viewing the constellation never rewrites saved days');
   await p.locator('#ledger-nav-achievements').click();
-  if(w===393&&size===16){const collection=await p.locator('.ledger-collection-heading h2').boundingBox(),dock=await p.locator('.ledger-nav').boundingBox();assert(collection.y+collection.height<dock.y-8,'the collection heading appears on the first phone screen');}
+  if(w===393&&size===16){const collection=await p.locator('.ledger-collection-heading h2').boundingBox(),dock=await p.locator('.ledger-nav').boundingBox();const opening=await p.locator('#ledger-next-milestone').boundingBox();assert(collection.y>=opening.y+opening.height+12,'the collection follows the complete opening card');}
   await capture(p,'ledger-collection-first-screen',theme,w,size);
   await p.locator('.ledger-milestone-choices>summary').click();assert(await p.locator('#ledger-milestone-choice').isVisible());await capture(p,'ledger-milestone-choices',theme,w,size,p.locator('#ledger-next-milestone'));
   await p.locator('#ledger-next-milestone .ledger-progress-info>summary').click();await capture(p,'ledger-milestone-explanation',theme,w,size,p.locator('#ledger-next-milestone'));

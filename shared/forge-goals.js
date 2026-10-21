@@ -115,7 +115,10 @@
     const goalOpen=!!active;document.getElementById('app').classList.toggle('fg-goal-open',goalOpen);
     const app=document.getElementById('app');app.querySelector('.fg-starting-point')?.remove();
     host.innerHTML=active?detail():home();
+    if(active){const detail=host.querySelector('.fg-detail'),opening=detail?.querySelector('.fg-current-session');if(opening){const head=detail.querySelector('.fg-detail-head'),title=detail.querySelector('.fg-detail-title');if(head&&title)opening.after(head,title);}}
+
     if(!active){const prompt=host.querySelector('.fg-starting-point');if(prompt)app.querySelector('.appbar')?.after(prompt);}
+    window.CoreAppFinish?.layoutOpening?.();
   }
   function focusTitle(){document.getElementById('fg-detail-title')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
   function open(id,week,day){
