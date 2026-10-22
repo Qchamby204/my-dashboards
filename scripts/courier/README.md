@@ -10,6 +10,37 @@ Sports covers broad NFL and NHL highlights with Las Vegas Raiders and Winnipeg J
 priority, plus concise Blue Bombers/CFL and NBA news. NFL and NHL RSS inputs are rotated
 into the bounded source window so a busy hockey feed cannot crowd out football.
 
+## Opening market snapshot
+
+New editions start with Markets, before Lessons. `market_snapshot.py` constructs the spoken
+scoreboard directly from dated daily observations, before the model-written explanation.
+It covers the TSX Composite, S&P 500, Nasdaq Composite, Dow, Russell 2000, broad international
+equities through VXUS, and **DFAX, Dimensional World ex U.S. Core Equity 2 ETF**. DFAX is an
+ETF, not an index. TSX, S&P 500 and DFAX include five-session and year-to-date price changes
+when complete baselines exist; YTD starts at the last close of the previous calendar year.
+Returns exclude distributions and use listing currencies. DFAX/VXUS comparisons require
+matching observation and prior-session dates and use USD. They do not isolate factor returns.
+
+The indicator panel includes CAD/USD, oil and gold futures, VIX, Canadian two- and ten-year
+government yields, U.S. two- and ten-year Treasury yields, the 10y-minus-2y curve, and the
+U.S. high-yield option-adjusted credit spread when available. Yields and spreads move in
+basis points. Prices come from Yahoo Finance daily chart data, Canadian yields from the
+Bank of Canada Valet API, and U.S. yields/credit spreads from FRED. Yahoo's ten-year yield
+is an independent fallback when the corresponding FRED series is unavailable.
+
+All series exclude the edition date's unfinished bars, identify their observation dates,
+and omit missing/nonfinite/stale data older than four calendar days. A provider outage
+produces an explicit availability note, never a guessed figure. HTTP calls are bounded,
+parallel, and use no new secrets or dependencies. Each Markets block saves the underlying
+observations, dates, units, baseline dates, source links and unavailable series.
+
+The opening and its explanation share the Markets allocation inside the existing 30-minute
+planning cap. Markets remains present on quiet days, with space reserved for the actual
+opening word count. The writer receives the scoreboard as context and explains sourced
+drivers, mechanisms and Canadian investor relevance without repeating its numbers or
+claiming simultaneous moves prove causation. If commentary generation fails, the dated
+snapshot remains usable. Audio repairs reuse saved scripts and never refresh their figures.
+
 ## Publication
 
 An independent weekday timer wakes the workflow, with GitHub cron as a backstop. An automatic run creates an edition when that date is absent, or repairs only missing sections and missing narration in an existing edition. It then publishes audio, commits the manifest, and checks the public manifest and every advertised audio file. A failed live check requests one Pages build before bounded retries. The backstop still performs the public checks when generation is skipped; a successful first check needs no build.

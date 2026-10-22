@@ -1,0 +1,23 @@
+name: Courier safeguards
+on:
+  pull_request:
+    paths: ['scripts/courier/**', '.github/workflows/courier*.yml', 'shared/courier-status.mjs']
+  push:
+    branches: [main]
+    paths: ['scripts/courier/**', '.github/workflows/courier*.yml', 'shared/courier-status.mjs']
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install feedparser requests mutagen
+      - run: python -m unittest discover -s scripts/courier/tests
+      - run: node --test scripts/courier/tests/*.mjs

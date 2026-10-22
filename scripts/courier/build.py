@@ -969,6 +969,7 @@ def repair_sections(sections):
     day_dir = OUT / TODAY
     day_dir.mkdir(parents=True, exist_ok=True)
     minutes = budget(sources)
+    minutes.update(current.get("allocationMinutes", {}))
     repaired, failed = [], []
     newsletters_loaded = False
     # Front page is generated last so a missing summary can include newly repaired news.
@@ -1001,6 +1002,8 @@ def repair_sections(sections):
                 body, points = split_talking_points(data["script"])
                 block = make_block(slug, spec["label"], data.get("title", spec["label"]), body,
                                    points, data.get("sources", [])[:20], day_dir, current["release"])
+                if "marketSnapshot" in data:
+                    block["marketSnapshot"] = data["marketSnapshot"]
             if previous:
                 current["blocks"] = [block if b["id"] == slug else b for b in current["blocks"]]
             else:
