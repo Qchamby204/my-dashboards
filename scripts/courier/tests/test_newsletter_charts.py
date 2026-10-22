@@ -70,6 +70,18 @@ def api_response(text=None, stop="end_turn"):
 
 
 class NewsletterChartTests(unittest.TestCase):
+    def test_bounded_writing_reserves_output_for_text_and_research_uses_medium_effort(self):
+        for searches, thinking, effort in ((0, "disabled", "low"), (2, "adaptive", "medium")):
+            http = Mock()
+            http.post.return_value = api_response()
+            with patch.object(builder, "requests", http):
+                result = builder.claude("A bounded fixture", 3000, web_searches=searches)
+            body = http.post.call_args.kwargs["json"]
+            self.assertEqual(body["thinking"], {"type": thinking})
+            self.assertEqual(body["output_config"], {"effort": effort})
+            self.assertEqual(body["max_tokens"], 3000)
+            self.assertIn("SCRIPT:", result)
+
     def setUp(self):
         for name, value in {"DRY_RUN": False, "CHART_INPUTS": charts.ChartInputs(),
                             "USAGE": dict.fromkeys(builder.USAGE, 0)}.items():

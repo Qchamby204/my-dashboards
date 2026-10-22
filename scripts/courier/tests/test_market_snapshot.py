@@ -1,6 +1,7 @@
 """Financial arithmetic, provenance, budget and failure-path tests; no live or paid calls."""
 import importlib.util
 import json
+import os
 import sys
 import types
 import unittest
@@ -128,6 +129,21 @@ class CollectionTests(unittest.TestCase):
 
 
 class ProductionOpeningTests(unittest.TestCase):
+    def test_commentary_repair_reuses_saved_observations_without_fetching_prices(self):
+        row = {"symbol": "DFAX", "label": "DFAX", "provider": "Fixture", "url": "https://example.com/dfax",
+               "asOf": "2026-10-21", "kind": "price", "unit": "USD", "close": 40, "day": 1.2,
+               "dayFrom": "2026-10-20"}
+        saved = {"schemaVersion": 1, "editionDate": "2026-10-22", "observations": [row], "unavailable": []}
+        current = {"date": "2026-10-22", "generatedAt": "2026-10-22T11:00:00Z", "blocks": [
+            {"id": "markets", "script": "Original script", "audio": "old.mp3", "commentaryUnavailable": True,
+             "marketSnapshot": saved}]}
+        with patch.object(runner, "MARKET_SNAPSHOT", None), patch.object(runner, "_manifest", return_value={"days": [current]}), patch.object(builder, "TODAY", "2026-10-22"), patch.dict(os.environ, {"COURIER_SECTIONS": "markets"}), patch.object(runner, "collect_market_snapshot") as fetch:
+            result = runner.prepare_market_snapshot()
+        fetch.assert_not_called()
+        self.assertEqual(result["observations"], [row])
+        self.assertIn("1.20 percent", result["script"])
+        self.assertEqual(result["script"].count("October 21, 2026"), 1)
+
     def test_watch_close_follows_commentary_before_unspoken_points_within_shared_budget(self):
         snap = fixture_snapshot()
         url = "https://www.statcan.gc.ca/fixture-schedule"

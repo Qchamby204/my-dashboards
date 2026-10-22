@@ -20,7 +20,7 @@ from retire_frontpage import retire
 from source_health import SourceHealth, fetch_items as fetch_fresh_items
 from sports import balanced_sports_items
 from story_memory import assign_story_identity, plan_records
-from market_snapshot import collect as collect_market_snapshot, commentary_brief
+from market_snapshot import collect as collect_market_snapshot, commentary_brief, narrate
 from market_watch import render_watch
 
 _BASE_CLAUDE = courier.claude
@@ -34,7 +34,17 @@ MARKET_SNAPSHOT = None
 def prepare_market_snapshot():
     global MARKET_SNAPSHOT
     if MARKET_SNAPSHOT is None or MARKET_SNAPSHOT["editionDate"] != courier.TODAY:
-        MARKET_SNAPSHOT = collect_market_snapshot(courier.TODAY, courier.requests, courier.log)
+        current = edition(_manifest(), courier.TODAY) if os.environ.get("COURIER_SECTIONS") else None
+        previous = next((b for b in (current or {}).get("blocks", []) if b.get("id") == "markets"), {})
+        saved = previous.get("marketSnapshot") if previous.get("commentaryUnavailable") else None
+        if saved:
+            if saved.get("editionDate") != courier.TODAY or not isinstance(saved.get("observations"), list):
+                raise ValueError("Invalid saved snapshot; do not refresh figures during commentary repair")
+            MARKET_SNAPSHOT = {**saved, "script": narrate(saved), "sources": [
+                {"outlet": row["provider"], "title": row["label"] + " daily data, " + row["asOf"], "url": row["url"]}
+                for row in saved["observations"]]}
+        else:
+            MARKET_SNAPSHOT = collect_market_snapshot(courier.TODAY, courier.requests, courier.log)
     return MARKET_SNAPSHOT
 
 

@@ -41,6 +41,20 @@ drivers, mechanisms and Canadian investor relevance without repeating its number
 claiming simultaneous moves prove causation. If commentary generation fails, the dated
 snapshot remains usable. Audio repairs reuse saved scripts and never refresh their figures.
 
+Bounded writing calls explicitly disable Sonnet 5's default thinking and use low effort;
+research calls use adaptive thinking at medium effort. This preserves the existing token
+ceilings while leaving output room for the actual script. See Anthropic's
+[thinking configuration](https://platform.claude.com/docs/en/build-with-claude/thinking).
+The October 22 production run exhausted several output ceilings with no usable script,
+including Markets' writing retry and Climate; checks using mocked text responses had not
+exercised that model-default behavior.
+
+A snapshot with `commentaryUnavailable` is treated as incomplete even when its audio exists.
+The bounded repair path can replace that Markets block while retaining its saved numeric
+observations, dates and allocation; it does not fetch fresh prices. Audio-only repairs still
+reuse their saved scripts. The spoken snapshot gives its common observation date once and
+states per-series dates only where they differ. All dates remain in the underlying metadata.
+
 ### Style leadership and upcoming releases
 
 The snapshot also compares IWM with IWB (U.S. small versus large/mid-sized companies) and
