@@ -3,18 +3,19 @@
  "days": [
   {
    "date": "2026-10-22",
-   "state": "updating",
-   "checkedAt": "2026-10-22T12:24:38+00:00",
-   "verifiedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-10-22T12:28:20+00:00",
+   "verifiedAt": "2026-10-22T12:28:20+00:00",
    "generatedAt": "2026-10-22T11:26:04+00:00",
-   "updatedAt": null,
+   "updatedAt": "2026-10-22T12:26:50+00:00",
    "audio": {
-    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/markets.mp3",
+    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@dc364610d95e2a53de50ab8529ddf5b8fb673d50/2026-10-22/markets.mp3",
     "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/lessons.mp3",
     "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/companies.mp3",
     "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/practice.mp3",
     "manitoba": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/manitoba.mp3",
     "politics": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/politics.mp3",
+    "climate": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@dc364610d95e2a53de50ab8529ddf5b8fb673d50/2026-10-22/climate.mp3",
     "tech": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/tech.mp3",
     "health": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/health.mp3",
     "parenting": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/parenting.mp3",
@@ -33,10 +34,7 @@
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "markets",
-    "climate"
-   ],
+   "missingSections": [],
    "voiceless": []
   },
   {
