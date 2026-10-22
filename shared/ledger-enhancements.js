@@ -3,12 +3,8 @@
   'use strict';
   const root=document.documentElement,source=document.currentScript?.src;
   if(root.dataset.atlasApp!=='life-ledger')return;
-  let styled=false,initialized=false;
-  const reveal=()=>{if(styled&&initialized)window.AtlasLedgerStartup?.ready();};
-  const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('ledger-enhancements.css?v=1fb63da63e3c',source).href;
-  css.addEventListener('load',()=>{styled=true;reveal();});css.addEventListener('error',()=>window.AtlasLedgerStartup?.fail());document.head.append(css);
   function ready(){
-    if(window.LedgerDays||typeof state==='undefined')return;
+    if(window.AtlasLedgerEntryFailed||window.LedgerDays||typeof state==='undefined')return;
     // Requested on September 7 in Winnipeg. This is a fixed date, never a rolling tomorrow.
     const DEFAULT_SEASON={start:'2026-09-08',end:'2026-12-31'};
     const SEASONKEY='lifeledger:season:v1',DRAFTKEY='lifeledger:drafts:v1';
@@ -962,7 +958,7 @@
       const active=document.activeElement,restoreControl=active?.dataset&&['inc','dec','logmode','pillar'].includes(active.dataset.act)?{...active.dataset}:null;
       if(!rewardOpener&&(state.levelInfo||state.achvQueue?.length)){const active=document.activeElement;rewardOpener=active?.dataset?.act==='relic'?'[data-act="relic"][data-idx="'+active.dataset.idx+'"]':'[data-act="commit"]';}
       if(screenMinutes(state.draftLeisure)>=60)state.draft['Screen Discipline']=0;
-      originalRender();
+      originalRender(true);
       for(const [i,card]of [...app.querySelectorAll('.ledger-habit-card')].entries()){
         const header=make('div',null,'ledger-card-heading'),identity=make('div',null,'ledger-card-identity');
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
@@ -1058,7 +1054,7 @@
     window.addEventListener('pageshow',()=>{checkDay();render();checkRelease();});setInterval(checkDay,60000);
     setInterval(()=>{checkDay();paintLeisureClock();},1000);
     window.LedgerDays=Object.freeze({selectDate,setSeason,resetProgress,parseBackup,saveDay,remember,retry,saveRhythm,savePersonalReward,enjoyPersonalReward,personalRewardDialog,catchupDialog,goalDialog,focusDialog,get season(){return clone(season);},get drafts(){return clone(drafts);},get blocked(){return blocked;},get failed(){return failed.size;}});
-    render();initialized=true;reveal();checkRelease();if(drafts.resetPending)finishProgressReset().then(()=>render());
+    render();checkRelease();if(drafts.resetPending)finishProgressReset().then(()=>render());
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
