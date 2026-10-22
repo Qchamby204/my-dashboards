@@ -13,6 +13,8 @@
   el.innerHTML=svg(name);el.append(text);el.dataset.coreIcon=name;
  }
  function decorate(){
+  const bar=document.querySelector('.appbar'),appearance=document.querySelector('.atlas-appearance-trigger');
+  if(bar&&appearance&&!bar.contains(appearance)){bar.append(appearance);appearance.classList.remove('atlas-appearance-floating','atlas-appearance-map');}
   icon(document.querySelector('.appbar .homebtn'),'home');
   icon(document.querySelector('.appbar .atlas-appearance-trigger'),'appearance');
   icon(document.querySelector('.appbar [data-act="settings"]'),'settings');
@@ -28,12 +30,43 @@
   if(app==='workout-forge')for(const control of document.querySelectorAll('.atlas-goal-options [data-goal]'))labeledIcon(control,{bench:'plates',deadlift:'plates',run:'run',dunk:'jump'}[control.dataset.goal]||'plates');
   if(app==='communication-trainer')for(const control of document.querySelectorAll('.atlas-goal-options button'))labeledIcon(control,/clearly/i.test(control.textContent)?'speech':/confidence/i.test(control.textContent)?'confidence':'listen');
  }
+ // The lens follows the existing selected control; it never handles navigation.
+ const glassObservers=new WeakMap();let glassPrior=null;
+ const glassKey=n=>n?.id||n?.dataset.pageKey||n?.textContent.trim();
+ function glassValues(nav,v){for(const [key,value]of Object.entries(v)){const name='--core-lens-'+key,next=value.toFixed(2)+'px';if(nav.style.getPropertyValue(name)!==next)nav.style.setProperty(name,next);}}
+ function glass(nav){
+  const selected=nav.querySelector('button[aria-current="page"],button[aria-selected="true"]');
+  if(!selected||!nav.checkVisibility())return;
+  const n=nav.getBoundingClientRect(),b=selected.getBoundingClientRect();if(!b.width||!b.height)return;
+  const target={x:b.left-n.left-nav.clientLeft,y:b.top-n.top-nav.clientTop,w:b.width,h:b.height},key=glassKey(selected);
+  if(!nav.classList.contains('core-glass-nav')){
+   nav.classList.add('core-glass-nav');
+   const from=glassPrior&&glassPrior.key!==key&&Math.abs(glassPrior.width-n.width)<2?glassPrior.value:target;
+   glassValues(nav,from);nav.dataset.coreGlassReady='true';
+   // Ledger rebuilds its controls. Seed its new lens from the last visible
+   // position, including an interrupted tab transition, before retargeting.
+   if(from!==target)getComputedStyle(nav,'::before').transform;
+  }
+  glassValues(nav,target);
+  if(!glassObservers.has(nav)){
+   const observer=new MutationObserver(scheduleOpening);observer.observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-current','aria-selected','hidden']});glassObservers.set(nav,observer);
+  }
+  glassPrior={key,width:n.width,value:target};
+ }
+ function rememberLens(event){
+  const nav=event.target.closest?.('.core-glass-nav');if(!nav)return;
+  const selected=nav.querySelector('button[aria-current="page"],button[aria-selected="true"]'),style=getComputedStyle(nav,'::before');
+  if(!window.DOMMatrixReadOnly||!selected||style.transform==='none')return;
+  const m=new DOMMatrixReadOnly(style.transform),w=parseFloat(style.width),h=parseFloat(style.height);
+  if(Number.isFinite(w)&&Number.isFinite(h))glassPrior={key:glassKey(selected),width:nav.getBoundingClientRect().width,value:{x:m.m41,y:m.m42,w,h}};
+ }
  let openingQueued=false,openingResize,openingChrome=[];
  function opening(){
   openingQueued=false;
   if(root.classList.contains('core-keyboard'))return;
   const header=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!header||!nav||!nav.checkVisibility())return;
+  glass(nav);
   if(openingResize&&(openingChrome[0]!==header||openingChrome[1]!==nav)){openingResize.disconnect();openingChrome=[header,nav];for(const node of openingChrome)openingResize.observe(node);}
   // Chrome owns its measured safe-area clearance. Keeping those live CSS
   // variables avoids retaining pre-stylesheet header or dock measurements.
@@ -73,6 +106,7 @@
  }
  function ready(){
   root.classList.add('core-finished');decorate();keyboard();scheduleOpening();
+  document.addEventListener('click',rememberLens,true);
   new MutationObserver(records=>{if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1)))decorate();scheduleOpening();}).observe(document.body,{childList:true,subtree:true});
   new MutationObserver(scheduleOpening).observe(root,{attributes:true,attributeFilter:['class','style']});
   if(window.ResizeObserver)openingResize=new ResizeObserver(scheduleOpening);
