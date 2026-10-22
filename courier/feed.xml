@@ -8,16 +8,16 @@
   <itunes:block>Yes</itunes:block>
   <itunes:author>The Courier</itunes:author>
   <item>
-   <title>2026-10-22 Markets &amp; Economy: Market snapshot</title>
+   <title>2026-10-22 Markets &amp; Economy: Oil Swings, Earnings Lift Stocks, BoC Looms</title>
    <guid isPermaLink="false">courier-2026-10-22-markets</guid>
    <pubDate>Thu, 22 Oct 2026 11:26:04 +0000</pubDate>
-   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/markets.mp3" length="3502464" type="audio/mpeg"/>
-   <itunes:duration>3:39</itunes:duration>
-   <description>Market snapshot. These are the latest available daily observations before October 22, 2026, not live prices. Returns are price changes excluding distributions, in each listing's currency.
-
-S and P TSX Composite, dated October 21, 2026, up 0.60 percent versus the prior session, up 2.08 percent over five sessions, and up 14.54 percent year to date.
-
-S and P 500, dated October 21, 2026, up 0.58 perce</description>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@dc364610d95e2a53de50ab8529ddf5b8fb673d50/2026-10-22/markets.mp3" length="3964032" type="audio/mpeg"/>
+   <itunes:duration>4:08</itunes:duration>
+   <description>- Oil's pullback doesn't erase the heavy-crude discount story for energy-weighted portfolios.
+- AI earnings are driving equity gains more than any rate or inflation signal right now.
+- Treasury yields rose despite strong earnings, don't assume good news always means lower rates.
+- The loonie strengthened ahead of next week's Bank of Canada decision.
+- September inflation at 3.1 percent keeps a hold versus hike debate alive for October 28th.</description>
   </item>
   <item>
    <title>2026-10-22 Lessons: Retail and consumer: unit economics and same store sales / Individual pension plans for incorporated professionals / Feedback: giving it so it lands and receiving it without defending</title>
@@ -71,9 +71,21 @@ S and P 500, dated October 21, 2026, up 0.58 perce</description>
 - Canada is positioning for closer European Union ties even as trade tensions with the United States persist.</description>
   </item>
   <item>
+   <title>2026-10-22 Climate Policy &amp; Nonprofit Governance: CRA Charity Overhaul and Manitoba's Hydro Rate Move</title>
+   <guid isPermaLink="false">courier-2026-10-22-climate</guid>
+   <pubDate>Thu, 22 Oct 2026 11:25:58 +0000</pubDate>
+   <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@dc364610d95e2a53de50ab8529ddf5b8fb673d50/2026-10-22/climate.mp3" length="1307520" type="audio/mpeg"/>
+   <itunes:duration>1:22</itunes:duration>
+   <description>- Watch the CRA charity consultation, deadline is December 3rd.
+- Charitable sector now holds over 800 billion dollars in assets nationally.
+- Manitoba Hydro tying crypto levy revenue directly to rate relief.
+- Manitoba's wind power procurement bids close December 8th.
+- Federal auto aid package criticized for lagging EV standards.</description>
+  </item>
+  <item>
    <title>2026-10-22 AI &amp; Technology: PHP Flaw, Agentic Shopping Split, and AI Debt Doubts</title>
    <guid isPermaLink="false">courier-2026-10-22-tech</guid>
-   <pubDate>Thu, 22 Oct 2026 11:25:58 +0000</pubDate>
+   <pubDate>Thu, 22 Oct 2026 11:25:57 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/tech.mp3" length="1597824" type="audio/mpeg"/>
    <itunes:duration>1:40</itunes:duration>
    <description>- PHP powers most of the web, patch it or take it offline this week.
@@ -85,7 +97,7 @@ S and P 500, dated October 21, 2026, up 0.58 perce</description>
   <item>
    <title>2026-10-22 Health &amp; Fitness: Four Minutes, Mars Hearts, and Gambling Ads</title>
    <guid isPermaLink="false">courier-2026-10-22-health</guid>
-   <pubDate>Thu, 22 Oct 2026 11:25:57 +0000</pubDate>
+   <pubDate>Thu, 22 Oct 2026 11:25:56 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/health.mp3" length="1228032" type="audio/mpeg"/>
    <itunes:duration>1:17</itunes:duration>
    <description>- Four minutes of daily strength training improved balance and chair-stand ability in over-65s after just 12 weeks.
@@ -97,7 +109,7 @@ S and P 500, dated October 21, 2026, up 0.58 perce</description>
   <item>
    <title>2026-10-22 Parenting: Pregnancy Exercise Research, Child Benefit Numbers Updated</title>
    <guid isPermaLink="false">courier-2026-10-22-parenting</guid>
-   <pubDate>Thu, 22 Oct 2026 11:25:56 +0000</pubDate>
+   <pubDate>Thu, 22 Oct 2026 11:25:55 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/parenting.mp3" length="873600" type="audio/mpeg"/>
    <itunes:duration>0:55</itunes:duration>
    <description>- Pregnancy exercise guidelines have loosened, 150 minutes a week moderate activity remains the floor, not the ceiling.
@@ -109,7 +121,7 @@ S and P 500, dated October 21, 2026, up 0.58 perce</description>
   <item>
    <title>2026-10-22 Sports: McDavid Soars, Tkachuk Booed, NFL Reviews Hurts Case</title>
    <guid isPermaLink="false">courier-2026-10-22-sports</guid>
-   <pubDate>Thu, 22 Oct 2026 11:25:55 +0000</pubDate>
+   <pubDate>Thu, 22 Oct 2026 11:25:54 +0000</pubDate>
    <enclosure url="https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/sports.mp3" length="1313664" type="audio/mpeg"/>
    <itunes:duration>1:22</itunes:duration>
    <description>In Winnipeg, the Jets are searching for answers after going winless in three straight games, with goals hard to come by. Elsewhere in the NHL, Connor McDavid keeps rewriting the record book, with 26 points in nine games for Edmonton after adding three more assists in an overtime win, putting him on pace to challenge 100 points by Christmas. In Ottawa, former Senators captain Brady Tkachuk heard he</description>

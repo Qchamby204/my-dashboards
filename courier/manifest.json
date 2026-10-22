@@ -7,12 +7,10 @@
    "release": "courier-2026-10-22",
    "budgetMinutes": 30,
    "plannedMinutes": 30.0,
-   "projectedMinutes": 23.1,
-   "durationSeconds": 1386.0,
+   "projectedMinutes": 25.0,
+   "durationSeconds": 1496.6,
    "voiceless": [],
-   "failed": [
-    "climate"
-   ],
+   "failed": [],
    "skippedSections": [],
    "duplicateRejectedSections": [],
    "duplicateRepairs": [],
@@ -1384,11 +1382,17 @@
     {
      "id": "markets",
      "label": "Markets & Economy",
-     "title": "Market snapshot",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@ce797f2c3f5e88378223fd3a4a99a92ff65b0d0d/2026-10-22/markets.mp3",
-     "bytes": 3502464,
-     "script": "Market snapshot. These are the latest available daily observations before October 22, 2026, not live prices. Returns are price changes excluding distributions, in each listing's currency.\n\nS and P TSX Composite, dated October 21, 2026, up 0.60 percent versus the prior session, up 2.08 percent over five sessions, and up 14.54 percent year to date.\n\nS and P 500, dated October 21, 2026, up 0.58 percent versus the prior session, up 0.50 percent over five sessions, and up 13.32 percent year to date.\n\nNasdaq Composite, dated October 21, 2026, up 1.05 percent versus the prior session.\n\nDow Jones Industrial Average, dated October 21, 2026, up 0.69 percent versus the prior session.\n\nRussell 2000 small companies, dated October 21, 2026, up 0.27 percent versus the prior session.\n\nVanguard total international stock ETF, V X U S, dated October 21, 2026, up 0.31 percent versus the prior session.\n\nDimensional World ex U.S. Core Equity 2 ETF, D F A X, dated October 21, 2026, up 0.47 percent versus the prior session, up 0.36 percent over five sessions, and up 12.16 percent year to date, at a market price of 36.71 U.S. dollars.\n\nCanadian dollar, dated October 21, 2026, 0.7109 U.S. dollars per Canadian dollar, up 0.28 percent versus its prior daily observation.\n\nWest Texas oil futures, dated October 21, 2026, 97.15 U.S. dollars per barrel, down 4.56 percent versus its prior daily observation.\n\nGold futures, dated October 21, 2026, 4150.00 U.S. dollars per troy ounce, up 0.18 percent versus its prior daily observation.\n\nVIX implied volatility, dated October 21, 2026, 16.68 points, down 3.64 percent versus its prior daily observation.\n\nU.S. ten-year Treasury yield, dated October 21, 2026, 5.15 percent, up 2.9 basis points versus its prior observation.\n\nCanada two-year government yield, dated October 20, 2026, 3.32 percent, down 1.0 basis points versus its prior observation.\n\nCanada ten-year government yield, dated October 20, 2026, 3.90 percent, down 3.0 basis points versus its prior observation.\n\nStyle leadership. On October 21, 2026, U.S. small companies lagged U.S. large and mid-sized companies by 0.33 percentage points. On October 21, 2026, U.S. value stocks lagged U.S. growth stocks by 0.69 percentage points. These are U.S. ETF price comparisons, not isolated factor returns or an attribution of D F A X.\n\nD F A X led the broad international ETF proxy by 0.15 percentage points for that session, both in U.S. dollars. This is not an isolated measure of factor performance.\n\nUnavailable or stale series, omitted: U.S. two-year Treasury yield; U.S. high-yield option-adjusted credit spread.\n\nNow, the sourced developments that may help explain these moves.\n\nMarket news commentary is unavailable for this edition.\n\nWhat to watch next. No upcoming release dates were verified for this edition.",
-     "talkingPoints": [],
+     "title": "Oil Swings, Earnings Lift Stocks, BoC Looms",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@dc364610d95e2a53de50ab8529ddf5b8fb673d50/2026-10-22/markets.mp3",
+     "bytes": 3964032,
+     "script": "Market snapshot. These are the latest available daily observations before October 22, 2026, not live prices. Returns are price changes excluding distributions, in each listing's currency.\n\nFigures are as of October 21, 2026, unless another date is given.\n\nS and P TSX Composite, up 0.60 percent versus the prior day, up 2.08 percent over five days, and up 14.54 percent year to date.\n\nS and P 500, up 0.58 percent versus the prior day, up 0.50 percent over five days, and up 13.32 percent year to date.\n\nNasdaq Composite, up 1.05 percent versus the prior day.\n\nDow Jones Industrial Average, up 0.69 percent versus the prior day.\n\nRussell 2000 small companies, up 0.27 percent versus the prior day.\n\nVanguard total international stock ETF, V X U S, up 0.31 percent versus the prior day.\n\nDimensional World ex U.S. Core Equity 2 ETF, D F A X, up 0.47 percent versus the prior day, up 0.36 percent over five days, and up 12.16 percent year to date, at a market price of 36.71 U.S. dollars.\n\nCanadian dollar, 0.7109 U.S. dollars per Canadian dollar, up 0.28 percent versus its prior daily observation.\n\nWest Texas oil futures, 97.15 U.S. dollars per barrel, down 4.56 percent versus its prior daily observation.\n\nGold futures, 4150.00 U.S. dollars per troy ounce, up 0.18 percent versus its prior daily observation.\n\nVIX implied volatility, 16.68 points, down 3.64 percent versus its prior daily observation.\n\nU.S. ten-year Treasury yield, 5.15 percent, up 2.9 basis points versus its prior observation.\n\nCanada two-year government yield, dated October 20, 2026, 3.32 percent, down 1.0 basis points versus its prior observation.\n\nCanada ten-year government yield, dated October 20, 2026, 3.90 percent, down 3.0 basis points versus its prior observation.\n\nStyle leadership. U.S. small companies lagged U.S. large and mid-sized companies by 0.33 percentage points. U.S. value stocks lagged U.S. growth stocks by 0.69 percentage points. These are U.S. ETF price comparisons, not isolated factor returns or an attribution of D F A X.\n\nD F A X led the broad international ETF proxy by 0.15 percentage points for that day, both in U.S. dollars. This is not an isolated measure of factor performance.\n\nUnavailable or stale series, omitted: U.S. two-year Treasury yield; U.S. high-yield option-adjusted credit spread.\n\nNow, the sourced developments that may help explain these moves.\n\nStart with oil, because the moves don't add up at first glance. The Globe's premarket note yesterday had West Texas Intermediate advancing on Strait of Hormuz tension, after Reuters reported Iranian state media citing a tanker hitting a mine. Oil prices gained as escalating Middle East tensions fuelled fears of supply disruptions, while falling U.S. crude and product inventories lent support to the market. Yet the snapshot shows crude down sharply on the day. That reversal likely reflects profit-taking plus a separate Canadian story: Canadian heavy oil discounts have deepened on a supply glut as rising oil sands output and returning Venezuelan barrels pressure prices. For Alberta-linked holdings, that's a margin issue even when benchmark crude is volatile. Equities rallied on earnings, not macro data. Nasdaq's gain tracks strong numbers from SpaceX and Super Micro, reviving the AI trade, while Tesla posted surprise positive cash flow. Treasury yields crept higher anyway, a reminder that good earnings don't always mean lower rates.\n\nWhat to watch next. No upcoming release dates were verified for this edition.",
+     "talkingPoints": [
+      "Oil's pullback doesn't erase the heavy-crude discount story for energy-weighted portfolios.",
+      "AI earnings are driving equity gains more than any rate or inflation signal right now.",
+      "Treasury yields rose despite strong earnings, don't assume good news always means lower rates.",
+      "The loonie strengthened ahead of next week's Bank of Canada decision.",
+      "September inflation at 3.1 percent keeps a hold versus hike debate alive for October 28th."
+     ],
      "sources": [
       {
        "outlet": "Yahoo Finance",
@@ -1479,12 +1483,26 @@
        "outlet": "Bank of Canada",
        "title": "Canada ten-year government yield daily data, 2026-10-20",
        "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Before the Bell: Global markets climb on earnings optimism",
+       "url": "https://www.theglobeandmail.com/investing/markets/inside-the-market/article-before-the-bell-what-every-canadian-investor-needs-to-know-today-1586/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Canadian heavy oil discounts deepen on supply glut",
+       "url": "https://www.theglobeandmail.com/business/article-canadian-heavy-oil-discounts-deepen-on-supply-glut/"
+      },
+      {
+       "outlet": "Statistics Canada",
+       "title": "The Daily — Consumer Price Index, September 2026",
+       "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/261019/dq261019a-eng.htm"
       }
      ],
-     "words": 449,
-     "minutes": 3.6,
-     "durationSeconds": 218.9,
-     "plannedMinutes": 4.5,
+     "words": 558,
+     "minutes": 4.1,
+     "durationSeconds": 247.75,
      "marketSnapshot": {
       "schemaVersion": 1,
       "editionDate": "2026-10-22",
@@ -1772,8 +1790,7 @@
       ]
      },
      "watchNext": [],
-     "commentaryUnavailable": true,
-     "storyIds": []
+     "commentaryUnavailable": false
     },
     {
      "id": "lessons",
@@ -2205,6 +2222,51 @@
      ]
     },
     {
+     "id": "climate",
+     "label": "Climate Policy & Nonprofit Governance",
+     "title": "CRA Charity Overhaul and Manitoba's Hydro Rate Move",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@dc364610d95e2a53de50ab8529ddf5b8fb673d50/2026-10-22/climate.mp3",
+     "bytes": 1307520,
+     "script": "The biggest move today is out of Ottawa. The Department of Finance and the Canada Revenue Agency's Charities Directorate opened a consultation on modernizing the entire federal framework for registered charities, and it runs until December 3rd. They're looking at audits, penalties, and whether more information about CRA compliance action should be made public. If you sit on a nonprofit board or advise one, this is the file to watch: it could reshape how charities report and how aggressively CRA enforces the rules. For context on scale, CRA's own Charities Directorate just reported 85,348 registered charities in Canada holding 804 billion dollars in combined assets.\n\nCloser to home, Manitoba's government says it will direct revenue from a new levy on cryptocurrency mining operations toward lowering Manitoba Hydro rates, projecting about 50 dollars a year in savings per household. Manitoba Hydro, on the watch list, is also mid-procurement on up to 600 megawatts of Indigenous majority-owned wind power, with bids due December 8th.\n\nOn the business side, Ottawa and Ontario's nine billion dollar lifeline for steel, auto, and critical minerals drew pushback from Clean Energy Canada, which said delayed vehicle emission standards leave the country behind the global shift to electrification.",
+     "talkingPoints": [
+      "Watch the CRA charity consultation, deadline is December 3rd.",
+      "Charitable sector now holds over 800 billion dollars in assets nationally.",
+      "Manitoba Hydro tying crypto levy revenue directly to rate relief.",
+      "Manitoba's wind power procurement bids close December 8th.",
+      "Federal auto aid package criticized for lagging EV standards."
+     ],
+     "sources": [
+      {
+       "outlet": "Canadian Charity Law",
+       "title": "Department of Finance launches consultations on modernizing Canada's charitable sector regulatory framework",
+       "url": "https://www.canadiancharitylaw.ca/blog/department-of-finance-launches-consultations-on-modernizing-canadas-charitable-sector-regulatory-framework/"
+      },
+      {
+       "outlet": "Future of Good",
+       "title": "IB: The 2025-2026 Report on the Charities Program numbers are now out",
+       "url": "https://futureofgood.co/ib-the-2025-2026-report-on-the-charities-program-numbers-are-now-out/"
+      },
+      {
+       "outlet": "CTV News",
+       "title": "Manitoba government says it will use crypto levy to reduce hydro rates",
+       "url": "https://www.ctvnews.ca/winnipeg/article/manitoba-government-says-it-will-use-crypto-levy-to-reduce-hydro-rates/"
+      },
+      {
+       "outlet": "Manitoba Hydro",
+       "title": "Call for power: Indigenous majority-owned wind",
+       "url": "https://www.hydro.mb.ca/corporate/call-for-wind-power/"
+      },
+      {
+       "outlet": "Clean Energy Canada",
+       "title": "Government action plan rightly recognizes the global direction is toward electrification, but delayed vehicle pollution standards leave Canadians further behind",
+       "url": "https://cleanenergycanada.org/response-government-action-plan-rightly-recognizes-the-global-direction-is-toward-electrification-but-delayed-vehicle-pollution-standards-leave-canadians-further-behind/"
+      }
+     ],
+     "words": 200,
+     "minutes": 1.4,
+     "durationSeconds": 81.72
+    },
+    {
      "id": "tech",
      "label": "AI & Technology",
      "title": "PHP Flaw, Agentic Shopping Split, and AI Debt Doubts",
@@ -2476,8 +2538,19 @@
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "climate"
+   "missingSections": [],
+   "updatedAt": "2026-10-22T12:26:50+00:00",
+   "repairs": [
+    {
+     "section": "markets",
+     "at": "2026-10-22T12:26:50+00:00",
+     "audio": true
+    },
+    {
+     "section": "climate",
+     "at": "2026-10-22T12:26:50+00:00",
+     "audio": true
+    }
    ]
   },
   {
