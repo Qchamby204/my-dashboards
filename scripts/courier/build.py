@@ -299,6 +299,8 @@ def claude(prompt, max_tokens, web_searches=0, label="", chart_inputs=None):
         headers["anthropic-workspace-id"] = os.environ["ANTHROPIC_WORKSPACE_ID"]
     content = list(chart_inputs or []) + [{"type": "text", "text": prompt, "cache_control": {"type": "ephemeral"}}]
     body = {"model": CLAUDE_MODEL, "max_tokens": max_tokens,
+            "output_config": {"effort": "medium" if web_searches else "low"},
+            "thinking": {"type": "adaptive" if web_searches else "disabled"},
             "messages": [{"role": "user", "content": content}]}
     if web_searches:
         body["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": web_searches}]
@@ -319,6 +321,8 @@ def claude(prompt, max_tokens, web_searches=0, label="", chart_inputs=None):
         if r.status_code == 400 and "tools" in body and "web search" in r.text.lower():
             log("web search is not enabled for this API org; retrying without it. Enable it at platform.claude.com/settings/privacy")
             body.pop("tools")
+            body["thinking"] = {"type": "disabled"}
+            body["output_config"] = {"effort": "low"}
             continue
         if not r.ok:
             log(f"Anthropic API {r.status_code}: {r.text[:800]}")
@@ -980,10 +984,10 @@ def repair_sections(sections):
     # Front page is generated last so a missing summary can include newly repaired news.
     for slug in sorted(sections, key=lambda s: (s == "frontpage", expected.index(s))):
         previous = next((b for b in current["blocks"] if b["id"] == slug), None)
-        if previous and previous.get("audio"):
+        if previous and previous.get("audio") and not previous.get("commentaryUnavailable"):
             continue
         try:
-            if previous:
+            if previous and not previous.get("commentaryUnavailable"):
                 voiced = make_block(slug, previous["label"], previous["title"], previous["script"],
                                     previous.get("talkingPoints", []), previous.get("sources", []), day_dir, current["release"])
                 block = {**previous, "audio": voiced["audio"], "bytes": voiced["bytes"]}
@@ -1010,6 +1014,7 @@ def repair_sections(sections):
                 if "marketSnapshot" in data:
                     block["marketSnapshot"] = data["marketSnapshot"]
                     block["watchNext"] = data.get("watchNext", [])
+                    block["commentaryUnavailable"] = bool(data.get("commentaryUnavailable"))
             if previous:
                 current["blocks"] = [block if b["id"] == slug else b for b in current["blocks"]]
             else:

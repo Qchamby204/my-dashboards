@@ -204,12 +204,16 @@ def narrate(snapshot):
                 "I'll leave those numbers out and move to the sourced market news.")
     lines = ["Market snapshot. These are the latest available daily observations before " + _date_words(snapshot["editionDate"]) +
              ", not live prices. Returns are price changes excluding distributions, in each listing's currency."]
+    dates = [row["asOf"] for row in rows if row["kind"] != "style"]
+    common_date = max(set(dates), key=lambda value: (dates.count(value), value)) if dates else rows[0]["asOf"]
+    lines.append("Figures are as of " + _date_words(common_date) + ", unless another date is given.")
     for row in rows:
         if row["kind"] == "style":
             continue
         day = _date_words(row["asOf"])
+        dated = f", dated {day}" if row["asOf"] != common_date else ""
         if row["kind"] == "price":
-            line = f"{row['label']}, dated {day}"
+            line = f"{row['label']}{dated}"
             if "day" in row:
                 line += ", " + _move(row["day"]) + " versus the prior day"
             if row["symbol"] in ("^GSPTSE", "^GSPC", "DFAX"):
@@ -224,13 +228,13 @@ def narrate(snapshot):
             change = row.get("changeBps")
             suffix = (f", {'up' if change >= 0 else 'down'} {abs(change):.1f} basis points versus its prior observation"
                       if change is not None else "")
-            lines.append(f"{row['label']}, dated {day}, {row['close']:.2f} percent{suffix}.")
+            lines.append(f"{row['label']}{dated}, {row['close']:.2f} percent{suffix}.")
         else:
             value = f"{row['close']:.4f}" if row["symbol"] == "CADUSD=X" else f"{row['close']:.2f}"
             move = ", " + _move(row["day"]) + " versus its prior daily observation" if "day" in row else ""
             unit = {"USD per CAD": "U.S. dollars per Canadian dollar", "USD per barrel": "U.S. dollars per barrel",
                     "USD per troy ounce": "U.S. dollars per troy ounce"}.get(row["unit"], row["unit"])
-            lines.append(f"{row['label']}, dated {day}, {value} {unit}{move}.")
+            lines.append(f"{row['label']}{dated}, {value} {unit}{move}.")
     by_id = {row["symbol"]: row for row in rows}
     leadership = []
     for left, right, left_label, right_label in STYLE_PAIRS:
@@ -244,7 +248,8 @@ def narrate(snapshot):
                     f"{'led' if gap > 0 else 'lagged'} {right_label} by {abs(gap):.2f} percentage points")
         if abs(gap) < 0.005:
             movement += " " + right_label
-        leadership.append(f"On {_date_words(a['asOf'])}, {left_label} {movement}.")
+        dated = f"On {_date_words(a['asOf'])}, " if a["asOf"] != common_date else ""
+        leadership.append(f"{dated}{left_label} {movement}.")
     if leadership:
         lines.append("Style leadership. " + " ".join(leadership) +
                      " These are U.S. ETF price comparisons, not isolated factor returns or an attribution of D F A X.")

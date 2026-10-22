@@ -13,7 +13,7 @@ def expected_sections(day, sources=None):
 def gaps(item, expected=None):
     expected = expected or item.get("expectedSections") or expected_sections(item["date"])
     blocks = {b["id"]: b for b in item["blocks"]}
-    missing = [slug for slug in expected if slug not in blocks]
+    missing = [slug for slug in expected if slug not in blocks or blocks[slug].get("commentaryUnavailable")]
     voiceless = [slug for slug in expected if slug in blocks and not blocks[slug].get("audio")]
     return {"expectedSections": expected, "missingSections": missing, "voiceless": voiceless}
 

@@ -17,6 +17,21 @@ with patch.dict(sys.modules, {name: types.ModuleType(name) for name in ("request
 
 
 class SectionRepairTests(unittest.TestCase):
+    def test_existing_market_audio_with_missing_commentary_gets_targeted_repair(self):
+        previous = {**self.sports(), "id": "markets", "commentaryUnavailable": True}
+        self.manifest["days"][0]["blocks"].append(previous)
+        self.manifest["days"][0]["allocationMinutes"] = {"markets": 4.5}
+        self.manifest_path.write_text(json.dumps(self.manifest))
+        updated = {"title": "Market explanation", "script": "Sourced explanation.", "marketSnapshot": {"observations": []}}
+        with patch.object(builder, "fetch_newsletters", return_value={}), patch.object(builder, "fetch_items", return_value=[]), patch.object(builder, "write_script", return_value=updated) as write, patch.object(builder, "make_block", side_effect=lambda slug, *args: {**self.sports(), "id": slug}):
+            builder.repair_sections(["markets"])
+        write.assert_called_once()
+        self.assertEqual(write.call_args.args[3], 4.5)
+        day = json.loads(self.manifest_path.read_text())["days"][0]
+        repaired = next(block for block in day["blocks"] if block["id"] == "markets")
+        self.assertFalse(repaired["commentaryUnavailable"])
+        self.assertEqual(day["blocks"][1], self.block)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
