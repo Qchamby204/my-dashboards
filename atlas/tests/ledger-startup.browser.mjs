@@ -24,7 +24,7 @@ async function verify(p,view,raw=true){
 }
 try{
  for(const theme of ['light','dark'])for(const scenario of ['slow-script','slow-style','slow-image','levels-link','script-failure','style-failure']){
-  const ctx=await browser.newContext({viewport:{width:393,height:852},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg'}),p=await ctx.newPage();p.setDefaultTimeout(15000);let failing=scenario.endsWith('failure'),releaseDelay;const delayed=new Promise(resolve=>releaseDelay=resolve);
+  const ctx=await browser.newContext({viewport:{width:393,height:852},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg'}),p=await ctx.newPage();p.setDefaultTimeout(15000);let failing=scenario.endsWith('failure'),releaseDelay;const requests=[];p.on('request',req=>{if(req.url().includes('ledger-enhancements')||req.isNavigationRequest())requests.push(req.url());});const delayed=new Promise(resolve=>releaseDelay=resolve);
   await ctx.addInitScript(values=>{
    Object.defineProperty(navigator,'standalone',{value:true,configurable:true});for(const [key,value]of Object.entries(values))if(localStorage.getItem(key)===null)localStorage.setItem(key,value);
    window.ledgerLaunchFrames=[];
@@ -67,7 +67,7 @@ try{
     await p.reload({waitUntil:'domcontentloaded'});await verify(p,'today',false);
    }
    reports.push({theme,scenario,passed:true,frames:await p.evaluate(()=>window.ledgerLaunchFrames)});
-  }catch(e){releaseDelay();reports.push({theme,scenario,error:e.message,frames:await p.evaluate(()=>window.ledgerLaunchFrames)});await p.screenshot({path:path.join(out,`startup-${scenario}-${theme}-error.png`)});}finally{releaseDelay();await ctx.close();}
+  }catch(e){releaseDelay();reports.push({theme,scenario,error:e.message,requests,entry:await p.evaluate(()=>({failed:window.AtlasLedgerEntryFailed,ready:!!window.LedgerDays,state:document.readyState})),frames:await p.evaluate(()=>window.ledgerLaunchFrames)});await p.screenshot({path:path.join(out,`startup-${scenario}-${theme}-error.png`)});}finally{releaseDelay();await ctx.close();}
  }
  const failures=reports.filter(r=>r.error);console.log(JSON.stringify({engine,cases:reports.length,failures}));assert.equal(failures.length,0,'Ledger cold launch reveals one current section and recovers failed assets');
 }finally{writeFileSync(path.join(out,'ledger-startup-report.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
