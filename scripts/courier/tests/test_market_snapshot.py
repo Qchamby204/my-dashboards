@@ -124,7 +124,7 @@ class CollectionTests(unittest.TestCase):
                  "dayFrom": baseline, "day": 1, "close": 100}
                 for symbol, baseline in (("DFAX", "2026-10-19"), ("VXUS", "2026-10-16"))]
         text = market.narrate({"editionDate": "2026-10-21", "observations": rows, "unavailable": []})
-        self.assertNotIn("percentage points for that session", text)
+        self.assertNotIn("percentage points for that day", text)
 
 
 class ProductionOpeningTests(unittest.TestCase):

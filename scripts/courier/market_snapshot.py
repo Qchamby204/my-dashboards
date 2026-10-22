@@ -211,10 +211,10 @@ def narrate(snapshot):
         if row["kind"] == "price":
             line = f"{row['label']}, dated {day}"
             if "day" in row:
-                line += ", " + _move(row["day"]) + " versus the prior session"
+                line += ", " + _move(row["day"]) + " versus the prior day"
             if row["symbol"] in ("^GSPTSE", "^GSPC", "DFAX"):
                 if "fiveSessions" in row:
-                    line += ", " + _move(row["fiveSessions"]) + " over five sessions"
+                    line += ", " + _move(row["fiveSessions"]) + " over five days"
                 if "ytd" in row:
                     line += ", and " + _move(row["ytd"]) + " year to date"
             if row["symbol"] == "DFAX":
@@ -252,7 +252,7 @@ def narrate(snapshot):
     if a and b and a.get("dayFrom") and (a["asOf"], a["dayFrom"]) == (b["asOf"], b.get("dayFrom")):
         gap = a["day"] - b["day"]
         lines.append(f"D F A X {'led' if gap >= 0 else 'lagged'} the broad international ETF proxy by "
-                     f"{abs(gap):.2f} percentage points for that session, both in U.S. dollars. "
+                     f"{abs(gap):.2f} percentage points for that day, both in U.S. dollars. "
                      "This is not an isolated measure of factor performance.")
     two, ten = by_id.get("DGS2"), by_id.get("DGS10") or by_id.get("^TNX")
     if two and ten and two["asOf"] == ten["asOf"]:

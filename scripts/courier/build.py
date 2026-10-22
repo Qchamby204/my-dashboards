@@ -140,6 +140,7 @@ Voice and style rules, all firm:
 - Never use an em dash or en dash anywhere. Use commas, periods, or colons.
 - Do not open with a summary of what you are about to cover. Start with the biggest story.
 - Numbers matter: give the figure, the direction, and what it compares to.
+- For market trading periods, say "day" and "days" instead of "session" and "sessions".
 - Attribute claims to outlets by name in the spoken text ("the Globe reports", "per TSN").
 - Avoid the tells of machine writing: no "it's worth noting", no "in the ever-evolving", no
   "landscape", no triplets for rhythm, no rhetorical questions, no tidy moral at the end.
