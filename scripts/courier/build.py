@@ -613,7 +613,8 @@ def write_script(category, spec, items, minutes, block_plan=None):
         return {"title": f"{spec['label']} (dry run)", "script": "Dry run. " * (words // 2) + "\n\nTalking points\n- none",
                 "sources": [{"outlet": i["outlet"], "title": i["title"], "url": i["url"]} for i in items[:5]]}
     own_rules = ownership_rules(block_plan)
-    response_format = FORMAT_SCRIPT + (MARKET_WATCH_FORMAT if category == "markets" else "")
+    response_format = (FORMAT_SCRIPT.replace("these three labels", "these four labels") + MARKET_WATCH_FORMAT
+                       if category == "markets" else FORMAT_SCRIPT)
     response_fields = ("TITLE", "SCRIPT", "SOURCES", "WATCH_NEXT") if category == "markets" else ("TITLE", "SCRIPT", "SOURCES")
 
     feed_text = "\n".join(
