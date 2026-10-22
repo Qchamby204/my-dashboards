@@ -54,7 +54,7 @@ def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=30, lessons
         caps[slug] = base + _EXTRA_CAP.get(slug, 1.0)
         floor = _CORE_FLOOR.get(slug, 0.75)
         if slug == "markets" and market_opening_minutes > 0:
-            floor = max(floor, market_opening_minutes + 1.0)
+            floor = max(floor, market_opening_minutes + 1.5)
             caps[slug] = max(caps[slug], floor)
         allocation[slug] = min(floor, caps[slug])
 
@@ -86,7 +86,7 @@ def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=30, lessons
         allocation[slug] = _round_half(allocation[slug]) if allocation[slug] >= 0.5 else 0.0
 
     # Rounding must not take time reserved for the numeric opening and explanation.
-    market_floor = math.ceil((market_opening_minutes + 0.5) * 2) / 2 if market_opening_minutes else 0
+    market_floor = math.ceil((market_opening_minutes + 1.0) * 2) / 2 if market_opening_minutes else 0
     if market_floor and "markets" in allocation:
         allocation["markets"] = max(allocation["markets"], min(market_floor, available))
 

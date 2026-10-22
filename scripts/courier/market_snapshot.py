@@ -23,6 +23,14 @@ INDICATORS = (
     ("GC=F", "Gold futures", "USD per troy ounce"),
     ("^VIX", "VIX implied volatility", "points"),
 )
+STYLE_PROXIES = (
+    ("IWM", "iShares Russell 2000 ETF", "USD"),
+    ("IWB", "iShares Russell 1000 ETF", "USD"),
+    ("IWD", "iShares Russell 1000 Value ETF", "USD"),
+    ("IWF", "iShares Russell 1000 Growth ETF", "USD"),
+)
+STYLE_PAIRS = (("IWM", "IWB", "U.S. small companies", "U.S. large and mid-sized companies"),
+               ("IWD", "IWF", "U.S. value stocks", "U.S. growth stocks"))
 FED = {"DGS2": "U.S. two-year Treasury yield", "DGS10": "U.S. ten-year Treasury yield",
        "BAMLH0A0HYM2": "U.S. high-yield option-adjusted credit spread"}
 CANADA = {"BD.CDN.2YR.DQ.YLD": "Canada two-year government yield",
@@ -112,6 +120,7 @@ def collect(edition_date, http, log=lambda message: None):
     result = {"schemaVersion": 1, "editionDate": edition_date, "observations": [], "unavailable": []}
     jobs = [(symbol, label, currency, "price") for symbol, label, currency in PRICES]
     jobs += [(symbol, label, unit, "indicator") for symbol, label, unit in INDICATORS]
+    jobs += [(symbol, label, currency, "style") for symbol, label, currency in STYLE_PROXIES]
     jobs.append(("^TNX", FED["DGS10"], "percent", "rate"))
 
     def fetch(job):
@@ -119,7 +128,7 @@ def collect(edition_date, http, log=lambda message: None):
         try:
             values = _chart(http, symbol, edition_date)
             currency = values.pop("currency", None)
-            if kind == "price" and currency != unit:
+            if kind in ("price", "style") and currency != unit:
                 raise ValueError("Quote currency mismatch")
             if kind == "rate":
                 if "day" in values:
@@ -196,6 +205,8 @@ def narrate(snapshot):
     lines = ["Market snapshot. These are the latest available daily observations before " + _date_words(snapshot["editionDate"]) +
              ", not live prices. Returns are price changes excluding distributions, in each listing's currency."]
     for row in rows:
+        if row["kind"] == "style":
+            continue
         day = _date_words(row["asOf"])
         if row["kind"] == "price":
             line = f"{row['label']}, dated {day}"
@@ -221,6 +232,22 @@ def narrate(snapshot):
                     "USD per troy ounce": "U.S. dollars per troy ounce"}.get(row["unit"], row["unit"])
             lines.append(f"{row['label']}, dated {day}, {value} {unit}{move}.")
     by_id = {row["symbol"]: row for row in rows}
+    leadership = []
+    for left, right, left_label, right_label in STYLE_PAIRS:
+        a, b = by_id.get(left), by_id.get(right)
+        if not a or not b or "day" not in a or "day" not in b or not a.get("dayFrom"):
+            continue
+        if (a["asOf"], a["dayFrom"]) != (b["asOf"], b.get("dayFrom")):
+            continue
+        gap = a["day"] - b["day"]
+        movement = ("essentially matched" if abs(gap) < 0.005 else
+                    f"{'led' if gap > 0 else 'lagged'} {right_label} by {abs(gap):.2f} percentage points")
+        if abs(gap) < 0.005:
+            movement += " " + right_label
+        leadership.append(f"On {_date_words(a['asOf'])}, {left_label} {movement}.")
+    if leadership:
+        lines.append("Style leadership. " + " ".join(leadership) +
+                     " These are U.S. ETF price comparisons, not isolated factor returns or an attribution of D F A X.")
     a, b = by_id.get("DFAX"), by_id.get("VXUS")
     if a and b and a.get("dayFrom") and (a["asOf"], a["dayFrom"]) == (b["asOf"], b.get("dayFrom")):
         gap = a["day"] - b["day"]

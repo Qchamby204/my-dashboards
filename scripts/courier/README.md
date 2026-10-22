@@ -41,6 +41,31 @@ drivers, mechanisms and Canadian investor relevance without repeating its number
 claiming simultaneous moves prove causation. If commentary generation fails, the dated
 snapshot remains usable. Audio repairs reuse saved scripts and never refresh their figures.
 
+### Style leadership and upcoming releases
+
+The snapshot also compares IWM with IWB (U.S. small versus large/mid-sized companies) and
+IWD with IWF (Russell 1000 value versus growth). These are USD ETF **price-return proxies**,
+not isolated research factors, and do not attribute DFAX's international return. Comparisons
+require identical observation dates and prior-session dates, and give the difference in
+percentage points. The underlying ETF figures remain in the snapshot metadata and sources.
+Product identities follow the issuer's [IWM](https://www.ishares.com/us/products/239710/ishares-russell-2000-etf),
+[IWB](https://www.ishares.com/us/products/239707/ishares-russell-1000-etf),
+[IWD](https://www.ishares.com/us/products/239708/ishares-russell-1000-value-etf) and
+[IWF](https://www.ishares.com/us/products/239706/ishares-russell-1000-growth-etf) descriptions.
+
+A separate `WATCH_NEXT` response field supplies up to two upcoming economic releases or
+central-bank decisions and why they matter. This uses the existing research call and search
+budget. `market_watch.py` checks structure, the next-seven-days window, source citations and
+official BoC/StatCan/Fed/BLS/BEA domains, then builds a maximum 70-word close. Same-day releases
+need a verified time and timezone, and already-released entries are rejected. Invalid or
+unverified entries produce an explicit availability note. These checks validate the writer's
+supplied evidence and timing; they do not independently retrieve the linked release calendar.
+
+The Markets allocation reserves half a minute for this close before sizing the commentary.
+The close plays after the commentary and before the unspoken talking points, inside the
+existing total budget. Accepted release entries persist as `watchNext`. Markets preserves
+all snapshot and commentary/calendar citations rather than clipping them at twenty sources.
+
 ## Publication
 
 An independent weekday timer wakes the workflow, with GitHub cron as a backstop. An automatic run creates an edition when that date is absent, or repairs only missing sections and missing narration in an existing edition. It then publishes audio, commits the manifest, and checks the public manifest and every advertised audio file. A failed live check requests one Pages build before bounded retries. The backstop still performs the public checks when generation is skipped; a successful first check needs no build.
