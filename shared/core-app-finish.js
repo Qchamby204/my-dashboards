@@ -13,6 +13,8 @@
   el.innerHTML=svg(name);el.append(text);el.dataset.coreIcon=name;
  }
  function decorate(){
+  const bar=document.querySelector('.appbar'),appearance=document.querySelector('.atlas-appearance-trigger');
+  if(bar&&appearance&&!bar.contains(appearance)){bar.append(appearance);appearance.classList.remove('atlas-appearance-floating','atlas-appearance-map');}
   icon(document.querySelector('.appbar .homebtn'),'home');
   icon(document.querySelector('.appbar .atlas-appearance-trigger'),'appearance');
   icon(document.querySelector('.appbar [data-act="settings"]'),'settings');

@@ -129,3 +129,10 @@ html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer
 }
 @media(prefers-contrast:more){html.atlas-neumo.atlas-neumo.core-finished.atlas-page-navigation :is(#atlas-page-navigation,.atlas-page-native,.ledger-save-row){border:2px solid currentColor!important}html.core-finished .core-glass-nav::before{box-shadow:inset 0 0 0 2px currentColor!important}}
 @media(forced-colors:active){html.core-finished .core-glass-nav::before{background:Highlight!important;forced-color-adjust:none}html.atlas-neumo.atlas-neumo.core-finished.atlas-page-navigation .core-glass-nav>button:is([aria-current="page"],[aria-selected="true"]){color:HighlightText!important;forced-color-adjust:none}}
+
+/* Save status keeps its existing wording, with a quiet non-animated state marker. */
+html.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #ledger-draft-status[data-save-state]:not([data-save-state="empty"])::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;margin-inline-end:8px;vertical-align:middle;background:var(--neo-accent)}
+html.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #ledger-draft-status[data-save-state="saved"]::before{background:var(--neo-green)}
+html.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #ledger-draft-status[data-save-state="error"]::before{background:var(--neo-rose)}
+html.atlas-neumo.core-finished[data-atlas-app="life-ledger"] #ledger-draft-status[data-save-state="saving"]::before{background:var(--neo-muted)}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-completed-recap li{border-color:color-mix(in srgb,var(--neo-green) 28%,var(--neo-line));background:color-mix(in srgb,var(--neo-green) 5%,var(--neo-content-surface))}
