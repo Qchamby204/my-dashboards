@@ -21,6 +21,7 @@ from source_health import SourceHealth, fetch_items as fetch_fresh_items
 from sports import balanced_sports_items
 from story_memory import assign_story_identity, plan_records
 from market_snapshot import collect as collect_market_snapshot, commentary_brief
+from market_watch import render_watch
 
 _BASE_CLAUDE = courier.claude
 _BASE_MAKE_BLOCK = courier.make_block
@@ -45,18 +46,27 @@ def write_script_with_snapshot(category, spec, items, minutes, block_plan=None):
     remaining = minutes - len(opening.split()) / courier.WPM
     if remaining < 0:
         raise ValueError("Market snapshot exceeds its allocated slot")
-    if remaining >= 0.5:
+    if remaining >= 1.0:
         news_spec = {**spec, "brief": spec["brief"] + "\n\n" + commentary_brief(snapshot)}
+        news_spec["brief"] += ("\nReserve one of the existing web searches for the original upcoming-release "
+                               "calendars unless dates are already verified in supplied sources. "
+                               "Fill WATCH_NEXT separately from the commentary. Its half-minute budget is already reserved.")
         try:
-            data = _BASE_WRITE_SCRIPT(category, news_spec, items, remaining, block_plan)
+            data = _BASE_WRITE_SCRIPT(category, news_spec, items, remaining - 0.5, block_plan)
         except Exception as error:
             courier.log(f"market commentary unavailable; keeping dated snapshot ({type(error).__name__})")
             data = {"title": "Market snapshot", "script": "Market news commentary is unavailable for this edition.",
                     "sources": [], "commentaryUnavailable": True}
     else:
         data = {"title": "Market snapshot", "script": "", "sources": []}
-    return {**data, "script": opening + "\n\n" + data["script"],
+    watch, events = render_watch(data.get("watch_next"), courier.TODAY, data.get("sources", []))
+    body, points = courier.split_talking_points(data["script"])
+    tail = data["script"][len(body):] if body else ""
+    # Existing small-slot repairs may only have room for their original opening.
+    close = "\n\n" + watch if len((body + " " + watch).split()) <= int(remaining * courier.WPM) else ""
+    return {**data, "script": opening + "\n\n" + body + close + tail,
             "sources": snapshot["sources"] + data.get("sources", []),
+            "watchNext": events,
             "marketSnapshot": {k: v for k, v in snapshot.items() if k not in ("script", "sources")}}
 
 
@@ -332,11 +342,12 @@ def normal_main():
         try:
             block = measured_block(
                 slug, spec["label"], draft["data"].get("title", spec["label"]), draft["body"],
-                draft["points"], draft["data"].get("sources", [])[:20], day_dir, release,
+                draft["points"], draft["data"].get("sources", []) if slug == "markets" else draft["data"].get("sources", [])[:20], day_dir, release,
             )
             block["plannedMinutes"] = draft["minutes"]
             if "marketSnapshot" in draft["data"]:
                 block["marketSnapshot"] = draft["data"]["marketSnapshot"]
+                block["watchNext"] = draft["data"].get("watchNext", [])
                 if draft["data"].get("commentaryUnavailable"):
                     block["commentaryUnavailable"] = True
             block["storyIds"] = [s.get("storyId") for s in story_plan.get(slug, {}).get("owns", []) if s.get("storyId")]

@@ -36,6 +36,7 @@ from recovery import build_date
 from publication import edition
 from completeness import expected_sections, gaps
 from sports import balanced_sports_items
+from market_watch import FORMAT as MARKET_WATCH_FORMAT
 from newsletter_charts import CHART_SENDER, CHART_RULES, ChartInputs, chart_marker, chart_image_tag
 
 import feedparser
@@ -612,6 +613,8 @@ def write_script(category, spec, items, minutes, block_plan=None):
         return {"title": f"{spec['label']} (dry run)", "script": "Dry run. " * (words // 2) + "\n\nTalking points\n- none",
                 "sources": [{"outlet": i["outlet"], "title": i["title"], "url": i["url"]} for i in items[:5]]}
     own_rules = ownership_rules(block_plan)
+    response_format = FORMAT_SCRIPT + (MARKET_WATCH_FORMAT if category == "markets" else "")
+    response_fields = ("TITLE", "SCRIPT", "SOURCES", "WATCH_NEXT") if category == "markets" else ("TITLE", "SCRIPT", "SOURCES")
 
     feed_text = "\n".join(
         f"- [{i['outlet']}] {i['title']} :: {i['summary']} ({i['url']})" for i in items[:FEED_ITEMS]
@@ -649,7 +652,7 @@ it means for the company. Never re-explain an event another block owns.
 Feed items:
 {feed_text}
 
-{FORMAT_SCRIPT}"""
+{response_format}"""
     else:
         prompt = f"""Today is {TODAY}. Write today's {minutes} minute spoken briefing for the category
 "{spec['label']}" for a wealth advisor in Winnipeg who wants to be informed and have talking
@@ -668,12 +671,12 @@ Prefer original and reputable sources. Skip anything you cannot attribute.
 Feed items:
 {feed_text}
 
-{FORMAT_SCRIPT}"""
+{response_format}"""
 
     try:
         data = parse_fields(claude(prompt, 12000, web_searches=SEARCHES_PER_BLOCK, label=category,
                                    chart_inputs=chart_inputs),
-                            "TITLE", "SCRIPT", "SOURCES")
+                            *response_fields)
     except ValueError:
         # Search can consume the entire response budget before any script is
         # returned. Retry writing once from the already collected source material.
@@ -695,10 +698,10 @@ Scope: {spec['brief']}
 {feed_text}
 </source_material>
 
-{FORMAT_SCRIPT}"""
+{response_format}"""
         data = parse_fields(claude(retry_prompt, 6000, web_searches=0, label=category + " writing retry",
                                    chart_inputs=chart_inputs),
-                            "TITLE", "SCRIPT", "SOURCES")
+                            *response_fields)
     return enforce_length(data, minutes, label=category)
 
 
@@ -1001,9 +1004,10 @@ def repair_sections(sections):
                 data = write_script(slug, spec, fetch_items(spec["feeds"]), minutes[slug])
                 body, points = split_talking_points(data["script"])
                 block = make_block(slug, spec["label"], data.get("title", spec["label"]), body,
-                                   points, data.get("sources", [])[:20], day_dir, current["release"])
+                                   points, data.get("sources", []) if slug == "markets" else data.get("sources", [])[:20], day_dir, current["release"])
                 if "marketSnapshot" in data:
                     block["marketSnapshot"] = data["marketSnapshot"]
+                    block["watchNext"] = data.get("watchNext", [])
             if previous:
                 current["blocks"] = [block if b["id"] == slug else b for b in current["blocks"]]
             else:

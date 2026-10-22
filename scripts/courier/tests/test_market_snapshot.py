@@ -1,9 +1,11 @@
 """Financial arithmetic, provenance, budget and failure-path tests; no live or paid calls."""
 import importlib.util
+import json
 import sys
 import types
 import unittest
 from pathlib import Path
+from datetime import datetime
 from unittest.mock import Mock, patch
 
 HERE = Path(__file__).resolve().parents[1]
@@ -11,6 +13,8 @@ sys.path.insert(0, str(HERE))
 import market_snapshot as market
 from allocation import adaptive_minutes
 from completeness import expected_sections
+from market_watch import EMPTY
+from market_watch import render_watch
 
 with patch.dict(sys.modules, {name: types.ModuleType(name) for name in ("requests", "feedparser")}):
     spec = importlib.util.spec_from_file_location("market_builder_test", HERE / "build.py")
@@ -124,12 +128,35 @@ class CollectionTests(unittest.TestCase):
 
 
 class ProductionOpeningTests(unittest.TestCase):
+    def test_watch_close_follows_commentary_before_unspoken_points_within_shared_budget(self):
+        snap = fixture_snapshot()
+        url = "https://www.statcan.gc.ca/fixture-schedule"
+        event = {"name": "Fixture release", "date": "2026-10-22", "why": "It informs the inflation outlook.", "source": url}
+        sources = [{"url": url, "outlet": "Statistics Canada", "title": "Fixture"}]
+        calls = []
+        def write(category, spec, items, minutes, block_plan):
+            calls.append(minutes)
+            return {"title": "Fixture", "script": "word " * builder.words_for(minutes) + "\n\nTalking points\n- Unspoken point",
+                    "sources": sources, "watch_next": json.dumps([event])}
+        def frozen_watch(raw, day, citations):
+            return render_watch(raw, day, citations, now=datetime.fromisoformat("2026-10-21T10:17:00Z"))
+        with patch.object(runner, "prepare_market_snapshot", return_value=snap), patch.object(runner, "_BASE_WRITE_SCRIPT", side_effect=write), patch.object(runner, "render_watch", side_effect=frozen_watch), patch.object(builder, "DRY_RUN", False), patch.object(builder, "TODAY", "2026-10-21"):
+            result = runner.write_script_with_snapshot("markets", {"brief": "Markets"}, [], 4)
+        body, points = builder.split_talking_points(result["script"])
+        self.assertTrue(body.startswith(snap["script"]))
+        self.assertIn("What to watch next.", body)
+        self.assertTrue(body.endswith(event["why"]))
+        self.assertLessEqual(len(body.split()), builder.words_for(4))
+        self.assertEqual(points, ["Unspoken point"])
+        self.assertEqual(result["watchNext"], [event])
+        self.assertLess(calls[0], 3.5)
+
     def test_numeric_opening_is_prepended_verbatim_and_budget_is_shared_with_commentary(self):
         snap = fixture_snapshot()
         news = {"title": "Rates", "script": "Attributed market explanation.", "sources": []}
         with patch.object(runner, "prepare_market_snapshot", return_value=snap), patch.object(runner, "_BASE_WRITE_SCRIPT", return_value=news) as writing, patch.object(builder, "DRY_RUN", False):
             result = runner.write_script_with_snapshot("markets", {"brief": "Markets"}, [], 4)
-        self.assertEqual(result["script"], snap["script"] + "\n\n" + news["script"])
+        self.assertEqual(result["script"], snap["script"] + "\n\n" + news["script"] + "\n\n" + EMPTY)
         self.assertLess(writing.call_args.args[3], 4)
         self.assertIn("simultaneous moves do not prove causation", writing.call_args.args[1]["brief"])
         self.assertEqual(result["marketSnapshot"]["observations"], snap["observations"])
