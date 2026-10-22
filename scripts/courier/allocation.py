@@ -1,4 +1,5 @@
 """Adaptive section-length allocation for The Courier."""
+import math
 
 _DEFAULT = {
     "markets": 8, "practice": 7, "companies": 7, "manitoba": 5, "politics": 5,
@@ -32,12 +33,15 @@ def activity_scores(sources, plan, items_by_block):
     return scores
 
 
-def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=30, lessons_minutes=8, weekday=True):
+def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=30, lessons_minutes=8, weekday=True,
+                     market_opening_minutes=0):
     """Allocate time toward useful sections and allow quiet sections to disappear.
 
     Returns (minutes_by_section, skipped_sections, scores). Values are half-minute increments.
     """
     scores = activity_scores(sources, plan, items_by_block)
+    if market_opening_minutes > 0 and "markets" in sources:
+        scores["markets"] = max(0.75, scores.get("markets", 0))
     available = max(0.0, float(total_minutes) - (float(lessons_minutes) if weekday else 0.0))
     active = [slug for slug in sources if scores.get(slug, 0) >= 0.75]
     if not active:
@@ -49,6 +53,9 @@ def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=30, lessons
         base = float(sources[slug].get("minutes", _DEFAULT.get(slug, 4)))
         caps[slug] = base + _EXTRA_CAP.get(slug, 1.0)
         floor = _CORE_FLOOR.get(slug, 0.75)
+        if slug == "markets" and market_opening_minutes > 0:
+            floor = max(floor, market_opening_minutes + 1.0)
+            caps[slug] = max(caps[slug], floor)
         allocation[slug] = min(floor, caps[slug])
 
     # If floors exceed the budget, scale them down rather than forcing filler elsewhere.
@@ -78,9 +85,15 @@ def adaptive_minutes(sources, plan, items_by_block, *, total_minutes=30, lessons
     for slug in allocation:
         allocation[slug] = _round_half(allocation[slug]) if allocation[slug] >= 0.5 else 0.0
 
+    # Rounding must not take time reserved for the numeric opening and explanation.
+    market_floor = math.ceil((market_opening_minutes + 0.5) * 2) / 2 if market_opening_minutes else 0
+    if market_floor and "markets" in allocation:
+        allocation["markets"] = max(allocation["markets"], min(market_floor, available))
+
     # Rounding can push us slightly over the cap; trim lowest-value sections first.
     while sum(allocation.values()) > available + 0.01:
-        candidates = [slug for slug, minutes in allocation.items() if minutes >= 1.0]
+        candidates = [slug for slug, minutes in allocation.items() if minutes >= 1.0
+                      and (slug != "markets" or minutes - 0.5 >= market_floor)]
         if not candidates:
             break
         slug = min(candidates, key=lambda s: (scores.get(s, 0), allocation[s]))

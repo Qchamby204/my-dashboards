@@ -20,11 +20,44 @@ from retire_frontpage import retire
 from source_health import SourceHealth, fetch_items as fetch_fresh_items
 from sports import balanced_sports_items
 from story_memory import assign_story_identity, plan_records
+from market_snapshot import collect as collect_market_snapshot, commentary_brief
 
 _BASE_CLAUDE = courier.claude
 _BASE_MAKE_BLOCK = courier.make_block
 _BASE_NEWSLETTERS = courier.fetch_newsletters
+_BASE_WRITE_SCRIPT = courier.write_script
 HEALTH = SourceHealth()
+MARKET_SNAPSHOT = None
+
+
+def prepare_market_snapshot():
+    global MARKET_SNAPSHOT
+    if MARKET_SNAPSHOT is None or MARKET_SNAPSHOT["editionDate"] != courier.TODAY:
+        MARKET_SNAPSHOT = collect_market_snapshot(courier.TODAY, courier.requests, courier.log)
+    return MARKET_SNAPSHOT
+
+
+def write_script_with_snapshot(category, spec, items, minutes, block_plan=None):
+    if category != "markets" or courier.DRY_RUN:
+        return _BASE_WRITE_SCRIPT(category, spec, items, minutes, block_plan)
+    snapshot = prepare_market_snapshot()
+    opening = snapshot["script"]
+    remaining = minutes - len(opening.split()) / courier.WPM
+    if remaining < 0:
+        raise ValueError("Market snapshot exceeds its allocated slot")
+    if remaining >= 0.5:
+        news_spec = {**spec, "brief": spec["brief"] + "\n\n" + commentary_brief(snapshot)}
+        try:
+            data = _BASE_WRITE_SCRIPT(category, news_spec, items, remaining, block_plan)
+        except Exception as error:
+            courier.log(f"market commentary unavailable; keeping dated snapshot ({type(error).__name__})")
+            data = {"title": "Market snapshot", "script": "Market news commentary is unavailable for this edition.",
+                    "sources": [], "commentaryUnavailable": True}
+    else:
+        data = {"title": "Market snapshot", "script": "", "sources": []}
+    return {**data, "script": opening + "\n\n" + data["script"],
+            "sources": snapshot["sources"] + data.get("sources", []),
+            "marketSnapshot": {k: v for k, v in snapshot.items() if k not in ("script", "sources")}}
 
 
 def _manifest():
@@ -125,6 +158,7 @@ def _configure_shared_patches():
     courier.make_block = measured_block
     courier.write_feed = measured_feed
     courier.FRONT_MINUTES = 0
+    courier.write_script = write_script_with_snapshot
 
 
 def refresh_repair_metadata():
@@ -195,6 +229,7 @@ def normal_main():
     retire(courier.MANIFEST, courier.MANIFEST.parent / "feed.xml")
 
     sources = json.loads((courier.HERE / "sources.json").read_text())
+    snapshot = prepare_market_snapshot() if "markets" in sources and not courier.DRY_RUN else None
     manifest_before = _manifest()
     history = recent_events(manifest_before, courier.TODAY)
 
@@ -224,6 +259,7 @@ def normal_main():
         total_minutes=courier.TOTAL_MINUTES,
         lessons_minutes=courier.LESSONS_MINUTES,
         weekday=weekday,
+        market_opening_minutes=(len(snapshot["script"].split()) / courier.WPM if snapshot else 0),
     )
     courier.log(
         "adaptive time budget: " + ", ".join(
@@ -299,6 +335,10 @@ def normal_main():
                 draft["points"], draft["data"].get("sources", [])[:20], day_dir, release,
             )
             block["plannedMinutes"] = draft["minutes"]
+            if "marketSnapshot" in draft["data"]:
+                block["marketSnapshot"] = draft["data"]["marketSnapshot"]
+                if draft["data"].get("commentaryUnavailable"):
+                    block["commentaryUnavailable"] = True
             block["storyIds"] = [s.get("storyId") for s in story_plan.get(slug, {}).get("owns", []) if s.get("storyId")]
             courier.log(f"== {spec['label']} done, {block['minutes']} min measured")
             return block
@@ -332,7 +372,7 @@ def normal_main():
             )
             block["lessons"] = lessons
             block["plannedMinutes"] = courier.LESSONS_MINUTES
-            blocks.insert(0, block)
+            blocks.insert(1 if blocks and blocks[0]["id"] == "markets" else 0, block)
 
     if not blocks:
         raise RuntimeError("Courier produced no usable blocks")
@@ -345,7 +385,8 @@ def normal_main():
         allocation=allocation, scores=scores,
     )
 
-    expected = (["lessons"] if weekday else []) + [slug for slug in sources if slug not in skipped_final]
+    expected = (["markets"] if "markets" in sources and "markets" not in skipped_final else [])
+    expected += (["lessons"] if weekday else []) + [slug for slug in sources if slug != "markets" and slug not in skipped_final]
     planned_total = round(sum(allocation.values()) + (courier.LESSONS_MINUTES if weekday else 0), 1)
     day = {
         "date": courier.TODAY,

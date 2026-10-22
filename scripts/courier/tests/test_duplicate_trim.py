@@ -116,7 +116,7 @@ class DuplicateTrimTests(unittest.TestCase):
 
 
 class DuplicatePublicationTests(unittest.TestCase):
-    def generate(self, edit_error=None):
+    def generate(self, edit_error=None, include_lessons=False):
         draft, accepted, selection = fixture()
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
             root = Path(directory)
@@ -137,6 +137,7 @@ class DuplicatePublicationTests(unittest.TestCase):
                                 "TODAY": "2026-09-30", "WEEKDAY": "wed", "VOICELESS": []}.items():
                 stack.enter_context(patch.object(builder, name, value))
             stack.enter_context(patch.object(runner, "_configure_shared_patches"))
+            stack.enter_context(patch.object(runner, "prepare_market_snapshot", return_value=None))
             stack.enter_context(patch.object(runner, "newsletters_with_health", return_value={}))
             stack.enter_context(patch.object(runner, "fresh_items", return_value=[]))
             stack.enter_context(patch.object(runner, "resilient_plan", return_value=(plan, "fixture", [])))
@@ -144,7 +145,9 @@ class DuplicatePublicationTests(unittest.TestCase):
                 {"markets": 3, "climate": 5.5, "tech": 5, "parenting": 0}, ["parenting"], {"climate": 25})))
             writing = stack.enter_context(patch.object(builder, "write_script", side_effect=lambda slug, *a: copy.deepcopy(scripts[slug])))
             editing = stack.enter_context(patch.object(builder, "claude", return_value=json.dumps(selection), side_effect=edit_error))
-            stack.enter_context(patch.object(builder, "write_lessons", return_value=[]))
+            lessons = [{"label": "Analysis", "sequence": "", "index": 1, "title": "Fixture lesson",
+                        "script": "A distinct learning exercise.", "task": "Practice"}] if include_lessons else []
+            stack.enter_context(patch.object(builder, "write_lessons", return_value=lessons))
             stack.enter_context(patch.object(builder, "log"))
             stack.enter_context(patch.object(runner, "measured_block", side_effect=voice))
             stack.enter_context(patch.object(runner, "measured_feed"))
@@ -171,6 +174,11 @@ class DuplicatePublicationTests(unittest.TestCase):
         self.assertEqual([b["id"] for b in day["blocks"]], ["markets", "tech"])
         self.assertEqual(day["duplicateRejectedSections"], ["climate"])
         self.assertEqual(day["allocationMinutes"]["climate"], 0)
+
+    def test_market_opening_precedes_lessons_in_published_audio_order(self):
+        day = self.generate(include_lessons=True)
+        self.assertEqual([b["id"] for b in day["blocks"]][:2], ["markets", "lessons"])
+        self.assertEqual(day["expectedSections"][:2], ["markets", "lessons"])
 
 
 if __name__ == "__main__":
