@@ -341,7 +341,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.page.locator('#lm-day-nav-projects').click()
         for id,title in [('food-project','Task food'),('work-project','Task work')]:
             self.page.get_by_label('Filter by project',exact=True).select_option(id)
-            self.page.locator('.lm-project-tasks summary').click()
+            self.page.locator('.lm-project-tasks summary').evaluate('el=>{if(!el.parentElement.open)el.click();}')
             self.assertEqual(self.page.locator('#lm-category-content [data-lm="edit-task"]').count(),1)
             self.assertIn(title,self.page.locator('#lm-category-content').inner_text())
         self.page.locator('#lm-day-nav-home').click()
