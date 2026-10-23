@@ -1,5 +1,5 @@
 
-/* Home / Plan / Areas / Board navigation, in the suite's existing visual language. */
+/* Home / Projects / Calendar navigation, in the suite's existing visual language. */
 html[data-atlas-app="life-map"] .lm-day-view[hidden]{display:none!important}
 /* One day selector for planning and viewing, ahead of the agenda. */
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-date-bar{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;margin:0 0 24px;min-width:0}
@@ -226,7 +226,7 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-sheet .lm-details>summary{f
 html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="life-map"] #app .lm-sheet .lm-sheet-body .lm-field select[id]{appearance:none;-webkit-appearance:none;padding-inline-end:40px;background-image:linear-gradient(45deg,transparent 50%,var(--neo-muted) 50%),linear-gradient(135deg,var(--neo-muted) 50%,transparent 50%)!important;background-position:calc(100% - 21px) 50%,calc(100% - 16px) 50%!important;background-size:5px 5px!important;background-repeat:no-repeat!important}
 
 /* Three destinations, one task entry, and a calendar made from saved project dates. */
-html[data-atlas-app="life-map"] #app .lm-day-dock{grid-template-columns:repeat(3,minmax(0,1fr))}
+html[data-atlas-app="life-map"] #app .lm-day-dock{--atlas-page-count:3;grid-template-columns:repeat(3,minmax(0,1fr))}
 html[data-atlas-app="life-map"] .lm-day-dock svg{width:24px;height:24px;flex:none}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture{padding:24px!important;background:var(--neo-content-surface)!important;border:1px solid var(--neo-line)!important;border-radius:24px!important;margin:0 0 24px}
 html[data-atlas-app="life-map"] .lm-capture h2{margin:0 0 20px}
