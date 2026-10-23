@@ -37,7 +37,7 @@
   const feature=(kind,label,eyebrow,title,body,actions,extraClass='')=>'<section class="lm-feature '+extraClass+'" aria-label="'+attrs(label)+'"><div class="lm-feature-rail">'+esc(eyebrow)+'</div><div class="lm-feature-body"><div class="lm-feature-title"><h2>'+esc(title)+'</h2></div>'+featureArt(kind)+body+'</div><div class="lm-feature-footer lm-inline">'+actions+'</div></section>';
   const focusCard=(eyebrow,title,body,actions)=>{
     const direct=(actions.match(/<button[^>]+data-day="(?:focus|complete-task|complete-routine|ops-start|ops-complete)"[\s\S]*?<\/button>/g)||[]).join('');
-    return feature('home','Current focus',eyebrow,title,body,button('Add task','capture','',true)+direct+button('View projects','tab','data-tab="projects"'),'lm-now-card');
+    return feature('home','Current focus',eyebrow,title,body,direct+button('View projects','tab','data-tab="projects"'),'lm-now-card');
   };
   const daySelector=()=>'<section class="lm-day-date-bar" aria-label="Selected day">'+field(ui.tab==='plan'?'Schedule tasks for':'Day to view',input('date',ui.date,'date'))+'<div class="lm-day-date-actions">'+button('<span aria-hidden="true">‹</span>','day-step','data-step="-1" aria-label="Previous day"')+button('Today','plan-today')+button('<span aria-hidden="true">›</span>','day-step','data-step="1" aria-label="Next day"')+'</div>'+'</section>';
   const plan=(date=ui.date)=>S.dayPlans?.[date]||{reviewed:false,mainTaskId:'',blocks:[]};
@@ -196,7 +196,7 @@
     const tasks=S.projects.filter(t=>!t.archived&&(all||t.parentId===key)&&(ui.taskFilter==='all'||(ui.taskFilter==='done'?t.status==='Done':M.open(t))));
     const groups=coreProjects.filter(g=>all||g.id===key);
     const chores=all?S.chores.filter(c=>!c.archived):[];
-    let html=feature('board','Projects overview',all?'Every project. Every task.':'Your project',title,help(groups.length+' projects · '+tasks.length+' '+(ui.taskFilter==='open'?'open ':'')+'tasks'),button('Add task','capture','',true)+'<button type="button" class="btn lm-day-button" data-lm="new-group">New project</button>');
+    let html=feature('board','Projects overview',all?'Every project. Every task.':'Your project',title,help(groups.length+' projects · '+tasks.length+' '+(ui.taskFilter==='open'?'open ':'')+'tasks'),button('Add task','capture','',true)+'<button type="button" class="btn lm-day-button" data-lm="new-group">New project</button><button type="button" class="btn lm-day-button" data-lm="search" aria-label="Search all Life Map">Search</button>');
     html+='<div id="lm-category-content"><div class="lm-project-toolbar">'+field('Filter by project',select('projectFilter',key,[['all','All projects'],...coreProjects.map(g=>[g.id,g.title])]))+field('Show tasks',select('taskFilter',ui.taskFilter,[['open','Open'],['all','All tasks'],['done','Completed']]))+'</div>';
     if(groups.length)html+='<section class="lm-project-collection" aria-label="Projects">'+groups.map(g=>{
       const progress=M.projectProgress(S,g,todayISO()),rows=tasks.filter(t=>t.parentId===g.id),range=K.projectRange(S,g);
@@ -318,7 +318,7 @@
     const children=[...app.children],records=document.createElement('div');records.id='lm-day-records';records.className='lm-day-records';
     for(const node of children)if(!node.matches('.appbar,.lm-capture,.lm-save-feedback,dialog,.lm-fab,.lm-tools'))records.append(node);
     const main=document.createElement('section');main.id='lm-day-view-'+ui.tab;main.className='lm-day-view';main.setAttribute('role','tabpanel');main.setAttribute('aria-labelledby','lm-day-nav-'+ui.tab);
-    main.innerHTML=(ui.tab==='home'?homeView():ui.tab==='projects'?(ui.records?feature('board','Your full record','Projects, tasks & routines','All records',help('Your complete Life Map record and management tools.'),button('Back to projects','back-projects'))+'<div data-full-record-anchor></div>':projectsView()):calendarView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
+    main.innerHTML=(ui.tab==='home'?homeView():ui.tab==='projects'?(ui.records?feature('board','Your full record','Projects, tasks & routines','All records',help('Your complete Life Map record and management tools.'),button('Back to projects','back-projects')+'<button type="button" class="btn lm-day-button" data-lm="search" aria-label="Search all Life Map">Search</button>')+'<div data-full-record-anchor></div>':projectsView()):calendarView())+(ui.error?'<p class="lm-error" role="alert">'+esc(ui.error)+'</p>':'');
     main.querySelector('.lm-feature h2')?.setAttribute('aria-level','1');
     const anchor=app.querySelector('.lm-save-feedback')||app.querySelector('.lm-capture')||app.querySelector('.appbar');anchor?.after(main);
     const slot=main.querySelector('[data-full-record-anchor]');if(slot)slot.replaceWith(records);else {records.hidden=true;main.append(records);}
