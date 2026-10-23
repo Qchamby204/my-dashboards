@@ -292,3 +292,13 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-year-month{back
 
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mandatory-list [data-day="mandatory-toggle"]{width:44px;height:44px;flex:0 0 44px;padding:0;border:1px solid var(--neo-line)!important;border-radius:10px!important;background:var(--neo-surface)!important;box-shadow:none!important;color:var(--neo-ink)!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mandatory-list [data-day="mandatory-toggle"][aria-pressed="true"]{background:var(--neo-accent)!important;color:var(--neo-accent-ink,var(--neo-bg))!important;border-color:var(--neo-accent)!important}
+
+/* Calendar content clears Home Screen chrome without reducing date hit heights. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-body{padding:18px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day{min-height:44px}
+html[data-atlas-app="life-map"] #app .lm-month-header{margin-bottom:4px}
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-body>.lm-help{margin-top:0}
+html[data-atlas-app="life-map"] #app .lm-month-weekdays{margin-top:12px}
+html[data-atlas-app="life-map"] #app .lm-month-projects{padding-top:8px}
+html[data-atlas-app="life-map"] #app .lm-month-projects:empty{display:none}
+@media(max-height:900px){html[data-atlas-app="life-map"] .lm-month-projects>button:nth-child(n+2){display:none!important}html[data-atlas-app="life-map"] .lm-calendar-feature[data-weeks="6"] .lm-month-projects{display:none}}
