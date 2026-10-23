@@ -117,6 +117,21 @@
       '<button type="button" class="btn lm-task-main" data-lm="edit-chore" data-id="'+esc(c.id)+'"><span class="lm-task-title">'+esc(c.chore)+'</span><span class="lm-row-meta">'+esc([advanced?((future?'Next ':'Due ')+fmtDay(next)):c.cad,skipped?'Skipped this occurrence':'',c.zone,c.who,last?'Last done '+fmtDay(last.date):''].filter(Boolean).join(' · '))+'</span></button>'+button('⋯','chore-menu','data-id="'+esc(c.id)+'" aria-label="Actions for '+esc(c.chore)+'"','lm-icon')+'</div>';
   }
   function areaOptions(){return [['','Inbox / unfiled'],...orderedAreas().map(a=>[a.name,a.name])];}
+  // Everyday editors offer the six areas. Saved records keep their detailed area name:
+  // an option for the record's own area carries that name, so saving it unchanged rewrites nothing.
+  const CATEGORY_AREA=Object.freeze({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'});
+  const areaKey=area=>area?M.categoryFor({area}):'';
+  const areaTitle=area=>area?M.categories.find(([key])=>key===areaKey(area))?.[1]||area:'Unfiled';
+  function areaChoices(current,original,unfiled='Unfiled'){
+    return [['',unfiled],...M.categories.map(([key,title])=>[areaKey(current)===key?current:areaKey(original)===key?original:CATEGORY_AREA[key],title])];
+  }
+  // A task's area is its own. A project fills it only when the task has none.
+  function areaProjectNote(area,parentId){
+    const g=group(parentId);if(!g)return '';
+    if(!area)return '<p class="lm-help lm-area-note" role="status">Saving files this task under '+esc(areaTitle(g.area))+', its project’s area.</p>';
+    if(g.area&&areaKey(area)!==areaKey(g.area))return '<p class="lm-help lm-area-note" role="status">This task is filed under '+esc(areaTitle(area))+'. Its project, '+esc(g.title)+', is under '+esc(areaTitle(g.area))+'. The task stays in that project.</p>';
+    return '';
+  }
   function groupOptions(){return [['','Standalone task'],...(S.groups||[]).filter(g=>!g.archived).map(g=>[g.id,g.title])];}
   function orderedAreas(){const extra=[...new Set([...(S.projects||[]).map(p=>p.area),...(S.groups||[]).map(g=>g.area)])].filter(a=>a&&!AREAS.some(x=>x.name===a));const areas=[...AREAS,...extra.map(name=>({name,icon:'◇',desc:''}))],order=S.preferences?.areaOrder||[];return areas.sort((a,b)=>{const ai=order.indexOf(a.name),bi=order.indexOf(b.name);return (ai<0?999:ai)-(bi<0?999:bi);});}
   const baseSection=section;
@@ -124,14 +139,23 @@
   hero=function(){return '<div class="appbar"><a href="'+(window.AtlasConnected?'/':'index.html')+'" class="homebtn" aria-label="Atlas">⌂</a><div style="flex:1;min-width:0"><div class="appbar-title">Life Map</div><div class="appbar-sub">Every area, one board</div></div>'+'<button type="button" class="btn lm-header-add" data-day="capture">Add task</button>'+'</div>';};
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
   const captureDate=()=>M.validDate(view.qa.when)?view.qa.when:view.qa.when==='today'?todayISO():view.qa.when==='tomorrow'?M.plus(todayISO(),1):'';
-  function captureFields(){
+  function captureFields(where='sheet'){const hintId='lm-capture-date-hint'+(where==='sheet'?'':'-'+where);
     const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'};
     const selected=view.qa.area?names[M.categoryFor({area:view.qa.area})]:'';
-    return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureArea',selected,[['','Choose an area'],...M.categories.map(([key,title])=>[names[key],title])]))+field('Date',input('captureDate',captureDate(),'date'))+'</div>';
+    const g=view.qa.parentId?group(view.qa.parentId):null;
+    return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureArea',selected,[['','Choose an area'],...M.categories.map(([key,title])=>[names[key],title])]))+field('Date',input('captureDate',captureDate(),'date','aria-describedby="'+hintId+'"'))+'</div><p id="'+hintId+'" class="lm-help" data-capture-date-hint aria-live="polite">'+esc(captureDateHint())+'</p>'+
+      (g?'<div class="lm-capture-project lm-inline"><span class="lm-chip">Project · '+esc(g.title)+'</span>'+button('Remove from project','capture-unlink')+'</div>'+areaProjectNote(view.qa.area,g.id):'');
+  }
+  // Date means the planned day. When wording sets a date, say so beside the field.
+  function captureDateHint(){
+    const base='Date is the day you plan to work on it.';if(!view.qa.txt?.trim()||view.qa.parse===false)return base;
+    let rows;try{rows=M.capture(view.qa.txt,{...view.qa},todayISO(),()=>'-');}catch{return base;}if(rows.length!==1)return base;
+    const r=rows[0],parts=[];if(r.plan&&!captureDate())parts.push('planned '+fmtDay(r.plan));if(r.planWeek)parts.push('week of '+fmtDay(r.planWeek));if(r.due)parts.push('deadline '+fmtDay(r.due));
+    return parts.length?'From your wording: '+parts.join(', ')+'.':base;
   }
   quickCapture=function(){
     const qa=view.qa;
-    return '<section class="panel lm-capture" aria-label="Quick add task"><h2>Add a task</h2><label class="lm-field"><span>Task</span><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="What needs doing?" autocomplete="off"></label>'+captureFields()+
+    return '<section class="panel lm-capture" aria-label="Quick add task"><h2>Add a task</h2><label class="lm-field"><span>Task</span><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="What needs doing?" autocomplete="off"></label>'+captureFields('quick')+
       '<div class="lm-inline lm-quick-entry">'+button('Add task','quick-add','data-lm-save','lm-primary')+button('More options','capture')+(restorePrompt?button('Resume unfinished edit','resume-edit'):'')+'</div><div id="lm-quick-hints" class="lm-inline">'+quickHints()+'</div></section>';
   };
   function handledStatus(c){const hs=(S.choreHistory||[]).filter(h=>h.choreId===c.id&&(c.repeat||h.occurrence===periodKey(c.cad)));return hs.at(-1)?.status||(!c.repeat&&oldChecked(c)?'done':'');}
@@ -194,7 +218,7 @@
     return h;
   };
   function capturePreview(){
-    try{const rows=M.capture(view.qa.txt,{...view.qa},todayISO(),()=>'-');return rows.map(p=>'<li><strong>'+esc(p.task)+'</strong><span>'+[p.inbox?'Inbox':p.area,p.plan?'Planned '+fmtDay(p.plan):'',p.planWeek?'Week of '+fmtDay(p.planWeek):'',p.due?'Deadline '+fmtDay(p.due):'',p.showAfter?'Returns '+fmtDay(p.showAfter):''].filter(Boolean).map(chip).join('')+'</span></li>').join('');}
+    try{const rows=M.capture(view.qa.txt,{...view.qa},todayISO(),()=>'-');return rows.map(p=>'<li><strong>'+esc(p.task)+'</strong><span>'+[p.inbox?'Inbox':areaTitle(p.area),p.plan?'Planned '+fmtDay(p.plan):'',p.planWeek?'Week of '+fmtDay(p.planWeek):'',p.due?'Deadline '+fmtDay(p.due):'',p.showAfter?'Returns '+fmtDay(p.showAfter):''].filter(Boolean).map(chip).join('')+'</span></li>').join('');}
     catch(e){return '<li class="lm-help">'+esc(view.qa.txt?e.message:'One task per line. Only a title is required.')+'</li>';}
   }
   function captureEditor(){
@@ -205,29 +229,43 @@
       '<label class="lm-checkbox"><input type="checkbox" data-lm="parse-capture"'+(q.parse!==false?' checked':'')+'> Recognize dates in task wording</label><ul id="lm-capture-preview" class="lm-capture-preview">'+capturePreview()+'</ul>'+button('Add & keep capturing','add-another','data-lm-save')+'</details>'+
       '<div class="lm-sheet-actions">'+button(count>1?'Add '+count+' tasks':'Add task','save-capture','data-lm-save','lm-primary')+'</div>';
   }
+  function taskDetailsSummary(e){
+    const g=group(e.parentId),parts=[];if(g)parts.push(g.title);if(e.due)parts.push('Deadline '+fmtDay(e.due));
+    if(e.status==='Waiting'||e.status==='In progress')parts.push(e.status);if(e.pri==='High')parts.push('High priority');
+    const steps=(e.checklist||[]).length;if(steps)parts.push(steps+(steps===1?' step':' steps'));if((e.notes||'').trim())parts.push('Notes');
+    return parts.join(' · ');
+  }
   function taskEditor(e){
-    const checklist=e.checklist||[];
+    const checklist=e.checklist||[],original=e.id?project(e.id):null,done=e.status==='Done',summary=taskDetailsSummary(e);
+    const detailed=e.area&&e.area!==CATEGORY_AREA[areaKey(e.area)]&&M.categories.some(([key])=>key===areaKey(e.area));
     return field('Task','<textarea data-lm="field" data-field="task" maxlength="300" rows="2" placeholder="What needs doing?">'+esc(e.task||'')+'</textarea>')+
-      '<div class="lm-two-col">'+field('Area',select('area',e.area,areaOptions()))+field('Project',select('parentId',e.parentId,groupOptions()))+'</div>'+
-      '<div class="lm-inline lm-plan-chips">'+[['today','Today'],['tomorrow','Tomorrow'],['wk','This week'],['next','Next'],['inbox','Inbox']].map(([v,t])=>button(t,'editor-plan','data-when="'+v+'"')).join('')+'</div>'+
-      '<div class="lm-two-col">'+field('Plan to work on',input('plan',e.plan,'date'))+field('Actual deadline',input('due',e.due,'date'))+'</div>'+(e.planWeek?help('Planned for the week of '+fmtDay(e.planWeek))+button('Clear planned week','clear-week'):'')+
-      '<div class="lm-two-col">'+field('Status',select('status',e.status||'Not started',[['Not started','Not started'],['In progress','In progress'],['Waiting','Waiting'],['Done','Done']]))+field('Priority',select('pri',e.pri||'Med',PRIS.map(x=>[x,x])))+'</div>'+
+      field('Area',select('area',e.area,areaChoices(e.area,original?.area)))+areaProjectNote(e.area,e.parentId)+
+      field('Date',input('plan',e.plan,'date','aria-describedby="lm-plan-hint"'))+'<p id="lm-plan-hint" class="lm-help">The day you plan to work on it. A deadline is separate, under Details.</p>'+
+      (e.planWeek?help('Planned for the week of '+fmtDay(e.planWeek))+button('Clear planned week','clear-week'):'')+
+      '<div class="lm-inline lm-plan-chips">'+[['today','Today'],['tomorrow','Tomorrow'],['next','No date']].map(([v,t])=>button(t,'editor-plan','data-when="'+v+'"')).join('')+'</div>'+
+      '<label class="lm-checkbox lm-done-toggle"><input type="checkbox" data-lm="field-done"'+(done?' checked':'')+'> Done</label>'+
+      '<div class="lm-sheet-actions">'+button('Save task','save-editor','data-lm-save','lm-primary')+'</div>'+
+      '<details class="lm-details lm-task-details" data-lm-details'+(e.detailsOpen?' open':'')+'><summary>Details'+(summary?'<span class="lm-details-summary">'+esc(summary)+'</span>':'')+'</summary>'+
+      field('Project',select('parentId',e.parentId,groupOptions()))+
+      '<div class="lm-two-col">'+field('Deadline',input('due',e.due,'date'))+field('Priority',select('pri',e.pri||'Med',PRIS.map(x=>[x,x])))+'</div>'+
+      field('Status',select('status',e.status||'Not started',[['Not started','Not started'],['In progress','In progress'],['Waiting','Waiting'],['Done','Done']]))+
       (e.status==='Waiting'?'<div class="lm-two-col">'+field('Waiting for / who',input('waitingFor',e.waitingFor,'text','maxlength="300"'))+field('Follow up on',input('followUp',e.followUp,'date'))+'</div>':'')+
-      '<details class="lm-details"'+(e.notes||checklist.length?' open':'')+'><summary>Notes, checklist & links</summary>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+
-      '<div class="lm-checklist">'+checklist.map((c,i)=>'<div class="lm-inline"><input type="checkbox" data-lm="check-item" data-index="'+i+'" aria-label="Complete checklist item"'+(c.done?' checked':'')+'><input data-lm="check-text" data-index="'+i+'" value="'+esc(c.text)+'" maxlength="500" aria-label="Checklist item '+(i+1)+'">'+button('×','remove-check','data-index="'+i+'" aria-label="Remove checklist item"','lm-icon')+'</div>').join('')+button('+ Checklist item','add-check')+'</div>'+
-      field('Source links (one per line)','<textarea data-lm="field" data-field="linksText" rows="2" placeholder="https://…">'+esc(e.linksText??(e.links||[]).join('\n'))+'</textarea>')+'</details>'+
-      '<details class="lm-details"><summary>Context & deferral</summary>'+field('Context tags (comma separated)',input('tagsText',e.tagsText??(e.tags||[]).join(', '),'text','placeholder="Calls, Errands, Quick task"'))+field('Estimated effort (minutes)',input('effortMinutes',e.effortMinutes,'number','min="1" max="10080" step="1"'))+field('Sub-area',input('sub',e.sub,'text','maxlength="500"'))+field('Show again on',input('showAfter',e.showAfter,'date'))+
+      field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+
+      '<div class="lm-checklist" aria-label="Checklist">'+checklist.map((c,i)=>'<div class="lm-inline"><input type="checkbox" data-lm="check-item" data-index="'+i+'" aria-label="Complete checklist item"'+(c.done?' checked':'')+'><input data-lm="check-text" data-index="'+i+'" value="'+esc(c.text)+'" maxlength="500" aria-label="Checklist item '+(i+1)+'">'+button('×','remove-check','data-index="'+i+'" aria-label="Remove checklist item"','lm-icon')+'</div>').join('')+button('+ Checklist item','add-check')+'</div>'+
+      field('Source links (one per line)','<textarea data-lm="field" data-field="linksText" rows="2" placeholder="https://…">'+esc(e.linksText??(e.links||[]).join('\n'))+'</textarea>')+
+      '<details class="lm-details"><summary>Scheduling & context</summary>'+'<div class="lm-inline lm-plan-chips">'+[['wk','This week'],['inbox','Inbox']].map(([v,t])=>button(t,'editor-plan','data-when="'+v+'"')).join('')+'</div>'+field('Context tags (comma separated)',input('tagsText',e.tagsText??(e.tags||[]).join(', '),'text','placeholder="Calls, Errands, Quick task"'))+field('Estimated effort (minutes)',input('effortMinutes',e.effortMinutes,'number','min="1" max="10080" step="1"'))+field('Sub-area',input('sub',e.sub,'text','maxlength="500"'))+field('Show again on',input('showAfter',e.showAfter,'date'))+
       '<label class="lm-checkbox"><input type="checkbox" data-lm="field-check" data-field="someday"'+(e.someday?' checked':'')+'> Someday — keep out of Next</label><label class="lm-checkbox"><input type="checkbox" data-lm="field-check" data-field="inbox"'+(e.inbox?' checked':'')+'> Still needs organizing (Inbox)</label>'+help('Deferral does not change a real deadline. Nearby deadlines remain visible.')+'</details>'+
-      '<div class="lm-sheet-actions">'+button('Save task','save-editor','data-lm-save','lm-primary')+(e.id?button('Calendar reminder','reminder','data-id="'+esc(e.id)+'"'):'')+'</div>'+(e.id?button('Delete task','delete-editor','','lm-danger'):'');
+      (detailed?help('Filed as '+e.area+'. That detail is kept when you save in the same area.'):'')+
+      (e.id?'<div class="lm-inline">'+button('Calendar reminder','reminder','data-id="'+esc(e.id)+'"')+button('Delete task','delete-editor','','lm-danger')+'</div>':'')+'</details>';
   }
   function choreEditor(e){
     const r=e.repeat||{},mode=e.repeatMode??r.mode??'cycle',unit=e.repeatUnit??r.unit??(e.cad==='Daily'?'day':e.cad==='Monthly'||e.cad==='Quarterly'?'month':e.cad==='Annual'?'year':'week');
-    return field('Chore',input('chore',e.chore,'text','maxlength="300"'))+field('Life area',select('area',e.area,areaOptions()))+field('Repeat style',select('repeatMode',mode,[['cycle','Calendar cycle (existing behaviour)'],['fixed','Fixed schedule'],['after','After completion']]))+
+    return field('Chore',input('chore',e.chore,'text','maxlength="300"'))+field('Area',select('area',e.area,areaChoices(e.area,e.id?chore(e.id)?.area:'')))+field('Repeat style',select('repeatMode',mode,[['cycle','Calendar cycle (existing behaviour)'],['fixed','Fixed schedule'],['after','After completion']]))+
       (mode==='cycle'?field('Cycle',select('cad',e.cad||'Weekly',CADS.map(x=>[x,x]))):'<div class="lm-two-col">'+field('Every',input('repeatEvery',e.repeatEvery??r.every??1,'number','min="1" max="365"'))+field('Unit',select('repeatUnit',unit,[['day','Days'],['week','Weeks'],['month','Months'],['year','Years']]))+'</div>'+field(mode==='fixed'?'First scheduled date':'First due date',input('repeatAnchor',e.repeatAnchor??r.anchor??todayISO(),'date'))+(mode==='fixed'?help('The start date sets the weekday or day of the month. Finishing late does not shift this schedule.'):help('The next due date is calculated from the day you actually complete it.')))+
       '<div class="lm-two-col">'+field('Zone',input('zone',e.zone,'text','maxlength="300"'))+field('Who',input('who',e.who,'text','maxlength="300"'))+'</div>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+
       '<div class="lm-sheet-actions">'+button('Save chore','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?button('Archive chore','archive-chore','data-id="'+esc(e.id)+'"')+button('Delete chore','delete-editor','','lm-danger'):'');
   }
-  function groupEditor(e){return field('Project name',input('title',e.title,'text','maxlength="300"'))+field('Category',select('area',e.area,areaOptions()))+'<div class="lm-two-col">'+field('Start date',input('startDate',e.startDate,'date'))+field('End date',input('endDate',e.endDate,'date'))+'</div>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+'<div class="lm-sheet-actions">'+button('Save project','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?'<div class="lm-inline">'+button('+ Next action','new-task','data-group="'+esc(e.id)+'"')+button('Save as template','save-template','data-id="'+esc(e.id)+'"')+button(e.archived?'Restore project':'Archive completed project',e.archived?'restore-group':'archive-group','data-id="'+esc(e.id)+'"')+'</div>':'');}
+  function groupEditor(e){return field('Project name',input('title',e.title,'text','maxlength="300"'))+field('Area',select('area',e.area,areaChoices(e.area,e.id?group(e.id)?.area:'')))+'<div class="lm-two-col">'+field('Start date',input('startDate',e.startDate,'date'))+field('End date',input('endDate',e.endDate,'date'))+'</div>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+'<div class="lm-sheet-actions">'+button('Save project','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?'<div class="lm-inline">'+button('+ Next action','new-task','data-group="'+esc(e.id)+'"')+button('Save as template','save-template','data-id="'+esc(e.id)+'"')+button(e.archived?'Restore project':'Archive completed project',e.archived?'restore-group':'archive-group','data-id="'+esc(e.id)+'"')+'</div>':'');}
   function searchEditor(){const results=M.search(S,view.search||'',{archive:searchArchive});return '<input id="lm-search" data-lm="search-input" data-ui-only value="'+esc(view.search||'')+'" placeholder="Tasks, projects, chores, notes…" aria-label="Search all Life Map"><label class="lm-checkbox"><input type="checkbox" data-lm="search-archive" data-ui-only'+(searchArchive?' checked':'')+'> Include completed and archived</label><div id="lm-search-results">'+results.map(r=>'<button type="button" class="btn lm-search-result" data-lm="'+(r.kind==='task'?'edit-task':r.kind==='chore'?'edit-chore':'edit-group')+'" data-id="'+esc(r.item.id)+'"><strong>'+esc(r.item.task||r.item.title||r.item.chore)+'</strong><small>'+esc(r.kind+' · '+(r.kind==='task'?M.classify(r.item,todayISO()):r.item.area||r.item.cad||'')+(r.item.parentId?' · '+(group(r.item.parentId)?.title||''):''))+'</small></button>').join('')+(view.search&&!results.length?help('No matches. Include completed and archived to search the full history.'):'')+'</div>';}
   function planCalendar(e){
     const selected=M.validDate(e.plan)?e.plan:'',month=e.month||(selected||todayISO()).slice(0,7),first=month+'-01',date=new Date(first+'T12:00:00Z');
@@ -240,7 +278,7 @@
   }
   function taskMenu(p){return '<div class="lm-menu">'+[['today','Today'],['tomorrow','Tomorrow'],['wk','This week']].map(([v,t])=>button(t,'plan','data-id="'+esc(p.id)+'" data-when="'+v+'"')).join('')+button('Choose date','choose-date','data-id="'+esc(p.id)+'"')+[['next','Back to Next'],['inbox','Inbox'],['someday','Someday']].map(([v,t])=>button(t,'plan','data-id="'+esc(p.id)+'" data-when="'+v+'"')).join('')+button(p.status==='Waiting'?'Resume task':'Waiting / follow-up','wait-task','data-id="'+esc(p.id)+'"')+button('Edit / move / defer','edit-task','data-id="'+esc(p.id)+'"')+button('Calendar reminder','reminder','data-id="'+esc(p.id)+'"')+(p.archived?button('Restore task','restore-task','data-id="'+esc(p.id)+'"'):p.status==='Done'?button('Archive completed task','archive-task','data-id="'+esc(p.id)+'"'):'')+'</div>'+(p.links||[]).filter(safeLink).map(x=>'<a class="lm-source-link" target="_blank" rel="noopener noreferrer" href="'+esc(x)+'">'+esc(x)+'</a>').join('');}
   function bulkEditor(e){const action=e.action||'plan';return help(selection.size+' selected tasks. Real deadlines remain unchanged by planning actions.')+field('Action',select('action',action,[['plan','Schedule / return to Next'],['area','Move to an area'],['group','Move into a project'],['defer','Show again on a date'],['archive','Archive completed tasks'],['restore','Restore archived tasks']]))+
-    (action==='plan'?field('When',select('when',e.when||'today',[['today','Today'],['tomorrow','Tomorrow'],['wk','This week'],['next','Next'],['inbox','Inbox'],['someday','Someday']])):action==='area'?field('Area',select('area',e.area,areaOptions())):action==='group'?field('Project',select('parentId',e.parentId,groupOptions())):action==='defer'?field('Show again on',input('showAfter',e.showAfter,'date')):'')+button('Apply to selected','apply-bulk','data-lm-save','lm-primary');}
+    (action==='plan'?field('When',select('when',e.when||'today',[['today','Today'],['tomorrow','Tomorrow'],['wk','This week'],['next','Next'],['inbox','Inbox'],['someday','Someday']])):action==='area'?field('Area',select('area',e.area,areaChoices(e.area,'')))+help('Tasks already in that area keep their detailed area. Project links are kept.'):action==='group'?field('Project',select('parentId',e.parentId,groupOptions())):action==='defer'?field('Show again on',input('showAfter',e.showAfter,'date')):'')+button('Apply to selected','apply-bulk','data-lm-save','lm-primary');}
   function connectionsEditor(){const base=typeof location!=='undefined'?location.origin+location.pathname:'';
     return '<h3>One trusted place</h3>'+help(window.AtlasConnected?'This private Life Map saves across signed-in devices. Browser drafts remain local until you save.':'This board is saved in this browser only. Another browser, device, or Home Screen storage context can have a separate board.')+help(window.AtlasConnected?'Opening a different Life Map copy does not move records. Use confirmed backup/import only when you deliberately change copies.':'Keep using this browser as your working copy. The private site is separate and needs its updated build deployed before importing these new workflow fields. Opening it does not synchronize this board.')+
       '<a class="lm-source-link" href="https://atlas-os-quinton.qchambers123018.chatgpt.site/apps/life-map" target="_blank" rel="noopener noreferrer">Open private Life Map</a>'+
@@ -288,7 +326,7 @@
         row.status=e.status||row.status||'Not started';row.tags=e.tagsText!==undefined?e.tagsText.split(',').map(x=>x.trim()).filter(Boolean):e.tags||row.tags||[];
         row.links=e.linksText!==undefined?e.linksText.split(/\r?\n/).map(x=>x.trim()).filter(Boolean):e.links||row.links||[];
         row.checklist=(e.checklist||row.checklist||[]).filter(c=>c.text?.trim()).map(c=>({id:c.id||uid(),text:c.text.trim(),done:!!c.done}));
-        if(row.parentId){const g=group(row.parentId);if(!g)throw Error('Choose an existing project.');row.area=g.area||row.area;row.inbox=false;}
+        if(row.parentId){const g=group(row.parentId);if(!g)throw Error('Choose an existing project.');if(!row.area)row.area=g.area||'';row.inbox=false;}
         if(!row.task)throw Error('Describe the task first.');if(row.showAfter)row.park='';
       }else if(e.kind==='chore'){
         for(const k of ['chore','cad','zone','who','notes','area'])row[k]=String(e[k]??row[k]??'');row.chore=row.chore.trim();row.cad=row.cad||'Weekly';if(!row.chore)throw Error('Name the chore first.');
@@ -310,7 +348,7 @@
   quickAdd=function(keep=false,when){
     const top=document.getElementById('qaTxt');if(view.editor?.kind!=='capture'&&top)view.qa.txt=top.value;
     let rows;try{rows=M.capture(view.qa.txt,when?{...view.qa,when}:view.qa,todayISO(),uid);if(view.qa.links?.length)rows[0].links=view.qa.links.filter(safeLink);}catch(e){lastError=e.message;feedback();return false;}
-    return transaction(next=>{for(const row of rows){if(row.parentId){const g=next.groups?.find(g=>g.id===row.parentId&&!g.archived);if(!g)throw Error('Choose an available project.');row.area=g.area||row.area;}}next.projects.push(...rows);},when==='today'?(rows.length===1?'Task added to Today':rows.length+' tasks added to Today'):rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
+    return transaction(next=>{for(const row of rows){if(row.parentId){const g=next.groups?.find(g=>g.id===row.parentId&&!g.archived);if(!g)throw Error('Choose an available project.');if(!row.area)row.area=g.area||'';}}next.projects.push(...rows);},when==='today'?(rows.length===1?'Task added to Today':rows.length+' tasks added to Today'):rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
   };
   function planTask(id,when){return transaction(next=>{const p=next.projects.find(p=>p.id===id);if(!p)throw Error('Task not found.');M.setPlan(p,when,todayISO());p.updatedAt=todayISO();},'Task plan updated','task_planned',()=>{if(['menu','plan-date'].includes(view.editor?.kind))clearEdit();});}
   function choreAction(id,action){const c=chore(id);if(!c)return false;return transaction(next=>{
@@ -348,8 +386,8 @@
   function archiveTask(id,value){return transaction(next=>{const p=next.projects.find(p=>p.id===id);if(!p)throw Error('Task not found.');if(value&&p.status!=='Done')throw Error('Complete the task before archiving it. Use Someday to defer open work.');p.archived=value;},value?'Completed task archived':'Task restored','task_organized',clearEdit);}
   function applyBulk(){const e=view.editor,ids=new Set(selection);if(!ids.size)return;
     return transaction(next=>{for(const p of next.projects.filter(p=>ids.has(p.id))){
-      if(e.action==='area'){p.area=e.area||'';p.inbox=!e.area;p.parentId='';}
-      else if(e.action==='group'){p.parentId=e.parentId||'';if(p.parentId){const g=next.groups?.find(g=>g.id===p.parentId);if(!g)throw Error('Project not found.');p.area=g.area;p.inbox=false;}}
+      if(e.action==='area'){if(!e.area||areaKey(p.area)!==areaKey(e.area))p.area=e.area||'';p.inbox=!p.area;}
+      else if(e.action==='group'){p.parentId=e.parentId||'';if(p.parentId){const g=next.groups?.find(g=>g.id===p.parentId);if(!g)throw Error('Project not found.');if(!p.area)p.area=g.area||'';p.inbox=false;}}
       else if(e.action==='defer'){if(!M.validDate(e.showAfter))throw Error('Choose a return date.');p.showAfter=e.showAfter;p.park='';p.plan='';p.planWeek='';p.someday=false;p.inbox=false;}
       else if(e.action==='archive'){if(p.status!=='Done')throw Error('Only completed tasks can be archived. Select completed tasks or choose Someday.');p.archived=true;}
       else if(e.action==='restore')p.archived=false;
@@ -368,6 +406,7 @@
     if(action==='save-capture')return quickAdd();if(action==='add-another')return quickAdd(true);
     if(action==='capture')return captureSheet();if(action==='capture-today')return captureSheet('today');
     if(action==='capture-when'){view.qa.when=el.dataset.when;storeDraft();render();return;}
+    if(action==='capture-unlink'){view.qa.parentId='';storeDraft();render();return;}
     if(action==='keep-wording'){view.qa.parse=false;storeDraft();render();return;}
     if(action==='accept-area'){view.qa.area=el.dataset.area;storeDraft();render();return;}
     if(action==='complete')return advance(id);
@@ -427,7 +466,7 @@
   function jumpProjects(){app.querySelector('[data-act="section"][data-key="proj"]')?.scrollIntoView({block:'start',behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}
   const legacyActions=new Set(['qaAdd','advance','tick','plan','add','edit','editc','saveEditor','delEditor','closeEditor','export','import','reset']);
   app.addEventListener('click',ev=>{
-    const el=ev.target.closest?.('[data-lm]');if(el){if(['field','field-check','check-text','check-item','capture-text','search-input','parse-capture','search-archive','context-filter'].includes(el.dataset.lm))return;ev.stopImmediatePropagation();if(busy&&el.dataset.lm!=='search')return;handle(el.dataset.lm,el);return;}
+    const el=ev.target.closest?.('[data-lm]');if(el){if(['field','field-check','field-done','check-text','check-item','capture-text','search-input','parse-capture','search-archive','context-filter'].includes(el.dataset.lm))return;ev.stopImmediatePropagation();if(busy&&el.dataset.lm!=='search')return;handle(el.dataset.lm,el);return;}
     const old=ev.target.closest?.('[data-act]');if(!old)return;
     if(old.dataset.act==='area'){groupFilter='';contextFilter='';view.q='';}
     if(!legacyActions.has(old.dataset.act))return;ev.stopImmediatePropagation();if(busy)return;
@@ -441,17 +480,17 @@
   },true);
   function fieldChange(el,redraw){
     const e=view.editor,key=el.dataset.field,value=el.value;
-    if(key==='captureArea'){view.qa.area=value;view.qa.parentId='';}
+    if(key==='captureArea'){view.qa.area=value;}
     else if(key==='captureDate'){view.qa.when=value||'next';}
     else if(key==='captureParent'){view.qa.parentId=value;view.qa.area=value?group(value)?.area||'':'';}
-    else if(e){e[key]=value;if(key==='area'&&value)e.inbox=false;if(key==='parentId'&&value){e.area=group(value)?.area||e.area;e.inbox=false;}
+    else if(e){e[key]=value;if(key==='area'&&value)e.inbox=false;if(key==='parentId'&&value){e.inbox=false;}
       if(key==='plan'){e.planWeek='';if(value)e.inbox=false;if(e.kind==='plan-date'&&M.validDate(value)){e.month=value.slice(0,7);e.focusDate=value;}}if(key==='showAfter'&&value){e.park='';e.someday=false;}if(key==='status'&&value!=='Waiting'){e.waitingFor='';e.followUp='';}}
     storeDraft();if(redraw)render();
   }
   app.addEventListener('input',ev=>{
     const el=ev.target;if(busy)return;const a=el.dataset?.lm;
-    if(el.id==='qaTxt'){view.qa.txt=el.value;storeDraft();const hints=document.getElementById('lm-quick-hints');if(hints)hints.innerHTML=quickHints();return;}
-    if(a==='capture-text'){ev.stopImmediatePropagation();view.qa.txt=el.value;storeDraft();const preview=document.getElementById('lm-capture-preview');if(preview)preview.innerHTML=capturePreview();return;}
+    if(el.id==='qaTxt'){view.qa.txt=el.value;storeDraft();const hints=document.getElementById('lm-quick-hints');if(hints)hints.innerHTML=quickHints();app.querySelectorAll('[data-capture-date-hint]').forEach(hint=>hint.textContent=captureDateHint());return;}
+    if(a==='capture-text'){ev.stopImmediatePropagation();view.qa.txt=el.value;storeDraft();const preview=document.getElementById('lm-capture-preview');if(preview)preview.innerHTML=capturePreview();app.querySelectorAll('[data-capture-date-hint]').forEach(hint=>hint.textContent=captureDateHint());return;}
     if(a==='field'){ev.stopImmediatePropagation();fieldChange(el,false);return;}
     if(a==='check-text'){ev.stopImmediatePropagation();const c=view.editor?.checklist?.[+el.dataset.index];if(c)c.text=el.value;storeDraft();return;}
     if(a==='search-input'){ev.stopImmediatePropagation();view.search=el.value;const start=el.selectionStart;render();const next=document.getElementById('lm-search');next?.focus({preventScroll:true});next?.setSelectionRange(start,start);}
@@ -459,11 +498,15 @@
   app.addEventListener('change',ev=>{const el=ev.target,a=el.dataset?.lm;if(!a||busy)return;
     if(a==='field'){ev.stopImmediatePropagation();fieldChange(el,el.tagName==='SELECT'||view.editor?.kind==='plan-date'&&el.dataset.field==='plan');}
     else if(a==='field-check'){view.editor[el.dataset.field]=el.checked;storeDraft();}
+    else if(a==='field-done'){const e=view.editor;if(!e)return;if(el.checked){if(e.status!=='Done')e.statusBeforeDone=e.status||'Not started';e.status='Done';}else e.status=e.statusBeforeDone&&e.statusBeforeDone!=='Done'?e.statusBeforeDone:'Not started';storeDraft();render();}
     else if(a==='check-item'){const c=view.editor?.checklist?.[+el.dataset.index];if(c)c.done=el.checked;storeDraft();}
     else if(a==='parse-capture'){view.qa.parse=el.checked;storeDraft();render();}
     else if(a==='search-archive'){searchArchive=el.checked;render();}
     else if(a==='context-filter'){contextFilter=el.value;render();}
   },true);
+  // Record the Details state on the click itself; a re-render can replace the element before its toggle event fires.
+  app.addEventListener('click',ev=>{const summary=ev.target.closest?.('[data-lm-details]>summary');if(summary&&view.editor)view.editor.detailsOpen=!summary.parentElement.open;},true);
+  app.addEventListener('toggle',ev=>{if(ev.target.matches?.('[data-lm-details]')&&ev.target.isConnected&&view.editor){view.editor.detailsOpen=ev.target.open;storeDraft();}},true);
   app.addEventListener('paste',ev=>{if(ev.target.id==='qaTxt'){const text=ev.clipboardData?.getData('text/plain')||'';if(text.includes('\n')){ev.preventDefault();view.qa.txt=text;captureSheet();}}});
   app.addEventListener('keydown',ev=>{
     if(ev.key==='Enter'&&ev.target.id==='qaTxt'){ev.preventDefault();ev.stopImmediatePropagation();quickAdd();return;}

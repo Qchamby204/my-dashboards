@@ -172,10 +172,10 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.state()['groups'][0]['title'], 'Office refresh')
         self.page.locator('[data-lm="new-task"][data-group]').first.click()
         self.page.locator('[data-field="task"]').fill('Request dimensions')
+        self.page.locator('[data-lm-details] > summary').click()
         self.page.locator('[data-field="status"]').select_option('Waiting')
         self.page.locator('[data-field="waitingFor"]').fill('Contractor')
         self.page.locator('[data-field="followUp"]').fill(TODAY)
-        self.page.get_by_text('Notes, checklist & links', exact=True).click()
         self.click('add-check')
         self.page.locator('[data-lm="check-text"]').fill('Specify finish')
         self.page.locator('[data-field="linksText"]').fill('https://example.com/quote')
@@ -290,6 +290,67 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertFalse(p['checklist'][0]['done'])
         self.assertFalse(self.errors)
 
+    def test_six_areas_keep_detailed_area_and_project_link(self):
+        groups=[{'id':'nursery','title':'Finish the nursery','area':'Family & Baby'}]
+        self.load(board([task('fence',area='House — Exterior & Landscaping',parentId='nursery'),task('plain',area='Personal Finances')],groups=groups))
+        self.edit('fence')
+        area=self.page.locator('dialog [data-field="area"]')
+        self.assertEqual(area.locator('option').all_text_contents(),['Unfiled','Food','Household','Family','Health','Work & growth','Money & admin'])
+        self.assertEqual(area.input_value(),'House — Exterior & Landscaping','the six-area choice carries the saved detailed area')
+        self.assertIn('Finish the nursery',self.page.locator('dialog .lm-area-note').inner_text(),'a task filed apart from its project says so before saving')
+        self.click('save-editor')
+        fence=next(t for t in self.state()['projects'] if t['id']=='fence')
+        self.assertEqual(fence['area'],'House — Exterior & Landscaping','saving without changing the area keeps the detailed area')
+        self.assertEqual(fence['parentId'],'nursery','the project link is kept')
+        self.edit('fence')
+        self.page.locator('dialog [data-field="area"]').select_option(label='Family')
+        self.assertEqual(self.page.locator('dialog .lm-area-note').count(),0,'no note once the task and project share an area')
+        self.click('save-editor')
+        fence=next(t for t in self.state()['projects'] if t['id']=='fence')
+        self.assertEqual((fence['area'],fence['parentId']),('Family & Baby','nursery'),'the chosen area is saved instead of being overridden by the project')
+        self.edit('plain')
+        self.page.locator('dialog [data-lm-details] > summary').click()
+        self.page.locator('dialog [data-field="parentId"]').select_option('nursery')
+        self.assertEqual(self.page.locator('dialog [data-field="area"]').input_value(),'Personal Finances','linking a project does not replace a chosen area')
+        self.assertTrue(self.page.locator('dialog [data-lm-details]').evaluate('el=>el.open'),'Details stays open while editing')
+        self.click('save-editor')
+        plain=next(t for t in self.state()['projects'] if t['id']=='plain')
+        self.assertEqual((plain['area'],plain['parentId']),('Personal Finances','nursery'))
+        self.assertFalse(self.errors)
+
+    def test_short_editor_marks_done_and_keeps_details_reachable(self):
+        self.load(board([task('one',due='2026-12-01',plan=TODAY)]))
+        self.edit('one')
+        dialog=self.page.locator('dialog')
+        self.assertFalse(dialog.locator('[data-field="due"]').is_visible(),'the deadline sits under Details')
+        self.assertIn('Deadline',dialog.locator('[data-lm-details] > summary').inner_text(),'Details names what it holds')
+        self.assertTrue(dialog.locator('[data-field="plan"]').is_visible())
+        dialog.locator('[data-lm="field-done"]').check()
+        self.assertEqual(dialog.locator('[data-field="status"]').input_value(),'Done')
+        self.click('save-editor')
+        one=self.state()['projects'][0]
+        self.assertEqual((one['status'],one['due'],one['plan']),('Done','2026-12-01',TODAY),'completing from the editor keeps both dates')
+        self.assertFalse(self.errors)
+
+    def test_projects_search_and_next_task_never_write_records(self):
+        groups=[{'id':'nursery','title':'Finish the nursery','area':'Family & Baby'}]
+        original=board([task('blinds',task='Order the blinds',area='Family & Baby',parentId='nursery',plan=TODAY),task('crib',task='Assemble the crib',area='Family & Baby',parentId='nursery'),task('loose',task='Renew insurance',area='Vehicles')],groups=groups)
+        raw=json.dumps(original,indent=2)
+        self.load(storage={'lifemap_v1':raw},home=True)
+        self.page.locator('#lm-day-nav-projects').click()
+        self.assertIn('Order the blinds',self.page.locator('.lm-project-next').inner_text(),'the next open task shows on the card')
+        self.assertIn('Renew insurance',self.page.get_by_role('region',name='Tasks without a project').inner_text())
+        search=self.page.locator('#lm-day-field-q')
+        search.fill('crib')
+        self.assertEqual(self.page.evaluate('document.activeElement.id'),'lm-day-field-q','typing keeps focus in search')
+        self.assertEqual(self.page.locator('#lm-project-results [data-lm="edit-task"]').count(),1)
+        self.assertIn('1 open task',self.page.locator('.lm-project-sticky [data-project-summary]').inner_text())
+        search.fill('')
+        self.page.get_by_label('Filter by area',exact=True).select_option('household')
+        self.assertIn('Household · 1 open task',self.page.locator('.lm-project-sticky').inner_text())
+        self.assertEqual(self.storage()['lifemap_v1'],raw)
+        self.assertFalse(self.errors)
+
     def test_search_and_nested_delete_confirmation(self):
         self.load(board([task('one')],chores=[{'id':'c','chore':'File invoice','cad':'Weekly'}]))
         self.click('search')
@@ -297,6 +358,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertIn('File invoice',self.page.locator('#lm-search-results').inner_text())
         self.close()
         self.edit('one')
+        self.page.locator('[data-lm-details] > summary').click()
         self.click('delete-editor')
         self.assertTrue(self.page.locator('#uiDlg').evaluate('(el)=>el.matches(":modal")'))
         self.assertEqual(len(self.state()['projects']),1)
@@ -341,7 +403,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.page.locator('#lm-day-nav-projects').click()
         for id,title in [('food','Task food'),('work','Task work')]:
             self.page.get_by_label('Filter by area',exact=True).select_option(id)
-            self.page.locator('.lm-project-tasks summary').evaluate('el=>{if(!el.parentElement.open)el.click();}')
+            self.assertTrue(self.page.locator('.lm-project-next [data-lm="edit-task"]').is_visible(),'the next task shows without expanding the project')
             self.assertEqual(self.page.locator('#lm-category-content [data-lm="edit-task"]').count(),1)
             self.assertIn(title,self.page.locator('#lm-category-content').inner_text())
         self.page.locator('#lm-day-nav-home').click()
@@ -735,7 +797,7 @@ class LifeMapBrowser(unittest.TestCase):
                     self.page.locator('.lm-block-editor').evaluate_all('els=>els.forEach(el=>el.open=true)')
                 self.assertFalse(self.page.locator('#lm-capture-launch').is_visible())
                 violations=self.page.locator('.lm-day-view:not([hidden]) .lm-day-field input, .lm-day-view:not([hidden]) .lm-day-field select').evaluate_all('''els=>els.filter(el=>el.getClientRects().length).flatMap(el=>{
-                    const r=el.getBoundingClientRect(),p=el.closest('label').getBoundingClientRect(),c=el.closest('.lm-day-panel,.lm-day-date-bar,.lm-project-toolbar').getBoundingClientRect();
+                    const r=el.getBoundingClientRect(),p=el.closest('label').getBoundingClientRect(),c=el.closest('.lm-day-panel,.lm-day-date-bar,.lm-project-toolbar,.lm-project-sticky').getBoundingClientRect();
                     const errors=[];
                     if(r.left<p.left-1||r.right>p.right+1||r.left<c.left||r.right>c.right)errors.push(el.id+' leaves its field/card');
                     if(el.scrollWidth>el.clientWidth+2&&el.type!=='select-one')errors.push(el.id+' internal overflow');
