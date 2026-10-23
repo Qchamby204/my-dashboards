@@ -8,7 +8,7 @@
   Object.assign(utilityIcons,{'‹':'<path d="m15 5-7 7 7 7"/>','›':'<path d="m9 5 7 7-7 7"/>'});
   const button=(text,action,attrs='',cls='')=>'<button type="button" class="btn tap lm-button '+cls+'" data-lm="'+action+'" '+attrs+'>'+(utilityIcons[text]?'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+utilityIcons[text]+'</svg>':text)+'</button>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
-  const select=(key,value,options,extra='')=>'<select'+(key==='captureArea'?' aria-label="Category"':key==='captureParent'?' aria-label="Project"':'')+' data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
+  const select=(key,value,options,extra='')=>'<select'+(key==='captureArea'?' aria-label="Category"':key==='captureParent'&&!extra.includes('aria-label=')?' aria-label="Project"':'')+' data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
   const input=(key,value='',type='text',extra='')=>'<input'+(key==='captureDate'?' aria-label="Date"':'')+' type="'+type+'" data-lm="field" data-field="'+key+'" value="'+esc(value||'')+'" '+extra+'>';
   const field=(label,content)=>'<label class="lm-field"><span>'+esc(label)+'</span>'+content+'</label>';
   const help=text=>'<p class="lm-help">'+esc(text)+'</p>';
@@ -124,7 +124,10 @@
   hero=function(){return '<div class="appbar"><a href="'+(window.AtlasConnected?'/':'index.html')+'" class="homebtn" aria-label="Atlas">⌂</a><div style="flex:1;min-width:0"><div class="appbar-title">Life Map</div><div class="appbar-sub">Every area, one board</div></div>'+button('⌕','search','aria-label="Search all Life Map"','lm-icon')+'</div>';};
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
   const captureDate=()=>M.validDate(view.qa.when)?view.qa.when:view.qa.when==='today'?todayISO():view.qa.when==='tomorrow'?M.plus(todayISO(),1):'';
-  function captureFields(){return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureArea',view.qa.area,[['','Unfiled'],...M.categories.map(([k,t])=>[({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'})[k],t]),...orderedAreas().filter(a=>!['Food System','House — Interior','Family & Baby','Health & Fitness','Work — Content','Life Admin & Documents'].includes(a.name)).map(a=>[a.name,a.name])]))+field('Date',input('captureDate',captureDate(),'date'))+'</div>'+(view.qa.parentId?field('Project',select('captureParent',view.qa.parentId,groupOptions())):'');}
+  function captureFields(){
+    const projects=(S.groups||[]).filter(g=>!g.archived);
+    return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureParent',view.qa.parentId,[['','Choose a project'],...projects.map(g=>[g.id,g.title])],'aria-label="Category"'))+field('Date',input('captureDate',captureDate(),'date'))+'</div>'+(!projects.length?help('Create your core projects in Projects to use them as categories.'):'');
+  }
   quickCapture=function(){
     const qa=view.qa;
     return '<section class="panel lm-capture" aria-label="Quick add task"><h2>Add a task</h2><label class="lm-field"><span>Task</span><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="What needs doing?" autocomplete="off"></label>'+captureFields()+
@@ -197,7 +200,7 @@
     const q=view.qa,count=q.txt.split(/\n/).filter(x=>x.trim()).length;
     return field('Task','<textarea id="lm-capture-text" aria-label="Task" data-lm="capture-text" rows="2" maxlength="20000" placeholder="What needs doing?">'+esc(q.txt)+'</textarea>')+captureFields()+
       '<div class="lm-inline lm-plan-chips">'+[['today','Today'],['tomorrow','Tomorrow'],['next','No date']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+
-      '<details class="lm-details"><summary>More options</summary><div class="lm-inline">'+[['inbox','Inbox'],['wk','This week'],['someday','Someday']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+(!q.parentId?field('Project (optional)',select('captureParent',q.parentId,groupOptions())):'')+
+      '<details class="lm-details"><summary>More options</summary><div class="lm-inline">'+[['inbox','Inbox'],['wk','This week'],['someday','Someday']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+
       '<label class="lm-checkbox"><input type="checkbox" data-lm="parse-capture"'+(q.parse!==false?' checked':'')+'> Recognize dates in task wording</label><ul id="lm-capture-preview" class="lm-capture-preview">'+capturePreview()+'</ul>'+button('Add & keep capturing','add-another','data-lm-save')+'</details>'+
       '<div class="lm-sheet-actions">'+button(count>1?'Add '+count+' tasks':'Add task','save-capture','data-lm-save','lm-primary')+'</div>';
   }
@@ -353,7 +356,7 @@
     }},ids.size+' tasks organized','tasks_organized',()=>{selection.clear();selectMode=false;clearEdit();});
   }
   function captureSheet(when,parentId,area){
-    storeDraft();if(area&&!view.qa.txt&&!view.qa.parentId)view.qa.area=area;if(when)view.qa.when=when;if(parentId){view.qa.parentId=parentId;view.qa.area=group(parentId)?.area||'';}
+    storeDraft();if(!group(view.qa.parentId)||group(view.qa.parentId).archived){view.qa.parentId='';view.qa.area='';}if(area&&!view.qa.txt&&!view.qa.parentId)view.qa.area=area;if(when)view.qa.when=when;if(parentId){view.qa.parentId=parentId;view.qa.area=group(parentId)?.area||'';}
     view.editor={kind:'capture'};lastError='';render();document.getElementById('lm-capture-text')?.focus({preventScroll:true});
   }
   function handle(action,el){
@@ -439,7 +442,7 @@
     const e=view.editor,key=el.dataset.field,value=el.value;
     if(key==='captureArea'){view.qa.area=value;view.qa.parentId='';}
     else if(key==='captureDate'){view.qa.when=value||'next';}
-    else if(key==='captureParent'){view.qa.parentId=value;if(value)view.qa.area=group(value)?.area||'';}
+    else if(key==='captureParent'){view.qa.parentId=value;view.qa.area=value?group(value)?.area||'':'';}
     else if(e){e[key]=value;if(key==='area'&&value)e.inbox=false;if(key==='parentId'&&value){e.area=group(value)?.area||e.area;e.inbox=false;}
       if(key==='plan'){e.planWeek='';if(value)e.inbox=false;if(e.kind==='plan-date'&&M.validDate(value)){e.month=value.slice(0,7);e.focusDate=value;}}if(key==='showAfter'&&value){e.park='';e.someday=false;}if(key==='status'&&value!=='Waiting'){e.waitingFor='';e.followUp='';}}
     storeDraft();if(redraw)render();
