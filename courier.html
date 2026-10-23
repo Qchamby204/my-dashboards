@@ -372,7 +372,11 @@ function render() {
   const d = day();
   if (!d) return;
   window.CourierPublication?.render(d);
-  $('stamp').textContent = `generated ${d.generatedAt.replace('T', ' ').slice(0, 16)} UTC`;
+  // Show when the edition was published in the listener's own time zone.
+  const published = new Date(d.generatedAt);
+  $('stamp').textContent = Number.isNaN(published.getTime())
+    ? ''
+    : 'Published ' + published.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
   const plan = schedule(d.blocks);
   const listened = state.listened[d.date] || [];
@@ -464,7 +468,10 @@ function renderRail(d, plan, listened) {
 }
 
 function renderDays() {
-  $('day').innerHTML = manifest.days.map(d => `<option value="${d.date}">${d.date}</option>`).join('');
+  // Edition dates are calendar days; format them at noon UTC so no time zone shifts the day.
+const editionLabel = date => { const t = new Date(date + 'T12:00:00Z'); return Number.isNaN(t.getTime()) ? date : t.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }); };
+$('day').innerHTML = manifest.days.map(d => `<option value="${d.date}">${editionLabel(d.date)}</option>`).join('')
+$('day').setAttribute('aria-label', 'Edition');
   $('day').value = ui.day;
 }
 
