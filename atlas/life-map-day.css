@@ -310,3 +310,12 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar{display:gri
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add{grid-column:3;grid-row:1;display:inline-flex!important;align-items:center;justify-content:center;min-width:44px;min-height:44px;width:auto!important;margin:0!important;padding:10px 14px!important;border-radius:999px!important;font:600 .875rem/1.25 var(--neo-font)!important;white-space:nowrap;background:var(--neo-accent)!important;color:var(--neo-accent-ink,var(--neo-bg))!important;border:1px solid var(--neo-accent)!important;box-shadow:none!important;touch-action:manipulation}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add:active{transform:scale(.97)}
 @media(prefers-reduced-motion:reduce){html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add:active{transform:none}}
+
+/* The task, category and date share a compact first view of the entry sheet. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-sheet-header{padding:12px 20px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-sheet-body{padding:16px 20px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-sheet-footer{padding:12px 20px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-field{margin-bottom:12px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay #lm-capture-text{height:48px;min-height:48px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-capture-fields{grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr))!important;gap:12px;margin:12px 0}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-capture-fields .lm-field{margin:0}

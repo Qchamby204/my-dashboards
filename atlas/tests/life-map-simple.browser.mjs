@@ -23,7 +23,13 @@ try{
   const headerCapture=p.locator('.appbar [data-day="capture"]');
   const headerBounds=await headerCapture.evaluate(n=>{const b=n.getBoundingClientRect(),bar=n.closest('.appbar').getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right,width:b.width,height:b.height,barTop:bar.top,barBottom:bar.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight};});
   assert(headerBounds.top>=0&&headerBounds.bottom<=headerBounds.viewportHeight&&headerBounds.left>=0&&headerBounds.right<=headerBounds.viewportWidth&&headerBounds.width>=44&&headerBounds.height>=44,'Add task is fully visible at launch without scrolling');
-  await headerCapture.click();assert(await p.getByRole('dialog',{name:'Add task',exact:true}).isVisible());await p.keyboard.press('Escape');
+  await headerCapture.click();const entry=p.getByRole('dialog',{name:'Add task',exact:true});assert(await entry.isVisible());
+  if(size===16&&width>=393&&height>=852){
+   await p.evaluate(()=>{Object.defineProperty(visualViewport,'height',{value:430,configurable:true});visualViewport.dispatchEvent(new Event('resize'));});await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+   const fit=await entry.evaluate(n=>{const body=n.querySelector('.lm-sheet-body').getBoundingClientRect(),footer=n.querySelector('.lm-sheet-footer').getBoundingClientRect();return [...n.querySelectorAll('#lm-capture-text,[data-field="captureParent"],[data-field="captureDate"]')].every(el=>{const b=el.getBoundingClientRect();return b.top>=body.top&&b.bottom<=footer.top&&b.left>=body.left&&b.right<=body.right;});});assert(fit,'Task, category and date are visible together above the save button with a phone keyboard');await p.screenshot({path:path.join(out,`simple-header-capture-keyboard-${theme}-${width}.png`)});
+   await p.evaluate(()=>{delete visualViewport.height;visualViewport.dispatchEvent(new Event('resize'));});
+  }
+  await p.keyboard.press('Escape');
   await p.evaluate(()=>scrollTo(0,600));const scrolled=await headerCapture.boundingBox();assert(scrolled.y>=0&&scrolled.y+scrolled.height<height,'Add task stays in the header after scrolling');await p.evaluate(()=>scrollTo(0,0));
 
   assert(await p.locator('.lm-now-card').isVisible());const order=await p.evaluate(()=>{const a=document.querySelector('[aria-label="Right now"]'),b=document.querySelector('[aria-label="Daily mandatory"]');return !!(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING);});assert(order);
