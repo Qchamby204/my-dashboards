@@ -39,7 +39,7 @@ try{
      for(const habit of ['Sleep','Read','Board Work']){await p.locator('#ledger-habit-picker').selectOption(habit);await inspect(p,app,habit.replace(/\W/g,''),theme,width);}
      for(const view of ['progress','achievements','history']){await p.locator('#ledger-nav-'+view).click();await inspect(p,app,view,theme,width);}
     }else if(app==='life-map'){
-     for(const view of ['projects','calendar']){await p.locator('#lm-day-nav-'+view).click();await inspect(p,app,view,theme,width);if(view==='projects')assert.deepEqual(await p.getByLabel('Filter by project',{exact:true}).locator('option').allTextContents(),['All projects']);}
+     for(const view of ['projects','calendar']){await p.locator('#lm-day-nav-'+view).click();await inspect(p,app,view,theme,width);if(view==='projects')assert.deepEqual(await p.getByLabel('Filter by area',{exact:true}).locator('option').allTextContents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin']);}
      await p.evaluate(()=>LifeMapDay.showRecords());await inspect(p,app,'records',theme,width);
     }else{
      const entries=await p.locator('#atlas-page-menu [data-page-key],#atlas-page-navigation [data-page-key]').evaluateAll(ns=>[...new Set(ns.map(n=>n.dataset.pageKey))]);

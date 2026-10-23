@@ -16,8 +16,11 @@ export function createLifeMapCalendarModel(){
   const inMonth=(range,month)=>!!range&&range.start<=monthEnd(month)&&range.end>=month+'-01';
   function events(state,month){
     const out=[];
-    for(const t of state.projects||[]){if(t.archived)continue;const seen=new Set();for(const [key,label]of [['plan','Planned'],['due','Deadline'],['planWeek','Planned week'],['followUp','Follow up'],['showAfter','Returns']]){const date=t[key];if(valid(date)&&date.startsWith(month)&&!seen.has(date)){out.push({date,label,task:t});seen.add(date);}}
-      if(!t.showAfter&&t.park&&valid(t.park+'-01')&&t.park===month)out.push({date:t.park+'-01',label:'Parked month',task:t});
+    for(const t of state.projects||[]){if(t.archived)continue;const byDate=new Map();for(const [key,label]of [['plan','Planned'],['due','Deadline'],['planWeek','Planned week'],['followUp','Follow up'],['showAfter','Returns']]){const date=t[key];if(!valid(date)||!date.startsWith(month))continue;const seen=byDate.get(date);
+        // One entry per task and day, but a day that is both planned and due keeps both meanings.
+        if(seen){if(!seen.kinds.includes(key)){seen.kinds.push(key);seen.labels.push(label);seen.label=seen.labels.join(' · ');}continue;}
+        const event={date,label,labels:[label],kinds:[key],task:t};byDate.set(date,event);out.push(event);}
+      if(!t.showAfter&&t.park&&valid(t.park+'-01')&&t.park===month)out.push({date:t.park+'-01',label:'Parked month',labels:['Parked month'],kinds:['park'],task:t});
     }
     return out.sort((a,b)=>a.date.localeCompare(b.date)||a.task.task.localeCompare(b.task.task));
   }
