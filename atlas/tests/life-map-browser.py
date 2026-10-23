@@ -332,26 +332,25 @@ class LifeMapBrowser(unittest.TestCase):
 
 
 
-    def test_home_and_category_tabs_preserve_records_and_filter_tasks(self):
-        original=board([task('food',area='Food System'),task('work',area='Work — Content')])
+    def test_home_and_project_filter_preserve_records_and_filter_tasks(self):
+        original=board([task('food',area='Food System',parentId='food-project'),task('work',area='Work — Content',parentId='work-project')],groups=[{'id':'food-project','title':'Prepare meals','area':'Food System'},{'id':'work-project','title':'Client education','area':'Work — Content'}])
         raw=json.dumps(original,indent=2)
         self.load(storage={'lifemap_v1':raw},home=True)
         self.assertTrue(self.page.locator('#lm-day-view-home').is_visible())
-        self.assertFalse(self.page.locator('#lm-day-view-calendar').is_visible())
-        self.assertEqual(self.storage()['lifemap_v1'],raw)
-        self.page.locator('#lm-day-nav-projects').click();self.page.locator('#lm-category-food').click()
-        self.assertEqual(self.page.locator('#lm-category-content [data-lm="edit-task"]').count(),1)
-        self.assertIn('Task food',self.page.locator('#lm-category-content').inner_text())
-        self.page.locator('#lm-category-work').click();self.page.get_by_text('Choose operations tasks',exact=True).evaluate('el=>{if(!el.parentElement.open)el.click();}')
-        self.assertIn('Task work',self.page.locator('#lm-category-content').inner_text())
-        self.assertNotIn('Task food',self.page.locator('#lm-category-content').inner_text())
+        self.assertFalse(self.page.locator('.lm-capture').is_visible())
+        self.page.locator('#lm-day-nav-projects').click()
+        for id,title in [('food-project','Task food'),('work-project','Task work')]:
+            self.page.get_by_label('Filter by project',exact=True).select_option(id)
+            self.page.locator('.lm-project-tasks summary').click()
+            self.assertEqual(self.page.locator('#lm-category-content [data-lm="edit-task"]').count(),1)
+            self.assertIn(title,self.page.locator('#lm-category-content').inner_text())
         self.page.locator('#lm-day-nav-home').click()
         self.assertEqual(self.storage()['lifemap_v1'],raw)
         self.assertFalse(self.errors)
 
     def test_dinner_coverage_reminder_skip_extension_and_failure(self):
         self.load(board(),home=True)
-        self.page.locator('#lm-day-nav-projects').click();self.page.locator('#lm-category-food').click()
+        self.page.locator('#lm-day-nav-projects').click();self.page.get_by_text('Dinner coverage',exact=True).first.evaluate('el=>{if(!el.parentElement.open)el.click();}')
         self.page.locator('[data-day-field="food.start"]').fill('2026-09-14')
         self.page.locator('[data-day-field="food.dinners"]').fill('5')
         self.page.locator('[data-day="save-food"]').click()
@@ -566,7 +565,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.load(storage={'lifemap_v1':json.dumps(original),'operationsCadence.v1':json.dumps(ops)},home=True)
         initial=self.storage()
         self.page.locator('#lm-day-nav-projects').click()
-        self.page.locator('#lm-category-work').click();self.page.get_by_text('Choose operations tasks',exact=True).evaluate('el=>{if(!el.parentElement.open)el.click();}')
+        self.page.get_by_text('Choose operations tasks',exact=True).evaluate('el=>{if(!el.parentElement.open)el.click();}')
         self.assertEqual(self.storage()['operationsCadence.v1'],initial['operationsCadence.v1'])
         self.assertEqual(self.storage()['lifemap_v1'],initial['lifemap_v1'])
         self.page.locator('[data-ops-pick="ops:daily:0"]').check()
@@ -599,7 +598,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.page.locator('#undoToast button').click()
         self.assertEqual(json.loads(self.storage()['operationsCadence.v1']),saved)
         self.page.locator('#lm-day-nav-projects').click()
-        self.page.locator('#lm-category-work').click();self.page.get_by_text('Choose operations tasks',exact=True).evaluate('el=>{if(!el.parentElement.open)el.click();}')
+        self.page.get_by_text('Choose operations tasks',exact=True).evaluate('el=>{if(!el.parentElement.open)el.click();}')
         self.page.locator('#lm-day-field-date').fill('2026-09-21')
         self.page.locator('#lm-day-field-opsCadence').select_option('daily')
         self.page.locator('[data-ops-pick="ops:daily:0"]').check()
@@ -643,7 +642,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertNotIn('weekly:0',actual['sched'])
         self.assertEqual(actual['weekly:0']['note'],'Preserve this note')
         self.assertEqual(self.state()['projects'],[])
-        self.page.locator('#lm-day-nav-projects').click();self.page.locator('#lm-category-work').click();self.page.get_by_text('Choose operations tasks',exact=True).evaluate('el=>{if(!el.parentElement.open)el.click();}')
+        self.page.locator('#lm-day-nav-projects').click();self.page.get_by_text('Choose operations tasks',exact=True).evaluate('el=>{if(!el.parentElement.open)el.click();}')
         self.page.locator('#lm-day-field-opsCadence').select_option('weekly')
         self.assertTrue(self.page.locator('[data-ops-pick="ops:weekly:0"]').is_disabled())
         self.page.locator('#lm-day-field-date').fill('2026-09-21')
@@ -657,11 +656,9 @@ class LifeMapBrowser(unittest.TestCase):
         self.load(board(),home=True)
         original=self.storage()['lifemap_v1']
         self.page.locator('#lm-day-nav-projects').click()
-        for category in ['household','family','health','work','admin','food']:
-            self.page.locator('#lm-category-'+category).click()
-            self.assertTrue(self.page.locator('[data-day="area-routine"]').is_visible())
+        self.assertEqual(self.page.get_by_label('Filter by project',exact=True).locator('option').all_text_contents(),['All projects'])
+        self.assertTrue(self.page.locator('[data-day="area-routine"]').is_visible())
         self.assertEqual(self.storage()['lifemap_v1'],original)
-        self.page.locator('#lm-category-health').click()
         self.page.locator('[data-day="area-routine"]').click()
         self.page.locator('[data-field="chore"]').fill('Walk the dog')
         self.click('save-editor')
@@ -760,12 +757,12 @@ class LifeMapBrowser(unittest.TestCase):
         self.page.keyboard.press('ArrowRight')
         self.assertTrue(self.page.locator('#lm-day-view-projects').is_visible())
         self.page.locator('#lm-day-nav-projects').click()
-        self.page.locator('#lm-category-food').click()
+        self.page.get_by_text('Dinner coverage',exact=True).first.evaluate('el=>{if(!el.parentElement.open)el.click();}')
         self.page.locator('[data-day-field="food.note"]').fill('Prepared dinners draft')
         storage=self.storage()
         self.load(storage=storage,home=True)
         self.page.locator('#lm-day-nav-projects').click()
-        self.page.locator('#lm-category-food').click()
+        self.page.get_by_text('Dinner coverage',exact=True).first.evaluate('el=>{if(!el.parentElement.open)el.click();}')
         self.assertEqual(self.page.locator('[data-day-field="food.note"]').input_value(),'Prepared dinners draft')
         for width,height in [(320,740),(844,390),(390,844)]:
             self.page.set_viewport_size({'width':width,'height':height})
@@ -779,7 +776,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertFalse(self.errors)
 
     def test_quick_capture_today_is_explicit_and_failed_retry_keeps_one_task(self):
-        self.load(board(),home=True)
+        self.load(board())
         self.page.locator('#qaTxt').fill('Call the contractor due tomorrow')
         self.page.evaluate('window.__failWrites=true')
         self.page.locator('.lm-capture [data-field="captureDate"]').fill(TODAY);self.click('quick-add')
@@ -801,7 +798,9 @@ class LifeMapBrowser(unittest.TestCase):
 
     def test_tab_return_keeps_board_position_and_capture_draft(self):
         self.load(board([task(str(i),plan=TODAY) for i in range(16)]),home=True)
-        self.page.locator('#qaTxt').fill('An unfinished thought')
+        self.page.locator('.lm-now-card [data-day="capture"]').click()
+        self.page.locator('#lm-capture-text').fill('An unfinished thought')
+        self.close()
         self.page.locator('#lm-day-nav-calendar').click()
         self.page.evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
         self.page.evaluate('window.scrollTo({top:900,behavior:"instant"})')
