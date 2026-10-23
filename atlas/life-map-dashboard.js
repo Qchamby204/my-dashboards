@@ -96,18 +96,24 @@
   function newTask(parentId=''){
     const g=group(parentId);openEditor('proj',{area:g?.area||view.fArea||'',parentId:parentId||'',task:'',status:'Not started',pri:'Med',inbox:!parentId&&!view.fArea,checklist:[],links:[],tags:[]});
   }
+  // Row metadata reads in three quiet layers: project, then dated facts as labels, then details.
+  function taskMeta(p,done){
+    const today=todayISO(),g=group(p.parentId),dates=[],info=[],badge=(text,tone='')=>'<span class="lm-meta-badge'+(tone?' lm-meta-'+tone:'')+'">'+esc(text)+'</span>';
+    if(p.status==='Waiting')dates.push(badge('Waiting'+(p.waitingFor?' · '+p.waitingFor:''),'quiet'));
+    const when=d=>d===today?'today':d===M.plus(today,1)?'tomorrow':fmtDay(d),cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+    if(p.due){const over=p.due<today&&!done,soon=!over&&!done&&p.due<=M.plus(today,2);dates.push(badge(over?'Overdue · '+fmtDay(p.due):'Due '+when(p.due),over?'alert':soon?'soon':''));}
+    if(p.plan)dates.push(badge(p.plan===today||p.plan===M.plus(today,1)?cap(when(p.plan)):'Planned '+fmtDay(p.plan)));else if(p.planWeek)dates.push(badge('Week of '+fmtDay(p.planWeek)));
+    if(p.followUp&&p.status==='Waiting')dates.push(badge('Follow up '+fmtDay(p.followUp)));
+    if(p.showAfter)dates.push(badge('Show '+fmtDay(p.showAfter),'quiet'));else if(p.park)dates.push(badge('Parked '+fmtMonth(p.park),'quiet'));if(p.someday)dates.push(badge('Someday','quiet'));
+    if(p.pri==='High')info.push('High priority');if(p.checklist?.length)info.push(p.checklist.filter(x=>x.done).length+'/'+p.checklist.length+' steps');if(p.effortMinutes)info.push(p.effortMinutes+' min');if(p.tags?.length)info.push(p.tags.join(', '));
+    if(!g&&!dates.length&&!info.length)return '';
+    return '<span class="lm-row-meta">'+(g?'<span class="lm-row-project">'+esc(g.title)+'</span>':'')+(dates.length?'<span class="lm-row-badges">'+dates.join('')+'</span>':'')+(info.length?'<span class="lm-row-info">'+esc(info.join(' · '))+'</span>':'')+'</span>';
+  }
   function taskRow(p,{small=false}={}){
-    const done=p.status==='Done',selected=selection.has(p.id),title=esc(p.task),g=group(p.parentId);
-    let meta=[];if(g)meta.push(g.title);if(p.status==='Waiting')meta.push('Waiting'+(p.waitingFor?' · '+p.waitingFor:''));
-    if(p.due)meta.push((p.due<todayISO()&&!done?'Overdue · ':'Due ')+fmtDay(p.due));
-    if(p.plan)meta.push('Planned '+(p.plan===todayISO()?'today':fmtDay(p.plan)));
-    else if(p.planWeek)meta.push('Week of '+fmtDay(p.planWeek));
-    if(p.followUp&&p.status==='Waiting')meta.push('Follow up '+fmtDay(p.followUp));
-    if(p.showAfter)meta.push('Show '+fmtDay(p.showAfter));else if(p.park)meta.push('Parked '+fmtMonth(p.park));if(p.someday)meta.push('Someday');
-    if(p.effortMinutes)meta.push(p.effortMinutes+' min');if(p.tags?.length)meta.push(p.tags.join(', '));if(p.pri==='High')meta.push('High');if(p.checklist?.length)meta.push(p.checklist.filter(x=>x.done).length+'/'+p.checklist.length+' steps');
+    const done=p.status==='Done',selected=selection.has(p.id),title=esc(p.task);
     return '<div class="lm-task-row'+(done?' lm-done':'')+'">'+
       button(selectMode?(selected?'✓':''):(done?'✓':''),selectMode?'select':'complete','data-id="'+esc(p.id)+'" aria-label="'+esc((selectMode?'Select ':done?'Reopen ':'Complete ')+p.task)+'" aria-pressed="'+(selectMode?selected:done)+'"','lm-check')+
-      '<button type="button" class="btn lm-task-main" data-lm="edit-task" data-id="'+esc(p.id)+'"><span class="lm-task-title">'+title+'</span>'+(meta.length?'<span class="lm-row-meta">'+meta.map(esc).join(' · ')+'</span>':'')+'</button>'+
+      '<button type="button" class="btn lm-task-main" data-lm="edit-task" data-id="'+esc(p.id)+'"><span class="lm-task-title">'+title+'</span>'+taskMeta(p,done)+'</button>'+
       (!selectMode?button('⋯','task-menu','data-id="'+esc(p.id)+'" aria-label="Actions for '+title+'"','lm-icon'):'')+'</div>';
   }
   function choreRow(c){
