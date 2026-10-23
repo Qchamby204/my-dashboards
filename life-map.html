@@ -85,7 +85,7 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=11a6283b082c" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=4b1bf39c78aa"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=e6ea70e770e5"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -1605,7 +1605,7 @@ function createLifeMapWorkflow(){
     if(p.status==='Waiting')dates.push(badge('Waiting'+(p.waitingFor?' · '+p.waitingFor:''),'quiet'));
     const when=d=>d===today?'today':d===M.plus(today,1)?'tomorrow':fmtDay(d),cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
     if(p.due){const over=p.due<today&&!done,soon=!over&&!done&&p.due<=M.plus(today,2);dates.push(badge(over?'Overdue · '+fmtDay(p.due):'Due '+when(p.due),over?'alert':soon?'soon':''));}
-    if(p.plan)dates.push(badge(p.plan===today||p.plan===M.plus(today,1)?cap(when(p.plan)):'Planned '+fmtDay(p.plan)));else if(p.planWeek)dates.push(badge('Week of '+fmtDay(p.planWeek)));
+    if(p.plan&&p.plan!==p.due)dates.push(badge(p.plan===today||p.plan===M.plus(today,1)?cap(when(p.plan)):'Planned '+fmtDay(p.plan)));else if(p.planWeek)dates.push(badge('Week of '+fmtDay(p.planWeek)));
     if(p.followUp&&p.status==='Waiting')dates.push(badge('Follow up '+fmtDay(p.followUp)));
     if(p.showAfter)dates.push(badge('Show '+fmtDay(p.showAfter),'quiet'));else if(p.park)dates.push(badge('Parked '+fmtMonth(p.park),'quiet'));if(p.someday)dates.push(badge('Someday','quiet'));
     if(p.pri==='High')info.push('High priority');if(p.checklist?.length)info.push(p.checklist.filter(x=>x.done).length+'/'+p.checklist.length+' steps');if(p.effortMinutes)info.push(p.effortMinutes+' min');if(p.tags?.length)info.push(p.tags.join(', '));
@@ -1775,6 +1775,20 @@ function createLifeMapWorkflow(){
       '<div class="lm-sheet-actions">'+button('Save chore','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?button('Archive chore','archive-chore','data-id="'+esc(e.id)+'"')+button('Delete chore','delete-editor','','lm-danger'):'');
   }
   function groupEditor(e){return field('Project name',input('title',e.title,'text','maxlength="300"'))+field('Area',select('area',e.area,areaChoices(e.area,e.id?group(e.id)?.area:'')))+'<div class="lm-two-col">'+field('Start date',input('startDate',e.startDate,'date'))+field('End date',input('endDate',e.endDate,'date'))+'</div>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+'<div class="lm-sheet-actions">'+button('Save project','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?'<div class="lm-inline">'+button('+ Next action','new-task','data-group="'+esc(e.id)+'"')+button('Save as template','save-template','data-id="'+esc(e.id)+'"')+button(e.archived?'Restore project':'Archive completed project',e.archived?'restore-group':'archive-group','data-id="'+esc(e.id)+'"')+'</div>':'');}
+  // A compact Start → End → Save sheet. Task plans and deadlines keep their own dates.
+  function datesText(e){
+    if(!M.validDate(e.startDate))return 'Choose a start date.';const end=M.validDate(e.endDate)?e.endDate:e.startDate;
+    if(end<e.startDate)return 'The end date is before the start date.';
+    const days=Math.round((Date.parse(end+'T12:00:00Z')-Date.parse(e.startDate+'T12:00:00Z'))/86400000)+1;
+    return fmtDay(e.startDate)+' – '+fmtDay(end)+' · '+days+(days===1?' day':' days');
+  }
+  function datesEditor(e,g){
+    const tasks=(S.projects||[]).filter(t=>!t.archived&&t.parentId===g.id),deadlines=tasks.filter(t=>t.due).length;
+    return '<p class="lm-plan-task">'+esc(g.title)+'</p>'+'<div class="lm-two-col">'+field('Start',input('startDate',e.startDate,'date'))+field('End',input('endDate',e.endDate,'date'))+'</div>'+
+      '<p id="lm-dates-result" class="lm-dates-result" aria-live="polite">'+esc(datesText(e))+'</p>'+
+      help((e.derived?'These dates come from the project’s tasks. Saving makes them the project’s own dates. ':'')+(deadlines?'The '+deadlines+(deadlines===1?' task deadline stays':' task deadlines stay')+' as they are.':'Task dates stay as they are.'))+
+      '<div class="lm-sheet-actions">'+button('Save dates','save-dates','data-lm-save','lm-primary')+'</div>'+((g.startDate||g.endDate)?button('Use task dates instead','clear-dates'):'');
+  }
   function searchEditor(){const results=M.search(S,view.search||'',{archive:searchArchive});return '<input id="lm-search" data-lm="search-input" data-ui-only value="'+esc(view.search||'')+'" placeholder="Tasks, projects, chores, notes…" aria-label="Search all Life Map"><label class="lm-checkbox"><input type="checkbox" data-lm="search-archive" data-ui-only'+(searchArchive?' checked':'')+'> Include completed and archived</label><div id="lm-search-results">'+results.map(r=>'<button type="button" class="btn lm-search-result" data-lm="'+(r.kind==='task'?'edit-task':r.kind==='chore'?'edit-chore':'edit-group')+'" data-id="'+esc(r.item.id)+'"><strong>'+esc(r.item.task||r.item.title||r.item.chore)+'</strong><small>'+esc(r.kind+' · '+(r.kind==='task'?M.classify(r.item,todayISO()):r.item.area||r.item.cad||'')+(r.item.parentId?' · '+(group(r.item.parentId)?.title||''):''))+'</small></button>').join('')+(view.search&&!results.length?help('No matches. Include completed and archived to search the full history.'):'')+'</div>';}
   function planCalendar(e){
     const selected=M.validDate(e.plan)?e.plan:'',month=e.month||(selected||todayISO()).slice(0,7),first=month+'-01',date=new Date(first+'T12:00:00Z');
@@ -1812,6 +1826,7 @@ function createLifeMapWorkflow(){
     else if(e.kind==='template-preview'){const t=(S.templates||[]).find(t=>t.id===e.id);title='Use template';body=t?field('New project name',input('title',e.title||t.title,'text','maxlength="300"'))+'<ul class="lm-capture-preview">'+t.tasks.map(p=>'<li>'+esc(p.task)+'</li>').join('')+'</ul>'+button('Create project','use-template','data-id="'+esc(t.id)+'" data-lm-save','lm-primary'):help('This template is no longer available.');}
     else if(e.kind==='reminder'){title='Calendar reminder';body=field('Reminder date',input('date',e.date,'date'))+field('Time (your calendar’s local time)',input('time',e.time||'09:00','time'))+help('Download, import into your calendar, then confirm the event and alert. This is not a background web-push notification.')+button('Export reminder','export-reminder','data-lm-save','lm-primary');}
     else if(e.kind==='archived-groups'){title='Archived projects';body=(S.groups||[]).filter(g=>g.archived).map(g=>'<div class="lm-section-head">'+esc(g.title)+button('Restore','restore-group','data-id="'+esc(g.id)+'"')+'</div>').join('')||help('No archived projects.');}
+    else if(e.kind==='dates'){const g=group(e.id);title='Project dates';body=g?datesEditor(e,g):help('This project is no longer available.');}
     else if(e.kind==='connections'){title='Capture, saving & reminders';body=connectionsEditor();}
     return '<dialog class="overlay lm-sheet-overlay'+(e.kind==='plan-date'?' lm-date-overlay':e.kind==='capture'?' lm-capture-overlay':'')+'" role="dialog" aria-modal="true" aria-labelledby="lm-sheet-title"><div class="panel lm-sheet"><div class="lm-sheet-header"><h2 id="lm-sheet-title">'+esc(title)+'</h2>'+button('×','close','aria-label="Close"','lm-icon')+'</div><div class="lm-sheet-body">'+body+'<p id="lm-editor-status" class="lm-error" role="alert">'+esc(lastError||draftError)+'</p>'+(pendingAction?'<div class="lm-inline">'+button('Retry saving','retry')+button('Discard unsaved change','discard-failed')+'</div>':'')+'</div></div></dialog>';
   };
@@ -1966,6 +1981,9 @@ function createLifeMapWorkflow(){
     if(action==='remove-check'){view.editor.checklist.splice(+el.dataset.index,1);storeDraft();render();return;}
     if(action==='reminder'){const p=project(id);if(p)openEditor('reminder',{id,date:p.followUp||p.due||p.plan||todayISO(),time:'09:00'});return;}
     if(action==='export-reminder'){const e=view.editor,p=project(e.id);if(!p)return;try{const text=M.calendarReminder({id:p.id,title:p.task,date:e.date,time:e.time,note:'Life Map reminder. Check the task in your chosen Life Map copy.'});download(text,'life-map-reminder.ics','text/calendar;charset=utf-8');toast('Calendar file prepared. Import it to schedule the alert.');clearEdit();render();}catch(err){lastError=err.message;feedback();render();}return;}
+    if(action==='save-dates'||action==='clear-dates'){const e=view.editor,clear=action==='clear-dates';if(!e||e.kind!=='dates')return;
+      if(!clear){if(!M.validDate(e.startDate)){lastError='Choose a start date.';feedback();return;}if(M.validDate(e.endDate)&&e.endDate<e.startDate){lastError='The end date is before the start date.';feedback();return;}}
+      return transaction(next=>{const g=next.groups?.find(g=>g.id===e.id&&!g.archived);if(!g)throw Error('This project is no longer available.');if(clear){delete g.startDate;delete g.endDate;}else{g.startDate=e.startDate;g.endDate=M.validDate(e.endDate)?e.endDate:e.startDate;}},clear?'Project now follows its task dates':'Project dates saved','project_updated',clearEdit);}
     if(action==='connections')return openEditor('connections');if(action==='archived-groups')return openEditor('archived-groups');
     if(action==='copy-capture-address'){const text=location.origin+location.pathname+'#capture=';if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>toast('Capture address copied.'),()=>toast('Select and copy the address above.'));else toast('Select and copy the address above.');return;}
     if(action==='resume-edit'){if(recoveredEditor){view.editor=clone(recoveredEditor);editorBase=recoveredBase;recoveredEditor=null;restorePrompt=false;render();}return;}
@@ -2000,7 +2018,7 @@ function createLifeMapWorkflow(){
     const el=ev.target;if(busy)return;const a=el.dataset?.lm;
     if(el.id==='qaTxt'){view.qa.txt=el.value;storeDraft();const hints=document.getElementById('lm-quick-hints');if(hints)hints.innerHTML=quickHints();app.querySelectorAll('[data-capture-date-hint]').forEach(hint=>hint.textContent=captureDateHint());return;}
     if(a==='capture-text'){ev.stopImmediatePropagation();view.qa.txt=el.value;storeDraft();const preview=document.getElementById('lm-capture-preview');if(preview)preview.innerHTML=capturePreview();app.querySelectorAll('[data-capture-date-hint]').forEach(hint=>hint.textContent=captureDateHint());return;}
-    if(a==='field'){ev.stopImmediatePropagation();fieldChange(el,false);return;}
+    if(a==='field'){ev.stopImmediatePropagation();fieldChange(el,false);if(view.editor?.kind==='dates'){const out=document.getElementById('lm-dates-result');if(out)out.textContent=datesText(view.editor);}return;}
     if(a==='check-text'){ev.stopImmediatePropagation();const c=view.editor?.checklist?.[+el.dataset.index];if(c)c.text=el.value;storeDraft();return;}
     if(a==='search-input'){ev.stopImmediatePropagation();view.search=el.value;const start=el.selectionStart;render();const next=document.getElementById('lm-search');next?.focus({preventScroll:true});next?.setSelectionRange(start,start);}
   },true);
@@ -2229,7 +2247,7 @@ function createLifeMapCalendarModel(){
   const feature=(kind,label,eyebrow,title,body,actions,extraClass='')=>'<section class="lm-feature '+extraClass+'" aria-label="'+attrs(label)+'"><div class="lm-feature-rail">'+esc(eyebrow)+'</div><div class="lm-feature-body"><div class="lm-feature-title"><h2>'+esc(title)+'</h2></div>'+featureArt(kind)+body+'</div><div class="lm-feature-footer lm-inline">'+actions+'</div></section>';
   const focusCard=(eyebrow,title,body,actions)=>{
     const direct=(actions.match(/<button[^>]+data-day="(?:focus|complete-task|complete-routine|ops-start|ops-complete)"[\s\S]*?<\/button>/g)||[]).join('');
-    return feature('home','Current focus',eyebrow,title,body,direct+button('View projects','tab','data-tab="projects"'),'lm-now-card');
+    return feature('home','Current focus',eyebrow,title,body,direct+button(ui.focusPicker?'Keep this focus':'Change focus','focus-picker','aria-expanded="'+!!ui.focusPicker+'" aria-controls="lm-focus-picker"'),'lm-now-card');
   };
   const daySelector=()=>'<section class="lm-day-date-bar" aria-label="Selected day">'+field(ui.tab==='plan'?'Schedule tasks for':'Day to view',input('date',ui.date,'date'))+'<div class="lm-day-date-actions">'+button('<span aria-hidden="true">‹</span>','day-step','data-step="-1" aria-label="Previous day"')+button('Today','plan-today')+button('<span aria-hidden="true">›</span>','day-step','data-step="1" aria-label="Next day"')+'</div>'+'</section>';
   const plan=(date=ui.date)=>S.dayPlans?.[date]||{reviewed:false,mainTaskId:'',blocks:[]};
@@ -2342,7 +2360,7 @@ function createLifeMapCalendarModel(){
     else if(c.kind==='food')actions=button('Open Food','tab','data-tab="areas" data-category="food"',true);
     else if(c.kind==='plan')actions=button('Build today','tab','data-tab="plan"',true);
     else actions=button('Choose a task','tab','data-tab="board"')+'<a class="btn lm-day-button" href="life-ledger.html">Leisure in Life Ledger ↗</a>';
-    return focusCard('Right now'+(c.minutes?' · '+c.minutes+' min':''),c.title,help(c.why),actions+button('Change plan','change-focus'));
+    return focusCard('Right now'+(c.minutes?' · '+c.minutes+' min':''),c.title,help(String(c.why||'').replace(/\b\d{4}-\d{2}-\d{2}\b/g,d=>M.validDate(d)?(d===todayISO()?'today':fmtDay(d)):d)),actions+button('Change plan','change-focus'));
   }
   function categoryCards(){
     return '<div class="lm-category-grid">'+M.categories.map(([key,title])=>{
@@ -2359,15 +2377,41 @@ function createLifeMapCalendarModel(){
     const history=(S.choreHistory||[]).filter(h=>h.choreId===c.id&&h.date===todayISO()).at(-1),on=c.repeat?!!history:isChecked(c),skipped=history?.status==='skipped';
     return '<div class="lm-task-row'+(on&&!skipped?' lm-done':'')+'">'+button(on?(skipped?'—':'✓'):'','mandatory-toggle','data-id="'+attrs(c.id)+'" aria-pressed="'+on+'" aria-label="'+attrs((on?'Mark incomplete: ':'Complete ')+c.chore)+'"')+'<button type="button" class="btn lm-task-main" data-lm="edit-chore" data-id="'+attrs(c.id)+'"><span class="lm-task-title">'+esc(c.chore)+'</span><span class="lm-row-meta">'+esc(skipped?'Skipped today':on?'Done today':c.cad)+'</span></button></div>';
   }
+  // Daily mandatory has two explicit groups: routines that repeat every day, and other routines due today.
+  const everyDay=c=>!c.repeat&&c.cad==='Daily'||c.repeat?.unit==='day'&&Number(c.repeat.every||1)===1;
+  const handledToday=c=>(S.choreHistory||[]).some(h=>h.choreId===c.id&&h.date===todayISO());
+  function mandatoryGroups(){
+    const live=S.chores.filter(c=>!c.archived),today=todayISO();
+    const daily=live.filter(everyDay);
+    const due=live.filter(c=>!everyDay(c)&&(plannedToday(c)||c.repeat&&M.choreDue(c,today)<=today||handledToday(c)));
+    return {daily,due};
+  }
+  const routineDone=c=>c.repeat?(S.choreHistory||[]).some(h=>h.choreId===c.id&&h.date===todayISO()&&h.status==='done'):isChecked(c)&&!(S.choreHistory||[]).some(h=>h.choreId===c.id&&h.occurrence===periodKey(c.cad)&&h.status==='skipped');
+  function focusPicker(){
+    const today=todayISO(),agenda=M.todayTasks(S.projects,today),seen=new Set(),rows=[...agenda.due,...agenda.chosen,...agenda.rollover].filter(t=>t.status!=='Waiting'&&!seen.has(t.id)&&seen.add(t.id));
+    const current=S.dayPlans?.[today]?.focus;
+    return '<section id="lm-focus-picker" class="panel lm-day-panel lm-focus-picker" aria-label="Choose your focus"><h2>Choose your focus</h2>'+help('Pick the task to work on now. It moves to today if it was planned for another day; its deadline stays the same.')+
+      (rows.length?'<div class="lm-focus-options">'+rows.map(t=>'<button type="button" class="btn lm-focus-option" data-day="focus" data-kind="task" data-id="'+attrs(t.id)+'"'+(current?.kind==='task'&&current.id===t.id?' aria-current="true"':'')+'><strong>'+esc(t.task)+'</strong><span>'+esc([t.due&&t.due<today?'Overdue · '+fmtDay(t.due):t.due===today?'Due today':'',t.plan===today?'Planned today':t.plan&&t.plan<today?'Planned '+fmtDay(t.plan):''].filter(Boolean).join(' · ')||'Open task')+'</span></button>').join('')+'</div>':help('Nothing is planned or due today. Add a task, or plan one from Projects.'))+
+      '<div class="lm-inline">'+button('Cancel','focus-picker')+'</div></section>';
+  }
   function homeView(){
-    const routines=S.chores.filter(c=>!c.archived&&(!c.repeat&&c.cad==='Daily'||plannedToday(c)||c.repeat&&M.choreDue(c,todayISO())<=todayISO()||(S.choreHistory||[]).some(h=>h.choreId===c.id&&h.date===todayISO())));
-    const complete=routines.filter(c=>c.repeat?(S.choreHistory||[]).some(h=>h.choreId===c.id&&h.date===todayISO()&&h.status==='done'):isChecked(c)&&!(S.choreHistory||[]).some(h=>h.choreId===c.id&&h.occurrence===periodKey(c.cad)&&h.status==='skipped')).length;
+    const today=todayISO(),groups=mandatoryGroups(),all=[...groups.daily,...groups.due],complete=all.filter(routineDone).length;
     let html=panel('Right now',rightNow());
-    html+=panel('Daily mandatory','<div class="lm-day-section-title"><div><div class="eyebrow">The essentials</div><h2>Daily mandatory</h2></div><span class="lm-checklist-count">'+complete+' / '+routines.length+'</span></div><div class="lm-mandatory-list">'+(routines.length?routines.map(mandatoryRow).join(''):help('Add the routines you want to check off each day.'))+'</div>'+button('Add routine','area-routine','data-category="household"'));
+    if(ui.focusPicker)html+=focusPicker();
+    html+=panel('Daily mandatory','<div class="lm-day-section-title"><div><div class="eyebrow">The essentials</div><h2>Daily mandatory</h2></div><span class="lm-checklist-count">'+complete+' / '+all.length+'</span>'+info('What appears in Daily mandatory','Every day lists routines that repeat daily. Also due today lists other routines scheduled for today or whose next occurrence is due. Checked items stay until midnight and can be unchecked.')+'</div>'+
+      '<div class="lm-mandatory-list">'+(groups.daily.length?groups.daily.map(mandatoryRow).join(''):help('Add the routines you want to check off each day.'))+'</div>'+
+      (groups.due.length?'<h3 class="lm-mandatory-subhead">Also due today</h3><div class="lm-mandatory-list">'+groups.due.map(mandatoryRow).join('')+'</div>':'')+
+      button('Add routine','area-routine','data-category="household"'));
     html+='<div data-day-capture-anchor></div>';
-    const tasks=S.projects.filter(t=>!t.archived&&(t.plan===todayISO()||M.open(t)&&t.due&&t.due<=todayISO()));
-    const ops=opsPlanned(todayISO());
-    if(tasks.length||ops.length)html+=panel('Today’s tasks','<div class="lm-day-section-title"><h2>Today’s tasks</h2>'+button('Calendar','tab','data-tab="calendar"')+'</div>'+M.sortTasks(tasks,todayISO()).map(t=>D.taskRow(t)).join('')+ops.map(opsTaskRow).join(''));
+    const agenda=M.todayTasks(S.projects,today),seen=new Set(),open=[...agenda.due,...agenda.chosen].filter(t=>!seen.has(t.id)&&seen.add(t.id));
+    const done=S.projects.filter(t=>!t.archived&&t.status==='Done'&&(t.plan===today||t.doneAt===today));
+    const ops=opsPlanned(today);
+    if(open.length||done.length||ops.length)html+=panel('Today’s tasks','<div class="lm-day-section-title"><h2>Today’s tasks</h2>'+button('Calendar','tab','data-tab="calendar"')+'</div>'+
+      (open.length?M.sortTasks(open,today).map(t=>D.taskRow(t)).join(''):help(done.length?'Everything planned for today is done.':'Nothing planned for today.'))+ops.map(opsTaskRow).join('')+
+      (done.length?'<details class="lm-done-today"><summary>Done today · '+done.length+'</summary>'+done.map(t=>D.taskRow(t)).join('')+'</details>':''));
+    const late=agenda.rollover.filter(t=>!seen.has(t.id));
+    if(late.length)html+=panel('Needs rescheduling','<div class="lm-day-section-title"><h2>Needs rescheduling</h2><span class="lm-checklist-count">'+late.length+'</span></div>'+help('Planned for an earlier day and not done yet. Choose a new day; deadlines stay as they are.')+
+      M.sortTasks(late,today).map(t=>'<article class="lm-reschedule-row">'+D.taskRow(t)+'<div class="lm-inline lm-reschedule-actions">'+['today','tomorrow'].map(w=>'<button type="button" class="btn lm-day-button" data-lm="plan" data-id="'+attrs(t.id)+'" data-when="'+w+'" aria-label="'+attrs('Plan '+t.task+' for '+w)+'">'+(w==='today'?'Today':'Tomorrow')+'</button>').join('')+'<button type="button" class="btn lm-day-button" data-lm="choose-date" data-id="'+attrs(t.id)+'" aria-label="'+attrs('Choose a date for '+t.task)+'">Choose date</button></div></article>').join(''));
     html+=completedRecap();
     if(!window.AtlasConnected)html+='<details class="lm-more-tools"><summary>Daily preparation & links</summary><section id="atlas-daily-root" aria-label="Daily preparation"></section></details>';
     return html;
@@ -2443,15 +2487,24 @@ function createLifeMapCalendarModel(){
     html+='</div><details class="lm-more-tools"'+(ui.records?' open':'')+' data-full-record><summary>More tools & full record</summary>'+button('Open full record','records')+'</details>';
     return html;
   }
+  // Each project keeps one colour everywhere: its position among all saved projects, so archiving or browsing never shifts it.
+  const projectTone=g=>'lm-pc-'+(Math.max(0,(S.groups||[]).findIndex(x=>x.id===g.id))%6);
+  const markPlan='<i class="lm-mark lm-mark-plan" aria-hidden="true"></i>',markDue='<i class="lm-mark lm-mark-due" aria-hidden="true"></i>',markProject=tone=>'<i class="lm-mark lm-mark-project '+tone+'" aria-hidden="true"></i>';
   function calendarView(){
     const month=ui.month,first=month+'-01',last=K.monthEnd(month),projects=K.projects(S),active=projects.filter(p=>K.inMonth(p.range,month)),events=K.events(S,month),label=new Intl.DateTimeFormat(undefined,{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(first+'T12:00:00Z')),weekday=(new Date(first+'T12:00:00Z').getUTCDay()+6)%7;
+    const isPlan=e=>e.kinds?.some(k=>k==='plan'||k==='planWeek'),isDue=e=>e.kinds?.includes('due');
     const days=Number(last.slice(8));let grid='';for(let i=0;i<weekday;i++)grid+='<span aria-hidden="true"></span>';
-    for(let n=1;n<=days;n++){const date=month+'-'+String(n).padStart(2,'0'),items=events.filter(e=>e.date===date),spanning=active.filter(p=>p.range.start<=date&&p.range.end>=date),count=new Set([...items.map(e=>e.task.parentId||'task:'+e.task.id),...spanning.map(p=>p.group.id)]).size;
-      grid+='<button type="button" class="lm-month-day'+(count?' lm-month-has-work':'')+'" data-day="calendar-day" data-date="'+date+'" aria-label="'+attrs(fmtDay(date)+', '+items.length+' tasks, '+spanning.length+' projects')+'" aria-pressed="'+(date===ui.date)+'"'+(date===todayISO()?' aria-current="date"':'')+'><span>'+n+'</span><span class="lm-month-dots" aria-hidden="true">'+(count?'<i></i>'.repeat(Math.min(count,3)):'')+'</span></button>';
+    for(let n=1;n<=days;n++){const date=month+'-'+String(n).padStart(2,'0'),items=events.filter(e=>e.date===date),spanning=active.filter(p=>p.range.start<=date&&p.range.end>=date),planned=items.filter(isPlan).length,due=items.filter(isDue).length;
+      const said=[fmtDay(date),planned?planned+' planned':'',due?due+(due===1?' deadline':' deadlines'):'',spanning.length?spanning.map(p=>p.group.title).join(', '):''].filter(Boolean).join(', ');
+      const marks=spanning.slice(0,2).map(p=>markProject(projectTone(p.group))).join('')+(planned?markPlan:'')+(due?markDue:'');
+      grid+='<button type="button" class="lm-month-day'+(items.length||spanning.length?' lm-month-has-work':'')+'" data-day="calendar-day" data-date="'+date+'" aria-label="'+attrs(said)+'" aria-pressed="'+(date===ui.date)+'"'+(date===todayISO()?' aria-current="date"':'')+'><span>'+n+'</span><span class="lm-month-marks" aria-hidden="true">'+marks+'</span></button>';
     }
-    let html='<section class="lm-feature lm-calendar-feature" data-weeks="'+Math.ceil((weekday+days)/7)+'" aria-label="Project calendar"><div class="lm-feature-rail"><span>Project calendar</span>'+button('This month','calendar-today')+'</div><div class="lm-feature-body"><div class="lm-month-header">'+button('‹','calendar-month','data-step="-1" aria-label="Previous month"')+'<h2 aria-live="polite">'+esc(label)+'</h2>'+button('›','calendar-month','data-step="1" aria-label="Next month"')+'</div>'+help(active.length+' project'+(active.length===1?'':'s')+' · '+new Set(events.map(e=>e.task.id)).size+' dated tasks')+'<div class="lm-month-weekdays" aria-hidden="true">'+['M','T','W','T','F','S','S'].map(d=>'<span>'+d+'</span>').join('')+'</div><div class="lm-month-grid" role="group" aria-label="'+attrs(label)+'">'+grid+'</div><div class="lm-month-projects">'+active.slice(0,2).map(({group:g})=>button(esc(g.title),'project-dates','data-id="'+attrs(g.id)+'"')).join('')+'</div></div><div class="lm-feature-footer lm-inline">'+button(ui.yearView?'Close 12 months':'Next 12 months','calendar-year','aria-expanded="'+ui.yearView+'"',true)+button('Add task','capture')+'</div></section>';
-    if(ui.yearView)html+=panel('Next 12 months','<h2>The next 12 months</h2><div class="lm-year-grid">'+Array.from({length:12},(_,i)=>{const m=K.shiftMonth(todayISO().slice(0,7),i),n=projects.filter(p=>K.inMonth(p.range,m)).length,tasks=new Set(K.events(S,m).map(e=>e.task.id)).size;return '<button type="button" class="lm-year-month" data-day="calendar-pick-month" data-month="'+m+'" aria-pressed="'+(m===month)+'"><strong>'+esc(fmtMonth(m))+'</strong><span>'+n+' project'+(n===1?'':'s')+' · '+tasks+' task'+(tasks===1?'':'s')+'</span></button>';}).join('')+'</div>');
-    html+=panel('Projects this month','<div class="lm-day-section-title"><h2>Projects in '+esc(label)+'</h2><button type="button" class="btn lm-day-button" data-lm="new-group">New project</button></div><div class="lm-timeline-scale" aria-hidden="true"><span>1</span><span>'+Math.round(days/2)+'</span><span>'+days+'</span></div>'+active.map(({group:g,range,tasks})=>{const bar=K.bar(range,month),done=tasks.filter(t=>t.status==='Done').length;return '<button type="button" class="lm-project-timeline" data-day="project-dates" data-id="'+attrs(g.id)+'" aria-label="'+attrs('Change dates for '+g.title)+'"><span class="lm-timeline-title"><strong>'+esc(g.title)+'</strong><span>'+done+' / '+tasks.length+'</span></span><span class="lm-timeline-track"><span style="left:'+bar.left+'%;width:'+bar.width+'%"></span></span><span class="lm-row-meta">'+esc(fmtDay(range.start)+' – '+fmtDay(range.end))+(range.derived?' · From task dates':'')+'</span></button>';}).join('')+(active.length?'':help('No projects scheduled this month. Set dates on a project to place it here.')));
+    const plannedCount=new Set(events.filter(isPlan).map(e=>e.task.id)).size,dueCount=events.filter(isDue).length;
+    const summary='<p class="lm-help lm-month-summary">'+markPlan+' '+plannedCount+' planned · '+markDue+' '+dueCount+' deadline'+(dueCount===1?'':'s')+' · '+active.length+' project'+(active.length===1?'':'s')+'</p>';
+    const named=active.length?'<button type="button" class="btn lm-day-button lm-month-projects-link" data-day="calendar-projects" aria-label="'+attrs('View all '+active.length+' projects in '+label)+'"><span class="lm-month-swatches" aria-hidden="true">'+active.slice(0,4).map(p=>markProject(projectTone(p.group))).join('')+'</span><span class="lm-month-projects-name">'+esc(active[0].group.title)+(active.length>1?' and '+(active.length-1)+' more':'')+'</span><span class="lm-month-projects-cue">View all</span></button>':'';
+    let html='<section class="lm-feature lm-calendar-feature" data-weeks="'+Math.ceil((weekday+days)/7)+'" aria-label="Project calendar"><div class="lm-feature-rail"><span>Project calendar</span>'+button('This month','calendar-today')+'</div><div class="lm-feature-body"><div class="lm-month-header">'+button('‹','calendar-month','data-step="-1" aria-label="Previous month"')+'<h2 aria-live="polite">'+esc(label)+'</h2>'+button('›','calendar-month','data-step="1" aria-label="Next month"')+'</div>'+summary+'<div class="lm-month-weekdays" aria-hidden="true">'+['M','T','W','T','F','S','S'].map(d=>'<span>'+d+'</span>').join('')+'</div><div class="lm-month-grid" role="group" aria-label="'+attrs(label)+'">'+grid+'</div><div class="lm-month-projects">'+named+'</div></div><div class="lm-feature-footer lm-inline">'+button(ui.yearView?'Close 12 months':'Next 12 months','calendar-year','aria-expanded="'+ui.yearView+'"',true)+button('Add task','capture')+'</div></section>';
+    if(ui.yearView)html+=panel('Next 12 months','<h2>The next 12 months</h2>'+help('Choose a month to open its calendar and projects.')+'<div class="lm-year-grid">'+Array.from({length:12},(_,i)=>{const m=K.shiftMonth(todayISO().slice(0,7),i),inMonth=projects.filter(p=>K.inMonth(p.range,m)),tasks=new Set(K.events(S,m).map(e=>e.task.id)).size;return '<button type="button" class="lm-year-month" data-day="calendar-pick-month" data-month="'+m+'" aria-pressed="'+(m===month)+'"><strong>'+esc(fmtMonth(m))+'</strong><span>'+inMonth.length+' project'+(inMonth.length===1?'':'s')+' · '+tasks+' task'+(tasks===1?'':'s')+'</span>'+(inMonth.length?'<span class="lm-month-swatches" aria-hidden="true">'+inMonth.slice(0,6).map(p=>markProject(projectTone(p.group))).join('')+'</span>':'')+'</button>';}).join('')+'</div>');
+    html+='<section class="panel lm-day-panel" id="lm-month-projects-panel" aria-label="Projects this month" tabindex="-1"><div class="lm-day-section-title"><h2>Projects in '+esc(label)+'</h2><button type="button" class="btn lm-day-button" data-lm="new-group">New project</button></div><div class="lm-timeline-scale" aria-hidden="true"><span>1</span><span>'+Math.round(days/2)+'</span><span>'+days+'</span></div>'+active.map(({group:g,range,tasks})=>{const bar=K.bar(range,month),done=tasks.filter(t=>t.status==='Done').length;return '<button type="button" class="lm-project-timeline '+projectTone(g)+(range.derived?' lm-timeline-derived':'')+'" data-day="project-dates" data-id="'+attrs(g.id)+'" aria-label="'+attrs('Change dates for '+g.title)+'" aria-describedby="lm-timeline-meta-'+attrs(g.id)+'"><span class="lm-timeline-title">'+markProject(projectTone(g))+'<strong>'+esc(g.title)+'</strong><span>'+done+' / '+tasks.length+'</span></span><span class="lm-timeline-track"><span style="left:'+bar.left+'%;width:'+bar.width+'%"></span></span><span class="lm-row-meta" id="lm-timeline-meta-'+attrs(g.id)+'">'+esc(fmtDay(range.start)+' – '+fmtDay(range.end))+' · '+(range.derived?'From task dates':'Dates set')+'</span></button>';}).join('')+(active.length?'':help('No projects scheduled this month. Set dates on a project to place it here.'))+'</section>';
     const unscheduled=projects.filter(p=>!p.range);if(unscheduled.length)html+=panel('Projects without dates','<details><summary>Unscheduled projects · '+unscheduled.length+'</summary>'+unscheduled.map(({group:g})=>button(esc(g.title)+' · Set dates','project-dates','data-id="'+attrs(g.id)+'"')).join('')+'</details>');
     html+='<section class="panel lm-day-panel" aria-label="Selected day tasks"><div class="lm-day-section-title"><h2>'+esc(fmtDay(ui.date))+'</h2>'+button('Add task for this day','capture-date')+'</div>'+daySelector();
     const tasks=S.projects.filter(t=>!t.archived&&(t.plan===ui.date||t.due===ui.date||t.followUp===ui.date||t.planWeek===ui.date||t.showAfter===ui.date||!t.showAfter&&t.park&&t.park+'-01'===ui.date));
@@ -2489,11 +2542,12 @@ function createLifeMapCalendarModel(){
     if(action==='back-projects'){ui.records=false;render();return;}
     if(action==='capture-date')return W.captureSheet(ui.date);
     if(action==='project-capture')return W.captureSheet(undefined,id);
-    if(action==='project-dates'){const g=S.groups?.find(g=>g.id===id&&!g.archived);if(g){const r=K.projectRange(S,g);return W.openEditor('group',g,{startDate:g.startDate||r?.start||'',endDate:g.endDate||r?.end||''});}return;}
+    if(action==='project-dates'){const g=S.groups?.find(g=>g.id===id&&!g.archived);if(g){const r=K.projectRange(S,g);return W.openEditor('dates',{id:g.id},{startDate:g.startDate||r?.start||'',endDate:g.endDate||r?.end||'',derived:!g.startDate&&!g.endDate&&!!r});}return;}
+    if(action==='calendar-projects'){const target=app.querySelector('#lm-month-projects-panel');target?.scrollIntoView({block:'start',behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});target?.focus({preventScroll:true});return;}
     if(action==='calendar-month'){ui.month=K.shiftMonth(ui.month,Number(el.dataset.step));ui.date=ui.month+'-01';render();app.querySelector('[data-day="calendar-month"][data-step="'+el.dataset.step+'"]')?.focus({preventScroll:true});return;}
     if(action==='calendar-today'){ui.month=todayISO().slice(0,7);ui.date=todayISO();ui.yearView=false;render();return;}
     if(action==='calendar-year'){ui.yearView=!ui.yearView;render();if(ui.yearView)app.querySelector('[aria-label="Next 12 months"]')?.scrollIntoView({block:'start'});else app.querySelector('[data-day="calendar-year"]')?.focus({preventScroll:true});return;}
-    if(action==='calendar-pick-month'){ui.month=el.dataset.month;ui.date=ui.month===todayISO().slice(0,7)?todayISO():ui.month+'-01';ui.yearView=false;render();window.scrollTo?.({top:0,behavior:'instant'});return;}
+    if(action==='calendar-pick-month'){ui.month=el.dataset.month;ui.date=ui.month===todayISO().slice(0,7)?todayISO():ui.month+'-01';ui.yearView=false;render();window.scrollTo?.({top:0,behavior:'instant'});app.querySelector('.lm-calendar-feature h2')?.setAttribute('tabindex','-1');app.querySelector('.lm-calendar-feature h2')?.focus({preventScroll:true});return;}
     if(action==='calendar-day'){ui.date=el.dataset.date;render();app.querySelector('[aria-label="Selected day tasks"]')?.scrollIntoView({block:'start'});return;}
     if(action==='ops-picker'){ui.opsOpen=true;if(ui.tab==='board')ui.tab='plan';render();document.querySelector('[aria-label="Operations Cadence"]')?.scrollIntoView({block:'start'});return;}
     if(action==='ops-add'){const ids=[...ui.opsPicks];return opsChange(()=>OPS.scheduleMany(ids,ui.date),ids.length+' Ops tasks added to '+fmtDay(ui.date),true);}
@@ -2516,6 +2570,8 @@ function createLifeMapCalendarModel(){
     if(action==='reset-close'){ui.reset=false;render();return;}
     if(action==='change-focus')return commit(next=>editPlan(next,todayISO(),p=>{delete p.focus;}),'Focus cleared',()=>{ui.tab='plan';ui.date=todayISO();});
     if(action==='complete-task'){if(opsFind(id,ui.tab==='home'?todayISO():ui.date))return opsChange(()=>OPS.complete(id,ui.tab==='home'?todayISO():ui.date),'Ops task completed');return D.setStatus(id,'Done');}
+    if(action==='focus-picker'){ui.focusPicker=!ui.focusPicker;render();if(ui.focusPicker)app.querySelector('#lm-focus-picker button')?.focus({preventScroll:false});return;}
+    if(action==='focus'){ui.focusPicker=false;}
     if(action==='focus')return commit(next=>editPlan(next,todayISO(),p=>{if(el.dataset.kind==='task'){const task=next.projects.find(t=>t.id===id&&M.open(t)&&t.status!=='Waiting');if(!task)throw Error('Choose an available task.');task.inbox=false;task.plan=todayISO();}p.focus={kind:el.dataset.kind,id};}),'Focus started',()=>{ui.tab='home';ui.reset=false;});
     if(action==='complete-routine')return D.choreAction(id,'done');
     if(action==='new-todo')return W.captureSheet(ui.date);
