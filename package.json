@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node atlas/build.mjs",
+    "pretest": "node atlas/build.mjs",
     "db:generate": "drizzle-kit generate",
     "test": "node --test atlas/tests/*.test.mjs",
     "dev": "vite",
@@ -12,7 +13,7 @@
   "devDependencies": {
     "drizzle-kit": "0.31.11",
     "drizzle-orm": "0.45.4",
-    "vite": "7.3.6"
+    "vite": "8.3.5"
   },
   "overrides": {
     "@esbuild-kit/core-utils": {
