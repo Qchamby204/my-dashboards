@@ -2,6 +2,588 @@
  "schemaVersion": 1,
  "days": [
   {
+   "date": "2026-10-23",
+   "checkedAt": "2026-10-23T10:33:56+00:00",
+   "planningMethod": "primary",
+   "skippedSections": [
+    "climate",
+    "health"
+   ],
+   "allocationMinutes": {
+    "markets": 5.0,
+    "companies": 3.5,
+    "practice": 3.0,
+    "manitoba": 2.5,
+    "politics": 2.5,
+    "climate": 0.0,
+    "tech": 1.0,
+    "health": 0.0,
+    "parenting": 0.5,
+    "sports": 2.0
+   },
+   "activityScores": {
+    "markets": 12.5,
+    "companies": 22.0,
+    "practice": 13.5,
+    "manitoba": 13.5,
+    "politics": 12.25,
+    "climate": 8.0,
+    "tech": 7.5,
+    "health": 1.75,
+    "parenting": 1.125,
+    "sports": 15.0
+   },
+   "feeds": [
+    {
+     "outlet": "Canada's National Observer",
+     "url": "https://www.nationalobserver.com/front/rss",
+     "status": "ok",
+     "totalEntries": 25,
+     "freshEntries": 23,
+     "staleEntries": 2,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "TechCrunch AI",
+     "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 13,
+     "staleEntries": 7,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC Manitoba",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-canada-manitoba",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 19,
+     "staleEntries": 1,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Politics",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/politics/",
+     "status": "ok",
+     "totalEntries": 66,
+     "freshEntries": 10,
+     "staleEntries": 56,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Report on Business",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/",
+     "status": "ok",
+     "totalEntries": 100,
+     "freshEntries": 34,
+     "staleEntries": 66,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Report on Business",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/",
+     "status": "ok",
+     "totalEntries": 100,
+     "freshEntries": 34,
+     "staleEntries": 66,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Wealth Professional",
+     "url": "https://www.wealthprofessional.ca/rss",
+     "status": "ok",
+     "totalEntries": 58,
+     "freshEntries": 14,
+     "staleEntries": 44,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Manitoba Government News",
+     "url": "https://news.gov.mb.ca/news/index.rss",
+     "status": "ok",
+     "totalEntries": 30,
+     "freshEntries": 4,
+     "staleEntries": 26,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC Politics",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-politics",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 8,
+     "staleEntries": 12,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "MIT Technology Review",
+     "url": "https://www.technologyreview.com/feed/",
+     "status": "ok",
+     "totalEntries": 10,
+     "freshEntries": 7,
+     "staleEntries": 3,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC Business",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-business",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 6,
+     "staleEntries": 14,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "The Narwhal",
+     "url": "https://thenarwhal.ca/feed/",
+     "status": "ok",
+     "totalEntries": 11,
+     "freshEntries": 1,
+     "staleEntries": 10,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Global News Winnipeg",
+     "url": "https://globalnews.ca/winnipeg/feed/",
+     "status": "ok",
+     "totalEntries": 10,
+     "freshEntries": 3,
+     "staleEntries": 7,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "BetaKit",
+     "url": "https://betakit.com/feed/",
+     "status": "error",
+     "totalEntries": 0,
+     "freshEntries": 0,
+     "staleEntries": 0,
+     "undatedDropped": 0,
+     "error": "<unknown>:7:2: mismatched tag"
+    },
+    {
+     "outlet": "CIRO",
+     "url": "https://www.ciro.ca/rss.xml",
+     "status": "ok",
+     "totalEntries": 10,
+     "freshEntries": 0,
+     "staleEntries": 10,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "BBC Business",
+     "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+     "status": "ok",
+     "totalEntries": 55,
+     "freshEntries": 15,
+     "staleEntries": 40,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Investing",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/investing/",
+     "status": "ok",
+     "totalEntries": 100,
+     "freshEntries": 32,
+     "staleEntries": 68,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "ScienceDaily Child Development",
+     "url": "https://www.sciencedaily.com/rss/mind_brain/child_development.xml",
+     "status": "ok",
+     "totalEntries": 60,
+     "freshEntries": 2,
+     "staleEntries": 58,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC Business",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-business",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 6,
+     "staleEntries": 14,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC Technology",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-technology",
+     "status": "ok",
+     "totalEntries": 18,
+     "freshEntries": 0,
+     "staleEntries": 18,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "TechCrunch AI",
+     "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 13,
+     "staleEntries": 7,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Canada",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/canada/",
+     "status": "ok",
+     "totalEntries": 100,
+     "freshEntries": 24,
+     "staleEntries": 76,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "BBC Business",
+     "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+     "status": "ok",
+     "totalEntries": 55,
+     "freshEntries": 15,
+     "staleEntries": 40,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "BBC Technology",
+     "url": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+     "status": "ok",
+     "totalEntries": 21,
+     "freshEntries": 6,
+     "staleEntries": 15,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "ESPN NFL",
+     "url": "https://www.espn.com/espn/rss/nfl/news",
+     "status": "ok",
+     "totalEntries": 0,
+     "freshEntries": 0,
+     "staleEntries": 0,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Personal Finance",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/investing/personal-finance/",
+     "status": "ok",
+     "totalEntries": 47,
+     "freshEntries": 6,
+     "staleEntries": 41,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "ESPN NHL",
+     "url": "https://www.espn.com/espn/rss/nhl/news",
+     "status": "ok",
+     "totalEntries": 0,
+     "freshEntries": 0,
+     "staleEntries": 0,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Life",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/life/",
+     "status": "ok",
+     "totalEntries": 84,
+     "freshEntries": 7,
+     "staleEntries": 77,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Clean Energy Canada",
+     "url": "https://cleanenergycanada.org/feed/",
+     "status": "ok",
+     "totalEntries": 12,
+     "freshEntries": 0,
+     "staleEntries": 12,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Technology",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/technology/",
+     "status": "ok",
+     "totalEntries": 25,
+     "freshEntries": 1,
+     "staleEntries": 24,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "MoneySense",
+     "url": "https://www.moneysense.ca/feed/",
+     "status": "ok",
+     "totalEntries": 9,
+     "freshEntries": 5,
+     "staleEntries": 4,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "The Philanthropist Journal",
+     "url": "https://thephilanthropist.ca/feed/",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 0,
+     "staleEntries": 20,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Stronger by Science",
+     "url": "https://www.strongerbyscience.com/feed/",
+     "status": "ok",
+     "totalEntries": 15,
+     "freshEntries": 0,
+     "staleEntries": 15,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "ScienceDaily Fitness",
+     "url": "https://www.sciencedaily.com/rss/health_medicine/fitness.xml",
+     "status": "ok",
+     "totalEntries": 60,
+     "freshEntries": 1,
+     "staleEntries": 59,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Hockey",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/hockey/",
+     "status": "ok",
+     "totalEntries": 58,
+     "freshEntries": 9,
+     "staleEntries": 49,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Outside",
+     "url": "https://www.outsideonline.com/feed/",
+     "status": "ok",
+     "totalEntries": 10,
+     "freshEntries": 10,
+     "staleEntries": 0,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC Health",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-health",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 3,
+     "staleEntries": 17,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Health and Fitness",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/life/health-and-fitness/",
+     "status": "ok",
+     "totalEntries": 0,
+     "freshEntries": 0,
+     "staleEntries": 0,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Football",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/football/",
+     "status": "ok",
+     "totalEntries": 17,
+     "freshEntries": 0,
+     "staleEntries": 17,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "Globe and Mail Basketball",
+     "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/sports/basketball/",
+     "status": "ok",
+     "totalEntries": 28,
+     "freshEntries": 3,
+     "staleEntries": 25,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC Sports",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-sports",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 13,
+     "staleEntries": 7,
+     "undatedDropped": 0,
+     "error": ""
+    },
+    {
+     "outlet": "CBC NHL",
+     "url": "https://www.cbc.ca/webfeed/rss/rss-sports-nhl",
+     "status": "ok",
+     "totalEntries": 20,
+     "freshEntries": 3,
+     "staleEntries": 17,
+     "undatedDropped": 0,
+     "error": ""
+    }
+   ],
+   "newsletters": {
+    "configured": true,
+    "items": 80,
+    "bySection": {
+     "manitoba": 5,
+     "sports": 17,
+     "climate": 7,
+     "tech": 2,
+     "practice": 15,
+     "politics": 11,
+     "markets": 16,
+     "companies": 7
+    }
+   },
+   "sections": {
+    "markets": {
+     "feeds": 4,
+     "checkedFeeds": 4,
+     "healthyFeeds": 4,
+     "freshItems": 87,
+     "undatedDropped": 0,
+     "staleDropped": 188,
+     "newsletterItems": 16,
+     "notChecked": false,
+     "degraded": false
+    },
+    "companies": {
+     "feeds": 4,
+     "checkedFeeds": 4,
+     "healthyFeeds": 4,
+     "freshItems": 68,
+     "undatedDropped": 0,
+     "staleDropped": 127,
+     "newsletterItems": 7,
+     "notChecked": false,
+     "degraded": false
+    },
+    "practice": {
+     "feeds": 4,
+     "checkedFeeds": 4,
+     "healthyFeeds": 4,
+     "freshItems": 25,
+     "undatedDropped": 0,
+     "staleDropped": 99,
+     "newsletterItems": 15,
+     "notChecked": false,
+     "degraded": false
+    },
+    "manitoba": {
+     "feeds": 4,
+     "checkedFeeds": 4,
+     "healthyFeeds": 4,
+     "freshItems": 50,
+     "undatedDropped": 0,
+     "staleDropped": 110,
+     "newsletterItems": 5,
+     "notChecked": false,
+     "degraded": false
+    },
+    "politics": {
+     "feeds": 2,
+     "checkedFeeds": 2,
+     "healthyFeeds": 2,
+     "freshItems": 18,
+     "undatedDropped": 0,
+     "staleDropped": 68,
+     "newsletterItems": 11,
+     "notChecked": false,
+     "degraded": false
+    },
+    "climate": {
+     "feeds": 4,
+     "checkedFeeds": 4,
+     "healthyFeeds": 4,
+     "freshItems": 24,
+     "undatedDropped": 0,
+     "staleDropped": 44,
+     "newsletterItems": 7,
+     "notChecked": false,
+     "degraded": false
+    },
+    "tech": {
+     "feeds": 6,
+     "checkedFeeds": 6,
+     "healthyFeeds": 5,
+     "freshItems": 27,
+     "undatedDropped": 0,
+     "staleDropped": 67,
+     "newsletterItems": 2,
+     "notChecked": false,
+     "degraded": false
+    },
+    "health": {
+     "feeds": 5,
+     "checkedFeeds": 5,
+     "healthyFeeds": 5,
+     "freshItems": 14,
+     "undatedDropped": 0,
+     "staleDropped": 91,
+     "newsletterItems": 0,
+     "notChecked": false,
+     "degraded": false
+    },
+    "parenting": {
+     "feeds": 2,
+     "checkedFeeds": 2,
+     "healthyFeeds": 2,
+     "freshItems": 9,
+     "undatedDropped": 0,
+     "staleDropped": 135,
+     "newsletterItems": 0,
+     "notChecked": false,
+     "degraded": false
+    },
+    "sports": {
+     "feeds": 7,
+     "checkedFeeds": 7,
+     "healthyFeeds": 7,
+     "freshItems": 28,
+     "undatedDropped": 0,
+     "staleDropped": 115,
+     "newsletterItems": 17,
+     "notChecked": false,
+     "degraded": false
+    }
+   },
+   "degradedSections": []
+  },
+  {
    "date": "2026-10-22",
    "checkedAt": "2026-10-22T12:26:50+00:00",
    "planningMethod": "targeted-repair",
