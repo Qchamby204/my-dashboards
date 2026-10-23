@@ -7,6 +7,15 @@ audit, nine workflows and the shared browser installer. This is a functional
 maintenance review, not a claim that every historical feature or physical device
 has been exhaustively tested.
 
+## Update, October 23, 2026
+
+- Courier publication has resumed. The daily workflow publishes a new edition,
+  manifest and feed on weekdays. The note under "Retained deliberately" saying
+  publication remains paused described October 19 and no longer applies.
+- The three Ledger compatibility files (`ledger-reward-hotfix-20260916.js`,
+  `ledger-season-reset-20260915.js` and `ledger-simplify-20260916.js`) were
+  retired. No page loaded them, and a regression test now keeps them removed.
+
 ## Findings and changes
 
 | Finding | Change | Evidence |

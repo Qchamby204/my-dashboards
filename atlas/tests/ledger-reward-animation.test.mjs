@@ -1,12 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 
 const html=readFileSync(new URL('../../life-ledger.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../../shared/ledger-enhancements.css',import.meta.url),'utf8');
 const theme=readFileSync(new URL('../../shared/atlas-theme.js',import.meta.url),'utf8');
-const hotfix=readFileSync(new URL('../../shared/ledger-reward-hotfix-20260916.js',import.meta.url),'utf8');
 
 test('earned achievement and level-up cards remain visible until dismissed',()=>{
   assert.match(html,/class=\\?"levelup panel\\?"/,'Life Ledger reward cards still use the shared levelup artwork');
@@ -26,10 +25,10 @@ test('modern Ledger boots its current enhancement without superseded migrations'
   assert(html.indexOf('shared/ledger-rhythm-core.js')<html.indexOf('shared/atlas-theme.js'),'modern record ownership is established before enhancements');
 });
 
-test('runtime hotfix defeats the legacy fade even when stale CSS is present',()=>{
-  assert.match(hotfix,/@keyframes ledgerRewardStable[\s\S]*100%\{opacity:1;transform:scale\(1\)\}/);
-  assert.match(hotfix,/\.levelup\{[\s\S]*animation:ledgerRewardStable[^}]*!important/);
-  assert.match(hotfix,/setProperty\('animation','none','important'\)/);
-  assert.match(hotfix,/setProperty\('opacity','1','important'\)/);
-  assert.match(hotfix,/MutationObserver\(scan\)/);
+test('retired Ledger hotfix files stay removed and unreferenced',()=>{
+  const retired=['ledger-reward-hotfix-20260916.js','ledger-season-reset-20260915.js','ledger-simplify-20260916.js'];
+  for(const file of retired){
+    assert.equal(existsSync(new URL('../../shared/'+file,import.meta.url)),false,file+' was retired on October 23, 2026');
+    assert.doesNotMatch(html,new RegExp(file.replace('.','\\.')));
+  }
 });

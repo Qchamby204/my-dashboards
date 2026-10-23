@@ -25,7 +25,8 @@ patch numbers exist. CI runs both Chromium and WebKit for both bindings.
 
 Read-only check workflows cancel superseded PR runs within that workflow and PR.
 Main checks use a separate branch group with cancellation disabled. Courier's
-publication concurrency remains unchanged and its build job remains paused.
+publication concurrency remains unchanged. Its weekday build job was
+resumed by the owner and runs on schedule.
 The GitHub-managed Pages deployment workflow is unchanged.
 
 ## Administrator setting still required
