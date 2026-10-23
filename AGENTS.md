@@ -8,7 +8,7 @@ Use `docs/apple-design-direction.md` for the suite's visual contract and release
 
 - Improve one dashboard at a time. Atlas is a passive reference hub.
 - The October 9 dashboard suite update plan establishes warm stone and night indigo surfaces, Figtree typography, bronze actions, 24px panels, pill controls, 14px fields and an abstract horizon mark. Life Ledger remains the interaction reference. Use the shared palette and material tokens; do not restore the former condensed headings or mineral-grey design.
-- Life Map must retain its original quick capture, Today, progress overview, Focus, Horizon, area board, Projects, Chores, Momentum, and editors. Its original composition lives in `atlas/life-map-legacy.html`. Do not replace these with a generic tabbed list.
+- Life Map has three primary tabs: Home, Projects, Calendar (October 23 user direction). Home keeps its opening card followed immediately by the daily checklist. Task capture exposes title, category and date in one form. Projects contains all projects/tasks with category filters; Calendar shows the current month, editable project timelines and a next-12-month selector. Preserve the original progress overview, Focus, Horizon, area board, Chores, Momentum and editors under Projects’ full-record tools. Its original composition lives in `atlas/life-map-legacy.html`.
 - Keep explanations behind tappable, keyboard-operable **i** disclosures. Keep necessary field labels, action feedback, and errors visible.
 - Life Map's header comes first. Transfer and recovery tools stay by the footer and must not leave an empty panel at the top.
 - Preserve Dynamic Island clearance, rotation support, touch targets, and room for the on-screen keyboard.

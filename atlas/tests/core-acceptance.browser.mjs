@@ -107,13 +107,13 @@ try{
     await p.getByRole('button',{name:'Earned',exact:true}).click();assert(await p.locator('.ledger-achievement-record').evaluateAll(ns=>ns.length>0&&ns.every(n=>n.dataset.earned==='true')));await p.locator('#ledger-nav-achievements').press('ArrowRight');assert.equal(await p.locator('#ledger-nav-history').getAttribute('aria-selected'),'true','keyboard navigation reaches the fourth tab');
    }else if(app==='life-map'){
     const input=p.locator('#qaTxt');await input.fill('Synthetic acceptance task');await input.press('Tab');
-    await p.locator('#lm-day-nav-plan').click();assert.equal(await p.getByRole('heading',{name:'Build around your day',exact:true}).count(),1,'planning has one clear title');
+    await p.locator('#lm-day-nav-calendar').click();assert.equal(await p.locator('.lm-month-header h2').count(),1,'calendar has one clear month title');
     assert(!(await p.locator('.lm-capture').isVisible()),'planning keeps capture behind its contextual action');
-    await p.getByRole('button',{name:'Resume capture',exact:true}).click();assert.equal(await p.locator('#lm-capture-text').inputValue(),'Synthetic acceptance task');await p.keyboard.press('Escape');
-    await p.locator('#lm-day-nav-areas').click();assert(!(await p.locator('.lm-capture').isVisible()));
+    await p.locator('.lm-calendar-feature').getByRole('button',{name:'Add task',exact:true}).click();assert.equal(await p.locator('#lm-capture-text').inputValue(),'Synthetic acceptance task');await p.keyboard.press('Escape');
+    await p.locator('#lm-day-nav-projects').click();assert(!(await p.locator('.lm-capture').isVisible()));
     await p.locator('#lm-day-nav-home').click();assert.equal(await input.inputValue(),'Synthetic acceptance task','contextual capture retains unfinished work across sections');
     await keyboard(p,input,app);await p.reload();await ready(p);assert.equal(await p.locator('#qaTxt').inputValue(),'Synthetic acceptance task','unfinished task capture survives reload');
-    await p.getByRole('button',{name:'Add task',exact:true}).click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Synthetic acceptance task'));await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Synthetic acceptance task')),'saved task survives reload');
+    await p.locator('.lm-capture').getByRole('button',{name:'Add task',exact:true}).click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Synthetic acceptance task'));await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Synthetic acceptance task')),'saved task survives reload');
    }else if(app==='workout-forge'){
     await p.locator('[data-goal-action="open"][data-goal="bench"]').click();
     assert(await p.locator('.fg-weeks button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect();return r.width>=44&&r.height>=44;})),'week choices have comfortable targets');
