@@ -109,7 +109,7 @@ tr:last-child td{border-bottom:none}
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/aqueduct-enhancements.css?v=5f6cbe9c931b">
+<link rel="stylesheet" href="shared/aqueduct-enhancements.css?v=933b0ba4185e">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=1b825b198bd6">
 <link rel="stylesheet" href="shared/remaining-sports.css?v=a9239f1402d6">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-aqueduct-32.png?v=0ec83fb69b5b">
@@ -1038,11 +1038,11 @@ function revLineHtml(){
     +' comp base instead of the '+fmt(fullRevenue())+' a fully self sourced book would.';
 }
 function pillHtml(){
-  if(!setupDone()) return '—';
+  if(!setupDone()) return '';
   var enjoy=spendMo();
   var v=fmt(enjoy);
   if(enjoy<0) v='<span style="color:#f6b39e">'+v+'</span>';
-  return v+' <span style="font-size:9px;letter-spacing:.06em;color:var(--dim);font-weight:600">TO SPEND/MO</span>';
+  return v+' <span class="aqueduct-pill-label">to spend a month</span>';
 }
 function render(){
   if(window.AqueductRecords.blocked){ document.getElementById("app").innerHTML=""; return; }

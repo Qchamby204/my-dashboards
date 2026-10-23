@@ -61,3 +61,10 @@ html.atlas-neumo[data-atlas-app="the-aqueduct"] #app .appbar .appbar-sub{font-si
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] #atlas-page-navigation button{padding-inline:3px!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-aqueduct"] #atlas-page-navigation button>span:last-child{font-size:clamp(10px,2.8vw,12px)!important;line-height:1.25!important;white-space:nowrap!important;overflow-wrap:normal!important}
 @media(forced-colors:active){html.atlas-neumo[data-atlas-app="the-aqueduct"] .aqueduct-opening{--aqueduct-face:Canvas;--aqueduct-cream:CanvasText}.aqueduct-opening-face p{color:CanvasText!important}}
+
+/* The header pill appears once there is a monthly figure to show; until then it takes no room. */
+html[data-atlas-app="the-aqueduct"] .appbar-pill:empty{display:none!important}
+html[data-atlas-app="the-aqueduct"] .aqueduct-pill-label{font-size:.75rem;font-weight:500;letter-spacing:0;color:var(--neo-muted,var(--dim))}
+/* Field labels and section eyebrows in sentence case at a readable size, matching the suite. */
+html[data-atlas-app="the-aqueduct"] .f label{font-size:.8125rem!important;letter-spacing:.01em!important;text-transform:none!important;white-space:normal}
+html[data-atlas-app="the-aqueduct"] .eyebrow{font-size:.875rem!important;letter-spacing:.005em!important;text-transform:none!important}
