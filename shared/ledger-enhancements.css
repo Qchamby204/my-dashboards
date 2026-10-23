@@ -671,3 +671,7 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-ca
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card:has(.ledger-amount-controls) .ledger-card-avatar{width:88px!important;height:88px!important;font-size:72px!important}
 
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-rail>.ledger-view-title{color:var(--ledger-feature-muted)!important;font:inherit!important;margin:0!important;letter-spacing:inherit!important;white-space:normal!important}
+
+/* History rows say what the day held; the milestone opening says it is the next one. */
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-history-day .ledger-history-meta{margin-top:4px;font-size:.8125rem;font-weight:500;line-height:1.45;color:var(--neo-muted)}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-milestone-kicker{margin:20px 24px -8px;font-size:.8125rem;font-weight:600;letter-spacing:.01em;color:var(--ledger-face-muted,currentColor);opacity:.85}
