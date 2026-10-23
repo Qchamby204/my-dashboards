@@ -8,8 +8,8 @@
   Object.assign(utilityIcons,{'‹':'<path d="m15 5-7 7 7 7"/>','›':'<path d="m9 5 7 7-7 7"/>'});
   const button=(text,action,attrs='',cls='')=>'<button type="button" class="btn tap lm-button '+cls+'" data-lm="'+action+'" '+attrs+'>'+(utilityIcons[text]?'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+utilityIcons[text]+'</svg>':text)+'</button>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
-  const select=(key,value,options,extra='')=>'<select data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
-  const input=(key,value='',type='text',extra='')=>'<input type="'+type+'" data-lm="field" data-field="'+key+'" value="'+esc(value||'')+'" '+extra+'>';
+  const select=(key,value,options,extra='')=>'<select'+(key==='captureArea'?' aria-label="Category"':key==='captureParent'?' aria-label="Project"':'')+' data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
+  const input=(key,value='',type='text',extra='')=>'<input'+(key==='captureDate'?' aria-label="Date"':'')+' type="'+type+'" data-lm="field" data-field="'+key+'" value="'+esc(value||'')+'" '+extra+'>';
   const field=(label,content)=>'<label class="lm-field"><span>'+esc(label)+'</span>'+content+'</label>';
   const help=text=>'<p class="lm-help">'+esc(text)+'</p>';
   const chip=text=>'<span class="lm-chip">'+esc(text)+'</span>';
