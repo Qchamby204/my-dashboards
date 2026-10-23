@@ -147,7 +147,7 @@ try{
   await p.locator('#ledger-next-milestone .ledger-progress-info>summary').click();await capture(p,'ledger-milestone-explanation',theme,w,size,p.locator('#ledger-next-milestone'));
   assert.equal(await p.evaluate(()=>localStorage.getItem('lifeledger:v2')),ledgerBytes,'viewing milestone controls never rewrites saved days');
   await p.locator('#ledger-nav-history').click();await p.locator('#ledger-checkin-tools>summary').click();await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
-  await open('life-map');await p.locator('.daily-chips').scrollIntoViewIfNeeded();
+  await open('life-map');await p.getByText('Daily preparation & links',{exact:true}).click();await p.locator('.daily-chips').scrollIntoViewIfNeeded();
   assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>['inline-flex','flex'].includes(getComputedStyle(n).display)&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
   await p.evaluate(async()=>{await LifeMapWorkflow.transaction(next=>{next.projects.push({id:'recap-example',task:'Prepare the nursery shelf',area:'Family & Baby',status:'Not started',pri:'Med'});},'Added task','task_created');await LifeMapDashboard.setStatus('recap-example','Done');});
   await p.locator('#lm-day-nav-home').click();assert.match(await p.locator('.lm-completed-recap').textContent(),/Prepare the nursery shelf/);await capture(p,'life-map-completed-today',theme,w,size,p.locator('.lm-completed-recap'));

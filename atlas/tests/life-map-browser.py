@@ -738,7 +738,7 @@ class LifeMapBrowser(unittest.TestCase):
                     self.page.locator('.lm-block-editor').evaluate_all('els=>els.forEach(el=>el.open=true)')
                 self.assertFalse(self.page.locator('#lm-capture-launch').is_visible())
                 violations=self.page.locator('.lm-day-view:not([hidden]) .lm-day-field input, .lm-day-view:not([hidden]) .lm-day-field select').evaluate_all('''els=>els.filter(el=>el.getClientRects().length).flatMap(el=>{
-                    const r=el.getBoundingClientRect(),p=el.closest('label').getBoundingClientRect(),c=el.closest('.lm-day-panel,.lm-day-date-bar').getBoundingClientRect();
+                    const r=el.getBoundingClientRect(),p=el.closest('label').getBoundingClientRect(),c=el.closest('.lm-day-panel,.lm-day-date-bar,.lm-project-toolbar').getBoundingClientRect();
                     const errors=[];
                     if(r.left<p.left-1||r.right>p.right+1||r.left<c.left||r.right>c.right)errors.push(el.id+' leaves its field/card');
                     if(el.scrollWidth>el.clientWidth+2&&el.type!=='select-one')errors.push(el.id+' internal overflow');
@@ -802,7 +802,7 @@ class LifeMapBrowser(unittest.TestCase):
     def test_tab_return_keeps_board_position_and_capture_draft(self):
         self.load(board([task(str(i),plan=TODAY) for i in range(16)]),home=True)
         self.page.locator('#qaTxt').fill('An unfinished thought')
-        self.page.evaluate("LifeMapDay.choose('board')")
+        self.page.locator('#lm-day-nav-calendar').click()
         self.page.evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
         self.page.evaluate('window.scrollTo({top:900,behavior:"instant"})')
         self.page.evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
@@ -810,7 +810,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertGreater(y,500)
         before=self.state()
         self.page.locator('#lm-day-nav-home').click()
-        self.page.evaluate("LifeMapDay.choose('board')")
+        self.page.locator('#lm-day-nav-calendar').click()
         self.page.evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
         self.assertLess(abs(self.page.evaluate('scrollY')-y),5)
         self.assertEqual(self.page.locator('#qaTxt').input_value(),'An unfinished thought')
