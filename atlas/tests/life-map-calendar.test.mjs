@@ -34,3 +34,12 @@ test('project dates round-trip public/private adapters and reject invalid or rev
  for(const [startDate,endDate]of [['2026-02-30','2026-03-03'],['2026-10-24','2026-10-23']])assert.throws(()=>validateLifeMapRecords(state([],[{id:'g',title:'Project',startDate,endDate}])));
  assert.doesNotThrow(()=>validateLifeMapRecords(state([],[{id:'g',title:'Legacy project'}])));
 });
+test('a task planned and due on the same day keeps both meanings in one calendar entry',()=>{
+ const s=state([task('both',{plan:'2026-10-23',due:'2026-10-23'}),task('plan-only',{plan:'2026-10-24'}),task('split',{plan:'2026-10-25',due:'2026-10-27'})]);
+ const ev=K.events(s,'2026-10');
+ const both=ev.find(e=>e.task.id==='both');
+ assert.deepEqual(both.kinds,['plan','due']);assert.equal(both.label,'Planned · Deadline');
+ assert.equal(ev.filter(e=>e.task.id==='both').length,1,'still one entry for that day');
+ assert.deepEqual(ev.find(e=>e.task.id==='plan-only').kinds,['plan']);
+ assert.deepEqual(ev.filter(e=>e.task.id==='split').map(e=>[e.date,e.label]),[['2026-10-25','Planned'],['2026-10-27','Deadline']]);
+});

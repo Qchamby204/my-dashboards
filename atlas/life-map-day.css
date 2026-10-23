@@ -36,7 +36,7 @@ html[data-atlas-app="life-map"] .lm-day-panel>.lm-help+ :is(a,button){margin-top
 html[data-atlas-app="life-map"] .lm-day-button{min-height:44px;padding:10px 14px;font-family:inherit;white-space:normal}
 html[data-atlas-app="life-map"] .lm-day-panel a.lm-day-button{display:inline-flex;align-items:center;justify-content:center;vertical-align:top;text-decoration:none}
 html[data-atlas-app="life-map"] .lm-day-button:active,html[data-atlas-app="life-map"] .lm-foundation:active,html[data-atlas-app="life-map"] .lm-category-card:active{transform:scale(.98)}
-html[data-atlas-app="life-map"] .lm-day-primary{color:var(--neo-ink,var(--txt));border-color:var(--neo-accent,var(--gold));background:var(--neo-surface-strong,var(--card2))}
+html[data-atlas-app="life-map"] .lm-day-primary{color:var(--neo-ink,var(--txt));border-color:var(--neo-accent,var(--gold));background:var(--neo-content-surface)}
 html[data-atlas-app="life-map"] .lm-now-card{border-left:3px solid var(--neo-accent,var(--gold));padding-left:16px}
 html[data-atlas-app="life-map"] .lm-now-card h2{font-size:1.5rem;line-height:1.3;letter-spacing:-.025em;margin:12px 0;overflow-wrap:anywhere}
 html[data-atlas-app="life-map"] .lm-next-block{border-top:1px solid var(--neo-line,var(--line));margin-top:18px;padding-top:14px;display:grid;gap:5px}
@@ -51,8 +51,8 @@ html[data-atlas-app="life-map"] .lm-category-tabs{display:flex;gap:12px;overflow
 html[data-atlas-app="life-map"] .lm-category-tabs button{flex:0 0 auto;min-height:44px}
 html[data-atlas-app="life-map"] .lm-category-tabs button[aria-selected="true"]{color:var(--neo-ink,var(--txt));border-color:var(--neo-accent,var(--gold))}
 html[data-atlas-app="life-map"] .lm-day-field{display:flex;flex-direction:column;gap:10px;font-size:.86rem;margin:18px 0;min-width:0}
-html[data-atlas-app="life-map"] .lm-day-field input,html[data-atlas-app="life-map"] .lm-day-field select{width:100%;min-height:46px;min-width:0;font-size:16px;font-family:inherit;padding:10px;border:1px solid var(--neo-line,var(--line));border-radius:10px;background:var(--neo-bg,var(--bg));color:var(--neo-ink,var(--txt))}
-html[data-atlas-app="life-map"] .lm-day-field option{color:var(--neo-ink,var(--txt));background:var(--neo-bg,var(--bg))}
+html[data-atlas-app="life-map"] .lm-day-field input,html[data-atlas-app="life-map"] .lm-day-field select{width:100%;min-height:46px;min-width:0;font-size:16px;font-family:inherit;padding:10px;border:1px solid var(--neo-line,var(--line));border-radius:10px;background:var(--neo-canvas);color:var(--neo-ink,var(--txt))}
+html[data-atlas-app="life-map"] .lm-day-field option{color:var(--neo-ink,var(--txt));background:var(--neo-canvas)}
 /* iOS native date/time controls otherwise size themselves beyond their grid track. */
 html[data-atlas-app="life-map"] #app .lm-day-field :is(input,select){display:block;box-sizing:border-box;inline-size:100%;max-inline-size:100%;min-inline-size:0}
 html[data-atlas-app="life-map"] #app .lm-day-field input:is([type="date"],[type="time"]){-webkit-appearance:none;appearance:none;text-align:left}
@@ -74,7 +74,7 @@ html[data-atlas-app="life-map"] .lm-day-dock{position:fixed;z-index:85;bottom:0;
 html[data-atlas-app="life-map"] .lm-day-dock button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:55px;border:0;border-radius:12px;font-family:inherit;background:transparent;box-shadow:none;color:var(--neo-muted,var(--muted));padding:5px}
 html[data-atlas-app="life-map"] .lm-day-dock button span{font-size:23px;line-height:1}
 html[data-atlas-app="life-map"] .lm-day-dock button strong{font-size:.75rem;font-weight:500}
-html[data-atlas-app="life-map"] .lm-day-dock button[aria-selected="true"]{color:var(--neo-accent,var(--gold));background:var(--neo-bg,var(--bg))}
+html[data-atlas-app="life-map"] .lm-day-dock button[aria-selected="true"]{color:var(--neo-accent,var(--gold));background:var(--neo-canvas)}
 html[data-atlas-app="life-map"] #lm-capture-launch{bottom:calc(96px + var(--atlas-safe-bottom,env(safe-area-inset-bottom,0px)))}
 html[data-atlas-app="life-map"] .lm-day-view{min-width:0;overflow-wrap:anywhere}
 html[data-atlas-app="life-map"] .lm-day-button:focus-visible,html[data-atlas-app="life-map"] .lm-day-dock button:focus-visible,html[data-atlas-app="life-map"] .lm-category-card:focus-visible,html[data-atlas-app="life-map"] .lm-foundation:focus-visible{outline:2px solid var(--neo-accent,var(--gold));outline-offset:3px}
@@ -291,7 +291,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-year-month{back
 @media(forced-colors:active){html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day[aria-pressed="true"]{background:Highlight!important;color:HighlightText!important;forced-color-adjust:none}}
 
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mandatory-list [data-day="mandatory-toggle"]{width:44px;height:44px;flex:0 0 44px;padding:0;border:1px solid var(--neo-line)!important;border-radius:10px!important;background:var(--neo-surface)!important;box-shadow:none!important;color:var(--neo-ink)!important}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mandatory-list [data-day="mandatory-toggle"][aria-pressed="true"]{background:var(--neo-accent)!important;color:var(--neo-accent-ink,var(--neo-bg))!important;border-color:var(--neo-accent)!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mandatory-list [data-day="mandatory-toggle"][aria-pressed="true"]{background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important}
 
 /* Calendar content clears Home Screen chrome without reducing date hit heights. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-body{padding:18px}
