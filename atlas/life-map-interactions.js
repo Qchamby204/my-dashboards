@@ -23,7 +23,7 @@
       if(a==='plan'){label=(plannedToday(item)?'Remove from Today: ':'Add to Today: ')+title;el.setAttribute('aria-pressed',String(plannedToday(item)));}
       el.setAttribute('aria-label',label);if(el.tagName!=='BUTTON'&&!el.querySelector('button,input,select,textarea,a[href]')){el.setAttribute('role','button');el.tabIndex=0;el.dataset.lmKeyboard='true';}
     }
-    for(const el of app.querySelectorAll('[data-act="f"],[data-lm="field"]')){const key=el.dataset.k||el.dataset.field;el.id='lm-field-'+key;if(!el.closest('label'))el.setAttribute('aria-label',key);}
+    for(const el of app.querySelectorAll('[data-act="f"],[data-lm="field"]')){const key=el.dataset.k||el.dataset.field;el.id='lm-field-'+key+(el.closest('.lm-capture')?'-quick':'');if(!el.closest('label'))el.setAttribute('aria-label',key);}
     for(const [a,label]of [['q','Search tasks'],['fArea','Filter by area'],['fStatus','Task view'],['fPri','Priority']])app.querySelector('[data-act="'+a+'"]')?.setAttribute('aria-label',label);
     const t=document.getElementById('toast');if(t){t.setAttribute('role','status');t.setAttribute('aria-live','polite');}
   }

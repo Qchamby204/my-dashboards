@@ -33,8 +33,8 @@ try{
      await p.evaluate(()=>qaRelease());await p.waitForFunction(()=>state.days.some(d=>d.units.Read===10));await p.waitForFunction(()=>!document.getElementById('app').inert);await shot(p,app,'saved',theme);
      await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===10)));
     }else if(app==='life-map'){
-     const input=p.locator('#qaTxt');await input.fill('Feedback-state task');await p.keyboard.press('Tab');await p.evaluate(()=>{window.qaFailKeys=['lifemap_v1'];});await p.getByRole('button',{name:'Add task',exact:true}).click();
-     assert.equal(await input.inputValue(),'Feedback-state task');assert.equal(await p.evaluate(()=>S.projects.length),0);await p.locator('#lm-day-nav-areas').click();
+     const input=p.locator('#qaTxt');await input.fill('Feedback-state task');await p.keyboard.press('Tab');await p.evaluate(()=>{window.qaFailKeys=['lifemap_v1'];});await p.locator('.lm-capture').getByRole('button',{name:'Add task',exact:true}).click();
+     assert.equal(await input.inputValue(),'Feedback-state task');assert.equal(await p.evaluate(()=>S.projects.length),0);await p.locator('#lm-day-nav-projects').click();
      const retry=p.locator('.lm-save-feedback').getByRole('button',{name:'Retry saving',exact:true});assert(await retry.isVisible(),'recovery remains outside contextual capture');assert.match(await p.locator('#lm-save-state').innerText(),/not.*sav|could not|quota|storage/i);await shot(p,app,'failed-save',theme);
      await p.evaluate(()=>{window.qaFailKeys=[];});await retry.click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Feedback-state task'));await shot(p,app,'saved',theme);await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Feedback-state task')));
     }else if(app==='workout-forge'){

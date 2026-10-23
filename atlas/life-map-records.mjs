@@ -32,7 +32,7 @@ export function validateLifeMapRecords(input){
   }
   if(out.groups!==undefined){
     if(!Array.isArray(out.groups)||out.groups.length>500)throw Error('Choose up to 500 projects.');
-    const ids=new Set();for(const g of out.groups){if(!object(g)||!id(g.id)||ids.has(g.id)||!string(g.title,300,true)||!string(g.area??'',120)||!string(g.notes??'',20000)||!flag(g,'archived'))throw Error('A project group is invalid.');ids.add(g.id);}
+    const ids=new Set();for(const g of out.groups){if(!object(g)||!id(g.id)||ids.has(g.id)||!string(g.title,300,true)||!string(g.area??'',120)||!string(g.notes??'',20000)||!flag(g,'archived'))throw Error('A project group is invalid.');ids.add(g.id);if(!optionalDates(g,['startDate','endDate'])||g.startDate&&g.endDate&&g.endDate<g.startDate)throw Error('Choose project dates with the end on or after the start.');}
   }
   const groupIds=new Set((out.groups||[]).map(g=>g.id));
   if(out.projects.some(p=>p.parentId&&!groupIds.has(p.parentId)))throw Error('A task refers to a missing project.');

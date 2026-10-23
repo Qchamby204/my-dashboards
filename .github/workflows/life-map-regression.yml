@@ -66,6 +66,13 @@ jobs:
         with:
           runtime: python
           browsers: chromium webkit
+      - name: Simplified task flow and populated iPhone openings
+        run: |
+          life_map_playwright_version=$(node -p "JSON.parse(require('node:fs').readFileSync('.github/browser-tooling.json')).npm")
+          npm install --prefix "$RUNNER_TEMP/life-map-browser" --no-save --no-package-lock --ignore-scripts "playwright@$life_map_playwright_version"
+          for browser in chromium webkit; do
+            NODE_PATH="$RUNNER_TEMP/life-map-browser/node_modules" ATLAS_BROWSER_ENGINE="$browser" ATLAS_SCREENSHOTS="artifacts/life-map-tests/simple-$browser" node atlas/tests/life-map-simple.browser.mjs
+          done
       - name: Chromium and WebKit interactions
         run: |
           python -m http.server 8765 --bind 127.0.0.1 >/tmp/life-map-server.log 2>&1 &

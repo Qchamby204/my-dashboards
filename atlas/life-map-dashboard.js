@@ -8,8 +8,8 @@
   Object.assign(utilityIcons,{'‹':'<path d="m15 5-7 7 7 7"/>','›':'<path d="m9 5 7 7-7 7"/>'});
   const button=(text,action,attrs='',cls='')=>'<button type="button" class="btn tap lm-button '+cls+'" data-lm="'+action+'" '+attrs+'>'+(utilityIcons[text]?'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+utilityIcons[text]+'</svg>':text)+'</button>';
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
-  const select=(key,value,options,extra='')=>'<select data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
-  const input=(key,value='',type='text',extra='')=>'<input type="'+type+'" data-lm="field" data-field="'+key+'" value="'+esc(value||'')+'" '+extra+'>';
+  const select=(key,value,options,extra='')=>'<select'+(key==='captureArea'?' aria-label="Category"':key==='captureParent'?' aria-label="Project"':'')+' data-lm="field" data-field="'+key+'" '+extra+'>'+options.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(value||'')===String(v)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
+  const input=(key,value='',type='text',extra='')=>'<input'+(key==='captureDate'?' aria-label="Date"':'')+' type="'+type+'" data-lm="field" data-field="'+key+'" value="'+esc(value||'')+'" '+extra+'>';
   const field=(label,content)=>'<label class="lm-field"><span>'+esc(label)+'</span>'+content+'</label>';
   const help=text=>'<p class="lm-help">'+esc(text)+'</p>';
   const chip=text=>'<span class="lm-chip">'+esc(text)+'</span>';
@@ -90,8 +90,8 @@
     return true;
   }
   function closeEditor(){if(busy)return;storeDraft();view.editor=null;restorePrompt=!!recoveredEditor;window.AtlasConnected?.clearInputDraft?.();render();}
-  function openEditor(kind,item={}){
-    if(busy)return;storeDraft();view.editor={kind,...clone(item)};editorBase=item.id?JSON.stringify(item):null;lastError='';render();
+  function openEditor(kind,item={},defaults={}){
+    if(busy)return;storeDraft();view.editor={kind,...clone(item),...clone(defaults)};editorBase=item.id?JSON.stringify(item):null;lastError='';render();
   }
   function newTask(parentId=''){
     const g=group(parentId);openEditor('proj',{area:g?.area||view.fArea||'',parentId:parentId||'',task:'',status:'Not started',pri:'Med',inbox:!parentId&&!view.fArea,checklist:[],links:[],tags:[]});
@@ -123,11 +123,12 @@
   section=function(key,title,accent,teaser,content){return baseSection(key,title,accent,teaser,content).replace('data-act="section"','aria-expanded="'+!!view.open[key]+'" data-act="section"');};
   hero=function(){return '<div class="appbar"><a href="'+(window.AtlasConnected?'/':'index.html')+'" class="homebtn" aria-label="Atlas">⌂</a><div style="flex:1;min-width:0"><div class="appbar-title">Life Map</div><div class="appbar-sub">Every area, one board</div></div>'+button('⌕','search','aria-label="Search all Life Map"','lm-icon')+'</div>';};
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
+  const captureDate=()=>M.validDate(view.qa.when)?view.qa.when:view.qa.when==='today'?todayISO():view.qa.when==='tomorrow'?M.plus(todayISO(),1):'';
+  function captureFields(){return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureArea',view.qa.area,[['','Unfiled'],...M.categories.map(([k,t])=>[({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'})[k],t]),...orderedAreas().filter(a=>!['Food System','House — Interior','Family & Baby','Health & Fitness','Work — Content','Life Admin & Documents'].includes(a.name)).map(a=>[a.name,a.name])]))+field('Date',input('captureDate',captureDate(),'date'))+'</div>'+(view.qa.parentId?field('Project',select('captureParent',view.qa.parentId,groupOptions())):'');}
   quickCapture=function(){
-    const qa=view.qa,n=(S.projects||[]).filter(p=>M.open(p)&&p.inbox).length;
-    return '<section class="panel lm-capture"><div class="lm-inline lm-quick-entry"><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="Capture a task…" autocomplete="off" aria-label="Add a task">'+button('Add task','quick-add','data-lm-save','lm-primary')+button('Add to Today','quick-add-today','data-lm-save')+'</div>'+
-      '<div id="lm-quick-hints" class="lm-inline">'+quickHints()+'</div><div class="lm-capture-meta">'+button('Inbox'+(n?' · '+n:''),'inbox')+button('More options','capture')+(restorePrompt?button('Resume unfinished edit','resume-edit'):'')+'</div>'+
-      '</section>';
+    const qa=view.qa;
+    return '<section class="panel lm-capture" aria-label="Quick add task"><h2>Add a task</h2><label class="lm-field"><span>Task</span><input id="qaTxt" data-act="qatxt" value="'+esc(qa.txt||'')+'" maxlength="20000" placeholder="What needs doing?" autocomplete="off"></label>'+captureFields()+
+      '<div class="lm-inline lm-quick-entry">'+button('Add task','quick-add','data-lm-save','lm-primary')+button('More options','capture')+(restorePrompt?button('Resume unfinished edit','resume-edit'):'')+'</div><div id="lm-quick-hints" class="lm-inline">'+quickHints()+'</div></section>';
   };
   function handledStatus(c){const hs=(S.choreHistory||[]).filter(h=>h.choreId===c.id&&(c.repeat||h.occurrence===periodKey(c.cad)));return hs.at(-1)?.status||(!c.repeat&&oldChecked(c)?'done':'');}
   const oldChecked=isChecked;
@@ -193,13 +194,12 @@
     catch(e){return '<li class="lm-help">'+esc(view.qa.txt?e.message:'One task per line. Only a title is required.')+'</li>';}
   }
   function captureEditor(){
-    const q=view.qa,suggest=q.txt?guessArea(q.txt):'',count=q.txt.split(/\n/).filter(x=>x.trim()).length;
-    return field('Task or tasks','<textarea id="lm-capture-text" data-lm="capture-text" rows="3" maxlength="20000" placeholder="Email contractor tomorrow\nRenew document — due October 30">'+esc(q.txt)+'</textarea>')+
-      '<div class="lm-inline lm-plan-chips">'+[['inbox','Inbox'],['today','Today'],['tomorrow','Tomorrow'],['wk','This week'],['next','Next'],['someday','Someday']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+
-      field('File under (optional)',select('captureArea',q.area,areaOptions()))+(suggest&&suggest!==CATCHALL&&suggest!==q.area?button('Suggestion: '+esc(suggest),'accept-area','data-area="'+esc(suggest)+'"'):'')+
-      field('Project (optional)',select('captureParent',q.parentId,groupOptions()))+
-      '<label class="lm-checkbox"><input type="checkbox" data-lm="parse-capture"'+(q.parse!==false?' checked':'')+'> Recognize dates at the end of each line</label>'+help('“Tomorrow” is a plan. “Due October 30” is a deadline. Turn this off to keep the wording exactly as typed.')+
-      '<ul id="lm-capture-preview" class="lm-capture-preview">'+capturePreview()+'</ul><div class="lm-sheet-actions">'+button(count>1?'Add '+count+' tasks':'Add task','save-capture','data-lm-save','lm-primary')+button('Add & keep capturing','add-another','data-lm-save')+'</div>';
+    const q=view.qa,count=q.txt.split(/\n/).filter(x=>x.trim()).length;
+    return field('Task','<textarea id="lm-capture-text" aria-label="Task" data-lm="capture-text" rows="2" maxlength="20000" placeholder="What needs doing?">'+esc(q.txt)+'</textarea>')+captureFields()+
+      '<div class="lm-inline lm-plan-chips">'+[['today','Today'],['tomorrow','Tomorrow'],['next','No date']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+
+      '<details class="lm-details"><summary>More options</summary><div class="lm-inline">'+[['inbox','Inbox'],['wk','This week'],['someday','Someday']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+(!q.parentId?field('Project (optional)',select('captureParent',q.parentId,groupOptions())):'')+
+      '<label class="lm-checkbox"><input type="checkbox" data-lm="parse-capture"'+(q.parse!==false?' checked':'')+'> Recognize dates in task wording</label><ul id="lm-capture-preview" class="lm-capture-preview">'+capturePreview()+'</ul>'+button('Add & keep capturing','add-another','data-lm-save')+'</details>'+
+      '<div class="lm-sheet-actions">'+button(count>1?'Add '+count+' tasks':'Add task','save-capture','data-lm-save','lm-primary')+'</div>';
   }
   function taskEditor(e){
     const checklist=e.checklist||[];
@@ -223,7 +223,7 @@
       '<div class="lm-two-col">'+field('Zone',input('zone',e.zone,'text','maxlength="300"'))+field('Who',input('who',e.who,'text','maxlength="300"'))+'</div>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+
       '<div class="lm-sheet-actions">'+button('Save chore','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?button('Archive chore','archive-chore','data-id="'+esc(e.id)+'"')+button('Delete chore','delete-editor','','lm-danger'):'');
   }
-  function groupEditor(e){return field('Project name',input('title',e.title,'text','maxlength="300"'))+field('Area',select('area',e.area,areaOptions()))+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+'<div class="lm-sheet-actions">'+button('Save project','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?'<div class="lm-inline">'+button('+ Next action','new-task','data-group="'+esc(e.id)+'"')+button('Save as template','save-template','data-id="'+esc(e.id)+'"')+button(e.archived?'Restore project':'Archive completed project',e.archived?'restore-group':'archive-group','data-id="'+esc(e.id)+'"')+'</div>':'');}
+  function groupEditor(e){return field('Project name',input('title',e.title,'text','maxlength="300"'))+field('Category',select('area',e.area,areaOptions()))+'<div class="lm-two-col">'+field('Start date',input('startDate',e.startDate,'date'))+field('End date',input('endDate',e.endDate,'date'))+'</div>'+field('Notes','<textarea data-lm="field" data-field="notes" rows="3" maxlength="20000">'+esc(e.notes||'')+'</textarea>')+'<div class="lm-sheet-actions">'+button('Save project','save-editor','data-lm-save','lm-primary')+'</div>'+(e.id?'<div class="lm-inline">'+button('+ Next action','new-task','data-group="'+esc(e.id)+'"')+button('Save as template','save-template','data-id="'+esc(e.id)+'"')+button(e.archived?'Restore project':'Archive completed project',e.archived?'restore-group':'archive-group','data-id="'+esc(e.id)+'"')+'</div>':'');}
   function searchEditor(){const results=M.search(S,view.search||'',{archive:searchArchive});return '<input id="lm-search" data-lm="search-input" data-ui-only value="'+esc(view.search||'')+'" placeholder="Tasks, projects, chores, notes…" aria-label="Search all Life Map"><label class="lm-checkbox"><input type="checkbox" data-lm="search-archive" data-ui-only'+(searchArchive?' checked':'')+'> Include completed and archived</label><div id="lm-search-results">'+results.map(r=>'<button type="button" class="btn lm-search-result" data-lm="'+(r.kind==='task'?'edit-task':r.kind==='chore'?'edit-chore':'edit-group')+'" data-id="'+esc(r.item.id)+'"><strong>'+esc(r.item.task||r.item.title||r.item.chore)+'</strong><small>'+esc(r.kind+' · '+(r.kind==='task'?M.classify(r.item,todayISO()):r.item.area||r.item.cad||'')+(r.item.parentId?' · '+(group(r.item.parentId)?.title||''):''))+'</small></button>').join('')+(view.search&&!results.length?help('No matches. Include completed and archived to search the full history.'):'')+'</div>';}
   function planCalendar(e){
     const selected=M.validDate(e.plan)?e.plan:'',month=e.month||(selected||todayISO()).slice(0,7),first=month+'-01',date=new Date(first+'T12:00:00Z');
@@ -246,7 +246,7 @@
       '<h3>The Review</h3>'+help('Saved task, project, and chore actions report generic event counts. Task titles, notes, links, and waiting details are not copied into Review. No Life Ledger credit is awarded automatically.');}
   editorView=function(){
     const e=view.editor;if(!e)return '';let title='Task details',body='';
-    if(e.kind==='capture'){title='Quick capture';body=captureEditor();}
+    if(e.kind==='capture'){title='Add task';body=captureEditor();}
     else if(e.kind==='proj'){title=e.id?'Task details':'New task';body=taskEditor(e);}
     else if(e.kind==='chore'){title=e.id?'Chore details':'New chore';body=choreEditor(e);}
     else if(e.kind==='group'){title=e.id?'Project details':'New project';body=groupEditor(e);}
@@ -293,7 +293,7 @@
         else {row.repeat={mode,unit:e.repeatUnit??e.repeat?.unit??'week',every:Number(e.repeatEvery??e.repeat?.every??1),anchor:e.repeatAnchor??e.repeat?.anchor??date};
           if(JSON.stringify(row.repeat)!==JSON.stringify(current?.repeat))row.nextDue=row.repeat.anchor;
           row.cad=row.repeat.unit==='day'?'Daily':row.repeat.unit==='week'?'Weekly':row.repeat.unit==='year'?'Annual':row.repeat.every===3?'Quarterly':'Monthly';}
-      }else {row.title=String(e.title||'').trim();row.area=String(e.area||'');row.notes=String(e.notes||'');if(!row.title)throw Error('Name the project first.');}
+      }else {row.title=String(e.title||'').trim();row.area=String(e.area||'');row.notes=String(e.notes||'');for(const k of ['startDate','endDate'])if(e[k]!==undefined)row[k]=String(e[k]);if(!row.title)throw Error('Name the project first.');}
       row.createdAt=row.createdAt||date;row.updatedAt=date;
     }catch(error){lastError=error.message;feedback();render();return false;}
     return transaction(next=>{
@@ -306,7 +306,7 @@
   quickAdd=function(keep=false,when){
     const top=document.getElementById('qaTxt');if(view.editor?.kind!=='capture'&&top)view.qa.txt=top.value;
     let rows;try{rows=M.capture(view.qa.txt,when?{...view.qa,when}:view.qa,todayISO(),uid);if(view.qa.links?.length)rows[0].links=view.qa.links.filter(safeLink);}catch(e){lastError=e.message;feedback();return false;}
-    return transaction(next=>{next.projects.push(...rows);},when==='today'?(rows.length===1?'Task added to Today':rows.length+' tasks added to Today'):rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
+    return transaction(next=>{for(const row of rows){if(row.parentId){const g=next.groups?.find(g=>g.id===row.parentId&&!g.archived);if(!g)throw Error('Choose an available project.');row.area=g.area||row.area;}}next.projects.push(...rows);},when==='today'?(rows.length===1?'Task added to Today':rows.length+' tasks added to Today'):rows.length===1?'Task captured':rows.length+' tasks captured','task_captured',()=>{const keepContext=keep?{area:view.qa.area,parentId:view.qa.parentId,when:view.qa.when}:{};view.qa={txt:'',area:'',when:'',pick:false,parse:true,parentId:'',...keepContext};if(keep)view.editor={kind:'capture'};else clearEdit();});
   };
   function planTask(id,when){return transaction(next=>{const p=next.projects.find(p=>p.id===id);if(!p)throw Error('Task not found.');M.setPlan(p,when,todayISO());p.updatedAt=todayISO();},'Task plan updated','task_planned',()=>{if(['menu','plan-date'].includes(view.editor?.kind))clearEdit();});}
   function choreAction(id,action){const c=chore(id);if(!c)return false;return transaction(next=>{
@@ -352,8 +352,8 @@
       else M.setPlan(p,e.when||'today',todayISO());p.updatedAt=todayISO();
     }},ids.size+' tasks organized','tasks_organized',()=>{selection.clear();selectMode=false;clearEdit();});
   }
-  function captureSheet(when,parentId){
-    storeDraft();if(when)view.qa.when=when;if(parentId){view.qa.parentId=parentId;view.qa.area=group(parentId)?.area||'';}
+  function captureSheet(when,parentId,area){
+    storeDraft();if(area&&!view.qa.txt&&!view.qa.parentId)view.qa.area=area;if(when)view.qa.when=when;if(parentId){view.qa.parentId=parentId;view.qa.area=group(parentId)?.area||'';}
     view.editor={kind:'capture'};lastError='';render();document.getElementById('lm-capture-text')?.focus({preventScroll:true});
   }
   function handle(action,el){
@@ -438,6 +438,7 @@
   function fieldChange(el,redraw){
     const e=view.editor,key=el.dataset.field,value=el.value;
     if(key==='captureArea'){view.qa.area=value;view.qa.parentId='';}
+    else if(key==='captureDate'){view.qa.when=value||'next';}
     else if(key==='captureParent'){view.qa.parentId=value;if(value)view.qa.area=group(value)?.area||'';}
     else if(e){e[key]=value;if(key==='area'&&value)e.inbox=false;if(key==='parentId'&&value){e.area=group(value)?.area||e.area;e.inbox=false;}
       if(key==='plan'){e.planWeek='';if(value)e.inbox=false;if(e.kind==='plan-date'&&M.validDate(value)){e.month=value.slice(0,7);e.focusDate=value;}}if(key==='showAfter'&&value){e.park='';e.someday=false;}if(key==='status'&&value!=='Waiting'){e.waitingFor='';e.followUp='';}}
