@@ -307,7 +307,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-featur
 
 /* Task capture is always available in the opening and scrolling header. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto 44px!important;align-items:center;gap:8px!important}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add{grid-column:3;grid-row:1;display:inline-flex!important;align-items:center;justify-content:center;min-width:44px;min-height:44px;width:auto!important;margin:0!important;padding:10px 14px!important;border-radius:999px!important;font:600 .875rem/1.25 var(--neo-font)!important;white-space:nowrap;background:var(--neo-accent)!important;color:var(--neo-bg)!important;border:1px solid var(--neo-accent)!important;box-shadow:none!important;touch-action:manipulation}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add{grid-column:3;grid-row:1;display:inline-flex!important;align-items:center;justify-content:center;min-width:44px;min-height:44px;width:auto!important;margin:0!important;padding:10px 14px!important;border-radius:999px!important;font:600 .875rem/1.25 var(--neo-font)!important;white-space:nowrap;background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:1px solid var(--neo-accent)!important;box-shadow:none!important;touch-action:manipulation}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add:active{transform:scale(.97)}
 @media(prefers-reduced-motion:reduce){html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add:active{transform:none}}
 

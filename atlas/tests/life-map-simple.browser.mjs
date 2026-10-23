@@ -21,6 +21,8 @@ try{
   assert(Math.abs(dockGeometry.tabs[0].width-dockGeometry.tabs[2].width)<2,'tabs have equal widths');
   assert.equal(await p.locator('.lm-capture:visible').count(),0,'Home has no separate task-entry section');
   const headerCapture=p.locator('.appbar [data-day="capture"]');
+  const buttonContrast=await headerCapture.evaluate(n=>{const luminance=color=>{const rgb=color.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;},s=getComputedStyle(n),a=luminance(s.color),b=luminance(s.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});assert(buttonContrast>=4.5,'Add task text has readable contrast in both themes');
+
   const headerBounds=await headerCapture.evaluate(n=>{const b=n.getBoundingClientRect(),bar=n.closest('.appbar').getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right,width:b.width,height:b.height,barTop:bar.top,barBottom:bar.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight};});
   assert(headerBounds.top>=0&&headerBounds.bottom<=headerBounds.viewportHeight&&headerBounds.left>=0&&headerBounds.right<=headerBounds.viewportWidth&&headerBounds.width>=44&&headerBounds.height>=44,'Add task is fully visible at launch without scrolling');
   await headerCapture.click();const entry=p.getByRole('dialog',{name:'Add task',exact:true});assert(await entry.isVisible());
