@@ -25,32 +25,32 @@ try{
    await p.reload();await ready(p,'LifeMapDay');
    await p.goto(origin+'/life-map.html#board?day='+dates.today);await ready(p,'LifeMapDay');
    const bytes=await p.evaluate(()=>localStorage.getItem('lifemap_v1'));
-   assert(await p.evaluate(()=>{const main=document.querySelector('#lm-day-view-board'),heading=main.querySelector('.lm-day-heading'),bar=main.querySelector('.lm-day-date-bar'),agenda=main.querySelector('[aria-label="Selected day tasks"]'),capture=main.querySelector('.lm-capture');return !!capture&&[heading,bar,agenda,capture].every((n,i,a)=>!i||!!(a[i-1].compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING));}),'Board heading, date and agenda precede capture in DOM order');
+   assert(await p.locator('.lm-calendar-feature').isVisible(),'the selected-day route opens the visual calendar');
    assert(await p.locator('[aria-label="Selected day tasks"]').getByText('Review the sample plan',{exact:true}).isVisible());
    await p.screenshot({path:path.join(out,'batch2-board-'+theme+'.png')});
-   await p.locator('#qaTxt').fill('Keep my unfinished capture');
+   await p.locator('.lm-calendar-feature [data-day="capture"]').click();await p.locator('#lm-capture-text').fill('Keep my unfinished capture');await p.keyboard.press('Escape');
    await p.getByRole('button',{name:'Next day',exact:true}).click();
    assert.equal(await p.locator('[data-day-field="date"]').inputValue(),dates.tomorrow);
    assert(await p.evaluate(()=>document.activeElement?.dataset.step==='1'),'day navigation retains keyboard focus');
-   assert.equal(await p.locator('#qaTxt').inputValue(),'Keep my unfinished capture');
+   assert.equal(await p.evaluate(()=>view.qa.txt),'Keep my unfinished capture');
    assert(await p.locator('[aria-label="Selected day tasks"]').getByText('Prepare sample notes',{exact:true}).isVisible());
    await p.evaluate(()=>LifeMapDay.choose('plan'));assert.equal(await p.locator('[data-day-field="date"]').inputValue(),dates.tomorrow);
    assert.equal(await p.locator('.lm-day-date-bar').count(),1,'Plan uses the same day controls');
    await p.getByRole('button',{name:'Next day',exact:true}).click();
    await p.getByRole('button',{name:'View scheduled tasks',exact:true}).click();
-   assert.equal(await p.locator('[data-day-field="date"]').inputValue(),dates.later);assert.match(p.url(),new RegExp('board\\?day='+dates.later));
+   assert.equal(await p.locator('[data-day-field="date"]').inputValue(),dates.later);assert.match(p.url(),new RegExp('calendar\\?month=.*day='+dates.later));
    await p.reload();await ready(p,'LifeMapDay');assert.equal(await p.locator('[data-day-field="date"]').inputValue(),dates.later,'the selected Board date survives its route reload');
    await p.getByRole('button',{name:'Today',exact:true}).click();assert.equal(await p.locator('[data-day-field="date"]').inputValue(),dates.today);
-   assert.equal(await p.locator('#qaTxt').inputValue(),'Keep my unfinished capture','capture survives dates, sections and reload');
+   assert.equal(await p.evaluate(()=>view.qa.txt),'Keep my unfinished capture','capture survives dates, sections and reload');
    assert.equal(await p.evaluate(()=>localStorage.getItem('lifemap_v1')),bytes,'date navigation never rewrites task records');
    for(const [width,size]of [[393,20],[320,20],[320,32]]){
     await p.setViewportSize({width,height:900});const style=await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});if(size<32)await fits(p);
-    await contained(p.locator('.lm-day-heading'));await contained(p.locator('.lm-day-date-bar'));
+    await contained(p.locator('.lm-month-header'));await contained(p.locator('.lm-day-date-bar'));
     assert(await p.locator('.lm-day-date-bar button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect();return r.width>=44&&r.height>=44;})),'day controls retain comfortable targets');
     await p.locator('.lm-day-date-bar').screenshot({path:path.join(out,'batch2-date-'+theme+'-'+width+'-'+size+'.png')});await style.evaluate(n=>n.remove());
    }
    await p.setViewportSize({width:393,height:900});await p.getByRole('button',{name:'Next day',exact:true}).click();
-   await p.locator('.lm-feature-footer [data-day="new-todo"]').click();assert.equal(await p.evaluate(()=>view.editor.plan),dates.tomorrow,'Board Add task uses the selected date');await p.keyboard.press('Escape');
+   await p.locator('[data-day="capture-date"]').click();assert.equal(await p.evaluate(()=>view.qa.when),dates.tomorrow,'Board Add task uses the selected date');await p.keyboard.press('Escape');
    assert.equal(await p.evaluate(()=>localStorage.getItem('lifemap_v1')),bytes,'opening the editor does not create a task');
 
    await p.goto(origin+'/workout-forge.html#goal-bench');await ready(p,'ForgeGoals');

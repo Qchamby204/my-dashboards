@@ -197,8 +197,8 @@
     const q=view.qa,count=q.txt.split(/\n/).filter(x=>x.trim()).length;
     return field('Task','<textarea id="lm-capture-text" data-lm="capture-text" rows="2" maxlength="20000" placeholder="What needs doing?">'+esc(q.txt)+'</textarea>')+captureFields()+
       '<div class="lm-inline lm-plan-chips">'+[['today','Today'],['tomorrow','Tomorrow'],['next','No date']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+
-      '<details class="lm-details"><summary>More options</summary>'+(!q.parentId?field('Project (optional)',select('captureParent',q.parentId,groupOptions())):'')+
-      '<label class="lm-checkbox"><input type="checkbox" data-lm="parse-capture"'+(q.parse!==false?' checked':'')+'> Recognize dates in task wording</label><ul id="lm-capture-preview" class="lm-capture-preview">'+capturePreview()+'</ul></details>'+
+      '<details class="lm-details"><summary>More options</summary><div class="lm-inline">'+[['inbox','Inbox'],['wk','This week'],['someday','Someday']].map(([v,t])=>button(t,'capture-when','data-when="'+v+'" aria-pressed="'+(q.when===v)+'"')).join('')+'</div>'+(!q.parentId?field('Project (optional)',select('captureParent',q.parentId,groupOptions())):'')+
+      '<label class="lm-checkbox"><input type="checkbox" data-lm="parse-capture"'+(q.parse!==false?' checked':'')+'> Recognize dates in task wording</label><ul id="lm-capture-preview" class="lm-capture-preview">'+capturePreview()+'</ul>'+button('Add & keep capturing','add-another','data-lm-save')+'</details>'+
       '<div class="lm-sheet-actions">'+button(count>1?'Add '+count+' tasks':'Add task','save-capture','data-lm-save','lm-primary')+'</div>';
   }
   function taskEditor(e){

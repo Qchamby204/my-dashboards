@@ -275,3 +275,20 @@ html[data-atlas-app="life-map"] .lm-category-tabs{flex-wrap:wrap;overflow:visibl
 @media(max-width:359px){html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-body{padding:12px}html[data-atlas-app="life-map"] #app .lm-month-header h2{font-size:1.375rem!important}html[data-atlas-app="life-map"] #app .lm-month-day{min-height:44px}html[data-atlas-app="life-map"] .lm-year-grid{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-contrast:more){html[data-atlas-app="life-map"] :is(.lm-month-day,.lm-year-month){border-color:currentColor!important}html[data-atlas-app="life-map"] .lm-timeline-track{border:1px solid currentColor}}
 @media(forced-colors:active){html[data-atlas-app="life-map"] #app :is(.lm-month-day,.lm-year-month)[aria-pressed="true"]{background:Highlight!important;color:HighlightText!important;forced-color-adjust:none}html[data-atlas-app="life-map"] .lm-timeline-track>span{background:Highlight!important;forced-color-adjust:none}}
+
+/* Calendar dates are a single reading surface, not individually raised controls. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day{background:transparent!important;color:var(--lm-face-ink)!important;border:1px solid transparent!important;box-shadow:none!important;border-radius:12px!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day.lm-month-has-work{background:#e6bd7b0c!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day[aria-current="date"]{border-color:var(--lm-face-accent)!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day[aria-pressed="true"]{background:var(--lm-face-accent)!important;color:#25384c!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day:active{background:#ffffff26!important}
+html[data-atlas-app="life-map"] .lm-month-projects{margin-top:auto;padding-top:16px;display:flex;flex-direction:column;gap:4px}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-projects .lm-day-button{display:block;text-align:left;padding:8px 0;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;color:var(--lm-face-ink)!important;font-size:.875rem;overflow-wrap:anywhere}
+html[data-atlas-app="life-map"] .lm-month-projects .lm-day-button::before{content:'';display:inline-block;width:6px;height:6px;background:var(--lm-face-accent);border-radius:50%;margin-right:10px;vertical-align:middle}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-timeline{background:transparent!important;box-shadow:none!important;border-radius:0!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-year-month{background:var(--neo-surface)!important;box-shadow:none!important;border-radius:16px!important}
+@media(prefers-contrast:more){html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day{border-color:var(--lm-face-muted)!important}}
+@media(forced-colors:active){html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day[aria-pressed="true"]{background:Highlight!important;color:HighlightText!important;forced-color-adjust:none}}
+
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mandatory-list [data-day="mandatory-toggle"]{width:44px;height:44px;flex:0 0 44px;padding:0;border:1px solid var(--neo-line)!important;border-radius:10px!important;background:var(--neo-surface)!important;box-shadow:none!important;color:var(--neo-ink)!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mandatory-list [data-day="mandatory-toggle"][aria-pressed="true"]{background:var(--neo-accent)!important;color:var(--neo-accent-ink,var(--neo-bg))!important;border-color:var(--neo-accent)!important}
