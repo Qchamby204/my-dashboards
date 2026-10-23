@@ -23,6 +23,12 @@ html.atlas-refined body{font-size:1rem}
 .atlas-refined[data-atlas-app="the-herald"] .vhead .t .ti{font-size:1rem;line-height:1.45;overflow-wrap:anywhere}
 .atlas-refined[data-atlas-app="the-herald"] :is(.stage .nm,.optrow .ol,.mtable th){font-size:.8125rem;line-height:1.4;letter-spacing:.02em}
 .atlas-refined[data-atlas-app="the-herald"] textarea{line-height:1.7;resize:vertical}
+/* Herald: sentence-case labels and headings, matching the suite's type. The retired all-caps treatment stays retired. */
+.atlas-refined[data-atlas-app="the-herald"] .rail-card .lbl{font-size:1.125rem!important;font-weight:700;letter-spacing:-.015em!important;text-transform:none!important;line-height:1.35}
+.atlas-refined[data-atlas-app="the-herald"] :is(.appbar-sub,.brand .sub,.scell .k,.stage .nm,.mtable th,.fs .k,.day .dn,.optrow .ol){text-transform:none!important;letter-spacing:.01em!important}
+.atlas-refined[data-atlas-app="the-herald"] :is(.fs .k,.day .dn){font-size:.8125rem!important;line-height:1.4}
+.atlas-refined[data-atlas-app="the-herald"] .stage .nm{font-size:.75rem!important;line-height:1.35;overflow-wrap:normal!important;word-break:normal!important;hyphens:none}
+.atlas-refined[data-atlas-app="the-herald"] .card h2{letter-spacing:-.01em!important;text-transform:none!important}
 .atlas-refined[data-atlas-app="prospecting-command-center"] :is(th,.field label){font-size:.8125rem;letter-spacing:.02em;line-height:1.45}
 .atlas-refined[data-atlas-app="prospecting-command-center"] :is(td,.prospecting-result){line-height:1.5}
 .atlas-refined[data-atlas-app="operations-cadence"] :is(.task-text,.log-text){font-size:1rem;line-height:1.5;overflow-wrap:anywhere}
