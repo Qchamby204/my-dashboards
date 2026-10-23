@@ -319,3 +319,6 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay #lm-capture-text{height:48px;min-height:48px}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-capture-fields{grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr))!important;gap:12px;margin:12px 0}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-capture-fields .lm-field{margin:0}
+/* The sheet's own sections provide padding; the keyboard owns the bottom inset. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-sheet{padding:0!important;overflow:hidden!important}
+html.atlas-neumo.atlas-neumo.core-keyboard[data-atlas-app="life-map"] #app dialog.lm-capture-overlay{padding-bottom:12px!important}
