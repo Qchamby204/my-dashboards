@@ -9,10 +9,18 @@ Life Map has three primary destinations:
 | Destination | Contents |
 | --- | --- |
 | Home | Existing illustrated current-focus card, then Daily mandatory with direct checkbox-style completion, today's dated tasks and completed-work recap. Optional daily preparation links follow in a disclosure. |
-| Projects | All project cards and standalone tasks, a compact area filter plus All, and Open / All / Completed task filters. Project tasks expand within their project. Routines remain available within their areas. Food coverage and the optional operations picker remain available. |
+| Projects | Area filter and search inside the opening card, so both are reachable without scrolling. A compact bar under the header keeps the selected area, its open-task count and the Open / All / Completed filter visible while browsing; tapping it returns to the filter. Each project card shows its next open task; the rest stay collapsed. Tasks without a project are listed separately, and tasks filed under a different area from their project are labelled. Routines remain available within their areas. Food coverage and the optional operations picker remain available. |
 | Calendar | The selected calendar month, its active project names and dated tasks, project range bars, a selected-day agenda and a next-12-month selector. Apple Calendar and the existing day-planning prompts are optional tools below. |
 
 Choose **Add task** from the persistent header, visible immediately without scrolling, to enter the task, category and date in one sheet, then save once. Category contains the original six areas: Food, Household, Family, Health, Work & growth, and Money & admin. Choosing an area files the task there; starting from a project card retains that project unless the area is changed. Home has no separate inline capture section. A title alone remains valid; unfiled, undated tasks are available in Projects. Natural-language parsing, multiline preview and continued capture remain under More options. Area, project context and date survive an unfinished-draft reload.
+
+### Areas, editing and project links · Release 1
+
+Every everyday form (Add task, task, routine and project editors, and bulk moves) offers the same six areas plus Unfiled. Saved records keep their detailed area name: the option for a record's own area carries that name, so saving without changing the area rewrites nothing, and the editor notes the detailed name under Details. Choosing a different area files the record under that area's standard name.
+
+A task's area is its own. Linking a project fills the area only when the task has none; it never replaces a chosen area, and changing the area never removes the project link. When a task and its project sit in different areas, the form says so before saving.
+
+Opening a task shows Task, Area, Date, Done and Save. Date is the day you plan to work on it; a deadline is separate. Project, deadline, status, priority, waiting details, notes, checklist, links, scheduling and context, calendar reminder and delete are under Details, whose summary names what is set. When task wording sets a date in Add task, the interpretation appears under the Date field.
 
 Project range bars and the project names on the calendar opening open the existing project editor with Start date and End date. Save project to update its position; task plans and real deadlines retain their own dates. Existing projects without explicit ranges use their saved task dates. Unscheduled projects have a Set dates action. Browsing months, categories and tasks never changes saved records. The next-12-month selector starts with the current month and crosses year boundaries.
 

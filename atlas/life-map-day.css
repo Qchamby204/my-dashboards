@@ -322,3 +322,27 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay
 /* The sheet's own sections provide padding; the keyboard owns the bottom inset. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-capture-overlay .lm-sheet{padding:0!important;overflow:hidden!important}
 html.atlas-neumo.atlas-neumo.core-keyboard[data-atlas-app="life-map"] #app dialog.lm-capture-overlay{padding-bottom:12px!important}
+
+/* Release 1 · Projects: area filter and search live in the opening card; a compact bar keeps the
+   selection visible while browsing. Uses only shared theme tokens. */
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature .lm-project-toolbar{max-width:none;margin:20px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr));gap:12px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature .lm-project-toolbar .lm-day-field{margin:0;color:var(--lm-face-muted)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature .lm-project-toolbar .lm-day-field>span{font-weight:600;color:var(--lm-face-ink)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature .lm-project-count{margin:14px 0 0;font-size:1rem;font-weight:600;line-height:1.4;color:var(--lm-face-ink);font-variant-numeric:tabular-nums}
+html[data-atlas-app="life-map"] .lm-project-search input{-webkit-appearance:none;appearance:none}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-sticky{position:sticky;top:calc(var(--atlas-top-h,80px) + 8px);z-index:4;display:flex;align-items:center;gap:10px;margin:0 0 20px;padding:6px 8px 6px 12px;border:1px solid var(--neo-line);border-radius:18px;background:var(--neo-content-surface);color:var(--neo-ink)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-sticky .lm-project-jump{flex:1 1 0;min-width:0;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px!important;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--neo-ink)!important;font:600 1rem/1.3 var(--neo-font)!important;text-align:left}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-jump [data-project-summary]{min-width:0;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-jump-cue{flex:none;font-size:.875rem;font-weight:600;color:var(--neo-accent);text-decoration:underline;text-underline-offset:3px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-sticky select{flex:0 0 auto;width:auto;max-width:9.5rem;min-width:0;min-height:44px;font-size:16px;font-family:inherit;padding:8px 10px;border:1px solid var(--neo-line);border-radius:10px;background:var(--neo-canvas);color:var(--neo-ink)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-next{margin:16px 0 4px;padding:12px 14px;border:1px solid var(--neo-line);border-left:3px solid var(--neo-accent);border-radius:14px;background:var(--neo-canvas)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-next-label{display:block;margin:0 0 6px;font-size:.8125rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--neo-muted)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-next .lm-task-row{margin:0;box-shadow:none}
+
+/* Release 1 · editors: the short form first, the rest behind Details. */
+html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-task-details>summary{font-weight:600}
+html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-details-summary{display:block;margin:2px 0 0 1.25em;font-weight:400;font-size:.875rem;line-height:1.45;color:var(--neo-muted);overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-done-toggle{min-height:44px;margin:8px 0 0;font-weight:600}
+html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-area-note,html.atlas-neumo[data-atlas-app="life-map"] .lm-capture-project+.lm-area-note{margin:-4px 0 12px;padding:10px 12px;border-radius:12px;background:var(--neo-accent-soft);color:var(--neo-ink)}
+html.atlas-neumo[data-atlas-app="life-map"] .lm-capture-project{align-items:center;gap:10px;margin:0 0 12px}
+html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-task-details .lm-sheet-actions{display:none}
