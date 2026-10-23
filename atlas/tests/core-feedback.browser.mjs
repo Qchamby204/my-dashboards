@@ -33,7 +33,7 @@ try{
      await p.evaluate(()=>qaRelease());await p.waitForFunction(()=>state.days.some(d=>d.units.Read===10));await p.waitForFunction(()=>!document.getElementById('app').inert);await shot(p,app,'saved',theme);
      await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===10)));
     }else if(app==='life-map'){
-     await p.locator('.lm-now-card [data-day="capture"]').click();const dialog=p.getByRole('dialog',{name:'Add task',exact:true}),input=dialog.getByLabel('Task',{exact:true});await input.fill('Feedback-state task');await p.evaluate(()=>{window.qaFailKeys=['lifemap_v1'];});await dialog.getByRole('button',{name:'Add task',exact:true}).click();
+     await p.locator('.appbar [data-day="capture"]').click();const dialog=p.getByRole('dialog',{name:'Add task',exact:true}),input=dialog.getByLabel('Task',{exact:true});await input.fill('Feedback-state task');await p.evaluate(()=>{window.qaFailKeys=['lifemap_v1'];});await dialog.getByRole('button',{name:'Add task',exact:true}).click();
      assert.equal(await input.inputValue(),'Feedback-state task');assert.equal(await p.evaluate(()=>S.projects.length),0);
      const retry=dialog.getByRole('button',{name:'Retry saving',exact:true});assert(await retry.isVisible(),'recovery remains in the Add task sheet');assert.match(await dialog.locator('#lm-editor-status').innerText(),/not.*sav|could not|quota|storage/i);await shot(p,app,'failed-save',theme);
      await p.evaluate(()=>{window.qaFailKeys=[];});await retry.click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Feedback-state task'));await shot(p,app,'saved',theme);await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Feedback-state task')));

@@ -798,7 +798,7 @@ class LifeMapBrowser(unittest.TestCase):
 
     def test_tab_return_keeps_board_position_and_capture_draft(self):
         self.load(board([task(str(i),plan=TODAY) for i in range(16)]),home=True)
-        self.page.locator('.lm-now-card [data-day="capture"]').click()
+        self.page.locator('.appbar [data-day="capture"]').click()
         self.page.locator('#lm-capture-text').fill('An unfinished thought')
         self.close()
         self.page.locator('#lm-day-nav-calendar').click()
