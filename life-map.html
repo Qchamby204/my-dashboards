@@ -2154,7 +2154,7 @@ function createLifeMapCalendarModel(){
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
   const input=(key,value,type='text',extra='')=>'<input id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'" type="'+type+'" value="'+attrs(value)+'" '+extra+'>';
   const field=(title,body)=>'<label class="lm-day-field"><span>'+esc(title)+'</span>'+body+'</label>';
-  const select=(key,value,options)=>'<select id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'">'+options.map(([v,t])=>'<option value="'+attrs(v)+'"'+(String(v)===String(value)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
+  const select=(key,value,options)=>'<select id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'"'+(key==='projectFilter'?' aria-label="Filter by project"':'')+'>'+options.map(([v,t])=>'<option value="'+attrs(v)+'"'+(String(v)===String(value)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
   const heading=(eyebrow,title,action='')=>'<div class="lm-day-heading"><div><div class="eyebrow">'+esc(eyebrow)+'</div><h1>'+esc(title)+'</h1></div><div class="lm-inline">'+action+(['plan','areas'].includes(ui.tab)&&view.qa.txt?button('Resume capture','capture'):'')+'</div></div>';
   const panel=(label,body)=>'<section class="panel lm-day-panel" aria-label="'+attrs(label)+'">'+body+'</section>';
   // Decorative title illustrations: distinct scenes, never a chart of saved progress.
