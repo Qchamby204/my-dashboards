@@ -90,8 +90,8 @@
     return true;
   }
   function closeEditor(){if(busy)return;storeDraft();view.editor=null;restorePrompt=!!recoveredEditor;window.AtlasConnected?.clearInputDraft?.();render();}
-  function openEditor(kind,item={}){
-    if(busy)return;storeDraft();view.editor={kind,...clone(item)};editorBase=item.id?JSON.stringify(item):null;lastError='';render();
+  function openEditor(kind,item={},defaults={}){
+    if(busy)return;storeDraft();view.editor={kind,...clone(item),...clone(defaults)};editorBase=item.id?JSON.stringify(item):null;lastError='';render();
   }
   function newTask(parentId=''){
     const g=group(parentId);openEditor('proj',{area:g?.area||view.fArea||'',parentId:parentId||'',task:'',status:'Not started',pri:'Med',inbox:!parentId&&!view.fArea,checklist:[],links:[],tags:[]});

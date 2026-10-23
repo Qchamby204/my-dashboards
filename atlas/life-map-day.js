@@ -255,7 +255,7 @@
     if(action==='back-projects'){ui.records=false;render();return;}
     if(action==='capture-date')return W.captureSheet(ui.date);
     if(action==='project-capture')return W.captureSheet(undefined,id);
-    if(action==='project-dates'){const g=S.groups?.find(g=>g.id===id&&!g.archived);if(g){const r=K.projectRange(S,g);return W.openEditor('group',{...g,startDate:g.startDate||r?.start||'',endDate:g.endDate||r?.end||''});}return;}
+    if(action==='project-dates'){const g=S.groups?.find(g=>g.id===id&&!g.archived);if(g){const r=K.projectRange(S,g);return W.openEditor('group',g,{startDate:g.startDate||r?.start||'',endDate:g.endDate||r?.end||''});}return;}
     if(action==='calendar-month'){ui.month=K.shiftMonth(ui.month,Number(el.dataset.step));ui.date=ui.month+'-01';render();app.querySelector('[data-day="calendar-month"][data-step="'+el.dataset.step+'"]')?.focus({preventScroll:true});return;}
     if(action==='calendar-today'){ui.month=todayISO().slice(0,7);ui.date=todayISO();ui.yearView=false;render();return;}
     if(action==='calendar-year'){ui.yearView=!ui.yearView;render();if(ui.yearView)app.querySelector('[aria-label="Next 12 months"]')?.scrollIntoView({block:'start'});else app.querySelector('[data-day="calendar-year"]')?.focus({preventScroll:true});return;}
