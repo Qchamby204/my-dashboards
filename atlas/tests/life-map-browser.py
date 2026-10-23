@@ -339,8 +339,8 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertTrue(self.page.locator('#lm-day-view-home').is_visible())
         self.assertFalse(self.page.locator('.lm-capture').is_visible())
         self.page.locator('#lm-day-nav-projects').click()
-        for id,title in [('food-project','Task food'),('work-project','Task work')]:
-            self.page.get_by_label('Filter by project',exact=True).select_option(id)
+        for id,title in [('food','Task food'),('work','Task work')]:
+            self.page.get_by_label('Filter by area',exact=True).select_option(id)
             self.page.locator('.lm-project-tasks summary').evaluate('el=>{if(!el.parentElement.open)el.click();}')
             self.assertEqual(self.page.locator('#lm-category-content [data-lm="edit-task"]').count(),1)
             self.assertIn(title,self.page.locator('#lm-category-content').inner_text())
@@ -656,7 +656,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.load(board(),home=True)
         original=self.storage()['lifemap_v1']
         self.page.locator('#lm-day-nav-projects').click()
-        self.assertEqual(self.page.get_by_label('Filter by project',exact=True).locator('option').all_text_contents(),['All projects'])
+        self.assertEqual(self.page.get_by_label('Filter by area',exact=True).locator('option').all_text_contents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin'])
         self.assertTrue(self.page.locator('[data-day="area-routine"]').is_visible())
         self.assertEqual(self.storage()['lifemap_v1'],original)
         self.page.locator('[data-day="area-routine"]').click()
