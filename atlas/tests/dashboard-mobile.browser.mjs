@@ -23,16 +23,20 @@ const settle=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requ
 const screenshot=name=>page.screenshot({path:output+'/'+name+'.png'});
 try{
   await go('life-ledger.html');await page.waitForFunction(()=>!!window.LedgerDays);await settle();
-  await page.locator('#ledger-screen-fold > summary').click();
+  // Screen Discipline lives in History's check-in tools, outside Today.
+  await page.locator('#ledger-nav-history').click();await page.locator('#ledger-checkin-tools > summary').click();await settle();
+  await page.locator('#ledger-screen-fold > summary').click();await settle();
   await page.locator('#screen-guardrail').selectOption('evening');
   await page.getByRole('button',{name:'Caught myself scrolling',exact:true}).click();
   await page.locator('#screen-trigger').selectOption('habit');
   await page.locator('#screen-action').selectOption('read');
   await page.getByRole('button',{name:'I did this reset',exact:true}).click();
   await page.locator('#ledger-screen').scrollIntoViewIfNeeded();await screenshot('ledger-checkin');
-  await page.locator('[data-act="commit"]').click();await settle();
+  // The reset is part of today's draft; Save day lives on Today.
+  await page.locator('#ledger-nav-today').click();await page.locator('[data-act="commit"]:visible').first().click();await settle();
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('lifeledger:v2')).at(-1).screen.slips[0].recovered),true);
   await page.close();page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>errors.push({url:page.url(),error:e.message}));await go('life-ledger.html');await page.waitForFunction(()=>!!window.LedgerDays);
+  await page.locator('#ledger-nav-history').click();await page.locator('#ledger-checkin-tools > summary').click();await settle();await page.locator('#ledger-screen-fold > summary').click();await settle();
   assert.equal(await page.locator('#screen-guardrail').inputValue(),'evening');assert.equal(await page.getByRole('button',{name:'Undo reset',exact:true}).isVisible(),true);
   await page.setViewportSize({width:844,height:390});await settle();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await page.setViewportSize({width:390,height:844});
   // Saving a note is the only prerequisite. Opening the handoff creates no practice result.
@@ -64,8 +68,10 @@ try{
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('atlas.library.v1')).progress['b-1A-03'].takeaway),draft.topic.librarySource.text);
   await screenshot('practice-saved');
   // Everyday journeys on the other frequently used dashboards.
-  await go('life-map.html');await page.getByRole('textbox',{name:'Add a task',exact:true}).fill('Mobile QA task');
-  await page.getByRole('button',{name:'Add',exact:true}).click();
+  // Life Map captures through the header's Add task sheet; a title alone is enough.
+  await go('life-map.html');await page.waitForFunction(()=>!!window.LifeMapDay);await page.locator('.appbar [data-day="capture"]').click();
+  const capture=page.getByRole('dialog',{name:'Add task',exact:true});await capture.getByLabel('Task',{exact:true}).fill('Mobile QA task');
+  await capture.getByRole('button',{name:'Add task',exact:true}).click();
   assert.equal(await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('lifemap_v1'))).includes('Mobile QA task')),true);
   await page.reload();assert.equal(await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('lifemap_v1'))).includes('Mobile QA task')),true);
   await go('the-herald.html');await page.locator('#nv-title').fill('Mobile QA script');await page.locator('#nv-script').fill('A synthetic script for the save-and-reopen check.');
