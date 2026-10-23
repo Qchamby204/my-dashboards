@@ -42,7 +42,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 .appbar-pill{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:99px;
   background:rgba(240,104,62,.1);border:1px solid rgba(240,104,62,.32);white-space:nowrap}
 
-.eyebrow{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#7c84a8;font-weight:600}
+.eyebrow{font-size:12.5px;letter-spacing:.15em;text-transform:uppercase;color:#7c84a8;font-weight:600}
 .panel{background:linear-gradient(180deg,rgba(28,32,52,.92),rgba(20,23,38,.92));
   border:1px solid rgba(120,130,180,.16);border-radius:18px;
   box-shadow:0 18px 40px -28px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.04)}
@@ -53,7 +53,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 .btn{transition:transform .12s,filter .18s;cursor:pointer;border:none;font-family:inherit}
 .btn:hover{filter:brightness(1.08)}
 .btn:active{transform:translateY(1px) scale(.99)}
-.chip{font-size:8.5px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:99px;text-transform:uppercase;white-space:nowrap}
+.chip{font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:99px;text-transform:uppercase;white-space:nowrap}
 .bartrack{position:relative;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
 .fill{height:100%;border-radius:99px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -80,7 +80,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/forge-goals.css?v=179ffd0f8d6a">
+<link rel="stylesheet" href="shared/forge-goals.css?v=7baa86554174">
 <link rel="stylesheet" href="shared/forge-progression.css?v=b96f9c39085a">
 <link rel="stylesheet" href="shared/core-app-finish.css?v=3041ebc46681">
 <script src="shared/core-app-finish.js?v=20ba530a9cac" defer></script>
@@ -434,12 +434,12 @@ function setRows(it, accent, dayKey){
     var beat=false;
     if(pv&&cur.w&&cur.r&&e1RM(cur.w,cur.r)>e1RM(pv.w,pv.r)) beat=true;
     h+='<div class="forge-set-row" style="display:flex;align-items:center;gap:7px">';
-    h+='<span class="mono" style="font-size:10px;color:#6f7798;width:22px">S'+(i+1)+'</span>';
+    h+='<span class="mono" style="font-size:12.5px;color:#6f7798;width:22px">S'+(i+1)+'</span>';
     h+='<input class="num setw" data-act="setw" data-id="'+eid+'" data-set="'+i+'" inputmode="decimal" placeholder="lbs" value="'+(cur.w||"")+'"/>';
     h+='<span style="color:#5d647f;font-size:12px">\u00d7</span>';
     h+='<input class="num setr" data-act="setr" data-id="'+eid+'" data-set="'+i+'" inputmode="numeric" placeholder="reps" value="'+(cur.r||"")+'"/>';
-    h+='<span class="mono forge-set-prior" style="font-size:9.5px;color:#5d647f;flex:1">'+(pv&&(pv.w||pv.r)?('last '+esc(pv.w||"?")+'\u00d7'+esc(pv.r||"?")):'')+'</span>';
-    if(beat) h+='<span style="color:#2fd180;font-size:11px" title="beat last time">\u25b2</span>';
+    h+='<span class="mono forge-set-prior" style="font-size:12px;color:#5d647f;flex:1">'+(pv&&(pv.w||pv.r)?('last '+esc(pv.w||"?")+'\u00d7'+esc(pv.r||"?")):'')+'</span>';
+    if(beat) h+='<span style="color:#2fd180;font-size:13px" title="beat last time">\u25b2</span>';
     h+='</div>';
   }
   h+='</div>';
@@ -451,11 +451,11 @@ function setRows(it, accent, dayKey){
     var priorMax=0; for(var j=0;j<hist.length-1;j++){ if(hist[j].e>priorMax) priorMax=hist[j].e; }
     var isPR=lastE>priorMax+0.01;
     h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding-top:8px;border-top:1px dashed rgba(120,130,180,.18)">';
-    h+='<div><div class="eyebrow" style="font-size:8px;color:#6f7798">est. 1RM trend'+(isPR?' <span style="color:#f0b73e">\u00b7 \ud83c\udfc6 PR</span>':'')+'</div><div class="mono" style="font-size:11px;color:'+accent+';margin-top:2px">'+Math.round(lastE)+' lbs <span style="color:'+(delta>=0?"#2fd180":"#f0683e")+'">'+(delta>=0?"\u25b2":"\u25bc")+Math.abs(Math.round(delta))+'</span></div></div>';
+    h+='<div><div class="eyebrow" style="font-size:11px;color:#6f7798">est. 1RM trend'+(isPR?' <span style="color:#f0b73e">\u00b7 \ud83c\udfc6 PR</span>':'')+'</div><div class="mono" style="font-size:13px;color:'+accent+';margin-top:2px">'+Math.round(lastE)+' lbs <span style="color:'+(delta>=0?"#2fd180":"#f0683e")+'">'+(delta>=0?"\u25b2":"\u25bc")+Math.abs(Math.round(delta))+'</span></div></div>';
     h+='<div style="opacity:.9">'+spark(hist,accent)+'</div>';
     h+='</div>';
   } else {
-    h+='<div style="font-size:9px;color:#5f667f;margin-top:7px;font-style:italic">Log this lift a few times to see your overload trend.</div>';
+    h+='<div style="font-size:12px;color:#5f667f;margin-top:7px;font-style:italic">Log this lift a few times to see your overload trend.</div>';
   }
   return h;
 }
@@ -472,14 +472,14 @@ function cardioRows(it, accent){
   var h='<div style="margin-top:9px">';
   h+='<div style="display:flex;align-items:center;gap:9px">';
   h+='<button class="btn tap" data-act="cmin" data-id="'+eid+'" data-delta="-5" style="width:40px;height:40px;border-radius:10px;font-size:17px;font-weight:700;color:'+accent+';background:rgba(255,255,255,.05);border:1px solid '+accent+'44;flex-shrink:0">\u2212</button>';
-  h+='<div style="flex:1;text-align:center"><div class="mono" style="font-size:22px;font-weight:700;color:#eef0fb;line-height:1">'+mins+'<span style="font-size:11px;color:#7c84a8"> min</span></div>'
-    +(prev?'<div class="mono" style="font-size:9px;color:#5f667f;margin-top:2px">last '+prev.min+' min'+(prev.mode?' \u00b7 '+esc(prev.mode):'')+'</div>':'')+'</div>';
+  h+='<div style="flex:1;text-align:center"><div class="mono" style="font-size:22px;font-weight:700;color:#eef0fb;line-height:1">'+mins+'<span style="font-size:13px;color:#7c84a8"> min</span></div>'
+    +(prev?'<div class="mono" style="font-size:12px;color:#5f667f;margin-top:2px">last '+prev.min+' min'+(prev.mode?' \u00b7 '+esc(prev.mode):'')+'</div>':'')+'</div>';
   h+='<button class="btn tap" data-act="cmin" data-id="'+eid+'" data-delta="5" style="width:40px;height:40px;border-radius:10px;font-size:17px;font-weight:700;color:'+accent+';background:rgba(255,255,255,.05);border:1px solid '+accent+'44;flex-shrink:0">+</button>';
   h+='</div>';
   h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">';
   modes.forEach(function(m){
     var on=(mode===m);
-    h+='<button class="btn tap" data-act="cmode" data-id="'+eid+'" data-mode="'+esc(m)+'" style="padding:6px 11px;border-radius:99px;font-size:10.5px;font-weight:600;color:'+(on?'#0c0e1a':'#9aa2c0')+';background:'+(on?accent:'rgba(255,255,255,.04)')+';border:1px solid '+(on?accent:'rgba(120,130,180,.25)')+'">'+esc(m)+'</button>';
+    h+='<button class="btn tap" data-act="cmode" data-id="'+eid+'" data-mode="'+esc(m)+'" style="padding:6px 11px;border-radius:99px;font-size:12.5px;font-weight:600;color:'+(on?'#0c0e1a':'#9aa2c0')+';background:'+(on?accent:'rgba(255,255,255,.04)')+';border:1px solid '+(on?accent:'rgba(120,130,180,.25)')+'">'+esc(m)+'</button>';
   });
   h+='</div>';
   return h+'</div>';
@@ -492,11 +492,11 @@ function noteBlock(it, accent){
   var h='';
   if(prev){
     h+='<div style="margin-top:9px;padding:9px 11px;border-radius:10px;background:rgba(240,183,62,.07);border:1px solid rgba(240,183,62,.28)">'
-      +'<div class="eyebrow" style="font-size:8px;color:#f0b73e;margin-bottom:3px">Last time \u00b7 '+esc(daysAgo(prev.date))+'</div>'
-      +'<div style="font-size:11.5px;color:#e0c88a;line-height:1.5;font-style:italic">'+esc(prev.note)+'</div></div>';
+      +'<div class="eyebrow" style="font-size:11px;color:#f0b73e;margin-bottom:3px">Last time \u00b7 '+esc(daysAgo(prev.date))+'</div>'
+      +'<div style="font-size:13px;color:#e0c88a;line-height:1.5;font-style:italic">'+esc(prev.note)+'</div></div>';
   }
   h+='<input class="notein" data-act="note" data-id="'+eid+'" value="'+esc(d.note||"")+'" placeholder="How did it go? (carried to next week)" '
-    +'style="width:100%;margin-top:8px;background:rgba(10,12,22,.65);color:#eef0fb;border:1px solid rgba(120,130,180,.22);border-radius:10px;font-size:11.5px;padding:9px 11px;outline:none"/>';
+    +'style="width:100%;margin-top:8px;background:rgba(10,12,22,.65);color:#eef0fb;border:1px solid rgba(120,130,180,.22);border-radius:10px;font-size:13px;padding:9px 11px;outline:none"/>';
   return h;
 }
 
@@ -550,7 +550,7 @@ function historyStrip(it, accent){
   var pr=cardio?cardioBest(eid):prFor(eid);
   if(!last && !pr){
     return '<div style="margin-top:8px;padding:8px 10px;border-radius:9px;background:rgba(255,255,255,.025);'
-      +'border:1px dashed rgba(120,130,180,.2);font-size:10.5px;color:#6f7798;line-height:1.4">'
+      +'border:1px dashed rgba(120,130,180,.2);font-size:12.5px;color:#6f7798;line-height:1.4">'
       +'First time logging this one. Today sets the benchmark.</div>';
   }
   var beat=(!cardio && draftBeatsPR(eid));
@@ -561,22 +561,22 @@ function historyStrip(it, accent){
       ? (last.min+' min'+(last.mode?' \u00b7 '+esc(last.mode):''))
       : (fmtSetList(last.sets)||'logged');
     h+='<div style="display:flex;align-items:center;gap:9px;padding:7px 10px">'
-      +'<span class="mono" style="font-size:8px;letter-spacing:.12em;color:#6f7798;width:34px;flex-shrink:0">LAST</span>'
-      +'<span class="mono" style="flex:1;min-width:0;font-size:11.5px;color:#cfd4ea;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+lv+'</span>'
-      +'<span class="mono" style="font-size:9px;color:#5d647f;flex-shrink:0">'+esc(daysAgo(last.date))+'</span></div>';
+      +'<span class="mono" style="font-size:11px;letter-spacing:.12em;color:#6f7798;width:34px;flex-shrink:0">LAST</span>'
+      +'<span class="mono" style="flex:1;min-width:0;font-size:13px;color:#cfd4ea;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+lv+'</span>'
+      +'<span class="mono" style="font-size:12px;color:#5d647f;flex-shrink:0">'+esc(daysAgo(last.date))+'</span></div>';
   }
   if(pr){
     var pv = cardio
       ? (pr.min+' min'+(pr.mode?' \u00b7 '+esc(pr.mode):''))
-      : (esc(pr.w)+'\u00d7'+esc(pr.r)+'  <span style="color:#7c84a8;font-size:9.5px">'+Math.round(pr.e)+' est</span>');
+      : (esc(pr.w)+'\u00d7'+esc(pr.r)+'  <span style="color:#7c84a8;font-size:12px">'+Math.round(pr.e)+' est</span>');
     h+='<div style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-top:1px solid rgba(120,130,180,.12);background:rgba(240,183,62,.05)">'
-      +'<span class="mono" style="font-size:8px;letter-spacing:.12em;color:#f0b73e;width:34px;flex-shrink:0">'+(cardio?'LONG':'PR')+'</span>'
-      +'<span class="mono" style="flex:1;min-width:0;font-size:11.5px;color:#f6d28a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+pv+'</span>'
-      +'<span class="mono" style="font-size:9px;color:#8a7440;flex-shrink:0">'+esc(daysAgo(pr.date))+'</span></div>';
+      +'<span class="mono" style="font-size:11px;letter-spacing:.12em;color:#f0b73e;width:34px;flex-shrink:0">'+(cardio?'LONG':'PR')+'</span>'
+      +'<span class="mono" style="flex:1;min-width:0;font-size:13px;color:#f6d28a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+pv+'</span>'
+      +'<span class="mono" style="font-size:12px;color:#8a7440;flex-shrink:0">'+esc(daysAgo(pr.date))+'</span></div>';
   }
   if(beat){
     h+='<div style="padding:7px 10px;background:rgba(47,209,128,.13);border-top:1px solid rgba(47,209,128,.3);'
-      +'font-size:11px;font-weight:700;color:#2fd180;letter-spacing:.04em">\u25b2 NEW PR ON THE BOARD</div>';
+      +'font-size:13px;font-weight:700;color:#2fd180;letter-spacing:.04em">\u25b2 NEW PR ON THE BOARD</div>';
   }
   h+='</div>';
   return h;
@@ -590,12 +590,12 @@ function itemRow(it, accent, glow, dayKey, idx, len){
   h+='<div style="display:flex;align-items:flex-start;gap:10px">';
   h+='<button class="btn tap" data-act="check" data-id="'+eid+'" aria-label="done" style="width:22px;height:22px;border-radius:6px;flex-shrink:0;margin-top:1px;background:'+(done?accent:"rgba(255,255,255,.05)")+';border:1.5px solid '+(done?accent:"rgba(150,160,200,.3)")+';display:grid;place-items:center;'+(done?"box-shadow:0 0 9px "+glow:"")+'">'+(done?'<svg width="12" height="12" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7" fill="none" stroke="#0c0e1a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+'</button>';
   h+='<div style="flex:1;min-width:0">';
-  h+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><span style="font-size:13px;color:'+(done?"#e7eafa":"#cfd4ea")+';font-weight:500;line-height:1.25">'+(it.ss?'<span class="mono" style="color:'+accent+';font-size:10px;margin-right:5px">SS'+it.ss+'</span>':'')+esc(nm)+(swapped?'<span style="color:'+accent+';font-size:9px;margin-left:5px">(swap)</span>':'')+'</span>';
-  if(it.track==="load"){ h+='<span class="mono" style="font-size:10.5px;color:'+accent+';white-space:nowrap">'+it.sets+'\u00d7'+esc(it.reps)+'</span>'; }
-  else if(it.s){ h+='<span class="mono" style="font-size:10.5px;color:'+accent+';white-space:nowrap">'+esc(it.s)+'</span>'; }
+  h+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><span style="font-size:13px;color:'+(done?"#e7eafa":"#cfd4ea")+';font-weight:500;line-height:1.25">'+(it.ss?'<span class="mono" style="color:'+accent+';font-size:12.5px;margin-right:5px">SS'+it.ss+'</span>':'')+esc(nm)+(swapped?'<span style="color:'+accent+';font-size:12px;margin-left:5px">(swap)</span>':'')+'</span>';
+  if(it.track==="load"){ h+='<span class="mono" style="font-size:12.5px;color:'+accent+';white-space:nowrap">'+it.sets+'\u00d7'+esc(it.reps)+'</span>'; }
+  else if(it.s){ h+='<span class="mono" style="font-size:12.5px;color:'+accent+';white-space:nowrap">'+esc(it.s)+'</span>'; }
   h+='</div>';
   h+='<div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;align-items:center">'+chips(it.f);
-  if(alts.length){ h+='<button class="btn tap" data-act="swapmenu" data-id="'+it.id+'" style="font-size:9px;color:#9aa2c0;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.2);border-radius:99px;padding:2px 8px;margin-left:2px">\u21c4 swap</button>'; }
+  if(alts.length){ h+='<button class="btn tap" data-act="swapmenu" data-id="'+it.id+'" style="font-size:12px;color:#9aa2c0;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.2);border-radius:99px;padding:2px 8px;margin-left:2px">\u21c4 swap</button>'; }
   if(len>1){
     var upDis=idx===0, dnDis=idx===len-1;
     h+='<span style="display:inline-flex;gap:3px;margin-left:auto" title="Reorder within this block">';
@@ -604,11 +604,11 @@ function itemRow(it, accent, glow, dayKey, idx, len){
     h+='</span>';
   }
   h+='</div>';
-  if(it.track==="load"){ h+='<div class="mono" style="font-size:9.5px;color:#7c84a8;margin-top:5px">rest '+esc(it.rest)+' \u00b7 '+esc(it.rpe)+'</div>'; }
-  if(it.c) h+='<div style="font-size:10px;color:#7c84a8;margin-top:4px;font-style:italic">'+esc(it.c)+'</div>';
+  if(it.track==="load"){ h+='<div class="mono" style="font-size:12px;color:#7c84a8;margin-top:5px">rest '+esc(it.rest)+' \u00b7 '+esc(it.rpe)+'</div>'; }
+  if(it.c) h+='<div style="font-size:12.5px;color:#7c84a8;margin-top:4px;font-style:italic">'+esc(it.c)+'</div>';
   if(state.swapOpen===it.id && alts.length){
     h+='<div class="fadeUp" style="margin-top:8px;padding:8px;border:1px solid '+accent+'44;border-radius:10px;background:rgba(255,255,255,.02)">';
-    h+='<div class="eyebrow" style="font-size:8px;color:#7c84a8;margin-bottom:6px">Swap for</div>';
+    h+='<div class="eyebrow" style="font-size:11px;color:#7c84a8;margin-bottom:6px">Swap for</div>';
     var opts=[it.n].concat(alts);
     opts.forEach(function(o,oi){
       var cur=effIdx(it)===oi;
@@ -616,7 +616,7 @@ function itemRow(it, accent, glow, dayKey, idx, len){
     });
     h+='</div>';
   }
-  if(it.track==="load"){ h+=historyStrip(it,accent); h+=setRows(it,accent,dayKey); h+='<button class="btn tap" data-act="rest" data-sec="'+parseRest(it.rest)+'" style="margin-top:9px;padding:7px 13px;border-radius:9px;font-size:11px;font-weight:600;color:#45c8d8;background:rgba(69,200,216,.1);border:1px solid rgba(69,200,216,.35)">\u23f1 Start rest \u00b7 '+clk(parseRest(it.rest))+'</button>'; h+=noteBlock(it,accent); }
+  if(it.track==="load"){ h+=historyStrip(it,accent); h+=setRows(it,accent,dayKey); h+='<button class="btn tap" data-act="rest" data-sec="'+parseRest(it.rest)+'" style="margin-top:9px;padding:7px 13px;border-radius:9px;font-size:13px;font-weight:600;color:#45c8d8;background:rgba(69,200,216,.1);border:1px solid rgba(69,200,216,.35)">\u23f1 Start rest \u00b7 '+clk(parseRest(it.rest))+'</button>'; h+=noteBlock(it,accent); }
   else if(it.track==="cardio"){ h+=historyStrip(it,accent); h+=cardioRows(it,accent); h+=noteBlock(it,accent); }
   h+='</div></div></div>';
   return h;
@@ -629,22 +629,22 @@ function dayCard(d){
   var h='<div class="panel card forge-day-card" data-act="day" data-key="'+d.key+'" style="padding:15px;border-color:'+(open?d.accent:"rgba(120,130,180,.16)")+';'+(open?"box-shadow:0 0 0 1px "+d.accent+",0 18px 40px -26px "+d.glow+";":"")+'">';
   h+='<div style="display:flex;align-items:center;gap:12px">';
   h+='<div style="width:46px;height:46px;border-radius:13px;flex-shrink:0;background:radial-gradient(circle at 30% 25%,'+d.accent+'33,#14172400);border:1px solid '+d.accent+'66;display:grid;place-items:center"><span class="cinzel" style="font-size:18px;color:'+d.accent+';font-weight:700">'+esc(d.tag[0])+'</span></div>';
-  h+='<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span class="cinzel" style="font-size:15px;color:#eef0fb;font-weight:600">'+esc(d.tag)+'</span><span class="mono" style="font-size:10.5px;color:'+d.accent+'">'+count+' logged</span></div>';
-  h+='<div style="font-size:11.5px;color:#7c84a8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(d.title)+'</div></div>';
+  h+='<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span class="cinzel" style="font-size:15px;color:#eef0fb;font-weight:600">'+esc(d.tag)+'</span><span class="mono" style="font-size:12.5px;color:'+d.accent+'">'+count+' logged</span></div>';
+  h+='<div style="font-size:13px;color:#7c84a8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(d.title)+'</div></div>';
   h+='<span style="color:#6f7798;font-size:18px;transform:rotate('+(open?"90":"0")+'deg);transition:transform .2s">\u203a</span></div>';
-  if(!open){ h+='<div style="font-size:11px;color:#8089a8;margin-top:10px;line-height:1.4">'+esc(d.blurb)+'</div>'; }
+  if(!open){ h+='<div style="font-size:13px;color:#8089a8;margin-top:10px;line-height:1.4">'+esc(d.blurb)+'</div>'; }
   if(open){
     h+='<div class="fadeUp" style="margin-top:12px">';
-    h+='<div style="font-size:10.5px;color:#8089a8;margin-bottom:6px;line-height:1.45"><span style="color:'+d.accent+'">Flow:</span> '+esc(d.order)+'</div>';
+    h+='<div style="font-size:12.5px;color:#8089a8;margin-bottom:6px;line-height:1.45"><span style="color:'+d.accent+'">Flow:</span> '+esc(d.order)+'</div>';
     h+='<button class="btn cinzel tap" data-act="live" data-key="'+d.key+'" style="width:100%;margin:8px 0 4px;padding:13px;border-radius:12px;font-size:13.5px;font-weight:600;letter-spacing:.05em;color:#0c0e1a;background:linear-gradient(180deg,'+d.accent+','+d.accent+'cc);box-shadow:0 10px 22px -10px '+d.glow+'">\u25b6 Start workout</button>';
-    if(isCustomOrder(d)) h+='<div style="margin:6px 0 2px"><button class="btn tap" data-act="resetorder" data-key="'+d.key+'" style="font-size:9.5px;color:'+d.accent+';background:rgba(255,255,255,.04);border:1px solid '+d.accent+'44;border-radius:99px;padding:3px 11px">\u21ba reset to recommended order</button></div>';
+    if(isCustomOrder(d)) h+='<div style="margin:6px 0 2px"><button class="btn tap" data-act="resetorder" data-key="'+d.key+'" style="font-size:12px;color:'+d.accent+';background:rgba(255,255,255,.04);border:1px solid '+d.accent+'44;border-radius:99px;padding:3px 11px">\u21ba reset to recommended order</button></div>';
     d.sections.forEach(function(sec){
-      h+='<div class="eyebrow" style="color:'+d.accent+';font-size:9px;margin:14px 2px 6px">'+esc(sec.name)+'</div>';
+      h+='<div class="eyebrow" style="color:'+d.accent+';font-size:12px;margin:14px 2px 6px">'+esc(sec.name)+'</div>';
       var items=orderedSectionItems(d,sec);
       items.forEach(function(it,idx){ h+=itemRow(it,d.accent,d.glow,d.key,idx,items.length); });
     });
-    h+='<div style="display:flex;gap:9px;margin-top:14px;align-items:center"><span class="mono" style="font-size:11px;color:#777f9e">'+done+'/'+total+' done</span>';
-    h+='<button class="btn" data-act="clearday" data-key="'+d.key+'" style="padding:9px 13px;border-radius:10px;font-size:11px;color:#8089a8;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.16)">Clear</button>';
+    h+='<div style="display:flex;gap:9px;margin-top:14px;align-items:center"><span class="mono" style="font-size:13px;color:#777f9e">'+done+'/'+total+' done</span>';
+    h+='<button class="btn" data-act="clearday" data-key="'+d.key+'" style="padding:9px 13px;border-radius:10px;font-size:13px;color:#8089a8;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.16)">Clear</button>';
     h+='<button class="btn cinzel" data-act="log" data-key="'+d.key+'" style="margin-left:auto;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:600;letter-spacing:.05em;color:#0c0e1a;background:linear-gradient(180deg,'+d.accent+','+d.accent+'cc);box-shadow:0 10px 22px -10px '+d.glow+'">\u2714 Log session</button></div></div>';
   }
   h+='</div>';
@@ -663,7 +663,7 @@ function history(){
       var hadPR=Object.keys(x.items||{}).some(function(k){return x.items[k]&&x.items[k].pr;});
       h+='<div class="row forge-log-record" style="display:flex;align-items:center;gap:11px;padding:9px 8px">';
       h+='<span style="width:6px;height:30px;border-radius:9px;background:'+d.accent+';flex-shrink:0"></span>';
-      h+='<div style="flex:1;min-width:0"><div style="font-size:13px;color:#dfe3f4;font-weight:500">'+esc(d.tag)+(hadPR?' <span title="PR session" style="font-size:11px">\ud83c\udfc6</span>':'')+'</div><div style="font-size:10px;color:#6f7798">'+fmtDate(x.date)+' \u00b7 '+daysAgo(x.date)+(x.dur?' \u00b7 '+x.dur+' min':'')+(lifts?' \u00b7 '+lifts+' lifts':'')+(vol?' \u00b7 '+vol.toLocaleString()+' lbs moved':'')+'</div></div>';
+      h+='<div style="flex:1;min-width:0"><div style="font-size:13px;color:#dfe3f4;font-weight:500">'+esc(d.tag)+(hadPR?' <span title="PR session" style="font-size:13px">\ud83c\udfc6</span>':'')+'</div><div style="font-size:12.5px;color:#6f7798">'+fmtDate(x.date)+' \u00b7 '+daysAgo(x.date)+(x.dur?' \u00b7 '+x.dur+' min':'')+(lifts?' \u00b7 '+lifts+' lifts':'')+(vol?' \u00b7 '+vol.toLocaleString()+' lbs moved':'')+'</div></div>';
       h+='<button class="btn tap" data-act="del" data-idx="'+(state.sessions.length-1-idx)+'" aria-label="delete" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.16);color:#8089a8;font-size:14px">\u00d7</button></div>';
     });
     h+='</div>'; }
@@ -787,27 +787,27 @@ function muscleHeat(){
   var w=heatWindow(), nsess=heatSessions().length;
   function fmtTs(ts){ return new Date(ts).toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
   var range=fmtTs(w.start)+" \u2013 "+fmtTs(w.end);
-  var h='<div class="panel" style="padding:16px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><div class="eyebrow">Muscle Heat \u00b7 Last 7 Days</div><span class="mono" style="font-size:9.5px;color:#6f7798;white-space:nowrap">'+range+'</span></div>';
-  h+='<div style="font-size:10px;color:#6f7798;margin-top:4px;line-height:1.4">'+(nsess?(nsess+" session"+(nsess===1?"":"s")+" in window \u00b7 older sessions drop off automatically"):"no sessions in the last 7 days")+'</div>';
+  var h='<div class="panel" style="padding:16px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><div class="eyebrow">Muscle Heat \u00b7 Last 7 Days</div><span class="mono" style="font-size:12px;color:#6f7798;white-space:nowrap">'+range+'</span></div>';
+  h+='<div style="font-size:12.5px;color:#6f7798;margin-top:4px;line-height:1.4">'+(nsess?(nsess+" session"+(nsess===1?"":"s")+" in window \u00b7 older sessions drop off automatically"):"no sessions in the last 7 days")+'</div>';
   if(!keys.length){
-    h+='<div style="font-size:11.5px;color:#6f7798;margin-top:11px;line-height:1.5">'+(nsess?"Sessions logged, but no weighted sets to map yet.":"Log a session with weights and this body lights up \u2014 every muscle you trained this week, colored cold \u2192 hot by volume. Undertrained spots stay dark.")+'</div></div>';
+    h+='<div style="font-size:13px;color:#6f7798;margin-top:11px;line-height:1.5">'+(nsess?"Sessions logged, but no weighted sets to map yet.":"Log a session with weights and this body lights up \u2014 every muscle you trained this week, colored cold \u2192 hot by volume. Undertrained spots stay dark.")+'</div></div>';
     return h;
   }
   var max=0; keys.forEach(function(k){ if(r[k]>max) max=r[k]; });
   h+='<div style="display:flex;gap:12px;align-items:flex-start;margin-top:12px">';
   h+='<div style="flex:1.15;display:flex;gap:4px">'
-   +'<div style="flex:1"><svg viewBox="0 0 120 200" style="width:100%;height:auto;display:block">'+bodyFig("front",r,max)+'</svg><div class="eyebrow" style="text-align:center;font-size:7.5px;margin-top:4px">Front</div></div>'
-   +'<div style="flex:1"><svg viewBox="0 0 120 200" style="width:100%;height:auto;display:block">'+bodyFig("back",r,max)+'</svg><div class="eyebrow" style="text-align:center;font-size:7.5px;margin-top:4px">Back</div></div></div>';
+   +'<div style="flex:1"><svg viewBox="0 0 120 200" style="width:100%;height:auto;display:block">'+bodyFig("front",r,max)+'</svg><div class="eyebrow" style="text-align:center;font-size:11px;margin-top:4px">Front</div></div>'
+   +'<div style="flex:1"><svg viewBox="0 0 120 200" style="width:100%;height:auto;display:block">'+bodyFig("back",r,max)+'</svg><div class="eyebrow" style="text-align:center;font-size:11px;margin-top:4px">Back</div></div></div>';
   var top=keys.sort(function(a,b){return r[b]-r[a];}).slice(0,6);
   h+='<div style="flex:1;display:flex;flex-direction:column;gap:8px;padding-top:6px">';
   top.forEach(function(k){
     var col=heatColor(r[k],max);
-    h+='<div><div style="display:flex;justify-content:space-between;font-size:10.5px"><span style="color:#c4cae4">'+MUSCLE_LABEL[k]+'</span><span class="mono" style="font-size:9.5px;color:#9aa2c0">'+fmtSets(r[k])+'</span></div><div class="bartrack" style="height:4px;margin-top:3px"><div class="fill" style="width:'+(r[k]/max*100).toFixed(0)+'%;background:'+col+'"></div></div></div>';
+    h+='<div><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#c4cae4">'+MUSCLE_LABEL[k]+'</span><span class="mono" style="font-size:12px;color:#9aa2c0">'+fmtSets(r[k])+'</span></div><div class="bartrack" style="height:4px;margin-top:3px"><div class="fill" style="width:'+(r[k]/max*100).toFixed(0)+'%;background:'+col+'"></div></div></div>';
   });
   h+='</div></div>';
-  h+='<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:10px"><span style="font-size:8.5px;color:#6f7798">cold</span>';
+  h+='<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:10px"><span style="font-size:11px;color:#6f7798">cold</span>';
   [0.12,0.35,0.55,0.8,1].forEach(function(x2){ h+='<div style="width:14px;height:8px;border-radius:2px;background:'+heatColor(x2,1)+'"></div>'; });
-  h+='<span style="font-size:8.5px;color:#6f7798">hot</span></div>';
+  h+='<span style="font-size:11px;color:#6f7798">hot</span></div>';
   h+='</div>';
   return h;
 }
@@ -876,10 +876,10 @@ function ensureTimerNode(){
   n.innerHTML='<div style="position:relative;width:58px;height:58px;flex-shrink:0">'
     +'<svg width="58" height="58" viewBox="0 0 58 58" style="display:block"><circle cx="29" cy="29" r="26" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="4.5"/><circle id="tring" cx="29" cy="29" r="26" fill="none" stroke="#45c8d8" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="'+RING_C.toFixed(1)+'" stroke-dashoffset="0" transform="rotate(-90 29 29)" style="transition:stroke-dashoffset .2s linear,stroke .3s"/></svg>'
     +'<div id="ttime" class="mono" style="position:absolute;inset:0;display:grid;place-items:center;font-size:13.5px;font-weight:700;color:#45c8d8">0:00</div></div>'
-    +'<div style="display:flex;flex-direction:column;gap:7px"><div id="tlabel" style="font-size:8.5px;color:#7c84a8;letter-spacing:.16em;text-transform:uppercase">Rest</div><div style="display:flex;gap:7px">'
-    +'<button id="tminus" class="btn" style="padding:7px 12px;border-radius:9px;font-size:11px;font-weight:700;color:#cfd4ea;background:rgba(255,255,255,.06);border:1px solid rgba(120,130,180,.25)">\u221230s</button>'
-    +'<button id="tplus" class="btn" style="padding:7px 12px;border-radius:9px;font-size:11px;font-weight:700;color:#cfd4ea;background:rgba(255,255,255,.06);border:1px solid rgba(120,130,180,.25)">+30s</button>'
-    +'<button id="tstop" class="btn" style="padding:7px 12px;border-radius:9px;font-size:11px;font-weight:700;color:#0c0e1a;background:#45c8d8;border:none">Stop</button></div></div>';
+    +'<div style="display:flex;flex-direction:column;gap:7px"><div id="tlabel" style="font-size:11px;color:#7c84a8;letter-spacing:.16em;text-transform:uppercase">Rest</div><div style="display:flex;gap:7px">'
+    +'<button id="tminus" class="btn" style="padding:7px 12px;border-radius:9px;font-size:13px;font-weight:700;color:#cfd4ea;background:rgba(255,255,255,.06);border:1px solid rgba(120,130,180,.25)">\u221230s</button>'
+    +'<button id="tplus" class="btn" style="padding:7px 12px;border-radius:9px;font-size:13px;font-weight:700;color:#cfd4ea;background:rgba(255,255,255,.06);border:1px solid rgba(120,130,180,.25)">+30s</button>'
+    +'<button id="tstop" class="btn" style="padding:7px 12px;border-radius:9px;font-size:13px;font-weight:700;color:#0c0e1a;background:#45c8d8;border:none">Stop</button></div></div>';
   document.body.appendChild(n);
   n.querySelector("#tplus").onclick=function(){ if(timer){ timer.endAt+=30000; timer.total+=30; timer.fired=false; prepareTimerAudio(); n.style.borderColor="rgba(69,200,216,.5)"; n.querySelector("#ttime").style.color="#45c8d8"; n.querySelector("#tring").setAttribute("stroke","#45c8d8"); n.querySelector("#tlabel").textContent="Rest"; tickTimer(); } };
   n.querySelector("#tminus").onclick=function(){ if(timer){ timer.endAt-=30000; timer.total=Math.max(1,timer.total-30); tickTimer(); } };
@@ -925,8 +925,8 @@ function records(){
   arr.slice(0,24).forEach(function(r){
     var d=dayBy(r.type)||{accent:"#888"};
     h+='<div style="display:flex;align-items:center;gap:10px"><span style="width:5px;height:26px;border-radius:9px;background:'+d.accent+';flex-shrink:0"></span>';
-    h+='<div style="flex:1;min-width:0"><div style="font-size:12.5px;color:#dfe3f4;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(r.name)+'</div><div style="font-size:9.5px;color:#6f7798">'+esc(r.w)+'\u00d7'+esc(r.r)+' \u00b7 '+fmtDate(r.date)+'</div></div>';
-    h+='<div class="mono" style="font-size:14px;color:#f0b73e;font-weight:700">'+Math.round(r.e)+'<span style="font-size:9px;color:#7c84a8"> lbs</span></div></div>';
+    h+='<div style="flex:1;min-width:0"><div style="font-size:12.5px;color:#dfe3f4;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(r.name)+'</div><div style="font-size:12px;color:#6f7798">'+esc(r.w)+'\u00d7'+esc(r.r)+' \u00b7 '+fmtDate(r.date)+'</div></div>';
+    h+='<div class="mono" style="font-size:14px;color:#f0b73e;font-weight:700">'+Math.round(r.e)+'<span style="font-size:12px;color:#7c84a8"> lbs</span></div></div>';
   });
   h+='</div>';
   return h;
@@ -948,14 +948,14 @@ function plateView(){
   var h='<div class="overlay" role="dialog" aria-modal="true" style="align-items:flex-start;overflow-y:auto"><div class="panel" style="max-width:430px;width:100%;margin:40px 0;padding:20px">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div><div class="eyebrow" style="color:#f0b73e">Plate Calculator</div><div class="cinzel" style="font-size:18px;color:#eef0fb;margin-top:2px">Load per side</div></div><button class="btn" data-act="closeplate" style="padding:8px 16px;border-radius:10px;font-size:12px;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f);font-weight:600">Done</button></div>';
   // bar selector
-  h+='<div class="eyebrow" style="font-size:8.5px;margin-bottom:7px">Bar</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
+  h+='<div class="eyebrow" style="font-size:11px;margin-bottom:7px">Bar</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
   [[45,"Barbell 45"],[25,"EZ / curl 25"]].forEach(function(b){
     var on=state.bar===b[0];
-    h+='<button class="btn tap" data-act="bar" data-v="'+b[0]+'" style="padding:8px 12px;border-radius:9px;font-size:11px;color:'+(on?"#0c0e1a":"#cfd4ea")+';background:'+(on?"#f0b73e":"rgba(255,255,255,.04)")+';border:1px solid '+(on?"#f0b73e":"rgba(120,130,180,.18)")+';font-weight:'+(on?"600":"400")+'">'+b[1]+'</button>';
+    h+='<button class="btn tap" data-act="bar" data-v="'+b[0]+'" style="padding:8px 12px;border-radius:9px;font-size:13px;color:'+(on?"#0c0e1a":"#cfd4ea")+';background:'+(on?"#f0b73e":"rgba(255,255,255,.04)")+';border:1px solid '+(on?"#f0b73e":"rgba(120,130,180,.18)")+';font-weight:'+(on?"600":"400")+'">'+b[1]+'</button>';
   });
   h+='</div>';
   // weight stepper
-  h+='<div class="eyebrow" style="font-size:8.5px;margin-bottom:7px">Target weight (lbs)</div>';
+  h+='<div class="eyebrow" style="font-size:11px;margin-bottom:7px">Target weight (lbs)</div>';
   h+='<div style="display:flex;align-items:center;gap:7px;justify-content:center;margin-bottom:16px">';
   [["-5",-5],["-2.5",-2.5]].forEach(function(s){ h+='<button class="btn tap" data-act="platestep" data-v="'+s[1]+'" style="width:48px;height:40px;border-radius:10px;background:rgba(255,255,255,.05);color:#aab2d0;border:1px solid rgba(120,130,180,.2);font-size:13px;font-weight:700">'+s[0]+'</button>'; });
   h+='<input class="num" data-act="platew" inputmode="decimal" value="'+w+'" style="width:90px;height:44px;font-size:20px"/>';
@@ -976,8 +976,8 @@ function plateView(){
     // text list
     var txt=r.plates.map(function(p){ return p[1]+'\u00d7'+p[0]; }).join("  +  ");
     h+='<div class="mono" style="text-align:center;font-size:14px;color:#eef0fb;font-weight:700">'+txt+'</div>';
-    h+='<div style="text-align:center;font-size:11px;color:#7c84a8;margin-top:6px">per side \u00b7 '+bar+' bar + '+(r.plates.reduce(function(s,p){return s+p[0]*p[1];},0))+' \u00d7 2 = '+loaded+' lbs total</div>';
-    if(!r.ok) h+='<div style="text-align:center;font-size:10.5px;color:#f0683e;margin-top:6px">Not loadable to the exact pound with standard plates \u2014 nearest shown ('+(Math.round(r.rem*10)/10)+' lb/side short).</div>';
+    h+='<div style="text-align:center;font-size:13px;color:#7c84a8;margin-top:6px">per side \u00b7 '+bar+' bar + '+(r.plates.reduce(function(s,p){return s+p[0]*p[1];},0))+' \u00d7 2 = '+loaded+' lbs total</div>';
+    if(!r.ok) h+='<div style="text-align:center;font-size:12.5px;color:#f0683e;margin-top:6px">Not loadable to the exact pound with standard plates \u2014 nearest shown ('+(Math.round(r.rem*10)/10)+' lb/side short).</div>';
   }
   h+='</div></div>';
   return h;
@@ -1002,11 +1002,11 @@ function strengthCurves(){
   var hist=cur.hist;
   var dref=null; state.sessions.some(function(s){ if(s.items&&s.items[sel]){ dref=dayBy(s.type); return true; } return false; });
   var accent=(dref&&dref.accent)||"#f0b73e";
-  var h='<div style="display:flex;justify-content:flex-end"><span class="mono" style="font-size:9px;color:#6f7798">gold dot = PR</span></div>';
+  var h='<div style="display:flex;justify-content:flex-end"><span class="mono" style="font-size:12px;color:#6f7798">gold dot = PR</span></div>';
   h+='<div class="scroll-x" style="margin-top:6px;padding-bottom:4px"><div style="display:flex;gap:6px;min-width:min-content">';
   ch.slice(0,12).forEach(function(c){
     var on=c.eid===sel;
-    h+='<button class="btn tap" data-act="chartex" data-id="'+esc(c.eid)+'" style="flex:0 0 auto;padding:7px 12px;border-radius:99px;font-size:10.5px;font-weight:600;color:'+(on?"#0c0e1a":"#aab2d0")+';background:'+(on?accent:"rgba(255,255,255,.04)")+';border:1px solid '+(on?accent:"rgba(120,130,180,.2)")+';white-space:nowrap">'+esc(c.name)+'</button>';
+    h+='<button class="btn tap" data-act="chartex" data-id="'+esc(c.eid)+'" style="flex:0 0 auto;padding:7px 12px;border-radius:99px;font-size:12.5px;font-weight:600;color:'+(on?"#0c0e1a":"#aab2d0")+';background:'+(on?accent:"rgba(255,255,255,.04)")+';border:1px solid '+(on?accent:"rgba(120,130,180,.2)")+';white-space:nowrap">'+esc(c.name)+'</button>';
   });
   h+='</div></div>';
   var W=320,H=120,p=16;
@@ -1030,8 +1030,8 @@ function strengthCurves(){
   h+='<text x="'+(p-2)+'" y="'+(H-4)+'" font-family="Space Mono" font-size="8" fill="#6f7798">'+Math.round(mn)+'</text>';
   h+='</svg>';
   var first=hist[0], last=hist[hist.length-1], delta=last.e-first.e;
-  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:7px"><span class="mono" style="font-size:9.5px;color:#6f7798">'+fmtDate(first.date)+' → '+fmtDate(last.date)+' · '+hist.length+' sessions</span><span class="mono" style="font-size:12px;color:'+(delta>=0?"#2fd180":"#f0683e")+';font-weight:700">'+(delta>=0?"+":"")+Math.round(delta)+' lbs</span></div>';
-  h+='<div style="font-size:9px;color:#6f7798;margin-top:5px">Estimated 1RM = weight \u00d7 (1 + reps/30), best set per session. A rising line is progressive overload working.</div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:7px"><span class="mono" style="font-size:12px;color:#6f7798">'+fmtDate(first.date)+' → '+fmtDate(last.date)+' · '+hist.length+' sessions</span><span class="mono" style="font-size:12px;color:'+(delta>=0?"#2fd180":"#f0683e")+';font-weight:700">'+(delta>=0?"+":"")+Math.round(delta)+' lbs</span></div>';
+  h+='<div style="font-size:12px;color:#6f7798;margin-top:5px">Estimated 1RM = weight \u00d7 (1 + reps/30), best set per session. A rising line is progressive overload working.</div>';
   return h;
 }
 
@@ -1044,7 +1044,7 @@ function prCelView(){
   h+='<div class="eyebrow" style="color:#f0b73e;margin-top:10px">Forged anew · '+esc(state.prCel.tag)+'</div>';
   h+='<div class="cinzel" style="font-size:22px;color:#f6e2ad;margin:7px 0 2px;text-shadow:0 0 18px rgba(240,183,62,.5)">New Personal Record'+(state.prCel.prs.length>1?'s':'')+'</div>';
   state.prCel.prs.forEach(function(p){
-    h+='<div style="margin-top:11px"><div style="font-size:13.5px;color:#dfe3f4;font-weight:600">'+esc(p.name)+'</div><div class="mono" style="font-size:21px;color:#f0b73e;font-weight:700;margin-top:2px">'+Math.round(p.e)+' <span style="font-size:10px;color:#7c84a8">lbs e1RM</span></div></div>';
+    h+='<div style="margin-top:11px"><div style="font-size:13.5px;color:#dfe3f4;font-weight:600">'+esc(p.name)+'</div><div class="mono" style="font-size:21px;color:#f0b73e;font-weight:700;margin-top:2px">'+Math.round(p.e)+' <span style="font-size:12.5px;color:#7c84a8">lbs e1RM</span></div></div>';
   });
   h+='<button class="btn cinzel" data-act="closepr" style="margin-top:20px;padding:10px 24px;border-radius:11px;font-size:13px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f);position:relative">Back to the forge</button>';
   h+='</div></div>';
@@ -1063,7 +1063,7 @@ function liveView(){
   if(!state.live) return '';
   var d=dayBy(state.live.key); if(!d) return '';
   if(state.live.hidden){
-    return '<button class="btn tap" data-act="liveresume" style="position:fixed;left:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;gap:9px;padding:10px 15px;border-radius:99px;background:rgba(20,23,38,.97);border:1px solid '+d.accent+'88;box-shadow:0 10px 30px rgba(0,0,0,.5)"><span style="width:8px;height:8px;border-radius:99px;background:'+d.accent+';box-shadow:0 0 8px '+d.glow+'"></span><span class="mono" id="liveClock" style="font-size:14px;font-weight:700;color:#eef0fb">'+liveElapsed()+'</span><span style="font-size:11px;color:#9aa2c0">'+esc(d.tag)+' · resume</span></button>';
+    return '<button class="btn tap" data-act="liveresume" style="position:fixed;left:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;gap:9px;padding:10px 15px;border-radius:99px;background:rgba(20,23,38,.97);border:1px solid '+d.accent+'88;box-shadow:0 10px 30px rgba(0,0,0,.5)"><span style="width:8px;height:8px;border-radius:99px;background:'+d.accent+';box-shadow:0 0 8px '+d.glow+'"></span><span class="mono" id="liveClock" style="font-size:14px;font-weight:700;color:#eef0fb">'+liveElapsed()+'</span><span style="font-size:13px;color:#9aa2c0">'+esc(d.tag)+' · resume</span></button>';
   }
   var items=orderedItems(d), n=items.length;
   var i=Math.max(0,Math.min(n-1,state.live.exIdx||0)); state.live.exIdx=i;
@@ -1074,18 +1074,18 @@ function liveView(){
   var h='<div class="overlay" role="dialog" aria-modal="true" style="align-items:stretch;padding:0;background:rgba(6,7,14,.97)"><div style="max-width:600px;width:100%;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 16px) max(16px,env(safe-area-inset-left)) calc(28px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-right));overflow-y:auto;display:flex;flex-direction:column">';
   h+='<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">';
   h+='<div style="flex:1;min-width:0"><div class="eyebrow" style="color:'+d.accent+'">Live · '+esc(d.tag)+'</div><div class="mono" id="liveClock" style="font-size:23px;font-weight:700;color:#eef0fb;margin-top:2px">'+liveElapsed()+'</div></div>';
-  h+='<button class="btn" data-act="livemin" style="padding:10px 13px;border-radius:10px;font-size:11px;color:#aab2d0;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.2)">↓ Hide</button>';
+  h+='<button class="btn" data-act="livemin" style="padding:10px 13px;border-radius:10px;font-size:13px;color:#aab2d0;background:rgba(255,255,255,.04);border:1px solid rgba(120,130,180,.2)">↓ Hide</button>';
   h+='<button class="btn cinzel" data-act="livefinish" style="padding:11px 17px;border-radius:11px;font-size:12px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,'+d.accent+','+d.accent+'cc)">⚑ Finish</button>';
   h+='</div>';
-  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px"><span class="eyebrow" style="font-size:8.5px">Exercise '+(i+1)+' of '+n+'</span><span class="mono" style="font-size:10px;color:'+d.accent+'">'+doneN+'/'+n+' done</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px"><span class="eyebrow" style="font-size:11px">Exercise '+(i+1)+' of '+n+'</span><span class="mono" style="font-size:12.5px;color:'+d.accent+'">'+doneN+'/'+n+' done</span></div>';
   h+='<div class="bartrack" style="height:5px;margin-bottom:15px"><div class="fill" style="width:'+(((i+1)/n)*100).toFixed(1)+'%;background:'+d.accent+'"></div></div>';
-  if(i===0&&doneN===0){ h+='<div class="fadeUp" style="display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:12px;background:rgba(69,200,216,.07);border:1px solid rgba(69,200,216,.3);margin-bottom:14px"><span style="font-size:15px">\ud83e\udded</span><div style="font-size:11px;color:#a8ccd4;line-height:1.55">This walks your session in program order. Enter <b>weight \u00d7 reps</b> as you lift (or tap \u201cSame as last time\u201d), then hit <b>Done \u00b7 next</b> \u2014 the rest ring starts itself. <b>Hide</b> keeps the clock running while you browse the app.</div></div>'; }
+  if(i===0&&doneN===0){ h+='<div class="fadeUp" style="display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:12px;background:rgba(69,200,216,.07);border:1px solid rgba(69,200,216,.3);margin-bottom:14px"><span style="font-size:15px">\ud83e\udded</span><div style="font-size:13px;color:#a8ccd4;line-height:1.55">This walks your session in program order. Enter <b>weight \u00d7 reps</b> as you lift (or tap \u201cSame as last time\u201d), then hit <b>Done \u00b7 next</b> \u2014 the rest ring starts itself. <b>Hide</b> keeps the clock running while you browse the app.</div></div>'; }
   h+='<section class="panel forge-live-record" aria-label="Current exercise" style="padding:17px;border-color:'+d.accent+'55"><header class="forge-live-face">';
-  h+='<div class="eyebrow" style="font-size:8px;color:'+d.accent+';margin-bottom:5px">'+esc(secName)+'</div>';
+  h+='<div class="eyebrow" style="font-size:11px;color:'+d.accent+';margin-bottom:5px">'+esc(secName)+'</div>';
   h+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><span class="cinzel" style="font-size:17px;color:#eef0fb;font-weight:600;line-height:1.25">'+esc(nm)+'</span>'+(it.track==="load"?'<span class="mono" style="font-size:12px;color:'+d.accent+';white-space:nowrap">'+it.sets+'×'+esc(it.reps)+'</span>':(it.s?'<span class="mono" style="font-size:12px;color:'+d.accent+';white-space:nowrap">'+esc(it.s)+'</span>':''))+'</div>';
   h+='<div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">'+chips(it.f)+'</div>';
-  if(it.track==="load") h+='<div class="mono" style="font-size:10px;color:#7c84a8;margin-top:7px">rest '+esc(it.rest)+' · '+esc(it.rpe)+'</div>';
-  if(it.c) h+='<div style="font-size:11px;color:#8089a8;margin-top:6px;font-style:italic">'+esc(it.c)+'</div>';
+  if(it.track==="load") h+='<div class="mono" style="font-size:12.5px;color:#7c84a8;margin-top:7px">rest '+esc(it.rest)+' · '+esc(it.rpe)+'</div>';
+  if(it.c) h+='<div style="font-size:13px;color:#8089a8;margin-top:6px;font-style:italic">'+esc(it.c)+'</div>';
   h+='</header><div class="forge-live-entry">';
   if(it.track==="cardio"){ h+=historyStrip(it,d.accent); h+=cardioRows(it,d.accent); h+=noteBlock(it,d.accent); }
   if(it.track==="load"){
@@ -1093,7 +1093,7 @@ function liveView(){
     h+=setRows(it,d.accent,d.key);
     var prevS=lastSets(eid), curD=state.draft[eid];
     var hasCur=curD&&curD.sets&&curD.sets.some(function(s3){return s3.w||s3.r;});
-    if(prevS&&prevS.length&&!hasCur){ h+='<button class="btn tap" data-act="livefill" style="margin-top:9px;padding:8px 13px;border-radius:9px;font-size:11px;font-weight:600;color:#cfd4ea;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">\u27f3 Same as last time</button>'; }
+    if(prevS&&prevS.length&&!hasCur){ h+='<button class="btn tap" data-act="livefill" style="margin-top:9px;padding:8px 13px;border-radius:9px;font-size:13px;font-weight:600;color:#cfd4ea;background:rgba(255,255,255,.05);border:1px solid rgba(120,130,180,.25)">\u27f3 Same as last time</button>'; }
   }
   h+='</div></section>';
   h+='<div style="display:flex;gap:9px;margin-top:14px">';
@@ -1102,9 +1102,9 @@ function liveView(){
   h+='<button class="btn tap cinzel" data-act="livedone" style="flex:1.5;height:52px;border-radius:12px;font-size:13.5px;font-weight:600;color:#0c0e1a;background:'+(isDone?'#2fd180':'linear-gradient(180deg,'+d.accent+','+d.accent+'cc)')+'">'+(isDone?'✓ Done · next':(i===n-1?'✔ Mark done':'✔ Done · next'))+'</button>';
   h+='</div>';
   var canLater = i<n-1 && daySectionOf(d,it.id)===daySectionOf(d,items[i+1].id);
-  if(canLater){ h+='<button class="btn tap" data-act="livelater" style="width:100%;margin-top:9px;padding:10px;border-radius:11px;font-size:11.5px;font-weight:600;color:#f0b73e;background:rgba(240,183,62,.09);border:1px solid rgba(240,183,62,.32)">\u2935 Can\u2019t do this now \u00b7 swap with next</button>'; }
-  if(i<n-1){ h+='<div style="text-align:center;font-size:10.5px;color:#6f7798;margin-top:12px">Up next: '+esc(effName(items[i+1]))+'</div>'; }
-  else { h+='<div style="text-align:center;font-size:10.5px;color:#2fd180;margin-top:12px">Last one, then hit Finish for the summary.</div>'; }
+  if(canLater){ h+='<button class="btn tap" data-act="livelater" style="width:100%;margin-top:9px;padding:10px;border-radius:11px;font-size:13px;font-weight:600;color:#f0b73e;background:rgba(240,183,62,.09);border:1px solid rgba(240,183,62,.32)">\u2935 Can\u2019t do this now \u00b7 swap with next</button>'; }
+  if(i<n-1){ h+='<div style="text-align:center;font-size:12.5px;color:#6f7798;margin-top:12px">Up next: '+esc(effName(items[i+1]))+'</div>'; }
+  else { h+='<div style="text-align:center;font-size:12.5px;color:#2fd180;margin-top:12px">Last one, then hit Finish for the summary.</div>'; }
   h+='</div></div>';
   return h;
 }
@@ -1137,7 +1137,7 @@ function section(key,title,accent,teaser,content){
   var open=!!(state.openSections&&state.openSections[key]);
   var h='<div class="panel" style="padding:0;overflow:hidden;margin-top:12px">';
   h+='<button class="btn tap" data-act="section" data-key="'+key+'" style="width:100%;text-align:left;background:transparent;border:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px">';
-  h+='<div style="min-width:0;flex:1"><div class="eyebrow" style="color:'+accent+'">'+title+'</div>'+(teaser?'<div style="font-size:11px;color:#8089a8;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+teaser+'</div>':'')+'</div>';
+  h+='<div style="min-width:0;flex:1"><div class="eyebrow" style="color:'+accent+'">'+title+'</div>'+(teaser?'<div style="font-size:13px;color:#8089a8;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+teaser+'</div>':'')+'</div>';
   h+='<span style="color:'+accent+';font-size:19px;flex-shrink:0;display:inline-block;transform:rotate('+(open?"90":"0")+'deg);transition:transform .22s">\u203a</span>';
   h+='</button>';
   if(open){ h+='<div class="fadeUp" style="padding:14px 16px 16px;border-top:1px solid rgba(120,130,180,.1)">'+content+'</div>'; }
@@ -1153,7 +1153,7 @@ function render(){
   h+='<a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">\u2302</a>';
   h+='<div style="display:flex;align-items:center;gap:9px;min-width:0"><span style="color:#f0683e;font-size:15px;line-height:1">\u2692</span><span class="appbar-title">The Forge</span></div>';
   h+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
-  h+='<span class="appbar-pill"><span class="mono" style="font-size:12.5px;font-weight:700;color:#f6d0be">'+st.thisWeek+'</span><span style="font-size:9.5px;color:#9aa2c0;letter-spacing:.08em">THIS WK</span></span>';
+  h+='<span class="appbar-pill"><span class="mono" style="font-size:12.5px;font-weight:700;color:#f6d0be">'+st.thisWeek+'</span><span style="font-size:12px;color:#9aa2c0;letter-spacing:.08em">THIS WK</span></span>';
   h+='<button class="btn tap" data-act="plates" aria-label="Plate calculator" style="width:34px;height:34px;border-radius:10px;background:rgba(240,183,62,.08);border:1px solid rgba(240,183,62,.32);color:#f0b73e;font-size:14px;display:grid;place-items:center">\u2696</button>';
   h+='</div></div>';
 
@@ -1161,29 +1161,29 @@ function render(){
     h+='<div class="panel fadeUp" style="padding:12px 14px;margin-bottom:14px;border-color:rgba(240,183,62,.5);display:flex;align-items:center;gap:10px">'
       +'<span style="font-size:16px">\u2694</span>'
       +'<div style="flex:1;min-width:0;font-size:12px;color:#dfe3f4;line-height:1.4"><b>'+esc(state.handoff.tag)+'</b> logged \u2014 count it toward your 80 workouts in Life Ledger.</div>'
-      +'<a href="life-ledger.html?forge=1&d='+esc(state.handoff.date)+'" style="flex-shrink:0;padding:9px 14px;border-radius:9px;font-size:11.5px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f);text-decoration:none;white-space:nowrap">Add \u2192</a>'
+      +'<a href="life-ledger.html?forge=1&d='+esc(state.handoff.date)+'" style="flex-shrink:0;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f);text-decoration:none;white-space:nowrap">Add \u2192</a>'
       +'<button class="btn tap" data-act="hodismiss" aria-label="dismiss" style="background:transparent;border:none;color:#8089a8;font-size:16px;padding:4px 6px">\u00d7</button>'
       +'</div>';
   }
-  h+='<div class="fadeUp" style="text-align:center;margin:2px 0 12px"><div style="font-size:11.5px;color:#7c84a8;font-style:italic;line-height:1.45">4-day split \u00b7 strength, power, conditioning</div></div>';
+  h+='<div class="fadeUp" style="text-align:center;margin:2px 0 12px"><div style="font-size:13px;color:#7c84a8;font-style:italic;line-height:1.45">4-day split \u00b7 strength, power, conditioning</div></div>';
 
   h+='<div class="eyebrow" style="margin:20px 2px 11px">Regular workouts \u00b7 tap a day to log</div><div style="display:flex;flex-direction:column;gap:11px">';
   PROGRAM.forEach(function(d){ h+=dayCard(d); });
   h+='</div>';
   h+='<div id="forge-goals"></div>';
 
-  function tile(v,l){ return '<div style="flex:1;text-align:center;padding:11px 4px;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid rgba(120,130,180,.1)"><div class="mono" style="font-size:18px;color:#eef0fb;font-weight:700">'+v+'</div><div class="eyebrow" style="font-size:8.5px;margin-top:3px">'+l+'</div></div>'; }
+  function tile(v,l){ return '<div style="flex:1;text-align:center;padding:11px 4px;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid rgba(120,130,180,.1)"><div class="mono" style="font-size:18px;color:#eef0fb;font-weight:700">'+v+'</div><div class="eyebrow" style="font-size:11px;margin-top:3px">'+l+'</div></div>'; }
   h+='<div class="panel fadeUp forge-season" style="padding:14px;margin-top:14px"><div style="display:flex;gap:8px">'+tile(st.season,"Season")+tile(st.thisWeek,"This Week")+tile(st.weeksLeft,"Weeks Left")+'</div>';
   var spct=Math.min(100,st.season/st.goal*100);
   h+='<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'
-    +'<span class="eyebrow" style="font-size:8.5px">Season · Sep 21 → Dec 31</span>'
-    +'<span class="mono" style="font-size:10px;color:'+(st.onPace?"#2fd180":"#f0683e")+'">'+st.season+' / '+st.goal+' · '+(st.onPace?'on pace':'~'+Math.max(1,Math.round(st.expected-st.season))+' behind')+'</span></div>'
+    +'<span class="eyebrow" style="font-size:11px">Season · Sep 21 → Dec 31</span>'
+    +'<span class="mono" style="font-size:12.5px;color:'+(st.onPace?"#2fd180":"#f0683e")+'">'+st.season+' / '+st.goal+' · '+(st.onPace?'on pace':'~'+Math.max(1,Math.round(st.expected-st.season))+' behind')+'</span></div>'
     +'<div class="bartrack" style="height:6px"><div class="fill" style="width:'+spct.toFixed(1)+'%;background:linear-gradient(90deg,#e2a32f,#f6cf6a)"></div>'
     +'<div style="position:absolute;top:-1px;bottom:-1px;left:'+Math.min(100,st.expected/st.goal*100).toFixed(1)+'%;width:2px;background:rgba(255,255,255,.55)" title="on-pace marker"></div></div></div>';
   h+='<div style="display:flex;gap:6px;margin-top:11px">';
-  PROGRAM.forEach(function(d){ h+='<div style="flex:1;text-align:center"><div class="mono" style="font-size:13px;color:'+d.accent+';font-weight:700">'+(st.byType[d.key]||0)+'</div><div style="font-size:8px;color:#6f7798;margin-top:2px">'+esc(d.tag.length>6?d.tag.slice(0,4)+".":d.tag)+'</div></div>'; });
+  PROGRAM.forEach(function(d){ h+='<div style="flex:1;text-align:center"><div class="mono" style="font-size:13px;color:'+d.accent+';font-weight:700">'+(st.byType[d.key]||0)+'</div><div style="font-size:11px;color:#6f7798;margin-top:2px">'+esc(d.tag.length>6?d.tag.slice(0,4)+".":d.tag)+'</div></div>'; });
   h+='</div>';
-  if(st.last){ h+='<div style="text-align:center;font-size:10.5px;color:#6f7798;margin-top:11px">Last trained: '+esc((dayBy(st.last.type)||{}).tag||st.last.type)+' \u00b7 '+daysAgo(st.last.date)+'</div>'; }
+  if(st.last){ h+='<div style="text-align:center;font-size:12.5px;color:#6f7798;margin-top:11px">Last trained: '+esc((dayBy(st.last.type)||{}).tag||st.last.type)+' \u00b7 '+daysAgo(st.last.date)+'</div>'; }
   h+='</div>';
 
   h+='<div style="margin-top:12px">'+muscleHeat()+'</div>';
@@ -1191,7 +1191,7 @@ function render(){
   h+='<div class="eyebrow" style="margin:20px 2px 7px">Suggested week</div><div class="scroll-x" style="margin:0 -16px;padding:0 16px 4px"><div style="display:flex;gap:7px;min-width:min-content">';
   [["Mon","PUSH"],["Tue","LEGS"],["Wed","Rest"],["Thu","PULL"],["Fri","ENGINE"],["Sat","Rest"],["Sun","Rest"]].forEach(function(p){
     var d=dayBy(p[1]), ac=d?d.accent:"#4e5573", nm=d?d.tag:"Rest";
-    h+='<div style="flex:0 0 auto;min-width:74px;text-align:center;padding:9px 8px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid '+(d?ac+"44":"rgba(120,130,180,.12)")+'"><div class="eyebrow" style="font-size:8px;color:#6f7798">'+p[0]+'</div><div style="font-size:11px;color:'+(d?ac:"#6f7798")+';font-weight:600;margin-top:4px;line-height:1.1">'+esc(nm)+'</div></div>';
+    h+='<div style="flex:0 0 auto;min-width:74px;text-align:center;padding:9px 8px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid '+(d?ac+"44":"rgba(120,130,180,.12)")+'"><div class="eyebrow" style="font-size:11px;color:#6f7798">'+p[0]+'</div><div style="font-size:13px;color:'+(d?ac:"#6f7798")+';font-weight:600;margin-top:4px;line-height:1.1">'+esc(nm)+'</div></div>';
   });
   h+='</div></div>';
 
@@ -1212,29 +1212,29 @@ function render(){
     var cb='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:13px">';
     [["This week",ct.week],["This month",ct.month],["All time",ct.all]].forEach(function(x){
       cb+='<div style="padding:11px 9px;border-radius:12px;background:rgba(69,200,216,.06);border:1px solid rgba(69,200,216,.22);text-align:center">'
-        +'<div class="mono" style="font-size:18px;font-weight:700;color:#45c8d8;line-height:1">'+x[1]+'<span style="font-size:9px;color:#6f7798"> min</span></div>'
-        +'<div class="eyebrow" style="font-size:7.5px;margin-top:3px;color:#6f7798">'+x[0]+'</div></div>';
+        +'<div class="mono" style="font-size:18px;font-weight:700;color:#45c8d8;line-height:1">'+x[1]+'<span style="font-size:12px;color:#6f7798"> min</span></div>'
+        +'<div class="eyebrow" style="font-size:11px;margin-top:3px;color:#6f7798">'+x[0]+'</div></div>';
     });
     cb+='</div>';
-    cb+='<div style="font-size:11px;color:#8089a8;margin-bottom:10px">'+hrs.toFixed(1)+' hours of cardio across '+ct.sessions+' session'+(ct.sessions===1?'':'s')+'.</div>';
+    cb+='<div style="font-size:13px;color:#8089a8;margin-bottom:10px">'+hrs.toFixed(1)+' hours of cardio across '+ct.sessions+' session'+(ct.sessions===1?'':'s')+'.</div>';
     modes.forEach(function(m){
       var pct=ct.all>0?ct.byMode[m]/ct.all*100:0;
       cb+='<div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">'
-        +'<span style="width:96px;flex-shrink:0;font-size:10.5px;color:#9aa2c0;text-align:right">'+esc(m)+'</span>'
+        +'<span style="width:96px;flex-shrink:0;font-size:12.5px;color:#9aa2c0;text-align:right">'+esc(m)+'</span>'
         +'<div class="bartrack" style="flex:1;height:7px"><div class="fill" style="width:'+pct.toFixed(1)+'%;background:#45c8d8"></div></div>'
-        +'<span class="mono" style="width:52px;flex-shrink:0;font-size:10px;color:#eef0fb;text-align:right">'+ct.byMode[m]+'m</span></div>';
+        +'<span class="mono" style="width:52px;flex-shrink:0;font-size:12.5px;color:#eef0fb;text-align:right">'+ct.byMode[m]+'m</span></div>';
     });
     h+=section("cardio","Cardio \u00b7 Cumulative","#45c8d8",ct.week+" min this week \u00b7 "+hrs.toFixed(1)+" hrs all time",cb);
   }
-  var bs='padding:9px 14px;border-radius:10px;font-size:11px;color:#aab2d0;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.16);cursor:pointer';
+  var bs='padding:9px 14px;border-radius:10px;font-size:13px;color:#aab2d0;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.16);cursor:pointer';
   h+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:24px">'
     +'<button class="btn" data-act="plates" style="'+bs+';color:#f0b73e;border-color:rgba(240,183,62,.4)">\u2696 Plate calc</button>'
     +'<button class="btn" data-act="export" style="'+bs+'">\u2913 Export backup</button>'
     +'<button class="btn" data-act="import" style="'+bs+'">\u2911 Import backup</button>'
     +'<button class="btn" data-act="reset" style="'+bs+'">\u21ba Reset log</button>'
     +'<input type="file" id="importFile" accept="application/json,.json" style="display:none"/></div>';
-  h+='<div class="mono" style="text-align:center;margin-top:14px;font-size:10.5px;color:#4e5573">'+st.daysLeft+' days left in the year \u00b7 saved in this browser</div>';
-  h+='<div class="mono forge-app-links" style="display:flex;gap:16px;justify-content:center;margin-top:16px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase"><a href="life-ledger.html" style="color:#5d647f;text-decoration:none">Life Ledger</a><span style="color:#f0683e">\u2692 The Forge</span><a href="communication-trainer.html" style="color:#5d647f;text-decoration:none">Communicator</a></div>';
+  h+='<div class="mono" style="text-align:center;margin-top:14px;font-size:12.5px;color:#4e5573">'+st.daysLeft+' days left in the year \u00b7 saved in this browser</div>';
+  h+='<div class="mono forge-app-links" style="display:flex;gap:16px;justify-content:center;margin-top:16px;font-size:12px;letter-spacing:.14em;text-transform:uppercase"><a href="life-ledger.html" style="color:#5d647f;text-decoration:none">Life Ledger</a><span style="color:#f0683e">\u2692 The Forge</span><a href="communication-trainer.html" style="color:#5d647f;text-decoration:none">Communicator</a></div>';
   h+=plateView();
   h+=liveView();
   h+=prCelView();
@@ -1500,7 +1500,7 @@ render();
 </script>
 <script src="shared/forge-goal-plans.js?v=85bd29918f45"></script>
 <script src="shared/forge-goal-model.js?v=a444da8614dc"></script>
-<script src="shared/forge-goals.js?v=b3515c4ddc25"></script>
+<script src="shared/forge-goals.js?v=772be89b9bf6"></script>
 </body>
 </html>
 
