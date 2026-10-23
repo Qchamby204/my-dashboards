@@ -33,9 +33,9 @@ try{
      await p.evaluate(()=>qaRelease());await p.waitForFunction(()=>state.days.some(d=>d.units.Read===10));await p.waitForFunction(()=>!document.getElementById('app').inert);await shot(p,app,'saved',theme);
      await p.reload();await ready(p);assert(await p.evaluate(()=>state.days.some(d=>d.units.Read===10)));
     }else if(app==='life-map'){
-     const input=p.locator('#qaTxt');await input.fill('Feedback-state task');await p.keyboard.press('Tab');await p.evaluate(()=>{window.qaFailKeys=['lifemap_v1'];});await p.locator('.lm-capture').getByRole('button',{name:'Add task',exact:true}).click();
-     assert.equal(await input.inputValue(),'Feedback-state task');assert.equal(await p.evaluate(()=>S.projects.length),0);await p.locator('#lm-day-nav-projects').click();
-     const retry=p.locator('.lm-save-feedback').getByRole('button',{name:'Retry saving',exact:true});assert(await retry.isVisible(),'recovery remains outside contextual capture');assert.match(await p.locator('#lm-save-state').innerText(),/not.*sav|could not|quota|storage/i);await shot(p,app,'failed-save',theme);
+     await p.locator('.lm-now-card [data-day="capture"]').click();const dialog=p.getByRole('dialog',{name:'Add task',exact:true}),input=dialog.getByLabel('Task',{exact:true});await input.fill('Feedback-state task');await p.evaluate(()=>{window.qaFailKeys=['lifemap_v1'];});await dialog.getByRole('button',{name:'Add task',exact:true}).click();
+     assert.equal(await input.inputValue(),'Feedback-state task');assert.equal(await p.evaluate(()=>S.projects.length),0);
+     const retry=dialog.getByRole('button',{name:'Retry saving',exact:true});assert(await retry.isVisible(),'recovery remains in the Add task sheet');assert.match(await dialog.locator('#lm-editor-status').innerText(),/not.*sav|could not|quota|storage/i);await shot(p,app,'failed-save',theme);
      await p.evaluate(()=>{window.qaFailKeys=[];});await retry.click();await p.waitForFunction(()=>S.projects.some(t=>t.task==='Feedback-state task'));await shot(p,app,'saved',theme);await p.reload();await ready(p);assert(await p.evaluate(()=>S.projects.some(t=>t.task==='Feedback-state task')));
     }else if(app==='workout-forge'){
      await p.locator('[data-goal-action="open"][data-goal="bench"]').click();await shot(p,app,'current-session',theme);await p.getByRole('button',{name:'Log next set',exact:true}).click();await p.locator('.fg-editor input[name="w"]').fill('95');await p.locator('.fg-editor input[name="r"]').fill('5');await p.keyboard.press('Tab');await shot(p,app,'draft',theme);
