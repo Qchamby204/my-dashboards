@@ -303,3 +303,4 @@ html[data-atlas-app="life-map"] #app .lm-month-projects{padding-top:8px}
 html[data-atlas-app="life-map"] #app .lm-month-projects:empty{display:none}
 @media(max-height:900px){html[data-atlas-app="life-map"] .lm-month-projects>button:nth-child(n+2){display:none!important}html[data-atlas-app="life-map"] .lm-calendar-feature[data-weeks="6"] .lm-month-projects{display:none}}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-timeline{border:0!important;border-bottom:1px solid var(--neo-line)!important;padding:20px 0!important}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-body{padding-block:10px}
