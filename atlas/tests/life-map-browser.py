@@ -351,6 +351,64 @@ class LifeMapBrowser(unittest.TestCase):
         self.assertEqual(self.storage()['lifemap_v1'],raw)
         self.assertFalse(self.errors)
 
+    def test_home_reschedules_earlier_plans_and_collapses_done_tasks(self):
+        self.load(board([task('late',task='Call the plumber back',plan='2026-09-16',due='2026-09-30'),task('now',task='Order the blinds',plan=TODAY),task('finished',task='Hang the shelves',plan=TODAY,status='Done',doneAt=TODAY)]),home=True)
+        late=self.page.get_by_role('region',name='Needs rescheduling')
+        self.assertIn('Call the plumber back',late.inner_text())
+        today=self.page.get_by_role('region',name='Today’s tasks')
+        self.assertIn('Order the blinds',today.inner_text())
+        self.assertFalse(today.locator('details.lm-done-today').evaluate('el=>el.open'),'completed tasks start collapsed')
+        self.assertIn('Done today · 1',today.inner_text())
+        late.get_by_role('button',name='Plan Call the plumber back for today',exact=True).click()
+        moved=next(t for t in self.state()['projects'] if t['id']=='late')
+        self.assertEqual((moved['plan'],moved['due']),(TODAY,'2026-09-30'),'rescheduling keeps the deadline')
+        self.assertEqual(self.page.get_by_role('region',name='Needs rescheduling').count(),0)
+        self.assertFalse(self.errors)
+
+    def test_daily_mandatory_separates_every_day_from_due_today(self):
+        chores=[{'id':'daily','chore':'Kitchen reset','cad':'Daily'},{'id':'weekly','chore':'Water the plants','cad':'Weekly','repeat':{'mode':'fixed','unit':'week','every':1,'anchor':TODAY}},{'id':'later','chore':'Clean the gutters','cad':'Weekly','repeat':{'mode':'fixed','unit':'week','every':1,'anchor':'2026-09-20'}}]
+        self.load(board(chores=chores),home=True)
+        panel=self.page.get_by_role('region',name='Daily mandatory').inner_text()
+        self.assertLess(panel.index('Kitchen reset'),panel.index('Also due today'))
+        self.assertGreater(panel.index('Water the plants'),panel.index('Also due today'))
+        self.assertNotIn('Clean the gutters',panel,'a routine due later is not on today’s list')
+        self.assertIn('0 / 2',panel)
+        self.assertFalse(self.errors)
+
+    def test_focus_can_change_from_its_card_without_writing_until_chosen(self):
+        self.load(board([task('one',task='First task',plan=TODAY),task('two',task='Second task',plan='2026-09-15')]),home=True)
+        before=self.storage()['lifemap_v1']
+        self.page.locator('.lm-now-card [data-day="focus-picker"]').click()
+        self.assertEqual(self.storage()['lifemap_v1'],before,'opening the chooser writes nothing')
+        self.page.locator('#lm-focus-picker [data-day="focus"][data-id="two"]').click()
+        state=self.state()
+        self.assertEqual(state['dayPlans'][TODAY]['focus'],{'kind':'task','id':'two'})
+        self.assertEqual(next(t for t in state['projects'] if t['id']=='two')['plan'],TODAY)
+        self.assertEqual(self.page.locator('#lm-focus-picker').count(),0)
+        self.assertFalse(self.errors)
+
+    def test_project_dates_sheet_sets_and_clears_dates_without_moving_tasks(self):
+        groups=[{'id':'g','title':'Office refresh','area':'House — Interior'}]
+        self.load(board([task('lamp',task='Pick a lamp',parentId='g',plan='2026-09-20',due='2026-09-24')],groups=groups),home=True)
+        self.page.locator('#lm-day-nav-calendar').click()
+        timeline=self.page.locator('.lm-project-timeline[data-id="g"]')
+        self.assertIn('From task dates',timeline.inner_text())
+        timeline.click()
+        dialog=self.page.get_by_role('dialog',name='Project dates',exact=True)
+        self.assertIn('Sep 20 – Sep 24',dialog.locator('#lm-dates-result').inner_text())
+        dialog.locator('[data-field="endDate"]').fill('2026-09-30')
+        self.assertIn('11 days',dialog.locator('#lm-dates-result').inner_text())
+        dialog.locator('[data-lm="save-dates"]').click()
+        state=self.state()
+        g=state['groups'][0];lamp=state['projects'][0]
+        self.assertEqual((g['startDate'],g['endDate']),('2026-09-20','2026-09-30'))
+        self.assertEqual((lamp['plan'],lamp['due']),('2026-09-20','2026-09-24'),'task dates stay as they were')
+        self.assertIn('Dates set',self.page.locator('.lm-project-timeline[data-id="g"]').inner_text())
+        self.page.locator('.lm-project-timeline[data-id="g"]').click()
+        self.page.get_by_role('dialog',name='Project dates',exact=True).locator('[data-lm="clear-dates"]').click()
+        self.assertNotIn('startDate',self.state()['groups'][0])
+        self.assertFalse(self.errors)
+
     def test_search_and_nested_delete_confirmation(self):
         self.load(board([task('one')],chores=[{'id':'c','chore':'File invoice','cad':'Weekly'}]))
         self.click('search')

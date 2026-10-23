@@ -22,6 +22,19 @@ A task's area is its own. Linking a project fills the area only when the task ha
 
 Opening a task shows Task, Area, Date, Done and Save. Date is the day you plan to work on it; a deadline is separate. Project, deadline, status, priority, waiting details, notes, checklist, links, scheduling and context, calendar reminder and delete are under Details, whose summary names what is set. When task wording sets a date in Add task, the interpretation appears under the Date field.
 
+### Daily planning · Release 2
+
+Home answers what needs you today, in this order: the focus card, Daily mandatory, today's tasks, then anything that needs rescheduling.
+
+- **Focus.** Change focus on the card opens a short chooser of today's planned, due and carried-over tasks. Opening it writes nothing; choosing one starts it and plans it for today without moving its deadline.
+- **Daily mandatory.** Two explicit groups: Every day (routines that repeat daily) and Also due today (other routines scheduled for today or whose next occurrence is due). Checked items stay until midnight and can be unchecked.
+- **Today's tasks.** Open tasks planned for today or with a deadline today or earlier. Completed ones collapse into Done today and can be reopened there.
+- **Needs rescheduling.** Open tasks planned for an earlier day that are not done, with Today, Tomorrow and Choose date. Overdue is reserved for missed deadlines.
+
+The calendar gives each project one colour, taken from its position among all saved projects, so archiving or browsing never changes it. Day cells mark projects with a coloured bar, planned work with a dot and deadlines with a diamond; the month summary doubles as the legend, and each day's accessible name spells out what it holds. A task planned and due on the same day keeps both meanings. The opening card keeps a compact projects line with View all in every month, six-week months included.
+
+Tapping a project timeline opens a compact Project dates sheet: Start, End, the resulting range and Save. Task plans and deadlines never move. Ranges taken from task dates are hatched and labelled From task dates; saved ranges say Dates set, and Use task dates instead returns a project to its task dates. Choosing a month in Next 12 months opens that month's calendar and moves focus to its title.
+
 Project range bars and the project names on the calendar opening open the existing project editor with Start date and End date. Save project to update its position; task plans and real deadlines retain their own dates. Existing projects without explicit ranges use their saved task dates. Unscheduled projects have a Set dates action. Browsing months, categories and tasks never changes saved records. The next-12-month selector starts with the current month and crosses year boundaries.
 
 Home's mandatory checklist uses saved daily routines, explicitly scheduled routines and repeating occurrences due today. Completed items remain visible for the day and can be unchecked. A future repeating occurrence is not presented as already completed. Skips retain their separate state. The source records, recurrence anchors and verified save/retry/Undo remain authoritative.

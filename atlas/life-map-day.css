@@ -301,7 +301,7 @@ html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-body>.lm-h
 html[data-atlas-app="life-map"] #app .lm-month-weekdays{margin-top:12px}
 html[data-atlas-app="life-map"] #app .lm-month-projects{padding-top:8px}
 html[data-atlas-app="life-map"] #app .lm-month-projects:empty{display:none}
-@media(max-height:900px){html[data-atlas-app="life-map"] .lm-month-projects>button:nth-child(n+2){display:none!important}html[data-atlas-app="life-map"] .lm-calendar-feature[data-weeks="6"] .lm-month-projects{display:none}}
+/* The opening keeps one compact projects line in every month, including six-week months. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-timeline{border:0!important;border-bottom:1px solid var(--neo-line)!important;padding:20px 0!important}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-body{padding-block:10px}
 
@@ -389,3 +389,57 @@ html.atlas-neumo[data-atlas-app="life-map"] #atlas-project-transfer summary::-we
 html.atlas-neumo[data-atlas-app="life-map"] #atlas-project-transfer summary::after{content:"›";font-size:1.25rem;line-height:1;color:var(--neo-muted);transition:transform .2s}
 html.atlas-neumo[data-atlas-app="life-map"] #atlas-project-transfer details[open]>summary::after{transform:rotate(90deg)}
 @media(prefers-reduced-motion:reduce){html.atlas-neumo[data-atlas-app="life-map"] #atlas-project-transfer summary::after{transition:none}}
+
+/* Release 2 · project colours. Theme colours on ordinary surfaces; lighter shades on the calendar's dark face. */
+html[data-atlas-app="life-map"] #app .lm-pc-0{--pc:var(--neo-blue)}
+html[data-atlas-app="life-map"] #app .lm-pc-1{--pc:var(--neo-green)}
+html[data-atlas-app="life-map"] #app .lm-pc-2{--pc:var(--neo-violet)}
+html[data-atlas-app="life-map"] #app .lm-pc-3{--pc:var(--neo-orange)}
+html[data-atlas-app="life-map"] #app .lm-pc-4{--pc:var(--neo-cyan)}
+html[data-atlas-app="life-map"] #app .lm-pc-5{--pc:var(--neo-rose)}
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-pc-0{--pc:#9bc5f3}
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-pc-1{--pc:#93d9b6}
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-pc-2{--pc:#c7b0f3}
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-pc-3{--pc:#efb38b}
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-pc-4{--pc:#91d3df}
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-pc-5{--pc:#f3a4b8}
+
+/* Release 2 · day marks: a bar per project, a dot for planned work, a diamond for a deadline. */
+html[data-atlas-app="life-map"] #app .lm-month-marks{display:flex;align-items:center;justify-content:center;gap:3px;height:7px;margin-top:2px}
+html[data-atlas-app="life-map"] #app .lm-mark{display:inline-block;flex:none;vertical-align:middle}
+html[data-atlas-app="life-map"] #app .lm-mark-project{width:10px;height:3px;border-radius:2px;background:var(--pc,currentColor)}
+html[data-atlas-app="life-map"] #app .lm-mark-plan{width:5px;height:5px;border-radius:50%;background:currentColor}
+html[data-atlas-app="life-map"] #app .lm-mark-due{width:6px;height:6px;transform:rotate(45deg);background:var(--lm-face-accent,var(--neo-accent))}
+html[data-atlas-app="life-map"] #app .lm-month-summary .lm-mark{margin-right:2px;color:var(--lm-face-ink)}
+html[data-atlas-app="life-map"] #app .lm-month-summary .lm-mark-plan,html[data-atlas-app="life-map"] #app .lm-month-summary .lm-mark-due{width:7px;height:7px}
+html[data-atlas-app="life-map"] #app .lm-month-swatches{display:inline-flex;align-items:center;gap:3px;flex:none}
+html[data-atlas-app="life-map"] #app .lm-month-swatches .lm-mark-project{width:10px;height:10px;border-radius:50%}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-projects .lm-month-projects-link{display:flex!important;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 0!important;text-align:left}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-projects .lm-month-projects-link::before{content:none!important}
+html[data-atlas-app="life-map"] #app .lm-month-projects-name{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html[data-atlas-app="life-map"] #app .lm-month-projects-cue{flex:none;font-weight:600;color:var(--lm-face-accent);text-decoration:underline;text-underline-offset:3px}
+
+/* Release 2 · timelines take their project's colour; ranges inferred from tasks are hatched and labelled. */
+html[data-atlas-app="life-map"] #app .lm-timeline-title{display:flex;align-items:center;gap:10px}
+html[data-atlas-app="life-map"] #app .lm-timeline-title strong{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+html[data-atlas-app="life-map"] #app .lm-timeline-title .lm-mark-project{width:12px;height:12px;border-radius:50%}
+html[data-atlas-app="life-map"] #app .lm-project-timeline .lm-timeline-track>span{background:var(--pc,var(--neo-accent))}
+html[data-atlas-app="life-map"] #app .lm-timeline-derived .lm-timeline-track>span{background:repeating-linear-gradient(135deg,var(--pc,var(--neo-accent)) 0 6px,color-mix(in srgb,var(--pc,var(--neo-accent)) 45%,transparent) 6px 10px)}
+html[data-atlas-app="life-map"] #app .lm-year-month .lm-month-swatches{margin-top:auto}
+html[data-atlas-app="life-map"] #app #lm-month-projects-panel:focus{outline:none}
+@media(forced-colors:active){html[data-atlas-app="life-map"] #app .lm-mark{forced-color-adjust:none;background:CanvasText}}
+
+/* Release 2 · Home: explicit routine groups, rescheduling, focus choice and a collapsed done list. */
+html[data-atlas-app="life-map"] #app .lm-mandatory-subhead{margin:20px 0 4px;font-size:.875rem;font-weight:700;letter-spacing:.01em;color:var(--neo-muted)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-reschedule-row{padding:4px 0 16px;border-bottom:1px solid var(--neo-line)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-reschedule-row:last-child{border-bottom:0;padding-bottom:0}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-reschedule-actions{gap:8px;margin:8px 0 0}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-reschedule-actions .lm-day-button{min-height:40px;padding:8px 14px}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-done-today{margin-top:12px;border-top:1px solid var(--neo-line)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-done-today>summary{padding:12px 0;font-weight:600;color:var(--neo-muted);cursor:pointer}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-options{display:grid;gap:8px;margin:12px 0}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;min-height:56px;padding:12px 14px;text-align:left;border:1px solid var(--neo-line)!important;border-radius:14px!important;background:var(--neo-content-surface)!important;box-shadow:none!important;color:var(--neo-ink)!important;font:inherit}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option strong{font-size:1rem;overflow-wrap:anywhere}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option span{font-size:.8125rem;color:var(--neo-muted)}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option[aria-current="true"]{border-color:var(--neo-accent)!important;border-width:2px!important}
+html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-dates-result{margin:4px 0 12px;font-size:1.0625rem;font-weight:650;color:var(--neo-ink);font-variant-numeric:tabular-nums}
