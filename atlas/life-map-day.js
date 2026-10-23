@@ -16,7 +16,7 @@
   const info=(label,text)=>'<details class="atlas-info"><summary aria-label="'+esc(label)+'">i</summary><div class="atlas-info-body">'+esc(text)+'</div></details>';
   const input=(key,value,type='text',extra='')=>'<input id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'" type="'+type+'" value="'+attrs(value)+'" '+extra+'>';
   const field=(title,body)=>'<label class="lm-day-field"><span>'+esc(title)+'</span>'+body+'</label>';
-  const select=(key,value,options)=>'<select id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'"'+(key==='projectFilter'?' aria-label="Filter by project"':'')+'>'+options.map(([v,t])=>'<option value="'+attrs(v)+'"'+(String(v)===String(value)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
+  const select=(key,value,options)=>'<select id="lm-day-field-'+key.replace(/\./g,'-')+'" data-day-field="'+key+'"'+(key==='areaFilter'?' aria-label="Filter by area"':'')+'>'+options.map(([v,t])=>'<option value="'+attrs(v)+'"'+(String(v)===String(value)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>';
   const heading=(eyebrow,title,action='')=>'<div class="lm-day-heading"><div><div class="eyebrow">'+esc(eyebrow)+'</div><h1>'+esc(title)+'</h1></div><div class="lm-inline">'+action+(['plan','areas'].includes(ui.tab)&&view.qa.txt?button('Resume capture','capture'):'')+'</div></div>';
   const panel=(label,body)=>'<section class="panel lm-day-panel" aria-label="'+attrs(label)+'">'+body+'</section>';
   // Decorative title illustrations: distinct scenes, never a chart of saved progress.
@@ -191,19 +191,19 @@
   }
   function projectsView(){
     const coreProjects=(S.groups||[]).filter(g=>!g.archived);
-    if(ui.category!=='all'&&!coreProjects.some(g=>g.id===ui.category))ui.category='all';
-    const key=ui.category,all=key==='all',title=all?'Projects & tasks':coreProjects.find(g=>g.id===key)?.title||'Projects';
-    const tasks=S.projects.filter(t=>!t.archived&&(all||t.parentId===key)&&(ui.taskFilter==='all'||(ui.taskFilter==='done'?t.status==='Done':M.open(t))));
-    const groups=coreProjects.filter(g=>all||g.id===key);
-    const chores=all?S.chores.filter(c=>!c.archived):[];
-    let html=feature('board','Projects overview',all?'Every project. Every task.':'Your project',title,help(groups.length+' projects · '+tasks.length+' '+(ui.taskFilter==='open'?'open ':'')+'tasks'),button('Add task','capture','',true)+'<button type="button" class="btn lm-day-button" data-lm="new-group">New project</button><button type="button" class="btn lm-day-button" data-lm="search" aria-label="Search all Life Map">Search</button>');
-    html+='<div id="lm-category-content"><div class="lm-project-toolbar">'+field('Filter by project',select('projectFilter',key,[['all','All projects'],...coreProjects.map(g=>[g.id,g.title])]))+field('Show tasks',select('taskFilter',ui.taskFilter,[['open','Open'],['all','All tasks'],['done','Completed']]))+'</div>';
+    if(ui.category!=='all'&&!M.categories.some(([key])=>key===ui.category))ui.category='all';
+    const key=ui.category,all=key==='all',title=all?'Projects & tasks':M.categories.find(([id])=>id===key)?.[1]||'Projects';
+    const tasks=S.projects.filter(t=>!t.archived&&(all||M.categoryFor(t)===key)&&(ui.taskFilter==='all'||(ui.taskFilter==='done'?t.status==='Done':M.open(t))));
+    const groups=coreProjects.filter(g=>all||M.categoryFor(g)===key);
+    const chores=S.chores.filter(c=>!c.archived&&(all||M.categoryFor(c)===key));
+    let html=feature('board','Projects overview',all?'Every project. Every task.':'Your area',title,help(groups.length+' projects · '+tasks.length+' '+(ui.taskFilter==='open'?'open ':'')+'tasks'),button('Add task','capture','',true)+'<button type="button" class="btn lm-day-button" data-lm="new-group">New project</button><button type="button" class="btn lm-day-button" data-lm="search" aria-label="Search all Life Map">Search</button>');
+    html+='<div id="lm-category-content"><div class="lm-project-toolbar">'+field('Filter by area',select('areaFilter',key,[['all','All areas'],...M.categories]))+field('Show tasks',select('taskFilter',ui.taskFilter,[['open','Open'],['all','All tasks'],['done','Completed']]))+'</div>';
     if(groups.length)html+='<section class="lm-project-collection" aria-label="Projects">'+groups.map(g=>{
       const progress=M.projectProgress(S,g,todayISO()),rows=tasks.filter(t=>t.parentId===g.id),range=K.projectRange(S,g);
       return '<article class="panel lm-day-panel lm-simple-project" data-project-id="'+attrs(g.id)+'"><div class="lm-day-section-title"><h2>'+esc(g.title)+'</h2><button type="button" class="btn lm-day-button" data-lm="edit-group" data-id="'+attrs(g.id)+'">Edit project</button></div>'+help((g.area||'Unfiled')+' · '+progress.done+' / '+progress.total+' tasks complete')+'<div class="lm-project-progress" role="progressbar" aria-label="'+attrs(g.title+' completion')+'" aria-valuenow="'+progress.percent+'" aria-valuemin="0" aria-valuemax="100"><span style="width:'+progress.percent+'%"></span></div>'+(range?help(fmtDay(range.start)+' – '+fmtDay(range.end)):'')+'<details class="lm-project-tasks"><summary>Tasks · '+rows.length+'</summary>'+rows.map(t=>D.taskRow(t)).join('')+'</details><div class="lm-inline">'+button('Add task','project-capture','data-id="'+attrs(g.id)+'"')+button('Set timeline','project-dates','data-id="'+attrs(g.id)+'"')+'</div></article>';
     }).join('')+'</section>';
-    const standalone=all?tasks.filter(t=>!coreProjects.some(g=>g.id===t.parentId)):[];html+=panel('Tasks','<h2>Tasks</h2>'+(standalone.length?M.sortTasks(standalone,todayISO()).map(t=>D.taskRow(t)).join(''):help(groups.length?'Other tasks appear here.':'No tasks in this view yet.')));
-    if(all)html+=panel('Recurring responsibilities','<div class="lm-day-section-title"><h2>Routines</h2>'+button('Add routine','area-routine','data-category="'+(all?'household':key)+'"')+'</div>'+chores.map(c=>D.choreRow(c)).join(''));
+    const standalone=tasks.filter(t=>!groups.some(g=>g.id===t.parentId));html+=panel('Tasks','<h2>Tasks</h2>'+(standalone.length?M.sortTasks(standalone,todayISO()).map(t=>D.taskRow(t)).join(''):help(groups.length?'Other tasks appear here.':'No tasks in this view yet.')));
+    html+=panel('Recurring responsibilities','<div class="lm-day-section-title"><h2>Routines</h2>'+button('Add routine','area-routine','data-category="'+(all?'household':key)+'"')+'</div>'+chores.map(c=>D.choreRow(c)).join(''));
     html+='<details class="lm-more-tools"'+(ui.food||S.mealCoverage?' open':'')+'><summary>Dinner coverage</summary>'+foodView()+'</details><details class="lm-more-tools"><summary>Choose operations tasks</summary>'+opsPicker()+'</details>';
     html+='</div><details class="lm-more-tools"'+(ui.records?' open':'')+' data-full-record><summary>More tools & full record</summary>'+button('Open full record','records')+'</details>';
     return html;
@@ -248,7 +248,7 @@
     return html;
   }
   function handle(action,el){
-    if(action==='capture')return W.captureSheet(ui.tab==='calendar'?ui.date:undefined,ui.tab==='projects'&&ui.category!=='all'?ui.category:undefined);
+    if(action==='capture')return W.captureSheet(ui.tab==='calendar'?ui.date:undefined,undefined,ui.tab==='projects'?areaName(ui.category):undefined);
     const id=el.dataset.id;
     if(action==='mandatory-toggle'){const c=S.chores.find(c=>c.id===id&&!c.archived),h=(S.choreHistory||[]).filter(h=>h.choreId===id&&h.date===todayISO()).at(-1);if(c?.repeat&&h)return commit(next=>{next.choreHistory=next.choreHistory.filter(x=>x.id!==h.id);next.chores.find(x=>x.id===id).nextDue=h.occurrence;},'Routine reopened');return D.choreAction(id,'done');}
     if(action==='back-projects'){ui.records=false;render();return;}
@@ -339,7 +339,7 @@
     else ui[scope]=el.value;
     recordUI();
   });
-  app.addEventListener('change',event=>{const key=event.target.dataset?.dayField;if(key==='projectFilter'){ui.category=event.target.value;render();}else if(key==='date'){if(M.validDate(ui.date)){ui.month=ui.date.slice(0,7);ui.main=null;ui.block=null;ui.opsPicks.clear();recordUI();render();}}else if(key==='available'||key==='opsCadence'||key==='taskFilter')render();if(event.target.dataset?.opsPick){const id=event.target.dataset.opsPick;if(event.target.checked)ui.opsPicks.add(id);else ui.opsPicks.delete(id);const btn=app.querySelector('[data-day="ops-add"]');if(btn){btn.disabled=!ui.opsPicks.size;btn.textContent='Add selected to day'+(ui.opsPicks.size?' · '+ui.opsPicks.size:'');}}});
+  app.addEventListener('change',event=>{const key=event.target.dataset?.dayField;if(key==='areaFilter'){ui.category=event.target.value;render();}else if(key==='date'){if(M.validDate(ui.date)){ui.month=ui.date.slice(0,7);ui.main=null;ui.block=null;ui.opsPicks.clear();recordUI();render();}}else if(key==='available'||key==='opsCadence'||key==='taskFilter')render();if(event.target.dataset?.opsPick){const id=event.target.dataset.opsPick;if(event.target.checked)ui.opsPicks.add(id);else ui.opsPicks.delete(id);const btn=app.querySelector('[data-day="ops-add"]');if(btn){btn.disabled=!ui.opsPicks.size;btn.textContent='Add selected to day'+(ui.opsPicks.size?' · '+ui.opsPicks.size:'');}}});
   app.addEventListener('keydown',event=>{
     const el=event.target.closest?.('[role="tab"][data-day]');if(!el||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
     event.preventDefault();const buttons=[...el.parentNode.querySelectorAll('[role="tab"]')],i=buttons.indexOf(el),j=event.key==='Home'?0:event.key==='End'?buttons.length-1:(i+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;buttons[j].click();

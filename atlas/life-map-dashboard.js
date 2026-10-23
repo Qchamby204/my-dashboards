@@ -125,8 +125,9 @@
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
   const captureDate=()=>M.validDate(view.qa.when)?view.qa.when:view.qa.when==='today'?todayISO():view.qa.when==='tomorrow'?M.plus(todayISO(),1):'';
   function captureFields(){
-    const projects=(S.groups||[]).filter(g=>!g.archived);
-    return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureParent',view.qa.parentId,[['','Choose a project'],...projects.map(g=>[g.id,g.title])],'aria-label="Category"'))+field('Date',input('captureDate',captureDate(),'date'))+'</div>'+(!projects.length?help('Create your core projects in Projects to use them as categories.'):'');
+    const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'};
+    const selected=view.qa.area?names[M.categoryFor({area:view.qa.area})]:'';
+    return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureArea',selected,[['','Choose an area'],...M.categories.map(([key,title])=>[names[key],title])]))+field('Date',input('captureDate',captureDate(),'date'))+'</div>';
   }
   quickCapture=function(){
     const qa=view.qa;
@@ -356,7 +357,7 @@
     }},ids.size+' tasks organized','tasks_organized',()=>{selection.clear();selectMode=false;clearEdit();});
   }
   function captureSheet(when,parentId,area){
-    storeDraft();if(!group(view.qa.parentId)||group(view.qa.parentId).archived){view.qa.parentId='';view.qa.area='';}if(area&&!view.qa.txt&&!view.qa.parentId)view.qa.area=area;if(when)view.qa.when=when;if(parentId){view.qa.parentId=parentId;view.qa.area=group(parentId)?.area||'';}
+    storeDraft();if(view.qa.parentId&&(!group(view.qa.parentId)||group(view.qa.parentId).archived)){view.qa.parentId='';view.qa.area='';}if(area&&!view.qa.txt&&!view.qa.parentId)view.qa.area=area;if(when)view.qa.when=when;if(parentId){view.qa.parentId=parentId;view.qa.area=group(parentId)?.area||'';}
     view.editor={kind:'capture'};lastError='';render();document.getElementById('lm-capture-text')?.focus({preventScroll:true});
   }
   function handle(action,el){
