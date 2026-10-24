@@ -1,0 +1,52 @@
+// Run on the repository's pinned Chromium/WebKit runners. All records are synthetic.
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {createServer} from 'node:http';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {KEY,emptyState,addEntry,today,addDays} from '../../shared/advisor-core.mjs';
+const engines=createRequire(import.meta.url)('playwright'),engine=process.env.ATLAS_BROWSER_ENGINE||'chromium';
+const root=path.resolve(fileURLToPath(new URL('../../',import.meta.url))),out=process.env.ATLAS_SCREENSHOTS||'/tmp/advisor-guild';mkdirSync(out,{recursive:true});
+const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.ttf':'font/ttf','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.webmanifest':'application/manifest+json'};
+const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+new URL(req.url,'http://test').pathname);if(!file.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(file)]||'text/plain');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
+const ready=async p=>{await p.waitForFunction(()=>window.AdvisorGuild?.ready);await p.evaluate(()=>document.fonts.ready);};
+async function context(opts={}){const c=await browser.newContext({viewport:{width:393,height:852},timezoneId:'America/Winnipeg',reducedMotion:'reduce',...opts});await c.route('https://qchamby204.github.io/my-dashboards/**',async route=>{try{const file=new URL(route.request().url()).pathname.replace('/my-dashboards/','');await route.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await route.abort();}});return c;}
+try{
+ for(const [theme,width,size]of [['light',393,16],['dark',393,16],['light',320,16],['dark',844,16],['light',393,32],['dark',320,32]]){
+  const c=await context({viewport:{width,height:width===844?393:852},colorScheme:theme,contrast:size===32?'more':'no-preference'}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(origin+'/advisor-guild.html');await ready(p);
+  assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null,'opening does not seed practice records');
+  if(size===32)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});
+  for(const name of ['Today','Skills','Record']){
+   await p.getByRole('button',{name,exact:true}).click();
+   const g=await p.locator('.ag-hero').evaluate(el=>{const r=el.getBoundingClientRect(),h=el.querySelector('h1'),range=document.createRange();range.selectNodeContents(h);return {overflow:document.documentElement.scrollWidth>innerWidth+1,top:r.top,titleColor:getComputedStyle(h).color,titleFits:[...range.getClientRects()].every(x=>x.left>=r.left&&x.right<=r.right),bottom:r.bottom,dockTop:document.querySelector('.ag-dock').getBoundingClientRect().top};});
+   assert(!g.overflow,`${name} ${width}/${size} does not overflow`);assert(g.titleFits);assert.equal(g.titleColor,'rgb(255, 244, 223)');if(width===393&&size===16)assert(g.bottom<=g.dockTop-8,'opening clears floating dock');
+   for(const b of await p.locator('.ag-dock button,.ag-hero button').all()){const r=await b.boundingBox();assert(r.width>=44&&r.height>=44);}
+   await p.screenshot({path:path.join(out,`${name}-${theme}-${width}-${size}.png`)});reports.push({name,theme,width,size,...g});
+  }
+  await p.getByRole('button',{name:'Today',exact:true}).click();await p.getByRole('button',{name:'Log practice',exact:true}).click();
+  await p.getByLabel('Anonymous evidence code',{exact:true}).fill('AUDIT-01');await p.getByLabel('What you completed / where the evidence is',{exact:true}).fill('Synthetic audited discovery case.');
+  for(const b of await p.locator('#ag-editor input[type="checkbox"]').all())await b.check();
+  assert(await p.locator('#ag-editor').evaluate(n=>{const r=n.getBoundingClientRect();return [...n.querySelectorAll('input,select,textarea,button')].filter(e=>e.getClientRects().length).every(e=>{const b=e.getBoundingClientRect();return b.left>=r.left-1&&b.right<=r.right+1;});}),'editor fields fit at enlarged text');
+  await p.screenshot({path:path.join(out,`editor-${theme}-${width}-${size}.png`)});
+  await p.getByRole('button',{name:'Save · +25 XP',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('#ag-editor').open);assert.equal(await p.evaluate(()=>window.AdvisorGuild.snapshot().entries.length),1);
+  await p.reload();await ready(p);assert.match(await p.locator('.ag-hero-foot').innerText(),/25 \/ 250/);
+  await p.getByRole('button',{name:'Log practice',exact:true}).click();await p.getByLabel('Anonymous evidence code',{exact:true}).fill('audit-01');await p.getByLabel('What you completed / where the evidence is',{exact:true}).fill('A duplicate test.');for(const b of await p.locator('#ag-editor input[type="checkbox"]').all())await b.check();await p.getByRole('button',{name:'Save · +25 XP',exact:true}).click();assert.match(await p.locator('#ag-form-error').innerText(),/already counts/);await p.getByRole('button',{name:'Close editor',exact:true}).click();
+  await p.getByRole('button',{name:'Record',exact:true}).click();await p.getByRole('button',{name:'Void unit',exact:true}).click();assert.match(await p.locator('.ag-hero-foot').innerText(),/0 lifetime XP/);await p.getByRole('button',{name:'Restore unit',exact:true}).click();assert.match(await p.locator('.ag-hero-foot').innerText(),/25 lifetime XP/);
+  assert.deepEqual(errors,[]);await c.close();
+ }
+ // Save failure preserves the draft and offers a verified retry without phantom XP.
+ const c=await context(),p=await c.newPage();await p.goto(origin+'/advisor-guild.html');await ready(p);await p.getByRole('button',{name:'Log practice',exact:true}).click();await p.getByLabel('Anonymous evidence code',{exact:true}).fill('PENDING-01');await p.getByLabel('What you completed / where the evidence is',{exact:true}).fill('Synthetic pending case.');for(const b of await p.locator('#ag-editor input[type="checkbox"]').all())await b.check();
+ await p.evaluate(k=>{const original=Storage.prototype.setItem;window.testRestore=()=>Storage.prototype.setItem=original;Storage.prototype.setItem=function(key,value){if(key===k)throw Error('Test storage failure');return original.call(this,key,value);};},KEY);
+ await p.getByRole('button',{name:'Save · +25 XP',exact:true}).click();assert(await p.locator('#ag-editor').isVisible());assert.equal(await p.evaluate(()=>window.AdvisorGuild.snapshot().entries.length),0);assert.match(await p.locator('#ag-form-error').innerText(),/failure/);await p.evaluate(()=>window.testRestore());await p.getByRole('button',{name:'Save · +25 XP',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('#ag-editor').open);assert.equal(await p.evaluate(()=>window.AdvisorGuild.snapshot().entries.length),1);
+ // Numerators cannot exceed denominators; blank snapshots remain unmeasured.
+ await p.getByRole('button',{name:'Update',exact:true}).click();await p.locator('[name="actions-passed"]').fill('21');await p.locator('[name="actions-eligible"]').fill('20');await p.getByRole('button',{name:'Save',exact:true}).click();assert.match(await p.locator('#ag-form-error').innerText(),/cannot exceed/);await p.locator('[name="actions-passed"]').fill('19');await p.getByRole('button',{name:'Save',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('#ag-editor').open);assert.match(await p.locator('.ag-card').filter({has:p.getByRole('heading',{name:'Advisor action reliability',exact:true})}).innerText(),/95%/);
+ // Fresh-device import must not merge the virtual first-run season over historical seasons.
+ const historical=emptyState(addDays(today(),-50));const imported=addEntry(historical,{seasonId:historical.seasons[0].id,treeId:'planning',skill:'Corporate planning',date:historical.seasons[0].start,source:'practice',reference:'HIST-01',evidence:'Historical synthetic case.',checks:[true,true,true,true]},today());
+ const fresh=await c.newPage();await fresh.goto(origin+'/advisor-guild.html');await ready(fresh);await fresh.evaluate(k=>localStorage.removeItem(k),KEY);await fresh.reload();await ready(fresh);
+ await fresh.locator('#ag-import').setInputFiles({name:'advisor-guild.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({app:'advisor-guild',version:1,record:imported}))});await fresh.getByRole('button',{name:'Merge / restore backup',exact:true}).click();await fresh.waitForFunction(()=>!document.querySelector('#ag-editor').open);assert.equal(await fresh.evaluate(()=>window.AdvisorGuild.snapshot().entries.length),1);assert.equal(await fresh.evaluate(()=>window.AdvisorGuild.snapshot().seasons.length),1);
+ // Corrupt records remain byte-for-byte intact on launch.
+ await fresh.evaluate(k=>localStorage.setItem(k,'{broken'),KEY);await fresh.reload();await ready(fresh);assert.equal(await fresh.evaluate(k=>localStorage.getItem(k),KEY),'{broken');assert(await fresh.locator('#ag-recovery').isVisible());await fresh.screenshot({path:path.join(out,'corrupt-recovery.png')});await c.close();
+ console.log(engine+': 18 opening states, 6 editor/save/reload/duplicate/void journeys, failed-save recovery, rates and backup restore passed.');
+}finally{writeFileSync(path.join(out,'report.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" class="atlas-neumo" data-atlas-app="advisor-guild">
+<head>
+<script src="shared/atlas-streak.js?v=72cff1161459"></script>
+<script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca"}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#efeae3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Advisor Guild">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="A personal skill tree for the craft of wealth advice. Deliberate practice, evidence-based mastery, and dependable execution.">
+<title>Advisor Guild · Atlas</title>
+<link rel="manifest" href="advisor-guild.webmanifest?v=69bb8d5c7e88">
+<link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
+<link rel="stylesheet" href="shared/atlas-palette.css?v=c42b6d9281f2">
+<link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
+<link rel="stylesheet" href="shared/advisor.css?v=4d44a4c6ecea">
+<script src="shared/atlas-theme.js?v=b2d55b971922"></script>
+<script src="shared/record-guard.js?v=f6acb277f94b"></script>
+<script src="shared/atlas-activity.js?v=1f3603b057c7" defer></script>
+<script type="module" src="shared/advisor.js?v=4d841b86f6f3"></script>
+<link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/advisor-guild-32.png?v=eb2f9620f237">
+<link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/advisor-guild-64.png?v=5d6546749471">
+<link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/advisor-guild-apple.png?v=77506d73b06a">
+</head>
+<body>
+<a class="ag-skip" href="#ag-main">Skip to content</a>
+<header class="ag-header appbar">
+ <a class="ag-icon-button" href="index.html" aria-label="Atlas home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10h-6v-7H9v7H3Z"/></svg></a>
+ <div class="ag-identity"><strong>Advisor Guild</strong><span>The craft of wealth advice</span></div>
+</header>
+<div id="ag-status" class="ag-status" role="status" aria-live="polite"></div>
+<div id="ag-recovery" class="ag-recovery" hidden><p id="ag-recovery-message"></p><div class="ag-actions"><button type="button" data-action="retry">Retry save</button><button type="button" data-action="recovery">Download recovery</button><button type="button" data-action="reload">Review saved record</button><button type="button" data-action="import">Restore backup</button></div></div>
+<main id="ag-main" tabindex="-1"></main>
+<nav class="ag-dock" aria-label="Advisor Guild sections">
+ <span class="ag-lens" aria-hidden="true"></span>
+ <button type="button" data-view="today" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v15H4ZM8 3v4m8-4v4M4 10h16m-12 4h2m4 0h2m-8 3h2"/></svg><span>Today</span></button>
+ <button type="button" data-view="skills"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v5m0 0H5v6m7-6h7v6M3 15h4v5H3Zm7 0h4v5h-4Zm7 0h4v5h-4ZM10 2h4v4h-4Z"/></svg><span>Skills</span></button>
+ <button type="button" data-view="record"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5Zm4 5h6m-6 4h6m-6 4h4"/></svg><span>Record</span></button>
+</nav>
+<dialog id="ag-editor" aria-labelledby="ag-editor-title"><div class="ag-dialog-head"><h2 id="ag-editor-title"></h2><button type="button" class="ag-icon-button" data-action="close" aria-label="Close editor">×</button></div><form id="ag-form"></form></dialog>
+<input type="file" id="ag-import" accept="application/json,.json" hidden>
+<noscript><p class="ag-noscript">Advisor Guild needs JavaScript for local records and skill tracking. Enable it and reload.</p></noscript>
+</body>
+</html>
