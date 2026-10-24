@@ -36,7 +36,7 @@ const count=n=>Number.isSafeInteger(n)&&n>=0&&n<=1000000;
 const text=(v,max=700)=>typeof v==='string'&&v.length<=max;
 const code=s=>String(s).trim().toUpperCase();
 const json=v=>JSON.stringify(v,(_,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.keys(x).sort().map(k=>[k,x[k]])):x);
-function array(a,name){if(!Array.isArray(a)||a.length>20000)fail('Invalid '+name+'.');const ids=new Set();for(const v of a){if(!v||typeof v!=='object'||Array.isArray(v)||!text(v.id,100)||!v.id||ids.has(v.id))fail('Invalid or duplicate '+name+' ID.');ids.add(v.id);}}
+function array(a,name){if(!Array.isArray(a)||a.length>20000)fail('Invalid '+name+'.');const ids=new Set();for(const v of a){if(!v||typeof v!=='object'||Array.isArray(v)||!text(v.id,100)||!/^[A-Za-z0-9:_-]+$/.test(v.id)||ids.has(v.id))fail('Invalid or duplicate '+name+' ID.');ids.add(v.id);}}
 function safeObject(v,depth=0){if(depth>25)fail('Record is too deeply nested.');if(v&&typeof v==='object')for(const k of Object.keys(v)){if(['__proto__','prototype','constructor'].includes(k))fail('Invalid record key.');safeObject(v[k],depth+1);}}
 export function validateState(s){
  safeObject(s);if(!s||s.version!==VERSION)fail('Unsupported Advisor Guild backup.');

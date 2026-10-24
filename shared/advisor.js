@@ -1,4 +1,4 @@
-import {KEY,TREES,METRICS,TRAITS,RATINGS,today,addDays,daysBetween,tree,uid,emptyState,newSeason,validateState,addEntry,stats,rate,mergeBackup} from './advisor-core.mjs?v=ac84651f4245';
+import {KEY,TREES,METRICS,TRAITS,RATINGS,today,addDays,daysBetween,tree,uid,emptyState,newSeason,validateState,addEntry,stats,rate,mergeBackup} from './advisor-core.mjs?v=efd8c4e7a946';
 
 const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const main=$('#ag-main'),dialog=$('#ag-editor'),form=$('#ag-form');

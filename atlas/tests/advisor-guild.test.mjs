@@ -45,6 +45,7 @@ test('independent backup records merge and conflicting versions are refused',()=
 test('restores reject malformed counts, unsafe keys, incomplete cohorts and overlapping seasons',()=>{
  const s=emptyState(start);s.seasons.push(newSeason(addDays(start,27)));assert.throws(()=>validateState(s),/overlap/);
  assert.throws(()=>validateState(JSON.parse('{"version":1,"__proto__":{"polluted":true}}')),/Invalid record key/);
+ const unsafe=emptyState(start);unsafe.seasons[0].id='quote\"id';assert.throws(()=>validateState(unsafe),/Invalid or duplicate/);
  const a=emptyState(start);a.reliability.push({id:'r',seasonId:a.seasons[0].id,metricId:'actions',passed:3,eligible:2});assert.throws(()=>validateState(a),/cannot exceed/);
  const b=emptyState(start);b.outcomes.push({id:'o',kind:'conversion',start:'2026-07-01',end:'2026-07-31',asOf:start,a:3,b:5});assert.throws(()=>validateState(b),/90 days/);b.outcomes[0].end='2026-07-01';validateState(b);
  b.outcomes[0]={id:'o',kind:'retention',start:'2026-01-01',end:start,asOf:start,a:3,b:5};assert.throws(()=>validateState(b),/12-month/);
