@@ -4,7 +4,7 @@ A separate browser-local wealth-advisor development dashboard at `advisor-guild.
 
 ## Measurement contract
 
-- A season is 28 local calendar dates, inclusive of its start and start + 27. No records are written merely by opening the app. Creating another season is explicit and preserves previous seasons.
+- The virtual first season has a date-based ID so two fresh tabs can merge their first independent saves without creating overlapping seasons. A season is 28 local calendar dates, inclusive of its start and start + 27. No records are written merely by opening the app. Creating another season is explicit and preserves previous seasons.
 - Targets default to 8 qualified discoveries; 4 discovery audits; 4 planning cases; 2 investment analyses; 4 explanation drills; 4 coaching drills; 4 relationship reviews; 4 implementation audits; 4 operating reviews; 2 decision reviews. These are provisional personal training targets, not industry benchmarks.
 - Targets can change before the first saved unit. Voiding a unit does not unlock them. Focus can change independently, with at most three selected trees.
 - A completed unit requires all tree-specific checks, a valid season date, work type, anonymous evidence code and evidence note. Codes are unique ignoring case and outer whitespace within a tree/season. Leadership also allows at most one operating review per seven-day season week.

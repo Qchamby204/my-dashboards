@@ -30,7 +30,7 @@ export function daysBetween(a,b){return Math.round((Date.parse(b+'T12:00:00Z')-D
 export const tree=id=>TREES.find(t=>t.id===id);
 export const uid=()=>globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 export function newSeason(start=today()){return {id:uid(),start,targets:Object.fromEntries(TREES.map(t=>[t.id,t.target])),focus:['discovery','planning','communication']};}
-export function emptyState(start=today()){return {version:VERSION,seasons:[newSeason(start)],entries:[],assessments:[],reliability:[],outcomes:[]};}
+export function emptyState(start=today()){return {version:VERSION,seasons:[{...newSeason(start),id:'initial-'+start}],entries:[],assessments:[],reliability:[],outcomes:[]};}
 const fail=message=>{throw Error(message);};
 const count=n=>Number.isSafeInteger(n)&&n>=0&&n<=1000000;
 const text=(v,max=700)=>typeof v==='string'&&v.length<=max;

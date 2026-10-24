@@ -54,3 +54,9 @@ test('stale tabs preserve independent practice; competing snapshots block with r
  const open=()=>context.window.AtlasRecords.open('advisor',{storage,validate:validateState}),initial=open(),s=emptyState(start);assert(initial.write(s));const one=open(),two=open();assert(one.write(addEntry(one.value,entry(s),start)));assert(two.write(addEntry(two.value,entry(s,{reference:'CASE-02'}),start)));assert.equal(open().value.entries.length,2);
  const x=open(),y=open(),xv=x.value,yv=y.value;xv.seasons[0].focus=['growth'];yv.seasons[0].focus=['investing'];assert(x.write(xv));assert.equal(y.write(yv),false);assert.match(y.error,/Another tab/);assert(y.recovery().pending);
 });
+test('two fresh tabs can save their first independent units without creating overlapping seasons',()=>{
+ const data=new Map(),storage={getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)},context={structuredClone,console,window:{},localStorage:storage};vm.runInNewContext(readFileSync(new URL('../../shared/record-guard.js',import.meta.url),'utf8'),context);
+ const open=()=>context.window.AtlasRecords.open('advisor',{storage,validate:validateState}),one=open(),two=open(),first=emptyState(start),second=emptyState(start);
+ assert.equal(data.size,0);assert.equal(first.seasons[0].id,second.seasons[0].id);
+ assert(one.write(addEntry(first,entry(first),start)));assert(two.write(addEntry(second,entry(second,{reference:'CASE-02'}),start)));assert.equal(open().value.entries.length,2);assert.equal(open().value.seasons.length,1);
+});
