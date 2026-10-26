@@ -123,9 +123,9 @@
       '<button type="button" class="btn lm-task-main" data-lm="edit-chore" data-id="'+esc(c.id)+'"><span class="lm-task-title">'+esc(c.chore)+'</span><span class="lm-row-meta">'+esc([advanced?((future?'Next ':'Due ')+fmtDay(next)):c.cad,skipped?'Skipped this occurrence':'',c.zone,c.who,last?'Last done '+fmtDay(last.date):''].filter(Boolean).join(' · '))+'</span></button>'+button('⋯','chore-menu','data-id="'+esc(c.id)+'" aria-label="Actions for '+esc(c.chore)+'"','lm-icon')+'</div>';
   }
   function areaOptions(){return [['','Inbox / unfiled'],...orderedAreas().map(a=>[a.name,a.name])];}
-  // Everyday editors offer the six areas. Saved records keep their detailed area name:
+  // Everyday editors offer the life areas. Saved records keep their detailed area name:
   // an option for the record's own area carries that name, so saving it unchanged rewrites nothing.
-  const CATEGORY_AREA=Object.freeze({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'});
+  const CATEGORY_AREA=Object.freeze({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'});
   const areaKey=area=>area?M.categoryFor({area}):'';
   const areaTitle=area=>area?M.categories.find(([key])=>key===areaKey(area))?.[1]||area:'Unfiled';
   function areaChoices(current,original,unfiled='Unfiled'){
@@ -146,7 +146,7 @@
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
   const captureDate=()=>M.validDate(view.qa.when)?view.qa.when:view.qa.when==='today'?todayISO():view.qa.when==='tomorrow'?M.plus(todayISO(),1):'';
   function captureFields(where='sheet'){const hintId='lm-capture-date-hint'+(where==='sheet'?'':'-'+where);
-    const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'};
+    const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'};
     const selected=view.qa.area?names[M.categoryFor({area:view.qa.area})]:'';
     const g=view.qa.parentId?group(view.qa.parentId):null;
     return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureArea',selected,[['','Choose an area'],...M.categories.map(([key,title])=>[names[key],title])]))+field('Date',input('captureDate',captureDate(),'date','aria-describedby="'+hintId+'"'))+'</div><p id="'+hintId+'" class="lm-help" data-capture-date-hint aria-live="polite">'+esc(captureDateHint())+'</p>'+

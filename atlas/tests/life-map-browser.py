@@ -295,7 +295,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.load(board([task('fence',area='House — Exterior & Landscaping',parentId='nursery'),task('plain',area='Personal Finances')],groups=groups))
         self.edit('fence')
         area=self.page.locator('dialog [data-field="area"]')
-        self.assertEqual(area.locator('option').all_text_contents(),['Unfiled','Food','Household','Family','Health','Work & growth','Money & admin'])
+        self.assertEqual(area.locator('option').all_text_contents(),['Unfiled','Food','Household','Family','Health','Work & growth','Money & admin','Boards'])
         self.assertEqual(area.input_value(),'House — Exterior & Landscaping','the six-area choice carries the saved detailed area')
         self.assertIn('Finish the nursery',self.page.locator('dialog .lm-area-note').inner_text(),'a task filed apart from its project says so before saving')
         self.click('save-editor')
@@ -776,7 +776,7 @@ class LifeMapBrowser(unittest.TestCase):
         self.load(board(),home=True)
         original=self.storage()['lifemap_v1']
         self.page.locator('#lm-day-nav-projects').click()
-        self.assertEqual(self.page.get_by_label('Filter by area',exact=True).locator('option').all_text_contents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin'])
+        self.assertEqual(self.page.get_by_label('Filter by area',exact=True).locator('option').all_text_contents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin','Boards'])
         self.assertTrue(self.page.locator('[data-day="area-routine"]').is_visible())
         self.assertEqual(self.storage()['lifemap_v1'],original)
         self.page.locator('[data-day="area-routine"]').click()

@@ -115,3 +115,13 @@ test('completed recap counts only dated completions, deduplicates routines and f
  assert.deepEqual(M.completedToday(state,today,ops).map(r=>r.title),['Task today','Walk Hudson','Review']);assert.equal(JSON.stringify(state),raw);
  state.projects[0].status='Not started';state.choreHistory=[];assert.equal(M.completedToday(state,today,[]).length,0);assert.equal(M.completedToday(state,'bad',ops).length,0);
 });
+
+test('board service is an area without rewriting existing records or claiming other community work',()=>{
+ const rows=[{area:'Community & Causes',task:'BizforClimate — Refine scorecard'},{area:'Community & Causes',task:'United Way — Confirm mandate'},{area:'Boards',task:'Prepare agenda'}];
+ const before=JSON.stringify(rows);
+ assert(rows.every(r=>M.categoryFor(r)==='boards'));
+ assert.equal(JSON.stringify(rows),before);
+ assert.equal(M.categoryFor({area:'Community & Causes',task:'Volunteer at the food bank'}),'family');
+ assert.equal(M.categoryFor({area:'Family & Baby',category:'family',task:'United Way fundraiser with family'}),'family');
+ assert(M.categories.some(([key,title])=>key==='boards'&&title==='Boards'));
+});

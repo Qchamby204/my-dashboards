@@ -82,7 +82,7 @@
   }
   const dueRoutines=()=>S.chores.filter(c=>!c.archived&&!isChecked(c)&&(c.repeat?M.choreDue(c,todayISO())<=todayISO():c.cad==='Daily'||plannedToday(c)));
   const recommend=(options={})=>{const day=S.dayPlans?.[todayISO()]||{},state={...S,dayPlans:{...S.dayPlans,[todayISO()]:{...day,blocks:[],mainTaskId:'',focus:day.focus?.kind==='task'?day.focus:undefined}}};return M.dayRecommendation(state,todayISO(),clock(),{routines:dueRoutines(),...options});};
-  const areaName=category=>({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',rest:'Life Admin & Documents'}[category]||'');
+  const areaName=category=>({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards',rest:'Life Admin & Documents'}[category]||'');
   const scheduled=date=>S.projects.filter(t=>!t.archived&&t.plan===date);
   const dayRoutines=date=>S.chores.filter(c=>!c.archived&&S.planned?.[c.id]===date);
   function dayTaskRow(t){return '<article class="lm-day-task'+(ui.target===t.id?' lm-day-target':'')+'" data-day-row-id="'+attrs(t.id)+'">'+D.taskRow(t)+'<div class="lm-inline">'+(M.open(t)&&t.status!=='Waiting'&&ui.date===todayISO()?button('Start','focus','data-kind="task" data-id="'+attrs(t.id)+'" aria-label="'+attrs('Start '+t.task)+'"'):'')+button('Apple Calendar','calendar-schedule','data-id="'+attrs(t.id)+'" aria-label="'+attrs('Schedule '+t.task+' in Apple Calendar')+'"')+button('Area','tab','data-tab="areas" data-category="'+M.categoryFor(t)+'" aria-label="'+attrs('Open the '+(M.categories.find(([k])=>k===M.categoryFor(t))?.[1]||'related')+' area')+'"')+'</div></article>';}
@@ -122,6 +122,7 @@
   }
 
   const guides={
+    boards:['Board service','BizforClimate and United Way responsibilities, governance and upcoming commitments.'],
     food:['Meals & groceries','Prepared dinners, the next grocery shop and your next prep session.','the-chef.html','Open Chef'],
     household:['Home & maintenance','Kitchen reset, laundry and cleaning; renovations, vehicles and seasonal maintenance.','',''],
     family:['Family & relationships','Make room for time with your wife and the people you want to show up for. Keep family commitments visible.','baby-brain.html','Open Baby Brain'],
@@ -365,7 +366,7 @@
     if(action==='focus')return commit(next=>editPlan(next,todayISO(),p=>{if(el.dataset.kind==='task'){const task=next.projects.find(t=>t.id===id&&M.open(t)&&t.status!=='Waiting');if(!task)throw Error('Choose an available task.');task.inbox=false;task.plan=todayISO();}p.focus={kind:el.dataset.kind,id};}),'Focus started',()=>{ui.tab='home';ui.reset=false;});
     if(action==='complete-routine')return D.choreAction(id,'done');
     if(action==='new-todo')return W.captureSheet(ui.date);
-    if(action==='area-routine')return W.openEditor('chore',{chore:'',cad:'Daily',area:{food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'}[el.dataset.category]});
+    if(action==='area-routine')return W.openEditor('chore',{chore:'',cad:'Daily',area:{food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'}[el.dataset.category]});
     if(action==='records'){ui.tab='board';ui.records=true;render();window.scrollTo?.({top:0,behavior:'instant'});return;}
     if(action==='day-board'){ui.records=false;render();return;}
     if(action==='day-step'){ui.date=M.plus(M.validDate(ui.date)?ui.date:todayISO(),Number(el.dataset.step));ui.month=ui.date.slice(0,7);ui.target='';render();app.querySelector('[data-day="day-step"][data-step="'+el.dataset.step+'"]')?.focus({preventScroll:true});return;}
@@ -387,7 +388,7 @@
     }
     if(action==='focus-filter'){const target=app.querySelector('#lm-day-field-areaFilter');target?.closest('.lm-feature')?.scrollIntoView({block:'start',behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});target?.focus({preventScroll:true});return;}
     if(action==='search-all'){view.search=ui.q||'';W.openEditor('search');return;}
-    if(action==='area-task'){const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'};W.openEditor('proj',{area:names[el.dataset.category],task:'',status:'Not started',pri:'Med',inbox:false});}
+    if(action==='area-task'){const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'};W.openEditor('proj',{area:names[el.dataset.category],task:'',status:'Not started',pri:'Med',inbox:false});}
   }
   const draw=render;
   render=function(){

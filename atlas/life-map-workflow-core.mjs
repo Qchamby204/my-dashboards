@@ -136,10 +136,12 @@ export function createLifeMapWorkflow(){
     // RFC 5545 folding is in UTF-8 octets, never split a Unicode code point.
     return lines.map(line=>{let out='',count=0;for(const ch of line){const len=new TextEncoder().encode(ch).length;if(count+len>73){out+='\r\n ';count=1;}out+=ch;count+=len;}return out;}).join('\r\n')+'\r\n';
   }
-  const categories=Object.freeze([['food','Food'],['household','Household'],['family','Family'],['health','Health'],['work','Work & growth'],['admin','Money & admin']]);
+  const categories=Object.freeze([['food','Food'],['household','Household'],['family','Family'],['health','Health'],['work','Work & growth'],['admin','Money & admin'],['boards','Boards']]);
   function categoryFor(record){
     if(categories.some(([key])=>key===record.category))return record.category;
     const text=[record.area,record.sub].filter(Boolean).join(' ').toLowerCase();
+    const title=String(record.task||record.title||record.chore||'');
+    if(/\bboards?\b/.test(text)||/\b(?:biz\s*for\s*climate|united way)\b/i.test(title+' '+text))return 'boards';
     if(/food|meal|grocery|nutrition/.test(text))return 'food';
     if(/family|baby|relationship|gifts|community|friends/.test(text))return 'family';
     if(/health|fitness|sleep/.test(text))return 'health';

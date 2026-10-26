@@ -28,7 +28,7 @@ try{
    await p.screenshot({path:path.join(out,`${view}-${theme}-${width}-${textSize}.png`)});reports.push({view,theme,width,textSize,...g});
    if(view==='home')assert.equal(await p.locator('.appbar [data-day="capture"]').count(),1,'capture is directly available in the header');
    if(view==='projects'){
-    const filter=p.getByLabel('Filter by area',{exact:true});assert.deepEqual(await filter.locator('option').allTextContents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin']);
+    const filter=p.getByLabel('Filter by area',{exact:true});assert.deepEqual(await filter.locator('option').allTextContents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin','Boards']);
     if(populated){await filter.selectOption('household');assert.equal(await p.locator('.lm-simple-project').count(),1);await p.screenshot({path:path.join(out,`project-filter-${theme}-${width}-${textSize}.png`)});}
    }
   }

@@ -104,7 +104,8 @@ const AREAS=[
  ["Health & Fitness","💪","Strength, habits, nutrition, sleep"],
  ["Work — Content","🎬","Video scripts, LinkedIn, posts"],
  ["Personal Finances","💰","Savings, TFSA/RRSP/RESP, budget, insurance, estate"],
- ["Community & Causes","🌍","Biz for Climate, Black History Manitoba"],
+ ["Community & Causes","🌍","Volunteering and community commitments"],
+ ["Boards","◇","BizforClimate and United Way board service"],
  ["Life Admin & Documents","📄","The catch-all: paperwork, work ops, tech, travel, gifts, people, errands"]
 ].map(a=>({name:a[0],icon:a[1],desc:a[2]}));
 
@@ -1435,10 +1436,12 @@ function createLifeMapWorkflow(){
     // RFC 5545 folding is in UTF-8 octets, never split a Unicode code point.
     return lines.map(line=>{let out='',count=0;for(const ch of line){const len=new TextEncoder().encode(ch).length;if(count+len>73){out+='\r\n ';count=1;}out+=ch;count+=len;}return out;}).join('\r\n')+'\r\n';
   }
-  const categories=Object.freeze([['food','Food'],['household','Household'],['family','Family'],['health','Health'],['work','Work & growth'],['admin','Money & admin']]);
+  const categories=Object.freeze([['food','Food'],['household','Household'],['family','Family'],['health','Health'],['work','Work & growth'],['admin','Money & admin'],['boards','Boards']]);
   function categoryFor(record){
     if(categories.some(([key])=>key===record.category))return record.category;
     const text=[record.area,record.sub].filter(Boolean).join(' ').toLowerCase();
+    const title=String(record.task||record.title||record.chore||'');
+    if(/\bboards?\b/.test(text)||/\b(?:biz\s*for\s*climate|united way)\b/i.test(title+' '+text))return 'boards';
     if(/food|meal|grocery|nutrition/.test(text))return 'food';
     if(/family|baby|relationship|gifts|community|friends/.test(text))return 'family';
     if(/health|fitness|sleep/.test(text))return 'health';
@@ -1626,9 +1629,9 @@ function createLifeMapWorkflow(){
       '<button type="button" class="btn lm-task-main" data-lm="edit-chore" data-id="'+esc(c.id)+'"><span class="lm-task-title">'+esc(c.chore)+'</span><span class="lm-row-meta">'+esc([advanced?((future?'Next ':'Due ')+fmtDay(next)):c.cad,skipped?'Skipped this occurrence':'',c.zone,c.who,last?'Last done '+fmtDay(last.date):''].filter(Boolean).join(' · '))+'</span></button>'+button('⋯','chore-menu','data-id="'+esc(c.id)+'" aria-label="Actions for '+esc(c.chore)+'"','lm-icon')+'</div>';
   }
   function areaOptions(){return [['','Inbox / unfiled'],...orderedAreas().map(a=>[a.name,a.name])];}
-  // Everyday editors offer the six areas. Saved records keep their detailed area name:
+  // Everyday editors offer the life areas. Saved records keep their detailed area name:
   // an option for the record's own area carries that name, so saving it unchanged rewrites nothing.
-  const CATEGORY_AREA=Object.freeze({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'});
+  const CATEGORY_AREA=Object.freeze({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'});
   const areaKey=area=>area?M.categoryFor({area}):'';
   const areaTitle=area=>area?M.categories.find(([key])=>key===areaKey(area))?.[1]||area:'Unfiled';
   function areaChoices(current,original,unfiled='Unfiled'){
@@ -1649,7 +1652,7 @@ function createLifeMapWorkflow(){
   function quickHints(){if(!view.qa.txt)return '';const p=view.qa.parse===false?{}:M.parseCapture(view.qa.txt,todayISO());return [view.qa.when?chip('Plan: '+view.qa.when):'',view.qa.area?chip(view.qa.area):'',p.plan?chip('Planned '+fmtDay(p.plan)):'',p.planWeek?chip('Week of '+fmtDay(p.planWeek)):'',p.due?chip('Deadline '+fmtDay(p.due)):''].join('')+((p.plan||p.planWeek||p.due)?button('Keep wording instead','keep-wording'):'');}
   const captureDate=()=>M.validDate(view.qa.when)?view.qa.when:view.qa.when==='today'?todayISO():view.qa.when==='tomorrow'?M.plus(todayISO(),1):'';
   function captureFields(where='sheet'){const hintId='lm-capture-date-hint'+(where==='sheet'?'':'-'+where);
-    const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'};
+    const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'};
     const selected=view.qa.area?names[M.categoryFor({area:view.qa.area})]:'';
     const g=view.qa.parentId?group(view.qa.parentId):null;
     return '<div class="lm-two-col lm-capture-fields">'+field('Category',select('captureArea',selected,[['','Choose an area'],...M.categories.map(([key,title])=>[names[key],title])]))+field('Date',input('captureDate',captureDate(),'date','aria-describedby="'+hintId+'"'))+'</div><p id="'+hintId+'" class="lm-help" data-capture-date-hint aria-live="polite">'+esc(captureDateHint())+'</p>'+
@@ -2292,7 +2295,7 @@ function createLifeMapCalendarModel(){
   }
   const dueRoutines=()=>S.chores.filter(c=>!c.archived&&!isChecked(c)&&(c.repeat?M.choreDue(c,todayISO())<=todayISO():c.cad==='Daily'||plannedToday(c)));
   const recommend=(options={})=>{const day=S.dayPlans?.[todayISO()]||{},state={...S,dayPlans:{...S.dayPlans,[todayISO()]:{...day,blocks:[],mainTaskId:'',focus:day.focus?.kind==='task'?day.focus:undefined}}};return M.dayRecommendation(state,todayISO(),clock(),{routines:dueRoutines(),...options});};
-  const areaName=category=>({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',rest:'Life Admin & Documents'}[category]||'');
+  const areaName=category=>({food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards',rest:'Life Admin & Documents'}[category]||'');
   const scheduled=date=>S.projects.filter(t=>!t.archived&&t.plan===date);
   const dayRoutines=date=>S.chores.filter(c=>!c.archived&&S.planned?.[c.id]===date);
   function dayTaskRow(t){return '<article class="lm-day-task'+(ui.target===t.id?' lm-day-target':'')+'" data-day-row-id="'+attrs(t.id)+'">'+D.taskRow(t)+'<div class="lm-inline">'+(M.open(t)&&t.status!=='Waiting'&&ui.date===todayISO()?button('Start','focus','data-kind="task" data-id="'+attrs(t.id)+'" aria-label="'+attrs('Start '+t.task)+'"'):'')+button('Apple Calendar','calendar-schedule','data-id="'+attrs(t.id)+'" aria-label="'+attrs('Schedule '+t.task+' in Apple Calendar')+'"')+button('Area','tab','data-tab="areas" data-category="'+M.categoryFor(t)+'" aria-label="'+attrs('Open the '+(M.categories.find(([k])=>k===M.categoryFor(t))?.[1]||'related')+' area')+'"')+'</div></article>';}
@@ -2332,6 +2335,7 @@ function createLifeMapCalendarModel(){
   }
 
   const guides={
+    boards:['Board service','BizforClimate and United Way responsibilities, governance and upcoming commitments.'],
     food:['Meals & groceries','Prepared dinners, the next grocery shop and your next prep session.','the-chef.html','Open Chef'],
     household:['Home & maintenance','Kitchen reset, laundry and cleaning; renovations, vehicles and seasonal maintenance.','',''],
     family:['Family & relationships','Make room for time with your wife and the people you want to show up for. Keep family commitments visible.','baby-brain.html','Open Baby Brain'],
@@ -2575,7 +2579,7 @@ function createLifeMapCalendarModel(){
     if(action==='focus')return commit(next=>editPlan(next,todayISO(),p=>{if(el.dataset.kind==='task'){const task=next.projects.find(t=>t.id===id&&M.open(t)&&t.status!=='Waiting');if(!task)throw Error('Choose an available task.');task.inbox=false;task.plan=todayISO();}p.focus={kind:el.dataset.kind,id};}),'Focus started',()=>{ui.tab='home';ui.reset=false;});
     if(action==='complete-routine')return D.choreAction(id,'done');
     if(action==='new-todo')return W.captureSheet(ui.date);
-    if(action==='area-routine')return W.openEditor('chore',{chore:'',cad:'Daily',area:{food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'}[el.dataset.category]});
+    if(action==='area-routine')return W.openEditor('chore',{chore:'',cad:'Daily',area:{food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'}[el.dataset.category]});
     if(action==='records'){ui.tab='board';ui.records=true;render();window.scrollTo?.({top:0,behavior:'instant'});return;}
     if(action==='day-board'){ui.records=false;render();return;}
     if(action==='day-step'){ui.date=M.plus(M.validDate(ui.date)?ui.date:todayISO(),Number(el.dataset.step));ui.month=ui.date.slice(0,7);ui.target='';render();app.querySelector('[data-day="day-step"][data-step="'+el.dataset.step+'"]')?.focus({preventScroll:true});return;}
@@ -2597,7 +2601,7 @@ function createLifeMapCalendarModel(){
     }
     if(action==='focus-filter'){const target=app.querySelector('#lm-day-field-areaFilter');target?.closest('.lm-feature')?.scrollIntoView({block:'start',behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});target?.focus({preventScroll:true});return;}
     if(action==='search-all'){view.search=ui.q||'';W.openEditor('search');return;}
-    if(action==='area-task'){const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents'};W.openEditor('proj',{area:names[el.dataset.category],task:'',status:'Not started',pri:'Med',inbox:false});}
+    if(action==='area-task'){const names={food:'Food System',household:'House — Interior',family:'Family & Baby',health:'Health & Fitness',work:'Work — Content',admin:'Life Admin & Documents',boards:'Boards'};W.openEditor('proj',{area:names[el.dataset.category],task:'',status:'Not started',pri:'Med',inbox:false});}
   }
   const draw=render;
   render=function(){
