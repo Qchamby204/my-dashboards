@@ -2,6 +2,42 @@
  "schemaVersion": 1,
  "days": [
   {
+   "date": "2026-10-30",
+   "state": "updating",
+   "checkedAt": "2026-10-30T10:44:20+00:00",
+   "verifiedAt": null,
+   "generatedAt": null,
+   "updatedAt": null,
+   "audio": {},
+   "expectedSections": [
+    "markets",
+    "lessons",
+    "companies",
+    "practice",
+    "manitoba",
+    "politics",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
+   ],
+   "missingSections": [
+    "markets",
+    "lessons",
+    "companies",
+    "practice",
+    "manitoba",
+    "politics",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
+   ],
+   "voiceless": []
+  },
+  {
    "date": "2026-10-29",
    "state": "complete",
    "checkedAt": "2026-10-29T11:04:26+00:00",
