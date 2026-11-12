@@ -2,6 +2,1393 @@
  "schemaVersion": 1,
  "days": [
   {
+   "date": "2026-11-12",
+   "generatedAt": "2026-11-12T11:29:13+00:00",
+   "release": "courier-2026-11-12",
+   "budgetMinutes": 30,
+   "plannedMinutes": 28.0,
+   "projectedMinutes": 20.1,
+   "durationSeconds": 1201.3,
+   "voiceless": [],
+   "failed": [],
+   "skippedSections": [
+    "politics"
+   ],
+   "duplicateRejectedSections": [
+    "politics"
+   ],
+   "duplicateRepairs": [
+    {
+     "section": "politics",
+     "method": "trim-existing-draft",
+     "firstPass": {
+      "material": true,
+      "duplicateSources": [
+       "Carney denounces Stellantis's 'outrageous' sale of auto plant to defence contractor Roshel",
+       "Stellantis Offers to Repay Brampton Funding as Plant Sale Sparks Backlash"
+      ],
+      "duplicateTalkingPoints": [],
+      "sourceRatio": 0.4,
+      "pointRatio": 0.0
+     },
+     "secondPass": {
+      "material": false,
+      "duplicateSources": [],
+      "duplicateTalkingPoints": [],
+      "sourceRatio": 0.0,
+      "pointRatio": 0.0
+     }
+    },
+    {
+     "section": "tech",
+     "method": "trim-existing-draft",
+     "firstPass": {
+      "material": true,
+      "duplicateSources": [
+       "Nvidia's stock drops as board reportedly preps to oust CEO Jensen Huang",
+       "Jensen Huang accused of having another affair — with an Nvidia exec",
+       "Congress to call Jensen Huang in to answer for alleged Chinese spy affair",
+       "Pressure mounts at Nvidia as CEO Jensen Huang's fate hangs in balance"
+      ],
+      "duplicateTalkingPoints": [
+       "Nvidia leadership risk is now a real portfolio consideration, not background noise.",
+       "OpenAI's ten billion dollar quarter undercuts the simplest bubble narrative."
+      ],
+      "sourceRatio": 0.8,
+      "pointRatio": 0.4
+     },
+     "secondPass": {
+      "material": false,
+      "duplicateSources": [],
+      "duplicateTalkingPoints": [],
+      "sourceRatio": 0.0,
+      "pointRatio": 0.0
+     }
+    }
+   ],
+   "allocationMinutes": {
+    "markets": 5.0,
+    "companies": 3.5,
+    "practice": 3.0,
+    "manitoba": 2.5,
+    "politics": 0.0,
+    "climate": 1.5,
+    "tech": 1.0,
+    "health": 0.5,
+    "parenting": 0.5,
+    "sports": 2.5
+   },
+   "activityScores": {
+    "markets": 7.5,
+    "companies": 22.0,
+    "practice": 10.875,
+    "manitoba": 13.0,
+    "politics": 5.125,
+    "climate": 6.625,
+    "tech": 4.625,
+    "health": 1.75,
+    "parenting": 1.0,
+    "sports": 17.0
+   },
+   "planningMethod": "primary",
+   "duplicatesDropped": [
+    "Ottawa will create a CRA-run income-verification system for mortgage applicants"
+   ],
+   "sourceHealth": {
+    "degradedSections": [],
+    "newsletters": {
+     "configured": true,
+     "items": 63,
+     "bySection": {
+      "markets": 13,
+      "politics": 8,
+      "practice": 15,
+      "manitoba": 1,
+      "sports": 10,
+      "climate": 8,
+      "tech": 2,
+      "companies": 6
+     }
+    }
+   },
+   "usage": {
+    "calls": 24,
+    "input": 2836,
+    "output": 43159,
+    "cache_read": 177998,
+    "cache_write": 320652,
+    "searches": 15,
+    "estimatedCost": 2.06
+   },
+   "plan": [
+    {
+     "storyId": "story-ef867368a910",
+     "event": "Canada and China agree to widen financial services market access",
+     "owner": "markets",
+     "status": "UPDATE",
+     "firstSeen": "2026-11-11",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "Canada and China widen financial services market access as bilateral ties continue to warm",
+     "whatChanged": "new development: Canada and China agree to widen financial services market access"
+    },
+    {
+     "storyId": "story-cf303be97332",
+     "event": "Maker of muscular dystrophy drug will stop supplying Canada, patients told",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-107f7fb3abdd",
+     "event": "The epic collapse of U.S. law firm Weil Gotshal may happen in Canada, again",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-407e4b623e3a",
+     "event": "Canada can lead on AI by making trust a competitive advantage",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-90fba2cc1da1",
+     "event": "EDC and BDC are merging to try to build Canadian corporate champions with global footprints",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-e3153c765142",
+     "event": "Anthropic's planned mega-IPO (up to $64.4B) will have limited retail access for Canadian investors compared to SpaceX's offering",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-c5ff0782057c",
+     "event": "LNG opportunities abound in Canada, but also challenges, study finds",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-76303cb141ae",
+     "event": "China says it doesn’t use ‘honeytraps’ – but warns citizens against seductive foreign spies",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-171aeed08af3",
+     "event": "Nutrien moves closer to deal to export potash from Washington terminal",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-9a750601155e",
+     "event": "Rural internet provider Xplore is granted creditor protection",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-984350fe1185",
+     "event": "CAE raises earnings forecast even as profits fall",
+     "owner": "companies",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-770845c3638c",
+     "event": "CIRO's proposed $8.3 million data breach settlement is formally reported as advancing toward court approval",
+     "owner": "practice",
+     "status": "UPDATE",
+     "firstSeen": "2026-11-10",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "CIRO proposes an $8.3 million data breach settlement pending court approval",
+     "whatChanged": "new development: CIRO's proposed $8.3 million data breach settlement is formally reported as advancing toward court approval"
+    },
+    {
+     "storyId": "story-c2baf6f0fd02",
+     "event": "A wealth advisor is suing CIBC for $18.7 million following his termination",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-194cfd4d0a0f",
+     "event": "CPP Investments posts a 0.5% Q2 loss weighed down by fixed-income losses, amid a separate fiduciary claim challenge in a climate lawsuit",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-037c9f33364f",
+     "event": "Payments Canada launches a national real-time payment settlement system",
+     "owner": "practice",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-265678cec517",
+     "event": "A Quebec plane pilot scheduled for a Remembrance Day ceremony was killed in a crash",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-09f9c47c0f0a",
+     "event": "Remembrance Day ceremonies were held across Canada and Manitoba, with special attention to the CFB Wainwright fire victims and record cadet program participation",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-b7d557c1f09c",
+     "event": "Premier Wab Kinew issues a Remembrance Day statement",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-e0297e02354d",
+     "event": "Construction begins on permanent dikes to mitigate flooding for a First Nation in Manitoba's Interlake",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-2cf2a51dae25",
+     "event": "Manitoba looks to add physician-run clinics to its online booking system",
+     "owner": "manitoba",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-41e590ca0f59",
+     "event": "Ottawa confirms Stellantis violated terms of its federal funding deal by selling the Brampton plant to defence firm Roshel, as Carney calls the sale a \"betrayal\" and laid-off workers are left in limbo",
+     "owner": "politics",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-e3f233b2fdb8",
+     "event": "Carney departs on a multi-country summit tour (Dublin/Ireland, Philippines, Cambodia, China), raising Ukraine security talks and planning to press Xi on foreign interference",
+     "owner": "politics",
+     "status": "UPDATE",
+     "firstSeen": "2026-11-11",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "Carney embarks on a multi-country summit tour (Ireland, Philippines, Cambodia, China) and plans to warn Xi against foreign interference",
+     "whatChanged": "new development: Carney departs on a multi-country summit tour (Dublin/Ireland, Philippines, Cambodia, China), raising Ukraine security talks and planning to press Xi on foreign interference"
+    },
+    {
+     "storyId": "story-686077e73f55",
+     "event": "Environmental legal group warns pensions that LNG investments could expose them to climate-related legal action",
+     "owner": "climate",
+     "status": "UPDATE",
+     "firstSeen": "2026-11-11",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "Environmental legal group sends warning letters to pension funds over LNG investment climate risk",
+     "whatChanged": "new development: Environmental legal group warns pensions that LNG investments could expose them to climate-related legal action"
+    },
+    {
+     "storyId": "story-64df3c9fc33c",
+     "event": "COP31 continues with new daily developments: Guterres calls to tax \"big oil,\" Burnham's speech, and reports that climate action is stalling",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-f12c843e3ace",
+     "event": "B.C.'s South Coast faces a third wave of heavy rain, prompting fresh flood warnings and an evacuation order",
+     "owner": "climate",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-22d498be3569",
+     "event": "Cable/TV providers formally complain that Sportsnet's surcharge for NHL games inflates prices",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-13430b79c4dd",
+     "event": "Jets' Connor Hellebuyck plays his first game back since his trade request and death-threat revelations, as Winnipeg beats New Jersey",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-8a5cfe7865c6",
+     "event": "NHL roundup: Oilers beat Flyers in OT, Rangers top Flames, Maple Leafs continue a four-game slide, Senators' Cousins injury ruled clean on review, Canadiens fans give Carey Price an ovation",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-3f0b009516a8",
+     "event": "Canada completes a perfect group stage at the women's world hockey championship, blanking Finland 2-0",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-6281f88f28e3",
+     "event": "Russian players with valid visas will still be barred from the world juniors, Ottawa confirms",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-fa55a1467d47",
+     "event": "NFL roundup: Bengals-Steelers AFC North preview, Cy Young Awards announced in baseball, Celtics rally past Raptors",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    },
+    {
+     "storyId": "story-c429aa0eccac",
+     "event": "McMahon Stadium's future in Calgary is in question ahead of the Grey Cup",
+     "owner": "sports",
+     "status": "NEW",
+     "firstSeen": "2026-11-12",
+     "lastSeen": "2026-11-12",
+     "previousEvent": "",
+     "whatChanged": ""
+    }
+   ],
+   "blocks": [
+    {
+     "id": "markets",
+     "label": "Markets & Economy",
+     "title": "AI Rally, Rate Jitters, and a Canada-China Finance Deal",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/markets.mp3",
+     "bytes": 4092288,
+     "script": "Market snapshot. These are the latest available daily observations before November 12, 2026, not live prices. Returns are price changes excluding distributions, in each listing's currency.\n\nFigures are as of November 11, 2026, unless another date is given.\n\nS and P TSX Composite, up 0.67 percent versus the prior day, up 0.19 percent over five days, and up 14.82 percent year to date.\n\nS and P 500, up 1.31 percent versus the prior day, down 0.90 percent over five days, and up 11.30 percent year to date.\n\nNasdaq Composite, up 1.60 percent versus the prior day.\n\nDow Jones Industrial Average, up 0.49 percent versus the prior day.\n\nRussell 2000 small companies, up 0.88 percent versus the prior day.\n\nVanguard total international stock ETF, V X U S, up 0.94 percent versus the prior day.\n\nDimensional World ex U.S. Core Equity 2 ETF, D F A X, up 0.89 percent versus the prior day, down 0.77 percent over five days, and up 10.57 percent year to date, at a market price of 36.19 U.S. dollars.\n\nCanadian dollar, 0.7049 U.S. dollars per Canadian dollar, down 0.47 percent versus its prior daily observation.\n\nWest Texas oil futures, 86.53 U.S. dollars per barrel, up 0.57 percent versus its prior daily observation.\n\nGold futures, 4000.50 U.S. dollars per troy ounce, down 0.74 percent versus its prior daily observation.\n\nVIX implied volatility, 17.49 points, down 10.12 percent versus its prior daily observation.\n\nU.S. ten-year Treasury yield, 5.00 percent, up 1.5 basis points versus its prior observation.\n\nCanada two-year government yield, dated November 9, 2026, 3.13 percent, up 1.0 basis points versus its prior observation.\n\nCanada ten-year government yield, dated November 9, 2026, 3.63 percent, down 2.0 basis points versus its prior observation.\n\nStyle leadership. U.S. small companies lagged U.S. large and mid-sized companies by 0.36 percentage points. U.S. value stocks lagged U.S. growth stocks by 1.83 percentage points. These are U.S. ETF price comparisons, not isolated factor returns or an attribution of D F A X.\n\nD F A X lagged the broad international ETF proxy by 0.05 percentage points for that day, both in U.S. dollars. This is not an isolated measure of factor performance.\n\nUnavailable or stale series, omitted: U.S. two-year Treasury yield; U.S. high-yield option-adjusted credit spread.\n\nNow, the sourced developments that may help explain these moves.\n\nThe rally in your numbers traces mostly to CoreWeave. The Globe and Mail reports global markets climbed as investors looked past mounting expectations of further Federal Reserve interest rate rises and focused on a renewed wave of AI optimism after strong results from CoreWeave. Nvidia's own bounce happened even as its board weighs chief executive Jensen Huang's future over the spy scandal, so the whole AI trade now hinges on one company's governance headline as much as on chip demand itself.\n\nUnderneath that cheer, bonds are not celebrating. Bloomberg reports fresh evidence of sticky inflation and hawkish comments from Fed officials combined to increase the odds of rate hikes, sending Treasuries into a tailspin, with two-year US yields soaring by the most in 19 months. That repricing helps explain why the loonie slipped. Oil firmed too, after Iran's security chief said Tehran would not allow even a single particle of enriched nuclear material to leave the country, a geopolitical floor under crude that has little to do with demand.\n\nOn trade, Ottawa and Beijing agreed to enhance financial sector cooperation, including on financial services market access, and to foster engagement between capital market and financial regulatory authorities, Finance Canada confirms, ahead of Carney's meeting with Xi next week. For Winnipeg clients with China exposure, that's a slow regulatory door opening, not an overnight trade shift.\n\nWhat to watch next. No upcoming release dates were verified for this edition.",
+     "talkingPoints": [
+      "AI sentiment swings are now tied to one CEO's headlines, not just chip orders.",
+      "Rate expectations repriced hawkish on sticky U.S. inflation, pressuring the loonie.",
+      "Oil's firmness is geopolitical, from Iran, not a demand story.",
+      "Canada-China financial access deal is a slow door opening, watch implementation.",
+      "Pension fiduciary duty case could reshape how institutional funds weigh climate risk."
+     ],
+     "sources": [
+      {
+       "outlet": "Yahoo Finance",
+       "title": "S and P TSX Composite daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/%5EGSPTSE/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "S and P 500 daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/%5EGSPC/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "Nasdaq Composite daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/%5EIXIC/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "Dow Jones Industrial Average daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/%5EDJI/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "Russell 2000 small companies daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/%5ERUT/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "Vanguard total international stock ETF, V X U S daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/VXUS/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "Dimensional World ex U.S. Core Equity 2 ETF, D F A X daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/DFAX/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "Canadian dollar daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/CADUSD%3DX/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "West Texas oil futures daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/CL%3DF/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "Gold futures daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/GC%3DF/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "VIX implied volatility daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/%5EVIX/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "iShares Russell 2000 ETF daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/IWM/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "iShares Russell 1000 ETF daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/IWB/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "iShares Russell 1000 Value ETF daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/IWD/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "iShares Russell 1000 Growth ETF daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/IWF/history/"
+      },
+      {
+       "outlet": "Yahoo Finance",
+       "title": "U.S. ten-year Treasury yield daily data, 2026-11-11",
+       "url": "https://finance.yahoo.com/quote/%5ETNX/history/"
+      },
+      {
+       "outlet": "Bank of Canada",
+       "title": "Canada two-year government yield daily data, 2026-11-09",
+       "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/"
+      },
+      {
+       "outlet": "Bank of Canada",
+       "title": "Canada ten-year government yield daily data, 2026-11-09",
+       "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Before the Bell: Global markets climb as CoreWeave results buoy AI optimism",
+       "url": "https://www.theglobeandmail.com/investing/markets/inside-the-market/article-before-the-bell-what-every-canadian-investor-needs-to-know-today-1601/"
+      },
+      {
+       "outlet": "Bloomberg",
+       "title": "Markets Daily: Getting ready for Anthropic",
+       "url": "https://www.bloomberg.com"
+      },
+      {
+       "outlet": "Canada.ca",
+       "title": "Joint Factsheet: Second Canada–China Economic and Financial Strategic Dialogue",
+       "url": "https://www.canada.ca/en/department-finance/news/2026/11/joint-factsheet-second-canadachina-economic-and-financial-strategic-dialogue.html"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Sale of Brampton auto plant from Stellantis to Roshel leaves laid-off workers in the lurch",
+       "url": "https://www.theglobeandmail.com/business/article-stellantis-brampton-auto-plant-workers-unifor-nov-11/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Cable companies file complaint over Sportsnet's surcharge for NHL games",
+       "url": "https://www.theglobeandmail.com/sports/hockey/article-sportsnet-crtc-complaint-nhl-games/"
+      },
+      {
+       "outlet": "The Peak",
+       "title": "Pension Investment Board Says It Doesn't Have A Duty to Pensioners",
+       "url": "https://thepeak.ca"
+      }
+     ],
+     "words": 622,
+     "minutes": 4.3,
+     "durationSeconds": 255.77,
+     "plannedMinutes": 5.0,
+     "marketSnapshot": {
+      "schemaVersion": 1,
+      "editionDate": "2026-11-12",
+      "observations": [
+       {
+        "symbol": "^GSPTSE",
+        "label": "S and P TSX Composite",
+        "unit": "CAD",
+        "kind": "price",
+        "url": "https://finance.yahoo.com/quote/%5EGSPTSE/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 36411.69921875,
+        "day": 0.6668396034060997,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": 0.19344544864146052,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 14.817040191159014,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "^GSPC",
+        "label": "S and P 500",
+        "unit": "USD",
+        "kind": "price",
+        "url": "https://finance.yahoo.com/quote/%5EGSPC/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 7619.3798828125,
+        "day": 1.3090097199449646,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -0.9005547591071306,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 11.304943142392808,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "^IXIC",
+        "label": "Nasdaq Composite",
+        "unit": "USD",
+        "kind": "price",
+        "url": "https://finance.yahoo.com/quote/%5EIXIC/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 25466.189453125,
+        "day": 1.5970733360735068,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -1.0503378856019263,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 9.569745087752434,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "^DJI",
+        "label": "Dow Jones Industrial Average",
+        "unit": "USD",
+        "kind": "price",
+        "url": "https://finance.yahoo.com/quote/%5EDJI/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 52486.48828125,
+        "day": 0.487437182923145,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -1.629865130135677,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 9.202864192249116,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "^RUT",
+        "label": "Russell 2000 small companies",
+        "unit": "USD",
+        "kind": "price",
+        "url": "https://finance.yahoo.com/quote/%5ERUT/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 2846.260009765625,
+        "day": 0.8818425021278387,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -0.37417321230514,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 14.680230570761887,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "VXUS",
+        "label": "Vanguard total international stock ETF, V X U S",
+        "unit": "USD",
+        "kind": "price",
+        "url": "https://finance.yahoo.com/quote/VXUS/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 83.44000244140625,
+        "day": 0.9436229672639351,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -0.5245527258214033,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 10.604453527441947,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "DFAX",
+        "label": "Dimensional World ex U.S. Core Equity 2 ETF, D F A X",
+        "unit": "USD",
+        "kind": "price",
+        "url": "https://finance.yahoo.com/quote/DFAX/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 36.189998626708984,
+        "day": 0.8921095744437668,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -0.7677614055992654,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 10.571338627755589,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "CADUSD=X",
+        "label": "Canadian dollar",
+        "unit": "USD per CAD",
+        "kind": "indicator",
+        "url": "https://finance.yahoo.com/quote/CADUSD%3DX/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 0.7049203515052795,
+        "day": -0.472994341572186,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -1.2766024582596347,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": -3.4632690119780762,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "CL=F",
+        "label": "West Texas oil futures",
+        "unit": "USD per barrel",
+        "kind": "indicator",
+        "url": "https://finance.yahoo.com/quote/CL%3DF/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 86.52999877929688,
+        "day": 0.5695000680562501,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -1.8043621399533194,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 50.69662406589075,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "GC=F",
+        "label": "Gold futures",
+        "unit": "USD per troy ounce",
+        "kind": "indicator",
+        "url": "https://finance.yahoo.com/quote/GC%3DF/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 4000.5,
+        "day": -0.7369349295743732,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -1.7800147311563985,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": -7.845939738642271,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "^VIX",
+        "label": "VIX implied volatility",
+        "unit": "points",
+        "kind": "indicator",
+        "url": "https://finance.yahoo.com/quote/%5EVIX/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 17.489999771118164,
+        "day": -10.123326855273984,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": 5.29800799777318,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 16.989966516781372,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "IWM",
+        "label": "iShares Russell 2000 ETF",
+        "unit": "USD",
+        "kind": "style",
+        "url": "https://finance.yahoo.com/quote/IWM/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 283.0899963378906,
+        "day": 0.8945790454582214,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -0.3274391633528606,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 15.002434240484108,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "IWB",
+        "label": "iShares Russell 1000 ETF",
+        "unit": "USD",
+        "kind": "style",
+        "url": "https://finance.yahoo.com/quote/IWB/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 415.989990234375,
+        "day": 1.2510609844226916,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -0.7657494940794263,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 11.394062637851698,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "IWD",
+        "label": "iShares Russell 1000 Value ETF",
+        "unit": "USD",
+        "kind": "style",
+        "url": "https://finance.yahoo.com/quote/IWD/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 263.80999755859375,
+        "day": 0.4454701663500815,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -0.5616246901367083,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": 25.420748384348556,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "IWF",
+        "label": "iShares Russell 1000 Growth ETF",
+        "unit": "USD",
+        "kind": "style",
+        "url": "https://finance.yahoo.com/quote/IWF/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 116.62000274658203,
+        "day": 2.2803071216137782,
+        "dayFrom": "2026-11-10",
+        "fiveSessions": -1.0856647690678067,
+        "fiveSessionsFrom": "2026-11-04",
+        "ytd": -1.4409416823445653,
+        "ytdFrom": "2025-12-31"
+       },
+       {
+        "symbol": "^TNX",
+        "label": "U.S. ten-year Treasury yield",
+        "unit": "percent",
+        "kind": "rate",
+        "url": "https://finance.yahoo.com/quote/%5ETNX/history/",
+        "provider": "Yahoo Finance",
+        "asOf": "2026-11-11",
+        "close": 4.998000144958496,
+        "dayFrom": "2026-11-10",
+        "changeBps": 1.5000343322753906
+       },
+       {
+        "symbol": "BD.CDN.2YR.DQ.YLD",
+        "label": "Canada two-year government yield",
+        "kind": "rate",
+        "unit": "percent",
+        "provider": "Bank of Canada",
+        "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/",
+        "asOf": "2026-11-09",
+        "close": 3.13,
+        "dayFrom": "2026-11-06",
+        "changeBps": 0.9999999999999787
+       },
+       {
+        "symbol": "BD.CDN.10YR.DQ.YLD",
+        "label": "Canada ten-year government yield",
+        "kind": "rate",
+        "unit": "percent",
+        "provider": "Bank of Canada",
+        "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/",
+        "asOf": "2026-11-09",
+        "close": 3.63,
+        "dayFrom": "2026-11-06",
+        "changeBps": -2.0000000000000018
+       }
+      ],
+      "unavailable": [
+       "U.S. two-year Treasury yield",
+       "U.S. high-yield option-adjusted credit spread"
+      ]
+     },
+     "watchNext": [],
+     "storyIds": [
+      "story-ef867368a910"
+     ]
+    },
+    {
+     "id": "lessons",
+     "label": "Lessons",
+     "title": "Insurance: float, combined ratio, and reserve development / Divorce: property division in Manitoba, pension splitting, and RRSP transfers / Teaching versus telling: when to explain and when to just recommend",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/lessons.mp3",
+     "bytes": 6061824,
+     "script": "Company & Economy Analysis, Industry structure, lesson 9: Insurance: float, combined ratio, and reserve development.\n\nAn insurer can lose money on underwriting every single year and still be a phenomenal business. That single fact confuses more people than anything else in this sector, so start there.\n\nFloat is the premium an insurer holds before it has to pay claims. It's not the insurer's money, but it behaves like free capital while it sits there, and the company invests it. Warren Buffett built a chunk of his record on this mechanic.\n\nThe combined ratio tells you whether the underwriting itself made or lost money. It's claims paid plus expenses, divided by premiums earned. Under 100 means underwriting profit. Over 100 means the insurer is paying out more than it collects, and relying on investment income from the float to make the whole thing work.\n\nTake Progressive. Full year 2024, Progressive reported a combined ratio around 88. That means for every 100 dollars of premium, about 88 went to claims and expenses, leaving 12 as underwriting profit, before you even count what they earned investing the float. Compare that to a weaker auto insurer running 103 or 104, who needs strong markets just to break even.\n\nNow the reserve piece. Insurers estimate what future claims will cost and set reserves today. Reserve development is what happens when reality diverges from that estimate. Favorable development means old reserves get released back as profit because claims came in cheaper than expected. Adverse development means the opposite, and it can quietly wreck a quarter that looked fine on the surface.\n\nThe mistake people make is reading one year's combined ratio as the whole story and ignoring reserve development sitting in the notes. A company can show 95 this year, but if three points of that are favorable development from claims reserved five years ago, that's not repeatable earnings power. It's a one time release. On Thomson ONE, reserve development detail usually sits in the filings section under the loss reserve footnote, not in the headline ratio.\n\nThe evidence here tells you whether underwriting discipline exists and whether reported profit is clean or borrowed from prior years. It does not tell you how the float is invested or how rate sensitive that investment book is, which is a separate question entirely.\n\nFinancial Planning Facts, lesson 34: Divorce: property division in Manitoba, pension splitting, and RRSP transfers.\n\nHere's the thing that surprises most clients going through a separation in Manitoba: the tax system actually hands you a tool to move money between spouses without triggering tax, but only if you use the right paperwork, and almost nobody does it right the first time.\n\nUnder the Manitoba Family Property Act, assets and debts built up during the marriage or common-law relationship get divided roughly equally, including pensions earned during the relationship. That part is provincial law. The tax relief for moving registered money between separating spouses is federal, under the Income Tax Act.\n\nHere's the mechanism. When a Registered Retirement Savings Plan, RRSP, gets split under a written separation agreement or a court order, the transfer rolls over on a tax-free basis under subsection 146(16) of the Income Tax Act, as long as the receiving spouse puts it into their own RRSP or Registered Retirement Income Fund. No withholding tax, no income inclusion, because it's a rollover, not a withdrawal.\n\nWorked example. Say a couple separates in 2026. One spouse has $340,000 in an RRSP, built up entirely during the 19-year marriage. The separation agreement says $170,000 moves to the other spouse to equalize property. If that transfer uses Canada Revenue Agency form T2220, the full $170,000 moves tax-free into the receiving spouse's own RRSP. If instead someone just withdraws $170,000 and hands over a cheque, that withdrawal gets taxed in the hands of the person who took it out, and withholding tax applies immediately, up to 30 percent depending on the amount.\n\nThat's the one mistake. People treat the RRSP like a bank account and cash it out to \"settle up,\" instead of doing a direct institution-to-institution transfer under the proper form. That single error can cost tens of thousands in avoidable tax.\n\nPension splitting works similarly. A defined benefit pension earned during the relationship can be divided at source through the plan administrator, following Manitoba pension legislation, without the receiving spouse waiting until the member retires.\n\nCommunication, lesson 34: Teaching versus telling: when to explain and when to just recommend.\n\nAtul Gawande, the surgeon and writer, tells a story about checklists. When he first pitched surgical checklists to other doctors, he explained the research behind them in detail, the Toyota production system, the aviation parallels, the data from eight hospitals showing complications dropped by 36 percent. Some surgeons nodded and ignored him. The ones who adopted the checklist fastest were the ones he simply told: use this, here, now, before you cut. The explanation mattered for buy-in over time. It did not matter for the first decision.\n\nThat is the whole distinction. Teaching is for when the client needs to build judgment they will use without you later. Telling is for when they need to act now and trust costs them nothing to test.\n\nHere is the number that should guide you. If the client will face this exact decision again within a year without you in the room, teach it. If it is a one time call, a board vote next Tuesday, a video thumbnail choice, just recommend. A nonprofit board member deciding whether to approve a 400,000 dollar capital campaign needs the reasoning, because she will vote on five more campaigns before she leaves that board. A client picking between two LinkedIn post times on Tuesday does not need a lecture on engagement algorithms. Tell her: 8 a.m., here is why in one sentence, go.\n\nThe mistake is explaining out of anxiety, not out of the client's need. You over explain when you are worried they will doubt your competence. That is about you, not them. It burns the two or three minutes you have before their attention drops, which per Microsoft's 2015 attention research is roughly eight seconds of sharp focus before it degrades.\n\nFor today: take one recommendation you gave this week. Ask whether you taught or told. If you taught something that was a one time call, rewrite it as a single sentence recommendation.",
+     "talkingPoints": [
+      "Company & Economy Analysis: Pull one insurer's last three years of combined ratio and reserve development disclosure from its 10-K, and write down whether reported profit each year was underwriting driven, float driven, or reserve release driven.",
+      "Financial Planning Facts: Pull one client file with a pending or recent separation and confirm whether any RRSP or pension division used form T2220 or a direct plan-to-plan transfer. If not, flag it before year end.",
+      "Communication: Pick one recommendation from this week's client conversations and rewrite it as a single sentence instruction, no reasoning attached, under fifteen seconds spoken."
+     ],
+     "sources": [],
+     "words": 1063,
+     "minutes": 6.3,
+     "durationSeconds": 378.86,
+     "lessons": [
+      {
+       "track": "analysis",
+       "label": "Company & Economy Analysis",
+       "sequence": "Industry structure",
+       "index": 9,
+       "title": "Insurance: float, combined ratio, and reserve development",
+       "script": "An insurer can lose money on underwriting every single year and still be a phenomenal business. That single fact confuses more people than anything else in this sector, so start there.\n\nFloat is the premium an insurer holds before it has to pay claims. It's not the insurer's money, but it behaves like free capital while it sits there, and the company invests it. Warren Buffett built a chunk of his record on this mechanic.\n\nThe combined ratio tells you whether the underwriting itself made or lost money. It's claims paid plus expenses, divided by premiums earned. Under 100 means underwriting profit. Over 100 means the insurer is paying out more than it collects, and relying on investment income from the float to make the whole thing work.\n\nTake Progressive. Full year 2024, Progressive reported a combined ratio around 88. That means for every 100 dollars of premium, about 88 went to claims and expenses, leaving 12 as underwriting profit, before you even count what they earned investing the float. Compare that to a weaker auto insurer running 103 or 104, who needs strong markets just to break even.\n\nNow the reserve piece. Insurers estimate what future claims will cost and set reserves today. Reserve development is what happens when reality diverges from that estimate. Favorable development means old reserves get released back as profit because claims came in cheaper than expected. Adverse development means the opposite, and it can quietly wreck a quarter that looked fine on the surface.\n\nThe mistake people make is reading one year's combined ratio as the whole story and ignoring reserve development sitting in the notes. A company can show 95 this year, but if three points of that are favorable development from claims reserved five years ago, that's not repeatable earnings power. It's a one time release. On Thomson ONE, reserve development detail usually sits in the filings section under the loss reserve footnote, not in the headline ratio.\n\nThe evidence here tells you whether underwriting discipline exists and whether reported profit is clean or borrowed from prior years. It does not tell you how the float is invested or how rate sensitive that investment book is, which is a separate question entirely.",
+       "task": "Pull one insurer's last three years of combined ratio and reserve development disclosure from its 10-K, and write down whether reported profit each year was underwriting driven, float driven, or reserve release driven.",
+       "drill": ""
+      },
+      {
+       "track": "planning",
+       "label": "Financial Planning Facts",
+       "sequence": null,
+       "index": 34,
+       "title": "Divorce: property division in Manitoba, pension splitting, and RRSP transfers",
+       "script": "Here's the thing that surprises most clients going through a separation in Manitoba: the tax system actually hands you a tool to move money between spouses without triggering tax, but only if you use the right paperwork, and almost nobody does it right the first time.\n\nUnder the Manitoba Family Property Act, assets and debts built up during the marriage or common-law relationship get divided roughly equally, including pensions earned during the relationship. That part is provincial law. The tax relief for moving registered money between separating spouses is federal, under the Income Tax Act.\n\nHere's the mechanism. When a Registered Retirement Savings Plan, RRSP, gets split under a written separation agreement or a court order, the transfer rolls over on a tax-free basis under subsection 146(16) of the Income Tax Act, as long as the receiving spouse puts it into their own RRSP or Registered Retirement Income Fund. No withholding tax, no income inclusion, because it's a rollover, not a withdrawal.\n\nWorked example. Say a couple separates in 2026. One spouse has $340,000 in an RRSP, built up entirely during the 19-year marriage. The separation agreement says $170,000 moves to the other spouse to equalize property. If that transfer uses Canada Revenue Agency form T2220, the full $170,000 moves tax-free into the receiving spouse's own RRSP. If instead someone just withdraws $170,000 and hands over a cheque, that withdrawal gets taxed in the hands of the person who took it out, and withholding tax applies immediately, up to 30 percent depending on the amount.\n\nThat's the one mistake. People treat the RRSP like a bank account and cash it out to \"settle up,\" instead of doing a direct institution-to-institution transfer under the proper form. That single error can cost tens of thousands in avoidable tax.\n\nPension splitting works similarly. A defined benefit pension earned during the relationship can be divided at source through the plan administrator, following Manitoba pension legislation, without the receiving spouse waiting until the member retires.",
+       "task": "Pull one client file with a pending or recent separation and confirm whether any RRSP or pension division used form T2220 or a direct plan-to-plan transfer. If not, flag it before year end.",
+       "drill": ""
+      },
+      {
+       "track": "communication",
+       "label": "Communication",
+       "sequence": null,
+       "index": 34,
+       "title": "Teaching versus telling: when to explain and when to just recommend",
+       "script": "Atul Gawande, the surgeon and writer, tells a story about checklists. When he first pitched surgical checklists to other doctors, he explained the research behind them in detail, the Toyota production system, the aviation parallels, the data from eight hospitals showing complications dropped by 36 percent. Some surgeons nodded and ignored him. The ones who adopted the checklist fastest were the ones he simply told: use this, here, now, before you cut. The explanation mattered for buy-in over time. It did not matter for the first decision.\n\nThat is the whole distinction. Teaching is for when the client needs to build judgment they will use without you later. Telling is for when they need to act now and trust costs them nothing to test.\n\nHere is the number that should guide you. If the client will face this exact decision again within a year without you in the room, teach it. If it is a one time call, a board vote next Tuesday, a video thumbnail choice, just recommend. A nonprofit board member deciding whether to approve a 400,000 dollar capital campaign needs the reasoning, because she will vote on five more campaigns before she leaves that board. A client picking between two LinkedIn post times on Tuesday does not need a lecture on engagement algorithms. Tell her: 8 a.m., here is why in one sentence, go.\n\nThe mistake is explaining out of anxiety, not out of the client's need. You over explain when you are worried they will doubt your competence. That is about you, not them. It burns the two or three minutes you have before their attention drops, which per Microsoft's 2015 attention research is roughly eight seconds of sharp focus before it degrades.\n\nFor today: take one recommendation you gave this week. Ask whether you taught or told. If you taught something that was a one time call, rewrite it as a single sentence recommendation.",
+       "task": "Pick one recommendation from this week's client conversations and rewrite it as a single sentence instruction, no reasoning attached, under fifteen seconds spoken.",
+       "drill": "Record yourself giving the same recommendation two ways: once as a 90 second explanation, once as a single sentence recommendation. Play both to a colleague without context. Good: colleague can repeat back the one sentence version accurately after one listen, and says it felt decisive. If they ask \"wait, what should I actually do\" after the explained version, that version failed."
+      }
+     ],
+     "plannedMinutes": 8
+    },
+    {
+     "id": "companies",
+     "label": "The Ten",
+     "title": "Huang Scandal, Drug Exit, Nutrien Lead The Ten",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/companies.mp3",
+     "bytes": 1843968,
+     "script": "Nvidia leads coverage worldwide right now. Nvidia's stock drops as board reportedly preps to oust CEO Jensen Huang, possibly as soon as Wednesday evening, after reports of a second affair. The tailwind is still raw demand for its chips powering global AI buildouts. The headwind is a board with no named successor and a reputational mess spilling into Congress. An evidence based advisor tells clients: don't trade on a headline, no single name should dominate a diversified account.\n\nThe muscular dystrophy story is Canadian and urgent. German manufacturer Cheplapharm has told patient groups and Health Canada it would stop supplying Canadians because of supply-chain problems, and a Cheplapharm spokesperson said his company is aware of another maker of deflazacort. The tailwind is a possible alternate supplier. The headwind is families switching to pricier, uninsured drugs. An advisor would say this is a healthcare policy story, not an investable one, but watch for pharma supply chain fragility broadly.\n\nWeil Gotshal's collapse in the United States has Canadian lawyers nervous. The Globe notes North American law firms are partnerships, and partnerships are fragile, raising fears of a repeat here. The tailwind, if any, is consolidation opportunity for stronger Canadian firms. The headwind is partner flight risk at any wobbling shop. An advisor says law firm instability rarely touches public portfolios directly, but it is a signal on debt heavy professional partnerships.\n\nExport Development Canada and the Business Development Bank of Canada are merging. The Globe reports the planned merger amounts to a bet that it will be possible to nurture domestic corporate champions that conquer industries across borders, with EDC serving larger exporters while BDC Capital remains Canada's most active venture investor. Tailwind: more concentrated firepower for scaling Canadian firms. Headwind: integration risk and an undecided name and headquarters. An advisor calls this a policy story, not a stock to buy.",
+     "talkingPoints": [
+      "Nvidia's governance mess is a cautionary tale about concentration risk, not a reason to sell everything.",
+      "Cheplapharm walking away from Canada shows how thin some drug supply chains really are.",
+      "The EDC-BDC merger is about building bigger Canadian players, watch for details on leadership and location.",
+      "Nutrien's potash terminal deal is still non-binding, so temper expectations until the port decides.",
+      "CAE raising guidance while profit falls is a split signal worth watching next quarter."
+     ],
+     "sources": [
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Maker of muscular dystrophy drug will stop supplying Canada, patients told",
+       "url": "https://www.theglobeandmail.com/business/economy/article-canadian-patients-duchenne-muscular-dystrophy-deflazacort/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "The epic collapse of U.S. law firm Weil Gotshal may happen in Canada, again",
+       "url": "https://www.theglobeandmail.com/business/commentary/article-the-epic-collapse-of-us-law-firm-weil-gotshal-may-happen-in-canada/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "EDC, BDC merger seeks to foster corporate champions with global footprints",
+       "url": "https://www.theglobeandmail.com/business/article-edc-bdc-merger-corporate-champions-global-footprints/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Canadian investor access to Anthropic's mega IPO likely more limited than SpaceX's offering",
+       "url": "https://www.theglobeandmail.com/business/article-canadian-investor-access-anthropic-mega-ipo-more-limited-spacex/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Nutrien moves closer to deal to export potash from Washington terminal",
+       "url": "https://www.theglobeandmail.com/business/economy/article-nutrien-moves-closer-to-deal-to-export-potash-from-washington-terminal/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "Rural internet service provider Xplore granted creditor protection",
+       "url": "https://www.theglobeandmail.com/business/article-rural-internet-service-provider-xplore-granted-creditor-protection/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "CAE raises earnings forecast even as profits fall",
+       "url": "https://www.theglobeandmail.com/business/article-cae-raises-earnings-forecast-even-as-profits-fall/"
+      },
+      {
+       "outlet": "Globe and Mail Report on Business",
+       "title": "LNG opportunities abound in Canada, but also challenges, study finds",
+       "url": "https://www.theglobeandmail.com/business/article-lng-opportunities-abound-in-canada-but-also-challenges-study-finds/"
+      },
+      {
+       "outlet": "TechCrunch AI",
+       "title": "Nvidia's stock drops as board reportedly preps to oust CEO Jensen Huang",
+       "url": "https://techcrunch.com/2026/11/11/nvidias-stock-drops-as-board-reportedly-preps-to-oust-ceo-jensen-huang/"
+      },
+      {
+       "outlet": "BetaKit",
+       "title": "The feds plan to merge BDC and EDC. What might that mean for Canada's largest VC investor?",
+       "url": "https://betakit.com/the-feds-plan-to-merge-bdc-and-edc-what-might-that-mean-for-canadas-largest-vc-investor/"
+      }
+     ],
+     "words": 309,
+     "minutes": 1.9,
+     "durationSeconds": 115.25,
+     "plannedMinutes": 3.5,
+     "storyIds": [
+      "story-cf303be97332",
+      "story-107f7fb3abdd",
+      "story-407e4b623e3a",
+      "story-90fba2cc1da1",
+      "story-e3153c765142",
+      "story-c5ff0782057c",
+      "story-76303cb141ae",
+      "story-171aeed08af3",
+      "story-9a750601155e",
+      "story-984350fe1185"
+     ]
+    },
+    {
+     "id": "practice",
+     "label": "Practice: Tax, Regulatory & Industry",
+     "title": "RRSP Overhaul, CIRO Payout, CIBC Suit Shake Advisors",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/practice.mp3",
+     "bytes": 1372032,
+     "script": "Start with the regulator. CIRO's proposed eight point three million dollar settlement over its data breach class action is moving toward court approval, and more than half of that money is earmarked for extra credit monitoring and direct payouts to claimants. If you have clients who got breach notices, tell them the claims process is close, and start flagging who should file.\n\nNext, a reminder that advisor exits can get ugly. Darren Luck, a former CIBC Wood Gundy advisor in Windsor who built a three hundred fifty million dollar book, is suing CIBC for eighteen point seven million dollars after his termination, alleging the bank tried to subvert his client relationships. He's since landed at Wellington-Altus. For any of you holding retention or forgivable loan agreements with a bank-owned dealer, this is worth a second read of your own contract language.\n\nNow the big one for your planning conversations. Budget 2026 proposes merging the RRSP and RRIF into a single \"RRSP for life,\" eliminating the forced conversion at seventy-one. The government wants a successor holder option so a surviving spouse can keep the account open without triggering a deemed disposition at death. Minimum withdrawals stay, and this is only a consultation running to January, so nothing changes yet. But for incorporated physicians and business owners doing retirement decumulation modeling, start building the \"what if\" scenario now, especially around pension splitting eligibility, which today only applies to RRIF income, not straight RRSP withdrawals.",
+     "talkingPoints": [
+      "CIRO's eight point three million settlement claims window is coming, flag breach clients now.",
+      "Budget 2026's RRSP for life is a consultation, not law, don't change RRIF conversions yet.",
+      "Successor holder rules could simplify spousal transfers at death, watch for details.",
+      "Faster Payments Canada settlement raises fraud verification stakes for big one-off transfers.",
+      "Manitoba's small business limit is unchanged, good timing for dividend versus salary reviews."
+     ],
+     "sources": [
+      {
+       "outlet": "Advisor.ca",
+       "title": "CIRO to pay $8.3M to resolve data breach class action",
+       "url": "https://www.advisor.ca"
+      },
+      {
+       "outlet": "Globe Advisor",
+       "title": "Wealth advisor sues CIBC for $18.7-million following his termination",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "Investment Executive",
+       "title": "Budget proposes 'RRSP for life,' eliminating need to convert to RRIF",
+       "url": "https://www.investmentexecutive.com/news/economy/budget-2026/budget-proposes-rrsp-for-life-eliminating-need-to-convert-to-rrif/"
+      },
+      {
+       "outlet": "Government of Canada, Budget 2026",
+       "title": "Tax measures: Supplementary information",
+       "url": "https://budget.canada.ca/2026/report-rapport/tm-mf-en.html"
+      },
+      {
+       "outlet": "MoneySense",
+       "title": "CPP Investments posts 0.5% loss for Q2, weighed down by fixed-income losses",
+       "url": "https://www.moneysense.ca/news/cpp-investments-loss-fixed-incom/"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "CPP Investments fiduciary claim challenged in landmark climate lawsuit",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/cpp-investments-fiduciary-claim-challenged-in-landmark-climate-lawsuit/394006"
+      },
+      {
+       "outlet": "Wealth Professional",
+       "title": "Payments Canada launches national payment system that settles in seconds",
+       "url": "https://www.wealthprofessional.ca/news/industry-news/payments-canada-launches-national-payment-system-that-settles-in-seconds/393988"
+      },
+      {
+       "outlet": "Globe and Mail Personal Finance",
+       "title": "Little fish, big pond: Anthropic's IPO is open to Canadian retail investors",
+       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-anthropics-ipo-is-open-to-canadian-retail-investors/"
+      },
+      {
+       "outlet": "Globe and Mail On Money",
+       "title": "Good news, there's a simpler Brookfield emerging",
+       "url": "https://www.theglobeandmail.com"
+      },
+      {
+       "outlet": "EY",
+       "title": "Canada: Manitoba Budget 2026",
+       "url": "https://www.ey.com/en_gl/technical/tax-alerts/canada-manitoba-budget-2026"
+      }
+     ],
+     "words": 242,
+     "minutes": 1.4,
+     "durationSeconds": 85.75,
+     "plannedMinutes": 3.0,
+     "storyIds": [
+      "story-770845c3638c",
+      "story-c2baf6f0fd02",
+      "story-194cfd4d0a0f",
+      "story-037c9f33364f"
+     ]
+    },
+    {
+     "id": "manitoba",
+     "label": "Manitoba & Winnipeg",
+     "title": "Dikes, Remembrance Day, and a Health Booking Fix",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/manitoba.mp3",
+     "bytes": 1983360,
+     "script": "Start with the saddest story out of the Remembrance Day coverage. A pilot who was flying a plane scheduled to take part in a Remembrance Day ceremony in Saint-Georges, Quebec was killed when the aircraft crashed and caught fire while preparing to land. The Globe and Mail reports the pilot was a man in his sixties and was the only person aboard. Officials called the crash tragic, and it cast a shadow over ceremonies that were otherwise marked across the country Wednesday. Here in Manitoba, Remembrance Day drew large crowds, with CBC reporting the province's largest ceremony filled the downtown Winnipeg convention centre to standing room only, alongside gatherings as far as Steinbach. Attention also turned to CFB Wainwright, where the community honoured four soldiers killed in a fire during a training exercise there last month. Premier Wab Kinew issued a Remembrance Day statement marking the occasion. Separately, the Globe and Mail notes cadet programs are seeing record demand, with more than sixteen thousand kids now on waiting lists nationally to join the Cadet and Junior Canadian Rangers. On the Interlake file, construction has started on permanent flood protection for Fisher River Cree Nation. CBC reports the community is breaking ground this fall on fifty seven clay dikes meant to protect at least a hundred and fifty homes, part of a sixty one million dollar provincial flood mitigation package, with Ottawa reimbursing eligible costs. The director of operations there says the goal is eighteen dikes built by next fall. Worth knowing if you have clients with Interlake property or agricultural land exposure, since nearly eighty three percent of the community's land is currently unusable for development because of flood risk. On health policy, Manitoba's health minister says the province wants to add independent physician-run clinics to Medinav, the online booking system that's logged more than ninety one thousand appointments since launching two years ago. Right now only government-run clinics are on the platform. Doctors Manitoba has pushed for this for a while, arguing it would add hundreds more locations for patients.",
+     "talkingPoints": [
+      "Fisher River's new dikes protect a hundred fifty homes, backed by sixty one million in provincial and federal funding.",
+      "Manitoba wants private clinics on Medinav, which has already booked over ninety one thousand appointments.",
+      "Remembrance Day drew record crowds, with Winnipeg's downtown ceremony standing room only.",
+      "Cadet programs are so popular there's a sixteen thousand kid waiting list nationally.",
+      "A tragic Remembrance Day plane crash in Quebec killed the pilot scheduled to fly in the ceremony."
+     ],
+     "sources": [
+      {
+       "outlet": "Winnipeg Free Press",
+       "title": "Marking Remembrance Day: Stories honouring service and sacrifice",
+       "url": "https://www.winnipegfreepress.com"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Construction breaks ground for permanent dikes to mitigate flooding in First Nation in Manitoba's Interlake",
+       "url": "https://www.cbc.ca/news/canada/manitoba/flooding-mitigation-fisher-river-dikes-9.7416938"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Manitoba looks to add physician-run clinics to online booking system",
+       "url": "https://www.cbc.ca/news/canada/manitoba/manitoba-physician-run-clinics-medinav-online-bookings-9.7418050"
+      },
+      {
+       "outlet": "CBC Manitoba",
+       "title": "Remembrance Day ceremonies across Manitoba honour those who served, including 4 killed in CFB Wainwright fire",
+       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-remembrance-day-ceremony-convention-centre-9.7417748"
+      },
+      {
+       "outlet": "Manitoba Government News",
+       "title": "Statement from Premier Wab Kinew on Remembrance Day",
+       "url": "https://news.gov.mb.ca/news/index.html?item=76017"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Pilot dead after plane in Remembrance Day ceremony crashes in Quebec",
+       "url": "https://www.theglobeandmail.com/canada/article-pilot-dead-after-plane-in-remembrance-day-ceremony-crashes-quebec/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Cadet programs reach record numbers as youth seek to learn new things and make friends",
+       "url": "https://www.theglobeandmail.com/life/article-cadet-programs-young-canadians-record-high-waitlists/"
+      }
+     ],
+     "words": 341,
+     "minutes": 2.1,
+     "durationSeconds": 123.96,
+     "plannedMinutes": 2.5,
+     "storyIds": [
+      "story-265678cec517",
+      "story-09f9c47c0f0a",
+      "story-b7d557c1f09c",
+      "story-e0297e02354d",
+      "story-2cf2a51dae25"
+     ]
+    },
+    {
+     "id": "climate",
+     "label": "Climate Policy & Nonprofit Governance",
+     "title": "LNG Pension Warnings, COP31 Stalls, BC Floods",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/climate.mp3",
+     "bytes": 1178496,
+     "script": "Start with pensions. Environmental group Stand.earth hired a Quebec law firm to warn six major Canadian pension funds, including the Canada Pension Plan Investment Board and the Public Sector Pension Investment Board, that investing in LNG megaprojects could expose them to climate-related legal action. The Globe and Mail reports the lawyer, Anne-Julie Asselin, wrote that disregarding fossil fuel investment risks \"may carry legal consequences.\" The timing matters: the letters were drafted before news broke that Blackstone-led investors, including CPP and PSP, plan to take a stake in LNG Canada. PSP has already pushed back, saying its decisions meet its statutory obligations. Worth watching if you sit on any institutional investment committee.\n\nAt COP31 in Antalya, UN chief António Guterres called for taxing \"big oil\" windfall profits, noting the nine largest oil companies made 95 billion dollars last quarter versus roughly 600 million dollars raised for the loss and damage fund. UK's Andy Burnham told delegates climate change is a national security issue. The Associated Press reports five years of pledges have done little, with Carbon Brief analysis showing climate finance pledges down more than 70 percent this year.",
+     "talkingPoints": [
+      "Pension funds face legal pressure on LNG exposure, ask your institutional clients about it.",
+      "COP31's finance pledges are down over 70 percent this year, a real credibility gap.",
+      "Guterres wants windfall taxes on oil majors, watch for knock-on policy chatter in Ottawa.",
+      "BC's third atmospheric river shows physical climate risk is now a recurring insurance conversation.",
+      "Infrastructure and reinsurance costs from repeat flooding deserve a line in client risk reviews."
+     ],
+     "sources": [
+      {
+       "outlet": "The Globe and Mail",
+       "title": "Pensions warned that LNG stakes could expose them to climate-related legal action",
+       "url": "https://www.theglobeandmail.com/business/article-legal-warning-sent-to-pensions-over-climate-related-risks-of-lng/"
+      },
+      {
+       "outlet": "BNN Bloomberg",
+       "title": "Environmental group sends legal warning to pensions over potential LNG investments",
+       "url": "https://www.bnnbloomberg.ca/investing/commodities/2026/11/11/environmental-group-sends-legal-warning-to-pensions-over-potential-lng-investments/"
+      },
+      {
+       "outlet": "The Canadian Press via CJME",
+       "title": "Impacts from B.C. drenching mount as water levels rise",
+       "url": "https://www.cjme.com/2026/11/12/impacts-from-b-c-drenching-mount-as-water-levels-rise/"
+      },
+      {
+       "outlet": "CBC News",
+       "title": "Flooding prompts evacuation orders in Pemberton area as storm batters B.C.",
+       "url": "https://www.cbc.ca/news/canada/british-columbia/bc-fall-rainstorm-nov-10-9.7417639"
+      }
+     ],
+     "words": 188,
+     "minutes": 1.2,
+     "durationSeconds": 73.66,
+     "plannedMinutes": 1.5,
+     "storyIds": [
+      "story-686077e73f55",
+      "story-64df3c9fc33c",
+      "story-f12c843e3ace"
+     ]
+    },
+    {
+     "id": "tech",
+     "label": "AI & Technology",
+     "title": "OpenAI's quarterly revenue reportedly crosses $10B for the first time",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/tech.mp3",
+     "bytes": 168192,
+     "script": "Elsewhere, OpenAI's quarterly revenue reportedly crossed ten billion dollars for the first time, up from six point seven billion last quarter, nearly fifty percent growth.",
+     "talkingPoints": [],
+     "sources": [
+      {
+       "outlet": "TechCrunch",
+       "title": "OpenAI's quarterly revenue reportedly crosses $10B for the first time",
+       "url": "https://techcrunch.com/2026/11/11/openais-quarterly-revenue-reportedly-crosses-10b-for-the-first-time/"
+      }
+     ],
+     "words": 25,
+     "minutes": 0.2,
+     "durationSeconds": 10.51,
+     "plannedMinutes": 1.0,
+     "storyIds": []
+    },
+    {
+     "id": "health",
+     "label": "Health & Fitness",
+     "title": "Explosive Sports May Build Bone Better Than Lifting",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/health.mp3",
+     "bytes": 372864,
+     "script": "New research covered by ScienceDaily finds walking, jogging and standard weight training may not stimulate bone formation as well as explosive, change of direction sports. Football and handball raised bone formation markers by up to forty six percent in the study. If you already lift, this suggests adding short bursts of jumping or lateral movement for bone density, not just steady resistance work.",
+     "talkingPoints": [
+      "New study: explosive sports may beat walking and lifting for bone density.",
+      "Football, handball raised bone formation markers up to forty six percent.",
+      "Consider adding jump or lateral drills to a lifting routine for bone health.",
+      "Health Canada recalled multiple Molson Coors beers nationwide over metal fragments.",
+      "Check your fridge: both alcoholic and non-alcoholic versions are affected."
+     ],
+     "sources": [
+      {
+       "outlet": "ScienceDaily",
+       "title": "Walking and weight training may not be enough to keep your bones strong",
+       "url": "https://www.sciencedaily.com/releases/2026/11/261110042601.htm"
+      },
+      {
+       "outlet": "CBC Health",
+       "title": "Various beers under Molson Coors banner recalled Canada-wide",
+       "url": "https://www.cbc.ca/news/canada/newfoundland-labrador/molson-coors-recall-nl-9.7418429?cmp=rss"
+      }
+     ],
+     "words": 63,
+     "minutes": 0.4,
+     "durationSeconds": 23.3,
+     "plannedMinutes": 0.5,
+     "storyIds": []
+    },
+    {
+     "id": "parenting",
+     "label": "Parenting",
+     "title": "Canada Child Benefit Numbers Worth Reviewing With Clients",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/parenting.mp3",
+     "bytes": 557568,
+     "script": "You'll want the Canada Child Benefit's 2026 to 27 numbers on hand for clients with young families. Ottawa's two percent indexation bump lifted the maximum annual payment to 8,157 dollars per child under six and 6,883 dollars per child aged six to seventeen, per Canada dot ca. That's up 160 and 135 dollars from last year. Pair that with RESP, Registered Education Savings Plan, whose grant still matches 20 percent.",
+     "talkingPoints": [
+      "Max CCB is now 8,157 dollars under six, 6,883 for six to seventeen.",
+      "That's a 2 percent bump, smaller than last year's 2.7 percent.",
+      "Benefit phases out with income, so model it into cash flow planning.",
+      "Remind clients the RESP grant still matches 20 percent on contributions.",
+      "Good moment to revisit education savings targets at year end review."
+     ],
+     "sources": [
+      {
+       "outlet": "Canada.ca",
+       "title": "Secretary of State Belanger highlights increases to Canada Child Benefit payments in 2026–2027",
+       "url": "https://www.canada.ca/en/innovation-science-economic-development/news/2026/07/secretary-of-state-belanger-highlights-increases-to-canada-child-benefit-payments-in-20262027.html"
+      },
+      {
+       "outlet": "Daily Hive",
+       "title": "The Canada Child Benefit is increasing for families in 2026",
+       "url": "https://dailyhive.com/canada/canada-child-benefit-increase-2026"
+      }
+     ],
+     "words": 70,
+     "minutes": 0.6,
+     "durationSeconds": 34.85,
+     "plannedMinutes": 0.5,
+     "storyIds": []
+    },
+    {
+     "id": "sports",
+     "label": "Sports",
+     "title": "Hellebuyck's Booed Return, Raiders Hand Mendoza the Reins",
+     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@27c9acf103fe1834b90bf4fa3efee9a905148672/2026-11-12/sports.mp3",
+     "bytes": 1590528,
+     "script": "Start with the Jets. Connor Hellebuyck made his first appearance back in Winnipeg since demanding a trade, and the crowd let him have it. The Athletic reports he was the most booed backup goalie in recent memory, hearing chants of \"Helly sucks\" and \"coward\" through warmups and the whole game, even though New Jersey sat him and started someone else. Winnipeg won that one 4-2. At his morning skate, Hellebuyck said online threats against his family were behind the trade demand, though he didn't go into detail. The Jets sit at four wins, seven losses and three overtime losses this season, so there's real pressure to turn things around, and this result helps.\n\nNow the Raiders. Las Vegas pulled off the splashiest move of Tuesday's NFL trade deadline, sending Kirk Cousins back to Minnesota for a 2027 third-round pick. That hands the keys to rookie Fernando Mendoza, the first overall pick out of Indiana, who general manager John Spytek officially named the starter. Cousins reunites with the Vikings, who jumped from a 6 and 2 start with Carson Wentz struggling under center. For the Raiders, this was the plan all along, they just moved the timeline up.\n\nElsewhere in the NFL, Jacksonville went all in at the deadline, landing defensive tackle Jordan Davis from Philadelphia along with Davon Godchaux and safety Jessie Bates the third, pushing the 6 and 2 Jaguars into the Super Bowl conversation. The Colts, at 2 and 7, inexplicably held onto running back Jonathan Taylor. And this weekend brings a big AFC North showdown, Bengals at Steelers, for first place.",
+     "talkingPoints": [
+      "Raiders bet on Mendoza now, not later, trading Cousins to Minnesota.",
+      "Jets' home record matters more after the Hellebuyck circus, still just 4 and 7 and 3.",
+      "Jaguars went all in at the deadline, now a real Super Bowl contender.",
+      "Cable providers are formally fighting Rogers over NHL streaming surcharges.",
+      "Oilers off to one of their best starts in franchise history."
+     ],
+     "sources": [
+      {
+       "outlet": "The Athletic",
+       "title": "NFL trade deadline winners, losers: Vikings find QB, Jags go all-in, Jonathan Taylor stranded",
+       "url": "https://theathletic.com"
+      },
+      {
+       "outlet": "ESPN",
+       "title": "Raiders name Fernando Mendoza starting QB after trading Kirk Cousins",
+       "url": "https://www.espn.com/nfl/story/_/id/50447756/raiders-name-fernando-mendoza-starting-qb-trading-kirk-cousins"
+      },
+      {
+       "outlet": "The Athletic",
+       "title": "Hellebuyck's toxic return to Winnipeg",
+       "url": "https://theathletic.com"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Bouchard nets OT winner as Oilers hold off Flyers for 3-2 victory",
+       "url": "https://www.theglobeandmail.com/sports/hockey/article-bouchard-nets-ot-winner-as-oilers-hold-off-flyers-for-3-2-victory/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Zibanejad scores twice as Rangers top Flames 3-1",
+       "url": "https://www.theglobeandmail.com/sports/hockey/article-zibanejad-scores-twice-as-rangers-top-flames-3-1/"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Cable companies file complaint over Sportsnet's surcharge for NHL games",
+       "url": "https://www.theglobeandmail.com/sports/hockey/article-sportsnet-crtc-complaint-nhl-games/"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Canada beats Finland 2-0, stays perfect heading into women's worlds quarterfinals",
+       "url": "https://www.cbc.ca/sports/hockey/canada-finland-recap-womens-hockey-worlds-roundup-9.7418010?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Canadian government says Russian players with visas will still be barred from WJC",
+       "url": "https://www.cbc.ca/sports/hockey/secretary-of-sport-says-canada-will-not-allow-russians-world-juniors-9.7418528?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Ottawa's Nick Cousins hurt by massive hit from former Senator",
+       "url": "https://www.cbc.ca/news/canada/ottawa/nick-cousins-jakob-chychrun-ottawa-washington-hit-9.7417711?cmp=rss"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Canadiens fans welcome Carey Price with spine-tingling ovation",
+       "url": "https://www.cbc.ca/news/canada/montreal/canadiens-fans-welcome-carey-price-with-spine-tingling-ovation-9.7417690?cmp=rss"
+      },
+      {
+       "outlet": "Globe and Mail",
+       "title": "Tatum helps Celtics rally past Raptors to win fifth straight",
+       "url": "https://www.theglobeandmail.com/sports/basketball/article-tatum-helps-celtics-rally-past-raptors-to-win-fifth-straight/"
+      },
+      {
+       "outlet": "CBC Sports",
+       "title": "Future of 66-year-old McMahon Stadium in the spotlight ahead of Grey Cup",
+       "url": "https://www.cbc.ca/news/canada/calgary/mcmahon-stadium-calgary-stampeders-cfl-9.7418387?cmp=rss"
+      },
+      {
+       "outlet": "Wikipedia",
+       "title": "2026–27 Winnipeg Jets season",
+       "url": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Winnipeg_Jets_season"
+      }
+     ],
+     "words": 264,
+     "minutes": 1.7,
+     "durationSeconds": 99.41,
+     "plannedMinutes": 2.5,
+     "storyIds": [
+      "story-22d498be3569",
+      "story-13430b79c4dd",
+      "story-8a5cfe7865c6",
+      "story-3f0b009516a8",
+      "story-6281f88f28e3",
+      "story-fa55a1467d47",
+      "story-c429aa0eccac"
+     ]
+    }
+   ],
+   "expectedSections": [
+    "markets",
+    "lessons",
+    "companies",
+    "practice",
+    "manitoba",
+    "climate",
+    "tech",
+    "health",
+    "parenting",
+    "sports"
+   ],
+   "missingSections": []
+  },
+  {
    "date": "2026-11-11",
    "generatedAt": "2026-11-11T12:52:14+00:00",
    "release": "courier-2026-11-11",
@@ -8658,1490 +10045,6 @@
     "companies",
     "practice",
     "manitoba",
-    "climate",
-    "tech",
-    "health",
-    "parenting",
-    "sports"
-   ],
-   "missingSections": []
-  },
-  {
-   "date": "2026-11-03",
-   "generatedAt": "2026-11-03T12:43:31+00:00",
-   "release": "courier-2026-11-03",
-   "budgetMinutes": 30,
-   "plannedMinutes": 30.0,
-   "projectedMinutes": 21.4,
-   "durationSeconds": 1279.1,
-   "voiceless": [],
-   "failed": [],
-   "skippedSections": [],
-   "duplicateRejectedSections": [],
-   "duplicateRepairs": [],
-   "allocationMinutes": {
-    "markets": 5.0,
-    "companies": 3.5,
-    "practice": 2.5,
-    "manitoba": 2.5,
-    "politics": 2.0,
-    "climate": 1.5,
-    "tech": 1.5,
-    "health": 1.0,
-    "parenting": 0.5,
-    "sports": 2.0
-   },
-   "activityScores": {
-    "markets": 11.0,
-    "companies": 22.0,
-    "practice": 10.0,
-    "manitoba": 17.0,
-    "politics": 7.125,
-    "climate": 10.0,
-    "tech": 9.0,
-    "health": 7.375,
-    "parenting": 3.125,
-    "sports": 15.0
-   },
-   "planningMethod": "primary",
-   "duplicatesDropped": [],
-   "sourceHealth": {
-    "degradedSections": [],
-    "newsletters": {
-     "configured": true,
-     "items": 86,
-     "bySection": {
-      "climate": 7,
-      "markets": 20,
-      "companies": 9,
-      "practice": 17,
-      "politics": 13,
-      "tech": 3,
-      "sports": 13,
-      "manitoba": 4
-     }
-    }
-   },
-   "usage": {
-    "calls": 21,
-    "input": 2846,
-    "output": 45016,
-    "cache_read": 166381,
-    "cache_write": 337880,
-    "searches": 17,
-    "estimatedCost": 2.17
-   },
-   "plan": [
-    {
-     "storyId": "story-1b2f07965722",
-     "event": "Bank of Canada raised interest rates, prompting fresh advisor and consumer guidance on mortgages and finances",
-     "owner": "markets",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-c1ebadf88628",
-     "event": "Canada's manufacturing sector contracts for the first time in 2026, per new data",
-     "owner": "markets",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-a198dba3d502",
-     "event": "Binance customers withdraw $4.7-billion following the exchange's hack, as North Korea denies involvement",
-     "owner": "markets",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-615620db93d1",
-     "event": "Oracle and Alphabet both launch large bond/share sales to fund AI infrastructure expansion",
-     "owner": "markets",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-b8f5aa21ddc5",
-     "event": "TransAlta reports quarterly profit of $63-million compared with a loss a year ago",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-3535b8cfb72e",
-     "event": "Thomson Reuters reports jump in third-quarter revenue",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-af5b1126de76",
-     "event": "Canada-U.S. trade talks resume, with Trump floating a \"concept\" of a new deal while hostility simmers elsewhere (South Africa, Rwanda benefits cancelled)",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-69e37c5e4805",
-     "event": "Blame Canada: Five charts capture Trump’s growing hostility toward his northern neighbour",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-cfa4262a82b8",
-     "event": "Law society fails to police members amid rampant real estate fraud allegations",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-478ed086dc82",
-     "event": "The only thing standing between Democrats and a congressional majority is ... Democrats",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-1e7d17fa61e7",
-     "event": "Glass Lewis joins ISS in recommending shareholders vote against the H&R REIT takeover deal",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-27394ea3d583",
-     "event": "Blackstone and Canadian pension funds, including Mitsubishi's stake sale, complete $3.1-billion-plus LNG Canada investment",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-0a373eadacba",
-     "event": "Global investors step up for Canadian infrastructure because it’s predictable",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-9045fc5f79c0",
-     "event": "Apple results beat Wall Street expectations on strong iPhone sales",
-     "owner": "companies",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-8e7474b51be3",
-     "event": "CIRO publishes new advisor disciplinary notices (Sudario, Majumder, Cole)",
-     "owner": "practice",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-20fbae2e6ab3",
-     "event": "New data shows Canadians draining TFSAs amid retirement savings and family cost pressures",
-     "owner": "practice",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-8f130e556884",
-     "event": "OAS benefits now represent a shrinking share of retirees' income, new report finds",
-     "owner": "practice",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-6806551357dd",
-     "event": "Winnipeg sewage spill sends nearly 10 million litres of raw sewage into the Red River",
-     "owner": "manitoba",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-7bcbacc6185b",
-     "event": "Nine departing Winnipeg councillors eligible for roughly $525K in combined severance",
-     "owner": "manitoba",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-6191338d2b1e",
-     "event": "Underground fire at Thompson, Manitoba mine sends workers to safety locations",
-     "owner": "manitoba",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-f841152112bb",
-     "event": "Cybersecurity incident hits Garden Valley School Division in Manitoba",
-     "owner": "manitoba",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-b3ff1aa47d45",
-     "event": "Winnipeg police warn after pins reportedly found in Halloween candy",
-     "owner": "manitoba",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-d7c0b476ba44",
-     "event": "Grandmother expected to face 20-year sentence recommendation for killing 2-year-old in Bloodvein First Nation",
-     "owner": "manitoba",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-0695ad6531ba",
-     "event": "Businesses and residents in Manitoba continue adjusting to the switch to permanent standard time",
-     "owner": "manitoba",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-4e20ed5537fd",
-     "event": "Federal budget preview: Finance Minister Champagne confirms new tax measures targeting small businesses",
-     "owner": "politics",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-976aa2b93ff7",
-     "event": "Carney attends Commonwealth summit in Antigua, pursuing trade and diplomatic ties",
-     "owner": "politics",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-a534c790f001",
-     "event": "First Nations mount new court challenges against the fast-tracked Pacific Link pipeline",
-     "owner": "politics",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-057aba87ca45",
-     "event": "Carney government's second budget weighed for its path toward net zero, as climate groups press on pension LNG investment",
-     "owner": "climate",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-97aac5ae5c48",
-     "event": "Parks Canada job cuts raise concerns over Jasper's wildfire recovery",
-     "owner": "climate",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-1ddaaa4a6234",
-     "event": "Ontario bill threatens public right to challenge environmental risks, critics warn",
-     "owner": "climate",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-24e90e0f8917",
-     "event": "Anthropic warns it is close to recursive self-improvement (RSI) AI capability",
-     "owner": "tech",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-a250aa3511af",
-     "event": "European supermarket refrigeration systems hit by a second suspected cyberattack, raising industrial cybersecurity concerns",
-     "owner": "tech",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-0b9607d921df",
-     "event": "Marvell-Lumentum and broader AI capex news underscore accelerating AI data-centre investment wave (Brookfield-Dax $27B UK deal)",
-     "owner": "tech",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-a2208cdf9b62",
-     "event": "New research finds short \"exercise snacking\" workouts as effective as traditional strength sessions",
-     "owner": "health",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-0be533e391fe",
-     "event": "U.S. records first human bird flu death since last year",
-     "owner": "health",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-bae414178a38",
-     "event": "Flu season arrives early this year, prompting public health guidance",
-     "owner": "health",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-016f9d3a9742",
-     "event": "Research shows growing evidence of harmful effects of screen time on young children",
-     "owner": "parenting",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-d1fb215823a0",
-     "event": "Winnipeg Jets lose ninth straight game, trounced 7-0 by the Hurricanes",
-     "owner": "sports",
-     "status": "UPDATE",
-     "firstSeen": "2026-10-28",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "Winnipeg Jets extend losing streak to six games with a 5-1 loss to the Florida Panthers",
-     "whatChanged": "key figures changed: 1, 5 -> 0, 7"
-    },
-    {
-     "storyId": "story-008767777c46",
-     "event": "Nikita Kucherov requests a trade from the Lightning, citing disrespect and lack of communication",
-     "owner": "sports",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-ec8a80c6a228",
-     "event": "Finland and Norway confirm they will boycott hockey world championship games against Russia",
-     "owner": "sports",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-7b294028331c",
-     "event": "NBA highlights: SGA scores season-high 43 as Thunder beat Cavs; Doncic leads Lakers past Raptors; Thunder to retire Westbrook's No. 0",
-     "owner": "sports",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-ca03e460927f",
-     "event": "ESPN's Michael Wilbon takes leave of absence citing multiple health issues",
-     "owner": "sports",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    },
-    {
-     "storyId": "story-9cf1119ee87f",
-     "event": "Journeyman goalie Matt Tomkins shines in 7th NHL start for hometown Oilers",
-     "owner": "sports",
-     "status": "NEW",
-     "firstSeen": "2026-11-03",
-     "lastSeen": "2026-11-03",
-     "previousEvent": "",
-     "whatChanged": ""
-    }
-   ],
-   "blocks": [
-    {
-     "id": "markets",
-     "label": "Markets & Economy",
-     "title": "Rate Hike, Factory Slump, Crypto Jitters Today",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/markets.mp3",
-     "bytes": 4348416,
-     "script": "Market snapshot. These are the latest available daily observations before November 3, 2026, not live prices. Returns are price changes excluding distributions, in each listing's currency.\n\nFigures are as of November 2, 2026, unless another date is given.\n\nS and P TSX Composite, up 0.51 percent versus the prior day, down 0.40 percent over five days, and up 12.89 percent year to date.\n\nS and P 500, down 0.51 percent versus the prior day, down 1.76 percent over five days, and up 10.17 percent year to date.\n\nNasdaq Composite, down 1.07 percent versus the prior day.\n\nDow Jones Industrial Average, up 0.41 percent versus the prior day.\n\nRussell 2000 small companies, down 0.21 percent versus the prior day.\n\nVanguard total international stock ETF, V X U S, up 0.27 percent versus the prior day.\n\nDimensional World ex U.S. Core Equity 2 ETF, D F A X, up 0.17 percent versus the prior day, down 0.33 percent over five days, and up 9.62 percent year to date, at a market price of 35.88 U.S. dollars.\n\nCanadian dollar, 0.7158 U.S. dollars per Canadian dollar, up 0.12 percent versus its prior daily observation.\n\nWest Texas oil futures, 96.46 U.S. dollars per barrel, down 7.36 percent versus its prior daily observation.\n\nGold futures, 3969.60 U.S. dollars per troy ounce, up 1.81 percent versus its prior daily observation.\n\nVIX implied volatility, 21.15 points, up 8.91 percent versus its prior daily observation.\n\nU.S. ten-year Treasury yield, 4.89 percent, down 3.5 basis points versus its prior observation.\n\nCanada two-year government yield, dated October 30, 2026, 3.28 percent, down 8.0 basis points versus its prior observation.\n\nCanada ten-year government yield, dated October 30, 2026, 3.78 percent, down 6.0 basis points versus its prior observation.\n\nStyle leadership. U.S. small companies led U.S. large and mid-sized companies by 0.32 percentage points. U.S. value stocks led U.S. growth stocks by 1.46 percentage points. These are U.S. ETF price comparisons, not isolated factor returns or an attribution of D F A X.\n\nD F A X lagged the broad international ETF proxy by 0.10 percentage points for that day, both in U.S. dollars. This is not an isolated measure of factor performance.\n\nUnavailable or stale series, omitted: U.S. two-year Treasury yield; U.S. high-yield option-adjusted credit spread.\n\nNow, the sourced developments that may help explain these moves.\n\nThe Bank of Canada's rate hike is still the story shaping client conversations this week. The Bank raised its policy interest rate by 25 basis points to 2.50% on October 28, 2026, its first increase since July 2023. For variable-rate holders, that mechanism matters directly, a higher policy rate lifts the prime rate, which raises floating mortgage payments and lines of credit almost immediately, while fixed rates track bond yields instead. That is why you saw Canada's two-year and ten-year government yields actually ease into month end, even as the policy rate rose, the bond market had largely priced the move in advance. The Globe and Mail's advisor desk is fielding reader questions on whether variable mortgages still make sense now that the hiking cycle has resumed, worth having ready for anyone renewing soon.\n\nLayer onto that a softer real economy. The Globe reports Canada's manufacturing sector contracted for the first time in 2026, with the factory PMI falling to 49.6 in October, its first dip below 50 since December. That is a survey of purchasing managers, not hard output data, so treat it as a signal, not proof, though it fits a pattern of tariff-exposed exporters losing momentum.\n\nIn crypto, Binance customers withdrew 4.7 billion dollars following last week's hack, with the FBI blaming a North Korea linked group, a claim Pyongyang denies. The outflow is a small share of total assets, a sentiment story for now, not a systemic one.\n\nWhat to watch next. Per Statistics Canada, Labour Force Survey (October 2026) is scheduled for November 6. Canada's next jobs report will show whether hiring held up after tariffs and the Bank of Canada's rate hike.",
-     "talkingPoints": [
-      "Variable mortgage math changed again, review triggers with anyone renewing soon.",
-      "Canada's factories just slipped into contraction territory, watch trade exposed sectors.",
-      "Binance withdrawals look orderly so far, not a crypto contagion signal yet.",
-      "Big tech is borrowing heavily to fund AI, financing costs are now part of that story.",
-      "Bond yields eased even as the Bank hiked, the market had already priced it in."
-     ],
-     "sources": [
-      {
-       "outlet": "Yahoo Finance",
-       "title": "S and P TSX Composite daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/%5EGSPTSE/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "S and P 500 daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/%5EGSPC/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "Nasdaq Composite daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/%5EIXIC/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "Dow Jones Industrial Average daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/%5EDJI/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "Russell 2000 small companies daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/%5ERUT/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "Vanguard total international stock ETF, V X U S daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/VXUS/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "Dimensional World ex U.S. Core Equity 2 ETF, D F A X daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/DFAX/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "Canadian dollar daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/CADUSD%3DX/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "West Texas oil futures daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/CL%3DF/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "Gold futures daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/GC%3DF/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "VIX implied volatility daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/%5EVIX/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "iShares Russell 2000 ETF daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/IWM/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "iShares Russell 1000 ETF daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/IWB/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "iShares Russell 1000 Value ETF daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/IWD/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "iShares Russell 1000 Growth ETF daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/IWF/history/"
-      },
-      {
-       "outlet": "Yahoo Finance",
-       "title": "U.S. ten-year Treasury yield daily data, 2026-11-02",
-       "url": "https://finance.yahoo.com/quote/%5ETNX/history/"
-      },
-      {
-       "outlet": "Bank of Canada",
-       "title": "Canada two-year government yield daily data, 2026-10-30",
-       "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/"
-      },
-      {
-       "outlet": "Bank of Canada",
-       "title": "Canada ten-year government yield daily data, 2026-10-30",
-       "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/"
-      },
-      {
-       "outlet": "RBC Royal Bank",
-       "title": "Bank of Canada interest rate update (October 28, 2026)",
-       "url": "https://www.rbcroyalbank.com/en-ca/my-money-matters/money-academy/economics-101/understanding-interest-rates/bank-of-canada-interest-rate-announcement/"
-      },
-      {
-       "outlet": "Globe and Mail",
-       "title": "Canada's manufacturing sector contracts for first time in 2026",
-       "url": "https://www.theglobeandmail.com/business/article-canadas-manufacturing-sector-contracts-for-first-time-in-2026/"
-      },
-      {
-       "outlet": "Globe and Mail",
-       "title": "Binance customers pull $4.7-billion after hack as crypto investors weigh risk",
-       "url": "https://www.theglobeandmail.com/business/article-binance-withdrawals-security-risks-investor-sentiment/"
-      },
-      {
-       "outlet": "Globe and Mail",
-       "title": "Oracle plans $20-billion bond and share sale to finance AI expansion",
-       "url": "https://www.theglobeandmail.com/investing/article-oracle-plans-20-billion-bond-and-share-sale-to-finance-ai-expansion/"
-      },
-      {
-       "outlet": "Globe and Mail",
-       "title": "Alphabet kicks off €6-billion bond sale, tests appetite for tech debt",
-       "url": "https://www.theglobeandmail.com/business/article-alphabet-kicks-off-euro-bond-sale-tests-appetite-for-tech-debt/"
-      },
-      {
-       "outlet": "Statistics Canada",
-       "title": "The Daily — Labour Force Survey, September 2026",
-       "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/261009/dq261009a-eng.htm"
-      }
-     ],
-     "words": 662,
-     "minutes": 4.5,
-     "durationSeconds": 271.78,
-     "plannedMinutes": 5.0,
-     "marketSnapshot": {
-      "schemaVersion": 1,
-      "editionDate": "2026-11-03",
-      "observations": [
-       {
-        "symbol": "^GSPTSE",
-        "label": "S and P TSX Composite",
-        "unit": "CAD",
-        "kind": "price",
-        "url": "https://finance.yahoo.com/quote/%5EGSPTSE/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 35801.1015625,
-        "day": 0.5084266212801891,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -0.3981105696057696,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 12.891642114647862,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "^GSPC",
-        "label": "S and P 500",
-        "unit": "USD",
-        "kind": "price",
-        "url": "https://finance.yahoo.com/quote/%5EGSPC/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 7541.39990234375,
-        "day": -0.5101525813317354,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -1.763373356803588,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 10.165800925334167,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "^IXIC",
-        "label": "Nasdaq Composite",
-        "unit": "USD",
-        "kind": "price",
-        "url": "https://finance.yahoo.com/quote/%5EIXIC/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 25164.310546875,
-        "day": -1.0720189217478526,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -3.840634663467557,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 8.270893727753492,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "^DJI",
-        "label": "Dow Jones Industrial Average",
-        "unit": "USD",
-        "kind": "price",
-        "url": "https://finance.yahoo.com/quote/%5EDJI/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 51983.98046875,
-        "day": 0.41273054150925415,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -0.7211349805931744,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 8.157351447903727,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "^RUT",
-        "label": "Russell 2000 small companies",
-        "unit": "USD",
-        "kind": "price",
-        "url": "https://finance.yahoo.com/quote/%5ERUT/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 2805.8798828125,
-        "day": -0.21196813801015457,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": 0.6983857955051187,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 13.053252623008493,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "VXUS",
-        "label": "Vanguard total international stock ETF, V X U S",
-        "unit": "USD",
-        "kind": "price",
-        "url": "https://finance.yahoo.com/quote/VXUS/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 82.58999633789062,
-        "day": 0.2670797425919913,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -0.0484096779099108,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 9.477722249595267,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "DFAX",
-        "label": "Dimensional World ex U.S. Core Equity 2 ETF, D F A X",
-        "unit": "USD",
-        "kind": "price",
-        "url": "https://finance.yahoo.com/quote/DFAX/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 35.880001068115234,
-        "day": 0.1675080228983994,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -0.33333036634657365,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 9.624202780125302,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "CADUSD=X",
-        "label": "Canadian dollar",
-        "unit": "USD per CAD",
-        "kind": "indicator",
-        "url": "https://finance.yahoo.com/quote/CADUSD%3DX/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 0.7158042192459106,
-        "day": 0.11524438829688677,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": 0.302070444127156,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": -1.9727559207573742,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "CL=F",
-        "label": "West Texas oil futures",
-        "unit": "USD per barrel",
-        "kind": "indicator",
-        "url": "https://finance.yahoo.com/quote/CL%3DF/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 96.45999908447266,
-        "day": -7.356899212491452,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -5.208336222971455,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 67.9902510631592,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "GC=F",
-        "label": "Gold futures",
-        "unit": "USD per troy ounce",
-        "kind": "indicator",
-        "url": "https://finance.yahoo.com/quote/GC%3DF/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 3969.60009765625,
-        "day": 1.8133370202707777,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -1.703640212737989,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": -8.557738629444922,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "^VIX",
-        "label": "VIX implied volatility",
-        "unit": "points",
-        "kind": "indicator",
-        "url": "https://finance.yahoo.com/quote/%5EVIX/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 21.149999618530273,
-        "day": 8.908339523376952,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": 15.00815834956153,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 41.471571159637996,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "IWM",
-        "label": "iShares Russell 2000 ETF",
-        "unit": "USD",
-        "kind": "style",
-        "url": "https://finance.yahoo.com/quote/IWM/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 279.1400146484375,
-        "day": -0.06800985678598881,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": 0.7762101483318018,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 13.397794319014555,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "IWB",
-        "label": "iShares Russell 1000 ETF",
-        "unit": "USD",
-        "kind": "style",
-        "url": "https://finance.yahoo.com/quote/IWB/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 411.45001220703125,
-        "day": -0.3873564055737133,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -1.581109264259628,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 10.178344450816802,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "IWD",
-        "label": "iShares Russell 1000 Value ETF",
-        "unit": "USD",
-        "kind": "style",
-        "url": "https://finance.yahoo.com/quote/IWD/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 259.3599853515625,
-        "day": 0.27449892589686,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": 0.39093447810572,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": 23.30512021828035,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "IWF",
-        "label": "iShares Russell 1000 Growth ETF",
-        "unit": "USD",
-        "kind": "style",
-        "url": "https://finance.yahoo.com/quote/IWF/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 116.22000122070312,
-        "day": -1.1818717646755128,
-        "dayFrom": "2026-10-30",
-        "fiveSessions": -3.8630144697851643,
-        "fiveSessionsFrom": "2026-10-26",
-        "ytd": -1.7789949561205831,
-        "ytdFrom": "2025-12-31"
-       },
-       {
-        "symbol": "^TNX",
-        "label": "U.S. ten-year Treasury yield",
-        "unit": "percent",
-        "kind": "rate",
-        "url": "https://finance.yahoo.com/quote/%5ETNX/history/",
-        "provider": "Yahoo Finance",
-        "asOf": "2026-11-02",
-        "close": 4.894000053405762,
-        "dayFrom": "2026-10-30",
-        "changeBps": -3.4999847412109375
-       },
-       {
-        "symbol": "BD.CDN.2YR.DQ.YLD",
-        "label": "Canada two-year government yield",
-        "kind": "rate",
-        "unit": "percent",
-        "provider": "Bank of Canada",
-        "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/",
-        "asOf": "2026-10-30",
-        "close": 3.28,
-        "dayFrom": "2026-10-29",
-        "changeBps": -8.000000000000007
-       },
-       {
-        "symbol": "BD.CDN.10YR.DQ.YLD",
-        "label": "Canada ten-year government yield",
-        "kind": "rate",
-        "unit": "percent",
-        "provider": "Bank of Canada",
-        "url": "https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/",
-        "asOf": "2026-10-30",
-        "close": 3.78,
-        "dayFrom": "2026-10-29",
-        "changeBps": -6.000000000000005
-       }
-      ],
-      "unavailable": [
-       "U.S. two-year Treasury yield",
-       "U.S. high-yield option-adjusted credit spread"
-      ]
-     },
-     "watchNext": [
-      {
-       "name": "Labour Force Survey (October 2026)",
-       "date": "2026-11-06",
-       "why": "Canada's next jobs report will show whether hiring held up after tariffs and the Bank of Canada's rate hike",
-       "source": "https://www150.statcan.gc.ca/n1/daily-quotidien/261009/dq261009a-eng.htm"
-      }
-     ],
-     "storyIds": [
-      "story-1b2f07965722",
-      "story-c1ebadf88628",
-      "story-a198dba3d502",
-      "story-615620db93d1"
-     ]
-    },
-    {
-     "id": "lessons",
-     "label": "Lessons",
-     "title": "Capital expenditure: maintenance versus growth and how to estimate the split / Probate in Manitoba: current fees and what bypasses it / Reading the room: nonverbal signals that say the meeting is going wrong",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/lessons.mp3",
-     "bytes": 6004224,
-     "script": "Company & Economy Analysis, Statement forensics, lesson 6: Capital expenditure: maintenance versus growth and how to estimate the split.\n\nHere's the number everyone quotes and almost nobody interrogates: capital expenditure, capex, as a line on the cash flow statement. Analysts love to say \"capex is forty million, revenue is four hundred million, that's ten percent, fine.\" But that single figure hides two completely different animals. Maintenance capex keeps the lights on: replacing a worn-out truck, patching a roof, re-lining a furnace. Growth capex buys a second plant. One protects the business you already have. The other is a bet on a bigger one. Lump them together and you can't tell if a company is stagnant and just patching holes, or investing to expand, or worse, starving its own equipment to flatter free cash flow.\n\nThere's no line item that splits this for you, so you estimate. The standard method: maintenance capex is roughly equal to depreciation and amortization, adjusted for inflation in asset replacement costs. Take a real one. Union Pacific, fiscal year 2023: depreciation and amortization on the income statement was about 2.3 billion dollars. Total capex that year was roughly 3.6 billion. So maintenance capex, using depreciation as your proxy, is about 2.3 billion, and growth capex is the remaining 1.3 billion, roughly thirty six percent of total spend going toward expansion rather than upkeep. In Thomson ONE, pull depreciation from the income statement tab and total capex from the cash flow statement, both sit right next to each other once you build the comparison.\n\nThe mistake people make is assuming depreciation always equals maintenance capex exactly. It doesn't. Depreciation is a historical cost accounting figure, it doesn't account for inflation in replacement equipment prices. For asset-heavy, older-fleet businesses, real maintenance capex often runs higher than depreciation suggests. Treat the depreciation proxy as a floor, not a precise answer.\n\nWhat this split reveals: capital discipline and the real growth story, separate from management's narrative. What it cannot reveal: whether that growth capex will earn an adequate return. For that you need the next layer, which is what debt financed it and under what terms.\n\nFinancial Planning Facts, lesson 27: Probate in Manitoba: current fees and what bypasses it.\n\nManitoba is one of the cheaper provinces for probate, and that surprises most clients who've heard horror stories from Ontario or British Columbia. As of 2026, Manitoba charges a probate fee, technically called a court fee for a grant of probate, of 70 cents per thousand dollars of estate value up to 10 thousand dollars, and then 7 dollars per thousand dollars above that. There's no fee at all on the first 10 thousand. So on an estate worth 800 thousand dollars, you're paying roughly 70 cents times 10, which is 7 dollars, plus 7 dollars per thousand on the remaining 790 thousand, which is 5,530 dollars. Total: about 5,537 dollars. Compare that to Ontario, where the same estate pays over 12,000 dollars in estate administration tax. Manitoba is genuinely low cost by Canadian standards, which changes the conversation with clients who assume probate planning is urgent regardless of province.\n\nHere's what actually bypasses probate, because the fee isn't the only reason to care. Assets with a named beneficiary skip probate entirely: registered accounts like RRSPs, RRIFs, TFSAs, and life insurance proceeds, as long as a person, not the estate, is named beneficiary. Jointly held property with right of survivorship, common between spouses, passes outside the estate too. So does anything held in a properly funded trust. What stays inside the estate, and therefore inside probate's fee calculation, is anything without a beneficiary designation or joint owner: non-registered investment accounts, real estate held solely, personal property, a private corporation's shares if not otherwise structured.\n\nThe one mistake I see constantly: people assume probate fees are the main cost of dying without planning, so they obsess over avoiding a 5,000 dollar fee while ignoring the capital gains tax that triggers on death, which on an incorporated business owner's shares or a cottage property can be tens of thousands of dollars. Probate planning and tax planning are different problems. Don't let one distract from the other.\n\nCommunication, lesson 27: Reading the room: nonverbal signals that say the meeting is going wrong.\n\nIn 1970, psychologist Albert Mehrabian published research that gets misquoted constantly. People say \"ninety three percent of communication is nonverbal.\" That is not what he found. His study was narrow: it was about feelings and attitudes, specifically when someone's words contradict their tone. In that specific case, tone and body carried more weight than the words. It was never a universal law. But the narrower claim still matters for you, because in a client meeting, the contradiction between words and body is exactly your warning signal.\n\nHere is the pattern to watch. Three cues cluster together when a meeting is going wrong: torso turning toward the door or away from you, a drop in verbal backchannel (\"mm-hmm,\" \"right,\" \"okay\") for more than fifteen seconds, and a change in blink rate, usually faster, which research by Joe Tecce at Boston College linked to stress and cognitive load during the 1996 presidential debates. Any one of these alone means little. People shift in chairs because chairs are uncomfortable. But when you get two or three stacking inside sixty seconds, that is the room going wrong.\n\nThe one mistake: treating silence as agreement. A client who stops asking questions is not necessarily satisfied. On a board call, if a member goes quiet and stops nodding but keeps eye contact, that is often confusion they are too polite to admit, not consent.\n\nHere is the worked moment. You are forty minutes into a pitch. At minute twelve you asked \"does this make sense so far\" and got three head nods and a verbal \"yep.\" At minute thirty five you ask again and get silence, a slight lean back, and one glance at a phone on the table. That is not boredom, per communications researcher Nick Morgan's work on audience disengagement. That is a cue to stop presenting and ask a direct question.",
-     "talkingPoints": [
-      "Company & Economy Analysis: Pull one company's depreciation and total capex from Thomson ONE for the last two fiscal years, calculate the implied growth capex percentage, and note whether it's rising or falling year over year.",
-      "Financial Planning Facts: Pull one client's most recent estate summary and calculate their actual Manitoba probate fee by hand using the 70 cents and 7 dollars per thousand brackets, then note which of their assets would bypass probate entirely.",
-      "Communication: In your next client or board call, track one listener for silence longer than fifteen seconds combined with torso turning away. When you spot both together, pause and ask an open question within ten seconds."
-     ],
-     "sources": [],
-     "words": 1017,
-     "minutes": 6.3,
-     "durationSeconds": 375.26,
-     "lessons": [
-      {
-       "track": "analysis",
-       "label": "Company & Economy Analysis",
-       "sequence": "Statement forensics",
-       "index": 6,
-       "title": "Capital expenditure: maintenance versus growth and how to estimate the split",
-       "script": "Here's the number everyone quotes and almost nobody interrogates: capital expenditure, capex, as a line on the cash flow statement. Analysts love to say \"capex is forty million, revenue is four hundred million, that's ten percent, fine.\" But that single figure hides two completely different animals. Maintenance capex keeps the lights on: replacing a worn-out truck, patching a roof, re-lining a furnace. Growth capex buys a second plant. One protects the business you already have. The other is a bet on a bigger one. Lump them together and you can't tell if a company is stagnant and just patching holes, or investing to expand, or worse, starving its own equipment to flatter free cash flow.\n\nThere's no line item that splits this for you, so you estimate. The standard method: maintenance capex is roughly equal to depreciation and amortization, adjusted for inflation in asset replacement costs. Take a real one. Union Pacific, fiscal year 2023: depreciation and amortization on the income statement was about 2.3 billion dollars. Total capex that year was roughly 3.6 billion. So maintenance capex, using depreciation as your proxy, is about 2.3 billion, and growth capex is the remaining 1.3 billion, roughly thirty six percent of total spend going toward expansion rather than upkeep. In Thomson ONE, pull depreciation from the income statement tab and total capex from the cash flow statement, both sit right next to each other once you build the comparison.\n\nThe mistake people make is assuming depreciation always equals maintenance capex exactly. It doesn't. Depreciation is a historical cost accounting figure, it doesn't account for inflation in replacement equipment prices. For asset-heavy, older-fleet businesses, real maintenance capex often runs higher than depreciation suggests. Treat the depreciation proxy as a floor, not a precise answer.\n\nWhat this split reveals: capital discipline and the real growth story, separate from management's narrative. What it cannot reveal: whether that growth capex will earn an adequate return. For that you need the next layer, which is what debt financed it and under what terms.",
-       "task": "Pull one company's depreciation and total capex from Thomson ONE for the last two fiscal years, calculate the implied growth capex percentage, and note whether it's rising or falling year over year.",
-       "drill": ""
-      },
-      {
-       "track": "planning",
-       "label": "Financial Planning Facts",
-       "sequence": null,
-       "index": 27,
-       "title": "Probate in Manitoba: current fees and what bypasses it",
-       "script": "Manitoba is one of the cheaper provinces for probate, and that surprises most clients who've heard horror stories from Ontario or British Columbia. As of 2026, Manitoba charges a probate fee, technically called a court fee for a grant of probate, of 70 cents per thousand dollars of estate value up to 10 thousand dollars, and then 7 dollars per thousand dollars above that. There's no fee at all on the first 10 thousand. So on an estate worth 800 thousand dollars, you're paying roughly 70 cents times 10, which is 7 dollars, plus 7 dollars per thousand on the remaining 790 thousand, which is 5,530 dollars. Total: about 5,537 dollars. Compare that to Ontario, where the same estate pays over 12,000 dollars in estate administration tax. Manitoba is genuinely low cost by Canadian standards, which changes the conversation with clients who assume probate planning is urgent regardless of province.\n\nHere's what actually bypasses probate, because the fee isn't the only reason to care. Assets with a named beneficiary skip probate entirely: registered accounts like RRSPs, RRIFs, TFSAs, and life insurance proceeds, as long as a person, not the estate, is named beneficiary. Jointly held property with right of survivorship, common between spouses, passes outside the estate too. So does anything held in a properly funded trust. What stays inside the estate, and therefore inside probate's fee calculation, is anything without a beneficiary designation or joint owner: non-registered investment accounts, real estate held solely, personal property, a private corporation's shares if not otherwise structured.\n\nThe one mistake I see constantly: people assume probate fees are the main cost of dying without planning, so they obsess over avoiding a 5,000 dollar fee while ignoring the capital gains tax that triggers on death, which on an incorporated business owner's shares or a cottage property can be tens of thousands of dollars. Probate planning and tax planning are different problems. Don't let one distract from the other.",
-       "task": "Pull one client's most recent estate summary and calculate their actual Manitoba probate fee by hand using the 70 cents and 7 dollars per thousand brackets, then note which of their assets would bypass probate entirely.",
-       "drill": ""
-      },
-      {
-       "track": "communication",
-       "label": "Communication",
-       "sequence": null,
-       "index": 27,
-       "title": "Reading the room: nonverbal signals that say the meeting is going wrong",
-       "script": "In 1970, psychologist Albert Mehrabian published research that gets misquoted constantly. People say \"ninety three percent of communication is nonverbal.\" That is not what he found. His study was narrow: it was about feelings and attitudes, specifically when someone's words contradict their tone. In that specific case, tone and body carried more weight than the words. It was never a universal law. But the narrower claim still matters for you, because in a client meeting, the contradiction between words and body is exactly your warning signal.\n\nHere is the pattern to watch. Three cues cluster together when a meeting is going wrong: torso turning toward the door or away from you, a drop in verbal backchannel (\"mm-hmm,\" \"right,\" \"okay\") for more than fifteen seconds, and a change in blink rate, usually faster, which research by Joe Tecce at Boston College linked to stress and cognitive load during the 1996 presidential debates. Any one of these alone means little. People shift in chairs because chairs are uncomfortable. But when you get two or three stacking inside sixty seconds, that is the room going wrong.\n\nThe one mistake: treating silence as agreement. A client who stops asking questions is not necessarily satisfied. On a board call, if a member goes quiet and stops nodding but keeps eye contact, that is often confusion they are too polite to admit, not consent.\n\nHere is the worked moment. You are forty minutes into a pitch. At minute twelve you asked \"does this make sense so far\" and got three head nods and a verbal \"yep.\" At minute thirty five you ask again and get silence, a slight lean back, and one glance at a phone on the table. That is not boredom, per communications researcher Nick Morgan's work on audience disengagement. That is a cue to stop presenting and ask a direct question.",
-       "task": "In your next client or board call, track one listener for silence longer than fifteen seconds combined with torso turning away. When you spot both together, pause and ask an open question within ten seconds.",
-       "drill": "Watch a five minute recorded clip of any meeting or interview you have on hand, muted. Every fifteen seconds, pause and write down one nonverbal cue: posture, blink rate, gesture, gaze. Score yourself: good is ten or more distinct logged cues across the five minutes, with at least two instances where you noted cues clustering together within the same thirty second window."
-      }
-     ],
-     "plannedMinutes": 8
-    },
-    {
-     "id": "companies",
-     "label": "The Ten",
-     "title": "TransAlta, Thomson Reuters, Apple, Blackstone Lead Business News",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/companies.mp3",
-     "bytes": 259968,
-     "script": "TransAlta, the Calgary-based power producer operating across Alberta, Ontario, the United States and Australia, reported a third-quarter profit of 63 million dollars, reversing last year's loss, on revenue of 536 million dollars, the Globe and Mail reports. The tail",
-     "talkingPoints": [],
-     "sources": [],
-     "words": 39,
-     "minutes": 0.3,
-     "durationSeconds": 16.25,
-     "plannedMinutes": 3.5,
-     "storyIds": [
-      "story-b8f5aa21ddc5",
-      "story-3535b8cfb72e",
-      "story-af5b1126de76",
-      "story-69e37c5e4805",
-      "story-cfa4262a82b8",
-      "story-478ed086dc82",
-      "story-1e7d17fa61e7",
-      "story-27394ea3d583",
-      "story-0a373eadacba",
-      "story-9045fc5f79c0"
-     ]
-    },
-    {
-     "id": "practice",
-     "label": "Practice: Tax, Regulatory & Industry",
-     "title": "TFSAs Drain, OAS Shrinks, CIRO Tightens Rules",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/practice.mp3",
-     "bytes": 1840896,
-     "script": "Two retirement income stories landed today that belong in your next client meeting. The C.D. Howe Institute finds Old Age Security now covers a shrinking share of what retirees actually need, part of a broader erosion in how much benefits and workplace pensions replace of career earnings. Pair that with new data the Globe and Mail reports today showing Canadians are draining their TFSAs faster, with young and old both tapping accounts, young people for family costs, older clients for retirement income gaps. If you have clients treating the TFSA as an emergency fund rather than a growth vehicle, this is your opening to talk about contribution room they're giving up permanently.\n\nOn the regulatory side, CIRO posted three new unpaid fines today. Josephine Sudario in Ontario owes 615,000 dollars from a May decision. Debojyoti Majumder owes 75,000 dollars from July. Christina Cole in British Columbia owes just over 59,000 dollars, also from July. Worth checking if any of these names cross your referral network.\n\nSeparately, CIRO released draft guidance telling dealers to stop overreaching with non-disclosure agreements in client settlements. The guidance says confidentiality clauses can't block clients from talking to regulators, and settlements need plain language clients actually understand. If your firm uses NDAs in complaint resolution, expect compliance to revisit templates.\n\nOn the budget front, Thursday's federal budget already confirmed small-business tax measures are coming. The piece incorporated business owners should watch is the Productivity Mega Deduction, 36 billion dollars over five years letting companies immediately write off more capital investment. That matters for physicians and other incorporated professionals weighing equipment or practice purchases before year end.\n\nAnd on rates, last week's Bank of Canada hike to 2.5 percent means variable mortgage clients need a payment review now, not in January.",
-     "talkingPoints": [
-      "OAS is covering less of retirement income than it used to, plan accordingly.",
-      "TFSA withdrawals are rising, check if clients are using it as a chequing account.",
-      "Three CIRO fines posted today, worth a quick name check.",
-      "CIRO wants plainer, less restrictive NDAs in client settlements.",
-      "The Mega Deduction could change the timing of your incorporated clients' capital purchases."
-     ],
-     "sources": [
-      {
-       "outlet": "The Globe and Mail",
-       "title": "OAS benefits represent shrinking share of retirees' income, report finds",
-       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-oas-benefits-retirement-income-cd-howe-institute-report/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "The billions being drained from TFSAs tell a story about retirement, and the cost of raising a family",
-       "url": "https://www.theglobeandmail.com/investing/personal-finance/article-the-billions-being-drained-from-tfsas-tell-a-story-about-retirement/"
-      },
-      {
-       "outlet": "CIRO",
-       "title": "Unpaid Fines Report: Sudario, Josephine",
-       "url": "https://www.ciro.ca/rules-and-enforcement/enforcement/unpaid-fines-report/sudario-josephine"
-      },
-      {
-       "outlet": "CIRO",
-       "title": "Unpaid Fines Report: Majumder, Debojyoti (Debo)",
-       "url": "https://www.ciro.ca/rules-and-enforcement/enforcement/unpaid-fines-report/majumder-debojyoti-debo"
-      },
-      {
-       "outlet": "CIRO",
-       "title": "Unpaid Fines Report: Cole, Christina (Lorna)",
-       "url": "https://www.ciro.ca/rules-and-enforcement/enforcement/unpaid-fines-report/cole-christina-lorna"
-      },
-      {
-       "outlet": "Investment Executive",
-       "title": "Cool it with the NDAs: CIRO",
-       "url": "https://www.investmentexecutive.com/news/regulation/cool-it-with-the-ndas-ciro/"
-      }
-     ],
-     "words": 294,
-     "minutes": 1.9,
-     "durationSeconds": 115.06,
-     "plannedMinutes": 2.5,
-     "storyIds": [
-      "story-8e7474b51be3",
-      "story-20fbae2e6ab3",
-      "story-8f130e556884"
-     ]
-    },
-    {
-     "id": "manitoba",
-     "label": "Manitoba & Winnipeg",
-     "title": "Sewage Spill, Severance Payouts, and a Mine Fire",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/manitoba.mp3",
-     "bytes": 1425792,
-     "script": "Start with the Red River. The City of Winnipeg says nearly 10 million litres of raw sewage spilled into the river early Monday morning. Two automated bypass gates at the North End sewage treatment plant opened unexpectedly at about 1:10 a.m., allowing untreated wastewater to spill into the river, with the city estimating 9.8 megalitres of sewage spilled. That's smaller than the 230 million litre Fort Garry Bridge spill from last year, but it's another infrastructure embarrassment right as a new council takes its seats, and if you sit on an environmental or infrastructure committee, expect this to come up.\n\nSpeaking of the new council, nine new faces get sworn in today, and that turnover comes with a price tag. CBC reports a record number of departing Winnipeg councillors, nine of them, are eligible for a combined total of about 525 thousand dollars in severance after last week's civic election. That's taxpayer money going out the door as the city grapples with its own infrastructure and budget pressures, a point worth raising if you're advising anyone on municipal bonds or city finances.\n\nUp north, a fire broke out underground at the T3 mine in Thompson Thursday. The mine's owner, Exiro Metals, confirmed there was a fire involving a piece of equipment, and as a precaution, employees underground followed established safety procedures and went to designated safety locations while the mine rescue team extinguished the fire. No injuries, operations resumed after the area was confirmed safe. Worth flagging for anyone with exposure to northern Manitoba mining names.",
-     "talkingPoints": [
-      "Nearly 10 million litres of sewage hit the Red River Monday after bypass gates opened unexpectedly.",
-      "Nine outgoing councillors are in line for roughly 525 thousand dollars combined in severance.",
-      "Thompson's T3 mine had an underground equipment fire Thursday, no injuries, mine back in operation.",
-      "Garden Valley School Division is working through a cybersecurity incident affecting its IT systems.",
-      "Permanent standard time is still causing scheduling headaches for Manitoba businesses."
-     ],
-     "sources": [
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Winnipeg investigating after nearly 10 million litres of raw sewage spills into Red River",
-       "url": "https://www.cbc.ca/news/canada/manitoba/sewage-spill-winnipeg-megalitres-9.7406512"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Record number of 9 departing Winnipeg councillors eligible for a combined total of about $525K in severance",
-       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-council-severance-payments-9.7406227"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Underground fire at Thompson, Man., mine sends workers to safety locations",
-       "url": "https://www.cbc.ca/news/canada/manitoba/thompson-mine-fire-underground-mining-9.7406221"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "'Cybersecurity incident' hits Garden Valley School Division",
-       "url": "https://www.cbc.ca/news/canada/manitoba/garden-valley-school-division-cybersecurity-incident-9.7405011"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Winnipeg police issue warning after pins reportedly found in Halloween candy",
-       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-halloween-candy-pins-chocolate-police-9.7406317"
-      },
-      {
-       "outlet": "CBC Manitoba",
-       "title": "Lawyers expected to recommend 20 years for grandmother who killed 2-year-old in Bloodvein First Nation",
-       "url": "https://www.cbc.ca/news/canada/manitoba/burma-skye-plea-manslaughter-9.7406472"
-      },
-      {
-       "outlet": "Global News Winnipeg",
-       "title": "Businesses adjust to darker mornings and schedules in new Manitoba Standard Time",
-       "url": "https://globalnews.ca/news/12130453/businesses-adjust-to-darker-mornings-and-schedules-in-new-manitoba-standard-time/"
-      }
-     ],
-     "words": 256,
-     "minutes": 1.5,
-     "durationSeconds": 89.11,
-     "plannedMinutes": 2.5,
-     "storyIds": [
-      "story-6806551357dd",
-      "story-7bcbacc6185b",
-      "story-6191338d2b1e",
-      "story-f841152112bb",
-      "story-b3ff1aa47d45",
-      "story-d7c0b476ba44",
-      "story-0695ad6531ba"
-     ]
-    },
-    {
-     "id": "politics",
-     "label": "Canadian Politics",
-     "title": "Budget Preview, Pipeline Fights, and Carney in Antigua",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/politics.mp3",
-     "bytes": 1593600,
-     "script": "The federal budget lands Thursday, and you now have a clearer sense of what's coming. Finance Minister François-Philippe Champagne told a Toronto business audience the budget will include new tax measures for small and medium-sized businesses, saying the government wants to simplify some tax matters for entrepreneurs. The Canadian Federation of Independent Business has pushed Ottawa to cut the small business tax rate, and the group recommended the government reduce the small business tax rate from nine percent to six percent. The big-ticket item is already known: a Productivity Mega Deduction letting companies write off capital investment faster. But the Parliamentary Budget Officer, Annette Ryan, has flagged a caution. She found that government borrowing is on track to grow faster than the deficit itself, and that Ottawa's accounting now obscures the true scale of debt by booking capital projects separately. Worth watching regardless of which party you favour.\n\nOn trade, Prime Minister Carney had what he called a good conversation with President Trump over the weekend, and formal talks on a trade deal are expected to resume within days. Conservative Leader Pierre Poilievre used Carney's own comments, that he can afford to wait out the current administration, as a line of attack on affordability. Carney is now in Antigua for the Commonwealth summit, working trade and climate ties with other member states.\n\nAnd in British Columbia, the Pacific Link pipeline fight is escalating. Multiple First Nations, including Tsartlip and Cheam, have filed Federal Court challenges against Ottawa's fast-tracked national-interest designation, arguing the government rushed the consultation process and failed to adequately consider its potential impacts on tribal treaty rights. Energy Minister Tim Hodgson had already acknowledged legal challenges were coming.",
-     "talkingPoints": [
-      "Budget Thursday: small business tax relief expected, details still thin.",
-      "PBO warns borrowing is outpacing the deficit and debt accounting is less transparent.",
-      "Trade talks with Washington set to restart within days.",
-      "Carney in Antigua for Commonwealth summit amid US midterms.",
-      "Pacific Link pipeline faces growing First Nations court challenges in BC."
-     ],
-     "sources": [
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Budget will include new tax measures for small businesses, Finance Minister says",
-       "url": "https://www.theglobeandmail.com/politics/article-federal-budget-new-tax-measures-for-small-businesses-finance-minister/"
-      },
-      {
-       "outlet": "BetaKit",
-       "title": "Upcoming federal budget will be all \"about entrepreneurs,\" finance minister hints",
-       "url": "https://betakit.com/upcoming-federal-budget-will-be-all-about-entrepreneurs-finance-minister-hints/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Business Brief: Five files to follow this week",
-       "url": "https://www.theglobeandmail.com (newsletter)"
-      },
-      {
-       "outlet": "POLITICO Canada Playbook",
-       "title": "Not there yet",
-       "url": "https://www.politico.com (newsletter)"
-      },
-      {
-       "outlet": "POLITICO Canada Playbook",
-       "title": "Look south",
-       "url": "https://www.politico.com (newsletter)"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "First Nations court challenges pile up against Carney's Pacific Link pipeline",
-       "url": "https://www.theglobeandmail.com/business/article-first-nations-court-challenges-pacific-link-pipeline/"
-      },
-      {
-       "outlet": "MINING.COM",
-       "title": "British Columbia First Nation files court challenge over Pacific Link oil pipeline consultations",
-       "url": "https://www.mining.com/web/british-columbia-first-nation-files-court-challenge-over-pacific-link-oil-pipeline-consultations"
-      },
-      {
-       "outlet": "CBC News",
-       "title": "24 hours in Antigua: Mark Carney's priorities at this year's Commonwealth Summit",
-       "url": "https://www.cbc.ca/news/politics/mark-carney-commonwealth-summit-november-2026-9.7406728"
-      }
-     ],
-     "words": 280,
-     "minutes": 1.7,
-     "durationSeconds": 99.6,
-     "plannedMinutes": 2.0,
-     "storyIds": [
-      "story-4e20ed5537fd",
-      "story-976aa2b93ff7",
-      "story-a534c790f001"
-     ]
-    },
-    {
-     "id": "climate",
-     "label": "Climate Policy & Nonprofit Governance",
-     "title": "Budget, Pensions, and Charity Rule Changes",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/climate.mp3",
-     "bytes": 1344768,
-     "script": "The federal budget is being weighed this week for whether it actually puts Canada on a credible path to net zero, and that scrutiny has sharpened because four major pension funds, including the Canada Pension Plan Investment Board, just joined a Blackstone-led group buying a stake in LNG Canada. Climate groups call that investment indefensible given the emissions math, and it adds pressure on Ottawa to show the budget's climate spending outweighs that signal. Parks Canada is cutting 500 full-time jobs nationally, and critics tell Canada's National Observer that lands hard in Jasper, where wildfire recovery work is still underway after last year's fire. Thinner staffing there raises real questions about rebuilding timelines. In Ontario, a new bill, the Building Ontario Faster Act, narrows public consultation requirements and cuts the right to appeal environmental decisions. Critics call it an erosion of government accountability, worth watching if Manitoba faces similar pressure to streamline permitting at the cost of public input. Carney is in Antigua this week for Commonwealth meetings, balancing climate finance demands from small island states against broader trade and human rights diplomacy. On governance, CRA's Charities Directorate has quietly dropped pre-approval for changes to a charity's stated purposes, part of a modernization push promised for 2026 and 2027.",
-     "talkingPoints": [
-      "Pension funds in LNG Canada draw \"indefensible\" label from climate groups, watch for client questions.",
-      "Parks Canada cuts could slow Jasper's wildfire rebuild, a reputational risk for federal climate credibility.",
-      "Ontario's permitting bill cuts appeal rights, a bellwether for provincial deregulation trends.",
-      "Carney's Antigua trip tests balancing climate finance asks with trade priorities.",
-      "CRA no longer pre-approves charity purpose changes, boards now carry more compliance risk."
-     ],
-     "sources": [
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Climate groups blast Canadian pension funds' 'indefensible' $4.3B investment in LNG Canada",
-       "url": "https://www.nationalobserver.com/2026/11/02/news/climate-groups-blast-canadian-pension-funds-indefensible-43b-investment-lng-canada"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Parks Canada job cuts raise concerns over Jasper's wildfire recovery",
-       "url": "https://www.nationalobserver.com/2026/11/02/news/parks-canada-job-cuts-raise-concerns-over-jaspers-wildfire-recovery"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Ontario bill threatens public right to challenge environment risks, critics warn",
-       "url": "https://www.nationalobserver.com/2026/11/02/news/ontario-bill-threatens-public-right-challenge-environment-risks-critics-warn"
-      },
-      {
-       "outlet": "Canada's National Observer",
-       "title": "Commonwealth meeting offers Carney a chance to boost diplomatic ties, experts say",
-       "url": "https://www.nationalobserver.com/2026/11/02/news/commonwealth-meeting-offers-carney-chance-boost-diplomatic-ties-experts-say"
-      },
-      {
-       "outlet": "Miller Thomson",
-       "title": "No more CRA pre-approval: What charities need to know before changing their purposes and activities",
-       "url": "https://www.millerthomson.com/en/insights/social-impact/no-more-cra-pre-approval-what-charities-need-to-know-before-changing-their-purposes-and-activities/"
-      },
-      {
-       "outlet": "Charity Law Group",
-       "title": "Charities Directorate Contact Information",
-       "url": "https://www.charitylawgroup.ca/charity-law-questions/charitiesdirectorate"
-      }
-     ],
-     "words": 209,
-     "minutes": 1.4,
-     "durationSeconds": 84.05,
-     "plannedMinutes": 1.5,
-     "storyIds": [
-      "story-057aba87ca45",
-      "story-97aac5ae5c48",
-      "story-1ddaaa4a6234"
-     ]
-    },
-    {
-     "id": "tech",
-     "label": "AI & Technology",
-     "title": "Anthropic's RSI Warning and Europe's Freezer Hacks",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/tech.mp3",
-     "bytes": 1204992,
-     "script": "Anthropic says it is getting close to recursive self-improvement, the point where an AI system gets good enough at training itself that capability gains start compounding fast, with much less human involvement. TechCrunch reports the company is flagging this as a serious safety threshold, not a marketing line. For you, this matters less as science fiction and more as a signal: the pace of capability change next year could outrun the pace of regulation, audit, and client understanding. Worth flagging to anyone building a business plan around today's AI ceiling.\n\nMeanwhile, cybersecurity just got a strange new face. Supermarket refrigeration systems across Belgium, Luxembourg, Sweden, Ireland and Estonia were hit Monday by hackers who remotely triggered defrost cycles, pushing freezers to 50 degrees Celsius and spoiling stock. The Globe and Mail and Reuters report this is the second such attack in weeks, after roughly 700 French stores were hit in October. No ransom demand either time, which points to sabotage rather than straightforward extortion. The lesson for clients with industrial or logistics exposure: unpatched internet-connected equipment is now a live attack surface, not a theoretical one.",
-     "talkingPoints": [
-      "Anthropic's self-improvement warning means capability timelines could compress faster than compliance timelines.",
-      "Second freezer cyberattack in weeks shows industrial control systems are now a real, not hypothetical, target.",
-      "No ransom in either attack suggests sabotage motive, which changes the insurance conversation.",
-      "Brookfield's twenty-seven billion dollar UK data centre deal shows AI capex spreading beyond chipmakers into utilities.",
-      "Marvell's 115 billion dollar Lumentum purchase is another sign networking hardware is the next AI investment front."
-     ],
-     "sources": [
-      {
-       "outlet": "TechCrunch",
-       "title": "Anthropic warns that it's very close to RSI capability, aka self-building AI",
-       "url": "https://techcrunch.com/2026/11/02/anthropic-warns-that-its-very-close-to-rsi-capability-aka-self-building-ai/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "European supermarket fridges and freezers hit by second suspected cyberattack",
-       "url": "https://www.theglobeandmail.com/world/article-europe-supermarkets-fridge-freezer-cyber-attack/"
-      },
-      {
-       "outlet": "The Record",
-       "title": "Second wave of suspected cyberattacks hits supermarket freezers across Europe",
-       "url": "https://therecord.media/cyberattack-grocery-freezers-europe"
-      },
-      {
-       "outlet": "CNBC",
-       "title": "Brookfield plans $27 billion AI data center at UK power station",
-       "url": "https://www.cnbc.com/2026/11/03/brookfield-ai-data-center-yorkshire-drax.html"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Marvell to buy Lumentum in $115-billion deal in AI data-centre bet",
-       "url": "https://www.theglobeandmail.com/business/article-marvell-to-buy-lumentum-in-115-billion-deal-in-ai-data-centre-bet/"
-      }
-     ],
-     "words": 186,
-     "minutes": 1.3,
-     "durationSeconds": 75.31,
-     "plannedMinutes": 1.5,
-     "storyIds": [
-      "story-24e90e0f8917",
-      "story-a250aa3511af",
-      "story-0b9607d921df"
-     ]
-    },
-    {
-     "id": "health",
-     "label": "Health & Fitness",
-     "title": "Short Workouts, Bird Flu, and Early Flu Season",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/health.mp3",
-     "bytes": 791424,
-     "script": "Start with something useful for your training schedule. A new study in the Journal of Exercise Science and Fitness, covered by Outside, found that short bursts of strength work, so-called exercise snacking, built strength about as well as a traditional full session. Good news if you're squeezing lifts between client calls, though it's one study and worth watching for replication before you redesign your whole week. On the public health side, the United States has recorded its first human death from bird flu since last year. The Yakima County resident, who had previous health conditions, was exposed to avian influenza at a dairy with infected cattle and had been hospitalized. The CDC says the risk to the general public remains low. Closer to home, infectious disease experts say Canada's flu season started about seven weeks earlier than usual this year.",
-     "talkingPoints": [
-      "Short, frequent strength sessions may match long workouts for building muscle, per new research.",
-      "Treat that exercise snacking study as early and small, not a training overhaul.",
-      "First US bird flu death since last year, tied to a Washington dairy, public risk still low.",
-      "Canada's flu season arrived roughly seven weeks early this year.",
-      "Manitoba flu shots have been available since mid-October, worth getting now."
-     ],
-     "sources": [
-      {
-       "outlet": "Outside",
-       "title": "New Research Finds That Short Workouts, or Exercise Snacking, Are as Effective as Traditional Strength Sessions",
-       "url": "https://www.outsideonline.com/health/training-performance/exercise-snacking/"
-      },
-      {
-       "outlet": "CBC News",
-       "title": "U.S. records 1st human bird flu death since last year",
-       "url": "https://www.cbc.ca/news/health/us-bird-flu-first-death-9.7406106"
-      },
-      {
-       "outlet": "PBS NewsHour / AP",
-       "title": "Washington state resident dies from bird flu following exposure to infected cattle",
-       "url": "https://pbs.org/newshour/health/washington-state-resident-dies-from-bird-flu-following-exposure-to-infected-cattle"
-      },
-      {
-       "outlet": "Yahoo News Canada",
-       "title": "Canada plunges into early flu season as vaccines begin to roll out",
-       "url": "https://ca.news.yahoo.com/canada-plunges-early-flu-season-195916501.html"
-      }
-     ],
-     "words": 140,
-     "minutes": 0.8,
-     "durationSeconds": 49.46,
-     "plannedMinutes": 1.0,
-     "storyIds": [
-      "story-a2208cdf9b62",
-      "story-0be533e391fe",
-      "story-bae414178a38"
-     ]
-    },
-    {
-     "id": "parenting",
-     "label": "Parenting",
-     "title": "Screen Time Harms Mount, Pediatric Guidance Holds",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/parenting.mp3",
-     "bytes": 297600,
-     "script": "The Globe and Mail reports growing evidence of harm from screen time in young children, with experts pushing policymakers to treat it as a public health issue. The Canadian Paediatric Society's guidance remains clear: no screen time under age two, except video chatting with family, and under one hour a day for ages two to five.",
-     "talkingPoints": [
-      "Globe and Mail: experts want screens treated as a public health issue for kids.",
-      "CPS guidance: zero screens under two, except video calls with family.",
-      "Ages two to five: cap routine screen use under one hour daily.",
-      "Risk flagged: language, self-regulation, and executive function development.",
-      "Good opener with clients who are new parents or grandparents."
-     ],
-     "sources": [
-      {
-       "outlet": "Globe and Mail",
-       "title": "Growing evidence shows potential harmful effects of screens on young children",
-       "url": "https://www.theglobeandmail.com/canada/article-growing-evidence-shows-potential-harms-of-screens-on-young-children/"
-      },
-      {
-       "outlet": "Canadian Paediatric Society (Caring for Kids)",
-       "title": "Screen use and young children",
-       "url": "https://caringforkids.cps.ca/handouts/behavior-and-development/screen-time-and-young-children"
-      }
-     ],
-     "words": 56,
-     "minutes": 0.3,
-     "durationSeconds": 18.6,
-     "plannedMinutes": 0.5,
-     "storyIds": [
-      "story-016f9d3a9742"
-     ]
-    },
-    {
-     "id": "sports",
-     "label": "Sports",
-     "title": "Jets Skid Hits Nine, Raiders Brace For 49ers",
-     "audio": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@e13e4d8911059b49be66e235cb707356739d9b75/2026-11-03/sports.mp3",
-     "bytes": 1354368,
-     "script": "Start with the Jets, because it's ugly. Winnipeg was shut out 7-0 by the Carolina Hurricanes on Sunday, the ninth straight loss and the team's first shutout of the season. The Jets are 4-8-3 and 0-7-2 during the slide. Starting goalie Stuart Skinner was pulled after allowing five goals on 17 shots. Per the Hockey News, Winnipeg's last win came on October 13, and it's now been 19 days since the Jets left the ice with their heads held high. Coach Scott Arniel says his job isn't the issue, per NHL.com, but captain Adam Lowry called it embarrassing for the organization.\n\nOn the Raiders, per Silver and Black Pride, Las Vegas heads to San Francisco this Sunday against a 49ers team that's 6-1 and coming off its bye, the Raiders' first regular-season game in the Bay Area since leaving Oakland. Vegas comes in having dropped four straight games while allowing 30-plus points each time, per the Review-Journal.\n\nElsewhere in the NHL, Tampa's Nikita Kucherov, the reigning league MVP, has requested a trade, telling reporters it stems from disrespect and a lack of communication after being told he was free to walk in free agency. Norway joined Finland in confirming they'll boycott world championship games against Russia this year. And in Edmonton, journeyman goalie Matt Tomkins backstopped the Oilers to their eleventh win in fifteen games.",
-     "talkingPoints": [
-      "Jets at nine straight losses, now the NHL's biggest story in Canada.",
-      "Raiders face a tough 6-1 Niners team Sunday in the Bay Area.",
-      "Kucherov trade request shakes up the NHL landscape.",
-      "Lamar Jackson's injury could end his Ravens tenure.",
-      "Blue Bombers pulled off a road upset in Toronto."
-     ],
-     "sources": [
-      {
-       "outlet": "CBC News",
-       "title": "Jets lose 9th straight game after getting trounced 7-0 by Hurricanes",
-       "url": "https://www.cbc.ca/news/canada/manitoba/winnipeg-jets-carolina-hurricanes-9.7405308"
-      },
-      {
-       "outlet": "NHL.com",
-       "title": "Arniel not concerned about job as Jets coach after ninth straight loss",
-       "url": "https://www.nhl.com/news/scott-arniel-not-concerned-about-his-job-status-as-winnipeg-jets-struggle"
-      },
-      {
-       "outlet": "The Hockey News",
-       "title": "Jets' Skid Hits Nine as Hurricanes Rout Winnipeg 7-0",
-       "url": "https://thehockeynews.com/nhl/winnipeg-jets/latest-news/jets-skid-hits-nine-as-hurricanes-rout-winnipeg-7-0-adam-lowry-says-theres-gonna-be-changes"
-      },
-      {
-       "outlet": "Silver and Black Pride",
-       "title": "Raiders Week 9: Meet the 49ers",
-       "url": "https://www.silverandblackpride.com/las-vegas-raiders-game-information/138050/raiders-week-9-meet-49ers-preview"
-      },
-      {
-       "outlet": "Las Vegas Review-Journal",
-       "title": "NFL flexes Raiders-49ers to later on Nov. 8",
-       "url": "https://www.reviewjournal.com/sports/raiders/nfl-flexes-raiders-49ers-to-later-on-nov-8-3905915/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Lightning's Kucherov says trade request stems from disrespect and lack of communication",
-       "url": "https://www.theglobeandmail.com/sports/hockey/article-lightnings-kucherov-says-trade-request-stems-from-disrespect-and-lack/"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "Norway joins Finland in boycotting hockey world championship games against Russia",
-       "url": "https://www.cbc.ca/sports/hockey/norway-hockey-world-championships-refusal-russia-9.7406832"
-      },
-      {
-       "outlet": "CBC Sports",
-       "title": "Journeyman goalie Matt Tomkins stellar for hometown Oilers in 7th NHL start",
-       "url": "https://www.cbc.ca/sports/hockey/nhl/matt-tomkins-goalie-oilers-journeyman-nhl-9.7405901"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Shai Gilgeous-Alexander's season-high 43 points get Thunder past Cavs",
-       "url": "https://www.theglobeandmail.com/sports/basketball/article-shai-gilgeous-alexanders-season-high-43-points-get-thunder-past-cavs/"
-      },
-      {
-       "outlet": "The Globe and Mail",
-       "title": "Doncic outshines Toronto Raptors, clinches win for L.A. Lakers",
-       "url": "https://www.theglobeandmail.com/sports/basketball/article-toronto-raptors-la-lakers/"
-      }
-     ],
-     "words": 225,
-     "minutes": 1.4,
-     "durationSeconds": 84.65,
-     "plannedMinutes": 2.0,
-     "storyIds": [
-      "story-d1fb215823a0",
-      "story-008767777c46",
-      "story-ec8a80c6a228",
-      "story-7b294028331c",
-      "story-ca03e460927f",
-      "story-9cf1119ee87f"
-     ]
-    }
-   ],
-   "expectedSections": [
-    "markets",
-    "lessons",
-    "companies",
-    "practice",
-    "manitoba",
-    "politics",
     "climate",
     "tech",
     "health",
