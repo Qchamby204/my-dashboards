@@ -31,3 +31,17 @@ Physical iPhone layout, Dynamic Island clearance, browser download dialogs, keyb
 ## Delivery
 
 Aqueduct runs on the original GitHub Pages origin linked by Atlas. Its HTML and three new assets must be shipped together. Saving an Atlas source version alone does not update that live Aqueduct page.
+
+## Aqueduct Household chat updates
+
+Aqueduct Household accepts a prepared update from the chat where the user provides statements. On the start screen or Overview, **Apply chat update** opens the file picker. The app applies the chosen file once the device ledger is unlocked. It has no upload or ledger-sync endpoint.
+
+### Preparing a file
+
+Use a UTF-8 JSON file with a name such as `Aqueduct-November.aqueduct-update.json`. Keep only the fields the dashboard needs. Replace account numbers with stable nicknames, remove identifying headers, and reconcile the posted transactions before approving coverage. Ask the user about choices that materially affect the plan. Leave an unsure transaction as `Review` with its question. Do not round amounts to whole dollars, infer lender terms, or mark an incomplete export as fully covered.
+
+The envelope has `"format":"aqueduct-chat-update"`, `"version":1`, and a unique lowercase `id`. Every record reference uses a stable lowercase `key` rather than a financial account number. Use ISO dates and integer CAD cents with withdrawals negative and deposits or card-payment credits positive. The implementation and fictional test fixture in `atlas/tests/aqueduct-household.test.mjs` define the accepted entries. Optional sections include accounts, statements, projects, bills and paydays, loans, goals, category targets, baseline-month exclusions, and explicitly agreed plan assumptions.
+
+A statement entry uses `key`, `account`, `label`, `start`, `end`, and `transactions`. Each transaction uses `date`, `description`, and `amount`, with optional `kind`, `category`, `project`, `external`, `question`, `note`, and a two-part `allocations` split. Set `coverageConfirmed` only for a complete interval and `reconciled` only when verified totals tie. For a new classification of an already-imported row, use `corrections` with the existing account key, date, description, original amount, and reference if available. Keep the same account, project, bill and loan keys across updates. Do not import payment transfers as new expenses.
+
+The update augments the encrypted ledger and skips duplicates. Its entire application uses the existing encrypted save. It preserves newer account balances and previously configured category targets. The standalone raw CSV tools remain available under Import & review.

@@ -135,3 +135,7 @@ dialog::backdrop{background:#122d276f}
 .atlas-return:hover,.btn:active{background:#ebf3ee}
 .btn.primary:active{background:#154f3e}
 @media(max-width:600px){.btn,.btn.mini,.nav button,.atlas-return{min-height:44px}}
+
+.chat-start{display:grid;gap:9px;justify-items:start;margin:14px 0 18px}
+.manual-import{margin-bottom:15px}
+.welcome .atlas-return{display:inline;min-height:0}

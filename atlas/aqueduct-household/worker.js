@@ -7,7 +7,7 @@ const files = [shell, ...['aqueduct-assets/manifest.webmanifest','aqueduct-asset
   .map(file=>new URL(file,shell).href), ...__ICONS_URLS__];
 
 self.addEventListener('install', event=>{
-  event.waitUntil(caches.open(cacheName).then(cache=>cache.addAll(files.map(url=>new Request(url,{cache:'reload'})))));
+  event.waitUntil(caches.open(cacheName).then(cache=>cache.addAll(files.map(url=>new Request(url,{cache:'reload'})))).then(()=>self.skipWaiting()));
 });
 
 self.addEventListener('activate', event=>{

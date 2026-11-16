@@ -4,6 +4,7 @@
   const root=document.getElementById('app');
   const dialog=document.getElementById('dialog');
   const notice=document.getElementById('toast');
+  const chatFile=document.getElementById('chat-update-file');
   const H=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money=n=>n===null||n===undefined?'—':E.dollars(n);
   const inputMoney=n=>n===null||n===undefined?'':(n/100).toFixed(2);
@@ -23,6 +24,7 @@
   let tab=allViews[0], toastTimer=0, lastActivity=0, staging=[], files=[], selectedFile='', postingWindow='', ledgerPage=0;
   let ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''};
   let month=E.month(E.today()), settingsJump='', preview=null, lockAfterSave=false;
+  let chatUpdate=null, chatRead=0;
   const canonical='https://qchamby204.github.io/my-dashboards/aqueduct-household.html';
   const hosted=location.origin+location.pathname===canonical;
   const localFile=window.top===window && (hosted || location.protocol==='file:' ||
@@ -138,12 +140,18 @@
     const stored=Vault.get();
     const blocked=!localFile||!crypto.subtle;
     const pass=f('password','','password','required autocomplete="'+(stored?'current-password':'new-password')+'"');
-    root.innerHTML='<main class="welcome"><section class="panel">'+brand+'<h1>'+ (stored?'Unlock your ledger':'Household cash flow')+'</h1><p>'+ (stored?'Enter your passphrase to open the encrypted ledger on this device.':'Review statements, plan bills, and decide where your next dollar should go.')+'</p><br>'+
+    const chatAction=blocked?'':chatUpdate?
+      banner('Chat update ready. '+(stored?'Unlock':'Create')+' your ledger to apply it.') :
+      '<div class="chat-start"><p>Drop statements into chat. Apply the prepared update here.</p>'+btn('Apply chat update','chat-update','','primary')+'</div>';
+    root.innerHTML='<main class="welcome"><section class="panel">'+brand+'<h1>'+ (stored?'Unlock your ledger':'Household cash flow')+'</h1>'+
       (blocked?banner('Open Aqueduct directly from Atlas in a browser with encryption enabled.', 'warning'):'')+
-      '<form id="vault-form" class="stack" autocomplete="off">'+field('Passphrase',pass,stored?'':'Use at least 12 characters and keep the passphrase somewhere safe.')+
+      chatAction+'<form id="vault-form" class="stack" autocomplete="off">'+field('Passphrase',pass,stored?'':'Keep this passphrase somewhere safe. Use at least 12 characters.')+
       (stored?'':field('Confirm passphrase',f('confirm','','password','required autocomplete="new-password"')))+
-      '<div class="form-error" role="alert" hidden></div><div class="actions"><button class="btn primary" type="submit"'+(blocked?' disabled':'')+'>'+(stored?'Unlock':'Create encrypted ledger')+'</button>'+(blocked?'':btn('Open encrypted backup','restore','','quiet'))+btn('Try fictional data','demo','','quiet')+btn('Check this device','device-check','','quiet')+'</div></form>'+
-      '<hr><p class="small">Statements are processed on this device. Keep an encrypted backup to move the ledger to another device or restore it if browser data is cleared.</p>'+ (hosted?'<p class="small section-gap">'+atlasLink+'</p>':'')+'</section></main>';
+      '<div class="form-error" role="alert" hidden></div><div class="actions"><button class="btn'+(chatUpdate?' primary':'')+'" type="submit"'+(blocked?' disabled':'')+'>'+(stored?'Unlock':'Create encrypted ledger')+'</button>'+
+      (chatUpdate?btn('Cancel update','cancel-chat-update'):'')+'</div></form>'+
+      '<details class="subtle section-gap"><summary>Other options</summary><div class="actions">'+
+      (blocked?'':btn('Open encrypted backup','restore'))+btn('Try fictional data','demo')+btn('Check this device','device-check')+'</div></details>'+
+      '<p class="small section-gap">The encrypted ledger stays on this device.'+(hosted?' '+atlasLink:'')+'</p></section></main>';
     root.querySelector('#vault-form').addEventListener('submit',async event=>{
       event.preventDefault();
       if(blocked)return;
@@ -162,8 +170,9 @@
           const blob=await Vault.seal(unlocked.state,unlocked.secret,unlocked.salt);
           saveToBrowser(blob,null);
           enter(unlocked,blob,false);
-          note(storageProblem?storageMessage:'Ledger created. Add a cash account or try the importer.',storageProblem);
+          if(!chatUpdate)note(storageProblem?storageMessage:'Ledger created.',storageProblem);
         }
+        await applyChatUpdate();
       } catch(e){error.textContent=e.message;error.hidden=false;}
       finally {button.disabled=false;}
     });
@@ -215,6 +224,7 @@
       return;
     }
     S=null; session=null; serialized=null; lastStored=null; sample=false; memoryOnly=false; preview=null; files=[]; staging=[];
+    chatUpdate=null; chatRead++;
     ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''}; ledgerPage=0; postingWindow='';
     if(dialog.open) dialog.close();
     clearTimeout(toastTimer); notice.hidden=true;
@@ -253,6 +263,55 @@
       saving=false;
       if(lockAfterSave) {lockAfterSave=false;lock(true);}
     }
+  }
+  function chooseChatUpdate() {
+    if(!localFile||!crypto.subtle)return;
+    if(sample)return note('Exit the fictional demo before applying your chat update.');
+    chatFile.value='';
+    chatFile.click();
+  }
+  chatFile.addEventListener('change',async()=>{
+    const selected=chatFile.files?.[0];
+    if(!selected||!localFile||!crypto.subtle||sample)return;
+    const current=++chatRead;
+    try{
+      if(selected.size>30*1024*1024)throw new Error('Ask for a smaller Aqueduct update in chat.');
+      const update=ChatUpdate.read(await selected.text());
+      if(current!==chatRead)return;
+      chatUpdate=update;
+      if(S)await applyChatUpdate();
+      else welcome();
+    }catch(error){
+      if(current===chatRead)note(error.message,true);
+    }
+  });
+  async function applyChatUpdate() {
+    if(!chatUpdate||!S||sample)return;
+    const update=chatUpdate;
+    if(S.chatUpdates?.some(x=>x.id===update.id)){
+      chatUpdate=null;
+      note('This chat update is already in your ledger.');
+      return;
+    }
+    let result;
+    try{
+      await write(next=>{result=ChatUpdate.apply(next,update,E.today());});
+      if(chatUpdate===update)chatUpdate=null;
+      if(S){
+        go(allViews[0]);
+        note(storageProblem?storageMessage:chatUpdateSummary(result),storageProblem);
+      }
+    }catch(error){
+      if(chatUpdate===update)chatUpdate=null;
+      note(error.message,true);
+    }
+  }
+  function chatUpdateSummary(result) {
+    const details=[result.added+' transaction'+(result.added===1?'':'s')+' added'];
+    if(result.duplicates)details.push(result.duplicates+' duplicate'+(result.duplicates===1?'':'s')+' skipped');
+    if(result.corrected)details.push(result.corrected+' corrected');
+    if(result.review)details.push(result.review+' for review');
+    return 'Chat update applied · '+details.join(' · ');
   }
   function go(view) {
     tab=view; settingsJump='';
@@ -303,8 +362,11 @@
       banner('Fill in '+(p.missing.length?p.missing.length+' starting balance'+(p.missing.length===1?'':'s'):'')+(p.missing.length&&p.unassigned.length?' and ':'')+(p.unassigned.length?p.unassigned.length+' upcoming amount or funding account'+(p.unassigned.length===1?'':'s'):'')+' before relying on the available-cash figure.','warning'):'';
     const loans=p.missingLoanPayments.length?banner('Add bill schedules for '+H(p.missingLoanPayments.map(l=>l.name).join(', '))+' to complete your available-cash estimate. '+link('Review loans','nav',allViews[4]),'warning'):'';
     const stale=p.stale.length?banner('Some balances are from an earlier day. The forecast carries forward imported activity after those dates. Refresh balances to catch recent activity.','warning'):'';
-    const emptyForecast=!p.verified.length ? banner('Start with your spending accounts and a current chequing balance. Then import your statements and add upcoming paycheques and bills.'):'';
-    return head('Cash overview','Next '+horizon+' days · '+H(now),'<div class="actions">'+btn('Import statements','nav',allViews[1],'primary')+btn('Update balances','account-settings')+'</div>') +emptyForecast+warning+loans+stale+
+    const latest=S.chatUpdates?.at(-1);
+    const emptyForecast=!S.accounts.length?banner('Your first chat update will set up the accounts and add reviewed transactions.'):
+      !p.verified.length?banner('Add a current chequing balance to see your cash forecast.'):'';
+    return head('Cash overview','Next '+horizon+' days · '+H(now),'<div class="actions">'+btn('Apply chat update','chat-update','','primary')+btn('Update balances','account-settings')+'</div>')+emptyForecast+warning+loans+stale+
+      (latest?banner(H(chatUpdateSummary(latest))):'')+
       '<section class="hero"><div class="hero-grid"><div><h2>Available above your cash buffers</h2><div class="hero-value money">'+money(p.headroom)+'</div><p>Uses the lowest projected balance over '+horizon+' days.</p></div><div><canvas id="cash-chart" role="img" aria-label="Projected total cash. Opening '+H(money(p.opening))+', lowest '+H(money(p.low))+', ending '+H(money(p.ending))+'."></canvas><div class="hero-key"><span>'+H(dateLabel(now))+'</span><span>'+H(dateLabel(p.end))+'</span></div></div></div></section>'+
       '<div class="stat-grid">'+stat('Starting cash',p.verified.length?p.opening:null)+stat('Lowest projected balance',p.verified.length?p.low:null,p.verified.length?dateLabel(p.lowDate):'')+stat('Lowest before next pay',p.verified.length&&p.headroom!==null?ahead:null,nextPay?dateLabel(nextPay.date):'Add a scheduled paycheque')+'</div>'+
       (p.shortfalls.length?banner(H(p.shortfalls.length)+' upcoming debit'+(p.shortfalls.length===1?' takes':'s take')+' a paying account below its buffer. '+link('Review bills','nav',allViews[3]),'warning'):'')+
@@ -352,8 +414,9 @@
     const staged=staging.length?batchView():'';
     const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
       table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
-    return head('Import & review','Map the export, check the totals, then review ambiguous transactions.',btn('Accounts','account-settings'))+
-      panel('Add statements',upload)+staged+panel('Transaction ledger',ledgerView(),'Confirmed purchases count once. Linked transfers appear here and leave spending totals unchanged.')+historical;
+    return head('Import & review','Apply the update prepared in chat.',btn('Apply chat update','chat-update','','primary'))+
+      '<details class="subtle manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+
+      panel('Transaction ledger',ledgerView(),'Confirmed purchases count once. Linked transfers appear here and leave spending totals unchanged.')+historical;
   }
   function mapping(file) {
     const probe=file.rows[file.skip]||[];
@@ -1080,6 +1143,7 @@
         files=[];staging=[];preview=null;
         enter(unlocked,content,false,temporary);
         note(temporary?'Backup opened for this window.':storageProblem?storageMessage:'Backup restored.',storageProblem&&!temporary);
+        await applyChatUpdate();
       },'Unlock backup');
   }
   function demo() {
@@ -1159,7 +1223,8 @@
   }
   const actions={
     nav:go,lock:()=>lock(),
-    'dialog-close':()=>dialog.close(),demo,restore,backup,summary,'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
+    'dialog-close':()=>dialog.close(),demo,restore,backup,summary,
+    'chat-update':chooseChatUpdate,'cancel-chat-update':()=>{chatUpdate=null;chatRead++;welcome();},'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
     'account-settings':()=>{tab='Settings';settingsJump='settings-accounts';render();settingsJump='';},
     'account-edit':accountEdit,config,'exclude-month':excludeMonth,
     'include-month':id=>write(next=>{next.excludedMonths=next.excludedMonths.filter(m=>m!==id);}),

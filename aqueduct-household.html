@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5mJQ8PUyO4iwqadEuSEOBXKaUn8NTAHk1xmpSLin3p0='; style-src 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-XTbn8tYgeqoobFyXLDJyTMoFsLFP5yW1UKbX7v2nOp0='; style-src 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#f3f5f0">
@@ -150,6 +150,10 @@ dialog::backdrop{background:#122d276f}
 .btn.primary:active{background:#154f3e}
 @media(max-width:600px){.btn,.btn.mini,.nav button,.atlas-return{min-height:44px}}
 
+.chat-start{display:grid;gap:9px;justify-items:start;margin:14px 0 18px}
+.manual-import{margin-bottom:15px}
+.welcome .atlas-return{display:inline;min-height:0}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-aqueduct-32.png?v=0ec83fb69b5b">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-aqueduct-64.png?v=ae9872b962dc">
@@ -165,6 +169,7 @@ dialog::backdrop{background:#122d276f}
     </section>
   </main>
 </div>
+<input id="chat-update-file" type="file" accept=".json,.aqueduct-update,application/json" hidden>
 <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>'use strict';
@@ -579,6 +584,273 @@ const Engine = (() => {
 })();
 
 'use strict';
+
+const ChatUpdate=(()=>{
+  const E=Engine;
+  const accountTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
+  const recurrence=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
+  const keyPattern=/^[a-z0-9][a-z0-9._-]{0,95}$/;
+  const fail=message=>{throw new Error(message);};
+  const object=(o,label)=>{
+    if(!o||typeof o!=='object'||Array.isArray(o))fail(label+' must be an object.');
+    return o;
+  };
+  const list=(value,label)=>{
+    if(value===undefined)return [];
+    if(!Array.isArray(value))fail(label+' must be a list.');
+    return value;
+  };
+  const text=(value,label,max=180)=>{
+    if(typeof value!=='string'||!value.trim()||value.length>max)fail('Check '+label+' in the chat update.');
+    return value.trim();
+  };
+  const optionalText=(value,label,max)=>value===undefined||value===''?'':text(value,label,max);
+  const key=(value,label)=>{
+    if(typeof value!=='string'||!keyPattern.test(value))fail('Check '+label+' in the chat update.');
+    return value;
+  };
+  const option=(value,allowed,label)=>{
+    if(!allowed.includes(value))fail('Check '+label+' in the chat update.');
+    return value;
+  };
+  const integer=(value,label,min=0,max=100_000_000_000_00)=>{
+    if(!Number.isSafeInteger(value)||value<min||value>max)fail('Check '+label+' in the chat update.');
+    return value;
+  };
+  const signed=(value,label)=>integer(value,label,-100_000_000_000_00);
+  const optionalMoney=(value,label)=>value===undefined||value===null?null:integer(value,label);
+  const rate=(value,label)=>{
+    if(value===undefined||value===null)return null;
+    if(typeof value!=='number'||!Number.isFinite(value)||value<0||value>100)fail('Check '+label+' in the chat update.');
+    return value;
+  };
+  const date=(value,label,optional=false)=>{
+    if(optional&&(value===undefined||value===''))return '';
+    if(typeof value!=='string'||!E.validDate(value))fail('Check '+label+' in the chat update.');
+    return value;
+  };
+  const flag=(value,otherwise,label)=>{
+    if(value===undefined)return otherwise;
+    if(typeof value!=='boolean')fail('Check '+label+' in the chat update.');
+    return value;
+  };
+  const lower=E.normal;
+  function read(serialized) {
+    let update;
+    try{update=JSON.parse(serialized);}catch{fail('Choose the Aqueduct update file prepared in chat.');}
+    if(update?.format!=='aqueduct-chat-update'||update.version!==1)fail('Choose an Aqueduct chat update. Bank statements and backups use separate import tools.');
+    key(update.id,'update ID');
+    for(const name of ['accounts','projects','statements','loans','bills','goals','targets','excludedMonths','corrections'])list(update[name],name);
+    if(update.config!==undefined)object(update.config,'Allocation');
+    return update;
+  }
+  function apply(state,update,today) {
+    const updates=state.chatUpdates??[];
+    if(updates.some(x=>x.id===update.id))return {already:true};
+    const result={added:0,duplicates:0,review:0,corrected:0,statements:0};
+    const touched=new Set();
+    function merge(group,label,fields,matchesEntry,updateExisting) {
+      const known=new Map();
+      for(const raw of list(update[group],label)){
+        const entry=object(raw,label);
+        const chatKey=key(entry.key,label+' ID');
+        if(known.has(chatKey))fail('The chat update repeats '+label+' ID '+chatKey+'.');
+        const data=fields(entry);
+        let existing=state[group].find(v=>v.chatKey===chatKey);
+        if(!existing){
+          const matches=state[group].filter(v=>lower(v.name)===lower(data.name)&&matchesEntry(v,data));
+          const available=matches.filter(v=>!v.chatKey);
+          if(available.length>1)fail('More than one dashboard entry matches '+data.name+'.');
+          if(group==='accounts'&&matches.some(v=>v.chatKey))fail('Use the existing chat account ID for '+data.name+'.');
+          existing=available[0];
+        }
+        if(existing) {
+          updateExisting(existing,data,entry);
+          existing.chatKey=chatKey;
+        } else {
+          existing={id:E.id(),chatKey,...data};
+          state[group].push(existing);
+        }
+        known.set(chatKey,existing);
+      }
+      for(const item of state[group])if(item.chatKey&&!known.has(item.chatKey))known.set(item.chatKey,item);
+      return known;
+    }
+    const lookup=(map,value,label,optional=false)=>{
+      if(optional&&(value===undefined||value===''))return '';
+      const entry=map.get(key(value,label));
+      if(!entry)fail('The chat update refers to an unknown '+label+'.');
+      return entry.id;
+    };
+    const nickname=(x,label)=>text(x.name,label+' name',80);
+    const accounts=merge('accounts','account',x=>{
+      const type=option(x.type,accountTypes,'account type');
+      const balance=x.balance===undefined||x.balance===null?null:signed(x.balance,'account balance');
+      const balanceDate=balance===null?'':date(x.balanceDate,'balance date');
+      const openDate=date(x.openDate,'account opening date',true),closeDate=date(x.closeDate,'account closing date',true);
+      if(balanceDate>today||(openDate&&closeDate&&openDate>closeDate))fail('The chat update contains an invalid account date.');
+      return {name:nickname(x,'account'),type,balance,balanceDate,openDate,closeDate,
+        floor:optionalMoney(x.floor,'account buffer')??0,history:flag(x.history,true,'statement coverage'),
+        forecast:['Chequing','Savings'].includes(type)&&flag(x.forecast,balance!==null&&type==='Chequing','cash forecast')};
+    },(a,b)=>a.type===b.type,(saved,data)=>{
+      if(saved.type!==data.type)fail(data.name+' has a different account type on the dashboard.');
+      if(data.balance!==null&&(!saved.balanceDate||data.balanceDate>saved.balanceDate)){
+        saved.balance=data.balance;saved.balanceDate=data.balanceDate;
+      }
+      if(!saved.openDate&&data.openDate)saved.openDate=data.openDate;
+      if(!saved.closeDate&&data.closeDate)saved.closeDate=data.closeDate;
+    });
+    const loans=merge('loans','debt',x=>{
+      const asOf=date(x.asOf,'debt balance date');
+      const rateAfter=rate(x.rateAfter,'replacement interest rate'),rateDate=date(x.rateDate,'promo expiry or rate change date',true);
+      if(asOf>today||(rateAfter!==null&&!rateDate))fail('The chat update contains an invalid debt date.');
+      const type=option(x.type,['Mortgage','Credit card','Line of credit','Auto loan','Other'],'debt type');
+      return {name:nickname(x,'debt'),type,asOf,balance:integer(x.balance,'debt balance'),rate:rate(x.rate,'annual interest rate'),
+        rateType:option(x.rateType??'Fixed',['Fixed','Variable','Promotional'],'rate type'),
+        method:option(x.method??'Monthly estimate',['Monthly estimate','Canadian mortgage'],'interest convention'),
+        payment:optionalMoney(x.payment,'required debt payment'),frequency:option(x.frequency??'Monthly',[...recurrence.slice(1),'Semimonthly'],'debt payment frequency'),
+        minimumPercent:rate(x.minimumPercent,'minimum percentage'),renewal:date(x.renewal,'renewal date',true),nextDue:date(x.nextDue,'next payment date',true),
+        account:lookup(accounts,x.account,'funding account',true),rateAfter,rateDate,
+        prepay:optionalMoney(x.prepay,'annual prepayment limit')??(type==='Mortgage'?0:null),
+        source:optionalText(x.source,'debt source',120),note:optionalText(x.note,'debt note')};
+    },(a,b)=>a.type===b.type,(saved,data,raw)=>{
+      if(saved.type!==data.type)fail(data.name+' has a different debt type on the dashboard.');
+      if(saved.asOf&&data.asOf<saved.asOf)return;
+      const fields=['balance','asOf','rate','rateType','method','payment','frequency','minimumPercent','renewal','nextDue','account','rateAfter','rateDate','prepay','source','note'];
+      for(const f of fields)if(Object.hasOwn(raw,f))saved[f]=data[f];
+      if(!saved.rateDate&&saved.rateAfter!==null)fail('The updated debt terms need an effective date.');
+    });
+    const projects=merge('projects','project',x=>({name:nickname(x,'project'),
+      status:option(x.status??'Active',['Active','Planned','Complete'],'project status'),
+      unbilled:optionalMoney(x.unbilled,'unbilled project amount'),loan:lookup(loans,x.loan,'project debt',true),
+      note:optionalText(x.note,'project note')}),()=>true,(saved,data,raw)=>{
+      for(const field of ['status','unbilled','loan','note'])if(Object.hasOwn(raw,field))saved[field]=data[field];
+    });
+    merge('bills','bill or payday',x=>{
+      const direction=option(x.direction,['Bill','Income','Transfer'],'bill type');
+      const account=lookup(accounts,x.account,'funding account',true);
+      const toAccount=direction==='Transfer'?lookup(accounts,x.toAccount,'destination account'):'';
+      if(direction==='Transfer'&&(!account||account===toAccount))fail('A planned transfer needs two different accounts.');
+      const start=date(x.start,'first payment date'),end=date(x.end,'final payment date',true);
+      if(end&&end<start)fail('The end of a schedule must follow its start date.');
+      return {name:nickname(x,'schedule'),direction,account,toAccount,start,end,
+        frequency:option(x.frequency??'Monthly',recurrence,'schedule frequency'),amount:optionalMoney(x.amount,'scheduled payment'),
+        mode:direction==='Income'?'Deposit':option(x.mode??'Manual',['Manual','Autopay'],'payment method'),
+        variable:flag(x.variable,false,'variable payment'),project:direction==='Bill'?lookup(projects,x.project,'project',true):'',
+        loan:direction==='Bill'?lookup(loans,x.loan,'scheduled debt',true):'',note:optionalText(x.note,'payment note')};
+    },(a,b)=>a.account===b.account&&a.direction===b.direction,(saved,data,raw)=>{
+      if(saved.direction!==data.direction)fail('The chat update changes the type of '+saved.name+'.');
+      for(const field of ['account','toAccount','amount','frequency','start','end','mode','variable','project','loan','note'])if(Object.hasOwn(raw,field))saved[field]=data[field];
+    });
+    merge('goals','goal',x=>({name:nickname(x,'goal'),target:integer(x.target,'goal amount',1),saved:optionalMoney(x.saved,'saved amount')??0,
+      deadline:date(x.deadline,'goal deadline',true),priority:integer(x.priority??1,'goal priority',1,99)}),
+      ()=>true,(saved,data,raw)=>{
+        for(const field of ['target','saved','deadline','priority'])if(Object.hasOwn(raw,field))saved[field]=data[field];
+      });
+    function classification(entry) {
+      const kind=option(entry.kind??'Review',E.kinds,'transaction type');
+      const project=kind==='Project'?lookup(projects,entry.project,'transaction project'):'';
+      const category=['Spending','Reimbursement'].includes(kind)?text(entry.category,'category',60):optionalText(entry.category,'category',60);
+      return {kind,category,project};
+    }
+    function reviewed(entry,amount){
+      const base=classification(entry);
+      let allocations;
+      if(entry.allocations!==undefined) {
+        if(!Array.isArray(entry.allocations)||entry.allocations.length!==2)fail('A split needs two amounts.');
+        allocations=entry.allocations.map(a=>{
+          object(a,'Transaction split');
+          const amountPart=signed(a.amount,'split amount'),fields=classification(a);
+          if(!amountPart||Math.sign(amountPart)!==Math.sign(amount)||!['Spending','Reimbursement','Project','Financing'].includes(fields.kind))fail('Check the parts of the split transaction.');
+          return {amount:amountPart,...fields};
+        });
+        if(E.sum(allocations,a=>a.amount)!==amount)fail('A split does not match its original amount.');
+        Object.assign(base,allocations[0]);
+        delete base.amount;
+      }
+      return {...base,allocations,manual:base.kind!=='Review',
+        why:optionalText(entry.question,'transaction question',240)||(base.kind==='Review'?'Confirm category or project in chat.':'Prepared in chat'),
+        note:optionalText(entry.note,'transaction note')};
+    }
+    const packetKeys=new Set();
+    const priorSources=new Set(state.imports.map(x=>x.sourceKey).filter(Boolean));
+    for(const packet of list(update.statements,'statements')){
+      object(packet,'Statement');
+      const sourceKey=key(packet.key,'statement ID'),account=lookup(accounts,packet.account,'statement account');
+      if(packetKeys.has(sourceKey))fail('The chat update repeats a statement ID.');
+      packetKeys.add(sourceKey);
+      const start=date(packet.start,'start of statement'),end=date(packet.end,'end of statement');
+      if(end<start||end>today)fail('Check the date range for a statement.');
+      const id=E.id(), name=text(packet.label,'statement label',120);
+      const issues=integer(packet.issueCount??0,'unresolved rows',0,100_000);
+      const coverageConfirmed=flag(packet.coverageConfirmed,false,'confirmed statement coverage')&&!issues;
+      const rows=list(packet.transactions,'statement transactions').map(entry=>{
+        object(entry,'Transaction');
+        const day=date(entry.date,'transaction date');
+        if(day<start||day>end)fail('A transaction falls outside its statement dates.');
+        const amount=signed(entry.amount,'transaction amount');
+        const description=text(entry.description,'transaction description',240);
+        const external=optionalText(entry.external,'transaction reference',140);
+        return {transaction:{id:E.id(),importId:id,account,date:day,amount,description,external,pair:'',...reviewed(entry,amount)}};
+      });
+      E.duplicateReview(state.transactions,rows);
+      const accepted=rows.filter(x=>!x.duplicate).map(x=>x.transaction);
+      if(!accepted.length&&priorSources.has(sourceKey)){result.duplicates+=rows.length;continue;}
+      for(const t of accepted){state.transactions.push(t);touched.add(t.id);}
+      state.imports.push({id,account,name,start,end,coverageConfirmed,balanceCheck:packet.reconciled===true?'Balances tie':'Unverified',
+        issueCount:issues,count:accepted.length,approved:today,sourceKey});
+      result.added+=accepted.length;
+      result.duplicates+=rows.length-accepted.length;
+      result.statements++;
+    }
+    for(const entry of list(update.corrections,'corrections')) {
+      object(entry,'Correction');
+      const account=lookup(accounts,entry.account,'correction account');
+      const d=date(entry.date,'correction date'),amount=signed(entry.amount,'correction amount');
+      const description=text(entry.description,'description of the corrected transaction',240);
+      const external=optionalText(entry.external,'correction reference',140);
+      const matches=state.transactions.filter(t=>t.account===account&&t.date===d&&t.amount===amount&&lower(t.description)===lower(description)&&(!external||external===t.external));
+      if(matches.length!==1)fail('A correction does not match one transaction in your ledger.');
+      const t=matches[0];
+      if(t.pair)fail('A correction refers to a linked transfer. Unlink it in the dashboard before reclassifying it.');
+      Object.assign(t,reviewed(entry,amount));
+      touched.add(t.id);result.corrected++;
+    }
+    for(const match of E.matchTransfers(state.transactions,state.accounts)) {
+      if(!touched.has(match.left.id)&&!touched.has(match.right.id))continue;
+      for(const [t,other] of [[match.left,match.right],[match.right,match.left]]) {
+        t.beforePair={kind:t.kind,category:t.category,project:t.project,why:t.why,manual:t.manual};
+        Object.assign(t,{kind:'Transfer',category:match.label,project:'',pair:other.id,manual:true,why:'Matched to '+other.description});
+      }
+    }
+    for(const t of list(update.targets,'targets')){
+      object(t,'Category target');
+      const category=text(t.category,'target category',60);
+      if(['__proto__','constructor','prototype'].includes(category))fail('Check the target category.');
+      const method=option(t.method,['Recent history','Fixed','Annual'],'target method');
+      const amount=method==='Recent history'?null:integer(t.amount,'target amount');
+      if(!Object.hasOwn(state.targets,category))state.targets[category]={method,amount,note:optionalText(t.note,'target reason',140)};
+    }
+    for(const m of list(update.excludedMonths,'baseline months')){
+      if(typeof m!=='string'||!/^\d{4}-\d{2}$/.test(m)||!E.validDate(m+'-01'))fail('Check the excluded baseline month.');
+      if(!state.excludedMonths.includes(m))state.excludedMonths.push(m);
+    }
+    if(update.config){
+      const c=update.config;
+      if(Object.hasOwn(c,'surplus'))state.config.surplus=integer(c.surplus,'monthly surplus');
+      if(Object.hasOwn(c,'debtShare'))state.config.debtShare=integer(c.debtShare,'debt allocation',0,100);
+      if(Object.hasOwn(c,'floor'))state.config.floor=integer(c.floor,'cash buffer');
+      if(Object.hasOwn(c,'focus'))state.config.focus=option(c.focus,['Highest rate','Lowest balance'],'debt priority');
+    }
+    result.review=state.transactions.filter(t=>touched.has(t.id)&&t.kind==='Review').length;
+    result.id=update.id;result.date=today;
+    state.chatUpdates=[...updates,result];
+    return result;
+  }
+  return {read,apply};
+})();
+
+'use strict';
 const Vault=(() => {
   const storageKey='aqueduct-offline-v1';
   const encoder=new TextEncoder();
@@ -640,6 +912,7 @@ const Vault=(() => {
   const root=document.getElementById('app');
   const dialog=document.getElementById('dialog');
   const notice=document.getElementById('toast');
+  const chatFile=document.getElementById('chat-update-file');
   const H=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money=n=>n===null||n===undefined?'—':E.dollars(n);
   const inputMoney=n=>n===null||n===undefined?'':(n/100).toFixed(2);
@@ -659,6 +932,7 @@ const Vault=(() => {
   let tab=allViews[0], toastTimer=0, lastActivity=0, staging=[], files=[], selectedFile='', postingWindow='', ledgerPage=0;
   let ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''};
   let month=E.month(E.today()), settingsJump='', preview=null, lockAfterSave=false;
+  let chatUpdate=null, chatRead=0;
   const canonical='https://qchamby204.github.io/my-dashboards/aqueduct-household.html';
   const hosted=location.origin+location.pathname===canonical;
   const localFile=window.top===window && (hosted || location.protocol==='file:' ||
@@ -774,12 +1048,18 @@ const Vault=(() => {
     const stored=Vault.get();
     const blocked=!localFile||!crypto.subtle;
     const pass=f('password','','password','required autocomplete="'+(stored?'current-password':'new-password')+'"');
-    root.innerHTML='<main class="welcome"><section class="panel">'+brand+'<h1>'+ (stored?'Unlock your ledger':'Household cash flow')+'</h1><p>'+ (stored?'Enter your passphrase to open the encrypted ledger on this device.':'Review statements, plan bills, and decide where your next dollar should go.')+'</p><br>'+
+    const chatAction=blocked?'':chatUpdate?
+      banner('Chat update ready. '+(stored?'Unlock':'Create')+' your ledger to apply it.') :
+      '<div class="chat-start"><p>Drop statements into chat. Apply the prepared update here.</p>'+btn('Apply chat update','chat-update','','primary')+'</div>';
+    root.innerHTML='<main class="welcome"><section class="panel">'+brand+'<h1>'+ (stored?'Unlock your ledger':'Household cash flow')+'</h1>'+
       (blocked?banner('Open Aqueduct directly from Atlas in a browser with encryption enabled.', 'warning'):'')+
-      '<form id="vault-form" class="stack" autocomplete="off">'+field('Passphrase',pass,stored?'':'Use at least 12 characters and keep the passphrase somewhere safe.')+
+      chatAction+'<form id="vault-form" class="stack" autocomplete="off">'+field('Passphrase',pass,stored?'':'Keep this passphrase somewhere safe. Use at least 12 characters.')+
       (stored?'':field('Confirm passphrase',f('confirm','','password','required autocomplete="new-password"')))+
-      '<div class="form-error" role="alert" hidden></div><div class="actions"><button class="btn primary" type="submit"'+(blocked?' disabled':'')+'>'+(stored?'Unlock':'Create encrypted ledger')+'</button>'+(blocked?'':btn('Open encrypted backup','restore','','quiet'))+btn('Try fictional data','demo','','quiet')+btn('Check this device','device-check','','quiet')+'</div></form>'+
-      '<hr><p class="small">Statements are processed on this device. Keep an encrypted backup to move the ledger to another device or restore it if browser data is cleared.</p>'+ (hosted?'<p class="small section-gap">'+atlasLink+'</p>':'')+'</section></main>';
+      '<div class="form-error" role="alert" hidden></div><div class="actions"><button class="btn'+(chatUpdate?' primary':'')+'" type="submit"'+(blocked?' disabled':'')+'>'+(stored?'Unlock':'Create encrypted ledger')+'</button>'+
+      (chatUpdate?btn('Cancel update','cancel-chat-update'):'')+'</div></form>'+
+      '<details class="subtle section-gap"><summary>Other options</summary><div class="actions">'+
+      (blocked?'':btn('Open encrypted backup','restore'))+btn('Try fictional data','demo')+btn('Check this device','device-check')+'</div></details>'+
+      '<p class="small section-gap">The encrypted ledger stays on this device.'+(hosted?' '+atlasLink:'')+'</p></section></main>';
     root.querySelector('#vault-form').addEventListener('submit',async event=>{
       event.preventDefault();
       if(blocked)return;
@@ -798,8 +1078,9 @@ const Vault=(() => {
           const blob=await Vault.seal(unlocked.state,unlocked.secret,unlocked.salt);
           saveToBrowser(blob,null);
           enter(unlocked,blob,false);
-          note(storageProblem?storageMessage:'Ledger created. Add a cash account or try the importer.',storageProblem);
+          if(!chatUpdate)note(storageProblem?storageMessage:'Ledger created.',storageProblem);
         }
+        await applyChatUpdate();
       } catch(e){error.textContent=e.message;error.hidden=false;}
       finally {button.disabled=false;}
     });
@@ -851,6 +1132,7 @@ const Vault=(() => {
       return;
     }
     S=null; session=null; serialized=null; lastStored=null; sample=false; memoryOnly=false; preview=null; files=[]; staging=[];
+    chatUpdate=null; chatRead++;
     ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''}; ledgerPage=0; postingWindow='';
     if(dialog.open) dialog.close();
     clearTimeout(toastTimer); notice.hidden=true;
@@ -889,6 +1171,55 @@ const Vault=(() => {
       saving=false;
       if(lockAfterSave) {lockAfterSave=false;lock(true);}
     }
+  }
+  function chooseChatUpdate() {
+    if(!localFile||!crypto.subtle)return;
+    if(sample)return note('Exit the fictional demo before applying your chat update.');
+    chatFile.value='';
+    chatFile.click();
+  }
+  chatFile.addEventListener('change',async()=>{
+    const selected=chatFile.files?.[0];
+    if(!selected||!localFile||!crypto.subtle||sample)return;
+    const current=++chatRead;
+    try{
+      if(selected.size>30*1024*1024)throw new Error('Ask for a smaller Aqueduct update in chat.');
+      const update=ChatUpdate.read(await selected.text());
+      if(current!==chatRead)return;
+      chatUpdate=update;
+      if(S)await applyChatUpdate();
+      else welcome();
+    }catch(error){
+      if(current===chatRead)note(error.message,true);
+    }
+  });
+  async function applyChatUpdate() {
+    if(!chatUpdate||!S||sample)return;
+    const update=chatUpdate;
+    if(S.chatUpdates?.some(x=>x.id===update.id)){
+      chatUpdate=null;
+      note('This chat update is already in your ledger.');
+      return;
+    }
+    let result;
+    try{
+      await write(next=>{result=ChatUpdate.apply(next,update,E.today());});
+      if(chatUpdate===update)chatUpdate=null;
+      if(S){
+        go(allViews[0]);
+        note(storageProblem?storageMessage:chatUpdateSummary(result),storageProblem);
+      }
+    }catch(error){
+      if(chatUpdate===update)chatUpdate=null;
+      note(error.message,true);
+    }
+  }
+  function chatUpdateSummary(result) {
+    const details=[result.added+' transaction'+(result.added===1?'':'s')+' added'];
+    if(result.duplicates)details.push(result.duplicates+' duplicate'+(result.duplicates===1?'':'s')+' skipped');
+    if(result.corrected)details.push(result.corrected+' corrected');
+    if(result.review)details.push(result.review+' for review');
+    return 'Chat update applied · '+details.join(' · ');
   }
   function go(view) {
     tab=view; settingsJump='';
@@ -939,8 +1270,11 @@ const Vault=(() => {
       banner('Fill in '+(p.missing.length?p.missing.length+' starting balance'+(p.missing.length===1?'':'s'):'')+(p.missing.length&&p.unassigned.length?' and ':'')+(p.unassigned.length?p.unassigned.length+' upcoming amount or funding account'+(p.unassigned.length===1?'':'s'):'')+' before relying on the available-cash figure.','warning'):'';
     const loans=p.missingLoanPayments.length?banner('Add bill schedules for '+H(p.missingLoanPayments.map(l=>l.name).join(', '))+' to complete your available-cash estimate. '+link('Review loans','nav',allViews[4]),'warning'):'';
     const stale=p.stale.length?banner('Some balances are from an earlier day. The forecast carries forward imported activity after those dates. Refresh balances to catch recent activity.','warning'):'';
-    const emptyForecast=!p.verified.length ? banner('Start with your spending accounts and a current chequing balance. Then import your statements and add upcoming paycheques and bills.'):'';
-    return head('Cash overview','Next '+horizon+' days · '+H(now),'<div class="actions">'+btn('Import statements','nav',allViews[1],'primary')+btn('Update balances','account-settings')+'</div>') +emptyForecast+warning+loans+stale+
+    const latest=S.chatUpdates?.at(-1);
+    const emptyForecast=!S.accounts.length?banner('Your first chat update will set up the accounts and add reviewed transactions.'):
+      !p.verified.length?banner('Add a current chequing balance to see your cash forecast.'):'';
+    return head('Cash overview','Next '+horizon+' days · '+H(now),'<div class="actions">'+btn('Apply chat update','chat-update','','primary')+btn('Update balances','account-settings')+'</div>')+emptyForecast+warning+loans+stale+
+      (latest?banner(H(chatUpdateSummary(latest))):'')+
       '<section class="hero"><div class="hero-grid"><div><h2>Available above your cash buffers</h2><div class="hero-value money">'+money(p.headroom)+'</div><p>Uses the lowest projected balance over '+horizon+' days.</p></div><div><canvas id="cash-chart" role="img" aria-label="Projected total cash. Opening '+H(money(p.opening))+', lowest '+H(money(p.low))+', ending '+H(money(p.ending))+'."></canvas><div class="hero-key"><span>'+H(dateLabel(now))+'</span><span>'+H(dateLabel(p.end))+'</span></div></div></div></section>'+
       '<div class="stat-grid">'+stat('Starting cash',p.verified.length?p.opening:null)+stat('Lowest projected balance',p.verified.length?p.low:null,p.verified.length?dateLabel(p.lowDate):'')+stat('Lowest before next pay',p.verified.length&&p.headroom!==null?ahead:null,nextPay?dateLabel(nextPay.date):'Add a scheduled paycheque')+'</div>'+
       (p.shortfalls.length?banner(H(p.shortfalls.length)+' upcoming debit'+(p.shortfalls.length===1?' takes':'s take')+' a paying account below its buffer. '+link('Review bills','nav',allViews[3]),'warning'):'')+
@@ -988,8 +1322,9 @@ const Vault=(() => {
     const staged=staging.length?batchView():'';
     const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
       table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
-    return head('Import & review','Map the export, check the totals, then review ambiguous transactions.',btn('Accounts','account-settings'))+
-      panel('Add statements',upload)+staged+panel('Transaction ledger',ledgerView(),'Confirmed purchases count once. Linked transfers appear here and leave spending totals unchanged.')+historical;
+    return head('Import & review','Apply the update prepared in chat.',btn('Apply chat update','chat-update','','primary'))+
+      '<details class="subtle manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+
+      panel('Transaction ledger',ledgerView(),'Confirmed purchases count once. Linked transfers appear here and leave spending totals unchanged.')+historical;
   }
   function mapping(file) {
     const probe=file.rows[file.skip]||[];
@@ -1716,6 +2051,7 @@ const Vault=(() => {
         files=[];staging=[];preview=null;
         enter(unlocked,content,false,temporary);
         note(temporary?'Backup opened for this window.':storageProblem?storageMessage:'Backup restored.',storageProblem&&!temporary);
+        await applyChatUpdate();
       },'Unlock backup');
   }
   function demo() {
@@ -1795,7 +2131,8 @@ const Vault=(() => {
   }
   const actions={
     nav:go,lock:()=>lock(),
-    'dialog-close':()=>dialog.close(),demo,restore,backup,summary,'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
+    'dialog-close':()=>dialog.close(),demo,restore,backup,summary,
+    'chat-update':chooseChatUpdate,'cancel-chat-update':()=>{chatUpdate=null;chatRead++;welcome();},'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
     'account-settings':()=>{tab='Settings';settingsJump='settings-accounts';render();settingsJump='';},
     'account-edit':accountEdit,config,'exclude-month':excludeMonth,
     'include-month':id=>write(next=>{next.excludedMonths=next.excludedMonths.filter(m=>m!==id);}),

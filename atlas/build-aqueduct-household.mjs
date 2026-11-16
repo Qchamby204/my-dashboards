@@ -5,7 +5,7 @@ const source=new URL('aqueduct-household/',import.meta.url);
 const root=new URL('../',import.meta.url);
 const load=name=>readFile(new URL(name,source),'utf8');
 const digest=(value,encoding)=>createHash('sha256').update(value).digest(encoding);
-const script=(await Promise.all(['engine.js','vault.js','app.js'].map(load))).join('\n');
+const script=(await Promise.all(['engine.js','chat-update.js','vault.js','app.js'].map(load))).join('\n');
 if(/<\/script/i.test(script))throw Error('Embedded Aqueduct script contains a script end tag');
 const iconOrigin='https://qchamby204.github.io/my-dashboards/';
 const icons=await Promise.all(['32','64','apple'].map(async size=>{
