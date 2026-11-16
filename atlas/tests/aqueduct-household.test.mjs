@@ -234,6 +234,13 @@ test('quick review suggests exact purchases, links a pair, and can undo a groupe
   await click('review-undo');
   assert.match(ui(),/5 to review/);
   assert.match(ui(),/Use Groceries/);
+  await click('review-picker',JSON.parse(group)[0]);
+  const misc=/data-act="review-category" data-id="([^"]+)">Miscellaneous<\/button>/.exec(ui())[1].replaceAll('&quot;','"');
+  assert.equal(JSON.parse(misc)[1],'Other');
+  await click('review-category',misc);
+  assert.match(ui(),/3 to review/);
+  await click('nav','Spending');
+  assert.match(ui(),/data-act="spending-drill" data-id="Other">Other<\/button>/);
 });
 
 test('recurring charges require a regular cadence and compatible amounts and categories',()=>{

@@ -511,21 +511,22 @@
       isGroup?'<details class="subtle review-matches"><summary>See '+count+' charges or review one at a time</summary><ul class="list">'+rowDetails+'</ul></details>':'';
     const showPicker=reviewPicker===card.id;
     const remember=card.eligible?'<label class="check review-remember"><input id="quick-remember" type="checkbox">Remember this exact merchant on '+H(alias(t.account))+'</label>':'';
-    const suggest=card.suggestion?btn('Use '+card.suggestion,'review-category',JSON.stringify([card.id,card.suggestion]),'primary'):'';
+    const reviewCategoryLabel=category=>category==='Other'?'Miscellaneous':category;
+    const suggest=card.suggestion?btn('Use '+reviewCategoryLabel(card.suggestion),'review-category',JSON.stringify([card.id,card.suggestion]),'primary'):'';
     const pickCategories=card.eligible||card.type==='single'&&t.amount<0;
     const canChoose=pickCategories||card.type==='movement'||card.type==='single'&&t.amount>0;
     const popular=categoryOptions().sort((a,b)=>a.localeCompare(b));
     const movementChoices=t.amount>0?[['Income','Income'],['Transfer','Transfer between accounts']]:
       [['Transfer','Transfer between accounts'],['Financing','Debt payment'],['Savings','Savings']];
-    const choices=pickCategories?['Groceries','Dining','Shopping','Transportation','Home maintenance','Subscriptions'].map(category=>
-      btn(category,'review-category',JSON.stringify([card.id,category]),'mini quick-choice')):
+    const choices=pickCategories?['Groceries','Dining','Shopping','Transportation','Home maintenance','Subscriptions','Other'].map(category=>
+      btn(reviewCategoryLabel(category),'review-category',JSON.stringify([card.id,category]),'mini quick-choice')):
       movementChoices.map(([kind,description])=>btn(description,'review-confirm-type',JSON.stringify([card.id,kind]),'mini quick-choice'));
     if(pickCategories&&S.projects.length===1)choices.push(btn(S.projects[0].name,'review-project',JSON.stringify([card.id,S.projects[0].id]),'mini quick-choice'));
     const form=!isPair&&canChoose&&showPicker?'<div class="quick-picks"><p class="small">'+
       (isGroup?'Apply to all '+count+' charges':pickCategories?'Choose a spending category':'Confirm the type')+'</p>'+
       '<div class="actions">'+choices.join('')+'</div></div>'+
       (pickCategories?'<form id="quick-category" class="quick-category" data-id="'+H(card.id)+'">'+
-      field('All spending categories',select('category',[['','Choose category'],...popular],card.suggestion,'required'))+
+      field('All spending categories',select('category',[['','Choose category'],...popular.map(category=>[category,reviewCategoryLabel(category)])],card.suggestion,'required'))+
       '<button class="btn primary" type="submit">'+(isGroup?'Apply to '+count+' charges':'Confirm')+'</button></form>':''):'';
     const buttons=isPair?btn('Link both','review-pair',card.id,'primary'):
       showPicker?'':suggest+(canChoose?btn(card.suggestion?'Change category':pickCategories?'Choose category':'Choose type','review-picker',card.id,card.suggestion?'quiet':'primary'):'');
