@@ -157,6 +157,31 @@ test('an overlapping update preserves reviewed rows, newer balances and custom t
   assert.equal(Engine.history(state,'2026-11-16','2026-10').projects,21700);
 });
 
+test('a classification follow-up preserves confirmed transactions and edited schedules',()=>{
+  const {Engine,ChatUpdate}=boot(new URL(pageUrl));
+  const state=Engine.empty(), pack=fixture();
+  ChatUpdate.apply(state,pack,'2026-11-16');
+  const hardware=state.transactions.find(t=>t.description==='Hardware');
+  const payment=state.bills.find(b=>b.direction==='Bill');
+  payment.amount=12500;
+  const revised=fixture();
+  revised.id='fictional-merchant-review';
+  revised.baseUpdate=pack.id;
+  revised.corrections=[
+    {account:'card',date:hardware.date,description:hardware.description,amount:hardware.amount,kind:'Spending',category:'Home maintenance',onlyReview:true}
+  ];
+  const apply=target=>ChatUpdate.apply(target,ChatUpdate.read(JSON.stringify(revised)),'2026-11-16');
+  const fresh=Engine.empty();
+  assert.equal(apply(fresh).corrected,1);
+  assert.equal(apply(structuredClone(state)).corrected,1);
+  Object.assign(hardware,{kind:'Project',project:state.projects[0].id,manual:true});
+  const result=apply(state);
+  assert.equal(result.added,0);
+  assert.equal(result.corrected,0);
+  assert.equal(hardware.kind,'Project');
+  assert.equal(payment.amount,12500);
+});
+
 test('the welcome screen applies a queued update when the device ledger is first opened',async()=>{
   const app=boot(new URL(pageUrl));
   assert.match(app.html,/Apply chat update/);

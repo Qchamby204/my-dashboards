@@ -139,3 +139,84 @@ dialog::backdrop{background:#122d276f}
 .chat-start{display:grid;gap:9px;justify-items:start;margin:14px 0 18px}
 .manual-import{margin-bottom:15px}
 .welcome .atlas-return{display:inline;min-height:0}
+
+/* Household dashboard */
+:root {
+  --paper:#f7f6f1;
+  --ink:#192e27;
+  --hero:#133d30;
+  --stroke:#dce4dc;
+  --radius:20px;
+}
+body { font-size:15px; }
+.top { background:#fff; }
+.top-inner, main { max-width:1140px; }
+.nav { display:flex; gap:20px; overflow:visible; margin-top:8px; }
+.nav button { min-height:44px; }
+.panel, .stat { box-shadow:none; }
+.page-head h1 { font-weight:760; }
+.home-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
+.home-grid > .panel { margin-top:0; }
+.home-secondary { margin-top:16px; }
+.spending-hero {
+  display:flex; flex-direction:column; justify-content:center;
+  min-height:260px; padding:clamp(22px, 4vw, 38px);
+  background:linear-gradient(138deg,#11372c,#19533f);
+}
+.spending-hero h2 { color:#d1eadd; font-size:1rem; }
+.hero-value { font-size:clamp(2.65rem, 6vw, 4.65rem); letter-spacing:-.068em; overflow-wrap:anywhere; }
+.hero-value.value-waiting { font-size:clamp(1.9rem,5vw,3.4rem); }
+.hero-baseline {
+  margin-top:24px; padding-top:16px; border-top:1px solid #bce7d24c;
+  display:flex; align-items:end; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+.hero-baseline span, .hero-baseline p { color:#d1eadd; font-size:.82rem; }
+.hero-baseline strong { display:block; font-size:1.5rem; letter-spacing:-.03em; }
+.hero-link.btn { color:white; background:#ffffff14; border:1px solid #bce7d268; min-height:44px; }
+.hero-link.btn:hover, .hero-link.btn:active { background:#ffffff26; }
+.event-list > li { padding:10px 0; align-items:start; }
+.event-list > li:first-child { padding-top:0; }
+.event-list strong { max-width:43%; text-align:right; }
+.event-list small { display:block; }
+.event-list .link-button, .category-title .link-button { font-size:1rem; text-align:left; }
+.event-list .deposit { color:var(--green); }
+.secondary-value { font-size:1.28rem; font-weight:740; margin-bottom:4px; }
+.cash-visual { margin-top:14px; padding:12px; background:#eef5ee; border-radius:13px; }
+.cash-visual canvas { display:block; width:100%; height:76px; }
+.cash-alert { color:var(--amber); margin-top:8px; }
+.review-strip {
+  margin:14px 0; padding:12px 14px; border:1px solid var(--stroke); border-radius:14px;
+  display:flex; justify-content:space-between; align-items:center; gap:10px; background:#fff;
+}
+.review-strip p { font-size:.86rem; }
+.categories { margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.category, .debt-card { border:1px solid var(--stroke); border-radius:14px; padding:12px; min-width:0; }
+.category-title { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.category-title strong { text-align:right; }
+.category-title .btn { flex:none; }
+.category-numbers, .debt-terms {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:8px 0 0;
+}
+.category-numbers small, .category-numbers strong, .debt-terms small { display:block; }
+.category-numbers strong { font-size:.93rem; overflow-wrap:anywhere; }
+.category progress { width:100%; height:5px; border:0; border-radius:6px; background:#e4ebe5; overflow:hidden; appearance:none; }
+.category progress::-webkit-progress-bar { background:#e4ebe5; }
+.category progress::-moz-progress-bar { background:#43876f; }
+.category progress::-webkit-progress-value { background:#43876f; }
+.debt-terms { grid-template-columns:repeat(auto-fit,minmax(min(100%,95px),1fr)); margin:12px 0 8px; }
+.debt-terms dt { color:var(--muted); font-size:.8rem; }
+.debt-terms dd { margin:0; font-weight:650; }
+.section-tools { margin-bottom:12px; }
+#spending-projects, #ledger-filters, #settings-accounts { scroll-margin-top:128px; }
+.transaction-list > li > div { overflow-wrap:anywhere; }
+@media(max-width:740px) {
+  .nav { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:0; }
+  .nav button { font-size:clamp(.71rem, 2.9vw, .86rem); padding-inline:0; white-space:nowrap; }
+  .home-grid, .categories { grid-template-columns:minmax(0,1fr); }
+  .home-grid, .home-secondary { gap:12px; }
+  .home-secondary { margin-top:12px; }
+  .spending-hero { min-height:0; }
+  .category-title .link-button, .event-list .link-button, .home-grid .list .link-button { min-height:44px; }
+  .spending-totals .stat { padding:10px 8px; }
+  .spending-totals .stat .money { font-size:clamp(.88rem, 3.8vw, 1.2rem); overflow-wrap:anywhere; }
+}

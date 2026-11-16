@@ -55,6 +55,7 @@ const ChatUpdate=(()=>{
     try{update=JSON.parse(serialized);}catch{fail('Choose the Aqueduct update file prepared in chat.');}
     if(update?.format!=='aqueduct-chat-update'||update.version!==1)fail('Choose an Aqueduct chat update. Bank statements and backups use separate import tools.');
     key(update.id,'update ID');
+    if(update.baseUpdate!==undefined)key(update.baseUpdate,'base update ID');
     for(const name of ['accounts','projects','statements','loans','bills','goals','targets','excludedMonths','corrections'])list(update[name],name);
     if(update.config!==undefined)object(update.config,'Allocation');
     return update;
@@ -62,6 +63,9 @@ const ChatUpdate=(()=>{
   function apply(state,update,today) {
     const updates=state.chatUpdates??[];
     if(updates.some(x=>x.id===update.id))return {already:true};
+    if(updates.some(x=>x.id===update.baseUpdate)) {
+      update={id:update.id,corrections:list(update.corrections,'corrections').filter(entry=>entry.onlyReview===true)};
+    }
     const result={added:0,duplicates:0,review:0,corrected:0,statements:0};
     const touched=new Set();
     function merge(group,label,fields,matchesEntry,updateExisting) {
@@ -227,6 +231,7 @@ const ChatUpdate=(()=>{
       const matches=state.transactions.filter(t=>t.account===account&&t.date===d&&t.amount===amount&&lower(t.description)===lower(description)&&(!external||external===t.external));
       if(matches.length!==1)fail('A correction does not match one transaction in your ledger.');
       const t=matches[0];
+      if(flag(entry.onlyReview,false,'apply to unclassified rows only')&&(t.kind!=='Review'||t.allocations?.length))continue;
       if(t.pair)fail('A correction refers to a linked transfer. Unlink it in the dashboard before reclassifying it.');
       Object.assign(t,reviewed(entry,amount));
       touched.add(t.id);result.corrected++;

@@ -336,10 +336,10 @@
   function render() {
     if(!S){welcome();return;}
     const views=[overview,imports,spending,bills,debt,settings];
-    root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Encrypted household ledger')+'</span>'+
+    const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Settings','Settings']];
+    root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+(sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      allViews.map(v=>btn(v,'nav',v,'',v===tab?' aria-current="page"':'')).join('')+'</nav></div></header><main id="main">'+
-      (sample?banner('Fictional data. Changes in this demo are discarded when you exit.'):'')+
+      tabs.map(([label,v])=>btn(label,'nav',v,'',v===tab?' aria-current="page"':'')).join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
     if(tab===allViews[0]) drawChart();
@@ -350,30 +350,48 @@
   function overview() {
     const now=E.today(), p=E.forecast(S,now), h=E.history(S,now);
     const review=S.transactions.filter(t=>t.kind==='Review').length;
-    const outgoings=p.upcoming.filter(e=>e.direction!=='Income');
-    const inbox=p.overdue.concat(outgoings).slice(0,6);
-    const nextPay=p.upcoming.find(e=>e.direction==='Income');
-    const horizon=S.config.window;
-    const until=nextPay? p.points.filter(x=>x.date<nextPay.date || x.event&&x.event.direction!=='Income'&&x.date===nextPay.date).map(x=>x.total):[];
-    const ahead=until.length?Math.min(...until):null;
-    const balanceTable=p.verified.length?'<ul class="list">'+p.verified.map(a=>'<li><div>'+link(a.name,'account-edit',a.id)+'<small class="small">Balance entered '+H(a.balanceDate)+' · account buffer '+money(a.floor)+'</small></div><strong class="money">'+money(p.starting[a.id])+'</strong></li>').join('')+'</ul>':no('Add a chequing balance to start the forecast.');
-    const periods= h.complete.length?' · '+h.complete.length+' complete '+(h.complete.length===1?'month':'months')+' in the spending baseline':'';
-    const warning=p.missing.length||p.unassigned.length?
-      banner('Fill in '+(p.missing.length?p.missing.length+' starting balance'+(p.missing.length===1?'':'s'):'')+(p.missing.length&&p.unassigned.length?' and ':'')+(p.unassigned.length?p.unassigned.length+' upcoming amount or funding account'+(p.unassigned.length===1?'':'s'):'')+' before relying on the available-cash figure.','warning'):'';
-    const loans=p.missingLoanPayments.length?banner('Add bill schedules for '+H(p.missingLoanPayments.map(l=>l.name).join(', '))+' to complete your available-cash estimate. '+link('Review loans','nav',allViews[4]),'warning'):'';
-    const stale=p.stale.length?banner('Some balances are from an earlier day. The forecast carries forward imported activity after those dates. Refresh balances to catch recent activity.','warning'):'';
+    const billsDue=p.overdue.concat(p.upcoming.filter(e=>e.direction==='Bill')).slice(0,3);
+    const deposits=p.upcoming.filter(e=>e.direction==='Income');
+    const nextPay=deposits.find(e=>/paycheque|payroll|draw/i.test(e.name))||deposits[0];
+    const household=deposits.find(e=>e!==nextPay&&/contribution/i.test(e.name));
+    const avg=h.complete.length?E.sum(h.rows,x=>x.average):null;
+    const actual=h.current.length?money(h.total):'Awaiting statements';
+    const lastActivity=h.current.reduce((last,t)=>t.date>last?t.date:last,'');
     const latest=S.chatUpdates?.at(-1);
-    const emptyForecast=!S.accounts.length?banner('Your first chat update will set up the accounts and add reviewed transactions.'):
-      !p.verified.length?banner('Add a current chequing balance to see your cash forecast.'):'';
-    return head('Cash overview','Next '+horizon+' days · '+H(now),'<div class="actions">'+btn('Apply chat update','chat-update','','primary')+btn('Update balances','account-settings')+'</div>')+emptyForecast+warning+loans+stale+
-      (latest?banner(H(chatUpdateSummary(latest))):'')+
-      '<section class="hero"><div class="hero-grid"><div><h2>Available above your cash buffers</h2><div class="hero-value money">'+money(p.headroom)+'</div><p>Uses the lowest projected balance over '+horizon+' days.</p></div><div><canvas id="cash-chart" role="img" aria-label="Projected total cash. Opening '+H(money(p.opening))+', lowest '+H(money(p.low))+', ending '+H(money(p.ending))+'."></canvas><div class="hero-key"><span>'+H(dateLabel(now))+'</span><span>'+H(dateLabel(p.end))+'</span></div></div></div></section>'+
-      '<div class="stat-grid">'+stat('Starting cash',p.verified.length?p.opening:null)+stat('Lowest projected balance',p.verified.length?p.low:null,p.verified.length?dateLabel(p.lowDate):'')+stat('Lowest before next pay',p.verified.length&&p.headroom!==null?ahead:null,nextPay?dateLabel(nextPay.date):'Add a scheduled paycheque')+'</div>'+
-      (p.shortfalls.length?banner(H(p.shortfalls.length)+' upcoming debit'+(p.shortfalls.length===1?' takes':'s take')+' a paying account below its buffer. '+link('Review bills','nav',allViews[3]),'warning'):'')+
-      '<div class="grid-2">'+panel('Due next',inbox.length?'<ul class="list">'+inbox.map(x=>'<li><div>'+link(x.name,'occurrence',x.key)+'<small class="small">'+H(dateLabel(x.date))+' · '+H(alias(x.account))+' · '+H(x.date<now?'Overdue':x.mode)+'</small></div><strong class="money">'+money(x.forecastAmount)+'</strong></li>').join('')+'</ul>':no('No open bills in the forecast.'),'',btn('All bills','nav',allViews[3],'mini'))+
-      panel('Cash accounts',balanceTable,'Only accounts included in your forecast appear here.',btn('Accounts','account-settings','','mini'))+'</div>'+
-      '<div class="grid-2 section-gap">'+panel('Spending this month','<strong class="money">'+money(h.total)+'</strong><p class="small">Everyday spending'+H(periods)+'. Project spending '+money(h.projects)+'.</p>','',''+btn('Open spending','nav',allViews[2],'mini'))+
-      panel('Questions to review',review?'<p>'+review+' transaction'+(review===1?' is':'s are')+' waiting for a category or confirmation.</p>':no('No transactions waiting for review.'),'',btn('Open review','open-inbox','','mini'))+'</div>';
+    const projected=p.headroom===null?'Update balances and bills':money(p.headroom);
+    const cashHint=p.headroom===null?'Add current balances and complete missing schedules to see cash after bills.':
+      (p.stale.length?'Based on last entered balances and recorded activity.':'Uses your lowest projected cash balance over '+S.config.window+' days.');
+    const pending=p.shortfalls.length?'<p class="small cash-alert">'+p.shortfalls.length+' scheduled payments could take an account below its buffer.</p>':'';
+    const projects=S.projects.map(project=>{
+      const total=E.sum(E.ledgerRows(S.transactions).filter(t=>t.kind==='Project'&&t.project===project.id),t=>-t.amount);
+      return '<li>'+link(project.name,'project-drill',project.id)+'<strong class="money">'+money(total)+'</strong></li>';
+    }).join('');
+    return head('Household cash flow',monthLabel(now)+' · CAD',btn('Apply chat update','chat-update','','primary'))+
+      '<div class="home-grid"><section class="hero spending-hero"><h2>Everyday spending</h2><div class="hero-value money'+(!h.current.length?' value-waiting':'')+'">'+H(actual)+'</div>'+
+      '<p>'+H(monthLabel(now))+' to date · Excludes project costs</p>'+
+      '<div class="hero-baseline"><div><span>Historical monthly average</span><strong class="money">'+money(avg)+'</strong><p>'+
+      (h.complete.length?h.complete.length+' complete '+(h.complete.length===1?'month':'months')+(h.baselineReview?' · provisional':''):'Awaiting complete statements')+'</p></div>'+
+      btn('Spending details','nav','Spending','hero-link')+'</div></section>'+
+      panel('Coming up','<ul class="list event-list">'+billsDue.map(e=>eventItem(e,now)).join('')+
+      (nextPay?eventItem(nextPay,now):'')+(household?eventItem(household,now):'')+'</ul>'+
+      (!billsDue.length&&!nextPay?no('No open bills or deposits in this window.'):''),
+      '',btn('All dates','nav','Bills','mini quiet'))+'</div>'+
+      '<div class="home-grid home-secondary">'+
+      panel('Cash after bills','<div class="secondary-value money">'+H(projected)+'</div><p class="small">'+H(cashHint)+'</p>'+pending+
+      (p.headroom===null?'':'<div class="cash-visual"><canvas id="cash-chart" role="img" aria-label="Projected cash. Opening '+H(money(p.opening))+', lowest '+H(money(p.low))+', ending '+H(money(p.ending))+'."></canvas><p class="small">Lowest projected cash '+money(p.low)+' · '+H(dateLabel(p.lowDate))+'</p></div>')+
+      (p.verified.length?'<details class="subtle section-gap"><summary>Cash accounts</summary><ul class="list">'+p.verified.map(a=>'<li><div>'+link(a.name,'account-edit',a.id)+'<small>Balance entered '+H(dateLabel(a.balanceDate))+'</small></div><strong class="money">'+money(p.starting[a.id])+'</strong></li>').join('')+'</ul></details>':''),
+      '',btn('Update balances','account-settings','','mini quiet'))+
+      panel('One-time projects',projects?'<ul class="list">'+projects+'</ul><p class="small section-gap">All recorded dates. These costs stay out of the monthly spending average.</p>':no('No project costs recorded.'),'',btn('Projects','open-projects','','mini quiet'))+'</div>'+
+      (review?'<div class="review-strip"><div><strong>'+review+' transaction'+(review===1?'':'s')+' to confirm</strong><p>Unclear descriptions and transfers can change your totals.</p></div>'+btn('Open review','open-inbox','','mini')+'</div>':'')+
+      (latest?'<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">'+H(chatUpdateSummary(latest))+'</p></details>':'');
+  }
+  function eventItem(e,now,alerts=new Set()) {
+    const status=e.date<now&&e.direction!=='Income'&&!['Paid','Skipped'].includes(e.status)?'Overdue':
+      alerts.has(e.key)?'Below buffer':e.status!=='Open'?e.status:e.direction==='Income'?(e.frequency==='Once'?'Scheduled deposit':'Expected deposit'):billKind(e);
+    const incoming=e.direction==='Income'&&e.forecastAmount!==null?'+':'';
+    return '<li><div><small>'+H(dateLabel(e.date))+' · '+H(status)+'</small>'+link(e.name,'occurrence',e.key)+
+      '<small>'+H(alias(e.account))+(e.direction==='Transfer'?' → '+H(alias(e.toAccount)):'')+'</small></div>'+
+      '<strong class="money'+(incoming?' deposit':'')+'">'+incoming+(e.forecastAmount===null?'Amount pending':money(e.forecastAmount))+'</strong></li>';
   }
   function stat(label,value,detail='') {
     return '<div class="stat"><h3>'+H(label)+'</h3><div class="value money">'+money(value)+'</div>'+(detail?'<small>'+H(detail)+'</small>':'')+'</div>';
@@ -385,7 +403,7 @@
     el.width=w*ratio;el.height=h*ratio;
     const g=el.getContext('2d');g.scale(ratio,ratio);
     if(!p.verified.length) {
-      g.setLineDash([5,5]);g.strokeStyle='#81a797';g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();
+      g.setLineDash([5,5]);g.strokeStyle='#43876f';g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();
       return;
     }
     const top=Math.max(...p.points.map(x=>x.total),S.config.floor), bottom=Math.min(p.low,S.config.floor);
@@ -398,10 +416,10 @@
     };
     path();g.lineTo(w-5,h);g.lineTo(5,h);g.closePath();
     const gradient=g.createLinearGradient(0,0,0,h);
-    gradient.addColorStop(0,'#a4e6c660');gradient.addColorStop(1,'#a4e6c60a');
+    gradient.addColorStop(0,'#43876f35');gradient.addColorStop(1,'#43876f04');
     g.fillStyle=gradient;g.fill();
-    g.strokeStyle='#a4e6c6';g.lineWidth=2.5;path();g.stroke();
-    g.setLineDash([5,4]);g.lineWidth=1;g.strokeStyle='#eac58e';g.beginPath();g.moveTo(5,y(S.config.floor));g.lineTo(w-5,y(S.config.floor));g.stroke();
+    g.strokeStyle='#276a54';g.lineWidth=2.5;path();g.stroke();
+    g.setLineDash([5,4]);g.lineWidth=1;g.strokeStyle='#a86d37';g.beginPath();g.moveTo(5,y(S.config.floor));g.lineTo(w-5,y(S.config.floor));g.stroke();
   }
   window.addEventListener('resize',()=>{if(S&&tab===allViews[0])drawChart();});
   function imports() {
@@ -414,7 +432,7 @@
     const staged=staging.length?batchView():'';
     const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
       table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
-    return head('Import & review','Apply the update prepared in chat.',btn('Apply chat update','chat-update','','primary'))+
+    return head('Transactions','Review questions or apply a prepared chat update.',btn('Apply chat update','chat-update','','primary'))+
       '<details class="subtle manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+
       panel('Transaction ledger',ledgerView(),'Confirmed purchases count once. Linked transfers appear here and leave spending totals unchanged.')+historical;
   }
@@ -616,14 +634,14 @@
       '<div class="actions"><button type="submit" class="btn">Apply filters</button>'+btn('Review queue','open-inbox','','mini')+btn('Add transaction','manual-transaction','','mini')+'</div></form>';
     const rows=found.map(t=>{
       const label=t.allocations?.length?'Split':t.project?projectName(t.project):t.category||t.kind;
-      const status=t.kind==='Review'?pill('Review','warn'):t.pair?pill('Linked','dim'):t.manual?pill('Reviewed','dim'):'';
-      return row(dateCell(t.date),cell(link(t.description,'transaction',t.id)+'<br><small>'+H(alias(t.account))+'</small>','desc'),
-        amountCell(t.amount,true),cell(H(label)+(status?' '+status:'')+(t.kind==='Review'?'<br><small>'+H(t.why)+'</small>':'')));
+      return '<li><div><small>'+H(dateLabel(t.date))+' · '+H(alias(t.account))+'</small>'+
+        link(t.description,'transaction',t.id)+'<small>'+H(t.kind==='Review'?t.why:label+(t.pair?' · Linked':''))+'</small></div>'+
+        '<strong class="money">'+money(t.amount)+'</strong></li>';
     });
     const navigation=source.length>PAGE?'<div class="table-controls">'+btn('Previous','ledger-page','-1','mini',ledgerPage?'':' disabled')+
       '<small>Page '+(ledgerPage+1)+' of '+(max+1)+'</small>'+btn('Next','ledger-page','1','mini',ledgerPage<max?'':' disabled')+'</div>':'';
     return '<div class="stack">'+filters+'<p class="small">'+source.length+' matching transaction'+(source.length===1?'':'s')+'</p>'+
-      (rows.length?table(['Date','Description','$Amount','Review'],rows)+navigation:no('No transactions match these filters.'))+'</div>';
+      (rows.length?'<ul class="list event-list transaction-list">'+rows.join('')+'</ul>'+navigation:no('No transactions match these filters.'))+'</div>';
   }
   function txTypeFields(t,suffix='') {
     const category=t?.category||'';
@@ -733,16 +751,28 @@
     const configured=h.rows.filter(x=>x.suggestion!==null).length;
     const records=h.rows.filter(x=>x.actual||x.average||x.suggestion||Object.hasOwn(S.targets,x.category));
     const months=h.complete.slice().reverse().map(m=>monthLabel(m)).join(', ');
-    const totals='<div class="stat-grid">'+stat('Everyday spending',h.total)+stat('Project spending',h.projects)+stat('Suggested monthly targets',configured?targetTotal:null)+'</div>';
-    const rows=(records.length?records:h.rows).map(x=>{
-      const current=link(money(x.actual),'spending-drill',x.category);
-      return row(cell(H(x.category)),cell(current,'money'),amountCell(x.average),amountCell(x.suggestion),
-        cell(H(x.rationale)+' '+btn('Set target','target-edit',x.category,'mini')));
+    const average=h.complete.length?E.sum(h.rows,x=>x.average):null;
+    const totals='<div class="stat-grid spending-totals">'+stat('Recorded spending',h.current.length?h.total:null,h.current.length?'':'Awaiting statements')+
+      stat('Monthly average',average,h.complete.length?h.complete.length+' complete months':'Awaiting coverage')+
+      stat('Monthly target',configured?targetTotal:null)+'</div>';
+    const sorted=records.sort((a,b)=>Math.max(b.actual,b.average||0,b.suggestion||0)-Math.max(a.actual,a.average||0,a.suggestion||0));
+    const rows=sorted.map(x=>{
+      return '<li class="category"><div class="category-title">'+link(x.category,'spending-drill',x.category)+
+        btn('Set target','target-edit',x.category,'mini quiet',' aria-label="'+H('Set target for '+x.category)+'"')+'</div>'+
+        '<div class="category-numbers"><div><small>Recorded</small><strong class="money">'+money(h.current.length?x.actual:null)+'</strong></div>'+
+        '<div><small>Monthly avg.</small><strong class="money">'+money(x.average)+'</strong></div>'+
+        '<div><small>Target</small><strong class="money">'+money(x.suggestion)+'</strong></div></div>'+
+        (x.suggestion>0&&h.current.length?'<progress max="'+x.suggestion+'" value="'+Math.min(x.suggestion,Math.max(0,x.actual))+'" aria-label="'+H(x.category+' spending against target')+'"></progress>':'')+'</li>';
     });
-    const income='Recorded income '+money(h.income)+(h.review.length?' · '+h.review.length+' unclassified in this month':'')+'.';
-    const comparisons=totals+(h.review.length?banner(H(h.review.length)+' unclassified transactions could change this month’s totals. '+link('Review this month','month-inbox',month),'warning'):'')+
-      panel('Monthly categories',(h.baselineReview?banner(H(h.baselineReview)+' unclassified transactions in baseline months could change your average.','warning'):'')+table(['Category','$Actual','$Historical avg.','$Suggested','Target basis'],rows)+
-        '<p class="small section-gap">Historical average: '+H(months||'awaiting confirmed date coverage')+'. Suggested everyday targets use the most recent three complete months, or fewer as available.</p>',income,btn('Add category target','target-edit','','mini'));
+    const cautions=[h.review.length?h.review.length+' transactions to confirm in this month':'',
+      h.baselineReview?h.baselineReview+' in the months used for the average':''].filter(Boolean).join(' · ');
+    const comparisons=totals+
+      (cautions?'<div class="review-strip"><p>'+H(cautions)+'</p>'+
+      (h.review.length?btn('Review month','month-inbox',month,'mini'):btn('Open review','open-inbox','','mini'))+'</div>':'')+
+      panel('Categories',rows.length?'<ul class="categories">'+rows.join('')+'</ul>':no('Categories will appear when reviewed statements are applied.'),
+        'Tap a category to see its transactions.',btn('Add target','target-edit','','mini quiet'))+
+      '<details class="subtle section-gap"><summary>How your targets are calculated</summary><p class="small">Average uses '+H(months||'complete statement months, once available')+
+      '. Suggested targets use the latest three complete months when available. A fixed or annual target replaces that estimate for its category. Transfers, financing and projects are excluded.</p></details>';
     const tx=E.ledgerRows(S.transactions);
     const projects=S.projects.length?S.projects.map(p=>{
       const spent=E.sum(tx.filter(t=>t.kind==='Project'&&t.project===p.id),t=>-t.amount);
@@ -757,7 +787,7 @@
     }).join(''):'';
     return head('Spending & projects','Recurring spending, category targets, and one-time costs.',
       '<div class="actions">'+field('Viewing month',f('month-view',month,'month','max="'+E.month(E.today())+'"'))+btn('Monthly review','monthly-close')+'</div>')+comparisons+
-      panel('Projects',projects?'<ul class="list">'+projects+'</ul>':no('Add a project such as Basement, then tag its purchases in the transaction review.'),'Project totals use all imported dates. Financing stays in Debt & goals.',btn('Add project','project-edit','','mini primary'));
+      '<div id="spending-projects" class="section-gap">'+panel('One-time projects',projects?'<ul class="list">'+projects+'</ul>':no('Add a project such as Basement, then tag its purchases in the transaction review.'),'Project totals use all imported dates. Financing stays in Debt & goals.',btn('Add project','project-edit','','mini primary'))+'</div>';
   }
   function monthlyClose() {
     const now=E.today(), start=month+'-01', end=E.monthEnd(start), history=E.history(S,now,month);
@@ -808,21 +838,18 @@
   function bills() {
     const now=E.today(), end=postingWindow||E.add(now,S.config.window), p=E.forecast(S,now);
     const all=E.paymentWindow(S,now,end);
+    const open=all.filter(x=>!['Paid','Skipped'].includes(x.status));
+    const closed=all.filter(x=>['Paid','Skipped'].includes(x.status));
     const alerts=new Set(p.shortfalls.map(x=>x.key));
-    const columns=['Due','Bill or income','Funding account','$Amount','Status',''];
-    const rows=all.map(x=>{
-      const late=x.date<now&&!['Paid','Skipped'].includes(x.status)&&x.direction!=='Income';
-      const pillLabel=late?'Overdue':alerts.has(x.key)?'Below buffer':x.status==='Open'?x.mode:x.status;
-      return row(dateCell(x.date),cell(link(x.name,'occurrence',x.key)+'<br><small>'+H(billKind(x))+(x.project?' · '+H(projectName(x.project)):'')+'</small>','desc'),
-        cell(H(alias(x.account))+(x.direction==='Transfer'?'<br><small>To '+H(alias(x.toAccount))+'</small>':'')),amountCell(x.forecastAmount),cell(pill(pillLabel,late||alerts.has(x.key)?'warn':'dim')),cell(btn('Review','occurrence',x.key,'mini')));
-    });
-    const plans=S.bills.map(x=>row(cell(H(x.name),'desc'),cell(H(x.frequency)),cell(H(alias(x.account))),amountCell(x.amount),cell(btn('Edit','bill-edit',x.id,'mini'))));
-    return head('Bills & paydays','Review due dates and see which account will cover each payment.','<div class="actions">'+btn('Add bill or paycheque','bill-edit','','primary')+btn('Calendar reminders','calendar')+'</div>')+
-      (p.shortfalls.length?banner('A scheduled debit could take its paying account below your buffer. Review the bills marked below.','warning'):'')+
-      panel('Payment calendar',(rows.length?table(columns,rows):no('Add a first due date and a funding account to start the calendar.'))+
-        '<p class="small section-gap">Includes the last 30 days, older open one-time bills, and upcoming dates through '+H(end)+'. Mark payments paid after they post and refresh the paying account balance. Overdue open bills in this view are carried forward to today in the forecast.</p>',
-        '',btn(postingWindow?'Standard window':'See 90 days','bill-window','','mini'))+
-      panel('Bill and income schedules',plans.length?table(['Name','Frequency','Account','$Typical amount',''],plans):no('No schedules yet.'),'Review current amounts and dates using the latest bill or lender notice.');
+    const section=(title,items,empty)=>panel(title,items.length?'<ul class="list event-list">'+items.map(x=>eventItem(x,now,alerts)).join('')+'</ul>':no(empty));
+    const plans=S.bills.map(x=>'<li><div>'+link(x.name,'bill-edit',x.id)+'<small class="small">'+H(x.frequency)+' · '+H(alias(x.account))+'</small></div><strong class="money">'+money(x.amount)+'</strong></li>');
+    return head('Bills & paydays','Through '+dateLabel(end),'<div class="actions">'+btn('Add a date','bill-edit','','primary')+btn('Reminders','calendar')+'</div>')+
+      '<div class="actions section-tools">'+btn(postingWindow?'Show standard window':'Show 90 days','bill-window','','mini quiet')+'</div>'+
+      '<div class="home-grid">'+section('Bills and transfers',open.filter(x=>x.direction!=='Income'),'No open payments in this window.')+
+      section('Paydays and deposits',open.filter(x=>x.direction==='Income'&&x.date>=now),'No upcoming deposits in this window.')+'</div>'+
+      (closed.length?'<details class="subtle section-gap"><summary>Paid and skipped ('+closed.length+')</summary><ul class="list event-list">'+closed.map(x=>eventItem(x,now)).join('')+'</ul></details>':'')+
+      '<details class="subtle section-gap"><summary>Manage schedules ('+plans.length+')</summary>'+
+      (plans.length?'<ul class="list">'+plans.join('')+'</ul>':no('No schedules yet.'))+'</details>';
   }
   function billEdit(id,loan) {
     const b=byId(S.bills,id)||{...(loan?{name:loan.name,amount:loan.payment,frequency:frequency.includes(loan.frequency)?loan.frequency:'Monthly',loan:loan.id,account:loan.account,start:loan.nextDue}:null)};
@@ -937,24 +964,24 @@
       if(l.renewal&&l.renewal>=now&&E.distance(now,l.renewal)<=90)flags.push('Renewal ahead');
       if(l.rateDate&&l.rateDate>=now&&E.distance(now,l.rateDate)<=90)flags.push('Rate review ahead');
       const linked=S.bills.some(b=>b.loan===l.id&&(!b.end||b.end>=now));
-      return row(cell(link(l.name,'loan-edit',l.id)+(flags.length?'<br>'+flags.map(x=>pill(x,'warn')).join(' '):'')+
-        '<br><small>Balance as of '+H(l.asOf)+(l.source?' · '+H(l.source):'')+'</small>','desc'),amountCell(l.balance),
-        cell(l.rate===null?'—':H(l.rate.toString()+'% '+l.rateType)+(l.rateAfter!==null?'<br><small>'+H(l.rateAfter+'% from '+l.rateDate)+'</small>':'')),
-        cell(money(l.payment)+(l.payment!==null?'<br><small>'+H(l.frequency)+(l.minimumPercent?' · '+H(l.minimumPercent)+'% minimum rule':'')+'</small>':'')),
-        cell(H(l.renewal||'—')),
-        cell(linked?pill('Scheduled','dim'):btn('Schedule payment','loan-bill',l.id,'mini')));
+      return '<li class="debt-card"><div class="category-title">'+link(l.name,'loan-edit',l.id)+
+        '<strong class="money">'+money(l.balance)+'</strong></div><p class="small">Balance dated '+H(l.asOf)+'</p>'+
+        '<dl class="debt-terms"><div><dt>Interest rate</dt><dd>'+(l.rate===null?'Pending':H(l.rate+'% '+l.rateType))+
+        (l.rateAfter!==null?'<small>'+H(l.rateAfter+'% from '+l.rateDate)+'</small>':'')+'</dd></div>'+
+        '<div><dt>Required payment</dt><dd>'+(l.payment===null?(l.minimumPercent?H(l.minimumPercent+'% minimum'):'Pending'):money(l.payment)+' '+H(l.frequency.toLowerCase()))+'</dd></div>'+
+        (l.renewal?'<div><dt>Renewal</dt><dd>'+H(l.renewal)+'</dd></div>':'')+'</dl>'+
+        '<div class="actions">'+flags.map(x=>pill(x,'warn')).join(' ')+
+        (linked?'':btn('Schedule payment','loan-bill',l.id,'mini quiet'))+'</div></li>';
     });
     const goals=S.goals.slice().sort((a,b)=>a.priority-b.priority);
-    const goalRows=goals.map(g=>row(cell(link(g.name,'goal-edit',g.id),'desc'),amountCell(g.saved),amountCell(g.target),cell(H(g.deadline||'Flexible')),cell(g.priority)));
+    const goalRows=goals.map(g=>'<li><div>'+link(g.name,'goal-edit',g.id)+'<small class="small">'+
+      (g.deadline?'Due '+H(g.deadline):'Flexible date')+' · Priority '+H(g.priority)+'</small></div>'+
+      '<strong class="money">'+money(g.saved)+' / '+money(g.target)+'</strong></li>');
     const cards=[['Debt first',100],['Your plan',S.config.debtShare],['Goals first',0]].map(([label,share])=>planCard(label,share,E.makePlan(S,now,share),label==='Your plan')).join('');
-    const old=S.loans.some(l=>E.distance(l.asOf,now)>35);
     const missing=current.missing.length?banner('Fill in required payments and rates for '+H(current.missing.map(l=>l.name).join(', '))+' to compare payoff dates and costs.','warning'):'';
-    const schedule=S.loans.some(l=>l.balance>0&&!S.bills.some(b=>b.loan===l.id&&(!b.end||b.end>=now)));
     return head('Debt & goals','Compare what the same monthly surplus can do for you.',btn('Edit allocation','config','plan','primary'))+
-      (old?banner('Some loan balances are more than 35 days old. Update them before making a decision.','warning'):'')+
-      (schedule?banner('Some debt payments are missing from the bill schedule. Add them to include those payments in cash flow.','warning'):'')+
-      panel('Debt register',loans.length?table(['Debt','$Balance','Rate','Required payment','Renewal','Cash forecast'],loans):no('Add a mortgage, line of credit, credit card balance, or other loan.'),'Use verified lender terms. Credit cards paid in full can be tracked under Bills.',btn('Add debt','loan-edit','','mini primary'))+
-      panel('Priority goals',goalRows.length?table(['Goal','$Saved','$Target','Deadline','Priority'],goalRows):no('Add a cash reserve, savings goal, trip, or renovation contribution.'),'Extra goal dollars fund priority 1 first, then the next goal.',btn('Add goal','goal-edit','','mini'))+
+      panel('Balances & terms',loans.length?'<ul class="categories">'+loans.join('')+'</ul>':no('Add a mortgage, line of credit, credit card balance, or other loan.'),'',btn('Add debt','loan-edit','','mini quiet'))+
+      panel('Priority goals',goalRows.length?'<ul class="list">'+goalRows.join('')+'</ul>':no('Add a cash reserve, savings goal, trip, or renovation contribution.'),'Extra goal dollars fund priority 1 first, then the next goal.',btn('Add goal','goal-edit','','mini quiet'))+
       '<section class="panel"><div class="panel-title"><div><h2>Monthly allocation</h2><p>'+money(S.config.surplus)+' per month after regular spending and required payments · '+H(S.config.focus)+' first within debt</p></div></div>'+missing+
       '<div class="plan-grid">'+cards+'</div><p class="small section-gap">Estimates start from your entered balances, assume no new borrowing, and run for up to 50 years. Required payments use monthly equivalents and accrue interest monthly. Canadian mortgage mode converts a nominal semi-annual rate to a monthly equivalent. Annual extra-payment limits reset every 12 model months. Rates stay at the last entered value beyond a renewal unless you enter a replacement rate. Freed payments and unused debt allocations flow to goals when they can’t be used for extra debt payments.</p></section>';
   }
@@ -1249,6 +1276,7 @@
     'month-inbox':m=>setLedger({filter:'Review',month:m}),
     'spending-drill':category=>setLedger({month,category}),
     'project-drill':project=>setLedger({project}),
+    'open-projects':()=>{go('Spending');document.getElementById('spending-projects')?.scrollIntoView({block:'start'});},
     'ledger-page':n=>{ledgerPage=Math.max(0,ledgerPage+Number(n));render();document.getElementById('ledger-filters')?.scrollIntoView({block:'nearest'});},
     transaction,'manual-transaction':manualTransaction,'monthly-close':monthlyClose,'target-edit':targetEdit,'project-edit':projectEdit,
     'bill-edit':billEdit, occurrence, calendar,
