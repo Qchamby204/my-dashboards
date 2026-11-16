@@ -348,6 +348,84 @@ const Engine = (() => {
     });
     return {complete,baselineReview,rows,current,total:spent(current),projects:sum(current.filter(t=>t.kind==='Project'),t=>-t.amount),review:current.filter(t=>t.kind==='Review'),income:sum(current.filter(t=>t.kind==='Income'),t=>t.amount)};
   }
+  function recordedCash(state, now, period=month(now)) {
+    const start=period+'-01', end=monthEnd(start)<now?monthEnd(start):now;
+    const accounts=state.accounts.filter(a=>['Chequing','Savings'].includes(a.type)&&(a.history||a.forecast));
+    const allAccounts=new Map(state.accounts.map(a=>[a.id,a]));
+    const inScope=new Set(accounts.map(a=>a.id));
+    const transactions=new Map(state.transactions.map(t=>[t.id,t]));
+    const scope=accounts.flatMap(a=>{
+      const from=a.openDate&&a.openDate>start?a.openDate:start;
+      const to=a.closeDate&&a.closeDate<end?a.closeDate:end;
+      if(from>to)return [];
+      const dated=state.imports.filter(x=>x.account===a.id&&x.end>=from&&x.start<=to);
+      const through=dated.map(x=>x.end<to?x.end:to).sort().at(-1)||'';
+      return [{account:a,covered:coverage(state,a.id,from,to),through}];
+    });
+    const entries=state.transactions.filter(t=>inScope.has(t.account)&&t.date>=start&&t.date<=end);
+    const intake=new Map(), outgoing=new Map();
+    let internal=0, uncertainty=0, knownIncome=0;
+    const append=(map,key,row)=>{
+      if(!map.has(key))map.set(key,{name:key,amount:0,ids:new Set()});
+      const record=map.get(key);
+      record.amount+=Math.abs(row.amount);
+      record.ids.add(row.id);
+    };
+    for(const original of entries) {
+      const other=transactions.get(original.pair);
+      if(other?.pair===original.id&&inScope.has(other.account)) {internal++;continue;}
+      for(const t of ledgerRows([original])) {
+        if(!t.amount)continue;
+        const incoming=t.amount>0;
+        let label;
+        if(t.kind==='Review') {label='Needs review';uncertainty++;}
+        else if(incoming&&t.kind==='Income') {label=t.category||'Other income';knownIncome+=t.amount;}
+        else if(incoming&&t.kind==='Reimbursement')label='Refunds & reimbursements';
+        else if(incoming&&t.kind==='Transfer')label='Transfers in';
+        else if(incoming&&t.kind==='Financing')label='Borrowing proceeds';
+        else if(incoming&&t.kind==='Project')label='Project refunds';
+        else if(!incoming&&t.kind==='Transfer'&&(t.category==='Credit card payment'||other?.pair===original.id&&allAccounts.get(other.account)?.type==='Credit card'))label='Credit card payments';
+        else if(!incoming&&t.kind==='Transfer'&&other?.pair===original.id&&allAccounts.get(other.account)?.type==='Line of credit or loan')label='Mortgage & other debt payments';
+        else if(!incoming&&t.kind==='Financing')label='Mortgage & other debt payments';
+        else if(!incoming&&t.kind==='Spending')label='Bills & direct purchases';
+        else if(!incoming&&t.kind==='Project')label='One-time project payments';
+        else if(!incoming&&t.kind==='Savings')label='Savings contributions';
+        else if(!incoming&&t.kind==='Transfer')label='Transfers out';
+        else label=incoming?'Other deposits':'Other withdrawals';
+        append(incoming?intake:outgoing,label,t);
+      }
+    }
+    const order=map=>[...map.values()].map(x=>({...x,ids:[...x.ids]})).sort((a,b)=>b.amount-a.amount||a.name.localeCompare(b.name));
+    const sources=order(intake), uses=order(outgoing);
+    const inflow=sum(sources,r=>r.amount), outflow=sum(uses,r=>r.amount);
+    return {period,scope,sources,uses,inflow,outflow,knownIncome,net:inflow-outflow,internal,uncertainty,
+      available:entries.length>0||scope.some(x=>x.through),covered:scope.length>0&&scope.every(x=>x.covered),
+      through:[...entries.map(t=>t.date),...scope.map(x=>x.through)].sort().at(-1)||''};
+  }
+  function debtProfile(state,now) {
+    const active=state.loans.filter(l=>l.balance>0);
+    const ranked=active.filter(l=>Number.isFinite(rateAt(l,now))).map(l=>({...l,currentRate:rateAt(l,now)}))
+      .sort((a,b)=>b.currentRate-a.currentRate||a.balance-b.balance);
+    const target=ranked.find(l=>l.type!=='Mortgage'&&l.currentRate>0&&(l.prepay===null||l.prepay===undefined||l.prepay>0));
+    const missing=active.filter(l=>!Number.isFinite(rateAt(l,now))||(!l.payment&&!l.minimumPercent)||!validDate(l.asOf));
+    return {active,ranked,target,missing,balance:sum(active,l=>l.balance),
+      monthlyCost:sum(ranked,l=>round(l.balance*periodicRate(l.currentRate,l.method)))};
+  }
+  function singlePayoff(loan, now, extra) {
+    if(!loan||loan.balance<=0||!Number.isFinite(rateAt(loan,now))||(!loan.payment&&!loan.minimumPercent))return null;
+    const normal=round((loan.payment||0)*monthlyFactor(loan.frequency));
+    let left=loan.balance, interest=0, prepaid=0;
+    for(let i=0;i<600;i++) {
+      if(i%12===0)prepaid=0;
+      const cost=round(left*periodicRate(rateAt(loan,shiftMonth(now,i+1)),loan.method));
+      interest+=cost;left+=cost;
+      left-=Math.min(left,Math.max(normal,loan.minimumPercent?round(left*loan.minimumPercent/100):0));
+      const added=Math.min(left,extra,loan.prepay==null?Infinity:Math.max(0,loan.prepay-prepaid));
+      left-=added;prepaid+=added;
+      if(!left)return {months:i+1,interest};
+    }
+    return null;
+  }
   function appointments(item,start,end) {
     if (!validDate(item.start) || item.start>end || (item.end&&item.end<start)) return [];
     const step={Weekly:7,Biweekly:14}[item.frequency];
@@ -430,7 +508,7 @@ const Engine = (() => {
   }
   const monthlyFactor = frequency => ({Weekly:52/12,Biweekly:26/12,Semimonthly:2,Monthly:1,Quarterly:1/3,Annual:1/12}[frequency] || 1);
   const periodicRate = (annual,method) => method==='Canadian mortgage' ? (1+annual/200)**(1/6)-1 : annual/1200;
-  const rateAt = (loan,date) => loan.rateAfter!==null && loan.rateDate && date>=loan.rateDate ? loan.rateAfter : loan.rate;
+  const rateAt = (loan,date) => Number.isFinite(loan.rateAfter) && loan.rateDate && date>=loan.rateDate ? loan.rateAfter : loan.rate;
   function makePlan(state, now, debtShare) {
     const loans=state.loans.filter(l=>l.balance>0);
     const missing=loans.filter(l=>l.rate===null||(!l.payment&&!l.minimumPercent)||!validDate(l.asOf));
@@ -477,5 +555,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,appointments,billKey,events,paymentWindow,forecast,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,makePlan};
 })();

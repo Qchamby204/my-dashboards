@@ -276,3 +276,69 @@ test('remembered categories apply only to exact unclassified chat purchases on t
   assert.equal(state.transactions.filter(t=>t.why==='Saved rule').length,1);
   assert.equal(state.transactions.find(t=>t.amount===-1800).category,'Shopping');
 });
+
+test('cash flow separates identified income, withdrawals, card payments and internal movements',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty();
+  state.accounts=[
+    {id:'bank',type:'Chequing',history:true},
+    {id:'joint',type:'Chequing',forecast:true},
+    {id:'reserve',type:'Savings',history:false,forecast:false},
+    {id:'card',type:'Credit card',history:true}
+  ];
+  const item=(id,account,amount,kind,category='',pair='',date='2026-10-15')=>({id,account,amount,kind,category,pair,date});
+  state.transactions=[
+    item('pay','bank',600000,'Income','Paycheque'),
+    item('contribution','joint',300000,'Income','Household contribution'),
+    item('unknown','joint',40000,'Review'),
+    item('refund','bank',15000,'Reimbursement','Shopping'),
+    item('between','bank',-160000,'Transfer','Between accounts','receive'),
+    item('receive','joint',160000,'Transfer','Between accounts','between','2026-11-01'),
+    item('withdraw','joint',-20000,'Transfer','Transfer','reserve-side'),
+    item('reserve-side','reserve',20000,'Transfer','Transfer','withdraw'),
+    item('card-pay','bank',-100000,'Transfer','Credit card payment','card-receive'),
+    item('card-receive','card',100000,'Transfer','Credit card payment','card-pay'),
+    item('groceries','card',-70000,'Spending','Groceries'),
+    {...item('split','joint',-150000,'Spending'),allocations:[
+      {amount:-90000,kind:'Spending',category:'Housing & utilities'},
+      {amount:-60000,kind:'Project',project:'basement'}
+    ]}
+  ];
+  state.imports=[
+    {account:'bank',start:'2026-10-01',end:'2026-10-31',coverageConfirmed:true},
+    {account:'joint',start:'2026-10-01',end:'2026-10-20',coverageConfirmed:true}
+  ];
+  const october=E.recordedCash(state,'2026-11-16','2026-10');
+  assert.equal(october.inflow,955000);
+  assert.equal(october.knownIncome,900000);
+  assert.equal(october.outflow,270000);
+  assert.equal(october.net,685000);
+  assert.equal(october.uncertainty,1);
+  assert.equal(october.internal,1);
+  assert.equal(october.covered,false);
+  assert.equal(october.uses.find(r=>r.name==='Credit card payments').amount,100000);
+  assert.equal(october.uses.find(r=>r.name==='One-time project payments').amount,60000);
+  assert.equal(E.recordedCash(state,'2026-11-16','2026-11').inflow,0);
+  assert.equal(E.recordedCash(state,'2026-11-16','2026-09').available,false);
+});
+
+test('debt comparison ranks eligible rates and shows a separately modeled extra payment',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty();
+  const base={asOf:'2026-11-01',rateAfter:null,rateDate:'',frequency:'Monthly',method:'Monthly estimate',prepay:null};
+  state.loans=[
+    {...base,id:'missing',type:'Line of credit',balance:700000,rate:8,payment:0},
+    {...base,id:'td',type:'Credit card',balance:418490,rate:26.99,payment:14087},
+    {...base,id:'scotia',type:'Credit card',balance:807923,rate:20.99,payment:1494},
+    {...base,id:'mortgage',type:'Mortgage',balance:30000000,rate:4.49,payment:165000,prepay:0}
+  ];
+  const now='2026-11-16';
+  const profile=E.debtProfile(state,now);
+  assert.equal(profile.target.id,'td');
+  assert.equal(profile.missing[0].id,'missing');
+  const baseline=E.singlePayoff(profile.target,now,0);
+  const extra=E.singlePayoff(profile.target,now,25000);
+  assert.ok(extra.months<baseline.months&&extra.interest<baseline.interest);
+  assert.equal(E.singlePayoff(state.loans[0],now,10000),null);
+  assert.equal(E.singlePayoff(state.loans[2],now,0),null);
+});
