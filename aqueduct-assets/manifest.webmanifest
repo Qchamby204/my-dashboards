@@ -1,0 +1,13 @@
+{
+  "id": "../aqueduct-household.html",
+  "name": "Aqueduct Household",
+  "short_name": "Aqueduct",
+  "start_url": "../aqueduct-household.html",
+  "scope": "../aqueduct-household.html",
+  "display": "standalone",
+  "background_color": "#f3f5f0",
+  "theme_color": "#f3f5f0",
+  "icons": [
+    { "src": "./icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

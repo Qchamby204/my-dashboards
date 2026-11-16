@@ -1,0 +1,1209 @@
+'use strict';
+(() => {
+  const E=Engine;
+  const root=document.getElementById('app');
+  const dialog=document.getElementById('dialog');
+  const notice=document.getElementById('toast');
+  const H=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money=n=>n===null||n===undefined?'—':E.dollars(n);
+  const inputMoney=n=>n===null||n===undefined?'':(n/100).toFixed(2);
+  const isoMonth=new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'short',timeZone:'UTC'});
+  const isoDay=new Intl.DateTimeFormat('en-CA',{month:'short',day:'numeric',timeZone:'UTC'});
+  const dateLabel=d=>d&&E.validDate(d)?isoDay.format(new Date(d+'T00:00:00Z')):'—';
+  const monthLabel=d=>d&&E.validDate(d.slice(0,7)+'-01')?isoMonth.format(new Date(d.slice(0,7)+'-01T00:00:00Z')):'—';
+  const pick=(x,...keys)=>Object.fromEntries(keys.map(k=>[k,x[k]]));
+  const byId=(items,id)=>items.find(x=>x.id===id);
+  const listTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
+  const frequency=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
+  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings'];
+  const storageMessage='Browser storage is unavailable or full. Changes are in this window. Download an encrypted backup before closing it.';
+  const PAGE=32;
+  const idleLimit=10*60_000;
+  let S=null, session=null, lastStored=null, serialized=null, storageProblem=false, memoryOnly=false, sample=false, saving=false;
+  let tab=allViews[0], toastTimer=0, lastActivity=0, staging=[], files=[], selectedFile='', postingWindow='', ledgerPage=0;
+  let ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''};
+  let month=E.month(E.today()), settingsJump='', preview=null, lockAfterSave=false;
+  const canonical='https://qchamby204.github.io/my-dashboards/aqueduct-household.html';
+  const hosted=location.origin+location.pathname===canonical;
+  const localFile=window.top===window && (hosted || location.protocol==='file:' ||
+    (['http:','https:'].includes(location.protocol)&&['localhost','127.0.0.1','[::1]'].includes(location.hostname)));
+  const atlasLink=hosted?'<a class="atlas-return" href="./">Atlas</a>':'';
+  const brand='<div class="brand"><span class="brand-mark" aria-hidden="true"></span>Aqueduct</div>';
+  const val=(form,key)=>String(form.get(key)??'').trim();
+  const dollarsField=(form,key,{optional=false,min=0}={})=>{
+    const raw=val(form,key);
+    if(optional&&!raw) return null;
+    const n=E.money(raw);
+    if(n===null||n<min) throw new Error('Check the '+key.toLowerCase().replace(/_/g,' ')+' amount.');
+    return n;
+  };
+  const numberField=(form,key,min,max,optional=false)=>{
+    const raw=val(form,key);
+    if(optional&&!raw) return null;
+    const n=Number(raw);
+    if(!raw||!Number.isFinite(n)||n<min||n>max) throw new Error('Check '+key.toLowerCase().replace(/_/g,' ')+'.');
+    return n;
+  };
+  const dateField=(form,key,optional=false)=>{
+    const d=val(form,key);
+    if(optional&&!d) return '';
+    if(!E.validDate(d)) throw new Error('Check the '+key.toLowerCase().replace(/_/g,' ')+'.');
+    return d;
+  };
+  const titleField=(form,key='name')=>{
+    const result=val(form,key);
+    if(!result) throw new Error('Enter '+key.replace(/_/g,' ')+'.');
+    return result;
+  };
+  const alias=(id)=>byId(S.accounts,id)?.name||'Unassigned';
+  const projectName=(id)=>byId(S.projects,id)?.name||'Unassigned project';
+  const billKind=b=>b.direction!=='Bill'?b.direction:b.variable?'Variable estimate':'Bill';
+  const readFile=async file=>{
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    if(bytes[0]===0xff&&bytes[1]===0xfe) return new TextDecoder('utf-16le').decode(bytes);
+    if(bytes[0]===0xfe&&bytes[1]===0xff) return new TextDecoder('utf-16be').decode(bytes);
+    try { return new TextDecoder('utf-8',{fatal:true}).decode(bytes); }
+    catch { return new TextDecoder('windows-1252').decode(bytes); }
+  };
+  const f=(name,value='',type='text',extra='')=>'<input name="'+H(name)+'" type="'+H(type)+'" value="'+H(value)+'" '+extra+'>';
+  const opts=(values,selected='')=>values.map(option=>{
+    const [value,label]=Array.isArray(option)?option:[option,option];
+    return '<option value="'+H(value)+'"'+(String(value)===String(selected)?' selected':'')+'>'+H(label)+'</option>';
+  }).join('');
+  const select=(name,values,selected='',extra='')=>'<select name="'+H(name)+'" '+extra+'>'+opts(values,selected)+'</select>';
+  const field=(label,control,hint='',wide=false)=>'<label class="field'+(wide?' wide':'')+'"><span>'+H(label)+'</span>'+control+(hint?'<small>'+H(hint)+'</small>':'')+'</label>';
+  const check=(label,name,on=false)=>'<label class="check"><input type="checkbox" name="'+H(name)+'"'+(on?' checked':'')+'>'+H(label)+'</label>';
+  const btn=(label,action,id='',cls='',aria='')=>'<button type="button" class="btn '+cls+'" data-act="'+H(action)+'"'+(id?' data-id="'+H(id)+'"':'')+aria+'>'+H(label)+'</button>';
+  const link=(label,action,id='')=>'<button type="button" class="link-button" data-act="'+H(action)+'" data-id="'+H(id)+'">'+H(label)+'</button>';
+  const pill=(v,type='')=>'<span class="pill '+type+'">'+H(v)+'</span>';
+  const panel=(title,body,caption='',actions='')=>'<section class="panel"><div class="panel-title"><div><h2>'+H(title)+'</h2>'+(caption?'<p>'+H(caption)+'</p>':'')+'</div>'+actions+'</div>'+body+'</section>';
+  const head=(title,caption,actions='')=>'<header class="page-head"><div><h1>'+H(title)+'</h1><p>'+H(caption)+'</p></div>'+actions+'</header>';
+  const banner=(body,style='')=>'<div class="banner '+style+'"><p>'+body+'</p></div>';
+  const no=(text)=>'<div class="empty">'+H(text)+'</div>';
+  const table=(headers,rows)=>'<div class="table-wrap"><table><thead><tr>'+headers.map(x=>'<th scope="col"'+(x.startsWith('$')?' class="money"':'')+'>'+H(x.replace(/^\$/,''))+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+  const cell=(body,cls='')=>'<td'+(cls?' class="'+cls+'"':'')+'>'+body+'</td>';
+  const dateCell=d=>cell(H(d),'numeral');
+  const amountCell=(n,negative=false)=>cell(H(money(n)), 'money'+(negative&&n<0?' negative':''));
+  const row=(...cells)=>'<tr>'+cells.join('')+'</tr>';
+  const accountOptions=(predicate=()=>true,blank='Select an account')=>[['',blank],...S.accounts.filter(predicate).map(a=>[a.id,a.name])];
+  const projectOptions=()=>[['','Choose a project'],...S.projects.map(p=>[p.id,p.name])];
+  const categoryOptions=()=>[...new Set([...E.categories,...Object.keys(S.targets),...E.ledgerRows(S.transactions).filter(t=>['Spending','Reimbursement','Income','Financing','Savings'].includes(t.kind)).map(t=>t.category)])].filter(Boolean);
+  const cash=a=>['Chequing','Savings'].includes(a.type);
+  const note=(text,err=false)=>{
+    clearTimeout(toastTimer);
+    notice.textContent=text;
+    notice.className='toast'+(err?' error':'');
+    notice.hidden=false;
+    toastTimer=setTimeout(()=>{notice.hidden=true;},err?9500:5200);
+  };
+  const download=(text,name,mime)=>{
+    const url=URL.createObjectURL(new Blob([text],{type:mime}));
+    const a=document.createElement('a');
+    a.href=url; a.download=name;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1800);
+  };
+  function shareFile(text,name,mime){
+    if(typeof File!=='function'||typeof navigator.share!=='function'||typeof navigator.canShare!=='function')return null;
+    try {
+      const file=new File([text],name,{type:mime});
+      return navigator.canShare({files:[file]})?file:null;
+    } catch { return null; }
+  }
+  function openDialog(title,body,submit,saveLabel='Save',additional='') {
+    dialog.innerHTML='<div class="dialog-title"><h2 id="dialog-title">'+H(title)+'</h2>'+btn('Close','dialog-close','','mini')+'</div><form class="stack" autocomplete="off">'+body+'<div class="form-error" role="alert" hidden></div><div class="actions end">'+additional+btn('Cancel','dialog-close','')+'<button class="btn primary" type="submit">'+H(saveLabel)+'</button></div></form>';
+    const form=dialog.querySelector('form');
+    form.addEventListener('submit',async event=>{
+      event.preventDefault();
+      const message=form.querySelector('.form-error');
+      const button=form.querySelector('[type=submit]');
+      message.hidden=true; button.disabled=true;
+      try {
+        await submit(new FormData(form),form);
+        dialog.close();
+      } catch(error) {
+        message.textContent=error.message;
+        message.hidden=false;
+      } finally {
+        button.disabled=false;
+      }
+    });
+    if(!dialog.open) dialog.showModal();
+    return form;
+  }
+  function confirmation(title,detail,label,run) {
+    return openDialog(title,'<p>'+H(detail)+'</p>',run,label);
+  }
+  function welcome() {
+    const stored=Vault.get();
+    const blocked=!localFile||!crypto.subtle;
+    const pass=f('password','','password','required autocomplete="'+(stored?'current-password':'new-password')+'"');
+    root.innerHTML='<main class="welcome"><section class="panel">'+brand+'<h1>'+ (stored?'Unlock your ledger':'Household cash flow')+'</h1><p>'+ (stored?'Enter your passphrase to open the encrypted ledger on this device.':'Review statements, plan bills, and decide where your next dollar should go.')+'</p><br>'+
+      (blocked?banner('Open Aqueduct directly from Atlas in a browser with encryption enabled.', 'warning'):'')+
+      '<form id="vault-form" class="stack" autocomplete="off">'+field('Passphrase',pass,stored?'':'Use at least 12 characters and keep the passphrase somewhere safe.')+
+      (stored?'':field('Confirm passphrase',f('confirm','','password','required autocomplete="new-password"')))+
+      '<div class="form-error" role="alert" hidden></div><div class="actions"><button class="btn primary" type="submit"'+(blocked?' disabled':'')+'>'+(stored?'Unlock':'Create encrypted ledger')+'</button>'+(blocked?'':btn('Open encrypted backup','restore','','quiet'))+btn('Try fictional data','demo','','quiet')+btn('Check this device','device-check','','quiet')+'</div></form>'+
+      '<hr><p class="small">Statements are processed on this device. Keep an encrypted backup to move the ledger to another device or restore it if browser data is cleared.</p>'+ (hosted?'<p class="small section-gap">'+atlasLink+'</p>':'')+'</section></main>';
+    root.querySelector('#vault-form').addEventListener('submit',async event=>{
+      event.preventDefault();
+      if(blocked)return;
+      const form=event.target;
+      const data=new FormData(form);
+      const error=form.querySelector('.form-error');
+      const button=form.querySelector('[type=submit]');
+      button.disabled=true; error.hidden=true;
+      try {
+        const password=data.get('password');
+        if(stored) enter(await Vault.open(stored,password),stored,false);
+        else {
+          if(password.length<12||password!==data.get('confirm')) throw new Error('Use a matching passphrase of at least 12 characters.');
+          if(Vault.get()) throw new Error('A ledger was created in another window. Reload and unlock it.');
+          const unlocked=await Vault.create(E.empty(),password);
+          const blob=await Vault.seal(unlocked.state,unlocked.secret,unlocked.salt);
+          saveToBrowser(blob,null);
+          enter(unlocked,blob,false);
+          note(storageProblem?storageMessage:'Ledger created. Add a cash account or try the importer.',storageProblem);
+        }
+      } catch(e){error.textContent=e.message;error.hidden=false;}
+      finally {button.disabled=false;}
+    });
+  }
+  function deviceCheck() {
+    const storageTest='aqueduct-check-'+E.id();
+    let hasStorage=false;
+    if(localFile) {
+      try {
+        localStorage.setItem(storageTest,'ok');
+        hasStorage=localStorage.getItem(storageTest)==='ok';
+      } catch {}
+      finally {try{localStorage.removeItem(storageTest);}catch{}}
+    }
+    const encryption=localFile&&Boolean(crypto.subtle);
+    const checks=[
+      ['Supported browser address',localFile?'Available':'Open the dashboard directly from Atlas'],
+      ['Device encryption support',encryption?'Available':'Unavailable in this viewer'],
+      ['Encrypted ledger storage',hasStorage?'Available':'Use encrypted backups to keep changes between sessions']
+    ];
+    return openDialog('Check this device',
+      '<ul class="list">'+checks.map(([label,status])=>'<li><div>'+H(label)+'</div><strong>'+H(status)+'</strong></li>').join('')+'</ul>'+
+      (encryption&&hasStorage?'<p>Try the fictional demo. You can also check that your browser can save a test file.</p>':
+        '<p>Open Aqueduct directly from Atlas in Safari or Chrome. Encrypted backups can preserve your work if browser storage is unavailable.</p>'),
+      ()=>{},'Done',encryption?btn('Test file download','test-download','',''):'');
+  }
+  function testDownload() {
+    download('Aqueduct download check\nNo household data is in this file.\n','Aqueduct-Download-Check.txt','text/plain;charset=utf-8');
+    note('Check your Downloads for the test file.');
+  }
+  function enter(unlocked,blob,demo,memory=false) {
+    S=unlocked.state;
+    session=unlocked;
+    sample=demo;
+    memoryOnly=memory;
+    serialized=blob;
+    lastStored=demo||memory?null:Vault.get();
+    storageProblem=Boolean(memory||(!demo&&lastStored!==serialized));
+    lastActivity=Date.now();
+    tab=allViews[0];
+    month=E.month(E.today());
+    render();
+    window.scrollTo(0,0);
+  }
+  function lock(force=false) {
+    if(saving&&!force){lockAfterSave=true;return;}
+    if(!force&&!sample&&(staging.length||files.length||storageProblem)) {
+      confirmation('Lock ledger?',(storageProblem?'Download an encrypted backup before locking if you need to keep your changes.':'Files and staged rows that haven’t been approved will be cleared.'),'Lock',()=>lock(true));
+      return;
+    }
+    S=null; session=null; serialized=null; lastStored=null; sample=false; memoryOnly=false; preview=null; files=[]; staging=[];
+    ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''}; ledgerPage=0; postingWindow='';
+    if(dialog.open) dialog.close();
+    clearTimeout(toastTimer); notice.hidden=true;
+    welcome();
+  }
+  function saveToBrowser(blob,expected) {
+    if(Vault.get()!==expected) throw new Error('This ledger changed in another window. Download a backup if needed, then reload before making further changes.');
+    try {
+      Vault.put(blob);
+      if(Vault.get()!==blob) throw new Error('Storage could not be verified.');
+      storageProblem=false;
+    } catch {
+      storageProblem=true;
+    }
+  }
+  async function write(change) {
+    if(saving) throw new Error('A save is already in progress. Try again in a moment.');
+    if(!S) throw new Error('Unlock the ledger before saving.');
+    saving=true;
+    try {
+      const next=structuredClone(S);
+      change(next);
+      next.updated=new Date().toISOString();
+      if(!sample) {
+        const blob=await Vault.seal(next,session.secret,session.salt);
+        if(!memoryOnly) {
+          saveToBrowser(blob,lastStored);
+          if(!storageProblem) lastStored=blob;
+        }
+        serialized=blob;
+      }
+      S=next;
+      render();
+      if(storageProblem) note(storageMessage,true);
+    } finally {
+      saving=false;
+      if(lockAfterSave) {lockAfterSave=false;lock(true);}
+    }
+  }
+  function go(view) {
+    tab=view; settingsJump='';
+    render();
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('storage',event=>{
+    if(event.key===Vault.storageKey&&S&&!sample&&!memoryOnly&&event.newValue!==lastStored) note('The saved ledger changed in another window. Reload this page before editing.',true);
+  });
+  document.addEventListener('pointerdown',()=>{lastActivity=Date.now();});
+  document.addEventListener('keydown',()=>{lastActivity=Date.now();});
+  setInterval(()=>{
+    if(S&&!sample&&!storageProblem&&Date.now()-lastActivity>idleLimit) lock(true);
+  },20_000);
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden&&S&&!sample&&!storageProblem&&Date.now()-lastActivity>idleLimit) lock(true);
+  });
+  window.addEventListener('beforeunload',event=>{
+    if(S&&!sample&&(storageProblem||staging.length||files.length)) {event.preventDefault();event.returnValue='';}
+  });
+
+  function render() {
+    if(!S){welcome();return;}
+    const views=[overview,imports,spending,bills,debt,settings];
+    root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Encrypted household ledger')+'</span>'+
+      atlasLink+(sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
+      allViews.map(v=>btn(v,'nav',v,'',v===tab?' aria-current="page"':'')).join('')+'</nav></div></header><main id="main">'+
+      (sample?banner('Fictional data. Changes in this demo are discarded when you exit.'):'')+
+      (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
+      views[allViews.indexOf(tab)]()+'</main>';
+    if(tab===allViews[0]) drawChart();
+    if(tab===allViews[1]) bindImport();
+    if(tab===allViews[2]) root.querySelector('[name=month-view]')?.addEventListener('change',event=>{if(/^\d{4}-\d{2}$/.test(event.target.value)){month=event.target.value;render();}});
+    if(settingsJump) document.getElementById(settingsJump)?.scrollIntoView({block:'start'});
+  }
+  function overview() {
+    const now=E.today(), p=E.forecast(S,now), h=E.history(S,now);
+    const review=S.transactions.filter(t=>t.kind==='Review').length;
+    const outgoings=p.upcoming.filter(e=>e.direction!=='Income');
+    const inbox=p.overdue.concat(outgoings).slice(0,6);
+    const nextPay=p.upcoming.find(e=>e.direction==='Income');
+    const horizon=S.config.window;
+    const until=nextPay? p.points.filter(x=>x.date<nextPay.date || x.event&&x.event.direction!=='Income'&&x.date===nextPay.date).map(x=>x.total):[];
+    const ahead=until.length?Math.min(...until):null;
+    const balanceTable=p.verified.length?'<ul class="list">'+p.verified.map(a=>'<li><div>'+link(a.name,'account-edit',a.id)+'<small class="small">Balance entered '+H(a.balanceDate)+' · account buffer '+money(a.floor)+'</small></div><strong class="money">'+money(p.starting[a.id])+'</strong></li>').join('')+'</ul>':no('Add a chequing balance to start the forecast.');
+    const periods= h.complete.length?' · '+h.complete.length+' complete '+(h.complete.length===1?'month':'months')+' in the spending baseline':'';
+    const warning=p.missing.length||p.unassigned.length?
+      banner('Fill in '+(p.missing.length?p.missing.length+' starting balance'+(p.missing.length===1?'':'s'):'')+(p.missing.length&&p.unassigned.length?' and ':'')+(p.unassigned.length?p.unassigned.length+' upcoming amount or funding account'+(p.unassigned.length===1?'':'s'):'')+' before relying on the available-cash figure.','warning'):'';
+    const loans=p.missingLoanPayments.length?banner('Add bill schedules for '+H(p.missingLoanPayments.map(l=>l.name).join(', '))+' to complete your available-cash estimate. '+link('Review loans','nav',allViews[4]),'warning'):'';
+    const stale=p.stale.length?banner('Some balances are from an earlier day. The forecast carries forward imported activity after those dates. Refresh balances to catch recent activity.','warning'):'';
+    const emptyForecast=!p.verified.length ? banner('Start with your spending accounts and a current chequing balance. Then import your statements and add upcoming paycheques and bills.'):'';
+    return head('Cash overview','Next '+horizon+' days · '+H(now),'<div class="actions">'+btn('Import statements','nav',allViews[1],'primary')+btn('Update balances','account-settings')+'</div>') +emptyForecast+warning+loans+stale+
+      '<section class="hero"><div class="hero-grid"><div><h2>Available above your cash buffers</h2><div class="hero-value money">'+money(p.headroom)+'</div><p>Uses the lowest projected balance over '+horizon+' days.</p></div><div><canvas id="cash-chart" role="img" aria-label="Projected total cash. Opening '+H(money(p.opening))+', lowest '+H(money(p.low))+', ending '+H(money(p.ending))+'."></canvas><div class="hero-key"><span>'+H(dateLabel(now))+'</span><span>'+H(dateLabel(p.end))+'</span></div></div></div></section>'+
+      '<div class="stat-grid">'+stat('Starting cash',p.verified.length?p.opening:null)+stat('Lowest projected balance',p.verified.length?p.low:null,p.verified.length?dateLabel(p.lowDate):'')+stat('Lowest before next pay',p.verified.length&&p.headroom!==null?ahead:null,nextPay?dateLabel(nextPay.date):'Add a scheduled paycheque')+'</div>'+
+      (p.shortfalls.length?banner(H(p.shortfalls.length)+' upcoming debit'+(p.shortfalls.length===1?' takes':'s take')+' a paying account below its buffer. '+link('Review bills','nav',allViews[3]),'warning'):'')+
+      '<div class="grid-2">'+panel('Due next',inbox.length?'<ul class="list">'+inbox.map(x=>'<li><div>'+link(x.name,'occurrence',x.key)+'<small class="small">'+H(dateLabel(x.date))+' · '+H(alias(x.account))+' · '+H(x.date<now?'Overdue':x.mode)+'</small></div><strong class="money">'+money(x.forecastAmount)+'</strong></li>').join('')+'</ul>':no('No open bills in the forecast.'),'',btn('All bills','nav',allViews[3],'mini'))+
+      panel('Cash accounts',balanceTable,'Only accounts included in your forecast appear here.',btn('Accounts','account-settings','','mini'))+'</div>'+
+      '<div class="grid-2 section-gap">'+panel('Spending this month','<strong class="money">'+money(h.total)+'</strong><p class="small">Everyday spending'+H(periods)+'. Project spending '+money(h.projects)+'.</p>','',''+btn('Open spending','nav',allViews[2],'mini'))+
+      panel('Questions to review',review?'<p>'+review+' transaction'+(review===1?' is':'s are')+' waiting for a category or confirmation.</p>':no('No transactions waiting for review.'),'',btn('Open review','open-inbox','','mini'))+'</div>';
+  }
+  function stat(label,value,detail='') {
+    return '<div class="stat"><h3>'+H(label)+'</h3><div class="value money">'+money(value)+'</div>'+(detail?'<small>'+H(detail)+'</small>':'')+'</div>';
+  }
+  function drawChart() {
+    const el=document.getElementById('cash-chart'); if(!el) return;
+    const p=E.forecast(S,E.today());
+    const ratio=window.devicePixelRatio||1, w=el.clientWidth, h=el.clientHeight;
+    el.width=w*ratio;el.height=h*ratio;
+    const g=el.getContext('2d');g.scale(ratio,ratio);
+    if(!p.verified.length) {
+      g.setLineDash([5,5]);g.strokeStyle='#81a797';g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();
+      return;
+    }
+    const top=Math.max(...p.points.map(x=>x.total),S.config.floor), bottom=Math.min(p.low,S.config.floor);
+    const y=value=>h-12-(value-bottom)/(top-bottom||1)*(h-24);
+    const x=date=>5+(w-10)*E.distance(E.today(),date)/S.config.window;
+    const points=[...p.points,{date:p.end,total:p.ending}];
+    const path=()=>{
+      g.beginPath();g.moveTo(x(points[0].date),y(points[0].total));
+      for(let i=1;i<points.length;i++){g.lineTo(x(points[i].date),y(points[i-1].total));g.lineTo(x(points[i].date),y(points[i].total));}
+    };
+    path();g.lineTo(w-5,h);g.lineTo(5,h);g.closePath();
+    const gradient=g.createLinearGradient(0,0,0,h);
+    gradient.addColorStop(0,'#a4e6c660');gradient.addColorStop(1,'#a4e6c60a');
+    g.fillStyle=gradient;g.fill();
+    g.strokeStyle='#a4e6c6';g.lineWidth=2.5;path();g.stroke();
+    g.setLineDash([5,4]);g.lineWidth=1;g.strokeStyle='#eac58e';g.beginPath();g.moveTo(5,y(S.config.floor));g.lineTo(w-5,y(S.config.floor));g.stroke();
+  }
+  window.addEventListener('resize',()=>{if(S&&tab===allViews[0])drawChart();});
+  function imports() {
+    const pending=files.find(file=>file.id===selectedFile);
+    const queue=files.length ? '<div class="actions">'+files.map(file=>btn(file.name,'select-file',file.id,'mini',file.id===selectedFile?' aria-pressed="true"':'')).join('')+'</div>':'';
+    const accountSetup=S.accounts.length?'':banner('Add an account before importing its transactions. '+link('Add account','account-edit'),'warning');
+    const upload='<div class="stack">'+accountSetup+
+      field('Choose bank exports','<input id="csv-files" type="file" multiple accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain"'+(localFile?'':' disabled')+'>','CSV or TSV. Map each file to the account it came from. Amounts should be posted in CAD.')+
+      queue+(pending?mapping(pending):'')+'</div>';
+    const staged=staging.length?batchView():'';
+    const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
+      table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
+    return head('Import & review','Map the export, check the totals, then review ambiguous transactions.',btn('Accounts','account-settings'))+
+      panel('Add statements',upload)+staged+panel('Transaction ledger',ledgerView(),'Confirmed purchases count once. Linked transfers appear here and leave spending totals unchanged.')+historical;
+  }
+  function mapping(file) {
+    const probe=file.rows[file.skip]||[];
+    const cols=Math.min(160,Math.max(probe.length,...file.rows.slice(file.skip,file.skip+6).map(r=>r.length)));
+    const columns=[[-1,'Unused'],...Array.from({length:cols},(_,i)=>[i,'Column '+(i+1)+(probe[i]?' · '+probe[i].slice(0,44):'')])];
+    const map=file.map;
+    return '<form id="map-form" class="stack" autocomplete="off"><div class="form-grid cols-3">'+
+      field('Account',select('account',accountOptions(),file.account,'required'))+
+      field('Date order for 04/11/2025',select('order',[['MDY','Month / day / year'],['DMY','Day / month / year']],file.order))+
+      field('Rows before header or data',f('skip',file.skip,'number','min="0" step="1" required'))+
+      '</div><div class="actions">'+check('Column names on first remaining row','header',file.header)+check('Reverse signs','reverse',file.reverse)+'</div>'+
+      '<div class="form-grid cols-3">'+field('Date column',select('date',columns,map.date))+
+      field('Description column',select('description',columns,map.description))+
+      field('Signed amount',select('amount',columns,map.amount),'Choose Unused if separate debits and credits.')+
+      field('Debit column',select('debit',columns,map.debit))+field('Credit column',select('credit',columns,map.credit))+
+      field('Transaction ID',select('external',columns,map.external),'Optional. Useful for overlapping exports.')+'</div>'+
+      '<div class="actions"><button type="submit" class="btn">'+(preview?.file===file.id?'Refresh preview':'Preview statement')+'</button>'+
+      btn('Remove file','drop-file',file.id,'mini danger')+'</div></form>'+(preview?.file===file.id?previewView(preview):'');
+  }
+  function previewView(p) {
+    const inflow=E.sum(p.result,t=>Math.max(0,t.amount)),out=E.sum(p.result,t=>Math.max(0,-t.amount));
+    const seen=p.result.map(t=>t.date).sort();
+    const span=p.start||seen[0]||'', last=p.end||seen.at(-1)||'';
+    return '<hr><div class="stack"><h3>Check '+H(p.name)+'</h3><p>'+p.result.length+' rows · Money in '+money(inflow)+' · Money out '+money(out)+' · Net '+money(inflow-out)+'</p>'+
+      (p.issues.length?'<details class="subtle" open><summary>'+p.issues.length+' unreadable row'+(p.issues.length===1?'':'s')+'</summary>'+
+       table(['Row','Issue','Extract'],p.issues.map(i=>row(cell(i.row),cell(H(i.reason)),cell(H(i.sample),'desc'))))+'</details>':'')+
+      table(['Date','Description','$Amount','Suggestion'],p.result.slice(0,8).map(t=>row(dateCell(t.date),cell(H(t.description),'desc'),amountCell(t.amount,true),cell(H(t.kind==='Review'?'Review':t.category||t.kind)))))+
+      '<form id="stage-form" class="stack" autocomplete="off"><div class="form-grid">'+
+      field('Period starts',f('period_start',span,'date','required'),'Use the actual first date covered by this export.')+
+      field('Period ends',f('period_end',last,'date','required'),'Use the actual last date covered, even if there were no transactions on it.')+
+      field('Opening balance',f('opening','','text','inputmode="decimal"'),'Optional. Enter credit balances owed as positive.')+
+      field('Closing balance',f('closing','','text','inputmode="decimal"'),'Use both balances to check the statement totals.')+
+      '</div>'+check('Confirm this file covers the entire date range','coverage')+
+      (p.issues.length?check('I reviewed the unreadable rows and want to skip them','allow_skips'):'')+
+      '<div class="actions"><button type="submit" class="btn primary">Stage statement</button></div></form></div>';
+  }
+  function bindImport() {
+    root.querySelector('#csv-files')?.addEventListener('change',async event=>{
+      if(!localFile)return;
+      const active=S, chosen=[...event.target.files];
+      let count=0;
+      for (const file of chosen) {
+        try {
+          if(file.size>30*1024*1024) throw new Error('Split this export into smaller date ranges.');
+          const result=E.sniff(await readFile(file));
+          if(S!==active) return;
+          if(!result.rows.length||result.rows[0].length<2&&!result.header) throw new Error('Export as CSV or TSV. For PDF statements, use your bank’s transaction export.');
+          files.push({...result,id:E.id(),name:file.name,order:'MDY',reverse:false,account:S.accounts.length===1?S.accounts[0].id:''});
+          count++;
+        } catch(error) {note(file.name+' · '+error.message,true);}
+      }
+      if(count&&!selectedFile) selectedFile=files[0].id;
+      if(S===active&&tab==='Import & review') render();
+    });
+    root.querySelector('#map-form')?.addEventListener('change',event=>{
+      const data=new FormData(event.currentTarget), file=byId(files,selectedFile);
+      readMap(data,file);
+      if(event.target.name==='skip'||event.target.name==='header') render();
+      else if(preview?.file===selectedFile) {
+        preview=null;
+        root.querySelector('#stage-form')?.remove();
+        note('Mapping changed. Refresh the preview before staging.');
+      }
+    });
+    root.querySelector('#map-form')?.addEventListener('submit',event=>{
+      event.preventDefault();
+      try {
+        const data=new FormData(event.currentTarget), file=byId(files,selectedFile);
+        readMap(data,file);
+        if(!file.account||!byId(S.accounts,file.account)) throw new Error('Choose the account this export came from.');
+        const result=E.extract(file.rows,file.map,file,S,file.account);
+        preview={...result,file:file.id,name:file.name,account:file.account};
+        render();
+      } catch(error){note(error.message,true);}
+    });
+    root.querySelector('#stage-form')?.addEventListener('submit',event=>{
+      event.preventDefault();
+      try {stageFile(new FormData(event.currentTarget));} catch(error){note(error.message,true);}
+    });
+    root.querySelector('#ledger-filters')?.addEventListener('submit',event=>{
+      event.preventDefault();
+      const data=new FormData(event.currentTarget);
+      ledger=Object.fromEntries([...data].map(([k,v])=>[k,String(v)]));
+      ledgerPage=0; render();
+      document.getElementById('ledger-filters')?.scrollIntoView({block:'nearest'});
+    });
+  }
+  function readMap(form,file) {
+    Object.assign(file,{account:val(form,'account'),order:val(form,'order'),header:form.has('header'),reverse:form.has('reverse'),skip:Number(val(form,'skip'))||0});
+    for(const key of ['date','description','amount','debit','credit','external']) file.map[key]=Number(val(form,key));
+  }
+  function stageFile(form) {
+    const p=preview;
+    if(!p || p.file!==selectedFile) throw new Error('Preview the file first.');
+    const start=dateField(form,'period_start'),end=dateField(form,'period_end');
+    if(end<start || p.result.some(t=>t.date<start||t.date>end)) throw new Error('The date range must include every parsed row. Check the date order and statement period.');
+    if(!p.result.length&&!form.has('coverage')) throw new Error('There are no transactions. Confirm coverage if this is a zero-activity statement.');
+    if(p.issues.length&&!form.has('allow_skips')) throw new Error('Review the unreadable rows before staging.');
+    const opening=val(form,'opening'),closing=val(form,'closing');
+    let balanceCheck='Unverified';
+    if(opening||closing) {
+      const o=E.money(opening),c=E.money(closing);
+      if(o===null||c===null) throw new Error('Enter both a valid opening and closing balance.');
+      const account=byId(S.accounts,p.account);
+      const delta=(c-o)*(['Credit card','Line of credit or loan'].includes(account.type)?-1:1);
+      const net=E.sum(p.result,t=>t.amount);
+      if(net!==delta) throw new Error('Statement differs from the parsed rows by '+money(net-delta)+'. Check the signs, columns, or balances.');
+      balanceCheck='Balances tie';
+    }
+    const id=E.id();
+    staging.push({id,account:p.account,name:p.name,start,end,balanceCheck,issueCount:p.issues.length,coverageConfirmed:form.has('coverage')&&!p.issues.length,
+      items:p.result.map(transaction=>({transaction:{...transaction,importId:id},force:false}))});
+    files=files.filter(file=>file.id!==p.file);selectedFile=files[0]?.id||'';preview=null;
+    render();
+    note(p.issues.length?'Statement staged. Skipped rows leave this coverage unconfirmed.':'Statement staged. Approve the batch when ready.');
+  }
+  function buildBatch() {
+    const existing=structuredClone(S.transactions), stagedRows=[];
+    for(const packet of staging) {
+      packet.items.forEach(item=>{item.duplicate='';});
+      E.duplicateReview(existing,packet.items);
+      for(const item of packet.items) {
+        if(!item.duplicate||item.force) {
+          existing.push(structuredClone(item.transaction));
+          stagedRows.push(item.transaction);
+        }
+      }
+    }
+    const changed=new Set(stagedRows.map(t=>t.id));
+    const pairs=E.matchTransfers(existing,S.accounts).filter(p=>changed.has(p.left.id)||changed.has(p.right.id));
+    return {existing,stagedRows,pairs};
+  }
+  function batchView() {
+    const {stagedRows,pairs}=buildBatch();
+    const flagged=staging.flatMap(p=>p.items.filter(x=>x.duplicate));
+    const suggested=pairs.length?'<details class="subtle"><summary>'+pairs.length+' suggested transfer match'+(pairs.length===1?'':'es')+'</summary>'+
+      '<p class="small">Both sides have matching amounts and nearby dates. Clear the checkbox below if you want to review the matches individually later.</p>'+
+      table(['Date','From','To','$Amount'],pairs.map(p=>row(dateCell(p.left.date),cell(H(alias(p.left.account))),cell(H(alias(p.right.account))),amountCell(-p.left.amount))))+'</details>':'';
+    return panel('Staged statements','<div class="stack">'+table(['File','Checks','Rows',''],staging.map(p=>row(cell(H(p.name),'desc'),cell(H(p.balanceCheck)+' · '+H(p.coverageConfirmed?'Coverage confirmed':'Coverage unconfirmed')),cell(p.items.length+' parsed'),cell(btn('Remove','unstage',p.id,'mini danger')))))+
+      (flagged.length?'<details class="subtle"><summary>'+flagged.length+' possible duplicate'+(flagged.length===1?'':'s')+'</summary>'+table(['Date','Description','$Amount','Decision'],
+        flagged.map(x=>row(dateCell(x.transaction.date),cell(H(x.transaction.description)+'<br><small>'+H(x.duplicate)+'</small>','desc'),amountCell(x.transaction.amount,true),cell(btn(x.force?'Keep this row':'Skip this row','toggle-duplicate',x.transaction.id,'mini',' aria-pressed="'+x.force+'"')))))+'</details>':'')+
+      suggested+(pairs.length?'<label class="check"><input type="checkbox" id="include-pairs" checked>Apply suggested transfer matches</label>':'')+
+      '<div class="actions">'+btn('Approve '+stagedRows.length+' transaction'+(stagedRows.length===1?'':'s'),'approve','','primary')+'</div></div>','Only approval writes to the ledger. Duplicate rows are skipped by default.');
+  }
+  async function approve() {
+    const pair=Boolean(root.querySelector('#include-pairs')?.checked);
+    const {stagedRows,pairs}=buildBatch();
+    await write(next=>{
+      next.transactions.push(...stagedRows.map(t=>structuredClone(t)));
+      for(const packet of staging) {
+        const count=stagedRows.filter(t=>t.importId===packet.id).length;
+        const {items,...info}=packet;
+        next.imports.push({...info,count,approved:E.today()});
+      }
+      if(pair) pairs.forEach(match=>applyPair(next,match.left.id,match.right.id,match.label));
+    });
+    staging=[];
+    ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''};
+    ledgerPage=0;
+    render();
+    note(stagedRows.length+' transactions approved. Review the remaining questions below.');
+  }
+  function applyPair(next,left,right,label) {
+    const a=byId(next.transactions,left),b=byId(next.transactions,right);
+    if(!a||!b||a.pair||b.pair||a.account===b.account||a.amount!==-b.amount||a.allocations||b.allocations) throw new Error('The pair no longer matches.');
+    for(const [entry,other] of [[a,b],[b,a]]) {
+      entry.beforePair=pick(entry,'kind','category','project','why','manual');
+      entry.kind='Transfer';entry.category=label;entry.project='';entry.pair=other.id;entry.why='Matched to '+other.description;entry.manual=true;
+    }
+  }
+  function unpair(next,id) {
+    const t=byId(next.transactions,id);
+    if(!t?.pair) return;
+    const other=byId(next.transactions,t.pair);
+    for(const entry of [t,other].filter(Boolean)) {
+      Object.assign(entry,entry.beforePair||{kind:'Review',category:'',project:'',why:'Previously linked transfer',manual:false});
+      delete entry.beforePair;entry.pair='';
+    }
+  }
+  function ledgerView() {
+    const source=S.transactions.filter(t=>{
+      const slices=t.allocations?.length?t.allocations:[t];
+      return (!ledger.account||t.account===ledger.account)&&(!ledger.month||E.month(t.date)===ledger.month)&&
+        (!ledger.search||E.normal(t.description+' '+t.note).includes(E.normal(ledger.search)))&&
+        slices.some(x=>(ledger.filter==='All'||x.kind===ledger.filter)&&(!ledger.category||x.category===ledger.category)&&(!ledger.project||x.project===ledger.project));
+    }).sort((a,b)=>b.date.localeCompare(a.date)||a.description.localeCompare(b.description));
+    const max=Math.max(0,Math.ceil(source.length/PAGE)-1);
+    ledgerPage=Math.min(ledgerPage,max);
+    const found=source.slice(ledgerPage*PAGE,(ledgerPage+1)*PAGE);
+    const filters='<form id="ledger-filters" class="stack" autocomplete="off"><div class="form-grid cols-3">'+
+      field('Type',select('filter',['All',...E.kinds],ledger.filter))+
+      field('Account',select('account',accountOptions(()=>true,'All accounts'),ledger.account))+
+      field('Month',f('month',ledger.month,'month'))+
+      field('Category',select('category',[['','All categories'],...categoryOptions()],ledger.category))+
+      field('Project',select('project',[['','All projects'],...projectOptions().slice(1)],ledger.project))+
+      field('Find a merchant',f('search',ledger.search,'search','placeholder="Search descriptions or notes"'))+'</div>'+
+      '<div class="actions"><button type="submit" class="btn">Apply filters</button>'+btn('Review queue','open-inbox','','mini')+btn('Add transaction','manual-transaction','','mini')+'</div></form>';
+    const rows=found.map(t=>{
+      const label=t.allocations?.length?'Split':t.project?projectName(t.project):t.category||t.kind;
+      const status=t.kind==='Review'?pill('Review','warn'):t.pair?pill('Linked','dim'):t.manual?pill('Reviewed','dim'):'';
+      return row(dateCell(t.date),cell(link(t.description,'transaction',t.id)+'<br><small>'+H(alias(t.account))+'</small>','desc'),
+        amountCell(t.amount,true),cell(H(label)+(status?' '+status:'')+(t.kind==='Review'?'<br><small>'+H(t.why)+'</small>':'')));
+    });
+    const navigation=source.length>PAGE?'<div class="table-controls">'+btn('Previous','ledger-page','-1','mini',ledgerPage?'':' disabled')+
+      '<small>Page '+(ledgerPage+1)+' of '+(max+1)+'</small>'+btn('Next','ledger-page','1','mini',ledgerPage<max?'':' disabled')+'</div>':'';
+    return '<div class="stack">'+filters+'<p class="small">'+source.length+' matching transaction'+(source.length===1?'':'s')+'</p>'+
+      (rows.length?table(['Date','Description','$Amount','Review'],rows)+navigation:no('No transactions match these filters.'))+'</div>';
+  }
+  function txTypeFields(t,suffix='') {
+    const category=t?.category||'';
+    const list=[['','Choose a category'],...categoryOptions(),['__other','Enter a new category']];
+    if(category&&!list.some(x=>x===category)) list.splice(1,0,category);
+    return field('Type',select('kind'+suffix,E.kinds,t?.kind||'Spending','data-type="'+suffix+'"'))+
+      field('Category',select('category'+suffix,list,category,'data-cat="'+suffix+'"'))+
+      field('New category',f('new_category'+suffix,'','text','maxlength="60"'),'Used when you choose Enter a new category.')+
+      field('Project',select('project'+suffix,projectOptions(),t?.project||''));
+  }
+  function bindTypes(form) {
+    for(const suffix of ['', '2']) {
+      const kind=form.querySelector('[name="kind'+suffix+'"]');
+      if(!kind)continue;
+      const category=form.querySelector('[name="category'+suffix+'"]');
+      const project=form.querySelector('[name="project'+suffix+'"]');
+      const custom=form.querySelector('[name="new_category'+suffix+'"]');
+      const update=()=>{
+        const hasCategory=['Spending','Reimbursement','Income','Financing','Savings'].includes(kind.value);
+        category.closest('label').hidden=!hasCategory;
+        custom.closest('label').hidden=!hasCategory||category.value!=='__other';
+        project.closest('label').hidden=kind.value!=='Project';
+      };
+      kind.addEventListener('change',update);
+      category.addEventListener('change',update);
+      update();
+    }
+  }
+  function readType(form,suffix='') {
+    const kind=val(form,'kind'+suffix), project=val(form,'project'+suffix);
+    const chosen=val(form,'category'+suffix);
+    const category=chosen==='__other'?val(form,'new_category'+suffix):chosen;
+    if(!E.kinds.includes(kind)) throw new Error('Select a valid transaction type.');
+    if(kind==='Project'&&!byId(S.projects,project)) throw new Error('Choose a project. You can add one in Spending.');
+    if(['Spending','Reimbursement'].includes(kind)&&!category) throw new Error('Choose a spending category.');
+    return {kind,category:kind==='Project'?'':category,project:kind==='Project'?project:''};
+  }
+  function transaction(id) {
+    const t=byId(S.transactions,id);
+    if(!t) return;
+    if(t.pair) {
+      const other=byId(S.transactions,t.pair);
+      return confirmation('Linked payment','This '+money(t.amount)+' entry is linked to '+(other?.description||'another transaction')+' in '+alias(other?.account)+'.','Unlink payment',async()=>write(next=>unpair(next,id)));
+    }
+    const same=S.transactions.filter(x=>x.id!==t.id&&!x.manual&&!x.pair&&!x.allocations&&x.account===t.account&&Math.sign(x.amount)===Math.sign(t.amount)&&E.normal(x.description)===E.normal(t.description));
+    const candidates=['Review','Transfer'].includes(t.kind)?S.transactions.filter(x=>x.id!==t.id&&!x.pair&&!x.allocations&&x.account!==t.account&&x.amount===-t.amount&&Math.abs(E.distance(x.date,t.date))<=7&&['Review','Transfer'].includes(x.kind)):[];
+    const second=t.allocations?.[1];
+    const form=openDialog('Review transaction','<p><strong>'+H(t.description)+'</strong> · '+money(t.amount)+' · '+H(t.date)+' · '+H(alias(t.account))+'</p>'+
+      (t.why?'<p class="small">'+H(t.why)+'</p>':'')+
+      (candidates.length?field('Link another side',select('other',[['','Keep unlinked'],...candidates.map(x=>[x.id,x.date+' · '+alias(x.account)+' · '+x.description])]),'Use for a transfer or credit card payment.'):'')+
+      '<div class="form-grid">'+txTypeFields(t.allocations?.[0]||t)+'</div>'+
+      '<details class="subtle"'+(second?' open':'')+'><summary>Split across two uses</summary><div class="form-grid">'+
+      field('Amount for second use',f('split_amount',second?inputMoney(Math.abs(second.amount)):'','text','inputmode="decimal"'),'Enter a positive amount smaller than the full transaction.')+txTypeFields(second,'2')+'</div></details>'+
+      field('Note',f('note',t.note,'text','maxlength="180"'))+
+      check('Remember this exact description and direction for this account','remember')+
+      (same.length?check('Apply to '+same.length+' other unreviewed row'+(same.length===1?'':'s')+' with the same description','repeat'):''),
+      async data=>{
+        const other=val(data,'other');
+        if(other)return write(next=>applyPair(next,id,other,'Linked transfer or payment'));
+        const main=readType(data);
+        const split=dollarsField(data,'split_amount',{optional:true});
+        let allocations;
+        if(split!==null) {
+          const next=readType(data,'2');
+          if(split<=0||split>=Math.abs(t.amount)) throw new Error('The split must be smaller than the full transaction.');
+          if([main,next].some(x=>!['Spending','Project','Reimbursement','Financing'].includes(x.kind))) throw new Error('Splits support spending, projects, reimbursements and financing.');
+          if(data.has('repeat')||data.has('remember')) throw new Error('Save this split without a merchant rule or applying it to other rows.');
+          const sign=Math.sign(t.amount);
+          allocations=[{...main,amount:t.amount-sign*split},{...next,amount:sign*split}];
+        }
+        await write(next=>{
+          Object.assign(byId(next.transactions,id),main,{manual:true,why:'Reviewed',note:val(data,'note'),allocations});
+          if(data.has('repeat')) same.forEach(x=>Object.assign(byId(next.transactions,x.id),main,{manual:true,why:'Reviewed with matching merchant'}));
+          if(data.has('remember')) next.rules.push({...main,account:t.account,merchant:E.normal(t.description),direction:Math.sign(t.amount)});
+        });
+      },'Save review');
+    bindTypes(form);
+    form.querySelector('[name=other]')?.addEventListener('change',event=>{
+      if(event.target.value) {
+        const kind=form.querySelector('[name=kind]');
+        kind.value='Transfer';
+        kind.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+  function manualTransaction() {
+    if(!localFile)return note('Open Aqueduct directly from Atlas before entering real transactions.',true);
+    const form=openDialog('Add transaction','<div class="form-grid">'+field('Account',select('account',accountOptions(),'','required'))+
+      field('Date',f('transaction_date',E.today(),'date','required'))+
+      field('Description',f('description','','text','required maxlength="170"'))+
+      field('Signed amount',f('amount','','text','inputmode="decimal" required'),'Negative money out. Positive money in.')+
+      txTypeFields({kind:'Review'})+'</div>',
+      async data=>{
+        const account=val(data,'account');
+        if(!byId(S.accounts,account)) throw new Error('Add or choose an account.');
+        const amount=E.money(val(data,'amount'));
+        if(amount===null||!amount) throw new Error('Enter a non-zero transaction amount.');
+        const t={id:E.id(),account,date:dateField(data,'transaction_date'),description:titleField(data,'description'),amount,pair:'',manual:true,note:'',why:'Entered manually',...readType(data)};
+        t.fingerprint=[t.date,E.normal(t.description),t.amount].join('|');
+        await write(next=>next.transactions.push(t));
+      });
+    bindTypes(form);
+  }
+  function spending() {
+    const h=E.history(S,E.today(),month);
+    const targetTotal=E.sum(h.rows,x=>x.suggestion||0);
+    const configured=h.rows.filter(x=>x.suggestion!==null).length;
+    const records=h.rows.filter(x=>x.actual||x.average||x.suggestion||Object.hasOwn(S.targets,x.category));
+    const months=h.complete.slice().reverse().map(m=>monthLabel(m)).join(', ');
+    const totals='<div class="stat-grid">'+stat('Everyday spending',h.total)+stat('Project spending',h.projects)+stat('Suggested monthly targets',configured?targetTotal:null)+'</div>';
+    const rows=(records.length?records:h.rows).map(x=>{
+      const current=link(money(x.actual),'spending-drill',x.category);
+      return row(cell(H(x.category)),cell(current,'money'),amountCell(x.average),amountCell(x.suggestion),
+        cell(H(x.rationale)+' '+btn('Set target','target-edit',x.category,'mini')));
+    });
+    const income='Recorded income '+money(h.income)+(h.review.length?' · '+h.review.length+' unclassified in this month':'')+'.';
+    const comparisons=totals+(h.review.length?banner(H(h.review.length)+' unclassified transactions could change this month’s totals. '+link('Review this month','month-inbox',month),'warning'):'')+
+      panel('Monthly categories',(h.baselineReview?banner(H(h.baselineReview)+' unclassified transactions in baseline months could change your average.','warning'):'')+table(['Category','$Actual','$Historical avg.','$Suggested','Target basis'],rows)+
+        '<p class="small section-gap">Historical average: '+H(months||'awaiting confirmed date coverage')+'. Suggested everyday targets use the most recent three complete months, or fewer as available.</p>',income,btn('Add category target','target-edit','','mini'));
+    const tx=E.ledgerRows(S.transactions);
+    const projects=S.projects.length?S.projects.map(p=>{
+      const spent=E.sum(tx.filter(t=>t.kind==='Project'&&t.project===p.id),t=>-t.amount);
+      const future=E.paymentWindow(S,E.today(),E.add(E.today(),730)).filter(b=>b.direction==='Bill'&&b.project===p.id&&!['Paid','Skipped'].includes(b.status));
+      const outstanding=E.sum(future,b=>b.forecastAmount||0);
+      const unknown=future.filter(b=>b.forecastAmount===null).length;
+      const financed=byId(S.loans,p.loan);
+      return '<li><div>'+link(p.name,'project-drill',p.id)+' '+pill(p.status,p.status==='Complete'?'dim':'')+
+        '<small class="small">Open scheduled invoices '+money(outstanding)+(unknown?' + '+unknown+' with amount unknown':'')+' · unbilled estimate '+money(p.unbilled)+'</small>'+
+        (financed?'<small class="small">Linked debt '+H(financed.name)+' · account balance '+money(financed.balance)+'</small>':'')+
+        (p.note?'<small class="small">'+H(p.note)+'</small>':'')+'</div><div class="row-actions"><strong class="money">'+money(spent)+'</strong>'+btn('Edit','project-edit',p.id,'mini')+'</div></li>';
+    }).join(''):'';
+    return head('Spending & projects','Recurring spending, category targets, and one-time costs.',
+      '<div class="actions">'+field('Viewing month',f('month-view',month,'month','max="'+E.month(E.today())+'"'))+btn('Monthly review','monthly-close')+'</div>')+comparisons+
+      panel('Projects',projects?'<ul class="list">'+projects+'</ul>':no('Add a project such as Basement, then tag its purchases in the transaction review.'),'Project totals use all imported dates. Financing stays in Debt & goals.',btn('Add project','project-edit','','mini primary'));
+  }
+  function monthlyClose() {
+    const now=E.today(), start=month+'-01', end=E.monthEnd(start), history=E.history(S,now,month);
+    const included=S.accounts.filter(a=>a.history && (!a.openDate||a.openDate<=end) && (!a.closeDate||a.closeDate>=start));
+    const gaps=included.filter(a=>{
+      const from=a.openDate&&a.openDate>start?a.openDate:start;
+      const until=a.closeDate&&a.closeDate<end?a.closeDate:end;
+      return !E.coverage(S,a.id,from,until);
+    });
+    const open=E.events(S,start,end).filter(e=>e.direction!=='Income'&&e.date<=now&&!['Paid','Skipped'].includes(e.status));
+    const variances=history.rows.filter(r=>r.suggestion!==null&&r.actual!==r.suggestion).sort((a,b)=>Math.abs(b.actual-b.suggestion)-Math.abs(a.actual-a.suggestion)).slice(0,5);
+    const details='<ul class="list"><li>Statement coverage <strong>'+(!included.length?'No accounts in scope':gaps.length?H(gaps.length)+' account gaps':'Confirmed')+'</strong></li>'+
+      '<li>Transaction questions <strong>'+history.review.length+'</strong></li><li>Due dates still open <strong>'+open.length+'</strong></li>'+
+      '<li>One-time project costs <strong class="money">'+money(history.projects)+'</strong></li></ul>';
+    return openDialog(monthLabel(month)+' monthly review',
+      (end>now?banner('This month is still in progress.'):'')+details+
+      (gaps.length?'<p class="small">Check coverage for '+H(gaps.map(a=>a.name).join(', '))+'.</p>':'')+
+      (variances.length?table(['Largest differences','$Actual','$Target','$Over / under'],variances.map(r=>row(cell(H(r.category)),amountCell(r.actual),amountCell(r.suggestion),amountCell(r.actual-r.suggestion)))):'')+
+      '<p class="small">Resolve questions, review upcoming obligations, and save an encrypted backup when the month is ready.</p>',()=>{},'Done');
+  }
+  function targetEdit(category) {
+    const t=S.targets[category]||{};
+    return openDialog('Category target','<div class="form-grid">'+
+      field('Category',f('category',category,'text','required maxlength="60"'))+
+      field('Approach',select('method',['Recent history','Fixed','Annual'],t.method||'Recent history'))+
+      field('Amount',f('amount',inputMoney(t.amount),'text','inputmode="decimal"'),'Enter the monthly amount for Fixed or the full-year amount for Annual.')+
+      field('Reason',f('note',t.note,'text','maxlength="140"'))+'</div>',
+      async data=>{
+        const name=titleField(data,'category'), method=val(data,'method');
+        if(['__proto__','prototype','constructor','__other'].includes(name)) throw new Error('Choose a different category name.');
+        if(category&&name!==category) throw new Error('Use the original category name or add a new target.');
+        const amount=method==='Recent history'?null:dollarsField(data,'amount');
+        await write(next=>Object.defineProperty(next.targets,name,{value:{method,amount,note:val(data,'note')},enumerable:true,configurable:true,writable:true}));
+      });
+  }
+  function projectEdit(id) {
+    const p=byId(S.projects,id)||{};
+    return openDialog(p.id?'Edit project':'Add project','<div class="form-grid">'+field('Project name',f('name',p.name,'text','required maxlength="80"'))+
+      field('Status',select('status',['Active','Planned','Complete'],p.status||'Active'))+
+      field('Unbilled cost to finish',f('unbilled',inputMoney(p.unbilled),'text','inputmode="decimal"'),'Enter an estimate for work outside invoices already scheduled in Bills.')+
+      field('Linked debt account',select('loan',[['','No linked debt'],...S.loans.map(x=>[x.id,x.name])],p.loan))+
+      field('Note',f('note',p.note,'text','maxlength="150"'),'',true)+'</div>',
+      async data=>{
+        const value={id:p.id||E.id(),name:titleField(data),status:val(data,'status'),unbilled:dollarsField(data,'unbilled',{optional:true}),loan:val(data,'loan'),note:val(data,'note')};
+        await write(next=>replace(next.projects,value));
+      });
+  }
+  function bills() {
+    const now=E.today(), end=postingWindow||E.add(now,S.config.window), p=E.forecast(S,now);
+    const all=E.paymentWindow(S,now,end);
+    const alerts=new Set(p.shortfalls.map(x=>x.key));
+    const columns=['Due','Bill or income','Funding account','$Amount','Status',''];
+    const rows=all.map(x=>{
+      const late=x.date<now&&!['Paid','Skipped'].includes(x.status)&&x.direction!=='Income';
+      const pillLabel=late?'Overdue':alerts.has(x.key)?'Below buffer':x.status==='Open'?x.mode:x.status;
+      return row(dateCell(x.date),cell(link(x.name,'occurrence',x.key)+'<br><small>'+H(billKind(x))+(x.project?' · '+H(projectName(x.project)):'')+'</small>','desc'),
+        cell(H(alias(x.account))+(x.direction==='Transfer'?'<br><small>To '+H(alias(x.toAccount))+'</small>':'')),amountCell(x.forecastAmount),cell(pill(pillLabel,late||alerts.has(x.key)?'warn':'dim')),cell(btn('Review','occurrence',x.key,'mini')));
+    });
+    const plans=S.bills.map(x=>row(cell(H(x.name),'desc'),cell(H(x.frequency)),cell(H(alias(x.account))),amountCell(x.amount),cell(btn('Edit','bill-edit',x.id,'mini'))));
+    return head('Bills & paydays','Review due dates and see which account will cover each payment.','<div class="actions">'+btn('Add bill or paycheque','bill-edit','','primary')+btn('Calendar reminders','calendar')+'</div>')+
+      (p.shortfalls.length?banner('A scheduled debit could take its paying account below your buffer. Review the bills marked below.','warning'):'')+
+      panel('Payment calendar',(rows.length?table(columns,rows):no('Add a first due date and a funding account to start the calendar.'))+
+        '<p class="small section-gap">Includes the last 30 days, older open one-time bills, and upcoming dates through '+H(end)+'. Mark payments paid after they post and refresh the paying account balance. Overdue open bills in this view are carried forward to today in the forecast.</p>',
+        '',btn(postingWindow?'Standard window':'See 90 days','bill-window','','mini'))+
+      panel('Bill and income schedules',plans.length?table(['Name','Frequency','Account','$Typical amount',''],plans):no('No schedules yet.'),'Review current amounts and dates using the latest bill or lender notice.');
+  }
+  function billEdit(id,loan) {
+    const b=byId(S.bills,id)||{...(loan?{name:loan.name,amount:loan.payment,frequency:frequency.includes(loan.frequency)?loan.frequency:'Monthly',loan:loan.id,account:loan.account,start:loan.nextDue}:null)};
+    return openDialog(b.id?'Edit schedule':'Add bill or paycheque','<div class="form-grid">'+
+      field('Name',f('name',b.name,'text','required maxlength="80"'))+
+      field('Type',select('direction',['Bill','Income','Transfer'],b.direction||'Bill'))+
+      field('Funding or receiving account',select('account',accountOptions(cash),b.account))+
+      field('Transfer destination',select('to_account',accountOptions(cash,'Only for transfers'),b.toAccount))+
+      field('Typical amount',f('amount',inputMoney(b.amount),'text','inputmode="decimal"'),'Leave blank if unknown. Record the confirmed amount on the occurrence.')+
+      field('First due or deposit date',f('start',b.start||E.today(),'date','required'))+
+      field('Frequency',select('frequency',frequency,b.frequency||'Monthly'),'Enter two monthly schedules for semimonthly bills or pay.')+
+      field('End date',f('end',b.end,'date'))+
+      field('Payment method',select('mode',['Manual','Autopay','Deposit'],b.mode||'Manual'))+
+      field('Project invoice',select('project',projectOptions(),b.project))+
+      field('Related debt',select('loan',[['','No linked debt'],...S.loans.map(x=>[x.id,x.name])],b.loan))+
+      '</div>'+check('Amount varies. Treat the typical amount as an estimate.','variable',b.variable)+
+      field('Note',f('note',b.note,'text','maxlength="180"')),
+      async data=>{
+        const start=dateField(data,'start'), end=dateField(data,'end',true);
+        if(end&&end<start) throw new Error('End date must be on or after the first date.');
+        const direction=val(data,'direction');
+        const value={id:b.id||E.id(),...Object.fromEntries(['name','account','frequency','project','loan','note'].map(k=>[k,val(data,k)])),
+          direction,mode:direction==='Income'?'Deposit':val(data,'mode')==='Autopay'?'Autopay':'Manual',amount:dollarsField(data,'amount',{optional:true}),start,end,variable:data.has('variable')};
+        if(!value.name) throw new Error('Enter a schedule name.');
+        value.toAccount=direction==='Transfer'?val(data,'to_account'):'';
+        if(direction==='Transfer'&&(!value.account||!value.toAccount||value.account===value.toAccount)) throw new Error('Choose two different cash accounts for the transfer.');
+        if(direction!=='Bill'){value.project='';value.loan='';}
+        await write(next=>replace(next.bills,value));
+      },'Save schedule',b.id?btn('Remove schedule','delete-bill',b.id,'danger'):'');
+  }
+  function occurrence(key) {
+    const [id,date]=key.split('/');
+    const b=byId(S.bills,id);
+    if(!b||!E.validDate(date)) return;
+    const status=S.billStatus[key]||{};
+    const matches=S.transactions.filter(t=>t.account===b.account&&Math.abs(E.distance(t.date,date))<=4&&b.amount!==null&&
+      t.amount===(b.direction==='Bill'?-1:1)*(status.amount??b.amount));
+    return openDialog('Review due date','<p><strong>'+H(b.name)+'</strong> · '+H(date)+' · '+H(alias(b.account))+'</p>'+
+      (b.note?'<p class="small">'+H(b.note)+'</p>':'')+
+      '<div class="form-grid">'+field('Payment status',select('status',['Open','Paid','Skipped'],status.status||'Open'))+
+      field('Amount for this occurrence',f('amount',inputMoney(status.amount),'text','inputmode="decimal"'),'Leave blank to use the usual amount '+money(b.amount)+'.')+'</div>'+
+      (matches.length?'<p class="small">Possible matching activity: '+matches.slice(0,6).map(t=>H(t.date)+' '+H(t.description)).join(' · ')+'</p>':'')+
+      '<p class="small">Choose Paid once it clears the funding account. If a due date moves, skip this occurrence and add a one-time schedule for the new date.</p>',
+      async data=>write(next=>{next.billStatus[key]={status:val(data,'status'),amount:dollarsField(data,'amount',{optional:true})};}),
+      'Save status',btn('Edit schedule','bill-edit',id,''));
+  }
+  function calendar() {
+    return openDialog('Calendar reminders','<p>Export upcoming manual bills and available rate or renewal dates to a separate calendar on your Mac. Use an On My Mac calendar if you want events to stay on that device. Enable alerts for that calendar.</p>'+
+      '<div class="form-grid">'+field('Days to export',select('window',['30','60','90','180','365'],'90'))+
+      field('Business days before a bill',select('lead',['1','2','3','5'],'2'))+'</div>'+
+      check('Use bill and loan nicknames as event titles','names')+
+      check('Include autopay dates with a projected shortfall','autopay',true)+
+      '<p class="small">Exports are snapshots. After major changes, replace the dedicated calendar’s events with a fresh export. Reminder lead time counts weekdays. Statutory holidays may affect actual processing.</p>',
+      data=>{
+        const days=Number(val(data,'window')), lead=Number(val(data,'lead'));
+        const now=E.today(), end=E.add(now,days);
+        const short=new Set(E.forecast(S,now).shortfalls.filter(x=>!x.originalDate).map(x=>x.key));
+        const records=E.events(S,now,end).filter(x=>x.direction!=='Income'&&['Open'].includes(x.status)&&
+          (x.mode==='Manual'||data.has('autopay')&&short.has(x.key))).map(x=>({
+            key:x.key,date:x.date,name:data.has('names')?x.name:x.direction==='Transfer'?'Household transfer due':x.mode==='Manual'?'Household bill due':'Check funds for automatic payment',
+            lead:Math.min(E.distance(now,x.date),businessLead(x.date,lead))
+          }));
+        for(const loan of S.loans) {
+          const dates=[['renewal',loan.renewal],['rate',loan.rateDate]].filter(([,d])=>d&&d>=now&&d<=end);
+          const unique=new Set();
+          for(const [kind,d] of dates) {
+            if(unique.has(d))continue;
+            unique.add(d);
+            records.push({key:loan.id+'/'+kind,date:d,name:data.has('names')?loan.name+' term review':'Review household borrowing terms',
+              lead:Math.min(14,E.distance(now,d))});
+          }
+        }
+        if(!records.length) throw new Error('No upcoming events match the export settings.');
+        download(calendarFile(records),'Aqueduct-Reminders.ics','text/calendar;charset=utf-8');
+        note(records.length+' reminder'+(records.length===1?'':'s')+' downloaded.');
+      },'Download calendar');
+  }
+  function businessLead(date,n) {
+    let back=0, counted=0;
+    while(counted<n) {
+      back++;
+      const day=new Date(E.add(date,-back)+'T00:00:00Z').getUTCDay();
+      if(day>0&&day<6)counted++;
+    }
+    return back;
+  }
+  function calendarFile(records) {
+    const escape=s=>String(s).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/[,;]/g,m=>'\\'+m);
+    const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+    const fold=line=>{
+      const out=[]; let text='',length=0;
+      const encoder=new TextEncoder();
+      for(const c of line) {
+        const size=encoder.encode(c).length;
+        if(length+size>75){out.push(text);text=' ';length=1;}
+        text+=c; length+=size;
+      }
+      out.push(text);return out.join('\r\n');
+    };
+    const entries=records.flatMap(x=>['BEGIN:VEVENT','UID:'+x.key.replace(/[^A-Za-z0-9-]/g,'-')+'@aqueduct.local',
+      'DTSTAMP:'+stamp,'DTSTART:'+x.date.replaceAll('-','')+'T090000','DURATION:PT15M','SUMMARY:'+escape(x.name),'CLASS:PRIVATE','TRANSP:TRANSPARENT',
+      'BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:'+(x.lead?'-P'+x.lead+'D':'-PT0M'),'DESCRIPTION:'+escape(x.name),'END:VALARM','END:VEVENT']);
+    return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Aqueduct//Offline Reminders//EN','CALSCALE:GREGORIAN',...entries,'END:VCALENDAR'].map(fold).join('\r\n')+'\r\n';
+  }
+  function debt() {
+    const now=E.today();
+    const current=E.makePlan(S,now,S.config.debtShare);
+    const loans=S.loans.map(l=>{
+      const flags=[];
+      if(l.rate===null||(!l.payment&&!l.minimumPercent))flags.push('Terms incomplete');
+      if(E.distance(l.asOf,now)>35)flags.push('Refresh balance');
+      if(l.renewal&&l.renewal>=now&&E.distance(now,l.renewal)<=90)flags.push('Renewal ahead');
+      if(l.rateDate&&l.rateDate>=now&&E.distance(now,l.rateDate)<=90)flags.push('Rate review ahead');
+      const linked=S.bills.some(b=>b.loan===l.id&&(!b.end||b.end>=now));
+      return row(cell(link(l.name,'loan-edit',l.id)+(flags.length?'<br>'+flags.map(x=>pill(x,'warn')).join(' '):'')+
+        '<br><small>Balance as of '+H(l.asOf)+(l.source?' · '+H(l.source):'')+'</small>','desc'),amountCell(l.balance),
+        cell(l.rate===null?'—':H(l.rate.toString()+'% '+l.rateType)+(l.rateAfter!==null?'<br><small>'+H(l.rateAfter+'% from '+l.rateDate)+'</small>':'')),
+        cell(money(l.payment)+(l.payment!==null?'<br><small>'+H(l.frequency)+(l.minimumPercent?' · '+H(l.minimumPercent)+'% minimum rule':'')+'</small>':'')),
+        cell(H(l.renewal||'—')),
+        cell(linked?pill('Scheduled','dim'):btn('Schedule payment','loan-bill',l.id,'mini')));
+    });
+    const goals=S.goals.slice().sort((a,b)=>a.priority-b.priority);
+    const goalRows=goals.map(g=>row(cell(link(g.name,'goal-edit',g.id),'desc'),amountCell(g.saved),amountCell(g.target),cell(H(g.deadline||'Flexible')),cell(g.priority)));
+    const cards=[['Debt first',100],['Your plan',S.config.debtShare],['Goals first',0]].map(([label,share])=>planCard(label,share,E.makePlan(S,now,share),label==='Your plan')).join('');
+    const old=S.loans.some(l=>E.distance(l.asOf,now)>35);
+    const missing=current.missing.length?banner('Fill in required payments and rates for '+H(current.missing.map(l=>l.name).join(', '))+' to compare payoff dates and costs.','warning'):'';
+    const schedule=S.loans.some(l=>l.balance>0&&!S.bills.some(b=>b.loan===l.id&&(!b.end||b.end>=now)));
+    return head('Debt & goals','Compare what the same monthly surplus can do for you.',btn('Edit allocation','config','plan','primary'))+
+      (old?banner('Some loan balances are more than 35 days old. Update them before making a decision.','warning'):'')+
+      (schedule?banner('Some debt payments are missing from the bill schedule. Add them to include those payments in cash flow.','warning'):'')+
+      panel('Debt register',loans.length?table(['Debt','$Balance','Rate','Required payment','Renewal','Cash forecast'],loans):no('Add a mortgage, line of credit, credit card balance, or other loan.'),'Use verified lender terms. Credit cards paid in full can be tracked under Bills.',btn('Add debt','loan-edit','','mini primary'))+
+      panel('Priority goals',goalRows.length?table(['Goal','$Saved','$Target','Deadline','Priority'],goalRows):no('Add a cash reserve, savings goal, trip, or renovation contribution.'),'Extra goal dollars fund priority 1 first, then the next goal.',btn('Add goal','goal-edit','','mini'))+
+      '<section class="panel"><div class="panel-title"><div><h2>Monthly allocation</h2><p>'+money(S.config.surplus)+' per month after regular spending and required payments · '+H(S.config.focus)+' first within debt</p></div></div>'+missing+
+      '<div class="plan-grid">'+cards+'</div><p class="small section-gap">Estimates start from your entered balances, assume no new borrowing, and run for up to 50 years. Required payments use monthly equivalents and accrue interest monthly. Canadian mortgage mode converts a nominal semi-annual rate to a monthly equivalent. Annual extra-payment limits reset every 12 model months. Rates stay at the last entered value beyond a renewal unless you enter a replacement rate. Freed payments and unused debt allocations flow to goals when they can’t be used for extra debt payments.</p></section>';
+  }
+  function planCard(label,share,plan,selected) {
+    const details=plan.missing.length?'':plan.items.map(l=>'<li><div>'+H(l.name)+'<small class="small">'+(l.clear?H(monthLabel(l.clear)):'Open at end of estimate')+'</small></div><span class="money">'+(l.clear?money(l.interest)+' interest':money(l.left)+' left')+'</span></li>').join('');
+    const goals=plan.missing.length?'':plan.goalItems.map(g=>{
+      const late=g.deadline&&(!g.funded||g.funded>g.deadline);
+      return '<li><div>'+H(g.name)+'<small class="small">'+(g.funded?H(monthLabel(g.funded)):'Open at end of estimate')+(g.deadline?' · due '+H(monthLabel(g.deadline)):'')+'</small></div>'+
+        (late?pill('Behind target','warn'):g.funded?pill('Funded','dim'):'')+'</li>';
+    }).join('');
+    return '<div class="plan'+(selected?' selected':'')+'"><h3>'+H(label)+'</h3><p class="small">Extra debt '+money(plan.extraDebt)+' · goals '+money(plan.extraGoals)+'</p>'+
+      '<p class="section-gap"><strong>'+(!plan.items.length?'No debt entered':plan.missing.length?'Add required terms':plan.end?'Debt clear '+H(monthLabel(plan.end)):'Debt remains at model limit')+'</strong></p>'+
+      (plan.interest!==null&&plan.items.length?'<p class="small">Estimated interest '+money(plan.interest)+'</p>':'')+
+      (details||goals?'<ul class="list">'+details+goals+'</ul>':'')+'</div>';
+  }
+  function loanEdit(id) {
+    const loan=byId(S.loans,id)||{};
+    return openDialog(loan.id?'Edit debt':'Add debt','<div class="form-grid">'+
+      field('Debt nickname',f('name',loan.name,'text','required maxlength="80"'))+
+      field('Type',select('type',['Mortgage','Credit card','Line of credit','Auto loan','Other'],loan.type||'Line of credit'))+
+      field('Balance owed',f('balance',inputMoney(loan.balance),'text','inputmode="decimal" required'))+
+      field('Balance as of',f('as_of',loan.asOf||E.today(),'date','required'))+
+      field('Annual interest rate (%)',f('rate',loan.rate,'number','min="0" max="100" step="0.001"'),'Blank if you still need to verify it.')+
+      field('Rate type',select('rate_type',['Fixed','Variable','Promotional'],loan.rateType||'Fixed'))+
+      field('Interest convention',select('method',['Monthly estimate','Canadian mortgage'],loan.method||'Monthly estimate'))+
+      field('Scheduled / minimum payment',f('payment',inputMoney(loan.payment),'text','inputmode="decimal"'),'For a balance-based minimum, enter its floor here and set the percentage below.')+
+      field('Payment frequency',select('frequency',frequency.filter(v=>v!=='Once').concat(['Semimonthly']),loan.frequency||'Monthly'))+
+      field('Monthly minimum (% of balance)',f('minimum_percent',loan.minimumPercent||'','number','min="0" max="100" step="0.01"'),'Optional. The estimate uses the higher of this amount and the payment entered.')+
+      field('Next due date',f('next_due',loan.nextDue,'date'))+
+      field('Funding account',select('account',accountOptions(cash),loan.account))+
+      field('Renewal / maturity',f('renewal',loan.renewal,'date'))+
+      field('Projected new rate (%)',f('rate_after',loan.rateAfter,'number','min="0" max="100" step="0.001"'),'Optional. Use for a known promo expiry or a renewal scenario.')+
+      field('Rate change / promo expiry date',f('rate_date',loan.rateDate,'date'))+
+      field('Annual extra-payment limit',f('prepay',inputMoney(loan.prepay),'text','inputmode="decimal"'),'Blank allows extra payments on non-mortgage debt. For mortgages, blank or 0 models required payments only.')+
+      field('Terms source / verified on',f('source',loan.source,'text','maxlength="120"'),'For example, lender statement, Nov 10.')+
+      field('Term notes',f('note',loan.note,'text','maxlength="180"'),'Use for prepayment penalties, prime spread, fees, or other lender terms.')+'</div>',
+      async data=>{
+        const asOf=dateField(data,'as_of'), rateAfter=numberField(data,'rate_after',0,100,true), rateDate=dateField(data,'rate_date',true);
+        if(asOf>E.today()) throw new Error('Use a balance as of today or earlier.');
+        if(rateAfter!==null&&!rateDate) throw new Error('Enter the effective date of the new rate.');
+        const type=val(data,'type');
+        let prepay=dollarsField(data,'prepay',{optional:true});
+        if(prepay===null&&type==='Mortgage') prepay=0;
+        const value={id:loan.id||E.id(),name:titleField(data),type,asOf,
+          balance:dollarsField(data,'balance'),rate:numberField(data,'rate',0,100,true),rateType:val(data,'rate_type'),
+          payment:dollarsField(data,'payment',{optional:true}),frequency:val(data,'frequency'),method:val(data,'method'),
+          minimumPercent:numberField(data,'minimum_percent',0,100,true),renewal:dateField(data,'renewal',true),
+          nextDue:dateField(data,'next_due',true),account:val(data,'account'),rateAfter,rateDate,prepay,source:val(data,'source'),note:val(data,'note')};
+        await write(next=>replace(next.loans,value));
+      },'Save debt');
+  }
+  function goalEdit(id) {
+    const g=byId(S.goals,id)||{};
+    return openDialog(g.id?'Edit goal':'Add goal','<div class="form-grid">'+
+      field('Goal name',f('name',g.name,'text','required maxlength="80"'))+
+      field('Target amount',f('target',inputMoney(g.target),'text','inputmode="decimal" required'))+
+      field('Already saved',f('saved',inputMoney(g.saved??0),'text','inputmode="decimal" required'))+
+      field('Deadline',f('deadline',g.deadline,'date'))+
+      field('Priority',f('priority',g.priority||1,'number','min="1" max="99" step="1" required'),'1 is highest priority.')+'</div>',
+      async data=>{
+        const value={id:g.id||E.id(),name:titleField(data),target:dollarsField(data,'target',{min:1}),
+          saved:dollarsField(data,'saved'),deadline:dateField(data,'deadline',true),
+          priority:Math.round(numberField(data,'priority',1,99))};
+        await write(next=>replace(next.goals,value));
+      },'Save goal');
+  }
+  function replace(items,item) {
+    const index=items.findIndex(x=>x.id===item.id);
+    if(index<0) items.push(item);
+    else items[index]=item;
+  }
+  function settings() {
+    const accountRows=S.accounts.map(a=>row(cell(link(a.name,'account-edit',a.id),'desc'),cell(H(a.type)),amountCell(a.balance),cell(H(a.balanceDate||'—')),
+      cell((a.history?pill('History','dim'):'')+' '+(a.forecast?pill('Forecast','dim'):''))));
+    const organized=panel('Accounts',accountRows.length?table(['Account','Type','$Entered balance','Balance date','Used in'],accountRows):no('Start with one chequing account and add each card used for household spending.'),
+      'Use nicknames such as Joint chequing or Card A. Include all spending accounts when calculating a historical average.',btn('Add account','account-edit','','mini primary'));
+    const c=S.config;
+    const rules=S.rules.map((r,i)=>row(cell(H(r.merchant),'desc'),cell(H(alias(r.account))),cell(H(r.project?projectName(r.project):r.category||r.kind)),cell(btn('Remove','rule-remove',String(i),'mini danger'))));
+    const rulesSection=panel('Saved merchant rules',rules.length?table(['Normalized description','Account','Category or project',''],rules):no('When reviewing a purchase, choose to remember its category for future matching descriptions.'));
+    const exclusions=S.excludedMonths.map(m=>btn(monthLabel(m)+' ×','include-month',m,'mini'));
+    return head('Settings','Manage account coverage, forecast assumptions, and backups.')+
+      '<div id="settings-accounts">'+organized+'</div>'+
+      '<div class="grid-2 section-gap">'+panel('Cash forecast','<ul class="list"><li><div>Forecast window</div><strong>'+c.window+' days</strong></li><li><div>Household cash buffer</div><strong>'+money(c.floor)+'</strong></li><li><div>Flexible spending allowance</div><strong>'+money(c.flex)+' / month</strong></li></ul>','',btn('Edit cash settings','config','cash','mini'))+
+      panel('Baseline months','<div class="actions">'+(exclusions.length?exclusions.join(''):no('All fully covered months are eligible.'))+'</div>','Exclude move-in or unusually incomplete months from your average. Their transactions stay in history.',btn('Exclude a month','exclude-month','','mini'))+'</div>'+
+      '<div class="grid-2 section-gap">'+panel('Encrypted backups','<p>Keep a backup outside cloud-synced folders. The same passphrase unlocks the backup. Browser data can disappear when you clear website data or change browser profiles. Each device has its own ledger.</p><div class="actions section-gap">'+
+      btn('Download encrypted backup','backup','','primary')+(sample?'':btn('Share encrypted backup','share-backup'))+btn('Open backup','restore')+'</div>')+
+      panel('Review with an adviser','<p>Create a small summary showing amounts by category and month. You can review the text and decide what to copy.</p><div class="actions section-gap">'+btn('Preview spending summary','summary')+'</div>')+'</div>'+
+      '<div class="section-gap">'+rulesSection+'</div>'+
+      panel('Getting started','<div class="stack"><details class="subtle"><summary>1. Set up accounts and your starting cash</summary><p>Add every account that contributed to the year of spending. For the forecast, enter balances you have verified for the accounts that actually pay bills. Keep an emergency reserve out of the forecast unless you intend to fund bills from it.</p></details>'+
+      '<details class="subtle"><summary>2. Import statements and review the questions</summary><p>Export CAD transactions as CSV or TSV. Enter the real coverage dates, choose the right sign and date mapping, and compare the totals. Use the review queue to resolve transfers and mixed merchants. For example, add Basement as a project and tag its charges and refunds there.</p></details>'+
+      '<details class="subtle"><summary>3. Add bills, paycheques, and debt terms</summary><p>Take amounts, due dates, interest rates, promo ends, and renewal dates from your latest statements. Enter the terms into this app. Use manual occurrences for variable bills and one-time project invoices. Choose a monthly extra amount after required payments and compare where to allocate it.</p></details>'+
+      '<details class="subtle"><summary>4. Set up reminders and a monthly close</summary><p>Import the reminder file into a dedicated local calendar. Review pending transactions, refresh balances and bill dates, and download an encrypted backup after each close.</p></details></div>');
+  }
+  function accountEdit(id) {
+    const a=byId(S.accounts,id)||{};
+    return openDialog(a.id?'Edit account':'Add account','<div class="form-grid">'+
+      field('Account nickname',f('name',a.name,'text','required maxlength="80"'))+
+      field('Type',select('type',listTypes,a.type||'Chequing'))+
+      field('Current balance',f('balance',inputMoney(a.balance),'text','inputmode="decimal"'),'Enter the amount owed as positive for cards and loans.')+
+      field('Balance as of',f('balance_date',a.balanceDate||E.today(),'date'),'Use the date this balance was verified.')+
+      field('Account-specific cash buffer',f('floor',inputMoney(a.floor??0),'text','inputmode="decimal"'))+
+      field('Date opened',f('open_date',a.openDate,'date'),'Optional. Helps calculate your coverage if the account is new.')+
+      field('Date closed',f('close_date',a.closeDate,'date'),'Optional. Leave blank for an active account.')+
+      '</div>'+check('Include in historical household spending','history',a.id?a.history:true)+
+      check('Use to fund the cash forecast','forecast',a.id?a.forecast:S.accounts.length===0),
+      async data=>{
+        const type=val(data,'type');
+        const balance=dollarsField(data,'balance',{optional:true,min:Number.MIN_SAFE_INTEGER});
+        const balanceDate=balance===null?'':dateField(data,'balance_date');
+        const openDate=dateField(data,'open_date',true),closeDate=dateField(data,'close_date',true);
+        if(balanceDate>E.today()||(closeDate&&openDate&&closeDate<openDate)) throw new Error('Check the account and balance dates.');
+        const forecast=data.has('forecast')&&['Chequing','Savings'].includes(type);
+        const value={id:a.id||E.id(),name:titleField(data),type,balance,balanceDate,openDate,closeDate,floor:dollarsField(data,'floor',{optional:true})||0,history:data.has('history'),forecast};
+        await write(next=>replace(next.accounts,value));
+        if(tab==='Import & review'&&files.length&&selectedFile&&!byId(files,selectedFile)?.account) byId(files,selectedFile).account=value.id;
+        if(tab==='Import & review')render();
+      },'Save account');
+  }
+  function config(which) {
+    const c=S.config;
+    const body=which==='plan'?'<div class="form-grid">'+
+      field('Monthly amount available after required payments',f('surplus',inputMoney(c.surplus),'text','inputmode="decimal" required'),'Exclude bills, regular spending, required payments, and any commitments you already accounted for.')+
+      field('Percent of extra cash toward debt',f('debt_share',c.debtShare,'number','min="0" max="100" step="1" required'),'The remainder funds your goals.')+
+      field('Allocate extra debt dollars by',select('focus',['Highest rate','Lowest balance'],c.focus))+'</div>':
+      '<div class="form-grid">'+field('Days to project',select('window',['30','45','60','90'],String(c.window)))+
+      field('Combined cash buffer',f('floor',inputMoney(c.floor),'text','inputmode="decimal" required'))+
+      field('Monthly flexible spending allowance',f('flex',inputMoney(c.flex),'text','inputmode="decimal" required'),'Optional forecast reserve for spending not already included in scheduled bills or card payments.')+
+      field('Flexible spending cash account',select('flex_account',accountOptions(a=>cash(a)&&a.forecast),c.flexAccount))+'</div>';
+    return openDialog(which==='plan'?'Edit priority allocation':'Edit cash assumptions',body,
+      async data=>write(next=>{
+        if(which==='plan') Object.assign(next.config,{surplus:dollarsField(data,'surplus'),debtShare:Math.round(numberField(data,'debt_share',0,100)),focus:val(data,'focus')});
+        else {
+          const flex=dollarsField(data,'flex'), flexAccount=val(data,'flex_account');
+          if(flex&&!flexAccount) throw new Error('Choose the account for flexible spending.');
+          Object.assign(next.config,{window:Number(val(data,'window')),floor:dollarsField(data,'floor'),flex,flexAccount});
+        }
+      }));
+  }
+  function excludeMonth() {
+    return openDialog('Exclude baseline month',field('Month',f('month','2025-10','month','required'))+
+      '<p class="small">The actual spending and transaction history for this month remain available.</p>',async data=>{
+      const m=val(data,'month');
+      if(!E.validDate(m+'-01')) throw new Error('Choose a valid month.');
+      await write(next=>{if(!next.excludedMonths.includes(m))next.excludedMonths.push(m);});
+    });
+  }
+  function summary() {
+    const h=E.history(S,E.today(),month);
+    const values=h.rows.filter(r=>r.actual||r.average||r.suggestion);
+    const summary=['Month: '+monthLabel(month),'Complete comparison months: '+h.complete.length,'Everyday spending: '+money(h.total),
+      'Project spending: '+money(h.projects),'Pending classifications: '+h.review.length,'',...values.map(r=>r.category+' | actual '+money(r.actual)+' | average '+money(r.average)+' | target '+money(r.suggestion))].join('\n');
+    const form=openDialog('Review the summary','<p>Check the category names and totals before sharing.</p>'+field('Spending summary','<textarea rows="12" readonly>'+H(summary)+'</textarea>'),()=>{},'Done');
+    form.querySelector('textarea').addEventListener('focus',event=>event.target.select());
+  }
+  function backup() {
+    if(sample||!serialized) return note('Open your own encrypted ledger to download a backup.',true);
+    download(serialized,'Aqueduct-Backup-'+E.today()+'.aqueduct','application/octet-stream');
+    note('Encrypted backup downloaded.');
+  }
+  async function shareBackup() {
+    if(sample||!serialized)return note('Open your own encrypted ledger first.',true);
+    const name='Aqueduct-Backup-'+E.today()+'.aqueduct';
+    const file=typeof navigator==='undefined'?null:shareFile(serialized,name,'application/octet-stream');
+    if(!file) {
+      return openDialog('Save encrypted backup',
+        '<p>This viewer cannot share files directly. Use Download encrypted backup, or save this encrypted text as a plain-text file with the .aqueduct extension.</p>'+
+        field('Encrypted backup text','<textarea rows="9" readonly>'+H(serialized)+'</textarea>'),()=>{},'Done',btn('Download backup','backup','',''));
+    }
+    try { await navigator.share({files:[file]}); }
+    catch(error) { if(error.name!=='AbortError')throw error; }
+  }
+  function restore() {
+    if(!localFile||!crypto.subtle)return note('Open Aqueduct directly from Atlas to restore a backup.',true);
+    const existing=Vault.get();
+    return openDialog('Open encrypted backup',field('Backup file','<input type="file" name="backup" accept=".aqueduct,.json" required>')+
+      field('Backup passphrase',f('password','','password','required autocomplete="current-password"'))+
+      (existing?check('Replace the saved ledger in this browser','replace'):'')+
+      '<p class="small">'+(existing?'Leave Replace unchecked to review the backup in this window. Download a fresh backup before closing if you edit it.':'The restored ledger will be saved in this browser if local storage is available.')+'</p>',
+      async data=>{
+        const file=data.get('backup');
+        if(!file?.size||file.size>100_000_000) throw new Error('Choose an Aqueduct backup file under 100 MB.');
+        const content=await file.text();
+        const unlocked=await Vault.open(content,data.get('password'));
+        const temporary=Boolean(existing&&!data.has('replace'));
+        if(!temporary)saveToBrowser(content,existing);
+        files=[];staging=[];preview=null;
+        enter(unlocked,content,false,temporary);
+        note(temporary?'Backup opened for this window.':storageProblem?storageMessage:'Backup restored.',storageProblem&&!temporary);
+      },'Unlock backup');
+  }
+  function demo() {
+    const state=E.empty();
+    const now=E.today();
+    const cashId=E.id(), card=E.id(), savings=E.id(), basement=E.id(), loanId=E.id();
+    const back=E.monthStart(E.shiftMonth(now,-12)), last=E.add(E.monthStart(now),-1);
+    const account=(id,name,type,balance,forecast,history,floor)=>({id,name,type,balance,balanceDate:now,forecast,history,floor,openDate:'',closeDate:''});
+    state.accounts.push(account(cashId,'Joint chequing','Chequing',634800,true,true,100000),
+      account(card,'Household card','Credit card',190400,false,true,0),
+      account(savings,'Emergency savings','Savings',1200000,false,false,0));
+    const addTx=(account,date,description,amount,kind,category='',project='')=>{
+      const t={id:E.id(),account,date,description,amount,kind,category,project,external:'',pair:'',note:'',why:kind==='Review'?'Which category or project does this belong to?':'Fictional statement',manual:kind!=='Review'};
+      t.fingerprint=[t.date,E.normal(t.description),t.amount].join('|');
+      state.transactions.push(t);
+    };
+    const historyNames=['Joint-chequing-history.csv','Card-history.csv'];
+    [cashId,card].forEach((a,index)=>state.imports.push({id:E.id(),account:a,name:historyNames[index],start:back,end:last,count:0,
+      balanceCheck:'Balances tie',coverageConfirmed:true,issueCount:0,approved:now}));
+    for(let i=0;i<=12;i++) {
+      const m=E.shiftMonth(back,i);
+      const items=[
+        [cashId,0,'Mortgage interest portion',-95600,'Spending','Interest & fees'],
+        [cashId,0,'Mortgage principal portion',-94900,'Financing','Mortgage'],
+        [card,0,'Superstore',-17400-i*690,'Spending','Groceries'],
+        [card,0,'Cafe Cedar',-6150-i*245,'Spending','Dining'],
+        [card,0,'Shell',-9100-i*268,'Spending','Transportation'],
+        [cashId,0,'Manitoba Hydro',-15100-((i*37)%110)*100,'Spending','Housing & utilities'],
+        [cashId,0,'Payroll',281000,'Income','Paycheque'],
+        [cashId,3,'Home insurance',-15300,'Spending','Insurance'],
+        [card,5,'Superstore',-31100+i*325,'Spending','Groceries'],
+        [cashId,7,'Payroll',282000,'Income','Paycheque'],
+        [card,8,'Dining',-14600-i*107,'Spending','Dining'],
+        [card,9,'Apple.com/bill',-2100,'Spending','Subscriptions'],
+        [card,11,'Oak Room Renovations',i<5?-163800:0,'Project','',basement],
+        [card,13,'Pet Valu',-5800,'Spending','Pets'],
+        [card,15,'Clinic North',-7100,'Spending','Health']
+      ];
+      for(const [a,offset,description,amount,kind,category,project] of items) {
+        const date=E.add(m,offset);
+        if(date<=now&&amount)addTx(a,date,description,amount,kind,category,project);
+      }
+    }
+    state.imports.forEach(entry=>{
+      const matching=state.transactions.filter(t=>t.account===entry.account&&t.date<=last);
+      matching.forEach(t=>{t.importId=entry.id;});
+      entry.count=matching.length;
+    });
+    addTx(card,now,'Home Depot CA',-12829,'Review');
+    addTx(card,now,'Marketplace order',-5636,'Review');
+    addTx(cashId,now,'Interac e-transfer received',18000,'Review');
+    state.projects.push({id:basement,name:'Basement renovation',status:'Active',unbilled:85000,loan:loanId,note:'Demo project labour and materials.'});
+    const schedule=(name,amount,offset,frequency,mode,direction='Bill',project='',loan='')=>({id:E.id(),name,amount,start:E.add(now,offset),end:'',frequency,mode,direction,project,loan,note:'',account:cashId,variable:name.includes('Hydro')});
+    state.bills.push(schedule('Household credit card',190400,3,'Monthly','Manual'),schedule('Paycheque',285000,6,'Biweekly','Deposit','Income'),
+      schedule('Mortgage',190500,10,'Monthly','Autopay','Bill','',loanId),schedule('Manitoba Hydro',16620,15,'Monthly','Autopay'),
+      schedule('Basement final invoice',47500,22,'Once','Manual','Bill',basement),schedule('Home internet',9400,12,'Monthly','Autopay'));
+    state.loans.push({id:loanId,name:'Mortgage',type:'Mortgage',balance:28700000,rate:4.49,rateType:'Fixed',method:'Canadian mortgage',
+      payment:190500,frequency:'Monthly',renewal:E.add(now,85),rateDate:'',rateAfter:null,prepay:1450000,minimumPercent:null,
+      asOf:now,source:'Fictional term sheet',nextDue:E.add(now,10),account:cashId,note:''},
+      {id:E.id(),name:'Line of credit',type:'Line of credit',balance:520000,rate:8.2,rateType:'Variable',method:'Monthly estimate',
+        payment:18500,frequency:'Monthly',renewal:'',rateDate:'',rateAfter:null,prepay:null,minimumPercent:null,
+        asOf:now,source:'Fictional statement',nextDue:E.add(now,20),account:cashId,note:''});
+    state.bills.push(schedule('Line of credit',18500,20,'Monthly','Manual','Bill','',state.loans[1].id));
+    state.goals.push({id:E.id(),name:'Cash reserve top-up',target:350000,saved:100000,deadline:E.add(now,225),priority:1},
+      {id:E.id(),name:'Travel',target:420000,saved:80000,deadline:E.add(now,360),priority:2});
+    state.targets['Housing & utilities']={method:'Annual',amount:222000,note:'Hydro set-aside from annual estimate'};
+    state.targets['Insurance']={method:'Fixed',amount:15300,note:'Current home insurance'};
+    Object.assign(state.config,{floor:125000,surplus:70000,flex:65000,flexAccount:cashId});
+    enter({state},null,true);
+  }
+
+  function setLedger(patch) {
+    ledger={filter:'All',account:'',month:'',category:'',project:'',search:'',...patch};
+    ledgerPage=0;
+    go('Import & review');
+    document.getElementById('ledger-filters')?.scrollIntoView({block:'start'});
+  }
+  const actions={
+    nav:go,lock:()=>lock(),
+    'dialog-close':()=>dialog.close(),demo,restore,backup,summary,'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
+    'account-settings':()=>{tab='Settings';settingsJump='settings-accounts';render();settingsJump='';},
+    'account-edit':accountEdit,config,'exclude-month':excludeMonth,
+    'include-month':id=>write(next=>{next.excludedMonths=next.excludedMonths.filter(m=>m!==id);}),
+    'rule-remove':i=>write(next=>{next.rules.splice(Number(i),1);}),
+    'select-file':id=>{selectedFile=id;preview=null;render();},
+    'drop-file':id=>{files=files.filter(x=>x.id!==id);selectedFile=files[0]?.id||'';preview=null;render();},
+    unstage:id=>{staging=staging.filter(x=>x.id!==id);render();},
+    'toggle-duplicate':(id)=>{
+      const target=staging.flatMap(p=>p.items).find(x=>x.transaction.id===id);
+      target.force=!target.force;render();
+      const duplicateButton=[...document.querySelectorAll('[data-act="toggle-duplicate"]')].find(x=>x.dataset.id===id);
+      if(duplicateButton){duplicateButton.closest('details').open=true;duplicateButton.focus();}
+    },
+    approve,
+    'remove-import':id=>confirmation('Remove statement import?','Transactions that came from this import will be removed, even if reviewed. Any linked payment in another statement will be unlinked.','Remove import',async()=>write(next=>{
+      const deleting=next.transactions.filter(t=>t.importId===id);
+      deleting.forEach(t=>unpair(next,t.id));
+      next.transactions=next.transactions.filter(t=>t.importId!==id);
+      next.imports=next.imports.filter(i=>i.id!==id);
+    })),
+    'open-inbox':()=>setLedger({filter:'Review'}),
+    'month-inbox':m=>setLedger({filter:'Review',month:m}),
+    'spending-drill':category=>setLedger({month,category}),
+    'project-drill':project=>setLedger({project}),
+    'ledger-page':n=>{ledgerPage=Math.max(0,ledgerPage+Number(n));render();document.getElementById('ledger-filters')?.scrollIntoView({block:'nearest'});},
+    transaction,'manual-transaction':manualTransaction,'monthly-close':monthlyClose,'target-edit':targetEdit,'project-edit':projectEdit,
+    'bill-edit':billEdit, occurrence, calendar,
+    'bill-window':()=>{postingWindow=postingWindow?'':E.add(E.today(),90);render();},
+    'delete-bill':id=>confirmation('Remove schedule?','Future dates and saved occurrence statuses for this schedule will be removed. Imported transactions stay in your history.','Remove schedule',async()=>write(next=>{
+      next.bills=next.bills.filter(b=>b.id!==id);
+      for(const key of Object.keys(next.billStatus))if(key.startsWith(id+'/'))delete next.billStatus[key];
+    })),
+    'loan-edit':loanEdit,'loan-bill':id=>billEdit('',byId(S.loans,id)),'goal-edit':goalEdit
+  };
+  document.addEventListener('click',async event=>{
+    const button=event.target.closest('button[data-act]');
+    if(!button||button.disabled) return;
+    const run=actions[button.dataset.act];
+    if(!run)return;
+    try { await run(button.dataset.id||''); } catch(error){note(error.message,true);}
+  });
+  welcome();
+  if(hosted&&localFile&&'serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./aqueduct-household-sw.js',{scope:'./aqueduct-household.html'})
+      .catch(()=>{ /* The ledger can still open over HTTPS if offline caching is unavailable. */ });
+  }
+})();

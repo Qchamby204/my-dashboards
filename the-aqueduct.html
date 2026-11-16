@@ -1059,6 +1059,9 @@ function render(){
   h+='<span class="appbar-pill" id="pill">'+pillHtml()+'</span>';
   h+='</div>';
 
+  if(activeTab==="plan"||activeTab==="review")
+    h+='<div class="panel"><a class="btn sm" href="aqueduct-household.html" style="display:inline-flex;align-items:center;min-height:44px">Open household cash flow</a></div>';
+
   if(activeTab==="month"){ activeTab="plan"; S.tab="plan"; }   /* the Month tab retired; old sessions land on Plan */
   if(activeTab==="book")   h+=viewBook(P);
   if(activeTab==="pay")    h+=incomePlanningPanel()+viewPay(P);
