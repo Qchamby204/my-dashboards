@@ -137,10 +137,14 @@ const Engine = (() => {
     [/\b(netflix|spotify|apple com bill|disney plus|crave|youtube premium)\b/,'Spending','Subscriptions',0],
     [/\b(air canada|westjet|airbnb|holiday inn|porter airlines)\b/,'Spending','Travel',0]
   ];
+  function savedRule(state,row) {
+    const merchant=normal(row.description), direction=Math.sign(row.amount);
+    return [...state.rules].reverse().find(r=>r.merchant===merchant&&r.direction===direction&&(!r.account||r.account===row.account));
+  }
   function classify(state,row) {
     const key=normal(row.description), direction=Math.sign(row.amount);
-    const rule=[...state.rules].reverse().find(r=>r.merchant===key && r.direction===direction && (!r.account||r.account===row.account));
-    if (rule) return {kind:rule.kind,category:rule.category,project:rule.project,why:'Saved rule'};
+    const rule=savedRule(state,row);
+    if(rule)return {kind:rule.kind,category:rule.category,project:rule.project,why:'Saved rule'};
     if (likelyTransfer(key) || /\b(e transfer|etransfer|interac|e trf|cash withdrawal|atm|home depot|rona|costco|walmart|amazon|amzn|canadian tire)\b/.test(key)) {
       return {kind:'Review',category:'',project:'',why: transferPairHint(key) ? 'Transfer, payment, income or reimbursement?' : 'Which category or project does this belong to?'};
     }
@@ -229,6 +233,73 @@ const Engine = (() => {
       const label=accountTypes.get(other.account)==='Credit card'?'Credit card payment':'Between accounts';
       return [{left:t,right:other,label}];
     });
+  }
+  const merchantKey = t => JSON.stringify([t.account,normal(t.description),Math.sign(t.amount)]);
+  const compoundDescription = t => /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{1,2}\b/i.test(t.description);
+  const moneyMovement = t => transferPairHint(t.description) || /\b(interac|e transfer|etransfer|deposit|withdrawal|atm|tfr|xfer|cheque)\b/.test(normal(t.description));
+  const identifiableMerchant = t => !compoundDescription(t) && !moneyMovement(t) &&
+    !/^(pos|point of sale|purchase|debit|credit|miscellaneous|misc payment|adjustment|unknown merchant|amazon|amzn|costco|walmart|home depot|rona|canadian tire)(?: |$)/.test(normal(t.description)) &&
+    /\p{L}/u.test(t.description);
+  function cadence(rows) {
+    const recent=rows.slice(0,4);
+    if(recent.length<3)return '';
+    const amounts=recent.map(t=>Math.abs(t.amount));
+    if(Math.max(...amounts)-Math.min(...amounts)>Math.max(100,Math.min(...amounts)*.04))return '';
+    const intervals=recent.slice(1).map((t,i)=>distance(t.date,recent[i].date));
+    if(intervals.every(d=>d>=26&&d<=35)&&new Set(recent.map(t=>month(t.date))).size===recent.length)return 'Monthly';
+    if(intervals.every(d=>d>=12&&d<=16))return 'Biweekly';
+    if(intervals.every(d=>d>=6&&d<=8))return 'Weekly';
+    return '';
+  }
+  function merchantGroups(rows) {
+    const groups=new Map();
+    for(const t of rows) {
+      const key=merchantKey(t);
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(t);
+    }
+    for(const entries of groups.values())entries.sort((a,b)=>b.date.localeCompare(a.date));
+    return groups;
+  }
+  function reviewGroups(state, targetMonth='') {
+    const pending=state.transactions.filter(t=>t.kind==='Review'&&!t.pair&&!t.allocations&&(!targetMonth||month(t.date)===targetMonth));
+    const active=new Set(pending.map(t=>t.id)), paired=new Set();
+    const pairs=matchTransfers(state.transactions,state.accounts).flatMap(match=>{
+      const {left,right}=match;
+      if(!active.has(left.id)&&!active.has(right.id))return [];
+      paired.add(left.id);paired.add(right.id);
+      return [{id:left.id,rows:[left,right],type:'pair',label:match.label}];
+    });
+    const history=merchantGroups(state.transactions.filter(t=>!t.pair&&!t.allocations&&identifiableMerchant(t)));
+    const groups=new Map();
+    for(const t of pending) {
+      if(paired.has(t.id))continue;
+      const groupable=t.amount<0&&identifiableMerchant(t);
+      const key=groupable?merchantKey(t):t.id;
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(t);
+    }
+    const cards=[...groups.values()].map(rows=>{
+      rows.sort((a,b)=>b.date.localeCompare(a.date));
+      const first=rows[0], eligible=first.amount<0&&identifiableMerchant(first);
+      const similar=eligible?(history.get(merchantKey(first))||[]):[];
+      const confirmed=similar.filter(t=>t.kind!=='Review');
+      const known=confirmed[0];
+      const suggestion=known?.kind==='Spending'&&known.category&&confirmed.every(t=>t.kind===known.kind&&t.category===known.category)?known.category:'';
+      return {id:first.id,rows,suggestion,eligible,frequency:cadence(similar),
+        type:rows.length>1?'repeat':moneyMovement(first)?'movement':compoundDescription(first)?'compound':'single'};
+    }).sort((a,b)=>Number(Boolean(b.suggestion))-Number(Boolean(a.suggestion))||b.rows.length-a.rows.length||b.rows[0].date.localeCompare(a.rows[0].date));
+    return {count:pending.length,cards:pairs.concat(cards)};
+  }
+  function recurringCharges(state) {
+    const eligible=state.transactions.filter(t=>t.kind==='Spending'&&t.amount<0&&!t.pair&&!t.allocations&&identifiableMerchant(t));
+    return [...merchantGroups(eligible).values()].flatMap(rows=>{
+      const frequency=cadence(rows);
+      if(!frequency||!rows.slice(0,4).every(t=>t.category===rows[0].category))return [];
+      const recent=rows.slice(0,4);
+      const average=round(sum(recent,t=>-t.amount)/recent.length);
+      return [{transaction:rows[0],frequency,count:rows.length,amount:average,monthly:round(average*monthlyFactor(frequency))}];
+    }).sort((a,b)=>b.monthly-a.monthly);
   }
   function coverage(state, account, start, end) {
     const spans=state.imports.filter(x=>x.account===account && x.coverageConfirmed && x.start<=end&&x.end>=start).sort((a,b)=>a.start.localeCompare(b.start));
@@ -406,5 +477,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,extract,duplicateReview,matchTransfers,coverage,ledgerRows,history,appointments,billKey,events,paymentWindow,forecast,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,appointments,billKey,events,paymentWindow,forecast,makePlan};
 })();

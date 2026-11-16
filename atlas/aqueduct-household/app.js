@@ -10,6 +10,7 @@
   const inputMoney=n=>n===null||n===undefined?'':(n/100).toFixed(2);
   const isoMonth=new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'short',timeZone:'UTC'});
   const isoDay=new Intl.DateTimeFormat('en-CA',{month:'short',day:'numeric',timeZone:'UTC'});
+  const monthShort=new Intl.DateTimeFormat('en-CA',{month:'short',timeZone:'UTC'});
   const dateLabel=d=>d&&E.validDate(d)?isoDay.format(new Date(d+'T00:00:00Z')):'—';
   const monthLabel=d=>d&&E.validDate(d.slice(0,7)+'-01')?isoMonth.format(new Date(d.slice(0,7)+'-01T00:00:00Z')):'—';
   const pick=(x,...keys)=>Object.fromEntries(keys.map(k=>[k,x[k]]));
@@ -25,10 +26,22 @@
   let ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''};
   let month=E.month(E.today()), settingsJump='', preview=null, lockAfterSave=false;
   let chatUpdate=null, chatRead=0;
+  let spendingTab='Categories';
+  let reviewView='Quick review', reviewType='All', reviewMonth='', reviewPicker='', quickUndo=null;
+  const setAside=new Set();
   const canonical='https://qchamby204.github.io/my-dashboards/aqueduct-household.html';
   const hosted=location.origin+location.pathname===canonical;
   const localFile=window.top===window && (hosted || location.protocol==='file:' ||
     (['http:','https:'].includes(location.protocol)&&['localhost','127.0.0.1','[::1]'].includes(location.hostname)));
+  const tabIcons={
+    Home:'M2 10 12 2l10 8M5 9v12h14V9M10 21v-6h4v6',
+    Spending:'M12 3a9 9 0 1 0 9 9h-9zm3-1v7h7a8 8 0 0 0-7-7z',
+    Bills:'M4 7h16v14H4zM4 11h16M8 4v5m8-5v5M8 15h3m2 0h3m-8 3h3',
+    Debt:'M3 19h18M5 15l5-5 4 2 5-6m-5 0h5v5',
+    Review:'M9 5H5v15h14V5h-4M9 3h6v4H9zm-1 11 3 3 5-6',
+    Settings:'M4 6h16M4 12h16M4 18h16M8 4v4m8 2v4m-6 2v4'
+  };
+  const icon=path=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+path+'"/></svg>';
   const atlasLink=hosted?'<a class="atlas-return" href="./">Atlas</a>':'';
   const brand='<div class="brand"><span class="brand-mark" aria-hidden="true"></span>Aqueduct</div>';
   const val=(form,key)=>String(form.get(key)??'').trim();
@@ -213,6 +226,8 @@
     storageProblem=Boolean(memory||(!demo&&lastStored!==serialized));
     lastActivity=Date.now();
     tab=allViews[0];
+    reviewView='Quick review'; reviewType='All'; reviewMonth=''; reviewPicker=''; quickUndo=null; setAside.clear();
+    spendingTab='Categories';
     month=E.month(E.today());
     render();
     window.scrollTo(0,0);
@@ -225,6 +240,7 @@
     }
     S=null; session=null; serialized=null; lastStored=null; sample=false; memoryOnly=false; preview=null; files=[]; staging=[];
     chatUpdate=null; chatRead++;
+    quickUndo=null; reviewPicker=''; setAside.clear();
     ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''}; ledgerPage=0; postingWindow='';
     if(dialog.open) dialog.close();
     clearTimeout(toastTimer); notice.hidden=true;
@@ -339,13 +355,42 @@
     const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Settings','Settings']];
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+(sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>btn(label,'nav',v,'',v===tab?' aria-current="page"':'')).join('')+'</nav></div></header><main id="main">'+
+      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab?' aria-current="page"':'')+'>'+icon(tabIcons[label])+'<span>'+H(label)+'</span></button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
     if(tab===allViews[0]) drawChart();
     if(tab===allViews[1]) bindImport();
     if(tab===allViews[2]) root.querySelector('[name=month-view]')?.addEventListener('change',event=>{if(/^\d{4}-\d{2}$/.test(event.target.value)){month=event.target.value;render();}});
     if(settingsJump) document.getElementById(settingsJump)?.scrollIntoView({block:'start'});
+  }
+  const piePalette=['#12664f','#a86636','#425a86','#6b7f47','#a14b5b','#3b7d8b','#746279'];
+  const slicesFor=(rows,metric)=>rows.map(x=>({name:x.category,amount:x[metric]}))
+    .filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount||a.name.localeCompare(b.name));
+  function spendingPie(h,metric,period) {
+    const positive=slicesFor(h.rows,metric);
+    if(!positive.length)return no(metric==='average'?'An average will appear after complete statement months are available.':'No categorized spending to chart for this month.');
+    const total=E.sum(positive,x=>x.amount);
+    const chart=positive.slice(0,5);
+    if(positive.length>5)chart.push({name:'All other categories',amount:E.sum(positive.slice(5),x=>x.amount),other:true});
+    const negative=h.rows.some(x=>x[metric]<0);
+    let angle=0;
+    const segments=chart.map((x,i)=>{
+      const end=i===chart.length-1?100:angle+x.amount/total*100;
+      const segment=piePalette[i]+' '+angle.toFixed(5)+'% '+end.toFixed(5)+'%';
+      angle=end;
+      return segment;
+    });
+    const links=chart.map((x,i)=>{
+      const clickable=!x.other&&metric==='actual';
+      const share=x.amount/total*100;
+      return '<li><span class="pie-dot" style="--swatch:'+piePalette[i]+'" aria-hidden="true"></span>'+
+        (clickable?link(x.name,'chart-drill',JSON.stringify([period,x.name])):'<span>'+H(x.name)+'</span>')+
+        '<strong class="money">'+money(x.amount)+'</strong><small>'+(share<1?'&lt;1%':Math.round(share)+'%')+'</small></li>';
+    }).join('');
+    return '<div class="pie-layout"><div class="pie-ring" aria-hidden="true" style="--slices:'+segments.join(',')+
+      '"><div><strong class="money">'+money(total)+'</strong><small>'+(metric==='average'?'Per month':'In this chart')+'</small></div></div>'+
+      '<ul class="pie-legend" aria-label="Category amounts and shares">'+links+'</ul></div>'+
+      (negative?'<p class="small pie-note">Net refunds are included in your spending total.</p>':'');
   }
   function overview() {
     const now=E.today(), p=E.forecast(S,now), h=E.history(S,now);
@@ -368,7 +413,7 @@
     }).join('');
     return head('Household cash flow',monthLabel(now)+' · CAD',btn('Apply chat update','chat-update','','primary'))+
       '<div class="home-grid"><section class="hero spending-hero"><h2>Everyday spending</h2><div class="hero-value money'+(!h.current.length?' value-waiting':'')+'">'+H(actual)+'</div>'+
-      '<p>'+H(monthLabel(now))+' to date · Excludes project costs</p>'+
+      '<p>'+H(lastActivity?'Recorded through '+dateLabel(lastActivity):monthLabel(now))+' · CAD</p>'+
       '<div class="hero-baseline"><div><span>Historical monthly average</span><strong class="money">'+money(avg)+'</strong><p>'+
       (h.complete.length?h.complete.length+' complete '+(h.complete.length===1?'month':'months')+(h.baselineReview?' · provisional':''):'Awaiting complete statements')+'</p></div>'+
       btn('Spending details','nav','Spending','hero-link')+'</div></section>'+
@@ -377,11 +422,12 @@
       (!billsDue.length&&!nextPay?no('No open bills or deposits in this window.'):''),
       '',btn('All dates','nav','Bills','mini quiet'))+'</div>'+
       '<div class="home-grid home-secondary">'+
+      panel('Spending breakdown',spendingPie(h,'actual',E.month(now)),'Everyday categories this month.')+
       panel('Cash after bills','<div class="secondary-value money">'+H(projected)+'</div><p class="small">'+H(cashHint)+'</p>'+pending+
       (p.headroom===null?'':'<div class="cash-visual"><canvas id="cash-chart" role="img" aria-label="Projected cash. Opening '+H(money(p.opening))+', lowest '+H(money(p.low))+', ending '+H(money(p.ending))+'."></canvas><p class="small">Lowest projected cash '+money(p.low)+' · '+H(dateLabel(p.lowDate))+'</p></div>')+
       (p.verified.length?'<details class="subtle section-gap"><summary>Cash accounts</summary><ul class="list">'+p.verified.map(a=>'<li><div>'+link(a.name,'account-edit',a.id)+'<small>Balance entered '+H(dateLabel(a.balanceDate))+'</small></div><strong class="money">'+money(p.starting[a.id])+'</strong></li>').join('')+'</ul></details>':''),
-      '',btn('Update balances','account-settings','','mini quiet'))+
-      panel('One-time projects',projects?'<ul class="list">'+projects+'</ul><p class="small section-gap">All recorded dates. These costs stay out of the monthly spending average.</p>':no('No project costs recorded.'),'',btn('Projects','open-projects','','mini quiet'))+'</div>'+
+      '',btn('Update balances','account-settings','','mini quiet'))+'</div>'+
+      '<div class="section-gap">'+panel('One-time projects',projects?'<ul class="list">'+projects+'</ul><p class="small section-gap">All recorded dates. These costs stay out of the monthly spending average.</p>':no('No project costs recorded.'),'',btn('Projects','open-projects','','mini quiet'))+'</div>'+
       (review?'<div class="review-strip"><div><strong>'+review+' transaction'+(review===1?'':'s')+' to confirm</strong><p>Unclear descriptions and transfers can change your totals.</p></div>'+btn('Open review','open-inbox','','mini')+'</div>':'')+
       (latest?'<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">'+H(chatUpdateSummary(latest))+'</p></details>':'');
   }
@@ -389,7 +435,8 @@
     const status=e.date<now&&e.direction!=='Income'&&!['Paid','Skipped'].includes(e.status)?'Overdue':
       alerts.has(e.key)?'Below buffer':e.status!=='Open'?e.status:e.direction==='Income'?(e.frequency==='Once'?'Scheduled deposit':'Expected deposit'):billKind(e);
     const incoming=e.direction==='Income'&&e.forecastAmount!==null?'+':'';
-    return '<li><div><small>'+H(dateLabel(e.date))+' · '+H(status)+'</small>'+link(e.name,'occurrence',e.key)+
+    const stamp=E.validDate(e.date)?'<span class="date-tile" aria-hidden="true"><small>'+H(monthShort.format(new Date(e.date+'T00:00:00Z')))+'</small><b>'+H(Number(e.date.slice(8)))+'</b></span>':'';
+    return '<li class="date-event">'+stamp+'<div><small><span class="screen-reader">'+H(dateLabel(e.date))+' · </span>'+H(status)+'</small>'+link(e.name,'occurrence',e.key)+
       '<small>'+H(alias(e.account))+(e.direction==='Transfer'?' → '+H(alias(e.toAccount)):'')+'</small></div>'+
       '<strong class="money'+(incoming?' deposit':'')+'">'+incoming+(e.forecastAmount===null?'Amount pending':money(e.forecastAmount))+'</strong></li>';
   }
@@ -432,9 +479,108 @@
     const staged=staging.length?batchView():'';
     const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
       table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
-    return head('Transactions','Review questions or apply a prepared chat update.',btn('Apply chat update','chat-update','','primary'))+
-      '<details class="subtle manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+
-      panel('Transaction ledger',ledgerView(),'Confirmed purchases count once. Linked transfers appear here and leave spending totals unchanged.')+historical;
+    return head('Transactions','',btn('Apply chat update','chat-update','','primary'))+
+      segments(['Quick review','Ledger'],reviewView,'review-view','Transactions view')+
+      (reviewView==='Quick review'?quickReview():panel('Transaction ledger',ledgerView()))+
+      '<details class="subtle section-gap manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+historical;
+  }
+  const moneyReviewCard=card=>['movement','pair'].includes(card.type);
+  function quickReview() {
+    const queue=E.reviewGroups(S,reviewMonth);
+    const types=['All','Repeat merchants','Money movement'];
+    const visible=queue.cards.filter(card=>reviewType==='All'||(reviewType==='Repeat merchants'?card.type==='repeat':moneyReviewCard(card)));
+    const card=visible.find(x=>!setAside.has(x.id));
+    const monthCaption=reviewMonth?' · '+monthLabel(reviewMonth):'';
+    const undo=quickUndo?.state===S?btn('Undo last review','review-undo','','mini quiet'):'';
+    const allMonths=reviewMonth?btn('Show all months','review-all-months','','mini quiet'):'';
+    const tools='<div class="review-toolbar">'+segments(types,reviewType,'review-type','Review items')+'<div class="actions">'+allMonths+undo+'</div></div>';
+    if(!card) {
+      return panel(queue.count?queue.count+' to review'+monthCaption:'Review complete',
+        queue.count?tools+(visible.length?no('You’ve set these items aside.')+btn('See them again','review-reset','','section-gap'):
+          no('There are no items in this view.')):no('No transactions need a category or confirmation.'),'',!queue.count?allMonths+undo:'');
+    }
+    const t=card.rows[0], isPair=card.type==='pair', count=card.rows.length;
+    const isGroup=count>1&&!isPair;
+    const label=isPair?card.label:t.description;
+    const amount=isPair?Math.abs(t.amount):E.sum(card.rows,x=>x.amount);
+    const subtitle=isPair?'Check the two sides of this transfer.':isGroup?count+' charges · '+alias(t.account):
+      t.date+' · '+alias(t.account);
+    const rowDetails=card.rows.map(row=>'<li><div>'+link(row.description,'transaction',row.id)+
+      '<small class="small">'+H(row.date)+' · '+H(alias(row.account))+'</small></div><strong class="money">'+money(row.amount)+'</strong></li>').join('');
+    const details=isPair?'<ul class="list review-matches">'+rowDetails+'</ul>':
+      isGroup?'<details class="subtle review-matches"><summary>See '+count+' charges or review one at a time</summary><ul class="list">'+rowDetails+'</ul></details>':'';
+    const showPicker=reviewPicker===card.id;
+    const remember=card.eligible?'<label class="check review-remember"><input id="quick-remember" type="checkbox">Remember this exact merchant on '+H(alias(t.account))+'</label>':'';
+    const suggest=card.suggestion?btn('Use '+card.suggestion,'review-category',JSON.stringify([card.id,card.suggestion]),'primary'):'';
+    const pickCategories=card.eligible||card.type==='single'&&t.amount<0;
+    const canChoose=pickCategories||card.type==='movement'||card.type==='single'&&t.amount>0;
+    const popular=categoryOptions().sort((a,b)=>a.localeCompare(b));
+    const movementChoices=t.amount>0?[['Income','Income'],['Transfer','Transfer between accounts']]:
+      [['Transfer','Transfer between accounts'],['Financing','Debt payment'],['Savings','Savings']];
+    const choices=pickCategories?['Groceries','Dining','Shopping','Transportation','Home maintenance','Subscriptions'].map(category=>
+      btn(category,'review-category',JSON.stringify([card.id,category]),'mini quick-choice')):
+      movementChoices.map(([kind,description])=>btn(description,'review-confirm-type',JSON.stringify([card.id,kind]),'mini quick-choice'));
+    if(pickCategories&&S.projects.length===1)choices.push(btn(S.projects[0].name,'review-project',JSON.stringify([card.id,S.projects[0].id]),'mini quick-choice'));
+    const form=!isPair&&canChoose&&showPicker?'<div class="quick-picks"><p class="small">'+
+      (isGroup?'Apply to all '+count+' charges':pickCategories?'Choose a spending category':'Confirm the type')+'</p>'+
+      '<div class="actions">'+choices.join('')+'</div></div>'+
+      (pickCategories?'<form id="quick-category" class="quick-category" data-id="'+H(card.id)+'">'+
+      field('All spending categories',select('category',[['','Choose category'],...popular],card.suggestion,'required'))+
+      '<button class="btn primary" type="submit">'+(isGroup?'Apply to '+count+' charges':'Confirm')+'</button></form>':''):'';
+    const buttons=isPair?btn('Link both','review-pair',card.id,'primary'):
+      showPicker?'':suggest+(canChoose?btn(card.suggestion?'Change category':pickCategories?'Choose category':'Choose type','review-picker',card.id,card.suggestion?'quiet':'primary'):'');
+    const extras=(!isPair?btn(isGroup?'Review one':'More options','transaction',t.id,'quiet'):'')+
+      btn('Later','review-later',card.id,'quiet');
+    const chosen=card.frequency?card.frequency+' pattern':isGroup?'Repeat merchant':isPair?'Suggested match':card.type==='movement'?'Money movement':'';
+    const question=!isPair&&(card.type==='compound'?'This statement line may combine purchases. Check it before categorizing.':
+      isGroup?'This choice applies to all '+count+' matching charges.':t.why);
+    return '<section class="panel review-panel"><div class="panel-title"><h2>'+queue.count+' to review'+H(monthCaption)+'</h2></div>'+tools+
+      '<article class="quick-card"><header class="quick-header"><div>'+(chosen?'<p class="quick-label">'+H(chosen)+'</p>':'')+
+      '<h3 id="quick-current" tabindex="-1">'+H(label)+'</h3><p>'+H(subtitle)+'</p></div>'+
+      '<div class="quick-amount money">'+money(amount)+(isGroup?'<small>Total</small>':'')+'</div></header>'+
+      (question?'<p class="quick-question">'+H(question)+'</p>':'')+details+(canChoose?remember:'')+form+
+      '<div class="actions review-actions">'+buttons+extras+'</div></article></section>';
+  }
+  function currentReview(id) {
+    const card=E.reviewGroups(S,reviewMonth).cards.find(x=>x.id===id);
+    if(!card)throw new Error('This item has changed. Reopen it to review.');
+    return card;
+  }
+  async function saveQuick(id,classification) {
+    const card=currentReview(id);
+    const remember=classification?.kind==='Spending'&&card.eligible&&root.querySelector('#quick-remember')?.checked;
+    const previous=card.rows.map(t=>structuredClone(t));
+    let previousRules=null;
+    await write(next=>{
+      if(card.type==='pair') {
+        applyPair(next,card.rows[0].id,card.rows[1].id,card.label);
+        return;
+      }
+      for(const t of card.rows)Object.assign(byId(next.transactions,t.id),classification,{manual:true,why:'Confirmed in quick review'});
+      if(remember) {
+        const t=card.rows[0], merchant=E.normal(t.description), direction=Math.sign(t.amount);
+        previousRules=structuredClone(next.rules);
+        next.rules=next.rules.filter(r=>r.account!==t.account||r.merchant!==merchant||r.direction!==direction);
+        next.rules.push({...classification,account:t.account,merchant,direction});
+      }
+    });
+    if(!S)return;
+    quickUndo={state:S,previous,previousRules};
+    reviewPicker='';
+    render();
+    root.querySelector('#quick-current')?.focus({preventScroll:true});
+    note(card.type==='pair'?'Transfer linked.':card.rows.length===1?'Transaction confirmed.':card.rows.length+' transactions confirmed.');
+  }
+  async function undoQuick() {
+    if(quickUndo?.state!==S||!quickUndo)return;
+    const {previous,previousRules}=quickUndo;
+    await write(next=>{
+      previous.forEach(t=>replace(next.transactions,t));
+      if(previousRules) next.rules=previousRules;
+    });
+    quickUndo=null;
+    render();
+    note('Last review undone.');
   }
   function mapping(file) {
     const probe=file.rows[file.skip]||[];
@@ -472,6 +618,14 @@
       '<div class="actions"><button type="submit" class="btn primary">Stage statement</button></div></form></div>';
   }
   function bindImport() {
+    root.querySelector('#quick-category')?.addEventListener('submit',async event=>{
+      event.preventDefault();
+      const form=event.currentTarget, data=new FormData(form), category=val(data,'category');
+      if(!category)return;
+      try {
+        await saveQuick(form.dataset.id,{kind:'Spending',category,project:''});
+      } catch(error) {note(error.message,true);}
+    });
     root.querySelector('#csv-files')?.addEventListener('change',async event=>{
       if(!localFile)return;
       const active=S, chosen=[...event.target.files];
@@ -619,12 +773,13 @@
       const slices=t.allocations?.length?t.allocations:[t];
       return (!ledger.account||t.account===ledger.account)&&(!ledger.month||E.month(t.date)===ledger.month)&&
         (!ledger.search||E.normal(t.description+' '+t.note).includes(E.normal(ledger.search)))&&
+        (!ledger.merchant||(E.normal(t.description)===ledger.merchant&&Math.sign(t.amount)===ledger.direction))&&
         slices.some(x=>(ledger.filter==='All'||x.kind===ledger.filter)&&(!ledger.category||x.category===ledger.category)&&(!ledger.project||x.project===ledger.project));
     }).sort((a,b)=>b.date.localeCompare(a.date)||a.description.localeCompare(b.description));
     const max=Math.max(0,Math.ceil(source.length/PAGE)-1);
     ledgerPage=Math.min(ledgerPage,max);
     const found=source.slice(ledgerPage*PAGE,(ledgerPage+1)*PAGE);
-    const filters='<form id="ledger-filters" class="stack" autocomplete="off"><div class="form-grid cols-3">'+
+    const filters=(ledger.merchant?'<p class="small">Merchant history · '+H(ledger.merchant)+'</p>':'')+'<form id="ledger-filters" class="stack" autocomplete="off"><div class="form-grid cols-3">'+
       field('Type',select('filter',['All',...E.kinds],ledger.filter))+
       field('Account',select('account',accountOptions(()=>true,'All accounts'),ledger.account))+
       field('Month',f('month',ledger.month,'month'))+
@@ -747,6 +902,10 @@
   }
   function spending() {
     const h=E.history(S,E.today(),month);
+    const viewTabs=segments(['Categories','Recurring'],spendingTab,'spending-tab','Spending view');
+    const summary=head('Spending & projects','',spendingTab==='Categories'?'<div class="actions">'+
+      field('Viewing month',f('month-view',month,'month','max="'+E.month(E.today())+'"'))+btn('Monthly review','monthly-close')+'</div>':'');
+    if(spendingTab==='Recurring')return summary+viewTabs+recurringView();
     const targetTotal=E.sum(h.rows,x=>x.suggestion||0);
     const configured=h.rows.filter(x=>x.suggestion!==null).length;
     const records=h.rows.filter(x=>x.actual||x.average||x.suggestion||Object.hasOwn(S.targets,x.category));
@@ -769,6 +928,8 @@
     const comparisons=totals+
       (cautions?'<div class="review-strip"><p>'+H(cautions)+'</p>'+
       (h.review.length?btn('Review month','month-inbox',month,'mini'):btn('Open review','open-inbox','','mini'))+'</div>':'')+
+      '<div class="home-grid chart-grid">'+panel('Selected month',spendingPie(h,'actual',month),monthLabel(month)) +
+      panel('Typical month',spendingPie(h,'average',month),h.complete.length?h.complete.length+' complete '+(h.complete.length===1?'month':'months')+(h.baselineReview?' · provisional':''):'Complete statement months')+'</div>'+
       panel('Categories',rows.length?'<ul class="categories">'+rows.join('')+'</ul>':no('Categories will appear when reviewed statements are applied.'),
         'Tap a category to see its transactions.',btn('Add target','target-edit','','mini quiet'))+
       '<details class="subtle section-gap"><summary>How your targets are calculated</summary><p class="small">Average uses '+H(months||'complete statement months, once available')+
@@ -785,9 +946,24 @@
         (financed?'<small class="small">Linked debt '+H(financed.name)+' · account balance '+money(financed.balance)+'</small>':'')+
         (p.note?'<small class="small">'+H(p.note)+'</small>':'')+'</div><div class="row-actions"><strong class="money">'+money(spent)+'</strong>'+btn('Edit','project-edit',p.id,'mini')+'</div></li>';
     }).join(''):'';
-    return head('Spending & projects','Recurring spending, category targets, and one-time costs.',
-      '<div class="actions">'+field('Viewing month',f('month-view',month,'month','max="'+E.month(E.today())+'"'))+btn('Monthly review','monthly-close')+'</div>')+comparisons+
+    return summary+viewTabs+comparisons+
       '<div id="spending-projects" class="section-gap">'+panel('One-time projects',projects?'<ul class="list">'+projects+'</ul>':no('Add a project such as Basement, then tag its purchases in the transaction review.'),'Project totals use all imported dates. Financing stays in Debt & goals.',btn('Add project','project-edit','','mini primary'))+'</div>';
+  }
+  function segments(labels,active,action,name) {
+    return '<div class="segments" role="group" aria-label="'+H(name)+'">'+labels.map(label=>
+      btn(label,action,label,'',' aria-pressed="'+String(label===active)+'"')).join('')+'</div>';
+  }
+  function recurringView() {
+    const h=E.recurringCharges(S);
+    const rows=h.map(x=>{
+      const t=x.transaction;
+      return '<li><div><small>'+H(x.frequency)+' pattern · '+H(t.category)+'</small>'+
+        link(t.description,'merchant-history',t.id)+'<small>'+H(alias(t.account))+' · Last seen '+H(t.date)+' · '+x.count+' matching charges</small></div>'+
+        '<div class="recurring-amount"><strong class="money">'+money(x.amount)+'</strong><small>Typical charge</small></div></li>';
+    });
+    return panel('Recurring charges',rows.length?'<ul class="list event-list">'+rows.join('')+'</ul>':
+      no('Recurring charges appear after at least three similar payments at regular intervals.'),
+      'Detected in statement history. Tap a merchant to see its charges.');
   }
   function monthlyClose() {
     const now=E.today(), start=month+'-01', end=E.monthEnd(start), history=E.history(S,now,month);
@@ -1222,6 +1398,10 @@
     addTx(card,now,'Home Depot CA',-12829,'Review');
     addTx(card,now,'Marketplace order',-5636,'Review');
     addTx(cashId,now,'Interac e-transfer received',18000,'Review');
+    addTx(card,now,'Superstore',-4235,'Review');
+    addTx(card,E.add(now,-1),'Superstore',-6850,'Review');
+    addTx(cashId,now,'Online banking payment',-31025,'Review');
+    addTx(card,now,'Payment received',31025,'Review');
     state.projects.push({id:basement,name:'Basement renovation',status:'Active',unbilled:85000,loan:loanId,note:'Demo project labour and materials.'});
     const schedule=(name,amount,offset,frequency,mode,direction='Bill',project='',loan='')=>({id:E.id(),name,amount,start:E.add(now,offset),end:'',frequency,mode,direction,project,loan,note:'',account:cashId,variable:name.includes('Hydro')});
     state.bills.push(schedule('Household credit card',190400,3,'Monthly','Manual'),schedule('Paycheque',285000,6,'Biweekly','Deposit','Income'),
@@ -1243,6 +1423,7 @@
   }
 
   function setLedger(patch) {
+    reviewView='Ledger';
     ledger={filter:'All',account:'',month:'',category:'',project:'',search:'',...patch};
     ledgerPage=0;
     go('Import & review');
@@ -1272,11 +1453,25 @@
       next.transactions=next.transactions.filter(t=>t.importId!==id);
       next.imports=next.imports.filter(i=>i.id!==id);
     })),
-    'open-inbox':()=>setLedger({filter:'Review'}),
-    'month-inbox':m=>setLedger({filter:'Review',month:m}),
+    'open-inbox':()=>{reviewView='Quick review';reviewMonth='';reviewType='All';reviewPicker='';go('Import & review');},
+    'month-inbox':m=>{reviewView='Quick review';reviewMonth=m;reviewType='All';reviewPicker='';go('Import & review');},
+    'review-view':view=>{reviewView=view;if(view==='Ledger')ledger={filter:'All',account:'',month:'',category:'',project:'',search:''};ledgerPage=0;render();},
+    'review-type':type=>{reviewType=type;reviewPicker='';render();},
+    'review-all-months':()=>{reviewMonth='';reviewPicker='';render();},
+    'review-category':id=>{const [card,category]=JSON.parse(id);return saveQuick(card,{kind:'Spending',category,project:''});},
+    'review-confirm-type':id=>{const [card,kind]=JSON.parse(id);return saveQuick(card,{kind,category:kind==='Financing'?'Debt payment':'',project:''});},
+    'review-project':id=>{const [card,project]=JSON.parse(id);if(!byId(S.projects,project))throw new Error('That project is no longer available.');return saveQuick(card,{kind:'Project',category:'',project});},
+    'review-pair':id=>saveQuick(id),
+    'review-picker':id=>{const remember=root.querySelector('#quick-remember')?.checked;reviewPicker=id;render();if(remember)root.querySelector('#quick-remember').checked=true;root.querySelector('.quick-choice')?.focus();},
+    'review-later':id=>{setAside.add(id);reviewPicker='';render();root.querySelector('#quick-current')?.focus({preventScroll:true});},
+    'review-reset':()=>{setAside.clear();render();},
+    'review-undo':undoQuick,
     'spending-drill':category=>setLedger({month,category}),
+    'chart-drill':id=>{const [selectedMonth,category]=JSON.parse(id);setLedger({month:selectedMonth,category});},
+    'spending-tab':view=>{spendingTab=view;render();},
+    'merchant-history':id=>{const t=byId(S.transactions,id);if(t)setLedger({account:t.account,merchant:E.normal(t.description),direction:Math.sign(t.amount),category:t.category});},
     'project-drill':project=>setLedger({project}),
-    'open-projects':()=>{go('Spending');document.getElementById('spending-projects')?.scrollIntoView({block:'start'});},
+    'open-projects':()=>{spendingTab='Categories';go('Spending');document.getElementById('spending-projects')?.scrollIntoView({block:'start'});},
     'ledger-page':n=>{ledgerPage=Math.max(0,ledgerPage+Number(n));render();document.getElementById('ledger-filters')?.scrollIntoView({block:'nearest'});},
     transaction,'manual-transaction':manualTransaction,'monthly-close':monthlyClose,'target-edit':targetEdit,'project-edit':projectEdit,
     'bill-edit':billEdit, occurrence, calendar,

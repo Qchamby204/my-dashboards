@@ -16,7 +16,7 @@ const codeHash=createHash('sha256').update(script).digest('base64');
 function boot(location, framed=false) {
   const nodes=new Map(), handlers=new Map(), data=new Map(), registrations=[];
   const node=id=>{
-    if(!nodes.has(id)) nodes.set(id,{innerHTML:'',querySelector:node,click(){this.clicked=true;},addEventListener(type,callback){handlers.set([id,type].join(' '),callback);}});
+    if(!nodes.has(id)) nodes.set(id,{innerHTML:'',querySelector:node,focus(){},click(){this.clicked=true;},addEventListener(type,callback){handlers.set([id,type].join(' '),callback);}});
     return nodes.get(id);
   };
   const window={addEventListener(){},scrollTo(){}};
@@ -211,4 +211,61 @@ test('the welcome screen applies a queued update when the device ledger is first
   await app.handlers.get('chat-update-file change')();
   assert.equal(app.data.get('aqueduct-offline-v1'),sealed);
   assert.match(app.node('toast').textContent,/outside its statement dates/);
+});
+
+
+test('quick review suggests exact purchases, links a pair, and can undo a grouped confirmation',async()=>{
+  const app=boot(new URL(pageUrl));
+  const dispatch=app.handlers.get('document click');
+  const click=(act,id='')=>dispatch({target:{closest:()=>({dataset:{act,id}})}});
+  await click('demo');
+  await click('nav','Import & review');
+  const ui=()=>app.node('app').innerHTML;
+  assert.match(ui(),/7 to review/);
+  assert.match(ui(),/Link both/);
+  const pair=/data-act="review-pair" data-id="([^"]+)"/.exec(ui())[1];
+  await click('review-pair',pair);
+  assert.match(ui(),/5 to review/);
+  assert.match(ui(),/Use Groceries/);
+  assert.match(ui(),/applies to all 2 matching charges/);
+  const group=/data-act="review-category" data-id="([^"]+)"/.exec(ui())[1].replaceAll('&#39;',"'").replaceAll('&quot;','"');
+  await click('review-category',group);
+  assert.match(ui(),/3 to review/);
+  await click('review-undo');
+  assert.match(ui(),/5 to review/);
+  assert.match(ui(),/Use Groceries/);
+});
+
+test('recurring charges require a regular cadence and compatible amounts and categories',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty();
+  for(const [i,date] of ['2026-07-21','2026-08-20','2026-09-20','2026-10-20'].entries()){
+    const base={date,amount:-1050,id:String(i),kind:'Spending',category:'Subscriptions',account:'card'};
+    state.transactions.push({...base,description:'Video subscription'});
+    state.transactions.push({...base,id:'b'+i,description:'Volatile merchant',amount:-200*(i+1)});
+    state.transactions.push({...base,id:'c'+i,description:'Amazon'});
+  }
+  const rows=E.recurringCharges(state);
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].transaction.description,'Video subscription');
+  assert.equal(rows[0].frequency,'Monthly');
+  assert.equal(rows[0].amount,1050);
+  assert.equal(rows[0].count,4);
+});
+
+test('remembered categories apply only to exact unclassified chat purchases on the same account',()=>{
+  const {Engine:E,ChatUpdate:C}=boot(new URL(pageUrl));
+  const state=E.empty(), pack=fixture();
+  C.apply(state,pack,'2026-11-16');
+  state.rules.push({merchant:'hardware',account:state.accounts[1].id,direction:-1,kind:'Spending',category:'Home maintenance',project:''});
+  const row={date:'2026-11-04',description:'HARDWARE!',amount:-1600};
+  const result=C.apply(state,{format:pack.format,version:1,id:'fictional-new-charges',statements:[
+    {key:'new-card',account:'card',label:'November card',start:'2026-11-01',end:'2026-11-15',transactions:[
+      row,{...row,amount:1600},{...row,amount:-1800,category:'Shopping',kind:'Spending'}, {...row,description:'Other Hardware'}]},
+    {key:'new-bank',account:'joint',label:'November bank',start:'2026-11-01',end:'2026-11-15',transactions:[row]}
+  ]},'2026-11-16');
+  assert.equal(result.added,5);
+  assert.equal(result.review,3);
+  assert.equal(state.transactions.filter(t=>t.why==='Saved rule').length,1);
+  assert.equal(state.transactions.find(t=>t.amount===-1800).category,'Shopping');
 });

@@ -210,7 +210,12 @@ const ChatUpdate=(()=>{
         const amount=signed(entry.amount,'transaction amount');
         const description=text(entry.description,'transaction description',240);
         const external=optionalText(entry.external,'transaction reference',140);
-        return {transaction:{id:E.id(),importId:id,account,date:day,amount,description,external,pair:'',...reviewed(entry,amount)}};
+        const t={id:E.id(),importId:id,account,date:day,amount,description,external,pair:'',...reviewed(entry,amount)};
+        const rule=t.kind==='Review'&&!t.allocations?E.savedRule(state,t):null;
+        if(rule&&rule.kind!=='Review'&&(rule.kind!=='Project'||state.projects.some(p=>p.id===rule.project))) {
+          Object.assign(t,{kind:rule.kind,category:rule.category,project:rule.project,manual:true,why:'Saved rule'});
+        }
+        return {transaction:t};
       });
       E.duplicateReview(state.transactions,rows);
       const accepted=rows.filter(x=>!x.duplicate).map(x=>x.transaction);

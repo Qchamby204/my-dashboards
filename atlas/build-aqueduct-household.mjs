@@ -19,7 +19,12 @@ const icons=await Promise.all(['32','64','apple'].map(async size=>{
       ' sizes="'+pixels+'x'+pixels+'" href="'+href+'">\n'
   };
 }));
-const styles=await load('style.css');
+const fonts=await Promise.all([400,700].map(async weight=>{
+  const file=await readFile(new URL('shared/fonts/figtree-'+weight+'.ttf',root));
+  return '@font-face{font-family:Figtree;font-style:normal;font-weight:'+weight+';font-display:swap;src:url(data:font/ttf;base64,'+file.toString('base64')+') format("truetype")}';
+}));
+const art=await readFile(new URL('arch.webp',source));
+const styles=fonts.join('\n')+'\n'+(await load('style.css')).replace('__ARCH_DATA__',art.toString('base64'));
 const html=(await load('shell.html'))
   .replace('__SCRIPT_HASH__',digest(script,'base64'))
   .replace('__ICONS__',()=>icons.map(i=>i.link).join(''))
