@@ -342,3 +342,27 @@ test('debt comparison ranks eligible rates and shows a separately modeled extra 
   assert.equal(E.singlePayoff(state.loans[0],now,10000),null);
   assert.equal(E.singlePayoff(state.loans[2],now,0),null);
 });
+
+test('recommendations expose ledger-specific actions and link to the underlying screens',async()=>{
+  const app=boot(new URL(pageUrl));
+  const dispatch=app.handlers.get('document click');
+  const click=(act,id='')=>dispatch({target:{closest:()=>({dataset:{act,id}})}});
+  const ui=()=>app.node('app').innerHTML;
+  await click('demo');
+  await click('nav','Recommendations');
+  assert.match(ui(),/<h1>Recommendations<\/h1>/);
+  assert.match(ui(),/Check bills due by your next paycheque/);
+  assert.match(ui(),/Use Line of credit as the first candidate for extra payments/);
+  assert.match(ui(),/Identify the deposits still in review/);
+  assert.match(ui(),/one-time projects visible separately/);
+  const detail=/data-act="cash-bucket" data-id="([^"]+)">Review deposits<\/button>/.exec(ui())[1].replaceAll('&quot;','"');
+  await click('cash-bucket',detail);
+  assert.match(ui(),/<h2>Transaction ledger<\/h2>/);
+  assert.match(ui(),/Interac e-transfer received/);
+  assert.doesNotMatch(ui(),/Online banking payment/);
+  await click('nav','Recommendations');
+  await click('open-recurring');
+  assert.match(ui(),/<h2>Recurring charges<\/h2>/);
+  await click('nav','Settings');
+  assert.match(ui(),/<h1>Settings<\/h1>/);
+});

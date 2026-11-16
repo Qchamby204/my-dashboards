@@ -500,3 +500,30 @@ details.subtle summary { min-height:44px; align-content:center; }
   .spending-compare > li { grid-template-columns:minmax(0,1fr); gap:2px; }
   .spending-compare > li .link-button { min-height:40px; }
 }
+
+/* Recommendations */
+.nav { max-width:760px; }
+.nav .short-label,.nav .compact-label { display:none; }
+.settings-shortcut { display:inline-grid; width:44px; padding:0; place-items:center; border-color:transparent; }
+.settings-shortcut svg { width:18px; height:18px; }
+.settings-shortcut[aria-current="page"] { background:#f2e9db; color:#683e23; }
+.advice-overview {
+  margin-bottom:16px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-radius:19px;
+  background:#202e42; color:#fff9ec; padding:13px 8px;
+}
+.advice-overview div { display:grid; gap:1px; padding:3px clamp(8px,3vw,20px); min-width:0; }
+.advice-overview div + div { border-left:1px solid #d9cdb447; }
+.advice-overview strong { font-size:clamp(1.5rem,4vw,2.3rem); line-height:1.12; }
+.advice-overview span { font-size:.85rem; color:#f1e7d5; }
+.advice-list { list-style:none; margin:0; padding:0; }
+.advice-list > li { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; padding:12px 0; }
+.advice-list > li + li { border-top:1px solid var(--stroke); }
+.advice-list h3 { font-size:1.03rem; margin-bottom:4px; }
+.advice-list p { font-size:.91rem; overflow-wrap:anywhere; }
+@media(max-width:650px) {
+  .nav { max-width:none; }
+  .nav .wide-label { display:none; }
+  .nav .short-label,.nav .compact-label { display:block; }
+  .advice-list > li { grid-template-columns:minmax(0,1fr); gap:7px; align-items:start; }
+  .advice-list .btn { justify-self:start; }
+}

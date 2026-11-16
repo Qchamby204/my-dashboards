@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ei3LNeBqivzKleC/Qn7hvlRKKLhQroLvGY0KkC7KIsA='; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z9ffKADxcFjN3tdVS7ZeOkQqJsYc/32wT2BMLYHBi9E='; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#f5f1e8">
@@ -515,6 +515,33 @@ details.subtle summary { min-height:44px; align-content:center; }
   .chart-key span:last-child:not([class]) { display:none; }
   .spending-compare > li { grid-template-columns:minmax(0,1fr); gap:2px; }
   .spending-compare > li .link-button { min-height:40px; }
+}
+
+/* Recommendations */
+.nav { max-width:760px; }
+.nav .short-label,.nav .compact-label { display:none; }
+.settings-shortcut { display:inline-grid; width:44px; padding:0; place-items:center; border-color:transparent; }
+.settings-shortcut svg { width:18px; height:18px; }
+.settings-shortcut[aria-current="page"] { background:#f2e9db; color:#683e23; }
+.advice-overview {
+  margin-bottom:16px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-radius:19px;
+  background:#202e42; color:#fff9ec; padding:13px 8px;
+}
+.advice-overview div { display:grid; gap:1px; padding:3px clamp(8px,3vw,20px); min-width:0; }
+.advice-overview div + div { border-left:1px solid #d9cdb447; }
+.advice-overview strong { font-size:clamp(1.5rem,4vw,2.3rem); line-height:1.12; }
+.advice-overview span { font-size:.85rem; color:#f1e7d5; }
+.advice-list { list-style:none; margin:0; padding:0; }
+.advice-list > li { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; padding:12px 0; }
+.advice-list > li + li { border-top:1px solid var(--stroke); }
+.advice-list h3 { font-size:1.03rem; margin-bottom:4px; }
+.advice-list p { font-size:.91rem; overflow-wrap:anywhere; }
+@media(max-width:650px) {
+  .nav { max-width:none; }
+  .nav .wide-label { display:none; }
+  .nav .short-label,.nav .compact-label { display:block; }
+  .advice-list > li { grid-template-columns:minmax(0,1fr); gap:7px; align-items:start; }
+  .advice-list .btn { justify-self:start; }
 }
 
 </style>
@@ -1447,7 +1474,7 @@ const Vault=(() => {
   const byId=(items,id)=>items.find(x=>x.id===id);
   const listTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
   const frequency=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
-  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings'];
+  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations'];
   const storageMessage='Browser storage is unavailable or full. Changes are in this window. Download an encrypted backup before closing it.';
   const PAGE=32;
   const idleLimit=10*60_000;
@@ -1469,6 +1496,7 @@ const Vault=(() => {
     Bills:'M4 7h16v14H4zM4 11h16M8 4v5m8-5v5M8 15h3m2 0h3m-8 3h3',
     Debt:'M3 19h18M5 15l5-5 4 2 5-6m-5 0h5v5',
     Review:'M9 5H5v15h14V5h-4M9 3h6v4H9zm-1 11 3 3 5-6',
+    Recommendations:'M12 2l1.9 5.5L19 10l-5.1 2.4L12 18l-1.9-5.6L5 10l5.1-2.5L12 2zM19 15v6m-3-3h6M4 4v4M2 6h4',
     Settings:'M4 6h16M4 12h16M4 18h16M8 4v4m8 2v4m-6 2v4'
   };
   const icon=path=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+path+'"/></svg>';
@@ -1781,11 +1809,12 @@ const Vault=(() => {
 
   function render() {
     if(!S){welcome();return;}
-    const views=[overview,imports,spending,bills,debt,settings];
-    const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Settings','Settings']];
+    const views=[overview,imports,spending,bills,debt,settings,recommendations];
+    const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Recommendations','Recommendations']];
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
-      atlasLink+(sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab?' aria-current="page"':'')+'>'+icon(tabIcons[label])+'<span>'+H(label)+'</span></button>').join('')+'</nav></div></header><main id="main">'+
+      atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
+      (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
+      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
     if(tab===allViews[0]) {
@@ -2565,7 +2594,7 @@ const Vault=(() => {
       (plans.length?'<ul class="list">'+plans.join('')+'</ul>':no('No schedules yet.'))+'</details>';
   }
   function billEdit(id,loan) {
-    const b=byId(S.bills,id)||{...(loan?{name:loan.name,amount:loan.payment,frequency:frequency.includes(loan.frequency)?loan.frequency:'Monthly',loan:loan.id,account:loan.account,start:loan.nextDue}:null)};
+    const b=byId(S.bills,id)||(id==='income'?{direction:'Income'}:{...(loan?{name:loan.name,amount:loan.payment,frequency:frequency.includes(loan.frequency)?loan.frequency:'Monthly',loan:loan.id,account:loan.account,start:loan.nextDue}:null)});
     return openDialog(b.id?'Edit schedule':'Add bill or paycheque','<div class="form-grid">'+
       field('Name',f('name',b.name,'text','required maxlength="80"'))+
       field('Type',select('direction',['Bill','Income','Transfer'],b.direction||'Bill'))+
@@ -2771,7 +2800,7 @@ const Vault=(() => {
       (details||goals?'<ul class="list">'+details+goals+'</ul>':'')+'</div>';
   }
   function loanEdit(id) {
-    const loan=byId(S.loans,id)||{};
+    const loan=byId(S.loans,id)||(id==='mortgage'?{type:'Mortgage',method:'Canadian mortgage'}:{});
     return openDialog(loan.id?'Edit debt':'Add debt','<div class="form-grid">'+
       field('Debt nickname',f('name',loan.name,'text','required maxlength="80"'))+
       field('Type',select('type',['Mortgage','Credit card','Line of credit','Auto loan','Other'],loan.type||'Line of credit'))+
@@ -2825,6 +2854,129 @@ const Vault=(() => {
     const index=items.findIndex(x=>x.id===item.id);
     if(index<0) items.push(item);
     else items[index]=item;
+  }
+  function recommendation(title, detail, label, action, id='') {
+    return '<li><div><h3>'+H(title)+'</h3><p>'+H(detail)+'</p></div>'+
+      btn(label,action,id,'mini quiet')+'</li>';
+  }
+  function adviceGroup(title, items, note='') {
+    return items.length?panel(title,'<ol class="advice-list">'+items.join('')+'</ol>',note):'';
+  }
+  function recommendations() {
+    const now=E.today();
+    if(!S.accounts.length&&!S.loans.length&&!S.bills.length) {
+      return head('Recommendations','')+panel('Start with your statements',
+        '<p>Aqueduct uses your balances, transactions, and upcoming dates to suggest what to do first.</p>',
+        '',btn('Apply chat update','chat-update','','primary'));
+    }
+    const forecast=E.forecast(S,now), plan=plannedSnapshot(forecast,now), debt=E.debtProfile(S,now);
+    const urgent=[], decisions=[], monthly=[];
+    const overdue=forecast.overdue[0];
+    if(overdue)urgent.push(recommendation('Verify open past-due bills',
+      forecast.overdue.length+' still marked open. '+overdue.name+' was scheduled for '+dateLabel(overdue.originalDate||overdue.date)+'. Check whether it cleared and update the status.',
+      'Check first bill','occurrence',overdue.key));
+    const shortfall=forecast.shortfalls[0];
+    if(shortfall)urgent.push(recommendation('Check the funding account for '+shortfall.name,
+      'The scheduled payment could take '+alias(shortfall.account)+' below its cash buffer on '+dateLabel(shortfall.date)+'. Confirm the payment and the available balance.',
+      'Check payment','occurrence',shortfall.key));
+    if(!overdue&&!shortfall&&plan.due.length)urgent.push(recommendation(plan.pay?'Check bills due by your next paycheque':'Check upcoming bills',
+      money(plan.outgoing)+' in known bills through '+dateLabel(plan.cutoff)+'.'+
+      (plan.pay?' The next paycheque is scheduled for '+dateLabel(plan.pay.date)+' at '+money(plan.pay.forecastAmount)+'.':'')+
+      (plan.amountPending?' Some bill amounts still need confirmation.':''),'Open bills','nav','Bills'));
+    const balances=[...new Set(forecast.missing.concat(forecast.stale))];
+    if(balances.length)urgent.push(recommendation('Refresh the cash forecast balances',
+      balances.map(a=>a.name).join(', ')+'. Use the latest available balances to check what can clear before payday.',
+      'Update balances','account-settings'));
+    else if(!forecast.verified.length)urgent.push(recommendation('Set up your cash forecast',
+      'Add the chequing or savings accounts you use for bills and enter a current balance.','Open accounts','account-settings'));
+    const unassigned=forecast.unassigned.filter(e=>!e.key.startsWith('flex/'));
+    if(unassigned.length)urgent.push(recommendation('Confirm funding and amounts for open payments',
+      unassigned.slice(0,3).map(e=>e.name).join(', ')+(unassigned.length>3?' and '+(unassigned.length-3)+' more':'')+
+      '. Open the date, then edit its schedule to select the funding account.',
+      'Check first payment','occurrence',unassigned[0].key));
+    const debtGaps=[...new Map(debt.missing.concat(forecast.missingLoanPayments).map(l=>[l.id,l])).values()];
+    if(debtGaps.length)urgent.push(recommendation('Complete the debt payment details',
+      debtGaps.map(l=>l.name).join(', ')+'. Confirm the rate, required payment, and next date from the lender before committing extra cash.',
+      'Open debt terms','loan-edit',debtGaps[0].id));
+    if(S.bills.some(b=>b.direction==='Bill'&&/mortgage/i.test(b.name)&&!b.loan&&(!b.end||b.end>=now))&&!S.loans.some(l=>l.type==='Mortgage')) {
+      decisions.push(recommendation('Add the mortgage terms',
+        'A mortgage payment is scheduled. Add the mortgage balance, rate, renewal, and prepayment limits so Debt can show the full picture.',
+        'Add mortgage terms','mortgage-terms'));
+    }
+    const target=debt.target;
+    if(target) {
+      const next=debt.ranked.find(l=>l.id!==target.id&&l.type!=='Mortgage'&&l.currentRate>0&&(l.prepay==null||l.prepay>0));
+      decisions.unshift(recommendation('Use '+target.name+' as the first candidate for extra payments',
+        'At '+target.currentRate+'% it has the highest eligible rate on file.'+(next?' '+next.name+' is next at '+next.currentRate+'%.':'')+
+        ' Verify the latest terms, cover minimums, and keep a cash buffer before directing a confirmed surplus here.',
+        'Compare payoff options','nav','Debt & goals'));
+    } else if(debt.active.length)decisions.unshift(recommendation('Confirm which debt to pay down first',
+      'Add current rates and payment terms so you can compare the accounts.','Open debt','nav','Debt & goals'));
+    if(S.config.floor<=0&&forecast.verified.length)decisions.push(recommendation('Set a cash buffer for bills',
+      'Choose how much to keep available in your operating accounts before increasing debt payments or funding optional goals.',
+      'Set cash buffer','config','cash'));
+    const nextMonth=E.shiftMonth(E.monthStart(now),1);
+    const deposits=E.events(S,nextMonth,E.monthEnd(nextMonth)).filter(e=>e.direction==='Income'&&!['Paid','Skipped'].includes(e.status));
+    const expected=E.sum(deposits,e=>e.forecastAmount||0);
+    if(deposits.length)decisions.push(recommendation('Plan around dated income',
+      monthLabel(nextMonth)+' has '+money(expected)+' in scheduled deposits with amounts entered. Match bills to each deposit date and check estimates when pay is confirmed.',
+      'See paydays','nav','Bills'));
+    else decisions.push(recommendation('Add the next paycheques and household deposits',
+      'Enter expected dates and amounts so you can see what is due before the money arrives.','Add a deposit','income-schedule'));
+    const recent=Array.from({length:13},(_,i)=>E.recordedCash(S,now,E.month(E.shiftMonth(now,-i)))).find(r=>r.available);
+    if(recent) {
+      const unknown=recent.sources.find(r=>r.name==='Needs review');
+      if(unknown)decisions.push(recommendation('Identify the deposits still in review',
+        money(unknown.amount)+' of '+monthLabel(recent.period)+' deposits are awaiting classification. '+money(recent.knownIncome)+
+        ' was identified as income. Confirm whether the remaining deposits are income, transfers, or refunds.',
+        'Review deposits','cash-bucket',JSON.stringify([recent.period,'in','Needs review'])));
+      if(!recent.covered)monthly.push(recommendation('Complete statement coverage for '+monthLabel(recent.period),
+        'Missing coverage for '+recent.scope.filter(x=>!x.covered).map(x=>x.account.name).join(', ')+'. Use the existing chat workflow to add the missing dates.',
+        'See cash flow','open-cash-month',recent.period));
+    }
+    const pending=S.transactions.filter(t=>t.kind==='Review').length;
+    if(pending)monthly.push(recommendation('Clear the remaining transaction questions',
+      pending+' transactions are waiting for confirmation. Start with repeat merchants to review several matching charges together.',
+      'Open quick review','open-inbox'));
+    const recurring=E.recurringCharges(S).filter(x=>E.distance(x.transaction.date,now)<=60);
+    if(recurring.length)monthly.push(recommendation('Check recurring charges',
+      recurring.length+' regular patterns were seen in the last 60 days. Open Recurring to check which charges you still expect and what they typically cost.',
+      'See recurring charges','open-recurring'));
+    const history=E.history(S,now);
+    const targetGaps=history.rows.filter(row=>row.average>0&&Object.hasOwn(S.targets,row.category)&&row.suggestion!==null&&row.average>row.suggestion)
+      .sort((a,b)=>(b.average-b.suggestion)-(a.average-a.suggestion));
+    if(targetGaps.length) {
+      const gap=targetGaps[0];
+      monthly.push(recommendation('Check the target for '+gap.category,
+        'The historical monthly average is '+money(gap.average)+' against a '+money(gap.suggestion)+' target.'+
+        (history.baselineReview?' The average is provisional while transactions are in review.':'')+
+        ' Check whether the target or the spending needs adjusting.',
+        'Review target','target-edit',gap.category));
+    }
+    const projects=E.ledgerRows(S.transactions).filter(t=>t.kind==='Project');
+    if(projects.length)monthly.push(recommendation('Keep one-time projects visible separately',
+      money(E.sum(projects,t=>-t.amount))+' in net project activity is recorded across all dates. Review any open project commitments alongside their own timeline.',
+      'See projects','open-projects'));
+    const topGoal=S.goals.filter(g=>g.saved<g.target).sort((a,b)=>a.priority-b.priority)[0];
+    if(topGoal)monthly.push(recommendation('Review your priority goal · '+topGoal.name,
+      money(topGoal.target-topGoal.saved)+' remains'+(topGoal.deadline?' by '+topGoal.deadline:'')+
+      '. Use the allocation view to compare how much monthly surplus goes toward this goal and to debt.',
+      'Compare allocations','nav','Debt & goals'));
+    else if(!S.goals.length)monthly.push(recommendation('Choose what surplus should fund',
+      'Add a cash reserve, savings, travel, or renovation goal. Give each a priority so you can compare it with debt in your allocation plan.',
+      'Add a goal','goal-edit'));
+    const total=urgent.length+decisions.length+monthly.length;
+    return head('Recommendations','Based on your current ledger · '+dateLabel(now))+
+      '<div class="advice-overview"><div><strong>'+urgent.length+'</strong><span>Check first</span></div>'+
+      '<div><strong>'+decisions.length+'</strong><span>Plan next</span></div><div><strong>'+monthly.length+'</strong><span>Monthly review</span></div></div>'+
+      (total?adviceGroup('Check first',urgent,'Bills and balances that can affect your next payment')+
+        adviceGroup('Plan next',decisions,'Income and debt decisions')+
+        adviceGroup('Monthly review',monthly,'Transactions, spending, projects, and goals'):
+        panel('You’re up to date',no('Check back after your next statement or when your payment dates change.')))+
+      '<details class="subtle section-gap"><summary>How the recommendations are ordered</summary>'+
+      '<p class="small">Open payments and missing cash information come first. Debt uses the latest rates in your ledger and assumes you keep required payments current. Check rates, balances, and payment terms against your latest lender statements.</p>'+
+      '<p class="small section-gap"><a href="https://www.canada.ca/en/financial-consumer-agency/services/debt/paying-debt.html">FCAC repayment guidance</a> · '+
+      '<a href="https://www.canada.ca/en/financial-consumer-agency/services/savings-investments/setting-up-emergency-funds.html">FCAC emergency fund guidance</a></p></details>';
   }
   function settings() {
     const accountRows=S.accounts.map(a=>row(cell(link(a.name,'account-edit',a.id),'desc'),cell(H(a.type)),amountCell(a.balance),cell(H(a.balanceDate||'—')),
@@ -3064,6 +3216,10 @@ const Vault=(() => {
     'review-reset':()=>{setAside.clear();render();},
     'review-undo':undoQuick,
     'spending-drill':category=>setLedger({month,category}),
+    'open-cash-month':period=>{cashMonth=period;go('Overview');},
+    'open-recurring':()=>{spendingTab='Recurring';go('Spending');},
+    'mortgage-terms':()=>loanEdit('mortgage'),
+    'income-schedule':()=>billEdit('income'),
     'cash-forecast':()=>document.getElementById('cash-forecast')?.scrollIntoView({block:'start'}),
     'cash-period':period=>{cashMonth=period;render();window.scrollTo(0,0);root.querySelector('[name=cash-month]')?.focus();},
     'cash-bucket':id=>{
