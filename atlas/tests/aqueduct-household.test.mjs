@@ -366,3 +366,61 @@ test('recommendations expose ledger-specific actions and link to the underlying 
   await click('nav','Settings');
   assert.match(ui(),/<h1>Settings<\/h1>/);
 });
+
+test('payday stress shifts estimated variable deposits only and keeps bills and booked amounts intact',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty(), now='2026-11-16';
+  state.config.floor=20000;
+  state.accounts=[
+    {id:'personal',type:'Chequing',forecast:true,balance:60000,balanceDate:now,floor:10000},
+    {id:'joint',type:'Chequing',forecast:true,balance:155000,balanceDate:now,floor:50000}
+  ];
+  const schedule=(id,start,direction,account,amount,variable=false)=>({id,name:id,start,direction,account,amount,variable,frequency:'Once'});
+  state.bills=[
+    schedule('variable','2026-11-18','Income','personal',120000,true),
+    schedule('confirmed','2026-11-28','Income','personal',70000,true),
+    schedule('draw','2026-11-21','Income','personal',30000),
+    schedule('bill','2026-11-19','Bill','personal',70000),
+    schedule('joint contribution','2026-11-30','Income','joint',100000)
+  ];
+  state.billStatus['confirmed/2026-11-28']={amount:60000};
+  const base=E.forecast(state,now), stress=E.forecast(state,now,{incomeCut:15,incomeDelay:7});
+  assert.equal(base.lows.personal,60000);
+  assert.equal(stress.lows.personal,-10000);
+  assert.equal(stress.affected.length,1);
+  assert.equal(stress.changed.get('variable/2026-11-18').date,'2026-11-25');
+  assert.equal(stress.changed.get('variable/2026-11-18').forecastAmount,102000);
+  assert.equal(stress.shortfalls[0].key,'bill/2026-11-19');
+  assert.equal(stress.ending,base.ending-18000);
+  assert.equal(state.bills[0].start,'2026-11-18');
+  assert.equal(E.commitmentRange(state,base,stress,'personal',true).base,50000);
+  assert.equal(E.commitmentRange(state,base,stress,'personal',true).stress,0);
+  assert.equal(E.commitmentRange(state,base,stress,'personal',false).base,null);
+  state.accounts[0].balanceDate='2026-11-15';
+  assert.equal(E.commitmentRange(state,E.forecast(state,now),E.forecast(state,now),'personal',true).stress,null);
+  state.config.flex=10000;
+  assert.equal(E.forecast(state,now).headroom,null);
+});
+
+test('debt profile flags a payment that cannot cover estimated interest',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty();
+  state.loans=[{id:'card',type:'Credit card',balance:807923,rate:20.99,payment:1494,asOf:'2026-10-26'}];
+  const [loan]=E.debtProfile(state,'2026-11-16').underInterest;
+  assert.equal(loan.required,1494);
+  assert.equal(loan.monthlyInterest,14132);
+});
+
+test('the payday plan is reachable and marks the optional payment estimate as pending until confirmed',async()=>{
+  const app=boot(new URL(pageUrl));
+  const dispatch=app.handlers.get('document click');
+  const click=(act,id='')=>dispatch({target:{closest:()=>({dataset:{act,id}})}});
+  await click('demo');
+  assert.match(app.node('app').innerHTML,/Open payday plan/);
+  await click('nav','Cash plan');
+  const view=app.node('app').innerHTML;
+  assert.match(view,/<h1>Payday plan<\/h1>/);
+  assert.match(view,/confirm all regular living costs/);
+  assert.match(view,/Variable pay delay/);
+  assert.match(view,/Lower or later pay low/);
+});

@@ -527,3 +527,32 @@ details.subtle summary { min-height:44px; align-content:center; }
   .advice-list > li { grid-template-columns:minmax(0,1fr); gap:7px; align-items:start; }
   .advice-list .btn { justify-self:start; }
 }
+
+/* Payday plan */
+.runway-result {
+  display:grid; grid-template-columns:minmax(0,.72fr) minmax(0,1fr); gap:22px; align-items:center;
+  background:#202e42; color:#fff9ec; border-radius:var(--radius);
+  padding:clamp(18px,4vw,29px); margin-bottom:16px;
+}
+.runway-result strong { display:block; font-size:clamp(2.15rem,6vw,3.8rem); line-height:1.16; margin-top:5px; letter-spacing:-.05em; }
+.runway-result p { color:#f7efe3; }
+.runway-result .runway-alert { color:#ffcfad; font-weight:700; margin-top:7px; }
+.runway-plot canvas { display:block; width:100%; height:clamp(155px,23vw,235px); }
+.runway-readout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-bottom:12px; }
+.runway-readout div { display:grid; gap:3px; padding:9px 12px; background:#f2eee3; border-radius:12px; }
+.runway-readout strong { font-size:clamp(1rem,3.9vw,1.33rem); overflow-wrap:anywhere; }
+.runway-accounts { padding:0; margin:0; list-style:none; }
+.runway-accounts li { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:center; gap:12px; padding:9px 0; }
+.runway-accounts li + li { border-top:1px solid var(--stroke); }
+.account-lows { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.account-lows span { display:grid; gap:2px; }
+.account-lows strong,.stress-deposit strong { font-variant-numeric:tabular-nums; }
+.stress-deposit { text-align:right; }
+.interest-gap { margin-top:13px; padding:11px 13px; border-radius:13px; background:#f6eadb; }
+.interest-gap .list > li { border-color:#e5d8c6; }
+@media(max-width:650px) {
+  .runway-result,.runway-accounts li { grid-template-columns:minmax(0,1fr); gap:9px; }
+  .runway-accounts li { padding:12px 0; }
+}
+
+#cash-scenario-result { scroll-margin-top:145px; }

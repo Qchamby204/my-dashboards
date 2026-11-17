@@ -404,22 +404,26 @@ const Engine = (() => {
   }
   function debtProfile(state,now) {
     const active=state.loans.filter(l=>l.balance>0);
-    const ranked=active.filter(l=>Number.isFinite(rateAt(l,now))).map(l=>({...l,currentRate:rateAt(l,now)}))
+    const ranked=active.filter(l=>Number.isFinite(rateAt(l,now))).map(l=>{
+      const currentRate=rateAt(l,now);
+      const monthlyInterest=round(l.balance*periodicRate(currentRate,l.method));
+      return {...l,currentRate,monthlyInterest,required:requiredMonthly(l,l.balance+monthlyInterest)};
+    })
       .sort((a,b)=>b.currentRate-a.currentRate||a.balance-b.balance);
     const target=ranked.find(l=>l.type!=='Mortgage'&&l.currentRate>0&&(l.prepay===null||l.prepay===undefined||l.prepay>0));
     const missing=active.filter(l=>!Number.isFinite(rateAt(l,now))||(!l.payment&&!l.minimumPercent)||!validDate(l.asOf));
     return {active,ranked,target,missing,balance:sum(active,l=>l.balance),
-      monthlyCost:sum(ranked,l=>round(l.balance*periodicRate(l.currentRate,l.method)))};
+      monthlyCost:sum(ranked,l=>l.monthlyInterest),
+      underInterest:ranked.filter(l=>l.required>0&&l.required<=l.monthlyInterest)};
   }
   function singlePayoff(loan, now, extra) {
     if(!loan||loan.balance<=0||!Number.isFinite(rateAt(loan,now))||(!loan.payment&&!loan.minimumPercent))return null;
-    const normal=round((loan.payment||0)*monthlyFactor(loan.frequency));
     let left=loan.balance, interest=0, prepaid=0;
     for(let i=0;i<600;i++) {
       if(i%12===0)prepaid=0;
       const cost=round(left*periodicRate(rateAt(loan,shiftMonth(now,i+1)),loan.method));
       interest+=cost;left+=cost;
-      left-=Math.min(left,Math.max(normal,loan.minimumPercent?round(left*loan.minimumPercent/100):0));
+      left-=Math.min(left,requiredMonthly(loan,left));
       const added=Math.min(left,extra,loan.prepay==null?Infinity:Math.max(0,loan.prepay-prepaid));
       left-=added;prepaid+=added;
       if(!left)return {months:i+1,interest};
@@ -463,7 +467,7 @@ const Engine = (() => {
     const past=events({...state,bills:old},'1900-01-01',add(start,-1)).filter(e=>!['Paid','Skipped'].includes(e.status));
     return [...past,...events(state,start,end)];
   }
-  function forecast(state, now) {
+  function forecast(state, now, {incomeCut=0, incomeDelay=0}={}) {
     const end=add(now,state.config.window);
     const verified=state.accounts.filter(a=>a.forecast&&['Chequing','Savings'].includes(a.type)&&Number.isSafeInteger(a.balance)&&validDate(a.balanceDate)&&a.balanceDate<=now);
     const starting=Object.fromEntries(verified.map(a=>[a.id,a.balance+sum(state.transactions.filter(t=>t.account===a.id&&t.date>a.balanceDate&&t.date<=now),t=>t.amount)]));
@@ -471,9 +475,12 @@ const Engine = (() => {
     const unsettled=all.filter(e=>!['Paid','Skipped'].includes(e.status));
     const upcoming=unsettled.filter(e=>e.date>=now);
     const overdue=unsettled.filter(e=>e.date<now&&e.direction!=='Income');
-    const list=[...upcoming,...overdue.map(e=>({...e,date:now,originalDate:e.date}))];
+    const affected=upcoming.filter(e=>e.direction==='Income'&&e.variable&&e.actualAmount==null&&Number.isSafeInteger(e.forecastAmount));
+    const changed=new Map(affected.map(e=>[e.key,{...e,date:add(e.date,incomeDelay),forecastAmount:round(e.forecastAmount*(100-incomeCut)/100)}]));
+    const varied=upcoming.map(e=>changed.get(e.key)||e).filter(e=>e.date<=end);
+    const list=[...varied,...overdue.map(e=>({...e,date:now,originalDate:e.date}))];
     const flex=state.config.flex;
-    if(flex>0&&state.config.flexAccount) {
+    if(flex>0) {
       for(let d=add(now,7);d<=end;d=add(d,7)) list.push({key:'flex/'+d,date:d,name:'Flexible spending allowance',account:state.config.flexAccount,direction:'Bill',forecastAmount:round(flex*12/52)});
     }
     const opening=sum(Object.values(starting),v=>v);
@@ -504,21 +511,30 @@ const Engine = (() => {
     const usableCalculate=verified.length>0&&!missing.length&&!unassigned.length&&!missingLoanPayments.length;
     const belowAccountBuffer=verified.some(a=>lows[a.id]<(a.floor||0));
     const headroom=usableCalculate?(belowAccountBuffer?0:Math.max(0,Math.min(low-state.config.floor,sum(verified,a=>Math.max(0,lows[a.id]-(a.floor||0)))))):null;
-    return {end,starting,opening,ending:sum(Object.values(balances),v=>v),lows,low,lowDate,headroom,missing,missingLoanPayments,stale,shortfalls,unassigned,verified,points,upcoming,overdue,all};
+    return {end,starting,opening,affected,changed,ending:sum(Object.values(balances),v=>v),lows,low,lowDate,headroom,missing,missingLoanPayments,stale,shortfalls,unassigned,verified,points,upcoming,overdue,all};
+  }
+  function commitmentRange(state,base,stress,account,covered) {
+    const blocked=!covered||state.config.floor<=0||base.headroom===null||stress.headroom===null||base.stale.length||stress.stale.length;
+    const source=base.verified.find(a=>a.id===account);
+    if(blocked||!source)return {base:null,stress:null};
+    const available=p=>Math.max(0,Math.min(p.headroom,p.lows[source.id]-(source.floor||0)));
+    return {base:available(base),stress:available(stress)};
   }
   const monthlyFactor = frequency => ({Weekly:52/12,Biweekly:26/12,Semimonthly:2,Monthly:1,Quarterly:1/3,Annual:1/12}[frequency] || 1);
+  const requiredMonthly=(loan,balance)=>Math.max(round((loan.payment||0)*monthlyFactor(loan.frequency)),
+    loan.minimumPercent?round(balance*loan.minimumPercent/100):0);
   const periodicRate = (annual,method) => method==='Canadian mortgage' ? (1+annual/200)**(1/6)-1 : annual/1200;
   const rateAt = (loan,date) => Number.isFinite(loan.rateAfter) && loan.rateDate && date>=loan.rateDate ? loan.rateAfter : loan.rate;
   function makePlan(state, now, debtShare) {
     const loans=state.loans.filter(l=>l.balance>0);
-    const missing=loans.filter(l=>l.rate===null||(!l.payment&&!l.minimumPercent)||!validDate(l.asOf));
+    const missing=loans.filter(l=>!Number.isFinite(rateAt(l,now))||(!l.payment&&!l.minimumPercent)||!validDate(l.asOf));
     const goals=state.goals.filter(g=>g.target>g.saved).sort((a,b)=>a.priority-b.priority||(a.deadline||'9999').localeCompare(b.deadline||'9999')||a.name.localeCompare(b.name));
     const available=state.config.surplus;
     const items=loans.map(l=>({...l,left:l.balance,interest:0,clear:'',prepaid:0,fees:0}));
     const goalItems=goals.map(g=>({...g,left:g.target-g.saved,funded:''}));
     const extraDebt=round(available*debtShare/100), extraGoals=available-extraDebt;
     if (missing.length) return {missing,items,goalItems,extraDebt,extraGoals,interest:null,end:'',incomplete:true};
-    const totalMinimum=sum(loans,l=>Math.max(round((l.payment||0)*monthlyFactor(l.frequency)),l.minimumPercent?round(l.balance*l.minimumPercent/100):0));
+    const totalMinimum=sum(loans,l=>requiredMonthly(l,l.balance));
     let index=0;
     for(;index<600&&(items.some(l=>l.left>0)||goalItems.some(g=>g.left>0));index++) {
       const date=shiftMonth(now,index+1);
@@ -528,7 +544,7 @@ const Engine = (() => {
         if (index%12===0) l.prepaid=0;
         const interest=round(l.left*periodicRate(rateAt(l,date),l.method));
         l.left+=interest; l.interest+=interest;
-        const payment=Math.min(l.left,Math.max(round((l.payment||0)*monthlyFactor(l.frequency)), l.minimumPercent?round(l.left*l.minimumPercent/100):0));
+        const payment=Math.min(l.left,requiredMonthly(l,l.left));
         l.left-=payment; required+=payment;
         if(!l.left) l.clear=date;
       }
@@ -555,5 +571,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,makePlan};
 })();
