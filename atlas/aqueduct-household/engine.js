@@ -194,7 +194,8 @@ const Engine = (() => {
     for (const t of existing) {
       if (t.external) exact.set(withId(t),t);
       const original=t.sourceDescription?{...t,description:t.sourceDescription,date:t.sourceDate||t.date}:t;
-      for(const key of new Set([fallback(t),fallback(original)])) {
+      const prior=t.priorSourceDescription?{...t,description:t.priorSourceDescription,date:t.priorSourceDate||t.date}:original;
+      for(const key of new Set([fallback(t),fallback(original),fallback(prior)])) {
         if(!fuzzy.has(key))fuzzy.set(key,[]);
         fuzzy.get(key).push(t);
       }

@@ -489,3 +489,38 @@ test('combined statement descriptions stay out of categories and the normal revi
   E.duplicateReview([repair],importing);
   assert.ok(importing.every(r=>r.duplicate));
 });
+
+test('a statement repair updates matched rows in place and keeps ledger edits',()=>{
+  const {Engine:E,ChatUpdate:C}=boot(new URL(pageUrl));
+  const today='2026-11-16',state=E.empty(),original=fixture();
+  const previous=original.statements[1].transactions[4];
+  previous.description='FIRST MERCHANT 102 Oct 24 Oct 24 SECOND MERCHANT';
+  C.apply(state,original,today);
+  const row=state.transactions.find(t=>t.description===previous.description);
+  row.note='Keep this note';
+  state.bills.find(b=>b.chatKey==='pay').amount=123456;
+  state.config.surplus=19000;
+
+  const update=structuredClone(original);
+  update.id='fictional-repair';
+  const packet=update.statements[1];
+  const replacement={...previous,description:'FIRST MERCHANT',kind:'Spending',category:'Groceries'};
+  packet.transactions[4]=replacement;
+  packet.transactions.push({...replacement,description:'New charge',amount:-2800});
+  update.repair={version:1,rows:[{...previous,packet:packet.key,account:packet.account,replacement,classificationTrusted:false}]};
+
+  const result=C.apply(state,C.read(JSON.stringify(update)),today);
+  assert.equal(result.corrected,1);
+  assert.equal(result.added,1);
+  assert.equal(result.duplicates,7);
+  assert.equal(state.transactions.length,8);
+  assert.equal(state.transactions.find(t=>t.id===row.id).description,'FIRST MERCHANT');
+  assert.equal(row.note,'Keep this note');
+  assert.equal(row.kind,'Review');
+  assert.equal(state.bills.find(b=>b.chatKey==='pay').amount,123456);
+  assert.equal(state.config.surplus,19000);
+  assert.equal(C.apply(state,update,today).already,true);
+  const legacyUpload=[{transaction:{...row,description:previous.description}}];
+  E.duplicateReview(state.transactions,legacyUpload);
+  assert.ok(legacyUpload[0].duplicate);
+});

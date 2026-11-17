@@ -50,6 +50,69 @@ const ChatUpdate=(()=>{
     return value;
   };
   const lower=E.normal;
+  const signature=(packet,account,day,amount,description)=>JSON.stringify([packet,account,day,amount,lower(description)]);
+  function repairRows(state,update,accounts,projects,reviewed,touched) {
+    const sourceKeys=new Map(state.imports.map(i=>[i.id,i.sourceKey]));
+    const index=new Map(), patches=new Map(), candidates=new Set();
+    for(const packet of list(update.statements,'statements')) {
+      for(const row of list(packet.transactions,'statement transactions')) {
+        candidates.add(signature(packet.key,packet.account,row.date,row.amount,row.description));
+      }
+    }
+    for(const row of update.repair.rows) {
+      object(row,'Statement repair row');
+      const packet=key(row.packet,'original statement ID'), account=key(row.account,'repair account ID');
+      const day=date(row.date,'original posting date'), amount=signed(row.amount,'original amount');
+      const before=text(row.description,'original description',240), after=object(row.replacement,'Replacement transaction');
+      const name=text(after.description,'replacement description',240);
+      if(after.date!==day||after.amount!==amount||E.compoundDescription(after)||
+        !candidates.has(signature(packet,account,day,amount,name)))fail('A statement repair does not match a row in the updated statement.');
+      const external=optionalText(row.external,'transaction reference',140);
+      flag(row.classificationTrusted,false,'statement classification trust');
+      const savedAccount=accounts.get(account);
+      if(!savedAccount)fail('A statement repair refers to an unknown account.');
+      const id=signature(packet,savedAccount.id,day,amount,before);
+      if(!patches.has(id))patches.set(id,[]);
+      patches.get(id).push({...row,external});
+    }
+    for(const t of state.transactions) {
+      const packet=sourceKeys.get(t.importId);
+      for(const [day,description] of [[t.date,t.description],[t.sourceDate||t.date,t.sourceDescription],[t.priorSourceDate||t.date,t.priorSourceDescription]]) {
+        if(!description)continue;
+        const id=signature(packet,t.account,day,t.amount,description);
+        if(!patches.has(id))continue;
+        if(!index.has(id))index.set(id,new Set());
+        index.get(id).add(t);
+      }
+    }
+    const used=new Set();
+    for(const [id,rows] of patches) {
+      const matches=[...(index.get(id)||[])];
+      if(matches.length>rows.length||(matches.length>0&&matches.length<rows.length&&rows.every(r=>!r.external)&&
+        new Set(rows.map(r=>lower(r.replacement.description))).size>1))fail('A statement repair has ambiguous matches. The ledger was left intact.');
+      for(const row of rows) {
+        const t=matches.find(x=>!used.has(x.id)&&(!row.external||row.external===x.external));
+        if(!t)continue;
+        used.add(t.id);
+        const wasCompound=E.compoundDescription(t);
+        const wasEdited=lower(t.description)!==lower(row.description)&&!wasCompound;
+        if(!wasEdited)t.description=row.replacement.description;
+        t.priorSourceDescription=row.description;
+        t.priorSourceDate=row.date;
+        t.sourceDescription=row.replacement.description;
+        t.sourceDate=row.date;
+        const categoryUnchanged=t.kind===row.before?.kind&&(t.category||'')===(row.before?.category||'');
+        if(!t.pair&&!t.allocations?.length&&(t.kind==='Review'||wasCompound&&categoryUnchanged)) {
+          const project=row.replacement.project;
+          const safe=row.classificationTrusted&&(!project||projects.has(project));
+          if(safe)Object.assign(t,reviewed(row.replacement,t.amount),{note:t.note||row.replacement.note||''});
+          else if(wasCompound)Object.assign(t,{kind:'Review',category:'',project:'',why:'Description corrected from the bank export. Confirm the category.',manual:false});
+        }
+        touched.add(t.id);
+      }
+    }
+    return used.size;
+  }
   function read(serialized) {
     let update;
     try{update=JSON.parse(serialized);}catch{fail('Choose the Aqueduct update file prepared in chat.');}
@@ -57,13 +120,25 @@ const ChatUpdate=(()=>{
     key(update.id,'update ID');
     if(update.baseUpdate!==undefined)key(update.baseUpdate,'base update ID');
     for(const name of ['accounts','projects','statements','loans','bills','goals','targets','excludedMonths','corrections'])list(update[name],name);
+    if(update.repair!==undefined) {
+      const repair=object(update.repair,'Statement repair');
+      if(repair.version!==1||!Array.isArray(repair.rows))fail('Choose a supported statement repair file.');
+    }
     if(update.config!==undefined)object(update.config,'Allocation');
     return update;
   }
   function apply(state,update,today) {
     const updates=state.chatUpdates??[];
     if(updates.some(x=>x.id===update.id))return {already:true};
-    if(updates.some(x=>x.id===update.baseUpdate)) {
+    if(update.repair) {
+      const existing=(items,entry)=>items.find(x=>x.chatKey===entry.key||lower(x.name)===lower(entry.name));
+      update={...update,
+        loans:list(update.loans,'loans').filter(x=>{const old=existing(state.loans,x);return !old||old.chatKey===x.key&&x.asOf>old.asOf;}),
+        bills:list(update.bills,'bills').filter(x=>!existing(state.bills,x)),
+        projects:list(update.projects,'projects').map(x=>existing(state.projects,x)?{key:x.key,name:x.name}:x),
+        config:undefined,excludedMonths:undefined};
+    }
+    if(!update.repair&&updates.some(x=>x.id===update.baseUpdate)) {
       update={id:update.id,corrections:list(update.corrections,'corrections').filter(entry=>entry.onlyReview===true)};
     }
     const result={added:0,duplicates:0,review:0,corrected:0,statements:0};
@@ -191,6 +266,7 @@ const ChatUpdate=(()=>{
         why:optionalText(entry.question,'transaction question',240)||(base.kind==='Review'?'Confirm category or project in chat.':'Prepared in chat'),
         note:optionalText(entry.note,'transaction note')};
     }
+    if(update.repair)result.corrected+=repairRows(state,update,accounts,projects,reviewed,touched);
     const packetKeys=new Set();
     const priorSources=new Set(state.imports.map(x=>x.sourceKey).filter(Boolean));
     for(const packet of list(update.statements,'statements')){
