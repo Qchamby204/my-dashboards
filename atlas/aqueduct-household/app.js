@@ -43,11 +43,61 @@
     Debt:'M3 19h18M5 15l5-5 4 2 5-6m-5 0h5v5',
     Review:'M9 5H5v15h14V5h-4M9 3h6v4H9zm-1 11 3 3 5-6',
     Recommendations:'M12 2l1.9 5.5L19 10l-5.1 2.4L12 18l-1.9-5.6L5 10l5.1-2.5L12 2zM19 15v6m-3-3h6M4 4v4M2 6h4',
-    Settings:'M4 6h16M4 12h16M4 18h16M8 4v4m8 2v4m-6 2v4'
+    Settings:'M4 6h16M4 12h16M4 18h16M8 4v4m8 2v4m-6 2v4',
+    More:'M5 12h.1m6.9 0h.1m6.9 0h.1',
+    Appearance:'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zm0 0v18',
+    Lock:'M6 10h12v10H6zM9 10V7a3 3 0 0 1 6 0v3M12 14v2'
   };
   const icon=path=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+path+'"/></svg>';
-  const atlasLink=hosted?'<a class="atlas-return" href="./">Atlas</a>':'';
-  const brand='<div class="brand"><span class="brand-mark" aria-hidden="true"></span>Aqueduct</div>';
+  const appearanceKey='atlas.appearance.v1';
+  const appearances=['system','light','dark'];
+  const darkSystem=window.matchMedia?.('(prefers-color-scheme: dark)');
+  let appearance;
+  try { appearance=localStorage.getItem(appearanceKey); } catch {}
+  if(!appearances.includes(appearance))appearance='system';
+  function applyAppearance() {
+    const theme=appearance==='system'?(darkSystem?.matches?'dark':'light'):appearance;
+    if(document.documentElement)document.documentElement.dataset.atlasTheme=theme;
+    const meta=document.querySelector?.('meta[name="theme-color"]');
+    if(meta)meta.content=theme==='dark'?'#1c1a2b':'#efeae3';
+    const control=root.querySelector('#atlas-appearance');
+    if(control&&control.value!==appearance)control.value=appearance;
+  }
+  darkSystem?.addEventListener('change',applyAppearance);
+  window.addEventListener('storage',event=>{
+    if(event.key!==appearanceKey)return;
+    appearance=appearances.includes(event.newValue)?event.newValue:'system';
+    applyAppearance();
+  });
+  document.addEventListener('change',event=>{
+    if(event.target.id!=='atlas-appearance'||!appearances.includes(event.target.value))return;
+    appearance=event.target.value;
+    try { localStorage.setItem(appearanceKey,appearance); } catch {}
+    applyAppearance();
+  });
+  function dashboardHeader(unlocked=false) {
+    const atlas=hosted?`<a class="atlas-icon-button" aria-label="The Atlas" title="The Atlas" href="./index.html">${icon(tabIcons.Home)}</a>`:'';
+    const tool=(label,act,id,shape,current=false)=>`<button class="atlas-icon-button" type="button" data-act="${act}" data-id="${id}"
+      aria-label="${label}" title="${label}"${current?' aria-current="page"':''}>${icon(tabIcons[shape])}</button>`;
+    const preferences=`<label class="atlas-appearance atlas-icon-button">${icon(tabIcons.Appearance)}
+      <select id="atlas-appearance" aria-label="Appearance" title="Appearance">${appearances.map(x=>
+        `<option value="${x}"${appearance===x?' selected':''}>${x[0].toUpperCase()+x.slice(1)}</option>`).join('')}</select></label>`;
+    return `<header class="top atlas-header"><div class="atlas-header-row">${atlas}
+      <div class="atlas-identity"><strong>The Aqueduct</strong><small>${sample?'Fictional demo':'Household'}</small></div>
+      ${unlocked?tool('Settings','nav','Settings','Settings',tab==='Settings')+tool(sample?'Exit demo':'Lock','lock','','Lock'):''}
+      ${preferences}</div></header>`;
+  }
+  function dashboardDock(active) {
+    const entries=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals']];
+    const item=(label,view)=>`<button type="button" class="nav-tab" data-act="nav" data-id="${H(view)}"${view===active?' aria-current="page"':''}>
+      ${icon(tabIcons[label])}<span>${label}</span></button>`;
+    const more=[['Review','Import & review'],['Recommendations','Recommendations']];
+    const moreCurrent=more.some(([,view])=>view===active);
+    return `<nav class="nav atlas-dock" aria-label="Dashboard">${entries.map(([label,view])=>item(label,view)).join('')}
+      <details class="atlas-dock-more"><summary class="nav-tab"${moreCurrent?' aria-current="page"':''}>${icon(tabIcons.More)}<span>More</span></summary>
+        <div class="atlas-more-panel">${more.map(([label,view])=>item(label,view)).join('')}</div>
+      </details></nav>`;
+  }
   const val=(form,key)=>String(form.get(key)??'').trim();
   const dollarsField=(form,key,{optional=false,min=0}={})=>{
     const raw=val(form,key);
@@ -96,7 +146,42 @@
   const link=(label,action,id='')=>'<button type="button" class="link-button" data-act="'+H(action)+'" data-id="'+H(id)+'">'+H(label)+'</button>';
   const pill=(v,type='')=>'<span class="pill '+type+'">'+H(v)+'</span>';
   const panel=(title,body,caption='',actions='')=>'<section class="panel"><div class="panel-title"><div><h2>'+H(title)+'</h2>'+(caption?'<p>'+H(caption)+'</p>':'')+'</div>'+actions+'</div>'+body+'</section>';
-  const head=(title,caption,actions='')=>'<header class="page-head"><div><h1>'+H(title)+'</h1><p>'+H(caption)+'</p></div>'+actions+'</header>';
+  const openingArt={
+    book:'<path d="M50 80 Q110 62 180 88 Q250 62 310 80 V218 Q248 200 180 226 Q112 200 50 218 Z" fill="#f1e4c9"/><path d="M180 88 V226 M72 112 Q110 101 153 115 M72 140 Q110 129 153 143 M72 168 Q110 157 135 167"/><path d="M207 178 L232 151 L251 159 L287 111 M267 111 H287 V131" stroke="#537f7b" stroke-width="6"/>',
+    pay:'<path d="M45 87 H315 V214 H45 Z" fill="#f1e4c9"/><path d="M45 122 H315 M72 151 H153 M72 174 H130 M72 197 H111"/><circle cx="251" cy="171" r="28" fill="#d2a769"/><path d="M251 153 V189 M261 159 H247 Q235 159 246 171 L257 175 Q268 184 241 184"/>',
+    plan:'<path d="M49 73 H311 V225 H49 Z" fill="#f1e4c9"/><path d="M49 111 H311 M87 58 V89 M273 58 V89 M87 140 H117 V166 H87 Z M140 140 H170 V166 H140 Z M193 140 H223 V166 H193 Z M246 140 H276 V166 H246 Z M87 184 H117 V210 H87 Z M140 184 H170 V210 H140 Z"/><path d="M198 195 L217 211 L273 174" stroke="#537f7b" stroke-width="6"/>',
+    goals:'<circle cx="167" cy="150" r="87" fill="#f1e4c9"/><circle cx="167" cy="150" r="58"/><circle cx="167" cy="150" r="27" fill="#d2a769"/><path d="M167 150 L268 64 M249 68 L270 43 L275 64 L296 67 L272 87 Z" fill="#82b5b0"/>',
+    review:'<path d="M81 57 H248 V235 H81 Z" fill="#f1e4c9"/><path d="M110 91 H213 M110 118 H213 M110 145 H177 M110 172 H165 M110 199 H148"/><circle cx="245" cy="184" r="43" fill="#719d99"/><path d="M226 183 L240 197 L265 171 M276 216 L302 242" stroke="#f7efdf" stroke-width="6"/>'
+  };
+  function atlasOpening(title,caption,art,actions,rail,large=false) {
+    return `<section class="atlas-opening${large?' atlas-opening-home':''}" data-opening="${art}">
+      ${rail?`<div class="atlas-opening-rail">${rail}</div>`:''}
+      <div class="atlas-opening-face"><h1>${H(title)}</h1>
+        <svg class="atlas-opening-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false">
+          <circle cx="180" cy="142" r="122" fill="#ffffff0c"/>
+          <g stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">${openingArt[art]}</g>
+        </svg>${caption?`<p>${H(caption)}</p>`:''}</div>
+      <div class="atlas-opening-footer">${actions}</div>
+    </section><div id="atlas-view-start" tabindex="-1"></div>`;
+  }
+  function head(title,caption,actions='') {
+    const looks={
+      'Import & review':['review',reviewView==='Statements'?'Statement updates':'Statements and transactions',reviewView==='Statements'?'See import steps':'See transactions'],
+      'Spending':['book','Recorded spending','See spending'],
+      'Bills':['plan','Payment calendar','See payment dates'],
+      'Debt & goals':['goals','Debt and goals','See balances'],
+      'Monthly costs':['plan','Your monthly plan','See monthly costs'],
+      'Monthly snapshot':['goals','Repayment scenarios','See repayment controls'],
+      'Cash plan':['pay','From now to payday','See cash forecast'],
+      'Next move':['goals','Your monthly plan','See your options'],
+      'Recommendations':['goals','Your monthly plan','See recommendations']
+    };
+    const look=looks[tab];
+    if(!look||tab==='Spending'&&categoryDetail)return '<header class="page-head"><div><h1>'+H(title)+'</h1><p>'+H(caption)+'</p></div>'+actions+'</header>';
+    const [art,label,jumpLabel]=look;
+    return atlasOpening(title,caption,art,`<div class="actions">${btn(jumpLabel,'atlas-view-start','','primary')}${actions}</div>`,
+      workflowNavigation()||H(label));
+  }
   const banner=(body,style='')=>'<div class="banner '+style+'"><p>'+body+'</p></div>';
   const no=(text)=>'<div class="empty">'+H(text)+'</div>';
   const table=(headers,rows)=>'<div class="table-wrap"><table><thead><tr>'+headers.map(x=>'<th scope="col"'+(x.startsWith('$')?' class="money"':'')+'>'+H(x.replace(/^\$/,''))+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
@@ -160,7 +245,7 @@
     const chatAction=blocked?'':chatUpdate?
       banner('Chat update ready. '+(stored?'Unlock':'Create')+' your ledger to apply it.') :
       '<div class="chat-start"><p>Drop statements into chat. Apply the prepared update here.</p>'+btn('Apply chat update','chat-update','','primary')+'</div>';
-    root.innerHTML='<main class="welcome"><section class="panel">'+brand+'<h1>'+ (stored?'Unlock your ledger':'Household cash flow')+'</h1>'+
+    root.innerHTML=dashboardHeader()+'<main class="welcome atlas-welcome"><section class="panel"><h1>'+ (stored?'Unlock your ledger':'Household cash flow')+'</h1>'+
       (blocked?banner('Open Aqueduct directly from Atlas in a browser with encryption enabled.', 'warning'):'')+
       chatAction+'<form id="vault-form" class="stack" autocomplete="off">'+field('Passphrase',pass,stored?'':'Keep this passphrase somewhere safe. Use at least 12 characters.')+
       (stored?'':field('Confirm passphrase',f('confirm','','password','required autocomplete="new-password"')))+
@@ -168,7 +253,7 @@
       (chatUpdate?btn('Cancel update','cancel-chat-update'):'')+'</div></form>'+
       '<details class="subtle section-gap"><summary>Other options</summary><div class="actions">'+
       (blocked?'':btn('Open encrypted backup','restore'))+btn('Try fictional data','demo')+btn('Check this device','device-check')+'</div></details>'+
-      '<p class="small section-gap">The encrypted ledger stays on this device.'+(hosted?' '+atlasLink:'')+'</p></section></main>';
+      '<p class="small section-gap">The encrypted ledger stays on this device.</p></section></main>';
     root.querySelector('#vault-form').addEventListener('submit',async event=>{
       event.preventDefault();
       if(blocked)return;
@@ -364,15 +449,11 @@
   function render() {
     if(!S){welcome();return;}
     const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver,monthCostsView,nextMove];
-    const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Recommendations','Recommendations']];
     const homeDetail=['Cash plan','Cash history','Monthly changes','Change driver','Monthly costs','Next move'].includes(tab);
     const active=tab==='Monthly snapshot'?'Debt & goals':homeDetail?'Overview':tab;
-    root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
-      atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
-      (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===active?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
+    root.innerHTML=dashboardHeader(true)+'<main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
-      workflowNavigation()+views[allViews.indexOf(tab)]()+'</main>';
+      views[allViews.indexOf(tab)]()+'</main>'+dashboardDock(active);
     if(tab==='Monthly snapshot')bindMonthlyScenario();
     if(tab==='Monthly changes')root.querySelector('[name=changes-month]')?.addEventListener('change',event=>{changesMonth=event.target.value;render();root.querySelector('[name=changes-month]')?.focus();});
     if(tab==='Cash history') {
@@ -626,13 +707,10 @@
         <strong>${H(item.title)}</strong><small>${H(item.description)}</small></span>
         ${states[i]?`<span class="workflow-status${step===2&&reviewCount?' pending':''}">${H(states[i])}</span>`:''}${arrow}</button></li>`;
     }).join('');
-    return `<section class="workflow-opening" aria-labelledby="workflow-title">
-      <div class="workflow-face"><div><h1 id="workflow-title">Household finances</h1>
-      <p>Go from statements to a plan for your month.</p></div></div>
-      <div class="workflow-footer"><div><span>Suggested next step</span><strong>${H(reason)}</strong></div>
-        ${workflowButton(workflow[suggested-1].title,suggested)}</div>
-    </section>
-    <section class="panel workflow-overview" aria-labelledby="steps-title"><h2 id="steps-title">Your monthly workflow</h2>
+    const footer=`<div class="atlas-next"><small>Suggested next step</small><strong>${H(reason)}</strong></div>
+      ${workflowButton(workflow[suggested-1].title,suggested)}`;
+    return atlasOpening('Household finances','Go from statements to a plan for your month.','plan',footer,'Your monthly workflow',true)+
+      `<section class="panel workflow-overview" aria-labelledby="steps-title"><h2 id="steps-title">The four steps</h2>
       <ol>${rows}</ol></section>`;
   }
   function overview() {
@@ -2613,6 +2691,11 @@
     },lock:()=>lock(),
     'workflow-step':step=>openWorkflowStep(Number(step)),
     'workflow-next-view':view=>go(view),
+    'atlas-view-start':()=>{
+      const target=document.getElementById('atlas-view-start');
+      target?.scrollIntoView({block:'start'});
+      target?.focus({preventScroll:true});
+    },
     'dialog-close':()=>dialog.close(),demo,restore,backup,summary,
     'chat-update':chooseChatUpdate,'cancel-chat-update':()=>{chatUpdate=null;chatRead++;welcome();},'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
     'account-settings':()=>{tab='Settings';settingsJump='settings-accounts';render();settingsJump='';},
@@ -2696,13 +2779,21 @@
     'debt-extra':amount=>{debtExtra=Number(amount);render();root.querySelector('[data-act=debt-extra][aria-pressed=true]')?.focus({preventScroll:true});},
     'loan-edit':loanEdit,'loan-bill':id=>billEdit('',byId(S.loans,id)),'goal-edit':goalEdit
   };
+  document.addEventListener('keydown',event=>{
+    if(event.key!=='Escape')return;
+    const open=root.querySelector('.atlas-dock-more[open]');
+    if(open){open.open=false;open.querySelector('summary')?.focus();}
+  });
   document.addEventListener('click',async event=>{
+    const more=root.querySelector('.atlas-dock-more[open]');
+    if(more?.open&&!more.contains(event.target))more.open=false;
     const button=event.target.closest('button[data-act]');
     if(!button||button.disabled) return;
     const run=actions[button.dataset.act];
     if(!run)return;
     try { await run(button.dataset.id||''); } catch(error){note(error.message,true);}
   });
+  applyAppearance();
   welcome();
   if(hosted&&localFile&&'serviceWorker' in navigator) {
     navigator.serviceWorker.register('./aqueduct-household-sw.js',{scope:'./aqueduct-household.html'})
