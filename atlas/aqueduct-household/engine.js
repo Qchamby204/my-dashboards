@@ -686,16 +686,17 @@ const Engine = (() => {
     const start=period+'-01', last=monthEnd(start), through=last<now?last:now;
     const view=historyView;
     const audit=recurringAudit(state,through,period);
-    const costRows=view.current.filter(t=>t.date<=through&&isSpending(t));
+    const current=view.current.filter(t=>t.date<=through);
+    const costRows=current.filter(isSpending);
     const posted=Object.fromEntries(costKinds.map(([k])=>[k,costRows.filter(t=>costBucket(t,audit)===k)]));
     const totals=Object.fromEntries(costKinds.map(([k])=>[k,spendingTotal(posted[k])]));
-    const projects=view.current.filter(t=>t.date<=through&&t.kind==='Project');
+    const projects=current.filter(t=>t.kind==='Project');
     const due=events(state,start,last).filter(e=>e.direction==='Bill'&&e.status!=='Skipped');
     const scheduled=due.map(e=>{
       const mortgage=/mortgage/i.test(e.name)||state.loans.some(l=>l.id===e.loan&&l.type==='Mortgage');
       const name=costMerchant(e.name);
       const card=/\b(card|visa|mastercard|amex)\b/.test(normal(e.name))&&!/\bfee\b/.test(normal(e.name));
-      const candidates=e.loan&&!mortgage||card?[]:view.current.filter(t=>t.account===e.account&&t.date<=through&&t.amount<0&&
+      const candidates=e.loan&&!mortgage||card?[]:current.filter(t=>t.account===e.account&&t.amount<0&&
         Math.abs(distance(t.date,e.date))<=4&&(-t.amount===e.forecastAmount||e.variable)&&
         (e.project?t.kind==='Project'&&t.project===e.project:isSpending(t)&&(mortgage?t.category===mortgageCategory:
           t.category!==mortgageCategory&&name.length>=4&&costMerchant(t.description)===name)));
@@ -708,7 +709,36 @@ const Engine = (() => {
     const gaps=covered.filter(a=>!coverage(state,a.id,a.openDate>start?a.openDate:start,a.closeDate&&a.closeDate<through?a.closeDate:through));
     return {period,through,totals,posted,projects,projectTotal:spendingTotal(projects),ordinary:sum(Object.values(totals),x=>x),
       total:sum(Object.values(totals),x=>x)+spendingTotal(projects),billRows,gaps,
-      available:view.current.length>0||covered.length>0&&gaps.length<covered.length,review:view.review.length,audit};
+      available:current.length>0||covered.length>0&&gaps.length<covered.length,review:current.filter(t=>t.kind==='Review').length,audit,
+      coveredAccounts:covered,baselineMonths:view.complete};
+  }
+  function monthlyCostComparison(state,report,plan) {
+    const {period,through,posted,totals,available,coveredAccounts,baselineMonths,audit}=report;
+    const monthComplete=coveredAccounts.length>0&&!report.gaps.length&&through===monthEnd(period+'-01');
+    if(monthComplete&&!plan.missingOperating){
+      return {basis:'plan',actual:totals,reference:{fixed:plan.fixed,recurring:plan.recurring,flexible:plan.variable},through};
+    }
+    const start=period+'-01', accountIds=new Set(coveredAccounts.map(a=>a.id));
+    const sameAccounts=candidate=>{
+      const from=candidate+'-01', to=monthEnd(from);
+      const active=state.accounts.filter(a=>a.history&&(!a.openDate||a.openDate<=to)&&(!a.closeDate||a.closeDate>=from));
+      return coveredAccounts.length>0&&active.length===accountIds.size&&active.every(a=>accountIds.has(a.id))&&
+        coveredAccounts.every(a=>(!a.openDate||a.openDate<=from)&&(!a.closeDate||a.closeDate>=through));
+    };
+    const prior=!monthComplete&&baselineMonths.find(sameAccounts);
+    if(prior){
+      const priorStart=prior+'-01';
+      let days=Math.min(Number(through.slice(8)),Number(monthEnd(priorStart).slice(8)));
+      while(days>0&&!coveredAccounts.every(a=>coverage(state,a.id,start,add(start,days-1))))days--;
+      if(days>0){
+        const cutoff=add(start,days-1), priorEnd=add(priorStart,days-1);
+        const priorRows=spendingRows(state.transactions.filter(t=>accountIds.has(t.account)&&t.date>=priorStart&&t.date<=priorEnd)).filter(isSpending);
+        const actual=Object.fromEntries(costKinds.map(([k])=>[k,spendingTotal(posted[k].filter(t=>t.date<=cutoff))]));
+        const reference=Object.fromEntries(costKinds.map(([k])=>[k,spendingTotal(priorRows.filter(t=>costBucket(t,audit)===k))]));
+        return {basis:'prior',actual,reference,through:cutoff,priorEnd};
+      }
+    }
+    return {basis:null,actual:available?totals:null,reference:null,through};
   }
   function monthlyOperatingRows(state,historyView,audit,interestAverage,mortgageSchedules,start) {
     const months=historyView.complete.length;
@@ -895,5 +925,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,balances,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,monthlyCosts,recurringAudit,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,monthlyCosts,monthlyCostComparison,recurringAudit,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
 })();

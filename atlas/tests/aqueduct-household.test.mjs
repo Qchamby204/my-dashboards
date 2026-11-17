@@ -765,3 +765,41 @@ test('recurring costs and the allocation share use the same repayment budget',()
   assert.equal(lowerRecurring.unallocated,10000);
   assert.equal(E.repaymentBudget(b,v,null).extra,0);
 });
+
+test('monthly cost comparisons use matching statement dates until the full month is covered',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty();
+  state.accounts=[{id:'bank',history:true},{id:'card',history:true}];
+  state.imports=[
+    {account:'bank',start:'2026-10-01',end:'2026-11-17',coverageConfirmed:true},
+    {account:'card',start:'2026-10-01',end:'2026-11-14',coverageConfirmed:true}
+  ];
+  const t=(id,account,date,amount,category,kind='Spending')=>({id,account,date,amount,description:id,category,kind});
+  state.transactions=[
+    t('utilities','bank','2026-10-08',-12300,'Housing & utilities'),
+    t('prior early groceries','card','2026-10-12',-9120,'Groceries'),
+    t('prior late groceries','card','2026-10-15',-6500,'Groceries'),
+    t('utilities current','bank','2026-11-08',-13500,'Housing & utilities'),
+    t('groceries','card','2026-11-14',-10700,'Groceries'),
+    t('late groceries','bank','2026-11-15',-4250,'Groceries'),
+    t('basement','bank','2026-11-12',-29600,'','Project')
+  ];
+  const plan={fixed:14000,recurring:4500,variable:11000,minimums:3900};
+  const partial=E.monthlyCosts(state,'2026-11-17','2026-11');
+  const pace=E.monthlyCostComparison(state,partial,plan);
+  assert.equal(pace.basis,'prior');
+  assert.equal(pace.through,'2026-11-14');
+  assert.equal(pace.priorEnd,'2026-10-14');
+  assert.equal(pace.actual.flexible,10700);
+  assert.equal(pace.reference.flexible,9120);
+  assert.equal(partial.projectTotal,29600);
+  assert.equal(partial.totals.flexible,14950);
+  const october=E.monthlyCostComparison(state,E.monthlyCosts(state,'2026-11-17','2026-10'),plan);
+  assert.equal(october.basis,'plan');
+  assert.equal(october.reference.fixed,14000);
+  assert.equal(october.reference.flexible,11000);
+  state.imports[1].end='2026-10-31';
+  const unmatched=E.monthlyCostComparison(state,E.monthlyCosts(state,'2026-11-17','2026-11'),plan);
+  assert.equal(unmatched.reference,null);
+  assert.equal(unmatched.actual.flexible,14950);
+});

@@ -711,10 +711,10 @@ details.subtle summary { min-height:44px; align-content:center; }
 .budget-sources { display:flex; flex-wrap:wrap; gap:5px 15px; margin:8px 0 13px; }
 .budget-sources b { color:var(--ink); }
 .budget-stack { display:flex; border-radius:7px; overflow:hidden; height:13px; background:#eee9dd; }
-.budget-stack i,.budget-costs i,.monthly-cost-rows i { background:var(--flow-rate); }
-.budget-stack .out,.budget-costs .out,.monthly-cost-rows .out { background:var(--flow-out); }
-.budget-stack .priority,.budget-costs .priority,.monthly-cost-rows .priority { background:var(--flow-priority); }
-.budget-stack .reserve,.budget-costs .reserve,.monthly-cost-rows .reserve { background:#746782; }
+.budget-stack i,.budget-costs i { background:var(--flow-rate); }
+.budget-stack .out,.budget-costs .out { background:var(--flow-out); }
+.budget-stack .priority,.budget-costs .priority { background:var(--flow-priority); }
+.budget-stack .reserve,.budget-costs .reserve { background:#746782; }
 .budget-stack .room { background:#8db6a5; }
 .budget-costs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); list-style:none; padding:0; margin:10px 0 0; gap:4px 12px; }
 .budget-costs li { display:grid; grid-template-columns:8px minmax(0,1fr); gap:0 7px; align-items:center; font-size:.83rem; }
@@ -798,13 +798,6 @@ details.subtle summary { min-height:44px; align-content:center; }
 .debt-lead p,.debt-lead .link-button { color:#f2e8da; font-size:.85rem; }
 .debt-lead .btn { background:#fffaf0; }
 .debt-lead .btn.quiet { background:transparent; color:#fffaf0; border-color:#fffaf052; }
-
-.scenario-live { display:none; }
-@media(max-width:800px) {
-  .scenario-live { position:sticky; top:0; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:8px 11px; margin-bottom:5px; border-radius:10px; background:#e8eee6; font-size:.83rem; }
-  .scenario-live b { font-variant-numeric:tabular-nums; }
-}
 
 /* Today, spending drivers and repayment decisions */
 .decision-layout { display:grid; grid-template-columns:minmax(0,1.22fr) minmax(0,1fr); gap:var(--panel-gap); align-items:start; }
@@ -908,29 +901,58 @@ details.subtle summary { min-height:44px; align-content:center; }
 .change-review .link-button { margin-left:8px; }
 .decision-list .dashboard-jump>b>small { font-weight:500; font-size:.69rem; margin-top:0; }
 
-/* Monthly costs and recurring charges */
-.month-cost-overview { align-items:start; }
-.monthly-total {
-  min-width:0; border-radius:var(--radius); padding:clamp(16px,3vw,27px);
-  background:#182b3d; color:#fffaf0;
+/* Monthly comparisons use one dollar scale, including the zero line for credits. */
+.cost-opening {
+  display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); color:#fffaf1;
+  border-radius:var(--radius); background:#182b3d; margin-bottom:var(--panel-gap);
 }
-.monthly-total>strong,.monthly-plan-value,.recurring-summary strong {
-  display:block; font-size:clamp(1.9rem,5vw,3.15rem); line-height:1.12; letter-spacing:-.05em;
-  overflow-wrap:anywhere; margin:.25em 0; font-weight:700;
+.cost-lead,.cost-plan { padding:clamp(15px,3vw,28px); min-width:0; }
+.cost-lead h2,.cost-plan h2 { font-size:.86rem; font-weight:650; color:#e0e9ed; }
+.cost-lead>strong,.cost-plan>b,.recurring-summary strong {
+  display:block; margin:.2em 0; font-size:clamp(1.85rem,5.5vw,3.3rem); line-height:1.1;
+  letter-spacing:-.052em; overflow-wrap:anywhere; font-weight:700;
 }
-.monthly-total p { color:#dce6e7; font-size:.86rem; }
-.monthly-total .link-button { color:#fff0d4; }
-.cost-mix { margin-top:12px; height:9px; }
-.monthly-cost-rows { padding:0; margin:10px 0; list-style:none; border-block-start:1px solid var(--stroke); }
-.monthly-total .monthly-cost-rows { border-color:#ffffff36; }
-.monthly-cost-rows li { display:flex; gap:8px; align-items:center; justify-content:space-between; padding:5px 0; }
-.monthly-cost-rows li+li { border-block-start:1px solid var(--stroke); }
-.monthly-total .monthly-cost-rows li+li { border-color:#ffffff33; }
-.monthly-cost-rows li:has(button) { padding:0; }
-.monthly-cost-rows li>span { display:flex; align-items:center; gap:8px; }
-.monthly-cost-rows i { width:8px; height:8px; flex:none; border-radius:50%; }
-.monthly-cost-rows b { text-align:right; }
-.monthly-plan-value { color:var(--ink); }
+.cost-plan { border-inline-start:1px solid #ffffff29; background:#ffffff0b; border-radius:0 var(--radius) var(--radius) 0; }
+.cost-plan>b { font-size:clamp(1.35rem,4vw,2.35rem); }
+.cost-opening p { color:#d4e0e6; font-size:.8rem; }
+.cost-plan summary { color:#fff0d4; font-size:.81rem; cursor:pointer; padding:5px 0; min-height:30px; align-content:center; }
+.cost-plan dl { margin:3px 0; }
+.cost-plan dl>div { display:flex; justify-content:space-between; gap:8px; padding:4px 0; font-size:.84rem; }
+.cost-plan dd { margin:0; text-align:right; }
+.cost-plan .link-button,.cash-timeline .link-button { color:#fff0d4; }
+.cost-comparison { list-style:none; margin:0; padding:0; }
+.cost-comparison>li { padding:8px 0 12px; border-block-start:1px solid var(--stroke); }
+.cost-row-title { display:flex; align-items:center; justify-content:space-between; gap:8px; padding-bottom:4px; }
+.cost-row-title .link-button { color:var(--ink); font-weight:700; min-height:34px; padding-block:3px; text-align:start; }
+.cost-row-title .link-button::after { content:"›"; color:var(--bronze); margin-inline-start:7px; }
+.cost-delta { background:#e9efea; color:#33534a; padding:3px 8px; border-radius:7px; font-size:.77rem; text-align:right; }
+.cost-over { background:#f3e8dc; color:#793b22; }
+.cost-series,.cost-axis {
+  display:grid; grid-template-columns:3.3rem minmax(0,1fr) minmax(5.1rem,9ch); align-items:center;
+  gap:8px; min-height:24px; font-size:.79rem; color:var(--muted);
+}
+.cost-series>b { text-align:right; color:var(--ink); }
+.cost-series-track,.category-track { position:relative; height:9px; border-radius:3px; background:#eee9dd; }
+.cost-series-track::after,.category-track::after {
+  content:""; position:absolute; left:var(--zero); top:-3px; bottom:-3px; width:1px; background:#655a4d;
+}
+.cost-series-track i { position:absolute; top:0; height:100%; border-radius:2px; }
+.cost-actual { background:#396c60; }
+.cost-reference { background:#b4becb; border:1px solid #63758a; }
+.cost-axis { min-height:18px; font-size:.71rem; margin-top:1px; }
+.cost-axis>div { display:flex; justify-content:space-between; position:relative; }
+.cost-axis-zero { position:absolute; transform:translateX(-50%); }
+.cost-separate {
+  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 15px;
+  margin-top:var(--panel-gap); border:1px solid var(--stroke); border-radius:14px; background:#f3eee5;
+}
+.cost-separate .link-button { padding-block:0; min-height:26px; }
+.cost-separate small { display:block; }
+.cost-status { display:flex; flex-wrap:wrap; gap:5px 12px; align-items:center; padding:6px 2px 0; font-size:.84rem; color:var(--muted); }
+.recurring-group .renewal-amount { text-align:right; }
+.recurring-expanded { padding:8px 0 3px; border-block-start:1px solid var(--stroke); }
+.recurring-prices { padding:8px 0; font-size:.82rem; }
+.recurring-prices span { display:block; color:var(--muted); }
 .recurring-summary {
   margin:12px 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; align-items:end;
   padding:clamp(14px,3vw,22px); border-radius:18px; background:#eee8da;
@@ -954,8 +976,70 @@ details.subtle summary { min-height:44px; align-content:center; }
   gap:6px 10px; margin-top:8px; color:var(--ink-light); font-size:.84rem;
 }
 .budget-monthly-total strong { color:var(--ink); font-size:1.03rem; }
-.budget-stack .recurring,.budget-costs .recurring,.monthly-cost-rows .recurring { background:#a17e4b; }
+.budget-stack .recurring,.budget-costs .recurring { background:#a17e4b; }
 @media(max-width:650px){
-  .monthly-cost-rows li { font-size:.91rem; }
   .scenario-all { flex-wrap:wrap; }
+}
+
+
+/* Decision charts */
+.cash-timeline { margin:0 0 12px; }
+.cash-timeline-values { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 12px; color:#edf4f3; font-size:.79rem; }
+.cash-timeline-values b { color:#fffaf1; }
+.cash-timeline-values small { color:#d6e2e8; }
+.cash-timeline svg { width:100%; height:clamp(78px,11vw,112px); display:block; }
+.cash-timeline svg path { vector-effect:non-scaling-stroke; fill:none; }
+.cash-timeline .cash-forecast-line { stroke:#9edfc3; stroke-width:2.5; }
+.cash-timeline .cash-floor-line { stroke:#b8c9da; stroke-width:1.4; stroke-dasharray:4 4; }
+.cash-timeline .cash-bill-mark { stroke:#f9d2af; stroke-width:2; }
+.cash-timeline .cash-low-mark { fill:#fff3de; stroke:#182b3d; stroke-width:1.2; }
+.cash-timeline figcaption { display:flex; justify-content:space-between; gap:8px; font-size:.77rem; color:#e0ebee; }
+.cash-timeline-bills { margin:7px 0 0; padding:0; list-style:none; color:#f9dfbf; font-size:.82rem; }
+.cash-timeline-bills li { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.cash-timeline-bills li>span::before { content:"+"; font-weight:700; margin-inline-end:5px; }
+.home-cash-month dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0; gap:10px; }
+.home-cash-month dt { font-size:.8rem; color:var(--muted); }
+.home-cash-month dd { font-size:clamp(.95rem,2.4vw,1.28rem); font-weight:700; margin:4px 0 0; overflow-wrap:anywhere; }
+.home-cash-month dl>div:last-child { border-inline-start:1px solid var(--stroke); padding-inline-start:9px; }
+.category-track { height:8px; }
+.category-track .category-actual { position:absolute; top:0; background:#396c60; }
+.category-track .category-credit { background:#7b6389; }
+.category-track .category-marker { background:#4b4355; }
+.scenario-secondary { margin-top:var(--panel-gap); }
+.scenario-live {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; padding:9px 10px; margin-bottom:7px;
+  border-radius:11px; background:#e9efe8; border:1px solid #cfdbd0;
+}
+.scenario-live>div { min-width:0; }
+.scenario-live span,.scenario-live b { display:block; }
+.scenario-live span { color:var(--muted); font-size:.74rem; }
+.scenario-live b { font-size:clamp(.83rem,2.3vw,1.03rem); overflow-wrap:anywhere; }
+.payoff-axis-label,.payoff-endpoints { display:flex; justify-content:space-between; gap:8px; color:var(--muted); font-size:.76rem; }
+.payoff-axis-floor { align-items:baseline; border-top:1px solid var(--stroke); padding-top:5px; }
+.payoff-axis-label b { color:var(--ink); }
+.payoff-point { stroke-dasharray:none; stroke-linecap:round; }
+.payoff-plot .payoff-endpoints { position:relative; display:block; height:39px; }
+.payoff-plot .payoff-endpoints-stagger { height:78px; }
+.payoff-endpoints>div { position:absolute; left:clamp(0px,calc(var(--point) - 58px),calc(100% - 116px));
+  top:calc(39px * var(--label-row)); width:116px; display:grid; justify-items:center; text-align:center; gap:0; }
+.payoff-endpoints>div>b { color:var(--ink); font-size:.91rem; }
+.payoff-endpoints span::before { content:""; display:inline-block; width:15px; vertical-align:middle; margin-inline-end:5px; border-bottom:2px solid var(--flow-in); }
+.payoff-end-base span::before { border-bottom:2px dashed var(--flow-rate); }
+@media(max-width:800px) {
+  .scenario-live { position:sticky; top:0; z-index:2; }
+  #monthly-budget-result { grid-row:auto; }
+}
+@media(min-width:651px) and (max-width:800px) {
+  .scenario-live { top:76px; }
+}
+@media(max-width:650px) {
+  .cost-opening { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .cost-opening:has(details[open]) { grid-template-columns:minmax(0,1fr); }
+  .cost-opening:has(details[open]) .cost-plan { border-inline-start:0; border-block-start:1px solid #ffffff29; border-radius:0 0 var(--radius) var(--radius); }
+  .cost-lead>strong { font-size:clamp(1.35rem,6vw,1.85rem); }
+  .cost-lead,.cost-plan { padding-block:13px; }
+  .cost-series,.cost-axis { grid-template-columns:2.75rem minmax(0,1fr) minmax(4.9rem,9ch); gap:6px; }
+  .cost-row-title .link-button { min-height:44px; }
+  .home-cash-month .panel-title { gap:6px; }
+  .home-cash-month .panel-title h2 { font-size:1rem; }
 }
