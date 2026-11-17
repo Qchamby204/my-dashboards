@@ -211,6 +211,7 @@ const ChatUpdate=(()=>{
         const description=text(entry.description,'transaction description',240);
         const external=optionalText(entry.external,'transaction reference',140);
         const t={id:E.id(),importId:id,account,date:day,amount,description,external,pair:'',...reviewed(entry,amount)};
+        if(E.compoundDescription(t))Object.assign(t,E.classify(state,t),{manual:false,allocations:undefined});
         const rule=t.kind==='Review'&&!t.allocations?E.savedRule(state,t):null;
         if(rule&&rule.kind!=='Review'&&(rule.kind!=='Project'||state.projects.some(p=>p.id===rule.project))) {
           Object.assign(t,{kind:rule.kind,category:rule.category,project:rule.project,manual:true,why:'Saved rule'});
@@ -233,9 +234,11 @@ const ChatUpdate=(()=>{
       const d=date(entry.date,'correction date'),amount=signed(entry.amount,'correction amount');
       const description=text(entry.description,'description of the corrected transaction',240);
       const external=optionalText(entry.external,'correction reference',140);
-      const matches=state.transactions.filter(t=>t.account===account&&t.date===d&&t.amount===amount&&lower(t.description)===lower(description)&&(!external||external===t.external));
+      const matches=state.transactions.filter(t=>t.account===account&&t.amount===amount&&(!external||external===t.external)&&
+        (t.date===d&&lower(t.description)===lower(description)||t.sourceDescription&&(t.sourceDate||t.date)===d&&lower(t.sourceDescription)===lower(description)));
       if(matches.length!==1)fail('A correction does not match one transaction in your ledger.');
       const t=matches[0];
+      if(E.compoundDescription({description}))continue;
       if(flag(entry.onlyReview,false,'apply to unclassified rows only')&&(t.kind!=='Review'||t.allocations?.length))continue;
       if(t.pair)fail('A correction refers to a linked transfer. Unlink it in the dashboard before reclassifying it.');
       Object.assign(t,reviewed(entry,amount));

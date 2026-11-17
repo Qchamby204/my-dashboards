@@ -478,7 +478,7 @@
     const active=series.find(x=>x.period===cashMonth)||series.find(x=>x.available)||series[0];
     const trend=series.slice(series.indexOf(active),series.indexOf(active)+6).reverse();
     const latest=S.chatUpdates?.at(-1);
-    const pending=S.transactions.filter(t=>t.kind==='Review').length;
+    const pending=S.transactions.filter(t=>t.kind==='Review'||E.compoundDescription(t)).length;
     const coverageName=active.available?(active.period===E.month(now)?active.covered?'Month to date':'Month to date · partial':active.covered?'Complete month':'Partial statements'):'Awaiting statements';
     const dateNote=active.through?'Recorded through '+dateLabel(active.through):'Select an imported month';
     const scale=Math.max(1,active.inflow,active.outflow);
@@ -572,10 +572,60 @@
     const staged=staging.length?batchView():'';
     const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
       table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
+    const fixes=S.transactions.filter(E.compoundDescription);
     return head('Transactions','',btn('Apply chat update','chat-update','','primary'))+
-      segments(['Quick review','Ledger'],reviewView,'review-view','Transactions view')+
-      (reviewView==='Quick review'?quickReview():panel('Transaction ledger',ledgerView()))+
+      segments(['Quick review','Statement fixes','Ledger'],reviewView,'review-view','Transactions view')+
+      (reviewView==='Statement fixes'?statementFixes(fixes):reviewView==='Quick review'?
+        (fixes.length?'<div class="review-strip"><strong>'+fixes.length+' rows need statement verification</strong>'+
+        btn('Open statement fixes','review-view','Statement fixes','mini')+'</div>':'')+quickReview():panel('Transaction ledger',ledgerView()))+
       '<details class="subtle section-gap manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+historical;
+  }
+  function statementFixes(rows) {
+    if(!rows.length)return panel('Statement fixes',no('There are no combined descriptions to verify.'));
+    const byStatement=new Map();
+    for(const t of rows) {
+      const key=t.importId||t.account;
+      if(!byStatement.has(key))byStatement.set(key,[]);
+      byStatement.get(key).push(t);
+    }
+    const statements=[...byStatement.values()].sort((a,b)=>(byId(S.imports,b[0].importId)?.end||b[0].date).localeCompare(byId(S.imports,a[0].importId)?.end||a[0].date));
+    return panel('Statement fixes',statements.map(entries=>{
+      const imported=byId(S.imports,entries[0].importId);
+      const label=imported?.name||alias(entries[0].account);
+      const byDescription=new Map();
+      for(const t of entries) {
+        if(!byDescription.has(t.description))byDescription.set(t.description,[]);
+        byDescription.get(t.description).push(t);
+      }
+      return '<details class="subtle section-gap"><summary>'+H(label)+' · '+entries.length+' to verify</summary>'+
+        [...byDescription].map(([description,group])=>'<div class="statement-fix-group"><p class="small">'+H(description)+'</p><ul class="list">'+
+        group.map(t=>'<li><div><strong>'+money(t.amount)+'</strong><small class="small">'+H(t.date)+'</small></div>'+
+        btn('Fix this row','fix-statement-row',t.id,'mini quiet')+'</li>').join('')+'</ul></div>').join('')+'</details>';
+    }).join(''),'Compare each row to the original statement. These amounts stay in the ledger while their categories are in review.');
+  }
+  function fixStatementRow(id) {
+    const t=byId(S.transactions,id);
+    if(!t||!E.compoundDescription(t))throw new Error('This row has already been corrected.');
+    const imported=byId(S.imports,t.importId);
+    return openDialog('Fix statement row',
+      '<p><strong>'+money(t.amount)+'</strong> · '+H(alias(t.account))+'</p>'+
+      (imported?'<p class="small">'+H(imported.name)+'</p>':'')+
+      field('Merchant or description on the statement',f('description','','text','required maxlength="240"'))+
+      field('Posting date',f('date',t.date,'date','required'))+
+      '<details class="subtle"><summary>Combined text from import</summary><p class="small">'+H(t.description)+'</p></details>',
+      async data=>{
+        const description=titleField(data,'description'), date=dateField(data,'date');
+        if(E.compoundDescription({description}))throw new Error('Enter only the description for this amount.');
+        if(date>E.today()||imported&&(date<imported.start||date>imported.end))throw new Error('Use a posting date in the statement period.');
+        await write(next=>{
+          const transaction=byId(next.transactions,id);
+          if(!transaction||!E.compoundDescription(transaction))throw new Error('This row has already been corrected.');
+          if(transaction.pair)unpair(next,id);
+          Object.assign(transaction,{sourceDescription:transaction.sourceDescription||transaction.description,sourceDate:transaction.sourceDate||transaction.date,
+            description,date,kind:'Review',category:'',project:'',manual:false,why:'Statement description corrected. Confirm the category.'});
+          delete transaction.allocations;
+        });
+      },'Save for review');
   }
   const moneyReviewCard=card=>['movement','pair'].includes(card.type);
   function quickReview() {
@@ -626,8 +676,7 @@
     const extras=(!isPair?btn(isGroup?'Review one':'More options','transaction',t.id,'quiet'):'')+
       btn('Later','review-later',card.id,'quiet');
     const chosen=card.frequency?card.frequency+' pattern':isGroup?'Repeat merchant':isPair?'Suggested match':card.type==='movement'?'Money movement':'';
-    const question=!isPair&&(card.type==='compound'?'This statement line may combine purchases. Check it before categorizing.':
-      isGroup?'This choice applies to all '+count+' matching charges.':t.why);
+    const question=!isPair&&(isGroup?'This choice applies to all '+count+' matching charges.':t.why);
     return '<section class="panel review-panel"><div class="panel-title"><h2>'+queue.count+' to review'+H(monthCaption)+'</h2></div>'+tools+
       '<article class="quick-card"><header class="quick-header"><div>'+(chosen?'<p class="quick-label">'+H(chosen)+'</p>':'')+
       '<h3 id="quick-current" tabindex="-1">'+H(label)+'</h3><p>'+H(subtitle)+'</p></div>'+
@@ -864,7 +913,7 @@
   }
   function ledgerView() {
     const source=S.transactions.filter(t=>{
-      const slices=t.allocations?.length?t.allocations:[t];
+      const slices=E.ledgerRows([t]);
       return (!ledger.account||t.account===ledger.account)&&(!ledger.month||E.month(t.date)===ledger.month)&&
         (!ledger.search||E.normal(t.description+' '+t.note).includes(E.normal(ledger.search)))&&
         (!ledger.ids||ledger.ids.has(t.id))&&
@@ -883,9 +932,9 @@
       field('Find a merchant',f('search',ledger.search,'search','placeholder="Search descriptions or notes"'))+'</div>'+
       '<div class="actions"><button type="submit" class="btn">Apply filters</button>'+btn('Review queue','open-inbox','','mini')+btn('Add transaction','manual-transaction','','mini')+'</div></form>';
     const rows=found.map(t=>{
-      const label=t.allocations?.length?'Split':t.project?projectName(t.project):t.category||t.kind;
+      const label=E.compoundDescription(t)?'Needs statement verification':t.allocations?.length?'Split':t.project?projectName(t.project):t.category||t.kind;
       return '<li><div><small>'+H(dateLabel(t.date))+' · '+H(alias(t.account))+'</small>'+
-        link(t.description,'transaction',t.id)+'<small>'+H(t.kind==='Review'?t.why:label+(t.pair?' · Linked':''))+'</small></div>'+
+        link(t.description,'transaction',t.id)+'<small>'+H(E.compoundDescription(t)?label:t.kind==='Review'?t.why:label+(t.pair?' · Linked':''))+'</small></div>'+
         '<strong class="money">'+money(t.amount)+'</strong></li>';
     });
     const navigation=source.length>PAGE?'<div class="table-controls">'+btn('Previous','ledger-page','-1','mini',ledgerPage?'':' disabled')+
@@ -932,12 +981,13 @@
   function transaction(id) {
     const t=byId(S.transactions,id);
     if(!t) return;
+    if(E.compoundDescription(t))return fixStatementRow(id);
     if(t.pair) {
       const other=byId(S.transactions,t.pair);
       return confirmation('Linked payment','This '+money(t.amount)+' entry is linked to '+(other?.description||'another transaction')+' in '+alias(other?.account)+'.','Unlink payment',async()=>write(next=>unpair(next,id)));
     }
     const same=S.transactions.filter(x=>x.id!==t.id&&!x.manual&&!x.pair&&!x.allocations&&x.account===t.account&&Math.sign(x.amount)===Math.sign(t.amount)&&E.normal(x.description)===E.normal(t.description));
-    const candidates=['Review','Transfer'].includes(t.kind)?S.transactions.filter(x=>x.id!==t.id&&!x.pair&&!x.allocations&&x.account!==t.account&&x.amount===-t.amount&&Math.abs(E.distance(x.date,t.date))<=7&&['Review','Transfer'].includes(x.kind)):[];
+    const candidates=['Review','Transfer'].includes(t.kind)?S.transactions.filter(x=>x.id!==t.id&&!E.compoundDescription(x)&&!x.pair&&!x.allocations&&x.account!==t.account&&x.amount===-t.amount&&Math.abs(E.distance(x.date,t.date))<=7&&['Review','Transfer'].includes(x.kind)):[];
     const second=t.allocations?.[1];
     const form=openDialog('Review transaction','<p><strong>'+H(t.description)+'</strong> · '+money(t.amount)+' · '+H(t.date)+' · '+H(alias(t.account))+'</p>'+
       (t.why?'<p class="small">'+H(t.why)+'</p>':'')+
@@ -1698,7 +1748,7 @@
         'Missing coverage for '+recent.scope.filter(x=>!x.covered).map(x=>x.account.name).join(', ')+'. Use the existing chat workflow to add the missing dates.',
         'See cash flow','open-cash-month',recent.period));
     }
-    const pending=S.transactions.filter(t=>t.kind==='Review').length;
+    const pending=S.transactions.filter(t=>t.kind==='Review'||E.compoundDescription(t)).length;
     if(pending)monthly.push(recommendation('Clear the remaining transaction questions',
       pending+' transactions are waiting for confirmation. Start with repeat merchants to review several matching charges together.',
       'Open quick review','open-inbox'));
@@ -1969,6 +2019,7 @@
     })),
     'open-inbox':()=>{reviewView='Quick review';reviewMonth='';reviewType='All';reviewPicker='';go('Import & review');},
     'month-inbox':m=>{reviewView='Quick review';reviewMonth=m;reviewType='All';reviewPicker='';go('Import & review');},
+    'fix-statement-row':fixStatementRow,
     'review-view':view=>{reviewView=view;if(view==='Ledger')ledger={filter:'All',account:'',month:'',category:'',project:'',search:''};ledgerPage=0;render();},
     'review-type':type=>{reviewType=type;reviewPicker='';render();},
     'review-all-months':()=>{reviewMonth='';reviewPicker='';render();},

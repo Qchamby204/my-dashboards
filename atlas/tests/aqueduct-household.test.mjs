@@ -470,3 +470,22 @@ test('monthly snapshot shows expense categories and payoff milestones from the d
   assert.match(view,/Variable living expenses/);
   assert.match(view,/Debt repayment timeline/);
 });
+
+test('combined statement descriptions stay out of categories and the normal review queue',()=>{
+  const {Engine:E,ChatUpdate:C}=boot(new URL(pageUrl));
+  const state=E.empty(), pack=fixture();
+  const affected=pack.statements[1].transactions[4];
+  affected.description='FIRST MERCHANT 102 Oct 10 Oct 11 SECOND MERCHANT';
+  C.apply(state,pack,'2026-11-16');
+  const bad=state.transactions.find(t=>t.description===affected.description);
+  assert.equal(bad.kind,'Review');
+  assert.ok(!E.reviewGroups(state).cards.some(c=>c.rows.some(t=>t.id===bad.id)));
+  bad.kind='Spending';
+  bad.category='Groceries';
+  assert.equal(E.ledgerRows([bad])[0].kind,'Review');
+  assert.ok(!E.recurringCharges(state).some(x=>x.transaction.id===bad.id));
+  const repair={...bad,sourceDescription:bad.description,sourceDate:bad.date,date:'2026-10-11',description:'SECOND MERCHANT'};
+  const importing=[{transaction:bad},{transaction:{...repair}}];
+  E.duplicateReview([repair],importing);
+  assert.ok(importing.every(r=>r.duplicate));
+});

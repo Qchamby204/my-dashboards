@@ -138,10 +138,12 @@ const Engine = (() => {
     [/\b(air canada|westjet|airbnb|holiday inn|porter airlines)\b/,'Spending','Travel',0]
   ];
   function savedRule(state,row) {
+    if(compoundDescription(row))return;
     const merchant=normal(row.description), direction=Math.sign(row.amount);
     return [...state.rules].reverse().find(r=>r.merchant===merchant&&r.direction===direction&&(!r.account||r.account===row.account));
   }
   function classify(state,row) {
+    if(compoundDescription(row))return {kind:'Review',category:'',project:'',why:'Check the original statement description.'};
     const key=normal(row.description), direction=Math.sign(row.amount);
     const rule=savedRule(state,row);
     if(rule)return {kind:rule.kind,category:rule.category,project:rule.project,why:'Saved rule'};
@@ -191,9 +193,11 @@ const Engine = (() => {
     const withId=t=>t.account+'|'+t.external;
     for (const t of existing) {
       if (t.external) exact.set(withId(t),t);
-      const key=fallback(t);
-      if (!fuzzy.has(key)) fuzzy.set(key,[]);
-      fuzzy.get(key).push(t);
+      const original=t.sourceDescription?{...t,description:t.sourceDescription,date:t.sourceDate||t.date}:t;
+      for(const key of new Set([fallback(t),fallback(original)])) {
+        if(!fuzzy.has(key))fuzzy.set(key,[]);
+        fuzzy.get(key).push(t);
+      }
     }
     for (const item of staging) {
       const row=item.transaction;
@@ -210,7 +214,7 @@ const Engine = (() => {
     }
   }
   function matchTransfers(rows, accounts) {
-    const available=rows.filter(t=>t.amount && !t.pair && !t.allocations && (!t.manual||t.kind==='Transfer') &&
+    const available=rows.filter(t=>t.amount && !compoundDescription(t) && !t.pair && !t.allocations && (!t.manual||t.kind==='Transfer') &&
       (t.kind==='Review'||t.kind==='Transfer'));
     const byAmount=new Map();
     const accountTypes=new Map(accounts.map(a=>[a.id,a.type]));
@@ -262,7 +266,7 @@ const Engine = (() => {
     return groups;
   }
   function reviewGroups(state, targetMonth='') {
-    const pending=state.transactions.filter(t=>t.kind==='Review'&&!t.pair&&!t.allocations&&(!targetMonth||month(t.date)===targetMonth));
+    const pending=state.transactions.filter(t=>t.kind==='Review'&&!compoundDescription(t)&&!t.pair&&!t.allocations&&(!targetMonth||month(t.date)===targetMonth));
     const active=new Set(pending.map(t=>t.id)), paired=new Set();
     const pairs=matchTransfers(state.transactions,state.accounts).flatMap(match=>{
       const {left,right}=match;
@@ -287,7 +291,7 @@ const Engine = (() => {
       const known=confirmed[0];
       const suggestion=known?.kind==='Spending'&&known.category&&confirmed.every(t=>t.kind===known.kind&&t.category===known.category)?known.category:'';
       return {id:first.id,rows,suggestion,eligible,frequency:cadence(similar),
-        type:rows.length>1?'repeat':moneyMovement(first)?'movement':compoundDescription(first)?'compound':'single'};
+        type:rows.length>1?'repeat':moneyMovement(first)?'movement':'single'};
     }).sort((a,b)=>Number(Boolean(b.suggestion))-Number(Boolean(a.suggestion))||b.rows.length-a.rows.length||b.rows[0].date.localeCompare(a.rows[0].date));
     return {count:pending.length,cards:pairs.concat(cards)};
   }
@@ -312,7 +316,7 @@ const Engine = (() => {
     return false;
   }
   function ledgerRows(rows) {
-    return rows.flatMap(t=>t.allocations?.length?t.allocations.map(a=>({...t,...a})):t);
+    return rows.flatMap(t=>compoundDescription(t)?{...t,kind:'Review',category:'',project:'',allocations:undefined}:t.allocations?.length?t.allocations.map(a=>({...t,...a})):t);
   }
   function history(state, now, targetMonth=month(now)) {
     const target=targetMonth+'-01';
@@ -535,7 +539,7 @@ const Engine = (() => {
     const inHistory=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
     const borrowed=new Set(state.accounts.filter(a=>['Credit card','Line of credit or loan'].includes(a.type)).map(a=>a.id));
     const months=new Set(historyView.complete);
-    const modeledInterest=sum(state.transactions.filter(t=>t.kind==='Spending'&&t.category==='Interest & fees'&&t.amount<0&&
+    const modeledInterest=sum(state.transactions.filter(t=>t.kind==='Spending'&&!compoundDescription(t)&&t.category==='Interest & fees'&&t.amount<0&&
       inHistory.has(t.account)&&borrowed.has(t.account)&&months.has(month(t.date))&&
       /^(interest(?: |$)|retail interest\b|purchase interest\b|cash advance interest\b)/.test(normal(t.description))),t=>-t.amount);
     const interestAverage=months.size?round(modeledInterest/months.size):0;
@@ -635,5 +639,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,monthlySnapshot,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,monthlySnapshot,monthlyDebtPlan,makePlan};
 })();

@@ -583,3 +583,6 @@ details.subtle summary { min-height:44px; align-content:center; }
   .snapshot-result { border-left:0; border-top:1px solid #dfd4bc61; padding-left:0; padding-top:13px; }
   .snapshot-income small { font-size:.76rem; }
 }
+
+.statement-fix-group { padding:10px; border:1px solid var(--stroke); border-radius:12px; margin-top:7px; }
+.statement-fix-group p { overflow-wrap:anywhere; }
