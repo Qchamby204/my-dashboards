@@ -513,6 +513,70 @@ const Engine = (() => {
     const headroom=usableCalculate?(belowAccountBuffer?0:Math.max(0,Math.min(low-state.config.floor,sum(verified,a=>Math.max(0,lows[a.id]-(a.floor||0)))))):null;
     return {end,starting,opening,affected,changed,ending:sum(Object.values(balances),v=>v),lows,low,lowDate,headroom,missing,missingLoanPayments,stale,shortfalls,unassigned,verified,points,upcoming,overdue,all};
   }
+  function monthlySnapshot(state,now) {
+    const historyView=history(state,now);
+    const stored=state.config.monthlySnapshot||{};
+    const start=shiftMonth(monthStart(now),1);
+    const incomeEvents=events(state,start,monthEnd(start)).filter(e=>e.direction==='Income'&&e.status!=='Skipped'&&Number.isSafeInteger(e.forecastAmount));
+    const contribution=e=>/contribution|household share/i.test(e.name);
+    const payroll=e=>/paycheque|payroll|draw|salary|payday/i.test(e.name);
+    const second=sum(incomeEvents.filter(e=>payroll(e)&&e.variable&&!contribution(e)),e=>e.forecastAmount);
+    const conservative=second>=100000?Math.floor(second/100000)*100000:second;
+    const draw=stored.draw??sum(incomeEvents.filter(e=>payroll(e)&&!e.variable&&!contribution(e)),e=>e.forecastAmount);
+    const variablePay=stored.variablePay??conservative;
+    const household=stored.household??sum(incomeEvents.filter(contribution),e=>e.forecastAmount);
+    const income=draw+variablePay+household;
+    const mortgageLoans=state.loans.filter(l=>l.type==='Mortgage'&&l.balance>0);
+    const mortgageSchedules=state.bills.filter(b=>b.direction==='Bill'&&b.frequency!=='Once'&&b.start<=monthEnd(start)&&(!b.end||b.end>=start)&&
+      (/mortgage/i.test(b.name)||mortgageLoans.some(l=>l.id===b.loan)));
+    const mortgage=sum(mortgageLoans,l=>requiredMonthly(l,l.balance))+
+      sum(mortgageSchedules.filter(b=>!mortgageLoans.some(l=>l.id===b.loan||(mortgageLoans.length===1&&!b.loan))),b=>round((b.amount||0)*monthlyFactor(b.frequency)));
+    const fixedNames=new Set(['Housing & utilities','Insurance','Subscriptions','Annual card fees']);
+    const inHistory=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
+    const borrowed=new Set(state.accounts.filter(a=>['Credit card','Line of credit or loan'].includes(a.type)).map(a=>a.id));
+    const months=new Set(historyView.complete);
+    const modeledInterest=sum(state.transactions.filter(t=>t.kind==='Spending'&&t.category==='Interest & fees'&&t.amount<0&&
+      inHistory.has(t.account)&&borrowed.has(t.account)&&months.has(month(t.date))&&
+      /^(interest(?: |$)|retail interest\b|purchase interest\b|cash advance interest\b)/.test(normal(t.description))),t=>-t.amount);
+    const interestAverage=months.size?round(modeledInterest/months.size):0;
+    const categories=historyView.rows.map(r=>{
+      const settings=state.targets[r.category];
+      const override=['Fixed','Annual'].includes(settings?.method);
+      const estimate=override?r.suggestion:r.average;
+      const interest=!override&&r.category==='Interest & fees'?interestAverage:0;
+      return {name:r.category,amount:estimate===null?null:Math.max(0,estimate-interest),source:override?'Saved target':'Statement average'};
+    }).filter(r=>r.amount>0);
+    const fixedRows=categories.filter(r=>fixedNames.has(r.name));
+    if(mortgage)fixedRows.unshift({name:'Mortgage payments',amount:mortgage,source:'Payment schedule or loan terms'});
+    const variableRows=categories.filter(r=>!fixedNames.has(r.name)).sort((a,b)=>b.amount-a.amount);
+    const fixed=stored.fixed??sum(fixedRows,r=>r.amount), variable=stored.variable??sum(variableRows,r=>r.amount);
+    const reserve=stored.reserve??0;
+    const rawLoans=state.loans.filter(l=>l.type!=='Mortgage'&&l.balance>0);
+    const assumptions=[];
+    const debtLoans=rawLoans.map(l=>{
+      const rate=rateAt(l,now);
+      if(!Number.isFinite(rate))return l;
+      const interest=round(l.balance*periodicRate(rate,l.method));
+      const recorded=requiredMonthly(l,l.balance+interest);
+      if(recorded>interest)return l;
+      const assumed=Math.ceil(interest/2500)*2500+2500;
+      assumptions.push({id:l.id,name:l.name,recorded,interest,assumed});
+      return {...l,payment:assumed,frequency:'Monthly'};
+    });
+    const minimums=sum(debtLoans,l=>requiredMonthly(l,l.balance));
+    const room=income-fixed-variable-minimums-reserve;
+    const targetExtra=stored.targetExtra??50000;
+    const possible=income-fixed-minimums-reserve;
+    const exampleVariable=Math.max(0,Math.min(variable,possible-targetExtra));
+    const exampleRoom=possible-exampleVariable;
+    const missingOperating=(!historyView.complete.length&&(stored.fixed==null||stored.variable==null))||
+      (mortgageSchedules.length>0&&!mortgage&&stored.fixed==null);
+    return {draw,variablePay,household,income,conservative,historyView,fixedRows,variableRows,fixed,variable,reserve,
+      minimums,room,targetExtra,exampleVariable,exampleRoom,possible,missingOperating,assumptions,debtLoans,stored,start};
+  }
+  function monthlyDebtPlan(state,now,budget,extra,share,rollMinimums=true) {
+    return makePlan({...state,loans:budget.debtLoans,goals:[],config:{...state.config,surplus:Math.max(0,extra),focus:'Highest rate'}},monthEnd(now),share,rollMinimums);
+  }
   function commitmentRange(state,base,stress,account,covered) {
     const blocked=!covered||state.config.floor<=0||base.headroom===null||stress.headroom===null||base.stale.length||stress.stale.length;
     const source=base.verified.find(a=>a.id===account);
@@ -525,7 +589,7 @@ const Engine = (() => {
     loan.minimumPercent?round(balance*loan.minimumPercent/100):0);
   const periodicRate = (annual,method) => method==='Canadian mortgage' ? (1+annual/200)**(1/6)-1 : annual/1200;
   const rateAt = (loan,date) => Number.isFinite(loan.rateAfter) && loan.rateDate && date>=loan.rateDate ? loan.rateAfter : loan.rate;
-  function makePlan(state, now, debtShare) {
+  function makePlan(state, now, debtShare, rollMinimums=true) {
     const loans=state.loans.filter(l=>l.balance>0);
     const missing=loans.filter(l=>!Number.isFinite(rateAt(l,now))||(!l.payment&&!l.minimumPercent)||!validDate(l.asOf));
     const goals=state.goals.filter(g=>g.target>g.saved).sort((a,b)=>a.priority-b.priority||(a.deadline||'9999').localeCompare(b.deadline||'9999')||a.name.localeCompare(b.name));
@@ -548,7 +612,7 @@ const Engine = (() => {
         l.left-=payment; required+=payment;
         if(!l.left) l.clear=date;
       }
-      let debtPool=Math.max(0,extraDebt+totalMinimum-required);
+      let debtPool=rollMinimums?Math.max(0,extraDebt+totalMinimum-required):0;
       let goalPool=Math.max(0,extraGoals-Math.max(0,required-totalMinimum-extraDebt));
       const open=items.filter(l=>l.left>0);
       open.sort((a,b)=>state.config.focus==='Lowest balance' ? a.left-b.left ||rateAt(b,date)-rateAt(a,date) : rateAt(b,date)-rateAt(a,date)||a.left-b.left);
@@ -571,5 +635,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,monthlySnapshot,monthlyDebtPlan,makePlan};
 })();

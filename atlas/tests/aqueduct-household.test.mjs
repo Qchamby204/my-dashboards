@@ -424,3 +424,49 @@ test('the payday plan is reachable and marks the optional payment estimate as pe
   assert.match(view,/Variable pay delay/);
   assert.match(view,/Lower or later pay low/);
 });
+
+test('monthly snapshot uses conservative pay, keeps mortgage in costs once and exposes the cuts an extra-payment plan requires',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty(), now='2026-11-16';
+  const next='2026-12-01';
+  state.bills=[
+    {id:'draw',name:'Payroll draw',direction:'Income',start:next,frequency:'Monthly',amount:100000},
+    {id:'second',name:'Paycheque',direction:'Income',start:next,frequency:'Monthly',amount:560949,variable:true},
+    {id:'contribution',name:'Household contribution',direction:'Income',start:next,frequency:'Monthly',amount:300000},
+    {id:'mortgage',name:'Mortgage',direction:'Bill',start:next,frequency:'Monthly',amount:300000,loan:'house'}
+  ];
+  const loan={type:'Credit card',asOf:now,rate:20,frequency:'Monthly',payment:20000,prepay:null};
+  state.loans=[
+    {...loan,id:'house',type:'Mortgage',balance:30000000,payment:300000},
+    {...loan,id:'card',balance:300000},
+    {...loan,id:'loc',type:'Line of credit',balance:900000,payment:0}
+  ];
+  state.config.monthlySnapshot={variable:700000, fixed:380000};
+  const b=E.monthlySnapshot(state,now);
+  assert.equal(b.income,900000);
+  assert.equal(b.fixedRows[0].amount,300000);
+  assert.equal(b.debtLoans.length,2);
+  assert.equal(b.assumptions[0].assumed,17500);
+  assert.equal(b.room,-217500);
+  assert.equal(b.exampleVariable,432500);
+  assert.equal(b.exampleRoom,50000);
+  const repayment=E.monthlyDebtPlan(state,now,b,b.exampleRoom,100);
+  const minimums=E.monthlyDebtPlan(state,now,b,b.exampleRoom,0,false);
+  assert.ok(repayment.end<minimums.end);
+  assert.ok(repayment.interest<minimums.interest);
+  assert.ok(repayment.items.every(x=>x.clear>'2026-11-30'));
+});
+
+test('monthly snapshot shows expense categories and payoff milestones from the dashboard',async()=>{
+  const app=boot(new URL(pageUrl));
+  const dispatch=app.handlers.get('document click');
+  const click=(act,id='')=>dispatch({target:{closest:()=>({dataset:{act,id}})}});
+  await click('demo');
+  assert.match(app.node('app').innerHTML,/Monthly Snapshot/);
+  await click('nav','Monthly snapshot');
+  const view=app.node('app').innerHTML;
+  assert.match(view,/<h1>Monthly Snapshot<\/h1>/);
+  assert.match(view,/Fixed household costs/);
+  assert.match(view,/Variable living expenses/);
+  assert.match(view,/Debt repayment timeline/);
+});

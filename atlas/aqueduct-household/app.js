@@ -17,7 +17,7 @@
   const byId=(items,id)=>items.find(x=>x.id===id);
   const listTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
   const frequency=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
-  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan'];
+  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot'];
   const storageMessage='Browser storage is unavailable or full. Changes are in this window. Download an encrypted backup before closing it.';
   const PAGE=32;
   const idleLimit=10*60_000;
@@ -29,6 +29,7 @@
   let spendingTab='Categories', cashMonth='', debtExtra=25000;
   let reviewView='Quick review', reviewType='All', reviewMonth='', reviewPicker='', quickUndo=null;
   const setAside=new Set();
+  let repaymentMode='Debt first';
   let cashScenario={incomeCut:15,incomeDelay:7,account:'',covered:false};
   const canonical='https://qchamby204.github.io/my-dashboards/aqueduct-household.html';
   const hosted=location.origin+location.pathname===canonical;
@@ -231,6 +232,7 @@
     reviewView='Quick review'; reviewType='All'; reviewMonth=''; reviewPicker=''; quickUndo=null; setAside.clear();
     spendingTab='Categories'; cashMonth=''; debtExtra=25000;
     cashScenario={incomeCut:15,incomeDelay:7,account:'',covered:false};
+    repaymentMode='Debt first';
     month=E.month(E.today());
     render();
     window.scrollTo(0,0);
@@ -354,12 +356,12 @@
 
   function render() {
     if(!S){welcome();return;}
-    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan];
+    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot];
     const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Recommendations','Recommendations']];
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
       (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Recommendations'&&tab==='Cash plan'?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
+      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Recommendations'&&['Cash plan','Monthly snapshot'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
     if(tab===allViews[0]) {
@@ -502,7 +504,7 @@
       return '<li>'+link(project.name,'project-drill',project.id)+'<strong class="money">'+money(total)+'</strong></li>';
     }).join('');
     return head('Household cash flow',dateNote,'<div class="actions">'+field('Cash flow month',select('cash-month',series.map(r=>[r.period,monthLabel(r.period)+(r.available?'':' · no data')]),active.period))+
-      btn('Apply chat update','chat-update','','primary')+'</div>')+hero+
+      btn('Monthly Snapshot','nav','Monthly snapshot','primary')+btn('Apply chat update','chat-update')+'</div>')+hero+
       panel('What moved your cash',cashActual,active.covered?monthLabel(active.period):'Based on available statements · '+monthLabel(active.period))+
       panel('Cash flow by month','<div class="chart-key"><span class="key-in">Money in</span><span class="key-out">Money out</span><span>Net at right</span></div>'+chartMonths(trend),
         'Partial months are marked and may understate activity.')+
@@ -1338,7 +1340,7 @@
       '<strong class="money">'+money(g.saved)+' / '+money(g.target)+'</strong></li>');
     const cards=[['Debt first',100],['Your plan',S.config.debtShare],['Goals first',0]].map(([label,share])=>planCard(label,share,E.makePlan(S,now,share),label==='Your plan')).join('');
     const missing=current.missing.length?banner('Fill in required payments and rates for '+H(current.missing.map(l=>l.name).join(', '))+' to compare payoff dates and costs.','warning'):'';
-    return head('Debt & goals','Rates, next steps and repayment scenarios',btn('Edit allocation','config','plan','primary'))+
+    return head('Debt & goals','Rates, next steps and repayment scenarios','<div class="actions">'+btn('Monthly Snapshot','nav','Monthly snapshot','primary')+btn('Edit allocation','config','plan')+'</div>')+
       debtGuidance(profile,forecast,now)+
       (profile.active.length?'<div class="stat-grid debt-stats">'+stat('Recorded debt',profile.balance,'Balances on file')+
         stat('Estimated monthly interest',profile.ranked.length?profile.monthlyCost:null,'For balances with an entered rate')+
@@ -1420,6 +1422,91 @@
     const index=items.findIndex(x=>x.id===item.id);
     if(index<0) items.push(item);
     else items[index]=item;
+  }
+  function monthlySnapshot() {
+    const now=E.today(), b=E.monthlySnapshot(S,now);
+    const modes=['Debt first','Debt + goals','Minimums only'];
+    const selectedShare=repaymentMode==='Debt first'?100:repaymentMode==='Debt + goals'?S.config.debtShare:0;
+    const canIllustrate=b.possible>=b.targetExtra&&b.income>0&&!b.missingOperating;
+    const usesExample=b.room<b.targetExtra;
+    const extra=usesExample?b.exampleRoom:Math.max(0,b.room);
+    const outgoings=b.fixed+b.variable+b.minimums+b.reserve;
+    const scale=Math.max(b.income,outgoings,1);
+    const headline='<section class="snapshot-lead"><div><h2>Planned monthly income</h2><strong class="money">'+money(b.income)+'</strong>'+
+      '<div class="snapshot-income"><div><small>First pay</small><b>'+money(b.draw)+'</b></div><div><small>Second pay</small><b>'+money(b.variablePay)+'</b></div>'+
+      '<div><small>Household contribution</small><b>'+money(b.household)+'</b></div></div></div>'+
+      '<div class="snapshot-result"><h2>'+(b.room<0?'Monthly shortfall':'Monthly cash after expenses')+'</h2>'+
+      '<strong class="money">'+(b.missingOperating?'—':money(Math.abs(b.room)))+'</strong>'+
+      '<p>'+(b.missingOperating?'Enter fixed and variable costs or import complete statements.':b.room<0?
+        'This baseline leaves a gap before extra debt payments.':'This is what the monthly budget has left after regular costs and planned minimums.')+'</p></div></section>';
+    const topCosts=b.variableRows.slice(0,4);
+    const details=(title,rows)=>rows.length?'<details class="subtle section-gap"><summary>'+H(title)+'</summary><ul class="list">'+
+      rows.map(x=>'<li><div>'+H(x.name)+'<small class="small">'+H(x.source)+'</small></div><strong>'+money(x.amount)+'</strong></li>').join('')+'</ul></details>':'';
+    const forecastInputs='<ul class="amount-list">'+cashBar('Fixed household costs',b.fixed,scale,'rate')+
+      cashBar('Variable living expenses',b.variable,scale,'out')+cashBar('Debt payments in the model',b.minimums,scale,'priority')+
+      (b.reserve?cashBar('Monthly set-aside',b.reserve,scale,'rate'):'')+'</ul>'+
+      '<p class="small section-gap">Fixed costs include mortgage payments where available. The timeline covers other debts. Statement estimates use '+b.historyView.complete.length+
+      ' complete months'+(b.historyView.baselineReview?' with '+b.historyView.baselineReview+' items still in review':'')+'. Project costs stay separate.</p>'+
+      details(b.stored.fixed!=null?'Fixed cost reference · manual total in use':'Fixed cost breakdown',b.fixedRows)+
+      details(b.stored.variable!=null?'Variable cost reference · manual total in use':'Largest variable expenses',topCosts);
+    const budget=panel('Monthly budget',forecastInputs,'Planned income less fixed costs, variable costs and payments',btn('Edit assumptions','month-plan-edit','','mini quiet'));
+    const cut=Math.max(0,b.variable-b.exampleVariable);
+    const example=usesExample?(canIllustrate?'<h3>What it would take to put '+money(b.targetExtra)+' toward debt</h3>'+
+      '<div class="snapshot-example-values"><div><small>Variable spending limit</small><strong>'+money(b.exampleVariable)+'</strong></div>'+
+      '<div><small>Reduction from baseline</small><strong>'+money(cut)+'</strong></div></div>'+
+      '<p class="small">Break-even variable budget '+money(Math.max(0,b.possible))+'. Check whether the lower limit covers groceries, transport and your other essentials before adopting it.</p>':
+      '<p>Fixed costs, existing debt payments, and set-asides leave less than '+money(b.targetExtra)+' before variable costs. Recheck those commitments and your repayment target.</p>'):
+      '<p>The budget leaves '+money(b.room)+' for extra debt or goals. Compare how to use it below.</p>';
+    const placeholders=b.assumptions.length?'<div class="interest-gap"><h3>Confirm these lender amounts</h3><ul class="list">'+
+      b.assumptions.map(x=>'<li><div>'+link(x.name,'loan-edit',x.id)+'<small class="small">'+money(x.recorded)+' on file · '+money(x.interest)+' estimated monthly interest</small></div>'+
+      '<strong>'+money(x.assumed)+'<small class="small">model placeholder</small></strong></li>').join('')+'</ul>'+
+      '<p class="small">The model uses an illustration above estimated interest when the recorded payment is missing or too low. Replace each with the lender’s current terms.</p></div>':'';
+    const timeline=(canIllustrate||!usesExample&&!b.missingOperating)?repaymentTimeline(b,now,extra,selectedShare,modes):
+      panel('Debt repayment timeline',no('The timeline needs a budget that covers required costs and the repayment amount.'),'',btn('Edit assumptions','month-plan-edit','','mini quiet'));
+    return head('Monthly Snapshot',monthLabel(b.start)+' planning baseline · CAD',btn('Edit assumptions','month-plan-edit','','primary'))+
+      headline+'<div class="home-grid section-gap">'+budget+panel('Repayment option',example+placeholders,
+      b.assumptions.length?'Illustrative while lender amounts are missing or need verification':'Compare expenses before choosing a repayment amount')+'</div>'+
+      '<div class="section-gap">'+timeline+'</div>'+
+      '<p class="small section-gap">Use '+link('Payday Plan','nav','Cash plan')+' to check timing and your cash buffer before making a payment. Review terms when rates or minimums change. '+
+      '<a href="https://www.canada.ca/en/financial-consumer-agency/services/debt/paying-debt.html">FCAC repayment guidance</a></p>';
+  }
+  function repaymentTimeline(b,now,extra,share,modes) {
+    const model=E.monthlyDebtPlan(S,now,b,extra,share,repaymentMode!=='Minimums only');
+    if(!model.items.length)return panel('Debt repayment timeline',no('Add a card or line of credit with its balance, rate and payment terms.'),'',btn('Open debt','nav','Debt & goals','mini quiet'));
+    if(model.missing.length)return panel('Debt repayment timeline',
+      '<p>Confirm the rate, balance date, and payment for '+H(model.missing.map(x=>x.name).join(', '))+' to model payoff dates.</p>',
+      '',btn('Open debt','nav','Debt & goals','mini quiet'));
+    const start=E.monthEnd(now), basis=repaymentMode==='Minimums only'?'Scheduled minimum budget':money(model.extraDebt)+' toward debt · '+money(model.extraGoals)+' held for goals each month';
+    const span=Math.max(1,...model.items.map(l=>l.clear?E.distance(start,l.clear):0));
+    const sorted=model.items.slice().sort((a,b)=>(a.clear||'9999').localeCompare(b.clear||'9999')||a.name.localeCompare(b.name));
+    const timelineRows=sorted.map(l=>'<li><div class="amount-caption"><div>'+link(l.name,'loan-edit',l.id)+
+      '<small class="small">'+money(l.balance)+' starting balance'+(Number.isFinite(l.rate)?' · '+H(l.rate)+'% on file':'')+'</small></div>'+
+      '<strong>'+H(l.clear?monthLabel(l.clear):'Beyond model window')+'</strong></div>'+
+      (l.clear?bar(E.distance(start,l.clear),span,'in'):'')+'</li>');
+    const summary='<div class="timeline-outcome"><div><small>All modeled debts cleared</small><strong>'+H(model.end?monthLabel(model.end):'Beyond model window')+'</strong></div>'+
+      '<div><small>Estimated interest</small><strong>'+money(model.interest)+'</strong></div></div>';
+    const first=sorted.find(l=>l.clear);
+    const milestone=first?'<p class="small">First payoff · '+H(first.name)+' · '+H(monthLabel(first.clear))+'</p>':'';
+    return panel('Debt repayment timeline',segments(modes,repaymentMode,'monthly-repayment','Repayment strategy')+
+      '<p class="small timeline-basis">'+H(basis)+'</p>'+summary+milestone+'<ol class="timeline-list">'+timelineRows.join('')+'</ol>'+
+      '<p class="small section-gap">The model starts next month, uses current balance and rate assumptions, and '+(repaymentMode==='Minimums only'?'uses each current minimum assumption separately.':'rolls freed payments to the remaining debts.')+' New purchases are assumed to be paid from the living-expense budget.</p>',
+      (b.room<b.targetExtra?'Uses the lower variable-spending example above. ':'Uses the monthly budget above. ')+(b.assumptions.length?'Includes unconfirmed payment placeholders.':''));
+  }
+  function editMonthlySnapshot() {
+    const b=E.monthlySnapshot(S,E.today());
+    const amount=(label,name,value,hint='')=>field(label,f(name,inputMoney(value),'text','inputmode="decimal"'),hint);
+    return openDialog('Monthly Snapshot assumptions','<div class="form-grid">'+
+      amount('First pay','draw',b.draw,'Blank uses your scheduled fixed pay.')+
+      amount('Second pay','variable_pay',b.variablePay,'Blank rounds the scheduled variable estimate down to a whole $1,000.')+
+      amount('Household contribution','household',b.household,'Blank uses the scheduled household contribution.')+
+      amount('Fixed household costs','fixed',b.stored.fixed,'Blank uses the mortgage schedule and fixed categories shown in the budget.')+
+      amount('Variable living expenses','variable',b.stored.variable,'Blank uses your statement averages and saved targets.')+
+      amount('Monthly set-aside','reserve',b.reserve,'Optional savings or known irregular costs.')+
+      amount('Extra repayment target','target_extra',b.targetExtra,'Used to calculate the what-if spending limit.')+'</div>',async data=>{
+        const keys={draw:'draw',variable_pay:'variablePay',household:'household',fixed:'fixed',variable:'variable',reserve:'reserve',target_extra:'targetExtra'};
+        const values=Object.fromEntries(Object.entries(keys).map(([name,key])=>[key,dollarsField(data,name,{optional:true})]));
+        await write(next=>{next.config.monthlySnapshot=values;});
+      });
   }
   function runwayData() {
     const now=E.today(), base=E.forecast(S,now), stress=E.forecast(S,now,cashScenario);
@@ -1643,7 +1730,7 @@
       'Add a cash reserve, savings, travel, or renovation goal. Give each a priority so you can compare it with debt in your allocation plan.',
       'Add a goal','goal-edit'));
     const total=urgent.length+decisions.length+monthly.length;
-    return head('Recommendations','Based on your current ledger · '+dateLabel(now),btn('Open payday plan','nav','Cash plan','primary'))+
+    return head('Recommendations','Based on your current ledger · '+dateLabel(now),'<div class="actions">'+btn('Monthly Snapshot','nav','Monthly snapshot','primary')+btn('Open payday plan','nav','Cash plan')+'</div>')+
       '<div class="advice-overview"><div><strong>'+urgent.length+'</strong><span>Check first</span></div>'+
       '<div><strong>'+decisions.length+'</strong><span>Plan next</span></div><div><strong>'+monthly.length+'</strong><span>Monthly review</span></div></div>'+
       (total?adviceGroup('Check first',urgent,'Bills and balances that can affect your next payment')+
@@ -1894,6 +1981,8 @@
     'review-reset':()=>{setAside.clear();render();},
     'review-undo':undoQuick,
     'spending-drill':category=>setLedger({month,category}),
+    'month-plan-edit':editMonthlySnapshot,
+    'monthly-repayment':mode=>{repaymentMode=mode;render();root.querySelector('[data-act=monthly-repayment][aria-pressed=true]')?.focus({preventScroll:true});},
     'open-cash-month':period=>{cashMonth=period;go('Overview');},
     'open-recurring':()=>{spendingTab='Recurring';go('Spending');},
     'mortgage-terms':()=>loanEdit('mortgage'),
