@@ -17,7 +17,7 @@
   const byId=(items,id)=>items.find(x=>x.id===id);
   const listTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
   const frequency=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
-  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot'];
+  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver'];
   const storageMessage='Browser storage is unavailable or full. Changes are in this window. Download an encrypted backup before closing it.';
   const PAGE=32;
   const idleLimit=10*60_000;
@@ -27,10 +27,10 @@
   let month=E.month(E.today()), settingsJump='', preview=null, lockAfterSave=false;
   let chatUpdate=null, chatRead=0;
   let spendingTab='Categories', cashMonth='', debtExtra=25000;
-  let categoryDetail='', categoryPeriod='', categoryPage=0, scenarioDraft={};
+  let categoryDetail='', categoryPeriod='', categoryPage=0, scenarioDraft={}, changesMonth='', changeSelection=null;
   let reviewView='Quick review', reviewType='All', reviewMonth='', reviewPicker='', quickUndo=null;
   const setAside=new Set();
-  let repaymentMode='Debt first';
+  let repaymentMode='Debt first', cashPlanFromDebt=false;
   let cashScenario={incomeCut:15,incomeDelay:7,account:'',covered:false};
   const canonical='https://qchamby204.github.io/my-dashboards/aqueduct-household.html';
   const hosted=location.origin+location.pathname===canonical;
@@ -229,7 +229,8 @@
     lastStored=demo||memory?null:Vault.get();
     storageProblem=Boolean(memory||(!demo&&lastStored!==serialized));
     lastActivity=Date.now();
-    categoryDetail='';categoryPeriod='';scenarioDraft={};repaymentMode='Debt first';
+    categoryDetail='';categoryPeriod='';scenarioDraft={};repaymentMode='Debt first';changesMonth='';changeSelection=null;
+    cashScenario={incomeCut:15,incomeDelay:7,account:'',covered:false};
     tab=allViews[0];
     reviewView='Quick review'; reviewType='All'; reviewMonth=''; reviewPicker=''; quickUndo=null; setAside.clear();
     spendingTab='Categories'; cashMonth=''; debtExtra=25000;
@@ -337,6 +338,7 @@
     return 'Chat update applied · '+details.join(' · ');
   }
   function go(view) {
+    if(view!=='Cash plan')cashPlanFromDebt=false;
     tab=view; settingsJump='';
     render();
     window.scrollTo(0,0);
@@ -358,16 +360,17 @@
 
   function render() {
     if(!S){welcome();return;}
-    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot];
+    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver];
     const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Recommendations','Recommendations']];
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
       (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Overview'&&['Cash plan','Monthly snapshot'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
+      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Overview'&&['Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
     if(tab==='Monthly snapshot')bindMonthlyScenario();
-    if(tab===allViews[0]) {
+    if(tab==='Monthly changes')root.querySelector('[name=changes-month]')?.addEventListener('change',event=>{changesMonth=event.target.value;render();root.querySelector('[name=changes-month]')?.focus();});
+    if(tab==='Cash history') {
       root.querySelector('[name=cash-month]')?.addEventListener('change',event=>{cashMonth=event.target.value;render();root.querySelector('[name=cash-month]')?.focus();});
     }
     if(tab===allViews[1]) bindImport();
@@ -379,7 +382,7 @@
         try {
           const data=new FormData(form);
           cashScenario={incomeCut:numberField(data,'income_cut',0,100),incomeDelay:numberField(data,'income_delay',0,45),
-            account:val(data,'source_account'),covered:data.has('costs_covered')};
+            account:val(data,'source_account'),covered:data.has('costs_covered')?cashCheckKey(E.paydayPosition(S,E.today()),E.today()):''};
           render();
           const result=document.getElementById('cash-scenario-result');
           result?.focus();
@@ -448,10 +451,10 @@
       </div><p class="small chart-caption">Striped bars indicate partial statements.</p>`;
   }
   const arrow='<span class="chart-arrow" aria-hidden="true">›</span>';
-  const jump=(title,value,action,id,detail='')=>`<button type="button" class="dashboard-jump" data-act="${action}" data-id="${H(id)}">
-    <span><strong>${H(title)}</strong>${detail?`<small>${H(detail)}</small>`:''}</span><b>${H(value)}</b>${arrow}</button>`;
+  const jump=(title,value,action,id,detail='',unit='')=>`<button type="button" class="dashboard-jump" data-act="${action}" data-id="${H(id)}">
+    <span><strong>${H(title)}</strong>${detail?`<small>${H(detail)}</small>`:''}</span><b>${H(value)}${unit?`<small>${H(unit)}</small>`:''}</b>${arrow}</button>`;
   function plannedSnapshot(p,now) {
-    const pay=p.upcoming.find(e=>e.direction==='Income'&&/paycheque|payroll|draw|salary|payday/i.test(e.name));
+    const pay=p.upcoming.find(E.isPaycheque);
     const cutoff=pay?.date||E.add(now,14);
     const open=p.overdue.concat(p.upcoming.filter(e=>e.date<=cutoff)).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.direction==='Income')-Number(b.direction==='Income'));
     const due=open.filter(e=>e.direction==='Bill');
@@ -475,14 +478,159 @@
       '<li><div>'+link(a.name,'account-edit',a.id)+'<small class="small">Entered '+H(a.balanceDate)+'</small></div><strong class="money">'+money(p.starting[a.id])+'</strong></li>').join('')+'</ul></details>':'';
     return panel('Forecast inputs',warning+tasks+balances,'Next '+S.config.window+' days · includes scheduled cash activity',btn('Balances','account-settings','','mini quiet'));
   }
+  function timingAction(position) {
+    const {plan,buffer,pay}=position;
+    const account=plan.missing[0]||plan.stale[0];
+    const funding=plan.unassigned.find(e=>!e.key.startsWith('flex/'));
+    if(account)return {label:'Update cash balance',action:'account-edit',id:account.id,why:'Refresh '+account.name+' to use today’s cash.'};
+    if(!plan.verified.length)return {label:'Set up cash accounts',action:'account-settings',id:'',why:'Choose which accounts pay your bills.'};
+    if(funding)return {label:'Check upcoming payment',action:'occurrence',id:funding.key,why:funding.name+' needs an amount or funding account.'};
+    if(plan.missingLoanPayments.length){const loan=plan.missingLoanPayments[0];return {label:'Add debt payment date',action:'loan-bill',id:loan.id,why:loan.name+' is missing a payment schedule.'};}
+    if(!buffer||plan.unassigned.some(e=>e.key.startsWith('flex/')))return {label:'Set cash assumptions',action:'config',id:'cash',why:!buffer?'Enter a cash buffer to measure what’s available.':'Choose an account for everyday spending.'};
+    if(!pay)return {label:'Open payday plan',action:'nav',id:'Cash plan',why:'Add a paycheque date to plan through payday.'};
+    if(position.gap||position.accountGap)return {label:'Open payday plan',action:'nav',id:'Cash plan',why:position.gap?
+      money(position.gap)+' below the household buffer.':'A bill account falls below its own buffer.'};
+    return {label:'Open payday plan',action:'nav',id:'Cash plan',why:confirmedCashCosts(position)?'':plan.livingReserve?'Confirm everyday costs before using this estimate.':'Confirm remaining everyday costs.'};
+  }
+  function cashPositionCard(position) {
+    const {plan,room,bills,buffer,cutoff,pay,unknownBills}=position;
+    const next=timingAction(position);
+    const heading=pay?'Before payday':'Next 14 days';
+    const hasCosts=plan.livingReserve>0||confirmedCashCosts(position);
+    const opening=Math.max(1,plan.opening);
+    const components=[[bills,'due'],[plan.livingReserve,'everyday'],[buffer,'buffer'],[room,'available']];
+    let remaining=100;
+    const meter=room!==null&&plan.opening>0?`<div class="cash-position-meter" aria-hidden="true">${components.map(([amount,tone])=>{
+      const width=Math.max(0,Math.min(remaining,amount/opening*100));
+      remaining-=width;
+      return `<i class="${tone}" style="width:${width}%"></i>`;
+    }).join('')}</div>`:'';
+    const title=room===null?'Cash room pending':hasCosts?'Estimated above buffers':'Above buffers before everyday costs';
+    const why=next.why?`<p class="cash-next-note">${H(next.why)}</p>`:'';
+    const action=tab==='Cash plan'&&next.id==='Cash plan'?{label:'Check funding',action:'cash-controls',id:''}:next;
+    return `<section class="cash-position" aria-label="${heading}">
+      <div class="cash-position-top"><h2>${heading}</h2><span>Through ${H(dateLabel(cutoff))}</span></div>
+      <div class="cash-position-main"><span>${title}</span><strong class="money">${money(room)}</strong></div>
+      ${meter}<dl class="cash-position-facts">
+        <div><dt>${plan.stale.length||plan.missing.length?'Cash on file':'Cash on hand'}</dt><dd>${money(plan.verified.length?plan.opening:null)}</dd></div>
+        <div><dt>${unknownBills?'Known bills due':'Bills due'}</dt><dd>${money(bills)}</dd></div>
+        <div><dt>Everyday costs</dt><dd>${money(plan.livingReserve||null)}</dd></div>
+        <div><dt>Cash buffer</dt><dd>${money(buffer||null)}</dd></div>
+      </dl>
+      ${why}<div class="cash-position-actions">${btn(action.label,action.action,action.id,'position-primary')}
+        ${tab==='Cash plan'||next.id==='Cash plan'?'':btn('Open payday plan','nav','Cash plan','position-secondary')}</div>
+    </section>`;
+  }
+  function changesSummary(changes) {
+    const top=changes.spending[0];
+    if(!top)return {value:changes.purchasesComparable?money(changes.purchaseTotal):'—',detail:changes.purchasesComparable?
+      'Categorized purchases were steady':changes.cash.available?'See recorded cash activity':'Add statements to see what changed'};
+    if(!changes.purchasesComparable)return {value:money(top.recent),detail:categoryName(top.name||'Unassigned')+' led recorded spending'};
+    const change=changes.purchaseTotal-changes.priorPurchases;
+    return {value:signedMoney(change),detail:'Purchases · '+categoryName(top.name||'Unassigned')+' '+(top.delta>0?'rose ':'fell ')+money(Math.abs(top.delta))};
+  }
+  function debtSummary(b,now) {
+    if(!b.debtLoans.length)return {value:'—',detail:'Add a card or line of credit to model repayment'};
+    if(b.missingOperating)return {value:'—',detail:'Confirm monthly costs to compare payments'};
+    if(b.room<0)return {value:'−'+money(-b.room),unit:'per month',detail:'Gap before extra payments'};
+    const target=E.debtProfile(S,now).target;
+    return {value:money(Math.min(b.room,b.targetExtra)),unit:'per month',detail:b.assumptions.length?'Verify lender payments before committing':
+      target?'First candidate · '+target.name:'Monthly room for extra payments'};
+  }
   function overview() {
-    const now=E.today(),projection=E.forecast(S,now),plan=plannedSnapshot(projection,now);
+    const now=E.today(), position=E.paydayPosition(S,now);
+    const changes=E.monthChanges(S,now);
+    const spending=changesSummary(changes), debt=debtSummary(E.monthlySnapshot(S,now),now);
+    const pending=E.reviewPending(S).length, fixes=E.statementFixes(S).length;
+    const latest=S.chatUpdates?.at(-1);
+    return head('Today','',btn('Apply chat update','chat-update','','quiet'))+
+      `<div class="decision-layout">
+        ${cashPositionCard(position)}
+        <div class="decision-list">
+          ${jump('What changed this month',spending.value,'open-changes',changes.period,spending.detail)}
+          ${jump('Pay down debt faster',debt.value,'nav','Monthly snapshot',debt.detail,debt.unit)}
+          ${pending?jump('Quick Review',String(pending),'open-inbox','','Transactions to categorize or link'):''}
+          ${fixes?jump('Statement fixes',String(fixes),'open-statement-fixes','','Rows to verify against a statement'):''}
+        </div>
+      </div>
+      <div class="decision-tools">${link('Cash history','nav','Cash history')}
+        ${link('All bills and paydays','nav','Bills')}${link('Recommendations','nav','Recommendations')}</div>`+
+      (latest?`<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">${H(chatUpdateSummary(latest))}</p></details>`:'');
+  }
+  function monthlyChanges() {
+    const now=E.today();
+    const periods=Array.from({length:13},(_,i)=>E.month(E.shiftMonth(now,-i)));
+    const changes=E.monthChanges(S,now,changesMonth||periods[0]);
+    const compare=changes.purchasesComparable;
+    const label=compare?dateLabel(changes.end)+' vs '+dateLabel(changes.priorEnd):'Through '+dateLabel(changes.end);
+    const summary=`<div class="month-movement"><div><span>${compare?'Change in categorized purchases':'Recorded purchases'}</span>
+      <strong class="money">${compare?signedMoney(changes.purchaseTotal-changes.priorPurchases):money(changes.purchasesAvailable?changes.purchaseTotal:null)}</strong>
+      <small>${label}</small></div><div><span>One-time projects</span><strong class="money">${money(changes.purchasesAvailable?changes.projectTotal:null)}</strong>
+      ${link('See project charges','change-driver',JSON.stringify([changes.period,'project','']))}</div></div>`;
+    const driverRows=(rows,tone)=>{
+      const scale=Math.max(1,...rows.map(x=>Math.abs(x.delta??x.recent)));
+      return `<ul class="driver-list">${rows.map(x=>{
+        const title=tone==='purchase'?categoryName(x.name||'Unassigned spend'):x.name;
+        const amount=x.delta===null?money(x.recent):signedMoney(x.delta);
+        const basis=x.former===null?'':money(x.former)+' → '+money(x.recent);
+        const id=JSON.stringify([changes.period,tone,x.name]);
+        return `<li><button type="button" class="driver-row" data-act="change-driver" data-id="${H(id)}">
+          <span class="driver-title"><strong>${H(title)}</strong><b class="money">${amount}</b>${arrow}</span>
+          ${bar(Math.abs(x.delta??x.recent),scale,tone==='in'?(x.delta===null||x.delta>0?'in':'out'):(x.delta===null||x.delta>0?'out':'in'))}
+          ${basis?`<small>${basis}</small>`:''}</button></li>`;
+      }).join('')}</ul>`;
+    };
+    const warning=changes.reviewCurrent||changes.reviewPrior?`<div class="change-review">Some transactions still need a category.
+      ${changes.reviewCurrent?link('Review '+monthLabel(changes.period),'month-inbox',changes.period):''}
+      ${changes.reviewPrior?link('Review '+monthLabel(changes.prior),'month-inbox',changes.prior):''}</div>`:'';
+    const cash=changes.cash;
+    const cashDetail=changes.cashComparable?'Matching dates through '+dateLabel(changes.cashEnd)+' and '+dateLabel(changes.priorCashEnd):
+      'Showing recorded activity. A comparison needs matching cash-account coverage.';
+    return head('What changed','',btn('Today','nav','Overview','quiet'))+
+      `<div class="change-date">${field('Statement month',select('changes-month',periods.map(m=>[m,monthLabel(m)]),changes.period))}</div>`+
+      summary+warning+
+      `<div class="change-layout">${panel(compare?'What moved spending':'Largest recorded categories',changes.spending.length?driverRows(changes.spending.slice(0,6),'purchase'):
+        no(compare?'No category changed in the dates shown.':'No categorized purchases in this period.'),
+        compare?'Same number of days in each month.':'A comparison needs matching statement coverage.')}`+
+      panel('Cash in and out',`<dl class="change-cash-totals">
+        <div><dt>Money in</dt><dd>${money(cash.available?cash.inflow:null)}</dd></div>
+        <div><dt>Money out</dt><dd>${money(cash.available?cash.outflow:null)}</dd></div></dl>
+        ${changes.moneyOut.length?`<h3>${changes.cashComparable?'Biggest withdrawal changes':'Largest withdrawals'}</h3>${driverRows(changes.moneyOut.slice(0,3),'out')}`:''}
+        ${changes.moneyIn.length?`<h3>${changes.cashComparable?'Biggest deposit changes':'Largest deposits'}</h3>${driverRows(changes.moneyIn.slice(0,3),'in')}`:''}`,cashDetail)+`</div>`+
+      `<div class="decision-tools">${link('Cash history','open-cash-month',changes.period)}${link('All spending categories','open-spending-period',changes.period)}</div>`;
+  }
+  function changeDriver() {
+    const {period,tone,name,side}=changeSelection;
+    const change=E.monthChanges(S,E.today(),period);
+    const purchase=tone==='purchase', project=tone==='project', categorized=purchase||project;
+    const comparable=categorized?change.purchasesComparable:change.cashComparable;
+    const prior=side==='Prior period'&&comparable;
+    const cash=prior?change.priorCash:change.cash;
+    const through=categorized?(prior?change.priorEnd:change.end):(prior?change.priorCashEnd:change.cashEnd);
+    const group=categorized?null:(tone==='in'?cash.sources:cash.uses).find(x=>x.name===name);
+    const relevant=categorized?(prior?change.previous:change.current).filter(t=>project?t.kind==='Project':E.isSpending(t)&&t.category===name):
+      S.transactions.filter(t=>group?.amounts.has(t.id)).map(t=>({...t,amount:group.amounts.get(t.id)}));
+    relevant.sort((a,b)=>b.date.localeCompare(a.date)||a.description.localeCompare(b.description));
+    const total=categorized?E.spendingTotal(relevant):group?.amount??0;
+    const pageMax=Math.max(0,Math.ceil(relevant.length/PAGE)-1);
+    categoryPage=Math.min(pageMax,categoryPage);
+    const list=relevant.slice(PAGE*categoryPage,PAGE*(categoryPage+1)).map(t=>`<li>
+      <div><small>${H(dateLabel(t.date))} · ${H(alias(t.account))}</small>${link(t.description,'transaction',t.id)}</div>
+      <strong class="money">${categorized&&t.amount>0?signedMoney(t.amount):money(categorized?-t.amount:t.amount)}</strong></li>`).join('');
+    const pagination=pageMax?`<div class="table-controls">${btn('Previous','category-page','-1','mini',categoryPage?'':' disabled')}
+      <small>Page ${categoryPage+1} of ${pageMax+1}</small>${btn('Next','category-page','1','mini',categoryPage<pageMax?'':' disabled')}</div>`:'';
+    return head(project?'One-time project charges':purchase?categoryName(name||'Unassigned spend'):name,'',btn('‹ What changed','open-changes',period,'quiet'))+
+      (comparable?segments(['This period','Prior period'],side,'change-side','Comparison period'):'')+
+      `<div class="category-total"><div><h2>${H(monthLabel(prior?change.prior:period))}</h2><strong class="money">${money(total)}</strong></div>
+        <p>Through ${H(dateLabel(through))}</p></div>`+
+      panel('Transactions included',list?`<ul class="list event-list category-transactions">${list}</ul>${pagination}`:no('No transactions in these dates.'),'',purchase&&name?btn('Category history','chart-drill',JSON.stringify([period,name]),'mini quiet'):'');
+  }
+  function cashHistory() {
+    const now=E.today();
     const series=Array.from({length:13},(_,i)=>E.recordedCash(S,now,E.month(E.shiftMonth(now,-i))));
     const active=series.find(x=>x.period===cashMonth)||series.find(x=>x.available)||series[0];
     const trendStart=Math.min(series.indexOf(active),series.length-6);
     const trend=series.slice(trendStart,trendStart+6).reverse();
-    const pending=E.reviewPending(S).length, fixes=E.statementFixes(S).length;
-    const latest=S.chatUpdates?.at(-1);
     const coverage=active.available?(active.covered?'Covered':'Partial statements'):'No statements';
     const cutoff=active.through?'Through '+dateLabel(active.through):'';
     const scale=Math.max(1,active.inflow,active.outflow);
@@ -503,30 +651,13 @@
       <ul class="list">${active.scope.map(x=>`<li><span>${H(x.account.name)}</span>
       <small>${H(x.covered?'Covered':x.through?'Through '+dateLabel(x.through):'Statement needed')}</small></li>`).join('')}</ul>
       <p class="small">Chequing and savings only. Linked transfers between those accounts cancel out. Card payments count when paid. Card purchases are under Spending.</p></details>`:'';
-    const timing=plan.due.length?money(plan.outgoing):'—';
-    const planLabel=plan.pay?'Due before or on '+dateLabel(plan.cutoff):'Due through '+dateLabel(plan.cutoff);
-    const reviewStrip=(pending||fixes)?`<div class="review-summary" aria-label="Transaction review status">
-      ${pending?jump('Quick Review',String(pending),'open-inbox','','Transactions to categorize or link'):''}
-      ${fixes?jump('Statement fixes',String(fixes),'open-statement-fixes','','Rows to verify against a statement'):''}</div>`:'';
-    const budget=E.monthlySnapshot(S,now);
-    const jumps=`<div class="dashboard-shortcuts">
-      ${jump('Monthly Snapshot & scenarios',budget.missingOperating?'':signedMoney(budget.room),'nav','Monthly snapshot','Planned monthly cash after costs')}
-      ${jump('Open payday plan',timing,'nav','Cash plan',planLabel)}
-    </div>`;
-    const detail=`<details class="panel home-disclosure"><summary>Where the cash went</summary>
+    const detail=`<details class="panel home-disclosure" open><summary>Where the cash went</summary>
       <div class="home-grid">${cashBuckets('Money in',active.sources,scale,'in',active.period)}
       ${cashBuckets('Money out',active.uses,scale,'out',active.period)}</div>
       ${active.uncertainty?`<p class="small section-gap">${active.uncertainty} cash movements in review. ${link('Review this month','month-inbox',active.period)}</p>`:''}
       ${accountCoverage}</details>`;
-    const forecast=`<details class="panel home-disclosure" id="cash-forecast"><summary>Forecast & upcoming bills</summary>
-      <div class="home-grid">${forecastCard(projection,now)}
-      ${panel('Coming up',plan.open.length?`<ul class="list event-list">${plan.open.slice(0,4).map(e=>eventItem(e,now)).join('')}</ul>`:
-        no('No open dates in this window.'),'',btn('All dates','nav','Bills','mini quiet'))}</div></details>`;
-    return head('Cash flow','',btn('Apply chat update','chat-update','','quiet'))+
-      `<div class="insight-overview">${hero}
-        ${panel('Recent cash flow',chartMonths(trend,active.period))}</div>`+
-      jumps+reviewStrip+detail+forecast+
-      (latest?`<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">${H(chatUpdateSummary(latest))}</p></details>`:'');
+    return head('Cash history','',btn('Today','nav','Overview','quiet'))+
+      '<div class="insight-overview">'+hero+panel('Recent cash flow',chartMonths(trend,active.period))+'</div>'+detail;
   }
   function eventItem(e,now,alerts=new Set()) {
     const status=e.date<now&&e.direction!=='Income'&&!['Paid','Skipped'].includes(e.status)?'Overdue':
@@ -1516,7 +1647,7 @@
     ['variablePay','Second pay',300000,10000],
     ['variable','Variable living expenses',300000,5000],
     ['reserve','Monthly set-aside',200000,2500],
-    ['targetExtra','Extra repayment target',200000,2500],
+    ['targetExtra','Extra monthly budget',200000,2500],
     ['share','Share of extra cash to debt',100,1]
   ];
   const scenarioFormat=(key,value)=>key==='share'?value+'%':money(value);
@@ -1531,26 +1662,28 @@
   function monthlySnapshot() {
     const now=E.today(), b=E.monthlySnapshot(S,now);
     const v=scenarioValues(b);
-    const toggles=segments(['Debt first','Debt + goals','Minimums only'],repaymentMode,'monthly-repayment','Repayment strategy');
+
     const assumptions=b.assumptions.length?`<details class="subtle scenario-help"><summary>${b.assumptions.length} lender payments to verify</summary>
       <ul class="list">${b.assumptions.map(x=>`<li><div>${link(x.name,'loan-edit',x.id)}
       <small class="small">${money(x.recorded)} on file · ${money(x.interest)} estimated interest</small></div>
       <strong>${money(x.assumed)}<small class="small">Model placeholder</small></strong></li>`).join('')}</ul></details>`:'';
     const costRows=rows=>rows.map(x=>`<li><div>${b.historyView.rows.some(r=>r.category===x.name)?
       link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
-    const result=scenarioResult(b,now,v);
+    const result=scenarioResult(b,now,v,runwayData());
     return head('Monthly Snapshot',monthLabel(b.start)+' plan',btn('Edit saved assumptions','month-plan-edit','','quiet'))+
-      `<div class="scenario-layout">
+      `<div class="scenario-layout"><div class="scenario-left">
+        <div class="scenario-output decision-funding" id="monthly-funding-result">${result.funding}</div>
         <section class="panel scenario-panel"><div class="panel-title"><div><h2>Try a scenario</h2><p>Changes here are temporary.</p></div>
           ${btn('Reset','scenario-reset','','mini quiet')}</div>
           <div class="scenario-live" id="scenario-live">${result.live}</div>
           <div id="scenario-controls">${scenarioFields.filter(x=>x[0]!=='share'||repaymentMode==='Debt + goals')
             .map(info=>scenarioSlider(info,v[info[0]],b[info[0]]??S.config.debtShare)).join('')}</div>
-          <div class="scenario-strategy"><h3>Repayment strategy</h3>${toggles}</div>
+
         </section>
+        </div><div class="scenario-right">
         <div class="scenario-output" id="monthly-budget-result">${result.budget}</div>
         <div class="scenario-output" id="monthly-payoff-result">${result.timeline}</div>
-      </div>
+      </div></div>
       <details class="panel home-disclosure"><summary>Monthly budget breakdown</summary>
         <div class="home-grid">
           ${panel('Fixed household costs',b.fixedRows.length?`<ul class="list">${costRows(b.fixedRows)}</ul>`:no('No fixed categories or mortgage schedule on file.'),b.stored.fixed!=null?'Saved total overrides these source amounts':'')}
@@ -1566,9 +1699,10 @@
   function bindMonthlyScenario() {
     const controls=root.querySelector('#scenario-controls');
     if(!controls)return;
-    const now=E.today(), baseline=E.monthlySnapshot(S,now);
+    const now=E.today(), baseline=E.monthlySnapshot(S,now), cash=runwayData();
     const budgetOutput=root.querySelector('#monthly-budget-result'), payoffOutput=root.querySelector('#monthly-payoff-result');
     const live=root.querySelector('#scenario-live');
+    const funding=root.querySelector('#monthly-funding-result');
     controls.addEventListener('input',event=>{
       const input=event.target, key=input.dataset.scenario, value=Number(input.value);
       if(!key||!Number.isFinite(value))return;
@@ -1576,20 +1710,69 @@
       const text=scenarioFormat(key,value);
       input.setAttribute('aria-valuetext',text);
       controls.querySelector('#scenario-'+key+'-value').textContent=text;
-      const result=scenarioResult(baseline,now,scenarioValues(baseline));
+      const result=scenarioResult(baseline,now,scenarioValues(baseline),cash);
+      funding.innerHTML=result.funding;
       budgetOutput.innerHTML=result.budget;
       payoffOutput.innerHTML=result.timeline;
       live.innerHTML=result.live;
     });
   }
-  function scenarioResult(b,now,v) {
-    const income=b.draw+v.variablePay+b.household;
-    const committed=b.fixed+v.variable+b.minimums+v.reserve;
-    const room=income-committed;
-    const targetGap=Math.max(0,v.targetExtra-room);
-    const variableLimit=v.variable-targetGap;
-    const extra=b.missingOperating?0:Math.min(v.targetExtra,Math.max(0,room));
-    const share=repaymentMode==='Debt first'?100:repaymentMode==='Debt + goals'?v.share:0;
+  function cashCheckKey(position,now) {
+    return JSON.stringify([now,position.cutoff,S.config.floor,S.config.flex,S.config.flexAccount]);
+  }
+  function confirmedCashCosts(position,now=E.today()) {
+    return cashScenario.covered===cashCheckKey(position,now);
+  }
+  function selectedCashSource(position) {
+    return position.plan.verified.find(a=>a.id===cashScenario.account)||
+      (position.plan.verified.length===1?position.plan.verified[0]:null);
+  }
+  function fundingPlan(b,now,v,calculation,cash) {
+    const {room,toDebt,toGoals,unallocated}=calculation;
+    const {position,account:source,checked,limit,base}=cash;
+    const near=checked&&source?E.accountRoom(position,source.id):null;
+    const priority=E.debtProfile(S,now).target;
+    const nextGoal=S.goals.filter(g=>g.target>g.saved).sort((a,b)=>a.priority-b.priority)[0];
+    let timing='Check your cash before making an extra payment.';
+    if(near!==null&&toDebt>0) {
+      const stressIsLower=limit.stress!==null&&limit.stress<near;
+      const available=stressIsLower?limit.stress:near;
+      const through=stressIsLower?base.end:position.cutoff;
+      timing=(available<toDebt?money(toDebt-available)+' short of the extra payment':
+        money(available)+' estimated above buffers')+' in '+source.name+' through '+dateLabel(through)+'.';
+      if(stressIsLower)timing+=' Uses the lower-or-later pay scenario.';
+      else if(limit.stress===null)timing+=' Check later bills before committing.';
+    } else if(!toDebt)timing='This scenario budgets no extra payment.';
+    const flags=[
+      b.assumptions.length?'Some lender payments are estimates.':'',
+      b.historyView.baselineReview&&(b.stored.fixed==null||b.stored.variable==null)?'Some purchases in the budget baseline are still in Review.':''
+    ].filter(Boolean);
+    const result=`<div class="funding-grid">
+      <div><span>Extra to debt</span><b class="money">${money(toDebt)}</b>${toDebt&&priority?`<small>${H(priority.name)} first · ${H(priority.currentRate)}%</small>`:''}</div>
+      <div><span>Set aside and goals</span><b class="money">${money(v.reserve+toGoals)}</b>${toGoals&&nextGoal?`<small>${H(nextGoal.name)} first</small>`:''}</div>
+      <div><span>${room<0?'Still to cover':'Left unallocated'}</span><b class="money${room<0?' negative':''}">${money(room<0?-room:unallocated)}</b></div></div>`;
+    return panel('Where the payment comes from', result+
+      `<div class="funding-check"><p>${H(timing)}</p>${toDebt?btn('Check before payday','cash-controls','','mini quiet'):''}</div>`+
+      (flags.length?`<p class="small funding-flags">${H(flags.join(' '))}</p>`:''),
+      'Per month after regular costs and debt minimums');
+  }
+  function repaymentOptions(b,now,v,selected,base) {
+    if(!b.debtLoans.length||b.missingOperating)return '';
+    const entries=[['Minimums only',null],['Debt + goals',v.share],['Debt first',100]];
+    return `<div class="decision-options" role="group" aria-label="Repayment strategy">
+      ${entries.map(([label,share])=>{
+        const budget=E.repaymentBudget(b,v,share);
+        const model=label===repaymentMode?selected:share===null?base:E.monthlyDebtPlan(S,now,b,budget.extra,share);
+        const caption=model.missing.length?'Terms needed':model.end?monthLabel(model.end)+' payoff':'Payoff beyond estimate';
+        return `<button class="repayment-option" type="button" data-act="monthly-repayment" data-id="${H(label)}" aria-pressed="${label===repaymentMode}">
+          <span><strong>${H(label)}</strong><small>${money(budget.toDebt)} extra to debt${budget.toGoals?' · '+money(budget.toGoals)+' for goals':''}</small></span>
+          <b>${H(caption)}</b>${arrow}</button>`;
+      }).join('')}</div>`;
+  }
+  function scenarioResult(b,now,v,cash) {
+    const share=!b.debtLoans.length?null:repaymentMode==='Debt first'?100:repaymentMode==='Debt + goals'?v.share:null;
+    const calculation=E.repaymentBudget(b,v,share);
+    const {income,committed,room,extra,targetGap,variableLimit}=calculation;
     const rows=[['Fixed costs',b.fixed,'rate'],['Variable costs',v.variable,'out'],
       ['Debt payments',b.minimums,'priority'],['Set-aside',v.reserve,'reserve']].filter((x,i)=>x[1]||i<3);
     const scale=Math.max(income,committed,1);
@@ -1603,13 +1786,18 @@
       <div class="budget-stack" aria-hidden="true">${rows.filter(x=>x[1]>0).map(x=>`<i class="${x[2]}" style="width:${x[1]/scale*100}%"></i>`).join('')}
         ${room>0&&!b.missingOperating?`<i class="room" style="width:${room/scale*100}%"></i>`:''}</div>
       <ul class="budget-costs">${rows.map(([label,amount,tone])=>`<li><i class="${tone}" aria-hidden="true"></i><span>${label}</span><b>${money(amount)}</b></li>`).join('')}</ul>
-      ${!b.missingOperating&&share>0&&targetGap>0?`<div class="budget-gap"><div><strong>${money(targetGap)} gap to extra payment target</strong>
+      ${!b.missingOperating&&share>0&&targetGap>0?`<div class="budget-gap"><div><strong>${money(targetGap)} gap to the extra monthly budget</strong>
         <small>${variableLimit>=0?'Variable costs would need to be '+money(variableLimit)+' or less.':'Fixed commitments alone leave too little for this target.'}</small></div>
         ${variableLimit>=0?btn('Try that limit','scenario-fit',String(variableLimit),'mini quiet'):''}</div>`:''}</section>`;
+    const model=E.monthlyDebtPlan(S,now,b,extra,share??0,share!==null,true);
+    const base=share===null?model:E.monthlyDebtPlan(S,now,b,0,0,false,true);
     const timeline=b.missingOperating?panel('Debt repayment timeline',no('Confirm monthly costs to compare payoff dates.')):
-      repaymentTimeline(b,now,extra,share,room);
+      repaymentTimeline(b,now,model,base,room);
+    const options=repaymentOptions(b,now,v,model,base);
+    const funding=b.missingOperating?panel('Plan extra payments',no('Confirm your monthly costs first.'),'',btn('Edit assumptions','month-plan-edit','','mini quiet')):
+      fundingPlan(b,now,v,calculation,cash);
     const live=`<span>${room<0&&!b.missingOperating?'Monthly shortfall':'Left after costs'}</span><b>${b.missingOperating?'—':money(Math.abs(room))}</b>`;
-    return {budget,timeline,live};
+    return {budget,timeline,live,funding:funding+(options?panel('Compare repayment options',options,'Estimated payoff dates for non-mortgage debt'):'')};
   }
   function payoffPlot(model,baseline,now) {
     if(!model.balances?.length||!baseline.balances?.length)return '';
@@ -1629,11 +1817,9 @@
       ${fullLength>periods?'<p class="small">First five years shown.</p>':''}
     </figure>`;
   }
-  function repaymentTimeline(b,now,extra,share,room) {
-    const model=E.monthlyDebtPlan(S,now,b,extra,share,repaymentMode!=='Minimums only',true);
+  function repaymentTimeline(b,now,model,baseline,room) {
     if(!model.items.length)return panel('Debt repayment timeline',no('Add a card or line of credit to see a payoff timeline.'),'',btn('Open debt','nav','Debt & goals','mini quiet'));
     if(model.missing.length)return panel('Debt repayment timeline',`<p>Confirm terms for ${H(model.missing.map(x=>x.name).join(', '))}.</p>`,'',btn('Open debt','nav','Debt & goals','mini quiet'));
-    const baseline=E.monthlyDebtPlan(S,now,b,0,0,false,true);
     const months=model.end&&baseline.end?baseline.balances.length-model.balances.length:null;
     const interest=model.interest!==null&&baseline.interest!==null?baseline.interest-model.interest:null;
     const sorted=model.items.slice().sort((a,b)=>(a.clear||'9999').localeCompare(b.clear||'9999')||a.name.localeCompare(b.name));
@@ -1667,13 +1853,13 @@
   }
   function runwayData() {
     const now=E.today(), base=E.forecast(S,now), stress=E.forecast(S,now,cashScenario);
-    const account=base.verified.find(a=>a.id===cashScenario.account);
-    const limit=E.commitmentRange(S,base,stress,cashScenario.account,cashScenario.covered);
-    return {now,base,stress,account,limit};
+    const position=E.paydayPosition(S,now);
+    const account=selectedCashSource(position), checked=confirmedCashCosts(position,now);
+    const limit=E.commitmentRange(S,base,stress,account?.id,checked);
+    return {now,base,stress,account,limit,position,checked};
   }
   function cashPlan() {
-    const {now,base,stress,account,limit}=runwayData();
-    const near=plannedSnapshot(base,now);
+    const {now,base,stress,account,limit,position,checked}=runwayData();
     const first=stress.shortfalls[0];
     const weakest=stress.verified.map(a=>({a,margin:stress.lows[a.id]-(a.floor||0)})).sort((a,b)=>a.margin-b.margin)[0];
     const incomplete=base.headroom===null||stress.headroom===null;
@@ -1685,7 +1871,7 @@
     if(base.stale.length)reason.push('refresh the cash balances');
     if(S.config.floor<=0)reason.push('set a household cash buffer');
     if(!account)reason.push('choose the account that would fund the payment');
-    if(!cashScenario.covered)reason.push('confirm all regular living costs are included');
+    if(!checked)reason.push('confirm all regular living costs are included');
     const comparison=base.verified.length?'<section class="panel runway-plot" aria-label="Projected balance comparison">'+
       '<div class="panel-title"><div><h2>Where cash runs lowest</h2><p>'+H(graphScope+' · '+chartStatus)+'</p></div></div>'+
       '<div class="runway-readout"><div><small>As scheduled</small><strong class="money">'+money(baseLow)+'</strong></div>'+
@@ -1703,12 +1889,12 @@
     const controls='<form id="cash-scenario" class="stack" autocomplete="off"><div class="form-grid">'+
       field('Variable pay reduction (%)',f('income_cut',cashScenario.incomeCut,'number','required min="0" max="100" step="1"'))+
       field('Variable pay delay (days)',f('income_delay',cashScenario.incomeDelay,'number','required min="0" max="45" step="1"'))+
-      field('Account for optional payment',select('source_account',[['','Choose a funding account'],...base.verified.map(a=>[a.id,a.name])],cashScenario.account),'Choose only cash available for this purpose.',true)+'</div>'+
-      check('Bills and the spending allowance cover the living costs I expect in this window','costs_covered',cashScenario.covered)+
+      field('Account for optional payment',select('source_account',[['','Choose a funding account'],...base.verified.map(a=>[a.id,a.name])],account?.id||''),'Choose the account that would fund the payment.',true)+'</div>'+
+      check('Bills and the spending allowance cover the living costs I expect through '+dateLabel(base.end),'costs_covered',checked)+
       '<button class="btn primary" type="submit">Run comparison</button></form>';
     const coverage=forecastCard(base,now);
-    const timing=panel(near.pay?'Payments due by '+dateLabel(near.cutoff):'Upcoming payments',
-      near.due.length?'<ul class="list event-list">'+near.due.slice(0,5).map(e=>eventItem(e,now)).join('')+'</ul>':
+    const timing=panel('Bills through '+dateLabel(position.cutoff),
+      position.due.length?'<ul class="list event-list">'+position.due.map(e=>eventItem(e,now)).join('')+'</ul>':
         no('There are no open bills scheduled in this window.'),
       'Based on the original schedule. Includes bills still marked open.',
       btn('All bills','nav','Bills','mini quiet'));
@@ -1726,12 +1912,14 @@
         'To estimate a one-time amount, '+H(reason.join('; '))+'.')+'</p>'+
       (first?'<p class="runway-alert">'+H(first.name)+' could take '+H(alias(first.account))+' below its buffer on '+H(dateLabel(first.date))+'.</p>':
         weakest&&weakest.margin<0?'<p class="runway-alert">'+H(weakest.a.name)+' is projected below its buffer.</p>':'')+'</div></section>';
-    return head('Payday plan','Through '+dateLabel(base.end)+' · figures in CAD',btn('Recommendations','nav','Recommendations','quiet'))+
-      result+comparison+'<div class="home-grid section-gap">'+panel('Try a lower or later paycheque',controls,
+    return head('Payday plan','',cashPlanFromDebt?btn('‹ Repayment plan','nav','Monthly snapshot','quiet'):btn('Today','nav','Overview','quiet'))+
+      '<div class="home-grid decision-payday">'+cashPositionCard(position)+timing+'</div>'+
+      '<details class="subtle section-gap"><summary>How the payday estimate works</summary><p class="small">Uses cash on hand. Bills due on payday are included. The everyday allowance is reserved up front for these dates. Each bill account and the household have their own buffer.</p></details>'+
+      '<div class="section-gap">'+result+'</div>'+comparison+'<div class="home-grid section-gap">'+panel('Try a lower or later paycheque',controls,
       'This example adjusts deposits marked variable that still use estimated amounts.')+
       panel('Variable deposits in this comparison',changed,'Original schedule on the left · scenario on the right')+'</div>'+
       (perAccount?'<div class="section-gap">'+perAccount+'</div>':'')+
-      '<div class="home-grid section-gap">'+timing+coverage+'</div>'+
+      '<div class="section-gap">'+coverage+'</div>'+
       '<p class="small section-gap">Choose the cash buffer in '+link('forecast settings','config','cash')+
       '. Use confirmed surplus and current lender terms for ongoing commitments. '+link('Compare debt and savings','nav','Debt & goals')+'.</p>';
   }
@@ -2025,7 +2213,7 @@
     const state=E.empty();
     const now=E.today();
     const cashId=E.id(), card=E.id(), savings=E.id(), basement=E.id(), loanId=E.id();
-    const back=E.monthStart(E.shiftMonth(now,-12)), last=E.add(E.monthStart(now),-1);
+    const back=E.monthStart(E.shiftMonth(now,-12)), last=now;
     const account=(id,name,type,balance,forecast,history,floor)=>({id,name,type,balance,balanceDate:now,forecast,history,floor,openDate:'',closeDate:''});
     state.accounts.push(account(cashId,'Joint chequing','Chequing',634800,true,true,100000),
       account(card,'Household card','Credit card',190400,false,true,0),
@@ -2067,6 +2255,7 @@
       matching.forEach(t=>{t.importId=entry.id;});
       entry.count=matching.length;
     });
+    addTx(card,now,'Oak Room Renovations',-28500,'Project','',basement);
     addTx(card,now,'Home Depot CA',-12829,'Review');
     addTx(card,now,'Marketplace order',-5636,'Review');
     addTx(cashId,now,'Interac e-transfer received',18000,'Review');
@@ -2150,11 +2339,16 @@
     'scenario-reset':()=>{scenarioDraft={};repaymentMode='Debt first';render();root.querySelector('[data-act=scenario-reset]')?.focus();},
     'scenario-fit':amount=>{scenarioDraft.variable=Number(amount);render();root.querySelector('#scenario-variable')?.focus();},
     'monthly-repayment':mode=>{repaymentMode=mode;render();root.querySelector('[data-act=monthly-repayment][aria-pressed=true]')?.focus({preventScroll:true});},
-    'open-cash-month':period=>{cashMonth=period;go('Overview');},
+    'open-cash-month':period=>{cashMonth=period;go('Cash history');},
+    'open-changes':period=>{changesMonth=period;go('Monthly changes');},
+    'change-driver':id=>{const [period,tone,name]=JSON.parse(id);changeSelection={period,tone,name,side:'This period'};categoryPage=0;go('Change driver');},
+    'change-side':side=>{changeSelection.side=side;categoryPage=0;render();root.querySelector('[data-act=change-side][aria-pressed=true]')?.focus();},
+    'open-spending-period':period=>{month=period;categoryDetail='';spendingTab='Categories';go('Spending');},
     'open-recurring':()=>{spendingTab='Recurring';go('Spending');},
     'mortgage-terms':()=>loanEdit('mortgage'),
     'income-schedule':()=>billEdit('income'),
-    'cash-forecast':()=>{const forecast=document.getElementById('cash-forecast');if(forecast){forecast.open=true;forecast.scrollIntoView({block:'start'});}},
+    'cash-forecast':()=>go('Cash plan'),
+    'cash-controls':()=>{if(tab==='Monthly snapshot')cashPlanFromDebt=true;if(tab!=='Cash plan')go('Cash plan');root.querySelector('#cash-scenario [name=source_account]')?.focus();document.getElementById('cash-scenario')?.scrollIntoView({block:'center'});},
     'cash-period':period=>{cashMonth=period;render();window.scrollTo(0,0);root.querySelector('[name=cash-month]')?.focus();},
     'cash-bucket':id=>{
       const [period,tone,name]=JSON.parse(id);

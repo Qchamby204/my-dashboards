@@ -478,8 +478,8 @@ const Engine = (() => {
     const past=events({...state,bills:old},'1900-01-01',add(start,-1)).filter(e=>!['Paid','Skipped'].includes(e.status));
     return [...past,...events(state,start,end)];
   }
-  function forecast(state, now, {incomeCut=0, incomeDelay=0}={}) {
-    const end=add(now,state.config.window);
+  function forecast(state, now, {incomeCut=0, incomeDelay=0, through='', cashOnHand=false}={}) {
+    const end=through||add(now,state.config.window);
     const verified=state.accounts.filter(a=>a.forecast&&['Chequing','Savings'].includes(a.type)&&Number.isSafeInteger(a.balance)&&validDate(a.balanceDate)&&a.balanceDate<=now);
     const starting=Object.fromEntries(verified.map(a=>[a.id,a.balance+sum(state.transactions.filter(t=>t.account===a.id&&t.date>a.balanceDate&&t.date<=now),t=>t.amount)]));
     const all=paymentWindow(state,now,end);
@@ -488,10 +488,12 @@ const Engine = (() => {
     const overdue=unsettled.filter(e=>e.date<now&&e.direction!=='Income');
     const affected=upcoming.filter(e=>e.direction==='Income'&&e.variable&&e.actualAmount==null&&Number.isSafeInteger(e.forecastAmount));
     const changed=new Map(affected.map(e=>[e.key,{...e,date:add(e.date,incomeDelay),forecastAmount:round(e.forecastAmount*(100-incomeCut)/100)}]));
-    const varied=upcoming.map(e=>changed.get(e.key)||e).filter(e=>e.date<=end);
+    const varied=upcoming.map(e=>changed.get(e.key)||e).filter(e=>e.date<=end&&(!cashOnHand||e.direction!=='Income'));
     const list=[...varied,...overdue.map(e=>({...e,date:now,originalDate:e.date}))];
     const flex=state.config.flex;
-    if(flex>0) {
+    const livingReserve=cashOnHand&&flex>0?Math.ceil(flex*12*(distance(now,end)+1)/365):0;
+    if(livingReserve)list.push({key:'flex/'+now,date:now,name:'Living costs set-aside',account:state.config.flexAccount,direction:'Bill',forecastAmount:livingReserve});
+    else if(flex>0) {
       for(let d=add(now,7);d<=end;d=add(d,7)) list.push({key:'flex/'+d,date:d,name:'Flexible spending allowance',account:state.config.flexAccount,direction:'Bill',forecastAmount:round(flex*12/52)});
     }
     const opening=sum(Object.values(starting),v=>v);
@@ -522,7 +524,71 @@ const Engine = (() => {
     const usableCalculate=verified.length>0&&!missing.length&&!unassigned.length&&!missingLoanPayments.length;
     const belowAccountBuffer=verified.some(a=>lows[a.id]<(a.floor||0));
     const headroom=usableCalculate?(belowAccountBuffer?0:Math.max(0,Math.min(low-state.config.floor,sum(verified,a=>Math.max(0,lows[a.id]-(a.floor||0)))))):null;
-    return {end,starting,opening,affected,changed,ending:sum(Object.values(balances),v=>v),lows,low,lowDate,headroom,missing,missingLoanPayments,stale,shortfalls,unassigned,verified,points,upcoming,overdue,all};
+    return {end,starting,opening,livingReserve,affected,changed,ending:sum(Object.values(balances),v=>v),lows,low,lowDate,headroom,missing,missingLoanPayments,stale,shortfalls,unassigned,verified,points,upcoming,overdue,all};
+  }
+  const isPaycheque=e=>e.direction==='Income'&&/paycheque|payroll|draw|salary|payday/i.test(e.name);
+  function paydayPosition(state,now) {
+    const pay=events(state,now,add(now,Math.max(14,state.config.window))).find(e=>isPaycheque(e)&&!['Paid','Skipped'].includes(e.status));
+    const cutoff=pay?.date||add(now,14);
+    const plan=forecast(state,now,{through:cutoff,cashOnHand:true});
+    const due=[...plan.overdue,...plan.upcoming].filter(e=>e.direction==='Bill').sort((a,b)=>a.date.localeCompare(b.date));
+    const bills=sum(due,e=>e.forecastAmount??0);
+    const unknownBills=due.filter(e=>e.forecastAmount==null).length;
+    const buffer=state.config.floor;
+    const accountGap=plan.verified.some(a=>plan.lows[a.id]<(a.floor||0));
+    const gap=plan.headroom===null?null:Math.max(0,buffer-plan.low);
+    const room=plan.headroom!==null&&!plan.stale.length&&buffer>0?plan.headroom:null;
+    return {pay,cutoff,plan,due,bills,unknownBills,buffer,accountGap,gap,room};
+  }
+  function accountRoom(position,account) {
+    const source=position.plan.verified.find(a=>a.id===account);
+    return position.room===null||!source?null:Math.max(0,Math.min(position.room,position.plan.lows[account]-(source.floor||0)));
+  }
+  function monthChanges(state,now,period=month(now)) {
+    const start=period+'-01', prior=shiftMonth(start,-1);
+    const selectedEnd=now<monthEnd(start)?now:monthEnd(start);
+    const latestDay=Math.min(Number(selectedEnd.slice(8)),Number(monthEnd(prior).slice(8)));
+    const inPeriod=(accounts,from,to)=>accounts.filter(a=>(!a.openDate||a.openDate<=to)&&(!a.closeDate||a.closeDate>=from));
+    const compareDates=accounts=>{
+      for(let day=latestDay;day>0;day--){
+        const end=add(start,day-1), priorEnd=add(prior,day-1);
+        const active=inPeriod(accounts,start,end), previous=inPeriod(accounts,prior,priorEnd);
+        if(active.length&&active.length===previous.length&&active.every(a=>
+          previous.includes(a)&&coverage(state,a.id,start,end)&&coverage(state,a.id,prior,priorEnd)))return {end,priorEnd};
+      }
+      return null;
+    };
+    const historyAccounts=state.accounts.filter(a=>a.history);
+    const cashAccounts=state.accounts.filter(a=>['Chequing','Savings'].includes(a.type)&&(a.history||a.forecast));
+    const purchaseDates=compareDates(historyAccounts), cashDates=compareDates(cashAccounts);
+    const purchasesComparable=Boolean(purchaseDates), cashComparable=Boolean(cashDates);
+    const end=purchaseDates?.end??selectedEnd, priorEnd=purchaseDates?.priorEnd??'';
+    const cashEnd=cashDates?.end??selectedEnd, priorCashEnd=cashDates?.priorEnd??'';
+    const selectedScope=new Set(inPeriod(historyAccounts,start,end).map(a=>a.id));
+    const normalized=ledgerRows(state.transactions.filter(t=>t.date>=prior&&t.date<=end&&selectedScope.has(t.account)));
+    const current=normalized.filter(t=>t.date>=start);
+    const previous=purchasesComparable?normalized.filter(t=>t.date<=priorEnd):[];
+    const purchasesAvailable=current.length>0||state.imports.some(i=>selectedScope.has(i.account)&&i.start<=end&&i.end>=start);
+    const purchaseGroups=rows=>{
+      const amounts=new Map();
+      for(const t of rows.filter(isSpending))amounts.set(t.category,(amounts.get(t.category)||0)-t.amount);
+      return amounts;
+    };
+    const groups=(a,b,comparable)=>[...new Set([...a.keys(),...b.keys()])].map(name=>{
+      const recent=a.get(name)||0, former=comparable?(b.get(name)||0):null;
+      return {name,recent,former,delta:former===null?null:recent-former};
+    }).filter(x=>comparable?x.delta!==0:x.recent!==0)
+      .sort((a,b)=>Math.abs(b.delta??b.recent)-Math.abs(a.delta??a.recent)||a.name.localeCompare(b.name));
+    const spending=groups(purchaseGroups(current),purchaseGroups(previous),purchasesComparable);
+    const cash=recordedCash(state,cashEnd,period);
+    const priorCash=cashComparable?recordedCash(state,priorCashEnd,month(prior)):null;
+    const cashGroups=rows=>new Map(rows.map(x=>[x.name,x.amount]));
+    return {period,prior:month(prior),end,priorEnd,cashEnd,priorCashEnd,current,previous,spending,purchasesAvailable,purchasesComparable,cashComparable,cash,priorCash,
+      moneyOut:groups(cashGroups(cash.uses),cashComparable?cashGroups(priorCash.uses):new Map(),cashComparable),
+      moneyIn:groups(cashGroups(cash.sources),cashComparable?cashGroups(priorCash.sources):new Map(),cashComparable),
+      purchaseTotal:spendingTotal(current.filter(isSpending)),priorPurchases:purchasesComparable?spendingTotal(previous.filter(isSpending)):null,
+      projectTotal:spendingTotal(current.filter(t=>t.kind==='Project')),reviewCurrent:new Set(current.filter(t=>t.kind==='Review').map(t=>t.id)).size,
+      reviewPrior:new Set(previous.filter(t=>t.kind==='Review').map(t=>t.id)).size};
   }
   function monthlySnapshot(state,now) {
     const historyView=history(state,now);
@@ -584,6 +650,15 @@ const Engine = (() => {
       (mortgageSchedules.length>0&&!mortgage&&stored.fixed==null);
     return {draw,variablePay,household,income,conservative,historyView,fixedRows,variableRows,fixed,variable,reserve,
       minimums,room,targetExtra,exampleVariable,exampleRoom,possible,missingOperating,assumptions,debtLoans,stored,start};
+  }
+  function repaymentBudget(budget,{variablePay,variable,reserve,targetExtra},share) {
+    const income=budget.draw+variablePay+budget.household;
+    const committed=budget.fixed+variable+budget.minimums+reserve;
+    const room=income-committed;
+    const extra=budget.missingOperating||share===null?0:Math.min(targetExtra,Math.max(0,room));
+    const toDebt=share===null?0:round(extra*share/100);
+    return {income,committed,room,extra,toDebt,toGoals:extra-toDebt,unallocated:Math.max(0,room-extra),
+      targetGap:Math.max(0,targetExtra-room),variableLimit:variable-Math.max(0,targetExtra-room)};
   }
   function monthlyDebtPlan(state,now,budget,extra,share,rollMinimums=true,trackBalances=false) {
     return makePlan({...state,loans:budget.debtLoans,goals:[],config:{...state.config,surplus:Math.max(0,extra),focus:'Highest rate'}},monthEnd(now),share,rollMinimums,trackBalances);
@@ -648,5 +723,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,balances,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,monthlySnapshot,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
 })();

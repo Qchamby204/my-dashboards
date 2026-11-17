@@ -462,7 +462,7 @@ test('monthly snapshot shows expense categories and payoff milestones from the d
   const dispatch=app.handlers.get('document click');
   const click=(act,id='')=>dispatch({target:{closest:()=>({dataset:{act,id}})}});
   await click('demo');
-  assert.match(app.node('app').innerHTML,/Monthly Snapshot/);
+  assert.match(app.node('app').innerHTML,/Pay down debt faster/);
   await click('nav','Monthly snapshot');
   const view=app.node('app').innerHTML;
   assert.match(view,/<h1>Monthly Snapshot<\/h1>/);
@@ -549,4 +549,94 @@ test('category detail reconciles split expenses and refunds to their monthly ave
   assert.match(view,/October|Oct 2026/);
   assert.match(view,/Home supplies<\/button>[\s\S]*?\$50\.00/);
   assert.match(view,/Refund hardware<\/button>[\s\S]*?\+\$12\.00/);
+});
+
+test('payday room reserves costs and same-day bills against current cash and account buffers',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty(), now='2026-11-17';
+  state.accounts=[
+    {id:'joint',type:'Chequing',forecast:true,balance:260000,balanceDate:now,floor:55000},
+    {id:'personal',type:'Chequing',forecast:true,balance:80000,balanceDate:now,floor:5000}
+  ];
+  Object.assign(state.config,{floor:50000,flex:36500,flexAccount:'joint'});
+  const bill={frequency:'Once',direction:'Bill',account:'joint'};
+  state.bills=[
+    {...bill,id:'overdue',name:'Past due',start:'2026-11-16',amount:20000},
+    {...bill,id:'before',name:'Earlier bill',start:'2026-11-18',amount:10000},
+    {...bill,id:'same',name:'Payday bill',start:'2026-11-20',amount:80000},
+    {...bill,id:'after',name:'Later bill',start:'2026-11-21',amount:180000},
+    {...bill,id:'pay',name:'Payroll',direction:'Income',start:'2026-11-20',amount:250000}
+  ];
+  const p=E.paydayPosition(state,now);
+  assert.equal(p.cutoff,'2026-11-20');
+  assert.equal(p.bills,110000);
+  assert.equal(p.plan.livingReserve,4800);
+  assert.equal(p.plan.low,225200);
+  assert.equal(p.room,165200);
+  assert.equal(E.accountRoom(p,'joint'),90200);
+  assert.equal(E.accountRoom(p,'personal'),75000);
+  state.accounts[1].balanceDate='2026-11-16';
+  assert.equal(E.paydayPosition(state,now).room,null);
+  state.accounts[1].balanceDate=now;
+  state.bills[1].amount=null;
+  assert.equal(E.paydayPosition(state,now).unknownBills,1);
+  assert.equal(E.paydayPosition(state,now).room,null);
+  state.bills[1].amount=10000;
+  state.accounts[0].floor=160000;
+  const blocked=E.paydayPosition(state,now);
+  assert.equal(blocked.accountGap,true);
+  assert.equal(blocked.room,0);
+  assert.equal(E.accountRoom(blocked,'personal'),0);
+});
+
+test('month changes compare common covered dates and separate purchases, card payments and projects',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty();
+  state.accounts=[{id:'bank',type:'Chequing',history:true},{id:'card',type:'Credit card',history:true}];
+  state.imports=[
+    {account:'bank',start:'2026-10-01',end:'2026-11-16',coverageConfirmed:true},
+    {account:'card',start:'2026-10-01',end:'2026-11-12',coverageConfirmed:true}
+  ];
+  const tx=(id,date,amount,kind,category='',account='card')=>({id,date,amount,kind,category,account});
+  state.transactions=[
+    tx('past','2026-10-03',-12500,'Spending','Groceries'),
+    tx('past-card','2026-10-03',-10000,'Transfer','Credit card payment','bank'),
+    tx('past-late','2026-10-13',-25000,'Spending','Groceries'),
+    tx('recent','2026-11-03',-20000,'Spending','Groceries'),
+    tx('refund','2026-11-04',2500,'Reimbursement','Groceries'),
+    tx('recent-card','2026-11-14',-22000,'Transfer','Credit card payment','bank'),
+    tx('project','2026-11-07',-75000,'Project'),
+    tx('unknown','2026-11-08',-900,'Review')
+  ];
+  const result=E.monthChanges(state,'2026-11-17');
+  assert.equal(result.purchasesComparable,true);
+  assert.equal(result.end,'2026-11-12');
+  assert.equal(result.priorEnd,'2026-10-12');
+  assert.equal(result.cashEnd,'2026-11-16');
+  assert.equal(result.priorCashEnd,'2026-10-16');
+  assert.equal(result.spending[0].delta,5000);
+  assert.equal(result.purchaseTotal,17500);
+  assert.equal(result.projectTotal,75000);
+  assert.equal(result.moneyOut[0].delta,12000);
+  assert.equal(result.reviewCurrent,1);
+  state.imports[1].coverageConfirmed=false;
+  const partial=E.monthChanges(state,'2026-11-17');
+  assert.equal(partial.purchasesComparable,false);
+  assert.equal(partial.spending[0].delta,null);
+  assert.equal(partial.cashComparable,true);
+});
+
+test('extra payments allocate only budgeted surplus and keep the savings set-aside separate',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const budget={draw:140000,household:230000,fixed:360000,minimums:30000,missingOperating:false};
+  const scenario={variablePay:530000,variable:400000,reserve:60000,targetExtra:60000};
+  const mixed=E.repaymentBudget(budget,scenario,70);
+  assert.equal(mixed.room,50000);
+  assert.equal(mixed.toDebt,35000);
+  assert.equal(mixed.toGoals,15000);
+  assert.equal(mixed.targetGap,10000);
+  assert.equal(mixed.variableLimit,390000);
+  assert.equal(E.repaymentBudget(budget,scenario,null).unallocated,50000);
+  assert.equal(E.repaymentBudget(budget,{...scenario,variable:460000},100).toDebt,0);
+  assert.equal(E.repaymentBudget({...budget,missingOperating:true},scenario,100).toDebt,0);
 });
