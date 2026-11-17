@@ -27,6 +27,7 @@
   let month=E.month(E.today()), settingsJump='', preview=null, lockAfterSave=false;
   let chatUpdate=null, chatRead=0;
   let spendingTab='Categories', cashMonth='', debtExtra=25000;
+  let categoryDetail='', categoryPeriod='', categoryPage=0, scenarioDraft={};
   let reviewView='Quick review', reviewType='All', reviewMonth='', reviewPicker='', quickUndo=null;
   const setAside=new Set();
   let repaymentMode='Debt first';
@@ -228,6 +229,7 @@
     lastStored=demo||memory?null:Vault.get();
     storageProblem=Boolean(memory||(!demo&&lastStored!==serialized));
     lastActivity=Date.now();
+    categoryDetail='';categoryPeriod='';scenarioDraft={};repaymentMode='Debt first';
     tab=allViews[0];
     reviewView='Quick review'; reviewType='All'; reviewMonth=''; reviewPicker=''; quickUndo=null; setAside.clear();
     spendingTab='Categories'; cashMonth=''; debtExtra=25000;
@@ -361,11 +363,11 @@
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
       (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Recommendations'&&['Cash plan','Monthly snapshot'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
+      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Overview'&&['Cash plan','Monthly snapshot'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
+    if(tab==='Monthly snapshot')bindMonthlyScenario();
     if(tab===allViews[0]) {
-      drawChart();
       root.querySelector('[name=cash-month]')?.addEventListener('change',event=>{cashMonth=event.target.value;render();root.querySelector('[name=cash-month]')?.focus();});
     }
     if(tab===allViews[1]) bindImport();
@@ -389,15 +391,15 @@
     if(settingsJump) document.getElementById(settingsJump)?.scrollIntoView({block:'start'});
   }
   const piePalette=['#12664f','#a86636','#425a86','#6b7f47','#a14b5b','#3b7d8b','#746279'];
-  const slicesFor=(rows,metric)=>rows.map(x=>({name:x.category,amount:x[metric]}))
+  const slicesFor=rows=>rows.map(x=>({name:x.category,amount:x.actual}))
     .filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount||a.name.localeCompare(b.name));
-  function spendingPie(h,metric,period) {
-    const positive=slicesFor(h.rows,metric);
-    if(!positive.length)return no(metric==='average'?'An average will appear after complete statement months are available.':'No categorized spending to chart for this month.');
+  function spendingPie(h,period) {
+    const positive=slicesFor(h.rows);
+    if(!positive.length)return no('No categorized spending to chart for this month.');
     const total=E.sum(positive,x=>x.amount);
     const chart=positive.slice(0,5);
     if(positive.length>5)chart.push({name:'All other categories',amount:E.sum(positive.slice(5),x=>x.amount),other:true});
-    const negative=h.rows.some(x=>x[metric]<0);
+    const negative=h.rows.some(x=>x.actual<0);
     let angle=0;
     const segments=chart.map((x,i)=>{
       const end=i===chart.length-1?100:angle+x.amount/total*100;
@@ -406,14 +408,14 @@
       return segment;
     });
     const links=chart.map((x,i)=>{
-      const clickable=!x.other&&metric==='actual';
+      const clickable=!x.other;
       const share=x.amount/total*100;
       return '<li><span class="pie-dot" style="--swatch:'+piePalette[i]+'" aria-hidden="true"></span>'+
-        (clickable?link(x.name,'chart-drill',JSON.stringify([period,x.name])):'<span>'+H(x.name)+'</span>')+
+        (clickable?link(categoryName(x.name),'chart-drill',JSON.stringify([period,x.name])):'<span>'+H(x.name)+'</span>')+
         '<strong class="money">'+money(x.amount)+'</strong><small>'+(share<1?'&lt;1%':Math.round(share)+'%')+'</small></li>';
     }).join('');
     return '<div class="pie-layout"><div class="pie-ring" aria-hidden="true" style="--slices:'+segments.join(',')+
-      '"><div><strong class="money">'+money(total)+'</strong><small>'+(metric==='average'?'Per month':'In this chart')+'</small></div></div>'+
+      '"><div><strong class="money">'+money(total)+'</strong><small>'+'In this chart'+'</small></div></div>'+
       '<ul class="pie-legend" aria-label="Category amounts and shares">'+links+'</ul></div>'+
       (negative?'<p class="small pie-note">Net refunds are included in your spending total.</p>':'');
   }
@@ -429,29 +431,35 @@
       '':
       no('No recorded '+(tone==='in'?'deposits':'withdrawals')+'.'))+'</div>';
   }
-  function chartMonths(records) {
+  function chartMonths(records,selected) {
     const max=Math.max(1,...records.flatMap(r=>[r.inflow,r.outflow]));
-    return '<ul class="cash-trend">'+records.map(r=>'<li class="'+(r.covered?'':'partial')+'">'+
-      '<div class="trend-label"><button type="button" class="link-button" data-act="cash-period" data-id="'+H(r.period)+'">'+H(monthLabel(r.period))+'</button>'+
-      '<small>'+(r.available?r.covered?'Complete':'Partial':'No data')+'</small></div>'+
-      (r.available?'<div class="trend-pair"><div>'+bar(r.inflow,max,'in')+'<span class="money"><span class="screen-reader">Money in </span>'+money(r.inflow)+'</span></div>'+
-      '<div>'+bar(r.outflow,max,'out')+'<span class="money"><span class="screen-reader">Money out </span>'+money(r.outflow)+'</span></div></div>'+
-      '<strong class="money trend-net'+(r.net<0?' negative':'')+'"><span class="screen-reader">Net </span>'+signedMoney(r.net)+'</strong>':'')+'</li>').join('')+'</ul>';
+    return `<div class="chart-key"><span class="key-in">Money in</span><span class="key-out">Money out</span></div>
+      <div class="flow-columns">
+        ${records.map(r=>{
+          const label=monthShort.format(new Date(r.period+'-01T00:00:00Z'));
+          const caption=monthLabel(r.period)+': '+(r.available?money(r.inflow)+' in, '+money(r.outflow)+' out'+(r.covered?'':', partial coverage'):'no data');
+          return `<button type="button" class="flow-month${r.covered?'':' partial'}" data-act="cash-period" data-id="${r.period}"
+            aria-pressed="${selected===r.period}" aria-label="${H(caption)}" title="${H(caption)}">
+            <span class="flow-columns-pair" aria-hidden="true">
+              <i style="--size:${r.available?r.inflow/max*100:0}%"></i>
+              <i style="--size:${r.available?r.outflow/max*100:0}%"></i>
+            </span><span>${H(label)}</span></button>`;
+        }).join('')}
+      </div><p class="small chart-caption">Striped bars indicate partial statements.</p>`;
   }
+  const arrow='<span class="chart-arrow" aria-hidden="true">›</span>';
+  const jump=(title,value,action,id,detail='')=>`<button type="button" class="dashboard-jump" data-act="${action}" data-id="${H(id)}">
+    <span><strong>${H(title)}</strong>${detail?`<small>${H(detail)}</small>`:''}</span><b>${H(value)}</b>${arrow}</button>`;
   function plannedSnapshot(p,now) {
     const pay=p.upcoming.find(e=>e.direction==='Income'&&/paycheque|payroll|draw|salary|payday/i.test(e.name));
     const cutoff=pay?.date||E.add(now,14);
     const open=p.overdue.concat(p.upcoming.filter(e=>e.date<=cutoff)).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.direction==='Income')-Number(b.direction==='Income'));
     const due=open.filter(e=>e.direction==='Bill');
-    const incoming=open.filter(e=>e.direction==='Income');
     const outgoing=E.sum(due,e=>e.forecastAmount||0);
-    const deposits=E.sum(incoming,e=>e.forecastAmount||0);
     const amountPending=due.filter(e=>e.forecastAmount===null).length;
-    const before=p.points.filter(x=>x.date<=cutoff&&(!pay||x.date<pay.date||x.event?.direction!=='Income'));
-    const beforePay=p.headroom===null||!pay||!before.length?null:Math.min(...before.map(x=>x.total));
-    return {pay,cutoff,open,due,incoming,outgoing,deposits,amountPending,beforePay};
+    return {pay,cutoff,open,due,outgoing,amountPending};
   }
-  function forecastCard(p,now,plan,showChart=true) {
+  function forecastCard(p,now) {
     const actionable=p.unassigned.filter(e=>!e.key.startsWith('flex/')).slice(0,4);
     const funded=p.headroom!==null;
     const warning=(!funded?'<div class="forecast-gap"><strong>Cash available is still unconfirmed</strong>'+
@@ -463,59 +471,62 @@
       ...actionable.map(e=>link(e.name+' · check amount or funding','occurrence',e.key)),
       ...p.missingLoanPayments.slice(0,4).map(l=>link(l.name+' · confirm payment schedule','loan-edit',l.id))];
     const tasks=missing.length?'<ul class="list forecast-tasks">'+missing.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'';
-    const graph=funded&&showChart?'<div class="cash-visual"><canvas id="cash-chart" role="img" aria-label="Projected cash. Starting '+H(money(p.opening))+', lowest '+H(money(p.low))+', ending '+H(money(p.ending))+'."></canvas>'+
-      '<div class="chart-scale"><span>'+H(dateLabel(now))+'</span><span>Dashed line · cash buffer</span><span>'+H(dateLabel(p.end))+'</span></div></div>'+
-      '<div class="cash-reading"><span>Lowest projected cash <strong class="money">'+money(p.low)+'</strong> · '+H(dateLabel(p.lowDate))+'</span>'+
-      (plan.beforePay!==null?'<span>Low before payday <strong class="money">'+money(plan.beforePay)+'</strong></span>':'')+
-      '<span>Lowest cash above your buffers <strong class="money">'+money(p.headroom)+'</strong></span></div>':'';
     const balances=p.verified.length?'<details class="subtle section-gap"><summary>Cash balances used</summary><ul class="list">'+p.verified.map(a=>
       '<li><div>'+link(a.name,'account-edit',a.id)+'<small class="small">Entered '+H(a.balanceDate)+'</small></div><strong class="money">'+money(p.starting[a.id])+'</strong></li>').join('')+'</ul></details>':'';
-    return panel(showChart?'Projected cash balance':'Forecast inputs to check',graph+warning+tasks+balances,'Next '+S.config.window+' days · includes scheduled cash activity',btn('Balances','account-settings','','mini quiet'));
+    return panel('Forecast inputs',warning+tasks+balances,'Next '+S.config.window+' days · includes scheduled cash activity',btn('Balances','account-settings','','mini quiet'));
   }
   function overview() {
-    const now=E.today(), projection=E.forecast(S,now), plan=plannedSnapshot(projection,now);
+    const now=E.today(),projection=E.forecast(S,now),plan=plannedSnapshot(projection,now);
     const series=Array.from({length:13},(_,i)=>E.recordedCash(S,now,E.month(E.shiftMonth(now,-i))));
     const active=series.find(x=>x.period===cashMonth)||series.find(x=>x.available)||series[0];
-    const trend=series.slice(series.indexOf(active),series.indexOf(active)+6).reverse();
+    const trendStart=Math.min(series.indexOf(active),series.length-6);
+    const trend=series.slice(trendStart,trendStart+6).reverse();
+    const pending=E.reviewPending(S).length, fixes=E.statementFixes(S).length;
     const latest=S.chatUpdates?.at(-1);
-    const pending=S.transactions.filter(t=>t.kind==='Review'||E.compoundDescription(t)).length;
-    const coverageName=active.available?(active.period===E.month(now)?active.covered?'Month to date':'Month to date · partial':active.covered?'Complete month':'Partial statements'):'Awaiting statements';
-    const dateNote=active.through?'Recorded through '+dateLabel(active.through):'Select an imported month';
+    const coverage=active.available?(active.covered?'Covered':'Partial statements'):'No statements';
+    const cutoff=active.through?'Through '+dateLabel(active.through):'';
     const scale=Math.max(1,active.inflow,active.outflow);
-    const hero='<section class="cash-lead"><section class="hero spending-hero flow-hero"><h2>Net cash movement</h2>'+
-      '<div class="hero-value money">'+(active.available?signedMoney(active.net):'—')+'</div><p>'+H(monthLabel(active.period)+' · '+coverageName)+'</p>'+
-      '<div class="hero-baseline"><div><span>Recorded money in</span><strong class="money">'+money(active.available?active.inflow:null)+'</strong></div>'+
-      '<div><span>Recorded money out</span><strong class="money">'+money(active.available?active.outflow:null)+'</strong></div></div></section>'+
-      '<section class="panel timing-card"><div class="panel-title"><h2>'+(plan.pay?'Before next payday':'Next 14 days')+'</h2>'+btn('Bills & paydays','nav','Bills','mini quiet')+'</div>'+
-      (plan.pay?'<p class="next-pay"><span>Next paycheque · '+H(dateLabel(plan.pay.date))+'</span><strong class="money">'+money(plan.pay.forecastAmount)+'</strong></p>':'')+
-      '<ul class="amount-list">'+cashBar('Scheduled bills through '+dateLabel(plan.cutoff),plan.outgoing,Math.max(plan.deposits,plan.outgoing),'out')+
-      cashBar('Expected deposits through '+dateLabel(plan.cutoff),plan.deposits,Math.max(plan.deposits,plan.outgoing),'in')+'</ul>'+
-      '<p class="small">'+(plan.amountPending?plan.amountPending+' bill amounts pending. ':'')+'Includes expected deposits and recorded bill amounts through that date.</p>'+
-      '<p class="small">'+(projection.headroom===null?'Cash balance forecast needs a few confirmations. ':plan.beforePay!==null?'Lowest cash before payday '+money(plan.beforePay)+'. ':'')+
-      link('Open payday plan','nav','Cash plan')+'</p></section></section>';
-    const accountCoverage=active.scope.length?'<details class="subtle section-gap"><summary>Statement coverage and what counts as cash flow</summary><ul class="list">'+active.scope.map(x=>
-      '<li><span>'+H(x.account.name)+'</span><small>'+H(x.covered?'Covered for this period':x.through?'Partial · through '+dateLabel(x.through):'Statement needed')+'</small></li>').join('')+'</ul>'+
-      '<p class="small">Chequing and savings activity only. Linked transfers between tracked cash accounts are excluded. Credit card payments count as cash leaving when paid. Purchase categories are under Spending.</p></details>':'';
-    const cashActual=(active.available?'<p class="recognized-income"><span>Identified income</span><strong class="money">'+money(active.knownIncome)+'</strong></p>':'')+'<div class="home-grid">'+cashBuckets('Money in',active.sources,scale,'in',active.period)+cashBuckets('Money out',active.uses,scale,'out',active.period)+'</div>'+
-      (active.uncertainty?'<p class="small section-gap">'+active.uncertainty+' uncategorized cash movement'+(active.uncertainty===1?' is':'s are')+' included above. '+link('Review this month','month-inbox',active.period)+'</p>':'')+accountCoverage;
-    const h=E.history(S,now,active.period);
-    const projects=S.projects.map(project=>{
-      const total=E.sum(E.ledgerRows(S.transactions).filter(t=>t.kind==='Project'&&t.project===project.id),t=>-t.amount);
-      return '<li>'+link(project.name,'project-drill',project.id)+'<strong class="money">'+money(total)+'</strong></li>';
-    }).join('');
-    return head('Household cash flow',dateNote,'<div class="actions">'+field('Cash flow month',select('cash-month',series.map(r=>[r.period,monthLabel(r.period)+(r.available?'':' · no data')]),active.period))+
-      btn('Monthly Snapshot','nav','Monthly snapshot','primary')+btn('Apply chat update','chat-update')+'</div>')+hero+
-      panel('What moved your cash',cashActual,active.covered?monthLabel(active.period):'Based on available statements · '+monthLabel(active.period))+
-      panel('Cash flow by month','<div class="chart-key"><span class="key-in">Money in</span><span class="key-out">Money out</span><span>Net at right</span></div>'+chartMonths(trend),
-        'Partial months are marked and may understate activity.')+
-      '<div id="cash-forecast" class="home-grid section-gap">'+forecastCard(projection,now,plan)+
-      panel('Coming up',plan.open.length?'<ul class="list event-list">'+plan.open.slice(0,5).map(e=>eventItem(e,now,new Set(projection.shortfalls.map(x=>x.key)))).join('')+'</ul>':
-        no('No open dates in this window.'),'Earliest items through '+dateLabel(plan.cutoff),btn('All dates','nav','Bills','mini quiet'))+'</div>'+
-      '<div class="home-grid section-gap">'+panel('Everyday spending',spendingPie(h,'actual',active.period),
-      monthLabel(active.period)+' purchases · includes card purchases',btn('Spending details','open-spending-month',active.period,'mini quiet'))+
-      panel('One-time projects',projects?'<ul class="list">'+projects+'</ul>':no('No project costs recorded.'),'All recorded dates',btn('Projects','open-projects','','mini quiet'))+'</div>'+
-      (pending?'<div class="review-strip"><strong>'+pending+' transactions to confirm</strong>'+btn('Open review','open-inbox','','mini')+'</div>':'')+
-      (latest?'<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">'+H(chatUpdateSummary(latest))+'</p></details>':'');
+    const hero=`<section class="cash-board" aria-label="Recorded cash flow">
+      <div class="cash-board-head">
+        <div><h2>Net cash movement</h2>
+          <strong class="cash-number money">${active.available?signedMoney(active.net):'—'}</strong>
+          <p>${H([coverage,cutoff].filter(Boolean).join(' · '))}</p></div>
+        ${field('Cash flow month',select('cash-month',series.map(r=>[r.period,monthLabel(r.period)]),active.period))}
+      </div>
+      <ul class="cash-board-bars amount-list">
+        ${cashBar('Money in',active.available?active.inflow:null,scale,'in')}
+        ${cashBar('Money out',active.available?active.outflow:null,scale,'out')}
+      </ul>
+      <div class="cash-board-foot"><span>Identified income</span><b class="money">${money(active.available?active.knownIncome:null)}</b></div>
+    </section>`;
+    const accountCoverage=active.scope.length?`<details class="subtle section-gap"><summary>Statement coverage and method</summary>
+      <ul class="list">${active.scope.map(x=>`<li><span>${H(x.account.name)}</span>
+      <small>${H(x.covered?'Covered':x.through?'Through '+dateLabel(x.through):'Statement needed')}</small></li>`).join('')}</ul>
+      <p class="small">Chequing and savings only. Linked transfers between those accounts cancel out. Card payments count when paid. Card purchases are under Spending.</p></details>`:'';
+    const timing=plan.due.length?money(plan.outgoing):'—';
+    const planLabel=plan.pay?'Due before or on '+dateLabel(plan.cutoff):'Due through '+dateLabel(plan.cutoff);
+    const reviewStrip=(pending||fixes)?`<div class="review-summary" aria-label="Transaction review status">
+      ${pending?jump('Quick Review',String(pending),'open-inbox','','Transactions to categorize or link'):''}
+      ${fixes?jump('Statement fixes',String(fixes),'open-statement-fixes','','Rows to verify against a statement'):''}</div>`:'';
+    const budget=E.monthlySnapshot(S,now);
+    const jumps=`<div class="dashboard-shortcuts">
+      ${jump('Monthly Snapshot & scenarios',budget.missingOperating?'':signedMoney(budget.room),'nav','Monthly snapshot','Planned monthly cash after costs')}
+      ${jump('Open payday plan',timing,'nav','Cash plan',planLabel)}
+    </div>`;
+    const detail=`<details class="panel home-disclosure"><summary>Where the cash went</summary>
+      <div class="home-grid">${cashBuckets('Money in',active.sources,scale,'in',active.period)}
+      ${cashBuckets('Money out',active.uses,scale,'out',active.period)}</div>
+      ${active.uncertainty?`<p class="small section-gap">${active.uncertainty} cash movements in review. ${link('Review this month','month-inbox',active.period)}</p>`:''}
+      ${accountCoverage}</details>`;
+    const forecast=`<details class="panel home-disclosure" id="cash-forecast"><summary>Forecast & upcoming bills</summary>
+      <div class="home-grid">${forecastCard(projection,now)}
+      ${panel('Coming up',plan.open.length?`<ul class="list event-list">${plan.open.slice(0,4).map(e=>eventItem(e,now)).join('')}</ul>`:
+        no('No open dates in this window.'),'',btn('All dates','nav','Bills','mini quiet'))}</div></details>`;
+    return head('Cash flow','',btn('Apply chat update','chat-update','','quiet'))+
+      `<div class="insight-overview">${hero}
+        ${panel('Recent cash flow',chartMonths(trend,active.period))}</div>`+
+      jumps+reviewStrip+detail+forecast+
+      (latest?`<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">${H(chatUpdateSummary(latest))}</p></details>`:'');
   }
   function eventItem(e,now,alerts=new Set()) {
     const status=e.date<now&&e.direction!=='Income'&&!['Paid','Skipped'].includes(e.status)?'Overdue':
@@ -529,39 +540,7 @@
   function stat(label,value,detail='') {
     return '<div class="stat"><h3>'+H(label)+'</h3><div class="value money">'+money(value)+'</div>'+(detail?'<small>'+H(detail)+'</small>':'')+'</div>';
   }
-  function drawChart() {
-    const el=document.getElementById('cash-chart'); if(!el) return;
-    const p=E.forecast(S,E.today());
-    const ratio=window.devicePixelRatio||1, w=el.clientWidth, h=el.clientHeight;
-    el.width=w*ratio;el.height=h*ratio;
-    const g=el.getContext('2d');g.scale(ratio,ratio);
-    if(!p.verified.length) {
-      g.setLineDash([5,5]);g.strokeStyle='#43876f';g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();
-      return;
-    }
-    const upper=Math.max(...p.points.map(x=>x.total),S.config.floor), lower=Math.min(p.low,S.config.floor);
-    const top=upper===lower?upper+10000:upper, bottom=lower;
-    const left=64, right=Math.max(left+1,w-8);
-    const y=value=>h-15-(value-bottom)/(top-bottom)*(h-30);
-    const x=date=>left+(right-left)*E.distance(E.today(),date)/S.config.window;
-    const compact=new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',notation:'compact',maximumFractionDigits:1});
-    g.font='11px Figtree, sans-serif';g.textBaseline='middle';g.fillStyle='#475459';g.strokeStyle='#c8d9ce';g.lineWidth=1;
-    for(const value of [bottom,(bottom+top)/2,top]) {
-      g.fillText(compact.format(value/100),2,y(value));g.beginPath();g.moveTo(left,y(value));g.lineTo(right,y(value));g.stroke();
-    }
-    const points=[...p.points,{date:p.end,total:p.ending}];
-    const path=()=>{
-      g.beginPath();g.moveTo(x(points[0].date),y(points[0].total));
-      for(let i=1;i<points.length;i++){g.lineTo(x(points[i].date),y(points[i-1].total));g.lineTo(x(points[i].date),y(points[i].total));}
-    };
-    path();g.lineTo(right,h-15);g.lineTo(left,h-15);g.closePath();
-    const gradient=g.createLinearGradient(0,0,0,h);
-    gradient.addColorStop(0,'#43876f35');gradient.addColorStop(1,'#43876f04');
-    g.fillStyle=gradient;g.fill();
-    g.strokeStyle='#276a54';g.lineWidth=2.5;path();g.stroke();
-    g.setLineDash([5,4]);g.lineWidth=1;g.strokeStyle='#a86d37';g.beginPath();g.moveTo(left,y(S.config.floor));g.lineTo(right,y(S.config.floor));g.stroke();
-  }
-  window.addEventListener('resize',()=>{if(S&&tab===allViews[0])drawChart();if(S&&tab==='Cash plan')drawRunway();});
+  window.addEventListener('resize',()=>{if(S&&tab==='Cash plan')drawRunway();});
   function imports() {
     const pending=files.find(file=>file.id===selectedFile);
     const queue=files.length ? '<div class="actions">'+files.map(file=>btn(file.name,'select-file',file.id,'mini',file.id===selectedFile?' aria-pressed="true"':'')).join('')+'</div>':'';
@@ -572,7 +551,7 @@
     const staged=staging.length?batchView():'';
     const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
       table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
-    const fixes=S.transactions.filter(E.compoundDescription);
+    const fixes=E.statementFixes(S);
     return head('Transactions','',btn('Apply chat update','chat-update','','primary'))+
       segments(['Quick review','Statement fixes','Ledger'],reviewView,'review-view','Transactions view')+
       (reviewView==='Statement fixes'?statementFixes(fixes):reviewView==='Quick review'?
@@ -912,11 +891,21 @@
     }
   }
   function ledgerView() {
+    let amounts=null;
+    if(ledger.cashGroup) {
+      const {tone,name}=ledger.cashGroup, flow=E.recordedCash(S,E.today(),ledger.month);
+      amounts=(tone==='in'?flow.sources:flow.uses).find(x=>x.name===name)?.amounts||new Map();
+    } else if(ledger.project&&ledger.label) {
+      amounts=new Map();
+      for(const t of E.ledgerRows(S.transactions)){
+        if(t.kind==='Project'&&t.project===ledger.project)amounts.set(t.id,(amounts.get(t.id)||0)+t.amount);
+      }
+    }
     const source=S.transactions.filter(t=>{
       const slices=E.ledgerRows([t]);
       return (!ledger.account||t.account===ledger.account)&&(!ledger.month||E.month(t.date)===ledger.month)&&
         (!ledger.search||E.normal(t.description+' '+t.note).includes(E.normal(ledger.search)))&&
-        (!ledger.ids||ledger.ids.has(t.id))&&
+        (!amounts||amounts.has(t.id))&&
         (!ledger.merchant||(E.normal(t.description)===ledger.merchant&&Math.sign(t.amount)===ledger.direction))&&
         slices.some(x=>(ledger.filter==='All'||x.kind===ledger.filter)&&(!ledger.category||x.category===ledger.category)&&(!ledger.project||x.project===ledger.project));
     }).sort((a,b)=>b.date.localeCompare(a.date)||a.description.localeCompare(b.description));
@@ -933,13 +922,19 @@
       '<div class="actions"><button type="submit" class="btn">Apply filters</button>'+btn('Review queue','open-inbox','','mini')+btn('Add transaction','manual-transaction','','mini')+'</div></form>';
     const rows=found.map(t=>{
       const label=E.compoundDescription(t)?'Needs statement verification':t.allocations?.length?'Split':t.project?projectName(t.project):t.category||t.kind;
+      const amount=amounts?.get(t.id)??t.amount;
       return '<li><div><small>'+H(dateLabel(t.date))+' · '+H(alias(t.account))+'</small>'+
         link(t.description,'transaction',t.id)+'<small>'+H(E.compoundDescription(t)?label:t.kind==='Review'?t.why:label+(t.pair?' · Linked':''))+'</small></div>'+
-        '<strong class="money">'+money(t.amount)+'</strong></li>';
+        '<strong class="money">'+money(amount)+'</strong></li>';
     });
     const navigation=source.length>PAGE?'<div class="table-controls">'+btn('Previous','ledger-page','-1','mini',ledgerPage?'':' disabled')+
       '<small>Page '+(ledgerPage+1)+' of '+(max+1)+'</small>'+btn('Next','ledger-page','1','mini',ledgerPage<max?'':' disabled')+'</div>':'';
-    return '<div class="stack">'+filters+'<p class="small">'+source.length+' matching transaction'+(source.length===1?'':'s')+'</p>'+
+    const total=amounts?E.sum(source,t=>amounts.get(t.id)):0;
+    const drill=ledger.label?`<div class="category-total"><div><h3>${H(ledger.label)}</h3>
+      <strong class="money">${money(ledger.project?-total:Math.abs(total))}</strong></div>
+      <p>${ledger.month?H(monthLabel(ledger.month)):'All recorded dates'}</p></div>`:'';
+    const controls=drill?`<details class="subtle"><summary>Change ledger filters</summary>${filters}</details>`:filters;
+    return '<div class="stack">'+drill+controls+'<p class="small">'+source.length+' matching transaction'+(source.length===1?'':'s')+'</p>'+
       (rows.length?'<ul class="list event-list transaction-list">'+rows.join('')+'</ul>'+navigation:no('No transactions match these filters.'))+'</div>';
   }
   function txTypeFields(t,suffix='') {
@@ -1045,52 +1040,95 @@
       });
     bindTypes(form);
   }
-  function spendingComparison(history) {
-    const compare=history.rows.filter(r=>r.actual>0||r.average>0||r.suggestion>0)
-      .sort((a,b)=>Math.max(b.actual,b.average||0,b.suggestion||0)-Math.max(a.actual,a.average||0,a.suggestion||0)).slice(0,6);
-    if(!compare.length)return no('The comparison appears once spending or monthly targets are recorded.');
-    const max=Math.max(1,...compare.flatMap(r=>[r.actual,r.average||0,r.suggestion||0]));
-    const rowBar=(label,value,tone)=>'<div class="compare-line"><span class="screen-reader">'+H(label)+' </span>'+
-      (value===null?'':bar(value,max,tone))+'<span class="money">'+money(value)+'</span></div>';
-    return '<div class="chart-key"><span class="key-in">Recorded</span><span class="key-out">Historical average</span><span class="key-rate">Target</span></div>'+
-      '<ul class="spending-compare">'+compare.map(r=>'<li>'+link(r.category,'spending-drill',r.category)+
-      '<div>'+rowBar('Recorded',history.current.length?r.actual:null,'in')+rowBar('Historical average',r.average,'out')+
-      rowBar('Target',r.suggestion,'rate')+'</div></li>').join('')+'</ul>'+
-      '<p class="small section-gap">Bars share one dollar scale. Historical averages and targets represent a full month. Negative net amounts are shown in the figures.</p>';
-  }
+  const categoryName=category=>category==='Other'?'Miscellaneous':category;
   function spending() {
+    if(categoryDetail&&spendingTab==='Categories')return spendingCategory();
+    const viewTabs=segments(['Categories','Recurring','Projects'],spendingTab,'spending-tab','Spending view');
+    const title=head('Spending','');
+    if(spendingTab==='Recurring')return title+viewTabs+recurringView();
+    if(spendingTab==='Projects')return title+viewTabs+spendingProjects();
     const h=E.history(S,E.today(),month);
-    const viewTabs=segments(['Categories','Recurring'],spendingTab,'spending-tab','Spending view');
-    const summary=head('Spending & projects','',spendingTab==='Categories'?'<div class="actions">'+
-      field('Viewing month',f('month-view',month,'month','max="'+E.month(E.today())+'"'))+btn('Monthly review','monthly-close')+'</div>':'');
-    if(spendingTab==='Recurring')return summary+viewTabs+recurringView();
-    const targetTotal=E.sum(h.rows,x=>x.suggestion||0);
-    const configured=h.rows.filter(x=>x.suggestion!==null).length;
-    const records=h.rows.filter(x=>x.actual||x.average||x.suggestion||Object.hasOwn(S.targets,x.category));
-    const months=h.complete.slice().reverse().map(m=>monthLabel(m)).join(', ');
+    const records=h.rows.filter(x=>x.actual||x.average||x.suggestion||Object.hasOwn(S.targets,x.category))
+      .sort((a,b)=>Math.max(b.actual,b.average||0,b.suggestion||0)-Math.max(a.actual,a.average||0,a.suggestion||0));
     const average=h.complete.length?E.sum(h.rows,x=>x.average):null;
-    const totals='<div class="stat-grid spending-totals">'+stat('Recorded spending',h.current.length?h.total:null,h.current.length?'':'Awaiting statements')+
-      stat('Monthly average',average,h.complete.length?h.complete.length+' complete months':'Awaiting coverage')+
-      stat('Monthly target',configured?targetTotal:null)+'</div>';
-    const sorted=records.sort((a,b)=>Math.max(b.actual,b.average||0,b.suggestion||0)-Math.max(a.actual,a.average||0,a.suggestion||0));
-    const rows=sorted.map(x=>{
-      return '<li class="category"><div class="category-title">'+link(x.category,'spending-drill',x.category)+
-        btn('Set target','target-edit',x.category,'mini quiet',' aria-label="'+H('Set target for '+x.category)+'"')+'</div>'+
-        '<div class="category-numbers"><div><small>Recorded</small><strong class="money">'+money(h.current.length?x.actual:null)+'</strong></div>'+
-        '<div><small>Monthly avg.</small><strong class="money">'+money(x.average)+'</strong></div>'+
-        '<div><small>Target</small><strong class="money">'+money(x.suggestion)+'</strong></div></div>'+
-        (x.suggestion>0&&h.current.length?'<progress max="'+x.suggestion+'" value="'+Math.min(x.suggestion,Math.max(0,x.actual))+'" aria-label="'+H(x.category+' spending against target')+'"></progress>':'')+'</li>';
-    });
-    const cautions=[h.review.length?h.review.length+' transactions to confirm in this month':'',
-      h.baselineReview?h.baselineReview+' in the months used for the average':''].filter(Boolean).join(' · ');
-    const comparisons=totals+
-      (cautions?'<div class="review-strip"><p>'+H(cautions)+'</p>'+
-      (h.review.length?btn('Review month','month-inbox',month,'mini'):btn('Open review','open-inbox','','mini'))+'</div>':'')+
-      panel('Largest spending categories',spendingComparison(h),monthLabel(month)+' compared with your historical average and target')+
-      panel('Categories',rows.length?'<ul class="categories">'+rows.join('')+'</ul>':no('Categories will appear when reviewed statements are applied.'),
-        'Tap a category to see its transactions.',btn('Add target','target-edit','','mini quiet'))+
-      '<details class="subtle section-gap"><summary>How your targets are calculated</summary><p class="small">Average uses '+H(months||'complete statement months, once available')+
-      '. Suggested targets use the latest three complete months when available. A fixed or annual target replaces that estimate for its category. Transfers, financing and projects are excluded.</p></details>';
+    const selected=field('Viewing month',f('month-view',month,'month','max="'+E.month(E.today())+'"'));
+    const scale=Math.max(1,...records.flatMap(x=>[x.actual,x.average||0]));
+    const rows=records.map(x=>{
+      const above=x.suggestion!==null&&h.current.length&&x.actual>x.suggestion;
+      return `<li><button type="button" class="category-link" data-act="spending-drill" data-id="${H(x.category)}">
+        <span class="category-line"><strong>${H(categoryName(x.category))}</strong>
+        <b class="money">${money(h.current.length?x.actual:null)}</b>${arrow}</span>
+        <span class="category-track" aria-hidden="true"><i style="width:${Math.max(0,x.actual)/scale*100}%"></i>
+          ${x.average>0?`<i class="category-marker" style="left:${x.average/scale*100}%"></i>`:''}</span>
+        <span class="category-reference"><span>Avg <b>${money(x.average)}</b></span>
+          <span class="${above?'negative':''}">Target <b>${money(x.suggestion)}</b></span></span>
+      </button></li>`;
+    }).join('');
+    const totals=`<section class="spend-board"><div class="spend-board-top">
+      <div><h2>Recorded spending</h2><strong class="cash-number money">${money(h.current.length?h.total:null)}</strong></div>${selected}</div>
+      <div class="spend-board-compare"><div><span>Monthly average</span><b>${money(average)}</b></div>
+      <div><span>Monthly target</span><b>${money(h.rows.some(x=>x.suggestion!==null)?E.sum(h.rows,x=>x.suggestion||0):null)}</b></div></div></section>`;
+    const alerts=`<div class="spending-alerts">
+      ${h.review.length?link(h.review.length+' uncategorized this month','month-inbox',month):''}
+      ${h.baselineReview?'<span>'+h.baselineReview+' uncategorized in baseline months</span>':''}</div>`;
+    return title+viewTabs+totals+(h.review.length||h.baselineReview?alerts:'')+
+      `<div class="spending-layout">
+        ${panel('Categories',rows?`<div class="chart-key"><span class="key-in">Recorded</span><span class="key-average">Historical average</span></div>
+          <ul class="category-links">${rows}</ul>`:no('No spending categories are available for this period.'),'',btn('Add target','target-edit','','mini quiet'))}
+        <div class="spending-rail">
+          ${panel('Spending mix',spendingPie(h,month),'Positive category totals after refunds')}
+          ${btn('Monthly review','monthly-close','','quiet')}
+        </div>
+      </div>`;
+  }
+  function spendingCategory() {
+    const h=E.history(S,E.today(),month);
+    const category=categoryDetail, name=categoryName(category);
+    const totals=h.rows.find(x=>x.category===category);
+    const relevant=rows=>rows.filter(t=>E.isSpending(t)&&t.category===category);
+    const actual=relevant(h.current), historical=relevant(h.past);
+    const settings=S.targets[category];
+    const isActual=categoryPeriod==='Recorded';
+    const basis=settings?.method==='Fixed'||settings?.method==='Annual';
+    const usedMonths=isActual||categoryPeriod==='Target'&&basis?[]:categoryPeriod==='Target'?h.complete.slice(0,3):h.complete;
+    const included=historical.filter(t=>usedMonths.includes(E.month(t.date)));
+    const source=(isActual?actual:included).sort((a,b)=>b.date.localeCompare(a.date)||a.description.localeCompare(b.description));
+    const pageMax=Math.max(0,Math.ceil(source.length/PAGE)-1);
+    categoryPage=Math.min(pageMax,categoryPage);
+    const actualTotal=h.current.length?totals?.actual??0:null;
+    const selectedTotal=isActual?actualTotal:categoryPeriod==='Average'?totals?.average:totals?.suggestion;
+    const basisLabel=categoryPeriod==='Target'&&basis?
+      (settings.method==='Annual'?money(settings.amount)+' annual plan ÷ 12':'Fixed amount you set'):
+      isActual?monthLabel(month):usedMonths.length?usedMonths.length+' complete months':'No complete months yet';
+    const monthRows=usedMonths.map(period=>`<li><span>${H(monthLabel(period))}</span>
+      <strong class="money">${money(E.spendingTotal(included.filter(t=>E.month(t.date)===period)))}</strong></li>`).join('');
+    const transactionRows=source.slice(categoryPage*PAGE,(categoryPage+1)*PAGE).map(t=>`<li>
+      <div><small>${H(dateLabel(t.date))} · ${H(alias(t.account))}</small>
+      ${link(t.description,'transaction',t.id)}</div>
+      <strong class="money">${t.amount>0?signedMoney(t.amount):money(-t.amount)}</strong></li>`).join('');
+    const navigation=source.length>PAGE?`<div class="table-controls">
+      ${btn('Previous','category-page','-1','mini',categoryPage?'':' disabled')}
+      <small>Page ${categoryPage+1} of ${pageMax+1}</small>
+      ${btn('Next','category-page','1','mini',categoryPage<pageMax?'':' disabled')}</div>`:'';
+    return `<div class="category-back">${btn('‹ All categories','category-back','','quiet')}</div>
+      ${head(name,monthLabel(month),btn('Edit target','target-edit',category,'quiet'))}
+      ${segments(['Recorded','Average','Target'],categoryPeriod,'category-period','Category amount to explain')}
+      <section class="category-total"><div><h2>${H(categoryPeriod)}</h2><strong class="money">${money(selectedTotal)}</strong></div>
+      <p>${H(basisLabel)}</p></section>
+      ${monthRows?`<details class="subtle category-months"><summary>Months used</summary><ul class="list">${monthRows}</ul></details>`:''}
+      ${categoryPeriod==='Target'&&basis?
+        panel('Target basis',`<p>${H(totals?.rationale||basisLabel)}</p>`):
+        panel('Transactions included',transactionRows?`<ul class="list event-list category-transactions">${transactionRows}</ul>${navigation}`:
+          no('No matching purchases or refunds for this selection.'),source.length?source.length+' entries · Refunds reduce the total':'')}
+    `;
+  }
+  function openCategory(category,period=month,basis='Recorded') {
+    categoryDetail=category;categoryPeriod=basis;categoryPage=0;month=period;spendingTab='Categories';
+    go('Spending');
+    root.querySelector('h1')?.setAttribute('tabindex','-1');
+    root.querySelector('h1')?.focus({preventScroll:true});
+  }
+  function spendingProjects() {
     const tx=E.ledgerRows(S.transactions);
     const projects=S.projects.length?S.projects.map(p=>{
       const spent=E.sum(tx.filter(t=>t.kind==='Project'&&t.project===p.id),t=>-t.amount);
@@ -1103,8 +1141,7 @@
         (financed?'<small class="small">Linked debt '+H(financed.name)+' · account balance '+money(financed.balance)+'</small>':'')+
         (p.note?'<small class="small">'+H(p.note)+'</small>':'')+'</div><div class="row-actions"><strong class="money">'+money(spent)+'</strong>'+btn('Edit','project-edit',p.id,'mini')+'</div></li>';
     }).join(''):'';
-    return summary+viewTabs+comparisons+
-      '<div id="spending-projects" class="section-gap">'+panel('One-time projects',projects?'<ul class="list">'+projects+'</ul>':no('Add a project such as Basement, then tag its purchases in the transaction review.'),'Project totals use all imported dates. Financing stays in Debt & goals.',btn('Add project','project-edit','','mini primary'))+'</div>';
+    return '<div id="spending-projects" class="section-gap">'+panel('One-time projects',projects?'<ul class="list">'+projects+'</ul>':no('Add a project such as Basement, then tag its purchases in the transaction review.'),'Project totals use all imported dates. Financing stays in Debt & goals.',btn('Add project','project-edit','','mini primary'))+'</div>';
   }
   function segments(labels,active,action,name) {
     return '<div class="segments" role="group" aria-label="'+H(name)+'">'+labels.map(label=>
@@ -1320,16 +1357,14 @@
     if(unfunded)openIssues.push(btn('Review '+unfunded.name,'occurrence',unfunded.key,'mini quiet'));
     for(const l of profile.missing.slice(0,2))openIssues.push(btn('Confirm terms · '+l.name,'loan-edit',l.id,'mini quiet'));
     if(billsWithoutDebt.length&&!S.loans.some(l=>l.type==='Mortgage'))openIssues.push(btn('Add mortgage terms','loan-edit','','mini quiet'));
-    const basis=target?H(target.name)+' has the highest eligible rate on file at <strong>'+H(target.currentRate)+'%</strong>. Once minimums and your cash buffer are covered, it is the first candidate for extra payments.':'Add or confirm current rates and terms to see a payoff priority.';
-    const action=overdue.length?'<p class="debt-alert">'+link(overdue[0].name,'occurrence',overdue[0].key)+' is past its scheduled date and still marked open. Verify whether it cleared.</p>':'';
-    const state=forecast.headroom===null||profile.missing.length?'Confirm the items below before choosing an extra amount.':
-      forecast.headroom<=0?'The cash forecast has no room above your buffers. Start by checking the upcoming payments.':
-      'Use your monthly surplus after required payments, regular expenses, and planned savings to set the extra amount.';
-    return '<section class="debt-guide"><div><h2>Start with the highest-cost debt</h2><p>'+basis+'</p></div>'+
-      '<div class="debt-steps"><ol><li><strong>Keep minimums current.</strong> Check past-due or upcoming payments across all accounts.</li>'+
-      '<li><strong>Protect your cash buffer.</strong> '+H(state)+'</li>'+
-      '<li><strong>Direct confirmed surplus to '+(target?H(target.name):'the first ranked debt')+'.</strong> Verify the latest rate, promotional terms, and any prepayment limits first.</li></ol>'+action+
-      (openIssues.length?'<div class="actions">'+openIssues.join('')+'</div>':'')+'</div></section>';
+    const detail=target?`<p>${H(target.currentRate+'% on file')} · Highest eligible rate</p>`:'';
+    return `<section class="debt-lead">
+      <div><h2>First candidate for extra payments</h2><strong>${H(target?.name||'Confirm your rates')}</strong>${detail}</div>
+      <div>
+        ${overdue.length?`<p>${link(overdue[0].name,'occurrence',overdue[0].key)} is still marked overdue.</p>`:''}
+        <div class="actions">${btn('Compare repayment scenarios','nav','Monthly snapshot')}${btn('Check cash timing','nav','Cash plan','quiet')}</div>
+      </div></section>`+(openIssues.length?`<details class="subtle section-gap"><summary>Before committing an extra payment</summary>
+        <div class="actions">${openIssues.join('')}</div></details>`:'');
   }
   function debtRanking(profile) {
     const max=Math.max(1,...profile.ranked.map(l=>l.currentRate));
@@ -1390,7 +1425,7 @@
       '<strong class="money">'+money(g.saved)+' / '+money(g.target)+'</strong></li>');
     const cards=[['Debt first',100],['Your plan',S.config.debtShare],['Goals first',0]].map(([label,share])=>planCard(label,share,E.makePlan(S,now,share),label==='Your plan')).join('');
     const missing=current.missing.length?banner('Fill in required payments and rates for '+H(current.missing.map(l=>l.name).join(', '))+' to compare payoff dates and costs.','warning'):'';
-    return head('Debt & goals','Rates, next steps and repayment scenarios','<div class="actions">'+btn('Monthly Snapshot','nav','Monthly snapshot','primary')+btn('Edit allocation','config','plan')+'</div>')+
+    return head('Debt & goals','',btn('Edit allocation','config','plan','quiet'))+
       debtGuidance(profile,forecast,now)+
       (profile.active.length?'<div class="stat-grid debt-stats">'+stat('Recorded debt',profile.balance,'Balances on file')+
         stat('Estimated monthly interest',profile.ranked.length?profile.monthlyCost:null,'For balances with an entered rate')+
@@ -1398,8 +1433,9 @@
       '<div class="home-grid section-gap">'+debtRanking(profile)+debtExample(profile.target,now)+'</div>'+
       '<div class="section-gap">'+panel('Balances & terms',loans.length?'<ul class="categories">'+loans.join('')+'</ul>':no('Add a mortgage, line of credit, credit card balance, or other loan.'),'',btn('Add debt','loan-edit','','mini quiet'))+'</div>'+
       panel('Priority goals',goalRows.length?'<ul class="list">'+goalRows.join('')+'</ul>':no('Add a cash reserve, savings goal, trip, or renovation contribution.'),'Extra goal dollars fund priority 1 first, then the next goal.',btn('Add goal','goal-edit','','mini quiet'))+
-      '<section class="panel"><div class="panel-title"><div><h2>Monthly allocation</h2><p>'+money(S.config.surplus)+' per month after regular spending and required payments · '+H(S.config.focus)+' first within debt</p></div></div>'+missing+
-      '<div class="plan-grid">'+cards+'</div><p class="small section-gap">Estimates start from your entered balances, assume no new borrowing, and run for up to 50 years. Required payments use monthly equivalents and accrue interest monthly. Canadian mortgage mode converts a nominal semi-annual rate to a monthly equivalent. Annual extra-payment limits reset every 12 model months. Rates stay at the last entered value beyond a renewal unless you enter a replacement rate. Freed payments and unused debt allocations flow to goals when they can’t be used for extra debt payments.</p></section>'+
+      '<details class="panel home-disclosure"><summary>Saved debt and goals allocation</summary><p class="small">'+money(S.config.surplus)+' per month · '+H(S.config.focus)+' first within debt</p>'+missing+
+      '<div class="plan-grid section-gap">'+cards+'</div>'+
+      '<details class="subtle section-gap"><summary>How this estimate works</summary><p class="small">Uses entered rates, required payments and prepayment limits. Assumes zero new borrowing. Unused debt allocations flow to goals.</p></details></details>'+
       '<details class="subtle section-gap"><summary>Repayment and cash reserve guidance</summary><p class="small">The Financial Consumer Agency of Canada explains how to prioritize repayments, set aside cash, and check mortgage prepayment limits.</p>'+
       '<div class="actions"><a href="https://www.canada.ca/en/financial-consumer-agency/services/debt/paying-debt.html">Paying back debt</a>'+
       '<a href="https://www.canada.ca/en/financial-consumer-agency/services/savings-investments/setting-up-emergency-funds.html">Emergency funds</a>'+
@@ -1473,74 +1509,144 @@
     if(index<0) items.push(item);
     else items[index]=item;
   }
+  function scenarioValues(b) {
+    return {variablePay:b.variablePay,variable:b.variable,reserve:b.reserve,targetExtra:b.targetExtra,share:S.config.debtShare,...scenarioDraft};
+  }
+  const scenarioFields=[
+    ['variablePay','Second pay',300000,10000],
+    ['variable','Variable living expenses',300000,5000],
+    ['reserve','Monthly set-aside',200000,2500],
+    ['targetExtra','Extra repayment target',200000,2500],
+    ['share','Share of extra cash to debt',100,1]
+  ];
+  const scenarioFormat=(key,value)=>key==='share'?value+'%':money(value);
+  function scenarioSlider([key,label,limit,step], value,baseline) {
+    const min=value%step, max=Math.max(limit,Math.ceil(Math.max(value,baseline)*1.55/step)*step)+min;
+    return `<label class="scenario-control" for="scenario-${key}"><span>${H(label)}</span>
+      <output id="scenario-${key}-value" for="scenario-${key}">${scenarioFormat(key,value)}</output>
+      <input id="scenario-${key}" type="range" min="${key==='share'?0:min}" max="${key==='share'?100:max}" step="${step}" value="${value}"
+        data-scenario="${key}" aria-valuetext="${H(scenarioFormat(key,value))}">
+    </label>`;
+  }
   function monthlySnapshot() {
     const now=E.today(), b=E.monthlySnapshot(S,now);
-    const modes=['Debt first','Debt + goals','Minimums only'];
-    const selectedShare=repaymentMode==='Debt first'?100:repaymentMode==='Debt + goals'?S.config.debtShare:0;
-    const canIllustrate=b.possible>=b.targetExtra&&b.income>0&&!b.missingOperating;
-    const usesExample=b.room<b.targetExtra;
-    const extra=usesExample?b.exampleRoom:Math.max(0,b.room);
-    const outgoings=b.fixed+b.variable+b.minimums+b.reserve;
-    const scale=Math.max(b.income,outgoings,1);
-    const headline='<section class="snapshot-lead"><div><h2>Planned monthly income</h2><strong class="money">'+money(b.income)+'</strong>'+
-      '<div class="snapshot-income"><div><small>First pay</small><b>'+money(b.draw)+'</b></div><div><small>Second pay</small><b>'+money(b.variablePay)+'</b></div>'+
-      '<div><small>Household contribution</small><b>'+money(b.household)+'</b></div></div></div>'+
-      '<div class="snapshot-result"><h2>'+(b.room<0?'Monthly shortfall':'Monthly cash after expenses')+'</h2>'+
-      '<strong class="money">'+(b.missingOperating?'—':money(Math.abs(b.room)))+'</strong>'+
-      '<p>'+(b.missingOperating?'Enter fixed and variable costs or import complete statements.':b.room<0?
-        'This baseline leaves a gap before extra debt payments.':'This is what the monthly budget has left after regular costs and planned minimums.')+'</p></div></section>';
-    const topCosts=b.variableRows.slice(0,4);
-    const details=(title,rows)=>rows.length?'<details class="subtle section-gap"><summary>'+H(title)+'</summary><ul class="list">'+
-      rows.map(x=>'<li><div>'+H(x.name)+'<small class="small">'+H(x.source)+'</small></div><strong>'+money(x.amount)+'</strong></li>').join('')+'</ul></details>':'';
-    const forecastInputs='<ul class="amount-list">'+cashBar('Fixed household costs',b.fixed,scale,'rate')+
-      cashBar('Variable living expenses',b.variable,scale,'out')+cashBar('Debt payments in the model',b.minimums,scale,'priority')+
-      (b.reserve?cashBar('Monthly set-aside',b.reserve,scale,'rate'):'')+'</ul>'+
-      '<p class="small section-gap">Fixed costs include mortgage payments where available. The timeline covers other debts. Statement estimates use '+b.historyView.complete.length+
-      ' complete months'+(b.historyView.baselineReview?' with '+b.historyView.baselineReview+' items still in review':'')+'. Project costs stay separate.</p>'+
-      details(b.stored.fixed!=null?'Fixed cost reference · manual total in use':'Fixed cost breakdown',b.fixedRows)+
-      details(b.stored.variable!=null?'Variable cost reference · manual total in use':'Largest variable expenses',topCosts);
-    const budget=panel('Monthly budget',forecastInputs,'Planned income less fixed costs, variable costs and payments',btn('Edit assumptions','month-plan-edit','','mini quiet'));
-    const cut=Math.max(0,b.variable-b.exampleVariable);
-    const example=usesExample?(canIllustrate?'<h3>What it would take to put '+money(b.targetExtra)+' toward debt</h3>'+
-      '<div class="snapshot-example-values"><div><small>Variable spending limit</small><strong>'+money(b.exampleVariable)+'</strong></div>'+
-      '<div><small>Reduction from baseline</small><strong>'+money(cut)+'</strong></div></div>'+
-      '<p class="small">Break-even variable budget '+money(Math.max(0,b.possible))+'. Check whether the lower limit covers groceries, transport and your other essentials before adopting it.</p>':
-      '<p>Fixed costs, existing debt payments, and set-asides leave less than '+money(b.targetExtra)+' before variable costs. Recheck those commitments and your repayment target.</p>'):
-      '<p>The budget leaves '+money(b.room)+' for extra debt or goals. Compare how to use it below.</p>';
-    const placeholders=b.assumptions.length?'<div class="interest-gap"><h3>Confirm these lender amounts</h3><ul class="list">'+
-      b.assumptions.map(x=>'<li><div>'+link(x.name,'loan-edit',x.id)+'<small class="small">'+money(x.recorded)+' on file · '+money(x.interest)+' estimated monthly interest</small></div>'+
-      '<strong>'+money(x.assumed)+'<small class="small">model placeholder</small></strong></li>').join('')+'</ul>'+
-      '<p class="small">The model uses an illustration above estimated interest when the recorded payment is missing or too low. Replace each with the lender’s current terms.</p></div>':'';
-    const timeline=(canIllustrate||!usesExample&&!b.missingOperating)?repaymentTimeline(b,now,extra,selectedShare,modes):
-      panel('Debt repayment timeline',no('The timeline needs a budget that covers required costs and the repayment amount.'),'',btn('Edit assumptions','month-plan-edit','','mini quiet'));
-    return head('Monthly Snapshot',monthLabel(b.start)+' planning baseline · CAD',btn('Edit assumptions','month-plan-edit','','primary'))+
-      headline+'<div class="home-grid section-gap">'+budget+panel('Repayment option',example+placeholders,
-      b.assumptions.length?'Illustrative while lender amounts are missing or need verification':'Compare expenses before choosing a repayment amount')+'</div>'+
-      '<div class="section-gap">'+timeline+'</div>'+
-      '<p class="small section-gap">Use '+link('Payday Plan','nav','Cash plan')+' to check timing and your cash buffer before making a payment. Review terms when rates or minimums change. '+
-      '<a href="https://www.canada.ca/en/financial-consumer-agency/services/debt/paying-debt.html">FCAC repayment guidance</a></p>';
+    const v=scenarioValues(b);
+    const toggles=segments(['Debt first','Debt + goals','Minimums only'],repaymentMode,'monthly-repayment','Repayment strategy');
+    const assumptions=b.assumptions.length?`<details class="subtle scenario-help"><summary>${b.assumptions.length} lender payments to verify</summary>
+      <ul class="list">${b.assumptions.map(x=>`<li><div>${link(x.name,'loan-edit',x.id)}
+      <small class="small">${money(x.recorded)} on file · ${money(x.interest)} estimated interest</small></div>
+      <strong>${money(x.assumed)}<small class="small">Model placeholder</small></strong></li>`).join('')}</ul></details>`:'';
+    const costRows=rows=>rows.map(x=>`<li><div>${b.historyView.rows.some(r=>r.category===x.name)?
+      link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
+    const result=scenarioResult(b,now,v);
+    return head('Monthly Snapshot',monthLabel(b.start)+' plan',btn('Edit saved assumptions','month-plan-edit','','quiet'))+
+      `<div class="scenario-layout">
+        <section class="panel scenario-panel"><div class="panel-title"><div><h2>Try a scenario</h2><p>Changes here are temporary.</p></div>
+          ${btn('Reset','scenario-reset','','mini quiet')}</div>
+          <div class="scenario-live" id="scenario-live">${result.live}</div>
+          <div id="scenario-controls">${scenarioFields.filter(x=>x[0]!=='share'||repaymentMode==='Debt + goals')
+            .map(info=>scenarioSlider(info,v[info[0]],b[info[0]]??S.config.debtShare)).join('')}</div>
+          <div class="scenario-strategy"><h3>Repayment strategy</h3>${toggles}</div>
+        </section>
+        <div class="scenario-output" id="monthly-budget-result">${result.budget}</div>
+        <div class="scenario-output" id="monthly-payoff-result">${result.timeline}</div>
+      </div>
+      <details class="panel home-disclosure"><summary>Monthly budget breakdown</summary>
+        <div class="home-grid">
+          ${panel('Fixed household costs',b.fixedRows.length?`<ul class="list">${costRows(b.fixedRows)}</ul>`:no('No fixed categories or mortgage schedule on file.'),b.stored.fixed!=null?'Saved total overrides these source amounts':'')}
+          ${panel('Variable living expenses',b.variableRows.length?`<ul class="list">${costRows(b.variableRows)}</ul>`:no('No variable category averages or targets on file.'),b.stored.variable!=null?'Saved total overrides these source amounts':'')}
+        </div>
+        <p class="small section-gap">${b.historyView.complete.length} complete months in the baseline. Project costs are handled separately. Mortgage payments are in fixed costs.</p>
+      </details>
+      ${assumptions}
+      <details class="subtle section-gap"><summary>Payoff estimate assumptions</summary>
+        <p class="small">Models non-mortgage debt from next month using the balances and rates on file. New charges are assumed paid from the living-expense budget. The debt-first and debt-plus-goals modes roll freed payments to the remaining eligible debt. Use the ${link('payday plan','nav','Cash plan')} to check when cash is available.</p>
+      </details>`;
   }
-  function repaymentTimeline(b,now,extra,share,modes) {
-    const model=E.monthlyDebtPlan(S,now,b,extra,share,repaymentMode!=='Minimums only');
-    if(!model.items.length)return panel('Debt repayment timeline',no('Add a card or line of credit with its balance, rate and payment terms.'),'',btn('Open debt','nav','Debt & goals','mini quiet'));
-    if(model.missing.length)return panel('Debt repayment timeline',
-      '<p>Confirm the rate, balance date, and payment for '+H(model.missing.map(x=>x.name).join(', '))+' to model payoff dates.</p>',
-      '',btn('Open debt','nav','Debt & goals','mini quiet'));
-    const start=E.monthEnd(now), basis=repaymentMode==='Minimums only'?'Scheduled minimum budget':money(model.extraDebt)+' toward debt · '+money(model.extraGoals)+' held for goals each month';
-    const span=Math.max(1,...model.items.map(l=>l.clear?E.distance(start,l.clear):0));
+  function bindMonthlyScenario() {
+    const controls=root.querySelector('#scenario-controls');
+    if(!controls)return;
+    const now=E.today(), baseline=E.monthlySnapshot(S,now);
+    const budgetOutput=root.querySelector('#monthly-budget-result'), payoffOutput=root.querySelector('#monthly-payoff-result');
+    const live=root.querySelector('#scenario-live');
+    controls.addEventListener('input',event=>{
+      const input=event.target, key=input.dataset.scenario, value=Number(input.value);
+      if(!key||!Number.isFinite(value))return;
+      scenarioDraft[key]=value;
+      const text=scenarioFormat(key,value);
+      input.setAttribute('aria-valuetext',text);
+      controls.querySelector('#scenario-'+key+'-value').textContent=text;
+      const result=scenarioResult(baseline,now,scenarioValues(baseline));
+      budgetOutput.innerHTML=result.budget;
+      payoffOutput.innerHTML=result.timeline;
+      live.innerHTML=result.live;
+    });
+  }
+  function scenarioResult(b,now,v) {
+    const income=b.draw+v.variablePay+b.household;
+    const committed=b.fixed+v.variable+b.minimums+v.reserve;
+    const room=income-committed;
+    const targetGap=Math.max(0,v.targetExtra-room);
+    const variableLimit=v.variable-targetGap;
+    const extra=b.missingOperating?0:Math.min(v.targetExtra,Math.max(0,room));
+    const share=repaymentMode==='Debt first'?100:repaymentMode==='Debt + goals'?v.share:0;
+    const rows=[['Fixed costs',b.fixed,'rate'],['Variable costs',v.variable,'out'],
+      ['Debt payments',b.minimums,'priority'],['Set-aside',v.reserve,'reserve']].filter((x,i)=>x[1]||i<3);
+    const scale=Math.max(income,committed,1);
+    const budget=`<section class="panel budget-result"><div class="budget-result-head"><div>
+      <h2>${room<0&&!b.missingOperating?'Monthly shortfall':'Left after monthly costs'}</h2>
+      <strong class="cash-number money${room<0&&!b.missingOperating?' negative':''}">${b.missingOperating?'—':money(Math.abs(room))}</strong>
+      ${b.missingOperating?'<p class="small">Confirm fixed and variable costs to calculate monthly room.</p>':''}
+      </div><div class="budget-income"><span>Income</span><b class="money">${money(income)}</b></div></div>
+      <div class="budget-sources"><span>First pay <b>${money(b.draw)}</b></span><span>Second pay <b>${money(v.variablePay)}</b></span>
+        <span>Household <b>${money(b.household)}</b></span></div>
+      <div class="budget-stack" aria-hidden="true">${rows.filter(x=>x[1]>0).map(x=>`<i class="${x[2]}" style="width:${x[1]/scale*100}%"></i>`).join('')}
+        ${room>0&&!b.missingOperating?`<i class="room" style="width:${room/scale*100}%"></i>`:''}</div>
+      <ul class="budget-costs">${rows.map(([label,amount,tone])=>`<li><i class="${tone}" aria-hidden="true"></i><span>${label}</span><b>${money(amount)}</b></li>`).join('')}</ul>
+      ${!b.missingOperating&&share>0&&targetGap>0?`<div class="budget-gap"><div><strong>${money(targetGap)} gap to extra payment target</strong>
+        <small>${variableLimit>=0?'Variable costs would need to be '+money(variableLimit)+' or less.':'Fixed commitments alone leave too little for this target.'}</small></div>
+        ${variableLimit>=0?btn('Try that limit','scenario-fit',String(variableLimit),'mini quiet'):''}</div>`:''}</section>`;
+    const timeline=b.missingOperating?panel('Debt repayment timeline',no('Confirm monthly costs to compare payoff dates.')):
+      repaymentTimeline(b,now,extra,share,room);
+    const live=`<span>${room<0&&!b.missingOperating?'Monthly shortfall':'Left after costs'}</span><b>${b.missingOperating?'—':money(Math.abs(room))}</b>`;
+    return {budget,timeline,live};
+  }
+  function payoffPlot(model,baseline,now) {
+    if(!model.balances?.length||!baseline.balances?.length)return '';
+    const fullLength=Math.max(1,baseline.balances.length-1,model.balances.length-1);
+    const periods=Math.min(60,fullLength);
+    const max=Math.max(1,...baseline.balances.slice(0,periods+1),...model.balances.slice(0,periods+1));
+    const coords=points=>Array.from({length:periods+1},(_,i)=>`${12+i/periods*576},${113-(points[i]??points.at(-1))/max*100}`).join(' ');
+    return `<figure class="payoff-plot" aria-label="Estimated debt balance from starting balance to end of comparison">
+      <div class="chart-key"><span class="key-in">Scenario</span><span class="key-average">Minimums only</span></div>
+      <svg viewBox="0 0 600 126" preserveAspectRatio="none" aria-hidden="true">
+        <path class="plot-grid" d="M12 13H588 M12 63H588 M12 113H588"/>
+        <polyline class="payoff-base" points="${coords(baseline.balances)}"/>
+        <polyline class="payoff-live" points="${coords(model.balances)}"/>
+      </svg>
+      <figcaption><span>${H(monthLabel(now))} · ${money(model.balances[0])} starting</span>
+      <span>${H(monthLabel(E.shiftMonth(now,periods)))}</span></figcaption>
+      ${fullLength>periods?'<p class="small">First five years shown.</p>':''}
+    </figure>`;
+  }
+  function repaymentTimeline(b,now,extra,share,room) {
+    const model=E.monthlyDebtPlan(S,now,b,extra,share,repaymentMode!=='Minimums only',true);
+    if(!model.items.length)return panel('Debt repayment timeline',no('Add a card or line of credit to see a payoff timeline.'),'',btn('Open debt','nav','Debt & goals','mini quiet'));
+    if(model.missing.length)return panel('Debt repayment timeline',`<p>Confirm terms for ${H(model.missing.map(x=>x.name).join(', '))}.</p>`,'',btn('Open debt','nav','Debt & goals','mini quiet'));
+    const baseline=E.monthlyDebtPlan(S,now,b,0,0,false,true);
+    const months=model.end&&baseline.end?baseline.balances.length-model.balances.length:null;
+    const interest=model.interest!==null&&baseline.interest!==null?baseline.interest-model.interest:null;
     const sorted=model.items.slice().sort((a,b)=>(a.clear||'9999').localeCompare(b.clear||'9999')||a.name.localeCompare(b.name));
-    const timelineRows=sorted.map(l=>'<li><div class="amount-caption"><div>'+link(l.name,'loan-edit',l.id)+
-      '<small class="small">'+money(l.balance)+' starting balance'+(Number.isFinite(l.rate)?' · '+H(l.rate)+'% on file':'')+'</small></div>'+
-      '<strong>'+H(l.clear?monthLabel(l.clear):'Beyond model window')+'</strong></div>'+
-      (l.clear?bar(E.distance(start,l.clear),span,'in'):'')+'</li>');
-    const summary='<div class="timeline-outcome"><div><small>All modeled debts cleared</small><strong>'+H(model.end?monthLabel(model.end):'Beyond model window')+'</strong></div>'+
-      '<div><small>Estimated interest</small><strong>'+money(model.interest)+'</strong></div></div>';
-    const first=sorted.find(l=>l.clear);
-    const milestone=first?'<p class="small">First payoff · '+H(first.name)+' · '+H(monthLabel(first.clear))+'</p>':'';
-    return panel('Debt repayment timeline',segments(modes,repaymentMode,'monthly-repayment','Repayment strategy')+
-      '<p class="small timeline-basis">'+H(basis)+'</p>'+summary+milestone+'<ol class="timeline-list">'+timelineRows.join('')+'</ol>'+
-      '<p class="small section-gap">The model starts next month, uses current balance and rate assumptions, and '+(repaymentMode==='Minimums only'?'uses each current minimum assumption separately.':'rolls freed payments to the remaining debts.')+' New purchases are assumed to be paid from the living-expense budget.</p>',
-      (b.room<b.targetExtra?'Uses the lower variable-spending example above. ':'Uses the monthly budget above. ')+(b.assumptions.length?'Includes unconfirmed payment placeholders.':''));
+    const sortedRows=sorted.map(l=>`<li>${link(l.name,'loan-edit',l.id)}<b>${H(l.clear?monthLabel(l.clear):'Beyond estimate')}</b></li>`).join('');
+    const summary=`<div class="payoff-stats"><div><span>Debt-free*</span><strong>${H(model.end?monthLabel(model.end):'Beyond estimate')}</strong>
+      ${months>0?`<small>${months} months sooner</small>`:''}</div>
+      <div><span>Estimated interest</span><strong>${money(model.interest)}</strong>
+      ${interest>0?`<small>${money(interest)} less</small>`:''}</div></div>`;
+    const detail=room<0?'Budget shortfall. Timeline assumes modeled payments can still be made.':
+      money(model.extraDebt)+' extra to debt'+(model.extraGoals?' · '+money(model.extraGoals)+' for goals':'')+' per month';
+    return panel('Debt repayment timeline',summary+payoffPlot(model,baseline,now)+
+      `<details class="subtle"><summary>Payoff by account</summary><ul class="list">${sortedRows}</ul></details>
+      <p class="small section-gap">*Non-mortgage debt.${b.assumptions.length?' Includes unconfirmed payment placeholders.':''}</p>`,detail);
   }
   function editMonthlySnapshot() {
     const b=E.monthlySnapshot(S,E.today());
@@ -1556,6 +1662,7 @@
         const keys={draw:'draw',variable_pay:'variablePay',household:'household',fixed:'fixed',variable:'variable',reserve:'reserve',target_extra:'targetExtra'};
         const values=Object.fromEntries(Object.entries(keys).map(([name,key])=>[key,dollarsField(data,name,{optional:true})]));
         await write(next=>{next.config.monthlySnapshot=values;});
+        scenarioDraft={};render();
       });
   }
   function runwayData() {
@@ -1599,7 +1706,7 @@
       field('Account for optional payment',select('source_account',[['','Choose a funding account'],...base.verified.map(a=>[a.id,a.name])],cashScenario.account),'Choose only cash available for this purpose.',true)+'</div>'+
       check('Bills and the spending allowance cover the living costs I expect in this window','costs_covered',cashScenario.covered)+
       '<button class="btn primary" type="submit">Run comparison</button></form>';
-    const coverage=forecastCard(base,now,near,false);
+    const coverage=forecastCard(base,now);
     const timing=panel(near.pay?'Payments due by '+dateLabel(near.cutoff):'Upcoming payments',
       near.due.length?'<ul class="list event-list">'+near.due.slice(0,5).map(e=>eventItem(e,now)).join('')+'</ul>':
         no('There are no open bills scheduled in this window.'),
@@ -1667,8 +1774,11 @@
     return '<li><div><h3>'+H(title)+'</h3><p>'+H(detail)+'</p></div>'+
       btn(label,action,id,'mini quiet')+'</li>';
   }
-  function adviceGroup(title, items, note='') {
-    return items.length?panel(title,'<ol class="advice-list">'+items.join('')+'</ol>',note):'';
+  function adviceGroup(title,items) {
+    if(!items.length)return '';
+    const more=items.length>1?`<details class="subtle advice-more"><summary>${items.length-1} more</summary>
+      <ol class="advice-list">${items.slice(1).join('')}</ol></details>`:'';
+    return panel(title,`<ol class="advice-list">${items[0]}</ol>`+more);
   }
   function recommendations() {
     const now=E.today();
@@ -1748,10 +1858,13 @@
         'Missing coverage for '+recent.scope.filter(x=>!x.covered).map(x=>x.account.name).join(', ')+'. Use the existing chat workflow to add the missing dates.',
         'See cash flow','open-cash-month',recent.period));
     }
-    const pending=S.transactions.filter(t=>t.kind==='Review'||E.compoundDescription(t)).length;
+    const pending=E.reviewPending(S).length, fixes=E.statementFixes(S).length;
     if(pending)monthly.push(recommendation('Clear the remaining transaction questions',
       pending+' transactions are waiting for confirmation. Start with repeat merchants to review several matching charges together.',
       'Open quick review','open-inbox'));
+    if(fixes)monthly.push(recommendation('Verify combined statement rows',
+      fixes+' rows need a merchant checked against the original statement.',
+      'Open statement fixes','open-statement-fixes'));
     const recurring=E.recurringCharges(S).filter(x=>E.distance(x.transaction.date,now)<=60);
     if(recurring.length)monthly.push(recommendation('Check recurring charges',
       recurring.length+' regular patterns were seen in the last 60 days. Open Recurring to check which charges you still expect and what they typically cost.',
@@ -1779,14 +1892,10 @@
     else if(!S.goals.length)monthly.push(recommendation('Choose what surplus should fund',
       'Add a cash reserve, savings, travel, or renovation goal. Give each a priority so you can compare it with debt in your allocation plan.',
       'Add a goal','goal-edit'));
-    const total=urgent.length+decisions.length+monthly.length;
-    return head('Recommendations','Based on your current ledger · '+dateLabel(now),'<div class="actions">'+btn('Monthly Snapshot','nav','Monthly snapshot','primary')+btn('Open payday plan','nav','Cash plan')+'</div>')+
-      '<div class="advice-overview"><div><strong>'+urgent.length+'</strong><span>Check first</span></div>'+
-      '<div><strong>'+decisions.length+'</strong><span>Plan next</span></div><div><strong>'+monthly.length+'</strong><span>Monthly review</span></div></div>'+
-      (total?adviceGroup('Check first',urgent,'Bills and balances that can affect your next payment')+
-        adviceGroup('Plan next',decisions,'Income and debt decisions')+
-        adviceGroup('Monthly review',monthly,'Transactions, spending, projects, and goals'):
-        panel('You’re up to date',no('Check back after your next statement or when your payment dates change.')))+
+    return head('Recommendations','',btn('Test monthly scenarios','nav','Monthly snapshot','quiet'))+
+      `<div class="advice-layout">${adviceGroup('Check first',urgent)}
+        ${adviceGroup('Plan next',decisions)}${adviceGroup('Monthly review',monthly)}</div>`+
+      (urgent.length||decisions.length||monthly.length?'':panel('You’re up to date',no('Check back after your next statement.')))+
       '<details class="subtle section-gap"><summary>How the recommendations are ordered</summary>'+
       '<p class="small">Open payments and missing cash information come first. Debt uses the latest rates in your ledger and assumes you keep required payments current. Check rates, balances, and payment terms against your latest lender statements.</p>'+
       '<p class="small section-gap"><a href="https://www.canada.ca/en/financial-consumer-agency/services/debt/paying-debt.html">FCAC repayment guidance</a> · '+
@@ -1982,7 +2091,7 @@
       {id:E.id(),name:'Travel',target:420000,saved:80000,deadline:E.add(now,360),priority:2});
     state.targets['Housing & utilities']={method:'Annual',amount:222000,note:'Hydro set-aside from annual estimate'};
     state.targets['Insurance']={method:'Fixed',amount:15300,note:'Current home insurance'};
-    Object.assign(state.config,{floor:125000,surplus:70000,flex:65000,flexAccount:cashId});
+    Object.assign(state.config,{floor:125000,surplus:70000,flex:65000,flexAccount:cashId,monthlySnapshot:{draw:120000,variablePay:450000,household:240000,variable:520000}});
     enter({state},null,true);
   }
 
@@ -1991,10 +2100,10 @@
     ledger={filter:'All',account:'',month:'',category:'',project:'',search:'',...patch};
     ledgerPage=0;
     go('Import & review');
-    document.getElementById('ledger-filters')?.scrollIntoView({block:'start'});
+    if(!ledger.label)document.getElementById('ledger-filters')?.scrollIntoView({block:'start'});
   }
   const actions={
-    nav:go,lock:()=>lock(),
+    nav:view=>{if(view==='Spending')categoryDetail='';go(view);},lock:()=>lock(),
     'dialog-close':()=>dialog.close(),demo,restore,backup,summary,
     'chat-update':chooseChatUpdate,'cancel-chat-update':()=>{chatUpdate=null;chatRead++;welcome();},'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
     'account-settings':()=>{tab='Settings';settingsJump='settings-accounts';render();settingsJump='';},
@@ -2018,6 +2127,7 @@
       next.imports=next.imports.filter(i=>i.id!==id);
     })),
     'open-inbox':()=>{reviewView='Quick review';reviewMonth='';reviewType='All';reviewPicker='';go('Import & review');},
+    'open-statement-fixes':()=>{reviewView='Statement fixes';go('Import & review');},
     'month-inbox':m=>{reviewView='Quick review';reviewMonth=m;reviewType='All';reviewPicker='';go('Import & review');},
     'fix-statement-row':fixStatementRow,
     'review-view':view=>{reviewView=view;if(view==='Ledger')ledger={filter:'All',account:'',month:'',category:'',project:'',search:''};ledgerPage=0;render();},
@@ -2031,27 +2141,30 @@
     'review-later':id=>{setAside.add(id);reviewPicker='';render();root.querySelector('#quick-current')?.focus({preventScroll:true});},
     'review-reset':()=>{setAside.clear();render();},
     'review-undo':undoQuick,
-    'spending-drill':category=>setLedger({month,category}),
+    'spending-drill':openCategory,
+    'category-back':()=>{const previous=categoryDetail;categoryDetail='';go('Spending');[...root.querySelectorAll('[data-act=spending-drill]')].find(x=>x.dataset.id===previous)?.focus();},
+    'category-period':period=>{categoryPeriod=period;categoryPage=0;render();root.querySelector('[data-act=category-period][aria-pressed=true]')?.focus();},
+    'category-page':step=>{categoryPage=Math.max(0,categoryPage+Number(step));render();root.querySelector('.category-transactions')?.scrollIntoView({block:'start'});},
     'month-plan-edit':editMonthlySnapshot,
+    'planning-category':id=>{const [category,source]=JSON.parse(id);openCategory(category,E.month(E.today()),source==='Saved target'?'Target':'Average');},
+    'scenario-reset':()=>{scenarioDraft={};repaymentMode='Debt first';render();root.querySelector('[data-act=scenario-reset]')?.focus();},
+    'scenario-fit':amount=>{scenarioDraft.variable=Number(amount);render();root.querySelector('#scenario-variable')?.focus();},
     'monthly-repayment':mode=>{repaymentMode=mode;render();root.querySelector('[data-act=monthly-repayment][aria-pressed=true]')?.focus({preventScroll:true});},
     'open-cash-month':period=>{cashMonth=period;go('Overview');},
     'open-recurring':()=>{spendingTab='Recurring';go('Spending');},
     'mortgage-terms':()=>loanEdit('mortgage'),
     'income-schedule':()=>billEdit('income'),
-    'cash-forecast':()=>document.getElementById('cash-forecast')?.scrollIntoView({block:'start'}),
+    'cash-forecast':()=>{const forecast=document.getElementById('cash-forecast');if(forecast){forecast.open=true;forecast.scrollIntoView({block:'start'});}},
     'cash-period':period=>{cashMonth=period;render();window.scrollTo(0,0);root.querySelector('[name=cash-month]')?.focus();},
     'cash-bucket':id=>{
       const [period,tone,name]=JSON.parse(id);
-      const flow=E.recordedCash(S,E.today(),period);
-      const group=(tone==='in'?flow.sources:flow.uses).find(r=>r.name===name);
-      if(group)setLedger({month:period,ids:new Set(group.ids)});
+      setLedger({month:period,cashGroup:{tone,name},label:name});
     },
-    'open-spending-month':period=>{month=period;spendingTab='Categories';go('Spending');},
-    'chart-drill':id=>{const [selectedMonth,category]=JSON.parse(id);setLedger({month:selectedMonth,category});},
-    'spending-tab':view=>{spendingTab=view;render();},
+    'chart-drill':id=>{const [selectedMonth,category]=JSON.parse(id);openCategory(category,selectedMonth);},
+    'spending-tab':view=>{categoryDetail='';spendingTab=view;render();root.querySelector('[data-act=spending-tab][aria-pressed=true]')?.focus();},
     'merchant-history':id=>{const t=byId(S.transactions,id);if(t)setLedger({account:t.account,merchant:E.normal(t.description),direction:Math.sign(t.amount),category:t.category});},
-    'project-drill':project=>setLedger({project}),
-    'open-projects':()=>{spendingTab='Categories';go('Spending');document.getElementById('spending-projects')?.scrollIntoView({block:'start'});},
+    'project-drill':project=>setLedger({project,label:projectName(project)}),
+    'open-projects':()=>{categoryDetail='';spendingTab='Projects';go('Spending');},
     'ledger-page':n=>{ledgerPage=Math.max(0,ledgerPage+Number(n));render();document.getElementById('ledger-filters')?.scrollIntoView({block:'nearest'});},
     transaction,'manual-transaction':manualTransaction,'monthly-close':monthlyClose,'target-edit':targetEdit,'project-edit':projectEdit,
     'bill-edit':billEdit, occurrence, calendar,

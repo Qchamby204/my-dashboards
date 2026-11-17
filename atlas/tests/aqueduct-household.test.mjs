@@ -240,7 +240,7 @@ test('quick review suggests exact purchases, links a pair, and can undo a groupe
   await click('review-category',misc);
   assert.match(ui(),/3 to review/);
   await click('nav','Spending');
-  assert.match(ui(),/data-act="spending-drill" data-id="Other">Other<\/button>/);
+  assert.match(ui(),/data-act="spending-drill" data-id="Other">\s*<span class="category-line"><strong>Miscellaneous<\/strong>/);
 });
 
 test('recurring charges require a regular cadence and compatible amounts and categories',()=>{
@@ -469,6 +469,8 @@ test('monthly snapshot shows expense categories and payoff milestones from the d
   assert.match(view,/Fixed household costs/);
   assert.match(view,/Variable living expenses/);
   assert.match(view,/Debt repayment timeline/);
+  assert.match(view,/type="range"[^>]+data-scenario="variablePay"/);
+  assert.match(view,/class="payoff-live"/);
 });
 
 test('combined statement descriptions stay out of categories and the normal review queue',()=>{
@@ -479,6 +481,8 @@ test('combined statement descriptions stay out of categories and the normal revi
   C.apply(state,pack,'2026-11-16');
   const bad=state.transactions.find(t=>t.description===affected.description);
   assert.equal(bad.kind,'Review');
+  assert.equal(E.statementFixes(state).length,1);
+  assert.equal(E.reviewPending(state).length,E.reviewGroups(state).count);
   assert.ok(!E.reviewGroups(state).cards.some(c=>c.rows.some(t=>t.id===bad.id)));
   bad.kind='Spending';
   bad.category='Groceries';
@@ -523,4 +527,26 @@ test('a statement repair updates matched rows in place and keeps ledger edits',(
   const legacyUpload=[{transaction:{...row,description:previous.description}}];
   E.duplicateReview(state.transactions,legacyUpload);
   assert.ok(legacyUpload[0].duplicate);
+});
+
+test('category detail reconciles split expenses and refunds to their monthly average',async()=>{
+  const app=boot(new URL(pageUrl));
+  const pack=fixture();
+  const refunds=pack.statements[1].transactions;
+  refunds.push({date:'2026-10-26',description:'Refund hardware',amount:1200,kind:'Reimbursement',category:'Home maintenance'});
+  const dispatch=app.handlers.get('document click');
+  const click=(act,id='')=>dispatch({target:{closest:()=>({dataset:{act,id}})}});
+  await click('chat-update');
+  app.node('chat-update-file').files=[new Blob([JSON.stringify(pack)])];
+  await app.handlers.get('chat-update-file change')();
+  const form=app.node('#vault-form');
+  form.values={password:'fictional password only',confirm:'fictional password only'};
+  await app.handlers.get('#vault-form submit')({preventDefault(){},target:form});
+  await click('chart-drill',JSON.stringify(['2026-11','Home maintenance']));
+  await click('category-period','Average');
+  const view=app.node('app').innerHTML;
+  assert.match(view,/category-total[\s\S]*?<strong class="money">\$38\.00/);
+  assert.match(view,/October|Oct 2026/);
+  assert.match(view,/Home supplies<\/button>[\s\S]*?\$50\.00/);
+  assert.match(view,/Refund hardware<\/button>[\s\S]*?\+\$12\.00/);
 });

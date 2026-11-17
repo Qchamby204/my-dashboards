@@ -266,8 +266,12 @@ const Engine = (() => {
     for(const entries of groups.values())entries.sort((a,b)=>b.date.localeCompare(a.date));
     return groups;
   }
+  const reviewPending=(state,targetMonth='')=>state.transactions.filter(t=>
+    t.kind==='Review'&&!compoundDescription(t)&&!t.pair&&!t.allocations?.length&&(!targetMonth||month(t.date)===targetMonth));
+  const statementFixes=(state,targetMonth='')=>state.transactions.filter(t=>
+    compoundDescription(t)&&(!targetMonth||month(t.date)===targetMonth));
   function reviewGroups(state, targetMonth='') {
-    const pending=state.transactions.filter(t=>t.kind==='Review'&&!compoundDescription(t)&&!t.pair&&!t.allocations&&(!targetMonth||month(t.date)===targetMonth));
+    const pending=reviewPending(state,targetMonth);
     const active=new Set(pending.map(t=>t.id)), paired=new Set();
     const pairs=matchTransfers(state.transactions,state.accounts).flatMap(match=>{
       const {left,right}=match;
@@ -319,6 +323,8 @@ const Engine = (() => {
   function ledgerRows(rows) {
     return rows.flatMap(t=>compoundDescription(t)?{...t,kind:'Review',category:'',project:'',allocations:undefined}:t.allocations?.length?t.allocations.map(a=>({...t,...a})):t);
   }
+  const isSpending=t=>t.kind==='Spending'||t.kind==='Reimbursement';
+  const spendingTotal=rows=>sum(rows,t=>-t.amount);
   function history(state, now, targetMonth=month(now)) {
     const target=targetMonth+'-01';
     const spendingAccounts=state.accounts.filter(a=>a.history);
@@ -336,7 +342,7 @@ const Engine = (() => {
     }
     const accounted=new Set(spendingAccounts.map(a=>a.id));
     const transactions=ledgerRows(state.transactions.filter(t=>accounted.has(t.account)));
-    const spent=(rows,category)=>sum(rows.filter(t=>(t.kind==='Spending'||t.kind==='Reimbursement')&&(!category||t.category===category)),t=>-t.amount);
+    const spent=(rows,category)=>spendingTotal(rows.filter(t=>isSpending(t)&&(!category||t.category===category)));
     const current=transactions.filter(t=>month(t.date)===targetMonth);
     const past=transactions.filter(t=>complete.includes(month(t.date)));
     const baselineReview=past.filter(t=>t.kind==='Review').length;
@@ -351,7 +357,7 @@ const Engine = (() => {
       if (targetSettings?.method==='Annual') { suggestion=round(targetSettings.amount/12); rationale=targetSettings.note||'Annual plan divided by twelve'; }
       return {category,actual:spent(current,category),average:complete.length?round(spent(past,category)/complete.length):null,suggestion,rationale};
     });
-    return {complete,baselineReview,rows,current,total:spent(current),projects:sum(current.filter(t=>t.kind==='Project'),t=>-t.amount),review:current.filter(t=>t.kind==='Review'),income:sum(current.filter(t=>t.kind==='Income'),t=>t.amount)};
+    return {complete,baselineReview,rows,current,past,total:spent(current),projects:sum(current.filter(t=>t.kind==='Project'),t=>-t.amount),review:current.filter(t=>t.kind==='Review'),income:sum(current.filter(t=>t.kind==='Income'),t=>t.amount)};
   }
   function recordedCash(state, now, period=month(now)) {
     const start=period+'-01', end=monthEnd(start)<now?monthEnd(start):now;
@@ -371,10 +377,10 @@ const Engine = (() => {
     const intake=new Map(), outgoing=new Map();
     let internal=0, uncertainty=0, knownIncome=0;
     const append=(map,key,row)=>{
-      if(!map.has(key))map.set(key,{name:key,amount:0,ids:new Set()});
+      if(!map.has(key))map.set(key,{name:key,amount:0,amounts:new Map()});
       const record=map.get(key);
       record.amount+=Math.abs(row.amount);
-      record.ids.add(row.id);
+      record.amounts.set(row.id,(record.amounts.get(row.id)||0)+row.amount);
     };
     for(const original of entries) {
       const other=transactions.get(original.pair);
@@ -400,7 +406,7 @@ const Engine = (() => {
         append(incoming?intake:outgoing,label,t);
       }
     }
-    const order=map=>[...map.values()].map(x=>({...x,ids:[...x.ids]})).sort((a,b)=>b.amount-a.amount||a.name.localeCompare(b.name));
+    const order=map=>[...map.values()].sort((a,b)=>b.amount-a.amount||a.name.localeCompare(b.name));
     const sources=order(intake), uses=order(outgoing);
     const inflow=sum(sources,r=>r.amount), outflow=sum(uses,r=>r.amount);
     return {period,scope,sources,uses,inflow,outflow,knownIncome,net:inflow-outflow,internal,uncertainty,
@@ -579,8 +585,8 @@ const Engine = (() => {
     return {draw,variablePay,household,income,conservative,historyView,fixedRows,variableRows,fixed,variable,reserve,
       minimums,room,targetExtra,exampleVariable,exampleRoom,possible,missingOperating,assumptions,debtLoans,stored,start};
   }
-  function monthlyDebtPlan(state,now,budget,extra,share,rollMinimums=true) {
-    return makePlan({...state,loans:budget.debtLoans,goals:[],config:{...state.config,surplus:Math.max(0,extra),focus:'Highest rate'}},monthEnd(now),share,rollMinimums);
+  function monthlyDebtPlan(state,now,budget,extra,share,rollMinimums=true,trackBalances=false) {
+    return makePlan({...state,loans:budget.debtLoans,goals:[],config:{...state.config,surplus:Math.max(0,extra),focus:'Highest rate'}},monthEnd(now),share,rollMinimums,trackBalances);
   }
   function commitmentRange(state,base,stress,account,covered) {
     const blocked=!covered||state.config.floor<=0||base.headroom===null||stress.headroom===null||base.stale.length||stress.stale.length;
@@ -594,7 +600,7 @@ const Engine = (() => {
     loan.minimumPercent?round(balance*loan.minimumPercent/100):0);
   const periodicRate = (annual,method) => method==='Canadian mortgage' ? (1+annual/200)**(1/6)-1 : annual/1200;
   const rateAt = (loan,date) => Number.isFinite(loan.rateAfter) && loan.rateDate && date>=loan.rateDate ? loan.rateAfter : loan.rate;
-  function makePlan(state, now, debtShare, rollMinimums=true) {
+  function makePlan(state, now, debtShare, rollMinimums=true, trackBalances=false) {
     const loans=state.loans.filter(l=>l.balance>0);
     const missing=loans.filter(l=>!Number.isFinite(rateAt(l,now))||(!l.payment&&!l.minimumPercent)||!validDate(l.asOf));
     const goals=state.goals.filter(g=>g.target>g.saved).sort((a,b)=>a.priority-b.priority||(a.deadline||'9999').localeCompare(b.deadline||'9999')||a.name.localeCompare(b.name));
@@ -604,6 +610,7 @@ const Engine = (() => {
     const extraDebt=round(available*debtShare/100), extraGoals=available-extraDebt;
     if (missing.length) return {missing,items,goalItems,extraDebt,extraGoals,interest:null,end:'',incomplete:true};
     const totalMinimum=sum(loans,l=>requiredMonthly(l,l.balance));
+    const balances=trackBalances?[sum(items,l=>l.left)]:undefined;
     let index=0;
     for(;index<600&&(items.some(l=>l.left>0)||goalItems.some(g=>g.left>0));index++) {
       const date=shiftMonth(now,index+1);
@@ -635,10 +642,11 @@ const Engine = (() => {
         availableForGoals-=applied; g.left-=applied;
         if (!g.left) g.funded=date;
       }
+      if(balances)balances.push(sum(items,l=>l.left));
     }
     const incomplete=items.some(l=>l.left>0);
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
-    return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
+    return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,balances,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewGroups,recurringCharges,coverage,ledgerRows,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,monthlySnapshot,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,commitmentRange,monthlySnapshot,monthlyDebtPlan,makePlan};
 })();

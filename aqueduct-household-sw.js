@@ -1,7 +1,7 @@
 'use strict';
 
 const cachePrefix = 'aqueduct-household-shell-';
-const cacheName = cachePrefix+'527af508d711';
+const cacheName = cachePrefix+'58c41f4aa402';
 const shell = self.registration.scope;
 const files = [shell, ...['aqueduct-assets/manifest.webmanifest','aqueduct-assets/icon.png']
   .map(file=>new URL(file,shell).href), ...["https://qchamby204.github.io/my-dashboards/shared/icons/the-aqueduct-32.png?v=0ec83fb69b5b","https://qchamby204.github.io/my-dashboards/shared/icons/the-aqueduct-64.png?v=ae9872b962dc","https://qchamby204.github.io/my-dashboards/shared/icons/the-aqueduct-apple.png?v=f7ba29485dca"]];
