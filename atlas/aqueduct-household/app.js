@@ -522,6 +522,13 @@
     </section>`;
   }
   function changesSummary(changes) {
+    if(!changes.purchasesComparable&&changes.cashComparable) {
+      const outgoing=changes.moneyOut[0], incoming=changes.moneyIn[0];
+      const driver=outgoing||incoming;
+      const delta=outgoing?changes.cash.outflow-changes.priorCash.outflow:changes.cash.inflow-changes.priorCash.inflow;
+      const label=outgoing?'Withdrawals':'Deposits';
+      return {value:signedMoney(delta),detail:driver?label+' · '+driver.name+' '+(driver.delta>0?'rose ':'fell ')+money(Math.abs(driver.delta)):'Cash movement was steady'};
+    }
     const top=changes.spending[0];
     if(!top)return {value:changes.purchasesComparable?money(changes.purchaseTotal):'—',detail:changes.purchasesComparable?
       'Categorized purchases were steady':changes.cash.available?'See recorded cash activity':'Add statements to see what changed'};
@@ -586,17 +593,18 @@
     const cash=changes.cash;
     const cashDetail=changes.cashComparable?'Matching dates through '+dateLabel(changes.cashEnd)+' and '+dateLabel(changes.priorCashEnd):
       'Showing recorded activity. A comparison needs matching cash-account coverage.';
-    return head('What changed','',btn('Today','nav','Overview','quiet'))+
-      `<div class="change-date">${field('Statement month',select('changes-month',periods.map(m=>[m,monthLabel(m)]),changes.period))}</div>`+
-      summary+warning+
-      `<div class="change-layout">${panel(compare?'What moved spending':'Largest recorded categories',changes.spending.length?driverRows(changes.spending.slice(0,6),'purchase'):
-        no(compare?'No category changed in the dates shown.':'No categorized purchases in this period.'),
-        compare?'Same number of days in each month.':'A comparison needs matching statement coverage.')}`+
-      panel('Cash in and out',`<dl class="change-cash-totals">
+    const purchases=panel(compare?'What moved spending':'Largest recorded categories',changes.spending.length?driverRows(changes.spending.slice(0,6),'purchase'):
+      no(compare?'No category changed in the dates shown.':'No categorized purchases in this period.'),
+      compare?'Same number of days in each month.':'A comparison needs matching statement coverage.');
+    const cashPanel=panel('Cash in and out',`<dl class="change-cash-totals">
         <div><dt>Money in</dt><dd>${money(cash.available?cash.inflow:null)}</dd></div>
         <div><dt>Money out</dt><dd>${money(cash.available?cash.outflow:null)}</dd></div></dl>
         ${changes.moneyOut.length?`<h3>${changes.cashComparable?'Biggest withdrawal changes':'Largest withdrawals'}</h3>${driverRows(changes.moneyOut.slice(0,3),'out')}`:''}
-        ${changes.moneyIn.length?`<h3>${changes.cashComparable?'Biggest deposit changes':'Largest deposits'}</h3>${driverRows(changes.moneyIn.slice(0,3),'in')}`:''}`,cashDetail)+`</div>`+
+        ${changes.moneyIn.length?`<h3>${changes.cashComparable?'Biggest deposit changes':'Largest deposits'}</h3>${driverRows(changes.moneyIn.slice(0,3),'in')}`:''}`,cashDetail);
+    return head('What changed','',btn('Today','nav','Overview','quiet'))+
+      `<div class="change-date">${field('Statement month',select('changes-month',periods.map(m=>[m,monthLabel(m)]),changes.period))}</div>`+
+      summary+warning+
+      `<div class="change-layout">${!compare&&changes.cashComparable?cashPanel+purchases:purchases+cashPanel}</div>`+
       `<div class="decision-tools">${link('Cash history','open-cash-month',changes.period)}${link('All spending categories','open-spending-period',changes.period)}</div>`;
   }
   function changeDriver() {
