@@ -17,7 +17,7 @@
   const byId=(items,id)=>items.find(x=>x.id===id);
   const listTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
   const frequency=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
-  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver','Monthly costs'];
+  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver','Monthly costs','Next move'];
   const storageMessage='Browser storage is unavailable or full. Changes are in this window. Download an encrypted backup before closing it.';
   const PAGE=32;
   const idleLimit=10*60_000;
@@ -25,7 +25,7 @@
   let tab=allViews[0], toastTimer=0, lastActivity=0, staging=[], files=[], selectedFile='', postingWindow='', ledgerPage=0;
   let ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''};
   let month=E.month(E.today()), settingsJump='', preview=null, lockAfterSave=false;
-  let chatUpdate=null, chatRead=0;
+  let chatUpdate=null, chatRead=0, workflowStep=0;
   let spendingTab='Categories', cashMonth='', debtExtra=25000;
   let categoryDetail='', categoryPeriod='', categoryPage=0, scenarioDraft={}, changesMonth='', changeSelection=null;
   let reviewView='Quick review', reviewType='All', reviewMonth='', reviewPicker='', quickUndo=null;
@@ -231,7 +231,7 @@
     lastActivity=Date.now();
     categoryDetail='';categoryPeriod='';scenarioDraft={};repaymentMode='Debt first';changesMonth='';changeSelection=null;
     cashScenario={incomeCut:15,incomeDelay:7,account:'',covered:false};
-    tab=allViews[0];
+    tab=allViews[0]; workflowStep=0;
     reviewView='Quick review'; reviewType='All'; reviewMonth=''; reviewPicker=''; quickUndo=null; setAside.clear();
     spendingTab='Categories'; cashMonth=''; debtExtra=25000;
     cashScenario={incomeCut:15,incomeDelay:7,account:'',covered:false};
@@ -322,7 +322,8 @@
       await write(next=>{result=ChatUpdate.apply(next,update,E.today());});
       if(chatUpdate===update)chatUpdate=null;
       if(S){
-        go(allViews[0]);
+        if(workflowStep===1)openWorkflowStep(2);
+        else go(allViews[0]);
         note(storageProblem?storageMessage:chatUpdateSummary(result),storageProblem);
       }
     }catch(error){
@@ -362,16 +363,16 @@
 
   function render() {
     if(!S){welcome();return;}
-    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver,monthCostsView];
+    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver,monthCostsView,nextMove];
     const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Recommendations','Recommendations']];
-    const homeDetail=['Cash plan','Cash history','Monthly changes','Change driver','Monthly costs'].includes(tab);
+    const homeDetail=['Cash plan','Cash history','Monthly changes','Change driver','Monthly costs','Next move'].includes(tab);
     const active=tab==='Monthly snapshot'?'Debt & goals':homeDetail?'Overview':tab;
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
       (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
       tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===active?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
-      views[allViews.indexOf(tab)]()+'</main>';
+      workflowNavigation()+views[allViews.indexOf(tab)]()+'</main>';
     if(tab==='Monthly snapshot')bindMonthlyScenario();
     if(tab==='Monthly changes')root.querySelector('[name=changes-month]')?.addEventListener('change',event=>{changesMonth=event.target.value;render();root.querySelector('[name=changes-month]')?.focus();});
     if(tab==='Cash history') {
@@ -577,26 +578,96 @@
         <dd class="money${label==='Net cash'&&cash.available&&value<0?' negative':''}">${cash.available?(label==='Net cash'?signedMoney(value):money(value)):'—'}</dd></div>`).join('')}</dl>
     </section>`;
   }
+  const workflow=[
+    {title:'Add statements',short:'Add',description:'Bring in the update file prepared in chat.',destination:'Import & review'},
+    {title:'Review transactions',short:'Review',description:'Confirm categories and transfers. Resolve any statement fixes.',destination:'Import & review'},
+    {title:'Check monthly costs',short:'Costs',description:'See fixed bills, recurring charges, and flexible spending.',destination:'Monthly costs'},
+    {title:'Plan your next move',short:'Plan',description:'Check cash before payday, compare debt payments, or review renewals.',destination:'Next move'}
+  ];
+  function reviewWork() {
+    const fixes=E.statementFixes(S).length, pending=E.reviewPending(S).length;
+    return {fixes,pending};
+  }
+  function openWorkflowStep(step) {
+    const next=workflow[step-1];
+    if(!next)return;
+    workflowStep=step;
+    if(step===1)reviewView='Statements';
+    if(step===2){
+      reviewView=reviewWork().fixes?'Statement fixes':'Quick review';
+      reviewMonth=''; reviewType='All'; reviewPicker='';
+    }
+    go(next.destination);
+    const heading=root.querySelector('#main h1');
+    if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}
+  }
+  function workflowNavigation() {
+    const stage=workflow[workflowStep-1];
+    if(!stage||tab==='Overview'||tab==='Settings')return '';
+    const steps=workflow.map((item,i)=>`<li>${btn(item.short,'workflow-step',String(i+1),'',
+      ' aria-label="'+H(item.title)+'"'+(workflowStep===i+1?' aria-current="step"':''))}</li>`).join('');
+    return `<nav class="workflow-rail" aria-label="Monthly workflow"><span>Step ${workflowStep} of ${workflow.length}</span><ol>${steps}</ol></nav>`;
+  }
+  function workflowButton(label,step,kind='primary') {
+    return btn(label,'workflow-step',String(step),kind);
+  }
+  function workflowHome(pending,fixes) {
+    const data=Boolean(S.imports.length||S.transactions.length);
+    const latest=S.chatUpdates?.at(-1);
+    const reviewCount=pending+fixes;
+    const suggested=data?(reviewCount?2:3):1;
+    const reason=suggested===1?'Bring in your first update':suggested===2?reviewCount+' items pending':'Your review queue is clear';
+    const states=[latest?'Updated '+dateLabel(latest.date):S.imports.length?'Statements on file':data?'Entries on file':'',
+      reviewCount?reviewCount+' pending':data?'Clear':''];
+    const rows=workflow.map((item,i)=>{
+      const step=i+1;
+      return `<li><button type="button" class="workflow-item" data-act="workflow-step" data-id="${step}">
+        <span class="workflow-count" aria-hidden="true">${step}</span><span class="workflow-description">
+        <strong>${H(item.title)}</strong><small>${H(item.description)}</small></span>
+        ${states[i]?`<span class="workflow-status${step===2&&reviewCount?' pending':''}">${H(states[i])}</span>`:''}${arrow}</button></li>`;
+    }).join('');
+    return `<section class="workflow-opening" aria-labelledby="workflow-title">
+      <div class="workflow-face"><div><h1 id="workflow-title">Household finances</h1>
+      <p>Go from statements to a plan for your month.</p></div></div>
+      <div class="workflow-footer"><div><span>Suggested next step</span><strong>${H(reason)}</strong></div>
+        ${workflowButton(workflow[suggested-1].title,suggested)}</div>
+    </section>
+    <section class="panel workflow-overview" aria-labelledby="steps-title"><h2 id="steps-title">Your monthly workflow</h2>
+      <ol>${rows}</ol></section>`;
+  }
   function overview() {
     const now=E.today(), position=E.paydayPosition(S,now);
     const changes=E.monthChanges(S,now);
     const spending=changesSummary(changes), debt=debtSummary(E.monthlySnapshot(S,now),now);
-    const pending=E.reviewPending(S).length, fixes=E.statementFixes(S).length;
+    const {pending,fixes}=reviewWork();
     const latest=S.chatUpdates?.at(-1);
-    return head('Today','',btn('Apply chat update','chat-update','','quiet'))+
-      `<div class="decision-layout">
-        ${cashPositionCard(position,true)}
-        <div class="decision-list">
-          ${homeCashFlow(now,changes.period)}
-          ${jump('Monthly costs','','open-month-costs',changes.period,'Fixed bills, recurring charges and flexible spending')}
-          ${jump('What changed this month',spending.value,'open-changes',changes.period,spending.detail)}
-          ${jump('Pay down debt faster',debt.value,'nav','Monthly snapshot',debt.detail,debt.unit)}
-          ${pending?jump('Quick Review',String(pending),'open-inbox','','Transactions to categorize or link'):''}
-          ${fixes?jump('Statement fixes',String(fixes),'open-statement-fixes','','Rows to verify against a statement'):''}
+    return workflowHome(pending,fixes)+
+      `<div class="dashboard-activity">
+        <h2>Cash and spending at a glance</h2>
+        <div class="decision-layout">
+          ${cashPositionCard(position,true)}
+          <div class="decision-list">
+            ${homeCashFlow(now,changes.period)}
+            ${jump('What changed this month',spending.value,'open-changes',changes.period,spending.detail)}
+            ${jump('Pay down debt faster',debt.value,'nav','Monthly snapshot',debt.detail,debt.unit)}
+          </div>
         </div>
-      </div>
-      <div class="decision-tools">${link('All bills and paydays','nav','Bills')}${link('Recommendations','nav','Recommendations')}</div>`+
+        <div class="decision-tools">${link('All bills and paydays','nav','Bills')}${link('Recommendations','nav','Recommendations')}</div>
+      </div>`+
       (latest?`<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">${H(chatUpdateSummary(latest))}</p></details>`:'');
+  }
+  function nextMove() {
+    const choices=[
+      ['See cash before payday','Check upcoming bills, paydays, and what’s left above your buffer.','workflow-next-view','Cash plan','Bills'],
+      ['Compare debt payments','Move the sliders to see the payoff date and estimated interest change.','workflow-next-view','Monthly snapshot','Debt'],
+      ['Check recurring charges','See what renews and trace it back to the posted charges.','open-recurring','','Spending']
+    ];
+    return head('Plan your next move','Pick the decision you want to make.')+
+      `<ul class="workflow-decisions">${choices.map(([title,detail,action,id,shape])=>`<li>
+        <button type="button" data-act="${action}" data-id="${id}" class="workflow-decision">
+          <span class="workflow-action-icon">${icon(tabIcons[shape])}</span><span><strong>${H(title)}</strong>
+          <small>${H(detail)}</small></span>${arrow}</button></li>`).join('')}</ul>
+      <div class="decision-tools">${link('All recommendations','nav','Recommendations')}${link('Back to Home','nav','Overview')}</div>`;
   }
   function monthlyChanges() {
     const now=E.today();
@@ -714,7 +785,7 @@
     return '<div class="stat"><h3>'+H(label)+'</h3><div class="value money">'+money(value)+'</div>'+(detail?'<small>'+H(detail)+'</small>':'')+'</div>';
   }
   window.addEventListener('resize',()=>{if(S&&tab==='Cash plan')drawRunway();});
-  function imports() {
+  function statementTools() {
     const pending=files.find(file=>file.id===selectedFile);
     const queue=files.length ? '<div class="actions">'+files.map(file=>btn(file.name,'select-file',file.id,'mini',file.id===selectedFile?' aria-pressed="true"':'')).join('')+'</div>':'';
     const accountSetup=S.accounts.length?'':banner('Add an account before importing its transactions. '+link('Add account','account-edit'),'warning');
@@ -724,13 +795,37 @@
     const staged=staging.length?batchView():'';
     const historical=S.imports.length?'<details class="subtle section-gap"><summary>Import history ('+S.imports.length+')</summary>'+
       table(['Statement','Account','Coverage','Rows',''],[...S.imports].reverse().map(i=>row(cell(H(i.name),'desc'),cell(H(alias(i.account))),cell(H(i.start+' to '+i.end)+(i.coverageConfirmed?'':' <small>unconfirmed</small>')),cell(H(i.count)+' accepted'+(i.issueCount?' · '+H(i.issueCount)+' skipped':'')),cell(btn('Remove','remove-import',i.id,'mini danger')))))+'</details>':'';
+    return '<details class="subtle section-gap manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+historical;
+  }
+  function statementUpdates() {
+    const latest=S.chatUpdates?.at(-1);
+    const ready=S.imports.length>0||S.transactions.length>0;
+    return head('Add statements','')+
+      `<section class="panel workflow-instructions"><ol>
+        <li><strong>Get your update in chat</strong><p>Add your statements to your Aqueduct chat and ask for an updated <span class="file-type">.aqueduct-update.json</span> file.</p></li>
+        <li><strong>Apply it here</strong><p>Choose the downloaded update file. Aqueduct saves it to the encrypted ledger on this device.</p>
+          ${sample?'<p class="small">The fictional statements are ready to review.</p>':btn('Apply chat update','chat-update','','primary')}</li>
+      </ol>
+      ${latest?`<p class="workflow-import-note">${H(dateLabel(latest.date))} · ${H(chatUpdateSummary(latest))}</p>`:''}
+      ${ready?`<div class="workflow-continue">${workflowButton('Continue to review',2,sample?'primary':'quiet')}</div>`:''}</section>
+      ${statementTools()}`;
+  }
+  function imports() {
+    if(reviewView==='Statements')return statementUpdates();
     const fixes=E.statementFixes(S);
-    return head('Transactions','',btn('Apply chat update','chat-update','','primary'))+
+    const guided=workflowStep===2;
+    const pending=guided||reviewView==='Statement fixes'?E.reviewPending(S).length:0;
+    const remaining=fixes.length+pending;
+    const reviewAction=guided?workflowButton(remaining?'Continue with '+remaining+' pending':'Continue to monthly costs',3,remaining?'quiet':'primary'):
+      btn('Apply chat update','chat-update','','primary');
+    const ready=reviewView==='Statement fixes'&&!fixes.length&&pending>0;
+    return head(guided?'Review transactions':'Transactions',guided?'Confirm categories and transfers to finish your monthly totals.':'',reviewAction)+
       segments(['Quick review','Statement fixes','Ledger'],reviewView,'review-view','Transactions view')+
+      (ready?`<div class="review-strip"><strong>Statement fixes are clear</strong>${btn('Open quick review','review-view','Quick review','mini')}</div>`:'')+
       (reviewView==='Statement fixes'?statementFixes(fixes):reviewView==='Quick review'?
         (fixes.length?'<div class="review-strip"><strong>'+fixes.length+' rows need statement verification</strong>'+
         btn('Open statement fixes','review-view','Statement fixes','mini')+'</div>':'')+quickReview():panel('Transaction ledger',ledgerView()))+
-      '<details class="subtle section-gap manual-import"'+(files.length||staging.length?' open':'')+'><summary>Import bank exports manually</summary>'+upload+staged+'</details>'+historical;
+      statementTools();
   }
   function statementFixes(rows) {
     if(!rows.length)return panel('Statement fixes',no('There are no combined descriptions to verify.'));
@@ -1044,6 +1139,7 @@
     ledger={filter:'Review',account:'',month:'',category:'',project:'',search:''};
     ledgerPage=0;
     render();
+    if(workflowStep===1)openWorkflowStep(2);
     note(stagedRows.length+' transactions approved. Review the remaining questions below.');
   }
   function applyPair(next,left,right,label) {
@@ -1398,7 +1494,8 @@
     const timing=`<details class="panel home-disclosure"><summary>Bill schedule for ${H(monthLabel(month))} · ${report.billRows.length}</summary>
       ${lines?`<ul class="list event-list">${lines}</ul>`:no('There are no scheduled bills for this calendar month.')}
       ${link('Open upcoming Bills','nav','Bills')}</details>`;
-    return head('Monthly costs','',picker)+opening+chart+projectLine+status+
+    const next=workflowStep===3?`<div class="workflow-continue">${workflowButton('Continue to your next move',4)}</div>`:'';
+    return head('Monthly costs',workflowStep===3?'Pick a calendar month. Tap a cost to see the transactions behind it.':'',picker)+opening+chart+projectLine+status+next+
       `<div class="decision-tools">${link('Recurring charge audit','open-recurring')}${link('Spending categories','open-spending-period',month)}${link('Upcoming Bills','nav','Bills')}</div>`+
       timing+
       `<details class="subtle section-gap"><summary>How the totals reconcile</summary><p class="small">Fixed bills are commitments such as the mortgage, utilities and insurance. Their amounts can vary. Subscriptions and memberships show under recurring charges. Flexible purchases include groceries, dining and shopping. The recorded total also includes projects and subtracts refunds. The Bills schedule shows when to fund payments. Credit card purchases enter recorded costs when posted. Their repayments appear in the Bills schedule. The planning baseline includes required debt payments separately.</p></details>`;
@@ -2508,7 +2605,14 @@
     if(!ledger.label)document.getElementById('ledger-filters')?.scrollIntoView({block:'start'});
   }
   const actions={
-    nav:view=>{if(view==='Spending')categoryDetail='';go(view);},lock:()=>lock(),
+    nav:view=>{
+      workflowStep=0;
+      if(view==='Spending')categoryDetail='';
+      if(view==='Import & review'&&reviewView==='Statements')reviewView='Quick review';
+      go(view);
+    },lock:()=>lock(),
+    'workflow-step':step=>openWorkflowStep(Number(step)),
+    'workflow-next-view':view=>go(view),
     'dialog-close':()=>dialog.close(),demo,restore,backup,summary,
     'chat-update':chooseChatUpdate,'cancel-chat-update':()=>{chatUpdate=null;chatRead++;welcome();},'device-check':deviceCheck,'test-download':testDownload,'share-backup':shareBackup,
     'account-settings':()=>{tab='Settings';settingsJump='settings-accounts';render();settingsJump='';},

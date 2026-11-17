@@ -213,6 +213,36 @@ test('the welcome screen applies a queued update when the device ledger is first
   assert.match(app.node('toast').textContent,/outside its statement dates/);
 });
 
+test('guided statement updates advance through review, costs, and the next decision',async()=>{
+  const app=boot(new URL(pageUrl));
+  const click=(act,id='')=>app.handlers.get('document click')({target:{closest:()=>({dataset:{act,id}})}});
+  const view=()=>app.node('app').innerHTML;
+  const form=app.node('#vault-form');
+  const password='fictional workflow passphrase';
+  form.values={password,confirm:password};
+  await app.handlers.get('#vault-form submit')({preventDefault(){},target:form});
+  assert.match(view(),/Bring in your first update/);
+  await click('workflow-step','1');
+  assert.match(view(),/Step 1 of 4/);
+  assert.match(view(),/Apply chat update/);
+  await click('chat-update');
+  app.node('chat-update-file').files=[new Blob([JSON.stringify(fixture())])];
+  await app.handlers.get('chat-update-file change')();
+  assert.match(view(),/Step 2 of 4/);
+  assert.match(view(),/<h1>Review transactions<\/h1>/);
+  const sealed=app.data.get('aqueduct-offline-v1');
+  assert.equal((await app.Vault.open(sealed,password)).state.transactions.length,7);
+  await click('workflow-step','3');
+  assert.match(view(),/Step 3 of 4/);
+  assert.match(view(),/Continue to your next move/);
+  await click('workflow-step','4');
+  assert.match(view(),/<h1>Plan your next move<\/h1>/);
+  await click('workflow-next-view','Monthly snapshot');
+  assert.match(view(),/Step 4 of 4/);
+  assert.match(view(),/Debt repayment timeline/);
+  assert.equal(app.data.get('aqueduct-offline-v1'),sealed);
+});
+
 
 test('quick review suggests exact purchases, links a pair, and can undo a grouped confirmation',async()=>{
   const app=boot(new URL(pageUrl));
