@@ -640,3 +640,60 @@ test('extra payments allocate only budgeted surplus and keep the savings set-asi
   assert.equal(E.repaymentBudget(budget,{...scenario,variable:460000},100).toDebt,0);
   assert.equal(E.repaymentBudget({...budget,missingOperating:true},scenario,100).toDebt,0);
 });
+
+test('the review pass updates statement classifications in place and preserves confirmed edits',()=>{
+  const {Engine:E,ChatUpdate:C}=boot(new URL(pageUrl));
+  const today='2026-11-17', state=E.empty(), pack=fixture();
+  const original=pack.statements[1];
+  const hardware=original.transactions.at(-1);
+  const nextDay={...hardware,date:'2026-10-25'};
+  original.transactions.push(nextDay);
+  C.apply(state,pack,today);
+  const changed=state.transactions.find(t=>t.date===hardware.date);
+  const manual=state.transactions.find(t=>t.date===nextDay.date);
+  Object.assign(manual,{kind:'Project',category:'',project:state.projects[0].id,manual:true,why:'Reviewed'});
+  changed.note='Keep the ledger note';
+  const correction=t=>({source:original.key,account:original.account,date:t.date,description:t.description,
+    amount:t.amount,kind:'Spending',category:'Home maintenance'});
+  const update={format:'aqueduct-chat-update',version:2,id:'fictional-new-review',reviewPass:{
+    rows:[correction(hardware),correction(nextDay),correction({...hardware,date:'2026-10-26'})]
+  }};
+  const result=C.apply(state,C.read(JSON.stringify(update)),today);
+  assert.equal(result.added,0);
+  assert.equal(result.corrected,1);
+  assert.equal(result.unmatched,1);
+  assert.equal(changed.note,'Keep the ledger note');
+  assert.equal(changed.category,'Home maintenance');
+  assert.equal(manual.kind,'Project');
+  assert.equal(C.apply(state,update,today).already,true);
+});
+
+test('mortgage spending uses the posted debit and counts the scheduled amount only once in the plan',()=>{
+  const {Engine:E,ChatUpdate:C}=boot(new URL(pageUrl));
+  const state=E.empty(), now='2026-11-17';
+  const pack=fixture();
+  const joint=pack.statements[0];
+  const card=pack.statements[1];
+  joint.transactions.push({date:'2026-10-19',description:'Loan payment',amount:-112345,kind:'Financing'});
+  C.apply(state,pack,now);
+  const account=state.accounts.find(x=>x.chatKey==='joint');
+  state.bills.push({id:'scheduled-mortgage',name:'Mortgage',account:account.id,direction:'Bill',frequency:'Monthly',amount:112345,start:'2026-11-19'});
+  state.transactions.push(
+    {id:'funds-in',account:account.id,date:'2026-10-11',description:'Transfer',amount:115000,kind:'Transfer',category:'Household funding',pair:'funds-out'},
+    {id:'funds-out',account:'personal',date:'2026-10-11',description:'Transfer',amount:-115000,kind:'Transfer',category:'Household funding',pair:'funds-in'}
+  );
+  state.accounts.push({id:'personal',type:'Chequing',history:false,forecast:true});
+  const update=C.read(JSON.stringify({format:'aqueduct-chat-update',version:2,id:'fictional-mortgage',reviewPass:{rows:[
+    {source:joint.key,account:joint.account,date:'2026-10-19',description:'Loan payment',amount:-112345,kind:'Financing',
+      category:'Mortgage payments',from:[{kind:'Financing',category:''}]},
+    {source:card.key,account:card.account,date:'2026-10-24',description:'Hardware',amount:-1700,kind:'Spending',category:'Home maintenance'}
+  ]}}));
+  assert.equal(C.apply(state,update,now).corrected,2);
+  assert.equal(E.history(state,now,'2026-10').rows.find(r=>r.category==='Mortgage payments').actual,112345);
+  const byMonth=E.recordedCash(state,now,'2026-10');
+  assert.equal(byMonth.uses.find(r=>r.name==='Mortgage payments').amount,112345);
+  assert.ok(!byMonth.sources.some(r=>r.name==='Household funding'));
+  const plan=E.monthlySnapshot(state,now);
+  assert.equal(plan.fixedRows.filter(r=>r.name==='Mortgage payments').length,1);
+  assert.equal(plan.fixedRows.find(r=>r.name==='Mortgage payments').amount,112345);
+});

@@ -334,6 +334,8 @@
     const details=[result.added+' transaction'+(result.added===1?'':'s')+' added'];
     if(result.duplicates)details.push(result.duplicates+' duplicate'+(result.duplicates===1?'':'s')+' skipped');
     if(result.corrected)details.push(result.corrected+' corrected');
+    if(result.linked)details.push(result.linked+' transfers linked');
+    if(result.unmatched)details.push(result.unmatched+' rows had no unique source match');
     if(result.review)details.push(result.review+' for review');
     return 'Chat update applied · '+details.join(' · ');
   }
@@ -1215,7 +1217,7 @@
         ${panel('Categories',rows?`<div class="chart-key"><span class="key-in">Recorded</span><span class="key-average">Historical average</span></div>
           <ul class="category-links">${rows}</ul>`:no('No spending categories are available for this period.'),'',btn('Add target','target-edit','','mini quiet'))}
         <div class="spending-rail">
-          ${panel('Spending mix',spendingPie(h,month),'Positive category totals after refunds')}
+          ${panel('Spending mix',spendingPie(h,month),'Includes mortgage cash payments when recorded')}
           ${btn('Monthly review','monthly-close','','quiet')}
         </div>
       </div>`;
@@ -1675,8 +1677,8 @@
       <ul class="list">${b.assumptions.map(x=>`<li><div>${link(x.name,'loan-edit',x.id)}
       <small class="small">${money(x.recorded)} on file · ${money(x.interest)} estimated interest</small></div>
       <strong>${money(x.assumed)}<small class="small">Model placeholder</small></strong></li>`).join('')}</ul></details>`:'';
-    const costRows=rows=>rows.map(x=>`<li><div>${b.historyView.rows.some(r=>r.category===x.name)?
-      link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
+    const costRows=rows=>rows.map(x=>`<li><div>${x.source==='Payment schedule or loan terms'?link(x.name,'nav','Bills'):
+      b.historyView.rows.some(r=>r.category===x.name)?link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
     const result=scenarioResult(b,now,v,runwayData());
     return head('Monthly Snapshot',monthLabel(b.start)+' plan',btn('Edit saved assumptions','month-plan-edit','','quiet'))+
       `<div class="scenario-layout"><div class="scenario-left">

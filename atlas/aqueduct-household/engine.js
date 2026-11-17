@@ -1,6 +1,6 @@
 'use strict';
 const Engine = (() => {
-  const categories = ['Groceries','Dining','Housing & utilities','Insurance','Transportation','Shopping','Health','Family','Pets','Subscriptions','Travel','Gifts','Home maintenance','Interest & fees','Other'];
+  const categories = ['Groceries','Dining','Housing & utilities','Mortgage payments','Insurance','Transportation','Shopping','Health','Family','Pets','Subscriptions','Travel','Gifts','Home maintenance','Interest & fees','Other'];
   const kinds = ['Spending','Project','Income','Transfer','Financing','Savings','Reimbursement','Review'];
   const cad = new Intl.NumberFormat('en-CA', {style:'currency',currency:'CAD'});
   const dollars = cents => cad.format((cents || 0) / 100);
@@ -323,6 +323,14 @@ const Engine = (() => {
   function ledgerRows(rows) {
     return rows.flatMap(t=>compoundDescription(t)?{...t,kind:'Review',category:'',project:'',allocations:undefined}:t.allocations?.length?t.allocations.map(a=>({...t,...a})):t);
   }
+  const mortgageCategory='Mortgage payments';
+  const mortgagePayment=t=>t.amount<0&&(
+    ['Financing','Spending','Transfer'].includes(t.kind)&&['Mortgage',mortgageCategory].includes(t.category)||
+    t.kind==='Spending'&&t.category==='Interest & fees'&&/^mortgage interest(?: |$)/.test(normal(t.description))
+  );
+  function spendingRows(rows) {
+    return ledgerRows(rows).map(t=>mortgagePayment(t)?{...t,kind:'Spending',category:mortgageCategory}:t);
+  }
   const isSpending=t=>t.kind==='Spending'||t.kind==='Reimbursement';
   const spendingTotal=rows=>sum(rows,t=>-t.amount);
   function history(state, now, targetMonth=month(now)) {
@@ -341,7 +349,7 @@ const Engine = (() => {
       }
     }
     const accounted=new Set(spendingAccounts.map(a=>a.id));
-    const transactions=ledgerRows(state.transactions.filter(t=>accounted.has(t.account)));
+    const transactions=spendingRows(state.transactions.filter(t=>accounted.has(t.account)));
     const spent=(rows,category)=>spendingTotal(rows.filter(t=>isSpending(t)&&(!category||t.category===category)));
     const current=transactions.filter(t=>month(t.date)===targetMonth);
     const past=transactions.filter(t=>complete.includes(month(t.date)));
@@ -392,9 +400,14 @@ const Engine = (() => {
         if(t.kind==='Review') {label='Needs review';uncertainty++;}
         else if(incoming&&t.kind==='Income') {label=t.category||'Other income';knownIncome+=t.amount;}
         else if(incoming&&t.kind==='Reimbursement')label='Refunds & reimbursements';
+        else if(incoming&&t.kind==='Transfer'&&t.category==='Investment withdrawal')label='Investment withdrawals';
+        else if(incoming&&t.kind==='Transfer'&&t.category==='Insurance proceeds')label='Insurance proceeds';
+        else if(incoming&&t.kind==='Transfer'&&t.category==='Household funding')label='Household funding';
         else if(incoming&&t.kind==='Transfer')label='Transfers in';
         else if(incoming&&t.kind==='Financing')label='Borrowing proceeds';
         else if(incoming&&t.kind==='Project')label='Project refunds';
+        else if(mortgagePayment(t))label=mortgageCategory;
+        else if(!incoming&&t.kind==='Transfer'&&t.category==='Household funding')label='Household funding';
         else if(!incoming&&t.kind==='Transfer'&&(t.category==='Credit card payment'||other?.pair===original.id&&allAccounts.get(other.account)?.type==='Credit card'))label='Credit card payments';
         else if(!incoming&&t.kind==='Transfer'&&other?.pair===original.id&&allAccounts.get(other.account)?.type==='Line of credit or loan')label='Mortgage & other debt payments';
         else if(!incoming&&t.kind==='Financing')label='Mortgage & other debt payments';
@@ -565,7 +578,7 @@ const Engine = (() => {
     const end=purchaseDates?.end??selectedEnd, priorEnd=purchaseDates?.priorEnd??'';
     const cashEnd=cashDates?.end??selectedEnd, priorCashEnd=cashDates?.priorEnd??'';
     const selectedScope=new Set(inPeriod(historyAccounts,start,end).map(a=>a.id));
-    const normalized=ledgerRows(state.transactions.filter(t=>t.date>=prior&&t.date<=end&&selectedScope.has(t.account)));
+    const normalized=spendingRows(state.transactions.filter(t=>t.date>=prior&&t.date<=end&&selectedScope.has(t.account)));
     const current=normalized.filter(t=>t.date>=start);
     const previous=purchasesComparable?normalized.filter(t=>t.date<=priorEnd):[];
     const purchasesAvailable=current.length>0||state.imports.some(i=>selectedScope.has(i.account)&&i.start<=end&&i.end>=start);
@@ -606,8 +619,11 @@ const Engine = (() => {
     const mortgageLoans=state.loans.filter(l=>l.type==='Mortgage'&&l.balance>0);
     const mortgageSchedules=state.bills.filter(b=>b.direction==='Bill'&&b.frequency!=='Once'&&b.start<=monthEnd(start)&&(!b.end||b.end>=start)&&
       (/mortgage/i.test(b.name)||mortgageLoans.some(l=>l.id===b.loan)));
-    const mortgage=sum(mortgageLoans,l=>requiredMonthly(l,l.balance))+
+    const scheduledMortgage=sum(mortgageLoans,l=>requiredMonthly(l,l.balance))+
       sum(mortgageSchedules.filter(b=>!mortgageLoans.some(l=>l.id===b.loan||(mortgageLoans.length===1&&!b.loan))),b=>round((b.amount||0)*monthlyFactor(b.frequency)));
+    const mortgageHistory=historyView.rows.find(r=>r.category===mortgageCategory);
+    const recordedMortgage=Math.max(0,mortgageHistory?.average??0);
+    const mortgage=scheduledMortgage||recordedMortgage;
     const fixedNames=new Set(['Housing & utilities','Insurance','Subscriptions','Annual card fees']);
     const inHistory=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
     const borrowed=new Set(state.accounts.filter(a=>['Credit card','Line of credit or loan'].includes(a.type)).map(a=>a.id));
@@ -616,7 +632,7 @@ const Engine = (() => {
       inHistory.has(t.account)&&borrowed.has(t.account)&&months.has(month(t.date))&&
       /^(interest(?: |$)|retail interest\b|purchase interest\b|cash advance interest\b)/.test(normal(t.description))),t=>-t.amount);
     const interestAverage=months.size?round(modeledInterest/months.size):0;
-    const categories=historyView.rows.map(r=>{
+    const categories=historyView.rows.filter(r=>r.category!==mortgageCategory).map(r=>{
       const settings=state.targets[r.category];
       const override=['Fixed','Annual'].includes(settings?.method);
       const estimate=override?r.suggestion:r.average;
@@ -624,7 +640,7 @@ const Engine = (() => {
       return {name:r.category,amount:estimate===null?null:Math.max(0,estimate-interest),source:override?'Saved target':'Statement average'};
     }).filter(r=>r.amount>0);
     const fixedRows=categories.filter(r=>fixedNames.has(r.name));
-    if(mortgage)fixedRows.unshift({name:'Mortgage payments',amount:mortgage,source:'Payment schedule or loan terms'});
+    if(mortgage)fixedRows.unshift({name:mortgageCategory,amount:mortgage,source:scheduledMortgage?'Payment schedule or loan terms':'Statement average'});
     const variableRows=categories.filter(r=>!fixedNames.has(r.name)).sort((a,b)=>b.amount-a.amount);
     const fixed=stored.fixed??sum(fixedRows,r=>r.amount), variable=stored.variable??sum(variableRows,r=>r.amount);
     const reserve=stored.reserve??0;
@@ -723,5 +739,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,balances,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
 })();

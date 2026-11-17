@@ -113,16 +113,87 @@ const ChatUpdate=(()=>{
     }
     return used.size;
   }
+  function applyReviewPass(state,pass,accounts,reviewed,result,touched) {
+    const sources=new Map(state.imports.map(i=>[i.id,i.sourceKey]));
+    const index=new Map();
+    for(const t of state.transactions) {
+      const descriptions=[[t.date,t.description],[t.sourceDate||t.date,t.sourceDescription],[t.priorSourceDate||t.date,t.priorSourceDescription]];
+      for(const [day,desc] of descriptions) {
+        if(!desc)continue;
+        const id=signature(sources.get(t.importId),t.account,day,t.amount,desc);
+        if(!index.has(id))index.set(id,new Set());
+        index.get(id).add(t);
+      }
+    }
+    const locate=ref=>{
+      object(ref,'Transaction reference');
+      const packet=key(ref.source,'statement ID');
+      const account=accounts.get(key(ref.account,'account ID'));
+      const day=date(ref.date,'posting date'),amount=signed(ref.amount,'amount');
+      const description=text(ref.description,'description',240),external=optionalText(ref.external,'bank reference',140);
+      if(!account)return [];
+      const id=signature(packet,account.id,day,amount,description);
+      return [...(index.get(id)||[])].filter(t=>!external||t.external===external);
+    };
+    const eligible=(t,from)=>!t.pair&&!t.allocations?.length&&!E.compoundDescription(t)&&
+      (t.kind==='Review'&&!t.manual||t.why==='Prepared in chat'&&from.some(x=>x.kind===t.kind&&x.category===(t.category||'')));
+    const rows=list(pass.rows,'reviewed transactions');
+    let matched=0;
+    for(const entry of rows) {
+      const matches=locate(entry);
+      const count=integer(entry.count??1,'matching rows',1,1000);
+      const from=list(entry.from,'previous classifications').map(x=>({
+        kind:option(object(x,'Previous classification').kind,E.kinds,'previous type'),
+        category:optionalText(x.category,'previous category',60)
+      }));
+      const values=reviewed(entry,entry.amount);
+      if(matches.length!==count) {
+        result.unmatched=(result.unmatched||0)+count;
+        continue;
+      }
+      matched+=count;
+      for(const t of matches) {
+        if(!eligible(t,from)||t.kind===values.kind&&(t.category||'')===values.category&&(t.project||'')===values.project)continue;
+        Object.assign(t,values,{note:t.note||values.note});
+        touched.add(t.id);
+        result.corrected++;
+      }
+    }
+    if(rows.length&&!matched)fail('Apply the latest statement update before importing this transaction review.');
+    for(const link of list(pass.links,'transfer matches')) {
+      object(link,'Transfer match');
+      const left=locate(link.out),right=locate(link.in);
+      const label=text(link.label,'transfer label',60);
+      if(left.length!==1||right.length!==1)continue;
+      const [out]=left,[incoming]=right;
+      if(out.pair===incoming.id&&incoming.pair===out.id)continue;
+      const allowed=t=>eligible(t,[{kind:'Transfer',category:t.category||''},{kind:'Financing',category:t.category||''}])||
+        touched.has(t.id)&&!t.pair&&['Transfer','Financing'].includes(t.kind)&&!t.allocations?.length;
+      if(!allowed(out)||!allowed(incoming)||out.amount>=0||out.amount!==-incoming.amount||out.account===incoming.account||
+        Math.abs(E.distance(out.date,incoming.date))>4)continue;
+      for(const [t,other] of [[out,incoming],[incoming,out]]) {
+        t.beforePair={kind:t.kind,category:t.category,project:t.project,why:t.why,manual:t.manual};
+        Object.assign(t,{kind:'Transfer',category:label,project:'',pair:other.id,manual:true,why:'Matched to '+other.description});
+        touched.add(t.id);
+      }
+      result.linked=(result.linked||0)+1;
+    }
+  }
   function read(serialized) {
     let update;
     try{update=JSON.parse(serialized);}catch{fail('Choose the Aqueduct update file prepared in chat.');}
-    if(update?.format!=='aqueduct-chat-update'||update.version!==1)fail('Choose an Aqueduct chat update. Bank statements and backups use separate import tools.');
+    if(update?.format!=='aqueduct-chat-update'||![1,2].includes(update.version))fail('Choose an Aqueduct chat update. Bank statements and backups use separate import tools.');
     key(update.id,'update ID');
     if(update.baseUpdate!==undefined)key(update.baseUpdate,'base update ID');
     for(const name of ['accounts','projects','statements','loans','bills','goals','targets','excludedMonths','corrections'])list(update[name],name);
     if(update.repair!==undefined) {
       const repair=object(update.repair,'Statement repair');
       if(repair.version!==1||!Array.isArray(repair.rows))fail('Choose a supported statement repair file.');
+    }
+    if(update.version===2||update.reviewPass!==undefined) {
+      const pass=object(update.reviewPass,'Transaction review');
+      list(pass.rows,'reviewed transactions');
+      list(pass.links,'transfer matches');
     }
     if(update.config!==undefined)object(update.config,'Allocation');
     return update;
@@ -327,6 +398,7 @@ const ChatUpdate=(()=>{
         Object.assign(t,{kind:'Transfer',category:match.label,project:'',pair:other.id,manual:true,why:'Matched to '+other.description});
       }
     }
+    if(update.reviewPass)applyReviewPass(state,update.reviewPass,accounts,reviewed,result,touched);
     for(const t of list(update.targets,'targets')){
       object(t,'Category target');
       const category=text(t.category,'target category',60);

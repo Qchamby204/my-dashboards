@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-SjpXGC/o6uLTSG5LMSGfiCna0/UHKPnMnra1JfGb3A4='; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-bDuzkzjyl6qdfUVAJdQrFQBVW61EcO6H+mshyr0O8Zs='; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#f5f1e8">
@@ -944,7 +944,7 @@ details.subtle summary { min-height:44px; align-content:center; }
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>'use strict';
 const Engine = (() => {
-  const categories = ['Groceries','Dining','Housing & utilities','Insurance','Transportation','Shopping','Health','Family','Pets','Subscriptions','Travel','Gifts','Home maintenance','Interest & fees','Other'];
+  const categories = ['Groceries','Dining','Housing & utilities','Mortgage payments','Insurance','Transportation','Shopping','Health','Family','Pets','Subscriptions','Travel','Gifts','Home maintenance','Interest & fees','Other'];
   const kinds = ['Spending','Project','Income','Transfer','Financing','Savings','Reimbursement','Review'];
   const cad = new Intl.NumberFormat('en-CA', {style:'currency',currency:'CAD'});
   const dollars = cents => cad.format((cents || 0) / 100);
@@ -1267,6 +1267,14 @@ const Engine = (() => {
   function ledgerRows(rows) {
     return rows.flatMap(t=>compoundDescription(t)?{...t,kind:'Review',category:'',project:'',allocations:undefined}:t.allocations?.length?t.allocations.map(a=>({...t,...a})):t);
   }
+  const mortgageCategory='Mortgage payments';
+  const mortgagePayment=t=>t.amount<0&&(
+    ['Financing','Spending','Transfer'].includes(t.kind)&&['Mortgage',mortgageCategory].includes(t.category)||
+    t.kind==='Spending'&&t.category==='Interest & fees'&&/^mortgage interest(?: |$)/.test(normal(t.description))
+  );
+  function spendingRows(rows) {
+    return ledgerRows(rows).map(t=>mortgagePayment(t)?{...t,kind:'Spending',category:mortgageCategory}:t);
+  }
   const isSpending=t=>t.kind==='Spending'||t.kind==='Reimbursement';
   const spendingTotal=rows=>sum(rows,t=>-t.amount);
   function history(state, now, targetMonth=month(now)) {
@@ -1285,7 +1293,7 @@ const Engine = (() => {
       }
     }
     const accounted=new Set(spendingAccounts.map(a=>a.id));
-    const transactions=ledgerRows(state.transactions.filter(t=>accounted.has(t.account)));
+    const transactions=spendingRows(state.transactions.filter(t=>accounted.has(t.account)));
     const spent=(rows,category)=>spendingTotal(rows.filter(t=>isSpending(t)&&(!category||t.category===category)));
     const current=transactions.filter(t=>month(t.date)===targetMonth);
     const past=transactions.filter(t=>complete.includes(month(t.date)));
@@ -1336,9 +1344,14 @@ const Engine = (() => {
         if(t.kind==='Review') {label='Needs review';uncertainty++;}
         else if(incoming&&t.kind==='Income') {label=t.category||'Other income';knownIncome+=t.amount;}
         else if(incoming&&t.kind==='Reimbursement')label='Refunds & reimbursements';
+        else if(incoming&&t.kind==='Transfer'&&t.category==='Investment withdrawal')label='Investment withdrawals';
+        else if(incoming&&t.kind==='Transfer'&&t.category==='Insurance proceeds')label='Insurance proceeds';
+        else if(incoming&&t.kind==='Transfer'&&t.category==='Household funding')label='Household funding';
         else if(incoming&&t.kind==='Transfer')label='Transfers in';
         else if(incoming&&t.kind==='Financing')label='Borrowing proceeds';
         else if(incoming&&t.kind==='Project')label='Project refunds';
+        else if(mortgagePayment(t))label=mortgageCategory;
+        else if(!incoming&&t.kind==='Transfer'&&t.category==='Household funding')label='Household funding';
         else if(!incoming&&t.kind==='Transfer'&&(t.category==='Credit card payment'||other?.pair===original.id&&allAccounts.get(other.account)?.type==='Credit card'))label='Credit card payments';
         else if(!incoming&&t.kind==='Transfer'&&other?.pair===original.id&&allAccounts.get(other.account)?.type==='Line of credit or loan')label='Mortgage & other debt payments';
         else if(!incoming&&t.kind==='Financing')label='Mortgage & other debt payments';
@@ -1509,7 +1522,7 @@ const Engine = (() => {
     const end=purchaseDates?.end??selectedEnd, priorEnd=purchaseDates?.priorEnd??'';
     const cashEnd=cashDates?.end??selectedEnd, priorCashEnd=cashDates?.priorEnd??'';
     const selectedScope=new Set(inPeriod(historyAccounts,start,end).map(a=>a.id));
-    const normalized=ledgerRows(state.transactions.filter(t=>t.date>=prior&&t.date<=end&&selectedScope.has(t.account)));
+    const normalized=spendingRows(state.transactions.filter(t=>t.date>=prior&&t.date<=end&&selectedScope.has(t.account)));
     const current=normalized.filter(t=>t.date>=start);
     const previous=purchasesComparable?normalized.filter(t=>t.date<=priorEnd):[];
     const purchasesAvailable=current.length>0||state.imports.some(i=>selectedScope.has(i.account)&&i.start<=end&&i.end>=start);
@@ -1550,8 +1563,11 @@ const Engine = (() => {
     const mortgageLoans=state.loans.filter(l=>l.type==='Mortgage'&&l.balance>0);
     const mortgageSchedules=state.bills.filter(b=>b.direction==='Bill'&&b.frequency!=='Once'&&b.start<=monthEnd(start)&&(!b.end||b.end>=start)&&
       (/mortgage/i.test(b.name)||mortgageLoans.some(l=>l.id===b.loan)));
-    const mortgage=sum(mortgageLoans,l=>requiredMonthly(l,l.balance))+
+    const scheduledMortgage=sum(mortgageLoans,l=>requiredMonthly(l,l.balance))+
       sum(mortgageSchedules.filter(b=>!mortgageLoans.some(l=>l.id===b.loan||(mortgageLoans.length===1&&!b.loan))),b=>round((b.amount||0)*monthlyFactor(b.frequency)));
+    const mortgageHistory=historyView.rows.find(r=>r.category===mortgageCategory);
+    const recordedMortgage=Math.max(0,mortgageHistory?.average??0);
+    const mortgage=scheduledMortgage||recordedMortgage;
     const fixedNames=new Set(['Housing & utilities','Insurance','Subscriptions','Annual card fees']);
     const inHistory=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
     const borrowed=new Set(state.accounts.filter(a=>['Credit card','Line of credit or loan'].includes(a.type)).map(a=>a.id));
@@ -1560,7 +1576,7 @@ const Engine = (() => {
       inHistory.has(t.account)&&borrowed.has(t.account)&&months.has(month(t.date))&&
       /^(interest(?: |$)|retail interest\b|purchase interest\b|cash advance interest\b)/.test(normal(t.description))),t=>-t.amount);
     const interestAverage=months.size?round(modeledInterest/months.size):0;
-    const categories=historyView.rows.map(r=>{
+    const categories=historyView.rows.filter(r=>r.category!==mortgageCategory).map(r=>{
       const settings=state.targets[r.category];
       const override=['Fixed','Annual'].includes(settings?.method);
       const estimate=override?r.suggestion:r.average;
@@ -1568,7 +1584,7 @@ const Engine = (() => {
       return {name:r.category,amount:estimate===null?null:Math.max(0,estimate-interest),source:override?'Saved target':'Statement average'};
     }).filter(r=>r.amount>0);
     const fixedRows=categories.filter(r=>fixedNames.has(r.name));
-    if(mortgage)fixedRows.unshift({name:'Mortgage payments',amount:mortgage,source:'Payment schedule or loan terms'});
+    if(mortgage)fixedRows.unshift({name:mortgageCategory,amount:mortgage,source:scheduledMortgage?'Payment schedule or loan terms':'Statement average'});
     const variableRows=categories.filter(r=>!fixedNames.has(r.name)).sort((a,b)=>b.amount-a.amount);
     const fixed=stored.fixed??sum(fixedRows,r=>r.amount), variable=stored.variable??sum(variableRows,r=>r.amount);
     const reserve=stored.reserve??0;
@@ -1667,7 +1683,7 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,balances,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
 })();
 
 'use strict';
@@ -1785,16 +1801,87 @@ const ChatUpdate=(()=>{
     }
     return used.size;
   }
+  function applyReviewPass(state,pass,accounts,reviewed,result,touched) {
+    const sources=new Map(state.imports.map(i=>[i.id,i.sourceKey]));
+    const index=new Map();
+    for(const t of state.transactions) {
+      const descriptions=[[t.date,t.description],[t.sourceDate||t.date,t.sourceDescription],[t.priorSourceDate||t.date,t.priorSourceDescription]];
+      for(const [day,desc] of descriptions) {
+        if(!desc)continue;
+        const id=signature(sources.get(t.importId),t.account,day,t.amount,desc);
+        if(!index.has(id))index.set(id,new Set());
+        index.get(id).add(t);
+      }
+    }
+    const locate=ref=>{
+      object(ref,'Transaction reference');
+      const packet=key(ref.source,'statement ID');
+      const account=accounts.get(key(ref.account,'account ID'));
+      const day=date(ref.date,'posting date'),amount=signed(ref.amount,'amount');
+      const description=text(ref.description,'description',240),external=optionalText(ref.external,'bank reference',140);
+      if(!account)return [];
+      const id=signature(packet,account.id,day,amount,description);
+      return [...(index.get(id)||[])].filter(t=>!external||t.external===external);
+    };
+    const eligible=(t,from)=>!t.pair&&!t.allocations?.length&&!E.compoundDescription(t)&&
+      (t.kind==='Review'&&!t.manual||t.why==='Prepared in chat'&&from.some(x=>x.kind===t.kind&&x.category===(t.category||'')));
+    const rows=list(pass.rows,'reviewed transactions');
+    let matched=0;
+    for(const entry of rows) {
+      const matches=locate(entry);
+      const count=integer(entry.count??1,'matching rows',1,1000);
+      const from=list(entry.from,'previous classifications').map(x=>({
+        kind:option(object(x,'Previous classification').kind,E.kinds,'previous type'),
+        category:optionalText(x.category,'previous category',60)
+      }));
+      const values=reviewed(entry,entry.amount);
+      if(matches.length!==count) {
+        result.unmatched=(result.unmatched||0)+count;
+        continue;
+      }
+      matched+=count;
+      for(const t of matches) {
+        if(!eligible(t,from)||t.kind===values.kind&&(t.category||'')===values.category&&(t.project||'')===values.project)continue;
+        Object.assign(t,values,{note:t.note||values.note});
+        touched.add(t.id);
+        result.corrected++;
+      }
+    }
+    if(rows.length&&!matched)fail('Apply the latest statement update before importing this transaction review.');
+    for(const link of list(pass.links,'transfer matches')) {
+      object(link,'Transfer match');
+      const left=locate(link.out),right=locate(link.in);
+      const label=text(link.label,'transfer label',60);
+      if(left.length!==1||right.length!==1)continue;
+      const [out]=left,[incoming]=right;
+      if(out.pair===incoming.id&&incoming.pair===out.id)continue;
+      const allowed=t=>eligible(t,[{kind:'Transfer',category:t.category||''},{kind:'Financing',category:t.category||''}])||
+        touched.has(t.id)&&!t.pair&&['Transfer','Financing'].includes(t.kind)&&!t.allocations?.length;
+      if(!allowed(out)||!allowed(incoming)||out.amount>=0||out.amount!==-incoming.amount||out.account===incoming.account||
+        Math.abs(E.distance(out.date,incoming.date))>4)continue;
+      for(const [t,other] of [[out,incoming],[incoming,out]]) {
+        t.beforePair={kind:t.kind,category:t.category,project:t.project,why:t.why,manual:t.manual};
+        Object.assign(t,{kind:'Transfer',category:label,project:'',pair:other.id,manual:true,why:'Matched to '+other.description});
+        touched.add(t.id);
+      }
+      result.linked=(result.linked||0)+1;
+    }
+  }
   function read(serialized) {
     let update;
     try{update=JSON.parse(serialized);}catch{fail('Choose the Aqueduct update file prepared in chat.');}
-    if(update?.format!=='aqueduct-chat-update'||update.version!==1)fail('Choose an Aqueduct chat update. Bank statements and backups use separate import tools.');
+    if(update?.format!=='aqueduct-chat-update'||![1,2].includes(update.version))fail('Choose an Aqueduct chat update. Bank statements and backups use separate import tools.');
     key(update.id,'update ID');
     if(update.baseUpdate!==undefined)key(update.baseUpdate,'base update ID');
     for(const name of ['accounts','projects','statements','loans','bills','goals','targets','excludedMonths','corrections'])list(update[name],name);
     if(update.repair!==undefined) {
       const repair=object(update.repair,'Statement repair');
       if(repair.version!==1||!Array.isArray(repair.rows))fail('Choose a supported statement repair file.');
+    }
+    if(update.version===2||update.reviewPass!==undefined) {
+      const pass=object(update.reviewPass,'Transaction review');
+      list(pass.rows,'reviewed transactions');
+      list(pass.links,'transfer matches');
     }
     if(update.config!==undefined)object(update.config,'Allocation');
     return update;
@@ -1999,6 +2086,7 @@ const ChatUpdate=(()=>{
         Object.assign(t,{kind:'Transfer',category:match.label,project:'',pair:other.id,manual:true,why:'Matched to '+other.description});
       }
     }
+    if(update.reviewPass)applyReviewPass(state,update.reviewPass,accounts,reviewed,result,touched);
     for(const t of list(update.targets,'targets')){
       object(t,'Category target');
       const category=text(t.category,'target category',60);
@@ -2418,6 +2506,8 @@ const Vault=(() => {
     const details=[result.added+' transaction'+(result.added===1?'':'s')+' added'];
     if(result.duplicates)details.push(result.duplicates+' duplicate'+(result.duplicates===1?'':'s')+' skipped');
     if(result.corrected)details.push(result.corrected+' corrected');
+    if(result.linked)details.push(result.linked+' transfers linked');
+    if(result.unmatched)details.push(result.unmatched+' rows had no unique source match');
     if(result.review)details.push(result.review+' for review');
     return 'Chat update applied · '+details.join(' · ');
   }
@@ -3299,7 +3389,7 @@ const Vault=(() => {
         ${panel('Categories',rows?`<div class="chart-key"><span class="key-in">Recorded</span><span class="key-average">Historical average</span></div>
           <ul class="category-links">${rows}</ul>`:no('No spending categories are available for this period.'),'',btn('Add target','target-edit','','mini quiet'))}
         <div class="spending-rail">
-          ${panel('Spending mix',spendingPie(h,month),'Positive category totals after refunds')}
+          ${panel('Spending mix',spendingPie(h,month),'Includes mortgage cash payments when recorded')}
           ${btn('Monthly review','monthly-close','','quiet')}
         </div>
       </div>`;
@@ -3759,8 +3849,8 @@ const Vault=(() => {
       <ul class="list">${b.assumptions.map(x=>`<li><div>${link(x.name,'loan-edit',x.id)}
       <small class="small">${money(x.recorded)} on file · ${money(x.interest)} estimated interest</small></div>
       <strong>${money(x.assumed)}<small class="small">Model placeholder</small></strong></li>`).join('')}</ul></details>`:'';
-    const costRows=rows=>rows.map(x=>`<li><div>${b.historyView.rows.some(r=>r.category===x.name)?
-      link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
+    const costRows=rows=>rows.map(x=>`<li><div>${x.source==='Payment schedule or loan terms'?link(x.name,'nav','Bills'):
+      b.historyView.rows.some(r=>r.category===x.name)?link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
     const result=scenarioResult(b,now,v,runwayData());
     return head('Monthly Snapshot',monthLabel(b.start)+' plan',btn('Edit saved assumptions','month-plan-edit','','quiet'))+
       `<div class="scenario-layout"><div class="scenario-left">
