@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-bDuzkzjyl6qdfUVAJdQrFQBVW61EcO6H+mshyr0O8Zs='; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-My0DMqJgXN8CxInnLGZCIlgWSFhpeWH5V8Lx42NvzG8='; style-src 'unsafe-inline'; img-src 'self' data:; font-src data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#f5f1e8">
@@ -727,10 +727,10 @@ details.subtle summary { min-height:44px; align-content:center; }
 .budget-sources { display:flex; flex-wrap:wrap; gap:5px 15px; margin:8px 0 13px; }
 .budget-sources b { color:var(--ink); }
 .budget-stack { display:flex; border-radius:7px; overflow:hidden; height:13px; background:#eee9dd; }
-.budget-stack i,.budget-costs i { background:var(--flow-rate); }
-.budget-stack .out,.budget-costs .out { background:var(--flow-out); }
-.budget-stack .priority,.budget-costs .priority { background:var(--flow-priority); }
-.budget-stack .reserve,.budget-costs .reserve { background:#746782; }
+.budget-stack i,.budget-costs i,.monthly-cost-rows i { background:var(--flow-rate); }
+.budget-stack .out,.budget-costs .out,.monthly-cost-rows .out { background:var(--flow-out); }
+.budget-stack .priority,.budget-costs .priority,.monthly-cost-rows .priority { background:var(--flow-priority); }
+.budget-stack .reserve,.budget-costs .reserve,.monthly-cost-rows .reserve { background:#746782; }
 .budget-stack .room { background:#8db6a5; }
 .budget-costs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); list-style:none; padding:0; margin:10px 0 0; gap:4px 12px; }
 .budget-costs li { display:grid; grid-template-columns:8px minmax(0,1fr); gap:0 7px; align-items:center; font-size:.83rem; }
@@ -923,6 +923,58 @@ details.subtle summary { min-height:44px; align-content:center; }
 .cash-position-meter .available { background:#86d2b7; }
 .change-review .link-button { margin-left:8px; }
 .decision-list .dashboard-jump>b>small { font-weight:500; font-size:.69rem; margin-top:0; }
+
+/* Monthly costs and recurring charges */
+.month-cost-overview { align-items:start; }
+.monthly-total {
+  min-width:0; border-radius:var(--radius); padding:clamp(16px,3vw,27px);
+  background:#182b3d; color:#fffaf0;
+}
+.monthly-total>strong,.monthly-plan-value,.recurring-summary strong {
+  display:block; font-size:clamp(1.9rem,5vw,3.15rem); line-height:1.12; letter-spacing:-.05em;
+  overflow-wrap:anywhere; margin:.25em 0; font-weight:700;
+}
+.monthly-total p { color:#dce6e7; font-size:.86rem; }
+.monthly-total .link-button { color:#fff0d4; }
+.cost-mix { margin-top:12px; height:9px; }
+.monthly-cost-rows { padding:0; margin:10px 0; list-style:none; border-block-start:1px solid var(--stroke); }
+.monthly-total .monthly-cost-rows { border-color:#ffffff36; }
+.monthly-cost-rows li { display:flex; gap:8px; align-items:center; justify-content:space-between; padding:5px 0; }
+.monthly-cost-rows li+li { border-block-start:1px solid var(--stroke); }
+.monthly-total .monthly-cost-rows li+li { border-color:#ffffff33; }
+.monthly-cost-rows li:has(button) { padding:0; }
+.monthly-cost-rows li>span { display:flex; align-items:center; gap:8px; }
+.monthly-cost-rows i { width:8px; height:8px; flex:none; border-radius:50%; }
+.monthly-cost-rows b { text-align:right; }
+.monthly-plan-value { color:var(--ink); }
+.recurring-summary {
+  margin:12px 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; align-items:end;
+  padding:clamp(14px,3vw,22px); border-radius:18px; background:#eee8da;
+}
+.recurring-summary span { display:block; font-size:.86rem; color:var(--ink-light); }
+.recurring-summary b { display:block; font-size:clamp(1.15rem,3.8vw,1.9rem); overflow-wrap:anywhere; }
+.recurring-group summary { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; }
+.recurring-group summary span { min-width:0; overflow-wrap:anywhere; }
+.recurring-group summary span small { display:block; }
+.recurring-group summary strong::before { content:"›"; display:inline-block; margin-right:6px; color:var(--bronze); }
+.recurring-group[open] summary strong::before { content:"⌄"; }
+.recurring-group .list { margin-top:6px; }
+.recurring-patterns { background:#f3eee4; padding:3px 9px; border-radius:9px; }
+.recurring-patterns>li { padding:5px 0; }
+.scenario-all { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 0 9px; }
+.scenario-all span { font-size:.84rem; color:var(--muted); }
+.scenario-all .btn { flex:none; }
+.scenario-all .btn[aria-pressed=true] { color:#663413; border-color:#af8c5f; background:#efe6d4; }
+.budget-monthly-total {
+  display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center;
+  gap:6px 10px; margin-top:8px; color:var(--ink-light); font-size:.84rem;
+}
+.budget-monthly-total strong { color:var(--ink); font-size:1.03rem; }
+.budget-stack .recurring,.budget-costs .recurring,.monthly-cost-rows .recurring { background:#a17e4b; }
+@media(max-width:650px){
+  .monthly-cost-rows li { font-size:.91rem; }
+  .scenario-all { flex-wrap:wrap; }
+}
 
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-aqueduct-32.png?v=0ec83fb69b5b">
@@ -1273,7 +1325,11 @@ const Engine = (() => {
     t.kind==='Spending'&&t.category==='Interest & fees'&&/^mortgage interest(?: |$)/.test(normal(t.description))
   );
   function spendingRows(rows) {
-    return ledgerRows(rows).map(t=>mortgagePayment(t)?{...t,kind:'Spending',category:mortgageCategory}:t);
+    return ledgerRows(rows).map(t=>{
+      if(mortgagePayment(t))return {...t,kind:'Spending',category:mortgageCategory};
+      if(isSpending(t)&&t.category==='Interest & fees'&&/\bannual (?:card )?fee\b/.test(normal(t.description)))return {...t,category:'Annual card fees'};
+      return t;
+    });
   }
   const isSpending=t=>t.kind==='Spending'||t.kind==='Reimbursement';
   const spendingTotal=rows=>sum(rows,t=>-t.amount);
@@ -1547,6 +1603,156 @@ const Engine = (() => {
       projectTotal:spendingTotal(current.filter(t=>t.kind==='Project')),reviewCurrent:new Set(current.filter(t=>t.kind==='Review').map(t=>t.id)).size,
       reviewPrior:new Set(previous.filter(t=>t.kind==='Review').map(t=>t.id)).size};
   }
+  const fixedCostCategories=new Set([mortgageCategory,'Housing & utilities','Insurance','Annual card fees']);
+  const subscriptionLabel=t=>t.category==='Subscriptions'||/^(apple com bill|anthropic|openai|netflix|disney plus|spotify|vmo vimeo com|google (one|google one)|amazon (ca prime member|channels)|ad free for primevideo|youtube premium)( |$)/.test(normal(t.description))||
+    /\b(subscription|membership|auto renewal|annual renewal|monthly renewal)\b/.test(normal(t.description));
+  const repeatCategory=t=>['Software & digital','Fitness & recreation','Professional expenses','Charitable giving','Transportation','Pets'].includes(t.category);
+  const recurringMerchant=t=>{
+    const label=normal(t.description);
+    const variant=/^(apple com bill|anthropic|openai|netflix|amazon ca prime member|amazon channels|google google one|vmo vimeo com)( |$)/.exec(label);
+    if(variant)return variant[1];
+    return label.replace(/(?: masked)(?: [a-z]{2})?$/,'');
+  };
+  const seriesKey=t=>JSON.stringify([t.account,recurringMerchant(t)]);
+  const costBucket=(t,audit)=>fixedCostCategories.has(t.category)?'fixed':
+    subscriptionLabel(t)||audit.ids.has(t.id)&&repeatCategory(t)?'recurring':'flexible';
+  const costKinds=[['fixed','Fixed bills'],['recurring','Recurring charges'],['flexible','Flexible spending']];
+  function recurringAudit(state,through,period=month(through)) {
+    const scope=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
+    const usable=spendingRows(state.transactions.filter(t=>scope.has(t.account)&&t.date<=through)).filter(isSpending);
+    const groups=new Map();
+    const ids=new Set();
+    for(const t of usable){
+      if(t.amount>=0||(!subscriptionLabel(t)&&(!repeatCategory(t)&&!fixedCostCategories.has(t.category)||
+        !identifiableMerchant(t)&&!['Fitness & recreation','Interest & fees'].includes(t.category))))continue;
+      const key=seriesKey(t);
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(t);
+    }
+    const credits=new Map();
+    for(const t of usable.filter(t=>t.amount>0)){
+      const key=seriesKey(t);
+      if(!credits.has(key))credits.set(key,[]);
+      credits.get(key).push(t);
+    }
+    const rows=[];
+    for(const [key,group] of groups){
+      group.sort((a,b)=>b.date.localeCompare(a.date));
+      const latest=group[0], explicit=group.some(subscriptionLabel);
+      const householdBill=fixedCostCategories.has(latest.category);
+      const bands=[];
+      for(const t of group){
+        let band=bands.find(b=>Math.abs(b.price+t.amount)<=Math.max(100,b.price*.04));
+        if(!band){band={price:-t.amount,rows:[]};bands.push(band);}
+        band.rows.push(t);
+      }
+      const detected=[];
+      const patterns=bands.flatMap(band=>{
+        const frequency=cadence(band.rows);
+        if(!frequency)return [];
+        const last=band.rows[0].date, days=frequency==='Weekly'?8:frequency==='Biweekly'?16:35;
+        const due=add(last,days+7);
+        const stale=due<=through&&coverage(state,latest.account,add(last,1),due);
+        detected.push(...band.rows);
+        return [{frequency,amount:round(sum(band.rows.slice(0,4),t=>-t.amount)/Math.min(4,band.rows.length)),
+          count:band.rows.length,last,status:stale?'Check if ended':distance(last,through)>days+7?'Statement gap':'Pattern found'}];
+      });
+      if(!patterns.length&&!explicit)continue;
+      const debits=explicit?group:detected;
+      const refunds=(credits.get(key)||[]).filter(t=>explicit||debits.some(d=>d.amount===-t.amount));
+      const charges=debits.concat(refunds);
+      if(!householdBill)for(const t of charges)ids.add(t.id);
+      const recorded=spendingTotal(charges.filter(t=>month(t.date)===period));
+      const monthly=sum(patterns.filter(p=>p.status==='Pattern found'),p=>round(p.amount*monthlyFactor(p.frequency)));
+      const status=patterns.some(p=>p.status==='Pattern found')?'Pattern found':patterns[0]?.status||'Check renewal';
+      rows.push({transaction:latest,key,householdBill,explicit,rows:charges,patterns,recorded,monthly,status});
+    }
+    return {rows:rows.sort((a,b)=>Math.max(b.recorded,b.monthly)-Math.max(a.recorded,a.monthly)),ids};
+  }
+  const costMerchant=t=>{
+    const name=normal(t);
+    if(/\b(home internet|bellmts homesrv|bell mts home|internet service)\b/.test(name))return 'home internet';
+    if(/\b(hydro|electricity)\b/.test(name))return 'hydro';
+    if(/\b(bell mobility|cell phone|mobile phone)\b/.test(name))return 'mobile phone';
+    if(/\b(wpg water|winnipeg water|water bill)\b/.test(name))return 'water bill';
+    if(/\b(tipp|property tax)\b/.test(name))return 'property tax';
+    return name.replace(/\b(estimated|estimate|autopay|payment|bpy|msp|wbp)\b/g,' ').trim().replace(/ +/g,' ');
+  };
+  function monthlyCosts(state,now,period=month(now),historyView=history(state,now,period)) {
+    const start=period+'-01', last=monthEnd(start), through=last<now?last:now;
+    const view=historyView;
+    const audit=recurringAudit(state,through,period);
+    const costRows=view.current.filter(t=>t.date<=through&&isSpending(t));
+    const posted=Object.fromEntries(costKinds.map(([k])=>[k,costRows.filter(t=>costBucket(t,audit)===k)]));
+    const totals=Object.fromEntries(costKinds.map(([k])=>[k,spendingTotal(posted[k])]));
+    const projects=view.current.filter(t=>t.date<=through&&t.kind==='Project');
+    const due=events(state,start,last).filter(e=>e.direction==='Bill'&&e.status!=='Skipped');
+    const scheduled=due.map(e=>{
+      const mortgage=/mortgage/i.test(e.name)||state.loans.some(l=>l.id===e.loan&&l.type==='Mortgage');
+      const name=costMerchant(e.name);
+      const card=/\b(card|visa|mastercard|amex)\b/.test(normal(e.name))&&!/\bfee\b/.test(normal(e.name));
+      const candidates=e.loan&&!mortgage||card?[]:view.current.filter(t=>t.account===e.account&&t.date<=through&&t.amount<0&&
+        Math.abs(distance(t.date,e.date))<=4&&(-t.amount===e.forecastAmount||e.variable)&&
+        (e.project?t.kind==='Project'&&t.project===e.project:isSpending(t)&&(mortgage?t.category===mortgageCategory:
+          t.category!==mortgageCategory&&name.length>=4&&costMerchant(t.description)===name)));
+      return {event:e,matches:candidates,paymentOnly:Boolean(e.loan&&!mortgage||card)};
+    });
+    const counts=new Map();
+    for(const item of scheduled)for(const t of item.matches)counts.set(t.id,(counts.get(t.id)||0)+1);
+    const billRows=scheduled.map(item=>({...item,matched:item.matches.length===1&&counts.get(item.matches[0].id)===1?item.matches[0]:null}));
+    const covered=state.accounts.filter(a=>a.history&&(!a.openDate||a.openDate<=through)&&(!a.closeDate||a.closeDate>=start));
+    const gaps=covered.filter(a=>!coverage(state,a.id,a.openDate>start?a.openDate:start,a.closeDate&&a.closeDate<through?a.closeDate:through));
+    return {period,through,totals,posted,projects,projectTotal:spendingTotal(projects),ordinary:sum(Object.values(totals),x=>x),
+      total:sum(Object.values(totals),x=>x)+spendingTotal(projects),billRows,gaps,
+      available:view.current.length>0||covered.length>0&&gaps.length<covered.length,review:view.review.length,audit};
+  }
+  function monthlyOperatingRows(state,historyView,audit,interestAverage,mortgageSchedules,start) {
+    const months=historyView.complete.length;
+    const basis=historyView.past.filter(isSpending);
+    const rows={fixed:[],recurring:[],flexible:[]};
+    for(const r of historyView.rows){
+      if(r.category===mortgageCategory)continue;
+      const historical=basis.filter(t=>t.category===r.category);
+      const settings=state.targets[r.category],override=['Fixed','Annual'].includes(settings?.method);
+      const interest=r.category==='Interest & fees'?interestAverage:0;
+      const target=Math.max(0,override?r.suggestion:(r.average??0)-interest);
+      const defaultBucket=fixedCostCategories.has(r.category)?'fixed':r.category==='Subscriptions'?'recurring':'flexible';
+      const subset=historical.filter(t=>costBucket(t,audit)==='recurring');
+      const recurrence=defaultBucket==='fixed'?0:Math.min(target,Math.max(0,months?round(spendingTotal(subset)/months):0));
+      const source=override?'Saved target':'Statement average';
+      if(recurrence)rows.recurring.push({name:r.category,amount:recurrence,source});
+      if(target>recurrence)rows[defaultBucket].push({name:r.category,amount:target-recurrence,source});
+    }
+    const needsMatch=[], appliedAverages=new Set();
+    const overlapBasis=historyView.current.concat(basis).filter(isSpending);
+    const active=state.bills.filter(e=>e.direction==='Bill'&&e.frequency!=='Once'&&!e.loan&&!e.project&&
+      e.start<=monthEnd(start)&&(!e.end||e.end>=start)&&!mortgageSchedules.some(m=>m.id===e.id)&&
+      (!/\b(card|visa|mastercard|amex)\b/.test(normal(e.name))||/\bfee\b/.test(normal(e.name))));
+    for(const e of active){
+      const amount=Number.isSafeInteger(e.amount)?round(e.amount*monthlyFactor(e.frequency)):null;
+      if(/annual (?:card )?fee/i.test(e.name)&&(state.targets['Annual card fees']||overlapBasis.some(t=>/annual fee/i.test(t.description))))continue;
+      const merchant=costMerchant(e.name);
+      const overlaps=overlapBasis.filter(t=>t.account===e.account&&merchant.length>=4&&costMerchant(t.description)===merchant);
+      if(amount===null){needsMatch.push(e);continue;}
+      if(overlaps.length){
+        const bucket=costBucket(overlaps[0],audit);
+        const settings=state.targets[overlaps[0].category];
+        if(['Fixed','Annual'].includes(settings?.method))continue;
+        const key=JSON.stringify([e.account,merchant]);
+        const matchedAverage=months&&!appliedAverages.has(key)?
+          round(spendingTotal(overlaps.filter(t=>historyView.complete.includes(month(t.date))))/months):0;
+        appliedAverages.add(key);
+        const adjustment=amount-Math.max(0,matchedAverage);
+        if(adjustment)rows[bucket].push({name:e.name,amount:adjustment,source:'Schedule adjustment after statement overlap',bill:e.id});
+        continue;
+      }
+      if(overlapBasis.some(t=>t.account===e.account&&Math.abs(-t.amount-e.amount)<=100)){needsMatch.push(e);continue;}
+      const bucket=subscriptionLabel({description:e.name})?'recurring':'fixed';
+      rows[bucket].push({name:e.name,amount,source:'Bills schedule',bill:e.id});
+    }
+    for(const list of Object.values(rows))list.sort((a,b)=>b.amount-a.amount);
+    return {...rows,needsMatch};
+  }
   function monthlySnapshot(state,now) {
     const historyView=history(state,now);
     const stored=state.config.monthlySnapshot||{};
@@ -1568,7 +1774,6 @@ const Engine = (() => {
     const mortgageHistory=historyView.rows.find(r=>r.category===mortgageCategory);
     const recordedMortgage=Math.max(0,mortgageHistory?.average??0);
     const mortgage=scheduledMortgage||recordedMortgage;
-    const fixedNames=new Set(['Housing & utilities','Insurance','Subscriptions','Annual card fees']);
     const inHistory=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
     const borrowed=new Set(state.accounts.filter(a=>['Credit card','Line of credit or loan'].includes(a.type)).map(a=>a.id));
     const months=new Set(historyView.complete);
@@ -1576,17 +1781,19 @@ const Engine = (() => {
       inHistory.has(t.account)&&borrowed.has(t.account)&&months.has(month(t.date))&&
       /^(interest(?: |$)|retail interest\b|purchase interest\b|cash advance interest\b)/.test(normal(t.description))),t=>-t.amount);
     const interestAverage=months.size?round(modeledInterest/months.size):0;
-    const categories=historyView.rows.filter(r=>r.category!==mortgageCategory).map(r=>{
-      const settings=state.targets[r.category];
-      const override=['Fixed','Annual'].includes(settings?.method);
-      const estimate=override?r.suggestion:r.average;
-      const interest=!override&&r.category==='Interest & fees'?interestAverage:0;
-      return {name:r.category,amount:estimate===null?null:Math.max(0,estimate-interest),source:override?'Saved target':'Statement average'};
-    }).filter(r=>r.amount>0);
-    const fixedRows=categories.filter(r=>fixedNames.has(r.name));
+    const audit=recurringAudit(state,now);
+    const operating=monthlyOperatingRows(state,historyView,audit,interestAverage,mortgageSchedules,start);
+    const fixedRows=operating.fixed, recurringRows=operating.recurring, variableRows=operating.flexible;
     if(mortgage)fixedRows.unshift({name:mortgageCategory,amount:mortgage,source:scheduledMortgage?'Payment schedule or loan terms':'Statement average'});
-    const variableRows=categories.filter(r=>!fixedNames.has(r.name)).sort((a,b)=>b.amount-a.amount);
-    const fixed=stored.fixed??sum(fixedRows,r=>r.amount), variable=stored.variable??sum(variableRows,r=>r.amount);
+    // Older overrides already included recurring charges in one of these totals.
+    const recurringInFixed=recurringRows.filter(r=>r.name==='Subscriptions');
+    const recurringInVariable=recurringRows.filter(r=>r.name!=='Subscriptions');
+    const legacyFixed=stored.fixed==null?0:Math.min(stored.fixed,Math.max(0,sum(recurringInFixed,r=>r.amount)));
+    const legacyVariable=stored.variable==null?0:Math.min(stored.variable,Math.max(0,sum(recurringInVariable,r=>r.amount)));
+    const fixed=stored.fixed==null?sum(fixedRows,r=>r.amount):stored.fixed-legacyFixed;
+    const recurring=(stored.fixed==null?sum(recurringInFixed,r=>r.amount):legacyFixed)+
+      (stored.variable==null?sum(recurringInVariable,r=>r.amount):legacyVariable);
+    const variable=stored.variable==null?sum(variableRows,r=>r.amount):stored.variable-legacyVariable;
     const reserve=stored.reserve??0;
     const rawLoans=state.loans.filter(l=>l.type!=='Mortgage'&&l.balance>0);
     const assumptions=[];
@@ -1601,23 +1808,24 @@ const Engine = (() => {
       return {...l,payment:assumed,frequency:'Monthly'};
     });
     const minimums=sum(debtLoans,l=>requiredMonthly(l,l.balance));
-    const room=income-fixed-variable-minimums-reserve;
+    const room=income-fixed-recurring-variable-minimums-reserve;
     const targetExtra=stored.targetExtra??50000;
-    const possible=income-fixed-minimums-reserve;
+    const possible=income-fixed-recurring-minimums-reserve;
     const exampleVariable=Math.max(0,Math.min(variable,possible-targetExtra));
     const exampleRoom=possible-exampleVariable;
     const missingOperating=(!historyView.complete.length&&(stored.fixed==null||stored.variable==null))||
       (mortgageSchedules.length>0&&!mortgage&&stored.fixed==null);
-    return {draw,variablePay,household,income,conservative,historyView,fixedRows,variableRows,fixed,variable,reserve,
+    return {draw,variablePay,household,income,conservative,historyView,fixedRows,recurringRows,variableRows,fixed,recurring,variable,reserve,needsMatch:operating.needsMatch,
       minimums,room,targetExtra,exampleVariable,exampleRoom,possible,missingOperating,assumptions,debtLoans,stored,start};
   }
-  function repaymentBudget(budget,{variablePay,variable,reserve,targetExtra},share) {
+  function repaymentBudget(budget,{variablePay,variable,reserve,targetExtra,recurring=budget.recurring??0},share) {
     const income=budget.draw+variablePay+budget.household;
-    const committed=budget.fixed+variable+budget.minimums+reserve;
+    const costs=budget.fixed+recurring+variable+budget.minimums;
+    const committed=costs+reserve;
     const room=income-committed;
     const extra=budget.missingOperating||share===null?0:Math.min(targetExtra,Math.max(0,room));
     const toDebt=share===null?0:round(extra*share/100);
-    return {income,committed,room,extra,toDebt,toGoals:extra-toDebt,unallocated:Math.max(0,room-extra),
+    return {income,costs,committed,room,extra,toDebt,toGoals:extra-toDebt,unallocated:Math.max(0,room-extra),
       targetGap:Math.max(0,targetExtra-room),variableLimit:variable-Math.max(0,targetExtra-room)};
   }
   function monthlyDebtPlan(state,now,budget,extra,share,rollMinimums=true,trackBalances=false) {
@@ -1683,7 +1891,7 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,balances,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,monthlyCosts,recurringAudit,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
 })();
 
 'use strict';
@@ -2189,7 +2397,7 @@ const Vault=(() => {
   const byId=(items,id)=>items.find(x=>x.id===id);
   const listTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
   const frequency=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
-  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver'];
+  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver','Monthly costs'];
   const storageMessage='Browser storage is unavailable or full. Changes are in this window. Download an encrypted backup before closing it.';
   const PAGE=32;
   const idleLimit=10*60_000;
@@ -2534,12 +2742,12 @@ const Vault=(() => {
 
   function render() {
     if(!S){welcome();return;}
-    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver];
+    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver,monthCostsView];
     const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Recommendations','Recommendations']];
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
       (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Overview'&&['Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
+      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Overview'&&['Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver','Monthly costs'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
     if(tab==='Monthly snapshot')bindMonthlyScenario();
@@ -2548,7 +2756,7 @@ const Vault=(() => {
       root.querySelector('[name=cash-month]')?.addEventListener('change',event=>{cashMonth=event.target.value;render();root.querySelector('[name=cash-month]')?.focus();});
     }
     if(tab===allViews[1]) bindImport();
-    if(tab===allViews[2]) root.querySelector('[name=month-view]')?.addEventListener('change',event=>{if(/^\d{4}-\d{2}$/.test(event.target.value)){month=event.target.value;render();}});
+    if(tab===allViews[2]||tab==='Monthly costs') root.querySelector('[name=month-view]')?.addEventListener('change',event=>{if(/^\d{4}-\d{2}$/.test(event.target.value)){month=event.target.value;render();root.querySelector('[name=month-view]')?.focus({preventScroll:true});}});
     if(tab==='Cash plan') {
       const form=root.querySelector('#cash-scenario');
       form?.addEventListener('submit',event=>{
@@ -2735,7 +2943,7 @@ const Vault=(() => {
         </div>
       </div>
       <div class="decision-tools">${link('Cash history','nav','Cash history')}
-        ${link('All bills and paydays','nav','Bills')}${link('Recommendations','nav','Recommendations')}</div>`+
+        ${link('Monthly costs','open-month-costs',E.month(now))}${link('All bills and paydays','nav','Bills')}${link('Recommendations','nav','Recommendations')}</div>`+
       (latest?`<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">${H(chatUpdateSummary(latest))}</p></details>`:'');
   }
   function monthlyChanges() {
@@ -3205,7 +3413,12 @@ const Vault=(() => {
   }
   function ledgerView() {
     let amounts=null;
-    if(ledger.cashGroup) {
+    if(ledger.costBucket) {
+      const report=E.monthlyCosts(S,E.today(),ledger.month);
+      const rows=ledger.costBucket==='projects'?report.projects:report.posted[ledger.costBucket]||[];
+      amounts=new Map();
+      for(const t of rows)amounts.set(t.id,(amounts.get(t.id)||0)+t.amount);
+    } else if(ledger.cashGroup) {
       const {tone,name}=ledger.cashGroup, flow=E.recordedCash(S,E.today(),ledger.month);
       amounts=(tone==='in'?flow.sources:flow.uses).find(x=>x.name===name)?.amounts||new Map();
     } else if(ledger.project&&ledger.label) {
@@ -3243,8 +3456,8 @@ const Vault=(() => {
     const navigation=source.length>PAGE?'<div class="table-controls">'+btn('Previous','ledger-page','-1','mini',ledgerPage?'':' disabled')+
       '<small>Page '+(ledgerPage+1)+' of '+(max+1)+'</small>'+btn('Next','ledger-page','1','mini',ledgerPage<max?'':' disabled')+'</div>':'';
     const total=amounts?E.sum(source,t=>amounts.get(t.id)):0;
-    const drill=ledger.label?`<div class="category-total"><div><h3>${H(ledger.label)}</h3>
-      <strong class="money">${money(ledger.project?-total:Math.abs(total))}</strong></div>
+    const drill=ledger.label?`${ledger.costBucket?btn('‹ Monthly costs','open-month-costs',ledger.month,'quiet'):''}<div class="category-total"><div><h3>${H(ledger.label)}</h3>
+      <strong class="money">${money(ledger.project||ledger.costBucket?-total:Math.abs(total))}</strong></div>
       <p>${ledger.month?H(monthLabel(ledger.month)):'All recorded dates'}</p></div>`:'';
     const controls=drill?`<details class="subtle"><summary>Change ledger filters</summary>${filters}</details>`:filters;
     return '<div class="stack">'+drill+controls+'<p class="small">'+source.length+' matching transaction'+(source.length===1?'':'s')+'</p>'+
@@ -3357,8 +3570,8 @@ const Vault=(() => {
   function spending() {
     if(categoryDetail&&spendingTab==='Categories')return spendingCategory();
     const viewTabs=segments(['Categories','Recurring','Projects'],spendingTab,'spending-tab','Spending view');
-    const title=head('Spending','');
-    if(spendingTab==='Recurring')return title+viewTabs+recurringView();
+    const title=head('Spending',spendingTab==='Categories'?'Posted purchases and expenses by calendar month':'',monthCostLink());
+    if(spendingTab==='Recurring')return title+viewTabs+field('Calendar month',f('month-view',month,'month','max="'+E.month(E.today())+'"'))+recurringView();
     if(spendingTab==='Projects')return title+viewTabs+spendingProjects();
     const h=E.history(S,E.today(),month);
     const records=h.rows.filter(x=>x.actual||x.average||x.suggestion||Object.hasOwn(S.targets,x.category))
@@ -3460,17 +3673,83 @@ const Vault=(() => {
     return '<div class="segments" role="group" aria-label="'+H(name)+'">'+labels.map(label=>
       btn(label,action,label,'',' aria-pressed="'+String(label===active)+'"')).join('')+'</div>';
   }
+  const monthCostLabels={fixed:'Fixed bills',recurring:'Recurring charges',flexible:'Flexible spending',projects:'One-time projects'};
+  const monthCostTones={fixed:'rate',recurring:'recurring',flexible:'out',projects:'reserve',minimums:'priority'};
+  function costMix(rows) {
+    const positive=rows.filter(([,amount])=>amount>0);
+    const total=E.sum(positive,([,amount])=>amount);
+    return total?`<div class="budget-stack cost-mix" aria-hidden="true">${positive.map(([k,amount])=>
+      `<i class="${monthCostTones[k]}" style="width:${amount/total*100}%"></i>`).join('')}</div>`:'';
+  }
+  const costDot=k=>`<i class="${monthCostTones[k]}" aria-hidden="true"></i>`;
+  function monthCostLink(period=month) {
+    return btn('Monthly costs','open-month-costs',period,'quiet');
+  }
+  function monthCostsView() {
+    const now=E.today(), report=E.monthlyCosts(S,now,month), plan=E.monthlySnapshot(S,now);
+    const picker=field('Calendar month',f('month-view',month,'month','max="'+E.month(now)+'"'));
+    const recorded=[...Object.entries(report.totals),['projects',report.projectTotal]];
+    const planned=[['fixed',plan.fixed],['recurring',plan.recurring],['flexible',plan.variable],['minimums',plan.minimums]];
+    const recordedRows=recorded.map(([k,amount])=>
+      `<li><span>${costDot(k)}${link(monthCostLabels[k],'month-cost-drill',k)}</span><b class="money">${money(report.available?amount:null)}</b></li>`).join('');
+    const planRows=planned.map(([k,amount])=>
+      `<li><span>${costDot(k)}${monthCostLabels[k]||'Debt minimums'}</span><b class="money">${money(amount)}</b></li>`).join('');
+    const planTotal=plan.fixed+plan.recurring+plan.variable+plan.minimums;
+    const opening=`<div class="home-grid month-cost-overview">
+      <section class="monthly-total">
+        <h2>Recorded costs</h2><strong class="money">${money(report.available?report.total:null)}</strong>
+        <p>Through ${H(dateLabel(report.through))}${report.gaps.length?' · '+report.gaps.length+' account gaps':''}</p>
+        ${report.available?costMix(recorded):''}<ul class="monthly-cost-rows">${recordedRows}</ul>
+        ${report.review?link(report.review+' transactions in Review','month-inbox',month):''}
+      </section>
+      ${panel('Typical monthly plan',
+        `<p class="monthly-plan-value money">${money(plan.missingOperating?null:planTotal)}</p>
+        ${plan.missingOperating?'':costMix(planned)}<ul class="monthly-cost-rows">${planRows}</ul>
+        <p class="small">Before savings, extra debt payments, and one-time projects.</p>
+        ${plan.needsMatch.length?'<p class="small">'+plan.needsMatch.length+' bill schedules need matching.</p>':''}
+        ${btn('Debt repayment plan','nav','Monthly snapshot','mini quiet')}`,
+        plan.missingOperating?'Some budget inputs are still missing':'Current planning baseline')}
+    </div>`;
+    const lines=report.billRows.map(({event:e,matched,paymentOnly})=>`<li><div>
+      <small>${H(dateLabel(e.date))} · ${H(e.status==='Paid'?'Marked paid':matched?'Matched to a posted charge':paymentOnly?'Debt or card payment':e.variable?'Estimated':'Scheduled')}</small>
+      ${link(e.name,'occurrence',e.key)}
+      ${matched?`<small>${link('View posted charge','transaction',matched.id)}</small>`:''}
+      </div><b class="money">${money(e.forecastAmount)}</b></li>`).join('');
+    const timing=`<details class="panel home-disclosure"><summary>Bill schedule for ${H(monthLabel(month))} · ${report.billRows.length}</summary>
+      ${lines?`<ul class="list event-list">${lines}</ul>`:no('There are no scheduled bills for this calendar month.')}
+      ${link('Open upcoming Bills','nav','Bills')}</details>`;
+    return head('Monthly costs','',picker)+opening+
+      `<div class="decision-tools">${link('Recurring charge audit','open-recurring')}${link('Spending categories','open-spending-period',month)}${link('Upcoming Bills','nav','Bills')}</div>`+
+      timing+
+      `<details class="subtle section-gap"><summary>How the totals reconcile</summary><p class="small">Fixed bills are commitments such as the mortgage, utilities and insurance. Their amounts can vary. Subscriptions and memberships show under recurring charges. Flexible purchases include groceries, dining and shopping. The recorded total also includes projects and subtracts refunds. The Bills schedule shows when to fund payments. Credit card purchases enter recorded costs when posted. Their repayments appear in the Bills schedule. The planning baseline includes required debt payments separately.</p></details>`;
+  }
   function recurringView() {
-    const h=E.recurringCharges(S);
-    const rows=h.map(x=>{
-      const t=x.transaction;
-      return '<li><div><small>'+H(x.frequency)+' pattern · '+H(t.category)+'</small>'+
-        link(t.description,'merchant-history',t.id)+'<small>'+H(alias(t.account))+' · Last seen '+H(t.date)+' · '+x.count+' matching charges</small></div>'+
-        '<div class="recurring-amount"><strong class="money">'+money(x.amount)+'</strong><small>Typical charge</small></div></li>';
-    });
-    return panel('Recurring charges',rows.length?'<ul class="list event-list">'+rows.join('')+'</ul>':
-      no('Recurring charges appear after at least three similar payments at regular intervals.'),
-      'Detected in statement history. Tap a merchant to see its charges.');
+    const now=E.today(), report=E.monthlyCosts(S,now,month);
+    const audit=report.audit.rows;
+    const stats=`<section class="recurring-summary">
+      <div><span>Recorded recurring charges</span><strong class="money">${money(report.available?report.totals.recurring:null)}</strong></div>
+      <div><span>Pattern-based monthly estimate</span><b class="money">${money(E.sum(audit.filter(x=>!x.householdBill),x=>x.monthly))}</b></div>
+    </section>`;
+    const group=(item)=>{
+      const t=item.transaction;
+      const rows=item.rows.filter(x=>E.month(x.date)===month).slice().sort((a,b)=>b.date.localeCompare(a.date));
+      const sources=rows.length?rows:item.rows.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+      const status=item.patterns.length>1?item.status+' · '+item.patterns.length+' price patterns':item.status;
+      const list=sources.map(x=>`<li><div><small>${H(dateLabel(x.date))} · ${H(alias(x.account))}</small>
+        ${link(x.description,'transaction',x.id)}</div><b class="money">${x.amount>0?signedMoney(x.amount):money(-x.amount)}</b></li>`).join('');
+      const patterns=item.patterns.map(p=>`<li><span>${H(p.frequency)} · ${money(p.amount)}</span><small>${H(p.status)} · ${H(dateLabel(p.last))}</small></li>`).join('');
+      return `<details class="subtle recurring-group"><summary><span><strong>${H(t.description)}</strong>
+        <small>${H(alias(t.account))} · ${H(status)}</small></span><b class="money">${money(item.recorded)}</b></summary>
+        ${patterns?`<ul class="list recurring-patterns">${patterns}</ul>`:''}
+        <p class="small">${rows.length?'Posted in '+H(monthLabel(month)):'Recent evidence before this month'}</p>
+        <ul class="list event-list">${list}</ul></details>`;
+    };
+    const charges=audit.filter(x=>!x.householdBill);
+    const fixed=audit.filter(x=>x.householdBill);
+    return stats+panel('Recurring charge audit',charges.length?charges.map(group).join(''):no('Recurring charges appear when statement activity identifies a subscription or a payment pattern.'),
+      'Expand a merchant to check its posted charges, price patterns, and timing.',btn('View posted charges','month-cost-drill','recurring','mini quiet'))+
+      (fixed.length?`<details class="panel home-disclosure"><summary>Recurring fixed bills · ${fixed.length}</summary>${fixed.map(group).join('')}</details>`:'')+
+      `<details class="subtle section-gap"><summary>How the run rate is estimated</summary><p class="small">Charges at separate prices are checked for their own pattern. The run rate uses patterns with recent evidence and a regular interval. Check renewal dates for merchants with irregular amounts, incomplete statements or older activity. The recorded figure uses posted transactions for the selected month, including subscription charges awaiting confirmation.</p></details>`;
   }
   function monthlyClose() {
     const now=E.today(), start=month+'-01', end=E.monthEnd(start), history=E.history(S,now,month);
@@ -3547,7 +3826,7 @@ const Vault=(() => {
     const alerts=new Set(p.shortfalls.map(x=>x.key));
     const section=(title,items,empty)=>panel(title,items.length?'<ul class="list event-list">'+items.map(x=>eventItem(x,now,alerts)).join('')+'</ul>':no(empty));
     const plans=S.bills.map(x=>'<li><div>'+link(x.name,'bill-edit',x.id)+'<small class="small">'+H(x.frequency)+' · '+H(alias(x.account))+'</small></div><strong class="money">'+money(x.amount)+'</strong></li>');
-    return head('Bills & paydays','Through '+dateLabel(end),'<div class="actions">'+btn('Add a date','bill-edit','','primary')+btn('Reminders','calendar')+'</div>')+
+    return head('Bills & paydays','Payment calendar through '+dateLabel(end),'<div class="actions">'+monthCostLink()+btn('Add a date','bill-edit','','primary')+btn('Reminders','calendar')+'</div>')+
       scheduleSummary(open,now,end)+
       '<div class="actions section-tools">'+btn(postingWindow?'Show standard window':'Show 90 days','bill-window','','mini quiet')+'</div>'+
       '<div class="home-grid">'+section('Bills & debt payments',open.filter(x=>x.direction==='Bill'),'No open payments in this window.')+
@@ -3823,23 +4102,47 @@ const Vault=(() => {
     else items[index]=item;
   }
   function scenarioValues(b) {
-    return {variablePay:b.variablePay,variable:b.variable,reserve:b.reserve,targetExtra:b.targetExtra,share:S.config.debtShare,...scenarioDraft};
+    const values={variablePay:b.variablePay,variable:b.variable,recurring:b.recurring,reserve:b.reserve,
+      targetExtra:b.targetExtra,share:S.config.debtShare,...scenarioDraft};
+    if(values.allAvailable)values.targetExtra=Math.max(0,E.repaymentBudget(b,values,100).room);
+    return values;
   }
   const scenarioFields=[
     ['variablePay','Second pay',300000,10000],
-    ['variable','Variable living expenses',300000,5000],
+    ['variable','Flexible spending',300000,5000],
+    ['recurring','Recurring charges',100000,2500],
     ['reserve','Monthly set-aside',200000,2500],
-    ['targetExtra','Extra monthly budget',200000,2500],
+    ['targetExtra','Extra monthly budget',0,1],
     ['share','Share of extra cash to debt',100,1]
   ];
   const scenarioFormat=(key,value)=>key==='share'?value+'%':money(value);
-  function scenarioSlider([key,label,limit,step], value,baseline) {
-    const min=value%step, max=Math.max(limit,Math.ceil(Math.max(value,baseline)*1.55/step)*step)+min;
+  function sliderState([key,,limit,step],v,b,calculation) {
+    if(key==='share')return {value:v.share,max:100,disabled:!calculation.extra};
+    if(key==='targetExtra'){
+      const available=b.missingOperating?0:Math.max(0,calculation.room);
+      return {value:calculation.extra,max:Math.max(1,available),
+        disabled:!available||repaymentMode==='Minimums only'||!b.debtLoans.length||v.allAvailable};
+    }
+    return {value:v[key],max:Math.max(limit,v[key],Math.ceil(b[key]*1.55/step)*step),disabled:false};
+  }
+  function scenarioSlider(info,v,b,calculation) {
+    const [key,label]=info, state=sliderState(info,v,b,calculation);
     return `<label class="scenario-control" for="scenario-${key}"><span>${H(label)}</span>
-      <output id="scenario-${key}-value" for="scenario-${key}">${scenarioFormat(key,value)}</output>
-      <input id="scenario-${key}" type="range" min="${key==='share'?0:min}" max="${key==='share'?100:max}" step="${step}" value="${value}"
-        data-scenario="${key}" aria-valuetext="${H(scenarioFormat(key,value))}">
+      <output id="scenario-${key}-value" for="scenario-${key}">${scenarioFormat(key,state.value)}</output>
+      <input id="scenario-${key}" type="range" min="0" max="${state.max}" step="${key==='share'?1:'any'}" value="${state.value}"
+        data-scenario="${key}" aria-valuetext="${H(scenarioFormat(key,state.value))}"${state.disabled?' disabled':''}>
     </label>`;
+  }
+  function allocationNote(b,v,calculation) {
+    if(repaymentMode==='Minimums only'||!b.debtLoans.length)return 'Extra payments are off in this strategy.';
+    if(b.missingOperating)return 'Confirm monthly costs to calculate the limit.';
+    const available=Math.max(0,calculation.room);
+    if(v.allAvailable)return money(available)+' available. Extra budget follows the room left.';
+    if(v.targetExtra>available)return 'Requested '+money(v.targetExtra)+' · limited to '+money(available)+'.';
+    return money(available)+' available for extra debt payments and goals.';
+  }
+  function selectedDebtShare(b,v) {
+    return !b.debtLoans.length||repaymentMode==='Minimums only'?null:repaymentMode==='Debt first'?100:v.share;
   }
   function monthlySnapshot() {
     const now=E.today(), b=E.monthlySnapshot(S,now);
@@ -3849,17 +4152,19 @@ const Vault=(() => {
       <ul class="list">${b.assumptions.map(x=>`<li><div>${link(x.name,'loan-edit',x.id)}
       <small class="small">${money(x.recorded)} on file · ${money(x.interest)} estimated interest</small></div>
       <strong>${money(x.assumed)}<small class="small">Model placeholder</small></strong></li>`).join('')}</ul></details>`:'';
-    const costRows=rows=>rows.map(x=>`<li><div>${x.source==='Payment schedule or loan terms'?link(x.name,'nav','Bills'):
+    const costRows=rows=>rows.map(x=>`<li><div>${x.bill?link(x.name,'bill-edit',x.bill):x.source==='Payment schedule or loan terms'?link(x.name,'nav','Bills'):
       b.historyView.rows.some(r=>r.category===x.name)?link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
     const result=scenarioResult(b,now,v,runwayData());
-    return head('Monthly Snapshot',monthLabel(b.start)+' plan',btn('Edit saved assumptions','month-plan-edit','','quiet'))+
+    return head('Monthly Snapshot',monthLabel(b.start)+' plan','<div class="actions">'+monthCostLink(E.month(now))+btn('Edit saved assumptions','month-plan-edit','','quiet')+'</div>')+
       `<div class="scenario-layout"><div class="scenario-left">
         <div class="scenario-output decision-funding" id="monthly-funding-result">${result.funding}</div>
         <section class="panel scenario-panel"><div class="panel-title"><div><h2>Try a scenario</h2><p>Changes here are temporary.</p></div>
           ${btn('Reset','scenario-reset','','mini quiet')}</div>
           <div class="scenario-live" id="scenario-live">${result.live}</div>
+          <div class="scenario-all"><span id="allocation-note">${H(allocationNote(b,v,result.calculation))}</span>
+          ${b.debtLoans.length&&repaymentMode!=='Minimums only'?btn('Use all available','scenario-auto','','mini quiet',' aria-pressed="'+Boolean(v.allAvailable)+'"'):''}</div>
           <div id="scenario-controls">${scenarioFields.filter(x=>x[0]!=='share'||repaymentMode==='Debt + goals')
-            .map(info=>scenarioSlider(info,v[info[0]],b[info[0]]??S.config.debtShare)).join('')}</div>
+            .map(info=>scenarioSlider(info,v,b,result.calculation)).join('')}</div>
 
         </section>
         </div><div class="scenario-right">
@@ -3869,9 +4174,10 @@ const Vault=(() => {
       <details class="panel home-disclosure"><summary>Monthly budget breakdown</summary>
         <div class="home-grid">
           ${panel('Fixed household costs',b.fixedRows.length?`<ul class="list">${costRows(b.fixedRows)}</ul>`:no('No fixed categories or mortgage schedule on file.'),b.stored.fixed!=null?'Saved total overrides these source amounts':'')}
-          ${panel('Variable living expenses',b.variableRows.length?`<ul class="list">${costRows(b.variableRows)}</ul>`:no('No variable category averages or targets on file.'),b.stored.variable!=null?'Saved total overrides these source amounts':'')}
+          ${panel('Flexible spending',b.variableRows.length?`<ul class="list">${costRows(b.variableRows)}</ul>`:no('No flexible category averages or targets on file.'),b.stored.variable!=null?'Saved total includes its share of recurring charges':'')}
+          ${panel('Recurring charges',b.recurringRows.length?`<ul class="list">${costRows(b.recurringRows)}</ul>`:no('No recurring charges identified.'),'Subscriptions, memberships and other repeated discretionary bills',btn('Audit charges','open-recurring','','mini quiet'))}
         </div>
-        <p class="small section-gap">${b.historyView.complete.length} complete months in the baseline. Project costs are handled separately. Mortgage payments are in fixed costs.</p>
+        <p class="small section-gap">${b.historyView.complete.length} complete months in the baseline. Fixed costs include the mortgage. One-time projects are separate.</p>
       </details>
       ${assumptions}
       <details class="subtle section-gap"><summary>Payoff estimate assumptions</summary>
@@ -3885,14 +4191,25 @@ const Vault=(() => {
     const budgetOutput=root.querySelector('#monthly-budget-result'), payoffOutput=root.querySelector('#monthly-payoff-result');
     const live=root.querySelector('#scenario-live');
     const funding=root.querySelector('#monthly-funding-result');
+    const noteElement=root.querySelector('#allocation-note');
     controls.addEventListener('input',event=>{
       const input=event.target, key=input.dataset.scenario, value=Number(input.value);
       if(!key||!Number.isFinite(value))return;
-      scenarioDraft[key]=value;
-      const text=scenarioFormat(key,value);
-      input.setAttribute('aria-valuetext',text);
-      controls.querySelector('#scenario-'+key+'-value').textContent=text;
-      const result=scenarioResult(baseline,now,scenarioValues(baseline),cash);
+      scenarioDraft[key]=Math.round(value);
+      const values=scenarioValues(baseline);
+      const result=scenarioResult(baseline,now,values,cash);
+      for(const info of scenarioFields){
+        const [field]=info,range=controls.querySelector('#scenario-'+field);
+        if(!range)continue;
+        const next=sliderState(info,values,baseline,result.calculation);
+        if(field==='targetExtra')range.max=next.max;
+        range.value=next.value;
+        range.disabled=next.disabled;
+        const text=scenarioFormat(field,next.value);
+        range.setAttribute('aria-valuetext',text);
+        controls.querySelector('#scenario-'+field+'-value').textContent=text;
+      }
+      noteElement.textContent=allocationNote(baseline,values,result.calculation);
       funding.innerHTML=result.funding;
       budgetOutput.innerHTML=result.budget;
       payoffOutput.innerHTML=result.timeline;
@@ -3927,6 +4244,7 @@ const Vault=(() => {
     } else if(!toDebt)timing='This scenario budgets no extra payment.';
     const flags=[
       b.assumptions.length?'Some lender payments are estimates.':'',
+      b.needsMatch.length?b.needsMatch.length+' bill schedules need reconciliation.':'',
       b.historyView.baselineReview&&(b.stored.fixed==null||b.stored.variable==null)?'Some purchases in the budget baseline are still in Review.':''
     ].filter(Boolean);
     const result=`<div class="funding-grid">
@@ -3952,11 +4270,11 @@ const Vault=(() => {
       }).join('')}</div>`;
   }
   function scenarioResult(b,now,v,cash) {
-    const share=!b.debtLoans.length?null:repaymentMode==='Debt first'?100:repaymentMode==='Debt + goals'?v.share:null;
+    const share=selectedDebtShare(b,v);
     const calculation=E.repaymentBudget(b,v,share);
-    const {income,committed,room,extra,targetGap,variableLimit}=calculation;
-    const rows=[['Fixed costs',b.fixed,'rate'],['Variable costs',v.variable,'out'],
-      ['Debt payments',b.minimums,'priority'],['Set-aside',v.reserve,'reserve']].filter((x,i)=>x[1]||i<3);
+    const {income,costs,committed,room,extra,targetGap,variableLimit}=calculation;
+    const rows=[['Fixed bills',b.fixed,'rate'],['Recurring charges',v.recurring,'recurring'],['Flexible spending',v.variable,'out'],
+      ['Debt minimums',b.minimums,'priority'],['Set-aside',v.reserve,'reserve']].filter((x,i)=>x[1]||i<4);
     const scale=Math.max(income,committed,1);
     const budget=`<section class="panel budget-result"><div class="budget-result-head"><div>
       <h2>${room<0&&!b.missingOperating?'Monthly shortfall':'Left after monthly costs'}</h2>
@@ -3967,6 +4285,7 @@ const Vault=(() => {
         <span>Household <b>${money(b.household)}</b></span></div>
       <div class="budget-stack" aria-hidden="true">${rows.filter(x=>x[1]>0).map(x=>`<i class="${x[2]}" style="width:${x[1]/scale*100}%"></i>`).join('')}
         ${room>0&&!b.missingOperating?`<i class="room" style="width:${room/scale*100}%"></i>`:''}</div>
+      <p class="budget-monthly-total"><span>Monthly costs before set-aside</span><strong class="money">${money(b.missingOperating?null:costs)}</strong></p>
       <ul class="budget-costs">${rows.map(([label,amount,tone])=>`<li><i class="${tone}" aria-hidden="true"></i><span>${label}</span><b>${money(amount)}</b></li>`).join('')}</ul>
       ${!b.missingOperating&&share>0&&targetGap>0?`<div class="budget-gap"><div><strong>${money(targetGap)} gap to the extra monthly budget</strong>
         <small>${variableLimit>=0?'Variable costs would need to be '+money(variableLimit)+' or less.':'Fixed commitments alone leave too little for this target.'}</small></div>
@@ -3979,7 +4298,7 @@ const Vault=(() => {
     const funding=b.missingOperating?panel('Plan extra payments',no('Confirm your monthly costs first.'),'',btn('Edit assumptions','month-plan-edit','','mini quiet')):
       fundingPlan(b,now,v,calculation,cash);
     const live=`<span>${room<0&&!b.missingOperating?'Monthly shortfall':'Left after costs'}</span><b>${b.missingOperating?'—':money(Math.abs(room))}</b>`;
-    return {budget,timeline,live,funding:funding+(options?panel('Compare repayment options',options,'Estimated payoff dates for non-mortgage debt'):'')};
+    return {budget,timeline,live,calculation,funding:funding+(options?panel('Compare repayment options',options,'Estimated payoff dates for non-mortgage debt'):'')};
   }
   function payoffPlot(model,baseline,now) {
     if(!model.balances?.length||!baseline.balances?.length)return '';
@@ -4518,15 +4837,18 @@ const Vault=(() => {
     'category-page':step=>{categoryPage=Math.max(0,categoryPage+Number(step));render();root.querySelector('.category-transactions')?.scrollIntoView({block:'start'});},
     'month-plan-edit':editMonthlySnapshot,
     'planning-category':id=>{const [category,source]=JSON.parse(id);openCategory(category,E.month(E.today()),source==='Saved target'?'Target':'Average');},
+    'scenario-auto':()=>{scenarioDraft.allAvailable=!scenarioDraft.allAvailable;render();root.querySelector('[data-act=scenario-auto]')?.focus({preventScroll:true});},
     'scenario-reset':()=>{scenarioDraft={};repaymentMode='Debt first';render();root.querySelector('[data-act=scenario-reset]')?.focus();},
-    'scenario-fit':amount=>{scenarioDraft.variable=Number(amount);render();root.querySelector('#scenario-variable')?.focus();},
+    'scenario-fit':amount=>{scenarioDraft.variable=Math.max(0,Number(amount));render();root.querySelector('#scenario-variable')?.focus();},
     'monthly-repayment':mode=>{repaymentMode=mode;render();root.querySelector('[data-act=monthly-repayment][aria-pressed=true]')?.focus({preventScroll:true});},
     'open-cash-month':period=>{cashMonth=period;go('Cash history');},
     'open-changes':period=>{changesMonth=period;go('Monthly changes');},
     'change-driver':id=>{const [period,tone,name]=JSON.parse(id);changeSelection={period,tone,name,side:'This period'};categoryPage=0;go('Change driver');},
     'change-side':side=>{changeSelection.side=side;categoryPage=0;render();root.querySelector('[data-act=change-side][aria-pressed=true]')?.focus();},
     'open-spending-period':period=>{month=period;categoryDetail='';spendingTab='Categories';go('Spending');},
-    'open-recurring':()=>{spendingTab='Recurring';go('Spending');},
+    'open-month-costs':period=>{if(period)month=period;go('Monthly costs');},
+    'month-cost-drill':id=>setLedger({month,costBucket:id,label:monthCostLabels[id]}),
+    'open-recurring':()=>{spendingTab='Recurring';categoryDetail='';go('Spending');},
     'mortgage-terms':()=>loanEdit('mortgage'),
     'income-schedule':()=>billEdit('income'),
     'cash-forecast':()=>go('Cash plan'),

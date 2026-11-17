@@ -17,7 +17,7 @@
   const byId=(items,id)=>items.find(x=>x.id===id);
   const listTypes=['Chequing','Savings','Credit card','Line of credit or loan','Other'];
   const frequency=['Once','Weekly','Biweekly','Monthly','Quarterly','Annual'];
-  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver'];
+  const allViews=['Overview','Import & review','Spending','Bills','Debt & goals','Settings','Recommendations','Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver','Monthly costs'];
   const storageMessage='Browser storage is unavailable or full. Changes are in this window. Download an encrypted backup before closing it.';
   const PAGE=32;
   const idleLimit=10*60_000;
@@ -362,12 +362,12 @@
 
   function render() {
     if(!S){welcome();return;}
-    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver];
+    const views=[overview,imports,spending,bills,debt,settings,recommendations,cashPlan,monthlySnapshot,cashHistory,monthlyChanges,changeDriver,monthCostsView];
     const tabs=[['Home','Overview'],['Spending','Spending'],['Bills','Bills'],['Debt','Debt & goals'],['Review','Import & review'],['Recommendations','Recommendations']];
     root.innerHTML='<header class="top"><div class="top-inner"><div class="brand-row">'+brand+'<div class="actions"><span class="small">'+(sample?'Fictional demo':'Household')+'</span>'+
       atlasLink+'<button type="button" class="btn mini quiet settings-shortcut" data-act="nav" data-id="Settings" aria-label="Settings"'+(tab==='Settings'?' aria-current="page"':'')+'>'+icon(tabIcons.Settings)+'</button>'+
       (sample?btn('Exit demo','lock','','mini quiet'):btn('Lock','lock','','mini quiet'))+'</div></div><nav class="nav" aria-label="Dashboard">'+
-      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Overview'&&['Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
+      tabs.map(([label,v])=>'<button type="button" class="nav-tab" data-act="nav" data-id="'+H(v)+'"'+(v===tab||v==='Overview'&&['Cash plan','Monthly snapshot','Cash history','Monthly changes','Change driver','Monthly costs'].includes(tab)?' aria-current="page"':'')+'>'+icon(tabIcons[label])+(v==='Recommendations'?'<span class="wide-label">Recommendations</span><span class="short-label" aria-hidden="true">Advice</span><span class="screen-reader compact-label">Recommendations</span>':'<span>'+H(label)+'</span>')+'</button>').join('')+'</nav></div></header><main id="main">'+
       (storageProblem?banner(H(storageMessage)+' '+link('Download encrypted backup','backup'),'warning'):'')+
       views[allViews.indexOf(tab)]()+'</main>';
     if(tab==='Monthly snapshot')bindMonthlyScenario();
@@ -376,7 +376,7 @@
       root.querySelector('[name=cash-month]')?.addEventListener('change',event=>{cashMonth=event.target.value;render();root.querySelector('[name=cash-month]')?.focus();});
     }
     if(tab===allViews[1]) bindImport();
-    if(tab===allViews[2]) root.querySelector('[name=month-view]')?.addEventListener('change',event=>{if(/^\d{4}-\d{2}$/.test(event.target.value)){month=event.target.value;render();}});
+    if(tab===allViews[2]||tab==='Monthly costs') root.querySelector('[name=month-view]')?.addEventListener('change',event=>{if(/^\d{4}-\d{2}$/.test(event.target.value)){month=event.target.value;render();root.querySelector('[name=month-view]')?.focus({preventScroll:true});}});
     if(tab==='Cash plan') {
       const form=root.querySelector('#cash-scenario');
       form?.addEventListener('submit',event=>{
@@ -563,7 +563,7 @@
         </div>
       </div>
       <div class="decision-tools">${link('Cash history','nav','Cash history')}
-        ${link('All bills and paydays','nav','Bills')}${link('Recommendations','nav','Recommendations')}</div>`+
+        ${link('Monthly costs','open-month-costs',E.month(now))}${link('All bills and paydays','nav','Bills')}${link('Recommendations','nav','Recommendations')}</div>`+
       (latest?`<details class="subtle section-gap"><summary>Last chat update</summary><p class="small">${H(chatUpdateSummary(latest))}</p></details>`:'');
   }
   function monthlyChanges() {
@@ -1033,7 +1033,12 @@
   }
   function ledgerView() {
     let amounts=null;
-    if(ledger.cashGroup) {
+    if(ledger.costBucket) {
+      const report=E.monthlyCosts(S,E.today(),ledger.month);
+      const rows=ledger.costBucket==='projects'?report.projects:report.posted[ledger.costBucket]||[];
+      amounts=new Map();
+      for(const t of rows)amounts.set(t.id,(amounts.get(t.id)||0)+t.amount);
+    } else if(ledger.cashGroup) {
       const {tone,name}=ledger.cashGroup, flow=E.recordedCash(S,E.today(),ledger.month);
       amounts=(tone==='in'?flow.sources:flow.uses).find(x=>x.name===name)?.amounts||new Map();
     } else if(ledger.project&&ledger.label) {
@@ -1071,8 +1076,8 @@
     const navigation=source.length>PAGE?'<div class="table-controls">'+btn('Previous','ledger-page','-1','mini',ledgerPage?'':' disabled')+
       '<small>Page '+(ledgerPage+1)+' of '+(max+1)+'</small>'+btn('Next','ledger-page','1','mini',ledgerPage<max?'':' disabled')+'</div>':'';
     const total=amounts?E.sum(source,t=>amounts.get(t.id)):0;
-    const drill=ledger.label?`<div class="category-total"><div><h3>${H(ledger.label)}</h3>
-      <strong class="money">${money(ledger.project?-total:Math.abs(total))}</strong></div>
+    const drill=ledger.label?`${ledger.costBucket?btn('‹ Monthly costs','open-month-costs',ledger.month,'quiet'):''}<div class="category-total"><div><h3>${H(ledger.label)}</h3>
+      <strong class="money">${money(ledger.project||ledger.costBucket?-total:Math.abs(total))}</strong></div>
       <p>${ledger.month?H(monthLabel(ledger.month)):'All recorded dates'}</p></div>`:'';
     const controls=drill?`<details class="subtle"><summary>Change ledger filters</summary>${filters}</details>`:filters;
     return '<div class="stack">'+drill+controls+'<p class="small">'+source.length+' matching transaction'+(source.length===1?'':'s')+'</p>'+
@@ -1185,8 +1190,8 @@
   function spending() {
     if(categoryDetail&&spendingTab==='Categories')return spendingCategory();
     const viewTabs=segments(['Categories','Recurring','Projects'],spendingTab,'spending-tab','Spending view');
-    const title=head('Spending','');
-    if(spendingTab==='Recurring')return title+viewTabs+recurringView();
+    const title=head('Spending',spendingTab==='Categories'?'Posted purchases and expenses by calendar month':'',monthCostLink());
+    if(spendingTab==='Recurring')return title+viewTabs+field('Calendar month',f('month-view',month,'month','max="'+E.month(E.today())+'"'))+recurringView();
     if(spendingTab==='Projects')return title+viewTabs+spendingProjects();
     const h=E.history(S,E.today(),month);
     const records=h.rows.filter(x=>x.actual||x.average||x.suggestion||Object.hasOwn(S.targets,x.category))
@@ -1288,17 +1293,83 @@
     return '<div class="segments" role="group" aria-label="'+H(name)+'">'+labels.map(label=>
       btn(label,action,label,'',' aria-pressed="'+String(label===active)+'"')).join('')+'</div>';
   }
+  const monthCostLabels={fixed:'Fixed bills',recurring:'Recurring charges',flexible:'Flexible spending',projects:'One-time projects'};
+  const monthCostTones={fixed:'rate',recurring:'recurring',flexible:'out',projects:'reserve',minimums:'priority'};
+  function costMix(rows) {
+    const positive=rows.filter(([,amount])=>amount>0);
+    const total=E.sum(positive,([,amount])=>amount);
+    return total?`<div class="budget-stack cost-mix" aria-hidden="true">${positive.map(([k,amount])=>
+      `<i class="${monthCostTones[k]}" style="width:${amount/total*100}%"></i>`).join('')}</div>`:'';
+  }
+  const costDot=k=>`<i class="${monthCostTones[k]}" aria-hidden="true"></i>`;
+  function monthCostLink(period=month) {
+    return btn('Monthly costs','open-month-costs',period,'quiet');
+  }
+  function monthCostsView() {
+    const now=E.today(), report=E.monthlyCosts(S,now,month), plan=E.monthlySnapshot(S,now);
+    const picker=field('Calendar month',f('month-view',month,'month','max="'+E.month(now)+'"'));
+    const recorded=[...Object.entries(report.totals),['projects',report.projectTotal]];
+    const planned=[['fixed',plan.fixed],['recurring',plan.recurring],['flexible',plan.variable],['minimums',plan.minimums]];
+    const recordedRows=recorded.map(([k,amount])=>
+      `<li><span>${costDot(k)}${link(monthCostLabels[k],'month-cost-drill',k)}</span><b class="money">${money(report.available?amount:null)}</b></li>`).join('');
+    const planRows=planned.map(([k,amount])=>
+      `<li><span>${costDot(k)}${monthCostLabels[k]||'Debt minimums'}</span><b class="money">${money(amount)}</b></li>`).join('');
+    const planTotal=plan.fixed+plan.recurring+plan.variable+plan.minimums;
+    const opening=`<div class="home-grid month-cost-overview">
+      <section class="monthly-total">
+        <h2>Recorded costs</h2><strong class="money">${money(report.available?report.total:null)}</strong>
+        <p>Through ${H(dateLabel(report.through))}${report.gaps.length?' · '+report.gaps.length+' account gaps':''}</p>
+        ${report.available?costMix(recorded):''}<ul class="monthly-cost-rows">${recordedRows}</ul>
+        ${report.review?link(report.review+' transactions in Review','month-inbox',month):''}
+      </section>
+      ${panel('Typical monthly plan',
+        `<p class="monthly-plan-value money">${money(plan.missingOperating?null:planTotal)}</p>
+        ${plan.missingOperating?'':costMix(planned)}<ul class="monthly-cost-rows">${planRows}</ul>
+        <p class="small">Before savings, extra debt payments, and one-time projects.</p>
+        ${plan.needsMatch.length?'<p class="small">'+plan.needsMatch.length+' bill schedules need matching.</p>':''}
+        ${btn('Debt repayment plan','nav','Monthly snapshot','mini quiet')}`,
+        plan.missingOperating?'Some budget inputs are still missing':'Current planning baseline')}
+    </div>`;
+    const lines=report.billRows.map(({event:e,matched,paymentOnly})=>`<li><div>
+      <small>${H(dateLabel(e.date))} · ${H(e.status==='Paid'?'Marked paid':matched?'Matched to a posted charge':paymentOnly?'Debt or card payment':e.variable?'Estimated':'Scheduled')}</small>
+      ${link(e.name,'occurrence',e.key)}
+      ${matched?`<small>${link('View posted charge','transaction',matched.id)}</small>`:''}
+      </div><b class="money">${money(e.forecastAmount)}</b></li>`).join('');
+    const timing=`<details class="panel home-disclosure"><summary>Bill schedule for ${H(monthLabel(month))} · ${report.billRows.length}</summary>
+      ${lines?`<ul class="list event-list">${lines}</ul>`:no('There are no scheduled bills for this calendar month.')}
+      ${link('Open upcoming Bills','nav','Bills')}</details>`;
+    return head('Monthly costs','',picker)+opening+
+      `<div class="decision-tools">${link('Recurring charge audit','open-recurring')}${link('Spending categories','open-spending-period',month)}${link('Upcoming Bills','nav','Bills')}</div>`+
+      timing+
+      `<details class="subtle section-gap"><summary>How the totals reconcile</summary><p class="small">Fixed bills are commitments such as the mortgage, utilities and insurance. Their amounts can vary. Subscriptions and memberships show under recurring charges. Flexible purchases include groceries, dining and shopping. The recorded total also includes projects and subtracts refunds. The Bills schedule shows when to fund payments. Credit card purchases enter recorded costs when posted. Their repayments appear in the Bills schedule. The planning baseline includes required debt payments separately.</p></details>`;
+  }
   function recurringView() {
-    const h=E.recurringCharges(S);
-    const rows=h.map(x=>{
-      const t=x.transaction;
-      return '<li><div><small>'+H(x.frequency)+' pattern · '+H(t.category)+'</small>'+
-        link(t.description,'merchant-history',t.id)+'<small>'+H(alias(t.account))+' · Last seen '+H(t.date)+' · '+x.count+' matching charges</small></div>'+
-        '<div class="recurring-amount"><strong class="money">'+money(x.amount)+'</strong><small>Typical charge</small></div></li>';
-    });
-    return panel('Recurring charges',rows.length?'<ul class="list event-list">'+rows.join('')+'</ul>':
-      no('Recurring charges appear after at least three similar payments at regular intervals.'),
-      'Detected in statement history. Tap a merchant to see its charges.');
+    const now=E.today(), report=E.monthlyCosts(S,now,month);
+    const audit=report.audit.rows;
+    const stats=`<section class="recurring-summary">
+      <div><span>Recorded recurring charges</span><strong class="money">${money(report.available?report.totals.recurring:null)}</strong></div>
+      <div><span>Pattern-based monthly estimate</span><b class="money">${money(E.sum(audit.filter(x=>!x.householdBill),x=>x.monthly))}</b></div>
+    </section>`;
+    const group=(item)=>{
+      const t=item.transaction;
+      const rows=item.rows.filter(x=>E.month(x.date)===month).slice().sort((a,b)=>b.date.localeCompare(a.date));
+      const sources=rows.length?rows:item.rows.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+      const status=item.patterns.length>1?item.status+' · '+item.patterns.length+' price patterns':item.status;
+      const list=sources.map(x=>`<li><div><small>${H(dateLabel(x.date))} · ${H(alias(x.account))}</small>
+        ${link(x.description,'transaction',x.id)}</div><b class="money">${x.amount>0?signedMoney(x.amount):money(-x.amount)}</b></li>`).join('');
+      const patterns=item.patterns.map(p=>`<li><span>${H(p.frequency)} · ${money(p.amount)}</span><small>${H(p.status)} · ${H(dateLabel(p.last))}</small></li>`).join('');
+      return `<details class="subtle recurring-group"><summary><span><strong>${H(t.description)}</strong>
+        <small>${H(alias(t.account))} · ${H(status)}</small></span><b class="money">${money(item.recorded)}</b></summary>
+        ${patterns?`<ul class="list recurring-patterns">${patterns}</ul>`:''}
+        <p class="small">${rows.length?'Posted in '+H(monthLabel(month)):'Recent evidence before this month'}</p>
+        <ul class="list event-list">${list}</ul></details>`;
+    };
+    const charges=audit.filter(x=>!x.householdBill);
+    const fixed=audit.filter(x=>x.householdBill);
+    return stats+panel('Recurring charge audit',charges.length?charges.map(group).join(''):no('Recurring charges appear when statement activity identifies a subscription or a payment pattern.'),
+      'Expand a merchant to check its posted charges, price patterns, and timing.',btn('View posted charges','month-cost-drill','recurring','mini quiet'))+
+      (fixed.length?`<details class="panel home-disclosure"><summary>Recurring fixed bills · ${fixed.length}</summary>${fixed.map(group).join('')}</details>`:'')+
+      `<details class="subtle section-gap"><summary>How the run rate is estimated</summary><p class="small">Charges at separate prices are checked for their own pattern. The run rate uses patterns with recent evidence and a regular interval. Check renewal dates for merchants with irregular amounts, incomplete statements or older activity. The recorded figure uses posted transactions for the selected month, including subscription charges awaiting confirmation.</p></details>`;
   }
   function monthlyClose() {
     const now=E.today(), start=month+'-01', end=E.monthEnd(start), history=E.history(S,now,month);
@@ -1375,7 +1446,7 @@
     const alerts=new Set(p.shortfalls.map(x=>x.key));
     const section=(title,items,empty)=>panel(title,items.length?'<ul class="list event-list">'+items.map(x=>eventItem(x,now,alerts)).join('')+'</ul>':no(empty));
     const plans=S.bills.map(x=>'<li><div>'+link(x.name,'bill-edit',x.id)+'<small class="small">'+H(x.frequency)+' · '+H(alias(x.account))+'</small></div><strong class="money">'+money(x.amount)+'</strong></li>');
-    return head('Bills & paydays','Through '+dateLabel(end),'<div class="actions">'+btn('Add a date','bill-edit','','primary')+btn('Reminders','calendar')+'</div>')+
+    return head('Bills & paydays','Payment calendar through '+dateLabel(end),'<div class="actions">'+monthCostLink()+btn('Add a date','bill-edit','','primary')+btn('Reminders','calendar')+'</div>')+
       scheduleSummary(open,now,end)+
       '<div class="actions section-tools">'+btn(postingWindow?'Show standard window':'Show 90 days','bill-window','','mini quiet')+'</div>'+
       '<div class="home-grid">'+section('Bills & debt payments',open.filter(x=>x.direction==='Bill'),'No open payments in this window.')+
@@ -1651,23 +1722,47 @@
     else items[index]=item;
   }
   function scenarioValues(b) {
-    return {variablePay:b.variablePay,variable:b.variable,reserve:b.reserve,targetExtra:b.targetExtra,share:S.config.debtShare,...scenarioDraft};
+    const values={variablePay:b.variablePay,variable:b.variable,recurring:b.recurring,reserve:b.reserve,
+      targetExtra:b.targetExtra,share:S.config.debtShare,...scenarioDraft};
+    if(values.allAvailable)values.targetExtra=Math.max(0,E.repaymentBudget(b,values,100).room);
+    return values;
   }
   const scenarioFields=[
     ['variablePay','Second pay',300000,10000],
-    ['variable','Variable living expenses',300000,5000],
+    ['variable','Flexible spending',300000,5000],
+    ['recurring','Recurring charges',100000,2500],
     ['reserve','Monthly set-aside',200000,2500],
-    ['targetExtra','Extra monthly budget',200000,2500],
+    ['targetExtra','Extra monthly budget',0,1],
     ['share','Share of extra cash to debt',100,1]
   ];
   const scenarioFormat=(key,value)=>key==='share'?value+'%':money(value);
-  function scenarioSlider([key,label,limit,step], value,baseline) {
-    const min=value%step, max=Math.max(limit,Math.ceil(Math.max(value,baseline)*1.55/step)*step)+min;
+  function sliderState([key,,limit,step],v,b,calculation) {
+    if(key==='share')return {value:v.share,max:100,disabled:!calculation.extra};
+    if(key==='targetExtra'){
+      const available=b.missingOperating?0:Math.max(0,calculation.room);
+      return {value:calculation.extra,max:Math.max(1,available),
+        disabled:!available||repaymentMode==='Minimums only'||!b.debtLoans.length||v.allAvailable};
+    }
+    return {value:v[key],max:Math.max(limit,v[key],Math.ceil(b[key]*1.55/step)*step),disabled:false};
+  }
+  function scenarioSlider(info,v,b,calculation) {
+    const [key,label]=info, state=sliderState(info,v,b,calculation);
     return `<label class="scenario-control" for="scenario-${key}"><span>${H(label)}</span>
-      <output id="scenario-${key}-value" for="scenario-${key}">${scenarioFormat(key,value)}</output>
-      <input id="scenario-${key}" type="range" min="${key==='share'?0:min}" max="${key==='share'?100:max}" step="${step}" value="${value}"
-        data-scenario="${key}" aria-valuetext="${H(scenarioFormat(key,value))}">
+      <output id="scenario-${key}-value" for="scenario-${key}">${scenarioFormat(key,state.value)}</output>
+      <input id="scenario-${key}" type="range" min="0" max="${state.max}" step="${key==='share'?1:'any'}" value="${state.value}"
+        data-scenario="${key}" aria-valuetext="${H(scenarioFormat(key,state.value))}"${state.disabled?' disabled':''}>
     </label>`;
+  }
+  function allocationNote(b,v,calculation) {
+    if(repaymentMode==='Minimums only'||!b.debtLoans.length)return 'Extra payments are off in this strategy.';
+    if(b.missingOperating)return 'Confirm monthly costs to calculate the limit.';
+    const available=Math.max(0,calculation.room);
+    if(v.allAvailable)return money(available)+' available. Extra budget follows the room left.';
+    if(v.targetExtra>available)return 'Requested '+money(v.targetExtra)+' · limited to '+money(available)+'.';
+    return money(available)+' available for extra debt payments and goals.';
+  }
+  function selectedDebtShare(b,v) {
+    return !b.debtLoans.length||repaymentMode==='Minimums only'?null:repaymentMode==='Debt first'?100:v.share;
   }
   function monthlySnapshot() {
     const now=E.today(), b=E.monthlySnapshot(S,now);
@@ -1677,17 +1772,19 @@
       <ul class="list">${b.assumptions.map(x=>`<li><div>${link(x.name,'loan-edit',x.id)}
       <small class="small">${money(x.recorded)} on file · ${money(x.interest)} estimated interest</small></div>
       <strong>${money(x.assumed)}<small class="small">Model placeholder</small></strong></li>`).join('')}</ul></details>`:'';
-    const costRows=rows=>rows.map(x=>`<li><div>${x.source==='Payment schedule or loan terms'?link(x.name,'nav','Bills'):
+    const costRows=rows=>rows.map(x=>`<li><div>${x.bill?link(x.name,'bill-edit',x.bill):x.source==='Payment schedule or loan terms'?link(x.name,'nav','Bills'):
       b.historyView.rows.some(r=>r.category===x.name)?link(categoryName(x.name),'planning-category',JSON.stringify([x.name,x.source])):H(x.name)}<small class="small">${H(x.source)}</small></div><strong class="money">${money(x.amount)}</strong></li>`).join('');
     const result=scenarioResult(b,now,v,runwayData());
-    return head('Monthly Snapshot',monthLabel(b.start)+' plan',btn('Edit saved assumptions','month-plan-edit','','quiet'))+
+    return head('Monthly Snapshot',monthLabel(b.start)+' plan','<div class="actions">'+monthCostLink(E.month(now))+btn('Edit saved assumptions','month-plan-edit','','quiet')+'</div>')+
       `<div class="scenario-layout"><div class="scenario-left">
         <div class="scenario-output decision-funding" id="monthly-funding-result">${result.funding}</div>
         <section class="panel scenario-panel"><div class="panel-title"><div><h2>Try a scenario</h2><p>Changes here are temporary.</p></div>
           ${btn('Reset','scenario-reset','','mini quiet')}</div>
           <div class="scenario-live" id="scenario-live">${result.live}</div>
+          <div class="scenario-all"><span id="allocation-note">${H(allocationNote(b,v,result.calculation))}</span>
+          ${b.debtLoans.length&&repaymentMode!=='Minimums only'?btn('Use all available','scenario-auto','','mini quiet',' aria-pressed="'+Boolean(v.allAvailable)+'"'):''}</div>
           <div id="scenario-controls">${scenarioFields.filter(x=>x[0]!=='share'||repaymentMode==='Debt + goals')
-            .map(info=>scenarioSlider(info,v[info[0]],b[info[0]]??S.config.debtShare)).join('')}</div>
+            .map(info=>scenarioSlider(info,v,b,result.calculation)).join('')}</div>
 
         </section>
         </div><div class="scenario-right">
@@ -1697,9 +1794,10 @@
       <details class="panel home-disclosure"><summary>Monthly budget breakdown</summary>
         <div class="home-grid">
           ${panel('Fixed household costs',b.fixedRows.length?`<ul class="list">${costRows(b.fixedRows)}</ul>`:no('No fixed categories or mortgage schedule on file.'),b.stored.fixed!=null?'Saved total overrides these source amounts':'')}
-          ${panel('Variable living expenses',b.variableRows.length?`<ul class="list">${costRows(b.variableRows)}</ul>`:no('No variable category averages or targets on file.'),b.stored.variable!=null?'Saved total overrides these source amounts':'')}
+          ${panel('Flexible spending',b.variableRows.length?`<ul class="list">${costRows(b.variableRows)}</ul>`:no('No flexible category averages or targets on file.'),b.stored.variable!=null?'Saved total includes its share of recurring charges':'')}
+          ${panel('Recurring charges',b.recurringRows.length?`<ul class="list">${costRows(b.recurringRows)}</ul>`:no('No recurring charges identified.'),'Subscriptions, memberships and other repeated discretionary bills',btn('Audit charges','open-recurring','','mini quiet'))}
         </div>
-        <p class="small section-gap">${b.historyView.complete.length} complete months in the baseline. Project costs are handled separately. Mortgage payments are in fixed costs.</p>
+        <p class="small section-gap">${b.historyView.complete.length} complete months in the baseline. Fixed costs include the mortgage. One-time projects are separate.</p>
       </details>
       ${assumptions}
       <details class="subtle section-gap"><summary>Payoff estimate assumptions</summary>
@@ -1713,14 +1811,25 @@
     const budgetOutput=root.querySelector('#monthly-budget-result'), payoffOutput=root.querySelector('#monthly-payoff-result');
     const live=root.querySelector('#scenario-live');
     const funding=root.querySelector('#monthly-funding-result');
+    const noteElement=root.querySelector('#allocation-note');
     controls.addEventListener('input',event=>{
       const input=event.target, key=input.dataset.scenario, value=Number(input.value);
       if(!key||!Number.isFinite(value))return;
-      scenarioDraft[key]=value;
-      const text=scenarioFormat(key,value);
-      input.setAttribute('aria-valuetext',text);
-      controls.querySelector('#scenario-'+key+'-value').textContent=text;
-      const result=scenarioResult(baseline,now,scenarioValues(baseline),cash);
+      scenarioDraft[key]=Math.round(value);
+      const values=scenarioValues(baseline);
+      const result=scenarioResult(baseline,now,values,cash);
+      for(const info of scenarioFields){
+        const [field]=info,range=controls.querySelector('#scenario-'+field);
+        if(!range)continue;
+        const next=sliderState(info,values,baseline,result.calculation);
+        if(field==='targetExtra')range.max=next.max;
+        range.value=next.value;
+        range.disabled=next.disabled;
+        const text=scenarioFormat(field,next.value);
+        range.setAttribute('aria-valuetext',text);
+        controls.querySelector('#scenario-'+field+'-value').textContent=text;
+      }
+      noteElement.textContent=allocationNote(baseline,values,result.calculation);
       funding.innerHTML=result.funding;
       budgetOutput.innerHTML=result.budget;
       payoffOutput.innerHTML=result.timeline;
@@ -1755,6 +1864,7 @@
     } else if(!toDebt)timing='This scenario budgets no extra payment.';
     const flags=[
       b.assumptions.length?'Some lender payments are estimates.':'',
+      b.needsMatch.length?b.needsMatch.length+' bill schedules need reconciliation.':'',
       b.historyView.baselineReview&&(b.stored.fixed==null||b.stored.variable==null)?'Some purchases in the budget baseline are still in Review.':''
     ].filter(Boolean);
     const result=`<div class="funding-grid">
@@ -1780,11 +1890,11 @@
       }).join('')}</div>`;
   }
   function scenarioResult(b,now,v,cash) {
-    const share=!b.debtLoans.length?null:repaymentMode==='Debt first'?100:repaymentMode==='Debt + goals'?v.share:null;
+    const share=selectedDebtShare(b,v);
     const calculation=E.repaymentBudget(b,v,share);
-    const {income,committed,room,extra,targetGap,variableLimit}=calculation;
-    const rows=[['Fixed costs',b.fixed,'rate'],['Variable costs',v.variable,'out'],
-      ['Debt payments',b.minimums,'priority'],['Set-aside',v.reserve,'reserve']].filter((x,i)=>x[1]||i<3);
+    const {income,costs,committed,room,extra,targetGap,variableLimit}=calculation;
+    const rows=[['Fixed bills',b.fixed,'rate'],['Recurring charges',v.recurring,'recurring'],['Flexible spending',v.variable,'out'],
+      ['Debt minimums',b.minimums,'priority'],['Set-aside',v.reserve,'reserve']].filter((x,i)=>x[1]||i<4);
     const scale=Math.max(income,committed,1);
     const budget=`<section class="panel budget-result"><div class="budget-result-head"><div>
       <h2>${room<0&&!b.missingOperating?'Monthly shortfall':'Left after monthly costs'}</h2>
@@ -1795,6 +1905,7 @@
         <span>Household <b>${money(b.household)}</b></span></div>
       <div class="budget-stack" aria-hidden="true">${rows.filter(x=>x[1]>0).map(x=>`<i class="${x[2]}" style="width:${x[1]/scale*100}%"></i>`).join('')}
         ${room>0&&!b.missingOperating?`<i class="room" style="width:${room/scale*100}%"></i>`:''}</div>
+      <p class="budget-monthly-total"><span>Monthly costs before set-aside</span><strong class="money">${money(b.missingOperating?null:costs)}</strong></p>
       <ul class="budget-costs">${rows.map(([label,amount,tone])=>`<li><i class="${tone}" aria-hidden="true"></i><span>${label}</span><b>${money(amount)}</b></li>`).join('')}</ul>
       ${!b.missingOperating&&share>0&&targetGap>0?`<div class="budget-gap"><div><strong>${money(targetGap)} gap to the extra monthly budget</strong>
         <small>${variableLimit>=0?'Variable costs would need to be '+money(variableLimit)+' or less.':'Fixed commitments alone leave too little for this target.'}</small></div>
@@ -1807,7 +1918,7 @@
     const funding=b.missingOperating?panel('Plan extra payments',no('Confirm your monthly costs first.'),'',btn('Edit assumptions','month-plan-edit','','mini quiet')):
       fundingPlan(b,now,v,calculation,cash);
     const live=`<span>${room<0&&!b.missingOperating?'Monthly shortfall':'Left after costs'}</span><b>${b.missingOperating?'—':money(Math.abs(room))}</b>`;
-    return {budget,timeline,live,funding:funding+(options?panel('Compare repayment options',options,'Estimated payoff dates for non-mortgage debt'):'')};
+    return {budget,timeline,live,calculation,funding:funding+(options?panel('Compare repayment options',options,'Estimated payoff dates for non-mortgage debt'):'')};
   }
   function payoffPlot(model,baseline,now) {
     if(!model.balances?.length||!baseline.balances?.length)return '';
@@ -2346,15 +2457,18 @@
     'category-page':step=>{categoryPage=Math.max(0,categoryPage+Number(step));render();root.querySelector('.category-transactions')?.scrollIntoView({block:'start'});},
     'month-plan-edit':editMonthlySnapshot,
     'planning-category':id=>{const [category,source]=JSON.parse(id);openCategory(category,E.month(E.today()),source==='Saved target'?'Target':'Average');},
+    'scenario-auto':()=>{scenarioDraft.allAvailable=!scenarioDraft.allAvailable;render();root.querySelector('[data-act=scenario-auto]')?.focus({preventScroll:true});},
     'scenario-reset':()=>{scenarioDraft={};repaymentMode='Debt first';render();root.querySelector('[data-act=scenario-reset]')?.focus();},
-    'scenario-fit':amount=>{scenarioDraft.variable=Number(amount);render();root.querySelector('#scenario-variable')?.focus();},
+    'scenario-fit':amount=>{scenarioDraft.variable=Math.max(0,Number(amount));render();root.querySelector('#scenario-variable')?.focus();},
     'monthly-repayment':mode=>{repaymentMode=mode;render();root.querySelector('[data-act=monthly-repayment][aria-pressed=true]')?.focus({preventScroll:true});},
     'open-cash-month':period=>{cashMonth=period;go('Cash history');},
     'open-changes':period=>{changesMonth=period;go('Monthly changes');},
     'change-driver':id=>{const [period,tone,name]=JSON.parse(id);changeSelection={period,tone,name,side:'This period'};categoryPage=0;go('Change driver');},
     'change-side':side=>{changeSelection.side=side;categoryPage=0;render();root.querySelector('[data-act=change-side][aria-pressed=true]')?.focus();},
     'open-spending-period':period=>{month=period;categoryDetail='';spendingTab='Categories';go('Spending');},
-    'open-recurring':()=>{spendingTab='Recurring';go('Spending');},
+    'open-month-costs':period=>{if(period)month=period;go('Monthly costs');},
+    'month-cost-drill':id=>setLedger({month,costBucket:id,label:monthCostLabels[id]}),
+    'open-recurring':()=>{spendingTab='Recurring';categoryDetail='';go('Spending');},
     'mortgage-terms':()=>loanEdit('mortgage'),
     'income-schedule':()=>billEdit('income'),
     'cash-forecast':()=>go('Cash plan'),

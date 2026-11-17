@@ -362,7 +362,7 @@ test('recommendations expose ledger-specific actions and link to the underlying 
   assert.doesNotMatch(ui(),/Online banking payment/);
   await click('nav','Recommendations');
   await click('open-recurring');
-  assert.match(ui(),/<h2>Recurring charges<\/h2>/);
+  assert.match(ui(),/<h2>Recurring charge audit<\/h2>/);
   await click('nav','Settings');
   assert.match(ui(),/<h1>Settings<\/h1>/);
 });
@@ -467,7 +467,7 @@ test('monthly snapshot shows expense categories and payoff milestones from the d
   const view=app.node('app').innerHTML;
   assert.match(view,/<h1>Monthly Snapshot<\/h1>/);
   assert.match(view,/Fixed household costs/);
-  assert.match(view,/Variable living expenses/);
+  assert.match(view,/Flexible spending/);
   assert.match(view,/Debt repayment timeline/);
   assert.match(view,/type="range"[^>]+data-scenario="variablePay"/);
   assert.match(view,/class="payoff-live"/);
@@ -696,4 +696,72 @@ test('mortgage spending uses the posted debit and counts the scheduled amount on
   const plan=E.monthlySnapshot(state,now);
   assert.equal(plan.fixedRows.filter(r=>r.name==='Mortgage payments').length,1);
   assert.equal(plan.fixedRows.find(r=>r.name==='Mortgage payments').amount,112345);
+});
+
+test('monthly costs reconcile posted categories and projects and exclude card repayments',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const state=E.empty(), now='2026-11-17';
+  state.accounts=[
+    {id:'bank',type:'Chequing',history:true},{id:'card',type:'Credit card',history:true}
+  ];
+  state.imports=state.accounts.map(a=>({account:a.id,start:'2026-08-01',end:'2026-11-17',coverageConfirmed:true}));
+  const t=(id,date,amount,description,kind,category,account='card')=>({id,date,amount,description,account,kind,category});
+  for(const month of ['08','09','10','11']){
+    state.transactions.push(
+      t('Apple A'+month,'2026-'+month+'-04',-1499,'APPLE.COM/BILL','Spending','Software & digital'),
+      t('Apple B'+month,'2026-'+month+'-06',-2999,'APPLE.COM/BILL [masked] ON','Spending','Software & digital'),
+      t('Internet '+month,'2026-'+month+'-12',-6500,'BELLMTS HOMESRV BPY','Spending','Housing & utilities','bank')
+    );
+  }
+  state.transactions.push(
+    t('apple-refund','2026-11-13',499,'APPLE.COM/BILL','Reimbursement','Software & digital'),
+    t('card-payment','2026-11-09',-10000,'Credit card payment','Transfer','Credit card payment','bank'),
+    t('home-work','2026-11-14',-15000,'Renovation labour','Project','','bank'),
+    t('grocery','2026-11-16',-4500,'Groceries','Spending','Groceries')
+  );
+  const bill={direction:'Bill',frequency:'Monthly',account:'bank',start:'2026-11-12'};
+  state.bills=[
+    {...bill,id:'internet',name:'Home internet',amount:6500},
+    {...bill,id:'card-due',name:'Credit card',amount:10000}
+  ];
+  const report=E.monthlyCosts(state,now,'2026-11');
+  assert.equal(report.totals.fixed,6500);
+  assert.equal(report.totals.recurring,3999);
+  assert.equal(report.totals.flexible,4500);
+  assert.equal(report.projectTotal,15000);
+  assert.equal(report.total,29999);
+  assert.equal(report.total,E.history(state,now,'2026-11').total+15000);
+  assert.equal(report.billRows.find(x=>x.event.id==='internet').matched.id,'Internet 11');
+  assert.equal(report.billRows.find(x=>x.event.id==='card-due').paymentOnly,true);
+  const apple=report.audit.rows.find(x=>/apple/.test(E.normal(x.transaction.description)));
+  assert.equal(apple.recorded,3999);
+  assert.equal(apple.patterns.length,2);
+  assert.equal(apple.monthly,4498);
+  assert.equal(E.monthlySnapshot(state,now).fixed,6500);
+  assert.equal(E.monthlySnapshot(state,now).recurring,4498);
+  // A lower next bill replaces the matching historical cost.
+  state.bills[0].amount=5500;
+  assert.equal(E.monthlySnapshot(state,now).fixed,5500);
+  state.bills.push({...bill,id:'internet-second',start:'2026-11-25',name:'Home internet',amount:2750});
+  assert.equal(E.monthlySnapshot(state,now).fixed,8250);
+  state.config.monthlySnapshot={fixed:19000,variable:16000};
+  const overrides=E.monthlySnapshot(state,now);
+  assert.equal(overrides.fixed+overrides.variable+overrides.recurring,35000);
+});
+
+test('recurring costs and the allocation share use the same repayment budget',()=>{
+  const {Engine:E}=boot(new URL(pageUrl));
+  const b={draw:100000,household:200000,fixed:250000,recurring:50000,minimums:25000,missingOperating:false};
+  const v={variablePay:350000,variable:215000,reserve:30000,targetExtra:100000,recurring:50000};
+  const base=E.repaymentBudget(b,v,75);
+  const lowerRecurring=E.repaymentBudget(b,{...v,recurring:20000},75);
+  assert.equal(base.costs,540000);
+  assert.equal(base.room,80000);
+  assert.equal(base.extra,80000);
+  assert.equal(lowerRecurring.room-base.room,30000);
+  assert.equal(lowerRecurring.extra,100000);
+  assert.equal(lowerRecurring.toDebt,75000);
+  assert.equal(lowerRecurring.toGoals,25000);
+  assert.equal(lowerRecurring.unallocated,10000);
+  assert.equal(E.repaymentBudget(b,v,null).extra,0);
 });

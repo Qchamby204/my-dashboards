@@ -711,10 +711,10 @@ details.subtle summary { min-height:44px; align-content:center; }
 .budget-sources { display:flex; flex-wrap:wrap; gap:5px 15px; margin:8px 0 13px; }
 .budget-sources b { color:var(--ink); }
 .budget-stack { display:flex; border-radius:7px; overflow:hidden; height:13px; background:#eee9dd; }
-.budget-stack i,.budget-costs i { background:var(--flow-rate); }
-.budget-stack .out,.budget-costs .out { background:var(--flow-out); }
-.budget-stack .priority,.budget-costs .priority { background:var(--flow-priority); }
-.budget-stack .reserve,.budget-costs .reserve { background:#746782; }
+.budget-stack i,.budget-costs i,.monthly-cost-rows i { background:var(--flow-rate); }
+.budget-stack .out,.budget-costs .out,.monthly-cost-rows .out { background:var(--flow-out); }
+.budget-stack .priority,.budget-costs .priority,.monthly-cost-rows .priority { background:var(--flow-priority); }
+.budget-stack .reserve,.budget-costs .reserve,.monthly-cost-rows .reserve { background:#746782; }
 .budget-stack .room { background:#8db6a5; }
 .budget-costs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); list-style:none; padding:0; margin:10px 0 0; gap:4px 12px; }
 .budget-costs li { display:grid; grid-template-columns:8px minmax(0,1fr); gap:0 7px; align-items:center; font-size:.83rem; }
@@ -907,3 +907,55 @@ details.subtle summary { min-height:44px; align-content:center; }
 .cash-position-meter .available { background:#86d2b7; }
 .change-review .link-button { margin-left:8px; }
 .decision-list .dashboard-jump>b>small { font-weight:500; font-size:.69rem; margin-top:0; }
+
+/* Monthly costs and recurring charges */
+.month-cost-overview { align-items:start; }
+.monthly-total {
+  min-width:0; border-radius:var(--radius); padding:clamp(16px,3vw,27px);
+  background:#182b3d; color:#fffaf0;
+}
+.monthly-total>strong,.monthly-plan-value,.recurring-summary strong {
+  display:block; font-size:clamp(1.9rem,5vw,3.15rem); line-height:1.12; letter-spacing:-.05em;
+  overflow-wrap:anywhere; margin:.25em 0; font-weight:700;
+}
+.monthly-total p { color:#dce6e7; font-size:.86rem; }
+.monthly-total .link-button { color:#fff0d4; }
+.cost-mix { margin-top:12px; height:9px; }
+.monthly-cost-rows { padding:0; margin:10px 0; list-style:none; border-block-start:1px solid var(--stroke); }
+.monthly-total .monthly-cost-rows { border-color:#ffffff36; }
+.monthly-cost-rows li { display:flex; gap:8px; align-items:center; justify-content:space-between; padding:5px 0; }
+.monthly-cost-rows li+li { border-block-start:1px solid var(--stroke); }
+.monthly-total .monthly-cost-rows li+li { border-color:#ffffff33; }
+.monthly-cost-rows li:has(button) { padding:0; }
+.monthly-cost-rows li>span { display:flex; align-items:center; gap:8px; }
+.monthly-cost-rows i { width:8px; height:8px; flex:none; border-radius:50%; }
+.monthly-cost-rows b { text-align:right; }
+.monthly-plan-value { color:var(--ink); }
+.recurring-summary {
+  margin:12px 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; align-items:end;
+  padding:clamp(14px,3vw,22px); border-radius:18px; background:#eee8da;
+}
+.recurring-summary span { display:block; font-size:.86rem; color:var(--ink-light); }
+.recurring-summary b { display:block; font-size:clamp(1.15rem,3.8vw,1.9rem); overflow-wrap:anywhere; }
+.recurring-group summary { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; }
+.recurring-group summary span { min-width:0; overflow-wrap:anywhere; }
+.recurring-group summary span small { display:block; }
+.recurring-group summary strong::before { content:"›"; display:inline-block; margin-right:6px; color:var(--bronze); }
+.recurring-group[open] summary strong::before { content:"⌄"; }
+.recurring-group .list { margin-top:6px; }
+.recurring-patterns { background:#f3eee4; padding:3px 9px; border-radius:9px; }
+.recurring-patterns>li { padding:5px 0; }
+.scenario-all { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 0 9px; }
+.scenario-all span { font-size:.84rem; color:var(--muted); }
+.scenario-all .btn { flex:none; }
+.scenario-all .btn[aria-pressed=true] { color:#663413; border-color:#af8c5f; background:#efe6d4; }
+.budget-monthly-total {
+  display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center;
+  gap:6px 10px; margin-top:8px; color:var(--ink-light); font-size:.84rem;
+}
+.budget-monthly-total strong { color:var(--ink); font-size:1.03rem; }
+.budget-stack .recurring,.budget-costs .recurring,.monthly-cost-rows .recurring { background:#a17e4b; }
+@media(max-width:650px){
+  .monthly-cost-rows li { font-size:.91rem; }
+  .scenario-all { flex-wrap:wrap; }
+}

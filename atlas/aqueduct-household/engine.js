@@ -329,7 +329,11 @@ const Engine = (() => {
     t.kind==='Spending'&&t.category==='Interest & fees'&&/^mortgage interest(?: |$)/.test(normal(t.description))
   );
   function spendingRows(rows) {
-    return ledgerRows(rows).map(t=>mortgagePayment(t)?{...t,kind:'Spending',category:mortgageCategory}:t);
+    return ledgerRows(rows).map(t=>{
+      if(mortgagePayment(t))return {...t,kind:'Spending',category:mortgageCategory};
+      if(isSpending(t)&&t.category==='Interest & fees'&&/\bannual (?:card )?fee\b/.test(normal(t.description)))return {...t,category:'Annual card fees'};
+      return t;
+    });
   }
   const isSpending=t=>t.kind==='Spending'||t.kind==='Reimbursement';
   const spendingTotal=rows=>sum(rows,t=>-t.amount);
@@ -603,6 +607,156 @@ const Engine = (() => {
       projectTotal:spendingTotal(current.filter(t=>t.kind==='Project')),reviewCurrent:new Set(current.filter(t=>t.kind==='Review').map(t=>t.id)).size,
       reviewPrior:new Set(previous.filter(t=>t.kind==='Review').map(t=>t.id)).size};
   }
+  const fixedCostCategories=new Set([mortgageCategory,'Housing & utilities','Insurance','Annual card fees']);
+  const subscriptionLabel=t=>t.category==='Subscriptions'||/^(apple com bill|anthropic|openai|netflix|disney plus|spotify|vmo vimeo com|google (one|google one)|amazon (ca prime member|channels)|ad free for primevideo|youtube premium)( |$)/.test(normal(t.description))||
+    /\b(subscription|membership|auto renewal|annual renewal|monthly renewal)\b/.test(normal(t.description));
+  const repeatCategory=t=>['Software & digital','Fitness & recreation','Professional expenses','Charitable giving','Transportation','Pets'].includes(t.category);
+  const recurringMerchant=t=>{
+    const label=normal(t.description);
+    const variant=/^(apple com bill|anthropic|openai|netflix|amazon ca prime member|amazon channels|google google one|vmo vimeo com)( |$)/.exec(label);
+    if(variant)return variant[1];
+    return label.replace(/(?: masked)(?: [a-z]{2})?$/,'');
+  };
+  const seriesKey=t=>JSON.stringify([t.account,recurringMerchant(t)]);
+  const costBucket=(t,audit)=>fixedCostCategories.has(t.category)?'fixed':
+    subscriptionLabel(t)||audit.ids.has(t.id)&&repeatCategory(t)?'recurring':'flexible';
+  const costKinds=[['fixed','Fixed bills'],['recurring','Recurring charges'],['flexible','Flexible spending']];
+  function recurringAudit(state,through,period=month(through)) {
+    const scope=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
+    const usable=spendingRows(state.transactions.filter(t=>scope.has(t.account)&&t.date<=through)).filter(isSpending);
+    const groups=new Map();
+    const ids=new Set();
+    for(const t of usable){
+      if(t.amount>=0||(!subscriptionLabel(t)&&(!repeatCategory(t)&&!fixedCostCategories.has(t.category)||
+        !identifiableMerchant(t)&&!['Fitness & recreation','Interest & fees'].includes(t.category))))continue;
+      const key=seriesKey(t);
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(t);
+    }
+    const credits=new Map();
+    for(const t of usable.filter(t=>t.amount>0)){
+      const key=seriesKey(t);
+      if(!credits.has(key))credits.set(key,[]);
+      credits.get(key).push(t);
+    }
+    const rows=[];
+    for(const [key,group] of groups){
+      group.sort((a,b)=>b.date.localeCompare(a.date));
+      const latest=group[0], explicit=group.some(subscriptionLabel);
+      const householdBill=fixedCostCategories.has(latest.category);
+      const bands=[];
+      for(const t of group){
+        let band=bands.find(b=>Math.abs(b.price+t.amount)<=Math.max(100,b.price*.04));
+        if(!band){band={price:-t.amount,rows:[]};bands.push(band);}
+        band.rows.push(t);
+      }
+      const detected=[];
+      const patterns=bands.flatMap(band=>{
+        const frequency=cadence(band.rows);
+        if(!frequency)return [];
+        const last=band.rows[0].date, days=frequency==='Weekly'?8:frequency==='Biweekly'?16:35;
+        const due=add(last,days+7);
+        const stale=due<=through&&coverage(state,latest.account,add(last,1),due);
+        detected.push(...band.rows);
+        return [{frequency,amount:round(sum(band.rows.slice(0,4),t=>-t.amount)/Math.min(4,band.rows.length)),
+          count:band.rows.length,last,status:stale?'Check if ended':distance(last,through)>days+7?'Statement gap':'Pattern found'}];
+      });
+      if(!patterns.length&&!explicit)continue;
+      const debits=explicit?group:detected;
+      const refunds=(credits.get(key)||[]).filter(t=>explicit||debits.some(d=>d.amount===-t.amount));
+      const charges=debits.concat(refunds);
+      if(!householdBill)for(const t of charges)ids.add(t.id);
+      const recorded=spendingTotal(charges.filter(t=>month(t.date)===period));
+      const monthly=sum(patterns.filter(p=>p.status==='Pattern found'),p=>round(p.amount*monthlyFactor(p.frequency)));
+      const status=patterns.some(p=>p.status==='Pattern found')?'Pattern found':patterns[0]?.status||'Check renewal';
+      rows.push({transaction:latest,key,householdBill,explicit,rows:charges,patterns,recorded,monthly,status});
+    }
+    return {rows:rows.sort((a,b)=>Math.max(b.recorded,b.monthly)-Math.max(a.recorded,a.monthly)),ids};
+  }
+  const costMerchant=t=>{
+    const name=normal(t);
+    if(/\b(home internet|bellmts homesrv|bell mts home|internet service)\b/.test(name))return 'home internet';
+    if(/\b(hydro|electricity)\b/.test(name))return 'hydro';
+    if(/\b(bell mobility|cell phone|mobile phone)\b/.test(name))return 'mobile phone';
+    if(/\b(wpg water|winnipeg water|water bill)\b/.test(name))return 'water bill';
+    if(/\b(tipp|property tax)\b/.test(name))return 'property tax';
+    return name.replace(/\b(estimated|estimate|autopay|payment|bpy|msp|wbp)\b/g,' ').trim().replace(/ +/g,' ');
+  };
+  function monthlyCosts(state,now,period=month(now),historyView=history(state,now,period)) {
+    const start=period+'-01', last=monthEnd(start), through=last<now?last:now;
+    const view=historyView;
+    const audit=recurringAudit(state,through,period);
+    const costRows=view.current.filter(t=>t.date<=through&&isSpending(t));
+    const posted=Object.fromEntries(costKinds.map(([k])=>[k,costRows.filter(t=>costBucket(t,audit)===k)]));
+    const totals=Object.fromEntries(costKinds.map(([k])=>[k,spendingTotal(posted[k])]));
+    const projects=view.current.filter(t=>t.date<=through&&t.kind==='Project');
+    const due=events(state,start,last).filter(e=>e.direction==='Bill'&&e.status!=='Skipped');
+    const scheduled=due.map(e=>{
+      const mortgage=/mortgage/i.test(e.name)||state.loans.some(l=>l.id===e.loan&&l.type==='Mortgage');
+      const name=costMerchant(e.name);
+      const card=/\b(card|visa|mastercard|amex)\b/.test(normal(e.name))&&!/\bfee\b/.test(normal(e.name));
+      const candidates=e.loan&&!mortgage||card?[]:view.current.filter(t=>t.account===e.account&&t.date<=through&&t.amount<0&&
+        Math.abs(distance(t.date,e.date))<=4&&(-t.amount===e.forecastAmount||e.variable)&&
+        (e.project?t.kind==='Project'&&t.project===e.project:isSpending(t)&&(mortgage?t.category===mortgageCategory:
+          t.category!==mortgageCategory&&name.length>=4&&costMerchant(t.description)===name)));
+      return {event:e,matches:candidates,paymentOnly:Boolean(e.loan&&!mortgage||card)};
+    });
+    const counts=new Map();
+    for(const item of scheduled)for(const t of item.matches)counts.set(t.id,(counts.get(t.id)||0)+1);
+    const billRows=scheduled.map(item=>({...item,matched:item.matches.length===1&&counts.get(item.matches[0].id)===1?item.matches[0]:null}));
+    const covered=state.accounts.filter(a=>a.history&&(!a.openDate||a.openDate<=through)&&(!a.closeDate||a.closeDate>=start));
+    const gaps=covered.filter(a=>!coverage(state,a.id,a.openDate>start?a.openDate:start,a.closeDate&&a.closeDate<through?a.closeDate:through));
+    return {period,through,totals,posted,projects,projectTotal:spendingTotal(projects),ordinary:sum(Object.values(totals),x=>x),
+      total:sum(Object.values(totals),x=>x)+spendingTotal(projects),billRows,gaps,
+      available:view.current.length>0||covered.length>0&&gaps.length<covered.length,review:view.review.length,audit};
+  }
+  function monthlyOperatingRows(state,historyView,audit,interestAverage,mortgageSchedules,start) {
+    const months=historyView.complete.length;
+    const basis=historyView.past.filter(isSpending);
+    const rows={fixed:[],recurring:[],flexible:[]};
+    for(const r of historyView.rows){
+      if(r.category===mortgageCategory)continue;
+      const historical=basis.filter(t=>t.category===r.category);
+      const settings=state.targets[r.category],override=['Fixed','Annual'].includes(settings?.method);
+      const interest=r.category==='Interest & fees'?interestAverage:0;
+      const target=Math.max(0,override?r.suggestion:(r.average??0)-interest);
+      const defaultBucket=fixedCostCategories.has(r.category)?'fixed':r.category==='Subscriptions'?'recurring':'flexible';
+      const subset=historical.filter(t=>costBucket(t,audit)==='recurring');
+      const recurrence=defaultBucket==='fixed'?0:Math.min(target,Math.max(0,months?round(spendingTotal(subset)/months):0));
+      const source=override?'Saved target':'Statement average';
+      if(recurrence)rows.recurring.push({name:r.category,amount:recurrence,source});
+      if(target>recurrence)rows[defaultBucket].push({name:r.category,amount:target-recurrence,source});
+    }
+    const needsMatch=[], appliedAverages=new Set();
+    const overlapBasis=historyView.current.concat(basis).filter(isSpending);
+    const active=state.bills.filter(e=>e.direction==='Bill'&&e.frequency!=='Once'&&!e.loan&&!e.project&&
+      e.start<=monthEnd(start)&&(!e.end||e.end>=start)&&!mortgageSchedules.some(m=>m.id===e.id)&&
+      (!/\b(card|visa|mastercard|amex)\b/.test(normal(e.name))||/\bfee\b/.test(normal(e.name))));
+    for(const e of active){
+      const amount=Number.isSafeInteger(e.amount)?round(e.amount*monthlyFactor(e.frequency)):null;
+      if(/annual (?:card )?fee/i.test(e.name)&&(state.targets['Annual card fees']||overlapBasis.some(t=>/annual fee/i.test(t.description))))continue;
+      const merchant=costMerchant(e.name);
+      const overlaps=overlapBasis.filter(t=>t.account===e.account&&merchant.length>=4&&costMerchant(t.description)===merchant);
+      if(amount===null){needsMatch.push(e);continue;}
+      if(overlaps.length){
+        const bucket=costBucket(overlaps[0],audit);
+        const settings=state.targets[overlaps[0].category];
+        if(['Fixed','Annual'].includes(settings?.method))continue;
+        const key=JSON.stringify([e.account,merchant]);
+        const matchedAverage=months&&!appliedAverages.has(key)?
+          round(spendingTotal(overlaps.filter(t=>historyView.complete.includes(month(t.date))))/months):0;
+        appliedAverages.add(key);
+        const adjustment=amount-Math.max(0,matchedAverage);
+        if(adjustment)rows[bucket].push({name:e.name,amount:adjustment,source:'Schedule adjustment after statement overlap',bill:e.id});
+        continue;
+      }
+      if(overlapBasis.some(t=>t.account===e.account&&Math.abs(-t.amount-e.amount)<=100)){needsMatch.push(e);continue;}
+      const bucket=subscriptionLabel({description:e.name})?'recurring':'fixed';
+      rows[bucket].push({name:e.name,amount,source:'Bills schedule',bill:e.id});
+    }
+    for(const list of Object.values(rows))list.sort((a,b)=>b.amount-a.amount);
+    return {...rows,needsMatch};
+  }
   function monthlySnapshot(state,now) {
     const historyView=history(state,now);
     const stored=state.config.monthlySnapshot||{};
@@ -624,7 +778,6 @@ const Engine = (() => {
     const mortgageHistory=historyView.rows.find(r=>r.category===mortgageCategory);
     const recordedMortgage=Math.max(0,mortgageHistory?.average??0);
     const mortgage=scheduledMortgage||recordedMortgage;
-    const fixedNames=new Set(['Housing & utilities','Insurance','Subscriptions','Annual card fees']);
     const inHistory=new Set(state.accounts.filter(a=>a.history).map(a=>a.id));
     const borrowed=new Set(state.accounts.filter(a=>['Credit card','Line of credit or loan'].includes(a.type)).map(a=>a.id));
     const months=new Set(historyView.complete);
@@ -632,17 +785,19 @@ const Engine = (() => {
       inHistory.has(t.account)&&borrowed.has(t.account)&&months.has(month(t.date))&&
       /^(interest(?: |$)|retail interest\b|purchase interest\b|cash advance interest\b)/.test(normal(t.description))),t=>-t.amount);
     const interestAverage=months.size?round(modeledInterest/months.size):0;
-    const categories=historyView.rows.filter(r=>r.category!==mortgageCategory).map(r=>{
-      const settings=state.targets[r.category];
-      const override=['Fixed','Annual'].includes(settings?.method);
-      const estimate=override?r.suggestion:r.average;
-      const interest=!override&&r.category==='Interest & fees'?interestAverage:0;
-      return {name:r.category,amount:estimate===null?null:Math.max(0,estimate-interest),source:override?'Saved target':'Statement average'};
-    }).filter(r=>r.amount>0);
-    const fixedRows=categories.filter(r=>fixedNames.has(r.name));
+    const audit=recurringAudit(state,now);
+    const operating=monthlyOperatingRows(state,historyView,audit,interestAverage,mortgageSchedules,start);
+    const fixedRows=operating.fixed, recurringRows=operating.recurring, variableRows=operating.flexible;
     if(mortgage)fixedRows.unshift({name:mortgageCategory,amount:mortgage,source:scheduledMortgage?'Payment schedule or loan terms':'Statement average'});
-    const variableRows=categories.filter(r=>!fixedNames.has(r.name)).sort((a,b)=>b.amount-a.amount);
-    const fixed=stored.fixed??sum(fixedRows,r=>r.amount), variable=stored.variable??sum(variableRows,r=>r.amount);
+    // Older overrides already included recurring charges in one of these totals.
+    const recurringInFixed=recurringRows.filter(r=>r.name==='Subscriptions');
+    const recurringInVariable=recurringRows.filter(r=>r.name!=='Subscriptions');
+    const legacyFixed=stored.fixed==null?0:Math.min(stored.fixed,Math.max(0,sum(recurringInFixed,r=>r.amount)));
+    const legacyVariable=stored.variable==null?0:Math.min(stored.variable,Math.max(0,sum(recurringInVariable,r=>r.amount)));
+    const fixed=stored.fixed==null?sum(fixedRows,r=>r.amount):stored.fixed-legacyFixed;
+    const recurring=(stored.fixed==null?sum(recurringInFixed,r=>r.amount):legacyFixed)+
+      (stored.variable==null?sum(recurringInVariable,r=>r.amount):legacyVariable);
+    const variable=stored.variable==null?sum(variableRows,r=>r.amount):stored.variable-legacyVariable;
     const reserve=stored.reserve??0;
     const rawLoans=state.loans.filter(l=>l.type!=='Mortgage'&&l.balance>0);
     const assumptions=[];
@@ -657,23 +812,24 @@ const Engine = (() => {
       return {...l,payment:assumed,frequency:'Monthly'};
     });
     const minimums=sum(debtLoans,l=>requiredMonthly(l,l.balance));
-    const room=income-fixed-variable-minimums-reserve;
+    const room=income-fixed-recurring-variable-minimums-reserve;
     const targetExtra=stored.targetExtra??50000;
-    const possible=income-fixed-minimums-reserve;
+    const possible=income-fixed-recurring-minimums-reserve;
     const exampleVariable=Math.max(0,Math.min(variable,possible-targetExtra));
     const exampleRoom=possible-exampleVariable;
     const missingOperating=(!historyView.complete.length&&(stored.fixed==null||stored.variable==null))||
       (mortgageSchedules.length>0&&!mortgage&&stored.fixed==null);
-    return {draw,variablePay,household,income,conservative,historyView,fixedRows,variableRows,fixed,variable,reserve,
+    return {draw,variablePay,household,income,conservative,historyView,fixedRows,recurringRows,variableRows,fixed,recurring,variable,reserve,needsMatch:operating.needsMatch,
       minimums,room,targetExtra,exampleVariable,exampleRoom,possible,missingOperating,assumptions,debtLoans,stored,start};
   }
-  function repaymentBudget(budget,{variablePay,variable,reserve,targetExtra},share) {
+  function repaymentBudget(budget,{variablePay,variable,reserve,targetExtra,recurring=budget.recurring??0},share) {
     const income=budget.draw+variablePay+budget.household;
-    const committed=budget.fixed+variable+budget.minimums+reserve;
+    const costs=budget.fixed+recurring+variable+budget.minimums;
+    const committed=costs+reserve;
     const room=income-committed;
     const extra=budget.missingOperating||share===null?0:Math.min(targetExtra,Math.max(0,room));
     const toDebt=share===null?0:round(extra*share/100);
-    return {income,committed,room,extra,toDebt,toGoals:extra-toDebt,unallocated:Math.max(0,room-extra),
+    return {income,costs,committed,room,extra,toDebt,toGoals:extra-toDebt,unallocated:Math.max(0,room-extra),
       targetGap:Math.max(0,targetExtra-room),variableLimit:variable-Math.max(0,targetExtra-room)};
   }
   function monthlyDebtPlan(state,now,budget,extra,share,rollMinimums=true,trackBalances=false) {
@@ -739,5 +895,5 @@ const Engine = (() => {
     const end=items.length&&!incomplete?items.map(l=>l.clear).sort().at(-1):'';
     return {missing,items,goalItems,extraDebt,extraGoals,totalMinimum,balances,interest:incomplete?null:sum(items,l=>l.interest),end,incomplete};
   }
-  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
+  return {categories,kinds,dollars,round,id,today,day,iso,add,distance,month,shiftMonth,monthStart,monthEnd,validDate,clean,normal,sum,empty,money,dateValue,parseDelimited,autoMap,sniff,classify,savedRule,extract,duplicateReview,compoundDescription,matchTransfers,reviewPending,statementFixes,reviewGroups,recurringCharges,coverage,ledgerRows,spendingRows,isSpending,spendingTotal,history,recordedCash,debtProfile,singlePayoff,appointments,billKey,events,paymentWindow,forecast,isPaycheque,paydayPosition,accountRoom,monthChanges,monthlyCosts,recurringAudit,commitmentRange,monthlySnapshot,repaymentBudget,monthlyDebtPlan,makePlan};
 })();
