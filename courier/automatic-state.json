@@ -2,6 +2,10 @@
   "schemaVersion": 1,
   "days": [
     {
+      "date": "2026-11-18",
+      "attempts": 1
+    },
+    {
       "date": "2026-11-17",
       "attempts": 1
     },
