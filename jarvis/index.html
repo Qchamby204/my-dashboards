@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080e14">
+<meta name="robots" content="noindex,nofollow">
+<title>JARVIS · Atlas Command Centre</title>
+<link rel="stylesheet" href="./console.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Skip to console</a>
+<header class="top"><div class="top-inner">
+<a class="brand" href="../index.html" aria-label="Atlas home"><span class="atlas-mark" aria-hidden="true">◒</span> Atlas</a><span class="slash" aria-hidden="true">/</span><span class="product">JARVIS</span>
+<nav aria-label="Command centre"><a href="#console" data-view="console">Console</a><a href="#directory" data-view="directory">Directory</a><a href="#activity" data-view="activity">Activity</a></nav>
+</div></header>
+<main id="main" tabindex="-1">
+<section id="console">
+<div class="section-head page-head"><div><p class="kicker"><i></i> ATLAS OS</p><h1>Command centre<span>.</span></h1></div><span id="date" class="dateline"></span></div>
+<div class="console-grid">
+<article class="core-panel panel"><div class="core-grid" aria-hidden="true"></div>
+<div class="core-copy"><p class="kicker blue">COMMAND INTERFACE</p><h2>JARVIS</h2><p class="core-sub">Your Atlas dashboards,<br>on command.</p><button id="startup" class="quiet-btn" type="button"><span aria-hidden="true">▷</span> Run startup</button></div>
+<div class="reactor" aria-hidden="true"><img src="./reactor.svg" alt=""></div>
+<div class="instrument-meta"><span><i></i> ATLAS CORE</span><span id="core-state">INITIALIZING</span></div></article>
+<aside class="panel briefing"><div class="panel-heading"><h2>Today’s briefing</h2><button type="button" id="speak" class="audio" aria-label="Read briefing aloud" title="Read briefing aloud"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3zM16 8c2 2 2 6 0 8m3-11c4 4 4 10 0 14"/></svg></button></div><div id="brief-rows" aria-live="polite"></div><small>Records from this browser</small></aside>
+</div>
+<section class="command-block" aria-labelledby="command-title"><h2 id="command-title" class="sr">Issue a command</h2>
+<form id="command-form"><label for="command" class="prompt-symbol" aria-label="Command">›_</label><input id="command" type="text" placeholder="Ask JARVIS or open a dashboard…" autocomplete="off" maxlength="180"><button type="submit" class="run" aria-label="Run command"><span aria-hidden="true">↵</span></button></form>
+<div class="prompts"><span>Try</span><button type="button" data-query="What’s due?">What’s due?</button><button type="button" data-query="Open Herald">Open Herald</button><button type="button" data-query="Recent activity">Recent activity</button></div>
+<div id="answer" class="answer" hidden tabindex="-1"><div class="answer-head"><h3 id="answer-title"></h3><button type="button" id="clear" aria-label="Dismiss result">×</button></div><div id="answer-body"></div></div></section>
+<div class="section-head smaller"><h2>Agent channels</h2><a class="text-link" href="#directory">Full directory <span aria-hidden="true">↗</span></a></div>
+<div id="channels" class="channels"></div>
+</section>
+<section id="directory" hidden><div class="section-head page-head"><div><p class="kicker"><i></i> AGENT CHANNELS</p><h1>Directory<span>.</span></h1></div><a class="text-link" href="#console">Back to console</a></div>
+<div class="directory-controls"><label for="filter" class="sr">Find a dashboard</label><input id="filter" type="search" placeholder="Find a dashboard…" autocomplete="off"><div id="areas" class="tabs" aria-label="Filter by area"></div></div><p id="directory-count" class="meta" role="status"></p><div id="app-list" class="app-list"></div>
+<details class="connections"><summary>Connect another dashboard</summary>
+<p>Save a link on this browser for a dashboard hosted outside the Atlas catalogue.</p>
+<form id="connect-form"><label>Dashboard name<input id="connect-name" required maxlength="80" autocomplete="off"></label><label>Website address<input id="connect-url" type="url" required placeholder="https://" autocomplete="off"></label><label>Area<select id="connect-area"><option value="life">Life and home</option><option value="work">Work</option><option value="learning">Learning and reference</option><option value="system">System</option></select></label><button class="primary-btn">Connect dashboard</button></form>
+<div id="saved-links"></div></details></section>
+<section id="activity" hidden><div class="section-head page-head"><div><p class="kicker"><i></i> THIS BROWSER</p><h1>Activity<span>.</span></h1></div><a class="text-link" href="#console">Back to console</a></div><div class="panel activity-panel"><h2>Recent dashboard activity</h2><div id="activity-list"></div></div></section>
+<p id="notice" role="status" class="notice"></p>
+</main>
+<dialog id="connect-dialog"><div class="boot-shell"><p class="kicker blue">ATLAS DIRECTORY</p><h2>Connect your dashboards</h2><p>These shortcuts will be saved on this browser. Each dashboard opens with its existing sign-in.</p><ul id="incoming-links"></ul><div class="boot-actions"><button class="quiet-btn" id="skip-links">Cancel</button><button class="primary-btn" id="save-links">Save shortcuts</button></div></div></dialog>
+<dialog id="boot"><div class="boot-shell"><p class="kicker blue">ATLAS CORE</p><h2>Startup sequence</h2><ol id="boot-lines"></ol><div class="boot-actions"><button id="boot-voice" class="quiet-btn" type="button" aria-pressed="false">Voice off</button><button id="boot-close" class="primary-btn" type="button">Return to console</button></div></div></dialog>
+<noscript>Enable JavaScript to use the command centre. <a href="../index.html">Open the Atlas directory</a>.</noscript>
+<script type="module" src="./console.mjs?v=1"></script>
+</body></html>
