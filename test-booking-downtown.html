@@ -742,6 +742,7 @@ summary::marker{content:"";}
 }
 .youare h2{font-size:1.05rem;margin-bottom:3px;}
 .youare .hint{margin-bottom:13px;}
+#booking-profile{scroll-margin-top:16px;}
 .booking-profile-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:13px;}
 .booking-profile-actions .btn,.slot-right .btn{min-height:44px;}
 .youare .grid{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:12px;}
@@ -1603,6 +1604,7 @@ async function act(name, el, ev){
       UI.err="";
       UI.ok="";
       render();
+      $("#booking-profile").scrollIntoView({block:"start"});
       return;
     }
     await bookSession(session,el);
