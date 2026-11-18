@@ -143,7 +143,7 @@ test('archived season settings survive but no longer reset lasting totals',async
 });
 test('year-end does not stop progress and future entries stay excluded',async()=>{
  const rows=[{date:'2026-09-08',units:{Read:2}},{date:'2026-12-31',units:{Read:3}},{date:'2027-01-01',units:{Read:5}}],h=await boot({records:{[S]:JSON.stringify(rows)}});
- h.at('2026-12-31T23:30:00-06:00');assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),5);h.at('2027-01-01T00:01:00-06:00');assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),10);
+ h.at(new Date(2026,11,31,23,30));assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),5);h.at(new Date(2027,0,1,0,1));assert.equal(h.run('compute(state.days,state.goals).habit.Read.total'),10);
 });
 test('draft values and notes survive date switching and refresh without being logged',async()=>{
  const h=await boot();h.run(`state.draft.Read=7;state.draftNote='Unfinished';state.draftMood=3;`);h.api.remember();h.api.selectDate('2026-09-06');assert.equal(h.run('state.draft.Read'),0);h.run(`state.draftNote='Separate'`);h.api.remember();h.api.selectDate('2026-09-07');assert.equal(h.run('state.draftNote'),'Unfinished');
@@ -463,7 +463,7 @@ test('the leisure sheet opens and dismisses with focus return without stopping a
 
 test('remaining filter hides completed habits without erasing quantities or changing the full habit list',async()=>{
  const h=await screenBoot();h.run("state.logMode='list';state.draft.Read=25;render()");h.node('ledger-filter-remaining').click();
- const row=h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row');assert.equal(row.hidden,true);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('HABITS.length'),13);
+ const row=h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row');assert.equal(row.hidden,true);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('HABITS.length'),14);
  h.node('ledger-filter-all').click();assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]').closest('.row').hidden,false);
 });
 
@@ -501,11 +501,13 @@ test('a failed level-crossing save earns no XP; resaves do not replay the level 
 });
 
 
-test('annual calibration reaches habit and value 99 at their rhythms and Life 99 across the complete normal rhythm',async()=>{
+test('annual calibration reaches habit and value 99 at their rhythms and Life 99 across the original normal rhythm',async()=>{
  const h=await boot({realModel:true,nowISO:'2026-10-08T12:00:00-05:00'});
  h.run(`state.days=Array.from({length:364},(_,i)=>({date:window.LedgerRhythm.addDays('2025-01-06',i),units:Object.fromEntries(HABITS.filter(h=>i%7<window.LedgerRhythm.goal(h,HCFG[h],{}).normal).map(h=>[h,window.LedgerRhythm.xpUnit(HCFG[h])]))}));render()`);
  assert.equal(h.run('Object.values(compute(state.days,state.goals).habit).filter(h=>HABITS.includes(h.key)).every(h=>h.level===99)'),true);
  assert.equal(h.run('compute(state.days,state.goals).pillars.every(p=>p.level===99)'),true);
+ assert(h.run('compute(state.days,state.goals).life.level')>99);
+ h.run(`for (const day of state.days) delete day.units['August’s Development'];`);
  assert.equal(h.run('compute(state.days,state.goals).life.level'),99);
  h.run(`state.days=state.days.map(d=>({...d,units:Object.fromEntries(Object.entries(d.units).filter(([h])=>['Run / Work Out','Read','Screen Discipline'].includes(h)))}));render()`);
  assert.equal(h.run('compute(state.days,state.goals).life.level'),22);
@@ -558,7 +560,7 @@ test('interrupted active-history clearing recovers the explicit reset without lo
 test('card XP matches actual check-in increments for count and amount habits',async()=>{
  const h=await boot({realModel:true});
  const hints=()=>h.node('app').querySelectorAll('.ledger-card-xp').map(n=>n.textContent);
- assert.equal(hints().length,13);assert(hints().some(t=>t.startsWith('+100 XP on Save day')));assert(hints().every(t=>t.includes(' on Save day')));
+ assert.equal(hints().length,14);assert(hints().some(t=>t.startsWith('+100 XP on Save day')));assert(hints().every(t=>t.includes(' on Save day')));
  assert(hints().some(t=>t.startsWith('+10 pages per tap · +40 XP on Save day')));
  assert(hints().some(t=>t.startsWith('+15 minutes per tap · +50 XP on Save day')));
  assert(hints().some(t=>t.startsWith('+0.5 hours per tap · +6.67 XP on Save day')));
@@ -655,7 +657,7 @@ test('the activity deck groups artwork, navigation and one save action without a
 });
 test('extended achievements use saved totals, with no draft unlock or retroactive record write',async()=>{
  const rows=[{date:'2026-09-01',units:{Read:1490}}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});const check=()=>h.run('ACHV.find(a=>a.name==="Reading Room").test(compute(state.days,state.goals))');assert.equal(check(),false);h.run('state.draft.Read=10');h.api.remember();assert.equal(check(),false);assert.equal(h.storage.get(S),JSON.stringify(rows));await h.api.saveDay();assert.equal(check(),true);assert(h.run('state.achvQueue.some(a=>a.name==="Reading Room")'));
- const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});assert(again.run('ACHV.find(a=>a.name==="Reading Room").test(compute(state.days,state.goals))'));assert.equal(again.run('ACHV.length'),60);assert.equal(again.run('ACHV.find(a=>a.name==="A Year in the Ledger").test(compute(state.days,state.goals))'),false);
+ const again=await boot({realModel:true,records:Object.fromEntries(h.storage)});assert(again.run('ACHV.find(a=>a.name==="Reading Room").test(compute(state.days,state.goals))'));assert.equal(again.run('ACHV.length'),89);assert.equal(again.run('ACHV.find(a=>a.name==="A Year in the Ledger").test(compute(state.days,state.goals))'),false);
 });
 
 test('the active card accent and entered state follow the deck without writing saved progress',async()=>{
@@ -672,4 +674,19 @@ test('Levels leads with its value constellation and keeps lifetime progress and 
  const h=await boot({realModel:true});h.node('ledger-nav-progress').click();const pane=h.node('ledger-view-progress'),hero=h.node('ledger-lifetime-levels');
  assert(hero.classList.contains('ledger-feature'));assert.match(hero.textContent,/Life Level 0/);assert.match(hero.textContent,/lifetime XP/);assert.equal(hero.querySelector('.ledger-level-constellation'),null);
  const map=pane.querySelector('.ledger-value-map');assert(map);assert(map.classList.contains('ledger-feature'));assert.equal(map.id,'ledger-values-opening');assert.equal(pane.children.indexOf(map)<pane.children.indexOf(hero),true);assert.equal(map.tagName,'SECTION');assert(map.querySelector('.ledger-level-constellation'));assert.equal(map.querySelectorAll('.ledger-value-key button').length,5);assert(h.node('ledger-personal-rewards').isConnected);assert(hero.querySelectorAll('button').some(b=>b.textContent==='Explore rewards'));
+});
+
+test('the August habit keeps its emoji and joins the Connection map and saved activity',async()=>{
+ const habit='August’s Development',rows=[{date:'2026-09-06',units:{[habit]:1}}];
+ const h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}});
+ assert.equal(h.run('HABIT_PILLAR['+JSON.stringify(habit)+'].key'),'CONNECTION');
+ h.run('goCard(HABITS.indexOf('+JSON.stringify(habit)+'))');
+ const card=h.node('ledger-view-today').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')];
+ assert.equal(card.querySelector('.ledger-card-dial .ledger-card-avatar').textContent,'👶');
+ assert.equal(h.node('ledger-dock').querySelector('[data-act="commit"]'),null);
+ h.node('ledger-nav-progress').click();
+ h.node('ledger-values-opening').querySelector('[data-orbit="CONNECTION"]').click();
+ assert.match(h.node('ledger-values-opening').querySelector('#ledger-orbit-inspector').textContent,/100 lifetime XP/);
+ assert.match(h.node('app').querySelector('#ledger-activity-chart').textContent,/Connection activity/);
+ assert.equal(h.storage.get(S),JSON.stringify(rows));
 });

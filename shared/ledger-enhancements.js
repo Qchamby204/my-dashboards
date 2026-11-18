@@ -207,6 +207,22 @@
       ['Century of Strength','Run / Work Out',100,'Log 100 workouts'],['A Hundred Walks','Walk Hud',100,'Walk Hudson on 100 days'],
       ['Practice Makes Progress','Communication Drill',150,'Complete 150 communication drills'],['Community Builder','Board Work',3000,'Record 50 hours of board service']
     ];
+    const priorityMilestones=[
+      ['August’s Development','♡','days making time for August’s development',[[1,'A Moment With August'],[7,'Time Together'],[30,'Showing Up for August'],[100,'A Hundred Days Together']]],
+      ['Run / Work Out','⚡','workout days',[[25,'Training Rhythm'],[100,'Century of Training']]],
+      ['Sleep','☾','hours of sleep',[[500,'Rest Adds Up'],[1000,'Recovery Reserve']]],
+      ['Supplements','✚','days taking supplements',[[100,'Steady Routine']]],
+      ['Read','▤','pages read',[[1000,'A Thousand Pages'],[2500,'Always Learning']]],
+      ['YouTube Strategy','✎','days advancing YouTube content',[[25,'In Production'],[100,'A Body of Work']]],
+      ['Communication Drill','♬','communication practice days',[[10,'Finding Your Voice'],[50,'Clear and Confident']]],
+      ['Chambers Wealth','◇','days completing your practice cadence',[[10,'Practice Rhythm'],[50,'The Work Compounds'],[100,'A Hundred Practice Days']]],
+      ['Prep For Next Day','☀','evenings preparing for tomorrow',[[10,'Tomorrow Is Ready'],[100,'One Step Ahead']]],
+      ['Household Chore','⌂','days caring for the home',[[10,'Home in Hand'],[100,'A Home Well Kept']]],
+      ['Money Check-In','◈','money check-in days',[[50,'Know Where It Goes'],[100,'Money in View']]],
+      ['Screen Discipline','◐','days under one hour of screen time',[[7,'Attention Reclaimed']]],
+      ['Board Work','✦','minutes of board service',[[300,'At the Table'],[3000,'Steady Service']]],
+      ['Walk Hud','✧','days walking Hudson',[[7,'Around the Block'],[100,'A Hundred Walk Days']]]
+    ];
     const additions=[
       ...extendedMilestones.map(([name,habit,target,desc])=>({cat:'Milestones',name,desc,icon:'\u2727',test:d=>(d.habit[habit]?.total||0)>=target})),
       ...[['Half-Year of Check-ins',180],['A Year in the Ledger',365]].map(([name,target])=>({cat:'Consistency',name,desc:'Save '+target+' days with a check-in or reflection; no streak required',icon:'\u2736',test:d=>earnedDays(d).length>=target})),
@@ -215,6 +231,12 @@
       {cat:'Milestones',name:'Pages of Your Own',desc:'Save a daily note on seven different dates',icon:'\u25a4',test:d=>d.days.filter(day=>!!day.note?.trim()).length>=7},
       ...PILLARS.map(p=>({cat:'Milestones',name:p.title+': First Step',desc:'Record progress in '+p.title,icon:'\u2727',test:d=>d.pillars.some(value=>value.key===p.key&&value.exact>0)}))
     ];
+    for(const [habit,icon,unit,milestones]of priorityMilestones){
+      for(const [target,name]of milestones){
+        const desc=target===1?'Log your first day making time for August’s development':'Log '+target.toLocaleString('en-CA')+' '+unit;
+        additions.push({cat:'Milestones',name,desc,icon,test:data=>(data.habit[habit]?.total||0)>=target});
+      }
+    }
     for(const a of additions)if(!ACHV.some(old=>old.name===a.name))ACHV.push(a);
     for(const [name,count]of [['Rainmaker',10],['Pipeline Full',30],['Momentum',50],['Relentless',70]])revise(name,'Archived LinkedIn achievement · '+count+' completed days',d=>(d.habit['LinkedIn Strategy']?.total||0)>=count);
     revise('On the Record','Complete 10 YouTube strategy days',d=>(d.habit['YouTube Strategy']?.total||0)>=10);
@@ -678,16 +700,350 @@
       if(!count)overview.append(make('p',achievementFilter==='earned'?'Your first saved check-in or reflection starts your collection.':'No achievements in this selection. Try another category.','ledger-collection-empty'));host.append(overview);return host;
     }
 
+    function priorityTarget(h){
+      return h==='Sleep'?R.goal(h,HCFG[h],preferences()).minimum:leisureTarget(h);
+    }
+    function priorityDone(h){
+      return Number(state.draft[h]||0)>=priorityTarget(h);
+    }
+    function updateCardDial(card,h){
+      const dial=card.querySelector('.ledger-card-dial');
+      if(!dial)return;
+      const target=priorityTarget(h),amount=Number(state.draft[h]||0);
+      const fraction=Math.min(1,amount/Math.max(target,.01));
+      dial.style.setProperty('--dial-remaining',String(100-fraction*100));
+      dial.dataset.complete=String(fraction>=1);
+    }
+    function cardArtwork(avatar){
+      const dial=make('div',null,'ledger-card-dial');
+      dial.setAttribute('aria-hidden','true');
+      dial.innerHTML='<svg viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="43" class="card-dial-ticks"/><circle cx="50" cy="50" r="35" class="card-dial-base"/><circle cx="50" cy="50" r="35" pathLength="100" class="card-dial-fill" transform="rotate(-90 50 50)"/><g class="card-dial-rotor"><path d="M8 40a43 43 0 0 1 23-29M92 60a43 43 0 0 1-23 29"/><circle cx="8" cy="40" r="2.5"/><circle cx="92" cy="60" r="2.5"/></g></svg>';
+      dial.append(avatar);
+      return dial;
+    }
+    // One projection runs at a time, only while its screen is visible.
+    let stopProjection=()=>{};
+    let projectionAngle=.35;
+    const shownFractions=new Map();
+    function activateProjection(host,shape){
+      stopProjection();
+      if(!host)return;
+      const canvas=make('canvas',null,'ledger-projector');
+      canvas.setAttribute('aria-hidden','true');
+      const ctx=canvas.getContext?.('2d');
+      if(!ctx||!window.IntersectionObserver||!window.ResizeObserver)return;
+      host.prepend(canvas);
+      const tau=Math.PI*2;
+      const vertices=[],edges=[];
+      const add=(x,y,z)=>vertices.push([x,y,z])-1;
+      const edge=(a,b)=>edges.push([a,b]);
+      if(shape==='award'){
+        // A faceted medallion with bevelled edges.
+        const sides=8;
+        for(const [radius,height] of [[.56,-.71],[.92,-.29],[.94,.28],[.54,.68]]){
+          for(let i=0;i<sides;i++){
+            const angle=tau*i/sides;
+            const n=add(radius*Math.cos(angle),height,radius*Math.sin(angle));
+            const base=n-i;
+            edge(n,base+(i+1)%sides);
+            if(base){edge(n,n-sides);edge(n,base-sides+(i+1)%sides);}
+          }
+        }
+      }else{
+        const rows=9,cols=18;
+        for(let r=0;r<=rows;r++){
+          const lat=Math.PI*r/rows;
+          for(let c=0;c<cols;c++){
+            const lon=tau*(c+.5*(r%2))/cols;
+            const n=add(Math.cos(lon)*Math.sin(lat),Math.cos(lat),Math.sin(lon)*Math.sin(lat));
+            const base=n-c;
+            if(r>0&&r<rows)edge(n,base+(c+1)%cols);
+            if(r){edge(n,n-cols);if(r>1&&r<rows)edge(n,base-cols+(c+(r%2?1:cols-1))%cols);}
+          }
+        }
+      }
+      const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+      const targetFraction=()=>Number(host.dataset.fraction)||0;
+      let fraction=shownFractions.get(host.id)??targetFraction();
+      let frame=0,last=0,visible=true,drag=null,tilt=-.18,velocity=0,pulse=Number(fraction!==targetFraction());
+      function ellipse(x,y,rx,ry,start,end,color,width=1){
+        ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,start,end);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();
+      }
+      function draw(time){
+        frame=0;
+        if(!visible||document.hidden||!host.isConnected)return;
+        const dt=last?Math.min((time-last)/1000,.06):0;last=time;
+        const size=canvas.getBoundingClientRect().width;
+        if(!size)return;
+        const resolution=Math.round(size*Math.min(window.devicePixelRatio||1,2));
+        if(canvas.width!==resolution||canvas.height!==resolution){canvas.width=resolution;canvas.height=resolution;}
+        ctx.setTransform(resolution/280,0,0,resolution/280,0,0);
+        ctx.clearRect(0,0,280,280);
+        if(!drag&&!reduce.matches)projectionAngle+=dt*(.19+velocity);
+        velocity*=Math.exp(-4*dt);pulse=Math.max(0,pulse-dt*1.4);
+        const light=root.dataset.atlasTheme==='light';
+        const tint=light?'0,90,118':'95,230,246';
+        const ink=a=>'rgba('+tint+','+a+')';
+        const glow=ctx.createRadialGradient(140,125,7,140,130,114);
+        glow.addColorStop(0,ink(.17+pulse*.14));glow.addColorStop(.72,ink(.055));glow.addColorStop(1,ink(0));
+        ctx.fillStyle=glow;ctx.fillRect(0,0,280,280);
+        const cs=Math.cos(projectionAngle),sn=Math.sin(projectionAngle),ct=Math.cos(tilt),st=Math.sin(tilt);
+        const points=vertices.map(([x,y,z])=>{
+          const u=x*cs-z*sn,v=x*sn+z*cs,depth=y*st+v*ct,scale=70/(1-depth*.09);
+          return [140+u*scale,116+(y*ct-v*st)*scale,depth];
+        });
+        for(const [a,b]of edges){
+          const p=points[a],q=points[b],depth=(p[2]+q[2])/2;
+          ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.lineWidth=depth>0?.85:.55;ctx.strokeStyle=ink(Math.max(.08,.36+depth*.44));ctx.stroke();
+        }
+        for(let i=0;i<points.length;i+=shape==='award'?2:7){
+          const [x,y,z]=points[i];if(z<0)continue;
+          ctx.beginPath();ctx.arc(x,y,1.2+z*.8,0,tau);ctx.fillStyle=ink(.65+z*.3);ctx.fill();
+        }
+        // The outer arc measures completion. The lower rings establish depth.
+        const target=targetFraction();
+        fraction=reduce.matches||Math.abs(target-fraction)<.0005?target:fraction+(target-fraction)*(1-Math.exp(-7*dt));
+        shownFractions.set(host.id,fraction);
+        ellipse(140,116,96,96,0,tau,ink(.18));
+        if(fraction)ellipse(140,116,96,96,-Math.PI/2,-Math.PI/2+tau*fraction,ink(.94),2.5);
+        for(let i=0;i<48;i++){
+          const a=tau*i/48,len=i%4?2:6;
+          ctx.beginPath();ctx.moveTo(140+101*Math.cos(a),116+101*Math.sin(a));
+          ctx.lineTo(140+(101+len)*Math.cos(a),116+(101+len)*Math.sin(a));ctx.strokeStyle=ink(i%4?.21:.52);ctx.stroke();
+        }
+        const phase=reduce.matches?0:time*.00042;
+        ellipse(140,223,63,10,0,tau,ink(.44));ellipse(140,223,79,14,phase,phase+4.8,ink(.7),1.4);
+        ellipse(140,223,88,18,0,tau,ink(.15));
+        const beam=ctx.createLinearGradient(0,171,0,223);beam.addColorStop(0,ink(0));beam.addColorStop(1,ink(.13));
+        ctx.fillStyle=beam;ctx.beginPath();ctx.moveTo(88,173);ctx.lineTo(124,223);ctx.lineTo(156,223);ctx.lineTo(192,173);ctx.fill();
+        if(!reduce.matches)frame=requestAnimationFrame(draw);
+      }
+      function refresh(){if(!frame&&visible&&!document.hidden)frame=requestAnimationFrame(draw);}
+      function visibility(){last=0;if(document.hidden){cancelAnimationFrame(frame);frame=0;}else refresh();}
+      canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
+      canvas.addEventListener('pointermove',e=>{
+        if(!drag)return;
+        const step=(e.clientX-drag.x)*.014;
+        projectionAngle+=step;tilt=Math.max(-.8,Math.min(.8,tilt+(e.clientY-drag.y)*.007));velocity=Math.max(-2,Math.min(2,step*12));
+        drag={x:e.clientX,y:e.clientY};refresh();
+      });
+      canvas.addEventListener('lostpointercapture',()=>{drag=null;});
+      const update=()=>{pulse=1;refresh();};
+      host.addEventListener('projection-update',update);
+      const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;last=0;if(visible)refresh();else{cancelAnimationFrame(frame);frame=0;}});
+      observer.observe(canvas);
+      const resize=new ResizeObserver(refresh);resize.observe(canvas);
+      document.addEventListener('visibilitychange',visibility);
+      reduce.addEventListener('change',refresh);
+      stopProjection=()=>{cancelAnimationFrame(frame);observer.disconnect();resize.disconnect();reduce.removeEventListener('change',refresh);document.removeEventListener('visibilitychange',visibility);host.removeEventListener('projection-update',update);};
+      refresh();
+    }
+
+    function activityHistory(data){
+      const panel=make('section',null,'panel ledger-activity-history');
+      panel.id='ledger-activity-chart';
+      const scope=data.pillars.find(p=>p.key===valueScope);
+      const head=make('header',null,'ledger-section-heading');
+      head.append(make('h2',scope?scope.title+' activity':'Recent activity'),make('span','14 days','ledger-axis-label'));panel.append(head);
+      const grid=make('div',null,'ledger-history-bars');
+      const days=new Map(data.days.filter(day=>day.date).map(day=>[day.date,day]));
+      const records=Array.from({length:14},(_,index)=>{
+        const date=R.addDays(todayISO(),index-13),day=days.get(date);
+        const count=Object.entries(day?.units||{}).filter(([habit,amount])=>amount>0&&(!scope||(userModel.moves?.[habit]||HABIT_PILLAR[habit]?.key||DEFAULT_PILLARS.find(p=>p.habits.includes(habit))?.key)===scope.key)).length;
+        return {date,day,count};
+      });
+      const max=Math.max(1,...records.map(record=>record.count));
+      for(const {date,day,count}of records){
+        const description=pretty(date)+' · '+(day?count+' activities recorded':'No saved entry');
+        const point=button('',()=>selectDate(date));
+        point.classList.add('ledger-history-bar');point.title=description;point.setAttribute('aria-label',description);
+        point.style.setProperty('--activity-height',(count/max*100)+'%');
+        if(scope)point.style.setProperty('--activity-color',scope.color);
+        point.dataset.saved=String(!!day);
+        point.append(make('span',null,'ledger-history-bar-track'),make('small',String(Number(date.slice(-2)))));
+        grid.append(point);
+      }
+      panel.append(grid);return panel;
+    }
+
+    function paintReadout(readout,value,max){
+      if(!readout)return;
+      readout.querySelector('strong').textContent=value+' / '+max;
+      const fraction=String(max?value/max:0);
+      if(readout.dataset.fraction!==fraction){
+        readout.dataset.fraction=fraction;
+        if(readout.isConnected&&typeof Event==='function')readout.dispatchEvent(new Event('projection-update'));
+      }
+    }
+    function readout(id,label,value,max){
+      const panel=make('div',null,'ledger-readout');
+      panel.id=id;
+      const copy=make('div',null,'ledger-readout-copy');
+      copy.append(make('strong'),make('span',label));panel.append(copy);
+      panel.setAttribute('aria-hidden','true');
+      paintReadout(panel,value,max);
+      return panel;
+    }
+    const motionAllowed=()=>!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function updateDailyFocus(){
+      const summary=document.getElementById('ledger-daily-focus');
+      const habits=HABITS;
+      const done=habits.filter(priorityDone).length;
+      const ring=document.getElementById('ledger-today-readout');
+      paintReadout(ring,done,habits.length);
+      for(const jump of app.querySelectorAll('.ledger-value-jump')){
+        const habits=PILLARS.find(p=>p.key===jump.dataset.valueKey)?.habits||[];
+        const complete=habits.filter(priorityDone).length;
+        jump.querySelector('small').textContent=complete+' / '+habits.length;
+        jump.style.setProperty('--value-done',100*complete/Math.max(1,habits.length)+'%');
+      }
+      if(!summary)return;
+      summary.style.setProperty('--ledger-completion',habits.length?100*done/habits.length+'%':'0%');
+      summary.textContent=habits.length?done+' of '+habits.length+' priorities done':'No habits enabled.';
+    }
+    function valueNavigator(){
+      const nav=make('nav',null,'ledger-value-index');
+      nav.setAttribute('aria-label','Jump to a value in your check-in');
+      for(const pillar of PILLARS){
+        if(!pillar.habits.length)continue;
+        const choice=button('',()=>{
+          const first=pillar.habits.find(h=>!priorityDone(h))||pillar.habits[0];
+          if(state.logMode==='cards'){goCard(HABITS.indexOf(first));}
+          else if(remainingOnly&&priorityDone(first)){remainingOnly=false;render();}
+          const items=app.querySelectorAll('.ledger-list-row,.ledger-habit-card');
+          const item=[...items].find(el=>el.querySelector('[data-habit]')?.dataset.habit===first);
+          if(!item)return;
+          item.setAttribute('tabindex','-1');
+          item.focus({preventScroll:true});
+          item.scrollIntoView({block:'center',behavior:motionAllowed()?'smooth':'auto'});
+        });
+        choice.classList.add('ledger-value-jump');choice.dataset.valueKey=pillar.key;
+        choice.style.setProperty('--ledger-value',pillar.color);
+        choice.append(make('span',pillar.title),make('small'));
+        nav.append(choice);
+      }
+      return nav;
+    }
+    let valueScope='LIFE';
+    function lifeMap(data){
+      const diagram=make('div',null,'ledger-orbit-field');
+      const nodes=data.pillars.map((pillar,index)=>{
+        const angle=index*2*Math.PI/data.pillars.length-Math.PI/2;
+        return {...pillar,x:Math.round(240+166*Math.cos(angle)),y:Math.round(167+111*Math.sin(angle))};
+      });
+      const core={...data.life,key:'LIFE',title:'Life',color:'#e9c488',x:240,y:167};
+      const stations=[core,...nodes];
+      const routes=nodes.map(({x,y,color,key,xp},index)=>{
+        const path='M240 167 Q'+(240+(x-240)*.49-(y-167)*.26)+' '+(167+(y-167)*.49+(x-240)*.26)+' '+x+' '+y;
+        return '<g data-route="'+key+'" data-earned="'+(xp>0)+'" style="--signal-delay:'+(-index*.53)+'s" fill="none" stroke="'+color+'"><path class="orbit-link" d="'+path+'"/><path class="orbit-trace" pathLength="100" d="'+path+'"/><path class="orbit-signal" pathLength="100" d="'+path+'"/></g>';
+      }).join('');
+      const station=(p)=>{
+        const life=p===core,r=life?40:24,perimeter=2*Math.PI*(r+4);
+        const mark=life?'':iconSVG(p.icon,p.color).replace('<svg ','<svg x="-11" y="-11" ');
+        return '<g transform="translate('+p.x+' '+p.y+')" class="orbit-node" role="button" tabindex="0" data-orbit="'+p.key+'" aria-controls="ledger-orbit-inspector" aria-label="'+esc(p.title)+' · Level '+p.level+' · '+fmt(p.xp)+' XP">'+
+          '<rect x="-42" y="-34" width="84" height="90" rx="10" fill="transparent"/><g pointer-events="none">'+
+          '<circle class="orbit-halo" r="'+(r+13)+'" fill="none" stroke="'+p.color+'"/>'+
+          '<circle class="orbit-ring" r="'+(r+8)+'" fill="none" stroke="'+p.color+'" stroke-dasharray="16 5 3 4"/>'+
+          '<g class="orbit-satellite" fill="'+p.color+'"><circle cy="'+(-r-8)+'" r="2.7"/><circle cy="'+(r+8)+'" r="1.4"/></g>'+
+          '<circle r="'+r+'" fill="url(#orbit-glass)" stroke="'+p.color+'" stroke-opacity=".7"/>'+
+          '<circle r="'+(r+4)+'" fill="none" stroke="'+p.color+'" stroke-width="3" transform="rotate(-90)" stroke-dasharray="'+perimeter*Math.min(1,p.into/p.cost)+' '+perimeter+'"/>'+
+          mark+(life?'<circle r="29" class="orbit-hub-inner"/><text y="-6" class="orbit-life-name">LIFE</text><text y="20" class="orbit-life-number">'+p.level+'</text>':
+          '<text y="41" class="orbit-name">'+esc(p.title)+'</text><text y="56" class="orbit-level">LV '+p.level+'</text>')+'</g></g>';
+      };
+      diagram.innerHTML='<svg viewBox="0 0 480 349" class="ledger-orbit-svg" role="group" aria-label="Life Level and value map"><defs>'+
+        '<radialGradient id="orbit-glass" cx=".32" cy=".24" r=".85"><stop stop-color="#244551"/><stop offset="1" stop-color="#091720"/></radialGradient>'+
+        '<linearGradient id="orbit-sweep"><stop stop-color="#86f6ee" stop-opacity=".24"/><stop offset="1" stop-color="#86f6ee" stop-opacity="0"/></linearGradient>'+
+        '<pattern id="orbit-grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M0 2V0h2" fill="none" stroke="#45858e" stroke-opacity=".48"/></pattern></defs>'+
+        '<rect width="480" height="349" fill="url(#orbit-grid)"/>'+
+        '<g class="orbit-depth" aria-hidden="true"><g transform="translate(240 167)" fill="none">'+
+        '<circle r="108" class="orbit-coordinates"/><circle r="78" class="orbit-coordinates orbit-coordinate-inner"/>'+
+        '<g class="orbit-gyro"><ellipse rx="184" ry="65" transform="rotate(-24)"/><ellipse rx="177" ry="73" transform="rotate(25)"/><ellipse rx="127" ry="64" transform="rotate(77)"/><circle cx="151" cy="-24" r="3"/><circle cx="-153" cy="39" r="2"/></g>'+
+        '<g class="orbit-radar"><path d="M0 0 L0 -108 A108 108 0 0 1 63.5 -87.4Z" fill="url(#orbit-sweep)"/><path d="M0 -108 L0 -62" class="orbit-scan-line"/></g>'+
+        '</g></g>'+routes+stations.map(station).join('')+'</svg>';
+      const controls=[...diagram.querySelectorAll('[data-orbit]')];
+      const inspector=make('section',null,'ledger-orbit-inspector');inspector.id='ledger-orbit-inspector';
+      inspector.setAttribute('aria-label','Selected value');
+      function inspect(key,refresh=false){
+        const pillar=data.pillars.find(p=>p.key===key),active=pillar||core;
+        const changed=valueScope!==active.key;
+        valueScope=active.key;
+        diagram.dataset.scope=valueScope;
+        for(const node of controls)node.setAttribute('aria-pressed',String(node.dataset.orbit===valueScope));
+        for(const path of diagram.querySelectorAll('[data-route]'))path.dataset.selected=String(path.dataset.route===valueScope);
+        inspector.style.setProperty('--ledger-value',active.color);
+        const details=make('details',null,'orbit-priorities');details.open=!!pillar;
+        const habits=pillar?.habits||HABITS;
+        details.append(make('summary',habits.length+' '+(habits.length===1?'priority':'priorities')));
+        for(const habit of habits){
+          const row=button('',()=>{
+            if(!selectDate(todayISO()))return;
+            if(state.logMode==='cards')goCard(HABITS.indexOf(habit));
+            else if(remainingOnly&&priorityDone(habit)){remainingOnly=false;render();}
+            const item=[...app.querySelectorAll('.ledger-list-row,.ledger-habit-card')].find(el=>el.querySelector('[data-habit]')?.dataset.habit===habit);
+            if(item){item.setAttribute('tabindex','-1');item.focus({preventScroll:true});item.scrollIntoView({block:'center',behavior:motionAllowed()?'smooth':'auto'});}
+          });
+          row.classList.add('orbit-habit');row.setAttribute('aria-label','Open '+label(habit)+' in today’s check-in');
+          const activity=data.habit[habit],copy=make('span');
+          const unit=activity.total===1?HCFG[habit].unit.replace(/s$/,''):HCFG[habit].unit;
+          copy.append(make('strong',label(habit)),make('small',fmt(activity.total)+' '+unit+' recorded overall'));
+          row.append(make('span',habitEmoji(habit),'orbit-emoji'),copy,make('small',fmt(activity.xp)+' XP'));
+          details.append(row);
+        }
+        const next=make('p',fmt(Math.ceil(active.remaining))+' XP to Level '+(active.level+1),'orbit-next');
+        inspector.replaceChildren(make('h3',pillar?pillar.title+' · Level '+pillar.level:'All values'),make('p',fmt(active.xp)+' lifetime XP','orbit-total'),next,xpMeter(active,active.title),details);
+        if(refresh){
+          if(changed&&motionAllowed()){
+            const arrival=controls.find(node=>node.dataset.orbit===valueScope)?.querySelector('.orbit-halo');
+            arrival?.animate?.([{opacity:1,transform:'scale(.75)'},{opacity:0,transform:'scale(1.52)'}],{duration:670,easing:'ease-out'});
+            inspector.animate?.([{opacity:.58,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'ease-out'});
+          }
+          document.getElementById('ledger-activity-chart')?.replaceWith(activityHistory(data));
+          const recent=document.getElementById('ledger-recent');
+          if(recent){const panel=recentPanel();panel.open=recent.open;recent.replaceWith(panel);}
+
+
+        }
+      }
+      for(const [index,control] of controls.entries()){
+        control.addEventListener('click',()=>inspect(control.dataset.orbit,true));
+        control.addEventListener('keydown',event=>{
+          if(event.key==='Enter'||event.key===' '){event.preventDefault();inspect(control.dataset.orbit,true);return;}
+          const step={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[event.key];
+          if(!step)return;
+          event.preventDefault();event.stopPropagation();
+          const next=controls[(index+step+controls.length)%controls.length];next.focus();inspect(next.dataset.orbit,true);
+        });
+      }
+      diagram.addEventListener('pointermove',event=>{
+        if(event.pointerType!=='mouse'||!motionAllowed())return;
+        const rect=diagram.getBoundingClientRect();
+        const x=(event.clientX-rect.left)/rect.width-.5,y=(event.clientY-rect.top)/rect.height-.5;
+        diagram.style.setProperty('--orbit-tilt-x',(-y*32)+'deg');
+        diagram.style.setProperty('--orbit-tilt-y',(x*39)+'deg');
+      });
+      diagram.addEventListener('pointerleave',()=>{
+        diagram.style.removeProperty('--orbit-tilt-x');
+        diagram.style.removeProperty('--orbit-tilt-y');
+      });
+      inspect(valueScope);
+      const layout=make('div',null,'ledger-orbit-layout');layout.append(diagram,inspector);return layout;
+    }
     function composeDashboard(log,data,earned){
       if(!log)return;
       const panes={};
-      for(const [key,title]of [['today','Today'],['progress','Levels'],['achievements','Achievements'],['history','History']]){
+      for(const [key,title]of [['today','Today'],['progress','Progress'],['achievements','Achievements'],['history','History']]){
         const pane=make('section',null,'ledger-view');pane.id='ledger-view-'+key;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','ledger-nav-'+key);pane.hidden=dashboardView!==key;panes[key]=pane;app.append(pane);
       }
       const move=(selector,pane)=>{const node=app.querySelector(selector);if(node)pane.append(node);return node;};
-      const intro=make('div',null,'ledger-day-heading');
-      intro.append(make('div',state.logDate===todayISO()?new Date(state.logDate+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Editing '+pretty(state.logDate),'eyebrow'),make('h1',state.logDate===todayISO()?'Your check-in':'Your saved day','cinzel'));
-      const awards=button(earned.length+' achievements',()=>setDashboardView('achievements'));awards.classList.add('ledger-awards-link');panes.today.append(intro);
+      const intro=make('div',null,'ledger-day-heading ledger-opening');
+      const title=make('div',null,'ledger-day-title');
+      title.append(make('div',state.logDate===todayISO()?new Date(state.logDate+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}):'Editing '+pretty(state.logDate),'eyebrow'),make('h1',state.logDate===todayISO()?'Your check-in':'Your saved day','cinzel'));
+      const awards=button(earned.length+' achievements',()=>setDashboardView('achievements'));awards.classList.add('ledger-awards-link');
+      const level=button('Life Level '+data.life.level+' · '+fmt(Math.ceil(data.life.remaining))+' XP to next level',()=>setDashboardView('progress'));
+      level.classList.add('ledger-level-link');
+      const progressLinks=make('div',null,'ledger-day-progress');progressLinks.append(level,awards);
+      intro.append(title,readout('ledger-today-readout','Priorities done',HABITS.filter(priorityDone).length,HABITS.length),valueNavigator(),progressLinks);
+      panes.today.append(intro);
       const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
       // Today contains only the check-in. Supporting tools live in History.
       const checkinTools=make('details',null,'ledger-manage');checkinTools.id='ledger-checkin-tools';checkinTools.open=checkinToolsOpen;checkinTools.addEventListener('toggle',()=>checkinToolsOpen=checkinTools.open);checkinTools.append(make('summary','Check-in tools'));move('#ledger-rhythm',checkinTools);panes.history.append(checkinTools);
@@ -720,7 +1076,7 @@
       if(oldActions){for(const b of [...oldActions.querySelectorAll('button')])if(b.textContent.startsWith('Achievements'))b.remove();}
       for(const jump of app.querySelectorAll('.ledger-jump'))jump.remove();
       move('.ledger-identity',panes.progress);move('#ledger-season-summary',panes.progress);
-      const overall=app.querySelector('.ledger-overall'),map=overall?.querySelector('.ledger-level-constellation');overall?.querySelector('.ledger-feature-footer')?.append(awards);
+      const overall=app.querySelector('.ledger-overall'),map=overall?.querySelector('.ledger-level-constellation');
       if(map)map.remove();
       const relic=app.querySelector('[data-act="section"][data-key="relics"]')?.closest('.panel');
       app.querySelector('.ledger-values-heading')?.remove();
@@ -731,12 +1087,16 @@
         map.querySelector('h3')?.remove();const key=map.querySelector('.ledger-value-key'),footer=make('div',null,'ledger-feature-footer');if(key)footer.append(key);
         card.append(rail,heading,map,footer);panes.progress.append(card);
       }
+      panes.progress.append(activityHistory(data));
       if(overall)panes.progress.append(overall);
       const valuesHeading=make('div',null,'ledger-section-heading');valuesHeading.append(make('h2','Value details'));panes.progress.append(valuesHeading);
       move('.ledger-values',panes.progress);if(relic)relic.remove();
       const personalRewards=personalRewardsPanel(data);if(personalRewards)panes.progress.append(personalRewards);
       panes.progress.append(recentPanel());
-      panes.achievements.append(make('h1','Achievements','cinzel ledger-view-title'),achievementOverview(data,earned));
+      const collection=achievementOverview(data,earned);
+      const feature=collection.querySelector('.ledger-feature');
+      (feature||collection).append(readout('ledger-achievement-readout','Earned',earned.length,ACHV.length));
+      panes.achievements.append(make('h1','Achievements','cinzel ledger-view-title'),collection);
       panes.history.prepend(make('h1','Your record','cinzel ledger-view-title'),historyFeature());
       const savedRecords=move('#ledger-history',panes.history);if(savedRecords)checkinTools.before(savedRecords);
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
@@ -761,7 +1121,7 @@
         if(mode){rail.append(mode);const toolbar=log.querySelector('.ledger-checkin-toolbar');if(toolbar)toolbar.hidden=true;}
         const caption=picker?.querySelector('.ledger-switcher-caption');if(caption)caption.textContent=state.logDate===todayISO()?'Today':fmtDay(state.logDate);
         const counter=rail.querySelector('#deckCounter');if(picker&&counter)picker.append(counter);
-        intro.hidden=true;frame.setAttribute('aria-label','Check-in for '+pretty(state.logDate));
+        frame.setAttribute('aria-label','Check-in for '+pretty(state.logDate));
         frame.append(rail,viewport);
         if(navigation){navigation.classList.add('ledger-deck-navigation');saveRow.prepend(navigation);}frame.append(saveRow);
         const bar=log.querySelector('#deckBar')?.parentNode;if(bar){bar.hidden=true;bar.setAttribute('aria-hidden','true');}
@@ -770,7 +1130,7 @@
       const running=button('Screen-time timer running · Open',openLeisure);running.id='ledger-running-timer';running.hidden=!drafts.leisureTimer;running.classList.add('ledger-running-timer');dock.append(running);
       const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');nav.style.setProperty('--atlas-page-count','4');
       const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',achievements:'<path d="M8 3h8v7a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 14v6m-4 1h8"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
-      for(const [key,title]of [['today','Today'],['progress','Levels'],['achievements','Achievements'],['history','History']]){const b=button('',()=>setDashboardView(key,true));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
+      for(const [key,title]of [['today','Today'],['progress','Progress'],['achievements','Achievements'],['history','History']]){const b=button('',()=>setDashboardView(key,true));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
       nav.addEventListener('keydown',e=>{const keys=['today','progress','achievements','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%keys.length;else if(e.key==='ArrowLeft')next=(index+keys.length-1)%keys.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=keys.length-1;else return;e.preventDefault();setDashboardView(keys[next],true);});
       const todayScreen=state.logDate===todayISO()?state.draftScreen:(drafts.days[todayISO()]||dayEntryFor(todayISO()))?.screen;
       const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';quick.setAttribute('aria-label',quick.textContent);quick.title=quick.textContent;const resetRow=make('div',null,'ledger-reset-row');resetRow.append(quick);checkinTools.append(resetRow);
@@ -857,15 +1217,26 @@
       const body=make('div',null,'ledger-feature-body');body.append(make('p',fmt(data.life.xp)+' lifetime XP','ledger-feature-description'),xpMeter(data.life,'Life'),make('p',fmt(Math.ceil(data.life.remaining))+' XP to Level '+(data.life.level+1),'ledger-feature-detail'));
       const footer=make('div',null,'ledger-feature-footer'),rewards=button('Explore rewards',viewPersonalRewards);rewards.classList.add('ledger-feature-action');footer.append(rewards);panel.append(rail,heading,body,footer);
       const map=make('div',null,'ledger-level-constellation');map.append(make('h3','Levels by value'));
-      const drawing=make('div');drawing.innerHTML=constellation(data.pillars.map(p=>({...p,exact:Math.min(99,p.exact)})),data.life,state.active);drawing.setAttribute('aria-hidden','true');
-      for(const node of drawing.querySelectorAll('[data-act]')){node.removeAttribute('data-act');node.removeAttribute('tabindex');}
+      const drawing=lifeMap(data);
       const key=make('div',null,'ledger-value-key');for(const p of data.pillars){const b=button(p.title+' · Level '+p.level,()=>{state.active=p.key;state.openP=p.key;render();const target=app.querySelector('[data-act="pillar"][data-key="'+p.key+'"]');target?.scrollIntoView({block:'center',behavior:'instant'});target?.focus({preventScroll:true});});key.append(b);}
       map.append(drawing,key);panel.append(map);
       return panel;
     }
     function recentPanel(){
-      const panel=make('details',null,'ledger-history');panel.id='ledger-recent';panel.append(make('summary','Recent rhythm · last four weeks'));
-      for(let i=0;i<4;i++){const week=R.addDays(R.weekStart(todayISO()),-i*7),group=make('div',null,'ledger-rhythm-row');group.append(make('strong',fmtDay(week)+' – '+fmtDay(R.addDays(week,6))));for(const h of focusHabits()){const w=weekStats(h,week);group.append(make('p',label(h)+' · '+fmt(w.sessions)+' completed days · '+w.unlogged+' days without dated check-ins'+(w.reported?' · weekly total supplied':''),'ledger-help'));}panel.append(group);}return panel;
+      const panel=make('details',null,'ledger-history');panel.id='ledger-recent';
+      const pillar=PILLARS.find(p=>p.key===valueScope),habits=pillar?.habits||HABITS;
+      panel.append(make('summary','Weekly rhythm · '+(pillar?.title||'All values')));
+      for(let i=0;i<4;i++){
+        const week=R.addDays(R.weekStart(todayISO()),-i*7),group=make('details',null,'orbit-week');
+        const stats=habits.map(h=>({h,stats:weekStats(h,week)}));
+        const count=stats.reduce((sum,v)=>sum+v.stats.sessions,0);
+        group.append(make('summary',fmtDay(week)+' – '+fmtDay(R.addDays(week,6))+' · '+count+' check-ins'));
+        for(const item of stats){
+          group.append(make('p',label(item.h)+' · '+fmt(item.stats.sessions)+' days'+(item.stats.reported?' · includes catch-up':''),'ledger-help'));
+        }
+        panel.append(group);
+      }
+      return panel;
     }
     pillarCard=function(p,habits,expected,open){
       const rows=p.habits.map(h=>{const hs=habits[h];return '<div class="ledger-rhythm-row"><div class="ledger-rhythm-heading"><span>'+esc(label(h))+'</span><strong>Level '+hs.level+'</strong></div><p class="ledger-help">'+fmt(hs.total)+' '+esc(HCFG[h].unit)+' · '+fmt(hs.xp)+' XP</p><progress class="ledger-xp-meter" max="'+hs.cost+'" value="'+hs.into+'" aria-label="'+esc(label(h))+' XP toward next level"></progress><p class="ledger-help">100 XP per '+fmt(R.xpUnit(HCFG[h]))+' '+esc(HCFG[h].unit)+' · '+fmt(Math.ceil(hs.remaining))+' XP to next level</p></div>';}).join('');
@@ -920,7 +1291,9 @@
       frame.dataset.entered=String((state.draft[h]||0)>0);
     }
     function refreshCheckinState(h){
+      updateDailyFocus();
       for(const row of app.querySelectorAll('.row,.ledger-habit-card')){if(row.querySelector('[data-habit]')?.dataset.habit!==h)continue;
+        if(row.classList.contains('ledger-habit-card'))updateCardDial(row,h);
         const known=state.draftMissed?.includes(h),status=row.querySelector('.ledger-habit-status');if(status)status.textContent=state.draft[h]>0?'Recorded':known?'Didn’t do':'Not recorded';
         const missed=row.querySelector('.ledger-missed');if(missed){missed.textContent=known?'Leave unknown':'Didn’t do';missed.setAttribute('aria-label',(known?'Leave unknown: ':'Did not do: ')+label(h));}
       }
@@ -962,9 +1335,10 @@
       for(const [i,card]of [...app.querySelectorAll('.ledger-habit-card')].entries()){
         const header=make('div',null,'ledger-card-heading'),identity=make('div',null,'ledger-card-identity');
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
-        avatar.classList.add('ledger-card-avatar');const art=make('div',null,'ledger-card-art');art.append(avatar);identity.append(title);if(category)header.append(category);header.append(art,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
+        avatar.classList.add('ledger-card-avatar');const art=make('div',null,'ledger-card-art');art.append(cardArtwork(avatar));identity.append(title);if(category)header.append(category);header.append(art,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
         title.setAttribute('role','heading');title.setAttribute('aria-level','1');
         const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
+        updateCardDial(card,h);
         const check=card.querySelector('[data-act="toggle"]');if(check){const text=check.querySelector('span');if(text){text.textContent='Mark done';const mark=make('span','+','ledger-mark-symbol');mark.setAttribute('aria-hidden','true');check.append(mark);}else check.append(make('span','Added to check-in'));const siblings=[...check.parentNode.children],caption=siblings[siblings.indexOf(check)+1];if(caption?.tagName==='DIV'&&/^(Mark it done|Mark done|Done today)/.test(caption.textContent.trim()))caption.remove();}
         card.style.setProperty('--ledger-card-accent','var(--neo-'+({HEALTH:'green',GROWTH:'violet',WEALTH:'accent',DISCIPLINE:'blue',CONNECTION:'rose'}[HABIT_PILLAR[h]?.key]||'accent')+')');
         (card.querySelector('.ledger-amount-controls')||check)?.parentNode.classList.add('ledger-card-entry');
@@ -985,7 +1359,7 @@
             if(n>0)state.draftMissed=(state.draftMissed||[]).filter(key=>key!==h);
             remember();refreshCheckinState(h);goCard(state.cardIndex+1);
             if(i<HABITS.length-1){const next=app.querySelectorAll('.ledger-habit-card')[i+1];next.setAttribute('tabindex','-1');next.focus({preventScroll:true});}
-            else app.querySelector('[data-act="commit"]')?.focus({preventScroll:true});
+            else app.querySelector('[data-act="commit"]')?.focus();
           });
           done.classList.add('btn','tap','ledger-amount-done');done.setAttribute('aria-label','Confirm amount and next habit: '+label(h));const footer=make('div',null,'ledger-amount-confirm');hint.before(footer);footer.append(hint,done);
         }
@@ -1017,6 +1391,9 @@
       for(const el of app.querySelectorAll('[data-act="mood"]'))el.setAttribute('aria-pressed',String(state.draftMood===+el.dataset.v));
       const prev=document.getElementById('deckPrev'),next=document.getElementById('deckNext');if(prev){prev.disabled=state.cardIndex===0;prev.setAttribute('aria-label','Previous habit');}if(next)next.disabled=state.cardIndex>=HABITS.length-1;
       composeDashboard(log,data,earned);window.LedgerReminderTools?.mount();
+      updateDailyFocus();
+      const instrument=dashboardView==='today'?'ledger-today-readout':dashboardView==='achievements'?'ledger-achievement-readout':null;
+      activateProjection(instrument&&document.getElementById(instrument),dashboardView==='achievements'?'award':'globe');
       updateDeckChrome(state.cardIndex,HABITS.length);
       for(const mode of log?.querySelectorAll('[data-act="logmode"]')||[])mode.setAttribute('aria-pressed',String(mode.dataset.mode===state.logMode));
       paintLeisureClock();status();mountReleaseNotice();window.CoreAppFinish?.layoutOpening?.();
