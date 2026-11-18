@@ -774,7 +774,7 @@ html[data-atlas-app="life-ledger"] .ledger-card-dial {
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-card-art .ledger-card-dial>.ledger-card-avatar {
   width:75%!important;height:75%!important;max-width:none;z-index:1;border:0!important;
-  background:transparent!important;font-size:clamp(36px,11vw,46px)!important;
+  background:transparent!important;font-size:clamp(58px,17vw,72px)!important;
   font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
   filter:drop-shadow(0 4px 7px #0006);
 }
