@@ -136,7 +136,7 @@ with sync_playwright() as pw:
         dismiss_rewards()
         expect(page.locator('#ledger-lifetime-levels')).to_contain_text('Life Level 1')
         page.locator('#ledger-nav-progress').click()
-        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('4040 lifetime XP')
+        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('4,040 lifetime XP')
         assert page.locator('.ledger-value-level').count() == 5
         health=page.locator('.ledger-value-toggle[data-key="HEALTH"]')
         health.press('Enter')
