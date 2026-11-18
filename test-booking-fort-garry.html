@@ -742,6 +742,8 @@ summary::marker{content:"";}
 }
 .youare h2{font-size:1.05rem;margin-bottom:3px;}
 .youare .hint{margin-bottom:13px;}
+.booking-profile-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:13px;}
+.booking-profile-actions .btn,.slot-right .btn{min-height:44px;}
 .youare .grid{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:12px;}
 .youare.locked{background:color-mix(in srgb,var(--sand) 60%,var(--paper));}
 .youline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
@@ -907,7 +909,7 @@ const GYM = {
   { id:"fg-02", trainer:"Morgan", slots:[{days:[1, 3, 5], time:"07:10"}] },
   { id:"fg-03", trainer:"Jill", slots:[{days:[1, 3, 5], time:"08:30"}] },
   { id:"fg-04", trainer:"Liv", slots:[{days:[1, 3, 5], time:"09:45"}] },
-  { id:"fg-05", trainer:"Jaz", slots:[{days:[1, 3, 5], time:"16:00"}] },
+  { id:"fg-05", trainer:"Jaz", slots:[{days:[1, 3, 5], time:"16:00", capacity:2}] },
   { id:"fg-06", trainer:"Jaz", slots:[{days:[1, 3, 5], time:"17:15"}] },
   { id:"fg-07", trainer:"Leah", slots:[{days:[1, 3], time:"18:30"}, {days:[6], time:"09:15"}] },
   { id:"fg-08", trainer:"Jo", slots:[{days:[1, 3], time:"19:45"}, {days:[6], time:"10:30"}] },
@@ -928,7 +930,7 @@ const GYM = {
 (function(){
 "use strict";
 
-const SPOTS_PER_SESSION = 4;
+const DEFAULT_SESSION_CAPACITY = 6;
 const PER_CLIENT_PER_WEEK = 2;
 const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
@@ -998,7 +1000,10 @@ function sessionsOn(iso){
   const out=[];
   GYM.teams.forEach(t=>{
     t.slots.forEach(s=>{
-      if(s.days.indexOf(d)>=0) out.push({ id:t.id, trainer:t.trainer, time:s.time, date:iso });
+      if(s.days.includes(d)) out.push({
+        id:t.id, trainer:t.trainer, time:s.time, date:iso,
+        capacity:s.capacity ?? DEFAULT_SESSION_CAPACITY
+      });
     });
   });
   return out.sort((a,b)=>a.time.localeCompare(b.time));
@@ -1050,7 +1055,7 @@ const Sandbox = {
     const nk=nameKey(who.first,who.last);
     const here=rows.filter(r=>r.session_id===sess.id && r.session_date===sess.date);
     if(here.some(r=>r.name_key===nk)) throw new Error("duplicate key");
-    if(here.length>=SPOTS_PER_SESSION) throw new Error("SESSION_FULL");
+    if(here.length>=sess.capacity) throw new Error("SESSION_FULL");
     const wk=mondayOf(sess.date), wkEnd=addDays(wk,6);
     if(rows.filter(r=>r.name_key===nk && r.session_date>=wk && r.session_date<=wkEnd).length>=PER_CLIENT_PER_WEEK)
       throw new Error("WEEK_LIMIT");
@@ -1191,6 +1196,9 @@ const UI = {
   checks:null,
   me: LS.get("me",{first:"",last:"",regular:""}),
   editing: !LS.get("me",null),
+  draft:null,
+  pendingSession:null,
+  booking:false,
   mine: LS.get("mine",{}),              /* "id|date" -> true, this browser's bookings */
   weekStart: null,                      /* trainer view */
   tfilter:"all"
@@ -1239,7 +1247,6 @@ function setupScreen(){
 
 function youAre(){
   if(!UI.editing && haveMe()){
-    const wk=UI.weekCountShown||0;
     return '<div class="youare locked"><div class="youline">'+
       '<span class="av">'+esc(initials(UI.me.first,UI.me.last))+'</span>'+
       '<div><div><b>'+esc(UI.me.first)+' '+esc(UI.me.last)+'</b></div>'+
@@ -1248,31 +1255,43 @@ function youAre(){
       '<button class="btn btn--ghost btn--sm" data-act="editme">Not you?</button>'+
     '</div></div>';
   }
-  return '<div class="youare">'+
+  const profile=UI.draft || UI.me;
+  const session=UI.pendingSession;
+  return '<form class="youare" id="booking-profile" data-act="saveme">'+
     '<h2>Who is booking?</h2>'+
+    (session?'<p class="hint">'+esc(fmtFull(session.date)+' at '+fmtTime(session.time)+' with '+session.trainer)+'</p>':"")+
+    (UI.err?'<p class="err" role="alert">'+esc(UI.err)+'</p>':"")+
     '<div class="grid">'+
-      '<div class="field"><label>First name</label><input class="inp" data-field="first" data-autofocus value="'+esc(UI.me.first)+'"></div>'+
-      '<div class="field"><label>Last name</label><input class="inp" data-field="last" value="'+esc(UI.me.last)+'"></div>'+
-      '<div class="field"><label>Your regular lead trainer</label><select class="sel" data-field="regular">'+
+      '<div class="field"><label for="booking-first">First name</label><input class="inp" id="booking-first" data-field="first" autocomplete="given-name" data-autofocus required value="'+esc(profile.first)+'"></div>'+
+      '<div class="field"><label for="booking-last">Last name</label><input class="inp" id="booking-last" data-field="last" autocomplete="family-name" required value="'+esc(profile.last)+'"></div>'+
+      '<div class="field"><label for="booking-trainer">Your regular lead trainer</label><select class="sel" id="booking-trainer" data-field="regular" required>'+
         '<option value="">Choose&hellip;</option>'+
-        TRAINERS.map(t=>'<option value="'+esc(t)+'"'+(UI.me.regular===t?" selected":"")+'>'+esc(t)+'</option>').join("")+
-        '<option value="Not sure"'+(UI.me.regular==="Not sure"?" selected":"")+'>Not sure</option>'+
+        TRAINERS.map(t=>'<option value="'+esc(t)+'"'+(profile.regular===t?" selected":"")+'>'+esc(t)+'</option>').join("")+
+        '<option value="Not sure"'+(profile.regular==="Not sure"?" selected":"")+'>Not sure</option>'+
       '</select></div>'+
     '</div>'+
-    '<div style="margin-top:13px"><button class="btn btn--primary btn--sm" data-act="saveme">Save</button></div>'+
-  '</div>';
+    '<div class="booking-profile-actions">'+
+      '<button class="btn btn--primary btn--sm" type="submit">'+(session?"Confirm booking":"Save")+'</button>'+
+      (session?'<button class="btn btn--quiet btn--sm" type="button" data-act="clear-selection">Clear selection</button>':"")+
+    '</div>'+
+  '</form>';
+}
+
+function openSpots(session){
+  const booked=Store.spots[session.id+"|"+session.date]||0;
+  return Math.max(0,session.capacity-booked);
 }
 
 function slotRow(s, opts){
   opts=opts||{};
   const key=s.id+"|"+s.date;
   const booked=Store.spots[key]||0;
-  const left=Math.max(0,SPOTS_PER_SESSION-booked);
+  const left=openSpots(s);
   const mine=!!UI.mine[key];
   const full=left<=0 && !mine;
 
   let pips='<span class="pips">';
-  for(let i=0;i<SPOTS_PER_SESSION;i++){
+  for(let i=0;i<s.capacity;i++){
     pips += '<i class="'+(i<booked?(mine&&i===booked-1?"taken mine":"taken"):"")+'"></i>';
   }
   pips+='</span>';
@@ -1284,7 +1303,7 @@ function slotRow(s, opts){
   }else if(full){
     right='<span class="spots none">Full</span>';
   }else{
-    right='<span class="spots">'+left+' of '+SPOTS_PER_SESSION+' left</span>'+
+    right='<span class="spots">'+left+' of '+s.capacity+' left</span>'+
       '<button class="btn btn--primary btn--sm" data-act="book" data-id="'+esc(s.id)+'" data-date="'+esc(s.date)+'" data-time="'+esc(s.time)+'" data-trainer="'+esc(s.trainer)+'"'+(opts.disabled?" disabled":"")+'>Book</button>';
   }
 
@@ -1328,8 +1347,8 @@ function clientScreen(){
   '</header></div>';
 
   out+='<div class="page">';
-  if(UI.ok) out+='<div class="ok" style="margin-bottom:18px">'+esc(UI.ok)+'</div>';
-  if(UI.err) out+='<div class="err" style="margin-bottom:18px">'+esc(UI.err)+'</div>';
+  if(UI.ok) out+='<div class="ok" role="status" style="margin-bottom:18px">'+esc(UI.ok)+'</div>';
+  if(UI.err && ready) out+='<div class="err" role="alert" style="margin-bottom:18px">'+esc(UI.err)+'</div>';
 
   if(!days.length){
     const before = todayISO() < GYM.programStart;
@@ -1343,14 +1362,14 @@ function clientScreen(){
     const sess=sessionsOn(iso);
     const wkUsed=myWeekCount(iso);
     const capped = ready && wkUsed>=PER_CLIENT_PER_WEEK;
-    const totalLeft=sess.reduce((n,s)=>n+Math.max(0,SPOTS_PER_SESSION-(Store.spots[s.id+"|"+s.date]||0)),0);
+    const totalLeft=sess.reduce((total,session)=>total+openSpots(session),0);
     return '<section class="day">'+
       '<div class="dayhead"><h3>'+esc(DAY_NAMES[dow(iso)])+'</h3>'+
         '<span class="date">'+esc(fmtDay(iso))+'</span>'+
         (capped?'<span class="left" style="color:var(--red)">Your '+PER_CLIENT_PER_WEEK+' for that week are used</span>'
                :'<span class="left">'+plural(totalLeft,"spot")+' open</span>')+
       '</div>'+
-      (sess.length? sess.map(s=>slotRow(s,{disabled:!ready||capped})).join("")
+      (sess.length? sess.map(s=>slotRow(s,{disabled:capped})).join("")
                   : '<div class="slot"><div class="slot-main"><div class="slot-sub">No sessions this day.</div></div></div>')+
     '</section>';
   }).join("")+'</div>';
@@ -1439,7 +1458,7 @@ function trainerScreen(){
               '<button data-act="remove" data-id="'+esc(r.id)+'">Remove</button></div>').join("")+'</div>'
               :'<div class="emptyslot">Nobody extra.</div>')+
           '</div>'+
-          '<div class="slot-right"><span class="spots">'+list.length+' of '+SPOTS_PER_SESSION+'</span></div>'+
+          '<div class="slot-right"><span class="spots">'+list.length+' of '+s.capacity+'</span></div>'+
         '</div>';
       }).join("")+
     '</section>';
@@ -1473,6 +1492,47 @@ async function refreshRows(){
   await Store.loadRows(start, addDays(start,6));
 }
 
+function readBookingProfile(form){
+  return {
+    first:form.querySelector('[data-field="first"]').value.trim(),
+    last:form.querySelector('[data-field="last"]').value.trim(),
+    regular:form.querySelector('[data-field="regular"]').value
+  };
+}
+
+async function bookSession(session, button){
+  UI.ok="";
+  if(!clientWindow().includes(session.date)){
+    UI.err="This session is no longer bookable.";
+    render();
+    return;
+  }
+  if(myWeekCount(session.date)>=PER_CLIENT_PER_WEEK){
+    UI.err="You already have "+PER_CLIENT_PER_WEEK+" extra sessions that week.";
+    render();
+    return;
+  }
+
+  UI.booking=true;
+  button.disabled=true;
+  button.textContent="Booking…";
+  try{
+    await Store.book(session,UI.me);
+    UI.mine[session.id+"|"+session.date]=true;
+    saveMine();
+    UI.err="";
+    UI.ok="Booked. "+fmtFull(session.date)+" at "+fmtTime(session.time)+" with "+session.trainer+".";
+    toast("You are in");
+  }catch(e){
+    UI.err=friendly(e);
+    Store.note("booking failed: "+(e&&e.message));
+  }finally{
+    try{ await refreshSpots(); }catch(e){ Store.note("refresh failed: "+(e&&e.message)); }
+    UI.booking=false;
+    render();
+  }
+}
+
 async function act(name, el, ev){
   switch(name){
 
@@ -1504,40 +1564,49 @@ async function act(name, el, ev){
   }
 
   case "saveme": {
-    const card=el.closest(".youare");
-    UI.me={
-      first:card.querySelector('[data-field="first"]').value.trim(),
-      last:card.querySelector('[data-field="last"]').value.trim(),
-      regular:card.querySelector('[data-field="regular"]').value
-    };
-    if(!UI.me.first||!UI.me.last){ UI.err="First and last name, please."; render(); return; }
-    if(!UI.me.regular){ UI.err="Pick your regular lead trainer."; render(); return; }
-    UI.err=""; UI.editing=false; saveMe(); render();
+    if(UI.booking) return;
+    const profile=readBookingProfile(el);
+    UI.draft=profile;
+    if(!profile.first||!profile.last){ UI.err="First and last name, please."; render(); return; }
+    if(!profile.regular){ UI.err="Pick your regular lead trainer."; render(); return; }
+    const session=UI.pendingSession;
+    UI.me=profile;
+    UI.editing=false;
+    UI.draft=null;
+    UI.pendingSession=null;
+    UI.err="";
+    saveMe();
+    if(session){
+      await bookSession(session,el.querySelector('button[type="submit"]'));
+    }else{
+      render();
+    }
     return;
   }
   case "editme": UI.editing=true; UI.err=""; render(); return;
 
+  case "clear-selection":
+    UI.draft=readBookingProfile(el.closest("form"));
+    UI.pendingSession=null;
+    UI.err="";
+    render();
+    return;
+
   case "book": {
-    if(!haveMe()){ UI.err="Fill in your name first."; render(); return; }
-    const sess={ id:el.getAttribute("data-id"), date:el.getAttribute("data-date"),
-                 time:el.getAttribute("data-time"), trainer:el.getAttribute("data-trainer") };
-    if(myWeekCount(sess.date)>=PER_CLIENT_PER_WEEK){
-      UI.err="You already have "+PER_CLIENT_PER_WEEK+" extra sessions that week."; render(); return;
-    }
-    el.disabled=true; el.textContent="Booking…";
-    try{
-      await Store.book(sess, UI.me);
-      UI.mine[sess.id+"|"+sess.date]=true; saveMine();
-      UI.err=""; UI.ok="Booked. "+fmtFull(sess.date)+" at "+fmtTime(sess.time)+" with "+sess.trainer+".";
-      await refreshSpots();
+    if(UI.booking) return;
+    const date=el.dataset.date;
+    const session=sessionsOn(date).find(s=>s.id===el.dataset.id && s.time===el.dataset.time);
+    if(!session) return;
+    if(!haveMe() || UI.editing){
+      UI.draft=readBookingProfile($("#booking-profile"));
+      UI.pendingSession=session;
+      UI.editing=true;
+      UI.err="";
+      UI.ok="";
       render();
-      toast("You are in");
-    }catch(e){
-      UI.ok=""; UI.err=friendly(e);
-      Store.note("booking failed: "+(e&&e.message));
-      try{ await refreshSpots(); }catch(e2){}
-      render();
+      return;
     }
+    await bookSession(session,el);
     return;
   }
 
@@ -1613,10 +1682,8 @@ async function act(name, el, ev){
 }
 
 document.addEventListener("click",function(ev){
-  const el=ev.target.closest("[data-act]");
+  const el=ev.target.closest("button[data-act]");
   if(!el) return;
-  const tag=el.tagName;
-  if(tag==="SELECT"||tag==="INPUT") return;
   ev.preventDefault();
   Promise.resolve(act(el.getAttribute("data-act"),el,ev)).catch(e=>{
     console.error(e); UI.err=friendly(e); render();
@@ -1626,7 +1693,9 @@ document.addEventListener("submit",function(ev){
   const f=ev.target.closest("[data-act]");
   if(!f) return;
   ev.preventDefault();
-  Promise.resolve(act(f.getAttribute("data-act"),f,ev)).catch(e=>{ console.error(e); });
+  Promise.resolve(act(f.getAttribute("data-act"),f,ev)).catch(e=>{
+    console.error(e); UI.err=friendly(e); render();
+  });
 });
 document.addEventListener("change",function(ev){
   const el=ev.target.closest("[data-act]");
