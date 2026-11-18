@@ -1045,6 +1045,7 @@
       intro.append(title,readout('ledger-today-readout','Priorities done',HABITS.filter(priorityDone).length,HABITS.length),valueNavigator(),progressLinks);
       panes.today.append(intro);
       const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
+      if(state.logMode==='cards')wrap.after(intro);
       // Today contains only the check-in. Supporting tools live in History.
       const checkinTools=make('details',null,'ledger-manage');checkinTools.id='ledger-checkin-tools';checkinTools.open=checkinToolsOpen;checkinTools.addEventListener('toggle',()=>checkinToolsOpen=checkinTools.open);checkinTools.append(make('summary','Check-in tools'));move('#ledger-rhythm',checkinTools);panes.history.append(checkinTools);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
