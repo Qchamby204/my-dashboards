@@ -809,7 +809,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .led
   }
 }
 
-html[data-atlas-app="life-ledger"] #app .ledger-log-wrap+.ledger-opening {margin-top:12px;}
+html[data-atlas-app="life-ledger"] #app .ledger-log-wrap+.ledger-opening {margin:12px 0 0;}
 @media(min-width:960px){
   html[data-atlas-app="life-ledger"] #app #ledger-view-today>.ledger-opening {grid-column:1;grid-row:1;margin-top:0;}
   html[data-atlas-app="life-ledger"] #app #ledger-view-today>.ledger-log-wrap {grid-column:2;grid-row:1;}
