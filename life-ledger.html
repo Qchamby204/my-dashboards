@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","ledger-enhancements.js":"bb572d49f39b"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","ledger-enhancements.js":"ee0895607145"}</script>
 <meta charset="utf-8"/>
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -123,7 +123,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=0336bd972a03">
 <link rel="stylesheet" href="shared/core-app-finish.css?v=3041ebc46681">
 <script src="shared/core-app-finish.js?v=20ba530a9cac" defer></script>
-<link rel="stylesheet" href="shared/ledger-enhancements.css?v=e6b5840b2426">
+<link rel="stylesheet" href="shared/ledger-enhancements.css?v=07c66c76e07a">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-32.png?v=dfb125a386ef">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-64.png?v=63b2ee04c4c2">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/life-ledger-apple.png?v=7bf40bcafd72">
@@ -160,20 +160,21 @@ var DEFAULT_HCFG = {
   "Money Check-In":      {unit:"days",    kind:"count",                  goal:120,  chunk:1,   noun:"check-in",        outcome:"120 check-ins (about 5 a week)", crit:"Not just glancing at balances. Run the loop: 1) review yesterday's transactions across TD, RBC, and Scotia; 2) categorize or flag each against your plan; 3) check the day's spend versus target; 4) take one improving action: move a surplus, kill a fee, or note a variance to fix. This feeds your Payday Playbook."},
   "Screen Discipline":   {unit:"days",    kind:"count",                  goal:120,  chunk:1,   noun:"clean day",       outcome:"120 days under an hour (about 5 a week)", crit:"Kept social media and video games under 1 hour combined for the day. Tap to confirm you stayed under. Work, content creation, and reading don't count against it."},
   "Board Work":          {unit:"minutes", kind:"qty",  step:15, def:30, goal:1500, chunk:60,  noun:"hour on the boards",outcome:"25 hours of board service", crit:"Board service across BizforClimate and United Way: meetings, governance prep, and follow-through. Log the minutes you actually spend."},
+  "August’s Development": {unit:"days", kind:"count", goal:75, chunk:3, noun:"week of connection", outcome:"Days spent supporting August’s development", crit:"Count a day when you spend intentional time with August, such as reading, singing, playing together. Record your time together once per day."},
   "Walk Hud":            {unit:"miles",   kind:"qty",  step:0.5,def:1.5,goal:150,  chunk:26.2,noun:"marathon w/ Hudson",outcome:"150 miles, nearly 6 marathons with Hudson"}
 };
 
 var DEFAULT_HABITS = ["Read","YouTube Strategy","Communication Drill","Run / Work Out","Supplements","Sleep",
   "Chambers Wealth","LinkedIn Strategy",
   "Prep For Next Day","Household Chore","Money Check-In","Screen Discipline",
-  "Board Work","Walk Hud"];
+  "Board Work","Walk Hud","August’s Development"];
 
 var DEFAULT_PILLARS = [
   {key:"HEALTH",     title:"Health",     sub:"Strongest, best-rested year",  color:"#2fd180", glow:"rgba(47,209,128,.55)", deep:"#0f3526", icon:"vit", habits:["Run / Work Out","Supplements","Sleep"]},
   {key:"GROWTH",     title:"Growth",     sub:"A demonstrably sharper mind",  color:"#9d7bff", glow:"rgba(157,123,255,.55)",deep:"#241a45", icon:"int", habits:["Read","YouTube Strategy","Communication Drill"]},
   {key:"WEALTH",     title:"Wealth",     sub:"The practice that compounds",  color:"#f0b73e", glow:"rgba(240,183,62,.55)", deep:"#3a2c0c", icon:"for", habits:["Chambers Wealth","LinkedIn Strategy"]},
   {key:"DISCIPLINE", title:"Discipline", sub:"Life & finances on rails",     color:"#4ea3e0", glow:"rgba(78,163,224,.55)", deep:"#0f2a40", icon:"dis", habits:["Prep For Next Day","Household Chore","Money Check-In","Screen Discipline"]},
-  {key:"CONNECTION", title:"Connection", sub:"Present for what matters",     color:"#f0628a", glow:"rgba(240,98,138,.55)", deep:"#3a1422", icon:"leg", habits:["Board Work","Walk Hud"]}
+  {key:"CONNECTION", title:"Connection", sub:"Present for what matters",     color:"#f0628a", glow:"rgba(240,98,138,.55)", deep:"#3a1422", icon:"leg", habits:["Board Work","Walk Hud","August’s Development"]}
 ];
 /* effective config (HCFG/HABITS/PILLARS/HABIT_PILLAR/SHORT) is built by rebuildModel() below */
 
@@ -451,7 +452,7 @@ var HABIT_EMOJI={
  "Read":"\ud83d\udcd6","YouTube Strategy":"\ud83c\udfa5","Communication Drill":"\ud83c\udfa4",
  "Chambers Wealth":"\ud83d\udcbc","LinkedIn Strategy":"\ud83d\udd17",
  "Prep For Next Day":"\ud83c\udf19","Household Chore":"\ud83e\uddf9","Money Check-In":"\ud83d\udcb0","Screen Discipline":"\ud83d\udcf1",
- "Board Work":"\ud83c\udf0d","Walk Hud":"\ud83d\udc15"
+ "August’s Development":"\ud83d\udc76","Board Work":"\ud83c\udf0d","Walk Hud":"\ud83d\udc15"
 };
 function habitEmoji(hk){ if(HABIT_EMOJI[hk]) return HABIT_EMOJI[hk]; var p=HABIT_PILLAR[hk]; var byP={HEALTH:"\ud83d\udcaa",GROWTH:"\ud83d\udcda",WEALTH:"\ud83d\udcb0",DISCIPLINE:"\u2696\ufe0f",CONNECTION:"\ud83e\udd1d"}; return (p&&byP[p.key])||"\u2728"; }
 function deckCard(hk,draft){

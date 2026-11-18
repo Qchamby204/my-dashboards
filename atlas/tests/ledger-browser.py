@@ -32,7 +32,7 @@ with sync_playwright() as pw:
     def go_card(habit):
         while page.get_by_role('button', name='Previous habit', exact=True).is_enabled():
             page.get_by_role('button', name='Previous habit', exact=True).click()
-        for _ in range(13):
+        for _ in range(14):
             if page.locator('.ledger-habit-card:not([inert]) [data-habit="' + habit + '"]').count():
                 return
             page.get_by_role('button', name='Next habit', exact=True).click()
@@ -54,12 +54,12 @@ with sync_playwright() as pw:
         assert page.evaluate('localStorage.getItem("lifeledger:v2")') == seed['lifeledger:v2']
         assert not page.locator('[data-habit="LinkedIn Strategy"]').count()
         assert page.locator('#ledger-rhythm .ledger-rhythm-row').count() == 3
-        assert page.locator('.ledger-card-xp').count() == 13
+        assert page.locator('.ledger-card-xp').count() == 14
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+100 XP on Save day')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp strong')).to_have_text('+100 XP')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_have_text('on Save day')
-        assert page.locator('.ledger-habit-card').count() == 13
-        expect(page.locator('#deckCounter')).to_have_text('1 / 13')
+        assert page.locator('.ledger-habit-card').count() == 14
+        expect(page.locator('#deckCounter')).to_have_text('1 / 14')
         assert page.locator('#ledger-view-today #ledger-rhythm, #ledger-view-today #ledger-leisure-preview, #ledger-view-today .ledger-day-options').count() == 0
         no_overflow()
         page.screenshot(path=str(OUT / f'{ENGINE}-today.png'), full_page=True)
@@ -72,7 +72,7 @@ with sync_playwright() as pw:
         expect(page.get_by_role('dialog')).to_be_visible()
         no_overflow()
         expect(page.locator('#ledger-focus-count')).to_contain_text('3 of 3 selected')
-        assert page.get_by_role('dialog').get_by_role('checkbox').count() == 13
+        assert page.get_by_role('dialog').get_by_role('checkbox').count() == 14
         page.get_by_role('button', name='Save focus', exact=True).click()
         expect(page.get_by_role('dialog')).to_have_count(0)
         expect(page.locator('#ledger-choose-focus')).to_be_focused()
@@ -136,7 +136,7 @@ with sync_playwright() as pw:
         dismiss_rewards()
         expect(page.locator('#ledger-lifetime-levels')).to_contain_text('Life Level 1')
         page.locator('#ledger-nav-progress').click()
-        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('4040 lifetime XP')
+        expect(page.locator('#ledger-lifetime-levels')).to_contain_text('4,040 lifetime XP')
         assert page.locator('.ledger-value-level').count() == 5
         health=page.locator('.ledger-value-toggle[data-key="HEALTH"]')
         health.press('Enter')
@@ -152,21 +152,21 @@ with sync_playwright() as pw:
             assert page.locator('#ledger-checkin-save').evaluate("n => getComputedStyle(n).position === 'static' && !!n.closest('#ledger-log')"), 'Save belongs inside the check-in'
             assert page.locator('.ledger-nav').bounding_box()['height'] <= 90, 'Four navigation tabs share one row'
             assert page.locator('.ledger-nav button').evaluate_all("ns => {const rs=ns.map(n=>n.getBoundingClientRect());return rs.length===4 && rs.every(r=>r.width>=44 && r.height>=44 && Math.abs(r.top-rs[0].top)<2)}"), 'All sections have full-size targets on one row'
-            for index in range(13):
-                expect(page.locator('#deckCounter')).to_have_text(f'{index + 1} / 13')
+            for index in range(14):
+                expect(page.locator('#deckCounter')).to_have_text(f'{index + 1} / 14')
                 assert page.locator('.ledger-habit-card:not([inert])').count() == 1
                 no_overflow()
                 assert page.locator('.ledger-habit-card:not([inert])').evaluate('''card => [...card.querySelectorAll('button,input')].every(el=>{const r=el.getBoundingClientRect(),v=document.getElementById('deckViewport').getBoundingClientRect();return r.width>=44 && r.height>=44 && r.left>=v.left && r.right<=v.right;})'''), 'Clipped or undersized card control'
-                if index < 12:
+                if index < 13:
                     page.get_by_role('button', name='Next habit', exact=True).click()
             expect(page.get_by_role('button', name='Next habit', exact=True)).to_be_disabled()
-            for _ in range(12):
+            for _ in range(13):
                 page.get_by_role('button', name='Previous habit', exact=True).click()
             page.screenshot(path=str(OUT / f'{ENGINE}-cards-{width}.png'), full_page=True)
         page.get_by_role('button', name='What counts for Workouts Complete', exact=True).click()
         expect(page.get_by_role('button', name='What counts for Workouts Complete', exact=True)).to_have_attribute('aria-expanded', 'true')
         page.get_by_role('button', name='Next habit', exact=True).click()
-        assert page.locator('.ledger-habit-card[aria-hidden="true"]').count() == 12
+        assert page.locator('.ledger-habit-card[aria-hidden="true"]').count() == 13
         page.get_by_role('button', name='Previous habit', exact=True).click()
         go_card('Read')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+10 pages per tap · +40 XP on Save day')

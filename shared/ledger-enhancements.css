@@ -675,3 +675,142 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-rail>.ledger
 /* History rows say what the day held; the milestone opening says it is the next one. */
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-history-day .ledger-history-meta{margin-top:4px;font-size:.8125rem;font-weight:500;line-height:1.45;color:var(--neo-muted)}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-milestone-kicker{margin:20px 24px -8px;font-size:.8125rem;font-weight:600;letter-spacing:.01em;color:var(--ledger-face-muted,currentColor);opacity:.85}
+
+
+/* Animated Ledger instruments share the existing GitHub Pages surfaces. */
+html[data-atlas-app="life-ledger"] #app .ledger-opening {
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(76px,20vw,102px);
+  gap:4px 12px;align-items:center;margin:0 0 12px;padding:12px!important;
+  border:1px solid var(--neo-line);border-radius:14px;background:var(--neo-content-surface);
+}
+html[data-atlas-app="life-ledger"] #app .ledger-day-title {grid-column:1;grid-row:1;align-self:end;}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening h1 {font-size:clamp(1.2rem,5.5vw,1.7rem)!important;margin:2px 0;}
+html[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow {font-size:.75rem;letter-spacing:0;color:var(--neo-muted);}
+html[data-atlas-app="life-ledger"] #app #ledger-today-readout {display:contents;}
+html[data-atlas-app="life-ledger"] #app #ledger-today-readout .ledger-projector {grid-column:2;grid-row:1/span 2;}
+html[data-atlas-app="life-ledger"] #app #ledger-today-readout .ledger-readout-copy {grid-column:1;grid-row:2;align-self:start;display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;}
+html[data-atlas-app="life-ledger"] #app .ledger-readout strong {font-size:1.15rem;color:var(--neo-accent);white-space:nowrap;}
+html[data-atlas-app="life-ledger"] #app .ledger-readout span {font-size:.76rem;color:var(--neo-muted);}
+html[data-atlas-app="life-ledger"] #app .ledger-projector {display:block;width:100%;aspect-ratio:1;object-fit:contain;touch-action:pan-y;}
+html[data-atlas-app="life-ledger"] #app .ledger-value-index {grid-column:1/-1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;}
+html[data-atlas-app="life-ledger"] #app .ledger-value-jump {
+  grid-column:span 2;min-width:0;min-height:44px;text-align:left;display:grid;align-content:center;gap:2px;
+  padding:4px 7px!important;overflow-wrap:anywhere;color:var(--neo-ink);font:600 .75rem var(--neo-font,system-ui);
+  background:linear-gradient(90deg,color-mix(in srgb,var(--ledger-value) 23%,transparent),transparent) left/var(--value-done) 100% no-repeat,var(--neo-inset)!important;
+  box-shadow:inset 2px 0 var(--ledger-value)!important;border:0!important;border-radius:6px!important;
+}
+html[data-atlas-app="life-ledger"] #app .ledger-value-jump:nth-child(4):nth-last-child(2),
+html[data-atlas-app="life-ledger"] #app .ledger-value-jump:nth-child(5):last-child {grid-column:span 3;}
+html[data-atlas-app="life-ledger"] #app .ledger-value-jump small {color:var(--neo-muted);font-variant-numeric:tabular-nums;}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening .ledger-day-progress {grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin:0;padding:0;border:0;}
+html[data-atlas-app="life-ledger"] #app .ledger-day-progress button {
+  min-height:44px;margin:0;padding:4px 0!important;font-size:.75rem!important;text-align:left;white-space:normal;
+  border:0!important;background:none!important;box-shadow:none!important;color:var(--neo-accent);
+}
+html[data-atlas-app="life-ledger"] #app .ledger-level-constellation:has(.ledger-orbit-layout) {width:100%;max-width:none;margin:0;padding:12px 16px;}
+html[data-atlas-app="life-ledger"] #app .ledger-activity-history {padding:16px!important;margin:12px 0;}
+html[data-atlas-app="life-ledger"] #app .ledger-axis-label {color:var(--neo-muted);font-size:.75rem;white-space:nowrap;}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bars {display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:2px;margin-top:8px;}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar {
+  display:grid;grid-template-rows:55px auto;gap:4px;justify-items:center;
+  min-width:0!important;padding:2px 0!important;border:0!important;border-radius:4px!important;background:none!important;box-shadow:none!important;
+}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar small {font-size:.6rem;color:var(--neo-muted);}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar-track {
+  width:min(100%,18px);height:100%;border-bottom:2px dotted var(--neo-line);
+  background:linear-gradient(to top,var(--neo-accent-soft),var(--activity-color,var(--neo-accent))) bottom/100% var(--activity-height) no-repeat;
+}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar[data-saved="true"] .ledger-history-bar-track {border-bottom-style:solid;}
+html[data-atlas-app="life-ledger"] #app #ledger-achievement-readout {
+  width:min(100%,145px);margin:0 auto 12px;text-align:center;
+}
+html[data-atlas-app="life-ledger"] #app #ledger-achievement-readout .ledger-readout-copy {display:grid;gap:4px;}
+@media(max-width:680px){
+  html[data-atlas-app="life-ledger"] {--atlas-dock-left:max(16px,var(--atlas-safe-left,0px));--atlas-dock-right:max(16px,var(--atlas-safe-right,0px));}
+}
+html[data-atlas-app="life-ledger"] .ledger-orbit-layout {display:grid;grid-template-columns:minmax(0,1.3fr) minmax(200px,1fr);gap:clamp(14px,3vw,40px);align-items:center;margin-top:14px;}
+html[data-atlas-app="life-ledger"] .ledger-orbit-field {min-width:0;border:1px solid var(--neo-line);border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,#153840,#07141c 75%);}
+html[data-atlas-app="life-ledger"] #app .ledger-orbit-svg {display:block;width:100%;height:auto;max-width:none;font-family:var(--neo-font),system-ui,sans-serif;}
+.ledger-orbit-svg text {text-anchor:middle;}
+.ledger-orbit-svg .orbit-name {fill:#e8f8f7;font-size:17px;font-weight:650;}
+.ledger-orbit-svg .orbit-level,.ledger-orbit-svg .orbit-life-name {fill:#c5d8d9;font-size:12px;letter-spacing:1px;font-weight:650;}
+.ledger-orbit-svg .orbit-life-name {fill:#e9c488;}
+.ledger-orbit-svg .orbit-life-number {fill:#fff1cf;font-size:23px;font-weight:650;}
+.ledger-orbit-svg .orbit-node {cursor:pointer;outline:0!important;}
+/* The luminous paths and moving instruments sit behind fixed controls and labels. */
+.ledger-orbit-svg .orbit-coordinates {stroke:#9cf3f5;stroke-width:.9;stroke-dasharray:1 6;opacity:.43;}
+.ledger-orbit-svg .orbit-coordinate-inner {stroke-dasharray:9 6 1 5;opacity:.38;}
+.ledger-orbit-svg .orbit-gyro {stroke:#71d6e0;stroke-width:1.6;opacity:.46;}
+.ledger-orbit-svg .orbit-scan-line {stroke:#a7ffff;stroke-width:2;stroke-linecap:round;}
+.ledger-orbit-svg .orbit-hub-inner {fill:#071c25;stroke:#e9c488;stroke-opacity:.42;}
+.ledger-orbit-svg .orbit-ring,.ledger-orbit-svg .orbit-link {opacity:.46;stroke-width:1.45;}
+.ledger-orbit-svg .orbit-halo {stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center;}
+.ledger-orbit-svg .orbit-satellite {opacity:.8;}
+.ledger-orbit-svg .orbit-node:is([aria-pressed="true"],:hover,:focus-visible) .orbit-ring,
+.ledger-orbit-svg [data-selected="true"] .orbit-link {opacity:1;stroke-width:2.5;}
+.ledger-orbit-svg .orbit-node[aria-pressed="true"] .orbit-halo {opacity:.55;}
+.ledger-orbit-svg .orbit-node:focus-visible .orbit-ring {stroke:#fff;stroke-width:3;}
+.ledger-orbit-svg .orbit-trace,.ledger-orbit-svg .orbit-signal {opacity:0;stroke-linecap:round;}
+.ledger-orbit-svg .orbit-signal {stroke-width:3;stroke-dasharray:5 95;stroke-dashoffset:30;}
+.ledger-orbit-svg .orbit-trace {stroke-width:6;stroke-dasharray:19 81;stroke-dashoffset:30;}
+html[data-atlas-app="life-ledger"] .ledger-orbit-inspector {min-width:0;}
+html[data-atlas-app="life-ledger"] .ledger-orbit-inspector h3 {font-size:clamp(1.1rem,2.2vw,1.65rem);letter-spacing:-.035em;}
+html[data-atlas-app="life-ledger"] :is(.orbit-total,.orbit-next,.orbit-habit small) {color:var(--neo-muted);}
+html[data-atlas-app="life-ledger"] .orbit-total {margin:4px 0 13px;}
+html[data-atlas-app="life-ledger"] .orbit-next {font:500 .78rem ui-monospace, monospace;}
+html[data-atlas-app="life-ledger"] .orbit-priorities {margin-top:13px;}
+html[data-atlas-app="life-ledger"] :is(.orbit-priorities,.orbit-week)>summary {min-height:44px;align-content:center;border-top:1px solid var(--neo-line);}
+html[data-atlas-app="life-ledger"] #app .orbit-habit {width:100%;display:grid;grid-template-columns:23px minmax(0,1fr) auto;gap:8px;min-height:48px;align-items:center;text-align:left;border:0!important;border-top:1px solid var(--neo-line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:5px 1px!important;white-space:normal;}
+html[data-atlas-app="life-ledger"] .orbit-habit :is(strong,small) {display:block;}
+html[data-atlas-app="life-ledger"] .orbit-habit small {font-size:.73rem;}
+html[data-atlas-app="life-ledger"] .orbit-emoji {font-size:20px;}
+html[data-atlas-app="life-ledger"] .ledger-history-bar-track {background-image:linear-gradient(to top,var(--neo-accent-soft),var(--activity-color,var(--neo-accent)));}
+@media(max-width:650px){
+  html[data-atlas-app="life-ledger"] .ledger-orbit-layout {grid-template-columns:minmax(0,1fr);}
+}
+html[data-atlas-app="life-ledger"] .ledger-card-dial {
+  position:relative;display:grid;place-items:center;width:clamp(78px,24vw,101px);aspect-ratio:1;
+  color:var(--ledger-card-accent);isolation:isolate;pointer-events:none;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-card-art .ledger-card-dial>.ledger-card-avatar {
+  width:75%!important;height:75%!important;max-width:none;z-index:1;border:0!important;
+  background:transparent!important;font-size:clamp(58px,17vw,72px)!important;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  filter:drop-shadow(0 4px 7px #0006);
+}
+.ledger-card-dial svg {width:100%;height:100%;position:absolute;inset:0;overflow:visible;}
+.ledger-card-dial :is(.card-dial-ticks,.card-dial-base,.card-dial-fill) {fill:none;stroke:currentColor;}
+.ledger-card-dial .card-dial-ticks {stroke-width:2.3;stroke-dasharray:1.5 4.5;opacity:.46;}
+.ledger-card-dial .card-dial-base {stroke-width:2;opacity:.27;}
+.ledger-card-dial .card-dial-fill {stroke-width:4;stroke-dasharray:100;stroke-dashoffset:var(--dial-remaining,100);stroke-linecap:butt;}
+.ledger-card-dial[data-complete="true"] .card-dial-fill {filter:drop-shadow(0 0 4px currentColor);}
+.ledger-card-dial .card-dial-rotor {fill:currentColor;transform-origin:50px 50px;}
+.ledger-card-dial .card-dial-rotor path {stroke:currentColor;stroke-width:2.8;fill:none;stroke-linecap:round;}
+@media(prefers-reduced-motion:no-preference){
+  #ledger-view-progress:not([hidden]) .orbit-radar {animation:ledger-orbit-turn 9s linear infinite;transform-origin:0 0;}
+  #ledger-view-progress:not([hidden]) .orbit-gyro {animation:ledger-orbit-turn 24s linear infinite reverse;transform-origin:0 0;}
+  #ledger-view-progress:not([hidden]) .orbit-satellite {animation:ledger-orbit-turn 7s linear infinite;transform-origin:0 0;}
+  #ledger-view-progress:not([hidden]) .orbit-depth {transform-origin:center;transform:perspective(560px) rotateX(var(--orbit-tilt-x,0deg)) rotateY(var(--orbit-tilt-y,0deg));transition:transform .32s ease-out;}
+  #ledger-view-progress:not([hidden]) .orbit-trace {opacity:.26;animation:ledger-orbit-flow 3.2s linear var(--signal-delay) infinite;}
+  #ledger-view-progress:not([hidden]) .orbit-signal {opacity:.64;animation:ledger-orbit-flow 3.2s linear var(--signal-delay) infinite;}
+  #ledger-view-progress:not([hidden]) [data-selected="true"] .orbit-signal {opacity:1;stroke-width:4;filter:drop-shadow(0 0 3px currentColor);}
+  #ledger-view-progress:not([hidden]) [data-selected="true"] .orbit-trace {opacity:.55;}
+  #ledger-view-today:not([hidden]) .ledger-habit-card[aria-hidden="false"] .card-dial-rotor {animation:ledger-orbit-turn 6s linear infinite;}
+  .ledger-card-dial .card-dial-fill {transition:stroke-dashoffset .44s cubic-bezier(.17,.82,.28,1);}
+  .ledger-orbit-svg .orbit-ring,.ledger-orbit-svg .orbit-link {transition:opacity .2s ease,stroke-width .2s ease;}
+}
+@keyframes ledger-orbit-turn {to{transform:rotate(1turn);}}
+@keyframes ledger-orbit-flow {from{stroke-dashoffset:100;}to{stroke-dashoffset:0;}}
+
+@media(min-width:960px){
+  html.atlas-neumo[data-atlas-app="life-ledger"] #app.wrap:has(#ledger-view-today:not([hidden])) {max-width:1080px!important;}
+  html[data-atlas-app="life-ledger"] #app #ledger-view-today:not([hidden]) {
+    display:grid;grid-template-columns:minmax(300px,.7fr) minmax(0,1.3fr);gap:16px;align-items:start;
+  }
+}
+
+html[data-atlas-app="life-ledger"] #app .ledger-log-wrap+.ledger-opening {margin:12px 0 0;}
+@media(min-width:960px){
+  html[data-atlas-app="life-ledger"] #app #ledger-view-today>.ledger-opening {grid-column:1;grid-row:1;margin-top:0;}
+  html[data-atlas-app="life-ledger"] #app #ledger-view-today>.ledger-log-wrap {grid-column:2;grid-row:1;}
+}

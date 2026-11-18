@@ -48,7 +48,13 @@ try{
     if(app==='life-ledger'){
     await p.waitForFunction(()=>!!window.LedgerReminderTools&&!!document.querySelector('#ledger-reminder-tools [data-reminder-completion]'));
     assert.equal(await p.locator('body>[data-ledger-reminder-tools]').count(),0,'reminder tools add no Today footer');assert.equal(await p.locator('#app').evaluate(n=>parseFloat(getComputedStyle(n).paddingBottom)),0,'the app does not duplicate navigation clearance');
-    assert(await p.locator('.ledger-deck-frame').evaluate(n=>{const end=n.getBoundingClientRect().bottom+scrollY,clearance=parseFloat(getComputedStyle(document.body).paddingBottom);return document.documentElement.scrollHeight<=Math.max(innerHeight,end+clearance)+2;}),'Today has only necessary clearance below the card');await p.evaluate(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));await p.screenshot({path:path.join(out,'ledger-today-end-'+theme+'.png')});await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
+    assert(await p.locator('#ledger-view-today').evaluate(n=>{
+      const deck=n.querySelector('.ledger-deck-frame'),summary=n.querySelector('.ledger-opening');
+      const end=Math.max(deck.getBoundingClientRect().bottom,summary.getBoundingClientRect().bottom)+scrollY;
+      const clearance=parseFloat(getComputedStyle(document.body).paddingBottom);
+      return document.documentElement.scrollHeight<=Math.max(innerHeight,end+clearance)+2;
+    }),'Today has only necessary clearance below the check-in and its summary');
+    await p.evaluate(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));await p.screenshot({path:path.join(out,'ledger-today-end-'+theme+'.png')});await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
     await p.locator('#ledger-nav-history').click();await p.locator('#ledger-reminder-tools>summary').click();await p.locator('[data-reminder-completion]>summary').click();await p.getByLabel('Completion code',{exact:true}).fill('synthetic-unsent-code');await p.evaluate(()=>window.__reminderWidget=document.querySelector('[data-reminder-completion]'));await p.locator('#ledger-nav-today').click();assert(await p.evaluate(()=>document.querySelector('[data-reminder-completion]')===window.__reminderWidget&&window.__reminderWidget.querySelector('input').value==='synthetic-unsent-code'),'reminder controls and their unfinished input survive Ledger rendering');
     const record=await hero.boundingBox(),navigation=await p.locator('.ledger-nav').boundingBox();
     assert(record.y+record.height<=navigation.y-8,'the initial check-in clears floating navigation');assert(await p.locator('#ledger-checkin-save').evaluate(n=>getComputedStyle(n).position==='static'&&!!n.closest('#ledger-log')),'saving is embedded in the check-in');
