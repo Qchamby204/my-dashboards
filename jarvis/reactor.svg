@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 300" fill="none" aria-hidden="true">
+<defs>
+ <radialGradient id="field"><stop stop-color="#44969e" stop-opacity=".6"/><stop offset=".54" stop-color="#326971" stop-opacity=".18"/><stop offset="1" stop-color="#152a33" stop-opacity="0"/></radialGradient>
+ <linearGradient id="metal" x2=".7" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#b0c5c5"/><stop offset=".25" stop-color="#40545e"/><stop offset=".51" stop-color="#17242e"/><stop offset="1" stop-color="#51646a"/></linearGradient>
+ <radialGradient id="light"><stop stop-color="#f2ffff"/><stop offset=".24" stop-color="#ccffff"/><stop offset=".61" stop-color="#80edf2"/><stop offset="1" stop-color="#338b9f"/></radialGradient>
+ <filter id="halo" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3.2"/></filter>
+ <path id="rib" d="M-6 -80 L6 -80 5 -60 2 -48 -2 -48 -5 -60Z"/>
+ <path id="coil" d="M-12 -77 L-11 -74 M-11 -72 L-10 -69 M-10 -67 L-9 -64 M-9 -62 L-8 -59 M-8 -57 L-7 -54" stroke="#e2af72" stroke-width="2"/>
+</defs>
+<style>.orbit{transform-origin:190px 150px;animation:rotate 100s linear infinite}@keyframes rotate{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.orbit{animation:none}}</style>
+<circle cx="190" cy="150" r="148" fill="url(#field)"/>
+<g stroke="#76a9b6" opacity=".35" stroke-width=".7"><path d="M8 150h55m252 0h58M190 4v22m0 248v22M62 57h32l14 14m165 167 14 12h44M22 172h19l8-8h17"/><circle cx="190" cy="150" r="124" stroke-dasharray="2 8"/><circle cx="190" cy="150" r="112"/></g>
+<g class="orbit" stroke="#80b6c2" opacity=".8">
+<path d="M190.0 30.0L190.0 38.0"/>
+<path d="M200.5 30.5L200.2 33.4"/>
+<path d="M210.8 31.8L210.3 34.8"/>
+<path d="M221.1 34.1L220.3 37.0"/>
+<path d="M231.0 37.2L230.0 40.1"/>
+<path d="M240.7 41.2L239.4 44.0"/>
+<path d="M250.0 46.1L246.0 53.0"/>
+<path d="M258.8 51.7L257.1 54.2"/>
+<path d="M267.1 58.1L265.2 60.4"/>
+<path d="M274.9 65.1L272.7 67.3"/>
+<path d="M281.9 72.9L279.6 74.8"/>
+<path d="M288.3 81.2L285.8 82.9"/>
+<path d="M293.9 90.0L287.0 94.0"/>
+<path d="M298.8 99.3L296.0 100.6"/>
+<path d="M302.8 109.0L299.9 110.0"/>
+<path d="M305.9 118.9L303.0 119.7"/>
+<path d="M308.2 129.2L305.2 129.7"/>
+<path d="M309.5 139.5L306.6 139.8"/>
+<path d="M310.0 150.0L302.0 150.0"/>
+<path d="M309.5 160.5L306.6 160.2"/>
+<path d="M308.2 170.8L305.2 170.3"/>
+<path d="M305.9 181.1L303.0 180.3"/>
+<path d="M302.8 191.0L299.9 190.0"/>
+<path d="M298.8 200.7L296.0 199.4"/>
+<path d="M293.9 210.0L287.0 206.0"/>
+<path d="M288.3 218.8L285.8 217.1"/>
+<path d="M281.9 227.1L279.6 225.2"/>
+<path d="M274.9 234.9L272.7 232.7"/>
+<path d="M267.1 241.9L265.2 239.6"/>
+<path d="M258.8 248.3L257.1 245.8"/>
+<path d="M250.0 253.9L246.0 247.0"/>
+<path d="M240.7 258.8L239.4 256.0"/>
+<path d="M231.0 262.8L230.0 259.9"/>
+<path d="M221.1 265.9L220.3 263.0"/>
+<path d="M210.8 268.2L210.3 265.2"/>
+<path d="M200.5 269.5L200.2 266.6"/>
+<path d="M190.0 270.0L190.0 262.0"/>
+<path d="M179.5 269.5L179.8 266.6"/>
+<path d="M169.2 268.2L169.7 265.2"/>
+<path d="M158.9 265.9L159.7 263.0"/>
+<path d="M149.0 262.8L150.0 259.9"/>
+<path d="M139.3 258.8L140.6 256.0"/>
+<path d="M130.0 253.9L134.0 247.0"/>
+<path d="M121.2 248.3L122.9 245.8"/>
+<path d="M112.9 241.9L114.8 239.6"/>
+<path d="M105.1 234.9L107.3 232.7"/>
+<path d="M98.1 227.1L100.4 225.2"/>
+<path d="M91.7 218.8L94.2 217.1"/>
+<path d="M86.1 210.0L93.0 206.0"/>
+<path d="M81.2 200.7L84.0 199.4"/>
+<path d="M77.2 191.0L80.1 190.0"/>
+<path d="M74.1 181.1L77.0 180.3"/>
+<path d="M71.8 170.8L74.8 170.3"/>
+<path d="M70.5 160.5L73.4 160.2"/>
+<path d="M70.0 150.0L78.0 150.0"/>
+<path d="M70.5 139.5L73.4 139.8"/>
+<path d="M71.8 129.2L74.8 129.7"/>
+<path d="M74.1 118.9L77.0 119.7"/>
+<path d="M77.2 109.0L80.1 110.0"/>
+<path d="M81.2 99.3L84.0 100.6"/>
+<path d="M86.1 90.0L93.0 94.0"/>
+<path d="M91.7 81.2L94.2 82.9"/>
+<path d="M98.1 72.9L100.4 74.8"/>
+<path d="M105.1 65.1L107.3 67.3"/>
+<path d="M112.9 58.1L114.8 60.4"/>
+<path d="M121.2 51.7L122.9 54.2"/>
+<path d="M130.0 46.1L134.0 53.0"/>
+<path d="M139.3 41.2L140.6 44.0"/>
+<path d="M149.0 37.2L150.0 40.1"/>
+<path d="M158.9 34.1L159.7 37.0"/>
+<path d="M169.2 31.8L169.7 34.8"/>
+<path d="M179.5 30.5L179.8 33.4"/>
+</g><g transform="translate(190 150)">
+<circle r="105" stroke="#bc915d" stroke-width="2" stroke-dasharray="90 22 18 21 45 24"/>
+<circle r="99" fill="#0c1c26" stroke="#617d86" stroke-width="2"/><circle r="96" stroke="#182a37" stroke-width="4"/>
+<circle r="91" stroke="url(#metal)" stroke-width="7"/><circle r="84" stroke="#8caaac" stroke-width="1.3"/>
+<circle r="70" stroke="#51c8d4" stroke-opacity=".65" stroke-width="15" filter="url(#halo)"/><circle r="69" stroke="#84e1e7" stroke-width="13"/>
+<circle r="69" stroke="#286977" stroke-width="16" stroke-dasharray="2.4 5.7"/><circle r="54" stroke="#70bec7" stroke-width="2"/>
+<g transform="rotate(0)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(30)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(60)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(90)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(120)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(150)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(180)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(210)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(240)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(270)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(300)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<g transform="rotate(330)"><use href="#rib" fill="url(#metal)" stroke="#78919b" stroke-width=".7"/><use href="#coil"/><circle cy="-88" r="2.5" fill="#c3a070"/></g>
+<circle r="45" stroke="#122c39" stroke-width="7"/><circle r="42" stroke="#ccddd6" stroke-width="1"/>
+<circle r="35" fill="#113546" stroke="#6695a2" stroke-width="2"/><circle r="32" fill="url(#light)" opacity=".6" filter="url(#halo)"/>
+<path d="M-28 -15H28L0 30Z" fill="url(#light)" stroke="#e0ffff" stroke-width="2" stroke-linejoin="round"/><path d="M-21 -10h42L0 23Z" stroke="#59a9b4"/>
+</g><g stroke="#d0a16e" stroke-width="1"><path d="M56 71v-8h8m250 166v8h-8M43 227h6m-3-3v6m284-169h6m-3-3v6"/></g></svg>
