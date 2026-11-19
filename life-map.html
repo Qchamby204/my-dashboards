@@ -85,7 +85,7 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=11a6283b082c" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=309dede61265"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=294f35567c48"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -2248,16 +2248,84 @@ function createLifeMapCalendarModel(){
     return '<svg class="lm-feature-art" data-illustration="'+attrs(kind)+'" viewBox="0 0 320 190" fill="none" aria-hidden="true"><path d="M26 174h268" stroke="currentColor" stroke-opacity=".18"/><circle cx="278" cy="30" r="5" fill="currentColor" opacity=".3"/><circle cx="38" cy="35" r="2" fill="currentColor" opacity=".5"/><g stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'+(drawings[kind]||drawings.board)+'</g></svg>';
   };
   const feature=(kind,label,eyebrow,title,body,actions,extraClass='')=>'<section class="lm-feature '+extraClass+'" aria-label="'+attrs(label)+'"><div class="lm-feature-rail">'+esc(eyebrow)+'</div><div class="lm-feature-body"><div class="lm-feature-title"><h2>'+esc(title)+'</h2></div>'+featureArt(kind)+body+'</div><div class="lm-feature-footer lm-inline">'+actions+'</div></section>';
-  function routineInstrument(){
-    const {daily,due}=mandatoryGroups(),routines=[...daily,...due],done=routines.filter(routineDone).length;
-    const portion=routines.length?100*done/routines.length:0;
-    return '<button type="button" class="lm-instrument" data-day="jump-routines" aria-label="'+attrs('Daily mandatory, '+done+' of '+routines.length+' complete')+'">'+
-      '<span class="lm-dial-face"><svg viewBox="0 0 160 160" aria-hidden="true"><circle class="lm-dial-ticks" cx="80" cy="80" r="73" pathLength="120"/><circle class="lm-dial-rotor" cx="80" cy="80" r="65" pathLength="100"/><circle class="lm-dial-track" cx="80" cy="80" r="54"/><circle class="lm-dial-value" cx="80" cy="80" r="54" pathLength="100" style="stroke-dasharray:'+portion+' 100"/></svg>'+
-      '<span class="lm-instrument-reading"><strong>'+done+'<small> / '+routines.length+'</small></strong></span></span><span class="lm-dial-caption">Routines</span></button>';
+  // A projected relief plate with a daily route drawn across the same surface.
+  // The plate is static. Only saved routine states determine the numbered stops.
+  function reliefHeight(x, y) {
+    const peak = (cx, cy, wx, wy) => Math.exp(-(((x-cx)/wx)**2 + ((y-cy)/wy)**2));
+    const ridge = .67 * peak(.34,.64,.22,.27) + peak(.64,.63,.20,.26) + .42 * peak(.74,.25,.20,.17);
+    return ridge * (1 + .075*Math.sin(x*26 + y*12) + .04*Math.cos(y*30 - x*15));
   }
-  const focusCard=(eyebrow,title,body,actions)=>{
-    const direct=(actions.match(/<button[^>]+data-day="(?:focus|complete-task|complete-routine|ops-start|ops-complete)"[\s\S]*?<\/button>/g)||[]).join('');
-    return '<section class="lm-feature lm-now-card" aria-label="Current focus"><div class="lm-feature-rail">'+esc(eyebrow)+'</div><div class="lm-feature-body"><div class="lm-now-copy"><h2>'+esc(title)+'</h2>'+body+'</div>'+routineInstrument()+'</div><div class="lm-feature-footer lm-inline">'+direct+button(ui.focusPicker?'Keep this focus':'Change focus','focus-picker','aria-expanded="'+!!ui.focusPicker+'" aria-controls="lm-focus-picker"')+'</div></section>';
+  function projectPoint(x, y, height=reliefHeight(x,y)) {
+    return [44 + x*382 + y*88, 156 + x*38 - y*87 - height*75];
+  }
+  const pointText = ([x,y]) => x.toFixed(1)+','+y.toFixed(1);
+  function makeRelief() {
+    // Paint the far strips first so the near slopes hide the back of each ridge.
+    const strips=[], columns=58, rows=37;
+    for(let j=rows;j>0;j--) {
+      const back=[], front=[];
+      for(let i=0;i<=columns;i++) {
+        back.push(pointText(projectPoint(i/columns,j/rows)));
+        front.push(pointText(projectPoint(i/columns,(j-1)/rows)));
+      }
+      const cross=[];
+      for(let i=0;i<=columns;i+=2)cross.push('M'+back[i]+'L'+front[i]);
+      strips.push('<path d="M'+back.join('L')+'L'+front.slice().reverse().join('L')+'Z" fill="#113342"/>'+
+        '<path d="'+cross.join('')+'" stroke="#59bfb8" opacity=".42" stroke-width=".7"/>'+
+        '<path d="M'+front.join('L')+'" class="lm-relief-line" opacity="'+(j%4===0?'1':'.72')+'"/>');
+    }
+    const sides=[[0,0],[1,0],[1,1]].map(([x,y])=>projectPoint(x,y));
+    const edge=sides.map(pointText).join('L');
+    return '<g aria-hidden="true"><ellipse cx="280" cy="171" rx="165" ry="21" fill="#72f3e2" opacity=".06"/>'+
+      '<path d="M40 171 425 211 519 121" fill="none" stroke="#65d9d0" stroke-dasharray="5 6" opacity=".5"/>'+
+      '<path d="M'+edge+'L'+sides.slice().reverse().map(([x,y])=>pointText([x,y+7])).join('L')+'Z" fill="#163847" stroke="#437382" stroke-width=".7"/>'+strips.join('')+'<path d="M'+edge+'" fill="none" stroke="#89ddd5" stroke-width="1"/>'+
+      '<g fill="none" stroke="#72a5ad" stroke-width="1"><path d="M19 17h11m-5.5-5.5v11m488 147h11m-5.5-5.5v11M480 34l5-14 5 14-5-4z"/></g><text x="485" y="15" text-anchor="middle" fill="#a6c9cc" font-size="10" font-family="monospace">N</text></g>';
+  }
+  const relief=makeRelief();
+  const stopNumber=n=>String(n).padStart(2,'0');
+  function routePoint(t) { return projectPoint(.09+.82*t,.17+.56*t+.085*Math.sin(2*Math.PI*t)); }
+  function routeSegment(start,end) {
+    return Array.from({length:25},(_,i)=>pointText(routePoint(start+(end-start)*i/24))).join('L');
+  }
+  function routineState(c) {
+    if(routineDone(c))return 'done';
+    return (S.choreHistory||[]).some(h=>h.choreId===c.id&&h.date===todayISO()&&h.status==='skipped')?'skipped':'open';
+  }
+  let lastRoute;
+  function dailyRoute() {
+    const {daily,due}=mandatoryGroups(), routines=[...daily,...due];
+    const states=routines.map(routineState),current=states.indexOf('open');
+    const snapshot=new Map(routines.map((r,i)=>[r.id,states[i]])),day=todayISO();
+    const changed=lastRoute?.day===day?routines.find((r,i)=>states[i]==='done'&&lastRoute.snapshot.get(r.id)==='open')?.id:null;
+    lastRoute={day,snapshot};
+    return {routines,states,current,changed,done:states.filter(s=>s==='done').length};
+  }
+  function routineInstrument(route){
+    const {routines,states,current,done}=route,total=routines.length;
+    const start=Math.max(0, Math.min(total-5,(current<0?total:current)-2));
+    const visible=routines.slice(start,start+5),last=visible.length-1;
+    const at=i=>last>0?i/last:.48;
+    let trail='',pins='',targets='';
+    visible.forEach((item,i)=>{
+      const index=start+i,state=states[index],next=index===current;
+      if(i>0) trail+='<path class="lm-trail '+(states[index-1]==='done'&&(state==='done'||next)?'is-travelled':'')+'" d="M'+routeSegment(at(i-1),at(i))+'"/>';
+      if(i>0&&visible[i-1].id===route.changed&&next){
+        trail+='<path class="lm-trace" pathLength="1" d="M'+routeSegment(at(i-1),at(i))+'"/>';
+      }
+      const [x,y]=routePoint(at(i)),label=stopNumber(index+1);
+      targets+='<button type="button" class="lm-pin-target" data-day="jump-stop" data-id="'+attrs(item.id)+'" aria-label="'+attrs('Locate stop '+label+', '+item.chore)+'" style="left:'+(100*x/550).toFixed(2)+'%;top:'+(100*(y-22)/208).toFixed(2)+'%"></button>';
+      pins+='<g transform="translate('+pointText([x,y])+')" class="lm-pin '+(next?'is-next':'is-'+state)+'"><g class="lm-pin-label"><title>'+esc(label+' · '+item.chore+' · '+(next?'Next routine':state))+'</title>'+
+        (next?'<ellipse class="lm-beacon" rx="12" ry="4"/>':'')+'<ellipse class="lm-pin-foot" rx="6" ry="2.5"/><path class="lm-pin-stem" d="M0 0V-17"/><rect x="-12" y="-34" width="24" height="18" rx="4"/><text text-anchor="middle" y="-21">'+label+'</text></g></g>';
+    });
+    const range=total>5?' · Stops '+(start+1)+'–'+(start+visible.length):'';
+    return '<div class="lm-route-map"><div class="lm-route-plate"><svg class="lm-relief" viewBox="0 0 550 208" aria-hidden="true" focusable="false">'+relief+trail+pins+'</svg>'+targets+'</div>'+
+      '<button type="button" class="lm-route-caption" data-day="jump-routines" aria-label="'+attrs('Daily mandatory, '+done+' of '+total+' complete')+'"><span>Routine route</span><span><b>'+done+'</b> / '+total+' complete'+range+'</span></button></div>';
+  }
+  const focusCard=(eyebrow,title,body,actions,route)=>{
+    const date=new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric'}).format(new Date());
+    return '<section class="lm-feature lm-now-card" aria-label="Current focus"><div class="lm-feature-rail"><span>'+esc(eyebrow)+'</span><time datetime="'+todayISO()+'">'+esc(date)+'</time></div>'+
+      '<div class="lm-feature-body"><div class="lm-now-copy"><h2>'+esc(title)+'</h2>'+body+'</div>'+routineInstrument(route)+'</div>'+
+      '<div class="lm-feature-footer lm-inline">'+actions+button(ui.focusPicker?'Keep this focus':'Change focus','focus-picker','aria-expanded="'+!!ui.focusPicker+'" aria-controls="lm-focus-picker"')+'</div></section>';
   };
   const daySelector=()=>'<section class="lm-day-date-bar" aria-label="Selected day">'+field(ui.tab==='plan'?'Schedule tasks for':'Day to view',input('date',ui.date,'date'))+'<div class="lm-day-date-actions">'+button('<span aria-hidden="true">‹</span>','day-step','data-step="-1" aria-label="Previous day"')+button('Today','plan-today')+button('<span aria-hidden="true">›</span>','day-step','data-step="1" aria-label="Next day"')+'</div>'+'</section>';
   const plan=(date=ui.date)=>S.dayPlans?.[date]||{reviewed:false,mainTaskId:'',blocks:[]};
@@ -2318,11 +2386,11 @@ function createLifeMapCalendarModel(){
     body+='<details class="lm-calendar-transfer"><summary>Import calendar day</summary>'+help('If the calendar opens separately in Safari, choose Copy day link there, then paste it here in your Home Screen app.')+'<label class="lm-day-field"><span>Calendar day link</span><input id="lm-calendar-link" type="text" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste the copied day link"></label>'+button('Import day link','calendar-import-link')+'<label class="lm-day-field"><span>Or import a downloaded calendar day file</span><input id="lm-calendar-import" type="file" accept=".json,application/json"></label></details>';
     return panel('Apple Calendar',body);
   }
-  function rightNow(){
+  function rightNow(route=dailyRoute()){
     const events=C?.active(todayISO())||[],saved=C?.snapshot(todayISO());
-    if(!events.length){const focus=S.dayPlans?.[todayISO()]?.focus,active=focus?.kind==='ops'?opsPlanned(todayISO()).find(t=>t.id===focus.id):null,candidate=recommend(),base=S.projects.find(t=>t.id===candidate.id),chosen=opsPlanned(todayISO()).find(t=>t.status!=='Done');const ops=active?.status!=='Done'&&active?active:!(focus?.kind==='ops'?active?.status!=='Done'&&active:focus?.id)&&!['food','chore'].includes(candidate.kind)&&!(base&&(base.plan===todayISO()||base.status==='In progress'||base.due&&base.due<=todayISO()))?chosen:null;if(ops)return focusCard('Right now · Ops Cadence',ops.title,help(active?'Started Ops task':ops.system||'Selected work for today'),(!active?button('Start this task','ops-start','data-id="'+attrs(ops.id)+'"',true):'')+button('Done','ops-complete','data-id="'+attrs(ops.id)+'"',!!active)+button('View today’s Board','view-day-task','data-id="'+attrs(ops.id)+'"')+button('Change focus','change-focus'));return candidateCard(candidate);}
+    if(!events.length){const focus=S.dayPlans?.[todayISO()]?.focus,active=focus?.kind==='ops'?opsPlanned(todayISO()).find(t=>t.id===focus.id):null,candidate=recommend(),base=S.projects.find(t=>t.id===candidate.id),chosen=opsPlanned(todayISO()).find(t=>t.status!=='Done');const ops=active?.status!=='Done'&&active?active:!(focus?.kind==='ops'?active?.status!=='Done'&&active:focus?.id)&&!['food','chore'].includes(candidate.kind)&&!(base&&(base.plan===todayISO()||base.status==='In progress'||base.due&&base.due<=todayISO()))?chosen:null;if(ops)return focusCard('Right now · Ops Cadence',ops.title,help(active?'Started Ops task':ops.system||'Selected work for today'),(!active?button('Start this task','ops-start','data-id="'+attrs(ops.id)+'"',true):'')+button('Done','ops-complete','data-id="'+attrs(ops.id)+'"',!!active),route);return candidateCard(candidate,route);}
     const e=events[0],task=calendarTask(e);
-    return focusCard('Right now · Apple Calendar',e.title,help(calendarTime(e,saved.zone)+' · '+e.calendar)+(!C.fresh(todayISO())?help('Based on calendar last refreshed '+new Date(saved.refreshedAt).toLocaleTimeString()+'. Refresh Apple Calendar if your schedule changed.'):'')+(task?help('Linked task: '+task.task+(task.status==='Done'?' · Completed':'')):'')+(events.length>1?help(events.length+' calendar events overlap right now. Review them in Calendar.'):''),(task&&M.open(task)?button('Open linked task','calendar-task','data-id="'+attrs(task.id)+'"',true)+button('Done','complete-task','data-id="'+attrs(task.id)+'"'):'')+button('View today’s Board','view-day-task',task?'data-id="'+attrs(task.id)+'"':''));
+    return focusCard('Right now · Apple Calendar',e.title,help(calendarTime(e,saved.zone)+' · '+e.calendar)+(!C.fresh(todayISO())?help('Based on calendar last refreshed '+new Date(saved.refreshedAt).toLocaleTimeString()+'. Refresh Apple Calendar if your schedule changed.'):'')+(task?help('Linked task: '+task.task+(task.status==='Done'?' · Completed':'')):'')+(events.length>1?help(events.length+' calendar events overlap right now. Review them in Calendar.'):''),(task&&M.open(task)?button('Done','complete-task','data-id="'+attrs(task.id)+'"',true):button('View day','view-day-task','',true)),route);
   }
   function boardView(){
     if(!M.validDate(ui.date))return heading('Your scheduled tasks','Choose a day')+panel('Choose a day',field('Day to view',input('date',ui.date,'date'))+help('Choose a valid date to see its scheduled tasks.'));
@@ -2361,17 +2429,17 @@ function createLifeMapCalendarModel(){
     ];
     return '<div class="lm-foundation-grid">'+cards.map(([key,title,text,state,tab,category])=>'<button type="button" class="btn lm-foundation" data-day="tab" data-tab="'+tab+'" data-category="'+category+'"'+(key==='food'&&food.needsPrep?' data-attention="true"':'')+'><span class="eyebrow">'+title+'</span><strong>'+esc(text)+'</strong><small>'+esc(state)+' ›</small></button>').join('')+'</div>';
   }
-  function candidateCard(c){
+  function candidateCard(c,route){
     let actions='';
     if(c.kind==='task'){
       const active=S.dayPlans?.[todayISO()]?.focus,started=active?.kind==='task'&&active.id===c.id;
-      actions=(!started?button('Start','focus','data-kind="task" data-id="'+attrs(c.id)+'"',true):'')+button('Done','complete-task','data-id="'+attrs(c.id)+'"',started)+button('View today’s Board','view-day-task','data-id="'+attrs(c.id)+'"');
+      actions=(!started?button('Start','focus','data-kind="task" data-id="'+attrs(c.id)+'"',true):'')+button('Done','complete-task','data-id="'+attrs(c.id)+'"',started);
     }
-    else if(c.kind==='chore')actions=button('Done','complete-routine','data-id="'+attrs(c.id)+'"',true)+button('View routines','tab','data-tab="areas" data-category="'+attrs(c.category)+'"');
+    else if(c.kind==='chore')actions=button('Done','complete-routine','data-id="'+attrs(c.id)+'"',true);
     else if(c.kind==='food')actions=button('Open Food','tab','data-tab="areas" data-category="food"',true);
     else if(c.kind==='plan')actions=button('Build today','tab','data-tab="plan"',true);
     else actions=button('Choose a task','tab','data-tab="board"')+'<a class="btn lm-day-button" href="life-ledger.html">Leisure in Life Ledger ↗</a>';
-    return focusCard('Right now'+(c.minutes?' · '+c.minutes+' min':''),c.title,help(String(c.why||'').replace(/\b\d{4}-\d{2}-\d{2}\b/g,d=>M.validDate(d)?(d===todayISO()?'today':fmtDay(d)):d)),actions+button('Change plan','change-focus'));
+    return focusCard('Right now'+(c.minutes?' · '+c.minutes+' min':''),c.title,help(String(c.why||'').replace(/\b\d{4}-\d{2}-\d{2}\b/g,d=>M.validDate(d)?(d===todayISO()?'today':fmtDay(d)):d)),actions,route);
   }
   function categoryCards(){
     return '<div class="lm-category-grid">'+M.categories.map(([key,title])=>{
@@ -2384,9 +2452,11 @@ function createLifeMapCalendarModel(){
     const row=r=>'<li><span class="lm-completed-check" aria-hidden="true">✓</span><div><strong>'+esc(r.title||'Completed item')+'</strong><span class="lm-help">'+esc(r.kind)+'</span></div></li>';
     return '<section class="panel lm-day-panel lm-completed-recap" aria-label="What you moved forward today"><div class="lm-day-section-title"><h2>What you moved forward today</h2>'+info('About today’s completed work','Tasks completed today, routine check-ins and dated Ops completions appear here from their existing saved records. Reopened tasks and undone check-ins drop out. Opening this view earns nothing.')+'</div><p class="lm-completed-count">'+rows.length+' completed today</p><ul>'+rows.slice(0,3).map(row).join('')+'</ul>'+(rows.length>3?'<details><summary>See all '+rows.length+' completions</summary><ul>'+rows.slice(3).map(row).join('')+'</ul></details>':'')+'</section>';
   }
-  function mandatoryRow(c){
+  function mandatoryRow(c,index,route){
     const history=(S.choreHistory||[]).filter(h=>h.choreId===c.id&&h.date===todayISO()).at(-1),on=c.repeat?!!history:isChecked(c),skipped=history?.status==='skipped';
-    return '<div class="lm-task-row'+(on&&!skipped?' lm-done':'')+'">'+button(on?(skipped?'—':'✓'):'','mandatory-toggle','data-id="'+attrs(c.id)+'" aria-pressed="'+on+'" aria-label="'+attrs((on?'Mark incomplete: ':'Complete ')+c.chore)+'"')+'<button type="button" class="btn lm-task-main" data-lm="edit-chore" data-id="'+attrs(c.id)+'"><span class="lm-task-title">'+esc(c.chore)+'</span><span class="lm-row-meta">'+esc(skipped?'Skipped today':on?'Done today':c.cad)+'</span></button></div>';
+    const state=route.states[index],next=index===route.current;
+    const stop='<span aria-hidden="true" class="lm-stop-label">'+(on?(skipped?'−':'✓'):stopNumber(index+1))+'</span>';
+    return '<div class="lm-task-row lm-route-row'+(on&&!skipped?' lm-done':'')+'" data-route-state="'+(next?'next':state)+'">'+button(stop,'mandatory-toggle','data-id="'+attrs(c.id)+'" aria-pressed="'+on+'" aria-label="'+attrs((on?'Mark incomplete: ':'Complete ')+c.chore)+'"')+'<button type="button" class="btn lm-task-main" data-lm="edit-chore" data-id="'+attrs(c.id)+'"><span class="lm-task-title">'+esc(c.chore)+'</span><span class="lm-row-meta">'+esc([on?'Stop '+stopNumber(index+1):'',skipped?'Skipped today':on?'Done today':next?'Next routine':c.cad].filter(Boolean).join(' · '))+'</span></button></div>';
   }
   // Daily mandatory has two explicit groups: routines that repeat every day, and other routines due today.
   const everyDay=c=>!c.repeat&&c.cad==='Daily'||c.repeat?.unit==='day'&&Number(c.repeat.every||1)===1;
@@ -2406,13 +2476,14 @@ function createLifeMapCalendarModel(){
       '<div class="lm-inline">'+button('Cancel','focus-picker')+'</div></section>';
   }
   function homeView(){
-    const today=todayISO(),groups=mandatoryGroups(),all=[...groups.daily,...groups.due],complete=all.filter(routineDone).length;
-    let html='<section aria-label="Right now">'+rightNow()+'</section>';
+    const today=todayISO(),route=dailyRoute(),all=route.routines,complete=route.done;
+    const dailyCount=all.filter(everyDay).length;
+    let html='<div class="lm-home-layout"><section aria-label="Right now">'+rightNow(route)+'</section>';
     if(ui.focusPicker)html+=focusPicker();
     html+='<section id="lm-daily-routines" class="panel lm-day-panel" tabindex="-1" aria-label="Daily mandatory"><div class="lm-day-section-title"><div><div class="eyebrow">The essentials</div><h2>Daily mandatory</h2></div><span class="lm-checklist-count">'+complete+' / '+all.length+'</span>'+info('What appears in Daily mandatory','Every day lists routines that repeat daily. Also due today lists other routines scheduled for today or whose next occurrence is due. Checked items stay until midnight and can be unchecked.')+'</div>'+
-      '<div class="lm-mandatory-list">'+(groups.daily.length?groups.daily.map(mandatoryRow).join(''):help('Add the routines you want to check off each day.'))+'</div>'+
-      (groups.due.length?'<h3 class="lm-mandatory-subhead">Also due today</h3><div class="lm-mandatory-list">'+groups.due.map(mandatoryRow).join('')+'</div>':'')+
-      button('Add routine','area-routine','data-category="household"')+'</section>';
+      '<div class="lm-mandatory-list">'+(dailyCount?all.slice(0,dailyCount).map((c,i)=>mandatoryRow(c,i,route)).join(''):help('Add the routines you want to check off each day.'))+'</div>'+
+      (all.length>dailyCount?'<h3 class="lm-mandatory-subhead">Also due today</h3><div class="lm-mandatory-list">'+all.slice(dailyCount).map((c,i)=>mandatoryRow(c,dailyCount+i,route)).join('')+'</div>':'')+
+      button('Add routine','area-routine','data-category="household"')+'</section></div>';
     html+='<div data-day-capture-anchor></div>';
     const agenda=M.todayTasks(S.projects,today),seen=new Set(),open=[...agenda.due,...agenda.chosen].filter(t=>!seen.has(t.id)&&seen.add(t.id));
     const done=S.projects.filter(t=>!t.archived&&t.status==='Done'&&(t.plan===today||t.doneAt===today));
@@ -2423,7 +2494,7 @@ function createLifeMapCalendarModel(){
     const late=agenda.rollover.filter(t=>!seen.has(t.id));
     if(late.length)html+=panel('Needs rescheduling','<div class="lm-day-section-title"><h2>Needs rescheduling</h2><span class="lm-checklist-count">'+late.length+'</span></div>'+help('Planned for an earlier day and not done yet. Choose a new day; deadlines stay as they are.')+
       M.sortTasks(late,today).map(t=>'<article class="lm-reschedule-row">'+D.taskRow(t)+'<div class="lm-inline lm-reschedule-actions">'+['today','tomorrow'].map(w=>'<button type="button" class="btn lm-day-button" data-lm="plan" data-id="'+attrs(t.id)+'" data-when="'+w+'" aria-label="'+attrs('Plan '+t.task+' for '+w)+'">'+(w==='today'?'Today':'Tomorrow')+'</button>').join('')+'<button type="button" class="btn lm-day-button" data-lm="choose-date" data-id="'+attrs(t.id)+'" aria-label="'+attrs('Choose a date for '+t.task)+'">Choose date</button></div></article>').join(''));
-    html+=completedRecap();
+    html+=homeDestinations(today)+completedRecap();
     if(!window.AtlasConnected)html+='<details class="lm-more-tools"><summary>Daily preparation & links</summary><section id="atlas-daily-root" aria-label="Daily preparation"></section></details>';
     return html;
   }
@@ -2483,16 +2554,33 @@ function createLifeMapCalendarModel(){
     const scope=projectScope(),results=app.querySelector('#lm-project-results'),count=app.querySelectorAll('[data-project-summary]');
     if(results)results.innerHTML=projectResults(scope);count.forEach(node=>node.textContent=projectSummary(scope));
   }
-  function areaPicker(selected){
-    const counts=new Map(),tasks=openTasks();
-    for(const task of tasks){
-      const area=M.categoryFor(task);
-      counts.set(area,(counts.get(area)||0)+1);
+  const areaColours={food:'#bce893',household:'#68dece',family:'#ffabbf',health:'#8bc6ff',work:'#c7acfd',admin:'#f8c683',boards:'#84d5f0'};
+  function areaCounts(){
+    const counts=new Map();
+    for(const task of openTasks()){
+      const key=M.categoryFor(task);
+      counts.set(key,(counts.get(key)||0)+1);
     }
+    return counts;
+  }
+  function homeDestinations(today){
+    const counts=areaCounts(),entries=[...counts.entries()].sort((a,b)=>b[1]-a[1]);
+    const total=entries.reduce((n,[,v])=>n+v,0),largest=entries[0];
+    const lead=largest?M.categories.find(([key])=>key===largest[0])?.[1]:'';
+    const last=K.plus(today,6),months=[...new Set([today.slice(0,7),last.slice(0,7)])];
+    const upcoming=months.flatMap(month=>K.events(S,month)).filter(e=>e.date>=today&&e.date<=last&&M.open(e.task));
+    const days=Array.from({length:7},(_,i)=>K.plus(today,i));
+    const date=upcoming[0]?.date||today;
+    return '<div class="lm-home-destinations"><button type="button" class="lm-destination" data-day="tab" data-tab="projects" data-category="all"><span class="lm-destination-title">Projects</span><strong>'+total+' open task'+(total===1?'':'s')+'</strong><span class="lm-area-ribbon" aria-hidden="true">'+M.categories.filter(([key])=>counts.has(key)).map(([key])=>'<i style="flex:'+counts.get(key)+';background:'+areaColours[key]+'"></i>').join('')+'</span><span>'+esc(lead?lead+' · '+largest[1]+' open':'View projects')+'</span></button>'+
+      '<button type="button" class="lm-destination" data-day="open-horizon" data-date="'+date+'"><span class="lm-destination-title">Next seven days</span><strong>'+esc(upcoming.length?fmtDay(date):'No dated tasks')+'</strong><span class="lm-horizon-days" aria-hidden="true">'+days.map(d=>'<i class="'+(upcoming.some(e=>e.date===d)?'has-work':'')+'"></i>').join('')+'</span><span>'+esc(upcoming[0]?.task.task||'View calendar')+'</span></button></div>';
+  }
+  function areaPicker(selected){
+    const counts=areaCounts(),total=[...counts.values()].reduce((sum,n)=>sum+n,0);
+    const maximum=Math.max(1,...counts.values());
     return '<div class="lm-area-picker" aria-label="Open tasks by area" role="group">'+
-      [['all','All areas'],...M.categories].map(([key,name],index)=>{
-        const count=key==='all'?tasks.length:counts.get(key)||0;
-        return '<button type="button" class="lm-area-option lm-pc-'+(index%6)+'" data-day="project-area" data-category="'+key+'" aria-pressed="'+(selected===key)+'" aria-label="'+attrs(name+', '+count+' open task'+(count===1?'':'s'))+'"><span>'+esc(name)+'</span><strong>'+count+'</strong></button>';
+      [['all','All areas'],...M.categories].map(([key,name])=>{
+        const count=key==='all'?total:counts.get(key)||0;
+        return '<button type="button" class="lm-area-option" style="--area-signal:'+(areaColours[key]||'#d1f8f2')+'" data-day="project-area" data-category="'+key+'" aria-pressed="'+(selected===key)+'" aria-label="'+attrs(name+', '+count+' open task'+(count===1?'':'s'))+'"><span>'+esc(name)+'</span><strong>'+count+'</strong>'+(key==='all'?'':'<i class="lm-load-track" aria-hidden="true"><i style="width:'+Math.round(count/maximum*100)+'%"></i></i>')+'</button>';
       }).join('')+'</div>';
   }
   function projectsView(){
@@ -2502,7 +2590,7 @@ function createLifeMapCalendarModel(){
     const toolbar='<div class="lm-project-toolbar" role="search" aria-label="Filter projects and tasks">'+field('Area',select('areaFilter',key,[['all','All areas'],...M.categories]))+
       '<label class="lm-day-field lm-project-search"><span>Search</span><input id="lm-day-field-q" data-day-field="q" type="search" value="'+attrs(ui.q||'')+'" placeholder="Tasks and projects" autocomplete="off" enterkeyhint="search"></label></div>'+
       '<p class="lm-project-count" data-project-summary role="status">'+esc(projectSummary(scope))+'</p>';
-    let html='<section class="lm-feature lm-project-feature" aria-label="Projects overview"><div class="lm-feature-body"><h2>'+esc(all?'Projects & tasks':scope.title)+'</h2>'+areaPicker(key)+toolbar+'</div><div class="lm-feature-footer lm-inline">'+button('Add task','capture','',true)+'<button type="button" class="btn lm-day-button" data-lm="new-group">New project</button></div></section>';
+    let html='<section class="lm-feature lm-project-feature" aria-label="Projects overview"><div class="lm-feature-rail"><span>Area workload</span><span>Open tasks</span></div><div class="lm-feature-body"><h2>'+esc(all?'Projects & tasks':scope.title)+'</h2>'+areaPicker(key)+toolbar+'</div><div class="lm-feature-footer lm-inline">'+button('Add task','capture','',true)+'<button type="button" class="btn lm-day-button" data-lm="new-group">New project</button></div></section>';
     html+='<div id="lm-category-content"><div class="lm-project-sticky"><button type="button" class="btn lm-project-jump" data-day="focus-filter" aria-describedby="lm-project-jump-hint"><span data-project-summary>'+esc(projectSummary(scope))+'</span><span class="lm-project-jump-cue" aria-hidden="true">Change</span></button><span id="lm-project-jump-hint" hidden>Change area or search</span>'+select('taskFilter',ui.taskFilter,[['open','Open'],['all','All tasks'],['done','Completed']]).replace('<select ','<select aria-label="Show tasks" ')+'</div>';
     html+='<div id="lm-project-results">'+projectResults(scope)+'</div>';
     html+=panel('Recurring responsibilities','<div class="lm-day-section-title"><h2>Routines</h2>'+button('Add routine','area-routine','data-category="'+(all?'household':key)+'"')+'</div>'+chores.map(c=>D.choreRow(c)).join(''));
@@ -2513,6 +2601,18 @@ function createLifeMapCalendarModel(){
   // Each project keeps one colour everywhere: its position among all saved projects, so archiving or browsing never shifts it.
   const projectTone=g=>'lm-pc-'+(Math.max(0,(S.groups||[]).findIndex(x=>x.id===g.id))%6);
   const markPlan='<i class="lm-mark lm-mark-plan" aria-hidden="true"></i>',markDue='<i class="lm-mark lm-mark-due" aria-hidden="true"></i>',markProject=tone=>'<i class="lm-mark lm-mark-project '+tone+'" aria-hidden="true"></i>';
+  function weekProfile(day,monthEvents){
+    const offset=(new Date(day+'T12:00:00Z').getUTCDay()+6)%7;
+    const monday=K.plus(day,-offset),days=Array.from({length:7},(_,i)=>K.plus(monday,i));
+    const months=[...new Set(days.map(d=>d.slice(0,7)))];
+    const events=months.flatMap(m=>m===ui.month?monthEvents:K.events(S,m));
+    const counts=days.map(d=>new Set(events.filter(e=>e.date===d).map(e=>e.task.id)).size);
+    const max=Math.max(1,...counts);
+    return '<div class="lm-week-profile" role="group" aria-label="Dated tasks by day"><div class="lm-week-label"><span>Week of '+esc(fmtDay(monday))+'</span><span>Dated tasks</span></div><div class="lm-week-bars">'+days.map((d,i)=>{
+      const name=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i];
+      return '<button type="button" data-day="week-day" data-week-date="'+d+'" aria-pressed="'+(d===day)+'" aria-label="'+attrs(name+' '+fmtDay(d)+', '+counts[i]+' dated task'+(counts[i]===1?'':'s'))+'"><b>'+counts[i]+'</b><i aria-hidden="true"><i style="height:'+Math.round(100*counts[i]/max)+'%"></i></i><span>'+name+'</span></button>';
+    }).join('')+'</div></div>';
+  }
   function calendarView(){
     const month=ui.month,first=month+'-01',last=K.monthEnd(month),projects=K.projects(S),active=projects.filter(p=>K.inMonth(p.range,month)),events=K.events(S,month),label=new Intl.DateTimeFormat(undefined,{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(first+'T12:00:00Z')),weekday=(new Date(first+'T12:00:00Z').getUTCDay()+6)%7;
     const isPlan=e=>e.kinds?.some(k=>k==='plan'||k==='planWeek'),isDue=e=>e.kinds?.includes('due');
@@ -2526,7 +2626,7 @@ function createLifeMapCalendarModel(){
     const summary='<p class="lm-help lm-month-summary">'+markPlan+' '+plannedCount+' planned · '+markDue+' '+dueCount+' deadline'+(dueCount===1?'':'s')+' · '+active.length+' project'+(active.length===1?'':'s')+'</p>';
     const named=active.length?'<button type="button" class="btn lm-day-button lm-month-projects-link" data-day="calendar-projects" aria-label="'+attrs('View all '+active.length+' projects in '+label)+'"><span class="lm-month-swatches" aria-hidden="true">'+active.slice(0,4).map(p=>markProject(projectTone(p.group))).join('')+'</span><span class="lm-month-projects-name">'+esc(active[0].group.title)+(active.length>1?' and '+(active.length-1)+' more':'')+'</span><span class="lm-month-projects-cue">View all</span></button>':'';
     let html='<div class="lm-calendar-layout"><section class="lm-feature lm-calendar-feature" data-weeks="'+Math.ceil((weekday+days)/7)+'" aria-label="Project calendar"><div class="lm-feature-rail"><span>Project calendar</span>'+button('This month','calendar-today')+'</div><div class="lm-feature-body"><div class="lm-month-header">'+button('‹','calendar-month','data-step="-1" aria-label="Previous month"')+'<h2 aria-live="polite">'+esc(label)+'</h2>'+button('›','calendar-month','data-step="1" aria-label="Next month"')+'</div>'+summary+'<div class="lm-month-weekdays" aria-hidden="true">'+['M','T','W','T','F','S','S'].map(d=>'<span>'+d+'</span>').join('')+'</div><div class="lm-month-grid" role="group" aria-label="'+attrs(label)+'">'+grid+'</div><div class="lm-month-projects">'+named+'</div></div><div class="lm-feature-footer lm-inline">'+button(ui.yearView?'Close 12 months':'Next 12 months','calendar-year','aria-expanded="'+ui.yearView+'"',true)+button('Add task','capture')+'</div></section>';
-    html+='<section class="panel lm-day-panel lm-calendar-agenda" id="lm-calendar-agenda" tabindex="-1" aria-label="Selected day tasks"><div class="lm-calendar-agenda-label">Selected day</div><div class="lm-day-section-title"><h2>'+esc(fmtDay(ui.date))+'</h2>'+button('Add task for this day','capture-date')+'</div>'+daySelector();
+    html+='<section class="panel lm-day-panel lm-calendar-agenda" id="lm-calendar-agenda" tabindex="-1" aria-label="Selected day tasks"><div class="lm-calendar-agenda-label">Selected day</div><div class="lm-day-section-title"><h2>'+esc(fmtDay(ui.date))+'</h2>'+button('Add task for this day','capture-date')+'</div>'+weekProfile(ui.date,events)+daySelector();
     const tasks=S.projects.filter(t=>!t.archived&&(t.plan===ui.date||t.due===ui.date||t.followUp===ui.date||t.planWeek===ui.date||t.showAfter===ui.date||!t.showAfter&&t.park&&t.park+'-01'===ui.date));
     html+=(tasks.length?M.sortTasks(tasks,ui.date).map(dayTaskRow).join(''):help('No dated tasks on this day.'))+opsPlanned().map(opsTaskRow).join('');
     const routines=dayRoutines(ui.date);if(routines.length)html+='<h3>Scheduled routines</h3>'+routines.map(c=>ui.date===todayISO()?D.choreRow(c):'<p>'+esc(c.chore)+'</p>').join('');html+='</section>';
@@ -2562,12 +2662,15 @@ function createLifeMapCalendarModel(){
   function handle(action,el){
     if(action==='capture')return W.captureSheet(ui.tab==='calendar'?ui.date:undefined,undefined,ui.tab==='projects'?areaName(ui.category):undefined);
     const id=el.dataset.id;
-    if(action==='jump-routines'){
+    if(action==='jump-routines'||action==='jump-stop'){
+      if(ui.tab!=='home')choose('home');
       const checklist=document.getElementById('lm-daily-routines');
-      checklist?.focus({preventScroll:true});
-      checklist?.scrollIntoView({block:'nearest'});
+      const target=action==='jump-stop'?checklist?.querySelector('[data-lm="edit-chore"][data-id="'+CSS.escape(id)+'"]'):checklist;
+      target?.focus({preventScroll:true});
+      target?.scrollIntoView({block:'nearest'});
       return;
     }
+    if(action==='open-horizon'){ui.date=el.dataset.date;ui.month=ui.date.slice(0,7);ui.calendarDetail='';return choose('calendar');}
     if(action==='project-area'){
       if(ui.category===el.dataset.category)return;
       ui.category=el.dataset.category;
@@ -2586,8 +2689,9 @@ function createLifeMapCalendarModel(){
     if(action==='calendar-today'){ui.month=todayISO().slice(0,7);ui.date=todayISO();ui.yearView=false;render();return;}
     if(action==='calendar-year'){ui.yearView=!ui.yearView;render();if(ui.yearView)app.querySelector('[aria-label="Next 12 months"]')?.scrollIntoView({block:'start'});else app.querySelector('[data-day="calendar-year"]')?.focus({preventScroll:true});return;}
     if(action==='calendar-pick-month'){ui.month=el.dataset.month;ui.date=ui.month===todayISO().slice(0,7)?todayISO():ui.month+'-01';ui.yearView=false;render();window.scrollTo?.({top:0,behavior:'instant'});app.querySelector('.lm-calendar-feature h2')?.setAttribute('tabindex','-1');app.querySelector('.lm-calendar-feature h2')?.focus({preventScroll:true});return;}
-    if(action==='calendar-day'){
-      ui.date=el.dataset.date;
+    if(action==='calendar-day'||action==='week-day'){
+      ui.date=el.dataset.weekDate||el.dataset.date;
+      ui.month=ui.date.slice(0,7);
       render();
       const agenda=document.getElementById('lm-calendar-agenda');
       agenda?.focus({preventScroll:true});

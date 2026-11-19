@@ -12,7 +12,7 @@ const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+new U
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
 const ready=async p=>{await p.waitForFunction(()=>!!window.LifeMapDay&&!!window.CoreAppFinish);await p.evaluate(()=>document.fonts.ready);};
 try{
- for(const [theme,width,textSize,populated]of [['light',393,16,false],['dark',393,16,true],['light',320,16,true],['dark',852,16,true],['light',393,32,true],['dark',320,32,true]]){
+ for(const [theme,width,textSize,populated]of [['light',393,16,false],['dark',393,16,true],['light',320,16,true],['dark',852,16,true],['dark',1440,16,true],['light',393,32,true],['dark',320,32,true]]){
   const ctx=await browser.newContext({viewport:{width,height:width===852?393:852},colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg',contrast:textSize===32?'more':'no-preference'}),p=await ctx.newPage(),errors=[];
   p.setDefaultTimeout(15000);p.on('pageerror',e=>errors.push(e.message));
   await ctx.route('https://qchamby204.github.io/my-dashboards/**',async route=>{try{const file=new URL(route.request().url()).pathname.replace('/my-dashboards/','');await route.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await route.abort();}});
@@ -29,12 +29,15 @@ try{
    if(view==='home') {
     assert.equal(await p.locator('.appbar [data-day="capture"]').count(),1,'capture is directly available in the header');
     const instrument=hero.getByRole('button',{name:`Daily mandatory, 0 of ${populated?1:0} complete`});
-    const animationName=()=>instrument.locator('.lm-dial-rotor').evaluate(node=>getComputedStyle(node).animationName);
-    assert.equal(await animationName(),'none','reduced motion keeps the dial still');
-    if(width===393&&textSize===16){
-     await p.emulateMedia({reducedMotion:'no-preference'});
-     assert.equal(await animationName(),'lm-dial-rotate');
-     await p.emulateMedia({reducedMotion:'reduce'});
+    assert.equal(await hero.locator('.lm-pin').count(),populated?1:0,'one stop per saved routine in this fixture');
+    if(populated){
+     const beacon=hero.locator('.lm-pin.is-next .lm-beacon');
+     assert.equal(await beacon.evaluate(node=>getComputedStyle(node).animationName),'none');
+     if(width===393&&textSize===16){
+      await p.emulateMedia({reducedMotion:'no-preference'});
+      assert.equal(await beacon.evaluate(node=>getComputedStyle(node).animationName),'lm-locate');
+      await p.emulateMedia({reducedMotion:'reduce'});
+     }
     }
     if(textSize===32&&width<=393){await instrument.scrollIntoViewIfNeeded();await p.screenshot({path:path.join(out,`routines-${theme}-${width}-${textSize}.png`)});}
     await instrument.click();
