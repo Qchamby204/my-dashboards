@@ -1468,3 +1468,218 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme="lig
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme="dark"] #app #ledger-log .ledger-habit-card {
   --neo-green:#3cf0a0;--neo-violet:#b591ff;--neo-blue:#5cb0ff;--neo-rose:#ff6f97;--neo-orange:#ffb347;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HUD v2: the full instrument treatment, paired with shared/ledger-hud.js.
+   Angled panels, a reactor around the hologram, holographic stages, live
+   telemetry, a logging shockwave, a boot sequence and a screen frame.
+   ═══════════════════════════════════════════════════════════════════════════ */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme] {
+  --hud-cut:16px;
+  --hud-edge-strong:color-mix(in srgb,var(--neo-accent) 70%,transparent);
+  --hud-chamfer:polygon(var(--hud-cut) 0,100% 0,100% calc(100% - var(--hud-cut)),calc(100% - var(--hud-cut)) 100%,0 100%,0 var(--hud-cut));
+  --hud-cut-edge:linear-gradient(135deg,transparent calc(50% - 1px),var(--hud-edge-strong) calc(50% - 1px),var(--hud-edge-strong) calc(50% + .6px),transparent calc(50% + .6px));
+  --hud-corners:
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) right 7px top 7px/18px 2px no-repeat,
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) right 7px top 7px/2px 18px no-repeat,
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) left 7px bottom 7px/18px 2px no-repeat,
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) left 7px bottom 7px/2px 18px no-repeat;
+}
+.hud-field {position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;}
+html[data-atlas-app="life-ledger"] #app.wrap {z-index:2;}
+
+/* Angled panels: top-left and bottom-right cut, lit diagonal on each cut. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-opening,#ledger-log.panel,.ledger-activity-history,.ledger-value.panel,.ledger-value-map,.ledger-level-feature,.ledger-next-milestone) {
+  clip-path:var(--hud-chamfer);border-radius:0!important;
+  background:
+    var(--hud-cut-edge) left top/var(--hud-cut) var(--hud-cut) no-repeat border-box,
+    var(--hud-cut-edge) right bottom/var(--hud-cut) var(--hud-cut) no-repeat border-box,
+    var(--hud-corners),var(--hud-glass)!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-opening,.ledger-feature,.ledger-activity-history)::before {left:calc(var(--hud-cut) + 12px);}
+@keyframes hud-sweep {from{left:calc(var(--hud-cut) + 12px);}to{left:calc(100% - 94px);}}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log.panel .ledger-deck-frame {border:0!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-checkin-save,.ledger-deck-rail) {background:transparent!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-checkin-save {border-top:1px solid var(--hud-edge)!important;}
+
+/* Section titles carry an index mark. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-section-heading h2,.ledger-feature-heading h2,.ledger-collection-heading h2)::before {
+  content:"//";margin-right:.4em;color:var(--neo-accent);font-family:var(--hud-mono);font-weight:500;font-size:.8em;opacity:.8;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow::before {content:"▸ ";color:var(--neo-accent);}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening h1 {
+  text-shadow:0 0 22px color-mix(in srgb,var(--neo-accent) 30%,transparent);
+}
+
+/* Value gauges and primary controls take the same cut. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-jump {
+  --hud-cut:9px;clip-path:var(--hud-chamfer);border-radius:0!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(#ledger-log .ledger-habit-card [data-act="toggle"],.ledger-checkin-save .ledger-primary,.ledger-feature-action,.ledger-value-key button,.ledger-achievement-filters button,.ledger-achievement-record) {
+  --hud-cut:11px;clip-path:var(--hud-chamfer);border-radius:0!important;
+}
+
+/* Hologram readouts: the projector sits inside a reactor. */
+html[data-atlas-app="life-ledger"] #app .hud-reactor-host {position:relative;}
+html[data-atlas-app="life-ledger"] #app .hud-reactor-host .ledger-projector {transform:scale(.7);transform-origin:50% 47%;}
+html[data-atlas-app="life-ledger"] #app .hud-reactor {position:absolute;pointer-events:none;overflow:visible;color:var(--neo-accent);}
+.hud-reactor .hud-rot {transform-box:view-box;transform-origin:100px 100px;}
+.hud-reactor .hud-ring-dots {fill:none;stroke:currentColor;stroke-width:.8;stroke-dasharray:.6 2.4;opacity:.55;}
+.hud-reactor .hud-ring-bracket {fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;opacity:.85;}
+.hud-reactor .hud-ring-blip-track {fill:none;stroke:none;}
+.hud-reactor .hud-ring-blip {fill:currentColor;filter:drop-shadow(0 0 3px currentColor);}
+.hud-reactor .hud-ring-ticks {fill:none;stroke:currentColor;stroke-width:.7;opacity:.42;}
+.hud-reactor .hud-ring-dash {fill:none;stroke:currentColor;stroke-width:.7;stroke-dasharray:6 4;opacity:.35;}
+.hud-reactor .hud-sweep {fill:currentColor;opacity:.06;}
+.hud-reactor .hud-arc-track {fill:none;stroke:var(--arc);stroke-width:2.6;opacity:.24;}
+.hud-reactor .hud-arc-fill {fill:none;stroke:var(--arc);stroke-width:2.6;stroke-linecap:round;filter:drop-shadow(0 0 2.5px var(--arc));transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1);}
+.hud-reactor .hud-arc-letter {fill:var(--arc);font:600 4.6px var(--hud-mono,monospace);opacity:.9;}
+.hud-reactor .hud-reactor-tag {fill:currentColor;font:500 5.5px var(--hud-mono,monospace);letter-spacing:1.6px;opacity:.6;}
+@media(prefers-reduced-motion:no-preference) {
+  .hud-reactor .hud-rot-slow {animation:hud-spin 40s linear infinite;}
+  .hud-reactor .hud-rot-rev {animation:hud-spin 70s linear infinite reverse;}
+  .hud-reactor .hud-rot-fast {animation:hud-spin 18s linear infinite reverse;}
+  .hud-reactor .hud-rot-sweep {animation:hud-spin 6s linear infinite;}
+}
+@keyframes hud-spin {to{transform:rotate(360deg);}}
+@media(max-width:959px) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening {grid-template-columns:minmax(0,1fr) clamp(128px,38vw,176px)!important;}
+}
+
+/* Live telemetry line in the check-in card. */
+html[data-atlas-app="life-ledger"] #app .hud-telemetry {
+  display:flex;align-items:center;gap:6px;margin-top:6px;
+  font:500 10.5px/1.2 var(--hud-mono);letter-spacing:.14em;color:var(--neo-muted);white-space:nowrap;
+}
+html[data-atlas-app="life-ledger"] #app .hud-telemetry b {color:var(--neo-accent);font-weight:600;}
+.hud-live {display:inline-block;width:6px;height:6px;border-radius:50%;background:#3cf0a0;box-shadow:0 0 8px #3cf0a0;flex:none;}
+@media(prefers-reduced-motion:no-preference) {.hud-live {animation:hud-pulse 1.6s ease-in-out infinite;}}
+@keyframes hud-pulse {50%{opacity:.35;box-shadow:0 0 2px #3cf0a0;}}
+@media(min-width:960px) {html[data-atlas-app="life-ledger"] #app .hud-telemetry {justify-content:flex-start;}}
+
+/* Activity cards: the art stands on a projector pad inside a lit chamber. */
+html[data-atlas-app="life-ledger"] #app #ledger-log .ledger-card-art {position:relative;isolation:isolate;}
+html[data-atlas-app="life-ledger"] #app .hud-holo {position:absolute;inset:0;z-index:-1;pointer-events:none;color:var(--ledger-card-accent,var(--neo-accent));}
+.hud-holo .hud-holo-beam {
+  position:absolute;left:14%;right:14%;top:8%;bottom:4%;
+  background:linear-gradient(0deg,color-mix(in srgb,currentColor 38%,transparent),transparent 78%);
+  clip-path:polygon(32% 100%,68% 100%,100% 0,0 0);filter:blur(2px);opacity:.55;
+}
+.hud-holo .hud-holo-pad {
+  position:absolute;left:12%;right:12%;bottom:-2%;height:16%;border-radius:50%;
+  border:1.5px solid currentColor;box-shadow:0 0 14px currentColor,inset 0 0 10px currentColor;opacity:.7;
+}
+.hud-holo .hud-holo-pad.b {left:24%;right:24%;bottom:2%;height:9%;border-style:dashed;opacity:.55;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-card-avatar {position:relative;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-card-avatar::after {
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.07) 0 1px,transparent 1px 3px);mix-blend-mode:overlay;
+}
+@media(prefers-reduced-motion:no-preference) {
+  html[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card[aria-hidden="false"] .ledger-card-avatar {animation:hud-float 3.6s ease-in-out infinite;}
+  .hud-holo .hud-holo-pad {animation:hud-pad 2.4s ease-in-out infinite;}
+  .hud-holo .hud-holo-pad.b {animation:hud-spin-flat 6s linear infinite;}
+  .hud-holo .hud-holo-beam {animation:hud-flicker 4s steps(1) infinite;}
+  html[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card.hud-materialize .ledger-card-heading {animation:hud-materialize .5s cubic-bezier(.2,.8,.2,1);}
+}
+@keyframes hud-float {50%{transform:translateY(-4px);}}
+@keyframes hud-pad {50%{opacity:.4;transform:scaleX(.92);}}
+@keyframes hud-spin-flat {to{transform:rotateZ(0) scaleX(1.12);}from{transform:scaleX(.9);}}
+@keyframes hud-flicker {0%,100%{opacity:.55;}47%{opacity:.3;}48%{opacity:.62;}82%{opacity:.48;}}
+@keyframes hud-materialize {
+  0%{opacity:.1;clip-path:inset(0 0 100% 0);filter:brightness(2) saturate(.4);}
+  55%{opacity:1;clip-path:inset(0 0 0 0);filter:brightness(1.5);}
+  100%{opacity:1;clip-path:inset(0 0 0 0);filter:none;}
+}
+
+/* Tab changes scan the new view in. */
+@media(prefers-reduced-motion:no-preference) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-view.ledger-entering {animation:hud-view-in .55s cubic-bezier(.2,.8,.2,1);}
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-view.ledger-entering :is(h1,h2) {animation:hud-glitch .5s steps(2) 1;}
+}
+@keyframes hud-view-in {
+  0%{clip-path:inset(0 0 100% 0);filter:brightness(1.8);}
+  70%{clip-path:inset(0 0 0 0);filter:brightness(1.15);}
+  100%{clip-path:inset(0 0 0 0);filter:none;}
+}
+@keyframes hud-glitch {
+  0%{text-shadow:-3px 0 #ff2bd6,3px 0 #2bf4ff;transform:translateX(2px);}
+  40%{text-shadow:2px 0 #ff2bd6,-2px 0 #2bf4ff;transform:translateX(-1px);}
+  100%{transform:none;}
+}
+
+/* Header: a lit underline with a travelling highlight. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .appbar {position:sticky;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .appbar::after {
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--neo-accent) 50%,transparent) -40% 0/40% 100% no-repeat;
+}
+@media(prefers-reduced-motion:no-preference) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .appbar::after {animation:hud-travel 6s ease-in-out infinite;}
+}
+@keyframes hud-travel {to{background-position:140% 0;}}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav.core-glass-nav {--hud-cut:14px;clip-path:var(--hud-chamfer);border-radius:0!important;}
+
+/* Logging shockwave. */
+.hud-burst {position:fixed;z-index:80;width:0;height:0;pointer-events:none;--burst:var(--neo-accent);color:var(--burst);}
+.hud-burst .hud-burst-ring {position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;border:2px solid currentColor;box-shadow:0 0 18px currentColor,inset 0 0 12px currentColor;animation:hud-ring .75s cubic-bezier(.1,.7,.2,1) forwards;}
+.hud-burst .hud-burst-ring.b {border-width:1px;border-style:dashed;animation-duration:1s;animation-delay:.06s;opacity:0;}
+.hud-burst .hud-burst-flash {position:absolute;left:-140px;top:-26px;width:280px;height:52px;background:radial-gradient(ellipse at center,color-mix(in srgb,currentColor 55%,transparent),transparent 70%);animation:hud-flash .5s ease-out forwards;}
+.hud-burst .hud-burst-tag {position:absolute;left:50%;top:-58px;transform:translateX(-50%);white-space:pre;font:600 12px/1 var(--hud-mono,monospace);letter-spacing:.22em;color:currentColor;text-shadow:0 0 10px currentColor;animation:hud-tag 1.05s ease-out forwards;}
+@keyframes hud-ring {0%{transform:scale(.2);opacity:1;}100%{transform:scale(3.4);opacity:.001;}}
+@keyframes hud-flash {0%{opacity:.9;transform:scaleX(.3);}100%{opacity:.001;transform:scaleX(1.6);}}
+@keyframes hud-tag {0%{opacity:0;transform:translate(-50%,10px);}20%{opacity:1;transform:translate(-50%,0);}75%{opacity:1;}100%{opacity:.001;transform:translate(-50%,-18px);}}
+
+/* Boot sequence. */
+.hud-boot {
+  position:fixed;inset:0;z-index:120;display:grid;place-items:center;align-content:center;gap:18px;
+  background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--neo-accent) 10%,transparent),transparent 60%),color-mix(in srgb,var(--neo-canvas) 94%,transparent);
+  color:var(--neo-accent);transition:opacity .45s ease,filter .45s ease;
+}
+.hud-boot.out {opacity:0;filter:brightness(2) blur(4px);}
+.hud-boot-core {width:min(46vw,190px);overflow:visible;}
+.hud-boot-core circle {fill:none;stroke:currentColor;transform-box:view-box;transform-origin:100px 100px;}
+.hud-boot-core .b1 {stroke-width:1;stroke-dasharray:2 5;animation:hud-boot-ring 1.4s cubic-bezier(.2,.8,.2,1) both,hud-spin 6s linear infinite;}
+.hud-boot-core .b2 {stroke-width:3;stroke-dasharray:180 110;animation:hud-boot-ring 1.2s .1s cubic-bezier(.2,.8,.2,1) both,hud-spin 2.4s linear infinite reverse;}
+.hud-boot-core .b3 {stroke-width:1;stroke-dasharray:10 6;animation:hud-boot-ring 1.1s .2s cubic-bezier(.2,.8,.2,1) both,hud-spin 3s linear infinite;}
+.hud-boot-core .b4 {stroke-width:6;opacity:.35;animation:hud-boot-ring 1s .3s cubic-bezier(.2,.8,.2,1) both;}
+.hud-boot-core .b5 {fill:currentColor;stroke:none;filter:drop-shadow(0 0 14px currentColor);animation:hud-boot-core 1.3s .35s ease-out both;}
+@keyframes hud-boot-ring {from{opacity:0;transform:scale(.4) rotate(-90deg);}to{opacity:1;}}
+@keyframes hud-boot-core {0%{opacity:0;transform:scale(.2);}50%{opacity:1;transform:scale(1.25);}100%{opacity:.9;transform:scale(1);}}
+.hud-boot-copy {display:grid;gap:8px;justify-items:center;font:500 11px/1.3 var(--hud-mono,monospace);letter-spacing:.2em;text-transform:uppercase;}
+.hud-boot-copy b {font:600 18px/1 var(--hud-display,sans-serif);letter-spacing:.42em;color:var(--neo-ink);text-shadow:0 0 18px var(--neo-accent);}
+.hud-boot-copy ol {list-style:none;display:grid;gap:4px;min-height:5.6em;width:min(78vw,300px);}
+.hud-boot-copy li {display:flex;justify-content:space-between;gap:16px;color:var(--neo-muted);animation:hud-line .25s ease-out both;}
+.hud-boot-copy li em {font-style:normal;color:#3cf0a0;}
+@keyframes hud-line {from{opacity:0;transform:translateX(-6px);}}
+
+/* Screen frame and edge telemetry on wide screens. */
+.hud-frame {display:none;}
+@media(min-width:1100px) {
+  .hud-frame {display:block;position:fixed;inset:0;z-index:1;pointer-events:none;color:var(--neo-accent);}
+  .hud-frame-corner {position:absolute;width:44px;height:44px;border:0 solid currentColor;opacity:.6;filter:drop-shadow(0 0 4px currentColor);}
+  .hud-frame-corner.tl {left:14px;top:14px;border-left-width:2px;border-top-width:2px;}
+  .hud-frame-corner.tr {right:14px;top:14px;border-right-width:2px;border-top-width:2px;}
+  .hud-frame-corner.bl {left:14px;bottom:14px;border-left-width:2px;border-bottom-width:2px;}
+  .hud-frame-corner.br {right:14px;bottom:14px;border-right-width:2px;border-bottom-width:2px;}
+  .hud-frame-rail {position:absolute;top:22%;bottom:22%;width:10px;opacity:.35;
+    background:repeating-linear-gradient(180deg,currentColor 0 1px,transparent 1px 12px),linear-gradient(currentColor,currentColor) 0 0/1px 100% no-repeat;}
+  .hud-frame-rail.l {left:22px;}
+  .hud-frame-rail.r {right:22px;transform:scaleX(-1);}
+  .hud-frame-tele {display:none;position:absolute;bottom:26px;display:grid;gap:3px;font:500 10px/1.3 var(--hud-mono,monospace);letter-spacing:.18em;color:var(--neo-muted);}
+  .hud-frame-tele b {display:flex;align-items:center;gap:7px;color:var(--neo-accent);font-weight:600;letter-spacing:.24em;}
+  .hud-frame-tele.l {left:70px;}
+  .hud-frame-tele.r {right:70px;text-align:right;justify-items:end;}
+}
+html[data-atlas-theme="light"] .hud-frame {opacity:.6;}
+
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {
+  .hud-field,.hud-frame,.hud-holo,.hud-burst {display:none!important;}
+}
+@media(forced-colors:active) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-opening,#ledger-log.panel,.ledger-activity-history,.ledger-value.panel,.ledger-value-map,.ledger-level-feature,.ledger-next-milestone,.ledger-value-jump,.ledger-nav.core-glass-nav) {clip-path:none;}
+}
+@media(min-width:1600px) {.hud-frame-tele {display:grid!important;}}
+@media(max-width:959px) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow {letter-spacing:.04em!important;white-space:nowrap;}
+}
