@@ -268,7 +268,15 @@ html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-live-panel #liveClo
   #app .fg-starting-point .fg-feature-footer { grid-template-columns: repeat(4,minmax(0,1fr)) }
   #app:not(.fg-goal-open) .forge-split-grid, #app .fg-exercise-grid { display: grid!important; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start }
   #app .forge-day-card[data-expanded="true"], #app .fg-exercise:has(.fg-editor) { grid-column: 1/-1 }
+}
+@media (min-width:960px) {
   #app #forge-goals .fg-grid { grid-template-columns: repeat(4,minmax(0,1fr)) }
+}
+@media (min-width:720px) and (max-width:940px) and (max-height:520px) {
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app.wrap {
+    padding-inline-start: max(64px,var(--atlas-safe-left,0px))!important;
+    padding-inline-end: max(64px,var(--atlas-safe-right,0px))!important;
+  }
 }
 @media (max-width:759px) {
   html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-current-session[data-focus],
@@ -281,6 +289,10 @@ html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-live-panel #liveClo
   #app .fg-starting-point .fg-feature-footer { grid-template-columns: repeat(2,minmax(0,1fr)) }
 }
 @media (prefers-contrast:more), (forced-colors:active) {
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals :is(.fg-card,.fg-exercise),
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-split-grid .forge-day-card {
+    border: 2px solid var(--forge-ink)!important;
+  }
   #app .fg-feature { --beam: #fff }
   #app .fg-activity-days { grid-template-columns: repeat(auto-fit,minmax(min(100%,2.7em),1fr)) }
   #app :is(.fg-segments,.forge-exercise-strip) .is-logged { border-bottom: 4px solid currentColor }
