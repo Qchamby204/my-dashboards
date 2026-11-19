@@ -515,15 +515,16 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.
   --lm-face-accent: #83f1df;
   border: 1px solid #507786;
   border-radius: 18px;
+  background: var(--lm-face) !important;
+  min-height: 0;
+  margin-bottom: 0;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.lm-project-feature,.lm-calendar-feature) > .lm-feature-body {
   background:
     radial-gradient(ellipse at 90% 0%, #1c4855, transparent 76%),
     repeating-linear-gradient(0deg, #8be4ec10 0 1px, transparent 1px 28px),
     repeating-linear-gradient(90deg, #8be4ec10 0 1px, transparent 1px 28px),
     var(--lm-face) !important;
-  min-height: 0;
-  margin-bottom: 0;
-}
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.lm-project-feature,.lm-calendar-feature) > .lm-feature-body {
   min-height: 0;
 }
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.lm-calendar-feature) > .lm-feature-rail {
@@ -584,7 +585,7 @@ html[data-atlas-app="life-map"] .lm-dial-caption {
 }
 @media(max-width:42rem) {
   html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-now-card > .lm-feature-body {
-    display: flex; flex-wrap: wrap; align-items: center;
+    display: flex; flex-flow: row wrap; align-items: center;
   }
   html[data-atlas-app="life-map"] #app .lm-now-copy { flex: 1 1 9rem; min-width: 0 }
   html[data-atlas-app="life-map"] #app .lm-now-card .lm-instrument {
@@ -798,5 +799,17 @@ html[data-atlas-app="life-map"] #app :is(#lm-daily-routines,.lm-calendar-agenda)
   html[data-atlas-app="life-map"] #app :is(.lm-area-option,.lm-month-day)[aria-pressed="true"] {
     outline: 2px solid currentColor;
     outline-offset: -4px;
+  }
+}
+
+@media(max-width:440px) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar {
+    display:flex!important;flex-wrap:wrap;
+  }
+  html.atlas-neumo[data-atlas-app="life-map"] #app>.appbar>div:has(.appbar-title) {
+    flex:1 1 min-content;min-width:min-content!important;
+  }
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .appbar-title {
+    word-break:normal!important;overflow-wrap:normal!important;
   }
 }

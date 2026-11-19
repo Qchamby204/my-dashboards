@@ -44,8 +44,8 @@
       const index=STAGES.indexOf(story.status);
       const steps=STAGES.map((key,i)=>'<li'+(i===index?' aria-current="step"':'')+'><i aria-hidden="true"></i><span>'+STAGE_L[key]+'</span></li>').join('');
       const options=STAGES.map(key=>'<option value="'+key+'"'+(story.status===key?' selected':'')+'>'+STAGE_L[key]+'</option>').join('');
-      return '<section class="herald-production" aria-label="Production stages"><h2>Production</h2><ol>'+steps+
-        '</ol><label>Update stage<select data-herald-stage="'+esc(story.id)+'">'+options+'</select></label></section>';
+      return '<section class="herald-production" aria-label="Production stages"><h2>Production</h2>'+
+        '<label>Update stage<select data-herald-stage="'+esc(story.id)+'">'+options+'</select></label><ol>'+steps+'</ol></section>';
     }
     function stageChange(control){
       const story=vById(control.dataset.heraldStage),next=control.value;
@@ -89,7 +89,10 @@
         metrics:'<path d="M55 59 H305 V218 H55 Z" fill="#f1e4c9"/><path d="M42 233 H318 M84 188 V157 H115 V188 M141 188 V132 H172 V188 M198 188 V110 H229 V188 M255 188 V88 H282 V188" fill="#b29dcd"/><path d="M84 128 L138 104 L191 114 L271 67 M254 67 H271 V84" stroke-width="5"/>'
       };
       const story=kind==='vault'?selectedStory():null;
+      // The registration marks and travelling edge light belong to the film frame.
+      const sprockets=Array.from({length:13},(_,i)=>'<rect x="'+(34+i*24)+'" y="24" width="10" height="4" rx="1"/><rect x="'+(34+i*24)+'" y="261" width="10" height="4" rx="1"/>').join('');
       const art='<svg class="herald-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false">'+
+        '<g class="herald-registration" fill="none"><path d="M19 52V39h19m265 0h38v13M19 225v16h19m265 0h38v-16"/><path class="herald-projector" d="m118 237 36-110h52l36 110Z"/></g><g class="herald-sprockets">'+sprockets+'</g>'+
         '<g class="herald-orbits" fill="none"><ellipse cx="180" cy="155" rx="159" ry="73" transform="rotate(-18 180 155)"/><ellipse cx="180" cy="241" rx="112" ry="12"/><ellipse cx="180" cy="241" rx="82" ry="7"/></g>'+
         '<g class="herald-scene" stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">'+scenes[kind]+'</g>'+
         '<path class="herald-sweep" pathLength="100" d="M25 235 Q151 285 334 211"/></svg>';

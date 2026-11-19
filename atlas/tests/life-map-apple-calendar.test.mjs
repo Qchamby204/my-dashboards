@@ -24,6 +24,8 @@ test('Winnipeg times and DST day lengths match the real calendar',()=>{
  assert.equal(localInstant('2026-10-04','09:00','America/Winnipeg'),'2026-10-04T14:00:00.000Z');
  const spring=dayRange('2026-03-08','America/Winnipeg'),fall=dayRange('2025-11-02','America/Winnipeg');
  assert.equal((Date.parse(spring.end)-Date.parse(spring.start))/3600000,23);assert.equal((Date.parse(fall.end)-Date.parse(fall.start))/3600000,25);
+ const november=dayRange('2026-11-01','America/Winnipeg');
+ assert.equal(november.start,'2026-11-01T05:00:00.000Z');assert.equal(november.end,'2026-11-02T05:00:00.000Z');
  assert.throws(()=>localInstant('2026-03-08','02:30','America/Winnipeg'));assert.throws(()=>dayRange('2026-02-30','America/Winnipeg'));
 });
 test('expanded recurrence instances, all-day, cancellation, linked task and non-local timezone',()=>{

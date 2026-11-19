@@ -19,7 +19,7 @@ async function inspect(p){return p.evaluate(()=>{
  if(document.documentElement.scrollWidth>innerWidth+1)issues.push({problem:'page overflow',width:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('main *,#app *,#main *')].filter(visible).map(n=>({control:key(n),right:Math.round(n.getBoundingClientRect().right)})).filter(r=>r.right>innerWidth+1).sort((a,b)=>b.right-a.right).slice(0,8)});
  for(const n of [...document.querySelectorAll('button,summary')].filter(visible)){
   if(n.closest('dialog:not([open])'))continue;
-  if(!fits(n))issues.push({problem:'control text clipped',control:key(n),text:n.textContent.trim().slice(0,65)});
+  if(!fits(n))issues.push({problem:'control text clipped',control:key(n),text:n.textContent.trim().slice(0,65),bounds:n.getBoundingClientRect().toJSON(),children:[...n.children].map(c=>[c.className?.baseVal||String(c.className),c.getBoundingClientRect().toJSON()])});
  }
  const nav=[...(dock?.querySelectorAll('button')||[])].filter(visible);
  const rgba=s=>{const a=s.match(/[\d.]+/g)?.map(Number);return a&&(s.startsWith('color(srgb')?[...a.slice(0,3),a[3]??1]:[...a.slice(0,3).map(x=>x/255),a[3]??1]);};
