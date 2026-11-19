@@ -24,6 +24,10 @@
     repsThisWeek=()=>{const since=new Date();since.setDate(since.getDate()-6);return activityDates().filter(date=>date>=dstr(since)).length;};
     bestByDrill=()=>{const best={};for(const r of eligible(S.reps))if(!best[r.drill]||r.score>best[r.drill].score)best[r.drill]={score:r.score,topic:r.topic,date:recordDay(r.date),skill:r.skill};return best;};
     const sorted=rows=>eligible(rows).slice().sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
+    // Original practice records stored the same self-rated rubric without a source tag.
+    const recentSelfScores=()=>sorted(S.reps).filter(r=>
+      (r.scoreOrigin===undefined||r.scoreOrigin==='self')&&Number.isFinite(r.score)&&r.score>=0&&r.score<=100
+    ).slice(-7).map(r=>r.score);
     latestScores=()=>sorted(S.assessments).at(-1)?.scores||null;firstScores=()=>sorted(S.assessments)[0]?.scores||null;
     const oldProjectedScores=projectedScores;
     projectedScores=()=>{const rows=S.assessments;S.assessments=sorted(rows);try{return oldProjectedScores();}finally{S.assessments=rows;}};
@@ -131,7 +135,8 @@
     Store.usable=()=>diskAvailable&&unsaved.size===0;
     toast=function(title,sub){const wrap=$('toasts');if(wrap)wrap.textContent='';oldToast(unsaved.size?'Progress is not fully saved':title,unsaved.size?'Keep this page open and retry, or export your progress.':sub);};
     function timerUI(){
-      const value=$('timer'),button=$('tbtn');
+      const value=$('timer'),button=$('tbtn'),arc=$('cm-timer-arc');
+      if(arc&&window.CommunicatorLadder)arc.setAttribute('stroke-dashoffset',window.CommunicatorLadder.timerOffset());
       if(value){value.textContent=fmtT(Math.max(0,Math.ceil(timerLeft)));value.setAttribute('role','timer');value.setAttribute('aria-label','Time remaining');value.style.color=timerLeft<=0?'var(--good)':'';}
       if(button){button.textContent=deadline!==null?'Pause':timerLeft<=0?'Time’s up':timerLeft<curDrill?.drill.time?'Resume':'Start timer';button.disabled=timerLeft<=0;}
     }
@@ -446,7 +451,7 @@
     let savedDraftRaw;try{savedDraftRaw=localStorage.getItem('mc_'+DRAFT);}catch{diskAvailable=false;}
     if(savedDraftRaw!=null)try{restorePractice(JSON.parse(savedDraftRaw));}catch(error){draftProblem=error.message||'Could not read the unfinished practice.';}
     document.addEventListener('click',e=>{const b=e.target.closest('[data-communication-goal]');if(!b||S.profile?.goal||!['clarity','confidence','listen'].includes(b.dataset.communicationGoal))return;const next={goal:b.dataset.communicationGoal};S.profile=next;const saved=Store.set('profile',next);render();if(saved)toast('Your practice aim is saved.');});
-    window.CommunicationImprovements=Object.freeze({validateBackup,startPreparedPractice,startChallengePractice,get lastSaved(){return lastSaved;},rememberPractice,resumePractice,leavePractice,discardPractice,editTopics,saveTopics,selectTopicCategory,cleanTopicLines,get unsaved(){return unsaved.size;}});
+    window.CommunicationImprovements=Object.freeze({recentSelfScores,validateBackup,startPreparedPractice,startChallengePractice,get lastSaved(){return lastSaved;},rememberPractice,resumePractice,leavePractice,discardPractice,editTopics,saveTopics,selectTopicCategory,cleanTopicLines,get unsaved(){return unsaved.size;}});
     // Install synchronous learning/ladder wrappers before painting the first page.
     window.CommunicatorStarting=true;
     try{window.dispatchEvent?.(new Event('communicator-ready'));}

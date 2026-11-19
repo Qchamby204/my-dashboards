@@ -1,0 +1,212 @@
+/* Communicator's light table and projection share the original page illustrations. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] {
+  --neo-canvas: #eef0f8;
+  --neo-surface: #f4f5fb;
+  --neo-content-surface: #fbfbff;
+  --neo-inset: #e5e8f5;
+  --neo-line: #bcc3d8;
+  --neo-ink: #18243a;
+  --neo-muted: #495872;
+  --neo-accent: #434c9c;
+  --neo-violet: #654a98;
+  --cm-edge: #747eaa;
+  --cm-numbers: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"][data-atlas-theme="dark"] {
+  --neo-canvas: #0b101e;
+  --neo-surface: #151d33;
+  --neo-content-surface: #192238;
+  --neo-inset: #10182a;
+  --neo-line: #37455f;
+  --neo-ink: #edf2ff;
+  --neo-muted: #b3c2dc;
+  --neo-accent: #abb9ff;
+  --neo-violet: #cfb4ff;
+  --cm-edge: #505e87;
+}
+html.atlas-neumo[data-atlas-app="communication-trainer"][data-atlas-theme] body {
+  background-color: var(--neo-canvas)!important;
+  background-image: radial-gradient(ellipse at 14% 0%,#7583e11b,transparent 50rem),
+    linear-gradient(90deg,#8495be0f 1px,transparent 1px),linear-gradient(#8495be0f 1px,transparent 1px)!important;
+  background-size: auto,48px 48px,48px 48px!important;
+}
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio] {
+  --cm-face: #151b34;
+  --cm-ink: #f1f5ff;
+  --cm-muted: #c2d0ea;
+  --signal: #9baeff;
+  --tint: #8df6e6;
+  --cm-gold: var(--tint);
+  position:relative;
+  border-color:var(--cm-edge)!important;
+  border-radius:20px!important;
+}
+#main .cm-feature[data-studio="learn"] { --signal:#be9fff!important; --tint:#e5c8ff!important }
+#main .cm-feature[data-studio="practice"] { --signal:#7bc6eb!important; --tint:#9affea!important }
+#main .cm-feature[data-studio="topics"] { --signal:#a3a0ff!important; --tint:#e9c4ff!important }
+#main .cm-feature[data-studio="progress"] { --signal:#7bacdd!important; --tint:#8febdf!important }
+#main .cm-feature[data-studio="review"] { --signal:#e2a5ba!important; --tint:#ffcfb0!important }
+#main .cm-feature[data-studio="invest"] { --signal:#a3b3e4!important; --tint:#ffe29e!important }
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio]>.cm-feature-rail {
+  padding:12px clamp(14px,4vw,28px);
+  background:#10162b!important;
+  border-bottom:1px solid #889ed030;
+  box-shadow:inset 0 1px 0 #ffffff12;
+}
+#main .cm-feature[data-studio]>.cm-feature-rail::before {
+  content:"";position:absolute;left:24px;top:0;width:64px;height:2px;background:var(--tint);box-shadow:0 0 13px var(--tint);
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio]>.cm-feature-body {
+  display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,2vh,22px);
+  padding:clamp(16px,3.7vw,34px);
+  background:radial-gradient(ellipse at 80% 38%,#5c5eac25,transparent 63%),var(--cm-face)!important;
+}
+#main .cm-feature-copy { min-width:0 }
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio] .cm-feature-title>:is(h2,h3,.topic) {
+  font-size:clamp(1.65rem,4vw,2.8rem)!important;line-height:1.08!important;max-width:27ch;text-wrap:balance;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio] .cm-feature-copy .cl-meta {
+  display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio] .cm-feature-copy .cl-meta span {
+  font:550 .82rem/1.55 var(--cm-numbers);margin:0;color:var(--tint)!important;
+}
+#main .cm-stage {
+  position:relative;isolation:isolate;display:grid;align-content:center;justify-items:center;min-width:0;
+  flex:1 1 auto;width:100%;overflow:hidden;border:1px solid #8297ce47;border-radius:14px;
+  background:radial-gradient(ellipse at 50% 54%,color-mix(in srgb,var(--signal) 17%,transparent),transparent 62%),#0c1124;
+}
+#main .cm-stage::before {
+  content:"";position:absolute;pointer-events:none;inset:0;z-index:-1;
+  background-image:radial-gradient(circle,#b2c7ff3d .8px,transparent 1px);background-size:19px 19px;
+  mask-image:linear-gradient(115deg,#0009,transparent 46%,#0009);
+}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio] .cm-stage .cm-feature-art {
+  display:block;color:var(--tint);width:100%;height:clamp(140px,22vh,258px);min-height:112px;
+  max-width:600px;margin:0;aspect-ratio:auto;flex:none;overflow:visible;pointer-events:none;
+}
+#main .cm-wave { fill:none;stroke:var(--signal);stroke-width:.9;opacity:.64 }
+#main .cm-mesh-cross { opacity:.38;stroke-width:.65 }
+#main .cm-wave .cm-packet { stroke:var(--tint);stroke-width:2;stroke-dasharray:5 95;stroke-dashoffset:-24 }
+#main .cm-wave .cm-packet-back { stroke-dashoffset:-72;opacity:.7 }
+#main .cm-orbit { fill:none;stroke:var(--signal);stroke-width:1;opacity:.34 }
+#main .cm-orbit-line { stroke:var(--tint);stroke-dasharray:6 29 2 63;stroke-width:2.5 }
+#main .cm-projection-depth { fill:none;stroke:var(--signal);stroke-width:1.8;opacity:.34 }
+#main .cm-lens { stroke:var(--tint);stroke-width:1.25;opacity:.43 }
+#main .cm-projection { filter:drop-shadow(0 0 4px color-mix(in srgb,var(--tint) 45%,transparent)) }
+#main .cm-fiducials { fill:none;stroke:var(--signal);opacity:.6 }
+#main .cm-clock-track { stroke:#62708b;stroke-width:2;stroke-dasharray:1 4 }
+#main .cm-clock-arc { stroke:var(--tint);stroke-width:3;stroke-linecap:round }
+#main .cm-stage-rail { display:flex;align-items:center;justify-content:center;gap:clamp(1px,1.4vw,9px);padding:0 0 8px;max-width:100% }
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-stage-rail .cm-stage-key {
+  position:relative;display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;padding:0!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;border-radius:10px!important;
+}
+#main .cm-stage-key:not(:last-child)::after {
+  content:"";position:absolute;width:clamp(5px,2vw,14px);height:1px;background:#8495be80;left:calc(50% + 16px);
+}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-stage-key .cl-emblem {
+  display:grid;place-items:center;width:32px;height:32px;border-radius:10px;margin:0;
+  background:#17223b;border:1px solid #5b698a;color:#adbbd7;
+}
+#main .cm-stage-key svg { width:20px;height:20px }
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-stage-key[data-state="Ready"] .cl-emblem {
+  color:var(--tint);border-color:var(--tint);outline:1px solid #9df9e655;outline-offset:2px;
+}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-stage-key[data-state="Completed"] .cl-emblem {
+  background:var(--tint);color:#131b29;border-color:var(--tint);
+}
+#main .cm-stage-key:focus-visible { outline:2px solid white;outline-offset:-2px }
+#main .cm-stage-key:active .cl-emblem { transform:scale(.94) }
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-module-meter {
+  display:flex;gap:4px;margin:-8px 0 16px;
+}
+#main .cm-module-meter i { height:3px;flex:1;background:var(--neo-line);border-radius:3px }
+#main .cm-module-meter .is-read { background:var(--neo-violet) }
+#main .cm-trend { margin:14px 0 0;padding:10px 0 0;border-top:1px solid #899abe59;max-width:24rem }
+#main .cm-trend figcaption { display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.875rem;color:var(--cm-muted) }
+#main .cm-trend strong { font:600 .82rem/1.6 var(--cm-numbers);color:var(--tint) }
+#main .cm-trend svg { display:block;width:100%;height:auto;max-height:70px;fill:none }
+#main .cm-trend polyline { stroke:var(--tint);stroke-width:2 }
+#main .cm-trend circle { fill:var(--tint) }
+#main .cm-guides { stroke:#889dc14d;stroke-dasharray:2 5 }
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.communication-topic-category,.rubric,.communication-history,.lesson.open,.cl-stage) {
+  border-color:var(--neo-line)!important;
+}
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.lesson.open,.communication-topic-category:has([open]),.communication-history details[open]) {
+  box-shadow:inset 3px 0 0 var(--neo-accent)!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] :is(.likert,.stars) button[aria-pressed="true"] {
+  background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border-color:var(--neo-accent)!important;
+}
+html[data-atlas-app="communication-trainer"] #atlas-page-navigation [aria-current="page"] { box-shadow:inset 0 2px 0 var(--neo-accent)!important }
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cm-feature.core-opening-card[data-studio],
+html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cm-feature.core-opening-card[data-studio]>.cm-feature-body { min-height:0!important }
+html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-opening-support progress {
+  appearance:none;-webkit-appearance:none;display:block;width:100%;height:5px;margin:0 0 12px;padding:0;
+  border:0;border-radius:4px;overflow:hidden;background:var(--neo-line);color:var(--neo-accent);
+}
+.cm-opening-support progress::-webkit-progress-bar { background:var(--neo-line);border-radius:4px }
+.cm-opening-support progress::-webkit-progress-value { background:var(--neo-accent);border-radius:4px }
+.cm-opening-support progress::-moz-progress-bar { background:var(--neo-accent);border-radius:4px }
+#main .cl-roadmap .cl-stage { overflow-wrap:anywhere }
+#main .cl-stage:focus-visible { outline:2px solid var(--neo-accent)!important;outline-offset:2px }
+@media (max-width:360px) {
+  html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cl-stage-heading {grid-template-columns:36px minmax(0,1fr)}
+  #main .cl-stage-heading>div { grid-column:1/-1 }
+  html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-opening-support { padding-inline:12px }
+  html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cl-roadmap .cl-stage { padding-inline:14px }
+}
+@media (min-width:960px) {
+  html.atlas-neumo[data-atlas-app="communication-trainer"] #main { width:min(100%,1160px)!important;max-width:1160px!important;margin-inline:auto }
+  html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio] { min-height:0 }
+  html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio]>.cm-feature-body {
+    display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:clamp(20px,3vw,48px);min-height:0;
+  }
+  #main .cm-stage { min-height:252px }
+  html.atlas-neumo[data-atlas-app="communication-trainer"] #main:has(>.communication-topic-category) {
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;align-items:start;
+  }
+  #main:has(>.communication-topic-category)>* { grid-column:1/-1 }
+  #main:has(>.communication-topic-category)>.communication-topic-category { grid-column:auto }
+}
+@media (min-width:720px) and (max-width:940px) and (max-height:520px) {
+  html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] body #main {
+    padding-inline-start:max(64px,var(--atlas-safe-left,0px))!important;padding-inline-end:max(64px,var(--atlas-safe-right,0px))!important;
+  }
+}
+@media (prefers-reduced-motion:no-preference) {
+  #main .cm-wave .cm-packet { animation:cm-transmit 5.8s linear infinite }
+  #main .cm-wave .cm-packet-back { animation-direction:reverse;animation-delay:-2.3s }
+  #main .cm-orbit-line { animation:cm-transmit 12s linear infinite }
+  #main .cm-wave { animation:cm-ribbon 7s ease-in-out infinite alternate;transform-origin:center }
+  #main .cm-lens { animation:cm-lens 4s ease-in-out infinite alternate }
+  #main [data-studio="speak"] .cm-projection>path:nth-child(2),
+  #main [data-studio="practice"] .cm-projection>path:last-child { animation:cm-echo 3.6s ease-in-out infinite alternate }
+  #main [data-studio="learn"] .cm-projection>path:last-child,
+  #main [data-studio="topics"] .cm-projection>rect:first-child { animation:cm-layer 4.4s ease-in-out infinite alternate }
+  #main [data-studio="review"] .cm-projection>path:nth-of-type(1),
+  #main [data-studio="invest"] .cm-projection>path:last-child,
+  #main [data-studio="progress"] .cm-projection>path:first-child { stroke-dasharray:460;animation:cm-trace 6s ease-out infinite }
+  #main .cm-clock-arc { transition:stroke-dashoffset .26s linear }
+}
+@keyframes cm-transmit { to {stroke-dashoffset:-124} }
+@keyframes cm-ribbon { from {transform:translateY(2px) scaleY(.95)} to {transform:translateY(-3px) scaleY(1.1)} }
+@keyframes cm-lens { from {opacity:.28} to {opacity:.64} }
+@keyframes cm-echo { from {opacity:.35;transform:translateX(-2px)} to {opacity:1;transform:translateX(3px)} }
+@keyframes cm-layer { from {transform:translateY(0)} to {transform:translateY(-7px)} }
+@keyframes cm-trace { 0% {stroke-dashoffset:460} 58%,100% {stroke-dashoffset:0} }
+@media (prefers-contrast:more) {
+  html.atlas-neumo.atlas-neumo.core-finished[data-atlas-app="communication-trainer"] #main .cm-feature[data-studio] { border-width:2px!important }
+  #main .cm-stage { border-color:#b8c5ec }
+}
+@media (prefers-reduced-transparency:reduce) {
+  html.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-stage { background:#10162b }
+  #main .cm-projection { filter:none }
+}
+@media (forced-colors:active) {
+  #main .cm-feature[data-studio] { --signal:CanvasText!important;--tint:Highlight!important }
+  #main .cm-projection { filter:none }
+  #main .cm-clock-arc,#main .cm-trend polyline { stroke:Highlight }
+  #main .cm-stage-key[data-state="Ready"] { outline:2px solid Highlight }
+}

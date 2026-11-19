@@ -8,8 +8,21 @@
   const button=(text,id)=>'<button class="btn" type="button" data-ladder-start="'+id+'">'+text+'</button>';
   // Reframe existing nodes so drafts, handlers and source-owned records stay intact.
   const make=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
-  function illustration(kind){
-   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 320 190');svg.setAttribute('fill','none');svg.setAttribute('aria-hidden','true');svg.setAttribute('data-illustration',kind);svg.classList.add('cm-feature-art');
+  // Static mesh geometry is shared by every projection. CSS moves its light traces.
+  const meshY=(x,lane)=>{
+   const t=x/480,phase=lane*.14,edge=Math.sin(Math.PI*t);
+   return (151+lane*2.5+edge*(34*Math.sin(t*12-phase)*Math.cos(t*5+phase)+14*Math.sin(t*18+phase))).toFixed(1);
+  };
+  const lanePath=lane=>Array.from({length:121},(_,i)=>(i?'L':'M')+(i*4)+' '+meshY(i*4,lane)).join(' ');
+  const lanes=Array.from({length:15},(_,lane)=>lanePath(lane));
+  const wire=lanes.map(d=>'<path d="'+d+'"/>').join('');
+  const crosswire=Array.from({length:60},(_,i)=>{
+   const x=i*8;return '<path d="'+lanes.map((_,lane)=>(lane?'L':'M')+x+' '+meshY(x,lane)).join(' ')+'"/>';
+  }).join('');
+  const mesh='<g class="cm-wave"><g>'+wire+'</g><g class="cm-mesh-cross">'+crosswire+'</g>'+
+   '<path class="cm-packet" d="'+lanes[4]+'" pathLength="100"/><path class="cm-packet cm-packet-back" d="'+lanes[12]+'" pathLength="100"/></g>';
+  function illustration(kind,live){
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 480 216');svg.setAttribute('fill','none');svg.setAttribute('aria-hidden','true');svg.setAttribute('data-illustration',kind);svg.classList.add('cm-feature-art');
    // Decorative page identities, kept separate from real scores and saved progress.
    const scenes={
     speak:'<path d="M54 34h170v87h-80l-33 28v-28H54Z" fill="#ffffff08"/><path d="M244 67h22v88h-31l-24 20v-20h-40v-14" stroke="#aaabcf"/><path d="M81 61h116m-116 22h77" opacity=".6"/><circle cx="184" cy="99" r="4" fill="#91b6b5" stroke="#91b6b5"/>',
@@ -20,14 +33,67 @@
     invest:'<rect x="91" y="25" width="150" height="129" rx="10" opacity=".4"/><rect x="69" y="41" width="150" height="129" rx="10" fill="#ffffff08"/><path d="M69 78h150M96 60h75M96 99h20m-20 23h20m-20 23h20M143 99h48m-48 23h48m-48 23h25"/><path d="M259 59v62m-13-49 13-13 13 13M259 121h-20" stroke="#aaabcf"/>',
     review:'<rect x="81" y="32" width="140" height="138" rx="12" fill="#ffffff08"/><rect x="124" y="22" width="54" height="24" rx="7" fill="#3b3352"/><path d="m103 74 5 5 10-12m-15 39 5 5 10-12m-15 39 5 5 10-12" stroke="#91b6b5"/><path d="M135 75h59m-59 31h59m-59 31h34" opacity=".65"/><path d="m238 135 15-67 12 3-15 67-9 13Z" stroke="#aaabcf"/>'
    };
-   svg.innerHTML='<path d="M26 179h268" stroke="currentColor" stroke-opacity=".18"/><circle cx="287" cy="27" r="4" fill="currentColor" opacity=".3"/><circle cx="31" cy="37" r="2" fill="currentColor" opacity=".5"/><g stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'+(scenes[kind]||scenes.speak)+'</g>';return svg;
+   const lens='<g class="cm-lens" fill="none"><ellipse cx="240" cy="170" rx="86" ry="12"/><ellipse cx="240" cy="170" rx="63" ry="8"/><path d="M173 160 208 59h65l34 101" opacity=".25"/></g>';
+   const ring=live?'<g transform="rotate(-90 240 99)" fill="none"><circle class="cm-clock-track" cx="240" cy="99" r="78"/><circle class="cm-clock-arc" id="cm-timer-arc" cx="240" cy="99" r="78" pathLength="100" stroke-dasharray="100" stroke-dashoffset="'+timerOffset()+'"/></g>':'';
+   const scene=scenes[kind]||scenes.speak;
+   const orbit=live?'':'<g class="cm-orbit" transform="rotate(-18 240 103)"><ellipse cx="240" cy="103" rx="117" ry="55"/><ellipse class="cm-orbit-line" cx="240" cy="103" rx="117" ry="55" pathLength="100"/></g>';
+   svg.innerHTML=orbit+mesh+lens+ring+
+    '<g transform="translate(105 10) scale(.85)" stroke-linecap="round" stroke-linejoin="round"><g class="cm-projection-depth" transform="translate(4 4)">'+scene+'</g><g class="cm-projection" stroke="currentColor" stroke-width="3.2">'+scene+'</g></g>'+
+    '<path class="cm-fiducials" d="M18 38v-11h14m416 0h14v11M18 178v11h14m416 0h14v-11"/>';
+   return svg;
+  }
+  function timerOffset(){
+   const total=curDrill?.drill.time;
+   return total>0?100*(1-Math.max(0,Math.min(1,timerLeft/total))):100;
+  }
+  function stageRail(roadmap){
+   const rail=make('div','cm-stage-rail');
+   rail.setAttribute('role','group');rail.setAttribute('aria-label','Explore the skill ladder');
+   const cards=roadmap.querySelectorAll('.cl-stage');
+   snap().stages.forEach((stage,i)=>{
+    const state=stage.unlocked?(stage.passed?'Completed':'Ready'):'Up next';
+    const key=make('button','cm-stage-key');key.type='button';
+    key.dataset.state=state;key.title=stage.title+' · '+state;
+    key.setAttribute('aria-label','View '+stage.title+' · '+state);
+    key.innerHTML=emblem(stage);
+    key.addEventListener('click',()=>{
+     roadmap.open=true;const target=cards[i];target.tabIndex=-1;
+     target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:'instant'});
+    });
+    rail.append(key);
+   });
+   return rail;
+  }
+  function scoreTrend(){
+   const samples=P.recentSelfScores();
+   if(!samples.length)return null;
+   const chart=make('figure','cm-trend'),caption=make('figcaption','','Recent self-scores');
+   const last=make('strong','',samples.at(-1)+'/100');caption.append(last);
+   const points=samples.map((score,i)=>[samples.length===1?144:8+i*272/(samples.length-1),52-score*.44]);
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 288 60');svg.setAttribute('role','img');
+   svg.setAttribute('aria-label','Saved self-scores, oldest first: '+samples.join(', ')+', out of 100.');
+   svg.innerHTML='<path class="cm-guides" d="M8 8h272M8 30h272M8 52h272"/><polyline points="'+points.map(p=>p.join(',')).join(' ')+'"/>'+points.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="3"/>').join('');
+   chart.append(caption,svg);return chart;
+  }
+  function moduleMeter(module){
+   const row=make('div','cm-module-meter');row.setAttribute('aria-hidden','true');
+   for(const lesson of module.lessons){const part=make('i');if(S.lessonsDone[lesson.id])part.className='is-read';row.append(part);}
+   return row;
   }
   function frame(card,{kind='speak',rail,title,nodes=[],actions=[]}){
    if(!card||!title||card.classList.contains('cm-feature'))return;
    const support=make('div','cm-feature-support');while(card.firstChild)support.append(card.firstChild);
    const top=make('div','cm-feature-rail'),body=make('div','cm-feature-body'),heading=make('div','cm-feature-title');
    if(typeof rail==='string')top.textContent=rail;else if(rail)top.append(rail);
-   heading.append(title);body.append(heading,illustration(kind));for(const node of nodes)if(node)body.append(node);
+   card.dataset.studio=kind;
+   heading.append(title);
+   const copy=make('div','cm-feature-copy'),stage=make('div','cm-stage');
+   copy.append(heading);for(const node of nodes)if(node)copy.append(node);
+   stage.append(illustration(kind,card.classList.contains('drillcard')));
+   const roadmap=support.querySelector('.cl-roadmap');
+   if(roadmap)stage.append(stageRail(roadmap));
+   if(card.classList.contains('communication-career')){const trend=scoreTrend();if(trend)copy.append(trend);}
+   body.append(copy,stage);
    const footer=actions instanceof Element?actions:make('div','cm-feature-footer');if(Array.isArray(actions))for(const action of actions)if(action)footer.append(action);footer.classList.add('cm-feature-footer');
    for(const n of support.querySelectorAll('.communication-topic-heading'))if(!n.querySelector('h2')){for(const help of n.querySelectorAll('.atlas-info'))footer.append(help);if(!n.childElementCount)n.remove();}
    for(const n of support.querySelectorAll('.communicator-session-actions'))if(!n.childElementCount)n.remove();
@@ -48,6 +114,9 @@
     const rank=main.querySelector('.communication-career');if(rank){const action=make('button','btn communication-primary','Start a practice');action.type='button';action.addEventListener('click',()=>nav('train'));frame(rank,{kind:'progress',rail:rank.querySelector('.communication-career-top'),title:rank.querySelector('h2'),nodes:[rank.querySelector('.communication-rank-line'),rank.querySelector('.bar')],actions:[action]});if(!main.querySelector('.communication-saved'))main.prepend(rank);}
     for(const card of main.querySelectorAll('.communication-saved')){card.querySelector(':scope>.cl-emblem')?.remove();frame(card,{kind:'review',rail:card.querySelector('.cl-kicker')||'Saved practice',title:card.querySelector('h2'),nodes:[card.querySelector('.cl-result'),...card.querySelectorAll(':scope>p')],actions:card.querySelector('.cl-actions')||[]});}
    }
+   main.querySelectorAll('.communication-module').forEach((module,i)=>{
+    if(CURRICULUM[i])module.querySelector('h2')?.after(moduleMeter(CURRICULUM[i]));
+   });
    const lead=main.querySelector('.cm-feature');
    if(lead){main.prepend(lead);if(!lead.classList.contains('cm-feature-live')){const support=lead.querySelector(':scope>.cm-feature-support');if(support){support.classList.add('cm-opening-support');lead.after(support);}}}
 
@@ -75,7 +144,7 @@
   render=()=>{const keep=framedPage===curPage&&framedSession===curDrill,x=window.scrollX,y=window.scrollY;oldRender();craft();window.CoreAppFinish?.layoutOpening?.();framedPage=curPage;framedSession=curDrill;if(keep)window.scrollTo({left:x,top:y,behavior:'instant'});if(curDrill?.topic.challenge){const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!curDrill.topic.challenge.performed;}};
   document.addEventListener('click',e=>{const b=e.target.closest?.('[data-ladder-start]');if(b){P.startChallengePractice(b.dataset.ladderStart);return;}if(e.target.closest?.('[data-ladder-reveal]')&&curDrill?.topic.challenge){curDrill.topic.challenge.revealed=true;P.rememberPractice();render();}});
   document.addEventListener('change',e=>{if(e.target.matches?.('[data-ladder-performed]')&&curDrill?.topic.challenge){curDrill.topic.challenge.performed=e.target.checked;P.rememberPractice();const b=document.querySelector('.card.rubric button[onclick="finishDrill()"]');if(b)b.disabled=!e.target.checked;}});
-  window.CommunicatorLadder=Object.freeze({snapshot:snap});if(!window.CommunicatorStarting)render();
+  window.CommunicatorLadder=Object.freeze({snapshot:snap,timerOffset});if(!window.CommunicatorStarting)render();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
  window.addEventListener('communicator-ready',start);
