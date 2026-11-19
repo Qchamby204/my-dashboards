@@ -444,63 +444,309 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option span{font-size
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option[aria-current="true"]{border-color:var(--neo-accent)!important;border-width:2px!important}
 html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-dates-result{margin:4px 0 12px;font-size:1.0625rem;font-weight:650;color:var(--neo-ink);font-variant-numeric:tabular-nums}
 
-/* Life Map's main views share the Ledger projection palette and respond to existing controls. */
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-feature:has(.lm-projection-depth),
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-calendar-feature {
-  --lm-face: #102834;
-  --lm-face-ink: #edfaff;
-  --lm-face-muted: #b3ccd5;
-  --lm-face-accent: #83eee2;
+/* Life Map instrument surfaces. Shared tokens keep the dock, sheets and fields in the same palette. */
+html.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme] {
+  --neo-canvas: #e7eff2;
+  --neo-surface: #edf5f6;
+  --neo-content-surface: #f8fcfd;
+  --neo-inset: #e0ecef;
+  --neo-ink: #142f39;
+  --neo-muted: #425e69;
+  --neo-faint: #4b6570;
+  --neo-accent: #006b68;
+  --neo-accent-soft: #d5eae7;
+  --neo-line: #b2c9ce;
+  --lm-ambient: #007b8310;
+  --lm-grid: #006b6810;
+  --lm-mono: ui-monospace, "SF Mono", Consolas, monospace;
+  --neo-raised: 0 10px 24px #193f5112;
+  --neo-small: 0 3px 12px #193f5113;
+  --neo-pressed: inset 0 2px 5px #193f5129;
+  --neo-well: inset 0 1px 3px #193f511c;
+  --neo-float: 0 18px 32px #193f5129;
+}
+html.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme="dark"] {
+  --neo-canvas: #061017;
+  --neo-surface: #0b1d26;
+  --neo-content-surface: #102733;
+  --neo-inset: #0a1b25;
+  --neo-ink: #e9fbff;
+  --neo-muted: #acc5ce;
+  --neo-faint: #a1bbc5;
+  --neo-accent: #83f1df;
+  --neo-accent-soft: #153c42;
+  --neo-line: #31505b;
+  --lm-ambient: #3adacd15;
+  --lm-grid: #70e5dc11;
+  --neo-raised: 0 10px 26px #02090d80;
+  --neo-small: 0 3px 11px #02090d70;
+  --neo-pressed: inset 0 2px 5px #02090d90;
+  --neo-well: inset 0 1px 3px #02090d90;
+  --neo-float: 0 18px 36px #02090d9c;
+}
+html.atlas-neumo[data-atlas-app="life-map"] body {
   background:
-    radial-gradient(ellipse at 78% 15%, #1e5262 0, transparent 65%),
-    radial-gradient(circle, #8be4ec29 1px, transparent 1.4px) 0 0 / 20px 20px,
+    radial-gradient(ellipse at 15% 0%, var(--lm-ambient), transparent 60%),
+    repeating-linear-gradient(0deg, var(--lm-grid) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(90deg, var(--lm-grid) 0 1px, transparent 1px 42px),
+    var(--neo-canvas) !important;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app :is(.appbar,.lm-day-dock) {
+  --core-glass-lens: var(--neo-accent-soft);
+  border-color: var(--neo-line) !important;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add {
+  background: var(--neo-accent) !important;
+  border-color: var(--neo-accent) !important;
+  color: var(--neo-canvas) !important;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock [aria-selected="true"] {
+  color: var(--neo-accent) !important;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view {
+  max-width: 1040px;
+  margin-inline: auto;
+  font-variant-numeric: tabular-nums;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.lm-project-feature,.lm-calendar-feature) {
+  --lm-face: #0c212d;
+  --lm-face-ink: #effdff;
+  --lm-face-muted: #b5d0da;
+  --lm-face-accent: #83f1df;
+  border: 1px solid #507786;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 90% 0%, #1c4855, transparent 76%),
+    repeating-linear-gradient(0deg, #8be4ec10 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, #8be4ec10 0 1px, transparent 1px 28px),
     var(--lm-face) !important;
-  border-color: #4d7882;
+  min-height: 0;
+  margin-bottom: 0;
 }
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature:has(.lm-projection-depth) .lm-feature-rail,
-html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-rail {
-  background: linear-gradient(90deg, #83eee2, transparent) 24px top / 82px 2px no-repeat, #0c202bcc;
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.lm-project-feature,.lm-calendar-feature) > .lm-feature-body {
+  min-height: 0;
 }
-html[data-atlas-app="life-map"] .lm-projection-depth {
-  color: #82edef;
-  stroke: currentColor;
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.lm-calendar-feature) > .lm-feature-rail {
+  background: linear-gradient(90deg, #83f1df, transparent) 20px top / 76px 2px no-repeat, #081923aa;
+  color: var(--lm-face-muted);
+  font: 600 .78rem/1.4 var(--lm-mono);
 }
-html[data-atlas-app="life-map"] .lm-projection-depth :is(ellipse, path) {
-  stroke-width: 1;
-  opacity: .28;
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-feature-footer {
+  border-color: var(--neo-line);
 }
-html[data-atlas-app="life-map"] .lm-projection-depth .lm-projection-guide {
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-now-card {
+  margin-bottom: 16px;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card > .lm-feature-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(100px, 26%);
+  align-items: center;
+  gap: clamp(12px, 4vw, 42px);
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-copy h2 {
+  font-size: clamp(1.45rem, 4.8vw, 2.65rem) !important;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-copy p {
+  margin-top: 10px;
+  max-width: 48ch;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-instrument {
+  display: grid;
+  place-items: center;
+  position: relative;
+  justify-self: end;
+  width: min(100%, 180px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid #80e9db55 !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, #20646a70, #071923 67%) !important;
+  color: var(--lm-face-ink) !important;
+  cursor: pointer;
+  font: inherit;
+  box-shadow: 0 0 22px #63ece127, inset 0 0 16px #63ece121;
+}
+html[data-atlas-app="life-map"] .lm-instrument svg {
+  position: absolute;
+  inset: 4%;
+  width: 92%;
+  height: 92%;
+  fill: none;
+}
+html[data-atlas-app="life-map"] .lm-dial-ticks {
+  stroke: #72c4c4;
   stroke-width: 3;
-  stroke-dasharray: 2 4;
+  stroke-dasharray: 1 3;
+  opacity: .64;
 }
-html[data-atlas-app="life-map"] .lm-projection-depth .lm-projection-signal {
-  stroke: #e0ffff;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-dasharray: 9 91;
-  stroke-dashoffset: 22;
-  opacity: .9;
-  filter: drop-shadow(0 0 4px #6feef2);
-  paint-order: stroke;
+html[data-atlas-app="life-map"] .lm-dial-rotor {
+  stroke: var(--lm-face-accent);
+  stroke-width: 2;
+  stroke-dasharray: 13 35 3 49;
+  transform-origin: center;
+}
+html[data-atlas-app="life-map"] :is(.lm-dial-track,.lm-dial-value) {
+  stroke: #426a78;
+  stroke-width: 6;
+}
+html[data-atlas-app="life-map"] .lm-dial-value {
+  stroke: var(--lm-face-accent);
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+html[data-atlas-app="life-map"] .lm-instrument-reading {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font: 600 clamp(.67rem, 2vw, .9rem)/1.1 var(--lm-mono);
+}
+html[data-atlas-app="life-map"] .lm-instrument-reading strong {
+  color: var(--lm-face-accent);
+  font-size: clamp(1.08rem, 3vw, 1.75rem);
+  white-space: nowrap;
+}
+html[data-atlas-app="life-map"] .lm-instrument-reading small {
+  color: var(--lm-face-muted);
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-day-panel,.lm-project-sticky) {
+  border-color: var(--neo-line);
+  border-radius: 16px;
+  box-shadow: var(--neo-small);
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-area-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 14px;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-area-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 7px 9px;
+  border: 1px solid #507482 !important;
+  border-radius: 8px !important;
+  color: var(--lm-face-ink) !important;
+  background: #0a1d29 !important;
+  box-shadow: none;
+  cursor: pointer;
+  font: 600 .84rem/1.2 var(--neo-font);
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+html[data-atlas-app="life-map"] #app .lm-area-option strong {
+  font: 600 1.05rem/1 var(--lm-mono);
+  color: var(--area-signal, #83f1df);
+}
+html[data-atlas-app="life-map"] #app .lm-area-option.lm-pc-0 { --area-signal: #a5c9ff; }
+html[data-atlas-app="life-map"] #app .lm-area-option.lm-pc-2 { --area-signal: #d2b9ff; }
+html[data-atlas-app="life-map"] #app .lm-area-option.lm-pc-3 { --area-signal: #ffd2a5; }
+html[data-atlas-app="life-map"] #app .lm-area-option.lm-pc-5 { --area-signal: #fbacc7; }
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-area-option[aria-pressed="true"] {
+  border-color: var(--lm-face-accent) !important;
+  background: #17414b !important;
+  box-shadow: inset 0 -2px var(--lm-face-accent), 0 0 12px #66ffde26 !important;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-project-feature {
+  margin-bottom: 14px;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-feature > .lm-feature-body {
+  display: block;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-feature .lm-project-toolbar {
+  margin-top: 12px;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-simple-project {
+  border-inline-start: 3px solid var(--pc, var(--neo-accent));
 }
 html[data-atlas-app="life-map"] #app .lm-simple-project .lm-project-progress > span {
-  background: linear-gradient(90deg, var(--neo-cyan), var(--pc, var(--neo-accent)));
+  background: linear-gradient(90deg, var(--neo-accent), var(--pc, var(--neo-accent)));
 }
-html[data-atlas-app="life-map"] #app .lm-simple-project:focus-within {
-  border-color: var(--neo-accent);
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  align-items: start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-agenda {
+  position: relative;
+  margin: 0;
+  border-inline-start: 3px solid var(--neo-accent);
+  background-image: linear-gradient(145deg, var(--neo-accent-soft), transparent 70%);
+}
+html[data-atlas-app="life-map"] .lm-calendar-agenda-label {
+  margin-bottom: 7px;
+  color: var(--neo-accent);
+  font: 600 .77rem/1.4 var(--lm-mono);
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-has-work:not([aria-pressed="true"]) {
+  background: #54829828 !important;
 }
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] {
-  box-shadow: 0 0 10px #7be8e358 !important;
+  box-shadow: 0 0 12px #7be8e380 !important;
 }
-html[data-atlas-app="life-map"] .lm-calendar-agenda {
-  background-image: linear-gradient(155deg, var(--neo-accent-soft), transparent 65%);
-  border-inline-start: 3px solid var(--neo-accent);
+html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] .lm-mark-due {
+  background: currentColor;
 }
-html[data-atlas-app="life-map"] #app .lm-project-timeline:focus-visible .lm-timeline-track > span {
-  box-shadow: 0 0 9px var(--pc, var(--neo-accent));
+html[data-atlas-app="life-map"] #app .lm-timeline-track {
+  position: relative;
+  overflow: visible;
+  background: repeating-linear-gradient(90deg, var(--neo-line) 0 1px, var(--neo-inset) 1px calc(100% / 7));
+}
+html[data-atlas-app="life-map"] #app .lm-timeline-track::after {
+  content: "";
+  position: absolute;
+  inset-block: -3px;
+  inset-inline-start: var(--lm-day-position);
+  width: 2px;
+  background: var(--neo-accent);
+  box-shadow: 0 0 5px var(--neo-accent);
+}
+html[data-atlas-app="life-map"] #app :is(.lm-instrument,.lm-area-option,#lm-daily-routines,.lm-calendar-agenda):focus-visible {
+  outline: 2px solid var(--neo-accent);
+  outline-offset: 3px;
+}
+html[data-atlas-app="life-map"] #app :is(.lm-instrument,.lm-area-option):focus-visible {
+  outline-color: var(--lm-face-accent);
+}
+html[data-atlas-app="life-map"] #app :is(#lm-daily-routines,.lm-calendar-agenda) {
+  scroll-margin-block: calc(var(--atlas-top-h, 70px) + 12px) calc(var(--atlas-page-nav-height, 70px) + 12px);
+}
+@media (min-width: 750px) {
+  html.atlas-neumo[data-atlas-app="life-map"] #app {
+    max-width: 1100px;
+  }
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-layout {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-area-picker {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-area-option {
+    display: grid;
+    align-content: space-between;
+    min-height: 66px;
+  }
+  html[data-atlas-app="life-map"] #app .lm-project-collection {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
+}
+@media (max-width: 440px) {
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card > .lm-feature-body {
+    grid-template-columns: minmax(0, 1fr) minmax(82px, 28%);
+  }
 }
 @media (hover: hover) {
-  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day:hover {
+  html.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-instrument,.lm-area-option):hover {
     border-color: var(--lm-face-accent) !important;
   }
   html[data-atlas-app="life-map"] #app .lm-project-timeline:hover .lm-timeline-track > span {
@@ -508,25 +754,23 @@ html[data-atlas-app="life-map"] #app .lm-project-timeline:focus-visible .lm-time
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  html[data-atlas-app="life-map"] .lm-projection-depth .lm-projection-signal {
-    animation: lm-projection-travel 4s linear infinite;
+  html[data-atlas-app="life-map"] .lm-dial-rotor {
+    animation: lm-dial-rotate 12s linear infinite;
   }
-  html[data-atlas-app="life-map"] .lm-calendar-agenda {
-    animation: lm-agenda-project .42s ease-out both;
+  html[data-atlas-app="life-map"] :is(.lm-calendar-agenda,#lm-project-results.lm-results-changed) {
+    animation: lm-agenda-reveal .26s ease-out both;
+  }
+  html[data-atlas-app="life-map"] .lm-area-option {
+    transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease;
   }
 }
-@keyframes lm-projection-travel { to { stroke-dashoffset: -78; } }
-@keyframes lm-agenda-project {
-  from { opacity: .78; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes lm-dial-rotate { to { transform: rotate(1turn); } }
+@keyframes lm-agenda-reveal { from { opacity: .8; transform: translateY(4px); } }
 @media (prefers-contrast: more), (forced-colors: active) {
-  html[data-atlas-app="life-map"] .lm-projection-depth { display: none; }
-  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-feature:has(.lm-projection-depth),
-  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-calendar-feature {
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view :is(.lm-now-card,.lm-project-feature,.lm-calendar-feature) {
     background: var(--lm-face) !important;
   }
-  html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] {
+  html[data-atlas-app="life-map"] #app :is(.lm-area-option,.lm-month-day)[aria-pressed="true"] {
     outline: 2px solid currentColor;
     outline-offset: -4px;
   }
