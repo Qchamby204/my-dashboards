@@ -39,8 +39,8 @@
     const {daily,due}=mandatoryGroups(),routines=[...daily,...due],done=routines.filter(routineDone).length;
     const portion=routines.length?100*done/routines.length:0;
     return '<button type="button" class="lm-instrument" data-day="jump-routines" aria-label="'+attrs('Daily mandatory, '+done+' of '+routines.length+' complete')+'">'+
-      '<svg viewBox="0 0 160 160" aria-hidden="true"><circle class="lm-dial-ticks" cx="80" cy="80" r="73" pathLength="120"/><circle class="lm-dial-rotor" cx="80" cy="80" r="65" pathLength="100"/><circle class="lm-dial-track" cx="80" cy="80" r="54"/><circle class="lm-dial-value" cx="80" cy="80" r="54" pathLength="100" style="stroke-dasharray:'+portion+' 100"/></svg>'+
-      '<span class="lm-instrument-reading"><strong>'+done+'<small> / '+routines.length+'</small></strong><span>Routines</span></span></button>';
+      '<span class="lm-dial-face"><svg viewBox="0 0 160 160" aria-hidden="true"><circle class="lm-dial-ticks" cx="80" cy="80" r="73" pathLength="120"/><circle class="lm-dial-rotor" cx="80" cy="80" r="65" pathLength="100"/><circle class="lm-dial-track" cx="80" cy="80" r="54"/><circle class="lm-dial-value" cx="80" cy="80" r="54" pathLength="100" style="stroke-dasharray:'+portion+' 100"/></svg>'+
+      '<span class="lm-instrument-reading"><strong>'+done+'<small> / '+routines.length+'</small></strong></span></span><span class="lm-dial-caption">Routines</span></button>';
   }
   const focusCard=(eyebrow,title,body,actions)=>{
     const direct=(actions.match(/<button[^>]+data-day="(?:focus|complete-task|complete-routine|ops-start|ops-complete)"[\s\S]*?<\/button>/g)||[]).join('');

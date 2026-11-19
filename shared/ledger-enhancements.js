@@ -813,7 +813,8 @@
         point.append(make('span',null,'ledger-history-bar-track'),make('small',String(Number(date.slice(-2)))));
         grid.append(point);
       }
-      const plot=make('div',null,'ledger-history-plot');plot.append(scale,grid);
+      const dates=make('div',null,'ledger-history-dates');dates.append(grid);
+      const plot=make('div',null,'ledger-history-plot');plot.append(scale,dates);
       const openHistory=button('Saved days & tools',()=>setDashboardView('history'));openHistory.id='ledger-open-history';
       panel.append(plot,openHistory);return panel;
     }

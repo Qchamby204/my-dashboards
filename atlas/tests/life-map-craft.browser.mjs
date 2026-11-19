@@ -36,6 +36,7 @@ try{
      assert.equal(await animationName(),'lm-dial-rotate');
      await p.emulateMedia({reducedMotion:'reduce'});
     }
+    if(textSize===32&&width<=393){await instrument.scrollIntoViewIfNeeded();await p.screenshot({path:path.join(out,`routines-${theme}-${width}-${textSize}.png`)});}
     await instrument.click();
     assert.equal(await p.locator('#lm-daily-routines').evaluate(node=>document.activeElement===node),true);
    }
