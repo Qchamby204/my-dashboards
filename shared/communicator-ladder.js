@@ -8,6 +8,19 @@
   const button=(text,id)=>'<button class="btn" type="button" data-ladder-start="'+id+'">'+text+'</button>';
   // Reframe existing nodes so drafts, handlers and source-owned records stay intact.
   const make=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
+  // Static mesh geometry is shared by every projection. CSS moves its light traces.
+  const meshY=(x,lane)=>{
+   const t=x/480,phase=lane*.14,edge=Math.sin(Math.PI*t);
+   return (151+lane*2.5+edge*(34*Math.sin(t*12-phase)*Math.cos(t*5+phase)+14*Math.sin(t*18+phase))).toFixed(1);
+  };
+  const lanePath=lane=>Array.from({length:121},(_,i)=>(i?'L':'M')+(i*4)+' '+meshY(i*4,lane)).join(' ');
+  const lanes=Array.from({length:15},(_,lane)=>lanePath(lane));
+  const wire=lanes.map(d=>'<path d="'+d+'"/>').join('');
+  const crosswire=Array.from({length:60},(_,i)=>{
+   const x=i*8;return '<path d="'+lanes.map((_,lane)=>(lane?'L':'M')+x+' '+meshY(x,lane)).join(' ')+'"/>';
+  }).join('');
+  const mesh='<g class="cm-wave"><g>'+wire+'</g><g class="cm-mesh-cross">'+crosswire+'</g>'+
+   '<path class="cm-packet" d="'+lanes[4]+'" pathLength="100"/><path class="cm-packet cm-packet-back" d="'+lanes[12]+'" pathLength="100"/></g>';
   function illustration(kind,live){
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 480 216');svg.setAttribute('fill','none');svg.setAttribute('aria-hidden','true');svg.setAttribute('data-illustration',kind);svg.classList.add('cm-feature-art');
    // Decorative page identities, kept separate from real scores and saved progress.
@@ -20,21 +33,12 @@
     invest:'<rect x="91" y="25" width="150" height="129" rx="10" opacity=".4"/><rect x="69" y="41" width="150" height="129" rx="10" fill="#ffffff08"/><path d="M69 78h150M96 60h75M96 99h20m-20 23h20m-20 23h20M143 99h48m-48 23h48m-48 23h25"/><path d="M259 59v62m-13-49 13-13 13 13M259 121h-20" stroke="#aaabcf"/>',
     review:'<rect x="81" y="32" width="140" height="138" rx="12" fill="#ffffff08"/><rect x="124" y="22" width="54" height="24" rx="7" fill="#3b3352"/><path d="m103 74 5 5 10-12m-15 39 5 5 10-12m-15 39 5 5 10-12" stroke="#91b6b5"/><path d="M135 75h59m-59 31h59m-59 31h34" opacity=".65"/><path d="m238 135 15-67 12 3-15 67-9 13Z" stroke="#aaabcf"/>'
    };
-   // Each ribbon is sampled from the same travelling pulse at a different depth.
-   const wire=Array.from({length:15},(_,lane)=>{
-    const points=[];
-    for(let x=0;x<=480;x+=4){
-     const t=x/480,phase=lane*.14,edge=Math.sin(Math.PI*t);
-     const wave=Math.sin(t*12-phase)*Math.cos(t*5+phase);
-     const y=151+lane*2.5+edge*(34*wave+14*Math.sin(t*18+phase));
-     points.push((x?'L':'M')+x+' '+y.toFixed(1));
-    }
-    return '<path d="'+points.join(' ')+'"/>';
-   }).join('');
    const lens='<g class="cm-lens" fill="none"><ellipse cx="240" cy="170" rx="86" ry="12"/><ellipse cx="240" cy="170" rx="63" ry="8"/><path d="M173 160 208 59h65l34 101" opacity=".25"/></g>';
    const ring=live?'<g transform="rotate(-90 240 99)" fill="none"><circle class="cm-clock-track" cx="240" cy="99" r="78"/><circle class="cm-clock-arc" id="cm-timer-arc" cx="240" cy="99" r="78" pathLength="100" stroke-dasharray="100" stroke-dashoffset="'+timerOffset()+'"/></g>':'';
-   svg.innerHTML='<g class="cm-wave">'+wire+'</g>'+lens+ring+
-    '<g transform="translate(126 20) scale(.72)"><g class="cm-projection" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">'+(scenes[kind]||scenes.speak)+'</g></g>'+
+   const scene=scenes[kind]||scenes.speak;
+   const orbit=live?'':'<g class="cm-orbit" transform="rotate(-18 240 103)"><ellipse cx="240" cy="103" rx="117" ry="55"/><ellipse class="cm-orbit-line" cx="240" cy="103" rx="117" ry="55" pathLength="100"/></g>';
+   svg.innerHTML=orbit+mesh+lens+ring+
+    '<g transform="translate(105 10) scale(.85)" stroke-linecap="round" stroke-linejoin="round"><g class="cm-projection-depth" transform="translate(4 4)">'+scene+'</g><g class="cm-projection" stroke="currentColor" stroke-width="3.2">'+scene+'</g></g>'+
     '<path class="cm-fiducials" d="M18 38v-11h14m416 0h14v11M18 178v11h14m416 0h14v-11"/>';
    return svg;
   }
@@ -61,14 +65,13 @@
    return rail;
   }
   function scoreTrend(){
-   const samples=S.reps.filter(r=>r?.scoreOrigin==='self'&&Number.isFinite(r.score)&&r.score>=0&&r.score<=100&&Number.isFinite(Date.parse(r.date)))
-    .sort((a,b)=>Date.parse(a.date)-Date.parse(b.date)).slice(-7);
+   const samples=P.recentSelfScores();
    if(!samples.length)return null;
    const chart=make('figure','cm-trend'),caption=make('figcaption','','Recent self-scores');
-   const last=make('strong','',samples.at(-1).score+'/100');caption.append(last);
-   const points=samples.map((r,i)=>[samples.length===1?144:8+i*272/(samples.length-1),52-r.score*.44]);
+   const last=make('strong','',samples.at(-1)+'/100');caption.append(last);
+   const points=samples.map((score,i)=>[samples.length===1?144:8+i*272/(samples.length-1),52-score*.44]);
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 288 60');svg.setAttribute('role','img');
-   svg.setAttribute('aria-label','Saved self-scores, oldest first: '+samples.map(r=>r.score).join(', ')+', out of 100.');
+   svg.setAttribute('aria-label','Saved self-scores, oldest first: '+samples.join(', ')+', out of 100.');
    svg.innerHTML='<path class="cm-guides" d="M8 8h272M8 30h272M8 52h272"/><polyline points="'+points.map(p=>p.join(',')).join(' ')+'"/>'+points.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="3"/>').join('');
    chart.append(caption,svg);return chart;
   }

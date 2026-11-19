@@ -51,5 +51,20 @@ try{
  }
  // A real saved ladder attempt retains its transcript, score and receipt after reload.
  const ctx=await browser.newContext({viewport:{width:393,height:852},colorScheme:'light',reducedMotion:'reduce'}),p=await ctx.newPage();await p.goto(origin+'/communication-trainer.html');await ready(p);await p.locator('.cl-next [data-ladder-start]').first().click();await p.locator('#txBox').fill('One clear point, one concrete example, and why it matters.');await p.locator('[data-ladder-performed]').check();await p.getByRole('button',{name:'Save practice (+10 XP)',exact:true}).click();assert(await p.locator('.communication-saved.cm-feature').isVisible());assert(await p.locator('.communication-saved .cl-result').evaluate(n=>parseFloat(getComputedStyle(n).fontSize)>=32),'the saved score leads its metadata');assert.equal(await p.locator('.communication-saved .cm-feature-support>.cl-emblem').count(),0,'the receipt does not repeat its decorative artwork');await p.screenshot({path:path.join(out,'saved-practice.png')});const saved=await p.evaluate(()=>S.reps.map(r=>({id:r.id,score:r.score,transcript:r.transcript})));assert.equal(saved.length,1);await p.reload();await ready(p);assert.deepEqual(await p.evaluate(()=>S.reps.map(r=>({id:r.id,score:r.score,transcript:r.transcript}))),saved);await p.evaluate(()=>nav('progress'));assert(await p.locator('.communication-career.cm-feature').isVisible());assert(await p.locator('.communication-history details').first().isVisible());assert.equal(await p.locator('.cm-trend circle').count(),1);assert.equal(await p.locator('.cm-trend strong').textContent(),saved[0].score+'/100');await p.screenshot({path:path.join(out,'saved-history.png')});await ctx.close();
+ const motion=await browser.newContext({viewport:{width:1280,height:850},reducedMotion:'no-preference'}),studio=await motion.newPage();
+ await studio.goto(origin+'/communication-trainer.html');await ready(studio);
+ assert.equal(await studio.locator('.cm-wave').first().evaluate(n=>getComputedStyle(n).animationName),'cm-ribbon');
+ await studio.emulateMedia({reducedMotion:'reduce'});
+ assert.equal(await studio.locator('.cm-wave').first().evaluate(n=>getComputedStyle(n).animationName),'none');
+ const samples=await studio.evaluate(()=>{
+  S.reps=Array.from({length:9},(_,i)=>({date:'2020-01-'+String(i+1).padStart(2,'0'),score:i*10}));
+  S.reps.reverse();S.reps.push({date:'2099-01-01',score:100},{date:'2020-01-09',score:98,scoreOrigin:'automated'});
+  S.reps=S.reps.map((rep,i)=>({...rep,id:'trend-'+i,drill:'One point',skill:'clarity',topic:'Speak clearly'}));
+  const prior=JSON.stringify(S.reps);nav('progress');
+  return {scores:CommunicationImprovements.recentSelfScores(),same:prior===JSON.stringify(S.reps)};
+ });
+ assert.deepEqual(samples,{scores:[20,30,40,50,60,70,80],same:true});
+ assert.equal(await studio.locator('.cm-trend circle').count(),7);
+ await motion.close();
  console.log(engine+': '+reports.length+' Communicator openings, all investing references, topic editors, draft recovery and saved receipt/history passed');
 }finally{writeFileSync(path.join(out,'craft-report.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
