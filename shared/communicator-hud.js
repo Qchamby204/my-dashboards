@@ -264,6 +264,7 @@
       }
     }).observe(app, {childList: true, subtree: true});
     window.addEventListener('resize', schedule);
+    if (window.ResizeObserver) new ResizeObserver(schedule).observe(document.body);
   }
 
   /* ── Logging feedback: a shockwave from the control you pressed ──────────── */

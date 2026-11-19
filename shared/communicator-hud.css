@@ -235,3 +235,5 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page
 /* Only the opening card's main actions are set in caps; segment and list buttons keep
    their own case so long words still fit at large text sizes. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .btn:not(.ghost):not(.cm-feature-footer .btn):not(.cl-actions .btn) {text-transform:none!important;letter-spacing:.02em!important;}
+/* Rings and glows never add scrollable overflow. */
+html[data-atlas-app="communication-trainer"] #main .cm-feature {overflow:clip;}
