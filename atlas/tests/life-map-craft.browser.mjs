@@ -23,9 +23,19 @@ try{
   for(const view of ['home','projects','calendar']){
    await p.locator('#lm-day-nav-'+view).click();await p.evaluate(()=>scrollTo(0,0));const pane=p.locator('#lm-day-view-'+view),hero=pane.locator('.lm-feature').first();assert(await hero.isVisible());
    const g=await hero.evaluate(node=>{const b=node.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(node.querySelector('h2'));return {top:b.top,width:b.width,background:getComputedStyle(node).backgroundColor,overflow:document.documentElement.scrollWidth>innerWidth+1,titleFits:[...range.getClientRects()].every(r=>r.left>=b.left-1&&r.right<=b.right+1)};});
-   assert(g.top<(textSize===32?550:380),'opening card remains near the start');assert(!g.overflow,'page fits the viewport');assert(g.titleFits,'long feature title stays in its card');assert.equal(g.background,theme==='dark'?'rgb(41, 61, 80)':'rgb(37, 56, 76)');
+   assert(g.top<(textSize===32?550:380),'opening card remains near the start');assert(!g.overflow,'page fits the viewport');assert(g.titleFits,'long feature title stays in its card');assert.equal(g.background,'rgb(16, 40, 52)','the holographic opening uses a dark reading surface in both themes');
    if(view!=='calendar'){assert.equal(await hero.locator('.lm-feature-art').count(),1);const art=await hero.locator('.lm-feature-art').boundingBox();assert(art.width>=Math.min(220,width-80)&&art.height>=112,'the opening illustration remains a focal image');}for(const el of await hero.locator('button,a').all()){const b=await el.boundingBox();assert(b.height>=43.5,'feature actions retain touch targets');}
    await p.screenshot({path:path.join(out,`${view}-${theme}-${width}-${textSize}.png`)});reports.push({view,theme,width,textSize,...g});
+   if(view!=='calendar') {
+    const signal=hero.locator('.lm-projection-signal');
+    const animationName=()=>signal.evaluate(node=>getComputedStyle(node).animationName);
+    assert.equal(await animationName(),'none','reduced motion keeps the projection still');
+    if(width===393&&textSize===16){
+     await p.emulateMedia({reducedMotion:'no-preference'});
+     assert.equal(await animationName(),'lm-projection-travel');
+     await p.emulateMedia({reducedMotion:'reduce'});
+    }
+   }
    if(view==='home')assert.equal(await p.locator('.appbar [data-day="capture"]').count(),1,'capture is directly available in the header');
    if(view==='projects'){
     const filter=p.getByLabel('Filter by area',{exact:true});assert.deepEqual(await filter.locator('option').allTextContents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin','Boards']);

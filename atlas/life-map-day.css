@@ -443,3 +443,91 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option strong{font-si
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option span{font-size:.8125rem;color:var(--neo-muted)}
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-focus-option[aria-current="true"]{border-color:var(--neo-accent)!important;border-width:2px!important}
 html.atlas-neumo[data-atlas-app="life-map"] .lm-sheet .lm-dates-result{margin:4px 0 12px;font-size:1.0625rem;font-weight:650;color:var(--neo-ink);font-variant-numeric:tabular-nums}
+
+/* Life Map's main views share the Ledger projection palette and respond to existing controls. */
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-feature:has(.lm-projection-depth),
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-calendar-feature {
+  --lm-face: #102834;
+  --lm-face-ink: #edfaff;
+  --lm-face-muted: #b3ccd5;
+  --lm-face-accent: #83eee2;
+  background:
+    radial-gradient(ellipse at 78% 15%, #1e5262 0, transparent 65%),
+    radial-gradient(circle, #8be4ec29 1px, transparent 1.4px) 0 0 / 20px 20px,
+    var(--lm-face) !important;
+  border-color: #4d7882;
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature:has(.lm-projection-depth) .lm-feature-rail,
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-feature-rail {
+  background: linear-gradient(90deg, #83eee2, transparent) 24px top / 82px 2px no-repeat, #0c202bcc;
+}
+html[data-atlas-app="life-map"] .lm-projection-depth {
+  color: #82edef;
+  stroke: currentColor;
+}
+html[data-atlas-app="life-map"] .lm-projection-depth :is(ellipse, path) {
+  stroke-width: 1;
+  opacity: .28;
+}
+html[data-atlas-app="life-map"] .lm-projection-depth .lm-projection-guide {
+  stroke-width: 3;
+  stroke-dasharray: 2 4;
+}
+html[data-atlas-app="life-map"] .lm-projection-depth .lm-projection-signal {
+  stroke: #e0ffff;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 9 91;
+  stroke-dashoffset: 22;
+  opacity: .9;
+  filter: drop-shadow(0 0 4px #6feef2);
+  paint-order: stroke;
+}
+html[data-atlas-app="life-map"] #app .lm-simple-project .lm-project-progress > span {
+  background: linear-gradient(90deg, var(--neo-cyan), var(--pc, var(--neo-accent)));
+}
+html[data-atlas-app="life-map"] #app .lm-simple-project:focus-within {
+  border-color: var(--neo-accent);
+}
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] {
+  box-shadow: 0 0 10px #7be8e358 !important;
+}
+html[data-atlas-app="life-map"] .lm-calendar-agenda {
+  background-image: linear-gradient(155deg, var(--neo-accent-soft), transparent 65%);
+  border-inline-start: 3px solid var(--neo-accent);
+}
+html[data-atlas-app="life-map"] #app .lm-project-timeline:focus-visible .lm-timeline-track > span {
+  box-shadow: 0 0 9px var(--pc, var(--neo-accent));
+}
+@media (hover: hover) {
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day:hover {
+    border-color: var(--lm-face-accent) !important;
+  }
+  html[data-atlas-app="life-map"] #app .lm-project-timeline:hover .lm-timeline-track > span {
+    box-shadow: 0 0 9px var(--pc, var(--neo-accent));
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-atlas-app="life-map"] .lm-projection-depth .lm-projection-signal {
+    animation: lm-projection-travel 4s linear infinite;
+  }
+  html[data-atlas-app="life-map"] .lm-calendar-agenda {
+    animation: lm-agenda-project .42s ease-out both;
+  }
+}
+@keyframes lm-projection-travel { to { stroke-dashoffset: -78; } }
+@keyframes lm-agenda-project {
+  from { opacity: .78; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-contrast: more), (forced-colors: active) {
+  html[data-atlas-app="life-map"] .lm-projection-depth { display: none; }
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-feature:has(.lm-projection-depth),
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-calendar-feature {
+    background: var(--lm-face) !important;
+  }
+  html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+  }
+}
