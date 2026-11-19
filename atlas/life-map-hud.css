@@ -161,7 +161,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-button:not(
   border:1px solid var(--hud-edge)!important;background:color-mix(in srgb,var(--neo-accent) 6%,transparent)!important;
   font-family:var(--hud-display)!important;letter-spacing:.04em;
 }
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(input,select,textarea) {border-radius:0!important;border-color:var(--hud-edge)!important;background-color:color-mix(in srgb,var(--neo-inset) 80%,transparent)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(input,select,textarea) {border-radius:14px!important;border-color:var(--hud-edge)!important;background-color:color-mix(in srgb,var(--neo-inset) 80%,transparent)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(input,select,textarea):focus-visible {border-color:var(--neo-accent)!important;box-shadow:0 0 0 1px var(--neo-accent),0 0 16px -4px var(--neo-accent)!important;}
 
 /* Calendar: a targeting grid. */
@@ -327,3 +327,19 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme="light"
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme="light"] #app .lm-feature .lm-pc-7 {--area:#4ff0d0;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme="light"] #app .lm-feature .lm-area-option strong {text-shadow:0 0 8px color-mix(in srgb,var(--area) 60%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme="light"] #app .lm-feature :is(input,select) {color-scheme:dark;}
+
+/* Keep the reading surface opaque; the board's grid and field marks sit above it. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature.lm-now-card {
+  background:#0c212d!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card::before {
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--hud-cut-edge) left top/var(--hud-cut) var(--hud-cut) no-repeat,
+    var(--hud-cut-edge) right bottom/var(--hud-cut) var(--hud-cut) no-repeat,var(--hud-corners);
+}
+@media(max-width:30rem) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-grid {gap:2px!important;}
+}
+@media(prefers-contrast:more),(forced-colors:active) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {border:2px solid var(--neo-ink)!important;clip-path:none;}
+}
