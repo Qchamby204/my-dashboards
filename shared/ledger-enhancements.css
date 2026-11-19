@@ -170,11 +170,9 @@ html[data-atlas-app="life-ledger"] progress.ledger-time-meter[data-level="empty"
 html[data-atlas-app="life-ledger"] progress.ledger-time-meter::-webkit-progress-bar{background:var(--neo-inset);border-radius:99px;}
 html[data-atlas-app="life-ledger"] progress.ledger-time-meter::-webkit-progress-value{background:var(--ledger-time-color);border-radius:99px;}
 html[data-atlas-app="life-ledger"] progress.ledger-time-meter::-moz-progress-bar{background:var(--ledger-time-color);border-radius:99px;}
-html[data-atlas-app="life-ledger"] .ledger-screen-fold,
 html[data-atlas-app="life-ledger"] .ledger-manage,
 html[data-atlas-app="life-ledger"] .ledger-day-options{border-top:1px solid var(--neo-line);margin:12px 0;color:var(--neo-ink);}
-html[data-atlas-app="life-ledger"] :is(.ledger-screen-fold,.ledger-manage,.ledger-day-options)>summary{min-height:48px;padding:13px 3px;font-size:14px;cursor:pointer;}
-html[data-atlas-app="life-ledger"] .ledger-screen-fold .ledger-screen{margin-top:0;}
+html[data-atlas-app="life-ledger"] :is(.ledger-manage,.ledger-day-options)>summary{min-height:48px;padding:13px 3px;font-size:14px;cursor:pointer;}
 html[data-atlas-app="life-ledger"] .ledger-log-wrap{margin-top:8px!important;}
 html[data-atlas-app="life-ledger"] :is(.ledger-last-logged,.ledger-edit-note){display:none!important;}
 html[data-atlas-app="life-ledger"] .ledger-habit-filters{display:flex;gap:6px;margin:8px 0 12px;}

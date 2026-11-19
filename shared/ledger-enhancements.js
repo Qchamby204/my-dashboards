@@ -77,7 +77,7 @@
     let achievementFilter='all',achievementCategory='all',checkinToolsOpen=false;
     const releaseViews={levels:'progress',achievements:'achievements',history:'history'};
     const openingSection=location.hash?.slice(1);
-    let dashboardView=Object.hasOwn(releaseViews,openingSection)?releaseViews[openingSection]:'today',leisureOpen=false,screenOpen=false,remainingOnly=false,resetOpen=false;
+    let dashboardView=Object.hasOwn(releaseViews,openingSection)?releaseViews[openingSection]:'today',leisureOpen=false,remainingOnly=false,resetOpen=false;
     const failed=new Map(),pending=new Map(),boot=window.AtlasLedgerBoot||{raw:{},readError:false};
     try{
       if(boot.readError&&!window.storage)throw Error();
@@ -320,7 +320,7 @@
       validate('drafts',next);busy=true;status();const staged=await write(DRAFTKEY,JSON.stringify(next));busy=false;
       if(!staged){failed.delete(DRAFTKEY);status();toast('Progress was not reset. Your record is still here.');return false;}
       drafts=next;state.days=[];state.logDate=todayISO();state.logMode='cards';state.cardIndex=0;loadDraftFor(state.logDate);
-      lastUndo=null;clearCelebrations();leisureOpen=screenOpen=resetOpen=false;dashboardView='today';saveFeedback='Progress reset · your previous record is archived.';
+      lastUndo=null;clearCelebrations();leisureOpen=resetOpen=false;dashboardView='today';saveFeedback='Progress reset · your previous record is archived.';
       const ok=await finishProgressReset();render();toast(ok?'Fresh start. Your previous record is in History.':'Fresh start saved. Retry saving to finish the reset.');return true;
     }
     function resetProgressDialog(){confirmAction('Reset progress?','Start Life Level, habit levels, values, achievements and weekly progress at zero. Your saved days and unfinished entries are kept in a recoverable archive in History. Your habits and goals stay.','Reset progress',resetProgress);}
@@ -341,28 +341,12 @@
     importData=async function(file){if(busy)return;const ticket=++importTicket;try{if(file.size>10*1024*1024)throw Error('Choose a backup smaller than 10 MB.');const next=parseBackup(JSON.parse(await file.text()));if(ticket!==importTicket)return;confirmAction('Restore Life Ledger?',next.days.length+' saved days will replace this history. '+(next.drafts?'The backup also replaces unfinished drafts.':'Current unfinished drafts and season dates stay unless included in the backup.')+(blocked?' Keep a recovery backup before replacing unreadable records.':''),'Restore backup',async()=>{if(ticket!==importTicket||busy)return;const all={...clone(payload()),...next};blocked=false;busy=true;failed.clear();state.days=all.days;state.goals=all.goals;state.metrics=all.metrics;userModel=all.model;season=all.season;drafts=all.drafts;rebuildModel();SEASON_START=isoToNum(season.start);SEASON_END=isoToNum(season.end);lastUndo=null;clearCelebrations();saveFeedback='';state.logMode=drafts.mode;state.logDate=drafts.selected<=todayISO()?drafts.selected:todayISO();loadDraftFor(state.logDate);for(const [field,key]of Object.entries(keys))await write(key,JSON.stringify(all[field]));busy=false;render();toast(failed.size?'Restored in this tab. Retry saving or keep a backup.':'Backup restored on this device.');});}catch(err){toast(err.message||'Could not read this backup.');}};
     function pickImport(){const input=make('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',()=>{if(input.files?.[0])importData(input.files[0]);});input.click();}
     function removeMetric(id){const removed=state.metrics.find(m=>m.id===id);if(!removed)return;confirmAction('Delete this metric?','This removes the metric and its readings from this device. An Undo action follows.','Delete metric',async()=>{const next=state.metrics.filter(m=>m.id!==id);busy=true;status();const ok=await write(METRICKEY,JSON.stringify(next));busy=false;if(!ok){failed.delete(METRICKEY);status();toast('Metric was not deleted. Try again.');return;}state.metrics=next;render();toast('Metric deleted.','Undo',async()=>{if(state.metrics.some(m=>m.id===id)||busy)return;const restored=[...state.metrics,removed];busy=true;status();const saved=await write(METRICKEY,JSON.stringify(restored));busy=false;if(saved){state.metrics=restored;render();}else{failed.delete(METRICKEY);status();toast('Could not restore the metric. Keep a backup before closing.');}});});}
-    // Optional daily notes share the existing draft/save/backup path. They never
-    // change habit units or XP. No record is written merely by drawing this view.
-    let screenInfoOpen=false,screenPatternsOpen=false;
-    function screenPattern(end){
-      const rows=[],reasons={};let guarded=0,slips=0,recovered=0,recorded=0;
-      for(let i=6;i>=0;i--){
-        const date=numToISO(isoToNum(end)-i*86400000);
-        const s=(date===state.logDate?state.draftScreen:(drafts.days[date]||dayEntryFor(date))?.screen)||emptyScreen();
-        if(hasScreen(s))recorded++;if(s.guardrail)guarded++;
-        const done=s.slips.filter(v=>v.recovered).length;slips+=s.slips.length;recovered+=done;
-        for(const v of s.slips)if(v.trigger)reasons[v.trigger]=(reasons[v.trigger]||0)+1;
-        rows.push({date,guardrail:!!s.guardrail,slips:s.slips.length,recovered:done,recorded:hasScreen(s)});
-      }
-      const max=Math.max(0,...Object.values(reasons)),top=Object.keys(reasons).filter(k=>reasons[k]===max).map(k=>triggers[k]);
-      return {rows,guarded,slips,recovered,recorded,top};
-    }
     function beginScreenReset(){
       if(blocked||busy)return;
       if(state.logDate!==todayISO()){remember();state.logDate=todayISO();loadDraftFor(state.logDate);}
       const slips=state.draftScreen.slips;
       if(!slips.length||slips.at(-1).recovered){
-        if(slips.length>=100){toast('Today’s slip log is full. Use your existing Screen Discipline controls.');return;}
+        if(slips.length>=100){toast('Today’s slip log is full.');return;}
         const prior=Object.keys({...Object.fromEntries(state.days.filter(d=>d.date).map(d=>[d.date,d])),...drafts.days}).filter(d=>d<=todayISO()).sort().reverse().map(d=>(drafts.days[d]||dayEntryFor(d))?.screen?.slips?.at(-1)).find(Boolean);
         slips.push({trigger:'',action:slips.at(-1)?.action||prior?.action||'task',recovered:false});remember();
       }
@@ -385,50 +369,6 @@
       const done=button('I’m back',()=>{if(!valid())return;last.recovered=true;remember();resetOpen=false;render();toast('Reset recorded. Welcome back.');document.getElementById('ledger-quick-reset')?.focus();});done.id='screen-reset-done';done.classList.add('ledger-primary');
       sheet.append(done,button('Do this now · close',close),make('p','Your reset stays in your draft. Save day to log it.','ledger-help'));
       sheet.addEventListener('cancel',e=>{e.preventDefault();close();});app.append(sheet);sheet.showModal();
-    }
-    function screenPanel(){
-      const date=state.logDate,s=state.draftScreen,last=s.slips.at(-1),today=date===todayISO();
-      const panel=make('section',null,'ledger-screen');panel.id='ledger-screen';panel.setAttribute('aria-labelledby','ledger-screen-title');
-      const header=make('div',null,'ledger-screen-heading'),title=make('h3','Screen Discipline');title.id='ledger-screen-title';
-      const info=make('details',null,'ledger-progress-info'),infoToggle=make('summary','i');infoToggle.setAttribute('aria-label','About Screen Discipline');info.open=screenInfoOpen;info.addEventListener('toggle',()=>screenInfoOpen=info.open);
-      info.append(infoToggle,make('p','Pick a practical boundary before you open a feed. If you drift, note it and protect the next 10 minutes. These manual notes stay on this device with your drafts and backups. Only your separate Under 1 Hour check-in counts toward that habit; a slip or reset never changes it.','ledger-help'));
-      header.append(title,info);panel.append(header);
-      function change(fn,focus){
-        if(blocked||busy)return;
-        if(date!==todayISO()||state.logDate!==date){checkDay();toast('The day changed. Use today’s Screen Discipline controls.');return;}
-        fn();remember();render();document.getElementById(focus)?.focus({preventScroll:true});
-      }
-      function choose(id,text,options,value,fn){
-        const label=make('label',text),select=make('select');select.id=id;
-        for(const [key,text]of Object.entries(options)){const option=make('option',text);option.value=key;select.append(option);}select.value=value;
-        select.addEventListener('change',()=>change(()=>fn(select.value),id));label.append(select);panel.append(label);
-      }
-      function action(id,text,fn,focus=id){const b=button(text,()=>change(fn,focus));b.id=id;panel.append(b);return b;}
-      if(today){
-        choose('screen-guardrail','Today’s guardrail',guardrails,s.guardrail,v=>s.guardrail=v);
-        const caught=action('screen-slip','Caught myself scrolling',()=>{if(s.slips.length>=100)return;s.slips.push({trigger:'',action:'task',recovered:false});},'screen-recovery');
-        caught.disabled=s.slips.length>=100;
-        if(last){
-          const feedback=make('p',last.recovered?'Reset recorded. Keep the next block intentional.':'Slip noted. Close the feed; protect the next block.','ledger-help');feedback.setAttribute('role','status');panel.append(feedback);
-          if(!last.recovered){
-            choose('screen-trigger','What pulled you in? (optional)',triggers,last.trigger,v=>last.trigger=v);
-            choose('screen-action','Next 10 minutes',resets,last.action,v=>last.action=v);
-            action('screen-recovery','I did this reset',()=>last.recovered=true,'screen-slip');
-          }else action('screen-unrecover','Undo reset',()=>last.recovered=false,'screen-recovery');
-          action('screen-undo','Undo last slip',()=>s.slips.pop(),'screen-slip');
-        }
-      }else{
-        panel.append(make('p',pretty(date)+' · '+(s.guardrail?guardrails[s.guardrail]:'No guardrail recorded'),'ledger-help'));
-        panel.append(button('Open today’s controls',()=>selectDate(todayISO())));
-      }
-      const count=(n,word)=>n+' '+word+(n===1?'':'s');
-      const pattern=screenPattern(date),details=make('details',null,'ledger-screen-patterns');details.open=screenPatternsOpen;details.addEventListener('toggle',()=>screenPatternsOpen=details.open);
-      details.append(make('summary','Last 7 days · '+count(pattern.slips,'slip')+' · '+count(pattern.recovered,'reset')));
-      details.append(make('p',pattern.guarded+' / 7 days with a guardrail. '+pattern.recorded+' days with intervention notes.','ledger-help'));
-      if(pattern.top.length)details.append(make('p','Most noted trigger: '+pattern.top.join(' / ')+'.','ledger-help'));
-      const list=make('ul');for(const row of pattern.rows)list.append(make('li',fmtDay(row.date)+' · '+(row.recorded?(row.guardrail?'Guardrail · ':'')+count(row.slips,'slip')+' / '+count(row.recovered,'reset'):'No notes')));details.append(list);
-      details.append(make('p','Manual notes, including drafts. No notes does not mean no scrolling.','ledger-help'));panel.append(details);
-      return panel;
     }
     // Daily leisure is derived from saved check-ins, never an accumulating bank.
     let leisureInfoOpen=false,leisureHistoryOpen=false;
@@ -1107,8 +1047,6 @@
         sheet.append(close,panel,save);app.append(sheet);sheet.addEventListener('cancel',e=>{e.preventDefault();closeLeisure();document.getElementById('ledger-leisure-preview')?.focus();});
         if(leisureOpen&&!state.levelInfo&&!state.achvQueue?.length)sheet.showModal();else leisureOpen=false;
       }
-      const screen=app.querySelector('#ledger-screen');
-      if(screen){const fold=make('details',null,'ledger-screen-fold');fold.id='ledger-screen-fold';fold.open=screenOpen;fold.addEventListener('toggle',()=>screenOpen=fold.open);fold.append(make('summary','Screen Discipline · '+(state.draftScreen?.guardrail?'guardrail set':'set a guardrail')),screen);checkinTools.append(fold);}
       const mode=log.querySelector('[data-act="logmode"]')?.parentNode;
       if(mode&&state.logMode==='list'){
         const filters=make('div',null,'ledger-habit-filters');
@@ -1442,7 +1380,6 @@
         const counter=log.querySelector('#deckCounter');if(counter){const picker=make('select',null,'ledger-habit-picker');picker.id='ledger-habit-picker';picker.setAttribute('aria-label','Jump to a habit');for(const h of HABITS){const option=make('option',label(h));option.value=h;picker.append(option);}picker.value=HABITS[state.cardIndex];picker.addEventListener('change',()=>{goCard(HABITS.indexOf(picker.value));});counter.parentNode.classList.add('ledger-card-picker');counter.parentNode.firstElementChild.replaceWith(picker);}
       }
       const bar=app.querySelector('.appbar');if(bar){const jump=button('Log today',()=>selectDate(todayISO()));bar.after(jump);jump.classList.add('ledger-jump');}
-      if(log&&HABITS.includes('Screen Discipline'))log.querySelector('[data-act="logdate"]')?.parentNode.after(screenPanel());
       if(log)log.querySelector('[data-act="logdate"]')?.parentNode.after(leisurePanel());
       paintLeisureClock();
       decorateRhythm(log,data);
