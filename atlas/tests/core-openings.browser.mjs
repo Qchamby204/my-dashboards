@@ -12,7 +12,7 @@ const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+new U
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
 async function inspect(p,app,view,theme,width){
  await p.waitForFunction(()=>!!document.querySelector('.core-opening-card'));await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await p.waitForTimeout(150);
- const result=await p.evaluate(app=>{
+ const result=await p.evaluate(()=>{
   const summary=document.querySelector('#ledger-view-today:not([hidden]) .ledger-opening');
   const card=summary||document.querySelector('.core-opening-card'),bar=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!card)return {issues:['missing opening card']};
@@ -20,7 +20,7 @@ async function inspect(p,app,view,theme,width){
   const orbit=card.querySelector('.ledger-orbit-field');
   if(summary?(b.top-h.bottom<12||b.top-h.bottom>32):Math.abs(b.top-h.bottom-24)>2)issues.push('opening top gap');
   if((orbit?.getBoundingClientRect().bottom??b.bottom)>n.top-16)issues.push('opening illustration behind navigation');
-  if(app!=='life-map'&&!summary&&!orbit&&n.top-b.bottom>32)issues.push('supporting content competes with the opening');
+  if(document.documentElement.dataset.atlasApp!=='life-map'&&!summary&&!orbit&&n.top-b.bottom>32)issues.push('supporting content competes with the opening');
   if(document.documentElement.scrollWidth>innerWidth+1)issues.push('horizontal overflow');
   for(const control of card.querySelectorAll('button,summary,a')){if(!control.checkVisibility()||control.closest('[hidden],[inert],[aria-hidden="true"]'))continue;const c=control.getBoundingClientRect();if(c.width<43.5||c.height<43.5||c.left<b.left-1||c.right>b.right+1||c.bottom>b.bottom+1)issues.push('opening control bounds: '+(control.getAttribute('aria-label')||control.textContent).trim());}
   return {top:b.top,bottom:b.bottom,header:h.bottom,dock:n.top,height:b.height,minHeight:getComputedStyle(card).minHeight,navClearance:document.documentElement.style.getPropertyValue('--atlas-page-nav-height'),viewport:card.querySelector('#deckViewport')?.getBoundingClientRect().height,activity:card.querySelector('.ledger-habit-card:not([inert])')?.getBoundingClientRect().height,room:document.documentElement.style.getPropertyValue('--core-opening-height'),body:card.style.getPropertyValue('--core-opening-body-height'),scrollY,issues};
