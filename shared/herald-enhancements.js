@@ -34,6 +34,52 @@
       cadence:['Find your rhythm','Weekly cadence','See this week','Keep your publishing and engagement rhythm in view.'],
       metrics:['Learn from what lands','Channel metrics','See the results','Review the numbers you’ve recorded and the stories behind them.']
     };
+    const stagePrompts={draft:'Edit script',approved:'Review recording script',produced:'Review edited script',scheduled:'Review scheduled script',published:'Read published script'};
+    const selectedStory=()=>vById(openVid)||S.videos.find(v=>v.status!=='published')||S.videos[0];
+    function excerpt(text){
+      const value=String(text||'').trim();
+      return value.length>500?value.slice(0,500).replace(/\s+\S*$/,'')+'…':value;
+    }
+    function production(story){
+      const index=STAGES.indexOf(story.status);
+      const steps=STAGES.map((key,i)=>'<li'+(i===index?' aria-current="step"':'')+'><i aria-hidden="true"></i><span>'+STAGE_L[key]+'</span></li>').join('');
+      const options=STAGES.map(key=>'<option value="'+key+'"'+(story.status===key?' selected':'')+'>'+STAGE_L[key]+'</option>').join('');
+      return '<section class="herald-production" aria-label="Production stages"><h2>Production</h2><ol>'+steps+
+        '</ol><label>Update stage<select data-herald-stage="'+esc(story.id)+'">'+options+'</select></label></section>';
+    }
+    function stageChange(control){
+      const story=vById(control.dataset.heraldStage),next=control.value;
+      if(!story||!STAGES.includes(next)||story.status===next)return;
+      const from=STAGES.indexOf(story.status),to=STAGES.indexOf(next),inOpening=!!control.closest('.herald-opening');
+      story.status=next;openVid=story.id;
+      const saved=save();renderAll();
+      const selector=inOpening?'.herald-production select':'[data-herald-id] .vbody [data-herald-stage]';
+      document.querySelector(selector)?.focus({preventScroll:true});
+      const track=document.querySelector('.herald-production ol');
+      if(saved&&track&&from>=0){
+        track.style.setProperty('--from',(from+.5)*20+'%');track.style.setProperty('--to',(to+.5)*20+'%');
+        track.classList.add('herald-transferred');
+      }
+    }
+    updateVideoStage=stageChange;
+    function routeReading(kind){
+      if(kind==='calendar'){
+        const prefix=calYM.y+'-'+String(calYM.m+1).padStart(2,'0')+'-';
+        const n=S.videos.filter(v=>v.sched?.startsWith(prefix)).length;
+        return n+' '+(n===1?'script':'scripts')+' on the calendar for '+new Date(calYM.y,calYM.m,1).toLocaleDateString('en-CA',{month:'long',year:'numeric'});
+      }
+      if(kind==='cadence'){
+        const days=cadenceDays(weekKey(new Date()));
+        const cells=days.map(d=>'<span class="'+(S.cadence[d.k]?.m?'is-logged':'')+'" aria-label="'+d.dn+(S.cadence[d.k]?.m?', media logged':', no media logged')+'">'+d.dn+'</span>').join('');
+        return '<div class="herald-week" role="group" aria-label="Media logged this week">'+cells+'</div>';
+      }
+      if(kind==='metrics'){
+        const published=S.videos.filter(v=>v.status==='published');
+        const measured=published.filter(v=>Object.values(v.metrics||{}).some(x=>x!=null&&String(x).trim()!=='')).length;
+        return published.length+' published · '+measured+' with recorded metrics';
+      }
+      return '';
+    }
     function opening(){
       const kind=openings[cur]?cur:'vault',c=openings[kind];
       const scenes={
@@ -42,7 +88,20 @@
         cadence:'<path d="M44 75 H316 V224 H44 Z" fill="#f1e4c9"/><path d="M44 111 H316 M83 137 V200 M132 137 V200 M181 137 V200 M230 137 V200 M279 137 V200" stroke="#d0b78b"/><path d="M60 178 H93 L108 143 L124 196 L145 161 H173 L189 139 L207 199 L226 164 H300" stroke="#8e79a9" stroke-width="5"/>',
         metrics:'<path d="M55 59 H305 V218 H55 Z" fill="#f1e4c9"/><path d="M42 233 H318 M84 188 V157 H115 V188 M141 188 V132 H172 V188 M198 188 V110 H229 V188 M255 188 V88 H282 V188" fill="#b29dcd"/><path d="M84 128 L138 104 L191 114 L271 67 M254 67 H271 V84" stroke-width="5"/>'
       };
-      return '<section class="herald-opening" data-opening="'+kind+'"><div class="herald-opening-rail">'+c[1]+'</div><div class="herald-opening-face"><h1>'+c[0]+'</h1><svg class="herald-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false"><circle cx="180" cy="142" r="122" fill="#ffffff0c"/><g stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">'+scenes[kind]+'</g></svg><p>'+c[3]+'</p></div><div class="herald-opening-footer"><button class="btn" type="button" data-herald-action="open-view">'+c[2]+'</button></div></section>';
+      const story=kind==='vault'?selectedStory():null;
+      const art='<svg class="herald-title-art" viewBox="0 0 360 280" aria-hidden="true" focusable="false">'+
+        '<g class="herald-orbits" fill="none"><ellipse cx="180" cy="155" rx="159" ry="73" transform="rotate(-18 180 155)"/><ellipse cx="180" cy="241" rx="112" ry="12"/><ellipse cx="180" cy="241" rx="82" ry="7"/></g>'+
+        '<g class="herald-scene" stroke="#977348" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">'+scenes[kind]+'</g>'+
+        '<path class="herald-sweep" pathLength="100" d="M25 235 Q151 285 334 211"/></svg>';
+      const picker=story&&S.videos.length>1?'<label class="herald-switch">Switch script<select data-herald-switch>'+S.videos.map(v=>'<option value="'+esc(v.id)+'"'+(v.id===story.id?' selected':'')+'>'+esc(v.title)+'</option>').join('')+'</select></label>':'';
+      const read=story?count(story):routeReading(kind);
+      const edit=story?'<button class="btn" type="button" data-herald-action="read-script">'+stagePrompts[story.status]+'</button>':'';
+      const body='<div class="herald-lead"><h1>'+esc(story?story.title:c[0])+'</h1>'+
+        (story?'<p class="herald-excerpt">'+esc(excerpt(story.script)||'Add the first lines of your script.')+'</p>':'<p>'+c[3]+'</p>')+
+        (read?'<div class="herald-reading">'+read+'</div>':'')+(edit?'<div class="herald-edit">'+edit+'</div>':'')+'</div>';
+      return '<section class="herald-opening'+(story?' has-story':'')+'" data-opening="'+kind+'"><div class="herald-opening-rail"><span>'+c[1]+'</span>'+picker+'</div><div class="herald-opening-face">'+body+
+        '<div class="herald-projection">'+art+(story?production(story):'')+'</div></div><div class="herald-opening-footer"><button class="btn" type="button" data-herald-action="open-view">'+c[2]+'</button></div></section>';
+
     }
     function decorateOpening(){
       const view=document.getElementById('view'),rail=document.querySelector('.rail-card');
@@ -84,13 +143,21 @@
     document.addEventListener('input',e=>{
       const el=e.target;
       if(el.id==='herald-search'){search=el.value;filter();return;}
-      if(el.dataset.heraldScript){const v=vById(el.dataset.heraldScript);if(v){v.script=el.value;const n=document.getElementById('herald-words-'+v.id);if(n)n.textContent=count(v);queue();}return;}
+      if(el.dataset.heraldScript){const v=vById(el.dataset.heraldScript);if(v){v.script=el.value;const n=document.getElementById('herald-words-'+v.id);if(n)n.textContent=count(v);if(v===selectedStory()){const preview=document.querySelector('.herald-excerpt'),reading=document.querySelector('.herald-reading');if(preview)preview.textContent=excerpt(v.script)||'Add the first lines of your script.';if(reading)reading.textContent=count(v);}queue();}return;}
       if(el.id?.startsWith('nv-')||el.id?.startsWith('pkg-')||el.dataset.heraldTitle){drafts()[el.id]=el.value;queue();}
     });
-    document.addEventListener('change',e=>{const el=e.target;if(el.dataset.heraldTitle)rename(el.dataset.heraldTitle,el.value);else if(el.id==='nv-fmt'||el.id==='nv-vert'){drafts()[el.id]=el.value;queue();}});
+    document.addEventListener('change',e=>{const el=e.target;if(el.hasAttribute?.('data-herald-switch')){
+      if(vById(el.value)){openVid=el.value;renderAll();document.querySelector('[data-herald-switch]')?.focus({preventScroll:true});}
+    }else if(el.dataset.heraldStage&&!el.hasAttribute('onchange'))stageChange(el);else if(el.dataset.heraldTitle)rename(el.dataset.heraldTitle,el.value);else if(el.id==='nv-fmt'||el.id==='nv-vert'){drafts()[el.id]=el.value;queue();}});
     document.addEventListener('click',e=>{
       const el=e.target.closest('[data-herald-action]');if(!el)return;
       if(el.dataset.heraldAction==='open-view'){const target=document.querySelector('#view .card'),bar=document.querySelector('.appbar');if(target){target.style.scrollMarginTop=((bar?.getBoundingClientRect().height||72)+16)+'px';target.scrollIntoView({block:'start',behavior:'instant'});if(cur==='vault')document.getElementById('nv-title')?.focus({preventScroll:true});}}
+      else if(el.dataset.heraldAction==='read-script'){
+        const story=selectedStory();if(!story)return;
+        openVid=story.id;vaultFilter='';search='';selMode=false;renderAll();
+        const field=[...document.querySelectorAll('[data-herald-script]')].find(n=>n.dataset.heraldScript===story.id);
+        if(field){field.focus({preventScroll:true});field.scrollIntoView({block:'center',behavior:'instant'});}
+      }
       else if(el.dataset.heraldAction==='retry'){if(persist())toast('Saved on this device.');}
       else if(el.dataset.heraldAction==='backup')exportData();
       else if(el.dataset.heraldAction==='copy-script'){const v=vById(el.dataset.id);if(v)copyText(v.script||'','Script copied.');}

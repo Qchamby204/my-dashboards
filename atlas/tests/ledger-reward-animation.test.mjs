@@ -9,9 +9,13 @@ const theme=readFileSync(new URL('../../shared/atlas-theme.js',import.meta.url),
 
 test('earned achievement and level-up cards remain visible until dismissed',()=>{
   assert.match(html,/class=\\?"levelup panel\\?"/,'Life Ledger reward cards still use the shared levelup artwork');
-  assert.match(css,/@keyframes ledgerRewardEnter\s*\{[\s\S]*100%\s*\{\s*opacity\s*:\s*1\s*;\s*transform\s*:\s*scale\(1\)\s*\}/,'reward entrance animation must finish visible');
-  assert.match(css,/\.ledger-reward \.levelup\s*\{\s*animation\s*:\s*ledgerRewardEnter [^}]+\}/,'native reward dialogs must override the legacy fading animation');
-  assert.doesNotMatch(css,/@keyframes ledgerRewardEnter\s*\{[\s\S]*100%\s*\{[^}]*opacity\s*:\s*0/,'reward entrance animation must never fade the card out at its final frame');
+  const entrance=css.match(/@keyframes ledgerRewardEnter\s*\{((?:[^{}]+\{[^{}]*\}\s*)+)\}/)?.[1];
+  assert.ok(entrance,'the reward has an entrance animation');
+  const finalFrame=entrance.match(/(?:100%|to)\s*\{([^}]+)\}/)?.[1];
+  assert.match(finalFrame,/opacity\s*:\s*1(?:\s*;|$)/,'the final reward frame stays visible');
+  assert.match(finalFrame,/transform\s*:\s*scale\(1\)/);
+  assert.match(css,/\.ledger-reward \.levelup\s*\{\s*animation\s*:\s*ledgerRewardEnter [^}]*both/,'the reward retains its final frame');
+
 });
 
 test('modern Ledger boots its current enhancement without superseded migrations',()=>{

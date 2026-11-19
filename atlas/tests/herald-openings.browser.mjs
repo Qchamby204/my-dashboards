@@ -11,7 +11,7 @@ const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png
 const server=createServer((req,res)=>{try{const file=path.resolve(root,'.'+new URL(req.url,'http://test').pathname);if(!file.startsWith(root+path.sep))throw Error();res.setHeader('Content-Type',types[path.extname(file)]||'text/plain');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port,browser=await engines[engine].launch({headless:true}),reports=[];
 try{
- const profiles=[['light',393,16],['dark',393,16],['light',320,16],['dark',852,16],['light',393,32],['dark',320,32],['light',393,16,'empty']];
+ const profiles=[['light',393,16],['dark',393,16],['light',320,16],['dark',852,16],['dark',1440,16],['light',393,32],['dark',320,32],['light',393,16,'empty']];
  for(const [theme,width,size,empty]of profiles){
   const ctx=await browser.newContext({viewport:{width,height:width===852?393:852},colorScheme:theme,reducedMotion:'reduce',timezoneId:'America/Winnipeg',contrast:size===32?'more':'no-preference'}),p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
   if(!empty)await ctx.addInitScript(()=>{if(!localStorage.getItem('herald:v1'))localStorage.setItem('herald:v1',JSON.stringify({videos:[{id:'draft',title:'A story about making room for a meaningful next chapter',script:'A sample draft to retain.',status:'draft',fmt:'long',vert:'General',kw:'sample',opt:{title:{t:'Sample title',d:true}},metrics:{},pub:{}},{id:'published',title:'An earlier story',script:'An earlier sample script.',status:'published',fmt:'short',vert:'General',kw:'sample',sched:'2026-10-20',opt:{title:{t:'Sample title',d:true}},metrics:{ctr:'6',ret:'50',srch:'21',subs:'4'},pub:{}}],cadence:{},weeks:{},leads:[],capture:[],roadmap:[],sys:{once:{},w:{},m:{}},goals:{}}));});
@@ -37,6 +37,24 @@ try{
   }
   await p.locator('#atlas-page-navigation').getByRole('button',{name:'Script Vault',exact:true}).click();await p.locator('[data-herald-action=open-view]').click();await p.locator('#nv-title').fill('Opening regression story');await p.locator('#nv-script').fill('A retained sample script.');await p.getByRole('button',{name:'Add to vault',exact:true}).click();await p.waitForFunction(()=>S.videos.some(v=>v.title==='Opening regression story'));await p.reload();await p.waitForFunction(()=>!!window.HeraldImprovements);assert.equal(await p.evaluate(()=>S.videos.find(v=>v.title==='Opening regression story').script),'A retained sample script.');
   if(theme==='light'&&width===393&&size===16&&!empty){await p.locator('[data-herald-id=draft] .vhead').click();await p.locator('[data-herald-script=draft]').fill('Revised sample writing that must survive a tab change.');await p.locator('[data-herald-script=draft]').press('Tab');await p.locator('#atlas-page-navigation').getByRole('button',{name:'Calendar',exact:true}).click();await p.locator('#atlas-page-navigation').getByRole('button',{name:'Script Vault',exact:true}).click();assert.equal(await p.locator('[data-herald-script=draft]').inputValue(),'Revised sample writing that must survive a tab change.');await p.locator('[data-herald-id=draft]').scrollIntoViewIfNeeded();await p.screenshot({path:path.join(out,'herald-expanded-script.png')});await p.locator('#atlas-page-navigation').getByRole('button',{name:'Calendar',exact:true}).click();await p.locator('#calPickScript').selectOption('draft');await p.locator('#calPickDate').fill('2026-10-23');await p.locator('#calPickDate').press('Tab');await p.getByRole('button',{name:'Schedule',exact:true}).click();assert.equal(await p.evaluate(()=>vById('draft').sched),'2026-10-23');await p.reload();await p.waitForFunction(()=>!!window.HeraldImprovements);assert.equal(await p.evaluate(()=>vById('draft').sched),'2026-10-23');await p.locator('.atlas-header-tools summary').click();assert(await p.getByRole('button',{name:'Export backup',exact:true}).isVisible());assert(await p.getByRole('button',{name:'Sync devices',exact:true}).isVisible());}
+  if(!empty&&(width===1440||width===393)&&size===16){
+   await p.locator('#atlas-page-navigation').getByRole('button',{name:'Script Vault',exact:true}).click();
+   const picker=p.locator('[data-herald-switch]');await picker.selectOption('draft');
+   const opening=p.locator('.herald-opening'),story=opening.locator('.herald-lead'),board=opening.locator('.herald-production');
+   assert.match(await story.textContent(),/meaningful next chapter/);
+   const left=await story.boundingBox(),right=await board.boundingBox();
+   assert(width===1440?right.x>=left.x+left.width:right.y>=left.y+left.height,'script and its action lead on phone and sit beside production on desktop');
+   await p.emulateMedia({reducedMotion:'no-preference'});
+   await board.locator('select').selectOption('approved');
+   assert.equal(await board.locator('[aria-current="step"]').textContent(),'Approved');
+   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('herald:v1')).videos.find(v=>v.id==='draft').status),'approved');
+   assert.equal(await board.locator('ol').evaluate(n=>getComputedStyle(n,'::after').animationName),'herald-transfer');
+   await p.emulateMedia({reducedMotion:'reduce'});
+   assert.equal(await board.locator('ol').evaluate(n=>getComputedStyle(n,'::after').animationName),'none');
+   await p.screenshot({path:path.join(out,`production-${width}-${theme}.png`)});
+   await opening.getByRole('button',{name:'Review recording script'}).click();assert(await p.locator('[data-herald-script=draft]').evaluate(n=>n===document.activeElement));
+   await p.reload();await p.waitForFunction(()=>!!window.HeraldImprovements);assert.equal(await p.evaluate(()=>vById('draft').status),'approved');
+  }
   assert.deepEqual(errors,[]);await ctx.close();
  }
  console.log(engine+': '+reports.length+' Herald openings, original artwork and progress, unchanged records, draft retention and script save/reload passed');

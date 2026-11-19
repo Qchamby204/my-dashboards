@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","herald-enhancements.js":"7db4426ebfe3"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","herald-enhancements.js":"d409b94ab920"}</script>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -205,7 +205,7 @@ nav.tabs::-webkit-scrollbar{display:none}
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
 <link rel="stylesheet" href="shared/atlas-refinements.css?v=0336bd972a03">
-<link rel="stylesheet" href="shared/herald-sports.css?v=6f1e57c329e6">
+<link rel="stylesheet" href="shared/herald-sports.css?v=d0e39426efbc">
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-herald-32.png?v=dce7a3f654b0">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-herald-64.png?v=5fc5ba443d5e">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/the-herald-apple.png?v=8a1621338f3a">
@@ -552,7 +552,7 @@ function vaultBody(v){
   </div>`:''}
   <div class="row" style="margin-top:10px;justify-content:space-between">
    <div class="row">
-    <select aria-label="Video status" onchange="vById('${v.id}').status=this.value;save();renderAll();" style="width:auto">
+    <select aria-label="Video status" data-herald-stage="${esc(v.id)}" onchange="updateVideoStage(this)" style="width:auto">
      ${STAGES.map(s=>`<option value="${s}" ${v.status===s?'selected':''}>${STAGE_L[s]}</option>`).join('')}
     </select>
     ${v.fmt==='long'?`<button class="btn sm line" onclick="spawnShort('${v.id}')">Spawn short</button>`:''}
@@ -560,6 +560,10 @@ function vaultBody(v){
    <button class="btn danger sm" onclick="delScript('${v.id}')">Delete</button>
   </div>
  </div>`;
+}
+function updateVideoStage(control){
+ const story=vById(control.dataset.heraldStage);
+ if(story&&STAGES.includes(control.value)){story.status=control.value;save();renderAll();}
 }
 function vById(id){return S.videos.find(v=>v.id===id);}
 function fmtSched(ds){try{return new Date(ds+'T12:00').toLocaleDateString('en-CA',{month:'short',day:'numeric'});}catch(e){return ds;}}
@@ -892,11 +896,15 @@ const SLOTS=[
  {l:'L2',k:'long',ti:'Long form #2, publish 9am'},
  {l:'S3',k:'short',ti:'Short 3, clipped from Saturday\'s long form'}
 ];
-function renderCadence(){
- const wk=weekKey(new Date());const start=new Date(wk);const days=[];
+function cadenceDays(wk){
+ const start=new Date(wk+'T12:00:00');const days=[];
  for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);
   const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   days.push({k,dn:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i],dd:d.getDate(),today:k===todayISO()});}
+ return days;
+}
+function renderCadence(){
+ const wk=weekKey(new Date()),days=cadenceDays(wk);
  const get=k=>S.cadence[k]||{};
  const longsDone=(get(days[1].k).m?1:0)+(get(days[5].k).m?1:0);
  return `
