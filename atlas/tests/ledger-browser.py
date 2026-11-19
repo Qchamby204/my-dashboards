@@ -155,8 +155,8 @@ with sync_playwright() as pw:
         for width in [320, 430, 1024]:
             page.set_viewport_size({'width': width, 'height': 844})
             assert page.locator('#ledger-checkin-save').evaluate("n => getComputedStyle(n).position === 'static' && !!n.closest('#ledger-log')"), 'Save belongs inside the check-in'
-            assert page.locator('.ledger-nav').bounding_box()['height'] <= 90, 'Four navigation tabs share one row'
-            assert page.locator('.ledger-nav button').evaluate_all("ns => {const rs=ns.map(n=>n.getBoundingClientRect());return rs.length===4 && rs.every(r=>r.width>=44 && r.height>=44 && Math.abs(r.top-rs[0].top)<2)}"), 'All sections have full-size targets on one row'
+            assert page.locator('.ledger-nav').bounding_box()['height'] <= 90, 'Three navigation tabs share one row'
+            assert page.locator('.ledger-nav button').evaluate_all("ns => {const rs=ns.map(n=>n.getBoundingClientRect());return rs.length===3 && rs.every(r=>r.width>=44 && r.height>=44 && Math.abs(r.top-rs[0].top)<2)}"), 'All sections have full-size targets on one row'
             for index in range(14):
                 expect(page.locator('#deckCounter')).to_have_text(f'{index + 1} / 14')
                 assert page.locator('.ledger-habit-card:not([inert])').count() == 1
