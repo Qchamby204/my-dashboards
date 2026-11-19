@@ -910,3 +910,7 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock [aria-selected="tr
   content:'';position:absolute;top:1px;left:30%;right:30%;height:2px;border-radius:2px;
   background:var(--neo-accent);box-shadow:0 0 9px var(--neo-accent);
 }
+@media(max-width:42rem) {
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-area-option {padding:.4rem .65rem!important;row-gap:.35rem;min-height:46px}
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-feature .lm-area-picker {margin-top:.6rem;gap:.35rem}
+}
