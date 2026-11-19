@@ -53,7 +53,8 @@
       const from=STAGES.indexOf(story.status),to=STAGES.indexOf(next),inOpening=!!control.closest('.herald-opening');
       story.status=next;openVid=story.id;
       const saved=save();renderAll();
-      const selector=inOpening?'.herald-production select':'[data-herald-id] .vbody [data-herald-stage]';
+      let selector=inOpening?'.herald-production select':'[data-herald-id] .vbody [data-herald-stage]';
+      if(control.dataset.heraldAction==='mark-ready')selector='[data-herald-action="read-script"]';
       document.querySelector(selector)?.focus({preventScroll:true});
       const track=document.querySelector('.herald-production ol');
       if(saved&&track&&from>=0){
@@ -98,7 +99,10 @@
         '<path class="herald-sweep" pathLength="100" d="M25 235 Q151 285 334 211"/></svg>';
       const picker=story&&S.videos.length>1?'<label class="herald-switch">Switch script<select data-herald-switch>'+S.videos.map(v=>'<option value="'+esc(v.id)+'"'+(v.id===story.id?' selected':'')+'>'+esc(v.title)+'</option>').join('')+'</select></label>':'';
       const read=story?count(story):routeReading(kind);
-      const edit=story?'<button class="btn" type="button" data-herald-action="read-script">'+stagePrompts[story.status]+'</button>':'';
+      const markReady=story?.status==='draft'&&words(story.script)>0
+        ? '<button type="button" class="btn" data-herald-action="mark-ready" data-herald-stage="'+esc(story.id)+'" value="approved">Mark ready to record</button>'
+        : '';
+      const edit=story?'<button class="btn" type="button" data-herald-action="read-script">'+(stagePrompts[story.status]||'Edit script')+'</button>'+markReady:'';
       const body='<div class="herald-lead"><h1>'+esc(story?story.title:c[0])+'</h1>'+
         (story?'<p class="herald-excerpt">'+esc(excerpt(story.script)||'Add the first lines of your script.')+'</p>':'<p>'+c[3]+'</p>')+
         (read?'<div class="herald-reading">'+read+'</div>':'')+(edit?'<div class="herald-edit">'+edit+'</div>':'')+'</div>';
@@ -154,7 +158,8 @@
     }else if(el.dataset.heraldStage&&!el.hasAttribute('onchange'))stageChange(el);else if(el.dataset.heraldTitle)rename(el.dataset.heraldTitle,el.value);else if(el.id==='nv-fmt'||el.id==='nv-vert'){drafts()[el.id]=el.value;queue();}});
     document.addEventListener('click',e=>{
       const el=e.target.closest('[data-herald-action]');if(!el)return;
-      if(el.dataset.heraldAction==='open-view'){const target=document.querySelector('#view .card'),bar=document.querySelector('.appbar');if(target){target.style.scrollMarginTop=((bar?.getBoundingClientRect().height||72)+16)+'px';target.scrollIntoView({block:'start',behavior:'instant'});if(cur==='vault')document.getElementById('nv-title')?.focus({preventScroll:true});}}
+      if(el.dataset.heraldAction==='mark-ready'){stageChange(el);}
+      else if(el.dataset.heraldAction==='open-view'){const target=document.querySelector('#view .card'),bar=document.querySelector('.appbar');if(target){target.style.scrollMarginTop=((bar?.getBoundingClientRect().height||72)+16)+'px';target.scrollIntoView({block:'start',behavior:'instant'});if(cur==='vault')document.getElementById('nv-title')?.focus({preventScroll:true});}}
       else if(el.dataset.heraldAction==='read-script'){
         const story=selectedStory();if(!story)return;
         openVid=story.id;vaultFilter='';search='';selMode=false;renderAll();

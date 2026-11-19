@@ -45,8 +45,10 @@ try{
    const left=await story.boundingBox(),right=await board.boundingBox();
    assert(width===1440?right.x>=left.x+left.width:right.y>=left.y+left.height,'script and its action lead on phone and sit beside production on desktop');
    await p.emulateMedia({reducedMotion:'no-preference'});
-   await board.locator('select').selectOption('approved');
-   assert.equal(await board.locator('[aria-current="step"]').textContent(),'Approved');
+   await board.locator('select').selectOption('draft');
+   await story.getByRole('button',{name:'Mark ready to record'}).click();
+   assert.equal(await board.locator('[aria-current="step"]').textContent(),'Ready to record');
+   assert(await story.getByRole('button',{name:'Review recording script'}).evaluate(n=>n===document.activeElement));
    assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('herald:v1')).videos.find(v=>v.id==='draft').status),'approved');
    assert.equal(await board.locator('ol').evaluate(n=>getComputedStyle(n,'::after').animationName),'herald-transfer');
    await p.emulateMedia({reducedMotion:'reduce'});
@@ -54,6 +56,10 @@ try{
    await p.screenshot({path:path.join(out,`production-${width}-${theme}.png`)});
    await opening.getByRole('button',{name:'Review recording script'}).click();assert(await p.locator('[data-herald-script=draft]').evaluate(n=>n===document.activeElement));
    await p.reload();await p.waitForFunction(()=>!!window.HeraldImprovements);assert.equal(await p.evaluate(()=>vById('draft').status),'approved');
+   await picker.selectOption('draft');
+   await board.getByLabel('Update stage').selectOption('produced');
+   assert.equal(await board.locator('[aria-current="step"]').textContent(),'Filmed / Edited');
+   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('herald:v1')).videos.find(v=>v.id==='draft').status),'produced');
   }
   assert.deepEqual(errors,[]);await ctx.close();
  }

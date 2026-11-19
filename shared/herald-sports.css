@@ -95,8 +95,9 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] #view .herald-lead h1 
 #view .herald-lead p { margin:12px 0 0;color:#d8e3df;line-height:1.55;max-width:62ch }
 #view .herald-excerpt { white-space:pre-line;max-height:9.3em;overflow:auto;overscroll-behavior:contain }
 #view .herald-reading { margin-top:14px;font:550 .82rem/1.6 var(--herald-mono);color:var(--signal) }
-#view .herald-edit { margin-top:20px }
+#view .herald-edit { display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:20px }
 html.atlas-neumo[data-atlas-app="the-herald"] #view .herald-edit .btn { background:var(--signal)!important;border:1px solid var(--signal)!important;color:#172025!important;min-height:46px;padding:10px 18px!important }
+html.atlas-neumo[data-atlas-app="the-herald"] #view .herald-edit .btn[data-herald-action="mark-ready"] { background:transparent!important;color:var(--signal)!important }
 #view .herald-switch,#view .herald-production label { display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;min-width:0;max-width:100%;color:#d4dedb;font-size:.85rem }
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-herald"] #view .herald-opening select { background:#172b32!important;color:#fff4df!important;border:1px solid #647479!important;max-width:100%;min-height:44px;width:auto;min-width:0;font:inherit!important;color-scheme:dark }
 #view .herald-switch select { flex:1 1 9rem;max-inline-size:20rem!important;text-overflow:ellipsis }
