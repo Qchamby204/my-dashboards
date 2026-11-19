@@ -789,7 +789,7 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-home-layout {
 }
 .lm-home-layout>* {min-width:0}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app #lm-daily-routines {
-  padding:clamp(1rem,2vw,1.6rem); margin:0; border:1px solid var(--neo-line);
+  padding:clamp(1.25rem,2vw,1.6rem); margin:0; border:1px solid var(--neo-line);
   border-radius:4px 18px 4px 18px; background:var(--neo-content-surface)!important;
 }
 html.atlas-neumo[data-atlas-app="life-map"] #app #lm-daily-routines .lm-day-section-title {
