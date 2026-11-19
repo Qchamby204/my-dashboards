@@ -24,13 +24,35 @@
   }
   // Decorative equipment scenes identify the page; saved training metrics remain text.
   const art=kind=>{
-    const scenes={
-      bench:'<path d="M62 157V44m196 113V44M62 76h17m179 0h-17M36 70h248"/><rect x="47" y="52" width="14" height="36" rx="3" fill="#ffffff08"/><rect x="68" y="46" width="18" height="48" rx="4" fill="#ffffff08"/><rect x="234" y="46" width="18" height="48" rx="4" fill="#ffffff08"/><rect x="259" y="52" width="14" height="36" rx="3" fill="#ffffff08"/><rect x="105" y="115" width="110" height="16" rx="6" stroke="#91b6b5" fill="#ffffff08"/><path d="M122 132v28m76-28v28M108 160h28m48 0h28" stroke="#91b6b5"/>',
-      deadlift:'<path d="M35 118h250"/><circle cx="87" cy="118" r="40" fill="#ffffff08"/><circle cx="87" cy="118" r="26" opacity=".45"/><circle cx="87" cy="118" r="6" fill="#e6bd7b"/><circle cx="233" cy="118" r="40" fill="#ffffff08"/><circle cx="233" cy="118" r="26" opacity=".45"/><circle cx="233" cy="118" r="6" fill="#e6bd7b"/><path d="M137 65h46m-23 0V29m-9 10 9-10 9 10" stroke="#91b6b5"/><path d="M44 160h232" opacity=".4"/>',
-      run:'<path d="M18 160h284M26 142h80m91 0h97M37 124h58m116 0h72" opacity=".35"/><circle cx="184" cy="38" r="11" fill="#ffffff08"/><path d="m140 71 26-11 26 26 31 4m-56-29-18 44 31 24-13 34m-18-58-30 41H96"/><path class="fg-trajectory" stroke-dasharray="16 4" d="M77 60h33m-49 23h38m-51 23h30" stroke="#91b6b5"/>',
-      dunk:'<rect x="179" y="22" width="101" height="64" rx="4" fill="#ffffff08"/><path d="M229 86v74m-18-101h37v27m-53 0h66m-58 0 7 28h37l7-28m-43 1 7 26m18-26-7 26"/><circle cx="103" cy="90" r="24" stroke="#91b6b5" fill="#ffffff08"/><path d="M79 90h48m-24-24c-13 14-13 34 0 48m0-48c13 14 13 34 0 48" stroke="#91b6b5"/><path class="fg-trajectory" d="M80 47c39-33 88-35 116-13" stroke-dasharray="6 4" stroke="#91b6b5"/><path d="M58 162h216" opacity=".4"/>'
-    };
-    const scene = kind === 'home' ? projectedBar() : scenes[kind];
+    let scene;
+    if(kind==='bench') {
+      scene=`<g stroke="#88b7b8" stroke-width="1.6" fill="#112a31">
+        <path d="m75 146 25-5 12 5-25 6zm10-6V62l6-1v80m135-26 25-6 11 6-25 6zm10-2V32l6-1v81"/>
+        <path d="m108 114 31-8 65 28-33 9z"/><path d="m108 114 1 6 62 29 33-10v-5l-33 9z"/>
+        <path d="M121 126v21m69-4v18m-80-14 22-5m45 22 25-6"/></g>
+        <g transform="translate(12 -22) scale(.92)"><g class="fg-lift">${projectedBar()}</g></g>`;
+    } else if(kind==='deadlift') {
+      scene=`<path d="m32 154 195-43 63 24-196 43z" stroke="#87adae" stroke-width="1.5" fill="#143038"/>
+        <path d="m32 154 1 5 60 25 197-44v-5m-196 43v6" stroke="#87adae" stroke-width="1.5"/>
+        <g transform="translate(0 13)"><g class="fg-lift">${projectedBar()}</g></g>`;
+    } else if(kind==='run') {
+      scene=`<g transform="translate(156 137) rotate(-8) scale(1 .27)" stroke-width="2">
+        <rect x="-130" y="-58" width="260" height="116" rx="58"/><rect x="-120" y="-48" width="240" height="96" rx="48" opacity=".63"/>
+        <rect x="-110" y="-38" width="220" height="76" rx="38" opacity=".4"/>
+        <rect class="fg-lap" x="-125" y="-53" width="250" height="106" rx="53" pathLength="100" stroke-dasharray="8 92" stroke-width="6"/></g>
+        <g transform="translate(10 -3) scale(.92)" stroke-width="3"><circle cx="184" cy="38" r="11" fill="#16363c"/>
+        <path d="m140 71 26-11 26 26 31 4m-56-29-18 44 31 24-13 34m-18-58-30 41H96"/>
+        <path class="fg-trajectory" stroke-dasharray="16 4" d="M77 60h33m-49 23h38m-51 23h30" opacity=".6"/></g>`;
+    } else if(kind==='dunk') {
+      scene=`<g stroke-width="1.6"><path d="m185 28 87-14v58l-87 13z" fill="#153338"/>
+        <path d="m209 64 30-5V40l-30 5zM252 76v80l-8 2V77m-18 81 31-5 13 5-32 6z"/>
+        <ellipse cx="208" cy="78" rx="22" ry="5"/><path d="m187 79 8 23q13 5 26-2l9-22m-38 3 17 23 15-24m-24 3 13 19"/>
+        <path class="fg-trajectory" d="M71 116Q114 -14 208 76" stroke-dasharray="4 6" opacity=".55"/></g>
+        <g transform="translate(71 116)"><g class="fg-ball"><circle r="18" fill="#15383c"/>
+        <path d="M-18 0h36M0-18v36m-12-31q16 13 0 26m24-26q-16 13 0 26" stroke-width="1.1"/></g></g>`;
+    } else {
+      scene=projectedBar();
+    }
     return `<svg class="fg-feature-art" data-illustration="${esc(kind)}" viewBox="0 0 340 194" fill="none" aria-hidden="true" focusable="false">
       <defs><radialGradient id="fg-field-light"><stop stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient>
       <pattern id="fg-grid-dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="currentColor" opacity=".32"/></pattern></defs>
