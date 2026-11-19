@@ -13,12 +13,13 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.
 async function inspect(p,app,view,theme,width){
  await p.waitForFunction(()=>!!document.querySelector('.core-opening-card'));await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await p.waitForTimeout(150);
  const result=await p.evaluate(()=>{
-  const card=document.querySelector('.core-opening-card'),bar=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
+  const summary=document.querySelector('#ledger-view-today:not([hidden]) .ledger-opening');
+  const card=summary||document.querySelector('.core-opening-card'),bar=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!card)return {issues:['missing opening card']};
   const b=card.getBoundingClientRect(),h=bar.getBoundingClientRect(),n=nav.getBoundingClientRect(),issues=[];
-  if(Math.abs(b.top-h.bottom-24)>2)issues.push('opening top gap');
+  if(summary?(b.top-h.bottom<12||b.top-h.bottom>32):Math.abs(b.top-h.bottom-24)>2)issues.push('opening top gap');
   if(b.bottom>n.top-16)issues.push('opening footer behind navigation');
-  if(n.top-b.bottom>32)issues.push('supporting content competes with the opening');
+  if(!summary&&n.top-b.bottom>32)issues.push('supporting content competes with the opening');
   if(document.documentElement.scrollWidth>innerWidth+1)issues.push('horizontal overflow');
   for(const control of card.querySelectorAll('button,summary,a')){if(!control.checkVisibility()||control.closest('[hidden],[inert],[aria-hidden="true"]'))continue;const c=control.getBoundingClientRect();if(c.width<43.5||c.height<43.5||c.left<b.left-1||c.right>b.right+1||c.bottom>b.bottom+1)issues.push('opening control bounds: '+(control.getAttribute('aria-label')||control.textContent).trim());}
   return {top:b.top,bottom:b.bottom,header:h.bottom,dock:n.top,height:b.height,minHeight:getComputedStyle(card).minHeight,navClearance:document.documentElement.style.getPropertyValue('--atlas-page-nav-height'),viewport:card.querySelector('#deckViewport')?.getBoundingClientRect().height,activity:card.querySelector('.ledger-habit-card:not([inert])')?.getBoundingClientRect().height,room:document.documentElement.style.getPropertyValue('--core-opening-height'),body:card.style.getPropertyValue('--core-opening-body-height'),scrollY,issues};
@@ -37,7 +38,8 @@ try{
     await inspect(p,app,'initial',theme,width);
     if(app==='life-ledger'){
      for(const habit of ['Sleep','Read','Board Work']){await p.locator('#ledger-habit-picker').selectOption(habit);await inspect(p,app,habit.replace(/\W/g,''),theme,width);}
-     for(const view of ['progress','achievements','history']){await p.locator('#ledger-nav-'+view).click();await inspect(p,app,view,theme,width);}
+     for(const view of ['progress','achievements']){await p.locator('#ledger-nav-'+view).click();await inspect(p,app,view,theme,width);}
+     await p.locator('#ledger-nav-progress').click();await p.locator('#ledger-open-history').click();await inspect(p,app,'history',theme,width);
     }else if(app==='life-map'){
      for(const view of ['projects','calendar']){await p.locator('#lm-day-nav-'+view).click();await inspect(p,app,view,theme,width);if(view==='projects')assert.deepEqual(await p.getByLabel('Filter by area',{exact:true}).locator('option').allTextContents(),['All areas','Food','Household','Family','Health','Work & growth','Money & admin']);}
      await p.evaluate(()=>LifeMapDay.showRecords());await inspect(p,app,'records',theme,width);

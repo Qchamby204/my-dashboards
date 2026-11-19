@@ -893,7 +893,7 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-activity-history #le
   min-height:44px;margin:12px 0 0;
 }
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-back-to-progress {
-  min-height:44px;margin-bottom:10px;
+  min-height:44px;margin:0;
 }
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-level-constellation {
   filter:drop-shadow(0 0 12px var(--ledger-hud-glow));

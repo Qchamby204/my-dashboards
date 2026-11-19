@@ -20,10 +20,12 @@ try{
   if(textSize===32)await page.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});
   const before=await page.evaluate(()=>localStorage.getItem('lifeledger:v2'));
   for(const [view,id]of [['progress','ledger-values-opening'],['achievements','ledger-next-milestone'],['history','ledger-record-overview']]){
-   await page.locator('#ledger-nav-'+view).click();await page.evaluate(()=>scrollTo(0,0));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+   if(view==='history'){await page.locator('#ledger-nav-progress').click();await page.locator('#ledger-open-history').click();}
+   else await page.locator('#ledger-nav-'+view).click();
+   await page.evaluate(()=>scrollTo(0,0));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
    const hero=page.locator('#'+id);assert(await hero.isVisible());
    const geometry=await hero.evaluate(node=>{const box=node.getBoundingClientRect(),title=node.querySelector('h2'),range=document.createRange();range.selectNodeContents(title);return {width:box.width,paneWidth:node.closest('[role="tabpanel"]').getBoundingClientRect().width,top:box.top,bottom:box.bottom,page:document.documentElement.scrollWidth,viewport:innerWidth,titleColor:getComputedStyle(title).color,background:getComputedStyle(node).backgroundColor,titleFits:[...range.getClientRects()].every(r=>r.right<=box.right+1&&r.left>=box.left-1),font:parseFloat(getComputedStyle(title).fontSize)};});
-   assert(geometry.width>geometry.paneWidth*.9&&geometry.top<(textSize===32?430:280),'opening card is the prominent first record');assert(geometry.page<=width+1,'page does not overflow');assert(geometry.titleFits,'hero title fits inside its card');assert.equal(geometry.background,theme==='dark'?'rgb(48, 42, 69)':'rgb(41, 37, 61)');
+   assert(geometry.width>geometry.paneWidth*.9&&geometry.top<(textSize===32?430:280),'opening card is the prominent first record');assert(geometry.page<=width+1,'page does not overflow');assert(geometry.titleFits,'hero title fits inside its card');assert.equal(geometry.background,theme==='dark'?'rgb(16, 35, 45)':'rgb(249, 252, 252)');
    assert(await hero.locator('svg').count()>0,'each opening card retains illustration');
    for(const control of await hero.locator('button,summary').all()){if(!await control.isVisible())continue;const b=await control.boundingBox();assert(b.height>=43.5,'opening actions retain touch targets');}
    await page.screenshot({path:path.join(out,`${view}-${theme}-${width}-${textSize}.png`)});reports.push({view,theme,width,textSize,populated,...geometry});

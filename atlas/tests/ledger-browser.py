@@ -116,7 +116,11 @@ with sync_playwright() as pw:
         saved = json.loads(page.evaluate('localStorage.getItem("lifeledger:v2")'))
         assert next(d for d in saved if d['date'] == DAY)['units']['LinkedIn Strategy'] == 1
         for view in ['progress', 'achievements', 'history', 'today']:
-            page.locator('#ledger-nav-' + view).click()
+            if view == 'history':
+                page.locator('#ledger-nav-progress').click()
+                page.locator('#ledger-open-history').click()
+            else:
+                page.locator('#ledger-nav-' + view).click()
             expect(page.locator('#ledger-view-' + view)).to_be_visible()
             no_overflow()
             page.screenshot(path=str(OUT / f'{ENGINE}-{view}.png'), full_page=True)

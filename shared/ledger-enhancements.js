@@ -1102,7 +1102,8 @@
       panes.achievements.append(make('h1','Achievements','cinzel ledger-view-title'),collection);
       const historyHeading=make('h1','Your record','cinzel ledger-view-title');historyHeading.id='ledger-history-heading';historyHeading.setAttribute('tabindex','-1');
       const back=button('Back to Progress',()=>setDashboardView('progress',true));back.id='ledger-back-to-progress';
-      panes.history.prepend(back,historyHeading,historyFeature());
+      const recordOverview=historyFeature();recordOverview.querySelector('.ledger-feature-rail')?.append(back);
+      panes.history.prepend(historyHeading,recordOverview);
       const savedRecords=move('#ledger-history',panes.history);if(savedRecords)checkinTools.before(savedRecords);
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
       const toolsPanel=make('details',null,'ledger-manage');toolsPanel.id='ledger-reminder-tools';toolsPanel.append(make('summary','Manage Ledger & backups'));
