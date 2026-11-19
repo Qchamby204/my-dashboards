@@ -662,6 +662,8 @@ test('the August habit keeps its emoji and joins the Connection map and saved ac
  assert.equal(h.node('ledger-dock').querySelector('[data-act="commit"]'),null);
  h.node('ledger-nav-progress').click();
  h.node('ledger-values-opening').querySelector('[data-orbit="CONNECTION"]').click();
+ const projection=h.node('ledger-values-opening').querySelector('.orbit-projection-bottom');
+ assert.match(projection.getAttribute('d'),/^M\d+ \d+ C\d+ \d+ 240 272 240 350$/);
  assert.match(h.node('ledger-values-opening').querySelector('#ledger-orbit-inspector').textContent,/100 lifetime XP/);
  assert.match(h.node('app').querySelector('#ledger-activity-chart').textContent,/Connection activity/);
  h.node('ledger-open-history').click();

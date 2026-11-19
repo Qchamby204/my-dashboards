@@ -893,14 +893,14 @@
       const station=(p)=>{
         const life=p===core,r=life?40:24,perimeter=2*Math.PI*(r+4);
         const mark=life?'':iconSVG(p.icon,p.color).replace('<svg ','<svg x="-11" y="-11" ');
-        return '<g transform="translate('+p.x+' '+p.y+')" class="orbit-node" role="button" tabindex="0" data-orbit="'+p.key+'" aria-controls="ledger-orbit-inspector" aria-label="'+esc(p.title)+' · Level '+p.level+' · '+fmt(p.xp)+' XP">'+
-          '<rect x="-42" y="-34" width="84" height="90" rx="10" fill="transparent"/><g pointer-events="none">'+
+        return '<g transform="translate('+p.x+' '+p.y+')" class="orbit-node" role="button" tabindex="0" data-orbit="'+p.key+'" aria-controls="ledger-orbit-inspector" style="--orbit-ink:'+p.color+'" aria-label="'+esc(p.title)+' · Level '+p.level+' · '+fmt(p.xp)+' XP">'+
+          '<rect x="-42" y="-34" width="84" height="90" rx="10" fill="transparent"/><g pointer-events="none"><g class="orbit-node-art">'+
           '<circle class="orbit-halo" r="'+(r+13)+'" fill="none" stroke="'+p.color+'"/>'+
           '<circle class="orbit-ring" r="'+(r+8)+'" fill="none" stroke="'+p.color+'" stroke-dasharray="16 5 3 4"/>'+
           '<g class="orbit-satellite" fill="'+p.color+'"><circle cy="'+(-r-8)+'" r="2.7"/><circle cy="'+(r+8)+'" r="1.4"/></g>'+
           '<circle r="'+r+'" fill="url(#orbit-glass)" stroke="'+p.color+'" stroke-opacity=".7"/>'+
           '<circle r="'+(r+4)+'" fill="none" stroke="'+p.color+'" stroke-width="3" transform="rotate(-90)" stroke-dasharray="'+perimeter*Math.min(1,p.into/p.cost)+' '+perimeter+'"/>'+
-          mark+(life?'<circle r="36" class="orbit-hub-bezel"/><circle r="30" class="orbit-hub-inner" fill="url(#orbit-core)"/><path d="M-23 -19a30 30 0 0 1 43-4" class="orbit-hub-reflection"/><text y="-6" class="orbit-life-name">LIFE</text><text y="20" class="orbit-life-number">'+p.level+'</text>':
+          mark+(life?'<circle r="36" class="orbit-hub-bezel"/><circle r="30" class="orbit-hub-inner" fill="url(#orbit-core)"/><path d="M-23 -19a30 30 0 0 1 43-4" class="orbit-hub-reflection"/>':'')+'</g>'+(life?'<text y="-6" class="orbit-life-name">LIFE</text><text y="20" class="orbit-life-number">'+p.level+'</text>':
           '<text y="41" class="orbit-name">'+esc(p.title)+'</text><text y="56" class="orbit-level">LV '+p.level+'</text>')+'</g></g>';
       };
       diagram.innerHTML='<svg viewBox="0 0 480 349" class="ledger-orbit-svg" role="group" aria-label="Life Level and value map"><defs>'+
@@ -913,17 +913,28 @@
         '<circle r="108" class="orbit-coordinates"/><circle r="78" class="orbit-coordinates orbit-coordinate-inner"/>'+
         '<g class="orbit-gyro"><ellipse rx="184" ry="65" transform="rotate(-24)"/><ellipse rx="177" ry="73" transform="rotate(25)"/><ellipse rx="127" ry="64" transform="rotate(77)"/><circle cx="151" cy="-24" r="3"/><circle cx="-153" cy="39" r="2"/></g>'+
         '<g class="orbit-radar"><path d="M0 0 L0 -108 A108 108 0 0 1 63.5 -87.4Z" fill="url(#orbit-sweep)"/><path d="M0 -108 L0 -62" class="orbit-scan-line"/></g>'+
-        '</g></g>'+routes+stations.map(station).join('')+'</svg>';
+        '</g></g>'+routes+
+        '<g class="orbit-projections" aria-hidden="true" fill="none"><path class="orbit-projection orbit-projection-bottom" pathLength="100"/><path class="orbit-projection orbit-projection-side" pathLength="100"/></g>'+
+        stations.map(station).join('')+'</svg>';
       const controls=[...diagram.querySelectorAll('[data-orbit]')];
+      const bottomProjection=diagram.querySelector('.orbit-projection-bottom');
+      const sideProjection=diagram.querySelector('.orbit-projection-side');
+      let inspectionAnimation;
       let signalAnimation;
       const inspector=make('section',null,'ledger-orbit-inspector');inspector.id='ledger-orbit-inspector';
       const layout=make('div',null,'ledger-orbit-layout');layout.append(diagram,inspector);
       inspector.setAttribute('aria-label','Selected value');
       function inspect(key,refresh=false){
-        const pillar=data.pillars.find(p=>p.key===key),active=pillar||core;
+        const pillar=nodes.find(p=>p.key===key),active=pillar||core;
         const changed=valueScope!==active.key;
         valueScope=active.key;
         diagram.dataset.scope=valueScope;
+        layout.dataset.inspecting=String(!!pillar);
+        layout.style.setProperty('--orbit-inspection-ink',active.color);
+        diagram.style.setProperty('--orbit-focus-x',((167-active.y)*.085)+'deg');
+        diagram.style.setProperty('--orbit-focus-y',((active.x-240)*.065)+'deg');
+        bottomProjection?.setAttribute('d',`M${active.x} ${active.y} C${active.x} ${active.y+64} 240 272 240 350`);
+        sideProjection?.setAttribute('d',`M${active.x} ${active.y} C${active.x+44} ${active.y} 415 167 481 167`);
         layout.style.setProperty('--progress-accent',active.color);
         for(const node of controls)node.setAttribute('aria-pressed',String(node.dataset.orbit===valueScope));
         for(const path of diagram.querySelectorAll('[data-route]'))path.dataset.selected=String(path.dataset.route===valueScope);
@@ -965,7 +976,17 @@
             ],{duration:650,easing:'ease-out'});
             const arrival=controls.find(node=>node.dataset.orbit===valueScope)?.querySelector('.orbit-halo');
             arrival?.animate?.([{opacity:1,transform:'scale(.75)'},{opacity:0,transform:'scale(1.52)'}],{duration:670,easing:'ease-out'});
-            inspector.animate?.([{opacity:.58,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'ease-out'});
+            for(const projection of [bottomProjection,sideProjection]){
+              if(!projection?.animate)continue;
+              projection.getAnimations?.().forEach(animation=>animation.cancel());
+              if(pillar)projection.animate([{strokeDashoffset:100,opacity:0},{strokeDashoffset:0,opacity:.7}],{duration:360,easing:'ease-out'});
+            }
+            inspectionAnimation?.cancel();
+            const stacked=window.matchMedia('(max-width: 650px)').matches;
+            inspectionAnimation=inspector.animate?.([
+              {clipPath:stacked?'inset(0 0 42% 0 round 12px)':'inset(0 42% 0 0 round 12px)',opacity:.5},
+              {clipPath:'inset(0 round 12px)',opacity:1}
+            ],{duration:310,delay:50,easing:'cubic-bezier(.2,.75,.25,1)'});
           }
           document.getElementById('ledger-activity-chart')?.replaceWith(activityHistory(data));
           const recent=document.getElementById('ledger-recent');
@@ -988,8 +1009,8 @@
         if(event.pointerType!=='mouse'||!motionAllowed())return;
         const rect=diagram.getBoundingClientRect();
         const x=(event.clientX-rect.left)/rect.width-.5,y=(event.clientY-rect.top)/rect.height-.5;
-        diagram.style.setProperty('--orbit-tilt-x',(-y*32)+'deg');
-        diagram.style.setProperty('--orbit-tilt-y',(x*39)+'deg');
+        diagram.style.setProperty('--orbit-tilt-x',(-y*8)+'deg');
+        diagram.style.setProperty('--orbit-tilt-y',(x*10)+'deg');
       });
       diagram.addEventListener('pointerleave',()=>{
         diagram.style.removeProperty('--orbit-tilt-x');

@@ -748,7 +748,7 @@ html[data-atlas-app="life-ledger"] #app #ledger-achievement-readout .ledger-read
 @media(max-width:680px){
   html[data-atlas-app="life-ledger"] {--atlas-dock-left:max(16px,var(--atlas-safe-left,0px));--atlas-dock-right:max(16px,var(--atlas-safe-right,0px));}
 }
-html[data-atlas-app="life-ledger"] .ledger-orbit-layout {display:grid;grid-template-columns:minmax(0,1.3fr) minmax(200px,1fr);gap:clamp(14px,3vw,40px);align-items:center;margin-top:14px;}
+html[data-atlas-app="life-ledger"] .ledger-orbit-layout {display:grid;grid-template-columns:minmax(0,1.3fr) minmax(200px,1fr);--orbit-gap:clamp(14px,3vw,40px);gap:var(--orbit-gap);align-items:center;margin-top:14px;}
 html[data-atlas-app="life-ledger"] .ledger-orbit-field {min-width:0;border:1px solid var(--neo-line);border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,#153840,#07141c 75%);}
 html[data-atlas-app="life-ledger"] #app .ledger-orbit-svg {display:block;width:100%;height:auto;max-width:none;font-family:var(--neo-font),system-ui,sans-serif;}
 .ledger-orbit-svg text {text-anchor:middle;}
@@ -809,7 +809,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .led
   #ledger-view-progress:not([hidden]) .orbit-radar {animation:ledger-orbit-turn 9s linear infinite;transform-origin:0 0;}
   #ledger-view-progress:not([hidden]) .orbit-gyro {animation:ledger-orbit-turn 24s linear infinite reverse;transform-origin:0 0;}
   #ledger-view-progress:not([hidden]) .orbit-satellite {animation:ledger-orbit-turn 7s linear infinite;transform-origin:0 0;}
-  #ledger-view-progress:not([hidden]) .orbit-depth {transform-origin:center;transform:perspective(560px) rotateX(var(--orbit-tilt-x,0deg)) rotateY(var(--orbit-tilt-y,0deg));transition:transform .32s ease-out;}
+  #ledger-view-progress:not([hidden]) .orbit-depth {transform-origin:center;transform:perspective(560px) rotateX(calc(var(--orbit-focus-x,0deg) + var(--orbit-tilt-x,0deg))) rotateY(calc(var(--orbit-focus-y,0deg) + var(--orbit-tilt-y,0deg)));transition:transform .32s ease-out;}
   #ledger-view-progress:not([hidden]) .orbit-trace {opacity:.26;animation:ledger-orbit-flow 3.2s linear var(--signal-delay) infinite;}
   #ledger-view-progress:not([hidden]) .orbit-signal {opacity:.64;animation:ledger-orbit-flow 3.2s linear var(--signal-delay) infinite;}
   #ledger-view-progress:not([hidden]) [data-selected="true"] .orbit-signal {opacity:1;stroke-width:4;filter:drop-shadow(0 0 3px currentColor);}
@@ -1164,4 +1164,44 @@ html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-record[data-e
   .ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::before,
   .ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::after {display:none;}
   html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-record[data-earned] :is(.ledger-badge-rim,.ledger-badge-symbol) {stroke:CanvasText;}
+}
+
+/* The inspection layer moves independently of the map labels and hit areas. */
+.ledger-orbit-svg .orbit-node-art {transform-box:fill-box;transform-origin:center;}
+.ledger-orbit-svg .orbit-projection {
+  stroke:var(--orbit-inspection-ink);stroke-width:1.3;vector-effect:non-scaling-stroke;
+  stroke-dasharray:100;pointer-events:none;opacity:0;
+}
+.ledger-orbit-svg .orbit-projection-bottom {display:none;}
+.ledger-orbit-layout[data-inspecting="true"] .orbit-projection {opacity:.7;}
+.ledger-orbit-layout[data-inspecting="true"] .orbit-node[aria-pressed="true"] .orbit-node-art {
+  filter:drop-shadow(0 0 6px color-mix(in srgb,var(--orbit-ink) 60%,transparent));
+}
+html[data-atlas-app="life-ledger"] #app .ledger-orbit-layout[data-inspecting="true"] .ledger-orbit-inspector {
+  position:relative;padding:12px;
+  border:1px solid color-mix(in srgb,var(--orbit-inspection-ink) 48%,var(--neo-line));
+  border-radius:12px;
+  background:linear-gradient(150deg,color-mix(in srgb,var(--orbit-inspection-ink) 11%,transparent),transparent 72%);
+}
+.ledger-orbit-layout[data-inspecting="true"] .ledger-orbit-inspector::before {
+  content:"";position:absolute;pointer-events:none;right:100%;top:50%;
+  width:calc(var(--orbit-gap) + 1px);height:1px;
+  background:var(--orbit-inspection-ink);opacity:.7;
+}
+@media(max-width:650px) {
+  .ledger-orbit-svg .orbit-projection-side {display:none;}
+  .ledger-orbit-svg .orbit-projection-bottom {display:block;}
+  .ledger-orbit-layout[data-inspecting="true"] .ledger-orbit-inspector::before {
+    bottom:100%;left:50%;top:auto;right:auto;width:1px;height:calc(var(--orbit-gap) + 1px);
+  }
+}
+@media(prefers-reduced-motion:no-preference) {
+  .ledger-orbit-svg .orbit-node-art {transition:transform .34s cubic-bezier(.2,.75,.25,1),filter .22s ease;}
+  .ledger-orbit-layout[data-inspecting="true"] .orbit-node[aria-pressed="true"] .orbit-node-art {
+    transform:translateY(-2px) scale(1.09);
+  }
+}
+@media(forced-colors:active) {
+  .ledger-orbit-svg .orbit-projection {stroke:Highlight;}
+  .ledger-orbit-layout[data-inspecting="true"] .ledger-orbit-inspector::before {background:Highlight;}
 }
