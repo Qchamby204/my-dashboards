@@ -5,18 +5,93 @@
   let data=M.blank(),raw=null,blocked=false,failed=false,active=null,error='',status='',homeScroll=0;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const button=(label,action,attrs='')=>`<button type="button" data-goal-action="${action}" ${attrs}>${label}</button>`;
+  // The rings are a projection surface. The strip below is the actual training record.
+  function weightPlate(cx, radius) {
+    const ry = radius, rx = radius * 0.38, y = 92;
+    return `<g><path d="M${cx} ${y-ry}h7a${rx} ${ry} 0 0 1 0 ${2*ry}h-7" fill="#183d42"/>
+      <ellipse cx="${cx}" cy="${y}" rx="${rx}" ry="${ry}" fill="#113038"/>
+      <ellipse cx="${cx}" cy="${y}" rx="${rx*0.74}" ry="${ry*0.76}" stroke-opacity=".55"/>
+      <ellipse cx="${cx}" cy="${y}" rx="${rx*0.23}" ry="${ry*0.24}"/></g>`;
+  }
+  function projectedBar() {
+    return `<g transform="rotate(-12 160 92)" stroke-width="1.5">
+      <path d="M35 89h247v6H35z" fill="#24494b"/>
+      ${[247,235,223].map((x,i)=>weightPlate(x,28+i*10)).join('')}
+      <path d="M84 89h138v6H84z" fill="#1f494c"/>
+      <path d="M111 91h31m30 0h31" stroke-dasharray="1 2"/>
+      ${[99,87,75].map((x,i)=>weightPlate(x,48-i*10)).join('')}
+      <path d="M40 89h34v6H40z" fill="#1f494c"/></g>`;
+  }
   // Decorative equipment scenes identify the page; saved training metrics remain text.
   const art=kind=>{
-    const scenes={
-      home:'<path d="M40 115h240"/><rect x="54" y="92" width="15" height="46" rx="4" fill="#ffffff08"/><rect x="76" y="81" width="19" height="68" rx="5" fill="#ffffff08"/><rect x="225" y="81" width="19" height="68" rx="5" fill="#ffffff08"/><rect x="251" y="92" width="15" height="46" rx="4" fill="#ffffff08"/><circle cx="160" cy="70" r="30" stroke="#91b6b5"/><path d="M160 52v19l11 8m-19-44h16m-8-6v6" stroke="#91b6b5"/><path d="M119 157h82" opacity=".4"/>',
-      bench:'<path d="M62 157V44m196 113V44M62 76h17m179 0h-17M36 70h248"/><rect x="47" y="52" width="14" height="36" rx="3" fill="#ffffff08"/><rect x="68" y="46" width="18" height="48" rx="4" fill="#ffffff08"/><rect x="234" y="46" width="18" height="48" rx="4" fill="#ffffff08"/><rect x="259" y="52" width="14" height="36" rx="3" fill="#ffffff08"/><rect x="105" y="115" width="110" height="16" rx="6" stroke="#91b6b5" fill="#ffffff08"/><path d="M122 132v28m76-28v28M108 160h28m48 0h28" stroke="#91b6b5"/>',
-      deadlift:'<path d="M35 118h250"/><circle cx="87" cy="118" r="40" fill="#ffffff08"/><circle cx="87" cy="118" r="26" opacity=".45"/><circle cx="87" cy="118" r="6" fill="#e6bd7b"/><circle cx="233" cy="118" r="40" fill="#ffffff08"/><circle cx="233" cy="118" r="26" opacity=".45"/><circle cx="233" cy="118" r="6" fill="#e6bd7b"/><path d="M137 65h46m-23 0V29m-9 10 9-10 9 10" stroke="#91b6b5"/><path d="M44 160h232" opacity=".4"/>',
-      run:'<path d="M18 160h284M26 142h80m91 0h97M37 124h58m116 0h72" opacity=".35"/><circle cx="184" cy="38" r="11" fill="#ffffff08"/><path d="m140 71 26-11 26 26 31 4m-56-29-18 44 31 24-13 34m-18-58-30 41H96"/><path d="M77 60h33m-49 23h38m-51 23h30" stroke="#91b6b5"/>',
-      dunk:'<rect x="179" y="22" width="101" height="64" rx="4" fill="#ffffff08"/><path d="M229 86v74m-18-101h37v27m-53 0h66m-58 0 7 28h37l7-28m-43 1 7 26m18-26-7 26"/><circle cx="103" cy="90" r="24" stroke="#91b6b5" fill="#ffffff08"/><path d="M79 90h48m-24-24c-13 14-13 34 0 48m0-48c13 14 13 34 0 48M80 47c39-33 88-35 116-13" stroke="#91b6b5"/><path d="M58 162h216" opacity=".4"/>'
-    };
-    return `<svg class="fg-feature-art" data-illustration="${esc(kind)}" viewBox="0 0 320 190" fill="none" aria-hidden="true"><path d="M26 175h268" stroke="currentColor" stroke-opacity=".18"/><circle cx="292" cy="33" r="4" fill="currentColor" opacity=".3"/><circle cx="28" cy="37" r="2" fill="currentColor" opacity=".5"/><g stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${scenes[kind]||scenes.home}</g></svg>`;
+    let scene;
+    if(kind==='bench') {
+      scene=`<g stroke="#88b7b8" stroke-width="1.6" fill="#112a31">
+        <path d="m75 146 25-5 12 5-25 6zm10-6V62l6-1v80m135-26 25-6 11 6-25 6zm10-2V32l6-1v81"/>
+        <path d="m108 114 31-8 65 28-33 9z"/><path d="m108 114 1 6 62 29 33-10v-5l-33 9z"/>
+        <path d="M121 126v21m69-4v18m-80-14 22-5m45 22 25-6"/></g>
+        <g transform="translate(12 -22) scale(.92)"><g class="fg-lift">${projectedBar()}</g></g>`;
+    } else if(kind==='deadlift') {
+      scene=`<path d="m32 154 195-43 63 24-196 43z" stroke="#87adae" stroke-width="1.5" fill="#143038"/>
+        <path d="m32 154 1 5 60 25 197-44v-5m-196 43v6" stroke="#87adae" stroke-width="1.5"/>
+        <g transform="translate(0 13)"><g class="fg-lift">${projectedBar()}</g></g>`;
+    } else if(kind==='run') {
+      scene=`<g transform="translate(156 137) rotate(-8) scale(1 .27)" stroke-width="2">
+        <rect x="-130" y="-58" width="260" height="116" rx="58"/><rect x="-120" y="-48" width="240" height="96" rx="48" opacity=".63"/>
+        <rect x="-110" y="-38" width="220" height="76" rx="38" opacity=".4"/>
+        <rect class="fg-lap" x="-125" y="-53" width="250" height="106" rx="53" pathLength="100" stroke-dasharray="8 92" stroke-width="6"/></g>
+        <g transform="translate(10 -3) scale(.92)" stroke-width="3"><circle cx="184" cy="38" r="11" fill="#16363c"/>
+        <path d="m140 71 26-11 26 26 31 4m-56-29-18 44 31 24-13 34m-18-58-30 41H96"/>
+        <path class="fg-trajectory" stroke-dasharray="16 4" d="M77 60h33m-49 23h38m-51 23h30" opacity=".6"/></g>`;
+    } else if(kind==='dunk') {
+      scene=`<g stroke-width="1.6"><path d="m185 28 87-14v58l-87 13z" fill="#153338"/>
+        <path d="m209 64 30-5V40l-30 5zM252 76v80l-8 2V77m-18 81 31-5 13 5-32 6z"/>
+        <ellipse cx="208" cy="78" rx="22" ry="5"/><path d="m187 79 8 23q13 5 26-2l9-22m-38 3 17 23 15-24m-24 3 13 19"/>
+        <path class="fg-trajectory" d="M71 116Q114 -14 208 76" stroke-dasharray="4 6" opacity=".55"/></g>
+        <g transform="translate(71 116)"><g class="fg-ball"><circle r="18" fill="#15383c"/>
+        <path d="M-18 0h36M0-18v36m-12-31q16 13 0 26m24-26q-16 13 0 26" stroke-width="1.1"/></g></g>`;
+    } else {
+      scene=projectedBar();
+    }
+    return `<svg class="fg-feature-art" data-illustration="${esc(kind)}" viewBox="0 0 340 194" fill="none" aria-hidden="true" focusable="false">
+      <defs><radialGradient id="fg-field-light"><stop stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient>
+      <pattern id="fg-grid-dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="currentColor" opacity=".32"/></pattern></defs>
+      <rect x="1" y="1" width="338" height="192" fill="url(#fg-grid-dots)"/><ellipse cx="170" cy="106" rx="156" ry="88" fill="url(#fg-field-light)"/>
+      <g stroke="currentColor" stroke-width="1"><path opacity=".45" d="M7 22V8h18m290 0h18v14M7 172v14h18m290 0h18v-14"/>
+      <g transform="translate(170 143) scale(1 .25)"><circle r="116" opacity=".28"/><circle r="99" opacity=".35" stroke-dasharray="2 8"/>
+      <circle class="fg-orbit" r="111" opacity=".85" stroke-width="2" stroke-dasharray="93 150 29 425"/></g>
+      <path d="M42 145h256" opacity=".18" stroke-dasharray="3 5"/></g>
+      <g transform="translate(10 -3)"><g class="fg-perspective"><g class="fg-projection" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${scene}</g></g></g></svg>`;
   };
-  const feature=(kind,rail,title,body,actions,{home=false}={})=>`<section class="fg-feature${home?' fg-starting-point':''}" aria-label="${home?'Your training focus':'Current goal session'}"><div class="fg-feature-rail">${esc(rail)}</div><div class="fg-feature-body"><div class="fg-feature-title"><${home?'h1':'h2'}${home?'':' id="fg-session-title"'}>${esc(title)}</${home?'h1':'h2'}></div>${art(kind)}${body}</div><div class="fg-feature-footer fg-actions">${actions}</div></section>`;
+
+  function activityStrip() {
+    const counts = new Map();
+    for (const session of state.sessions) counts.set(session.date,(counts.get(session.date)||0)+1);
+    const cells = [];
+    let total = 0;
+    for (let daysAgo=6; daysAgo>=0; daysAgo--) {
+      const date = new Date();
+      date.setHours(12,0,0,0);
+      date.setDate(date.getDate()-daysAgo);
+      const key = [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+      const count = counts.get(key)||0;
+      total += count;
+      cells.push(`<li data-active="${count>0}" ${daysAgo===0?'aria-current="date"':''}><time datetime="${key}">${esc(date.toLocaleDateString(undefined,{weekday:'short'}))}</time><strong>${count}</strong></li>`);
+    }
+    return `<div class="fg-activity"><div class="fg-readout"><span>Regular workouts · last 7 days</span><strong>${total} logged</strong></div><ol class="fg-activity-days">${cells.join('')}</ol></div>`;
+  }
+
+  function progressStrip(label, flags, summary) {
+    return `<div class="fg-register"><div class="fg-readout"><span>${esc(label)}</span><strong>${esc(summary)}</strong></div><div class="fg-segments" aria-hidden="true">${flags.map(value=>`<i${value?' class="is-logged"':''}></i>`).join('')}</div></div>`;
+  }
+
+  function feature(kind,rail,title,body,actions,{home=false,readout=''}={}) {
+    const tag = home?'h1':'h2';
+    return `<section class="fg-feature ${home?'fg-starting-point':'fg-current-session'}" data-focus="${esc(kind)}" aria-label="${home?'Your training focus':'Current goal session'}">
+      <div class="fg-feature-rail">${esc(rail)}</div><div class="fg-feature-body">
+      <div class="fg-feature-copy"><div class="fg-feature-title"><${tag}${home?'':' id="fg-session-title"'}>${esc(title)}</${tag}></div>${body}</div>
+      ${art(kind)}${readout}</div><div class="fg-feature-footer fg-actions">${actions}</div></section>`;
+  }
   const info=(title,body)=>`<details class="fg-info"><summary aria-label="${esc(title)}"><span aria-hidden="true">i</span><span>${esc(title)}</span></summary><div>${body}</div></details>`;
   function read(){blocked=false;try{raw=localStorage.getItem(KEY);data=raw?M.validate(JSON.parse(raw)):M.blank();}catch{blocked=true;}state.goals=data;}
   function persist(){
@@ -47,7 +122,15 @@
   }
   function home(){
     const chosen=data.goal&&P[data.goal],p=chosen&&plan(chosen.id),next=p&&M.next(p);
-    const question=chosen?feature(chosen.id,chosen.phase,chosen.title,`<p class="fg-feature-target">${esc(chosen.target)} <span>${esc(chosen.unit)}</span></p><p>${esc(M.metric(chosen.id,p))}</p><p>${Object.keys(p.completed).length}/16 sessions saved${next?` · Next: Week ${next.week+1} · ${next.day==='d1'?'A':'B'}`:''}</p>`,button('Continue your chosen plan','open',`data-goal="${chosen.id}" class="fg-primary"`),{home:true}):feature('home','Your training focus','Choose your next challenge','<p>Choose a goal to work toward. Your regular four-day split is below.</p>',Object.values(P).map(c=>button(esc(c.title),'choose-focus',`data-goal="${c.id}"`)).join(''),{home:true});
+    const question=chosen
+      ? feature(chosen.id,chosen.phase,chosen.title,
+          `<p class="fg-feature-target">${esc(chosen.target)} <span>${esc(chosen.unit)}</span></p><p>${esc(M.metric(chosen.id,p))}</p>${next?`<p>Next · Week ${next.week+1} · ${next.day==='d1'?'A':'B'}</p>`:''}`,
+          button('Continue your chosen plan','open',`data-goal="${chosen.id}" class="fg-primary"`),
+          {home:true,readout:progressStrip('Goal sessions',Array.from({length:16},(_,i)=>p.completed[`${Math.floor(i/2)}-d${i%2+1}`]),Object.keys(p.completed).length+' / 16 saved')})
+      : feature('home','Your training focus','Choose your next challenge',
+          '<p>Choose a goal for your next training block, or open a regular workout below.</p>',
+          Object.values(P).map(c=>button(`<span>${esc(c.title)}</span>`,'choose-focus',`data-goal="${c.id}"`)).join(''),
+          {home:true,readout:activityStrip()});
     return `${question}<section class="fg-home" aria-labelledby="fg-title"><header class="fg-section-title"><div><div class="fg-kicker">Separate sessions · 8 weeks</div><h2 id="fg-title">Goal training</h2></div>${info('About goal training','<p>Each goal has two sessions per week and its own set log. Your regular split and its session totals stay separate. A saved session may contain fewer sets than prescribed; its log shows exactly what you did.</p><p>Bench targets 315 lb this block. Deadlift, 5K and dunking are phase one of longer goals.</p>')}</header>${notice()}<div class="fg-grid">${Object.values(P).map(c=>{
       const p=plan(c.id),n=M.next(p),count=Object.keys(p.completed).length;
       const started=Object.keys(p.done).length>0;
@@ -102,11 +185,17 @@
   }
   function currentSession(){
     const {p,w}=selected(),day=name(active,p,p.week,p.day),count=M.counts(active,p,p.week,p.day),key=currentSet(p,w),where=key?M.locate(active,key,p.base):null;
-    return notice()+feature(active,`Current session · Week ${p.week+1} · ${p.day==='d1'?'A':'B'}`,day.title,`<p>${count.logged}/${count.total} sets ${failed?'entered · not saved':'logged'}${!failed&&p.completed[`${p.week}-${p.day}`]?' · Session saved':''}</p>${where?`<p class="fg-current-next">${p.draft?'Continue':'Next'}: ${esc(where.e.n)} · Set ${where.set+1}${where.week!==p.week||where.day!==p.day?` · Week ${where.week+1} ${where.day==='d1'?'A':'B'}`:''}</p>`:''}`,key?button(p.draft?'Resume unfinished set':'Log next set','next-set',`data-key="${key}" class="fg-primary"`):button(p.completed[`${p.week}-${p.day}`]?'Update saved session':'Finish session','finish','class="fg-primary"')).replace('class="fg-feature"','class="fg-feature fg-current-session"');
+    const flags=w[p.day].flatMap((exercise,ei)=>Array.from({length:exercise.sets},(_,set)=>!!p.done[M.key(p.week,p.day,ei,set)]));
+    const summary=`${count.logged} / ${count.total} ${failed?'entered · not saved':'logged'}`;
+    const next=where?`<p class="fg-current-next">${p.draft?'Continue':'Next'} · ${esc(where.e.n)} · Set ${where.set+1}${where.week!==p.week||where.day!==p.day?` · Week ${where.week+1} ${where.day==='d1'?'A':'B'}`:''}</p>`:'';
+    const action=key?button(p.draft?'Resume unfinished set':'Log next set','next-set',`data-key="${key}" class="fg-primary"`):button(p.completed[`${p.week}-${p.day}`]?'Update saved session':'Finish session','finish','class="fg-primary"');
+    return notice()+feature(active,`${P[active].title} · Week ${p.week+1} · ${p.day==='d1'?'A':'B'}`,day.title,next,action,
+      {readout:progressStrip(!failed&&p.completed[`${p.week}-${p.day}`]?'Sets · session saved':'Session sets',flags,summary)});
+
   }
   function detail(){
     const c=P[active],{p,b,w}=selected(),day=name(active,p,p.week,p.day),ct=M.counts(active,p,p.week,p.day),done=p.completed[`${p.week}-${p.day}`];
-    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><header class="fg-detail-title"><h1 tabindex="-1" id="fg-detail-title">${esc(c.title)}</h1><p>${esc(c.aim)} · ${esc(M.metric(active,p))}</p></header>${currentSession()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>The rim is 120 inches. Your best touch is measured from the floor, not the height of your jump. The supplied plan estimates a dunk needs roughly 126–129 inches, depending on your hands.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?'<span class="fg-week-done" aria-hidden="true">✓</span>':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?', complete':''}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}${!failed&&done?' · Session saved':''}</span></div>${exercises()}${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
+    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><header class="fg-detail-title"><h1 tabindex="-1" id="fg-detail-title">${esc(c.title)}</h1><p>${esc(c.aim)} · ${esc(M.metric(active,p))}</p></header>${currentSession()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>The rim is 120 inches. Your best touch is measured from the floor, not the height of your jump. The supplied plan estimates a dunk needs roughly 126–129 inches, depending on your hands.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?'<span class="fg-week-done" aria-hidden="true">✓</span>':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?', complete':''}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}${!failed&&done?' · Session saved':''}</span></div><div class="fg-exercise-grid">${exercises()}</div>${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
   }
   function paint(){
     const host=document.getElementById('forge-goals');if(!host)return;
@@ -196,7 +285,26 @@
     if(a==='set')document.querySelector('.fg-editor input')?.focus({preventScroll:true});
     if(['week','day','next'].includes(a))document.querySelector('.fg-phase')?.scrollIntoView({block:'start'});
   }
+  function attachProjectionInput(host) {
+    const acceptsMotion=window.matchMedia?.('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+    host.addEventListener('pointermove',event=>{
+      if(!acceptsMotion?.matches||event.pointerType==='touch')return;
+      const art=event.target.closest?.('.fg-feature-art');
+      if(!art)return;
+      const box=art.getBoundingClientRect();
+      const x=(event.clientX-box.left)/box.width-0.5, y=(event.clientY-box.top)/box.height-0.5;
+      art.style.setProperty('--fg-turn',(x*18).toFixed(1)+'deg');
+      art.style.setProperty('--fg-pitch',(-y*12).toFixed(1)+'deg');
+    });
+    host.addEventListener('pointerout',event=>{
+      const art=event.target.closest?.('.fg-feature-art');
+      if(art&&!art.contains(event.relatedTarget)){
+        art.style.removeProperty('--fg-turn');art.style.removeProperty('--fg-pitch');
+      }
+    });
+  }
   function ready(){
+    attachProjectionInput(document.getElementById('app'));
     read();
     window.ForgeGoals=Object.freeze({paint,snapshot:()=>M.clone(data),validate:M.validate,get failed(){return failed;},get blocked(){return blocked;}});
     document.getElementById('app').addEventListener('click',click);

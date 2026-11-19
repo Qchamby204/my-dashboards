@@ -1,0 +1,302 @@
+/* Forge's instruments share the suite type and controls, with a copper and
+   oxidized-steel palette. Saved work supplies every illuminated progress cell. */
+html.atlas-neumo[data-atlas-app="workout-forge"] {
+  --forge-paper: #eff5f3;
+  --forge-card: #f9fcfb;
+  --forge-line: #b3c8c6;
+  --forge-ink: #142f35;
+  --forge-secondary: #425f63;
+  --forge-action: #086262;
+  --forge-glint: #70e4d5;
+  --forge-copper: #ffc38e;
+  --forge-numeric: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme="dark"] {
+  --forge-paper: #09161d;
+  --forge-card: #10252d;
+  --forge-line: #315058;
+  --forge-ink: #e5f5f3;
+  --forge-secondary: #a7c1c4;
+  --forge-action: #7de9d7;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] {
+  --neo-canvas: var(--forge-paper);
+  --neo-surface: var(--forge-card);
+  --neo-content-surface: var(--forge-card);
+  --neo-inset: color-mix(in srgb,var(--forge-card) 87%,var(--forge-line));
+  --neo-line: var(--forge-line);
+  --neo-ink: var(--forge-ink);
+  --neo-muted: var(--forge-secondary);
+  --neo-accent: var(--forge-action);
+}
+html.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme] body {
+  background-color: var(--forge-paper)!important;
+  background-image: radial-gradient(ellipse at 16% 0%, #36bda313, transparent 40rem),
+    linear-gradient(90deg, #56888310 1px, transparent 1px),
+    linear-gradient(#56888310 1px, transparent 1px)!important;
+  background-size: auto, 44px 44px, 44px 44px!important;
+}
+#app .fg-feature[data-focus] {
+  --beam: var(--forge-glint);
+  --frame: #396267;
+  --fg-face-ink: #f0faf8;
+  --fg-face-muted: #c2d8d9;
+}
+#app .fg-feature[data-focus="bench"], #app [data-goal="bench"] { --beam: #ffd08b }
+#app .fg-feature[data-focus="deadlift"], #app [data-goal="deadlift"] { --beam: #ffab88 }
+#app .fg-feature[data-focus="run"], #app [data-goal="run"] { --beam: #8ddafa }
+#app .fg-feature[data-focus="dunk"], #app [data-goal="dunk"] { --beam: #9ce5b2 }
+
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid var(--frame);
+  border-radius: 22px;
+  background: radial-gradient(ellipse at 80% 24%, #22575564, transparent 56%),
+    linear-gradient(130deg,#152e36,transparent 65%) #0c1e26!important;
+  box-shadow: inset 0 1px #a4fff329, 0 12px 32px -24px #001217!important;
+}
+#app .fg-feature[data-focus]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 22px;
+  width: 3.75rem;
+  height: 2px;
+  background: var(--beam);
+  box-shadow: 0 0 12px var(--beam);
+}
+#app .fg-feature[data-focus] .fg-feature-rail {
+  padding: 12px clamp(14px,4vw,28px);
+  border-color: #92c8c42b;
+  color: #c0d6d6;
+  font: 600 .8125rem/1.4 var(--forge-numeric);
+}
+#app .fg-feature[data-focus] .fg-feature-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(14px,3.6vw,28px);
+}
+#app .fg-feature[data-focus] .fg-feature-title { margin: 0 }
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] :is(h1,h2) {
+  max-width: 22ch;
+  color: #f1fbf9!important;
+  font-size: clamp(1.8rem,5.8vw,3.1rem)!important;
+  line-height: 1.03!important;
+  letter-spacing: -.045em!important;
+  text-wrap: balance;
+}
+#app .fg-feature[data-focus] .fg-feature-copy { min-width: 0 }
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] p {
+  color: #bed3d4!important;
+  margin: 8px 0 0;
+  line-height: 1.4;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] .fg-feature-art {
+  color: var(--beam);
+  width: 100%;
+  max-width: 520px;
+  flex: 1 1 112px;
+  min-height: 112px;
+  height: clamp(112px,20svh,210px);
+  margin: auto;
+  overflow: visible;
+}
+#app .fg-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: #c1d6d7;
+  font-size: .875rem;
+}
+#app .fg-readout strong { color: var(--beam); font: 600 .875rem/1.45 var(--forge-numeric) }
+#app .fg-activity-days {
+  display: grid;
+  grid-template-columns: repeat(7,minmax(0,1fr));
+  gap: 5px;
+  padding: 0;
+  margin: 8px 0 0;
+  list-style: none;
+}
+#app .fg-activity-days li {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 5px 1px;
+  border: 1px solid #335158;
+  border-radius: 5px;
+  background: #091b22;
+  color: #c6d9d9;
+  font: .8125rem/1.35 var(--forge-numeric);
+}
+#app .fg-activity-days li[data-active="true"] { background: #163f40; color: #a0f5dd }
+#app .fg-activity-days li[aria-current] { border-bottom: 2px solid var(--beam) }
+#app .fg-activity-days strong { font-size: 1rem }
+#app :is(.fg-segments,.forge-exercise-strip) { display: flex; gap: 3px; margin-top: 8px }
+#app :is(.fg-segments i,.forge-exercise-strip span) { flex: 1; min-width: 1px; height: 8px; border-radius: 2px; background: #36535a }
+#app :is(.fg-segments,.forge-exercise-strip) .is-logged { background: var(--beam,var(--forge-glint)) }
+#app .forge-exercise-strip .is-current { outline: 2px solid var(--forge-copper); outline-offset: 1px }
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] .fg-feature-footer {
+  margin: 0;
+  padding: 12px clamp(14px,3.6vw,28px);
+  gap: 12px;
+  border-top: 1px solid #37565b;
+  background: #0b1b23;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] .fg-feature-footer button {
+  min-height: 52px;
+  border-radius: 12px!important;
+  border: 1px solid #3d5f64!important;
+  color: #e4f5f2!important;
+  background: #163037!important;
+}
+#app .fg-feature-footer [data-goal] { display: flex; justify-content: center; gap: 9px; align-items: center }
+#app .fg-feature-footer [data-goal]::before {
+  content: "";
+  width: 5px;
+  height: 15px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--beam);
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] .fg-feature-footer .fg-primary,
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-primary {
+  background: var(--beam,var(--forge-glint))!important;
+  color: #092526!important;
+}
+#app .fg-feature-footer .fg-primary::before { display: none }
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-primary:active { transform: scale(.985) }
+#app .fg-orbit { transform-origin: 0 0; }
+@media (prefers-reduced-motion:no-preference) {
+  #app .fg-orbit { animation: forge-orbit 18s linear infinite }
+  #app .fg-projection { animation: forge-project 7s ease-in-out infinite }
+  #app .fg-trajectory { animation: forge-trace 4s linear infinite }
+  #app .fg-lift { animation: forge-lift 4s ease-in-out infinite }
+  #app .fg-lap { animation: forge-lap 7s linear infinite }
+  #app .fg-ball { animation: forge-shot 5s linear infinite }
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  #app .fg-perspective {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: perspective(420px) rotateY(var(--fg-turn,0deg)) rotateX(var(--fg-pitch,0deg));
+    transition: transform 140ms ease-out;
+  }
+}
+@keyframes forge-orbit { to { transform: rotate(360deg) } }
+@keyframes forge-project { 0%,100% { transform: translateY(2px) } 50% { transform: translateY(-4px) } }
+@keyframes forge-lift { 0%,15%,100% { transform: translateY(0) } 55%,65% { transform: translateY(-13px) } }
+@keyframes forge-lap { to { stroke-dashoffset: -100 } }
+@keyframes forge-shot {
+  0%,12%,100% { transform: translate(0,0); opacity: 1 }
+  30% { transform: translate(26px,-49px) }
+  49% { transform: translate(57px,-70px) }
+  68% { transform: translate(94px,-67px) }
+  86% { transform: translate(137px,-40px); opacity: 1 }
+  92%,96% { transform: translate(137px,-14px); opacity: 0 }
+  99% { transform: translate(0,0); opacity: 0 }
+}
+@keyframes forge-trace { to { stroke-dashoffset: -40 } }
+
+html[data-atlas-app="workout-forge"] body:has(#app .forge-live) #atlas-page-navigation {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Working surfaces follow the same treatment as the projection. */
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-card,
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-split-grid .forge-day-card {
+  background: linear-gradient(128deg,color-mix(in srgb,var(--forge-card) 91%,var(--forge-action)),var(--forge-card) 70%) var(--forge-card)!important;
+  border: 1px solid var(--forge-line)!important;
+  border-inline-start: 3px solid var(--fg-accent,var(--forge-action))!important;
+  border-radius: 16px!important;
+  min-width: 0;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-card { background: var(--forge-card)!important }
+#app .forge-day-card[data-key="PUSH"] { --fg-accent: #cc7841 }
+#app .forge-day-card[data-key="LEGS"] { --fg-accent: #a28bd9 }
+#app .forge-day-card[data-key="PULL"] { --fg-accent: #4299b6 }
+#app .forge-day-card[data-key="ENGINE"] { --fg-accent: #43a885 }
+#app .fg-exercise-grid { display: grid; gap: 12px }
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-exercise {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--forge-line);
+  border-radius: 16px;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-exercise[data-current="true"] {
+  border-inline-start: 4px solid var(--forge-action);
+  background: color-mix(in srgb,var(--forge-card) 93%,var(--forge-action))!important;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-set[aria-current="step"] {
+  outline: 2px solid var(--forge-action); outline-offset: -2px;
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-set.fg-done {
+  background: var(--forge-action)!important; color: var(--forge-paper)!important;
+}
+#app .forge-live-record .forge-exercise-strip { margin-block: 10px 2px }
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-live .forge-live-panel .forge-live-record .forge-live-face {
+  background: radial-gradient(ellipse at top right,#255151,transparent 75%) #0c1e26!important;
+  border-top: 2px solid var(--forge-glint);
+}
+html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-live-panel #liveClock {
+  font-family: var(--forge-numeric)!important;
+  font-variant-numeric: tabular-nums;
+  color: var(--forge-action)!important;
+}
+#app #forge-goals .fg-weeks { width: 100%; max-width: 100%; overflow-x: auto }
+@media (min-width:760px) {
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app.wrap { width: 100%; max-width: 1090px!important }
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus],
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] .fg-feature-body { min-height: 0!important }
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] .fg-feature-body {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(245px,.9fr);
+    grid-template-areas: "copy art" "data art";
+    align-content: center;
+    align-items: center;
+    gap: 24px 48px;
+    padding: 28px 36px;
+  }
+  #app > .appbar > div:nth-child(2) { margin-inline-end: auto }
+  #app .fg-feature-copy { grid-area: copy }
+  #app .fg-feature :is(.fg-register,.fg-activity) { grid-area: data }
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] .fg-feature-art { grid-area: art; height: clamp(150px,18vw,240px) }
+  #app .fg-starting-point .fg-feature-footer { grid-template-columns: repeat(4,minmax(0,1fr)) }
+  #app:not(.fg-goal-open) .forge-split-grid, #app .fg-exercise-grid { display: grid!important; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start }
+  #app .forge-day-card[data-expanded="true"], #app .fg-exercise:has(.fg-editor) { grid-column: 1/-1 }
+}
+@media (min-width:960px) {
+  #app #forge-goals .fg-grid { grid-template-columns: repeat(4,minmax(0,1fr)) }
+}
+@media (min-width:720px) and (max-width:940px) and (max-height:520px) {
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app.wrap {
+    padding-inline-start: max(64px,var(--atlas-safe-left,0px))!important;
+    padding-inline-end: max(64px,var(--atlas-safe-right,0px))!important;
+  }
+}
+@media (max-width:759px) {
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-current-session[data-focus],
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-current-session[data-focus] .fg-feature-body { min-height: 0 }
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-current-session[data-focus] .fg-feature-art {
+    flex: none; height: clamp(128px,23svh,200px);
+  }
+}
+@media (min-width:320px) and (max-width:759px) {
+  #app .fg-starting-point .fg-feature-footer { grid-template-columns: repeat(2,minmax(0,1fr)) }
+}
+@media (prefers-contrast:more), (forced-colors:active) {
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals :is(.fg-card,.fg-exercise),
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-split-grid .forge-day-card {
+    border: 2px solid var(--forge-ink)!important;
+  }
+  #app .fg-feature { --beam: #fff }
+  #app .fg-activity-days { grid-template-columns: repeat(auto-fit,minmax(min(100%,2.7em),1fr)) }
+  #app :is(.fg-segments,.forge-exercise-strip) .is-logged { border-bottom: 4px solid currentColor }
+}
+@media (prefers-reduced-transparency:reduce) {
+  html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature[data-focus] { background: #0c1e26!important }
+}
