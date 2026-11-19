@@ -95,7 +95,7 @@ try{
      await p.locator('[data-goal-action="close-editor"]').click();
     }
    }
-   if(file==='life-ledger')for(const selector of ['#ledger-screen-fold','#ledger-week-fold'])if(await p.locator(selector).count()){await p.locator(selector).evaluate(n=>n.open=true);await capture(p,file,'expanded-'+selector,theme,width,textSize,errors);}
+   if(file==='life-ledger')for(const selector of ['#ledger-week-fold'])if(await p.locator(selector).count()){await p.locator(selector).evaluate(n=>n.open=true);await capture(p,file,'expanded-'+selector,theme,width,textSize,errors);}
    await p.close();
   }
   await context.close();
