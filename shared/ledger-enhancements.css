@@ -1053,3 +1053,75 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .core-opening-ca
   }
 }
 @keyframes ledger-panel-arrive {from{opacity:.65;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* Let the active instruments carry the colour and light. */
+html.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme] {--ledger-hud-grid:color-mix(in srgb,var(--neo-accent) 5%,transparent);}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening {
+  background:radial-gradient(ellipse at 83% 15%,var(--ledger-hud-glow),transparent 62%),var(--neo-content-surface)!important;
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-today-readout strong {
+  font-size:clamp(1.55rem,6vw,2.15rem);line-height:1.06;letter-spacing:-.055em;
+}
+@media(max-width:959px) {
+  html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening {
+    grid-template-columns:minmax(0,1fr) clamp(88px,28vw,130px);
+  }
+}
+html[data-atlas-app="life-ledger"] #app .ledger-orbit-field {
+  background:radial-gradient(ellipse at 50% 48%,#1a3b43 2%,#0b2029 50%,#06131b 88%);
+}
+.ledger-orbit-svg .orbit-hub-inner {fill:url(#orbit-core);stroke:#e9c488;stroke-opacity:.58;}
+.ledger-orbit-svg .orbit-hub-bezel {fill:#0d242d;stroke:#b99459;stroke-width:1;stroke-dasharray:1.5 3;}
+.ledger-orbit-svg .orbit-hub-reflection {fill:none;stroke:#ffe3a7;stroke-width:1.5;opacity:.63;stroke-linecap:round;}
+.ledger-orbit-svg .orbit-arrival {opacity:0;stroke-width:4;stroke-dasharray:13 120;stroke-linecap:round;filter:drop-shadow(0 0 4px currentColor);}
+html[data-atlas-app="life-ledger"] #app .ledger-orbit-inspector {
+  padding:12px;border:1px solid var(--neo-line);border-radius:12px;
+  background:linear-gradient(150deg,color-mix(in srgb,var(--ledger-value) 11%,transparent),transparent 72%);
+}
+.card-dial-bezel {fill:none;stroke:currentColor;stroke-width:1;opacity:.45;}
+.card-dial-check {opacity:0;}
+.card-dial-check circle {fill:currentColor;stroke:var(--neo-inset);stroke-width:2;}
+.card-dial-check path {fill:none;stroke:var(--neo-inset);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.ledger-card-dial[data-complete="true"] :is(.card-dial-bezel,.card-dial-check) {opacity:1;}
+.ledger-card-dial[data-complete="true"] .card-dial-rotor {opacity:0;}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-record[data-earned="false"] .ledger-badge-body {
+  fill:var(--neo-inset);stroke:var(--neo-line);
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-record[data-earned="false"] :is(.ledger-badge-rim,.ledger-badge-symbol) {
+  stroke:var(--neo-muted);
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-record[data-earned="true"] .ledger-achievement-badge {
+  position:relative;isolation:isolate;
+}
+.ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::before,
+.ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::after {
+  content:"";position:absolute;inset:0;pointer-events:none;
+  clip-path:polygon(50% 4%,88% 25%,88% 65%,50% 92%,12% 65%,12% 25%);
+}
+.ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::before {
+  background:repeating-linear-gradient(0deg,#ffffff14 0 1px,transparent 1px 3px),
+    linear-gradient(145deg,var(--badge-metal),var(--badge-face) 48%,var(--badge-rim));
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-achievement-record[data-earned="true"] .ledger-badge-body {fill-opacity:.63;}
+.ledger-achievement-record[data-earned="true"] .ledger-achievement-badge svg {position:relative;}
+.ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::after {
+  background:linear-gradient(115deg,transparent 41%,#fff8d8a0 50%,transparent 59%) 150% 0/300% 100% no-repeat;opacity:0;
+}
+@media(prefers-reduced-motion:no-preference) {
+  #ledger-view-progress:not([hidden]) .orbit-radar {animation-duration:15s;}
+  #ledger-view-progress:not([hidden]) .orbit-gyro {animation-duration:36s;}
+  #ledger-view-today:not([hidden]) .ledger-habit-card[aria-hidden="false"] .card-dial-rotor {animation-duration:11s;}
+  #ledger-view-today:not([hidden]) .ledger-habit-card[aria-hidden="false"] .ledger-card-dial[data-complete="true"] .card-dial-rotor {animation:none;}
+  .card-dial-check,.card-dial-bezel,.card-dial-rotor {transition:opacity .22s ease;}
+  .ledger-achievement-record[data-highlight="true"] .ledger-achievement-badge::after {animation:ledger-metal-glint .9s ease-out;}
+}
+@keyframes ledger-metal-glint {
+  0% {background-position:125% 0;opacity:0;}
+  25%,70% {opacity:.78;}
+  100% {background-position:-30% 0;opacity:0;}
+}
+@media(forced-colors:active) {
+  .ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::before,
+  .ledger-achievement-record[data-earned="true"] .ledger-achievement-badge::after {display:none;}
+  html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-achievement-record[data-earned] :is(.ledger-badge-rim,.ledger-badge-symbol) {stroke:CanvasText;}
+}

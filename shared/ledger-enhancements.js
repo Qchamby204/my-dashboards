@@ -718,7 +718,7 @@
     function cardArtwork(avatar){
       const dial=make('div',null,'ledger-card-dial');
       dial.setAttribute('aria-hidden','true');
-      dial.innerHTML='<svg viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="43" class="card-dial-ticks"/><circle cx="50" cy="50" r="35" class="card-dial-base"/><circle cx="50" cy="50" r="35" pathLength="100" class="card-dial-fill" transform="rotate(-90 50 50)"/><g class="card-dial-rotor"><path d="M8 40a43 43 0 0 1 23-29M92 60a43 43 0 0 1-23 29"/><circle cx="8" cy="40" r="2.5"/><circle cx="92" cy="60" r="2.5"/></g></svg>';
+      dial.innerHTML='<svg viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="47" class="card-dial-bezel"/><circle cx="50" cy="50" r="43" class="card-dial-ticks"/><circle cx="50" cy="50" r="35" class="card-dial-base"/><circle cx="50" cy="50" r="35" pathLength="100" class="card-dial-fill" transform="rotate(-90 50 50)"/><g class="card-dial-rotor"><path d="M8 40a43 43 0 0 1 23-29M92 60a43 43 0 0 1-23 29"/><circle cx="8" cy="40" r="2.5"/><circle cx="92" cy="60" r="2.5"/></g><g class="card-dial-check"><circle cx="82" cy="82" r="10"/><path d="m78 82 2.5 2.5 5.5-6"/></g></svg>';
       dial.append(avatar);
       return dial;
     }
@@ -783,7 +783,7 @@
         if(!drag&&!reduce.matches)projectionAngle+=dt*(.19+velocity);
         velocity*=Math.exp(-4*dt);pulse=Math.max(0,pulse-dt*1.4);
         const light=root.dataset.atlasTheme==='light';
-        const tint=light?'0,90,118':'95,230,246';
+        const tint=shape==='award'?(light?'136,91,38':'246,203,137'):(light?'0,90,118':'95,230,246');
         const ink=a=>'rgba('+tint+','+a+')';
         const glow=ctx.createRadialGradient(140,125,7,140,130,114);
         glow.addColorStop(0,ink(.17+pulse*.14));glow.addColorStop(.72,ink(.055));glow.addColorStop(1,ink(0));
@@ -805,8 +805,13 @@
         const target=targetFraction();
         fraction=reduce.matches||Math.abs(target-fraction)<.0005?target:fraction+(target-fraction)*(1-Math.exp(-7*dt));
         shownFractions.set(host.id,fraction);
-        ellipse(140,116,96,96,0,tau,ink(.18));
-        if(fraction)ellipse(140,116,96,96,-Math.PI/2,-Math.PI/2+tau*fraction,ink(.94),2.5);
+        ellipse(140,116,92,92,0,tau,ink(.22));
+        ellipse(140,116,98,98,0,tau,ink(.33),1.2);
+        if(fraction){
+          const end=-Math.PI/2+tau*fraction;
+          ellipse(140,116,98,98,-Math.PI/2,end,ink(.24),8);
+          ellipse(140,116,98,98,-Math.PI/2,end,ink(.96),3.4);
+        }
         for(let i=0;i<48;i++){
           const a=tau*i/48,len=i%4?2:6;
           ctx.beginPath();ctx.moveTo(140+101*Math.cos(a),116+101*Math.sin(a));
@@ -936,7 +941,7 @@
       const stations=[core,...nodes];
       const routes=nodes.map(({x,y,color,key,xp},index)=>{
         const path='M240 167 Q'+(240+(x-240)*.49-(y-167)*.26)+' '+(167+(y-167)*.49+(x-240)*.26)+' '+x+' '+y;
-        return '<g data-route="'+key+'" data-earned="'+(xp>0)+'" style="--signal-delay:'+(-index*.53)+'s" fill="none" stroke="'+color+'"><path class="orbit-link" d="'+path+'"/><path class="orbit-trace" pathLength="100" d="'+path+'"/><path class="orbit-signal" pathLength="100" d="'+path+'"/></g>';
+        return '<g data-route="'+key+'" data-earned="'+(xp>0)+'" style="--signal-delay:'+(-index*.53)+'s" fill="none" stroke="'+color+'"><path class="orbit-link" d="'+path+'"/><path class="orbit-trace" pathLength="100" d="'+path+'"/><path class="orbit-signal" pathLength="100" d="'+path+'"/><path class="orbit-arrival" pathLength="100" d="'+path+'"/></g>';
       }).join('');
       const station=(p)=>{
         const life=p===core,r=life?40:24,perimeter=2*Math.PI*(r+4);
@@ -948,11 +953,12 @@
           '<g class="orbit-satellite" fill="'+p.color+'"><circle cy="'+(-r-8)+'" r="2.7"/><circle cy="'+(r+8)+'" r="1.4"/></g>'+
           '<circle r="'+r+'" fill="url(#orbit-glass)" stroke="'+p.color+'" stroke-opacity=".7"/>'+
           '<circle r="'+(r+4)+'" fill="none" stroke="'+p.color+'" stroke-width="3" transform="rotate(-90)" stroke-dasharray="'+perimeter*Math.min(1,p.into/p.cost)+' '+perimeter+'"/>'+
-          mark+(life?'<circle r="29" class="orbit-hub-inner"/><text y="-6" class="orbit-life-name">LIFE</text><text y="20" class="orbit-life-number">'+p.level+'</text>':
+          mark+(life?'<circle r="36" class="orbit-hub-bezel"/><circle r="30" class="orbit-hub-inner" fill="url(#orbit-core)"/><path d="M-23 -19a30 30 0 0 1 43-4" class="orbit-hub-reflection"/><text y="-6" class="orbit-life-name">LIFE</text><text y="20" class="orbit-life-number">'+p.level+'</text>':
           '<text y="41" class="orbit-name">'+esc(p.title)+'</text><text y="56" class="orbit-level">LV '+p.level+'</text>')+'</g></g>';
       };
       diagram.innerHTML='<svg viewBox="0 0 480 349" class="ledger-orbit-svg" role="group" aria-label="Life Level and value map"><defs>'+
         '<radialGradient id="orbit-glass" cx=".32" cy=".24" r=".85"><stop stop-color="#244551"/><stop offset="1" stop-color="#091720"/></radialGradient>'+
+        '<radialGradient id="orbit-core" cx=".32" cy=".22" r=".82"><stop stop-color="#435757"/><stop offset=".47" stop-color="#172e38"/><stop offset="1" stop-color="#06131a"/></radialGradient>'+
         '<linearGradient id="orbit-sweep"><stop stop-color="#86f6ee" stop-opacity=".24"/><stop offset="1" stop-color="#86f6ee" stop-opacity="0"/></linearGradient>'+
         '<pattern id="orbit-grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M0 2V0h2" fill="none" stroke="#45858e" stroke-opacity=".48"/></pattern></defs>'+
         '<rect width="480" height="349" fill="url(#orbit-grid)"/>'+
@@ -962,6 +968,7 @@
         '<g class="orbit-radar"><path d="M0 0 L0 -108 A108 108 0 0 1 63.5 -87.4Z" fill="url(#orbit-sweep)"/><path d="M0 -108 L0 -62" class="orbit-scan-line"/></g>'+
         '</g></g>'+routes+stations.map(station).join('')+'</svg>';
       const controls=[...diagram.querySelectorAll('[data-orbit]')];
+      let signalAnimation;
       const inspector=make('section',null,'ledger-orbit-inspector');inspector.id='ledger-orbit-inspector';
       inspector.setAttribute('aria-label','Selected value');
       function inspect(key,refresh=false){
@@ -994,6 +1001,14 @@
         inspector.replaceChildren(make('h3',pillar?pillar.title+' · Level '+pillar.level:'All values'),make('p',fmt(active.xp)+' lifetime XP','orbit-total'),next,xpMeter(active,active.title),details);
         if(refresh){
           if(changed&&motionAllowed()){
+            signalAnimation?.cancel();
+            const route=diagram.querySelector('[data-route][data-selected="true"] .orbit-arrival');
+            signalAnimation=route?.animate?.([
+              {opacity:0,strokeDashoffset:-100},
+              {opacity:1,strokeDashoffset:-74,offset:.19},
+              {opacity:1,strokeDashoffset:-18,offset:.76},
+              {opacity:0,strokeDashoffset:15}
+            ],{duration:650,easing:'ease-out'});
             const arrival=controls.find(node=>node.dataset.orbit===valueScope)?.querySelector('.orbit-halo');
             arrival?.animate?.([{opacity:1,transform:'scale(.75)'},{opacity:0,transform:'scale(1.52)'}],{duration:670,easing:'ease-out'});
             inspector.animate?.([{opacity:.58,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'ease-out'});
@@ -1028,6 +1043,23 @@
       });
       inspect(valueScope);
       const layout=make('div',null,'ledger-orbit-layout');layout.append(diagram,inspector);return layout;
+    }
+    let badgeObserver;
+    const highlightedBadges=new Set();
+    function highlightEarnedBadges(){
+      badgeObserver?.disconnect();
+      if(dashboardView!=='achievements'||!window.IntersectionObserver||!motionAllowed())return;
+      badgeObserver=new IntersectionObserver((entries,observer)=>{
+        for(const {intersectionRatio,target}of entries){
+          if(intersectionRatio<.65||!target.isConnected)continue;
+          observer.unobserve(target);
+          highlightedBadges.add(target.dataset.idx);
+          target.dataset.highlight='true';
+        }
+      },{threshold:.65});
+      for(const record of app.querySelectorAll('.ledger-achievement-record[data-earned="true"]')){
+        if(!highlightedBadges.has(record.dataset.idx))badgeObserver.observe(record);
+      }
     }
     function composeDashboard(log,data,earned){
       if(!log)return;
@@ -1407,6 +1439,7 @@
       updateDailyFocus();
       const instrument=dashboardView==='today'?'ledger-today-readout':dashboardView==='achievements'?'ledger-achievement-readout':null;
       activateProjection(instrument&&document.getElementById(instrument),dashboardView==='achievements'?'award':'globe');
+      highlightEarnedBadges();
       updateDeckChrome(state.cardIndex,HABITS.length);
       for(const mode of log?.querySelectorAll('[data-act="logmode"]')||[])mode.setAttribute('aria-pressed',String(mode.dataset.mode===state.logMode));
       paintLeisureClock();status();mountReleaseNotice();window.CoreAppFinish?.layoutOpening?.();
