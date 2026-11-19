@@ -454,7 +454,7 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-calendar-featu
   background:
     radial-gradient(ellipse at 78% 15%, #1e5262 0, transparent 65%),
     radial-gradient(circle, #8be4ec29 1px, transparent 1.4px) 0 0 / 20px 20px,
-    var(--lm-face);
+    var(--lm-face) !important;
   border-color: #4d7882;
 }
 html.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature:has(.lm-projection-depth) .lm-feature-rail,
@@ -489,11 +489,8 @@ html[data-atlas-app="life-map"] #app .lm-simple-project .lm-project-progress > s
 html[data-atlas-app="life-map"] #app .lm-simple-project:focus-within {
   border-color: var(--neo-accent);
 }
-html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] {
-  background: #204754 !important;
-  color: var(--lm-face-ink) !important;
-  border-color: var(--lm-face-accent);
-  box-shadow: inset 0 -2px var(--lm-face-accent), 0 0 10px #7be8e338;
+html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] {
+  box-shadow: 0 0 10px #7be8e358 !important;
 }
 html[data-atlas-app="life-map"] .lm-calendar-agenda {
   background-image: linear-gradient(155deg, var(--neo-accent-soft), transparent 65%);
@@ -503,8 +500,8 @@ html[data-atlas-app="life-map"] #app .lm-project-timeline:focus-visible .lm-time
   box-shadow: 0 0 9px var(--pc, var(--neo-accent));
 }
 @media (hover: hover) {
-  html[data-atlas-app="life-map"] #app .lm-month-day:hover {
-    border-color: var(--lm-face-accent);
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day:hover {
+    border-color: var(--lm-face-accent) !important;
   }
   html[data-atlas-app="life-map"] #app .lm-project-timeline:hover .lm-timeline-track > span {
     box-shadow: 0 0 9px var(--pc, var(--neo-accent));
@@ -525,6 +522,10 @@ html[data-atlas-app="life-map"] #app .lm-project-timeline:focus-visible .lm-time
 }
 @media (prefers-contrast: more), (forced-colors: active) {
   html[data-atlas-app="life-map"] .lm-projection-depth { display: none; }
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-feature:has(.lm-projection-depth),
+  html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-view .lm-calendar-feature {
+    background: var(--lm-face) !important;
+  }
   html[data-atlas-app="life-map"] #app .lm-calendar-feature .lm-month-day[aria-pressed="true"] {
     outline: 2px solid currentColor;
     outline-offset: -4px;
