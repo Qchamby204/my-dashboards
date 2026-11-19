@@ -705,19 +705,44 @@ html[data-atlas-app="life-ledger"] #app .ledger-day-progress button {
   min-height:44px;margin:0;padding:4px 0!important;font-size:.75rem!important;text-align:left;white-space:normal;
   border:0!important;background:none!important;box-shadow:none!important;color:var(--neo-accent);
 }
-html[data-atlas-app="life-ledger"] #app .ledger-activity-history {padding:16px!important;margin:12px 0;}
+html[data-atlas-app="life-ledger"] #app .ledger-activity-history {
+  padding:16px clamp(12px,3vw,24px)!important;margin:12px 0;
+}
 html[data-atlas-app="life-ledger"] #app .ledger-axis-label {color:var(--neo-muted);font-size:.75rem;white-space:nowrap;}
-html[data-atlas-app="life-ledger"] #app .ledger-history-bars {display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:2px;margin-top:8px;}
+html[data-atlas-app="life-ledger"] #app .ledger-history-plot {
+  --history-chart-height:clamp(78px,22vw,136px);
+  display:grid;grid-template-columns:2ch minmax(0,1fr);column-gap:8px;
+  margin-top:12px;padding:8px;border:1px solid var(--neo-line);border-radius:10px;
+  background:var(--neo-inset);
+}
+html[data-atlas-app="life-ledger"] #app .ledger-history-scale {
+  display:flex;flex-direction:column;justify-content:space-between;align-items:end;
+  height:calc(var(--history-chart-height) + 2px);color:var(--neo-muted);
+  font:500 10px/1 var(--ledger-hud-mono);
+}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bars {
+  display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:2px;
+  background:
+    repeating-linear-gradient(to bottom,var(--neo-line) 0 1px,transparent 1px calc(var(--history-chart-height) / 4)) 0 2px/100% var(--history-chart-height) no-repeat,
+    linear-gradient(var(--neo-line),var(--neo-line)) 0 calc(var(--history-chart-height) + 2px)/100% 1px no-repeat;
+}
 html[data-atlas-app="life-ledger"] #app .ledger-history-bar {
-  display:grid;grid-template-rows:55px auto;gap:4px;justify-items:center;
+  display:grid;grid-template-rows:var(--history-chart-height) auto;gap:5px;justify-items:center;
   min-width:0!important;padding:2px 0!important;border:0!important;border-radius:4px!important;background:none!important;box-shadow:none!important;
 }
-html[data-atlas-app="life-ledger"] #app .ledger-history-bar small {font-size:.6rem;color:var(--neo-muted);}
-html[data-atlas-app="life-ledger"] #app .ledger-history-bar-track {
-  width:min(100%,18px);height:100%;border-bottom:2px dotted var(--neo-line);
-  background:linear-gradient(to top,var(--neo-accent-soft),var(--activity-color,var(--neo-accent))) bottom/100% var(--activity-height) no-repeat;
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar small {font-size:10px;color:var(--neo-muted);line-height:1.2;}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar[aria-current="date"] small {
+  color:var(--neo-ink);font-weight:750;box-shadow:0 2px var(--progress-accent,var(--neo-accent));
 }
-html[data-atlas-app="life-ledger"] #app .ledger-history-bar[data-saved="true"] .ledger-history-bar-track {border-bottom-style:solid;}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar-track {
+  width:min(88%,27px);height:100%;border-bottom:2px dotted var(--neo-faint);
+  border-radius:3px 3px 0 0;
+  background:linear-gradient(to top,color-mix(in srgb,var(--progress-accent,var(--neo-accent)) 35%,var(--neo-inset)),var(--progress-accent,var(--neo-accent))) bottom/100% var(--activity-height) no-repeat;
+}
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar[data-saved="true"] .ledger-history-bar-track,
+html[data-atlas-app="life-ledger"] #app .ledger-history-bar[aria-current="date"] .ledger-history-bar-track {
+  border-bottom:2px solid var(--progress-accent,var(--neo-accent));
+}
 html[data-atlas-app="life-ledger"] #app #ledger-achievement-readout {
   width:min(100%,145px);margin:0 auto 12px;text-align:center;
 }
@@ -753,7 +778,7 @@ html[data-atlas-app="life-ledger"] #app .ledger-orbit-svg {display:block;width:1
 html[data-atlas-app="life-ledger"] .ledger-orbit-inspector {min-width:0;}
 html[data-atlas-app="life-ledger"] .ledger-orbit-inspector h3 {font-size:clamp(1.1rem,2.2vw,1.65rem);letter-spacing:-.035em;}
 html[data-atlas-app="life-ledger"] :is(.orbit-total,.orbit-next,.orbit-habit small) {color:var(--neo-muted);}
-html[data-atlas-app="life-ledger"] .orbit-total {margin:4px 0 13px;}
+html[data-atlas-app="life-ledger"] .orbit-total {margin:4px 0 13px;font-size:1.1rem;font-variant-numeric:tabular-nums;}
 html[data-atlas-app="life-ledger"] .orbit-next {font:500 .78rem ui-monospace, monospace;}
 html[data-atlas-app="life-ledger"] .orbit-priorities {margin-top:13px;}
 html[data-atlas-app="life-ledger"] :is(.orbit-priorities,.orbit-week)>summary {min-height:44px;align-content:center;border-top:1px solid var(--neo-line);}
@@ -761,7 +786,6 @@ html[data-atlas-app="life-ledger"] #app .orbit-habit {width:100%;display:grid;gr
 html[data-atlas-app="life-ledger"] .orbit-habit :is(strong,small) {display:block;}
 html[data-atlas-app="life-ledger"] .orbit-habit small {font-size:.73rem;}
 html[data-atlas-app="life-ledger"] .orbit-emoji {font-size:20px;}
-html[data-atlas-app="life-ledger"] .ledger-history-bar-track {background-image:linear-gradient(to top,var(--neo-accent-soft),var(--activity-color,var(--neo-accent)));}
 @media(max-width:650px){
   html[data-atlas-app="life-ledger"] .ledger-orbit-layout {grid-template-columns:minmax(0,1fr);}
 }
@@ -1077,6 +1101,24 @@ html[data-atlas-app="life-ledger"] #app .ledger-orbit-field {
 html[data-atlas-app="life-ledger"] #app .ledger-orbit-inspector {
   padding:12px;border:1px solid var(--neo-line);border-radius:12px;
   background:linear-gradient(150deg,color-mix(in srgb,var(--ledger-value) 11%,transparent),transparent 72%);
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-value-map,.ledger-activity-history)::before {
+  background:var(--progress-accent,var(--neo-accent));box-shadow:0 0 9px var(--progress-accent,var(--neo-accent));
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-value-key button[data-selected="true"] {
+  border-color:var(--progress-accent)!important;
+  background:color-mix(in srgb,var(--progress-accent) 12%,var(--neo-content-surface))!important;
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-orbit-inspector .ledger-xp-meter {
+  --orbit-track:color-mix(in srgb,var(--progress-accent) 16%,var(--neo-inset));
+  height:7px;background:var(--orbit-track);accent-color:var(--progress-accent);
+}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-orbit-inspector .ledger-xp-meter::-webkit-progress-bar {background:var(--orbit-track);}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-orbit-inspector .ledger-xp-meter::-webkit-progress-value {background:var(--progress-accent);}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-orbit-inspector .ledger-xp-meter::-moz-progress-bar {background:var(--progress-accent);}
+@media(forced-colors:active) {
+  html[data-atlas-app="life-ledger"] #app .ledger-history-bar[aria-current="date"] small {text-decoration:underline;}
+  html[data-atlas-app="life-ledger"] #app .ledger-history-bar-track {forced-color-adjust:none;background-image:linear-gradient(Highlight,Highlight);border-color:CanvasText;}
 }
 .card-dial-bezel {fill:none;stroke:currentColor;stroke-width:1;opacity:.45;}
 .card-dial-check {opacity:0;}

@@ -849,27 +849,33 @@
       const panel=make('section',null,'panel ledger-activity-history');
       panel.id='ledger-activity-chart';
       const scope=data.pillars.find(p=>p.key===valueScope);
+      const today=todayISO();
+      panel.style.setProperty('--progress-accent',scope?.color||lifeOrbitAccent);
       const head=make('header',null,'ledger-section-heading');
       head.append(make('h2',scope?scope.title+' activity':'Recent activity'),make('span','14 days','ledger-axis-label'));panel.append(head);
       const grid=make('div',null,'ledger-history-bars');
       const days=new Map(data.days.filter(day=>day.date).map(day=>[day.date,day]));
       const records=Array.from({length:14},(_,index)=>{
-        const date=R.addDays(todayISO(),index-13),day=days.get(date);
+        const date=R.addDays(today,index-13),day=days.get(date);
         const count=Object.entries(day?.units||{}).filter(([habit,amount])=>amount>0&&(!scope||(userModel.moves?.[habit]||HABIT_PILLAR[habit]?.key||DEFAULT_PILLARS.find(p=>p.habits.includes(habit))?.key)===scope.key)).length;
         return {date,day,count};
       });
       const max=Math.max(1,...records.map(record=>record.count));
+      const scale=make('div',null,'ledger-history-scale');scale.setAttribute('aria-hidden','true');
+      scale.append(make('span',String(max)),make('span','0'));
       for(const {date,day,count}of records){
         const description=pretty(date)+' · '+(day?count+' activities recorded':'No saved entry');
         const point=button('',()=>selectDate(date));
         point.classList.add('ledger-history-bar');point.title=description;point.setAttribute('aria-label',description);
         point.style.setProperty('--activity-height',(count/max*100)+'%');
-        if(scope)point.style.setProperty('--activity-color',scope.color);
         point.dataset.saved=String(!!day);
+        if(date===today)point.setAttribute('aria-current','date');
         point.append(make('span',null,'ledger-history-bar-track'),make('small',String(Number(date.slice(-2)))));
         grid.append(point);
       }
-      panel.append(grid);return panel;
+      const plot=make('div',null,'ledger-history-plot');plot.append(scale,grid);
+      const openHistory=button('Saved days & tools',()=>setDashboardView('history'));openHistory.id='ledger-open-history';
+      panel.append(plot,openHistory);return panel;
     }
 
     function paintReadout(readout,value,max){
@@ -931,13 +937,14 @@
       return nav;
     }
     let valueScope='LIFE';
+    const lifeOrbitAccent='#e9c488';
     function lifeMap(data){
       const diagram=make('div',null,'ledger-orbit-field');
       const nodes=data.pillars.map((pillar,index)=>{
         const angle=index*2*Math.PI/data.pillars.length-Math.PI/2;
         return {...pillar,x:Math.round(240+166*Math.cos(angle)),y:Math.round(167+111*Math.sin(angle))};
       });
-      const core={...data.life,key:'LIFE',title:'Life',color:'#e9c488',x:240,y:167};
+      const core={...data.life,key:'LIFE',title:'Life',color:lifeOrbitAccent,x:240,y:167};
       const stations=[core,...nodes];
       const routes=nodes.map(({x,y,color,key,xp},index)=>{
         const path='M240 167 Q'+(240+(x-240)*.49-(y-167)*.26)+' '+(167+(y-167)*.49+(x-240)*.26)+' '+x+' '+y;
@@ -970,12 +977,14 @@
       const controls=[...diagram.querySelectorAll('[data-orbit]')];
       let signalAnimation;
       const inspector=make('section',null,'ledger-orbit-inspector');inspector.id='ledger-orbit-inspector';
+      const layout=make('div',null,'ledger-orbit-layout');layout.append(diagram,inspector);
       inspector.setAttribute('aria-label','Selected value');
       function inspect(key,refresh=false){
         const pillar=data.pillars.find(p=>p.key===key),active=pillar||core;
         const changed=valueScope!==active.key;
         valueScope=active.key;
         diagram.dataset.scope=valueScope;
+        layout.style.setProperty('--progress-accent',active.color);
         for(const node of controls)node.setAttribute('aria-pressed',String(node.dataset.orbit===valueScope));
         for(const path of diagram.querySelectorAll('[data-route]'))path.dataset.selected=String(path.dataset.route===valueScope);
         inspector.style.setProperty('--ledger-value',active.color);
@@ -1000,6 +1009,11 @@
         const next=make('p',fmt(Math.ceil(active.remaining))+' XP to Level '+(active.level+1),'orbit-next');
         inspector.replaceChildren(make('h3',pillar?pillar.title+' · Level '+pillar.level:'All values'),make('p',fmt(active.xp)+' lifetime XP','orbit-total'),next,xpMeter(active,active.title),details);
         if(refresh){
+          const map=layout.closest('.ledger-value-map');
+          if(map){
+            map.style.setProperty('--progress-accent',active.color);
+            for(const shortcut of map.querySelectorAll('.ledger-value-key button'))shortcut.dataset.selected=String(shortcut.dataset.value===active.key);
+          }
           if(changed&&motionAllowed()){
             signalAnimation?.cancel();
             const route=diagram.querySelector('[data-route][data-selected="true"] .orbit-arrival');
@@ -1042,7 +1056,7 @@
         diagram.style.removeProperty('--orbit-tilt-y');
       });
       inspect(valueScope);
-      const layout=make('div',null,'ledger-orbit-layout');layout.append(diagram,inspector);return layout;
+      return layout;
     }
     let badgeObserver;
     const highlightedBadges=new Set();
@@ -1119,10 +1133,11 @@
         const rail=make('div',null,'ledger-feature-rail');rail.append(make('span','Life Level '+data.life.level));move('.ledger-values-info',rail);
         const heading=make('div',null,'ledger-feature-heading'),title=make('h2','Levels by value');title.id='ledger-values-title';heading.append(title);
         map.querySelector('h3')?.remove();const key=map.querySelector('.ledger-value-key'),footer=make('div',null,'ledger-feature-footer');if(key)footer.append(key);
+        const scope=data.pillars.find(p=>p.key===valueScope);
+        card.style.setProperty('--progress-accent',scope?.color||lifeOrbitAccent);
         card.append(rail,heading,map,footer);panes.progress.append(card);
       }
-      const history=activityHistory(data);
-      const openHistory=button('Saved days & tools',()=>setDashboardView('history'));openHistory.id='ledger-open-history';history.append(openHistory);panes.progress.append(history);
+      panes.progress.append(activityHistory(data));
       if(overall)panes.progress.append(overall);
       const valuesHeading=make('div',null,'ledger-section-heading');valuesHeading.append(make('h2','Value details'));panes.progress.append(valuesHeading);
       move('.ledger-values',panes.progress);if(relic)relic.remove();
@@ -1262,7 +1277,7 @@
       const footer=make('div',null,'ledger-feature-footer'),rewards=button('Explore rewards',viewPersonalRewards);rewards.classList.add('ledger-feature-action');footer.append(rewards);panel.append(rail,heading,body,footer);
       const map=make('div',null,'ledger-level-constellation');map.append(make('h3','Levels by value'));
       const drawing=lifeMap(data);
-      const key=make('div',null,'ledger-value-key');for(const p of data.pillars){const b=button(p.title+' · Level '+p.level,()=>{state.active=p.key;state.openP=p.key;render();const target=app.querySelector('[data-act="pillar"][data-key="'+p.key+'"]');target?.scrollIntoView({block:'center',behavior:'instant'});target?.focus({preventScroll:true});});key.append(b);}
+      const key=make('div',null,'ledger-value-key');for(const p of data.pillars){const b=button(p.title+' · Level '+p.level,()=>{state.active=p.key;state.openP=p.key;render();const target=app.querySelector('[data-act="pillar"][data-key="'+p.key+'"]');target?.scrollIntoView({block:'center',behavior:'instant'});target?.focus({preventScroll:true});});b.dataset.value=p.key;b.dataset.selected=String(valueScope===p.key);key.append(b);}
       map.append(drawing,key);panel.append(map);
       return panel;
     }
