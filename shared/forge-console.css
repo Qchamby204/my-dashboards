@@ -29,7 +29,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] {
   --neo-muted: var(--forge-secondary);
   --neo-accent: var(--forge-action);
 }
-html.atlas-neumo[data-atlas-app="workout-forge"] body {
+html.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme] body {
   background-color: var(--forge-paper)!important;
   background-image: radial-gradient(ellipse at 16% 0%, #36bda313, transparent 40rem),
     linear-gradient(90deg, #56888310 1px, transparent 1px),
