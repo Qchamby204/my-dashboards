@@ -312,7 +312,7 @@ html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-personal-history .ledger-
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-primary{border-radius:999px!important;min-height:46px;box-shadow:none!important}
 html[data-atlas-app="life-ledger"] .ledger-level-constellation{padding-top:20px;margin-top:16px;border-top:1px solid var(--neo-line)}
 html[data-atlas-app="life-ledger"] .ledger-level-constellation h3{font-size:1rem;line-height:1.4;margin:0 0 12px}
-html[data-atlas-app="life-ledger"] .ledger-level-constellation svg{max-width:220px!important}
+html[data-atlas-app="life-ledger"] .ledger-level-constellation>svg{max-width:220px}
 html[data-atlas-app="life-ledger"] .ledger-level-constellation .orb{filter:none!important}
 html[data-atlas-app="life-ledger"] .ledger-level-constellation [style*="cursor"]{cursor:default!important}
 html[data-atlas-app="life-ledger"] .ledger-value-key{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -591,10 +591,9 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-art .ledger-
 
 @media(max-width:360px){html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature-title{flex-basis:7.5rem}}
 
-/* Levels opens with the original constellation as its title illustration. */
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-level-constellation{max-width:360px;margin:0 auto;padding:12px 20px 20px;border:0}
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-level-constellation svg{max-width:320px!important;margin:0 auto!important}
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-level-constellation svg>text{fill:var(--ledger-feature-ink)!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-level-constellation {
+  box-sizing:border-box;width:100%;max-width:none;margin:0;padding:12px clamp(12px,3vw,24px) 20px;border:0;
+}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-value-key{width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .ledger-value-key button{overflow-wrap:anywhere}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map .tap>.orb:nth-of-type(2){stroke-width:6}
@@ -664,8 +663,7 @@ html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-deck-rail .ledger-log-mod
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .core-opening-card{min-height:var(--core-opening-height,0px)}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-feature.core-opening-card{display:flex;flex-direction:column}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app .core-opening-card>.ledger-feature-body{flex:1;display:flex;flex-direction:column;justify-content:center}
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map.core-opening-card>.ledger-level-constellation{flex:1;display:grid;place-items:center;width:100%;min-height:120px;max-width:none;padding:16px 24px}
-html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map.core-opening-card .ledger-level-constellation svg{width:clamp(120px,calc(var(--core-opening-body-height,400px) - 92px),320px)!important;max-width:100%!important;height:auto!important}
+html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-value-map.core-opening-card>.ledger-level-constellation{flex:1;display:grid;align-items:center}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .core-opening-card .ledger-habit-card{min-height:var(--core-opening-body-height,0px)!important;justify-content:space-between}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card:has(.ledger-amount-controls) .ledger-card-art{height:96px}
 html.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-habit-card:has(.ledger-amount-controls) .ledger-card-avatar{width:88px!important;height:88px!important;font-size:72px!important}
@@ -707,7 +705,6 @@ html[data-atlas-app="life-ledger"] #app .ledger-day-progress button {
   min-height:44px;margin:0;padding:4px 0!important;font-size:.75rem!important;text-align:left;white-space:normal;
   border:0!important;background:none!important;box-shadow:none!important;color:var(--neo-accent);
 }
-html[data-atlas-app="life-ledger"] #app .ledger-level-constellation:has(.ledger-orbit-layout) {width:100%;max-width:none;margin:0;padding:12px 16px;}
 html[data-atlas-app="life-ledger"] #app .ledger-activity-history {padding:16px!important;margin:12px 0;}
 html[data-atlas-app="life-ledger"] #app .ledger-axis-label {color:var(--neo-muted);font-size:.75rem;white-space:nowrap;}
 html[data-atlas-app="life-ledger"] #app .ledger-history-bars {display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:2px;margin-top:8px;}

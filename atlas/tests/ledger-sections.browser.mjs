@@ -27,6 +27,12 @@ try{
    const geometry=await hero.evaluate(node=>{const box=node.getBoundingClientRect(),title=node.querySelector('h2'),range=document.createRange();range.selectNodeContents(title);return {width:box.width,paneWidth:node.closest('[role="tabpanel"]').getBoundingClientRect().width,top:box.top,bottom:box.bottom,page:document.documentElement.scrollWidth,viewport:innerWidth,titleColor:getComputedStyle(title).color,background:getComputedStyle(node).backgroundColor,titleFits:[...range.getClientRects()].every(r=>r.right<=box.right+1&&r.left>=box.left-1),font:parseFloat(getComputedStyle(title).fontSize)};});
    assert(geometry.width>geometry.paneWidth*.9&&geometry.top<(textSize===32?430:280),'opening card is the prominent first record');assert(geometry.page<=width+1,'page does not overflow');assert(geometry.titleFits,'hero title fits inside its card');assert.equal(geometry.background,theme==='dark'?'rgb(16, 35, 45)':'rgb(249, 252, 252)');
    assert(await hero.locator('svg').count()>0,'each opening card retains illustration');
+   if(view==='progress'){
+    const field=await hero.locator('.ledger-orbit-field').boundingBox();
+    const map=await hero.locator('.ledger-orbit-svg').boundingBox();
+    assert(Math.abs(map.width-field.width)<=2,'the constellation fills its plot');
+    if(width<=430)assert(field.width>=geometry.width*.9,'the mobile plot uses the width of the card');
+   }
    for(const control of await hero.locator('button,summary').all()){if(!await control.isVisible())continue;const b=await control.boundingBox();assert(b.height>=43.5,'opening actions retain touch targets');}
    await page.screenshot({path:path.join(out,`${view}-${theme}-${width}-${textSize}.png`)});reports.push({view,theme,width,textSize,populated,...geometry});
    if(view==='progress'){assert.equal(await hero.locator('.ledger-value-key button').count(),5);assert(await hero.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('#ledger-lifetime-levels'))&Node.DOCUMENT_POSITION_FOLLOWING)));await page.locator('#ledger-lifetime-levels').getByRole('button',{name:'Explore rewards'}).click();assert(await page.locator('#ledger-personal-rewards').isVisible());}
