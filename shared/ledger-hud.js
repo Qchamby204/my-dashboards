@@ -272,6 +272,7 @@
     // Switching tabs only toggles hidden; reactors need measuring once visible.
     app.addEventListener('click', e => { if (e.target.closest('.ledger-nav button,.ledger-value-jump,[data-view]')) schedule(); });
     window.addEventListener('resize', schedule);
+    if (window.ResizeObserver) new ResizeObserver(schedule).observe(document.body);
   }
 
   /* ── Logging feedback: a shockwave from the control you pressed ──────────── */

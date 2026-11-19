@@ -252,3 +252,9 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .eyebrow {lett
 @media(prefers-contrast:more) {
   html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock.core-glass-nav {border-width:2px!important;}
 }
+/* Rings and glows never add scrollable overflow. */
+html[data-atlas-app="workout-forge"] #app .fg-feature {overflow:clip;}
+/* Season panel: its label shares a row with the counter, so it keeps Forge's own face
+   to stay inside the card at large text sizes. */
+html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-season .eyebrow {font-family:inherit!important;text-transform:none!important;letter-spacing:.02em!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-season :is(div,span) {min-width:0;}

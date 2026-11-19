@@ -85,7 +85,7 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=11a6283b082c" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=8068a15c9940"><link rel="stylesheet" href="atlas/life-map-hud.css?v=de5724e3ead8"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=8068a15c9940"><link rel="stylesheet" href="atlas/life-map-hud.css?v=ef0cbe60b603"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -2911,7 +2911,7 @@ function createLifeMapLocalStore(storage,validate){
 /* Life Map HUD. Decorative layer only: it reads the rendered board and never
    touches Life Map records. Everything it adds is aria-hidden and pointer-transparent,
    pauses when the page is hidden, and holds still under reduced motion.
-   Shares its engine with shared/ledger-hud.js?v=c99ee9fdae8b. */
+   Shares its engine with shared/ledger-hud.js?v=4da16770a917. */
 (() => {
   'use strict';
   const root = document.documentElement;
@@ -3161,6 +3161,7 @@ function createLifeMapLocalStore(storage,validate){
       }
     }).observe(app, {childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'aria-label']});
     window.addEventListener('resize', schedule);
+    if (window.ResizeObserver) new ResizeObserver(schedule).observe(document.body);
   }
 
   /* ── Logging feedback: a shockwave from the control you pressed ──────────── */

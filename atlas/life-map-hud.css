@@ -345,3 +345,5 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card::befor
 @media(prefers-contrast:more) {
   html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {border-width:2px!important;}
 }
+/* Rings and glows never add scrollable overflow. */
+html[data-atlas-app="life-map"] #app .lm-now-card {overflow:clip;}

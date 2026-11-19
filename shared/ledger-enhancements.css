@@ -1740,3 +1740,5 @@ html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #led
 html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav.core-glass-nav {border-radius:999px!important;}
 /* Milestone actions stay on one row so the Achievements hologram clears the dock. */
 html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-view-achievements :is(.ledger-feature-action,.ledger-milestone-choices>summary) {text-transform:none!important;letter-spacing:0!important;font-family:var(--neo-font,"Figtree",system-ui,sans-serif)!important;}
+/* Rings and glows never add scrollable overflow. */
+html[data-atlas-app="life-ledger"] #app :is(.ledger-opening,.ledger-next-milestone) {overflow:clip;}
