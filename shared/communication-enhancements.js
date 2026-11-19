@@ -131,7 +131,8 @@
     Store.usable=()=>diskAvailable&&unsaved.size===0;
     toast=function(title,sub){const wrap=$('toasts');if(wrap)wrap.textContent='';oldToast(unsaved.size?'Progress is not fully saved':title,unsaved.size?'Keep this page open and retry, or export your progress.':sub);};
     function timerUI(){
-      const value=$('timer'),button=$('tbtn');
+      const value=$('timer'),button=$('tbtn'),arc=$('cm-timer-arc');
+      if(arc&&window.CommunicatorLadder)arc.setAttribute('stroke-dashoffset',window.CommunicatorLadder.timerOffset());
       if(value){value.textContent=fmtT(Math.max(0,Math.ceil(timerLeft)));value.setAttribute('role','timer');value.setAttribute('aria-label','Time remaining');value.style.color=timerLeft<=0?'var(--good)':'';}
       if(button){button.textContent=deadline!==null?'Pause':timerLeft<=0?'Time’s up':timerLeft<curDrill?.drill.time?'Resume':'Start timer';button.disabled=timerLeft<=0;}
     }
