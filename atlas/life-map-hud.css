@@ -60,7 +60,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.appbar-sub,.ey
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-row-meta {font-family:var(--hud-mono)!important;letter-spacing:.04em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-row-meta,.lm-day-field>span) {font-size:.7rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature h2 {text-shadow:0 0 22px color-mix(in srgb,var(--neo-accent) 30%,transparent);}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-section-head,.lm-day-section-title) h2::before {content:"//";margin-right:.4em;color:var(--neo-accent);font-family:var(--hud-mono);font-weight:500;font-size:.8em;opacity:.8;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-section-head,.lm-day-section-title) h2::before {content:"//" / "";margin-right:.4em;color:var(--neo-accent);font-family:var(--hud-mono);font-weight:500;font-size:.8em;opacity:.8;}
 
 /* Panels: holographic glass, angled corners with lit cuts, reticle brackets. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-feature,.panel),html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] body>.lm-local-status {
@@ -165,7 +165,6 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(input,select,te
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(input,select,textarea):focus-visible {border-color:var(--neo-accent)!important;box-shadow:0 0 0 1px var(--neo-accent),0 0 16px -4px var(--neo-accent)!important;}
 
 /* Calendar: a targeting grid. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-grid {gap:4px!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day {border-radius:0!important;border:1px solid color-mix(in srgb,var(--neo-accent) 10%,transparent)!important;font-family:var(--hud-mono)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day[aria-current="date"] {border-color:var(--neo-accent)!important;box-shadow:inset 0 0 14px -4px var(--neo-accent),0 0 12px -4px var(--neo-accent)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-day[aria-pressed="true"] {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;box-shadow:0 0 20px -4px var(--neo-accent)!important;}
@@ -173,7 +172,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mark-due {color
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-header .lm-day-button {border-radius:50%!important;border:1px solid var(--hud-edge)!important;}
 
 /* Dock: angled with a beam under the active tab. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {--hud-cut:14px;clip-path:var(--hud-chamfer);border-radius:0!important;border:1px solid var(--hud-edge)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {border:1px solid var(--hud-edge)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button {position:relative;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock strong {font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.12em;font-weight:600;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button[aria-current="page"],html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button[aria-selected="true"],html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button[aria-pressed="true"] {text-shadow:0 0 12px color-mix(in srgb,var(--neo-accent) 70%,transparent);}
@@ -342,4 +341,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card::befor
 }
 @media(prefers-contrast:more),(forced-colors:active) {
   html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {border:2px solid var(--neo-ink)!important;clip-path:none;}
+}
+@media(prefers-contrast:more) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {border-width:2px!important;}
 }
