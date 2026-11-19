@@ -85,7 +85,7 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=11a6283b082c" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=9da989a12653"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=e1dd8f548143"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -2569,10 +2569,11 @@ function createLifeMapCalendarModel(){
       return;
     }
     if(action==='project-area'){
-      const area=el.dataset.category;
-      ui.category=area;
+      if(ui.category===el.dataset.category)return;
+      ui.category=el.dataset.category;
       render();
       app.querySelector('[data-day="project-area"][aria-pressed="true"]')?.focus({preventScroll:true});
+      document.getElementById('lm-project-results')?.classList.add('lm-results-changed');
       return;
     }
     if(action==='mandatory-toggle'){const c=S.chores.find(c=>c.id===id&&!c.archived),h=(S.choreHistory||[]).filter(h=>h.choreId===id&&h.date===todayISO()).at(-1);if(c?.repeat&&h)return commit(next=>{next.choreHistory=next.choreHistory.filter(x=>x.id!==h.id);next.chores.find(x=>x.id===id).nextDue=h.occurrence;},'Routine reopened');return D.choreAction(id,'done');}

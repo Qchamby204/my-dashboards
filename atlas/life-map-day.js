@@ -356,10 +356,11 @@
       return;
     }
     if(action==='project-area'){
-      const area=el.dataset.category;
-      ui.category=area;
+      if(ui.category===el.dataset.category)return;
+      ui.category=el.dataset.category;
       render();
       app.querySelector('[data-day="project-area"][aria-pressed="true"]')?.focus({preventScroll:true});
+      document.getElementById('lm-project-results')?.classList.add('lm-results-changed');
       return;
     }
     if(action==='mandatory-toggle'){const c=S.chores.find(c=>c.id===id&&!c.archived),h=(S.choreHistory||[]).filter(h=>h.choreId===id&&h.date===todayISO()).at(-1);if(c?.repeat&&h)return commit(next=>{next.choreHistory=next.choreHistory.filter(x=>x.id!==h.id);next.chores.find(x=>x.id===id).nextDue=h.occurrence;},'Routine reopened');return D.choreAction(id,'done');}
