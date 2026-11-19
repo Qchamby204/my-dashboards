@@ -72,7 +72,8 @@
       return value;
     }
     let season=clone(DEFAULT_SEASON),drafts={days:{},selected:todayISO(),mode:'cards'},blocked=false,busy=false,importTicket=0,historyLimit=7,historyOpen=false,lastUndo=null;
-    const dashboardPlaces=new Map();let dashboardVisit=0;
+    const dashboardPlaces=new Map();let dashboardVisit=0,lastView=null;
+    const dashboardTabs=[['today','Today'],['progress','Progress'],['achievements','Achievements']];
     let achievementFilter='all',achievementCategory='all',checkinToolsOpen=false;
     const releaseViews={levels:'progress',achievements:'achievements',history:'history'};
     const openingSection=location.hash?.slice(1);
@@ -550,7 +551,7 @@
       remember();dashboardView=view;leisureOpen=false;
       if(view==='history')historyOpen=true;
       if(view==='today'&&state.logDate!==todayISO()){state.logDate=todayISO();loadDraftFor(state.logDate);}
-      render();const y=restore?(dashboardPlaces.get(view)||0):0,navId='ledger-nav-'+view;
+      render();const y=restore?(dashboardPlaces.get(view)||0):0,navId=view==='history'?'ledger-history-heading':'ledger-nav-'+view;
       window.scrollTo({top:y,behavior:'instant'});document.getElementById(navId)?.focus({preventScroll:true});
       if(restore&&typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(()=>{
         if(visit===dashboardVisit&&dashboardView===view&&document.activeElement===document.getElementById(navId))window.scrollTo({top:y,behavior:'instant'});
@@ -1031,9 +1032,10 @@
     function composeDashboard(log,data,earned){
       if(!log)return;
       const panes={};
-      for(const [key,title]of [['today','Today'],['progress','Progress'],['achievements','Achievements'],['history','History']]){
-        const pane=make('section',null,'ledger-view');pane.id='ledger-view-'+key;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','ledger-nav-'+key);pane.hidden=dashboardView!==key;panes[key]=pane;app.append(pane);
+      for(const key of [...dashboardTabs.map(([key])=>key),'history']){
+        const pane=make('section',null,'ledger-view');pane.id='ledger-view-'+key;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby','ledger-nav-'+(key==='history'?'progress':key));pane.hidden=dashboardView!==key;panes[key]=pane;app.append(pane);
       }
+      if(lastView!==dashboardView){panes[dashboardView].classList.add('ledger-entering');lastView=dashboardView;}
       const move=(selector,pane)=>{const node=app.querySelector(selector);if(node)pane.append(node);return node;};
       const intro=make('div',null,'ledger-day-heading ledger-opening');
       const title=make('div',null,'ledger-day-title');
@@ -1045,7 +1047,6 @@
       intro.append(title,readout('ledger-today-readout','Priorities done',HABITS.filter(priorityDone).length,HABITS.length),valueNavigator(),progressLinks);
       panes.today.append(intro);
       const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
-      if(state.logMode==='cards')panes.today.append(intro);
       // Today contains only the check-in. Supporting tools live in History.
       const checkinTools=make('details',null,'ledger-manage');checkinTools.id='ledger-checkin-tools';checkinTools.open=checkinToolsOpen;checkinTools.addEventListener('toggle',()=>checkinToolsOpen=checkinTools.open);checkinTools.append(make('summary','Check-in tools'));move('#ledger-rhythm',checkinTools);panes.history.append(checkinTools);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
@@ -1088,7 +1089,8 @@
         map.querySelector('h3')?.remove();const key=map.querySelector('.ledger-value-key'),footer=make('div',null,'ledger-feature-footer');if(key)footer.append(key);
         card.append(rail,heading,map,footer);panes.progress.append(card);
       }
-      panes.progress.append(activityHistory(data));
+      const history=activityHistory(data);
+      const openHistory=button('Saved days & tools',()=>setDashboardView('history'));openHistory.id='ledger-open-history';history.append(openHistory);panes.progress.append(history);
       if(overall)panes.progress.append(overall);
       const valuesHeading=make('div',null,'ledger-section-heading');valuesHeading.append(make('h2','Value details'));panes.progress.append(valuesHeading);
       move('.ledger-values',panes.progress);if(relic)relic.remove();
@@ -1098,7 +1100,9 @@
       const feature=collection.querySelector('.ledger-feature');
       (feature||collection).append(readout('ledger-achievement-readout','Earned',earned.length,ACHV.length));
       panes.achievements.append(make('h1','Achievements','cinzel ledger-view-title'),collection);
-      panes.history.prepend(make('h1','Your record','cinzel ledger-view-title'),historyFeature());
+      const historyHeading=make('h1','Your record','cinzel ledger-view-title');historyHeading.id='ledger-history-heading';historyHeading.setAttribute('tabindex','-1');
+      const back=button('Back to Progress',()=>setDashboardView('progress',true));back.id='ledger-back-to-progress';
+      panes.history.prepend(back,historyHeading,historyFeature());
       const savedRecords=move('#ledger-history',panes.history);if(savedRecords)checkinTools.before(savedRecords);
       for(const key of ['chronicle','consistency','forecast','pace','oracle','outcomes']){const section=app.querySelector('[data-act="section"][data-key="'+key+'"]')?.closest('.panel');if(section)(['chronicle','consistency'].includes(key)?panes.history:panes.progress).append(section);}
       const toolsPanel=make('details',null,'ledger-manage');toolsPanel.id='ledger-reminder-tools';toolsPanel.append(make('summary','Manage Ledger & backups'));
@@ -1129,10 +1133,16 @@
       }
       else log.append(saveRow);
       const running=button('Screen-time timer running · Open',openLeisure);running.id='ledger-running-timer';running.hidden=!drafts.leisureTimer;running.classList.add('ledger-running-timer');dock.append(running);
-      const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');nav.style.setProperty('--atlas-page-count','4');
-      const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',achievements:'<path d="M8 3h8v7a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 14v6m-4 1h8"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
-      for(const [key,title]of [['today','Today'],['progress','Progress'],['achievements','Achievements'],['history','History']]){const b=button('',()=>setDashboardView(key,true));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(dashboardView===key));b.setAttribute('aria-controls',panes[key].id);b.setAttribute('tabindex',dashboardView===key?'0':'-1');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);}
-      nav.addEventListener('keydown',e=>{const keys=['today','progress','achievements','history'],index=keys.indexOf(e.target.dataset.view);if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%keys.length;else if(e.key==='ArrowLeft')next=(index+keys.length-1)%keys.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=keys.length-1;else return;e.preventDefault();setDashboardView(keys[next],true);});
+      const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');nav.style.setProperty('--atlas-page-count',String(dashboardTabs.length));
+      const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',achievements:'<path d="M8 3h8v7a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 14v6m-4 1h8"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>'};
+      const selectedTab=dashboardView==='history'?'progress':dashboardView;
+      for(const [key,title]of dashboardTabs){
+        const b=button('',()=>setDashboardView(key,true));b.id='ledger-nav-'+key;b.dataset.view=key;b.setAttribute('role','tab');
+        b.setAttribute('aria-selected',String(selectedTab===key));b.setAttribute('aria-controls',panes[key===selectedTab?dashboardView:key].id);
+        b.setAttribute('tabindex',selectedTab===key?'0':'-1');
+        b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[key]+'</svg><span>'+title+'</span>';nav.append(b);
+      }
+      nav.addEventListener('keydown',e=>{const index=dashboardTabs.findIndex(([key])=>key===e.target.dataset.view),count=dashboardTabs.length;if(index<0)return;let next;if(e.key==='ArrowRight')next=(index+1)%count;else if(e.key==='ArrowLeft')next=(index+count-1)%count;else if(e.key==='Home')next=0;else if(e.key==='End')next=count-1;else return;e.preventDefault();setDashboardView(dashboardTabs[next][0],true);});
       const todayScreen=state.logDate===todayISO()?state.draftScreen:(drafts.days[todayISO()]||dayEntryFor(todayISO()))?.screen;
       const quick=button(todayScreen?.slips?.at(-1)&&!todayScreen.slips.at(-1).recovered?'Resume my scrolling reset':'Getting pulled into scrolling?',beginScreenReset);quick.id='ledger-quick-reset';quick.setAttribute('aria-label',quick.textContent);quick.title=quick.textContent;const resetRow=make('div',null,'ledger-reset-row');resetRow.append(quick);checkinTools.append(resetRow);
       dock.append(nav);app.append(dock);log.querySelector('.ledger-save-inline')?.remove();resetSheet();
@@ -1313,6 +1323,7 @@
       const counter=document.getElementById('deckCounter');if(counter){counter.setAttribute('aria-live','polite');counter.setAttribute('aria-atomic','true');}
       [...app.querySelectorAll('.ledger-habit-card')].forEach((card,i)=>{const info=card.querySelector('.ledger-card-definition');if(info)info.hidden=i!==idx;card.inert=i!==idx;card.setAttribute('aria-hidden',String(i!==idx));card.setAttribute('role','group');card.setAttribute('aria-label',label(HABITS[i])+' · '+(i+1)+' of '+n);});
       const picker=document.getElementById('ledger-habit-picker');if(picker)picker.value=HABITS[idx];
+      const caption=app.querySelector('.ledger-switcher-caption');if(caption)caption.textContent=label(HABITS[idx]);
       paintActiveCard();
     };
     const originalLevelView=levelUpView;
@@ -1336,7 +1347,7 @@
       for(const [i,card]of [...app.querySelectorAll('.ledger-habit-card')].entries()){
         const header=make('div',null,'ledger-card-heading'),identity=make('div',null,'ledger-card-identity');
         const avatar=card.firstElementChild,title=card.querySelector('.cinzel'),category=card.querySelector('.eyebrow'),info=card.querySelector('[data-act="hinfo"]');
-        avatar.classList.add('ledger-card-avatar');const art=make('div',null,'ledger-card-art');art.append(cardArtwork(avatar));identity.append(title);if(category)header.append(category);header.append(art,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
+        avatar.classList.add('ledger-card-avatar');const art=make('div',null,'ledger-card-art');art.append(cardArtwork(avatar));identity.append(title);if(category)identity.append(category);header.append(art,identity);if(info){info.textContent='i';header.append(info);}card.prepend(header);
         title.setAttribute('role','heading');title.setAttribute('aria-level','1');
         const h=HABITS[i],c=HCFG[h],amount=c.kind==='count'?1:c.step;
         updateCardDial(card,h);
@@ -1400,6 +1411,21 @@
       paintLeisureClock();status();mountReleaseNotice();window.CoreAppFinish?.layoutOpening?.();
       if(restoreControl)[...app.querySelectorAll('button')].find(b=>b.dataset.act===restoreControl.act&&b.dataset.habit===restoreControl.habit&&b.dataset.mode===restoreControl.mode&&b.dataset.key===restoreControl.key)?.focus({preventScroll:true});
     };
+    const trackingPanels='.ledger-opening,.ledger-habit-card,.ledger-list-records>.row,.ledger-achievement-record,.ledger-feature';
+    app.addEventListener('pointermove',event=>{
+      if(event.pointerType!=='mouse'||!motionAllowed())return;
+      const panel=event.target.closest(trackingPanels);
+      if(!panel)return;
+      const bounds=panel.getBoundingClientRect();
+      if(!bounds.width||!bounds.height)return;
+      panel.style.setProperty('--ledger-pointer-x',100*(event.clientX-bounds.left)/bounds.width+'%');
+      panel.style.setProperty('--ledger-pointer-y',100*(event.clientY-bounds.top)/bounds.height+'%');
+      panel.dataset.tracking='';
+    });
+    app.addEventListener('pointerout',event=>{
+      const panel=event.target.closest(trackingPanels);
+      if(panel&&!panel.contains(event.relatedTarget))delete panel.dataset.tracking;
+    });
     // Keep the keyboard and its layout until the tapped action receives click.
     // Moving focus before click can dismiss it before Done / Save activates.
     // Native click remains the only activation; scrolling and cancelled taps save nothing.
