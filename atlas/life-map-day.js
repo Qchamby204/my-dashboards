@@ -66,7 +66,7 @@
     return '<g aria-hidden="true"><ellipse cx="280" cy="171" rx="165" ry="21" fill="#72f3e2" opacity=".06"/>'+
       '<path d="M40 171 425 211 519 121" fill="none" stroke="#65d9d0" stroke-dasharray="5 6" opacity=".5"/>'+
       '<path d="M'+edge+'L'+sides.slice().reverse().map(([x,y])=>pointText([x,y+7])).join('L')+'Z" fill="#163847" stroke="#437382" stroke-width=".7"/>'+strips.join('')+'<path d="M'+edge+'" fill="none" stroke="#89ddd5" stroke-width="1"/>'+
-      '<g fill="none" stroke="#72a5ad" stroke-width="1"><path d="M19 17h11m-5.5-5.5v11m488 147h11m-5.5-5.5v11M480 34l5-14 5 14-5-4z"/></g><text x="485" y="15" text-anchor="middle" fill="#a6c9cc" font-size="10" font-family="monospace">N</text></g>';
+      '<g fill="none" stroke="#72a5ad" stroke-width="1"><path d="M19 17h11m-5.5-5.5v11m488 147h11m-5.5-5.5v11M51 34l5-14 5 14-5-4z"/></g><text x="56" y="15" text-anchor="middle" fill="#a6c9cc" font-size="10" font-family="monospace">N</text></g>';
   }
   const relief=makeRelief();
   const stopNumber=n=>String(n).padStart(2,'0');
@@ -105,7 +105,9 @@
         (next?'<ellipse class="lm-beacon" rx="12" ry="4"/>':'')+'<ellipse class="lm-pin-foot" rx="6" ry="2.5"/><path class="lm-pin-stem" d="M0 0V-17"/><rect x="-12" y="-34" width="24" height="18" rx="4"/><text text-anchor="middle" y="-21">'+label+'</text></g></g>';
     });
     const range=total>5?' · Stops '+(start+1)+'–'+(start+visible.length):'';
-    return '<div class="lm-route-map"><div class="lm-route-plate"><svg class="lm-relief" viewBox="0 0 550 208" aria-hidden="true" focusable="false">'+relief+trail+pins+'</svg>'+targets+'</div>'+
+    const percentage=total?Math.round(100*done/total)+'%':'−';
+    const dial='<span class="lm-instrument lm-route-dial" aria-hidden="true" aria-label="'+done+' of '+total+' routines complete"><span class="lm-dial-face"><strong>'+percentage+'</strong></span></span>';
+    return '<div class="lm-route-map"><div class="lm-route-plate"><svg class="lm-relief" viewBox="0 0 550 208" aria-hidden="true" focusable="false">'+relief+trail+pins+'</svg>'+dial+targets+'</div>'+
       '<button type="button" class="lm-route-caption" data-day="jump-routines" aria-label="'+attrs('Daily mandatory, '+done+' of '+total+' complete')+'"><span>Routine route</span><span><b>'+done+'</b> / '+total+' complete'+range+'</span></button></div>';
   }
   const focusCard=(eyebrow,title,body,actions,route)=>{
@@ -341,7 +343,7 @@
     const scope=projectScope(),results=app.querySelector('#lm-project-results'),count=app.querySelectorAll('[data-project-summary]');
     if(results)results.innerHTML=projectResults(scope);count.forEach(node=>node.textContent=projectSummary(scope));
   }
-  const areaColours={food:'#bce893',household:'#68dece',family:'#ffabbf',health:'#8bc6ff',work:'#c7acfd',admin:'#f8c683',boards:'#84d5f0'};
+  const areaColours={food:'#ffb347',household:'#5cb0ff',family:'#ff6f97',health:'#3cf0a0',work:'#b591ff',admin:'#ffd65c',boards:'#4ff0d0'};
   function areaCounts(){
     const counts=new Map();
     for(const task of openTasks()){
@@ -367,7 +369,7 @@
     return '<div class="lm-area-picker" aria-label="Open tasks by area" role="group">'+
       [['all','All areas'],...M.categories].map(([key,name])=>{
         const count=key==='all'?total:counts.get(key)||0;
-        return '<button type="button" class="lm-area-option" style="--area-signal:'+(areaColours[key]||'#d1f8f2')+'" data-day="project-area" data-category="'+key+'" aria-pressed="'+(selected===key)+'" aria-label="'+attrs(name+', '+count+' open task'+(count===1?'':'s'))+'"><span>'+esc(name)+'</span><strong>'+count+'</strong>'+(key==='all'?'':'<i class="lm-load-track" aria-hidden="true"><i style="width:'+Math.round(count/maximum*100)+'%"></i></i>')+'</button>';
+        return '<button type="button" class="lm-area-option" style="--area-signal:'+(areaColours[key]||'#d1f8f2')+';--area:var(--area-signal)" data-day="project-area" data-category="'+key+'" aria-pressed="'+(selected===key)+'" aria-label="'+attrs(name+', '+count+' open task'+(count===1?'':'s'))+'"><span>'+esc(name)+'</span><strong>'+count+'</strong>'+(key==='all'?'':'<i class="lm-load-track" aria-hidden="true"><i style="width:'+Math.round(count/maximum*100)+'%"></i></i>')+'</button>';
       }).join('')+'</div>';
   }
   function projectsView(){

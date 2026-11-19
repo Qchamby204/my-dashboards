@@ -914,3 +914,18 @@ html.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock [aria-selected="tr
   html.atlas-neumo[data-atlas-app="life-map"] #app .lm-area-option {padding:.4rem .65rem!important;row-gap:.35rem;min-height:46px}
   html.atlas-neumo[data-atlas-app="life-map"] #app .lm-project-feature .lm-area-picker {margin-top:.6rem;gap:.35rem}
 }
+/* The existing HUD reactor reads the same saved totals as the terrain route. */
+html[data-atlas-app="life-map"] #app .lm-route-dial {
+  position:absolute;top:10%;right:5%;width:11%;max-width:3.5rem;aspect-ratio:1;
+  display:grid;place-items:center;pointer-events:none;
+}
+html[data-atlas-app="life-map"] #app .lm-route-dial .lm-dial-face {
+  display:grid;place-items:center;width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle,#0e3240 20%,#091923 65%,transparent 67%);
+}
+html[data-atlas-app="life-map"] #app .lm-route-dial strong {
+  font:600 clamp(.68rem,1.25vw,.95rem)/1 var(--hud-mono,var(--lm-mono));color:#9cf3ee;
+}
+html[data-atlas-app="life-map"] #app .lm-route-row [data-lm="edit-chore"] {
+  scroll-margin-block:calc(var(--atlas-top-h,70px) + 12px) calc(var(--atlas-page-nav-height,70px) + 12px);
+}
