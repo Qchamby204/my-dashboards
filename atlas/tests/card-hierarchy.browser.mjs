@@ -133,7 +133,8 @@ try{
   const ledgerBytes=await p.evaluate(()=>localStorage.getItem('lifeledger:v2'));
   await p.locator('#ledger-nav-progress').click();const valueMap=p.locator('#ledger-view-progress .ledger-value-map');
   assert(await valueMap.isVisible(),'the value constellation is visible without opening a disclosure');
-  assert.equal(await valueMap.evaluate(n=>n.tagName),'SECTION');assert(await valueMap.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('#ledger-lifetime-levels'))&Node.DOCUMENT_POSITION_FOLLOWING)),'the constellation is the opening record before lifetime XP');assert.equal(await valueMap.locator('svg [data-orbit][role="button"]').count(),5);
+  assert.equal(await valueMap.evaluate(n=>n.tagName),'SECTION');assert(await valueMap.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('#ledger-lifetime-levels'))&Node.DOCUMENT_POSITION_FOLLOWING)),'the constellation is the opening record before lifetime XP');assert.equal(await valueMap.locator('svg [data-orbit][role="button"]:not([data-orbit="LIFE"])').count(),5);
+  assert.equal(await valueMap.locator('svg [data-orbit="LIFE"][role="button"]').count(),1);
   assert.equal(await valueMap.locator('.ledger-value-key button').count(),5);
   assert(await valueMap.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('.ledger-values'))&Node.DOCUMENT_POSITION_FOLLOWING)),'the constellation precedes individual value records');
   await capture(p,'ledger-value-constellation',theme,w,size,valueMap);
@@ -146,7 +147,7 @@ try{
   await p.locator('.ledger-milestone-choices>summary').click();assert(await p.locator('#ledger-milestone-choice').isVisible());await capture(p,'ledger-milestone-choices',theme,w,size,p.locator('#ledger-next-milestone'));
   await p.locator('#ledger-next-milestone .ledger-progress-info>summary').click();await capture(p,'ledger-milestone-explanation',theme,w,size,p.locator('#ledger-next-milestone'));
   assert.equal(await p.evaluate(()=>localStorage.getItem('lifeledger:v2')),ledgerBytes,'viewing milestone controls never rewrites saved days');
-  await p.locator('#ledger-nav-history').click();await p.locator('#ledger-checkin-tools>summary').click();await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
+  await p.locator('#ledger-nav-progress').click();await p.locator('#ledger-open-history').click();await p.locator('#ledger-checkin-tools>summary').click();await p.locator('#ledger-quick-reset').click();assert(await p.locator('#ledger-reset-sheet').isVisible());await p.keyboard.press('Escape');
   await open('life-map');await p.getByText('Daily preparation & links',{exact:true}).click();await p.locator('.daily-chips').scrollIntoViewIfNeeded();
   assert(await p.locator('.daily-chips a').evaluateAll(ns=>ns.every(n=>['inline-flex','flex'].includes(getComputedStyle(n).display)&&parseFloat(getComputedStyle(n).paddingLeft)>=18)),'links have complete padded targets');await capture(p,'life-map-actions',theme,w,size);
   await p.evaluate(async()=>{await LifeMapWorkflow.transaction(next=>{next.projects.push({id:'recap-example',task:'Prepare the nursery shelf',area:'Family & Baby',status:'Not started',pri:'Med'});},'Added task','task_created');await LifeMapDashboard.setStatus('recap-example','Done');});

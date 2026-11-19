@@ -31,7 +31,7 @@ try{
  const firstCheck=page.waitForResponse(r=>r.url().includes('ledger-check'));
  await page.goto(origin+'/life-ledger.html#levels');await page.waitForFunction(()=>!!window.LedgerDays);await firstCheck;
  assert(await page.locator('#ledger-lifetime-levels').isVisible());assert.equal(checks,1);
- const checkManually=async()=>{await page.locator('#ledger-nav-history').click();await page.locator('#ledger-reminder-tools>summary').click();await page.getByRole('button',{name:'Check for updates',exact:true}).click();};
+ const checkManually=async()=>{await page.locator('#ledger-nav-progress').click();await page.locator('#ledger-open-history').click();await page.locator('#ledger-reminder-tools>summary').click();await page.getByRole('button',{name:'Check for updates',exact:true}).click();};
  checkMode='offline';await checkManually();await page.getByText('Updates could not be checked. Your current Ledger is still available.',{exact:true}).waitFor();assert.equal(await page.locator('#ledger-release-notice').count(),0);
  checkMode='invalid';const invalidCheck=page.waitForResponse(r=>r.url().includes('ledger-check'));await page.getByRole('button',{name:'Check for updates',exact:true}).click();await invalidCheck;assert.equal(await page.locator('#ledger-release-notice').count(),0);
  checkMode='valid';published=next;

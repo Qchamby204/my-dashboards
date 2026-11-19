@@ -449,7 +449,7 @@ test('Today, Progress and History compose one copy of the controls and retain ed
  const h=await screenBoot();const today=h.node('ledger-view-today');assert.equal(today.children.length,2);assert(today.querySelector('#ledger-log'));assert(today.querySelector('#ledger-checkin-save'));for(const id of ['ledger-rhythm','ledger-reward-preview','ledger-leisure-preview','ledger-screen-fold','ledger-life-level','ledger-quick-reset'])assert.equal(today.querySelector('#'+id),null,id+' is outside Today');assert(h.node('ledger-rhythm').closest('#ledger-checkin-tools'));assert(h.node('ledger-checkin-tools').closest('#ledger-view-history'));assert.equal(h.node('ledger-view-today').hidden,false);assert.equal(h.node('ledger-view-progress').hidden,true);assert.equal(h.node('ledger-view-history').hidden,true);
  h.run('state.draft.Read=12');h.api.remember();h.node('ledger-nav-progress').click();assert.equal(h.node('ledger-view-progress').hidden,false);assert.equal(h.node('ledger-view-today').hidden,true);assert.equal(h.node('ledger-nav-progress').getAttribute('aria-selected'),'true');assert.equal(!!h.run('state.openSections.relics'),false);
  assert.equal(h.node('app').querySelectorAll('[data-act="commit"]').length,1);assert(h.node('app').querySelector('[data-act="commit"]').closest('#ledger-log'));assert.equal(h.node('ledger-dock').querySelector('[data-act="commit"]'),null);
- h.node('ledger-nav-history').click();assert(h.node('ledger-history').closest('#ledger-view-history'));assert.equal(h.node('ledger-history').open,true);
+ h.node('ledger-nav-progress').click();h.node('ledger-open-history').click();assert(h.node('ledger-history').closest('#ledger-view-history'));assert.equal(h.node('ledger-history').open,true);
  h.node('ledger-nav-today').click();assert.equal(h.run('state.draft.Read'),12);assert(h.node('ledger-log').closest('#ledger-view-today'));assert(h.node('app').querySelector('.ledger-overall').closest('#ledger-view-progress'));
  h.api.selectDate('2026-09-29');assert.match(h.node('ledger-view-today').textContent,/Editing Sep 29/);h.node('ledger-nav-today').click();assert.equal(h.run('state.logDate'),'2026-09-30');assert.equal(h.run('state.draft.Read'),12);
 });
@@ -666,7 +666,7 @@ test('the active card accent and entered state follow the deck without writing s
 
 test('History opens with a saved-record summary and keeps browsing and backup tools usable',async()=>{
  const rows=[{date:'2026-09-28',units:{Read:10},note:'A saved reflection'}],h=await boot({realModel:true,records:{[S]:JSON.stringify(rows)}}),before=h.storage.get(S);
- h.node('ledger-nav-history').click();const hero=h.node('ledger-record-overview');assert(hero.isConnected);assert.match(hero.textContent,/1 saved day/);assert.match(hero.textContent,/Latest check-in/);
+ h.node('ledger-nav-progress').click();h.node('ledger-open-history').click();const hero=h.node('ledger-record-overview');assert(hero.isConnected);assert.match(hero.textContent,/1 saved day/);assert.match(hero.textContent,/Latest check-in/);
  hero.querySelectorAll('button').find(b=>b.textContent==='Browse saved days').click();assert.equal(h.node('ledger-history').open,true);
  hero.querySelectorAll('button').find(b=>b.textContent==='Backup tools').click();assert.equal(h.node('ledger-reminder-tools').open,true);assert.equal(h.storage.get(S),before);
 });

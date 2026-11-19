@@ -63,7 +63,8 @@ with sync_playwright() as pw:
         assert page.locator('#ledger-view-today #ledger-rhythm, #ledger-view-today #ledger-leisure-preview, #ledger-view-today .ledger-day-options').count() == 0
         no_overflow()
         page.screenshot(path=str(OUT / f'{ENGINE}-today.png'), full_page=True)
-        page.locator('#ledger-nav-history').click()
+        page.locator('#ledger-nav-progress').click()
+        page.locator('#ledger-open-history').click()
         page.locator('#ledger-checkin-tools > summary').click()
         page.locator('#rhythm-week-reduced').click()
         expect(page.locator('#rhythm-week-reduced')).to_have_attribute('aria-pressed', 'true')
@@ -115,7 +116,11 @@ with sync_playwright() as pw:
         saved = json.loads(page.evaluate('localStorage.getItem("lifeledger:v2")'))
         assert next(d for d in saved if d['date'] == DAY)['units']['LinkedIn Strategy'] == 1
         for view in ['progress', 'achievements', 'history', 'today']:
-            page.locator('#ledger-nav-' + view).click()
+            if view == 'history':
+                page.locator('#ledger-nav-progress').click()
+                page.locator('#ledger-open-history').click()
+            else:
+                page.locator('#ledger-nav-' + view).click()
             expect(page.locator('#ledger-view-' + view)).to_be_visible()
             no_overflow()
             page.screenshot(path=str(OUT / f'{ENGINE}-{view}.png'), full_page=True)
@@ -150,8 +155,8 @@ with sync_playwright() as pw:
         for width in [320, 430, 1024]:
             page.set_viewport_size({'width': width, 'height': 844})
             assert page.locator('#ledger-checkin-save').evaluate("n => getComputedStyle(n).position === 'static' && !!n.closest('#ledger-log')"), 'Save belongs inside the check-in'
-            assert page.locator('.ledger-nav').bounding_box()['height'] <= 90, 'Four navigation tabs share one row'
-            assert page.locator('.ledger-nav button').evaluate_all("ns => {const rs=ns.map(n=>n.getBoundingClientRect());return rs.length===4 && rs.every(r=>r.width>=44 && r.height>=44 && Math.abs(r.top-rs[0].top)<2)}"), 'All sections have full-size targets on one row'
+            assert page.locator('.ledger-nav').bounding_box()['height'] <= 90, 'Three navigation tabs share one row'
+            assert page.locator('.ledger-nav button').evaluate_all("ns => {const rs=ns.map(n=>n.getBoundingClientRect());return rs.length===3 && rs.every(r=>r.width>=44 && r.height>=44 && Math.abs(r.top-rs[0].top)<2)}"), 'All sections have full-size targets on one row'
             for index in range(14):
                 expect(page.locator('#deckCounter')).to_have_text(f'{index + 1} / 14')
                 assert page.locator('.ledger-habit-card:not([inert])').count() == 1
@@ -188,7 +193,8 @@ with sync_playwright() as pw:
         assert page.locator('#ledger-lifetime-levels .ledger-progress-info p').bounding_box()['width'] >= 250
         page.screenshot(path=str(OUT / f'{ENGINE}-progress-light.png'), full_page=True)
         expect(page.locator('#ledger-quick-reset')).to_be_hidden()
-        page.locator('#ledger-nav-history').click()
+        page.locator('#ledger-nav-progress').click()
+        page.locator('#ledger-open-history').click()
         expect(page.locator('#ledger-quick-reset')).to_be_hidden()
         page.get_by_role('button', name='Settings', exact=True).click()
         page.get_by_role('button', name='Reset progress', exact=True).click()
@@ -201,7 +207,8 @@ with sync_playwright() as pw:
         page.reload(wait_until='networkidle')
         page.locator('#ledger-nav-progress').click()
         expect(page.locator('#ledger-lifetime-levels h2')).to_have_text('Life Level 0')
-        page.locator('#ledger-nav-history').click()
+        page.locator('#ledger-nav-progress').click()
+        page.locator('#ledger-open-history').click()
         page.locator('#ledger-progress-archives > summary').click()
         page.locator('#ledger-progress-archives details > summary').click()
         expect(page.locator('#ledger-progress-archives')).to_contain_text('Historical note')
@@ -238,7 +245,8 @@ with sync_playwright() as pw:
         exchange.on('pageerror', lambda e: errors.append(str(e)))
         exchange.goto(BASE + '/life-ledger.html', wait_until='networkidle')
         exchange.wait_for_function('!!window.LedgerDays && !!window.DiscernBridge')
-        exchange.locator('#ledger-nav-history').click()
+        exchange.locator('#ledger-nav-progress').click()
+        exchange.locator('#ledger-open-history').click()
         if not exchange.locator('#ledger-checkin-tools').evaluate('(n) => n.open'):
             exchange.locator('#ledger-checkin-tools > summary').click()
         exchange.locator('#ledger-leisure-preview').click()
@@ -267,7 +275,8 @@ with sync_playwright() as pw:
         assert exchange.evaluate('state.days[0].leisure.discernReceipt.id') == report['id']
         dismiss_rewards(exchange)
         before_xp = exchange.evaluate('compute(state.days,state.goals).life.xp')
-        exchange.locator('#ledger-nav-history').click()
+        exchange.locator('#ledger-nav-progress').click()
+        exchange.locator('#ledger-open-history').click()
         if not exchange.locator('#ledger-checkin-tools').evaluate('(n) => n.open'):
             exchange.locator('#ledger-checkin-tools > summary').click()
         exchange.locator('#ledger-leisure-preview').click()
