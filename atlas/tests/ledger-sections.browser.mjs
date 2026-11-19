@@ -25,7 +25,7 @@ try{
    await page.evaluate(()=>scrollTo(0,0));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
    const hero=page.locator('#'+id);assert(await hero.isVisible());
    const geometry=await hero.evaluate(node=>{const box=node.getBoundingClientRect(),title=node.querySelector('h2'),range=document.createRange();range.selectNodeContents(title);return {width:box.width,paneWidth:node.closest('[role="tabpanel"]').getBoundingClientRect().width,top:box.top,bottom:box.bottom,page:document.documentElement.scrollWidth,viewport:innerWidth,titleColor:getComputedStyle(title).color,background:getComputedStyle(node).backgroundColor,titleFits:[...range.getClientRects()].every(r=>r.right<=box.right+1&&r.left>=box.left-1),font:parseFloat(getComputedStyle(title).fontSize)};});
-   assert(geometry.width>geometry.paneWidth*.9&&geometry.top<(textSize===32?430:280),'opening card is the prominent first record');assert(geometry.page<=width+1,'page does not overflow');assert(geometry.titleFits,'hero title fits inside its card');assert.equal(geometry.background,theme==='dark'?'rgb(7, 25, 35)':'rgb(249, 252, 252)');
+   assert(geometry.width>geometry.paneWidth*.9&&geometry.top<(textSize===32?430:280),'opening card is the prominent first record');assert(geometry.page<=width+1,'page does not overflow');assert(geometry.titleFits,'hero title fits inside its card');assert.equal(geometry.background,theme==='dark'?'rgb(16, 35, 45)':'rgb(249, 252, 252)');
    assert(await hero.locator('svg').count()>0,'each opening card retains illustration');
    if(view==='progress'){
     const field=await hero.locator('.ledger-orbit-field').boundingBox();

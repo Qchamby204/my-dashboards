@@ -1241,7 +1241,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme] {
     linear-gradient(var(--hud-bracket),var(--hud-bracket)) right 6px bottom 6px/2px 16px no-repeat;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme="dark"] {
-  --neo-canvas:#01060a; --neo-surface:#05121a; --neo-content-surface:#071923; --neo-inset:#030d13;
+  --neo-canvas:#01060a; --neo-surface:#05121a; --neo-content-surface:#10232d; --neo-inset:#030d13;
   --neo-ink:#e6fcff; --neo-muted:#8fb3ba; --neo-faint:#86a6ae;
   --neo-accent:#5ff4ff; --neo-line:#14323d; --neo-accent-soft:#0c2f38;
   --hud-amber:#ffb347;
@@ -1386,7 +1386,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .appbar {
   box-shadow:0 1px 0 color-mix(in srgb,var(--neo-accent) 10%,transparent),0 12px 30px -24px var(--neo-accent)!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav.core-glass-nav {
-  border-radius:10px!important;border:1px solid var(--hud-edge)!important;
+  border:1px solid var(--hud-edge)!important;
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--neo-accent) 22%,transparent),0 -10px 40px -24px var(--neo-accent),0 18px 40px -20px rgba(0,0,0,.9)!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav button {position:relative;}
@@ -1504,9 +1504,9 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-checkin-
 
 /* Section titles carry an index mark. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-section-heading h2,.ledger-feature-heading h2,.ledger-collection-heading h2)::before {
-  content:"//";margin-right:.4em;color:var(--neo-accent);font-family:var(--hud-mono);font-weight:500;font-size:.8em;opacity:.8;
+  content:"//" / "";margin-right:.4em;color:var(--neo-accent);font-family:var(--hud-mono);font-weight:500;font-size:.8em;opacity:.8;
 }
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow::before {content:"▸ ";color:var(--neo-accent);}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow::before {content:"▸ " / "";color:var(--neo-accent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening h1 {
   text-shadow:0 0 22px color-mix(in srgb,var(--neo-accent) 30%,transparent);
 }
@@ -1543,7 +1543,7 @@ html[data-atlas-app="life-ledger"] #app .hud-reactor {position:absolute;pointer-
 }
 @keyframes hud-spin {to{transform:rotate(360deg);}}
 @media(max-width:959px) {
-  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening {grid-template-columns:minmax(0,1fr) clamp(128px,38vw,176px)!important;}
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-view-today .ledger-opening {grid-template-columns:minmax(0,1fr) clamp(128px,38vw,176px)!important;}
 }
 
 /* Live telemetry line in the check-in card. */
@@ -1618,7 +1618,6 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .appbar::after {
   html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .appbar::after {animation:hud-travel 6s ease-in-out infinite;}
 }
 @keyframes hud-travel {to{background-position:140% 0;}}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav.core-glass-nav {--hud-cut:14px;clip-path:var(--hud-chamfer);border-radius:0!important;}
 
 /* Logging shockwave. */
 .hud-burst {position:fixed;z-index:80;width:0;height:0;pointer-events:none;--burst:var(--neo-accent);color:var(--burst);}
@@ -1681,7 +1680,7 @@ html[data-atlas-theme="light"] .hud-frame {opacity:.6;}
 }
 @media(min-width:1600px) {.hud-frame-tele {display:grid!important;}}
 @media(max-width:959px) {
-  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow {letter-spacing:.04em!important;white-space:nowrap;}
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow {letter-spacing:.04em!important;text-wrap:balance;}
 }
 
 /* ── Layout fixes (Nov 18 audit) ───────────────────────────────────────── */
@@ -1733,3 +1732,11 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log :is(
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme="light"] #app #ledger-log .ledger-habit-card [data-act="toggle"]:not([aria-pressed="true"]) {
   color:#0b2a33!important;border-color:color-mix(in srgb,var(--ledger-card-accent) 80%,#0b2a33)!important;
 }
+@media(prefers-contrast:more) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav.core-glass-nav {border-width:2px!important;}
+}
+/* Suite contracts: Save Day keeps the shared pill action shape; the nav stays a capsule. */
+html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-view-today .ledger-checkin-save .ledger-primary {clip-path:none;border-radius:999px!important;}
+html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav.core-glass-nav {border-radius:999px!important;}
+/* Milestone actions stay on one row so the Achievements hologram clears the dock. */
+html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-view-achievements :is(.ledger-feature-action,.ledger-milestone-choices>summary) {text-transform:none!important;letter-spacing:0!important;font-family:var(--neo-font,"Figtree",system-ui,sans-serif)!important;}
