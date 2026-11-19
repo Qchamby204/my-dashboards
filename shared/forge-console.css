@@ -178,6 +178,14 @@ html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-primary:active { trans
   #app .fg-lap { animation: forge-lap 7s linear infinite }
   #app .fg-ball { animation: forge-shot 5s linear infinite }
 }
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  #app .fg-perspective {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: perspective(420px) rotateY(var(--fg-turn,0deg)) rotateX(var(--fg-pitch,0deg));
+    transition: transform 140ms ease-out;
+  }
+}
 @keyframes forge-orbit { to { transform: rotate(360deg) } }
 @keyframes forge-project { 0%,100% { transform: translateY(2px) } 50% { transform: translateY(-4px) } }
 @keyframes forge-lift { 0%,15%,100% { transform: translateY(0) } 55%,65% { transform: translateY(-13px) } }
@@ -196,12 +204,13 @@ html.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-primary:active { trans
 /* Working surfaces follow the same treatment as the projection. */
 html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-card,
 html.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-split-grid .forge-day-card {
-  background: linear-gradient(128deg,color-mix(in srgb,var(--forge-card) 91%,var(--forge-action)),var(--forge-card) 70%)!important;
+  background: linear-gradient(128deg,color-mix(in srgb,var(--forge-card) 91%,var(--forge-action)),var(--forge-card) 70%) var(--forge-card)!important;
   border: 1px solid var(--forge-line)!important;
   border-inline-start: 3px solid var(--fg-accent,var(--forge-action))!important;
   border-radius: 16px!important;
   min-width: 0;
 }
+html.atlas-neumo[data-atlas-app="workout-forge"] #app #forge-goals .fg-card { background: var(--forge-card)!important }
 #app .forge-day-card[data-key="PUSH"] { --fg-accent: #cc7841 }
 #app .forge-day-card[data-key="LEGS"] { --fg-accent: #a28bd9 }
 #app .forge-day-card[data-key="PULL"] { --fg-accent: #4299b6 }

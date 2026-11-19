@@ -59,7 +59,8 @@ try{
  await desk.screenshot({path:path.join(out,'bench-saved-set-desktop.png')});await desktop.close();
  // Saved regular records and their progress must retain a visible fill.
  const ctx=await browser.newContext({viewport:{width:393,height:852}}),p=await ctx.newPage();await p.goto(origin+'/workout-forge.html');await ready(p);
- const record={id:'saved-craft-session',date:'2026-10-18',type:'PUSH',dur:30,items:{'push-bench':{name:'Bench press',done:true,sets:[{w:135,r:6}]}}};await p.evaluate(r=>localStorage.setItem('forge:sessions:v2',JSON.stringify([r])),record);await p.reload();await ready(p);const before=await p.evaluate(()=>localStorage.getItem('forge:sessions:v2'));
+ const record={id:'saved-craft-session',date:'2026-10-18',type:'PUSH',dur:30,items:{'push-bench':{name:'Bench press',done:true,sets:[{w:135,r:6}]}}};await p.evaluate(r=>localStorage.setItem('forge:sessions:v2',JSON.stringify([{...r,date:todayISO()}])),record);await p.reload();await ready(p);const before=await p.evaluate(()=>localStorage.getItem('forge:sessions:v2'));
+ assert.equal(await p.locator('.fg-activity-days li[aria-current="date"] strong').textContent(),'1');assert.equal(await p.locator('.fg-activity .fg-readout strong').textContent(),'1 logged');
  assert(await p.locator('.forge-season .bartrack .fill').evaluate(n=>getComputedStyle(n).backgroundColor!==getComputedStyle(n.parentElement).backgroundColor&&getComputedStyle(n.parentElement,'::after').content==='none'),'saved progress is visible');
  await p.locator('[data-act="section"][data-key="log"]').click();assert(await p.locator('.forge-log-record').isVisible());assert.equal(await p.evaluate(()=>localStorage.getItem('forge:sessions:v2')),before);await p.screenshot({path:path.join(out,'saved-records.png')});await ctx.close();
  console.log(engine+': '+reports.length+' Forge opening states, all four goal editors and saved records passed');

@@ -61,7 +61,7 @@
       <g transform="translate(170 143) scale(1 .25)"><circle r="116" opacity=".28"/><circle r="99" opacity=".35" stroke-dasharray="2 8"/>
       <circle class="fg-orbit" r="111" opacity=".85" stroke-width="2" stroke-dasharray="93 150 29 425"/></g>
       <path d="M42 145h256" opacity=".18" stroke-dasharray="3 5"/></g>
-      <g transform="translate(10 -3)"><g class="fg-projection" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${scene}</g></g></svg>`;
+      <g transform="translate(10 -3)"><g class="fg-perspective"><g class="fg-projection" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${scene}</g></g></g></svg>`;
   };
 
   function activityStrip() {
@@ -285,7 +285,26 @@
     if(a==='set')document.querySelector('.fg-editor input')?.focus({preventScroll:true});
     if(['week','day','next'].includes(a))document.querySelector('.fg-phase')?.scrollIntoView({block:'start'});
   }
+  function attachProjectionInput(host) {
+    const acceptsMotion=window.matchMedia?.('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+    host.addEventListener('pointermove',event=>{
+      if(!acceptsMotion?.matches||event.pointerType==='touch')return;
+      const art=event.target.closest?.('.fg-feature-art');
+      if(!art)return;
+      const box=art.getBoundingClientRect();
+      const x=(event.clientX-box.left)/box.width-0.5, y=(event.clientY-box.top)/box.height-0.5;
+      art.style.setProperty('--fg-turn',(x*18).toFixed(1)+'deg');
+      art.style.setProperty('--fg-pitch',(-y*12).toFixed(1)+'deg');
+    });
+    host.addEventListener('pointerout',event=>{
+      const art=event.target.closest?.('.fg-feature-art');
+      if(art&&!art.contains(event.relatedTarget)){
+        art.style.removeProperty('--fg-turn');art.style.removeProperty('--fg-pitch');
+      }
+    });
+  }
   function ready(){
+    attachProjectionInput(document.getElementById('app'));
     read();
     window.ForgeGoals=Object.freeze({paint,snapshot:()=>M.clone(data),validate:M.validate,get failed(){return failed;},get blocked(){return blocked;}});
     document.getElementById('app').addEventListener('click',click);
