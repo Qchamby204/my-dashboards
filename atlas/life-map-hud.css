@@ -48,14 +48,16 @@ html[data-atlas-app="life-map"][data-atlas-theme="dark"] body::before {
   background:repeating-linear-gradient(180deg,rgba(95,244,255,.035) 0 1px,transparent 1px 3px);
 }
 html[data-atlas-app="life-map"] #app {position:relative;z-index:2;}
-html[data-atlas-app="life-map"] body>:is(section,div:not(.hud-frame):not(.hud-boot):not(.hud-burst)) {position:relative;z-index:2;}
+/* Footer tools sit above the background and below the floating navigation. */
+html[data-atlas-app="life-map"] body>:is(#atlas-project-transfer,.lm-local-status) {position:relative;z-index:1;}
 
 /* Type. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.appbar-title,h1,h2,h3,.lm-task-title,.lm-month-header h2,.lm-dial-face strong) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .appbar-title {text-transform:uppercase;letter-spacing:.16em!important;font-weight:600!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.appbar-sub,.eyebrow,.lm-feature-rail,.lm-feature-rail>span,.lm-calendar-agenda-label,.lm-row-meta,.lm-checklist-count,.lm-dial-caption,.lm-month-weekdays,.lm-project-count,.lm-day-field>span,.workflow-meta) {
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.appbar-sub,.eyebrow,.lm-feature-rail,.lm-feature-rail>span,.lm-calendar-agenda-label,.lm-checklist-count,.lm-dial-caption,.lm-month-weekdays,.lm-project-count,.lm-day-field>span,.workflow-meta) {
   font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.12em!important;
 }
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-row-meta {font-family:var(--hud-mono)!important;letter-spacing:.04em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-row-meta,.lm-day-field>span) {font-size:.7rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-feature h2 {text-shadow:0 0 22px color-mix(in srgb,var(--neo-accent) 30%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-section-head,.lm-day-section-title) h2::before {content:"//";margin-right:.4em;color:var(--neo-accent);font-family:var(--hud-mono);font-weight:500;font-size:.8em;opacity:.8;}
