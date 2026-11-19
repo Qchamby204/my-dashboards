@@ -19,11 +19,11 @@ try{
   if(size===32)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:32px!important}'});
   const check=async(view,selector)=>{
    const hero=p.locator(selector);assert(await hero.isVisible());const g=await hero.evaluate(n=>{const b=n.getBoundingClientRect(),r=document.createRange();r.selectNodeContents(n.querySelector('h1,h2'));return {top:b.top,background:getComputedStyle(n).backgroundColor,titleFits:[...r.getClientRects()].every(x=>x.left>=b.left-1&&x.right<=b.right+1),overflow:document.documentElement.scrollWidth>innerWidth+1};});
-   assert(g.top<(size===32?650:400),'opening stays near the start');assert(!g.overflow,view+' fits the viewport');assert(g.titleFits);assert.equal(g.background,theme==='dark'?'rgb(52, 57, 81)':'rgb(48, 52, 77)');assert.equal(await hero.locator('.fg-feature-art').count(),1);const art=await hero.locator('.fg-feature-art').boundingBox();assert(art.width>=Math.min(220,width-90)&&art.height>=112,'the title illustration is the opening image');
+   assert(g.top<(size===32?650:400),'opening stays near the start');assert(!g.overflow,view+' fits the viewport');assert(g.titleFits);assert.equal(g.background,'rgb(12, 30, 38)');assert.equal(await hero.locator('.fg-feature-art').count(),1);const art=await hero.locator('.fg-feature-art').boundingBox();assert(art.width>=Math.min(220,width-90)&&art.height>=112,'the title illustration is the opening image');
    for(const button of await hero.locator('button').all()){const box=await button.boundingBox();assert(box.height>=44&&box.width>=44,'opening actions retain targets');}
    await p.screenshot({path:path.join(out,`${view}-${theme}-${width}-${size}.png`)});reports.push({view,theme,width,size,...g});
   };
-  const initial=await p.evaluate(()=>localStorage.getItem('forge:goals:v1'));await check('home','.fg-starting-point');assert.equal(await p.locator('[data-goal-action="choose-focus"]').count(),4);assert.equal(await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),initial,'viewing an opening does not create goal records');
+  const initial=await p.evaluate(()=>localStorage.getItem('forge:goals:v1'));await check('home','.fg-starting-point');assert.equal(await p.locator('[data-goal-action="choose-focus"]').count(),4);assert.equal(await p.locator('.fg-activity-days li').count(),7);assert.equal(await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),initial,'viewing an opening does not create goal records');
   for(const goal of ['bench','deadlift','dunk','run']){
    await p.evaluate(id=>{location.hash='goal-'+id;},goal);await p.waitForFunction(id=>document.querySelector('.fg-detail')?.getAttribute('aria-label')===ForgeGoalPlans[id].title+' plan',goal);await p.evaluate(()=>scrollTo(0,0));
    await check(goal,'.fg-current-session');assert.equal(await p.locator('.fg-current-session .fg-feature-art').getAttribute('data-illustration'),goal);assert.equal(await p.locator('.fg-detail h1').textContent(),await p.evaluate(id=>ForgeGoalPlans[id].title,goal));
@@ -34,12 +34,29 @@ try{
   await p.locator('[data-goal-action="home"]').click();
   for(const key of ['PUSH','LEGS','PULL','ENGINE']){
    await p.locator('.forge-day-card[data-key="'+key+'"]').click();await p.locator('[data-act="live"][data-key="'+key+'"]').click();const live=p.locator('.forge-live');await live.waitFor({state:'visible'});
-   const record=live.locator('.forge-live-record');assert(await record.isVisible());assert.equal(await record.locator('.forge-live-face').evaluate(n=>getComputedStyle(n).backgroundColor),theme==='dark'?'rgb(52, 57, 81)':'rgb(48, 52, 77)','the exercise face retains readable contrast');assert(await record.evaluate(n=>{const b=n.getBoundingClientRect();return b.left>=-1&&b.right<=innerWidth+1&&n.scrollWidth<=n.clientWidth+1;}),'regular exercise record fits');
+   const record=live.locator('.forge-live-record');assert(await record.isVisible());assert.equal(await record.locator('.forge-exercise-strip .is-current').count(),1);assert.equal(await record.locator('.forge-live-face').evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(12, 30, 38)','the exercise face retains readable contrast');assert(await record.evaluate(n=>{const b=n.getBoundingClientRect();return b.left>=-1&&b.right<=innerWidth+1&&n.scrollWidth<=n.clientWidth+1;}),'regular exercise record fits');
    assert(await live.evaluate(n=>{const picker=n.querySelector('.forge-picker'),record=n.querySelector('.forge-live-record'),actions=n.querySelector('.forge-live-actions'),last=n.querySelector('.forge-last-time');return [picker,record,actions,last].every((v,i,a)=>!i||!!(a[i-1].compareDocumentPosition(v)&Node.DOCUMENT_POSITION_FOLLOWING));}),'current exercise and its actions precede supporting history');
    await record.scrollIntoViewIfNeeded();await p.screenshot({path:path.join(out,`regular-${key}-${theme}-${width}-${size}.png`)});await live.getByRole('button',{name:'Cancel workout',exact:true}).click();await p.getByRole('dialog',{name:'Cancel this workout?',exact:true}).getByRole('button',{name:'Discard workout',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('.forge-live'));
   }
   assert.deepEqual(errors,[]);await ctx.close();
  }
+ // Desktop places the equipment next to its readout and supports incomplete sets.
+ const desktop=await browser.newContext({viewport:{width:1440,height:980},colorScheme:'dark'}),desk=await desktop.newPage();
+ await desk.goto(origin+'/workout-forge.html');await ready(desk);
+ const hero=desk.locator('.fg-starting-point');
+ const copy=await hero.locator('.fg-feature-copy').boundingBox(),equipment=await hero.locator('.fg-feature-art').boundingBox();
+ assert(equipment.x>=copy.x+copy.width && (await hero.boundingBox()).width>760);
+ await desk.screenshot({path:path.join(out,'home-desktop.png')});
+ await desk.goto(origin+'/workout-forge.html#goal-bench');await ready(desk);
+ const register=desk.locator('.fg-current-session .fg-register');
+ assert.equal(await register.locator('.is-logged').count(),0);
+ await desk.locator('.fg-current-session [data-goal-action="next-set"]').click();
+ const form=desk.locator('.fg-editor');
+ await form.locator('[name="w"]').fill('135');await form.locator('[name="r"]').fill('5');
+ await form.locator('[type="submit"]').click();await desk.waitForFunction(()=>document.querySelectorAll('.fg-register .is-logged').length===1);
+ assert.match(await register.innerText(),/1 \/ \d+ logged/);
+ await desk.reload();await ready(desk);assert.equal(await register.locator('.is-logged').count(),1);
+ await desk.screenshot({path:path.join(out,'bench-saved-set-desktop.png')});await desktop.close();
  // Saved regular records and their progress must retain a visible fill.
  const ctx=await browser.newContext({viewport:{width:393,height:852}}),p=await ctx.newPage();await p.goto(origin+'/workout-forge.html');await ready(p);
  const record={id:'saved-craft-session',date:'2026-10-18',type:'PUSH',dur:30,items:{'push-bench':{name:'Bench press',done:true,sets:[{w:135,r:6}]}}};await p.evaluate(r=>localStorage.setItem('forge:sessions:v2',JSON.stringify([r])),record);await p.reload();await ready(p);const before=await p.evaluate(()=>localStorage.getItem('forge:sessions:v2'));
