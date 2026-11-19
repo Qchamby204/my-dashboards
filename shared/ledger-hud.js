@@ -215,7 +215,7 @@
     node('i', 'hud-live', tele);
     tele.append('LIVE ');
     heroClock = node('b', '', tele);
-    tele.append(' // SYNC OK');
+    node('span', 'hud-sync', tele).textContent = ' // SYNC OK';
     tick();
   }
   function tick() {

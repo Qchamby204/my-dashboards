@@ -1489,7 +1489,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme] {
 html[data-atlas-app="life-ledger"] #app.wrap {z-index:2;}
 
 /* Angled panels: top-left and bottom-right cut, lit diagonal on each cut. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-opening,#ledger-log.panel,.ledger-activity-history,.ledger-value.panel,.ledger-value-map,.ledger-level-feature,.ledger-next-milestone) {
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app :is(.ledger-opening,#ledger-log.panel,.ledger-activity-history,.ledger-value.panel,.ledger-value-map,.ledger-level-feature,.ledger-next-milestone,.ledger-personal-rewards,.ledger-rhythm,.ledger-record-feature,.ledger-screen) {
   clip-path:var(--hud-chamfer);border-radius:0!important;
   background:
     var(--hud-cut-edge) left top/var(--hud-cut) var(--hud-cut) no-repeat border-box,
@@ -1666,7 +1666,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-nav.core
     background:repeating-linear-gradient(180deg,currentColor 0 1px,transparent 1px 12px),linear-gradient(currentColor,currentColor) 0 0/1px 100% no-repeat;}
   .hud-frame-rail.l {left:22px;}
   .hud-frame-rail.r {right:22px;transform:scaleX(-1);}
-  .hud-frame-tele {display:none;position:absolute;bottom:26px;display:grid;gap:3px;font:500 10px/1.3 var(--hud-mono,monospace);letter-spacing:.18em;color:var(--neo-muted);}
+  .hud-frame-tele {display:none;position:absolute;bottom:26px;gap:3px;font:500 10px/1.3 var(--hud-mono,monospace);letter-spacing:.18em;color:var(--neo-muted);}
   .hud-frame-tele b {display:flex;align-items:center;gap:7px;color:var(--neo-accent);font-weight:600;letter-spacing:.24em;}
   .hud-frame-tele.l {left:70px;}
   .hud-frame-tele.r {right:70px;text-align:right;justify-items:end;}
@@ -1682,4 +1682,54 @@ html[data-atlas-theme="light"] .hud-frame {opacity:.6;}
 @media(min-width:1600px) {.hud-frame-tele {display:grid!important;}}
 @media(max-width:959px) {
   html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-title>.eyebrow {letter-spacing:.04em!important;white-space:nowrap;}
+}
+
+/* ── Layout fixes (Nov 18 audit) ───────────────────────────────────────── */
+/* List mode rows: name keeps its own column; the record state gets its own line.
+   Rows previously squeezed the name to zero width and pushed "Didn't do" outside. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row {
+  display:grid!important;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;column-gap:14px!important;row-gap:10px!important;
+  border-radius:0!important;border:1px solid var(--hud-edge)!important;border-inline-start:3px solid var(--ledger-list-accent,var(--neo-accent))!important;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--ledger-list-accent,var(--neo-accent)) 10%,transparent),transparent 45%),color-mix(in srgb,var(--neo-content-surface) 88%,transparent)!important;
+  --hud-cut:12px;clip-path:polygon(0 0,calc(100% - var(--hud-cut)) 0,100% var(--hud-cut),100% 100%,0 100%);
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>* {grid-row:1;min-width:0;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>.ledger-list-avatar {grid-column:1;font-size:34px!important;width:48px!important;filter:none!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>div:nth-child(2) {grid-column:2;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>:nth-child(3) {grid-column:3;justify-self:end;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>:nth-child(n+4) {grid-column:1/-1;grid-row:auto;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>.ledger-checkin-state {
+  display:flex;justify-content:space-between;align-items:center;margin:0!important;padding-top:8px;border-top:1px solid var(--hud-edge);
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>div:nth-child(2)>div:first-child {font-family:var(--hud-display)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>div:nth-child(2)>div:nth-child(2) {
+  font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.1em;font-size:.7rem!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records [data-act="toggle"] {
+  width:44px!important;height:44px!important;border-radius:50%!important;
+  border:1.5px solid var(--ledger-list-accent,var(--neo-accent))!important;
+  background:radial-gradient(circle,color-mix(in srgb,var(--ledger-list-accent,var(--neo-accent)) 14%,transparent),transparent 70%)!important;
+  box-shadow:inset 0 0 12px -4px var(--ledger-list-accent,var(--neo-accent)),0 0 0 4px color-mix(in srgb,var(--ledger-list-accent,var(--neo-accent)) 8%,transparent)!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records [data-act="toggle"][aria-pressed="true"] {
+  background:var(--ledger-list-accent,var(--neo-accent))!important;color:var(--neo-canvas)!important;
+  box-shadow:0 0 18px -2px var(--ledger-list-accent,var(--neo-accent))!important;
+}
+/* List mode header keeps the panel's inner padding. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log :is(.ledger-checkin-toolbar,.ledger-entry-count) {padding-inline:max(14px,var(--hud-cut));}
+
+/* Check-in card on phones: the clock line stops short of the reactor. */
+@media(max-width:600px) {
+  html[data-atlas-app="life-ledger"] #app .hud-telemetry .hud-sync {display:none;}
+  html[data-atlas-app="life-ledger"] #app .ledger-day-title {min-width:0;}
+}
+@media(max-width:400px) {
+  html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-day-progress :is(.ledger-level-link,.ledger-awards-link) {font-size:.78rem!important;}
+}
+/* Desktop: the level line fits on one row. */
+@media(min-width:960px) {
+  html.atlas-neumo[data-atlas-app="life-ledger"] #app .ledger-opening .ledger-day-progress {grid-template-columns:1fr;justify-items:start;}
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"][data-atlas-theme="light"] #app #ledger-log .ledger-habit-card [data-act="toggle"]:not([aria-pressed="true"]) {
+  color:#0b2a33!important;border-color:color-mix(in srgb,var(--ledger-card-accent) 80%,#0b2a33)!important;
 }
