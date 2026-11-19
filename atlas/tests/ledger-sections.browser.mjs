@@ -33,6 +33,11 @@ try{
     assert(Math.abs(map.width-field.width)<=2,'the constellation fills its plot');
     if(width<=430)assert(field.width>=geometry.width*.9,'the mobile plot uses the width of the card');
    }
+   if(view==='progress'){
+    const dates=page.locator('.ledger-history-dates');
+    const area=await dates.boundingBox(),today=await dates.locator('[aria-current="date"]').boundingBox();
+    assert(today.width>=44&&today.x>=area.x-1&&today.x+today.width<=area.x+area.width+1,'today starts within the chart and has a full touch target');
+   }
    for(const control of await hero.locator('button,summary').all()){if(!await control.isVisible())continue;const b=await control.boundingBox();assert(b.height>=43.5,'opening actions retain touch targets');}
    await page.screenshot({path:path.join(out,`${view}-${theme}-${width}-${textSize}.png`)});reports.push({view,theme,width,textSize,populated,...geometry});
    if(view==='progress'){assert.equal(await hero.locator('.ledger-value-key button').count(),5);assert(await hero.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('#ledger-lifetime-levels'))&Node.DOCUMENT_POSITION_FOLLOWING)));await page.locator('#ledger-lifetime-levels').getByRole('button',{name:'Explore rewards'}).click();assert(await page.locator('#ledger-personal-rewards').isVisible());}

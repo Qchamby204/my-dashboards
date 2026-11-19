@@ -718,8 +718,13 @@ html[data-atlas-app="life-ledger"] #app .ledger-history-scale {
   height:calc(var(--history-chart-height) + 2px);color:var(--neo-muted);
   font:500 10px/1 var(--ledger-hud-mono);
 }
+/* Start the scroll region at the newest date. The chart reads oldest to newest. */
+html[data-atlas-app="life-ledger"] #app .ledger-history-dates {
+  min-width:0;overflow-x:auto;overscroll-behavior-x:contain;direction:rtl;
+}
 html[data-atlas-app="life-ledger"] #app .ledger-history-bars {
-  display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:2px;
+  direction:ltr;display:grid;grid-template-columns:repeat(14,minmax(44px,1fr));gap:2px;
+  min-width:calc(14 * 44px + 13 * 2px);
   background:
     repeating-linear-gradient(to bottom,var(--neo-line) 0 1px,transparent 1px calc(var(--history-chart-height) / 4)) 0 2px/100% var(--history-chart-height) no-repeat,
     linear-gradient(var(--neo-line),var(--neo-line)) 0 calc(var(--history-chart-height) + 2px)/100% 1px no-repeat;
