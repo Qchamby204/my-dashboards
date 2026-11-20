@@ -65,20 +65,20 @@ try{
   await capture(p,'forge-weekly-guide',theme,w,size,guide);await guide.locator('summary').first().click();
   assert.equal(await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),goalBytes,'reading the guide never changes goal records');
   const lift=await p.evaluate(()=>{
-    const it=allItems(dayBy('PUSH')).find(it=>it.n==='Barbell bench press'),id=it.id,name=it.n;
+    const it=allItems(dayBy('PUSH')).find(it=>it.n==='Dumbbell bench press'),id=effId(it),name=it.n;
     const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
-    state.sessions=[7,3].map(n=>({date:ago(n),type:'PUSH',items:{[id]:{name,feedback:'smooth',prescription:{name,sets:it.sets,reps:it.reps},sets:Array.from({length:it.sets},()=>({w:'200',r:'5'}))}}}));
+    state.sessions=[7,3].map(n=>({date:ago(n),type:'PUSH',items:{[id]:{name,feedback:'smooth',prescription:{name,sets:it.sets,reps:it.reps},sets:Array.from({length:it.sets},()=>({w:'50',r:'5'}))}}}));
     state.draft={};state.openDay='PUSH';save();saveDraft();render();return {id,sets:it.sets};
   });
   const progression=p.locator('[data-progression-id="'+lift.id+'"]');
   assert.match(await progression.textContent(),/Ready for a small increase/);
-  assert.match(await progression.locator('.fp-target').textContent(),/205 lbs/);
+  assert.match(await progression.locator('.fp-target').textContent(),/52.5 lbs/);
   await progression.locator('summary').click();assert.equal(await p.evaluate(()=>state.openDay),'PUSH','disclosure does not collapse workout');await capture(p,'forge-progression-expanded',theme,w,size,progression);
-  await progression.locator('[data-act="progression-step"]').selectOption('2.5');
-  assert.match(await progression.locator('.fp-target').textContent(),/202.5 lbs/);
+  await progression.locator('[data-act="progression-step"]').selectOption('1');
+  assert.match(await progression.locator('.fp-target').textContent(),/51 lbs/);
   await progression.locator('summary').click();await progression.locator('[data-act="progression-step"]').selectOption('5');
   await progression.locator('[data-act="progression-use"]').click();
-  assert.equal(await p.evaluate(id=>state.draft[id].sets[0].w,lift.id),'205');
+  assert.equal(await p.evaluate(id=>state.draft[id].sets[0].w,lift.id),'55');
   assert.equal(await p.evaluate(id=>state.draft[id].sets[0].r,lift.id),'','planned reps are not recorded as performed');
   assert(await progression.locator('[data-act="progression-use"]').isDisabled(),'existing input cannot be overwritten');
   for(let i=0;i<lift.sets;i++)await p.locator('[data-act="setr"][data-id="'+lift.id+'"][data-set="'+i+'"]').fill('5');
@@ -87,10 +87,10 @@ try{
   await p.locator('[data-act="log"][data-key="PUSH"]').click();
   assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].feedback,lift.id),'smooth');
   if(await p.locator('[data-act="closepr"]').count())await p.locator('[data-act="closepr"]').click();
-  await p.evaluate(({id,sets})=>{state.draft[id]={sets:Array.from({length:sets},()=>({w:'205',r:'6'})),feedback:'smooth'};state.openDay='PUSH';render();},lift);
+  await p.evaluate(({id,sets})=>{state.draft[id]={sets:Array.from({length:sets},()=>({w:'55',r:'6'})),feedback:'smooth'};state.openDay='PUSH';render();},lift);
   await p.locator('[data-act="log"][data-key="PUSH"]').click();
   if(await p.locator('[data-act="closepr"]').count())await p.locator('[data-act="closepr"]').click();
-  assert.match(await p.locator('.forge-saved-gain').textContent(),new RegExp(lift.sets+' more reps at the same 205 lb'));
+  assert.match(await p.locator('.forge-saved-gain').textContent(),new RegExp(lift.sets+' more reps at the same 55 lb'));
   await capture(p,'forge-saved-improvement',theme,w,size,p.locator('#forge-session-summary'));
   await p.reload();await settle(p);
   assert.equal(await p.evaluate(id=>state.sessions.at(-1).items[id].prescription.sets,lift.id),lift.sets,'feedback and target survive reload');
@@ -99,7 +99,7 @@ try{
   await progression.locator('[data-act="progression-feedback"]').selectOption('pain');
   assert.match(await progression.textContent(),/Pause this exercise/);assert.equal(await progression.locator('[data-act="progression-use"]').count(),0);
   await capture(p,'forge-progression-pause',theme,w,size,progression);
-  await p.evaluate(id=>{delete state.draft[id];state.live={key:'PUSH',exIdx:orderedItems(dayBy('PUSH')).findIndex(it=>it.id===id),startedAt:Date.now(),hidden:false};render();},lift.id);
+  await p.evaluate(id=>{delete state.draft[id];state.live={key:'PUSH',exIdx:orderedItems(dayBy('PUSH')).findIndex(it=>effId(it)===id),startedAt:Date.now(),hidden:false};render();},lift.id);
   await capture(p,'forge-progression-live',theme,w,size,p.locator('.overlay .forge-progression'));
   await open('the-chef');
   assert(await p.locator('#ing-cats').evaluate(n=>{const rows=[...n.children].map(x=>x.getBoundingClientRect());return rows.every((r,i)=>!i||r.top-rows[i-1].bottom>=11);}), 'ingredient groups have separate rows');

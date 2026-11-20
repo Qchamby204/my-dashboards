@@ -6,35 +6,23 @@
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const button=(label,action,attrs='')=>`<button type="button" data-goal-action="${action}" ${attrs}>${label}</button>`;
   // The rings are a projection surface. The strip below is the actual training record.
-  function weightPlate(cx, radius) {
-    const ry = radius, rx = radius * 0.38, y = 92;
-    return `<g><path d="M${cx} ${y-ry}h7a${rx} ${ry} 0 0 1 0 ${2*ry}h-7" fill="#183d42"/>
-      <ellipse cx="${cx}" cy="${y}" rx="${rx}" ry="${ry}" fill="#113038"/>
-      <ellipse cx="${cx}" cy="${y}" rx="${rx*0.74}" ry="${ry*0.76}" stroke-opacity=".55"/>
-      <ellipse cx="${cx}" cy="${y}" rx="${rx*0.23}" ry="${ry*0.24}"/></g>`;
-  }
-  function projectedBar() {
-    return `<g transform="rotate(-12 160 92)" stroke-width="1.5">
-      <path d="M35 89h247v6H35z" fill="#24494b"/>
-      ${[247,235,223].map((x,i)=>weightPlate(x,28+i*10)).join('')}
-      <path d="M84 89h138v6H84z" fill="#1f494c"/>
-      <path d="M111 91h31m30 0h31" stroke-dasharray="1 2"/>
-      ${[99,87,75].map((x,i)=>weightPlate(x,48-i*10)).join('')}
-      <path d="M40 89h34v6H40z" fill="#1f494c"/></g>`;
+  function dumbbellPair(){
+    const bell='<path d="M-25 -4h50v8h-50z" fill="#456467"/>'+[-36,36].map(x=>
+      `<g transform="translate(${x} 0)"><path d="m-12 -17 18 -4 13 11v23l-17 6-14 -12z" fill="#24494b"/><path d="m-12 -17 14 12 17 -5M2 -5v24" stroke-width="1.2"/></g>`).join('');
+    return `<g stroke-width="2"><g transform="translate(192 64) rotate(-18) scale(1.35)">${bell}</g><g transform="translate(129 115) rotate(-18) scale(1.5)">${bell}</g></g>`;
   }
   // Decorative equipment scenes identify the page; saved training metrics remain text.
   const art=kind=>{
     let scene;
     if(kind==='bench') {
       scene=`<g stroke="#88b7b8" stroke-width="1.6" fill="#112a31">
-        <path d="m75 146 25-5 12 5-25 6zm10-6V62l6-1v80m135-26 25-6 11 6-25 6zm10-2V32l6-1v81"/>
         <path d="m108 114 31-8 65 28-33 9z"/><path d="m108 114 1 6 62 29 33-10v-5l-33 9z"/>
         <path d="M121 126v21m69-4v18m-80-14 22-5m45 22 25-6"/></g>
-        <g transform="translate(12 -22) scale(.92)"><g class="fg-lift">${projectedBar()}</g></g>`;
+        <g transform="translate(12 -22) scale(.92)"><g class="fg-lift">${dumbbellPair()}</g></g>`;
     } else if(kind==='deadlift') {
       scene=`<path d="m32 154 195-43 63 24-196 43z" stroke="#87adae" stroke-width="1.5" fill="#143038"/>
         <path d="m32 154 1 5 60 25 197-44v-5m-196 43v6" stroke="#87adae" stroke-width="1.5"/>
-        <g transform="translate(0 13)"><g class="fg-lift">${projectedBar()}</g></g>`;
+        <g transform="translate(0 13)"><g class="fg-lift">${dumbbellPair()}</g></g>`;
     } else if(kind==='run') {
       scene=`<g transform="translate(156 137) rotate(-8) scale(1 .27)" stroke-width="2">
         <rect x="-130" y="-58" width="260" height="116" rx="58"/><rect x="-120" y="-48" width="240" height="96" rx="48" opacity=".63"/>
@@ -51,7 +39,7 @@
         <g transform="translate(71 116)"><g class="fg-ball"><circle r="18" fill="#15383c"/>
         <path d="M-18 0h36M0-18v36m-12-31q16 13 0 26m24-26q-16 13 0 26" stroke-width="1.1"/></g></g>`;
     } else {
-      scene=projectedBar();
+      scene=dumbbellPair();
     }
     return `<svg class="fg-feature-art" data-illustration="${esc(kind)}" viewBox="0 0 340 194" fill="none" aria-hidden="true" focusable="false">
       <defs><radialGradient id="fg-field-light"><stop stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient>
@@ -110,10 +98,10 @@
   function notice(){return (blocked||failed?`<div class="fg-error" role="alert">${esc(blocked?'Your goal records could not be read. Download the original records before restoring a backup.':'Not saved on this device. Your changes are still in this tab. '+error)}<div class="fg-actions">${button('Download goal backup','backup')}${!blocked?button('Retry saving','retry'):''}${button('Reload saved copy','reload')}</div></div>`:'')+(error&&!failed?`<p class="fg-error" role="alert">${esc(error)}</p>`:'')+(status?`<p class="fg-status" role="status">${esc(status)}</p>`:'');}
   function suggestedWeek(){
     const days=[
-      ['Mon','lower','Above the Rim A','Deadlift A','Jump first · heavy pull'],
+      ['Mon','lower','Vertical jump A','Deadlift A','Jump first · hip hinge'],
       ['Tue','upper','Bench A','5K run','Easy run*'],
       ['Wed','rest','Rest','','Recovery'],
-      ['Thu','lower','Above the Rim B','Deadlift B','Jump first · technique'],
+      ['Thu','lower','Vertical jump B','Deadlift B','Jump first · technique'],
       ['Fri','rest','Rest','','Recovery'],
       ['Sat','upper','Bench B','5K run','Quality run*'],
       ['Sun','rest','Rest','','Recovery']
@@ -128,14 +116,27 @@
           button('Continue your chosen plan','open',`data-goal="${chosen.id}" class="fg-primary"`),
           {home:true,readout:progressStrip('Goal sessions',Array.from({length:16},(_,i)=>p.completed[`${Math.floor(i/2)}-d${i%2+1}`]),Object.keys(p.completed).length+' / 16 saved')})
       : feature('home','Your training focus','Choose your next challenge',
-          '<p>Choose a goal for your next training block, or open a regular workout below.</p>',
+          '<p>Choose a home training goal, or open your dumbbell split below.</p>',
           Object.values(P).map(c=>button(`<span>${esc(c.title)}</span>`,'choose-focus',`data-goal="${c.id}"`)).join(''),
           {home:true,readout:activityStrip()});
-    return `${question}<section class="fg-home" aria-labelledby="fg-title"><header class="fg-section-title"><div><div class="fg-kicker">Separate sessions · 8 weeks</div><h2 id="fg-title">Goal training</h2></div>${info('About goal training','<p>Each goal has two sessions per week and its own set log. Your regular split and its session totals stay separate. A saved session may contain fewer sets than prescribed; its log shows exactly what you did.</p><p>Bench targets 315 lb this block. Deadlift, 5K and dunking are phase one of longer goals.</p>')}</header>${notice()}<div class="fg-grid">${Object.values(P).map(c=>{
+    return `${question}<section class="fg-home" aria-labelledby="fg-title"><header class="fg-section-title"><div><div class="fg-kicker">Separate sessions · 8 weeks</div><h2 id="fg-title">Goal training</h2></div>${info('About goal training','<p>Each goal has two sessions per week and its own set log. Your regular split and its session totals stay separate. A saved session may contain fewer sets than prescribed; its log shows exactly what you did.</p><p>The home strength blocks track the weight of one dumbbell. Run on your treadmill and use the floor for jump training. Your earlier gym goals of a 315 lb bench press and a 495 lb deadlift for five have their own records.</p>')}</header>${notice()}<div class="fg-grid">${Object.values(P).map(c=>{
       const p=plan(c.id),n=M.next(p),count=Object.keys(p.completed).length;
       const started=Object.keys(p.done).length>0;
       return `<button type="button" class="fg-card fg-${c.color}" data-goal-action="open" data-goal="${c.id}" ${blocked?'disabled':''}><span class="fg-card-top"><span>${esc(c.title)}</span><span class="fg-badge">${c.phase}</span></span><strong class="fg-target">${esc(c.target)} <small>${esc(c.unit)}</small></strong><span class="fg-metric">${esc(M.metric(c.id,p))}</span><span class="fg-progress" role="progressbar" aria-label="${c.title} sessions saved" aria-valuemin="0" aria-valuemax="16" aria-valuenow="${count}"><span style="width:${count/16*100}%"></span></span><span class="fg-card-bottom"><span>${count}/16 sessions</span><span>${n?`Week ${n.week+1} · ${n.day==='d1'?'A':'B'}`:'Block logged'}</span></span><span class="fg-card-cta">${started?'Continue':'Open plan'} <span aria-hidden="true">↗</span></span></button>`;
-    }).join('')}</div><details class="fg-week-guide-disclosure"><summary>Weekly training guide</summary>${suggestedWeek()}</details>${recent()}<div class="fg-backup-row">${button('Back up goals','backup')}${button('Restore goal backup','import')}</div></section>`;
+    }).join('')}</div><details class="fg-week-guide-disclosure"><summary>Weekly training guide</summary>${suggestedWeek()}</details>${recent()}${gymHistory()}<div class="fg-backup-row">${button('Back up goals','backup')}${button('Restore goal backup','import')}</div></section>`;
+  }
+  function gymHistory(){
+    const groups=Object.entries(data.gymPlans||{}).filter(([,p])=>Object.keys(p.done).length||p.draft);
+    if(!groups.length)return '';
+    return '<details class="fg-log"><summary>Earlier gym goal records</summary>'+groups.map(([id,p])=>{
+      function row(key,v,draft){
+        const at=M.locate(id,key,p.base,window.ForgeGymGoalPlans);
+        const value=at.e.reach?v.w+' in':id==='dunk'?v.w:[v.w&&v.w+' lb',v.r&&v.r+' '+(at.e.rl||'reps')].filter(Boolean).join(' · ');
+        const details=[value,v.e&&'RPE '+v.e,draft?'Unfinished':''].filter(Boolean).join(' · ');
+        return `<li>Week ${at.week+1}${at.day==='d1'?'A':'B'} · ${esc(at.e.n)} · Set ${at.set+1}${details?' · '+esc(details):''}</li>`;
+      }
+      return '<details><summary>'+esc(window.ForgeGymGoalPlans[id].title)+'</summary><ul>'+Object.entries(p.done).map(([k,v])=>row(k,v,false)).join('')+(p.draft?row(p.draft.key,p.draft.values,true):'')+'</ul></details>';
+    }).join('')+'</details>';
   }
   function recent(){
     const entries=Object.entries(data.plans).flatMap(([id,p])=>Object.entries(p.completed).map(([k,date])=>({id,k,date,p}))).sort((a,b)=>b.date.localeCompare(a.date));
@@ -149,9 +150,9 @@
     const p=plan(),v=M.defaults(active,p,k);
     let fields='';
     if(active==='run')fields=field('Total time (mm:ss)','w',v.w,'text','inputmode="text" placeholder="15:00" required')+field('Distance completed','distance',v.distance,'number','min="0.001" placeholder="1.5" required')+`<label>Distance unit<select name="unit"><option value="mi" ${v.unit!=='km'?'selected':''}>Miles</option><option value="km" ${v.unit==='km'?'selected':''}>Kilometres</option></select></label>`;
-    else if(e.reach)fields=field('Best touch (inches)','w',v.w,'number','min="0.5" max="200" required');
+    else if(e.reach)fields=field('Best touch in inches (optional)','w',v.w,'number','min="0.5" max="200"','Leave blank if you did not measure.');
     else if(active==='dunk')fields=field('Weight, reps or note (optional)','w',v.w,'text','maxlength="500" placeholder="e.g. 35 lb × 6 each leg"');
-    else fields=field('Weight (lb)','w',v.w,'number','min="0"','Use 0 for bodyweight.')+field(e.rl||'Reps','r',v.r,'number','min="0.1" required');
+    else fields=field('Weight per dumbbell (lb)','w',v.w,'number','min="0"','Use 0 for the ab wheel or bodyweight.')+field(e.rl||'Reps','r',v.r,'number','min="0.1" required');
     const set=M.locate(active,k,p.base).set+1,effort=active!=='dunk'?`<details class="fg-effort" ${v.e?'open':''}><summary>Effort (optional)</summary>${field('RPE (1–10)','e',v.e,'number','min="1" max="10"')}</details>`:'';
     return `<form class="fg-editor" data-key="${k}" aria-label="${esc(e.n)}, set ${set}"><div class="fg-editor-heading"><strong>Set ${set} of ${e.sets}</strong><span>${p.done[k]?'Editing saved set':'Unfinished entry'}</span></div><div class="fg-fields">${fields}</div>${active==='run'?`<p class="fg-run-result" role="status" aria-live="polite">${runResult(v)}</p><small>Use the time and distance for this set. Shorter runs count, including runs under 3 miles.</small>`:''}${effort}<div class="fg-actions"><button type="submit" class="fg-primary">${active==='dunk'&&!e.reach?'Mark done':'Save set'}</button>${p.done[k]?button('Clear set','clear',`data-key="${k}"`):''}${button('Close','close-editor')}</div><small>Entries stay in this browser. Unfinished fields are saved as a draft.</small></form>`;
   }
@@ -159,7 +160,7 @@
     const {p,w}=selected(),next=currentSet(p,w),where=next?M.locate(active,next,p.base):null;
     return w[p.day].map((e,ei)=>`<section data-current="${where?.week===p.week&&where?.day===p.day&&where?.exercise===ei}" class="fg-exercise ${e.main?'fg-main':''}" aria-labelledby="fg-ex-${ei}"><div class="fg-ex-top"><h3 id="fg-ex-${ei}">${esc(e.n)}</h3><strong>${esc(e.rx)}</strong></div><div class="fg-sets">${Array.from({length:e.sets},(_,s)=>{
       const k=M.key(p.week,p.day,ei,s),v=p.done[k];let label=''+(s+1);
-      if(v)label=active==='run'?`${v.w}${v.distance?' · '+v.distance+' '+v.unit:''}`:e.reach?v.w+' in':active==='dunk'?'✓':`${v.w!==''?v.w+' × ':''}${v.r}${e.rl?' '+e.rl.toLowerCase():''}`;
+      if(v)label=active==='run'?`${v.w}${v.distance?' · '+v.distance+' '+v.unit:''}`:e.reach?(v.w?v.w+' in':'✓'):active==='dunk'?'✓':`${v.w!==''?v.w+' × ':''}${v.r}${e.rl?' '+e.rl.toLowerCase():''}`;
       return button(esc(label+(k===next?' · '+(p.draft?'Editing':'Next'):'')),'set',`data-key="${k}" ${k===next?'aria-current="step"':''} class="fg-set ${v?'fg-done':''}" aria-label="${esc(e.n)}, set ${s+1}, ${v?esc(label):'not logged'}${k===next?', '+(p.draft?'editing':'next set'):''}" aria-expanded="${p.draft?.key===k}"`);
     }).join('')}</div>${p.draft&&M.locate(active,p.draft.key,p.base)?.exercise===ei&&p.draft.key.startsWith(`${p.week}-${p.day}-`)?editor(p.draft.key,e):''}<div class="fg-rest-line"><span>Rest · ${esc(e.rest)}</span>${restSeconds(e.rest)?button('Start rest','rest',`data-seconds="${restSeconds(e.rest)}" aria-label="Start rest for ${esc(e.n)}"`):''}</div>${e.note?`<details class="fg-ex-guidance"><summary>Exercise guidance</summary><p class="fg-ex-note">${esc(e.note)}</p></details>`:''}</section>`).join('');
   }
@@ -195,11 +196,11 @@
   }
   function detail(){
     const c=P[active],{p,b,w}=selected(),day=name(active,p,p.week,p.day),ct=M.counts(active,p,p.week,p.day),done=p.completed[`${p.week}-${p.day}`];
-    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><header class="fg-detail-title"><h1 tabindex="-1" id="fg-detail-title">${esc(c.title)}</h1><p>${esc(c.aim)} · ${esc(M.metric(active,p))}</p></header>${currentSession()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>The rim is 120 inches. Your best touch is measured from the floor, not the height of your jump. The supplied plan estimates a dunk needs roughly 126–129 inches, depending on your hands.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?'<span class="fg-week-done" aria-hidden="true">✓</span>':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?', complete':''}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}${!failed&&done?' · Session saved':''}</span></div><div class="fg-exercise-grid">${exercises()}</div>${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
+    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><header class="fg-detail-title"><h1 tabindex="-1" id="fg-detail-title">${esc(c.title)}</h1><p>${esc(c.aim)} · ${esc(M.metric(active,p))}</p></header>${currentSession()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>A basketball rim is 120 inches high. For your home benchmark, record how high you touch from the floor using the same standing start each time.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?'<span class="fg-week-done" aria-hidden="true">✓</span>':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?', complete':''}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}${!failed&&done?' · Session saved':''}</span></div><div class="fg-exercise-grid">${exercises()}</div>${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
   }
   function paint(){
     const host=document.getElementById('forge-goals');if(!host)return;
-    if(state.goals&&state.goals!==data){data=state.goals;try{raw=localStorage.getItem(KEY);blocked=false;failed=false;}catch{failed=true;error='Could not read saved goal training.';}}
+    if(state.goals&&state.goals!==data){data=M.validate(state.goals);state.goals=data;try{raw=localStorage.getItem(KEY);blocked=false;failed=false;}catch{failed=true;error='Could not read saved goal training.';}}
     // The regular split remains mounted, keeping its own draft and live workout intact.
     const goalOpen=!!active;document.getElementById('app').classList.toggle('fg-goal-open',goalOpen);
     const app=document.getElementById('app');app.querySelector('.fg-starting-point')?.remove();

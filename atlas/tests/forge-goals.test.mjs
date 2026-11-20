@@ -7,14 +7,28 @@ for(const file of ['forge-goal-plans.js','forge-goal-model.js'])vm.runInContext(
 const {ForgeGoalPlans:P,ForgeGoalModel:M}=context.window;
 const plain=o=>JSON.parse(JSON.stringify(o));
 const entry=(w,r)=>({w,r,e:'',at:'2026-09-27T12:00:00Z'});
-test('four independent eight-week goals preserve test sessions and trunk units',()=>{
+test('four home goals use available equipment in every session across eight weeks',()=>{
  assert.equal(Object.keys(P).length,4);
- for(const plan of Object.values(P)){const b=plan.build();assert.equal(b.weeks.length,8);for(const w of b.weeks)for(const d of ['d1','d2'])assert.ok(w[d].length);}
- assert.equal(P.bench.build().weeks[7].d2.at(-1).rx,'1 @ 315');
- assert.equal(P.deadlift.build().weeks[7].d2.at(-1).rx,'1 x 5 @ 455');
- assert.ok(P.deadlift.build().weeks[0].d2.some(e=>e.rl==='Seconds'));
- assert.ok(P.deadlift.build().weeks[0].d1.some(e=>e.rl==='Metres'));
- assert.equal(P.dunk.build().weeks[7].d2.at(-1).n,'Dunk attempts');
+ for(const plan of Object.values(P)){
+   const b=plan.build();assert.equal(b.weeks.length,8);
+   for(const w of b.weeks)for(const d of ['d1','d2']){
+     assert.ok(w[d].length);
+     assert.doesNotMatch(JSON.stringify(w[d]),/barbell|cable|box jump|backboard|track lap|pulldown|machine|kettlebell|straps|weighted dip/i);
+   }
+ }
+ assert.equal(P.bench.build().weeks[7].d2.at(-1).n,'Dumbbell bench press');
+ assert.equal(P.deadlift.build().weeks[7].d2.at(-1).n,'Dumbbell Romanian deadlift');
+ assert.equal(P.dunk.build().weeks[7].d2.at(-1).n,'Standing jump retest');
+});
+test('earlier gym sets and drafts keep their prescriptions across backup restoration',()=>{
+ const p=M.fresh(),run=M.fresh();p.done['7-d2-3-0']=entry('315','1');
+ p.draft={key:'7-d2-0-4',values:{w:'255',r:'1'}};
+ const old={version:1,goal:'bench',plans:{bench:p,run}},input=JSON.stringify(old);
+ const next=M.validate(old);
+ assert.equal(JSON.stringify(old),input);assert.deepEqual(plain(next.gymPlans.bench),plain(p));
+ assert.equal(next.plans.bench,undefined);assert.deepEqual(plain(next.plans.run),plain(run));
+ assert.equal(M.locate('bench','7-d2-3-0',p.base,context.window.ForgeGymGoalPlans).e.n,'Third attempt');
+ assert.deepEqual(plain(M.validate(plain(next))),plain(next));
 });
 test('running paces derive from the entered trial, not the long-term goal',()=>{
  assert.equal(P.run.build('28:00').weeks[1].d1[0].rx,'2:12 each');
@@ -22,14 +36,16 @@ test('running paces derive from the entered trial, not the long-term goal',()=>{
  assert.equal(P.run.phase,'Phase 1');
  assert.equal(M.seconds('26:75'),null);
 });
-test('test warm-ups default per set, and accessory defaults use prior logged weight',()=>{
- const p=M.fresh();assert.equal(M.defaults('bench',p,'7-d2-0-0').w,'45');assert.equal(M.defaults('bench',p,'7-d2-0-4').w,'255');
- assert.equal(M.defaults('deadlift',p,'7-d2-1-4').w,'415');
- p.done['0-d1-1-0']=entry('65','8');assert.equal(M.defaults('bench',p,'0-d1-1-1').w,'65');
+test('strength goals start without an assumed load and retest the first recorded dumbbell',()=>{
+ const p=M.fresh();assert.equal(M.defaults('bench',p,'0-d1-0-0').w,'');
+ p.done['0-d1-0-0']=entry('35','8');p.done['5-d1-0-0']=entry('45','8');
+ assert.equal(M.defaults('bench',p,'5-d1-0-1').w,'45');
+ assert.equal(M.defaults('bench',p,'7-d2-0-0').w,'35');
+ assert.equal(M.metric('bench',p),'45 lb per dumbbell × 8+ reps');
 });
 test('saving partial sessions counts once and all 16 sessions complete a block',()=>{
  const p=M.fresh();p.done['0-d1-0-0']=entry('240','5');
- assert.deepEqual(plain(M.counts('bench',p,0,'d1')),{total:16,logged:1});
+ assert.deepEqual(plain(M.counts('bench',p,0,'d1')),{total:6,logged:1});
  assert.deepEqual(plain(M.next(p)),{week:0,day:'d1'});
  p.completed['0-d1']='2026-09-27T12:00:00Z';assert.deepEqual(plain(M.next(p)),{week:0,day:'d2'});
  for(let w=0;w<8;w++)for(const d of ['d1','d2'])p.completed[`${w}-${d}`]='2026-09-27T12:00:00Z';assert.equal(M.next(p),null);
@@ -41,10 +57,11 @@ test('record validation rejects invalid sets, unknown goals, invalid dates and p
  p.done['0-d1-0-0'].at='invalid';assert.throws(()=>M.validate(goals));
  assert.throws(()=>M.validate({version:1,plans:{unknown:{}}}));
 });
-test('touch metrics ignore box-height notes and use the highest approach touch',()=>{
- const p=M.fresh();p.done['0-d1-1-0']=entry('200','');assert.equal(M.metric('dunk',p),'No result logged yet');
- p.done['0-d1-2-0']=entry('123.5','');assert.equal(M.metric('dunk',p),'123.5 in · 3.5 above rim');
- p.done['1-d1-2-0']=entry('122','');assert.equal(M.metric('dunk',p),'123.5 in · 3.5 above rim');
+test('touch metrics ignore training notes and unmeasured jumps',()=>{
+ const p=M.fresh();p.done['0-d1-2-0']=entry('35 lb dumbbells','');
+ p.done['0-d1-1-0']=entry('','');assert.equal(M.metric('dunk',p),'No result logged yet');
+ p.done['0-d1-1-1']=entry('123.5','');p.done['1-d1-1-0']=entry('122','');
+ assert.equal(M.metric('dunk',p),'123.5 in · 3.5 above rim');assert.doesNotThrow(()=>M.validate({...M.blank(),plans:{dunk:p}}));
 });
 
 test('actual run distances produce mile pace and mph without assuming a 3-mile run',()=>{

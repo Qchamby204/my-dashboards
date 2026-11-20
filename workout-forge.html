@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"0336bd972a03","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"707d9f84d49a"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"0336bd972a03","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"144a2e858593"}</script>
 <meta charset="utf-8"/>
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -109,38 +109,83 @@ var SEASON_START_ISO="2026-09-21";
 var SEASON_GOAL=80;                    // matches Life Ledger's resized "80 workouts (about 4 a week)"
 var FOCUS={"Strength":"#4ea3e0","Power":"#f0683e","Mobility":"#2fd180","Aesthetic":"#c98bff","Core":"#f0b73e","Cardio":"#45c8d8"};
 
-/* alternative exercises (equipment taken / home / variety) keyed by canonical name */
+/* Old log IDs encode the slot and its original swap index. Preserve their names for history. */
+var GYM_NAMES={
+  "PUSH-0-0": ["Cardio warm-up"],
+  "PUSH-0-1": ["Band pull-aparts"],
+  "PUSH-0-2": ["Scapular push-ups"],
+  "PUSH-0-3": ["Wall slides"],
+  "PUSH-0-4": ["World’s greatest stretch"],
+  "PUSH-1-0": ["Med-ball chest pass / plyo push-up", "Explosive push-up", "Speed bench (50% ×3)"],
+  "PUSH-1-1": ["Barbell bench press", "Dumbbell bench press", "Machine chest press", "Floor press"],
+  "PUSH-1-2": ["Standing overhead press", "Seated DB shoulder press", "Machine shoulder press", "Push press"],
+  "PUSH-1-3": ["Incline dumbbell press", "Incline barbell press", "Incline machine press", "Low-incline DB press"],
+  "PUSH-1-4": ["Cable fly", "Pec-deck machine", "Dumbbell fly", "Banded fly"],
+  "PUSH-1-5": ["Dumbbell lateral raise", "Cable lateral raise", "Machine lateral raise", "Lean-away raise"],
+  "PUSH-1-6": ["Overhead rope triceps extension", "Rope pushdown", "Skull crushers", "Bench/bar dip"],
+  "PUSH-2-0": ["Ab-wheel rollout", "TRX fallout", "Plank to push-up", "Barbell rollout (knees)"],
+  "PUSH-2-1": ["Pallof press", "Band anti-rotation hold", "Suitcase carry", "Loaded bird dog"],
+  "LEGS-0-0": ["Cardio warm-up"],
+  "LEGS-0-1": ["Leg swings (front + side)"],
+  "LEGS-0-2": ["Walking lunges"],
+  "LEGS-0-3": ["90/90 hip switches"],
+  "LEGS-0-4": ["Ankle rocks"],
+  "LEGS-1-0": ["Box jump / broad jump", "Vertical jump", "Trap-bar jump", "Kettlebell swing"],
+  "LEGS-1-1": ["Back squat", "Front squat", "Goblet squat", "Hack squat", "Heavy leg press"],
+  "LEGS-1-2": ["Romanian deadlift", "Dumbbell RDL", "Hip thrust", "Good morning"],
+  "LEGS-1-3": ["Bulgarian split squat", "Walking lunge", "Reverse lunge", "Step-up"],
+  "LEGS-1-4": ["Leg press", "Hack squat", "Goblet squat", "Leg extension"],
+  "LEGS-1-5": ["Lying hamstring curl", "Seated hamstring curl", "Nordic curl", "Ball curl"],
+  "LEGS-1-6": ["Standing calf raise", "Seated calf raise", "Leg-press calf raise", "Single-leg raise"],
+  "LEGS-2-0": ["Cable woodchopper", "Russian twist", "Med-ball rotational throw", "Landmine rotation"],
+  "LEGS-2-1": ["Side plank"],
+  "PULL-0-0": ["Cardio warm-up"],
+  "PULL-0-1": ["Band pull-aparts"],
+  "PULL-0-2": ["Scapular pull-ups"],
+  "PULL-0-3": ["Cat–cow"],
+  "PULL-0-4": ["Thread the needle"],
+  "PULL-1-0": ["Kettlebell swing", "Dumbbell swing", "Cable pull-through", "Explosive hip thrust"],
+  "PULL-1-1": ["Weighted pull-up (or lat pulldown)", "Lat pulldown", "Assisted pull-up", "Neutral-grip pulldown"],
+  "PULL-1-2": ["Barbell / Pendlay row", "Dumbbell row", "Chest-supported row", "T-bar row", "Seal row"],
+  "PULL-1-3": ["Seated cable row", "Machine row", "Inverted row", "Single-arm cable row"],
+  "PULL-1-4": ["Face pull", "Reverse pec-deck", "Band pull-apart", "Rear-delt fly"],
+  "PULL-1-5": ["Barbell curl", "EZ-bar curl", "Dumbbell curl", "Cable curl"],
+  "PULL-1-6": ["Hammer curl", "Rope hammer curl", "Cross-body hammer", "Reverse curl"],
+  "PULL-2-0": ["Hanging leg raise", "Captain’s chair raise", "Lying leg raise", "Reverse crunch"],
+  "PULL-2-1": ["Weighted plank"],
+  "ENGINE-0-0": ["Leg swings + hip openers"],
+  "ENGINE-0-1": ["World’s greatest stretch"],
+  "ENGINE-0-2": ["High knees + butt kicks"],
+  "ENGINE-1-0": ["Easy build"],
+  "ENGINE-2-0": ["Intervals — one machine, all session"],
+  "ENGINE-3-0": ["Easy spin + box breathing"]
+};
 var SWAPS={
- "Med-ball chest pass / plyo push-up":["Explosive push-up","Speed bench (50% \u00d73)"],
- "Barbell bench press":["Dumbbell bench press","Machine chest press","Floor press"],
- "Standing overhead press":["Seated DB shoulder press","Machine shoulder press","Push press"],
- "Incline dumbbell press":["Incline barbell press","Incline machine press","Low-incline DB press"],
- "Cable fly":["Pec-deck machine","Dumbbell fly","Banded fly"],
- "Dumbbell lateral raise":["Cable lateral raise","Machine lateral raise","Lean-away raise"],
- "Overhead rope triceps extension":["Rope pushdown","Skull crushers","Bench/bar dip"],
- "Box jump / broad jump":["Vertical jump","Trap-bar jump","Kettlebell swing"],
- "Back squat":["Front squat","Goblet squat","Hack squat","Heavy leg press"],
- "Romanian deadlift":["Dumbbell RDL","Hip thrust","Good morning"],
- "Bulgarian split squat":["Walking lunge","Reverse lunge","Step-up"],
- "Leg press":["Hack squat","Goblet squat","Leg extension"],
- "Lying hamstring curl":["Seated hamstring curl","Nordic curl","Ball curl"],
- "Standing calf raise":["Seated calf raise","Leg-press calf raise","Single-leg raise"],
- "Kettlebell swing":["Dumbbell swing","Cable pull-through","Explosive hip thrust"],
- "Weighted pull-up (or lat pulldown)":["Lat pulldown","Assisted pull-up","Neutral-grip pulldown"],
- "Barbell / Pendlay row":["Dumbbell row","Chest-supported row","T-bar row","Seal row"],
- "Seated cable row":["Machine row","Inverted row","Single-arm cable row"],
- "Face pull":["Reverse pec-deck","Band pull-apart","Rear-delt fly"],
- "Barbell curl":["EZ-bar curl","Dumbbell curl","Cable curl"],
- "Hammer curl":["Rope hammer curl","Cross-body hammer","Reverse curl"],
- "Hanging leg raise":["Captain\u2019s chair raise","Lying leg raise","Reverse crunch"],
- "Ab-wheel rollout":["TRX fallout","Plank to push-up","Barbell rollout (knees)"],
- "Cable woodchopper":["Russian twist","Med-ball rotational throw","Landmine rotation"],
- "Pallof press":["Band anti-rotation hold","Suitcase carry","Loaded bird dog"],
- "EZ-bar curl":["Barbell curl","Dumbbell curl"],
- "Rope triceps pushdown":["Bar pushdown","Cable kickback"],
- "Incline dumbbell curl":["Spider curl","Bayesian cable curl"],
- "Overhead dumbbell extension":["Rope overhead extension","Skull crusher"],
- "Cable lateral raise":["DB lateral raise","Machine lateral raise"]
+  "Dumbbell speed floor press": ["Neutral-grip dumbbell speed floor press"],
+  "Dumbbell bench press": ["Neutral-grip dumbbell bench press"],
+  "Standing dumbbell shoulder press": ["Seated DB shoulder press"],
+  "Incline dumbbell press": ["Low-incline DB press"],
+  "Dumbbell fly": ["Incline dumbbell fly"],
+  "Dumbbell lateral raise": ["Seated dumbbell lateral raise"],
+  "Overhead dumbbell extension": ["Lying dumbbell triceps extension"],
+  "Dumbbell suitcase march": ["Front-rack dumbbell march"],
+  "Dumbbell squat to calf raise": ["Goblet squat to calf raise"],
+  "Goblet squat": ["Double dumbbell front squat"],
+  "Dumbbell RDL": ["Staggered-stance dumbbell RDL"],
+  "Dumbbell rear-foot-elevated split squat": ["Dumbbell split squat"],
+  "Dumbbell reverse lunge": ["Dumbbell stationary lunge"],
+  "Dumbbell glute bridge": ["Dumbbell hip thrust"],
+  "Standing dumbbell calf raise": ["Seated dumbbell calf raise"],
+  "Dumbbell hip hinge": ["Dumbbell sumo deadlift"],
+  "Bench-supported one-arm dumbbell row": ["One-arm dumbbell row from split stance"],
+  "Chest-supported dumbbell row": ["Bent-over dumbbell row"],
+  "Dumbbell pullover": ["Dumbbell floor pullover"],
+  "Incline dumbbell reverse fly": ["Bent-over dumbbell reverse fly"],
+  "Dumbbell curl": ["Incline dumbbell curl"],
+  "Dumbbell hammer curl": ["Cross-body dumbbell hammer curl"],
+  "Dumbbell dead bug": ["Dumbbell dead bug heel tap"],
+  "Ab-wheel rollout": ["Short-range kneeling ab-wheel rollout"],
+  "Dumbbell diagonal lift": ["Half-kneeling dumbbell diagonal lift"]
 };
 function altsFor(n){ return SWAPS[n]||[]; }
 var PLATES=[45,35,25,10,5,2.5];
@@ -156,103 +201,104 @@ var PLATE_H={45:34,35:30,25:26,10:21,5:16,"2.5":12};
    ============================================================ */
 var PROGRAM=[
 {key:"PUSH", tag:"Push", title:"Press & Power", accent:"#f0683e", glow:"rgba(240,104,62,.5)",
- blurb:"Chest, shoulders, triceps.",
+ blurb:"Dumbbell presses on the flat and incline bench, then shoulders and triceps.",
  order:"Explosive press first, then heavy bench & overhead while fresh, then volume and isolation.",
  sections:[
   {name:"Warm-up", items:[
-    {n:"Cardio warm-up", s:"15 min", f:["Cardio"], c:"Rower or incline treadmill, easy build to RPE 5\u20136", track:"cardio", defMin:15, modes:["Rower","Incline treadmill","Bike"]},
-    {n:"Band pull-aparts", s:"2\u00d720", f:["Mobility"], track:"check"},
+    {n:"Treadmill warm-up", s:"15 min", f:["Cardio"], c:"Start with an easy walk and gradually increase the pace.", track:"cardio", defMin:15, modes:["Treadmill walk","Treadmill run"]},
+    {n:"Prone W raises", s:"2\u00d720", f:["Mobility"], track:"check"},
     {n:"Scapular push-ups", s:"2\u00d710", f:["Mobility"], track:"check"},
     {n:"Wall slides", s:"2\u00d710", f:["Mobility"], track:"check"},
-    {n:"World\u2019s greatest stretch", s:"5/side", f:["Mobility"], track:"check"}
+    {n:"World’s greatest stretch", s:"5/side", f:["Mobility"], track:"check"}
   ]},
   {name:"Work", items:[
-    {n:"Med-ball chest pass / plyo push-up", sets:4, reps:"3\u20135", rest:"2 min", rpe:"Max power", f:["Power"], c:"Explode every rep, full recovery between sets", track:"load"},
-    {n:"Barbell bench press", sets:4, reps:"5", rest:"3 min", rpe:"RPE 8 \u00b7 2 RIR", f:["Strength"], c:"Ramp 2\u20133 warm-up sets first \u00b7 2s lower, drive off chest", track:"load"},
-    {n:"Standing overhead press", sets:3, reps:"6\u20138", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"Ribs down, squeeze glutes, no leg drive", track:"load"},
-    {n:"Incline dumbbell press", sets:3, reps:"8\u201310", rest:"90s", rpe:"RPE 9 \u00b7 1 RIR", f:["Strength","Aesthetic"], track:"load"},
-    {n:"Cable fly", sets:3, reps:"12\u201315", rest:"60s", rpe:"RPE 9\u201310", f:["Aesthetic"], c:"Big stretch, squeeze and hold a beat", track:"load"},
-    {n:"Dumbbell lateral raise", sets:3, reps:"12\u201315", rest:"45\u201360s", rpe:"Near failure", f:["Aesthetic"], c:"Lead with the elbows", track:"load"},
-    {n:"Overhead rope triceps extension", sets:3, reps:"10\u201312", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], track:"load"}
+    {n:"Dumbbell speed floor press", sets:4, reps:"3\u20135", rest:"2 min", rpe:"Max power", f:["Power"], c:"Use light dumbbells. Press quickly, keep your grip and lower with control.", track:"load"},
+    {n:"Dumbbell bench press", sets:4, reps:"5", rest:"3 min", rpe:"RPE 8 \u00b7 2 RIR", f:["Strength"], c:"Use the flat bench. Start with lighter warm-up sets.", track:"load"},
+    {n:"Standing dumbbell shoulder press", sets:3, reps:"6\u20138", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"Press with ribs down and wrists stacked over elbows.", track:"load"},
+    {n:"Incline dumbbell press", sets:3, reps:"8\u201310", rest:"90s", rpe:"RPE 9 \u00b7 1 RIR", f:["Strength","Aesthetic"], c:"Set the bench to a comfortable incline.", track:"load"},
+    {n:"Dumbbell fly", sets:3, reps:"12\u201315", rest:"60s", rpe:"RPE 9\u201310", f:["Aesthetic"], c:"Keep a soft bend in the elbows and use a comfortable range.", track:"load"},
+    {n:"Dumbbell lateral raise", sets:3, reps:"12\u201315", rest:"45\u201360s", rpe:"Near failure", f:["Aesthetic"], c:"Raise the dumbbells out to the sides with control.", track:"load"},
+    {n:"Overhead dumbbell extension", sets:3, reps:"10\u201312", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], c:"Keep your upper arms steady as you straighten your elbows.", track:"load"}
   ]},
   {name:"Core", items:[
-    {n:"Ab-wheel rollout", sets:3, reps:"8\u201310", rest:"75s", rpe:"RPE 8", f:["Core","Strength"], c:"Anti-extension \u2014 ribs tucked, no low-back sag", track:"load"},
-    {n:"Pallof press", sets:3, reps:"12/side", rest:"45s", rpe:"RPE 9", f:["Core"], c:"Anti-rotation \u2014 resist the twist", track:"load"}
+    {n:"Ab-wheel rollout", sets:3, reps:"8\u201310", rest:"75s", rpe:"RPE 8", f:["Core","Strength"], c:"Start from your knees. Roll only as far as you can return without arching your back.", track:"load"},
+    {n:"Dumbbell suitcase march", sets:3, reps:"12/side", rest:"45s", rpe:"RPE 9", f:["Core"], c:"Hold one dumbbell on one side, stand tall and count steps per side.", track:"load"}
   ]}
  ]},
 
 {key:"LEGS", tag:"Legs", title:"Drive & Spring", accent:"#f0b73e", glow:"rgba(240,183,62,.5)",
- blurb:"Quads, hams, glutes, calves.",
- order:"Jumps for power, then squat & hinge heavy, unilateral for balance, machines & isolation to finish.",
+ blurb:"Goblet squats, dumbbell hinges and single-leg work.",
+ order:"Train the squat and hinge, then work one leg at a time and finish with calves and core.",
  sections:[
   {name:"Warm-up", items:[
-    {n:"Cardio warm-up", s:"15 min", f:["Cardio"], c:"Bike, easy build to RPE 5\u20136", track:"cardio", defMin:15, modes:["Bike","Rower","Incline treadmill"]},
+    {n:"Treadmill warm-up", s:"15 min", f:["Cardio"], c:"Start with an easy walk and gradually increase the pace.", track:"cardio", defMin:15, modes:["Treadmill walk","Treadmill run"]},
     {n:"Leg swings (front + side)", s:"10/side", f:["Mobility"], track:"check"},
     {n:"Walking lunges", s:"2\u00d710", f:["Mobility"], track:"check"},
     {n:"90/90 hip switches", s:"2\u00d78", f:["Mobility"], track:"check"},
     {n:"Ankle rocks", s:"2\u00d710", f:["Mobility"], track:"check"}
   ]},
   {name:"Work", items:[
-    {n:"Box jump / broad jump", sets:4, reps:"3\u20135", rest:"2 min", rpe:"Max power", f:["Power"], c:"Land soft and quiet, full reset every rep", track:"load"},
-    {n:"Back squat", sets:4, reps:"5", rest:"3 min", rpe:"RPE 8 \u00b7 2 RIR", f:["Strength"], c:"Ramp warm-ups \u00b7 brace, depth to parallel+, knees track toes", track:"load"},
-    {n:"Romanian deadlift", sets:3, reps:"8\u201310", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"Hinge back, neutral spine, feel the hamstring stretch", track:"load"},
-    {n:"Bulgarian split squat", sets:3, reps:"8\u201310/leg", rest:"90s", rpe:"RPE 8\u20139", f:["Strength","Power"], c:"Tall torso, control the descent", track:"load"},
-    {n:"Leg press", sets:3, reps:"10\u201312", rest:"90s", rpe:"RPE 9", f:["Strength"], track:"load"},
-    {n:"Lying hamstring curl", sets:3, reps:"12\u201315", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], track:"load"},
-    {n:"Standing calf raise", sets:4, reps:"12\u201315", rest:"45\u201360s", rpe:"Near failure", f:["Aesthetic"], c:"Pause + full stretch at the bottom", track:"load"}
+    {n:"Dumbbell squat to calf raise", sets:4, reps:"3\u20135", rest:"2 min", rpe:"Fast, controlled", f:["Power"], c:"Rise briskly onto your toes and lower under control. Keep your feet on the floor.", track:"load"},
+    {n:"Goblet squat", sets:4, reps:"5", rest:"3 min", rpe:"RPE 8 \u00b7 2 RIR", f:["Strength"], c:"Hold one dumbbell at your chest and brace before each rep.", track:"load"},
+    {n:"Dumbbell RDL", sets:3, reps:"8\u201310", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"For the Romanian deadlift, hinge at the hips with the dumbbells close to your legs.", track:"load"},
+    {n:"Dumbbell rear-foot-elevated split squat", sets:3, reps:"8\u201310/leg", rest:"90s", rpe:"RPE 8\u20139", f:["Strength","Power"], c:"Hold the dumbbells at your sides. For the elevated version, rest your rear foot on the flat bench.", track:"load"},
+    {n:"Dumbbell reverse lunge", sets:3, reps:"10\u201312/leg", rest:"90s", rpe:"RPE 9", f:["Strength"], c:"Keep your front foot planted. Complete the listed reps on each leg.", track:"load"},
+    {n:"Dumbbell glute bridge", sets:3, reps:"12\u201315", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], c:"Steady one dumbbell across your hips. Use the floor for bridges and the flat bench for hip thrusts.", track:"load"},
+    {n:"Standing dumbbell calf raise", sets:4, reps:"12\u201315", rest:"45\u201360s", rpe:"Near failure", f:["Aesthetic"], c:"Pause at the top and lower your heels slowly.", track:"load"}
   ]},
   {name:"Core", items:[
-    {n:"Cable woodchopper", sets:3, reps:"12/side", rest:"60s", rpe:"RPE 9", f:["Core","Power"], c:"Rotational power through the trunk", track:"load"},
+    {n:"Dumbbell diagonal lift", sets:3, reps:"12/side", rest:"60s", rpe:"RPE 9", f:["Core","Power"], c:"Move one dumbbell diagonally across your body with control. Repeat on each side.", track:"load"},
     {n:"Side plank", s:"3\u00d730\u201345s/side", f:["Core"], c:"Lateral core \u2014 stack the hips, long line head to heel", track:"check"}
   ]}
  ]},
 
-{key:"PULL", tag:"Pull", title:"Hang & Haul", accent:"#4ea3e0", glow:"rgba(78,163,224,.5)",
- blurb:"Back, rear delts, biceps.",
- order:"Explosive swings, then heavy vertical & horizontal pulls, then rows, rear-delt health and curls.",
+{key:"PULL", tag:"Pull", title:"Rows & Pullovers", accent:"#4ea3e0", glow:"rgba(78,163,224,.5)",
+ blurb:"Bench-supported rows, dumbbell pullovers and curls.",
+ order:"Start with a hip hinge, then work through rows, pullovers, rear delts and curls.",
  sections:[
   {name:"Warm-up", items:[
-    {n:"Cardio warm-up", s:"15 min", f:["Cardio"], c:"Rower, doubles as a back warm-up, RPE 5\u20136", track:"cardio", defMin:15, modes:["Rower","Bike","Incline treadmill"]},
-    {n:"Band pull-aparts", s:"2\u00d720", f:["Mobility"], track:"check"},
-    {n:"Scapular pull-ups", s:"2\u00d78", f:["Mobility"], track:"check"},
-    {n:"Cat\u2013cow", s:"2\u00d78", f:["Mobility"], track:"check"},
+    {n:"Treadmill warm-up", s:"15 min", f:["Cardio"], c:"Start with an easy walk and gradually increase the pace.", track:"cardio", defMin:15, modes:["Treadmill walk","Treadmill run"]},
+    {n:"Prone W raises", s:"2\u00d720", f:["Mobility"], track:"check"},
+    {n:"Prone Y raises", s:"2\u00d78", f:["Mobility"], track:"check"},
+    {n:"Cat–cow", s:"2\u00d78", f:["Mobility"], track:"check"},
     {n:"Thread the needle", s:"5/side", f:["Mobility"], track:"check"}
   ]},
   {name:"Work", items:[
-    {n:"Kettlebell swing", sets:4, reps:"8\u201310", rest:"90s", rpe:"Explosive", f:["Power"], c:"Snap the hips, glutes finish, float the bell", track:"load"},
-    {n:"Weighted pull-up (or lat pulldown)", sets:4, reps:"6\u20138", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"Full hang to chin over bar \u00b7 add load as able", track:"load"},
-    {n:"Barbell / Pendlay row", sets:4, reps:"6\u20138", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"Flat back, pull to lower chest, control down", track:"load"},
-    {n:"Seated cable row", sets:3, reps:"10\u201312", rest:"90s", rpe:"RPE 9", f:["Strength"], c:"Chest tall, squeeze shoulder blades", track:"load"},
-    {n:"Face pull", sets:3, reps:"15\u201320", rest:"45\u201360s", rpe:"RPE 9", f:["Mobility","Aesthetic"], c:"High elbows, externally rotate \u2014 shoulder health", track:"load"},
-    {n:"Barbell curl", sets:3, reps:"8\u201312", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], track:"load"},
-    {n:"Hammer curl", sets:3, reps:"10\u201312", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], c:"Brachialis + forearm thickness", track:"load"}
+    {n:"Dumbbell hip hinge", sets:4, reps:"8\u201310", rest:"90s", rpe:"Explosive", f:["Power"], c:"Stand tall from the hinge with a brisk, controlled drive through your feet.", track:"load"},
+    {n:"Bench-supported one-arm dumbbell row", sets:4, reps:"6\u20138/side", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"Pull toward your hip. Count reps on each side.", track:"load"},
+    {n:"Chest-supported dumbbell row", sets:4, reps:"6\u20138", rest:"2\u20133 min", rpe:"RPE 8", f:["Strength"], c:"Pull your elbows back. For chest support, lie face down on the incline bench.", track:"load"},
+    {n:"Dumbbell pullover", sets:3, reps:"10\u201312", rest:"90s", rpe:"RPE 9", f:["Strength"], c:"Hold one dumbbell securely. Lower it overhead only as far as you can keep your ribs down.", track:"load"},
+    {n:"Incline dumbbell reverse fly", sets:3, reps:"15\u201320", rest:"45\u201360s", rpe:"RPE 9", f:["Mobility","Aesthetic"], c:"Use light dumbbells and move your arms out to the sides.", track:"load"},
+    {n:"Dumbbell curl", sets:3, reps:"8\u201312", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], c:"Keep your elbows still and turn your palms up.", track:"load"},
+    {n:"Dumbbell hammer curl", sets:3, reps:"10\u201312", rest:"60s", rpe:"RPE 9", f:["Aesthetic"], c:"Keep your palms facing inward.", track:"load"}
   ]},
   {name:"Core", items:[
-    {n:"Hanging leg raise", sets:4, reps:"10\u201312", rest:"75s", rpe:"RPE 8\u20139", f:["Core","Power"], c:"No swing \u2014 control the lower, add ankle weight to progress", track:"load"},
-    {n:"Weighted plank", s:"3\u00d745s", f:["Core"], c:"Add a plate on the back; brace hard", track:"check"}
+    {n:"Dumbbell dead bug", sets:4, reps:"10\u201312/side", rest:"75s", rpe:"RPE 8\u20139", f:["Core","Power"], c:"Hold one dumbbell above your chest and alternate legs while keeping your back steady.", track:"load"},
+    {n:"Forearm plank", s:"3\u00d745s", f:["Core"], c:"Brace your trunk and breathe steadily.", track:"check"}
   ]}
  ]},
 
 {key:"ENGINE", tag:"Engine", title:"VO2max & Conditioning", accent:"#2fd180", glow:"rgba(47,209,128,.5)",
- blurb:"One machine, one protocol, the whole session. VO2max is the single strongest predictor of longevity \u2014 this day raises it on purpose.",
- order:"Stretch first, build the engine warm, then pick your machine and run it for the entire session.",
+ blurb:"Treadmill intervals with an easy warm-up and cooldown.",
+ order:"Warm up on the floor, build your pace on the treadmill, then alternate hard and easy efforts.",
  sections:[
   {name:"Stretches", items:[
     {n:"Leg swings + hip openers", s:"8/side", f:["Mobility"], track:"check"},
-    {n:"World\u2019s greatest stretch", s:"5/side", f:["Mobility"], track:"check"},
+    {n:"World’s greatest stretch", s:"5/side", f:["Mobility"], track:"check"},
     {n:"High knees + butt kicks", s:"2\u00d720s", f:["Mobility"], track:"check"}
   ]},
   {name:"Warm-up", items:[
-    {n:"Easy build", s:"10 min", f:["Cardio"], c:"Easy 5 min on today\u2019s machine, then 3\u00d720s pickups to RPE 7 \u2014 warm, not tired", track:"cardio", defMin:10, modes:["Assault bike","Rower","Treadmill","Stairmaster"]}
+    {n:"Treadmill build-up", s:"10 min", f:["Cardio"], c:"Walk or jog easily, then add three 20-second pickups before your intervals.", track:"cardio", defMin:10, modes:["Treadmill walk","Treadmill run"]}
   ]},
   {name:"The Engine", items:[
-    {n:"Intervals \u2014 one machine, all session", s:"~30 min", f:["Cardio","Power"], c:"Bike, rower, treadmill or stairs: Norwegian 4\u00d74 \u2014 4 minutes at 90\u201395% max heart rate, 3 easy minutes between, four rounds; pace it so the last minute of round 4 is barely holdable. Sled: 30-second max-effort push, walk back 2\u20133 minutes, 8\u201310 rounds. Same engine, either door.", track:"cardio", defMin:30, modes:["Assault bike","Rower","Treadmill","Stairmaster","Sled pushes"]}
+    {n:"Treadmill intervals", s:"~30 min", f:["Cardio","Power"], c:"After warming up, alternate four minutes at a challenging, repeatable pace with three easy minutes between efforts. Complete four work intervals.", track:"cardio", defMin:30, modes:["Treadmill walk","Treadmill run"]}
   ]},
   {name:"Cooldown", items:[
-    {n:"Easy spin + box breathing", s:"7 min", f:["Cardio","Mobility"], c:"5 easy minutes until the heart rate is under ~110, then 2 minutes of 4-4-4-4 breathing", track:"check"}
+    {n:"Easy treadmill walk and breathing", s:"7 min", f:["Cardio","Mobility"], c:"Walk slowly for five minutes, then take two minutes of relaxed breathing.", track:"check"}
   ]}
  ]}
 ];
+PROGRAM.forEach(day=>day.sections.forEach(section=>section.items.forEach(item=>{item.home=true;})));
 PROGRAM.forEach(function(d){ d.sections.forEach(function(sec,si){ sec.items.forEach(function(it,ii){ it.id=d.key+"-"+si+"-"+ii; }); }); });
 function dayBy(k){ for(var i=0;i<PROGRAM.length;i++){ if(PROGRAM[i].key===k) return PROGRAM[i]; } return null; }
 function allItems(d){ var a=[]; d.sections.forEach(function(s){ s.items.forEach(function(it){ a.push(it); }); }); return a; }
@@ -289,17 +335,45 @@ function moveItem(dkey,id,dir){
   if(!state.order) state.order={}; state.order[dkey]=ord; saveOrder();
   return true;
 }
-function effIdx(it){ return (state.swaps&&state.swaps[it.id])||0; }
-function effId(it){ var i=effIdx(it); return i>0 ? it.id+"~"+i : it.id; }
-function effName(it){ var i=effIdx(it); if(i<=0) return it.n; var a=altsFor(it.n); return a[i-1]||it.n; }
-function nameForEid(k){
-  var base=k, idx=0, t=k.indexOf("~");
-  if(t>=0){ idx=+k.slice(t+1)||0; base=k.slice(0,t); }
-  for(var i=0;i<PROGRAM.length;i++){ var d=PROGRAM[i];
-    for(var si=0;si<d.sections.length;si++){ var its=d.sections[si].items;
-      for(var ii=0;ii<its.length;ii++){ if(its[ii].id===base){ var n=its[ii].n; if(idx>0){ var a=altsFor(n); return a[idx-1]||n; } return n; } } } }
-  return k;
+// Each variation keeps its own record ID. Matching old dumbbell lifts can reuse their history.
+function homeNames(it){ return [it.n].concat(altsFor(it.n)); }
+function recordId(it,name){
+  var former=GYM_NAMES[it.id]||[], index=former.indexOf(name);
+  if(index>=0) return index===0?it.id:it.id+"~"+index;
+  if(!it.home) return it.id;
+  return it.id+"~home-"+name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/-$/,"");
 }
+function effIdx(it){
+  var choices=homeNames(it), swaps=state.swaps||{}, key=it.id+"~home";
+  if(Object.hasOwn(swaps,key)) return choices[swaps[key]]?swaps[key]:0;
+  var oldName=(GYM_NAMES[it.id]||[])[swaps[it.id]||0];
+  return Math.max(0,choices.indexOf(oldName));
+}
+function effName(it){ return it.recordId?it.n:homeNames(it)[effIdx(it)]; }
+function effId(it){ return it.recordId||recordId(it,effName(it)); }
+function nameForEid(id){
+  var [slot,variant]=id.split("~"), item=itemById(id);
+  if(variant&&variant.startsWith("home-")&&item)
+    return homeNames(item).find(name=>recordId(item,name)===id)||id;
+  return GYM_NAMES[slot]?.[Number(variant||0)]||item?.n||id;
+}
+// Previously entered gym sets can still be reviewed and finished under their original names.
+function earlierDraftItems(day){
+  var rows=[];
+  allItems(day).forEach(it=>{
+    if(!it.home)return;
+    var available=homeNames(it);
+    (GYM_NAMES[it.id]||[]).forEach((name,i)=>{
+      var id=i?it.id+"~"+i:it.id, draft=state.draft[id];
+      if(!draft||available.includes(name))return;
+      var oldReps={"LEGS-1-4":"10–12","PULL-1-1":"6–8","PULL-2-0":"10–12"};
+      rows.push({...it,n:name,recordId:id,c:"Earlier workout entry",reps:oldReps[it.id]||it.reps,
+        sets:Math.max(it.sets||0,(draft.sets||[]).length)});
+    });
+  });
+  return rows;
+}
+function itemsToLog(day){ return allItems(day).concat(earlierDraftItems(day)); }
 function repRange(str){ var m=String(str||"").match(/\d+/g); if(!m||!m.length) return null; var lo=+m[0], hi=m.length>1?+m[1]:+m[0]; return {lo:lo,hi:hi}; }
 function progressionFor(it,eid){
   if((state.draft[eid]||{}).feedback==='pain')return {kind:'pause',title:'Pause this exercise',reason:'Pain is flagged for this session. Stop this movement and review it before using a weight target.',load:null,step:ForgeProgression.setting((state.progressionSettings||{})[eid],effName(it))};
@@ -313,7 +387,7 @@ function progressionView(it,eid){
   if(p.load!=null)h+='<button type="button" data-act="progression-use" data-id="'+eid+'" '+(filled?'disabled':'')+'>Use target</button>'+(filled?'<div class="fp-hint">Your entered sets stay as they are.</div>':'');
   h+='<label>How did this session feel?<select data-act="progression-feedback" data-id="'+eid+'" aria-label="Effort for '+esc(effName(it))+'">';
   [['','Not recorded'],['smooth','Clean · 2+ left'],['hard','Hard · 0–1 left'],['missed','Missed minimum'],['pain','Pain · stop']].forEach(function(o){h+='<option value="'+o[0]+'" '+(dr.feedback===o[0]?'selected':'')+'>'+o[1]+'</option>';});
-  h+='</select></label><details><summary>ⓘ Why this target?</summary><p>'+esc(p.reason)+'</p><p>“Clean” means good form with at least two reps left; “Hard” means zero to one left or form slipping. Suggestions use saved regular-workout sessions for this exact exercise. They do not change eight-week goal plans. Use the same weight convention each time: total barbell load or the weight of one dumbbell.</p>';
+  h+='</select></label><details><summary>ⓘ Why this target?</summary><p>'+esc(p.reason)+'</p><p>“Clean” means good form with at least two reps left; “Hard” means zero to one left or form slipping. Suggestions use saved regular-workout sessions for this exact exercise. They do not change eight-week goal plans. Log the weight of one dumbbell, including when you use a pair.</p>';
   if(p.kind!=='manual'){
     h+='<label>Smallest available increase (lbs)<select data-act="progression-step" data-id="'+eid+'" aria-label="Weight increment for '+esc(effName(it))+'">';
     [1,2.5,5,10].forEach(function(v){h+='<option value="'+v+'" '+(p.step===v?'selected':'')+'>'+v+' lbs</option>';});h+='</select></label>';
@@ -433,6 +507,7 @@ function setRows(it, accent, dayKey){
   var prev=lastSets(eid);
   var nsets=it.sets||3;
   var h='<div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">';
+  if(it.home&&!it.recordId) h+='<small>'+(/rollout/i.test(effName(it))?'Log reps. Leave weight blank.':'Weight per dumbbell (lb)')+'</small>';
   for(var i=0;i<nsets;i++){
     var cur=d.sets[i]||{w:"",r:""};
     var pv=prev&&prev[i]?prev[i]:null;
@@ -448,7 +523,7 @@ function setRows(it, accent, dayKey){
     h+='</div>';
   }
   h+='</div>';
-  h+=progressionView(it,eid);
+  if(!it.recordId) h+=progressionView(it,eid);
   // overload trend
   var hist=exHistory(eid);
   if(hist.length>=2){
@@ -466,14 +541,14 @@ function setRows(it, accent, dayKey){
 }
 
 /* Cardio: stepped in 5 minute blocks, with what you actually did recorded.
-   The plan says 15 minutes on the rower; reality is 22 on the bike. Log reality. */
+   Record the minutes completed on the treadmill. */
 function cardioRows(it, accent){
   var eid=effId(it);
   var d=state.draft[eid]||{};
   var mins=(d.min!=null&&d.min!=="")?+d.min:(it.defMin||15);
   var mode=d.mode||"";
   var prev=lastCardio(eid);
-  var modes=it.modes||["Rower","Bike","Incline treadmill","Outdoor run","Stairs","Elliptical"];
+  var modes=it.modes||["Treadmill walk","Treadmill run"];
   var h='<div style="margin-top:9px">';
   h+='<div style="display:flex;align-items:center;gap:9px">';
   h+='<button class="btn tap" data-act="cmin" data-id="'+eid+'" data-delta="-5" style="width:40px;height:40px;border-radius:10px;font-size:17px;font-weight:700;color:'+accent+';background:rgba(255,255,255,.05);border:1px solid '+accent+'44;flex-shrink:0">\u2212</button>';
@@ -588,9 +663,9 @@ function historyStrip(it, accent){
 }
 
 function itemRow(it, accent, glow, dayKey, idx, len){
-  var eid=effId(it), nm=effName(it), swapped=effIdx(it)>0;
+  var eid=effId(it), nm=effName(it), swapped=!it.recordId&&effIdx(it)>0;
   var dr=(state.draft[eid]||{}); var done=!!dr.done;
-  var alts=it.track==="load"?altsFor(it.n):[];
+  var alts=!it.recordId&&it.track==="load"?altsFor(it.n):[];
   var h='<div class="row" style="padding:10px 8px;border-bottom:1px solid rgba(120,130,180,.07);'+(it.ss?'border-left:2px solid '+accent+'66;margin-left:-2px':'')+'">';
   h+='<div style="display:flex;align-items:flex-start;gap:10px">';
   h+='<button class="btn tap" data-act="check" data-id="'+eid+'" aria-label="done" style="width:22px;height:22px;border-radius:6px;flex-shrink:0;margin-top:1px;background:'+(done?accent:"rgba(255,255,255,.05)")+';border:1.5px solid '+(done?accent:"rgba(150,160,200,.3)")+';display:grid;place-items:center;'+(done?"box-shadow:0 0 9px "+glow:"")+'">'+(done?'<svg width="12" height="12" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7" fill="none" stroke="#0c0e1a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+'</button>';
@@ -610,7 +685,7 @@ function itemRow(it, accent, glow, dayKey, idx, len){
   }
   h+='</div>';
   if(it.track==="load"){ h+='<div class="mono" style="font-size:12px;color:#7c84a8;margin-top:5px">rest '+esc(it.rest)+' \u00b7 '+esc(it.rpe)+'</div>'; }
-  if(it.c) h+='<div style="font-size:12.5px;color:#7c84a8;margin-top:4px;font-style:italic">'+esc(it.c)+'</div>';
+  if(it.c && (it.recordId||!effIdx(it))) h+='<div style="font-size:12.5px;color:#7c84a8;margin-top:4px;font-style:italic">'+esc(it.c)+'</div>';
   if(state.swapOpen===it.id && alts.length){
     h+='<div class="fadeUp" style="margin-top:8px;padding:8px;border:1px solid '+accent+'44;border-radius:10px;background:rgba(255,255,255,.02)">';
     h+='<div class="eyebrow" style="font-size:11px;color:#7c84a8;margin-bottom:6px">Swap for</div>';
@@ -648,6 +723,8 @@ function dayCard(d){
       var items=orderedSectionItems(d,sec);
       items.forEach(function(it,idx){ h+=itemRow(it,d.accent,d.glow,d.key,idx,items.length); });
     });
+    var earlier=earlierDraftItems(d);
+    if(earlier.length) h+='<details class="forge-earlier-draft"><summary>Earlier workout entries ('+earlier.length+')</summary>'+earlier.map(it=>itemRow(it,d.accent,d.glow,d.key,0,1)).join('')+'</details>';
     h+='<div style="display:flex;gap:9px;margin-top:14px;align-items:center"><span class="mono" style="font-size:13px;color:#777f9e">'+done+'/'+total+' done</span>';
     h+='<button class="btn" data-act="clearday" data-key="'+d.key+'" style="padding:9px 13px;border-radius:10px;font-size:13px;color:#8089a8;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.16)">Clear</button>';
     h+='<button class="btn cinzel" data-act="log" data-key="'+d.key+'" style="margin-left:auto;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:600;letter-spacing:.05em;color:#0c0e1a;background:linear-gradient(180deg,'+d.accent+','+d.accent+'cc);box-shadow:0 10px 22px -10px '+d.glow+'">\u2714 Log session</button></div></div>';
@@ -717,13 +794,35 @@ var MUSCLE_MAP={
  "Overhead dumbbell extension":["triceps"],
  "Cable lateral raise":["shoulders"]
 };
+Object.assign(MUSCLE_MAP, {
+  "Dumbbell speed floor press": MUSCLE_MAP["Med-ball chest pass / plyo push-up"],
+  "Dumbbell bench press": MUSCLE_MAP["Barbell bench press"],
+  "Standing dumbbell shoulder press": MUSCLE_MAP["Standing overhead press"],
+  "Dumbbell fly": MUSCLE_MAP["Cable fly"],
+  "Overhead dumbbell extension": MUSCLE_MAP["Overhead rope triceps extension"],
+  "Dumbbell suitcase march": MUSCLE_MAP["Pallof press"],
+  "Dumbbell squat to calf raise": MUSCLE_MAP["Box jump / broad jump"],
+  "Goblet squat": MUSCLE_MAP["Back squat"],
+  "Dumbbell RDL": MUSCLE_MAP["Romanian deadlift"],
+  "Dumbbell rear-foot-elevated split squat": MUSCLE_MAP["Bulgarian split squat"],
+  "Dumbbell reverse lunge": MUSCLE_MAP["Leg press"],
+  "Dumbbell glute bridge": ["glutes", "hams"],
+  "Standing dumbbell calf raise": MUSCLE_MAP["Standing calf raise"],
+  "Dumbbell hip hinge": MUSCLE_MAP["Kettlebell swing"],
+  "Bench-supported one-arm dumbbell row": ["lats", "traps", "biceps"],
+  "Chest-supported dumbbell row": MUSCLE_MAP["Barbell / Pendlay row"],
+  "Dumbbell pullover": ["lats", "chest"],
+  "Incline dumbbell reverse fly": MUSCLE_MAP["Face pull"],
+  "Dumbbell curl": MUSCLE_MAP["Barbell curl"],
+  "Dumbbell hammer curl": MUSCLE_MAP["Hammer curl"],
+  "Dumbbell dead bug": MUSCLE_MAP["Hanging leg raise"],
+  "Dumbbell diagonal lift": MUSCLE_MAP["Cable woodchopper"]
+});
 var MUSCLE_LABEL={chest:"Chest",shoulders:"Shoulders",triceps:"Triceps",biceps:"Biceps",forearms:"Forearms",core:"Core",quads:"Quads",hams:"Hamstrings",glutes:"Glutes",calves:"Calves",lats:"Lats",traps:"Traps",lowerback:"Lower back"};
 function canonicalName(k){
-  var t=k.indexOf("~"); var base=t>=0?k.slice(0,t):k;
-  for(var i=0;i<PROGRAM.length;i++){ var d=PROGRAM[i];
-    for(var si=0;si<d.sections.length;si++){ var its=d.sections[si].items;
-      for(var ii=0;ii<its.length;ii++){ if(its[ii].id===base) return its[ii].n; } } }
-  return null;
+  var slot=k.split("~")[0], item=itemById(k);
+  if(item&&homeNames(item).some(name=>recordId(item,name)===k)) return item.n;
+  return GYM_NAMES[slot]?.[0]||null;
 }
 function isoToTs(iso){ var p=String(iso).split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0); return d.getTime(); }
 function heatWindow(){ var e=new Date(); e.setHours(0,0,0,0); var end=e.getTime(); return {start:end-6*86400000, end:end}; }
@@ -1088,7 +1187,7 @@ function liveView(){
   h+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><span class="cinzel" style="font-size:17px;color:#eef0fb;font-weight:600;line-height:1.25">'+esc(nm)+'</span>'+(it.track==="load"?'<span class="mono" style="font-size:12px;color:'+d.accent+';white-space:nowrap">'+it.sets+'×'+esc(it.reps)+'</span>':(it.s?'<span class="mono" style="font-size:12px;color:'+d.accent+';white-space:nowrap">'+esc(it.s)+'</span>':''))+'</div>';
   h+='<div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">'+chips(it.f)+'</div>';
   if(it.track==="load") h+='<div class="mono" style="font-size:12.5px;color:#7c84a8;margin-top:7px">rest '+esc(it.rest)+' · '+esc(it.rpe)+'</div>';
-  if(it.c) h+='<div style="font-size:13px;color:#8089a8;margin-top:6px;font-style:italic">'+esc(it.c)+'</div>';
+  if(it.c && (it.recordId||!effIdx(it))) h+='<div style="font-size:13px;color:#8089a8;margin-top:6px;font-style:italic">'+esc(it.c)+'</div>';
   h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px"><span class="eyebrow" style="font-size:11px">Exercise '+(i+1)+' of '+n+'</span><span class="mono" style="font-size:12.5px;color:'+d.accent+'">'+doneN+'/'+n+' done</span></div>';
   h+='<div class="forge-exercise-strip" aria-hidden="true">'+items.map(function(item,index){return '<span class="'+(state.draft[effId(item)]?.done?'is-logged ':'')+(index===i?'is-current':'')+'"></span>';}).join('')+'</div>';
   h+='</header><div class="forge-live-entry">';
@@ -1159,7 +1258,6 @@ function render(){
   h+='<div style="display:flex;align-items:center;gap:9px;min-width:0"><span style="color:#f0683e;font-size:15px;line-height:1">\u2692</span><span class="appbar-title">The Forge</span></div>';
   h+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
   h+='<span class="appbar-pill"><span class="mono" style="font-size:12.5px;font-weight:700;color:#f6d0be">'+st.thisWeek+'</span><span style="font-size:12px;color:#9aa2c0;letter-spacing:.08em">THIS WK</span></span>';
-  h+='<button class="btn tap" data-act="plates" aria-label="Plate calculator" style="width:34px;height:34px;border-radius:10px;background:rgba(240,183,62,.08);border:1px solid rgba(240,183,62,.32);color:#f0b73e;font-size:14px;display:grid;place-items:center">\u2696</button>';
   h+='</div></div>';
 
   if(state.handoff){
@@ -1233,7 +1331,7 @@ function render(){
   }
   var bs='padding:9px 14px;border-radius:10px;font-size:13px;color:#aab2d0;background:rgba(255,255,255,.03);border:1px solid rgba(120,130,180,.16);cursor:pointer';
   h+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:24px">'
-    +'<button class="btn" data-act="plates" style="'+bs+';color:#f0b73e;border-color:rgba(240,183,62,.4)">\u2696 Plate calc</button>'
+    +'<button class="btn" data-act="plates" style="'+bs+';color:#f0b73e;border-color:rgba(240,183,62,.4)">\u2696 Gym plate calculator</button>'
     +'<button class="btn" data-act="export" style="'+bs+'">\u2913 Export backup</button>'
     +'<button class="btn" data-act="import" style="'+bs+'">\u2911 Import backup</button>'
     +'<button class="btn" data-act="reset" style="'+bs+'">\u21ba Reset log</button>'
@@ -1263,14 +1361,14 @@ function saveOrder(){ store.set(ORDERKEY,JSON.stringify(state.order||{})); }
 function logDay(key,durMin){
   var d=dayBy(key); if(!d) return;
   var items={}, any=false;
-  allItems(d).forEach(function(it){
+  itemsToLog(d).forEach(function(it){
     var eid=effId(it); var dr=state.draft[eid]; if(!dr) return;
     if(it.track==="load"){
       var sets=(dr.sets||[]).filter(function(s){ return s.w||s.r; }).map(function(s){ return {w:s.w||"",r:s.r||""}; });
       if(sets.length||dr.done||dr.feedback==="pain"){ items[eid]={done:!!dr.done,sets:sets,name:effName(it),prescription:{sets:it.sets,reps:it.reps,name:effName(it)}}; if(ForgeProgression.feedbacks.indexOf(dr.feedback)>=0) items[eid].feedback=dr.feedback; if(dr.note&&dr.note.trim()) items[eid].note=dr.note.trim(); if(sets.length||dr.done) any=true; }
     } else if(it.track==="cardio"){
       var mn=(dr.min!=null&&dr.min!=="")?+dr.min:0;
-      if(mn>0||dr.done){ items[eid]={done:true,min:mn,mode:dr.mode||"",name:effName(it)}; if(dr.note&&dr.note.trim()) items[eid].note=dr.note.trim(); any=true; }
+      if(mn>0||dr.done){ items[eid]={done:true,min:mn,mode:dr.mode||(it.home&&!it.recordId?"Treadmill":""),name:effName(it)}; if(dr.note&&dr.note.trim()) items[eid].note=dr.note.trim(); any=true; }
     } else if(dr.done){ items[eid]={done:true}; if(dr.note&&dr.note.trim()) items[eid].note=dr.note.trim(); any=true; }
   });
   if(!any){ toast("Check off or log a few exercises first"); return; }
@@ -1280,7 +1378,7 @@ function logDay(key,durMin){
   var sess={date:todayISO(),type:key,items:items}; if(durMin) sess.dur=durMin;
   state.sessions.push(sess);
   state.handoff={date:sess.date, tag:d.tag};
-  allItems(d).forEach(function(it){ delete state.draft[effId(it)]; });
+  itemsToLog(d).forEach(function(it){ delete state.draft[effId(it)]; });
   save(); saveDraft(); render();
   if(prs.length){ state.prCel={prs:prs.slice(0,3),tag:d.tag}; render(); }
   else { toast("\u2714 "+d.tag+" logged \u2014 nice work"); }
@@ -1338,7 +1436,7 @@ app.addEventListener("click",function(e){
     pd.sets=Array.from({length:target.sets},function(){return {w:String(target.load),r:""};});
     pd.done=false; delete pd.feedback; state.draft[id]=pd; saveDraft(); render();toast("Weight filled · enter actual reps as you lift");return;
   }
-  if(e.target.closest('.forge-progression'))return;
+  if(e.target.closest('.forge-progression')||act==='day'&&e.target.closest('.forge-earlier-draft'))return;
   if(act==="setw"||act==="setr"||act==="note") return;
   if(act==="cmin"){
     var dr=state.draft[id]||{sets:[]};
@@ -1359,7 +1457,7 @@ app.addEventListener("click",function(e){
   if(act==="day"){ state.openDay=state.openDay===key?null:key; render(); if(state.openDay){ var c=document.querySelector('[data-act="day"][data-key="'+key+'"]'); if(c) c.scrollIntoView({behavior:"smooth",block:"start"}); } }
   else if(act==="check"){ var dr=state.draft[id]||{sets:[]}; dr.done=!dr.done; state.draft[id]=dr; if(dr.done&&navigator.vibrate){ try{ navigator.vibrate(8); }catch(e2){} } saveDraft(); render(); }
   else if(act==="log"){ logDay(key); }
-  else if(act==="clearday"){ var d=dayBy(key); if(d) allItems(d).forEach(function(it){ delete state.draft[effId(it)]; }); saveDraft(); render(); }
+  else if(act==="clearday"){ var d=dayBy(key); if(d) itemsToLog(d).forEach(function(it){ delete state.draft[effId(it)]; }); saveDraft(); render(); }
   else if(act==="del"){ var i=+el.dataset.idx;
     /* iOS blocks confirm() in home-screen apps, so deletion is immediate and
        the undo toast is the safety net. */
@@ -1426,7 +1524,7 @@ app.addEventListener("click",function(e){
     if(state.live){ var lld=dayBy(state.live.key), litems=orderedItems(lld), lcur=litems[state.live.exIdx];
       if(lcur && moveItem(state.live.key,lcur.id,1)){ toast("\u2935 Moved down \u2014 do it after this one"); } render(); }
   }
-  else if(act==="swap"){ var idx=+el.dataset.idx; if(idx>0) state.swaps[id]=idx; else delete state.swaps[id]; state.swapOpen=null; store.set(SWAPKEY,JSON.stringify(state.swaps)); render(); }
+  else if(act==="swap"){ var idx=+el.dataset.idx; state.swaps[id+"~home"]=idx; state.swapOpen=null; store.set(SWAPKEY,JSON.stringify(state.swaps)); render(); }
   else if(act==="chartex"){ state.chartEx=el.dataset.id; render(); }
   else if(act==="closepr"){ state.prCel=null; render(); }
   else if(act==="hodismiss"){ state.handoff=null; render(); }
@@ -1503,9 +1601,9 @@ render();
 })();
 
 </script>
-<script src="shared/forge-goal-plans.js?v=85bd29918f45"></script>
-<script src="shared/forge-goal-model.js?v=a444da8614dc"></script>
-<script src="shared/forge-goals.js?v=8de79dd53745"></script>
+<script src="shared/forge-goal-plans.js?v=5702451083ee"></script>
+<script src="shared/forge-goal-model.js?v=e8147200cdb9"></script>
+<script src="shared/forge-goals.js?v=8d4fedd58d40"></script>
 </body>
 </html>
 

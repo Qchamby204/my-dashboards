@@ -4,9 +4,9 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 process.env.TZ='America/Winnipeg';
 const html=readFileSync(new URL('../../workout-forge.html',import.meta.url),'utf8');
-let original=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
+const actualScript=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
 const fixture=['PUSH','PULL'].map(key=>({key,tag:'Sample '+key,title:'Sample session',accent:'#5075aa',glow:'rgba(80,117,170,.4)',blurb:'Test fixture',order:'Recorded order',sections:[{name:'Sample block',items:[{n:'Recorded movement',f:[],track:'load',sets:2,reps:'5',rest:'1 min',rpe:''},{n:'Recorded activity',f:[],track:'cardio',defMin:15,modes:['Walk','Bike']},{n:'Recorded item',f:[],track:'check'}]}]}));
-original=original.slice(0,original.indexOf('var PROGRAM='))+'var PROGRAM='+JSON.stringify(fixture)+';\n'+original.slice(original.indexOf('PROGRAM.forEach(function(d){ d.sections'));
+const original=actualScript.slice(0,actualScript.indexOf('var PROGRAM='))+'var PROGRAM='+JSON.stringify(fixture)+';\n'+actualScript.slice(actualScript.indexOf('PROGRAM.forEach(function(d){ d.sections'));
 const enhancement=readFileSync(new URL('../../shared/forge-enhancements.js',import.meta.url),'utf8');
 const S='forge:sessions:v2',D='forge:draft:v1',L='forge:live:v1',R='forge:rest:v1',J='forge:pending-log:v1';
 const file=o=>({size:100,text:async()=>JSON.stringify(o)});
@@ -22,7 +22,7 @@ test('pain without performed work does not create a workout; it travels with oth
  const h=await boot();h.run(`state.draft={'PUSH-0-0':{sets:[],feedback:'pain'}}`);await h.run(`logDay('PUSH')`);assert.equal(h.run('state.sessions.length'),0);
  h.run(`state.draft['PUSH-0-1']={min:10,sets:[]}`);await h.run(`logDay('PUSH')`);assert.equal(h.run(`state.sessions[0].items['PUSH-0-0'].feedback`),'pain');
 });
-async function boot({records={},blocked=false,width=390,wakeLock,goals=false,audioSession,AudioContext,userAgent='',enhanced=true}={}){
+async function boot({records={},blocked=false,width=390,wakeLock,realProgram=false,goals=false,audioSession,AudioContext,userAgent='',enhanced=true}={}){
   let now=Date.parse('2026-09-08T12:00:00-05:00'),serial=0;const ids=new Map(),timers=new Map(),blobs=new Map(),downloads=[];
   class Events{
     constructor(){this.events=new Map();}
@@ -81,7 +81,7 @@ async function boot({records={},blocked=false,width=390,wakeLock,goals=false,aud
   class BlobURL extends URL{static createObjectURL(blob){const id='blob:'+(++serial);blobs.set(id,blob);return id;}static revokeObjectURL(id){blobs.delete(id);}}
   const context=vm.createContext({document,window,innerWidth:width,innerHeight:844,addEventListener:(...a)=>window.addEventListener(...a),performance:{now:()=>now},requestAnimationFrame:()=>++serial,cancelAnimationFrame(){},navigator:{wakeLock},location:{hash:''},FormData:class{constructor(form){this.values=form.querySelectorAll('input,select,textarea').filter(n=>n.getAttribute('name')).map(n=>[n.getAttribute('name'),n.value]);}*[Symbol.iterator](){yield* this.values;}get(name){return this.values.find(([key])=>key===name)?.[1]??null;}},crypto:{randomUUID:()=> 'fixture-session-'+(++serial)},localStorage,Date:Clock,URL:BlobURL,Blob,console,setTimeout:(fn,delay=0)=>{const id=++serial;timers.set(id,{fn,due:now+delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++serial,clearInterval(){}});
   vm.runInContext(readFileSync(new URL('../../shared/forge-progression.js',import.meta.url),'utf8'),context);context.ForgeProgression=context.window.ForgeProgression;
-  let legacyError;try{vm.runInContext(original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
+  let legacyError;try{vm.runInContext(realProgram?actualScript:original,context);for(let i=0;i<30;i++)await Promise.resolve();}catch(e){legacyError=e;}
   if(goals)for(const file of ['forge-goal-plans.js','forge-goal-model.js'])vm.runInContext(readFileSync(new URL('../../shared/'+file,import.meta.url),'utf8'),context);
   Object.assign(context.navigator,{audioSession,userAgent});
   if(enhanced)vm.runInContext(enhancement,context);
@@ -390,4 +390,30 @@ test('finish validation returns to the incomplete exercise without losing entrie
 });
 test('Escape dismisses confirmation and restores the invoking control',async()=>{
  const h=await boot();h.act('live',{key:'PUSH'});const finish=h.node('app').querySelector('[data-act="livefinish"]');finish.focus();h.run('finishLive()');h.node('forge-confirm').emit('cancel');assert.equal(h.node('forge-confirm'),undefined);assert.equal(h.context.document.activeElement,finish);assert(h.run('state.live'));assert.equal(h.run('state.sessions.length'),0);
+});
+
+test('the home split only offers supported equipment and retains original identities in records and drafts',async()=>{
+ const h=await boot({realProgram:true,records:{
+   [S]:JSON.stringify([{date:'2026-09-05',type:'PUSH',items:{'PUSH-1-1':{sets:[{w:'225',r:'5'}]}}}]),
+   [D]:JSON.stringify({'PUSH-1-1':{sets:[{w:'185',r:'5'}]}}),
+   'forge:swaps:v1':JSON.stringify({'PUSH-1-1':2})
+ }});
+ assert.equal(h.legacyError,undefined);
+ assert.doesNotMatch(h.run("JSON.stringify(PROGRAM)+JSON.stringify(SWAPS)"),/barbell|cable|med.ball|kettlebell|rower|bike|machine|plyo box|band pull|pull-up|lat pulldown|sled|stairmaster|bar dip/i);
+ const it="allItems(dayBy('PUSH')).find(it=>it.n==='Dumbbell bench press')";
+ assert.equal(h.run('effName('+it+')'),'Dumbbell bench press');
+ assert.equal(h.run('effId('+it+')'),'PUSH-1-1~1');
+ assert.equal(h.run("nameForEid('PUSH-1-1')"),'Barbell bench press');
+ assert.equal(h.run("nameForEid('PUSH-1-1~2')"),'Machine chest press');
+ assert.equal(h.run('lastSets(effId('+it+'))'),null);
+ assert.equal(h.run("recordsList()[0].name"),'Barbell bench press');
+ h.run("state.draft['PUSH-1-1~1']={sets:[{w:'35',r:'8'}]}");
+ await h.run("logDay('PUSH')");
+ assert.equal(h.run("state.sessions.at(-1).items['PUSH-1-1'].name"),'Barbell bench press');
+ assert.equal(h.run("state.sessions.at(-1).items['PUSH-1-1~1'].name"),'Dumbbell bench press');
+ assert.equal(h.run("Object.keys(state.draft).length"),0);
+ h.act('swap',{id:'PUSH-1-1',idx:'1'});
+ const variant=h.run('effId('+it+')');assert.equal(h.run('nameForEid('+JSON.stringify(variant)+')'),'Neutral-grip dumbbell bench press');
+ h.run("state.draft[effId(allItems(dayBy('ENGINE')).find(it=>it.track==='cardio'))]={min:'12',sets:[]}");
+ await h.run("logDay('ENGINE')");assert.equal(h.run("Object.values(state.sessions.at(-1).items)[0].mode"),'Treadmill');
 });

@@ -17,7 +17,7 @@
     function validateItem(o,draft=false){if(o.feedback!==undefined&&!ForgeProgression.feedbacks.includes(o.feedback)||o.prescription!==undefined&&(!plain(o.prescription)||typeof o.prescription.name!=='string'||!Number.isInteger(o.prescription.sets)||o.prescription.sets<1||o.prescription.sets>10||typeof o.prescription.reps!=='string'))throw Error('Invalid progression entry.');const value=v=>numeric(v)||draft&&typeof v==='string';if(!plain(o)||o.done!==undefined&&typeof o.done!=='boolean'||o.note!==undefined&&typeof o.note!=='string'||o.name!==undefined&&typeof o.name!=='string'||o.mode!==undefined&&typeof o.mode!=='string'||!value(o.min)||o.sets!==undefined&&(!Array.isArray(o.sets)||o.sets.some(s=>!plain(s)||!value(s.w)||!value(s.r))))throw Error('Invalid exercise entry.');}
     function validatePart(field,value){
       safeKeys(value);
-      if(field==='goals'){if(!window.ForgeGoalModel)throw Error('Goal training could not load. Reload before restoring a backup.');window.ForgeGoalModel.validate(value);}
+      if(field==='goals'){if(!window.ForgeGoalModel)throw Error('Goal training could not load. Reload before restoring a backup.');return window.ForgeGoalModel.validate(value);}
       else if(field==='sessions'){if(!Array.isArray(value))throw Error('Expected a session list.');const ids=value.filter(s=>s?.id!==undefined).map(s=>s.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length)throw Error('Saved sessions must have distinct record IDs.');value.forEach(s=>{if(!plain(s)||!validDate(s.date)||typeof s.type!=='string'||!plain(s.items)||s.dur!==undefined&&!finite(s.dur))throw Error('Invalid saved session.');Object.values(s.items).forEach(o=>validateItem(o));});}
       else if(field==='draft'){if(!plain(value))throw Error('Invalid draft.');Object.values(value).forEach(o=>validateItem(o,true));}
       else if(field==='live'){if(value!==null&&(!plain(value)||!dayBy(value.key)||!finite(value.startedAt)||value.startedAt===0||!Number.isInteger(value.exIdx)||value.exIdx<0||value.pausedAt!==undefined&&!finite(value.pausedAt)||value.pausedMs!==undefined&&!finite(value.pausedMs)))throw Error('Invalid active session.');}
@@ -100,21 +100,24 @@
     historyStrip=(it,accent)=>oldHistoryStrip(it,accent).replace('<div ','<div class="forge-history-strip" ').replace('NEW PR ON THE BOARD','Draft exceeds saved record');
     stats=()=>withOrderedSessions(()=>{const result=oldStats(),season=state.sessions.filter(s=>s.date>=SEASON_START_ISO&&s.date<=localDay(SEASON_END)).length;return {...result,season,onPace:season>=result.expected-1};});
     history=function(){const original=state.sessions,ordered=orderedSessions(),best={};state.sessions=ordered.map(({session})=>{const items={};for(const [id,item]of Object.entries(session.items)){const value=setsTopE1RM(item.sets||[]);items[id]={...item,pr:value>0&&(best[id]||0)>0&&value>best[id]+.01};best[id]=Math.max(best[id]||0,value);}return {...session,items};});try{return oldHistory().replace(/data-idx="(\d+)"/g,(_,index)=>'data-idx="'+ordered[Number(index)].index+'"');}finally{state.sessions=original;}};
-    function sessionItems(day){const items={};allItems(day).forEach(it=>{const eid=effId(it),dr=state.draft[eid];if(!dr)return;const o={done:!!dr.done,name:effName(it)};
+    function sessionItems(day){const items={};itemsToLog(day).forEach(it=>{const eid=effId(it),dr=state.draft[eid];if(!dr)return;const o={done:!!dr.done,name:effName(it)};
       if(dr.note?.trim())o.note=dr.note.trim();
       if(it.track==='load'){o.prescription={name:effName(it),sets:it.sets,reps:it.reps};if(ForgeProgression.feedbacks.includes(dr.feedback))o.feedback=dr.feedback;}
       if(it.track==='load'){o.sets=(dr.sets||[]).filter(s=>String(s.w??'')!==''||String(s.r??'')!=='').map(s=>{if(!numeric(s.w)||!numeric(s.r)||!Number.isInteger(Number(s.r))||Number(s.r)<=0)throw Object.assign(Error('Complete or clear the partial set for '+effName(it)+'.'),{exerciseId:eid,setIndex:(dr.sets||[]).indexOf(s),field:numeric(s.w)?'setr':'setw'});return {w:s.w??'',r:s.r??''};});if(o.sets.length||o.done||o.note||o.feedback==='pain')items[eid]=o;}
-      else if(it.track==='cardio'){o.min=dr.min===''||dr.min==null?0:Number(dr.min);if(!Number.isFinite(o.min)||o.min<0)throw Object.assign(Error('Enter valid minutes for '+effName(it)+'.'),{exerciseId:eid,field:'forgemin'});o.mode=dr.mode||'';if(o.min>0||o.done||o.note)items[eid]=o;}
+      else if(it.track==='cardio'){o.min=dr.min===''||dr.min==null?0:Number(dr.min);if(!Number.isFinite(o.min)||o.min<0)throw Object.assign(Error('Enter valid minutes for '+effName(it)+'.'),{exerciseId:eid,field:'forgemin'});o.mode=dr.mode||(it.home&&!it.recordId?'Treadmill':'');if(o.min>0||o.done||o.note)items[eid]=o;}
       else if(o.done||o.note)items[eid]=o;
     });return items;}
     function showEntryError(error,key){
       if(state.live&&error.exerciseId){const items=orderedItems(dayBy(state.live.key)),index=items.findIndex(it=>effId(it)===error.exerciseId);if(index>=0){state.live.exIdx=index;state.live.hidden=false;render();}}
-      if(!state.live&&key){state.openDay=key;render();}
+      if(key&&(!state.live||earlierDraftItems(dayBy(key)).some(it=>effId(it)===error.exerciseId))){
+        if(state.live){state.live.hidden=true;saveLive();}
+        state.openDay=key;render();
+      }
       const scope=app.querySelector('.forge-live-panel')||app;
       document.getElementById('forge-entry-error')?.remove();
       const notice=make('p',error.message,'forge-entry-error');notice.id='forge-entry-error';notice.setAttribute('role','alert');
       const field=Array.from(scope.querySelectorAll('input')).find(el=>el.dataset.id===error.exerciseId&&(!error.field||el.dataset.act===error.field)&&(error.setIndex===undefined||Number(el.dataset.set)===error.setIndex));
-      if(field){(field.closest('.forge-set-row')||field).before(notice);field.setAttribute('aria-describedby',notice.id);field.setAttribute('aria-invalid','true');field.focus();field.scrollIntoView({block:'center',behavior:'instant'});}
+      if(field){const earlier=field.closest('.forge-earlier-draft');if(earlier)earlier.open=true;(field.closest('.forge-set-row')||field).before(notice);field.setAttribute('aria-describedby',notice.id);field.setAttribute('aria-invalid','true');field.focus();field.scrollIntoView({block:'center',behavior:'instant'});}
       else scope.append(notice);
     }
     async function commitPending(){
@@ -134,7 +137,7 @@
       const live=state.live?.key===key?state.live:null,sess={id:crypto.randomUUID(),date:live?localDay(live.startedAt):todayISO(),type:key,items};
       if(live){sess.startedAt=live.startedAt;sess.elapsedSeconds=Math.floor(elapsedMs(live)/1000);sess.dur=Math.round(sess.elapsedSeconds/60);}else if(durMin!==undefined)sess.dur=durMin;
       const prior=priorBestMap();for(const [id,o]of Object.entries(items)){const best=setsTopE1RM(o.sets||[]);if(best>0&&(prior[id]||0)>0&&best>prior[id]+.01)o.pr=true;}
-      const draft={};allItems(day).forEach(it=>{const id=effId(it);if(state.draft[id])draft[id]=clone(state.draft[id]);});const job={session:sess,draft,live:live?{key:live.key,startedAt:live.startedAt}:null};
+      const draft={};itemsToLog(day).forEach(it=>{const id=effId(it);if(state.draft[id])draft[id]=clone(state.draft[id]);});const job={session:sess,draft,live:live?{key:live.key,startedAt:live.startedAt}:null};
       busy=true;paintStatus();const ok=await write(JOURNALKEY,JSON.stringify(job));busy=false;
       if(!ok){failed.set(JOURNALKEY,'null');paintStatus();toast('Session not logged yet. Your draft is still here.');return false;}
       pendingLog=job;return commitPending();
@@ -154,7 +157,7 @@
         await Promise.allSettled([...pending.values()]);
         const before=new Map([[DRAFTKEY,JSON.stringify(state.draft)],[RESTKEY,JSON.stringify(timer)],[LIVEKEY,JSON.stringify(state.live)]]);
         const next=clone(state.draft);
-        allItems(dayBy(session.key)).forEach(it=>delete next[effId(it)]);
+        itemsToLog(dayBy(session.key)).forEach(it=>delete next[effId(it)]);
         const changes=[[DRAFTKEY,JSON.stringify(next)],[RESTKEY,'null'],[LIVEKEY,'null']],attempted=[];
         try{
           for(const [key,value]of changes){
@@ -227,7 +230,7 @@
     // Capture only the changed actions; all other original handlers remain in place.
     app.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const act=el.dataset.act;
       if(blocked||busy||pendingLog){e.preventDefault();e.stopImmediatePropagation();return;}
-      if(e.target.closest('.forge-progression')&&act==='day')return;
+      if(act==='day'&&e.target.closest('.forge-progression,.forge-earlier-draft'))return;
       if(act==='day'&&window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){e.stopImmediatePropagation();state.openDay=state.openDay===el.dataset.key?null:el.dataset.key;render();if(state.openDay)app.querySelector('[data-act="day"][data-key="'+state.openDay+'"]')?.scrollIntoView({behavior:'instant',block:'start'});return;}
       if(act==='livedone'&&state.live){const it=current();if(state.live.pausedAt||state.draft[effId(it)]?.done){e.stopImmediatePropagation();if(!state.live.pausedAt)goExercise(state.live.exIdx+1);return;}}
       if(act==='log'&&state.live?.key===el.dataset.key){e.stopImmediatePropagation();finishLive();return;}

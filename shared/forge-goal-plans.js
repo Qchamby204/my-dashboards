@@ -1,4 +1,4 @@
-/* Prescriptions transcribed without changes from the four supplied plans. */
+/* Original gym blocks are retained to decode saved sets and unfinished entries. */
 (()=>{ const plans = {};
 plans.bench = {...{"id": "bench", "title": "Bench press", "target": "315", "unit": "lb", "phase": "8-week target", "aim": "Test 315 lb in week 8", "legacyKey": "road315-v1", "color": "gold", "rules": "<p><strong>Days.</strong> Keep at least two days between Day 1 and Day 2, for example Monday and Thursday.</p>\n    <p><strong>RPE.</strong> RPE 8 means you had about two reps left. RPE 9 means one. The top singles should look fast and controlled at RPE 8.</p>\n    <p><strong>Main lift.</strong> If a top set or single goes past RPE 9, repeat that week's loads next week instead of moving on. If you miss reps, stop that exercise for the day. Don't grind extra attempts.</p>\n    <p><strong>Accessories.</strong> Pick a weight you can do for the bottom of the rep range at about RPE 8. When every set reaches the top of the range, add the smallest jump available next session. Leave one or two reps in the tank on everything.</p>\n    <p><strong>Paused reps.</strong> Two full seconds motionless on the chest. If the pause gets shorter, the weight is too heavy.</p>\n    <p><strong>Pain.</strong> Sore shoulders or elbows mean a lighter week, even partway through the block. Swap dips for close grip push-ups if dips bother your shoulders.</p>"}, build(base="28:00"){let state={base};
 
@@ -185,7 +185,7 @@ DAY_INFO.test_d2 = {title:"Day 2: Test day", purpose:"One set of five. Reset and
 
 
 return {weeks:WEEKS,phases:PHASES,days:DAY_INFO};}};
-plans.run = {...{"id": "run", "title": "5K run", "target": "20:00", "unit": "5K", "phase": "Phase 1", "aim": "Week 8: work toward sub-26:00", "legacyKey": "road-to-20-5k-v2", "color": "blue", "rules": "<p><strong>Days.</strong> Keep the two runs at least two days apart. Don't run intervals the day before heavy deadlifts. If you run on a lifting day, lift first, or leave six hours between them.</p>\n    <p><strong>Easy means easy.</strong> You should be able to talk in full sentences. If you can't, slow down, walk breaks included. Most of your aerobic fitness comes from these runs, and running them too hard is the most common mistake.</p>\n    <p><strong>Intervals and tempo.</strong> Hit the target times, not faster. Your last rep should match your first. If you're falling more than five seconds behind, end the session there.</p>\n    <p><strong>Warm-up and cool-down.</strong> Every interval, tempo and time trial session starts with 10 minutes easy and ends with 5 to 10 minutes easy. They aren't listed as separate items.</p>\n    <p><strong>Time trials.</strong> Use a flat route or a track. Start at a pace you're sure you can hold, and speed up over the last kilometre if you have anything left.</p>\n    <p><strong>Your legs.</strong> Shins, knees and Achilles adapt more slowly than your heart and lungs, and your lifting already loads them. Soreness that fades as you warm up is normal. Pain that gets worse during a run, or makes you limp afterwards, means take a few days off running.</p>"}, build(base="28:00"){let state={base};
+plans.run = {...{"id": "run", "title": "Treadmill 5K", "target": "20:00", "unit": "5K", "phase": "Phase 1", "aim": "Week 8: work toward sub-26:00", "legacyKey": "road-to-20-5k-v2", "color": "blue", "rules": "<p><strong>Days.</strong> Keep the two runs at least two days apart. Don't run intervals the day before heavy deadlifts. If you run on a lifting day, lift first, or leave six hours between them.</p>\n    <p><strong>Easy means easy.</strong> You should be able to talk in full sentences. If you can't, slow down, walk breaks included. Most of your aerobic fitness comes from these runs, and running them too hard is the most common mistake.</p>\n    <p><strong>Intervals and tempo.</strong> Hit the target times, not faster. Your last rep should match your first. If you're falling more than five seconds behind, end the session there.</p>\n    <p><strong>Warm-up and cool-down.</strong> Every interval, tempo and time trial session starts with 10 minutes easy and ends with 5 to 10 minutes easy. They aren't listed as separate items.</p>\n    <p><strong>Time trials.</strong> Use the same flat treadmill setting for each trial. Start at a pace you're sure you can hold, and speed up over the last kilometre if you have anything left.</p>\n    <p><strong>Your legs.</strong> Shins, knees and Achilles adapt more slowly than your heart and lungs, and your lifting already loads them. Soreness that fades as you warm up is normal. Pain that gets worse during a run, or makes you limp afterwards, means take a few days off running.</p>"}, build(base="28:00"){let state={base};
 
 
 function toSec(t){ const m = String(t).trim().match(/^(\d{1,2}):([0-5]\d)$/); return m ? (+m[1])*60 + (+m[2]) : null; }
@@ -207,7 +207,7 @@ function easy(min, extra){
   const p = paces();
   return ex(`Easy run, ${min} min`, `${fmt(p.easyLo)} to ${fmt(p.easyHi)} per km`, 1, "Conversational", extra || "Walk breaks are fine. Time on your feet is what counts.", true);
 }
-function strides(n){ return ex(`Strides, ${n} x 20 sec`, "Fast, relaxed", n, "Walk back to recover", "Quick and smooth, not a sprint. Right after the easy run.", false); }
+function strides(n){ return ex(`Strides, ${n} x 20 sec`, "Fast, relaxed", n, "Walk on the treadmill to recover", "Quick and smooth, not a sprint. Right after the easy run.", false); }
 function trial(note){ return ex("5k time trial", "All out, evenly paced", 1, "10 min easy before", note, true); }
 function ex(n, rx, sets, rest, note, main){ return {n, rx, sets, rest, note, main: !!main}; }
 
@@ -348,5 +348,68 @@ DAY_INFO.test_d2 = {title:"Session B: Test day", purpose:"Your end-of-block jump
 
 
 return {weeks:WEEKS,phases:PHASES,days:DAY_INFO};}};
+// Older records store exercise positions, so their original prescriptions are needed to read them.
+window.ForgeGymGoalPlans=Object.freeze({...plans});
+const blockPhases={
+  baseline:{name:"Baseline"}, build:{name:"Build"}, light:{name:"Lighter week"}, retest:{name:"Retest"}
+};
+function phaseAt(week){return ["baseline","build","build","light","build","build","light","retest"][week];}
+function movement(n,sets,reps,rest,note,extra={}){
+  return {n,sets,rx:sets+" x "+reps,rest,note,...extra};
+}
+const strengthBlocks={
+  bench:{
+    title:"Dumbbell bench press",color:"gold",lift:"Dumbbell bench press",second:"Paused dumbbell bench press",
+    days:{d1:{title:"Day 1: Flat press",purpose:"Flat bench pressing, supported rows and triceps."},
+          d2:{title:"Day 2: Paused press",purpose:"Practise the pause, then work the upper chest and rear shoulders."}},
+    firstAccessories:[["Bench-supported one-arm dumbbell row","8 to 12 each side"],["Lying dumbbell triceps extension","10 to 12"]],
+    secondAccessories:[["Incline dumbbell press","8 to 10"],["Incline dumbbell reverse fly","10 to 15"]]
+  },
+  deadlift:{
+    title:"Dumbbell Romanian deadlift",color:"orange",lift:"Dumbbell Romanian deadlift",second:"Staggered-stance dumbbell Romanian deadlift",
+    days:{d1:{title:"Day 1: Hip hinge",purpose:"Practise the hinge, then train the legs and brace with the ab wheel."},
+          d2:{title:"Day 2: Single-leg strength",purpose:"Stagger your stance for the hinge, then work the glutes and trunk."}},
+    firstAccessories:[["Dumbbell split squat","8 each leg"],["Kneeling ab-wheel rollout","6 to 8"]],
+    secondAccessories:[["Dumbbell glute bridge","10 to 12"],["Dumbbell suitcase march","10 each side"]]
+  }
+};
+function strengthPlan(id,spec){
+  function session(day,week){
+    const phase=phaseAt(week),lighter=phase==="light",test=phase==="retest"&&day==="d2";
+    const main=day==="d1"||test?spec.lift:spec.second;
+    const warm="Start with a few easy reps using lighter dumbbells. Log your working sets below.";
+    const reps=day==="d2"&&id==="deadlift"&&!test?"6 to 8 each side":phase==="baseline"||test?"8":"6 to 8";
+    const exercises=[movement(main,test?1:lighter||phase==="baseline"?2:3,reps,"Rest 2 to 3 min",
+      test?"Use your week 1 load and compare how eight controlled reps feel.":warm,{main:true,repeatBaseline:test})];
+    if(test)return exercises;
+    const accessories=day==="d1"?spec.firstAccessories:spec.secondAccessories;
+    return exercises.concat(accessories.map(([name,reps])=>movement(name,lighter?1:2,reps,"Rest 60 to 90 sec")));
+  }
+  return {id,title:spec.title,phase:"Home block",target:"8",unit:"controlled reps",color:spec.color,benchmark:spec.lift,
+    aim:"Compare eight controlled reps with week 1",
+    rules:(id==="bench"?"<p>Use the flat bench for flat and paused presses. Raise it for incline presses and reverse flys.</p>":"<p>Keep the dumbbells close to your legs and hinge at the hips. Set the ab wheel on the floor for kneeling rollouts.</p>")+"<p>Enter the weight of one dumbbell. Start with a pair you can control with about two reps in reserve. When all sets reach the top of the range comfortably, try the next available pair at the lower end. If the next pair is too heavy, repeat the same weight.</p><p>Leave at least two days between sessions for the same lift.</p>",
+    build(){return {phases:blockPhases,days:spec.days,weeks:Array.from({length:8},(_,week)=>({
+      phase:phaseAt(week),note:phaseAt(week)==="light"?"Use fewer sets this week and leave several reps in reserve.":week===7?"Keep the first session easy. In the second, repeat your baseline set and record your effort.":week===0?"Record your starting load per dumbbell and how the set felt.":"Add reps within the range before moving to a heavier pair.",
+      d1:session("d1",week),d2:session("d2",week)
+    }))};}};
+}
+plans.bench=strengthPlan("bench",strengthBlocks.bench);
+plans.deadlift=strengthPlan("deadlift",strengthBlocks.deadlift);
+plans.dunk={id:"dunk",title:"Vertical jump",phase:"Home block",target:"Best",unit:"standing touch",color:"green",
+  aim:"Compare standing jump reach over eight weeks",
+  rules:"<p>Use clear floor space with overhead clearance. Jump from the floor and land in the same spot. Keep the bench for supported strength work. If space is limited, use a squat to calf raise and leave touch height blank.</p><p>To compare reach, use the same spot and starting stance each time. Rest between jumps and end the set when landings become uneven.</p>",
+  build(){return {phases:blockPhases,days:{
+    d1:{title:"Session A: Vertical",purpose:"Practise standing jumps, then build single-leg strength."},
+    d2:{title:"Session B: Landing",purpose:"Work on quiet landings and calf strength."}
+  },weeks:Array.from({length:8},(_,week)=>{
+    const phase=phaseAt(week),sets=phase==="light"?2:3;
+    const warm=movement("Treadmill walk and ankle rocks",1,"3 min walk + 8 rocks per side","At your pace");
+    const jump=movement("Standing vertical jump",sets,"3","Rest 90 sec","Reset on the floor between reps. Enter your best touch if measured.",{main:true,reach:true});
+    const retest=movement("Standing jump retest",1,"3","Rest 90 sec between jumps","Repeat your week 1 stance. Record your best touch if measured.",{main:true,reach:true});
+    return {phase,note:week===7?"Repeat your standing jump test after at least two days of rest.":"Rest between jumps so that each landing stays controlled.",
+      d1:[warm,jump,movement("Dumbbell split squat",sets,"6 each leg","Rest 90 sec")],
+      d2:week===7?[warm,retest]:[warm,movement("Bodyweight squat jump and stick",sets,"3","Rest 90 sec","Pause and balance after each landing.",{main:true}),
+        movement("Standing dumbbell calf raise",sets,"10 to 12","Rest 60 sec")]};
+  })};}};
 window.ForgeGoalPlans=Object.freeze(plans);
 })();
