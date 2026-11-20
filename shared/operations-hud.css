@@ -1,0 +1,210 @@
+@font-face{font-family:'Chakra Petch';font-weight:500;font-style:normal;font-display:swap;src:url("fonts/chakra-petch-500.ttf") format("truetype");}
+@font-face{font-family:'Chakra Petch';font-weight:600 700;font-style:normal;font-display:swap;src:url("fonts/chakra-petch-600.ttf") format("truetype");}
+@font-face{font-family:'JetBrains Mono';font-weight:100 800;font-style:normal;font-display:swap;src:url("fonts/jetbrains-mono-var.ttf") format("truetype");}
+/* Operations Cadence HUD. Paired with shared/operations-hud.js: the suite HUD as a
+   practice-ops console in lime, each tab's own colour on the opening card. Visual only.
+   Sentence case throughout: no forced capitals, no shrunken labels. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] {--hud-hue:#4a6b12;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"][data-atlas-theme="dark"] {--hud-hue:#b6f06a;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] {
+  --hud-display:'Chakra Petch','Figtree',system-ui,sans-serif;
+  --hud-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --hud-amber:var(--neo-accent);--hud-signal:var(--hud-hue);
+  --hud-edge:color-mix(in srgb,var(--hud-hue) 28%,transparent);
+  --hud-edge-strong:color-mix(in srgb,var(--hud-hue) 70%,transparent);
+  --hud-bracket:color-mix(in srgb,var(--hud-hue) 85%,transparent);
+  --hud-bloom:color-mix(in srgb,var(--hud-hue) 10%,transparent);
+  --hud-grid:color-mix(in srgb,var(--hud-hue) 5%,transparent);
+  --hud-glass:linear-gradient(165deg,color-mix(in srgb,var(--hud-hue) 6%,transparent),transparent 42%),var(--neo-content-surface);
+  --hud-cut:16px;
+  --hud-chamfer:polygon(var(--hud-cut) 0,100% 0,100% calc(100% - var(--hud-cut)),calc(100% - var(--hud-cut)) 100%,0 100%,0 var(--hud-cut));
+  --hud-cut-edge:linear-gradient(135deg,transparent calc(50% - 1px),var(--hud-edge-strong) calc(50% - 1px),var(--hud-edge-strong) calc(50% + .6px),transparent calc(50% + .6px));
+  --hud-corners:
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) right 7px top 7px/18px 2px no-repeat,
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) right 7px top 7px/2px 18px no-repeat,
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) left 7px bottom 7px/18px 2px no-repeat,
+    linear-gradient(var(--hud-bracket),var(--hud-bracket)) left 7px bottom 7px/2px 18px no-repeat;
+}
+
+/* Field, scanlines and stacking. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] body {
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%,var(--hud-bloom),transparent 70%),
+    linear-gradient(var(--hud-grid) 1px,transparent 1px) 0 0/32px 32px,
+    linear-gradient(90deg,var(--hud-grid) 1px,transparent 1px) 0 0/32px 32px,
+    var(--neo-canvas)!important;
+  background-attachment:fixed!important;
+}
+.hud-scan {display:none;}
+html[data-atlas-app="operations-cadence"][data-atlas-theme="dark"] .hud-scan {
+  display:block;position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(182,240,106,.022) 0 1px,transparent 1px 3px);
+}
+html[data-atlas-app="operations-cadence"] .shell {position:relative;z-index:2;}
+
+/* Sentence case: every HUD label at its normal size. */
+html[data-atlas-app="operations-cadence"] :is(.hud-boot-copy,.hud-boot-copy b,.hud-frame-tele,.hud-frame-tele b,.hud-burst-tag,.hud-telemetry) {text-transform:none!important;letter-spacing:.04em!important;}
+
+/* Type: display face for titles, mono for figures. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell :is(h1,h2,h3) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;}
+
+/* Opening card: tab-coloured deep-water glass, angled, lit cuts and brackets, solid base. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening {--hud-tab:#ffb347;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="log"] {--hud-tab:#45d8e8;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="insights"] {--hud-tab:#d9b8ff;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="annually"] {--hud-tab:#ffd08b;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="daily"] {--hud-tab:#b6f06a;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="weekly"] {--hud-tab:#6ff2c8;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="monthly"] {--hud-tab:#8cc8ff;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="quarterly"] {--hud-tab:#b591ff;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening[data-opening="adhoc"] {--hud-tab:#f0628a;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening {
+  --hud-edge:color-mix(in srgb,var(--hud-tab) 30%,transparent);--hud-edge-strong:color-mix(in srgb,var(--hud-tab) 70%,transparent);--hud-bracket:color-mix(in srgb,var(--hud-tab) 85%,transparent);
+  position:relative;overflow:clip;clip-path:var(--hud-chamfer);border-radius:0!important;
+  border:1px solid var(--hud-edge)!important;
+  background:
+    var(--hud-cut-edge) left top/var(--hud-cut) var(--hud-cut) no-repeat border-box,
+    var(--hud-cut-edge) right bottom/var(--hud-cut) var(--hud-cut) no-repeat border-box,
+    var(--hud-corners),
+    radial-gradient(ellipse 60% 45% at 50% 52%,color-mix(in srgb,var(--hud-tab) 12%,transparent),transparent 70%),
+    linear-gradient(170deg,color-mix(in srgb,var(--hud-tab) 7%,transparent),transparent 45%),#10262b!important;
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hud-tab) 22%,transparent),inset 0 0 50px -14px color-mix(in srgb,var(--hud-tab) 28%,transparent)!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening .operations-opening-rail {display:flex!important;align-items:center;gap:10px;flex-wrap:wrap;border-color:var(--hud-edge)!important;color:#e4ecea;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening .operations-opening-footer {border-color:var(--hud-edge)!important;background:#0c1f23!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening h1 {color:#f2f7f5!important;font-family:var(--hud-display)!important;letter-spacing:.01em!important;text-shadow:0 0 22px color-mix(in srgb,var(--hud-tab) 30%,transparent);position:relative;z-index:1;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening-face p {position:relative;z-index:1;color:#dfe7e6!important;text-shadow:0 1px 8px #10262b;}
+html[data-atlas-app="operations-cadence"] main .operations-opening-face.hud-reactor-host {position:relative;}
+html[data-atlas-app="operations-cadence"] main .operations-opening-face>.hud-reactor {position:absolute;z-index:0;pointer-events:none;overflow:visible;color:var(--hud-tab);opacity:.48;}
+html[data-atlas-app="operations-cadence"] main .operations-title-art {position:relative;z-index:1;filter:drop-shadow(0 0 10px color-mix(in srgb,var(--hud-tab) 40%,transparent));}
+html[data-atlas-app="operations-cadence"] main .operations-title-art>circle:first-child {fill:transparent;}
+html[data-atlas-app="operations-cadence"] main .operations-opening .hud-telemetry {margin-left:auto;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font:500 .8125rem/1.2 var(--hud-mono);color:#c3d3cf;}
+html[data-atlas-app="operations-cadence"] main .operations-opening .hud-telemetry b {color:var(--hud-tab);font-weight:600;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] main .operations-opening .operations-opening-footer .operations-button {--hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;font-family:var(--hud-display)!important;box-shadow:0 0 22px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.35)!important;}
+
+/* Task cards and stats: angled glass with lit cuts and brackets. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell :is(.task,.stat) {
+  --hud-cut:12px;clip-path:var(--hud-chamfer);border-radius:0!important;
+  border:1px solid var(--hud-edge)!important;
+  background:
+    var(--hud-cut-edge) left top/var(--hud-cut) var(--hud-cut) no-repeat border-box,
+    var(--hud-cut-edge) right bottom/var(--hud-cut) var(--hud-cut) no-repeat border-box,
+    var(--hud-glass)!important;
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hud-hue) 14%,transparent),inset 0 0 30px -14px color-mix(in srgb,var(--hud-hue) 16%,transparent)!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell .task.done {border-color:color-mix(in srgb,var(--hud-hue) 55%,transparent)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell .check {border-radius:0!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell :is(.num,.big,.mono) {font-family:var(--hud-mono)!important;}
+
+/* Controls. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell :is(input,select,textarea) {border-radius:0!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell :is(input,select,textarea):focus-visible {box-shadow:0 0 0 1px var(--hud-hue),0 0 16px -4px var(--hud-hue)!important;}
+
+/* Header and dock (labels keep their face and size). */
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell>.appbar {border-bottom:1px solid var(--hud-edge)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell .appbar-title {font-family:var(--hud-display)!important;letter-spacing:.02em!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell .appbar-pill {font-family:var(--hud-mono)!important;border-color:var(--hud-edge-strong)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .atlas-page-dock.core-glass-nav {border:1px solid var(--hud-edge)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .atlas-page-dock .atlas-page-item {position:relative;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .atlas-page-dock .atlas-page-item[aria-current="page"] {text-shadow:0 0 12px color-mix(in srgb,var(--hud-hue) 70%,transparent);}
+html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .atlas-page-dock .atlas-page-item[aria-current="page"]::after {content:"";position:absolute;left:28%;right:28%;bottom:3px;height:2px;border-radius:2px;background:var(--hud-hue);box-shadow:0 0 10px var(--hud-hue);}
+@media(prefers-contrast:more) {html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .atlas-page-dock.core-glass-nav {border-width:2px!important;}}
+@media(prefers-reduced-motion:no-preference) {
+  html[data-atlas-app="operations-cadence"] main.hud-scan-in>* {animation:hud-view-in .55s cubic-bezier(.2,.8,.2,1);}
+  html[data-atlas-app="operations-cadence"] main.hud-scan-in .operations-opening h1 {animation:hud-glitch .5s steps(2) 1;}
+}
+@keyframes hud-view-in {0%{clip-path:inset(0 0 100% 0);filter:brightness(1.8);}70%{clip-path:inset(0 0 0 0);filter:brightness(1.15);}100%{clip-path:inset(0 0 0 0);filter:none;}}
+@keyframes hud-glitch {0%{text-shadow:-3px 0 #ff2bd6,3px 0 #2bf4ff;transform:translateX(2px);}40%{text-shadow:2px 0 #ff2bd6,-2px 0 #2bf4ff;transform:translateX(-1px);}100%{transform:none;}}
+
+/* Shared HUD components (same as Life Ledger). */
+.hud-field {position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;}
+.hud-reactor .hud-rot {transform-box:view-box;transform-origin:100px 100px;}
+.hud-reactor .hud-ring-dots {fill:none;stroke:currentColor;stroke-width:.8;stroke-dasharray:.6 2.4;opacity:.55;}
+.hud-reactor .hud-ring-bracket {fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;opacity:.85;}
+.hud-reactor .hud-ring-blip-track {fill:none;stroke:none;}
+.hud-reactor .hud-ring-blip {fill:currentColor;filter:drop-shadow(0 0 3px currentColor);}
+.hud-reactor .hud-ring-ticks {fill:none;stroke:currentColor;stroke-width:.7;opacity:.42;}
+.hud-reactor .hud-ring-dash {fill:none;stroke:currentColor;stroke-width:.7;stroke-dasharray:6 4;opacity:.35;}
+.hud-reactor .hud-sweep {fill:currentColor;opacity:.06;}
+.hud-reactor .hud-arc-track {fill:none;stroke:var(--arc);stroke-width:2.6;opacity:.24;}
+.hud-reactor .hud-arc-fill {fill:none;stroke:var(--arc);stroke-width:2.6;stroke-linecap:round;filter:drop-shadow(0 0 2.5px var(--arc));transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1);}
+.hud-reactor .hud-arc-letter {fill:var(--arc);font:600 4.6px var(--hud-mono,monospace);opacity:.9;}
+.hud-reactor .hud-reactor-tag {fill:currentColor;font:500 5.5px var(--hud-mono,monospace);letter-spacing:1.6px;opacity:.6;}
+@media(prefers-reduced-motion:no-preference) {
+  .hud-reactor .hud-rot-slow {animation:hud-spin 40s linear infinite;}
+  .hud-reactor .hud-rot-rev {animation:hud-spin 70s linear infinite reverse;}
+  .hud-reactor .hud-rot-fast {animation:hud-spin 18s linear infinite reverse;}
+  .hud-reactor .hud-rot-sweep {animation:hud-spin 6s linear infinite;}
+}
+@keyframes hud-spin {to{transform:rotate(360deg);}}
+.hud-live {display:inline-block;width:6px;height:6px;border-radius:50%;background:#3cf0a0;box-shadow:0 0 8px #3cf0a0;flex:none;}
+@media(prefers-reduced-motion:no-preference) {.hud-live {animation:hud-pulse 1.6s ease-in-out infinite;}}
+@keyframes hud-pulse {50%{opacity:.35;box-shadow:0 0 2px #3cf0a0;}}
+/* Logging shockwave. */
+.hud-burst {position:fixed;z-index:80;width:0;height:0;pointer-events:none;--burst:var(--hud-hue);color:var(--burst);}
+.hud-burst .hud-burst-ring {position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;border:2px solid currentColor;box-shadow:0 0 18px currentColor,inset 0 0 12px currentColor;animation:hud-ring .75s cubic-bezier(.1,.7,.2,1) forwards;}
+.hud-burst .hud-burst-ring.b {border-width:1px;border-style:dashed;animation-duration:1s;animation-delay:.06s;opacity:0;}
+.hud-burst .hud-burst-flash {position:absolute;left:-140px;top:-26px;width:280px;height:52px;background:radial-gradient(ellipse at center,color-mix(in srgb,currentColor 55%,transparent),transparent 70%);animation:hud-flash .5s ease-out forwards;}
+.hud-burst .hud-burst-tag {position:absolute;left:50%;top:-58px;transform:translateX(-50%);white-space:pre;font:600 12px/1 var(--hud-mono,monospace);letter-spacing:.22em;color:currentColor;text-shadow:0 0 10px currentColor;animation:hud-tag 1.05s ease-out forwards;}
+@keyframes hud-ring {0%{transform:scale(.2);opacity:1;}100%{transform:scale(3.4);opacity:.001;}}
+@keyframes hud-flash {0%{opacity:.9;transform:scaleX(.3);}100%{opacity:.001;transform:scaleX(1.6);}}
+@keyframes hud-tag {0%{opacity:0;transform:translate(-50%,10px);}20%{opacity:1;transform:translate(-50%,0);}75%{opacity:1;}100%{opacity:.001;transform:translate(-50%,-18px);}}
+
+/* Boot sequence. */
+.hud-boot {
+  position:fixed;inset:0;z-index:120;display:grid;place-items:center;align-content:center;gap:18px;
+  background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--hud-hue) 10%,transparent),transparent 60%),color-mix(in srgb,var(--neo-canvas) 94%,transparent);
+  color:var(--hud-hue);transition:opacity .45s ease,filter .45s ease;
+}
+.hud-boot.out {opacity:0;filter:brightness(2) blur(4px);}
+.hud-boot-core {width:min(46vw,190px);overflow:visible;}
+.hud-boot-core circle {fill:none;stroke:currentColor;transform-box:view-box;transform-origin:100px 100px;}
+.hud-boot-core .b1 {stroke-width:1;stroke-dasharray:2 5;animation:hud-boot-ring 1.4s cubic-bezier(.2,.8,.2,1) both,hud-spin 6s linear infinite;}
+.hud-boot-core .b2 {stroke-width:3;stroke-dasharray:180 110;animation:hud-boot-ring 1.2s .1s cubic-bezier(.2,.8,.2,1) both,hud-spin 2.4s linear infinite reverse;}
+.hud-boot-core .b3 {stroke-width:1;stroke-dasharray:10 6;animation:hud-boot-ring 1.1s .2s cubic-bezier(.2,.8,.2,1) both,hud-spin 3s linear infinite;}
+.hud-boot-core .b4 {stroke-width:6;opacity:.35;animation:hud-boot-ring 1s .3s cubic-bezier(.2,.8,.2,1) both;}
+.hud-boot-core .b5 {fill:currentColor;stroke:none;filter:drop-shadow(0 0 14px currentColor);animation:hud-boot-core 1.3s .35s ease-out both;}
+@keyframes hud-boot-ring {from{opacity:0;transform:scale(.4) rotate(-90deg);}to{opacity:1;}}
+@keyframes hud-boot-core {0%{opacity:0;transform:scale(.2);}50%{opacity:1;transform:scale(1.25);}100%{opacity:.9;transform:scale(1);}}
+.hud-boot-copy {display:grid;gap:8px;justify-items:center;font:500 11px/1.3 var(--hud-mono,monospace);letter-spacing:.2em;text-transform:uppercase;}
+.hud-boot-copy b {font:600 18px/1 var(--hud-display,sans-serif);letter-spacing:.42em;color:var(--neo-ink);text-shadow:0 0 18px var(--hud-hue);}
+.hud-boot-copy ol {list-style:none;display:grid;gap:4px;min-height:5.6em;width:min(78vw,300px);}
+.hud-boot-copy li {display:flex;justify-content:space-between;gap:16px;color:var(--neo-muted);animation:hud-line .25s ease-out both;}
+.hud-boot-copy li em {font-style:normal;color:#3cf0a0;}
+@keyframes hud-line {from{opacity:0;transform:translateX(-6px);}}
+
+/* Screen frame and edge telemetry on wide screens. */
+.hud-frame {display:none;}
+@media(min-width:1100px) {
+  .hud-frame {display:block;position:fixed;inset:0;z-index:1;pointer-events:none;color:var(--hud-hue);}
+  .hud-frame-corner {position:absolute;width:44px;height:44px;border:0 solid currentColor;opacity:.6;filter:drop-shadow(0 0 4px currentColor);}
+  .hud-frame-corner.tl {left:14px;top:14px;border-left-width:2px;border-top-width:2px;}
+  .hud-frame-corner.tr {right:14px;top:14px;border-right-width:2px;border-top-width:2px;}
+  .hud-frame-corner.bl {left:14px;bottom:14px;border-left-width:2px;border-bottom-width:2px;}
+  .hud-frame-corner.br {right:14px;bottom:14px;border-right-width:2px;border-bottom-width:2px;}
+  .hud-frame-rail {position:absolute;top:22%;bottom:22%;width:10px;opacity:.35;
+    background:repeating-linear-gradient(180deg,currentColor 0 1px,transparent 1px 12px),linear-gradient(currentColor,currentColor) 0 0/1px 100% no-repeat;}
+  .hud-frame-rail.l {left:22px;}
+  .hud-frame-rail.r {right:22px;transform:scaleX(-1);}
+  .hud-frame-tele {display:none;position:absolute;bottom:26px;gap:3px;font:500 10px/1.3 var(--hud-mono,monospace);letter-spacing:.18em;color:var(--neo-muted);}
+  .hud-frame-tele b {display:flex;align-items:center;gap:7px;color:var(--hud-hue);font-weight:600;letter-spacing:.24em;}
+  .hud-frame-tele.l {left:70px;}
+  .hud-frame-tele.r {right:70px;text-align:right;justify-items:end;}
+}
+html[data-atlas-theme="light"] .hud-frame {opacity:.6;}
+
+@media(min-width:1600px) {.hud-frame-tele {display:grid!important;}}
+
+
+
+
+
+
+
+
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {
+  .hud-field,.hud-frame,.hud-burst,.hud-scan {display:none!important;}
+}
+@media(forced-colors:active) {
+  html.atlas-neumo.atlas-neumo[data-atlas-app="operations-cadence"] .shell :is(.operations-opening,.task,.stat) {clip-path:none;}
+}
