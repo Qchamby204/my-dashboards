@@ -1053,8 +1053,8 @@
       level.classList.add('ledger-level-link');
       const progressLinks=make('div',null,'ledger-day-progress');progressLinks.append(level,awards);
       intro.append(title,readout('ledger-today-readout','Priorities done',HABITS.filter(priorityDone).length,HABITS.length),valueNavigator(),progressLinks);
-      panes.today.append(intro);
       const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
+      panes.today.append(intro);
       // Today contains only the check-in. Supporting tools live in History.
       const checkinTools=make('details',null,'ledger-manage');checkinTools.id='ledger-checkin-tools';checkinTools.open=checkinToolsOpen;checkinTools.addEventListener('toggle',()=>checkinToolsOpen=checkinTools.open);checkinTools.append(make('summary','Check-in tools'));move('#ledger-rhythm',checkinTools);panes.history.append(checkinTools);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
@@ -1135,7 +1135,7 @@
         const caption=picker?.querySelector('.ledger-switcher-caption');if(caption)caption.textContent=state.logDate===todayISO()?'Today':fmtDay(state.logDate);
         const counter=rail.querySelector('#deckCounter');if(picker&&counter)picker.append(counter);
         frame.setAttribute('aria-label','Check-in for '+pretty(state.logDate));
-        frame.append(rail,viewport);
+        frame.append(viewport,rail);
         if(navigation){navigation.classList.add('ledger-deck-navigation');saveRow.prepend(navigation);}frame.append(saveRow);
         const bar=log.querySelector('#deckBar')?.parentNode;if(bar){bar.hidden=true;bar.setAttribute('aria-hidden','true');}
       }

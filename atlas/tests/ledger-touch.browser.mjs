@@ -16,10 +16,16 @@ try{
   await ctx.route('https://qchamby204.github.io/my-dashboards/**',async route=>{try{const file=new URL(route.request().url()).pathname.replace('/my-dashboards/','');await route.fulfill({body:readFileSync(path.join(root,file)),contentType:types[path.extname(file)]||'text/plain'});}catch{await route.abort();}});
   const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(origin+'/life-ledger.html');await p.waitForFunction(()=>!!window.LedgerDays&&!!window.CoreAppFinish);await p.evaluate(()=>document.fonts.ready);
   await p.evaluate(()=>{window.touchFocus=[];document.addEventListener('click',e=>{const b=e.target.closest('button');if(b?.matches('.ledger-amount-done,[data-act="commit"],[data-act="inc"],[data-act="dec"]'))touchFocus.push({action:b.dataset.act||'done',habit:document.activeElement?.dataset.habit||null});},true);});
-  const opening=await p.locator('#ledger-view-today .ledger-opening').boundingBox();
   const navigation=await p.locator('.ledger-nav').boundingBox();
-  assert(opening.y+opening.height<=navigation.y-8,'the Today overview clears navigation with Home Screen insets');
   const activity=p.locator('.ledger-habit-card:not([inert])');
+  const mark=activity.locator('[data-act="toggle"]');
+  assert(await mark.evaluate(button=>{
+    const bounds=button.getBoundingClientRect();
+    const switcher=document.querySelector('.ledger-deck-rail .ledger-log-mode').getBoundingClientRect();
+    const target=document.elementFromPoint(bounds.x+bounds.width/2,bounds.y+bounds.height/2);
+    return scrollY===0 && button.contains(target) && bounds.top>=document.querySelector('.appbar').getBoundingClientRect().bottom
+      && bounds.bottom<=Math.min(switcher.top,document.querySelector('.ledger-nav').getBoundingClientRect().top);
+  }),'Mark done is tappable before scrolling and precedes Cards/List');
   await activity.evaluate(card=>card.scrollIntoView({block:'center',behavior:'instant'}));
   const visibleCard=await activity.boundingBox(),header=await p.locator('.appbar').boundingBox();
   assert(visibleCard.y>=header.y+header.height&&visibleCard.y+visibleCard.height<=navigation.y-8,'the activity is fully reachable between the header and navigation');
