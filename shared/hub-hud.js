@@ -186,12 +186,12 @@
       if (arc.letter) { const t = svgNode('text', {x: 96, y: 100 - r + 1.6, class: 'hud-arc-letter', 'text-anchor': 'end'}, g); t.textContent = arc.letter; }
     });
   }
-  const BOOT_KEYS = ['atlas:hud-boot', 'lifeledger:hud-boot', 'lifemap:hud-boot', 'forge:hud-boot', 'communicator:hud-boot', 'chef:hud-boot', 'library:hud-boot', 'courier:hud-boot', 'hourglass:hud-boot', 'herald:hud-boot', 'aqueduct:hud-boot', 'operations:hud-boot', 'reminders:hud-boot'];
+  const BOOT_KEYS = ['atlas:hud-boot', 'lifeledger:hud-boot', 'lifemap:hud-boot', 'forge:hud-boot', 'communicator:hud-boot', 'chef:hud-boot', 'library:hud-boot', 'courier:hud-boot', 'hourglass:hud-boot', 'herald:hud-boot', 'aqueduct:hud-boot', 'operations:hud-boot', 'reminders:hud-boot', 'neural:hud-boot'];
 
   /* ── Each HUD app's tile glows in that app's own colour ──────────────────── */
   const SYSTEMS = {
     'life-map.html': '#5ff4ff', 'life-ledger.html': '#5ff4ff', 'workout-forge.html': '#ffd08b',
-    'communication-trainer.html': '#abb9ff', 'the-chef.html': '#e8c78b', 'the-library.html': '#8cc8ff', 'courier.html': '#ff8a7a', 'the-hourglass.html': '#ffb347', 'the-herald.html': '#6ff2c8', 'the-aqueduct.html': '#45d8e8', 'operations-cadence.html': '#b6f06a', 'reminders.html': '#d7a6ff',
+    'communication-trainer.html': '#abb9ff', 'the-chef.html': '#e8c78b', 'the-library.html': '#8cc8ff', 'courier.html': '#ff8a7a', 'the-hourglass.html': '#ffb347', 'the-herald.html': '#6ff2c8', 'the-aqueduct.html': '#45d8e8', 'operations-cadence.html': '#b6f06a', 'reminders.html': '#d7a6ff', 'neural-map.html': '#a78bfa',
   };
   function tagCards() {
     let online = 0;
@@ -212,7 +212,7 @@
       const svg = buildReactor(header, '');
       header.append(svg);
       const n = Object.keys(SYSTEMS).length;
-      paintArcs(svg, Object.values(SYSTEMS).map((color, i) => ({color, pct: 100 - i * (40 / n), letter: ''})).slice(0, 12));
+      paintArcs(svg, Object.values(SYSTEMS).map((color, i) => ({color, pct: 100 - i * (40 / n), letter: ''})).slice(0, 13));
     }
     let tele = header.querySelector('.hud-telemetry');
     if (!tele) {

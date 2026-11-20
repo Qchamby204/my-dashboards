@@ -15,7 +15,7 @@ try{
   console.log('Checking',theme,width,size);
   const ctx=await browser.newContext({viewport:{width,height:width===852?393:852},colorScheme:theme,reducedMotion:'reduce',contrast:size===32?'more':'no-preference'}),p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
   await ctx.route('https://qchamby204.github.io/my-dashboards/**',async r=>{try{const f=new URL(r.request().url()).pathname.replace('/my-dashboards/','');await r.fulfill({body:readFileSync(path.join(root,f)),contentType:types[path.extname(f)]||'text/plain'});}catch{await r.abort();}});
-  const ready=async()=>{await p.waitForFunction(()=>!!window.NeuralNavigation&&!!window.AtlasPageNavigation);await p.waitForFunction(()=>getComputedStyle(document.querySelector('.neural-opening')).borderRadius==='24px');await p.evaluate(()=>document.fonts.ready);};
+  const ready=async()=>{await p.waitForFunction(()=>!!window.NeuralNavigation&&!!window.AtlasPageNavigation);await p.waitForFunction(()=>getComputedStyle(document.querySelector('.neural-opening')).getPropertyValue('--neural-face').trim()!=='');await p.evaluate(()=>document.fonts.ready);};
   await p.goto(origin+'/neural-map.html');await ready();
   assert.equal(await p.evaluate(()=>NeuralNavigation.mode),width<=700?'list':'map','original device default retained');
   const tool=await p.evaluate(()=>{const t=NeuralNavigation.findTools('Life Ledger')[0];return {id:t.id,title:t.full,url:NeuralNavigation.destinations(t).find(d=>d.web).url};});
