@@ -1053,8 +1053,8 @@
       level.classList.add('ledger-level-link');
       const progressLinks=make('div',null,'ledger-day-progress');progressLinks.append(level,awards);
       intro.append(title,readout('ledger-today-readout','Priorities done',HABITS.filter(priorityDone).length,HABITS.length),valueNavigator(),progressLinks);
-      const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
       panes.today.append(intro);
+      const wrap=move('.ledger-log-wrap',panes.today)||log;if(wrap===log)panes.today.append(log);
       // Today contains only the check-in. Supporting tools live in History.
       const checkinTools=make('details',null,'ledger-manage');checkinTools.id='ledger-checkin-tools';checkinTools.open=checkinToolsOpen;checkinTools.addEventListener('toggle',()=>checkinToolsOpen=checkinTools.open);checkinTools.append(make('summary','Check-in tools'));move('#ledger-rhythm',checkinTools);panes.history.append(checkinTools);
       const preview=button('',openLeisure);preview.id='ledger-leisure-preview';preview.classList.add('ledger-leisure-preview');preview.setAttribute('aria-haspopup','dialog');preview.setAttribute('aria-label','Open screen-time timer and controls');
@@ -1368,7 +1368,8 @@
         hint.append(make('strong','+'+xp+' XP'),make('span',' on Save day','ledger-xp-save-note'));
         hint.title='XP is earned when you save the day.';
         const old=card.querySelector('.ledger-tap-amount');
-        if(old)old.replaceWith(hint);else card.querySelector('[data-act="toggle"]')?.parentNode.append(hint);
+        if(old)old.replaceWith(hint);else check?.after(hint);
+        if(check)header.before(check);
         if(c.kind!=='count'){
           const done=button('Done',()=>{
             if(blocked||busy)return;

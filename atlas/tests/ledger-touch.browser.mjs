@@ -21,11 +21,14 @@ try{
   const mark=activity.locator('[data-act="toggle"]');
   assert(await mark.evaluate(button=>{
     const bounds=button.getBoundingClientRect();
+    const summary=document.querySelector('#ledger-view-today .ledger-opening').getBoundingClientRect();
+    const heading=button.closest('.ledger-habit-card').querySelector('.ledger-card-heading').getBoundingClientRect();
     const switcher=document.querySelector('.ledger-deck-rail .ledger-log-mode').getBoundingClientRect();
     const target=document.elementFromPoint(bounds.x+bounds.width/2,bounds.y+bounds.height/2);
-    return scrollY===0 && button.contains(target) && bounds.top>=document.querySelector('.appbar').getBoundingClientRect().bottom
-      && bounds.bottom<=Math.min(switcher.top,document.querySelector('.ledger-nav').getBoundingClientRect().top);
-  }),'Mark done is tappable before scrolling and precedes Cards/List');
+    return scrollY===0 && button.contains(target) && summary.top>=document.querySelector('.appbar').getBoundingClientRect().bottom
+      && summary.bottom<=bounds.top && bounds.bottom<=heading.top && heading.bottom<=switcher.top
+      && bounds.bottom<=document.querySelector('.ledger-nav').getBoundingClientRect().top;
+  }),'Today opens with the summary, a tappable Mark done button, then the illustrated habit');
   await activity.evaluate(card=>card.scrollIntoView({block:'center',behavior:'instant'}));
   const visibleCard=await activity.boundingBox(),header=await p.locator('.appbar').boundingBox();
   assert(visibleCard.y>=header.y+header.height&&visibleCard.y+visibleCard.height<=navigation.y-8,'the activity is fully reachable between the header and navigation');
