@@ -436,6 +436,31 @@
       }).observe(document.body, {childList: true, subtree: true});
     }
 
+    /* ── Hologram: flat title illustrations re-rendered as glowing projected line art ── */
+    function startHologram() {
+      if (document.getElementById('hud-holo-filter')) return;
+      // Edges become bright lines, fills a faint glass, all in the app colour (flood-color follows --hud-tab or --hud-hue).
+      const defs = document.createElementNS(NS, 'svg');
+      defs.setAttribute('aria-hidden', 'true'); defs.setAttribute('width', '0'); defs.setAttribute('height', '0');
+      defs.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+      defs.innerHTML =
+        '<filter id="hud-holo-filter" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">' +
+        '<feColorMatrix in="SourceGraphic" type="matrix" values=".33 .33 .33 0 0  .33 .33 .33 0 0  .33 .33 .33 0 0  0 0 0 1 0" result="lum"/>' +
+        '<feConvolveMatrix in="lum" order="3" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" preserveAlpha="true" result="edge"/>' +
+        '<feColorMatrix in="edge" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  3 3 3 0 0" result="edgeA"/>' +
+        '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .1 0" result="bodyA"/>' +
+        '<feMorphology in="SourceAlpha" operator="erode" radius="1.2" result="inner"/>' +
+        '<feComposite in="SourceAlpha" in2="inner" operator="out" result="rim"/>' +
+        '<feMerge result="mask"><feMergeNode in="bodyA"/><feMergeNode in="edgeA"/><feMergeNode in="rim"/></feMerge>' +
+        '<feFlood class="hud-holo-ink" result="ink"/>' +
+        '<feComposite in="ink" in2="mask" operator="in" result="holo"/>' +
+        '<feGaussianBlur in="holo" stdDeviation="2.6" result="glow"/>' +
+        '<feMerge><feMergeNode in="glow"/><feMergeNode in="holo"/><feMergeNode in="holo"/></feMerge>' +
+        '</filter>';
+      document.body.append(defs);
+      root.classList.add('hud-holo-on');
+    }
+
     /* ── App transitions: launch out of the Atlas tile, power down between pages ── */
     function startTransitions() {
       if (!('onpageswap' in window)) return;
@@ -454,7 +479,7 @@
     }
 
     // Lock-on everywhere; tilt, edge light and sheen on the app's opening card; page transitions.
-    function startExtras() { startLock(); startTilt(cfg.tilt); dressHeroes(cfg.hero || cfg.tilt); startTransitions(); }
+    function startExtras() { startLock(); startTilt(cfg.tilt); dressHeroes(cfg.hero || cfg.tilt); startTransitions(); startHologram(); }
 
     /* ── Boot sequence: once per session, skipped for reduced motion ─────────── */
     function boot(force) {

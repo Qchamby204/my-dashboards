@@ -33,7 +33,9 @@
   function mountHeader(online) {
     const header = document.querySelector('.hub-header');
     if (!header) return;
-    if (!header.querySelector(':scope>.hud-reactor')) {
+    // The command globe takes the reactor's place; the rings remain as a fallback.
+    if (window.AtlasGlobe && !header.querySelector(':scope>.hud-globe')) window.AtlasGlobe.mount(header);
+    if (!header.querySelector(':scope>.hud-globe') && !header.querySelector(':scope>.hud-reactor')) {
       const svg = buildReactor(header, '');
       header.append(svg);
       const n = Object.keys(SYSTEMS).length;
@@ -48,7 +50,7 @@
       node('b', '', tele);
       node('span', 'hud-online', tele);
     }
-    tele.querySelector('.hud-online').textContent = ' // ' + online + ' HUD SYSTEMS ONLINE';
+    tele.querySelector('.hud-online').textContent = ' // ' + online + ' HUD systems online';
     heroClock = tele.querySelector('b');
     tick();
   }
@@ -75,7 +77,13 @@
     startField();
     startExtras();
     startFrame();
-    boot();
+    // First visit of the day: the morning boot with briefing replaces the usual boot.
+    if (window.AtlasBriefing?.due()) {
+      try { for (const k of BOOT_KEYS) sessionStorage.setItem(k, '1'); } catch {}
+      tagCards();
+      const NAMES = [...document.querySelectorAll('a.hub-card[data-hud]')].map(c => ({name: (c.querySelector('h3')?.textContent || '').trim(), color: c.style.getPropertyValue('--tile-raw').trim()}));
+      window.AtlasBriefing.play(NAMES.filter((s, i, all) => s.name && all.findIndex(o => o.name === s.name) === i));
+    } else boot();
     node('div', 'hud-scan', document.body);
     watchApp(); schedule();
     setInterval(() => { if (!document.hidden) tick(); }, 1000);

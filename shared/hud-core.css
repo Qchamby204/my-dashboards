@@ -185,3 +185,22 @@ html[data-atlas-theme="light"] .hud-hero>.hud-sheen {mix-blend-mode:soft-light;}
 @keyframes hud-vt-in {0%{opacity:0;transform:scale(1.025);clip-path:inset(0 0 100% 0);filter:brightness(1.7);}55%{opacity:1;clip-path:inset(0 0 0 0);}100%{transform:none;filter:none;clip-path:inset(0 0 0 0);}}
 @keyframes hud-vt-launch {0%{filter:brightness(1.4);}100%{opacity:0;transform:scale(2.4);filter:brightness(2.2) blur(3px);}}
 @media(prefers-reduced-transparency:reduce),(forced-colors:active) {.hud-hero>:is(.hud-runner,.hud-sheen),.hud-reactor .hud-pad {display:none!important;}}
+
+/* Hologram title art: the flat illustration projected as light. The filter lives in
+   hud-core.js; its colour follows the card's tab colour or the app hue. */
+.hud-holo-ink {flood-color:var(--hud-tab,var(--hud-hue,#5ff4ff));}
+html.hud-holo-on [class$="-title-art"] {
+  filter:url(#hud-holo-filter) drop-shadow(1.4px 0 0 rgba(255,60,200,.32)) drop-shadow(-1.4px 0 0 rgba(60,235,255,.32))!important;
+  -webkit-mask:repeating-linear-gradient(180deg,#000 0 2px,rgba(0,0,0,.55) 2px 3px);
+  mask:repeating-linear-gradient(180deg,#000 0 2px,rgba(0,0,0,.55) 2px 3px);
+}
+@media(prefers-reduced-motion:no-preference) {
+  html.hud-holo-on [class$="-title-art"] {animation:hud-holo-float 6s ease-in-out infinite,hud-holo-flicker 7.3s steps(1) infinite;}
+}
+@keyframes hud-holo-float {50%{transform:translateY(-4px);}}
+@keyframes hud-holo-flicker {0%,100%{opacity:1;}61%{opacity:.82;}61.6%{opacity:1;}62.4%{opacity:.7;}63%{opacity:1;}88%{opacity:.9;}88.5%{opacity:1;}}
+/* The projector beam under a hologram is brighter than the plain pad. */
+html.hud-holo-on .hud-reactor .hud-pad-beam {opacity:.09;}
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {
+  html.hud-holo-on [class$="-title-art"] {filter:none!important;-webkit-mask:none;mask:none;animation:none;}
+}
