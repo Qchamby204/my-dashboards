@@ -85,7 +85,7 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=7f7ac4d2c41a" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=21209109efe2"><link rel="stylesheet" href="atlas/life-map-hud.css?v=c8abb5427063"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=541a6011e813"><link rel="stylesheet" href="atlas/life-map-hud.css?v=c8abb5427063"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -3346,6 +3346,31 @@ function createLifeMapLocalStore(storage,validate){
       }).observe(document.body, {childList: true, subtree: true});
     }
 
+    /* ── Hologram: flat title illustrations re-rendered as glowing projected line art ── */
+    function startHologram() {
+      if (document.getElementById('hud-holo-filter')) return;
+      // Edges become bright lines, fills a faint glass, all in the app colour (flood-color follows --hud-tab or --hud-hue).
+      const defs = document.createElementNS(NS, 'svg');
+      defs.setAttribute('aria-hidden', 'true'); defs.setAttribute('width', '0'); defs.setAttribute('height', '0');
+      defs.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+      defs.innerHTML =
+        '<filter id="hud-holo-filter" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">' +
+        '<feColorMatrix in="SourceGraphic" type="matrix" values=".33 .33 .33 0 0  .33 .33 .33 0 0  .33 .33 .33 0 0  0 0 0 1 0" result="lum"/>' +
+        '<feConvolveMatrix in="lum" order="3" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" preserveAlpha="true" result="edge"/>' +
+        '<feColorMatrix in="edge" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  3 3 3 0 0" result="edgeA"/>' +
+        '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .1 0" result="bodyA"/>' +
+        '<feMorphology in="SourceAlpha" operator="erode" radius="1.2" result="inner"/>' +
+        '<feComposite in="SourceAlpha" in2="inner" operator="out" result="rim"/>' +
+        '<feMerge result="mask"><feMergeNode in="bodyA"/><feMergeNode in="edgeA"/><feMergeNode in="rim"/></feMerge>' +
+        '<feFlood class="hud-holo-ink" result="ink"/>' +
+        '<feComposite in="ink" in2="mask" operator="in" result="holo"/>' +
+        '<feGaussianBlur in="holo" stdDeviation="2.6" result="glow"/>' +
+        '<feMerge><feMergeNode in="glow"/><feMergeNode in="holo"/><feMergeNode in="holo"/></feMerge>' +
+        '</filter>';
+      document.body.append(defs);
+      root.classList.add('hud-holo-on');
+    }
+
     /* ── App transitions: launch out of the Atlas tile, power down between pages ── */
     function startTransitions() {
       if (!('onpageswap' in window)) return;
@@ -3364,7 +3389,7 @@ function createLifeMapLocalStore(storage,validate){
     }
 
     // Lock-on everywhere; tilt, edge light and sheen on the app's opening card; page transitions.
-    function startExtras() { startLock(); startTilt(cfg.tilt); dressHeroes(cfg.hero || cfg.tilt); startTransitions(); }
+    function startExtras() { startLock(); startTilt(cfg.tilt); dressHeroes(cfg.hero || cfg.tilt); startTransitions(); startHologram(); }
 
     /* ── Boot sequence: once per session, skipped for reduced motion ─────────── */
     function boot(force) {
@@ -3407,7 +3432,7 @@ function createLifeMapLocalStore(storage,validate){
 /* Life Map HUD. Decorative layer only: it reads the rendered board and never
    touches Life Map records. Everything it adds is aria-hidden and pointer-transparent,
    pauses when the page is hidden, and holds still under reduced motion.
-   Shares its engine with shared/hud-core.js?v=ff5f19b23ee6. */
+   Shares its engine with shared/hud-core.js?v=1b0674ca6f7d. */
 (() => {
   'use strict';
   const root = document.documentElement;
