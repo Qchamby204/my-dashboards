@@ -84,6 +84,34 @@
     plans[id].build(p.base).weeks[week][day].forEach((e,ei)=>{for(let s=0;s<e.sets;s++){total++;if(p.done[key(week,day,ei,s)])logged++;}});
     return {total,logged};
   }
+  // Render and advance in training order while keeping stored exercise positions stable.
+  function orderedExercises(items){
+    return items.map((e,index)=>({e,index})).sort((a,b)=>(a.e.order??a.index)-(b.e.order??b.index));
+  }
+  function sessionOverview(id,items){
+    if(!['bench','deadlift','dunk'].includes(id))return null;
+    const jumping=id==='dunk',work=items.filter(e=>!e.warmup);
+    const warmup=jumping?'Allow 6 minutes for the treadmill walk, ankle rocks, squats and practice jumps in the first card.':
+      'Walk on the treadmill for 4 minutes, then spend 4–6 minutes on two progressively heavier practice sets of the first lift.';
+    // Seconds include preparation, a three-minute cooldown, and changing weights or bench position.
+    const changes=work.length-1;
+    let low=(jumping?6:8)*60+180+changes*90,high=(jumping?6:10)*60+180+changes*105,sets=0;
+    for(const e of work){
+      const reps=e.rx.match(/ x (\d+)(?: to (\d+))?/);
+      const sides=e.rx.includes('each')?2:1;
+      const secondsPerRep=jumping&&e.main?8:3;
+      low+=e.sets*Number(reps[1])*sides*secondsPerRep;
+      high+=e.sets*Number(reps[2]||reps[1])*sides*(jumping&&e.main?10:3.5);
+      const rest=e.rest.match(/(\d+)(?: to (\d+))? (sec|min)/);
+      const breaks=e.rest.includes('between jumps')?Number(reps[1])-1:e.sets-1;
+      const unit=rest[3]==='min'?60:1;
+      low+=breaks*Number(rest[1])*unit;
+      high+=breaks*Number(rest[2]||rest[1])*unit;
+      sets+=e.sets;
+    }
+    const min=5*Math.round(low/300),max=Math.max(min+5,5*Math.round(high/300));
+    return {min,max,sets,exercises:work.length,warmup,cooldown:'Finish with a 3-minute easy treadmill walk.'};
+  }
   function next(p){for(let w=0;w<8;w++)for(const d of ['d1','d2'])if(!p.completed[`${w}-${d}`])return {week:w,day:d};return null;}
   function defaults(id,p,k){
     const at=locate(id,k,p.base);if(!at)return {};
@@ -117,5 +145,5 @@
     if(id==='dunk')return `${best} in · ${best<120?`${120-best} below rim`:`${best-120} above rim`}`;
     return `${best} lb per dumbbell × 8+ reps`;
   }
-  window.ForgeGoalModel=Object.freeze({blank,fresh,clone,validate,validateEntry,seconds,format,key,locate,counts,next,defaults,metric,runStats,runEntry,fullTrial,latestTrial,runTotals});
+  window.ForgeGoalModel=Object.freeze({blank,fresh,clone,validate,validateEntry,seconds,format,key,locate,counts,orderedExercises,sessionOverview,next,defaults,metric,runStats,runEntry,fullTrial,latestTrial,runTotals});
 })();

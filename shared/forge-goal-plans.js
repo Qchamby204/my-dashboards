@@ -360,35 +360,70 @@ function movement(n,sets,reps,rest,note,extra={}){
 const strengthBlocks={
   bench:{
     title:"Dumbbell bench press",color:"gold",lift:"Dumbbell bench press",second:"Paused dumbbell bench press",
-    days:{d1:{title:"Day 1: Flat press",purpose:"Flat bench pressing, supported rows and triceps."},
-          d2:{title:"Day 2: Paused press",purpose:"Practise the pause, then work the upper chest and rear shoulders."}},
-    firstAccessories:[["Bench-supported one-arm dumbbell row","8 to 12 each side"],["Lying dumbbell triceps extension","10 to 12"]],
-    secondAccessories:[["Incline dumbbell press","8 to 10"],["Incline dumbbell reverse fly","10 to 15"]]
+    days:{d1:{title:"Day 1: Flat press",purpose:"Train the flat press and one-arm row, then finish with shoulder, triceps and ab work."},
+          d2:{title:"Day 2: Paused press",purpose:"Pause the flat press, then pair incline pressing with chest-supported upper-back work."}},
+    // The first two accessories keep the storage positions used by earlier home sessions.
+    d1:[
+      ["Bench-supported one-arm dumbbell row","8 to 12 each side",2],
+      ["Lying dumbbell triceps extension","10 to 12",4],
+      ["Seated dumbbell shoulder press","8 to 10",3],
+      ["Dumbbell lateral raise","12 to 15",5],
+      ["Kneeling ab-wheel rollout","6 to 8",6]
+    ],
+    d2:[
+      ["Incline dumbbell press","8 to 10",3],
+      ["Incline dumbbell reverse fly","10 to 15",4],
+      ["Chest-supported dumbbell row","8 to 12",2],
+      ["Dumbbell hammer curl","10 to 12",5],
+      ["Dumbbell dead bug","6 to 8 each side",6]
+    ]
   },
   deadlift:{
     title:"Dumbbell Romanian deadlift",color:"orange",lift:"Dumbbell Romanian deadlift",second:"Staggered-stance dumbbell Romanian deadlift",
-    days:{d1:{title:"Day 1: Hip hinge",purpose:"Practise the hinge, then train the legs and brace with the ab wheel."},
-          d2:{title:"Day 2: Single-leg strength",purpose:"Stagger your stance for the hinge, then work the glutes and trunk."}},
-    firstAccessories:[["Dumbbell split squat","8 each leg"],["Kneeling ab-wheel rollout","6 to 8"]],
-    secondAccessories:[["Dumbbell glute bridge","10 to 12"],["Dumbbell suitcase march","10 each side"]]
+    days:{d1:{title:"Day 1: Hip hinge",purpose:"Train the hinge and split squat, then finish with glutes, calves and the ab wheel."},
+          d2:{title:"Day 2: Single-leg strength",purpose:"Work each side with staggered hinges and reverse lunges, then finish with calves and a suitcase march."}},
+    d1:[
+      ["Dumbbell split squat","8 each leg",2],
+      ["Kneeling ab-wheel rollout","6 to 8",6],
+      ["Dumbbell glute bridge","10 to 12",4],
+      ["Dumbbell goblet squat","8 to 10",3],
+      ["Standing dumbbell calf raise","12 to 15",5]
+    ],
+    d2:[
+      ["Dumbbell glute bridge","10 to 12",4],
+      ["Dumbbell suitcase march","10 each side",6],
+      ["Dumbbell reverse lunge","6 to 8 each leg",2],
+      ["Dumbbell goblet squat","8 to 10",3],
+      ["Seated dumbbell calf raise","12 to 15",5]
+    ]
   }
 };
+const lightRest="Rest 60 to 90 sec",mediumRest="Rest 90 to 120 sec",mainRest="Rest 2 to 3 min";
 function strengthPlan(id,spec){
   function session(day,week){
-    const phase=phaseAt(week),lighter=phase==="light",test=phase==="retest"&&day==="d2";
+    const phase=phaseAt(week),primer=phase==="retest"&&day==="d1",test=phase==="retest"&&day==="d2";
     const main=day==="d1"||test?spec.lift:spec.second;
-    const warm="Start with a few easy reps using lighter dumbbells. Log your working sets below.";
-    const reps=day==="d2"&&id==="deadlift"&&!test?"6 to 8 each side":phase==="baseline"||test?"8":"6 to 8";
-    const exercises=[movement(main,test?1:lighter||phase==="baseline"?2:3,reps,"Rest 2 to 3 min",
-      test?"Use your week 1 load and compare how eight controlled reps feel.":warm,{main:true,repeatBaseline:test})];
+    const reps=test?"8":day==="d2"&&id==="deadlift"?"6 to 8 each side":week===0?"8":primer?"5":"6 to 8";
+    const sets=test?1:phase==="light"?2:phase==="build"?4:3;
+    const exercises=[movement(main,sets,reps,mainRest,test?"Use your week 1 load and compare how eight controlled reps feel.":primer?"Use a light pair and keep each rep comfortable.":"Choose a load you can control for every rep.",{main:true,repeatBaseline:test,order:1})];
     if(test)return exercises;
-    const accessories=day==="d1"?spec.firstAccessories:spec.secondAccessories;
-    return exercises.concat(accessories.map(([name,reps])=>movement(name,lighter?1:2,reps,"Rest 60 to 90 sec")));
+    const accessories=primer?spec[day].slice(0,2):spec[day];
+    for(const [name,range,order] of accessories){
+      const sets=primer?2:phase==="light"?(order<=3?2:1):3;
+      const note=name.includes("ab-wheel")?"From your knees, roll only as far as you can return with your back steady.":
+        name==="Dumbbell dead bug"?"Lie on your back with one dumbbell above your chest. Keep it steady as you alternate legs.":
+        name==="Seated dumbbell calf raise"?"Sit on the bench, steady a dumbbell on each thigh just above the knee, and raise your heels.":undefined;
+      exercises.push(movement(name,sets,range,order<=3?mediumRest:lightRest,note,{order}));
+    }
+    return exercises;
   }
   return {id,title:spec.title,phase:"Home block",target:"8",unit:"controlled reps",color:spec.color,benchmark:spec.lift,
     aim:"Compare eight controlled reps with week 1",
-    rules:(id==="bench"?"<p>Use the flat bench for flat and paused presses. Raise it for incline presses and reverse flys.</p>":"<p>Keep the dumbbells close to your legs and hinge at the hips. Set the ab wheel on the floor for kneeling rollouts.</p>")+"<p>Enter the weight of one dumbbell. Start with a pair you can control with about two reps in reserve. When all sets reach the top of the range comfortably, try the next available pair at the lower end. If the next pair is too heavy, repeat the same weight.</p><p>Leave at least two days between sessions for the same lift.</p>",
-    build(){return {phases:blockPhases,days:spec.days,weeks:Array.from({length:8},(_,week)=>({
+    rules:(id==="bench"?"<p>Use the flat bench for flat and paused presses. Raise it for incline presses, chest-supported rows and reverse flys.</p>":"<p>Keep the dumbbells close to your legs and hinge at the hips. Set the ab wheel on the floor for kneeling rollouts.</p>")+"<p>Enter the weight of one dumbbell. For single-sided work, log the reps per side. Start with a pair you can control with about two reps in reserve. When all sets reach the top of the range comfortably, try the next available pair at the lower end. If the next pair is too heavy, repeat the same weight.</p><p>Leave at least two days between sessions for the same lift.</p>",
+    build(){return {phases:blockPhases,days:{...spec.days,
+      retest_d1:{title:"Day 1: Light primer",purpose:"Rehearse the main lift with a light pair, then do two easy accessories."},
+      retest_d2:{title:"Day 2: Baseline retest",purpose:"After warming up, log eight reps with your week 1 dumbbells and compare effort."}
+    },weeks:Array.from({length:8},(_,week)=>({
       phase:phaseAt(week),note:phaseAt(week)==="light"?"Use fewer sets this week and leave several reps in reserve.":week===7?"Keep the first session easy. In the second, repeat your baseline set and record your effort.":week===0?"Record your starting load per dumbbell and how the set felt.":"Add reps within the range before moving to a heavier pair.",
       d1:session("d1",week),d2:session("d2",week)
     }))};}};
@@ -399,17 +434,22 @@ plans.dunk={id:"dunk",title:"Vertical jump",phase:"Home block",target:"Best",uni
   aim:"Compare standing jump reach over eight weeks",
   rules:"<p>Use clear floor space with overhead clearance. Jump from the floor and land in the same spot. Keep the bench for supported strength work. If space is limited, use a squat to calf raise and leave touch height blank.</p><p>To compare reach, use the same spot and starting stance each time. Rest between jumps and end the set when landings become uneven.</p>",
   build(){return {phases:blockPhases,days:{
-    d1:{title:"Session A: Vertical",purpose:"Practise standing jumps, then build single-leg strength."},
-    d2:{title:"Session B: Landing",purpose:"Work on quiet landings and calf strength."}
+    d1:{title:"Session A: Vertical",purpose:"Practise standing jumps, then train single-leg strength, calves and trunk control."},
+    d2:{title:"Session B: Landing",purpose:"Stick each landing, then work the hips, calves and trunk."},
+    retest_d1:{title:"Session A: Light primer",purpose:"Use easy jumps and light split squats ahead of the retest."},
+    retest_d2:{title:"Session B: Standing jump retest",purpose:"Warm up and compare three standing jumps with your first session."}
   },weeks:Array.from({length:8},(_,week)=>{
-    const phase=phaseAt(week),sets=phase==="light"?2:3;
-    const warm=movement("Treadmill walk and ankle rocks",1,"3 min walk + 8 rocks per side","At your pace");
-    const jump=movement("Standing vertical jump",sets,"3","Rest 90 sec","Reset on the floor between reps. Enter your best touch if measured.",{main:true,reach:true});
+    const phase=phaseAt(week),short=phase==="light"||week===7,sets=phase==="light"?2:3;
+    const warm=movement("Treadmill walk and ankle rocks",1,"3 min walk + 8 rocks per side","At your pace","Follow with bodyweight squats and two gentle practice jumps.",{warmup:true});
+    const jump=movement("Standing vertical jump",sets,week===7?"2":"3","Rest 90 sec","Reset on the floor between reps. Enter your best touch if measured.",{main:true,reach:true});
     const retest=movement("Standing jump retest",1,"3","Rest 90 sec between jumps","Repeat your week 1 stance. Record your best touch if measured.",{main:true,reach:true});
-    return {phase,note:week===7?"Repeat your standing jump test after at least two days of rest.":"Rest between jumps so that each landing stays controlled.",
-      d1:[warm,jump,movement("Dumbbell split squat",sets,"6 each leg","Rest 90 sec")],
-      d2:week===7?[warm,retest]:[warm,movement("Bodyweight squat jump and stick",sets,"3","Rest 90 sec","Pause and balance after each landing.",{main:true}),
-        movement("Standing dumbbell calf raise",sets,"10 to 12","Rest 60 sec")]};
+    const d1=[warm,jump,movement("Dumbbell split squat",sets,week===7?"4 each leg":"6 each leg","Rest 90 sec")];
+    if(week!==7)d1.push(movement("Standing dumbbell calf raise",short?1:3,"10 to 12","Rest 60 sec"),movement("Dumbbell dead bug",short?1:2,"6 each side","Rest 60 sec","Hold one dumbbell above your chest and alternate legs."));
+    const d2=week===7?[warm,retest]:[warm,movement("Bodyweight squat jump and stick",sets,"3","Rest 90 sec","Pause and balance after each landing.",{main:true}),
+      movement("Standing dumbbell calf raise",sets,"10 to 12","Rest 60 sec",undefined,{order:3}),
+      movement("Dumbbell glute bridge",short?1:3,"10 to 12","Rest 90 sec",undefined,{order:2}),
+      movement("Dumbbell suitcase march",short?1:2,"10 each side","Rest 60 sec")];
+    return {phase,note:week===7?"Repeat your standing jump test after at least two days of rest.":"Rest between jumps so that each landing stays controlled.",d1,d2};
   })};}};
 window.ForgeGoalPlans=Object.freeze(plans);
 })();

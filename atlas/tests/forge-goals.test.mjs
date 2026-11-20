@@ -45,7 +45,7 @@ test('strength goals start without an assumed load and retest the first recorded
 });
 test('saving partial sessions counts once and all 16 sessions complete a block',()=>{
  const p=M.fresh();p.done['0-d1-0-0']=entry('240','5');
- assert.deepEqual(plain(M.counts('bench',p,0,'d1')),{total:6,logged:1});
+ assert.deepEqual(plain(M.counts('bench',p,0,'d1')),{total:18,logged:1});
  assert.deepEqual(plain(M.next(p)),{week:0,day:'d1'});
  p.completed['0-d1']='2026-09-27T12:00:00Z';assert.deepEqual(plain(M.next(p)),{week:0,day:'d2'});
  for(let w=0;w<8;w++)for(const d of ['d1','d2'])p.completed[`${w}-${d}`]='2026-09-27T12:00:00Z';assert.equal(M.next(p),null);
@@ -81,4 +81,52 @@ test('partial trials validate, do not replace the completed 5K and preserve old 
 test('run averages divide total time by total distance and exclude old unmeasured sets',()=>{
  const p=M.fresh();p.done['1-d1-0-0']={...entry('04:00'),distance:'0.5',unit:'mi'};p.done['1-d1-0-1']={...entry('18:00'),distance:'1.5',unit:'mi'};p.done['1-d1-0-2']=entry('02:00');
  const {stats,unmeasured}=M.runTotals(p,1,'d1');assert.equal(stats.seconds,1320);assert.equal(stats.miles,2);assert.equal(stats.pace,660);assert.equal(M.format(stats.pace),'11:00');assert.equal(unmeasured,1);
+});
+
+test('home strength sessions show the workload and time for each phase',()=>{
+  for(const id of ['bench','deadlift']){
+    const weeks=P[id].build().weeks;
+    for(const [index,week] of weeks.entries())for(const day of ['d1','d2']){
+      const items=week[day],overview=M.sessionOverview(id,items);
+      assert.equal(overview.sets,items.reduce((total,e)=>total+e.sets,0));
+      assert.equal(overview.exercises,items.length);
+      assert.match(overview.warmup,/practice sets/);
+      if(week.phase==='baseline'||week.phase==='build'){
+        assert.equal(overview.exercises,6);
+        assert.equal(overview.sets,index===0?18:19);
+        assert.ok(overview.min>=40&&overview.max<=65);
+      }else{
+        assert.ok(overview.max<40);
+        if(week.phase==='retest'&&day==='d2')assert.equal(overview.sets,1);
+      }
+    }
+  }
+  const jumps=P.dunk.build().weeks[0].d1,jump=M.sessionOverview('dunk',jumps);
+  assert.equal(jump.exercises,4);assert.equal(jump.sets,11);assert.ok(jump.max<40);
+  assert.equal(M.sessionOverview('run',P.run.build().weeks[0].d1),null);
+});
+
+test('existing home logs, including completed sessions and drafts, retain exercise identities',()=>{
+  const names={
+    bench:[['Dumbbell bench press','Bench-supported one-arm dumbbell row','Lying dumbbell triceps extension'],['Paused dumbbell bench press','Incline dumbbell press','Incline dumbbell reverse fly']],
+    deadlift:[['Dumbbell Romanian deadlift','Dumbbell split squat','Kneeling ab-wheel rollout'],['Staggered-stance dumbbell Romanian deadlift','Dumbbell glute bridge','Dumbbell suitcase march']]
+  };
+  for(const [id,days] of Object.entries(names)){
+    const p=M.fresh();
+    for(let w=0;w<8;w++)for(const [d,exercises] of days.entries()){
+      const day='d'+(d+1),retest=w===7&&d===1,light=w===3||w===6;
+      for(const [i,name] of (retest?[days[0][0]]:exercises).entries()){
+        const oldSets=i===0?(retest?1:light||w===0?2:3):light?1:2;
+        const key=M.key(w,day,i,oldSets-1);
+        assert.equal(M.locate(id,key,p.base).e.n,name);
+        p.done[key]=entry('25','8');
+      }
+      p.completed[w+'-'+day]='2026-11-20T12:00:00Z';
+    }
+    p.draft={key:'0-d1-2-1',values:{w:'25',r:'10'}};
+    assert.deepEqual(plain(M.validate({...M.blank(),plans:{[id]:p}}).plans[id]),plain(p));
+    const sorted=M.orderedExercises(P[id].build().weeks[0].d1);
+    assert.deepEqual(plain(sorted.map(item=>item.e.order)),[1,2,3,4,5,6]);
+    assert.equal(sorted[2].index,3+(id==='deadlift'?1:0));
+  }
 });
