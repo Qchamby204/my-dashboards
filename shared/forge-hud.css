@@ -1,6 +1,3 @@
-@font-face{font-family:'Chakra Petch';font-weight:500;font-style:normal;font-display:swap;src:url("fonts/chakra-petch-500.ttf") format("truetype");}
-@font-face{font-family:'Chakra Petch';font-weight:600 700;font-style:normal;font-display:swap;src:url("fonts/chakra-petch-600.ttf") format("truetype");}
-@font-face{font-family:'JetBrains Mono';font-weight:100 800;font-style:normal;font-display:swap;src:url("fonts/jetbrains-mono-var.ttf") format("truetype");}
 /* The Forge HUD. Paired with shared/forge-hud.js; shares the Life Ledger look.
    Visual only. Goal colours (--beam) drive each screen's accent. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme] {
@@ -31,9 +28,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme="d
   --hud-bloom:color-mix(in srgb,var(--neo-accent) 13%,transparent);
   --hud-glass:linear-gradient(165deg,color-mix(in srgb,var(--neo-accent) 8%,transparent),transparent 40%),
     linear-gradient(180deg,rgba(14,42,56,.55),rgba(2,10,15,.4)),var(--neo-content-surface);
-}
-
-/* Field and stacking. */
+}/* Field and stacking. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] body {
   background:
     radial-gradient(ellipse 70% 45% at 50% -8%,var(--hud-bloom),transparent 70%),
@@ -48,9 +43,7 @@ html[data-atlas-app="workout-forge"][data-atlas-theme="dark"] body::before {
   background:repeating-linear-gradient(180deg,rgba(95,244,255,.035) 0 1px,transparent 1px 3px);
 }
 html[data-atlas-app="workout-forge"] #app {position:relative;z-index:2;}
-html[data-atlas-app="workout-forge"] #bgembers {display:none;}
-
-/* Type. */
+html[data-atlas-app="workout-forge"] #bgembers {display:none;}/* Type. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(h1,h2,h3,.cinzel,.fg-detail-title,.fg-target,.fg-section-title) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;}
 html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .atlas-suite-header .appbar-title {font:600 1.05rem/1.2 var(--hud-display)!important;text-transform:uppercase!important;letter-spacing:.16em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-feature-rail,.eyebrow,.fg-kicker,.fg-badge,.fg-readout span,.fg-activity-days time,.fg-week-dayname,.fg-phase) {
@@ -59,9 +52,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-featur
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-metric,.fg-readout strong,.fg-activity-days strong,.mono,.appbar-pill .mono) {font-family:var(--hud-mono)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-metric,.fg-readout strong) {color:var(--beam,var(--neo-accent))!important;text-shadow:0 0 16px color-mix(in srgb,var(--beam,var(--neo-accent)) 55%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature h1 {text-shadow:0 0 22px color-mix(in srgb,var(--beam,var(--neo-accent)) 30%,transparent);}
-html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-section-title h2::before {content:"//" / "";margin-right:.4em;color:var(--beam,var(--neo-accent));font-family:var(--hud-mono);font-weight:500;font-size:.75em;opacity:.8;}
-
-/* Panels: angled glass with lit cuts and reticle brackets. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-section-title h2::before {content:"//" / "";margin-right:.4em;color:var(--beam,var(--neo-accent));font-family:var(--hud-mono);font-weight:500;font-size:.75em;opacity:.8;}/* Panels: angled glass with lit cuts and reticle brackets. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.panel,.fg-card,.fg-exercise,.fg-week-guide-disclosure) {
   clip-path:var(--hud-chamfer);border-radius:0!important;
   border:1px solid var(--hud-edge)!important;
@@ -70,8 +61,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.panel,.fg
     var(--hud-cut-edge) right bottom/var(--hud-cut) var(--hud-cut) no-repeat border-box,
     var(--hud-corners),var(--hud-glass)!important;
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--neo-accent) 18%,transparent),inset 0 0 40px -12px color-mix(in srgb,var(--neo-accent) 16%,transparent)!important;
-}
-/* Goal cards carry their goal colour on the edge and in the glow. */
+}/* Goal cards carry their goal colour on the edge and in the glow. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-card {
   --hud-edge-strong:color-mix(in srgb,var(--beam,var(--fg-accent)) 75%,transparent);--hud-bracket:var(--beam,var(--fg-accent));
   border-color:color-mix(in srgb,var(--beam,var(--fg-accent)) 35%,transparent)!important;
@@ -79,9 +69,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-card {
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-gold {--beam:#ffd08b;} html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-orange {--beam:#ffab88;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-blue {--beam:#8ddafa;} html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-green {--beam:#9ce5b2;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-day-card .cinzel:only-child {color:var(--beam,var(--neo-accent));text-shadow:0 0 12px currentColor;}
-
-/* The opening card keeps its dark reading surface in both themes. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-day-card .cinzel:only-child {color:var(--beam,var(--neo-accent));text-shadow:0 0 12px currentColor;}/* The opening card keeps its dark reading surface in both themes. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature {
   --hud-edge-strong:color-mix(in srgb,var(--beam,#5ff4ff) 75%,transparent);--hud-bracket:var(--beam,#5ff4ff);
   clip-path:var(--hud-chamfer);border-radius:0!important;
@@ -98,17 +86,13 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature :i
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-feature-rail {display:flex!important;align-items:center;gap:10px;flex-wrap:wrap;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"][data-atlas-theme="light"] #app .fg-feature {
   --neo-ink:#e6fcff;--neo-muted:#9bb8bd;--neo-inset:#030d13;--neo-accent:#5ff4ff;--neo-line:#14323d;color:#e6fcff;
-}
-
-/* Goal reactor behind the equipment hologram. */
+}/* Goal reactor behind the equipment hologram. */
 html[data-atlas-app="workout-forge"] #app .fg-feature-body.hud-reactor-host {position:relative;}
 html[data-atlas-app="workout-forge"] #app .fg-feature-body>.hud-reactor {position:absolute;z-index:0;pointer-events:none;overflow:visible;color:var(--beam,#5ff4ff);opacity:.9;}
 html[data-atlas-app="workout-forge"] #app .fg-feature-body>:not(.hud-reactor) {position:relative;z-index:1;}
 html[data-atlas-app="workout-forge"] #app .fg-feature-art {filter:drop-shadow(0 0 10px color-mix(in srgb,var(--beam,#5ff4ff) 45%,transparent));}
 html[data-atlas-app="workout-forge"] #app .hud-telemetry {margin-left:auto;display:inline-flex;align-items:center;gap:6px;color:#9bb8bd;white-space:nowrap;font:500 10.5px/1.2 var(--hud-mono);letter-spacing:.14em;}
-html[data-atlas-app="workout-forge"] #app .hud-telemetry b {color:var(--beam,#5ff4ff);font-weight:600;}
-
-/* Seven-day counter: instrument cells. */
+html[data-atlas-app="workout-forge"] #app .hud-telemetry b {color:var(--beam,#5ff4ff);font-weight:600;}/* Seven-day counter: instrument cells. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-activity-days li {
   border-radius:0!important;--hud-cut:7px;clip-path:var(--hud-chamfer);
   border:1px solid color-mix(in srgb,var(--beam,#5ff4ff) 22%,transparent)!important;background:rgba(3,13,19,.7)!important;
@@ -118,9 +102,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-activity-d
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-segments i,.forge-exercise-strip span) {border-radius:0!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-segments,.forge-exercise-strip) .is-logged {box-shadow:0 0 8px var(--beam,var(--neo-accent));}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-progress,.bartrack) {border-radius:0!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-progress>*,.bartrack .fill) {box-shadow:0 0 10px var(--beam,var(--neo-accent));}
-
-/* Controls: primary actions glow in the goal colour; secondary ones are outlined. All angled. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-progress>*,.bartrack .fill) {box-shadow:0 0 10px var(--beam,var(--neo-accent));}/* Controls: primary actions glow in the goal colour; secondary ones are outlined. All angled. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-primary,.btn.cinzel.tap) {
   --hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;
   font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.14em!important;font-weight:600!important;
@@ -134,17 +116,13 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-actions bu
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-days button,.fg-set,.fg-weeks button,.chip,.forge-button,.fg-backup-row button) {--hud-cut:8px;clip-path:var(--hud-chamfer);border-radius:0!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-set,.fg-weeks button)[aria-current],html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-days button,.fg-weeks button,.fg-set)[aria-pressed="true"] {box-shadow:inset 0 0 14px -4px var(--beam,var(--neo-accent)),0 0 12px -6px var(--beam,var(--neo-accent))!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(input,select,textarea) {border-radius:0!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(input,select,textarea):focus-visible {box-shadow:0 0 0 1px var(--neo-accent),0 0 16px -4px var(--neo-accent)!important;}
-
-/* Dock: angled with a beam under the active tab. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(input,select,textarea):focus-visible {box-shadow:0 0 0 1px var(--neo-accent),0 0 16px -4px var(--neo-accent)!important;}/* Dock: angled with a beam under the active tab. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock.core-glass-nav {border:1px solid var(--hud-edge)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item {position:relative;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item span {font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.1em;font-weight:600;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item[aria-current="page"] {text-shadow:0 0 12px color-mix(in srgb,var(--neo-accent) 70%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item[aria-current="page"]::after {content:"";position:absolute;left:28%;right:28%;bottom:3px;height:2px;border-radius:2px;background:var(--neo-accent);box-shadow:0 0 10px var(--neo-accent);}
-@media(max-width:420px) {html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item span {letter-spacing:.03em;font-size:10px!important;}}
-
-/* Header: lit underline with a travelling highlight; scan-in between screens. */
+@media(max-width:420px) {html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item span {letter-spacing:.03em;font-size:10px!important;}}/* Header: lit underline with a travelling highlight; scan-in between screens. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app>.appbar {border-bottom:1px solid var(--hud-edge)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app>.appbar::after {
   content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;pointer-events:none;
@@ -158,67 +136,15 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app>.appbar::after
 @keyframes hud-travel {to{background-position:140% 0;}}
 @keyframes hud-view-in {0%{clip-path:inset(0 0 100% 0);filter:brightness(1.8);}70%{clip-path:inset(0 0 0 0);filter:brightness(1.15);}100%{clip-path:inset(0 0 0 0);filter:none;}}
 @keyframes hud-glitch {0%{text-shadow:-3px 0 #ff2bd6,3px 0 #2bf4ff;transform:translateX(2px);}40%{text-shadow:2px 0 #ff2bd6,-2px 0 #2bf4ff;transform:translateX(-1px);}100%{transform:none;}}
-html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app h1 {overflow-wrap:anywhere;}
-
-/* Shared HUD components (same as Life Ledger). */
-.hud-field {position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;}
-.hud-reactor .hud-rot {transform-box:view-box;transform-origin:100px 100px;}
-.hud-reactor .hud-ring-dots {fill:none;stroke:currentColor;stroke-width:.8;stroke-dasharray:.6 2.4;opacity:.55;}
-.hud-reactor .hud-ring-bracket {fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;opacity:.85;}
-.hud-reactor .hud-ring-blip-track {fill:none;stroke:none;}
-.hud-reactor .hud-ring-blip {fill:currentColor;filter:drop-shadow(0 0 3px currentColor);}
-.hud-reactor .hud-ring-ticks {fill:none;stroke:currentColor;stroke-width:.7;opacity:.42;}
-.hud-reactor .hud-ring-dash {fill:none;stroke:currentColor;stroke-width:.7;stroke-dasharray:6 4;opacity:.35;}
-.hud-reactor .hud-sweep {fill:currentColor;opacity:.06;}
-.hud-reactor .hud-arc-track {fill:none;stroke:var(--arc);stroke-width:2.6;opacity:.24;}
-.hud-reactor .hud-arc-fill {fill:none;stroke:var(--arc);stroke-width:2.6;stroke-linecap:round;filter:drop-shadow(0 0 2.5px var(--arc));transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1);}
-.hud-reactor .hud-arc-letter {fill:var(--arc);font:600 4.6px var(--hud-mono,monospace);opacity:.9;}
-.hud-reactor .hud-reactor-tag {fill:currentColor;font:500 5.5px var(--hud-mono,monospace);letter-spacing:1.6px;opacity:.6;}
-@media(prefers-reduced-motion:no-preference) {
-  .hud-reactor .hud-rot-slow {animation:hud-spin 40s linear infinite;}
-  .hud-reactor .hud-rot-rev {animation:hud-spin 70s linear infinite reverse;}
-  .hud-reactor .hud-rot-fast {animation:hud-spin 18s linear infinite reverse;}
-  .hud-reactor .hud-rot-sweep {animation:hud-spin 6s linear infinite;}
-}
-@keyframes hud-spin {to{transform:rotate(360deg);}}
-.hud-live {display:inline-block;width:6px;height:6px;border-radius:50%;background:#3cf0a0;box-shadow:0 0 8px #3cf0a0;flex:none;}
-@media(prefers-reduced-motion:no-preference) {.hud-live {animation:hud-pulse 1.6s ease-in-out infinite;}}
-@keyframes hud-pulse {50%{opacity:.35;box-shadow:0 0 2px #3cf0a0;}}
-/* Logging shockwave. */
-.hud-burst {position:fixed;z-index:80;width:0;height:0;pointer-events:none;--burst:var(--neo-accent);color:var(--burst);}
-.hud-burst .hud-burst-ring {position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;border:2px solid currentColor;box-shadow:0 0 18px currentColor,inset 0 0 12px currentColor;animation:hud-ring .75s cubic-bezier(.1,.7,.2,1) forwards;}
-.hud-burst .hud-burst-ring.b {border-width:1px;border-style:dashed;animation-duration:1s;animation-delay:.06s;opacity:0;}
-.hud-burst .hud-burst-flash {position:absolute;left:-140px;top:-26px;width:280px;height:52px;background:radial-gradient(ellipse at center,color-mix(in srgb,currentColor 55%,transparent),transparent 70%);animation:hud-flash .5s ease-out forwards;}
-.hud-burst .hud-burst-tag {position:absolute;left:50%;top:-58px;transform:translateX(-50%);white-space:pre;font:600 12px/1 var(--hud-mono,monospace);letter-spacing:.22em;color:currentColor;text-shadow:0 0 10px currentColor;animation:hud-tag 1.05s ease-out forwards;}
-@keyframes hud-ring {0%{transform:scale(.2);opacity:1;}100%{transform:scale(3.4);opacity:.001;}}
-@keyframes hud-flash {0%{opacity:.9;transform:scaleX(.3);}100%{opacity:.001;transform:scaleX(1.6);}}
-@keyframes hud-tag {0%{opacity:0;transform:translate(-50%,10px);}20%{opacity:1;transform:translate(-50%,0);}75%{opacity:1;}100%{opacity:.001;transform:translate(-50%,-18px);}}
-
-/* Boot sequence. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app h1 {overflow-wrap:anywhere;}/* Shared HUD components: the common rules now live in shared/hud-core.css; these are this app's variants.
+   Previously: Shared HUD components (same as Life Ledger). *//* Logging shockwave. */
+.hud-burst {position:fixed;z-index:80;width:0;height:0;pointer-events:none;--burst:var(--neo-accent);color:var(--burst);}/* Boot sequence. */
 .hud-boot {
   position:fixed;inset:0;z-index:120;display:grid;place-items:center;align-content:center;gap:18px;
   background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--neo-accent) 10%,transparent),transparent 60%),color-mix(in srgb,var(--neo-canvas) 94%,transparent);
   color:var(--neo-accent);transition:opacity .45s ease,filter .45s ease;
 }
-.hud-boot.out {opacity:0;filter:brightness(2) blur(4px);}
-.hud-boot-core {width:min(46vw,190px);overflow:visible;}
-.hud-boot-core circle {fill:none;stroke:currentColor;transform-box:view-box;transform-origin:100px 100px;}
-.hud-boot-core .b1 {stroke-width:1;stroke-dasharray:2 5;animation:hud-boot-ring 1.4s cubic-bezier(.2,.8,.2,1) both,hud-spin 6s linear infinite;}
-.hud-boot-core .b2 {stroke-width:3;stroke-dasharray:180 110;animation:hud-boot-ring 1.2s .1s cubic-bezier(.2,.8,.2,1) both,hud-spin 2.4s linear infinite reverse;}
-.hud-boot-core .b3 {stroke-width:1;stroke-dasharray:10 6;animation:hud-boot-ring 1.1s .2s cubic-bezier(.2,.8,.2,1) both,hud-spin 3s linear infinite;}
-.hud-boot-core .b4 {stroke-width:6;opacity:.35;animation:hud-boot-ring 1s .3s cubic-bezier(.2,.8,.2,1) both;}
-.hud-boot-core .b5 {fill:currentColor;stroke:none;filter:drop-shadow(0 0 14px currentColor);animation:hud-boot-core 1.3s .35s ease-out both;}
-@keyframes hud-boot-ring {from{opacity:0;transform:scale(.4) rotate(-90deg);}to{opacity:1;}}
-@keyframes hud-boot-core {0%{opacity:0;transform:scale(.2);}50%{opacity:1;transform:scale(1.25);}100%{opacity:.9;transform:scale(1);}}
-.hud-boot-copy {display:grid;gap:8px;justify-items:center;font:500 11px/1.3 var(--hud-mono,monospace);letter-spacing:.2em;text-transform:uppercase;}
-.hud-boot-copy b {font:600 18px/1 var(--hud-display,sans-serif);letter-spacing:.42em;color:var(--neo-ink);text-shadow:0 0 18px var(--neo-accent);}
-.hud-boot-copy ol {list-style:none;display:grid;gap:4px;min-height:5.6em;width:min(78vw,300px);}
-.hud-boot-copy li {display:flex;justify-content:space-between;gap:16px;color:var(--neo-muted);animation:hud-line .25s ease-out both;}
-.hud-boot-copy li em {font-style:normal;color:#3cf0a0;}
-@keyframes hud-line {from{opacity:0;transform:translateX(-6px);}}
-
-/* Screen frame and edge telemetry on wide screens. */
-.hud-frame {display:none;}
+.hud-boot-copy b {font:600 18px/1 var(--hud-display,sans-serif);letter-spacing:.42em;color:var(--neo-ink);text-shadow:0 0 18px var(--neo-accent);}/* Screen frame and edge telemetry on wide screens. */
 @media(min-width:1100px) {
   .hud-frame {display:block;position:fixed;inset:0;z-index:1;pointer-events:none;color:var(--neo-accent);}
   .hud-frame-corner {position:absolute;width:44px;height:44px;border:0 solid currentColor;opacity:.6;filter:drop-shadow(0 0 4px currentColor);}
@@ -235,10 +161,6 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app h1 {overflow-w
   .hud-frame-tele.l {left:70px;}
   .hud-frame-tele.r {right:70px;text-align:right;justify-items:end;}
 }
-html[data-atlas-theme="light"] .hud-frame {opacity:.6;}
-
-@media(min-width:1600px) {.hud-frame-tele {display:grid!important;}}
-
 
 @media(prefers-reduced-transparency:reduce),(forced-colors:active) {
   .hud-field,.hud-frame,.hud-burst {display:none!important;}
@@ -251,10 +173,8 @@ html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .f
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .eyebrow {letter-spacing:.08em!important;}
 @media(prefers-contrast:more) {
   html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock.core-glass-nav {border-width:2px!important;}
-}
-/* Rings and glows never add scrollable overflow. */
-html[data-atlas-app="workout-forge"] #app .fg-feature {overflow:clip;}
-/* Season panel: its label shares a row with the counter, so it keeps Forge's own face
+}/* Rings and glows never add scrollable overflow. */
+html[data-atlas-app="workout-forge"] #app .fg-feature {overflow:clip;}/* Season panel: its label shares a row with the counter, so it keeps Forge's own face
    to stay inside the card at large text sizes. */
 html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-season .eyebrow {font-family:inherit!important;text-transform:none!important;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .forge-season :is(div,span) {min-width:0;}
