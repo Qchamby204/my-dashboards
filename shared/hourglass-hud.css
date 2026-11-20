@@ -39,7 +39,7 @@ html[data-atlas-app="the-hourglass"][data-atlas-theme="dark"] .hud-scan {
 html[data-atlas-app="the-hourglass"] #app {position:relative;z-index:2;}/* Type. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app :is(h1,h2,.hg-title) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;overflow-wrap:anywhere;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app :is(.hourglass-opening-rail,.hg-kicker,.eyebrow,.hg-progress-label,.hourglass-until) {font-family:var(--hud-mono)!important;letter-spacing:.08em!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app :is(.hourglass-opening-rail,.hg-kicker,.eyebrow) {text-transform:uppercase;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app :is(.hourglass-opening-rail,.hg-kicker,.eyebrow) {text-transform:none;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app .hg-stat strong {font-family:var(--hud-mono)!important;text-shadow:0 0 18px color-mix(in srgb,currentColor 55%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app :is(.hourglass-section-heading h2,.eyebrow)::before {content:"//" / "";margin-right:.4em;color:var(--hud-hue);font-family:var(--hud-mono);font-weight:500;opacity:.85;}/* Opening card: midnight glass, angled, lit cuts and brackets, solid base. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app .hourglass-opening {
@@ -66,7 +66,7 @@ html[data-atlas-app="the-hourglass"] #app .hourglass-opening-face>:not(.hud-reac
 html[data-atlas-app="the-hourglass"] #app .hourglass-title-art {filter:drop-shadow(0 0 10px rgba(255,179,71,.35));}
 html[data-atlas-app="the-hourglass"] #app .hourglass-opening .hud-telemetry {margin-left:auto;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font:500 10.5px/1.2 var(--hud-mono);letter-spacing:.14em;color:#d8d0c2;}
 html[data-atlas-app="the-hourglass"] #app .hourglass-opening .hud-telemetry b {color:#ffb347;font-weight:600;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app .hourglass-opening .hourglass-opening-footer .btn {--hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.08em!important;box-shadow:0 0 22px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.35)!important;}/* Panels: angled glass. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app .hourglass-opening .hourglass-opening-footer .btn {--hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em!important;box-shadow:0 0 22px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.35)!important;}/* Panels: angled glass. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app :is(.hg-overview,.panel) {
   clip-path:var(--hud-chamfer);border-radius:0!important;
   border:1px solid var(--hud-edge)!important;

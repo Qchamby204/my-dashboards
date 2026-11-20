@@ -8,13 +8,14 @@
   if (!root || root.dataset?.atlasApp !== 'communication-trainer' || !window.AtlasHUDCore || window.CommunicatorHUD) return;
   window.CommunicatorHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'COMMUNICATOR', tagline: 'OS 5.0 // VOICE CHANNEL OPEN', caps: true, bootKey: 'communicator:hud-boot', bootLines: ['Calibrating voice channel', 'Loading skill ladder', 'Syncing topic bank', 'All systems nominal'], accentVars: ['--neo-accent']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'Communicator', tagline: 'OS 5.0 // Voice channel open', bootKey: 'communicator:hud-boot', bootLines: ['Calibrating voice channel', 'Loading skill ladder', 'Syncing topic bank', 'All systems nominal'], accentVars: ['--neo-accent'], tilt: '#main .cm-feature'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Reactor behind each opening card's illustration ────────────────────── */
   function railArcs(feature) {
     const m = (feature.querySelector('.cm-feature-rail')?.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
-    return [{color: 'var(--neo-accent)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: ''}];
+    const name = (feature.querySelector('.cm-feature-rail')?.firstChild?.textContent || 'Progress').trim();
+    return [{color: 'var(--neo-accent)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: name || 'Progress', value: m ? m[1] + ' of ' + m[2] + ' completed' : 'Not started', done: (name || 'Ladder') + ' complete'}];
   }
   function mountRing(feature) {
     const stage = feature.querySelector('.cm-stage');
@@ -45,7 +46,7 @@
     if (!tele) {
       tele = node('span', 'hud-telemetry', rail);
       node('i', 'hud-live', tele);
-      tele.append('LIVE ');
+      tele.append('Live ');
       node('b', '', tele);
     }
     heroClock = tele.querySelector('b');
@@ -96,13 +97,14 @@
     const control = e.target.closest?.('#main :is(.btn,button.check)');
     if (!control || control.getAttribute('aria-pressed') === 'true') return;
     const text = (control.textContent + ' ' + (control.getAttribute('aria-label') || '')).trim().toLowerCase();
-    if (control.matches('button.check')) burstAt(control, 'LESSON COMPLETE');
-    else if (/^(save|complete|finish|mark|done)\b/.test(text)) burstAt(control, 'SAVED');
+    if (control.matches('button.check')) burstAt(control, 'Lesson complete');
+    else if (/^(save|complete|finish|mark|done)\b/.test(text)) burstAt(control, 'Saved');
   }, true);
 
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     const app = document.getElementById('main');

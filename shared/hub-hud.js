@@ -10,8 +10,8 @@
 
   // Opening Atlas counts as every app's boot for this session.
   const BOOT_KEYS = ['atlas:hud-boot', 'lifeledger:hud-boot', 'lifemap:hud-boot', 'forge:hud-boot', 'communicator:hud-boot', 'chef:hud-boot', 'library:hud-boot', 'courier:hud-boot', 'hourglass:hud-boot', 'herald:hud-boot', 'aqueduct:hud-boot', 'operations:hud-boot', 'reminders:hud-boot', 'neural:hud-boot'];
-  const hud = window.AtlasHUDCore.engine({title: 'ATLAS', tagline: 'OS 5.0 // COMMAND DECK', caps: true, bootKey: 'atlas:hud-boot', bootKeys: BOOT_KEYS, bootLines: ['Waking the command deck', 'Linking the HUD systems', 'Restoring recent activity', 'All systems nominal']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'Atlas', tagline: 'OS 5.0 // Command deck', bootKey: 'atlas:hud-boot', bootKeys: BOOT_KEYS, bootLines: ['Waking the command deck', 'Linking the HUD systems', 'Restoring recent activity', 'All systems nominal']});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
 
   /* ── Each HUD app's tile glows in that app's own colour ──────────────────── */
   const SYSTEMS = {
@@ -37,13 +37,14 @@
       const svg = buildReactor(header, '');
       header.append(svg);
       const n = Object.keys(SYSTEMS).length;
-      paintArcs(svg, Object.values(SYSTEMS).map((color, i) => ({color, pct: 100 - i * (40 / n), letter: ''})).slice(0, 13));
+      const NAMES = {'life-map': 'Life Map', 'life-ledger': 'Life Ledger', 'workout-forge': 'The Forge', 'communication-trainer': 'Communicator', 'the-chef': 'The Chef', 'the-library': 'The Library', courier: 'The Courier', 'the-hourglass': 'The Hourglass', 'the-herald': 'The Herald', 'the-aqueduct': 'The Aqueduct', 'operations-cadence': 'Operations Cadence', reminders: 'Reminders', 'neural-map': 'Neural Map'};
+      paintArcs(svg, Object.entries(SYSTEMS).map(([file, color], i) => ({color, pct: 100 - i * (40 / n), letter: '', label: NAMES[file.replace('.html', '')] || file, value: 'HUD online'})).slice(0, 13));
     }
     let tele = header.querySelector('.hud-telemetry');
     if (!tele) {
       tele = node('p', 'hud-telemetry', header);
       node('i', 'hud-live', tele);
-      tele.append('LIVE ');
+      tele.append('Live ');
       node('b', '', tele);
       node('span', 'hud-online', tele);
     }
@@ -72,6 +73,7 @@
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

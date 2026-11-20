@@ -8,15 +8,15 @@
   if (!root || root.dataset?.atlasApp !== 'the-chef' || !window.AtlasHUDCore || window.ChefHUD) return;
   window.ChefHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'THE CHEF', tagline: 'OS 5.0 // KITCHEN ONLINE', caps: true, bootKey: 'chef:hud-boot', bootLines: ['Stocking the pantry', 'Loading recipe library', 'Warming up the planner', 'All systems nominal'], accentVars: ['--neo-accent']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'The Chef', tagline: 'OS 5.0 // Kitchen online', bootKey: 'chef:hud-boot', bootLines: ['Stocking the pantry', 'Loading recipe library', 'Warming up the planner', 'All systems nominal'], accentVars: ['--neo-accent'], tilt: '#chef-opening'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Reactor behind the opening illustration ─────────────────────────────── */
   function openingArcs(hero) {
     // Ingredients: the ring fills as you pick (eight picks fills it); elsewhere it is a full projector ring.
     if (hero.dataset.view === 'ingredients') {
       const picks = document.querySelectorAll('#ing-cats [data-pick][aria-pressed="true"]').length;
-      return [{color: 'var(--neo-accent)', pct: Math.min(100, picks * 12.5), letter: ''}];
+      return [{color: 'var(--neo-accent)', pct: Math.min(100, picks * 12.5), letter: '', label: 'Ingredients', value: picks + ' picked'}];
     }
     return [{color: 'var(--neo-accent)', pct: 100, letter: ''}];
   }
@@ -43,7 +43,7 @@
     if (!tele) {
       tele = node('span', 'hud-telemetry', rail);
       node('i', 'hud-live', tele);
-      tele.append('LIVE ');
+      tele.append('Live ');
       node('b', '', tele);
     }
     heroClock = tele.querySelector('b');
@@ -90,12 +90,13 @@
   document.addEventListener('click', e => {
     const control = e.target.closest?.('main :is([data-fav],[data-cooked],[data-rate])');
     if (!control || control.getAttribute('aria-pressed') === 'true') return;
-    burstAt(control, control.matches('[data-fav]') ? 'FAVOURITED' : control.matches('[data-cooked]') ? 'COOKED' : 'RATED');
+    burstAt(control, control.matches('[data-fav]') ? 'Favourited' : control.matches('[data-cooked]') ? 'Cooked' : 'Rated');
   }, true);
 
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

@@ -8,8 +8,8 @@
   if (!root || root.dataset?.atlasApp !== 'the-hourglass' || !window.AtlasHUDCore || window.HourglassHUD) return;
   window.HourglassHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'THE HOURGLASS', tagline: 'OS 5.0 // CHRONOMETER', caps: true, bootKey: 'hourglass:hud-boot', bootLines: ['Calibrating the chronometer', 'Counting your weeks', 'Marking what matters', 'All systems nominal']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'The Hourglass', tagline: 'OS 5.0 // Chronometer', bootKey: 'hourglass:hud-boot', bootLines: ['Calibrating the chronometer', 'Counting your weeks', 'Marking what matters', 'All systems nominal'], tilt: '#app .hourglass-opening'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Life-clock rings: this year lived, and life against the planning horizon ── */
   function clockArcs() {
@@ -19,8 +19,8 @@
     const age = Number((label.match(/Age\s+(\d+)/i) || [])[1]);
     const horizon = Number((note.match(/age\s+(\d+)/i) || [])[1]);
     const arcs = [];
-    if (age && horizon) arcs.push({color: 'var(--hud-hue)', pct: Math.min(100, 100 * (age + (year || 0) / 100) / horizon), letter: ''});
-    if (!Number.isNaN(year) && label) arcs.push({color: '#8cc8ff', pct: year, letter: ''});
+    if (age && horizon) arcs.push({color: 'var(--hud-hue)', pct: Math.min(100, 100 * (age + (year || 0) / 100) / horizon), letter: '', label: 'Lifetime', value: 'Age ' + age + ' of ' + horizon});
+    if (!Number.isNaN(year) && label) arcs.push({color: '#8cc8ff', pct: year, letter: '', label: 'This year', value: year + '% lived'});
     return arcs.length ? arcs : [{color: 'var(--hud-hue)', pct: 100, letter: ''}];
   }
   function mountRing(hero) {
@@ -96,13 +96,14 @@
     const control = e.target.closest?.('#app :is(.btn,button)');
     if (!control || control.closest('.atlas-page-dock,.atlas-header-actions')) return;
     const text = control.textContent.trim().toLowerCase();
-    if (/^(save|add|done)\b/.test(text) && control.closest('form,dialog,.modal,[role=dialog]')) burstAt(control, 'LOGGED');
-    else if (control.id === 'makeWall') burstAt(control, 'RENDERING');
+    if (/^(save|add|done)\b/.test(text) && control.closest('form,dialog,.modal,[role=dialog]')) burstAt(control, 'Logged');
+    else if (control.id === 'makeWall') burstAt(control, 'Rendering');
   }, true);
 
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

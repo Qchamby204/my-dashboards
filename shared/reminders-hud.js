@@ -9,7 +9,7 @@
   window.RemindersHUD = {replayBoot: () => boot(true)};
 
   const hud = window.AtlasHUDCore.engine({title: 'Reminders', tagline: 'OS 5.0 // Signal timing', caps: false, bootKey: 'reminders:hud-boot', bootLines: ['Reading your rhythm', 'Setting the quiet hours', 'Checking delivery', 'All systems nominal']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot, readoutAt, clearReadout} = hud;
 
   /* ── Day dial: a 24-hour face with each reminder at its time ───────────── */
   const DIAL_HUES = ['#ffd08b', '#8cc8ff', '#6ff2c8', '#ffa6d1', '#b6f06a', '#ffb347'];
@@ -53,9 +53,11 @@
     const qs = fieldMinutes('quiet-start'), qe = fieldMinutes('quiet-end');
     if (qs != null && qe != null && qs !== qe) svgNode('path', {d: arcPath(qs, qe, 76), class: 'hud-dial-quiet'}, svg);
     const paused = document.getElementById('paused')?.checked;
+    const pins = [];
     [...document.querySelectorAll('#list .reminder')].forEach((r, i) => {
       const min = toMinutes(r.querySelector('.reminder-time')?.textContent);
       if (min == null) return;
+      pins.push({min, color: DIAL_HUES[i % DIAL_HUES.length], label: (r.querySelector('h3')?.textContent || 'Reminder').trim(), value: (r.querySelector('.reminder-time')?.textContent || '').trim()});
       const on = r.querySelector('[data-field="enabled"]')?.checked !== false && !paused;
       const color = DIAL_HUES[i % DIAL_HUES.length];
       const [x1, y1] = polar(min, 70), [x2, y2] = polar(min, 92);
@@ -63,6 +65,27 @@
       const [cx, cy] = polar(min, 92);
       svgNode('circle', {cx, cy, r: on ? 4 : 3, class: 'hud-dial-pin' + (on ? '' : ' off'), fill: on ? color : 'none', stroke: color}, svg);
     });
+    svg.hudPins = pins;
+    if (!head.hudReadout) {
+      head.hudReadout = true;
+      let timer = 0;
+      const pick = e => {
+        const box = svg.getBoundingClientRect();
+        if (!box.width) return null;
+        const unit = box.width / 200, dx = (e.clientX - box.left) / unit - 100, dy = (e.clientY - box.top) / unit - 100;
+        if (Math.hypot(dx, dy) < 60 || Math.hypot(dx, dy) > 104) return null;
+        const at = ((Math.atan2(dy, dx) + Math.PI / 2) / (Math.PI * 2) * 1440 + 1440) % 1440;
+        let best = null;
+        for (const pin of svg.hudPins || []) { const gap = Math.min(Math.abs(pin.min - at), 1440 - Math.abs(pin.min - at)); if (gap < 50 && (!best || gap < best.gap)) best = {...pin, gap}; }
+        if (!best) return null;
+        const hb = head.getBoundingClientRect(), [px, py] = polar(best.min, 92);
+        return {...best, x: box.left - hb.left + px * unit, y: box.top - hb.top + py * unit};
+      };
+      const show = e => { const hit = pick(e); if (hit) readoutAt(head, hit.x, hit.y, hit.label, hit.value, hit.color); else clearReadout(head); return hit; };
+      head.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') show(e); }, {passive: true});
+      head.addEventListener('pointerleave', () => clearReadout(head));
+      head.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' && show(e)) { clearTimeout(timer); timer = setTimeout(() => clearReadout(head), 2600); } }, {passive: true});
+    }
     dialHand = svgNode('line', {x1: 100, y1: 100, x2: 100, y2: 30, class: 'hud-dial-hand'}, svg);
     svgNode('circle', {cx: 100, cy: 100, r: 3.5, class: 'hud-dial-hub'}, svg);
     paintHand();
@@ -127,6 +150,7 @@
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

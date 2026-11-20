@@ -36,10 +36,10 @@ html[data-atlas-app="communication-trainer"][data-atlas-theme="dark"] body::befo
   background:repeating-linear-gradient(180deg,rgba(171,185,255,.035) 0 1px,transparent 1px 3px);
 }
 html[data-atlas-app="communication-trainer"] #main {position:relative;z-index:2;}/* Type. */
-html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-suite-header h1 span {font-family:var(--hud-display)!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.16em!important;}
+html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-suite-header h1 span {font-family:var(--hud-display)!important;font-weight:600!important;text-transform:none!important;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(h2,h3,.lesson-title,.communication-topic-heading,.communication-rank-line) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cm-feature-rail,.cl-kicker,.cl-meta,.communication-eyebrow,.communication-xp,.tag,.statrow .l,.heatlabels) {
-  font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.12em!important;
+  font-family:var(--hud-mono)!important;text-transform:none;letter-spacing:.02em!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .cm-feature-rail {display:flex!important;align-items:center;gap:10px;flex-wrap:wrap;font-size:.72rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(.cl-meta span,.statrow .v,.communication-xp) {color:var(--neo-accent)!important;text-shadow:0 0 14px color-mix(in srgb,var(--neo-accent) 55%,transparent);}
@@ -89,7 +89,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .less
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .lesson .check {border-radius:50%!important;border:1.5px solid var(--neo-accent)!important;box-shadow:inset 0 0 10px -4px var(--neo-accent),0 0 0 3px color-mix(in srgb,var(--neo-accent) 8%,transparent)!important;}/* Controls: primary glows, ghost is outlined; both angled. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .btn:not(.ghost) {
   --hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;
-  font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.12em!important;font-weight:600!important;
+  font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em!important;font-weight:600!important;
   box-shadow:0 0 24px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.4)!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main .btn.ghost {--hud-cut:9px;clip-path:var(--hud-chamfer);border-radius:0!important;border-color:var(--hud-edge)!important;font-family:var(--hud-display)!important;letter-spacing:.03em;}
@@ -98,7 +98,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(i
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] #main :is(input,select,textarea):focus-visible {box-shadow:0 0 0 1px var(--neo-accent),0 0 16px -4px var(--neo-accent)!important;}/* Dock keeps the suite capsule; the active tab carries a beam. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page-dock.core-glass-nav {border:1px solid var(--hud-edge)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page-dock .atlas-page-item {position:relative;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page-dock .atlas-page-item span {font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page-dock .atlas-page-item span {font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em;font-weight:600;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page-dock .atlas-page-item[aria-current="page"] {text-shadow:0 0 12px color-mix(in srgb,var(--neo-accent) 70%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page-dock .atlas-page-item[aria-current="page"]::after {content:"";position:absolute;left:28%;right:28%;bottom:3px;height:2px;border-radius:2px;background:var(--neo-accent);box-shadow:0 0 10px var(--neo-accent);}
 @media(max-width:420px) {html.atlas-neumo.atlas-neumo[data-atlas-app="communication-trainer"] .atlas-page-dock .atlas-page-item span {letter-spacing:.02em;font-size:10px!important;}}

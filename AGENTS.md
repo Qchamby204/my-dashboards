@@ -38,4 +38,5 @@ Use `docs/apple-design-direction.md` for the suite's visual contract and release
 - Streaks use shared/atlas-streak.js: saved local completion days, one missed day per rolling seven days, no count for grace days or launches. Counts can be hidden from Appearance.
 - Home changes to its evening set at 18:00 local. Public projections remain read-only; private priorities retain source ownership and revision checks.
 - Never embed prospecting contact datasets in public source. Imports belong to the existing private/browser record and backups.
-- Completion feedback follows a verified save; no confetti, sound or animated counters. Scripted motion must check reduced motion.
+- Completion feedback follows a verified save; no confetti, sound or animated counters. The one celebration is the HUD milestone flare in `shared/hud-core.js` (ring flare, shockwaves and a short tag when a labelled ring reaches 100% within seconds of the user's own input, or a Herald script reaches Published; November 20 user direction). Keep it silent, data-driven and reduced-motion aware. Scripted motion must check reduced motion.
+- HUD labels use sentence case in every app (November 20 user direction), consistent with the retired-caps rule.

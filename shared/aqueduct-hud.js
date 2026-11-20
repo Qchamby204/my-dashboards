@@ -8,19 +8,20 @@
   if (!root || root.dataset?.atlasApp !== 'the-aqueduct' || !window.AtlasHUDCore || window.AqueductHUD) return;
   window.AqueductHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'The Aqueduct', tagline: 'OS 5.0 // Waterworks', caps: false, bootKey: 'aqueduct:hud-boot', bootLines: ['Reading the book', 'Running the cascade', 'Balancing the plan', 'All systems nominal']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'The Aqueduct', tagline: 'OS 5.0 // Waterworks', caps: false, bootKey: 'aqueduct:hud-boot', bootLines: ['Reading the book', 'Running the cascade', 'Balancing the plan', 'All systems nominal'], tilt: '#app .aqueduct-opening'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Cascade rings: where each take-home dollar goes, one arc per bucket ── */
-  const BUCKETS = [['expensesMo', '#4ea3e0'], ['debtMo', '#f0628a'], ['savingsMo', '#2fd180'], ['spendMo', '#f0b73e']];
+  const BUCKETS = [['expensesMo', '#4ea3e0', 'Bills'], ['debtMo', '#f0628a', 'Debt'], ['savingsMo', '#2fd180', 'Saving'], ['spendMo', '#f0b73e', 'Spending']];
+  const money = v => '$' + Math.round(v).toLocaleString('en-CA');
   function cascadeArcs() {
     let take = 0, parts = [];
     try {
       take = Number(window.takeHomeMo?.()) || 0;
-      parts = BUCKETS.map(([fn, color]) => ({color, v: Math.max(0, Number(window[fn]?.()) || 0)}));
+      parts = BUCKETS.map(([fn, color, label]) => ({color, label, v: Math.max(0, Number(window[fn]?.()) || 0)}));
     } catch { parts = []; }
-    if (!take || !parts.length) return [{color: 'var(--hud-tab)', pct: 100, letter: ''}];
-    return parts.map(p => ({color: p.color, pct: Math.min(100, 100 * p.v / take), letter: ''}));
+    if (!take || !parts.length) return BUCKETS.map(([, color, label]) => ({color, pct: 0, letter: '', label, value: 'No income set'}));
+    return parts.map(p => { const pct = Math.min(100, 100 * p.v / take); return {color: p.color, pct, letter: '', label: p.label, value: Math.round(pct) + '% · ' + money(p.v) + '/mo'}; });
   }
   function mountRing(hero) {
     const face = hero.querySelector('.aqueduct-opening-face');
@@ -101,6 +102,7 @@
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

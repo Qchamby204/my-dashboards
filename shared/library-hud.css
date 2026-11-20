@@ -38,7 +38,7 @@ html[data-atlas-app="library"][data-atlas-theme="dark"] .hud-scan {
 }
 html[data-atlas-app="library"] .shell {position:relative;z-index:2;}/* Type. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(h1,h2,h3) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;overflow-wrap:anywhere;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(.library-opening-rail,.shelf-heading,.reading-caption,.stat .label) {font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.1em!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(.library-opening-rail,.shelf-heading,.reading-caption,.stat .label) {font-family:var(--hud-mono)!important;text-transform:none;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .reading-caption {text-transform:none;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .stat strong,html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .stat .value,html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .stat>:first-child {font-family:var(--hud-mono)!important;text-shadow:0 0 14px color-mix(in srgb,var(--hud-hue) 45%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(.panel>h2,.section-head h2)::before {content:"//" / "";margin-right:.4em;color:var(--hud-hue);font-family:var(--hud-mono);font-weight:500;font-size:.75em;opacity:.85;}/* Cover card: navy glass, angled, lit cuts and brackets, solid base for contrast. */
@@ -76,7 +76,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(.panel,.stat,.fo
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .stat {--hud-cut:10px;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .focus-card {background:var(--hud-cut-edge) left top/var(--hud-cut) var(--hud-cut) no-repeat border-box,var(--hud-cut-edge) right bottom/var(--hud-cut) var(--hud-cut) no-repeat border-box,var(--hud-corners),linear-gradient(165deg,color-mix(in srgb,var(--neo-accent) 16%,transparent),transparent 60%),var(--neo-content-surface)!important;}/* Controls: gold actions stay gold, now angled and lit; inputs get a beam focus. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(.btn,button.primary,.atlas-goal-options button,.icon-btn) {--hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .library-opening-footer :is(button,.btn) {box-shadow:0 0 22px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.35)!important;font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.1em!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .library-opening-footer :is(button,.btn) {box-shadow:0 0 22px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.35)!important;font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .atlas-goal-options button {border-color:var(--hud-edge)!important;font-family:var(--hud-display)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .atlas-goal-options button[aria-pressed="true"] {box-shadow:inset 0 0 16px -4px var(--hud-hue),0 0 12px -6px var(--hud-hue)!important;border-color:var(--hud-hue)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(input,select,textarea) {border-radius:0!important;}

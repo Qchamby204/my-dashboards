@@ -8,13 +8,13 @@
   if (!root || root.dataset?.atlasApp !== 'courier' || !window.AtlasHUDCore || window.CourierHUD) return;
   window.CourierHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'THE COURIER', tagline: 'OS 5.0 // BROADCAST CHANNEL', caps: true, bootKey: 'courier:hud-boot', bootLines: ['Tuning the frequency', 'Loading today\'s edition', 'Syncing your listening', 'All systems nominal']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'The Courier', tagline: 'OS 5.0 // Broadcast channel', bootKey: 'courier:hud-boot', bootLines: ['Tuning the frequency', 'Loading today\'s edition', 'Syncing your listening', 'All systems nominal'], tilt: '#courier-opening'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Reactor around the headphones: edition progress, faster while on air ── */
   function editionArcs() {
     const m = (document.querySelector('#editionProgress .courier-progress-caption')?.textContent || '').match(/(\d+)\s+of\s+(\d+)/);
-    return [{color: 'var(--hud-hue)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: ''}];
+    return [{color: 'var(--hud-hue)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: "Today's edition", value: m ? m[1] + ' of ' + m[2] + ' sections heard' : 'Not started', done: 'Edition finished'}];
   }
   function mountRing(hero) {
     const face = hero.querySelector('.courier-opening-face');
@@ -41,7 +41,7 @@
       const eq = node('span', 'hud-eq', tele);
       for (let i = 0; i < 5; i++) node('i', '', eq);
       node('i', 'hud-live', tele);
-      node('em', 'hud-air', tele).textContent = 'LIVE';
+      node('em', 'hud-air', tele).textContent = 'Live';
       node('b', '', tele);
     }
     heroClock = tele.querySelector('b');
@@ -52,7 +52,7 @@
     const on = !!audio && !audio.paused && !audio.ended;
     root.classList.toggle('hud-on-air', on);
     const air = document.querySelector('#courier-opening .hud-air');
-    if (air) air.textContent = on ? 'ON AIR' : 'LIVE';
+    if (air) air.textContent = on ? 'On air' : 'Live';
   }
   function tick() {
     const now = new Date();
@@ -95,12 +95,13 @@
     if (!control) return;
     const audio = document.getElementById('audio');
     if (control.matches('[data-act="play"]') && audio && !audio.paused && control.closest('.block.active')) return;
-    burstAt(control, control.id === 'shortListen' ? 'QUEUE BUILT' : 'ON AIR');
+    burstAt(control, control.id === 'shortListen' ? 'Queue built' : 'On air');
   }, true);
 
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

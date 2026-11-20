@@ -37,10 +37,10 @@ html[data-atlas-app="courier"][data-atlas-theme="dark"] .hud-scan {
   background:repeating-linear-gradient(180deg,rgba(255,138,122,.028) 0 1px,transparent 1px 3px);
 }
 html[data-atlas-app="courier"] body>:is(header,section,.bar,main) {position:relative;z-index:2;}/* Type. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] body>header .appbar-title {font-family:var(--hud-display)!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.14em!important;font-size:min(1rem,5vw)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] body>header .appbar-title {font-family:var(--hud-display)!important;font-weight:600!important;text-transform:none!important;letter-spacing:.02em!important;font-size:min(1rem,5vw)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] :is(#courier-opening h1,.block .title,.courier-progress-label,#editionState,.practice-panel summary) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;overflow-wrap:anywhere;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] :is(.courier-opening-rail,.block .eyebrow,.courier-edition-stamp,.courier-progress-caption) {font-family:var(--hud-mono)!important;letter-spacing:.06em!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .courier-opening-rail {text-transform:uppercase;letter-spacing:.12em!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .courier-opening-rail {text-transform:none;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] :is(.rail-total,.courier-progress-value,.block .eyebrow .n) {font-family:var(--hud-mono)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] :is(.rail-total,.courier-progress-value) {text-shadow:0 0 18px color-mix(in srgb,currentColor 55%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] .block .eyebrow .n {color:var(--hud-hue)!important;text-shadow:0 0 12px color-mix(in srgb,var(--hud-hue) 55%,transparent);}/* Opening card: dusk-blue glass, angled, lit cuts and brackets, solid base. */
@@ -65,7 +65,7 @@ html[data-atlas-app="courier"] #courier-opening .courier-opening-face.hud-reacto
 html[data-atlas-app="courier"] #courier-opening .courier-opening-face>.hud-reactor {position:absolute;z-index:0;pointer-events:none;overflow:visible;color:#ff8a7a;opacity:.75;}
 html[data-atlas-app="courier"] #courier-opening .courier-opening-face>:not(.hud-reactor) {position:relative;z-index:1;}
 html[data-atlas-app="courier"] #courier-opening .courier-title-art {filter:drop-shadow(0 0 10px rgba(255,138,122,.35));}
-html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] #courier-opening .courier-opening-footer :is(button,.btn) {--hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.1em!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] #courier-opening .courier-opening-footer :is(button,.btn) {--hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="courier"] #courier-opening #playAll {box-shadow:0 0 22px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.35)!important;}/* Rail telemetry: clock, LIVE / ON AIR, and an equalizer that moves while audio plays. */
 html[data-atlas-app="courier"] #courier-opening .hud-telemetry {margin-left:auto;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font:500 10.5px/1.2 var(--hud-mono);letter-spacing:.14em;color:#cfd7e2;}
 html[data-atlas-app="courier"] #courier-opening .hud-telemetry b {color:#ff8a7a;font-weight:600;}

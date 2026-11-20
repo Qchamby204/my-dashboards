@@ -8,8 +8,8 @@
   if (!root || root.dataset?.atlasApp !== 'operations-cadence' || !window.AtlasHUDCore || window.OperationsHUD) return;
   window.OperationsHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'Operations Cadence', tagline: 'OS 5.0 // Practice ops', caps: false, bootKey: 'operations:hud-boot', bootLines: ['Loading the checklists', 'Checking what is due', 'Opening the log', 'All systems nominal']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'Operations Cadence', tagline: 'OS 5.0 // Practice ops', caps: false, bootKey: 'operations:hud-boot', bootLines: ['Loading the checklists', 'Checking what is due', 'Opening the log', 'All systems nominal'], tilt: 'main .operations-opening'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Cadence rings: one arc per checklist, the share of it ticked off ───── */
   const CADENCES = [['daily', '#b6f06a', 'D'], ['weekly', '#6ff2c8', 'W'], ['monthly', '#8cc8ff', 'M'], ['quarterly', '#b591ff', 'Q'], ['annually', '#ffb347', 'A'], ['adhoc', '#f0628a', '']];
@@ -23,7 +23,8 @@
       return CADENCES.map(([id, color, letter]) => {
         const sec = data.find(s => s.id === id);
         const s = sec ? stats(sec) : {done: 0, total: 0};
-        return {color, pct: s.total ? 100 * s.done / s.total : 0, letter};
+        const name = {daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', quarterly: 'Quarterly', annually: 'Annual', adhoc: 'As needed'}[id];
+        return {color, pct: s.total ? 100 * s.done / s.total : 0, letter, label: name, value: s.done + ' of ' + s.total + ' done', done: name + ' checklist complete'};
       });
     } catch { return [{color: 'var(--hud-tab)', pct: 100, letter: ''}]; }
   }
@@ -106,6 +107,7 @@
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

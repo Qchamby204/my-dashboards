@@ -47,9 +47,9 @@ html[data-atlas-app="life-map"][data-atlas-theme="dark"] body::before {
 html[data-atlas-app="life-map"] #app {position:relative;z-index:2;}/* Footer tools sit above the background and below the floating navigation. */
 html[data-atlas-app="life-map"] body>:is(#atlas-project-transfer,.lm-local-status) {position:relative;z-index:1;}/* Type. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.appbar-title,h1,h2,h3,.lm-task-title,.lm-month-header h2,.lm-dial-face strong) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .appbar-title {text-transform:uppercase;letter-spacing:.16em!important;font-weight:600!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .appbar-title {text-transform:none;letter-spacing:.02em!important;font-weight:600!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.appbar-sub,.eyebrow,.lm-feature-rail,.lm-feature-rail>span,.lm-calendar-agenda-label,.lm-checklist-count,.lm-dial-caption,.lm-month-weekdays,.lm-project-count,.lm-day-field>span,.workflow-meta) {
-  font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.12em!important;
+  font-family:var(--hud-mono)!important;text-transform:none;letter-spacing:.02em!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-row-meta {font-family:var(--hud-mono)!important;letter-spacing:.04em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-row-meta,.lm-day-field>span) {font-size:.7rem!important;}
@@ -127,14 +127,14 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-check,[data
   box-shadow:inset 0 0 12px -4px var(--neo-accent),0 0 0 4px color-mix(in srgb,var(--neo-accent) 8%,transparent)!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-check,[data-day="mandatory-toggle"])[aria-pressed="true"] {background:var(--neo-accent)!important;color:var(--neo-canvas)!important;box-shadow:0 0 18px -2px var(--neo-accent)!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-meta-badge {font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.08em;border-radius:0!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-meta-badge {font-family:var(--hud-mono)!important;text-transform:none;letter-spacing:.02em;border-radius:0!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-meta-soon {color:var(--hud-amber)!important;border-color:color-mix(in srgb,var(--hud-amber) 50%,transparent)!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-row-info {color:#ff6f97!important;font-family:var(--hud-mono);text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-row-info {color:#ff6f97!important;font-family:var(--hud-mono);text-transform:none;letter-spacing:.02em;font-size:.68rem;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"][data-atlas-theme="light"] #app .lm-row-info {color:#a1334f!important;}/* Controls: primary actions glow; secondary actions are outlined; both angled. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-day-primary,.lm-header-add) {
   --hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;
   background:var(--neo-accent)!important;color:var(--neo-canvas)!important;border:0!important;
-  font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.14em;font-weight:600!important;
+  font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em;font-weight:600!important;
   box-shadow:0 0 24px -6px var(--neo-accent),inset 0 1px 0 rgba(255,255,255,.4)!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-button:not(.lm-day-primary):not([data-day="mandatory-toggle"]):not(.lm-month-header .lm-day-button) {
@@ -151,7 +151,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-mark-due {color
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-month-header .lm-day-button {border-radius:50%!important;border:1px solid var(--hud-edge)!important;}/* Dock: angled with a beam under the active tab. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {border:1px solid var(--hud-edge)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button {position:relative;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock strong {font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.12em;font-weight:600;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock strong {font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em;font-weight:600;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button[aria-current="page"],html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button[aria-selected="true"],html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button[aria-pressed="true"] {text-shadow:0 0 12px color-mix(in srgb,var(--neo-accent) 70%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock button:is([aria-current="page"],[aria-selected="true"],[aria-pressed="true"])::after {
   content:"";position:absolute;left:28%;right:28%;bottom:3px;height:2px;border-radius:2px;background:var(--neo-accent);box-shadow:0 0 10px var(--neo-accent);
@@ -202,7 +202,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar::after {
   html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app :is(.lm-feature,.panel,.lm-area-option,.lm-task-row,.lm-day-dock,.lm-day-primary,.lm-header-add,.lm-day-button) {clip-path:none;}
 }/* Higher-precedence overrides where the board's own rules are more specific. */
 html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .atlas-suite-header .appbar-title {
-  font:600 1.05rem/1.2 var(--hud-display)!important;text-transform:uppercase!important;letter-spacing:.16em!important;
+  font:600 1.05rem/1.2 var(--hud-display)!important;text-transform:none!important;letter-spacing:.02em!important;
 }
 html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar .lm-header-add {
   --hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;

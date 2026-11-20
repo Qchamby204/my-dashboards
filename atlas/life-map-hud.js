@@ -8,15 +8,15 @@
   if (!root || root.dataset?.atlasApp !== 'life-map' || typeof window === 'undefined' || !window.AtlasHUDCore || window.LifeMapHUD) return;
   window.LifeMapHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'LIFE MAP', tagline: 'OS 5.0 // AREA GRID ONLINE', caps: true, bootKey: 'lifemap:hud-boot', bootLines: ['Mapping life areas', 'Loading projects and tasks', 'Syncing calendar', 'All systems nominal'], accentVars: ['--neo-accent']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'Life Map', tagline: 'OS 5.0 // Area grid online', bootKey: 'lifemap:hud-boot', bootLines: ['Mapping life areas', 'Loading projects and tasks', 'Syncing calendar', 'All systems nominal'], accentVars: ['--neo-accent'], tilt: '#lm-day-view-home .lm-now-card'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
 
   /* ── Reactor rings around the hologram ───────────────────────────────────── */
   function routineArcs() {
     const label = document.querySelector('#lm-day-view-home .lm-instrument')?.getAttribute('aria-label') || '';
     const m = label.match(/(\d+) of (\d+)/);
     const pct = m && Number(m[2]) ? Math.min(100, 100 * Number(m[1]) / Number(m[2])) : 0;
-    return [{color: 'var(--neo-accent)', pct, letter: ''}];
+    return [{color: 'var(--neo-accent)', pct, letter: '', label: 'Daily routines', value: m ? m[1] + ' of ' + m[2] + ' done' : 'None yet', done: 'Day complete'}];
   }
 
   /* ── Live clock on the "Right now" card ──────────────────────────────────── */
@@ -28,7 +28,7 @@
     if (!tele) {
       tele = node('span', 'hud-telemetry', rail);
       node('i', 'hud-live', tele);
-      tele.append('LIVE ');
+      tele.append('Live ');
       node('b', '', tele);
     }
     heroClock = tele.querySelector('b');
@@ -98,12 +98,13 @@
   }
   document.addEventListener('click', e => {
     const control = e.target.closest?.('#app :is(.lm-check,[data-day="mandatory-toggle"])');
-    if (control && control.getAttribute('aria-pressed') !== 'true') burstAt(control, 'COMPLETE');
+    if (control && control.getAttribute('aria-pressed') !== 'true') burstAt(control, 'Complete');
   }, true);
 
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     const app = document.getElementById('app');
