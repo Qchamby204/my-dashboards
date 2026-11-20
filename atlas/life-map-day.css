@@ -879,7 +879,14 @@ html[data-atlas-app="life-map"] #app .lm-route-map:focus-visible {outline-color:
   .lm-pin-label {transform:scale(1.45)}
 }
 @media(max-width:34rem) {
-  .lm-week-bars {grid-template-columns:repeat(auto-fit,minmax(min(100%,2.05rem),1fr))}
+  /* Phones: the strip borrows most of the panel's side padding so every day keeps a 44px target. */
+  .lm-week-profile {margin-inline:-12px;padding-inline:2px}
+  .lm-week-label {padding-inline:.6rem}
+  .lm-week-bars {grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
+}
+@media(max-width:22.4rem) {
+  /* Narrowest phones: Monday to Thursday, then Friday to Sunday. */
+  .lm-week-bars {grid-template-columns:repeat(4,minmax(0,1fr));row-gap:2px}
 }
 html[data-atlas-app="life-map"] #app .lm-route-plate {position:relative;width:min(100%,34.375rem);margin-inline:auto}
 html[data-atlas-app="life-map"] #app .lm-route-plate .lm-relief {width:100%;height:auto;max-height:none}
