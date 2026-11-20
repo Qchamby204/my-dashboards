@@ -2,6 +2,7 @@
   'use strict';
   const M=window.ForgeGoalModel,P=window.ForgeGoalPlans,KEY='forge:goals:v1';
   const goalPlaces=new Map();let goalVisit=0;
+  let plansExpanded=false;
   let data=M.blank(),raw=null,blocked=false,failed=false,active=null,error='',status='',homeScroll=0;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const button=(label,action,attrs='')=>`<button type="button" data-goal-action="${action}" ${attrs}>${label}</button>`;
@@ -53,8 +54,11 @@
   };
 
   function activityStrip() {
-    const counts = new Map();
-    for (const session of state.sessions) counts.set(session.date,(counts.get(session.date)||0)+1);
+    const workouts = new Map();
+    for (const session of state.sessions) {
+      if(!workouts.has(session.date))workouts.set(session.date,[]);
+      workouts.get(session.date).push(session.type);
+    }
     const cells = [];
     let total = 0;
     for (let daysAgo=6; daysAgo>=0; daysAgo--) {
@@ -62,9 +66,9 @@
       date.setHours(12,0,0,0);
       date.setDate(date.getDate()-daysAgo);
       const key = [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
-      const count = counts.get(key)||0;
+      const types=workouts.get(key)||[],count=types.length;
       total += count;
-      cells.push(`<li data-active="${count>0}" ${daysAgo===0?'aria-current="date"':''}><time datetime="${key}">${esc(date.toLocaleDateString(undefined,{weekday:'short'}))}</time><strong>${count}</strong></li>`);
+      cells.push(`<li data-workouts="${esc(types.join(' '))}" data-active="${count>0}" ${daysAgo===0?'aria-current="date"':''}><time datetime="${key}">${esc(date.toLocaleDateString(undefined,{weekday:'short'}))}</time><strong>${count}</strong></li>`);
     }
     return `<div class="fg-activity"><div class="fg-readout"><span>Regular workouts · last 7 days</span><strong>${total} logged</strong></div><ol class="fg-activity-days">${cells.join('')}</ol></div>`;
   }
@@ -108,22 +112,24 @@
     ];
     return `<section class="fg-week-guide" aria-labelledby="fg-week-guide-title"><div class="fg-week-guide-heading"><h3 id="fg-week-guide-title">Suggested goal week</h3><span>4 training days · optional pairings</span></div><ol class="fg-week-strip" aria-label="Suggested weekly training order">${days.map(([day,type,first,second,note])=>`<li class="fg-week-day fg-week-${type}"><span class="fg-week-dayname">${day}</span><strong>${first}</strong>${second?`<span class="fg-week-then" aria-label="then">↓</span><strong>${second}</strong>`:''}<small>${note}</small></li>`).join('')}</ol>${info('How to pair the sessions','<p><strong>Follow the order shown.</strong> Warm up, complete your jump work while fresh, then deadlift. On bench and running days, bench comes first. A and B mean the first and second sessions in the selected training week.</p><p><strong>Running order.</strong> In weeks 2–7, Tuesday is the easy run (Run 2), and Saturday is the quality run (Run 1). In week 1, do the baseline trial on Tuesday before the easy run on Saturday. In week 8, do the primer on Tuesday and the final trial on Saturday.</p><p><strong>Combined lower-body days.</strong> Each estimate covers one goal session, including its warm-up and cooldown. If you have one strength-session time slot, choose the bench or hinge session on its own. To pair jumps with hinges, do the jump warm-up and jump sets first, skip the extra jump accessories, then allow time for your hinge session. A full run also adds time on a bench day.</p><p><strong>Test week.</strong> Follow each plan’s primer, rest and test instructions. Move a test if needed to preserve its prescribed recovery; separate bench and the 5K trial by several hours when possible.</p><p><strong>Flexible days.</strong> This is a suggested rhythm, not a dated schedule. Shift the days to fit your week while preserving recovery. Log each goal separately; the strip does not mark sessions complete.</p>')}</section>`;
   }
+  function workoutOpening(workout){
+    const kind={PUSH:'bench',LEGS:'deadlift',PULL:'weights',ENGINE:'run'}[workout.key];
+    const items=allItems(workout),flags=items.map(item=>!!state.draft[effId(item)]?.done);
+    const start=state.live?.key===workout.key?'Resume workout':'Start workout';
+    const actions=`<button type="button" class="fg-primary" data-act="live" data-key="${workout.key}">${start}</button>`+button('View exercises','browse-workouts');
+    return feature(kind,'Regular workout · '+workout.tag,workout.title,'<p>'+esc(workout.blurb)+'</p>',actions,
+      {home:true,readout:progressStrip('Exercises',flags,flags.filter(Boolean).length+' / '+items.length+' marked')});
+  }
   function home(){
-    const chosen=data.goal&&P[data.goal],p=chosen&&plan(chosen.id),next=p&&M.next(p);
-    const question=chosen
-      ? feature(chosen.id,chosen.phase,chosen.title,
-          `<p class="fg-feature-target">${esc(chosen.target)} <span>${esc(chosen.unit)}</span></p><p>${esc(M.metric(chosen.id,p))}</p>${next?`<p>Next · Week ${next.week+1} · ${next.day==='d1'?'A':'B'}</p>`:''}`,
-          button('Continue your chosen plan','open',`data-goal="${chosen.id}" class="fg-primary"`),
-          {home:true,readout:progressStrip('Goal sessions',Array.from({length:16},(_,i)=>p.completed[`${Math.floor(i/2)}-d${i%2+1}`]),Object.keys(p.completed).length+' / 16 saved')})
-      : feature('home','Your training focus','Choose your next challenge',
-          '<p>Choose a home training goal, or open your dumbbell split below.</p>',
-          Object.values(P).map(c=>button(`<span>${esc(c.title)}</span>`,'choose-focus',`data-goal="${c.id}"`)).join(''),
-          {home:true,readout:activityStrip()});
-    return `${question}<section class="fg-home" aria-labelledby="fg-title"><header class="fg-section-title"><div><div class="fg-kicker">Separate sessions · 8 weeks</div><h2 id="fg-title">Goal training</h2></div>${info('About goal training','<p>Each goal has two sessions per week and its own set log. Your regular split and its session totals stay separate. A saved session may contain fewer sets than prescribed; its log shows exactly what you did.</p><p>The home strength blocks track the weight of one dumbbell. Run on your treadmill and use the floor for jump training. Your earlier gym goals of a 315 lb bench press and a 495 lb deadlift for five have their own records.</p>')}</header>${notice()}<div class="fg-grid">${Object.values(P).map(c=>{
+    const question=feature('home','Regular workouts','Your four-day split',
+      '<p>Dumbbell strength and treadmill conditioning.</p>',
+      button('Choose a workout','browse-workouts','class="fg-primary"')+button('Optional goal plans','browse-plans'),
+      {home:true,readout:activityStrip()});
+    return `${question}<details class="fg-home fg-optional-plans" ${plansExpanded||blocked||failed?'open':''}><summary>Optional goal plans <small>Bench · Deadlift · Jump · Run</small></summary><header class="fg-section-title"><h2>Eight-week plans</h2>${info('About goal training','<p>Each goal has two sessions per week and its own training log. Choose a plan whenever you want to start or resume it.</p><p>Enter the weight of one dumbbell for strength work. Use the treadmill for running and the floor for jump training.</p>')}</header>${notice()}<div class="fg-grid">${Object.values(P).map(c=>{
       const p=plan(c.id),n=M.next(p),count=Object.keys(p.completed).length;
       const started=Object.keys(p.done).length>0;
-      return `<button type="button" class="fg-card fg-${c.color}" data-goal-action="open" data-goal="${c.id}" ${blocked?'disabled':''}><span class="fg-card-top"><span>${esc(c.title)}</span><span class="fg-badge">${c.phase}</span></span><strong class="fg-target">${esc(c.target)} <small>${esc(c.unit)}</small></strong><span class="fg-metric">${esc(M.metric(c.id,p))}</span><span class="fg-progress" role="progressbar" aria-label="${c.title} sessions saved" aria-valuemin="0" aria-valuemax="16" aria-valuenow="${count}"><span style="width:${count/16*100}%"></span></span><span class="fg-card-bottom"><span>${count}/16 sessions</span><span>${n?`Week ${n.week+1} · ${n.day==='d1'?'A':'B'}`:'Block logged'}</span></span><span class="fg-card-cta">${started?'Continue':'Open plan'} <span aria-hidden="true">↗</span></span></button>`;
-    }).join('')}</div><details class="fg-week-guide-disclosure"><summary>Weekly training guide</summary>${suggestedWeek()}</details>${recent()}${gymHistory()}<div class="fg-backup-row">${button('Back up goals','backup')}${button('Restore goal backup','import')}</div></section>`;
+      return `<button type="button" class="fg-card fg-${c.color}" data-goal-action="open" data-goal="${c.id}" ${blocked?'disabled':''}><span class="fg-card-top"><span>${esc(c.title)}</span><span class="fg-badge">${c.phase}</span></span><strong class="fg-target">${esc(c.target)} <small>${esc(c.unit)}</small></strong><span class="fg-metric">${esc(M.metric(c.id,p))}</span><span class="fg-progress" role="progressbar" aria-label="${c.title} sessions saved" aria-valuemin="0" aria-valuemax="16" aria-valuenow="${count}"><span style="width:${count/16*100}%"></span></span><span class="fg-card-bottom"><span>${count}/16 sessions</span><span>${n?`Week ${n.week+1} · ${n.day==='d1'?'A':'B'}`:'Block logged'}</span></span><span class="fg-card-cta">${c.id===data.goal?'Continue chosen plan':started?'Continue':'Open plan'} <span aria-hidden="true">↗</span></span></button>`;
+    }).join('')}</div><details class="fg-week-guide-disclosure"><summary>Weekly training guide</summary>${suggestedWeek()}</details>${recent()}${gymHistory()}<div class="fg-backup-row">${button('Back up goals','backup')}${button('Restore goal backup','import')}</div></details>`;
   }
   function gymHistory(){
     const groups=Object.entries(data.gymPlans||{}).filter(([,p])=>Object.keys(p.done).length||p.draft);
@@ -200,25 +206,32 @@
     const c=P[active],{p,b,w}=selected(),day=name(active,p,p.week,p.day),ct=M.counts(active,p,p.week,p.day),done=p.completed[`${p.week}-${p.day}`];
     const overview=M.sessionOverview(active,w[p.day]);
     const prep=overview?`<p><strong>Warm-up</strong> · ${esc(overview.warmup)}</p><p><strong>Cooldown</strong> · ${esc(overview.cooldown)}</p><small>The estimate includes rests and time to change weights.</small>`:'';
-    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><header class="fg-detail-title"><h1 tabindex="-1" id="fg-detail-title">${esc(c.title)}</h1><p>${esc(c.aim)} · ${esc(M.metric(active,p))}</p></header>${currentSession()}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>A basketball rim is 120 inches high. For your home benchmark, record how high you touch from the floor using the same standing start each time.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?'<span class="fg-week-done" aria-hidden="true">✓</span>':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?', complete':''}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p>${prep}<span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}${!failed&&done?' · Session saved':''}</span></div><div class="fg-exercise-grid">${exercises()}</div>${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
+    return `<section class="fg-detail fg-${c.color}" aria-label="${c.title} plan"><header class="fg-detail-head">${button('← Forge','home')}<span>${esc(c.phase)} · ${esc(c.title)}</span></header><header class="fg-detail-title"><h1 tabindex="-1" id="fg-detail-title">${esc(c.title)}</h1><p>${esc(c.aim)} · ${esc(M.metric(active,p))}</p></header>${currentSession()}${!data.goal?button('Choose as my training goal','choose-focus',`data-goal="${c.id}"`):''}${active==='run'?pacePanel():''}${active==='dunk'?info('Touch height and the rim','<p>A basketball rim is 120 inches high. For your home benchmark, record how high you touch from the floor using the same standing start each time.</p>'):''}<nav class="fg-weeks" aria-label="Training week">${b.weeks.map((_,i)=>button(`${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?'<span class="fg-week-done" aria-hidden="true">✓</span>':''}`,'week',`data-week="${i}" aria-label="Week ${i+1}${p.completed[`${i}-d1`]&&p.completed[`${i}-d2`]?', complete':''}" aria-pressed="${i===p.week}"`)).join('')}</nav><div class="fg-phase"><strong>Week ${p.week+1} · ${esc(b.phases[w.phase].name)}</strong>${info('This week',`<p>${esc(w.note)}</p>`)}</div><nav class="fg-days" aria-label="Goal session">${['d1','d2'].map(d=>button(esc(name(active,p,p.week,d).title)+(p.completed[`${p.week}-${d}`]?' ✓':''),'day',`data-day="${d}" aria-pressed="${d===p.day}"`)).join('')}</nav><div class="fg-session-intro"><p>${esc(day.purpose)}</p>${prep}<span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}${!failed&&done?' · Session saved':''}</span></div><div class="fg-exercise-grid">${exercises()}</div>${active==='run'?runSummary(p):''}<footer class="fg-session-footer"><span>${ct.logged}/${ct.total} sets ${failed?'entered · not saved':'logged'}</span>${button(done?'Update saved session':'Finish session','finish','class="fg-primary"')}${done?button('Next session →','next'):''}<small>${done?`Saved ${new Date(done).toLocaleDateString()}`:'Finish saves the session with the sets you logged.'}</small></footer>${info('How to run this plan',c.rules)}</section>`;
   }
   function paint(){
-    const host=document.getElementById('forge-goals');if(!host)return;
+    const app=document.getElementById('app'),host=document.getElementById('forge-goals');
+    app.classList.toggle('fg-goal-open',!!active);
+    if(!host)return;
     if(state.goals&&state.goals!==data){data=M.validate(state.goals);state.goals=data;try{raw=localStorage.getItem(KEY);blocked=false;failed=false;}catch{failed=true;error='Could not read saved goal training.';}}
     // The regular split remains mounted, keeping its own draft and live workout intact.
-    const goalOpen=!!active;document.getElementById('app').classList.toggle('fg-goal-open',goalOpen);
-    const app=document.getElementById('app');app.querySelector('.fg-starting-point')?.remove();
-    host.innerHTML=active?detail():home();
+    app.querySelector('.fg-starting-point')?.remove();
+    const workout=routedWorkout();
+    app.classList.toggle('forge-split-open',!!workout);
+    host.innerHTML=workout?workoutOpening(workout):active?detail():home();
     if(active){const detail=host.querySelector('.fg-detail'),opening=detail?.querySelector('.fg-current-session');if(opening){const head=detail.querySelector('.fg-detail-head'),title=detail.querySelector('.fg-detail-title');if(head&&title)opening.after(head,title);}}
 
-    if(!active){const prompt=host.querySelector('.fg-starting-point');if(prompt)app.querySelector('.appbar')?.after(prompt);}
+    if(!active){
+      const prompt=host.querySelector('.fg-starting-point');if(prompt)app.querySelector('.appbar')?.after(prompt);
+      const list=host.querySelector('.fg-optional-plans');
+      list?.addEventListener('toggle',()=>{if(list.isConnected)plansExpanded=list.open;});
+    }
     window.CoreAppFinish?.layoutOpening?.();
   }
   function focusTitle(){document.getElementById('fg-detail-title')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
   function open(id,week,day){
     if(blocked)return;
     rememberGoal();const place=week===undefined?goalPlaces.get(id):null,visit=++goalVisit;
-    if(!active)homeScroll=window.scrollY;
+    if(!active){homeScroll=window.scrollY;plansExpanded=true;}
     active=id;error='';status='';const p=editPlan(),n=M.next(p);
     if(week!==undefined){p.week=week;p.day=day;}else if(p.draft){const at=M.locate(id,p.draft.key,p.base);p.week=at.week;p.day=at.day;}else if(place){p.week=place.week;p.day=place.day;}else if(n){p.week=n.week;p.day=n.day;}
     persist();paint();focusTitle();
@@ -250,6 +263,14 @@
   function click(e){
     const el=e.target.closest('[data-goal-action]');if(!el)return;
     const a=el.dataset.goalAction;
+    if(a==='browse-workouts'){
+      const first=document.querySelector('.forge-day-card');
+      first?.scrollIntoView({block:'start'});first?.querySelector('.forge-day-heading')?.focus({preventScroll:true});return;
+    }
+    if(a==='browse-plans'){
+      const list=document.querySelector('.fg-optional-plans');plansExpanded=true;list.open=true;
+      list.scrollIntoView({block:'start'});list.querySelector('summary').focus({preventScroll:true});return;
+    }
     if(a==='backup'){backup();return;}if(a==='import'){importBackup();return;}
     if(a==='reload'){window.ForgeSession.confirmAction('Reload saved goals?','Download a backup first if this tab has unsaved work.','Reload',()=>location.reload());return;}
     if(blocked)return;
@@ -330,7 +351,16 @@
     });
     window.addEventListener('beforeunload',e=>{if(failed){e.preventDefault();e.returnValue='';}});
     window.addEventListener('storage',e=>{if(e.key!==KEY||failed)return;read();paint();});
-    window.addEventListener('hashchange',()=>{const id=location.hash.replace('#goal-','');if(id===active)return;if(Object.hasOwn(P,id))open(id);else{active=null;paint();window.scrollTo({top:homeScroll,behavior:'instant'});}});
+    let split=routedWorkout();
+    window.addEventListener('hashchange',()=>{
+      const nextSplit=routedWorkout(),changedSplit=split!==nextSplit;
+      if(changedSplit){rememberGoal();active=null;split=nextSplit;status='';error='';render();}
+      if(split){window.scrollTo({top:0,behavior:'instant'});return;}
+      const id=location.hash.replace('#goal-','');
+      if(id===active)return;
+      if(Object.hasOwn(P,id)&&!blocked)open(id);
+      else{rememberGoal();active=null;paint();window.scrollTo({top:changedSplit?0:homeScroll,behavior:'instant'});}
+    });
     const id=location.hash.replace('#goal-','');if(Object.hasOwn(P,id)&&!blocked)open(id);else paint();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();

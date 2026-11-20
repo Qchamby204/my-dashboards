@@ -61,7 +61,7 @@ try{
    await p.screenshot({path:path.join(out,'batch2-forge-'+theme+'.png')});
    await editor.locator('[name="w"]').fill('135');await editor.locator('[name="r"]').fill('6');await editor.locator('.fg-effort>summary').click();await editor.locator('[name="e"]').fill('8');await editor.locator('.fg-effort>summary').click();
    const nav=name=>p.locator('#atlas-page-navigation').getByRole('button',{name,exact:true}).click();
-   await nav('Deadlift');await nav('Bench');assert.equal(await editor.locator('[name="w"]').inputValue(),'135');assert.equal(await editor.locator('[name="e"]').inputValue(),'8');
+   await nav('Legs');await nav('Forge');await p.getByRole('button',{name:'Optional goal plans',exact:true}).click();await p.locator('[data-goal-action="open"][data-goal="bench"]').click();assert.equal(await editor.locator('[name="w"]').inputValue(),'135');assert.equal(await editor.locator('[name="e"]').inputValue(),'8');
    await p.reload();await ready(p,'ForgeGoals');assert.equal(await editor.locator('[name="r"]').inputValue(),'6','set draft survives navigation and reload');
    for(const [width,size]of [[393,16],[393,20],[320,20],[320,32]]){
     await p.setViewportSize({width,height:900});const style=await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});if(size<32)await fits(p);await contained(editor);

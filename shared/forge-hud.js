@@ -12,22 +12,20 @@
   const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
 
   /* ── Reactor rings around the hologram ───────────────────────────────────── */
-  const GOALS = {gold: '#ffd08b', orange: '#ffab88', blue: '#8ddafa', green: '#9ce5b2'};
+  const SPLIT = {Push:'#cc7841',Legs:'#a28bd9',Pull:'#4299b6',Engine:'#43a885'};
   function goalArcs(feature) {
-    // Training focus: one ring per goal, filled by sessions completed.
-    const cards = [...document.querySelectorAll('#app .fg-card')];
-    if (feature.classList.contains('fg-starting-point') && cards.length) {
-      return cards.slice(0, 4).map(card => {
-        const tone = Object.keys(GOALS).find(k => card.classList.contains('fg-' + k));
-        const m = card.textContent.match(/(\d+)\s*\/\s*(\d+)\s*sessions/i);
-        const goal = (card.querySelector('h3,h2,strong,.fg-name')?.textContent || 'Goal').trim();
-        return {color: GOALS[tone] || 'var(--neo-accent)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: goal, value: m ? m[1] + ' of ' + m[2] + ' sessions' : '', done: goal + ' block complete'};
+    if(feature.dataset.focus==='home'){
+      const logged=[...feature.querySelectorAll('[data-workouts]')].flatMap(day=>day.dataset.workouts.split(' '));
+      return Object.entries(SPLIT).map(([label,color])=>{
+        const count=logged.filter(type=>type===label.toUpperCase()).length;
+        return {label,color,pct:count?100:0,letter:'',value:count+' logged in the past 7 days',done:label+' logged this week'};
       });
     }
     // A session in progress: one ring for sets logged, in the goal's colour.
     const m = (feature.querySelector('.fg-readout strong')?.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
     const beam = getComputedStyle(feature).getPropertyValue('--beam').trim() || 'var(--neo-accent)';
-    return [{color: beam, pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: 'Sets', value: m ? m[1] + ' of ' + m[2] + ' logged' : '', done: 'Session complete'}];
+    const split=feature.classList.contains('fg-starting-point');
+    return [{color: beam, pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: split?'Exercises':'Sets', value: m ? m[1] + ' of ' + m[2] + (split?' marked':' logged') : '', done: split?'Exercises marked':'Session complete'}];
   }
   function mountRing(feature) {
     const art = feature.querySelector('.fg-feature-art');

@@ -23,7 +23,7 @@ try{
    for(const button of await hero.locator('button').all()){const box=await button.boundingBox();assert(box.height>=44&&box.width>=44,'opening actions retain targets');}
    await p.screenshot({path:path.join(out,`${view}-${theme}-${width}-${size}.png`)});reports.push({view,theme,width,size,...g});
   };
-  const initial=await p.evaluate(()=>localStorage.getItem('forge:goals:v1'));await check('home','.fg-starting-point');assert.equal(await p.locator('[data-goal-action="choose-focus"]').count(),4);assert.equal(await p.locator('.fg-activity-days li').count(),7);assert.equal(await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),initial,'viewing an opening does not create goal records');
+  const initial=await p.evaluate(()=>localStorage.getItem('forge:goals:v1'));await check('home','.fg-starting-point');assert.equal(await p.locator('.fg-card:visible').count(),0);await p.getByRole('button',{name:'Optional goal plans',exact:true}).click();assert.equal(await p.locator('.fg-card:visible').count(),4);assert.equal(await p.locator('.fg-activity-days li').count(),7);assert.equal(await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),initial,'viewing an opening does not create goal records');
   for(const goal of ['bench','deadlift','dunk','run']){
    await p.evaluate(id=>{location.hash='goal-'+id;},goal);await p.waitForFunction(id=>document.querySelector('.fg-detail')?.getAttribute('aria-label')===ForgeGoalPlans[id].title+' plan',goal);await p.evaluate(()=>scrollTo(0,0));
    await check(goal,'.fg-current-session');assert.equal(await p.locator('.fg-current-session .fg-feature-art').getAttribute('data-illustration'),goal);assert.equal(await p.locator('.fg-detail h1').textContent(),await p.evaluate(id=>ForgeGoalPlans[id].title,goal));

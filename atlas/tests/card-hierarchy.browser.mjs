@@ -32,7 +32,7 @@ async function coreChrome(p,app,w,h){
  const labels=await dock.locator('button>span:last-child').evaluateAll(ns=>ns.map(n=>({label:n.textContent,height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight),width:n.clientWidth,scroll:n.scrollWidth})));
  assert(labels.every(n=>n.height<=n.line+1&&n.scroll<=n.width+1),app+' navigation labels stay whole: '+JSON.stringify(labels));
  assert(await dock.locator('button').evaluateAll(ns=>ns.every(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.height>=44&&r.width>=44&&parseFloat(s.borderRadius)>=22&&parseFloat(s.borderTopWidth)===0&&s.boxShadow==='none';})),app+' uses distinct, full-size navigation targets');
- if(w<=360){
+ if(w<=360&&app!=='Forge'){
   await dock.locator('[data-more]').click();const menu=p.locator('#atlas-page-menu');assert(await menu.isVisible());
   await menu.getByRole('button',{name:app==='Forge'?'Run':'Progress',exact:true}).click();
   assert.equal(await dock.locator('[data-more]').getAttribute('aria-current'),'page','overflow selection stays visible');
@@ -51,11 +51,12 @@ try{
   async function open(file,hash=''){await p.goto(origin+'/'+file+'.html'+hash,{waitUntil:'domcontentloaded'});await settle(p);if(size!==16)await p.addStyleTag({content:'html.atlas-neumo,html.atlas-neumo body{font-size:'+size+'px!important}'});}
   await open('workout-forge');
   const goalChoices=p.locator('.fg-starting-point .fg-feature-footer');await goalChoices.waitFor({state:'visible'});
-  assert.equal(await goalChoices.locator('button').count(),4,'all first-goal choices remain available');
-  assert(await goalChoices.locator('button').evaluateAll(ns=>{const rs=ns.map(n=>n.getBoundingClientRect());return rs.every((r,i)=>r.height>=52&&r.width>=44&&(!i||r.top>=rs[i-1].bottom+11||r.left>=rs[i-1].right+11));}),'Forge first-goal choices have full targets and separated rows');
-  await capture(p,'forge-first-goal-choices',theme,w,size,p.locator('.fg-starting-point'));
+  assert.equal(await goalChoices.locator('button').count(),2,'workouts and optional plans are reachable from Home');
+  assert(await goalChoices.locator('button').evaluateAll(ns=>{const rs=ns.map(n=>n.getBoundingClientRect());return rs.every((r,i)=>r.height>=52&&r.width>=44&&(!i||r.top>=rs[i-1].bottom+11||r.left>=rs[i-1].right+11));}),'Forge workout choices have full targets and separated rows');
+  await capture(p,'forge-workout-choices',theme,w,size,p.locator('.fg-starting-point'));
   await coreChrome(p,'Forge',w,h);
 
+  await p.getByRole('button',{name:'Optional goal plans',exact:true}).click();
   assert(await p.locator('.fg-card').first().evaluate(n=>getComputedStyle(n).backgroundColor!==getComputedStyle(document.body).backgroundColor),'Forge goal records are distinct from the canvas');await capture(p,'forge-goal-record',theme,w,size,p.locator('.fg-card').first());
   const goalBytes=await p.evaluate(()=>localStorage.getItem('forge:goals:v1')),guide=p.locator('.fg-week-guide-disclosure');
   assert.equal(await guide.getAttribute('open'),null,'the weekly guide starts secondary');

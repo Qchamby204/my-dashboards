@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"0336bd972a03","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"144a2e858593"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"0336bd972a03","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"d21499d8cb39"}</script>
 <meta charset="utf-8"/>
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -81,21 +81,21 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/forge-goals.css?v=4808d09160c1">
+<link rel="stylesheet" href="shared/forge-goals.css?v=ea6163b7a8cd">
 <link rel="stylesheet" href="shared/forge-progression.css?v=b96f9c39085a">
 <link rel="stylesheet" href="shared/core-app-finish.css?v=3041ebc46681">
 <script src="shared/core-app-finish.js?v=20ba530a9cac" defer></script>
 <link rel="stylesheet" href="shared/forge-console.css?v=861f3ff40ba8">
 <link rel="stylesheet" href="shared/hud-core.css?v=21209109efe2"><link rel="stylesheet" href="shared/forge-hud.css?v=9e33f794fd18">
 <script src="shared/hud-core.js?v=ff5f19b23ee6" defer></script>
-<script src="shared/forge-hud.js?v=5044d8c2888d" defer></script>
+<script src="shared/forge-hud.js?v=bf5f63a3d13e" defer></script>
 <link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/workout-forge-32.png?v=9eee6d9917f7">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/workout-forge-64.png?v=30e3ecff5cc1">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/workout-forge-apple.png?v=275a085fe2f1">
 <link rel="stylesheet" href="shared/suite-chrome.css?v=f75e48fc5188">
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
-<script src="shared/dashboard-navigation.js?v=11a6283b082c" defer></script>
+<script src="shared/dashboard-navigation.js?v=7f7ac4d2c41a" defer></script>
 <script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
@@ -702,16 +702,21 @@ function itemRow(it, accent, glow, dayKey, idx, len){
   return h;
 }
 
-function dayCard(d){
-  var st=stats(), count=st.byType[d.key]||0, open=state.openDay===d.key;
+function routedWorkout(){
+  return PROGRAM.find(function(day){return location.hash==="#workout-"+day.key.toLowerCase();});
+}
+function dayCard(d,standalone){
+  var st=stats(), count=st.byType[d.key]||0, open=standalone||state.openDay===d.key;
   var done=allItems(d).filter(function(it){ var dr=state.draft[effId(it)]; return dr&&dr.done; }).length;
   var total=allItems(d).length;
-  var h='<div class="panel card forge-day-card" data-expanded="'+open+'" data-act="day" data-key="'+d.key+'" style="padding:15px;border-color:'+(open?d.accent:"rgba(120,130,180,.16)")+';'+(open?"box-shadow:0 0 0 1px "+d.accent+",0 18px 40px -26px "+d.glow+";":"")+'">';
-  h+='<div style="display:flex;align-items:center;gap:12px">';
-  h+='<div style="width:46px;height:46px;border-radius:13px;flex-shrink:0;background:radial-gradient(circle at 30% 25%,'+d.accent+'33,#14172400);border:1px solid '+d.accent+'66;display:grid;place-items:center"><span class="cinzel" style="font-size:18px;color:'+d.accent+';font-weight:700">'+esc(d.tag[0])+'</span></div>';
-  h+='<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span class="cinzel" style="font-size:15px;color:#eef0fb;font-weight:600">'+esc(d.tag)+'</span><span class="mono" style="font-size:12.5px;color:'+d.accent+'">'+count+' logged</span></div>';
-  h+='<div style="font-size:13px;color:#7c84a8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(d.title)+'</div></div>';
-  h+='<span style="color:#6f7798;font-size:18px;transform:rotate('+(open?"90":"0")+'deg);transition:transform .2s">\u203a</span></div>';
+  var h='<div class="panel card forge-day-card" data-expanded="'+open+'" '+(standalone?'':'data-act="day"')+' data-key="'+d.key+'" style="padding:15px;border-color:'+(open?d.accent:"rgba(120,130,180,.16)")+';'+(open?"box-shadow:0 0 0 1px "+d.accent+",0 18px 40px -26px "+d.glow+";":"")+'">';
+  var head=standalone?'h2':'button';
+  h+='<'+head+(standalone?' tabindex="-1"':' type="button" aria-label="'+esc(d.tag)+' workout" aria-expanded="'+open+'"')+' class="forge-day-heading">';
+  h+='<span style="width:46px;height:46px;border-radius:13px;flex-shrink:0;background:radial-gradient(circle at 30% 25%,'+d.accent+'33,#14172400);border:1px solid '+d.accent+'66;display:grid;place-items:center"><span class="cinzel" style="font-size:18px;color:'+d.accent+';font-weight:700">'+esc(d.tag[0])+'</span></span>';
+  h+='<span style="flex:1;min-width:0"><span style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span class="cinzel" style="font-size:15px;color:#eef0fb;font-weight:600">'+esc(d.tag)+'</span><span class="mono" style="font-size:12.5px;color:'+d.accent+'">'+count+' logged</span></span>';
+  h+='<span style="display:block;font-size:13px;color:#7c84a8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(d.title)+'</span></span>';
+  if(!standalone) h+='<span style="color:#6f7798;font-size:18px;transform:rotate('+(open?"90":"0")+'deg);transition:transform .2s">\u203a</span>';
+  h+='</'+head+'>';
   if(!open){ h+='<div style="font-size:13px;color:#8089a8;margin-top:10px;line-height:1.4">'+esc(d.blurb)+'</div>'; }
   if(open){
     h+='<div class="fadeUp" style="margin-top:12px">';
@@ -1248,26 +1253,8 @@ function section(key,title,accent,teaser,content){
   h+='</div>';
   return h;
 }
-function render(){
-  var st=stats(), h='';
-
-  /* Sticky chrome: title + session count always reachable, blurred fill runs
-     up under the Dynamic Island. */
-  h+='<div class="appbar">';
-  h+='<a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">\u2302</a>';
-  h+='<div style="display:flex;align-items:center;gap:9px;min-width:0"><span style="color:#f0683e;font-size:15px;line-height:1">\u2692</span><span class="appbar-title">The Forge</span></div>';
-  h+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
-  h+='<span class="appbar-pill"><span class="mono" style="font-size:12.5px;font-weight:700;color:#f6d0be">'+st.thisWeek+'</span><span style="font-size:12px;color:#9aa2c0;letter-spacing:.08em">THIS WK</span></span>';
-  h+='</div></div>';
-
-  if(state.handoff){
-    h+='<div class="panel fadeUp" style="padding:12px 14px;margin-bottom:14px;border-color:rgba(240,183,62,.5);display:flex;align-items:center;gap:10px">'
-      +'<span style="font-size:16px">\u2694</span>'
-      +'<div style="flex:1;min-width:0;font-size:12px;color:#dfe3f4;line-height:1.4"><b>'+esc(state.handoff.tag)+'</b> logged \u2014 count it toward your 80 workouts in Life Ledger.</div>'
-      +'<a href="life-ledger.html?forge=1&d='+esc(state.handoff.date)+'" style="flex-shrink:0;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f);text-decoration:none;white-space:nowrap">Add \u2192</a>'
-      +'<button class="btn tap" data-act="hodismiss" aria-label="dismiss" style="background:transparent;border:none;color:#8089a8;font-size:16px;padding:4px 6px">\u00d7</button>'
-      +'</div>';
-  }
+function forgeOverview(st){
+  var h='';
   h+='<div class="fadeUp" style="text-align:center;margin:2px 0 12px"><div style="font-size:13px;color:#7c84a8;font-style:italic;line-height:1.45">4-day split \u00b7 strength, power, conditioning</div></div>';
 
   h+='<div class="eyebrow" style="margin:20px 2px 11px">Regular workouts \u00b7 tap a day to log</div><div class="forge-split-grid" style="display:flex;flex-direction:column;gap:11px">';
@@ -1338,6 +1325,35 @@ function render(){
     +'<input type="file" id="importFile" accept="application/json,.json" style="display:none"/></div>';
   h+='<div class="mono" style="text-align:center;margin-top:14px;font-size:12.5px;color:#4e5573">'+st.daysLeft+' days left in the year \u00b7 saved in this browser</div>';
   h+='<div class="mono forge-app-links" style="display:flex;gap:16px;justify-content:center;margin-top:16px;font-size:12px;letter-spacing:.14em;text-transform:uppercase"><a href="life-ledger.html" style="color:#5d647f;text-decoration:none">Life Ledger</a><span style="color:#f0683e">\u2692 The Forge</span><a href="communication-trainer.html" style="color:#5d647f;text-decoration:none">Communicator</a></div>';
+  return h;
+}
+function render(){
+  var st=stats(), h='';
+
+  /* Sticky chrome: title + session count always reachable, blurred fill runs
+     up under the Dynamic Island. */
+  h+='<div class="appbar">';
+  h+='<a href="index.html" class="homebtn" aria-label="The Atlas" title="The Atlas">\u2302</a>';
+  h+='<div style="display:flex;align-items:center;gap:9px;min-width:0"><span style="color:#f0683e;font-size:15px;line-height:1">\u2692</span><span class="appbar-title">The Forge</span></div>';
+  h+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
+  h+='<span class="appbar-pill"><span class="mono" style="font-size:12.5px;font-weight:700;color:#f6d0be">'+st.thisWeek+'</span><span style="font-size:12px;color:#9aa2c0;letter-spacing:.08em">THIS WK</span></span>';
+  h+='</div></div>';
+
+  if(state.handoff){
+    h+='<div class="panel fadeUp" style="padding:12px 14px;margin-bottom:14px;border-color:rgba(240,183,62,.5);display:flex;align-items:center;gap:10px">'
+      +'<span style="font-size:16px">\u2694</span>'
+      +'<div style="flex:1;min-width:0;font-size:12px;color:#dfe3f4;line-height:1.4"><b>'+esc(state.handoff.tag)+'</b> logged \u2014 count it toward your 80 workouts in Life Ledger.</div>'
+      +'<a href="life-ledger.html?forge=1&d='+esc(state.handoff.date)+'" style="flex-shrink:0;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;color:#0c0e1a;background:linear-gradient(180deg,#f6cf6a,#e2a32f);text-decoration:none;white-space:nowrap">Add \u2192</a>'
+      +'<button class="btn tap" data-act="hodismiss" aria-label="dismiss" style="background:transparent;border:none;color:#8089a8;font-size:16px;padding:4px 6px">\u00d7</button>'
+      +'</div>';
+  }
+  var workout=routedWorkout();
+  if(workout){
+    h+='<div id="forge-goals"></div>';
+    h+='<div class="forge-split-grid" aria-label="'+esc(workout.tag)+' workout">'+dayCard(workout,true)+'</div>';
+  }else{
+    h+=forgeOverview(st);
+  }
   h+=plateView();
   h+=liveView();
   h+=prCelView();
@@ -1603,7 +1619,7 @@ render();
 </script>
 <script src="shared/forge-goal-plans.js?v=089686334e29"></script>
 <script src="shared/forge-goal-model.js?v=3c7becaffc60"></script>
-<script src="shared/forge-goals.js?v=c0f9e9b78f5d"></script>
+<script src="shared/forge-goals.js?v=007853c8eb70"></script>
 </body>
 </html>
 

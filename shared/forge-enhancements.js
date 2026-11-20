@@ -183,7 +183,19 @@
     const oldLiveView=liveView;liveView=function(){return oldLiveView().replace('<div class="overlay"','<div class="overlay forge-live"');};
     const infoOpen=new Set();
     function info(id,label,text){const d=make('details',null,'forge-info'),summary=make('summary','i');d.id=id;d.open=infoOpen.has(id);summary.setAttribute('aria-label',label);d.append(summary,make('p',text));d.addEventListener('toggle',()=>{if(d.open)infoOpen.add(id);else infoOpen.delete(id);});return d;}
-    function showSection(key){state.prCel=null;state.openSections[key]=true;render();app.querySelector('[data-act="section"][data-key="'+key+'"]')?.scrollIntoView({block:'start'});}
+    function showSavedSession(session){
+      state.prCel=null;state.openSections.log=true;
+      function show(){
+        render();
+        const index=state.sessions.indexOf(session);
+        const target=app.querySelector('[data-act="del"][data-idx="'+index+'"]')?.closest('.row')||app.querySelector('[data-act="section"][data-key="log"]');
+        target?.scrollIntoView({block:'center'});
+      }
+      if(routedWorkout()){
+        window.addEventListener('hashchange',show,{once:true});
+        location.hash='';
+      }else show();
+    }
     function savedSummary(session){const panel=make('section',null,'panel forge-summary');panel.id='forge-session-summary';panel.setAttribute('aria-label','Saved session');const items=Object.values(session.items),sets=items.reduce((n,o)=>n+(o.sets?.length||0),0),minutes=items.reduce((n,o)=>n+(Number(o.min)||0),0),prs=items.filter(o=>o.pr).length;
       const heading=make('h2','Session saved'),status=make('p',(dayBy(session.type)?.tag||session.type)+' · '+fmtDate(session.date));status.setAttribute('role','status');panel.append(heading,status);
       const counts=[items.length+' exercise entr'+(items.length===1?'y':'ies'),sets+' recorded set'+(sets===1?'':'s')];if(minutes)counts.push(minutes+' recorded cardio min');if(session.elapsedSeconds!==undefined)counts.push(clk(session.elapsedSeconds)+' elapsed');else if(session.dur!==undefined)counts.push(session.dur+' min elapsed');if(prs)counts.push(prs+' new record'+(prs===1?'':'s'));panel.append(make('p',counts.join(' · '),'forge-summary-counts'));
@@ -193,7 +205,7 @@
         const delta=a.reduce((n,set,i)=>n+Number(set.r)-Number(b[i].r),0);
         if(delta>0){const gain=make('article',null,'forge-saved-gain');gain.append(make('strong',item.name||nameForEid(id)),make('p',delta+' more rep'+(delta===1?'':'s')+' at the same '+(new Set(a.map(s=>Number(s.w))).size===1?a[0].w+' lb':'set weights')+' across '+a.length+' sets.'));panel.append(gain);}
       }
-      const actions=make('div',null,'forge-summary-actions');actions.append(button('View saved session',()=>{showSection('log');const index=state.sessions.indexOf(session);app.querySelector('[data-act="del"][data-idx="'+index+'"]')?.closest('.row')?.scrollIntoView({block:'center'});}));const link=make('a','Review in Life Ledger','forge-button');link.href='life-ledger.html?forge=1&d='+encodeURIComponent(session.date);actions.append(link,button('Dismiss',()=>{state.handoff=null;render();}));panel.append(actions,info('forge-summary-info','About this saved session','Only the entries you recorded were saved. Skipped exercises remain unmarked. The first entry establishes a baseline; later saved entries can set records. Life Ledger opens a separate daily entry for you to review and save.'));return panel;
+      const actions=make('div',null,'forge-summary-actions');actions.append(button('View saved session',()=>showSavedSession(session)));const link=make('a','Review in Life Ledger','forge-button');link.href='life-ledger.html?forge=1&d='+encodeURIComponent(session.date);actions.append(link,button('Dismiss',()=>{state.handoff=null;render();}));panel.append(actions,info('forge-summary-info','About this saved session','Only the entries you recorded were saved. Skipped exercises remain unmarked. The first entry establishes a baseline; later saved entries can set records. Life Ledger opens a separate daily entry for you to review and save.'));return panel;
     }
     const oldPRView=prCelView;
     prCelView=()=>oldPRView().replace('<div class="overlay"','<dialog class="overlay forge-record-dialog"').replace(' data-act="closepr"','').replace(/<\/div>$/, '</dialog>');

@@ -417,3 +417,22 @@ test('the home split only offers supported equipment and retains original identi
  h.run("state.draft[effId(allItems(dayBy('ENGINE')).find(it=>it.track==='cardio'))]={min:'12',sets:[]}");
  await h.run("logDay('ENGINE')");assert.equal(h.run("Object.values(state.sessions.at(-1).items)[0].mode"),'Treadmill');
 });
+
+test('split tabs open the requested workouts and preserve an unfinished optional plan',async()=>{
+ const h=await boot({goals:true,realProgram:true});
+ const route=hash=>{h.context.location.hash=hash;h.window.emit('hashchange');};
+ for(const key of ['push','legs','pull','engine']){
+   route('#workout-'+key);
+   assert.equal(h.document.querySelectorAll('.forge-day-card').length,1);
+   assert.equal(h.document.querySelector('.forge-day-card').dataset.key,key.toUpperCase());
+   assert.equal(h.document.querySelector('.fg-feature [data-act="live"]').dataset.key,key.toUpperCase());
+   assert.equal(h.document.querySelector('.fg-card'),null);
+ }
+ assert.equal(h.storage.get('forge:goals:v1'),undefined);
+ route('');assert.equal(h.document.querySelectorAll('.fg-card').length,4);
+ goalClick(h,'open',{goal:'bench'});goalClick(h,'set',{key:'0-d1-0-0'});
+ fillGoal(h,{w:'25',r:'8',e:'7'});
+ route('#workout-pull');route('#goal-bench');
+ assert.equal(h.document.querySelector('.fg-editor [name="w"]').value,'25');
+ assert.equal(h.window.ForgeGoals.snapshot().plans.bench.draft.key,'0-d1-0-0');
+});

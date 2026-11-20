@@ -43,6 +43,7 @@ try{
    await appearance.blur();
    assert.equal(await p.locator('.appbar').evaluate(n=>parseFloat(getComputedStyle(n).borderBottomWidth)),1,'header uses one quiet divider');
    assert(await p.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));
+   if(app==='workout-forge')await p.getByRole('button',{name:'Optional goal plans',exact:true}).click();
    const hero=p.locator(heroSelector).first();
     assert(await hero.evaluate(n=>{const s=getComputedStyle(n);return s.backgroundImage==='none'&&s.backgroundColor!==getComputedStyle(document.body).backgroundColor;}),'the primary record has a solid surface distinct from the canvas');
     if(app==='life-ledger'){
@@ -126,7 +127,7 @@ try{
     assert.equal(await p.locator('.fg-set[aria-current="step"]').count(),1,'one set is identified as next');
     assert.match(await p.locator('.fg-set[aria-current="step"]').textContent(),/Next/);
     await p.getByRole('button',{name:'Log next set',exact:true}).click();assert.match(await p.locator('.fg-set[aria-current="step"]').textContent(),/Editing/);const input=p.locator('.fg-editor input[name="w"]');await input.fill('95');await p.locator('.fg-editor input[name="r"]').fill('5');
-    await p.locator('#atlas-page-navigation').getByRole('button',{name:'Deadlift',exact:true}).click();await p.locator('#atlas-page-navigation').getByRole('button',{name:'Bench',exact:true}).click();
+    await p.locator('#atlas-page-navigation').getByRole('button',{name:'Pull',exact:true}).click();await p.locator('#atlas-page-navigation').getByRole('button',{name:'Forge',exact:true}).click();await p.getByRole('button',{name:'Optional goal plans',exact:true}).click();await p.locator('[data-goal-action="open"][data-goal="bench"]').click();
     assert.equal(await input.inputValue(),'95','goal navigation preserves the unfinished set');
     await keyboard(p,input,app);
     await p.reload();await ready(p);assert.equal(await p.locator('.fg-editor input[name="w"]').inputValue(),'95','unfinished training entry survives reload');await p.locator('.fg-editor').getByRole('button',{name:'Save set',exact:true}).click();await p.reload();await ready(p);
