@@ -138,3 +138,50 @@ html[data-atlas-theme="light"] .hud-frame {opacity:.6;}
 .hud-tilt.hud-tilting .hud-reactor {translate:var(--depth-x,0) var(--depth-y,0);transition:translate .12s linear;}
 .hud-tilt.hud-tilting [class$="-title-art"] {translate:calc(var(--depth-x,0px) * -.45) calc(var(--depth-y,0px) * -.45);transition:translate .12s linear;}
 @media(prefers-reduced-motion:reduce) {.hud-tilt.hud-tilting {transform:none;} .hud-tilt.hud-tilting :is(.hud-reactor,[class$="-title-art"]) {translate:none;}}
+
+/* Opening card dressing: a light that runs the edge, and a holographic sheen. */
+@property --hud-run {syntax:'<angle>';inherits:false;initial-value:0deg;}
+:where(.hud-hero) {position:relative;}
+.hud-hero>.hud-runner,.hud-hero>.hud-sheen {position:absolute;inset:0;pointer-events:none;border-radius:inherit;}
+.hud-hero>.hud-runner {z-index:4;padding:1.5px;
+  background:conic-gradient(from var(--hud-run),transparent 0 62%,color-mix(in srgb,var(--hud-tab,var(--hud-hue)) 55%,transparent) 76%,#fff 80%,color-mix(in srgb,var(--hud-tab,var(--hud-hue)) 80%,transparent) 82%,transparent 90%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  filter:drop-shadow(0 0 4px var(--hud-tab,var(--hud-hue)));opacity:.85;}
+.hud-hero>.hud-sheen {z-index:3;overflow:hidden;mix-blend-mode:screen;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.075) 47%,rgba(255,255,255,.14) 50%,rgba(255,255,255,.075) 53%,transparent 62%) no-repeat;
+  background-size:260% 100%;background-position:130% 0;}
+@media(prefers-reduced-motion:no-preference) {
+  .hud-hero>.hud-runner {animation:hud-run 9s linear infinite;}
+  .hud-hero:not(.hud-tilting)>.hud-sheen {animation:hud-sheen 11s cubic-bezier(.45,0,.2,1) 1.5s infinite;}
+  .hud-hero.hud-tilting>.hud-sheen {background-position:calc(50% - var(--depth-x,0px) * 4) 0;transition:background-position .12s linear;}
+}
+@media(prefers-reduced-motion:reduce) {.hud-hero>.hud-runner {background:none;} .hud-hero>.hud-sheen {display:none;}}
+@keyframes hud-run {to{--hud-run:360deg;}}
+@keyframes hud-sheen {0%{background-position:130% 0;}22%,100%{background-position:-30% 0;}}
+html[data-atlas-theme="light"] .hud-hero>.hud-sheen {mix-blend-mode:soft-light;}
+
+/* Hologram pad: a faint beam and floor rings under the projection. */
+.hud-reactor .hud-pad {opacity:.55;}
+.hud-reactor .hud-pad-beam {fill:currentColor;opacity:.05;}
+.hud-reactor .hud-pad-ring {fill:none;stroke:currentColor;stroke-width:.9;opacity:.5;}
+.hud-reactor .hud-pad-ring.b {stroke-dasharray:2 2.4;opacity:.7;}
+@media(prefers-reduced-motion:no-preference) {.hud-reactor .hud-pad {animation:hud-pad 4.5s ease-in-out infinite;}}
+@keyframes hud-pad {50%{opacity:.85;}}
+
+/* Page transitions between HUD apps: power down, then scan the next one in;
+   from Atlas the tapped tile launches toward you. Both pages must opt in. */
+/* Always opted in, so both pages agree even if motion settings change between them;
+   reduced motion removes the animation instead of the transition. */
+@view-transition {navigation:auto;}
+@media(prefers-reduced-motion:reduce) {
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*) {animation:none!important;}
+}
+::view-transition-old(root) {animation:hud-vt-out .34s cubic-bezier(.4,0,.6,1) both;}
+::view-transition-new(root) {animation:hud-vt-in .5s cubic-bezier(.2,.8,.2,1) both;}
+::view-transition-old(hud-launch) {animation:hud-vt-launch .42s cubic-bezier(.3,0,.2,1) both;}
+::view-transition-group(hud-launch) {z-index:10;animation:none;}
+@keyframes hud-vt-out {to{opacity:0;transform:scale(.965);filter:brightness(1.6) blur(2px);}}
+@keyframes hud-vt-in {0%{opacity:0;transform:scale(1.025);clip-path:inset(0 0 100% 0);filter:brightness(1.7);}55%{opacity:1;clip-path:inset(0 0 0 0);}100%{transform:none;filter:none;clip-path:inset(0 0 0 0);}}
+@keyframes hud-vt-launch {0%{filter:brightness(1.4);}100%{opacity:0;transform:scale(2.4);filter:brightness(2.2) blur(3px);}}
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {.hud-hero>:is(.hud-runner,.hud-sheen),.hud-reactor .hud-pad {display:none!important;}}

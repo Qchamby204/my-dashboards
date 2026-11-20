@@ -85,7 +85,7 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=11a6283b082c" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=b59753fd80f2"><link rel="stylesheet" href="atlas/life-map-hud.css?v=c8abb5427063"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=21209109efe2"><link rel="stylesheet" href="atlas/life-map-hud.css?v=c8abb5427063"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -2923,6 +2923,24 @@ function createLifeMapLocalStore(storage,validate){
   // Celebrations only follow something you just did, never a page load or a sync.
   let lastInput = 0;
   for (const type of ['pointerdown', 'keydown']) window.addEventListener?.(type, () => { lastInput = Date.now(); }, {capture: true, passive: true});
+  // The browser can cancel a page transition (a reload, or a page restored from the
+  // back/forward cache); settle those promises so a cancellation is not reported as an error.
+  const settle = e => {
+    const vt = e.viewTransition;
+    if (vt) for (const done of [vt.ready, vt.finished, vt.updateCallbackDone]) done?.catch(() => {});
+  };
+  window.addEventListener?.('pagereveal', settle);
+  // Only HUD pages opt in to transitions; leaving for any other page skips it up front.
+  const HUD_PAGES = /\/(?:index|life-ledger|life-map|workout-forge|communication-trainer|the-chef|the-library|courier|the-hourglass|the-herald|the-aqueduct|operations-cadence|reminders|neural-map)\.html$|\/$/;
+  window.addEventListener?.('pageswap', e => {
+    settle(e);
+    const to = e.activation?.entry?.url;
+    let path = '';
+    try { path = new URL(to).pathname; } catch {}
+    // Back/forward can land on a page restored from cache, and a page reopening itself (an update)
+    // may be an older cached copy; either can cancel the transition, so only animate forward moves to another page.
+    if (e.viewTransition && (!to || e.activation.navigationType !== 'push' && e.activation.navigationType !== 'replace' || !HUD_PAGES.test(path) || path === location.pathname)) e.viewTransition.skipTransition();
+  });
 
   /* cfg:
      title, tagline   frame and boot-screen labels
@@ -2966,13 +2984,15 @@ function createLifeMapLocalStore(storage,validate){
     }
 
     /* ── Ambient field: reactor rings, drifting motes and a scan pass ─────────── */
+    let surgeField = () => {};
     function startField() {
       const canvas = node('canvas', 'hud-field');
       document.body.prepend(canvas);
       const ctx = canvas.getContext && canvas.getContext('2d');
       if (!ctx) return;
       const tau = Math.PI * 2;
-      let w = 0, h = 0, dpr = 1, raf = 0, last = 0, rgb = accentRGB();
+      let w = 0, h = 0, dpr = 1, raf = 0, last = 0, rgb = accentRGB(), surge = 0;
+      surgeField = () => { if (still()) return; surge = 1; last = 0; if (!raf) raf = requestAnimationFrame(draw); };
       let px = 0, py = 0, tx = 0, ty = 0;
       const motes = Array.from({length: 46}, () => ({x: Math.random(), y: Math.random(), s: .3 + Math.random() * .9, r: .6 + Math.random() * 1.4}));
       const rings = [
@@ -2998,7 +3018,8 @@ function createLifeMapLocalStore(storage,validate){
         const dt = last ? Math.min((time - last) / 1000, .1) : 0; last = time;
         const t = motion ? time / 1000 : 0;
         const light = root.dataset.atlasTheme === 'light';
-        const fade = light ? .45 : 1;
+        surge = surge > .01 ? surge * Math.pow(.18, dt) : 0;
+        const fade = (light ? .45 : 1) * (1 + surge * 1.6);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, w, h);
         px += (tx - px) * Math.min(1, dt * 3); py += (ty - py) * Math.min(1, dt * 3);
@@ -3009,7 +3030,7 @@ function createLifeMapLocalStore(storage,validate){
         bloom.addColorStop(0, ink(.10 * fade)); bloom.addColorStop(.55, ink(.035 * fade)); bloom.addColorStop(1, ink(0));
         ctx.fillStyle = bloom; ctx.fillRect(0, 0, w, h);
         for (const ring of rings) {
-          const r = R * ring.r, rot = t * ring.speed * tau;
+          const r = R * ring.r * (1 + surge * .025), rot = t * ring.speed * tau + surge * ring.speed * 6;
           ctx.lineWidth = ring.width; ctx.strokeStyle = ink(ring.a * fade * .55);
           if (ring.ticks) {
             ctx.beginPath();
@@ -3103,6 +3124,10 @@ function createLifeMapLocalStore(storage,validate){
       }
       const tickRing = svgNode('g', {class: 'hud-rot hud-rot-rev'}, svg);
       svgNode('path', {d: ticks, class: 'hud-ring-ticks'}, tickRing);
+      const pad = svgNode('g', {class: 'hud-pad'}, svg);
+      svgNode('path', {d: 'M58 186 L100 104 L142 186 Z', class: 'hud-pad-beam'}, pad);
+      svgNode('ellipse', {cx: 100, cy: 187, rx: 46, ry: 6, class: 'hud-pad-ring'}, pad);
+      svgNode('ellipse', {cx: 100, cy: 187, rx: 30, ry: 3.6, class: 'hud-pad-ring b'}, pad);
       svgNode('g', {class: 'hud-arcs'}, svg);
       const inner = svgNode('g', {class: 'hud-rot hud-rot-fast'}, svg);
       svgNode('circle', {cx: 100, cy: 100, r: 54, class: 'hud-ring-dash'}, inner);
@@ -3215,6 +3240,7 @@ function createLifeMapLocalStore(storage,validate){
       const tag = node('span', 'hud-celebrate-tag', wave);
       tag.textContent = label;
       svg?.classList.add('hud-celebrating');
+      surgeField();
       host.classList.add('hud-celebrate-host');
       setTimeout(() => { wave.remove(); svg?.classList.remove('hud-celebrating'); host.classList.remove('hud-celebrate-host'); }, still() ? 2200 : 1900);
     }
@@ -3222,6 +3248,7 @@ function createLifeMapLocalStore(storage,validate){
     /* ── Click flash on a saving control; accent tints it to its card ─────────── */
     function burstAt(control, label, accent) {
       if (still()) return;
+      surgeField();
       const box = control.getBoundingClientRect();
       if (!box.width) return;
       const burst = node('div', 'hud-burst', document.body);
@@ -3299,8 +3326,45 @@ function createLifeMapLocalStore(storage,validate){
       document.documentElement.addEventListener('pointerleave', () => { if (card) { reset(card); card = null; } });
       reduce.addEventListener?.('change', () => { if (card) { reset(card); card = null; } });
     }
-    // Lock-on everywhere, plus tilt on the app's opening card.
-    function startExtras() { startLock(); startTilt(cfg.tilt); }
+    /* ── Opening card dressing: a light running the edge and a holographic sheen ── */
+    function dressHeroes(selector) {
+      if (!selector) return;
+      const dress = () => {
+        for (const card of document.querySelectorAll(selector)) {
+          if (card.querySelector(':scope>.hud-runner')) continue;
+          card.classList.add('hud-hero');
+          // Placed first so the card's last child stays its own content (tests and styles rely on it).
+          card.prepend(node('i', 'hud-runner'), node('i', 'hud-sheen'));
+        }
+      };
+      dress();
+      let queued = 0;
+      new MutationObserver(records => {
+        // A clock tick only swaps a text node; skip those so idle pages stay idle.
+        if (queued || !records.some(r => [...r.addedNodes].some(n => n.nodeType === 1 && !n.classList?.contains('hud-runner') && !n.classList?.contains('hud-sheen')))) return;
+        queued = requestAnimationFrame(() => { queued = 0; dress(); });
+      }).observe(document.body, {childList: true, subtree: true});
+    }
+
+    /* ── App transitions: launch out of the Atlas tile, power down between pages ── */
+    function startTransitions() {
+      if (!('onpageswap' in window)) return;
+      document.addEventListener('click', e => {
+        const link = e.target.closest?.('a[href]');
+        if (!link || link.target || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        let url; try { url = new URL(link.href, location.href); } catch { return; }
+        if (url.origin !== location.origin || url.pathname === location.pathname) return;
+        const tile = link.closest('.hub-card,[data-hud]') || link;
+        document.querySelectorAll('.hud-launching').forEach(n => { n.classList.remove('hud-launching'); n.style.viewTransitionName = ''; });
+        tile.classList.add('hud-launching');
+        tile.style.viewTransitionName = 'hud-launch';
+      });
+      // Coming back through history restores the tile as it was.
+      window.addEventListener('pageshow', () => document.querySelectorAll('.hud-launching').forEach(n => { n.classList.remove('hud-launching'); n.style.viewTransitionName = ''; }));
+    }
+
+    // Lock-on everywhere; tilt, edge light and sheen on the app's opening card; page transitions.
+    function startExtras() { startLock(); startTilt(cfg.tilt); dressHeroes(cfg.hero || cfg.tilt); startTransitions(); }
 
     /* ── Boot sequence: once per session, skipped for reduced motion ─────────── */
     function boot(force) {
@@ -3343,7 +3407,7 @@ function createLifeMapLocalStore(storage,validate){
 /* Life Map HUD. Decorative layer only: it reads the rendered board and never
    touches Life Map records. Everything it adds is aria-hidden and pointer-transparent,
    pauses when the page is hidden, and holds still under reduced motion.
-   Shares its engine with shared/hud-core.js?v=7d1aabb55d42. */
+   Shares its engine with shared/hud-core.js?v=ff5f19b23ee6. */
 (() => {
   'use strict';
   const root = document.documentElement;
