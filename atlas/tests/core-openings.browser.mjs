@@ -13,14 +13,14 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.
 async function inspect(p,app,view,theme,width){
  await p.waitForFunction(()=>!!document.querySelector('.core-opening-card'));await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await p.waitForTimeout(150);
  const result=await p.evaluate(()=>{
-  const summary=document.querySelector('#ledger-view-today:not([hidden]) .ledger-opening');
-  const card=summary||document.querySelector('.core-opening-card'),bar=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
+  const deck=document.querySelector('#ledger-view-today:not([hidden]) .ledger-deck-frame');
+  const card=deck||document.querySelector('.core-opening-card'),bar=document.querySelector('.appbar'),nav=document.querySelector('.ledger-nav,.lm-day-dock,#atlas-page-navigation');
   if(!card)return {issues:['missing opening card']};
   const b=card.getBoundingClientRect(),h=bar.getBoundingClientRect(),n=nav.getBoundingClientRect(),issues=[];
   const orbit=card.querySelector('.ledger-orbit-field');
-  if(summary?(b.top-h.bottom<12||b.top-h.bottom>32):Math.abs(b.top-h.bottom-24)>2)issues.push('opening top gap');
+  if(deck?(b.top-h.bottom<12||b.top-h.bottom>32):Math.abs(b.top-h.bottom-24)>2)issues.push('opening top gap');
   if((orbit?.getBoundingClientRect().bottom??b.bottom)>n.top-16)issues.push('opening illustration behind navigation');
-  if(document.documentElement.dataset.atlasApp!=='life-map'&&!card.matches('.fg-current-session,.cm-feature[data-studio]')&&!summary&&!orbit&&n.top-b.bottom>32)issues.push('supporting content competes with the opening');
+  if(document.documentElement.dataset.atlasApp!=='life-map'&&!card.matches('.fg-current-session,.cm-feature[data-studio]')&&!deck&&!orbit&&n.top-b.bottom>32)issues.push('supporting content competes with the opening');
   if(card.matches('.cm-feature[data-studio]')){
    const last=card.lastElementChild;
    if(b.bottom-last.getBoundingClientRect().bottom>4)issues.push('unused space below the studio action');
