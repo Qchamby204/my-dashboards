@@ -8,8 +8,8 @@
   if (!root || root.dataset?.atlasApp !== 'neural-map' || !window.AtlasHUDCore || window.NeuralHUD) return;
   window.NeuralHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'Neural Map', tagline: 'OS 5.0 // Resource atlas', caps: false, bootKey: 'neural:hud-boot', bootLines: ['Indexing your tools', 'Linking the regions', 'Lighting the map', 'All systems nominal']});
-  const {reduce, node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'Neural Map', tagline: 'OS 5.0 // Resource atlas', caps: false, bootKey: 'neural:hud-boot', bootLines: ['Indexing your tools', 'Linking the regions', 'Lighting the map', 'All systems nominal'], tilt: '.neural-opening'});
+  const {reduce, node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Atlas rings: one arc per region of the map, its share of all resources ── */
   function regionArcs() {
@@ -19,7 +19,7 @@
       const count = c => (c.tools?.length || 0) + (c.groups || []).reduce((t, g) => t + (g.tools?.length || 0), 0);
       const totals = cats.map(count), all = totals.reduce((a, b) => a + b, 0);
       if (!all) throw 0;
-      return cats.map((c, i) => ({color: c.color, pct: 100 * totals[i] / all, letter: ''}));
+      return cats.map((c, i) => ({color: c.color, pct: 100 * totals[i] / all, letter: '', label: c.title || c.key, value: totals[i] + (totals[i] === 1 ? ' tool' : ' tools')}));
     } catch { return [{color: 'var(--hud-hue)', pct: 100, letter: ''}]; }
   }
   function mountRing(hero) {
@@ -85,6 +85,7 @@
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

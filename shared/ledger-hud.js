@@ -7,8 +7,8 @@
   if (root.dataset.atlasApp !== 'life-ledger' || !window.AtlasHUDCore || window.LedgerHUD) return;
   window.LedgerHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'LIFE LEDGER', tagline: 'OS 5.0 // VALUE MATRIX ONLINE', caps: true, bootKey: 'lifeledger:hud-boot', bootLines: ['Calibrating value matrix', 'Restoring check-in state', 'Projecting hologram', 'All systems nominal'], accentVars: ['--neo-accent']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'Life Ledger', tagline: 'OS 5.0 // Value matrix online', bootKey: 'lifeledger:hud-boot', bootLines: ['Calibrating value matrix', 'Restoring check-in state', 'Projecting hologram', 'All systems nominal'], accentVars: ['--neo-accent'], tilt: '.ledger-opening'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
 
   /* ── Reactor rings around the hologram ───────────────────────────────────── */
   function mountReactor(host, arcs, label) {
@@ -29,6 +29,9 @@
       color: b.style.getPropertyValue('--ledger-value').trim() || 'var(--neo-accent)',
       pct: Math.max(0, Math.min(100, parseFloat(b.style.getPropertyValue('--value-done')) || 0)),
       letter: (b.querySelector('span')?.textContent || '').trim().charAt(0).toUpperCase(),
+      label: (b.querySelector('span')?.textContent || '').trim(),
+      value: (b.textContent.match(/(\d+)\s*\/\s*(\d+)/) || []).slice(1).join(' of ') + ' done',
+      done: (b.querySelector('span')?.textContent || 'Value').trim() + ' complete',
     }));
   }
 
@@ -39,9 +42,9 @@
     if (!title || title.querySelector('.hud-telemetry')) { heroClock = title?.querySelector('.hud-telemetry b') || heroClock; return; }
     const tele = node('div', 'hud-telemetry', title);
     node('i', 'hud-live', tele);
-    tele.append('LIVE ');
+    tele.append('Live ');
     heroClock = node('b', '', tele);
-    node('span', 'hud-sync', tele).textContent = ' // SYNC OK';
+    node('span', 'hud-sync', tele).textContent = ' // Sync OK';
     tick();
   }
   function tick() {
@@ -70,7 +73,7 @@
       const award = document.getElementById('ledger-achievement-readout');
       if (award && !award.closest('[hidden]')) {
         const frac = Math.max(0, Math.min(1, Number(award.dataset.fraction) || 0));
-        mountReactor(award, [{color: 'var(--hud-amber)', pct: frac * 100, letter: ''}], '');
+        mountReactor(award, [{color: 'var(--hud-amber)', pct: frac * 100, letter: '', label: 'Next award', value: Math.round(frac * 100) + '% of the way', done: 'Award unlocked'}], '');
       }
       mountTelemetry();
       mountHolo();
@@ -114,7 +117,7 @@
     if (accent) burst.style.setProperty('--burst', accent);
     node('i', 'hud-burst-ring', burst); node('i', 'hud-burst-ring b', burst); node('i', 'hud-burst-flash', burst);
     const tag = node('span', 'hud-burst-tag', burst);
-    tag.textContent = 'LOGGED' + (xp ? '  ' + xp : '');
+    tag.textContent = 'Logged' + (xp ? '  ' + xp : '');
     setTimeout(() => burst.remove(), 1100);
   }
   document.addEventListener('click', e => {
@@ -125,6 +128,7 @@
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     const app = document.getElementById('app');

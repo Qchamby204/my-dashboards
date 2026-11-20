@@ -45,9 +45,9 @@ html[data-atlas-app="workout-forge"][data-atlas-theme="dark"] body::before {
 html[data-atlas-app="workout-forge"] #app {position:relative;z-index:2;}
 html[data-atlas-app="workout-forge"] #bgembers {display:none;}/* Type. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(h1,h2,h3,.cinzel,.fg-detail-title,.fg-target,.fg-section-title) {font-family:var(--hud-display)!important;letter-spacing:.01em!important;}
-html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .atlas-suite-header .appbar-title {font:600 1.05rem/1.2 var(--hud-display)!important;text-transform:uppercase!important;letter-spacing:.16em!important;}
+html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .atlas-suite-header .appbar-title {font:600 1.05rem/1.2 var(--hud-display)!important;text-transform:none!important;letter-spacing:.02em!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-feature-rail,.eyebrow,.fg-kicker,.fg-badge,.fg-readout span,.fg-activity-days time,.fg-week-dayname,.fg-phase) {
-  font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.12em!important;
+  font-family:var(--hud-mono)!important;text-transform:none;letter-spacing:.02em!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-metric,.fg-readout strong,.fg-activity-days strong,.mono,.appbar-pill .mono) {font-family:var(--hud-mono)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-metric,.fg-readout strong) {color:var(--beam,var(--neo-accent))!important;text-shadow:0 0 16px color-mix(in srgb,var(--beam,var(--neo-accent)) 55%,transparent);}
@@ -105,7 +105,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-progre
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-progress>*,.bartrack .fill) {box-shadow:0 0 10px var(--beam,var(--neo-accent));}/* Controls: primary actions glow in the goal colour; secondary ones are outlined. All angled. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(.fg-primary,.btn.cinzel.tap) {
   --hud-cut:10px;clip-path:var(--hud-chamfer);border-radius:0!important;
-  font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.14em!important;font-weight:600!important;
+  font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em!important;font-weight:600!important;
   box-shadow:0 0 24px -6px var(--beam,var(--neo-accent)),inset 0 1px 0 rgba(255,255,255,.4)!important;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app .fg-actions button:not(.fg-primary) {
@@ -119,7 +119,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(input,sele
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] #app :is(input,select,textarea):focus-visible {box-shadow:0 0 0 1px var(--neo-accent),0 0 16px -4px var(--neo-accent)!important;}/* Dock: angled with a beam under the active tab. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock.core-glass-nav {border:1px solid var(--hud-edge)!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item {position:relative;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item span {font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.1em;font-weight:600;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item span {font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em;font-weight:600;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item[aria-current="page"] {text-shadow:0 0 12px color-mix(in srgb,var(--neo-accent) 70%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item[aria-current="page"]::after {content:"";position:absolute;left:28%;right:28%;bottom:3px;height:2px;border-radius:2px;background:var(--neo-accent);box-shadow:0 0 10px var(--neo-accent);}
 @media(max-width:420px) {html.atlas-neumo.atlas-neumo[data-atlas-app="workout-forge"] .atlas-page-dock .atlas-page-item span {letter-spacing:.03em;font-size:10px!important;}}/* Header: lit underline with a travelling highlight; scan-in between screens. */

@@ -1,5 +1,7 @@
 /* Suite HUD engine. One copy of the pieces every HUD app shares: the ambient field,
-   the wide-screen frame, the reactor rings, the click flash and the boot sequence.
+   the wide-screen frame, the reactor rings with their touch readouts, standby and
+   milestone celebrations, lock-on brackets, opening-card tilt, the click flash and the
+   boot sequence.
    Each app's own script (shared/<app>-hud.js, atlas/life-map-hud.js) calls
    AtlasHUDCore.engine() with its labels and keeps only its own decorations.
    Everything it adds is aria-hidden and pointer-transparent, pauses when the page
@@ -8,6 +10,9 @@
   'use strict';
   if (window.AtlasHUDCore) return;
   const NS = 'http://www.w3.org/2000/svg';
+  // Celebrations only follow something you just did, never a page load or a sync.
+  let lastInput = 0;
+  for (const type of ['pointerdown', 'keydown']) window.addEventListener?.(type, () => { lastInput = Date.now(); }, {capture: true, passive: true});
 
   /* cfg:
      title, tagline   frame and boot-screen labels
@@ -15,7 +20,8 @@
      bootKey          sessionStorage key checked (and set) so the boot runs once per session
      bootKeys         keys to set instead of just bootKey (the Atlas hub silences every app)
      bootLines        the four boot-screen lines
-     accentVars       custom properties read for the field colour, first match wins */
+     accentVars       custom properties read for the field colour, first match wins
+     tilt             selector for the opening card that tilts toward the mouse */
   function engine(cfg) {
     const root = document.documentElement;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -195,21 +201,112 @@
       if (label) { const tag = svgNode('text', {x: 100, y: 197, class: 'hud-reactor-tag', 'text-anchor': 'middle'}, svg); tag.textContent = label; }
       return svg;
     }
+    /* arcs: [{color, pct, letter, label, value, done}]
+       label/value feed the touch readout (arcs without a label are not touchable);
+       done names the milestone celebrated when that arc reaches 100% after you act. */
     function paintArcs(svg, arcs) {
       const group = svg.querySelector('.hud-arcs');
       const sig = JSON.stringify(arcs);
       if (group.dataset.sig === sig) return;
       const first = !group.dataset.sig;
+      const before = svg.hudArcs || [];
       group.dataset.sig = sig;
       group.textContent = '';
       arcs.forEach((arc, i) => {
         const r = ARC.start - i * ARC.step;
-        const g = svgNode('g', {style: '--arc:' + arc.color}, group);
+        const g = svgNode('g', {style: '--arc:' + arc.color, class: 'hud-arc'}, group);
         svgNode('circle', {cx: 100, cy: 100, r, class: 'hud-arc-track'}, g);
         const fill = svgNode('circle', {cx: 100, cy: 100, r, class: 'hud-arc-fill', pathLength: 100, transform: 'rotate(-90 100 100)', 'stroke-dasharray': (first && !still() ? 0 : arc.pct) + ' 100'}, g);
         if (first && !still()) requestAnimationFrame(() => requestAnimationFrame(() => fill.setAttribute('stroke-dasharray', arc.pct + ' 100')));
         if (arc.letter) { const t = svgNode('text', {x: 96, y: 100 - r + 1.6, class: 'hud-arc-letter', 'text-anchor': 'end'}, g); t.textContent = arc.letter; }
       });
+      svg.hudArcs = arcs;
+      // Standby: rings with nothing in them yet idle with a slow pulse instead of sitting blank.
+      svg.classList.toggle('hud-standby', arcs.length > 0 && arcs.every(a => !(a.pct > 0)));
+      if (arcs.some(a => a.label)) attachReadout(svg);
+      if (!first && Date.now() - lastInput < 6000) {
+        const hit = arcs.find((a, i) => a.done && a.pct >= 99.5 && !((before[i]?.pct || 0) >= 99.5));
+        if (hit) celebrate(svg, hit.done, hit.color);
+      }
+    }
+
+    /* ── Touch readout: tap or hover an arc to lock on and read it ───────────── */
+    function readoutAt(host, x, y, label, value, color) {
+      let tag = host.querySelector(':scope>.hud-readout');
+      if (!tag) { tag = node('div', 'hud-readout', host); node('b', '', tag); node('span', '', tag); }
+      tag.firstChild.textContent = label;
+      tag.lastChild.textContent = value || '';
+      tag.style.setProperty('--arc', color || 'var(--hud-hue)');
+      const hw = host.clientWidth, hh = host.clientHeight;
+      tag.style.left = Math.max(4, Math.min(hw - 4, x)) + 'px';
+      tag.style.top = Math.max(4, Math.min(hh - 4, y)) + 'px';
+      tag.classList.toggle('flip', x > hw * .62);
+      tag.classList.toggle('below', y < 44);
+      tag.classList.add('on');
+      return tag;
+    }
+    function clearReadout(host) {
+      host.querySelector(':scope>.hud-readout')?.classList.remove('on');
+      host.querySelectorAll('.hud-reactor.hud-locking').forEach(svg => {
+        svg.classList.remove('hud-locking');
+        svg.querySelectorAll('.hud-arc.is-locked').forEach(g => g.classList.remove('is-locked'));
+      });
+    }
+    function attachReadout(svg) {
+      const host = svg.parentElement;
+      if (!host || host.hudReadout) return;
+      host.hudReadout = true;
+      let timer = 0;
+      const pick = e => {
+        const arcs = svg.hudArcs || [];
+        const box = svg.getBoundingClientRect();
+        if (!box.width || !arcs.length) return null;
+        const unit = box.width / 200;
+        const dx = (e.clientX - box.left) / unit - 100, dy = (e.clientY - box.top) / unit - 100;
+        const d = Math.hypot(dx, dy);
+        const slack = arcs.length === 1 ? 7 : ARC.step / 2 + .4;
+        const i = arcs.findIndex((a, n) => a.label && Math.abs(d - (ARC.start - n * ARC.step)) <= slack);
+        if (i < 0) return null;
+        const hb = host.getBoundingClientRect();
+        return {i, arc: arcs[i], x: e.clientX - hb.left, y: e.clientY - hb.top};
+      };
+      const lock = hit => {
+        svg.classList.add('hud-locking');
+        svg.querySelectorAll('.hud-arc').forEach((g, n) => g.classList.toggle('is-locked', n === hit.i));
+        readoutAt(host, hit.x, hit.y, hit.arc.label, hit.arc.value ?? Math.round(hit.arc.pct) + '%', hit.arc.color);
+      };
+      host.addEventListener('pointermove', e => {
+        if (e.pointerType !== 'mouse') return;
+        const hit = pick(e);
+        if (hit) lock(hit); else clearReadout(host);
+      }, {passive: true});
+      host.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') clearReadout(host); });
+      host.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse') return;
+        const hit = pick(e);
+        if (!hit) return;
+        lock(hit);
+        clearTimeout(timer); timer = setTimeout(() => clearReadout(host), 2600);
+      }, {passive: true});
+    }
+
+    /* ── Milestone celebration: flare, shockwave and a tag. No sound, no confetti ── */
+    function celebrate(target, label, color) {
+      const svg = target.matches?.('.hud-reactor') ? target : target.querySelector?.('.hud-reactor');
+      const host = svg?.parentElement || target;
+      if (!host?.isConnected) return;
+      const hb = host.getBoundingClientRect(), sb = (svg || host).getBoundingClientRect();
+      const wave = node('div', 'hud-celebrate', host);
+      wave.style.setProperty('--arc', color || 'var(--hud-hue)');
+      wave.style.left = sb.left - hb.left + sb.width / 2 + 'px';
+      wave.style.top = sb.top - hb.top + sb.height / 2 + 'px';
+      wave.style.setProperty('--size', Math.max(sb.width, 80) + 'px');
+      if (!still()) { node('i', 'hud-wave', wave); node('i', 'hud-wave b', wave); node('i', 'hud-wave c', wave); }
+      const tag = node('span', 'hud-celebrate-tag', wave);
+      tag.textContent = label;
+      svg?.classList.add('hud-celebrating');
+      host.classList.add('hud-celebrate-host');
+      setTimeout(() => { wave.remove(); svg?.classList.remove('hud-celebrating'); host.classList.remove('hud-celebrate-host'); }, still() ? 2200 : 1900);
     }
 
     /* ── Click flash on a saving control; accent tints it to its card ─────────── */
@@ -226,6 +323,74 @@
       tag.textContent = label;
       setTimeout(() => burst.remove(), 1100);
     }
+
+    /* ── Lock-on: brackets snap to the control you tab to or tap ──────────────── */
+    function startLock() {
+      if (window.matchMedia('(forced-colors: active)').matches || document.querySelector('.hud-lock')) return;
+      const box = node('div', 'hud-lock', document.body);
+      for (const c of ['tl', 'tr', 'bl', 'br']) node('i', c, box);
+      let target = null, mode = '', timer = 0;
+      const FOCUS = 'button,a[href],input:not([type=hidden]),select,textarea,summary,[role=button],[role=tab],[role=switch],[tabindex]:not([tabindex="-1"])';
+      const TAP = 'button,a[href],summary,[role=button],[role=tab],[role=switch],label';
+      const place = () => {
+        const r = target?.isConnected ? target.getBoundingClientRect() : null;
+        if (!r || !r.width) { hide(); return; }
+        // Stay inside the viewport so the brackets can never widen the page.
+        const vw = document.documentElement.clientWidth;
+        const left = Math.max(0, r.left - 5), right = Math.min(vw, r.right + 5);
+        box.style.transform = 'translate(' + left + 'px,' + (r.top - 5) + 'px)';
+        box.style.width = Math.max(0, right - left) + 'px'; box.style.height = r.height + 10 + 'px';
+      };
+      const show = (el, how, ms) => {
+        target = el; mode = how;
+        box.classList.remove('on'); void box.offsetWidth; place();
+        if (target) box.classList.add('on');
+        clearTimeout(timer); if (ms) timer = setTimeout(hide, ms);
+      };
+      const hide = () => { box.classList.remove('on'); target = null; mode = ''; };
+      document.addEventListener('focusin', e => {
+        const el = e.target.closest?.(FOCUS);
+        if (el && !el.closest('.hud-boot') && el.matches(':focus-visible')) show(el, 'focus', 0);
+      });
+      document.addEventListener('focusout', () => setTimeout(() => {
+        if (mode === 'focus' && !document.activeElement?.matches?.(':focus-visible')) hide();
+      }, 0));
+      document.addEventListener('pointerdown', e => {
+        const el = e.target.closest?.(TAP);
+        if (el && !el.disabled && !el.closest('.hud-boot')) show(el, 'tap', 560);
+      }, {passive: true});
+      addEventListener('scroll', () => { if (target) place(); }, {passive: true, capture: true});
+      addEventListener('resize', () => { if (target) place(); });
+    }
+
+    /* ── Depth: the opening card tilts toward a mouse; layers part slightly ────── */
+    function startTilt(selector) {
+      if (!selector || automated) return;
+      const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+      let card = null, raf = 0, x = 0, y = 0;
+      const reset = c => { c.classList.remove('hud-tilting'); for (const v of ['--tilt-x', '--tilt-y', '--depth-x', '--depth-y']) c.style.removeProperty(v); };
+      const apply = () => {
+        raf = 0;
+        if (!card) return;
+        card.classList.add('hud-tilt', 'hud-tilting');
+        card.style.setProperty('--tilt-x', (-y * 3).toFixed(2) + 'deg');
+        card.style.setProperty('--tilt-y', (x * 4).toFixed(2) + 'deg');
+        card.style.setProperty('--depth-x', (x * 12).toFixed(1) + 'px');
+        card.style.setProperty('--depth-y', (y * 9).toFixed(1) + 'px');
+      };
+      document.addEventListener('pointermove', e => {
+        const next = e.pointerType === 'mouse' && fine.matches && !still() ? e.target.closest?.(selector) : null;
+        if (next !== card) { if (card) reset(card); card = next; }
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        x = (e.clientX - r.left) / r.width - .5; y = (e.clientY - r.top) / r.height - .5;
+        if (!raf) raf = requestAnimationFrame(apply);
+      }, {passive: true});
+      document.documentElement.addEventListener('pointerleave', () => { if (card) { reset(card); card = null; } });
+      reduce.addEventListener?.('change', () => { if (card) { reset(card); card = null; } });
+    }
+    // Lock-on everywhere, plus tilt on the app's opening card.
+    function startExtras() { startLock(); startTilt(cfg.tilt); }
 
     /* ── Boot sequence: once per session, skipped for reduced motion ─────────── */
     function boot(force) {
@@ -259,7 +424,7 @@
       requestAnimationFrame(() => setTimeout(finish, 1450));
     }
 
-    return {root, reduce, automated, still, pad, started, node, svgNode, accentRGB, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot};
+    return {root, reduce, automated, still, pad, started, node, svgNode, accentRGB, startField, startFrame, frameTick, buildReactor, paintArcs, readoutAt, clearReadout, celebrate, burstAt, startExtras, boot};
   }
 
   window.AtlasHUDCore = {engine};

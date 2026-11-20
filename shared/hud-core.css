@@ -2,7 +2,9 @@
    atlas/life-map-hud.css) and loaded before them: the self-hosted HUD fonts and the
    components the engine in shared/hud-core.js draws, i.e. the ambient field, the
    wide-screen frame, reactor rings, click flash and boot screen. Colours come from
-   each app's --hud-hue; app files keep their own layout and overrides. */
+   each app's --hud-hue; app files keep their own layout and overrides. Also styles
+   the touch readout, standby, celebrations, lock-on brackets and tilt. Sentence case:
+   nothing here forces capitals. */
 @font-face{font-family:'Chakra Petch';font-weight:500;font-style:normal;font-display:swap;src:url("fonts/chakra-petch-500.ttf") format("truetype");}
 @font-face{font-family:'Chakra Petch';font-weight:600 700;font-style:normal;font-display:swap;src:url("fonts/chakra-petch-600.ttf") format("truetype");}
 @font-face{font-family:'JetBrains Mono';font-weight:100 800;font-style:normal;font-display:swap;src:url("fonts/jetbrains-mono-var.ttf") format("truetype");}
@@ -46,7 +48,7 @@
 .hud-boot-core .b5 {fill:currentColor;stroke:none;filter:drop-shadow(0 0 14px currentColor);animation:hud-boot-core 1.3s .35s ease-out both;}
 @keyframes hud-boot-ring {from{opacity:0;transform:scale(.4) rotate(-90deg);}to{opacity:1;}}
 @keyframes hud-boot-core {0%{opacity:0;transform:scale(.2);}50%{opacity:1;transform:scale(1.25);}100%{opacity:.9;transform:scale(1);}}
-.hud-boot-copy {display:grid;gap:8px;justify-items:center;font:500 11px/1.3 var(--hud-mono,monospace);letter-spacing:.2em;text-transform:uppercase;}
+.hud-boot-copy {display:grid;gap:8px;justify-items:center;font:500 11px/1.3 var(--hud-mono,monospace);letter-spacing:.06em;}
 .hud-boot-copy ol {list-style:none;display:grid;gap:4px;min-height:5.6em;width:min(78vw,300px);}
 .hud-boot-copy li {display:flex;justify-content:space-between;gap:16px;color:var(--neo-muted);animation:hud-line .25s ease-out both;}
 .hud-boot-copy li em {font-style:normal;color:#3cf0a0;}
@@ -54,3 +56,85 @@
 .hud-frame {display:none;}
 html[data-atlas-theme="light"] .hud-frame {opacity:.6;}
 @media(min-width:1600px) {.hud-frame-tele {display:grid!important;}}
+
+/* Touch readout: the locked arc brightens, the rest dim, a tag reads it out. */
+.hud-reactor .hud-arc {transition:opacity .2s ease;}
+.hud-reactor.hud-locking .hud-arc:not(.is-locked) {opacity:.32;}
+.hud-reactor .hud-arc.is-locked .hud-arc-fill {stroke-width:4.2;filter:drop-shadow(0 0 5px var(--arc)) drop-shadow(0 0 1px #fff);}
+.hud-reactor .hud-arc.is-locked .hud-arc-track {opacity:.5;}
+.hud-readout {position:absolute;z-index:6;pointer-events:none;display:grid;gap:1px;min-width:max-content;padding:6px 10px 6px 12px;
+  transform:translate(14px,-50%);opacity:0;transition:opacity .15s ease;
+  font:500 .78rem/1.25 var(--hud-mono,ui-monospace,monospace);color:#e9f6f8;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--arc) 22%,#081016),#081016e6);
+  border:1px solid color-mix(in srgb,var(--arc) 65%,transparent);border-left:3px solid var(--arc);
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  box-shadow:0 0 18px -6px var(--arc);}
+.hud-readout.on {opacity:1;}
+.hud-readout.flip {transform:translate(calc(-100% - 14px),-50%);}
+.hud-readout.below {transform:translate(14px,10px);}
+.hud-readout.flip.below {transform:translate(calc(-100% - 14px),10px);}
+.hud-readout b {font-family:var(--hud-display,inherit);font-weight:600;font-size:.8rem;color:var(--arc);letter-spacing:.02em;}
+.hud-readout span {color:#d4e2e6;white-space:nowrap;}
+.hud-readout::before {content:"";position:absolute;left:-15px;top:50%;width:12px;height:1px;background:var(--arc);box-shadow:0 0 6px var(--arc);}
+.hud-readout.flip::before {left:auto;right:-15px;}
+.hud-readout.below::before {top:-1px;}
+
+/* Standby: empty rings breathe slowly until there is something to show. */
+.hud-reactor.hud-standby .hud-arc-track {opacity:.34;stroke-dasharray:1.2 2.2;}
+@media(prefers-reduced-motion:no-preference) {
+  .hud-reactor.hud-standby .hud-arcs {animation:hud-standby 3.2s ease-in-out infinite;transform-box:view-box;transform-origin:100px 100px;}
+  .hud-reactor.hud-standby .hud-arc-track {animation:hud-standby-dash 9s linear infinite;}
+}
+@keyframes hud-standby {50%{opacity:.45;}}
+@keyframes hud-standby-dash {to{stroke-dashoffset:-34;}}
+
+/* Milestone celebration: ring flare, three shockwaves and a rising tag. */
+.hud-celebrate {position:absolute;z-index:7;width:0;height:0;pointer-events:none;color:var(--arc);}
+.hud-celebrate .hud-wave {position:absolute;left:calc(var(--size) / -2);top:calc(var(--size) / -2);width:var(--size);height:var(--size);border-radius:50%;
+  border:2px solid var(--arc);box-shadow:0 0 22px var(--arc),inset 0 0 18px color-mix(in srgb,var(--arc) 40%,transparent);opacity:0;
+  animation:hud-shock 1.3s cubic-bezier(.15,.7,.25,1) forwards;}
+.hud-celebrate .hud-wave.b {animation-delay:.16s;border-width:1px;}
+.hud-celebrate .hud-wave.c {animation-delay:.32s;border-style:dashed;border-width:1px;}
+.hud-celebrate-tag {position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap;padding:7px 14px;
+  font:600 .9rem/1 var(--hud-display,inherit);letter-spacing:.04em;color:#fff;
+  background:color-mix(in srgb,var(--arc) 30%,#060b10ee);border:1px solid var(--arc);
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+  text-shadow:0 0 12px var(--arc);box-shadow:0 0 30px -4px var(--arc);
+  animation:hud-cheer 1.9s cubic-bezier(.2,.8,.2,1) forwards;}
+.hud-reactor.hud-celebrating .hud-arc-fill {animation:hud-flare 1.2s ease-out 2;}
+.hud-reactor.hud-celebrating {animation:hud-surge 1.2s ease-out;}
+.hud-celebrate-host {animation:hud-host-flash 1.4s ease-out;}
+@keyframes hud-shock {0%{opacity:.95;transform:scale(.35);}100%{opacity:0;transform:scale(1.9);}}
+@keyframes hud-cheer {0%{opacity:0;transform:translate(-50%,-30%) scale(.7);}14%{opacity:1;transform:translate(-50%,-50%) scale(1.06);}24%{transform:translate(-50%,-50%) scale(1);}78%{opacity:1;transform:translate(-50%,-50%);}100%{opacity:0;transform:translate(-50%,-120%);}}
+@keyframes hud-flare {0%{stroke-width:2.6;}30%{stroke-width:6;filter:drop-shadow(0 0 9px var(--arc)) drop-shadow(0 0 2px #fff);}100%{stroke-width:2.6;}}
+@keyframes hud-surge {30%{opacity:1;filter:brightness(1.6);}}
+@keyframes hud-host-flash {20%{filter:brightness(1.12);}}
+@media(prefers-reduced-motion:reduce) {
+  .hud-celebrate-tag {animation:hud-cheer-still 2.2s linear forwards;}
+  .hud-reactor.hud-celebrating,.hud-reactor.hud-celebrating .hud-arc-fill,.hud-celebrate-host {animation:none;}
+}
+@keyframes hud-cheer-still {0%,85%{opacity:1;}100%{opacity:0;}}
+
+/* Lock-on: corner brackets that snap onto the focused or tapped control. */
+.hud-lock {position:fixed;left:0;top:0;z-index:2147483000;pointer-events:none;opacity:0;color:var(--hud-hue,#5ff4ff);}
+.hud-lock i {position:absolute;width:10px;height:10px;border:2px solid currentColor;filter:drop-shadow(0 0 4px currentColor);}
+.hud-lock .tl {left:0;top:0;border-right:0;border-bottom:0;}
+.hud-lock .tr {right:0;top:0;border-left:0;border-bottom:0;}
+.hud-lock .bl {left:0;bottom:0;border-right:0;border-top:0;}
+.hud-lock .br {right:0;bottom:0;border-left:0;border-top:0;}
+.hud-lock.on {opacity:1;}
+@media(prefers-reduced-motion:no-preference) {
+  .hud-lock.on {animation:hud-lock-in .26s cubic-bezier(.2,.9,.25,1.2);}
+  .hud-lock.on i {animation:hud-lock-corner .26s cubic-bezier(.2,.9,.25,1.2);}
+}
+@keyframes hud-lock-in {0%{opacity:0;}100%{opacity:1;}}
+@keyframes hud-lock-corner {0%{margin:-9px;opacity:.2;}}
+@media(forced-colors:active) {.hud-lock,.hud-readout,.hud-celebrate {display:none!important;}}
+
+/* Depth: tilt toward the mouse; rings and art drift apart a little. */
+.hud-tilt {transition:transform .5s cubic-bezier(.2,.8,.2,1);}
+.hud-tilt.hud-tilting {transform:perspective(1100px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .12s linear;}
+.hud-tilt .hud-reactor,.hud-tilt [class$="-title-art"] {transition:translate .5s cubic-bezier(.2,.8,.2,1);}
+.hud-tilt.hud-tilting .hud-reactor {translate:var(--depth-x,0) var(--depth-y,0);transition:translate .12s linear;}
+.hud-tilt.hud-tilting [class$="-title-art"] {translate:calc(var(--depth-x,0px) * -.45) calc(var(--depth-y,0px) * -.45);transition:translate .12s linear;}
+@media(prefers-reduced-motion:reduce) {.hud-tilt.hud-tilting {transform:none;} .hud-tilt.hud-tilting :is(.hud-reactor,[class$="-title-art"]) {translate:none;}}

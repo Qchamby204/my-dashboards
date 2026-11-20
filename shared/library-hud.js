@@ -8,13 +8,13 @@
   if (!root || root.dataset?.atlasApp !== 'library' || !window.AtlasHUDCore || window.LibraryHUD) return;
   window.LibraryHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'THE LIBRARY', tagline: 'OS 5.0 // ARCHIVE ONLINE', caps: true, bootKey: 'library:hud-boot', bootLines: ['Indexing the shelves', 'Restoring your notes', 'Mapping your understanding', 'All systems nominal']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'The Library', tagline: 'OS 5.0 // Archive online', bootKey: 'library:hud-boot', bootLines: ['Indexing the shelves', 'Restoring your notes', 'Mapping your understanding', 'All systems nominal'], tilt: 'main .library-opening'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Reactor behind the opening illustration ─────────────────────────────── */
   function openingArcs() {
     const m = (document.querySelector('main .stats .stat')?.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
-    return [{color: 'var(--hud-hue)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 100, letter: ''}];
+    return [{color: 'var(--hud-hue)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 100, letter: '', label: 'Books completed', value: m ? m[1] + ' of ' + m[2] : '', done: 'Shelf complete'}];
   }
   function mountRing(hero) {
     const face = hero.querySelector('.library-opening-face');
@@ -39,7 +39,7 @@
     if (!tele) {
       tele = node('span', 'hud-telemetry', rail);
       node('i', 'hud-live', tele);
-      tele.append('LIVE ');
+      tele.append('Live ');
       node('b', '', tele);
     }
     heroClock = tele.querySelector('b');
@@ -88,12 +88,13 @@
     const control = e.target.closest?.('main button');
     if (!control || control.getAttribute('aria-pressed') === 'true') return;
     const text = control.textContent.trim().toLowerCase();
-    if (/^(save|mark|finish|done)/.test(text)) burstAt(control, /finish/.test(text) ? 'BOOK FINISHED' : 'SAVED');
+    if (/^(save|mark|finish|done)/.test(text)) burstAt(control, /finish/.test(text) ? 'Book finished' : 'Saved');
   }, true);
 
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

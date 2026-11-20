@@ -48,11 +48,11 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header {
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header>:not(.hud-reactor) {position:relative;z-index:1;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header h1 {font-family:var(--hud-display)!important;font-weight:600!important;letter-spacing:0!important;color:#f2feff!important;text-shadow:0 0 24px rgba(95,244,255,.35);overflow-wrap:anywhere;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-brand {font-family:var(--hud-display);text-transform:uppercase;letter-spacing:.2em;color:#e6fcff;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-brand {font-family:var(--hud-display);text-transform:none;letter-spacing:.02em;color:#e6fcff;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-brand .atlas-mark {color:#5ff4ff;filter:drop-shadow(0 0 8px rgba(95,244,255,.6));}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-brand .atlas-mark path {stroke:#0a1b25;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-intro {color:#c5e3e8!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] :is(.hub-roster,.hud-telemetry) {font-family:var(--hud-mono)!important;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem!important;color:#9bc4cb!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] :is(.hub-roster,.hud-telemetry) {font-family:var(--hud-mono)!important;text-transform:none;letter-spacing:.02em;font-size:.72rem!important;color:#9bc4cb!important;}
 html[data-atlas-app="atlas-hub"] .hub-header .hud-telemetry {display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0 0;}
 html[data-atlas-app="atlas-hub"] .hub-header .hud-telemetry b {color:#5ff4ff;font-weight:600;}
 html[data-atlas-app="atlas-hub"] .hub-header>.hud-reactor {
@@ -63,14 +63,14 @@ html[data-atlas-app="atlas-hub"] .hub-header>.hud-reactor {
   html[data-atlas-app="atlas-hub"] .hub-header>.hud-reactor {width:210px;right:-96px;top:64%;opacity:.4;}
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header .atlas-appearance-trigger {border:1px solid rgba(95,244,255,.35)!important;background:rgba(95,244,255,.06)!important;color:#e6fcff!important;}/* Area tabs and the JARVIS link. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-areas a {font-family:var(--hud-display);text-transform:uppercase;letter-spacing:.12em;font-size:.78rem!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-areas a {font-family:var(--hud-display);text-transform:none;letter-spacing:.02em;font-size:.78rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-areas a:hover {color:var(--hud-hue)!important;text-shadow:0 0 10px color-mix(in srgb,var(--hud-hue) 60%,transparent);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-areas a[href*="/jarvis/"] {
   --hud-cut:9px;clip-path:var(--hud-chamfer);padding:0 14px;color:var(--hud-hue)!important;
   border:1px solid var(--hud-edge-strong);background:color-mix(in srgb,var(--hud-hue) 8%,transparent);
   box-shadow:inset 0 0 16px -6px var(--hud-hue);
 }/* Section headings carry an index mark. */
-html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] main h2 {font-family:var(--hud-display)!important;text-transform:uppercase;letter-spacing:.14em;font-size:.95rem!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] main h2 {font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em;font-size:.95rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] main h2::before {content:"//" / "";margin-right:.5em;color:var(--hub-color,var(--hud-hue));font-family:var(--hud-mono);font-weight:500;opacity:.85;}/* Launch tiles: angled glass; HUD apps lit in their own colour with an ONLINE tag. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-card {
   --tile:color-mix(in srgb,var(--hub-color) 60%,var(--neo-muted));
@@ -92,7 +92,7 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-card[data-hud="onl
   font:600 9.5px/1 var(--hud-mono);letter-spacing:.16em;color:var(--tile);text-shadow:0 0 8px var(--tile);opacity:.85;
 }
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-card:hover {transform:translateY(-2px);border-color:var(--tile)!important;box-shadow:inset 0 0 40px -12px var(--tile),0 10px 30px -18px var(--tile)!important;}
-html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-private {font-family:var(--hud-mono);text-transform:uppercase;letter-spacing:.1em;font-size:.68rem!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-private {font-family:var(--hud-mono);text-transform:none;letter-spacing:.02em;font-size:.68rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-recent {--tile:var(--hud-hue);clip-path:var(--hud-chamfer);--hud-cut:8px;border-radius:0!important;border-color:color-mix(in srgb,var(--tile) 40%,transparent)!important;font-family:var(--hud-display);}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-recent[data-hud="online"] {box-shadow:inset 2px 0 var(--tile),inset 0 0 18px -8px var(--tile)!important;}
 

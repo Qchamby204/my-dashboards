@@ -8,8 +8,8 @@
   if (!root || root.dataset?.atlasApp !== 'the-herald' || !window.AtlasHUDCore || window.HeraldHUD) return;
   window.HeraldHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'The Herald', tagline: 'OS 5.0 // Press room', caps: false, bootKey: 'herald:hud-boot', bootLines: ['Opening the script vault', 'Lining up the calendar', 'Reading the channel', 'All systems nominal']});
-  const {reduce, node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'The Herald', tagline: 'OS 5.0 // Press room', caps: false, bootKey: 'herald:hud-boot', bootLines: ['Opening the script vault', 'Lining up the calendar', 'Reading the channel', 'All systems nominal'], tilt: '#view .herald-opening'});
+  const {reduce, node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot, celebrate} = hud;
 
   /* ── Pipeline rings: one arc per Assembly stage, its share of all scripts ── */
   const STAGE_HUES = ['#f0bc85', '#ffd65c', '#8cc8ff', '#6ff2c8', '#b591ff'];
@@ -17,7 +17,8 @@
     const nodes = [...document.querySelectorAll('#rail .stage .node')].map(n => Number(n.textContent.trim()) || 0);
     const total = nodes.reduce((a, b) => a + b, 0);
     if (!nodes.length) return [{color: 'var(--hud-tab)', pct: 100, letter: ''}];
-    return nodes.map((n, i) => ({color: STAGE_HUES[i % STAGE_HUES.length], pct: total ? 100 * n / total : 0, letter: ''}));
+    const names = [...document.querySelectorAll('#rail .stage')].map(s => s.textContent.replace(/^\s*\d+/, '').trim());
+    return nodes.map((n, i) => ({color: STAGE_HUES[i % STAGE_HUES.length], pct: total ? 100 * n / total : 0, letter: '', label: names[i] || 'Stage', value: n + (n === 1 ? ' script' : ' scripts')}));
   }
   function mountRing(hero) {
     const stage = hero.querySelector('.herald-projection');
@@ -30,8 +31,16 @@
     if (!a.width) return;
     const size = Math.min(f.height * 1.02, f.width * .9, 320);
     Object.assign(svg.style, {width: size + 'px', height: size + 'px', left: (f.width - size) / 2 + 'px', top: (f.height - size) / 2 + 'px'});
-    paintArcs(svg, pipelineArcs());
+    const arcs = pipelineArcs();
+    paintArcs(svg, arcs);
+    // Something just moved into Published because of you: celebrate it.
+    const published = Number(document.querySelector('#rail .stage.pub .node')?.textContent.trim()) || 0;
+    if (lastPublished != null && published > lastPublished && Date.now() - lastTouch < 6000) celebrate(svg, 'Published', '#b591ff');
+    lastPublished = published;
   }
+  let lastPublished = null, lastTouch = 0;
+  addEventListener('pointerdown', () => { lastTouch = Date.now(); }, {capture: true, passive: true});
+  addEventListener('keydown', () => { lastTouch = Date.now(); }, {capture: true, passive: true});
 
   /* ── Live clock in the opening rail ──────────────────────────────────────── */
   let heroClock = null;
@@ -98,6 +107,7 @@
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

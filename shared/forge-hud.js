@@ -8,8 +8,8 @@
   if (!root || root.dataset?.atlasApp !== 'workout-forge' || !window.AtlasHUDCore || window.ForgeHUD) return;
   window.ForgeHUD = {replayBoot: () => boot(true)};
 
-  const hud = window.AtlasHUDCore.engine({title: 'THE FORGE', tagline: 'OS 5.0 // LOAD SYSTEMS ONLINE', caps: true, bootKey: 'forge:hud-boot', bootLines: ['Loading training blocks', 'Calibrating loads', 'Arming goal plans', 'All systems nominal'], accentVars: ['--neo-accent']});
-  const {node, svgNode, still, pad, started, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
+  const hud = window.AtlasHUDCore.engine({title: 'The Forge', tagline: 'OS 5.0 // Load systems online', bootKey: 'forge:hud-boot', bootLines: ['Loading training blocks', 'Calibrating loads', 'Arming goal plans', 'All systems nominal'], accentVars: ['--neo-accent'], tilt: '#app .fg-feature'});
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
 
   /* ── Reactor rings around the hologram ───────────────────────────────────── */
   const GOALS = {gold: '#ffd08b', orange: '#ffab88', blue: '#8ddafa', green: '#9ce5b2'};
@@ -20,13 +20,14 @@
       return cards.slice(0, 4).map(card => {
         const tone = Object.keys(GOALS).find(k => card.classList.contains('fg-' + k));
         const m = card.textContent.match(/(\d+)\s*\/\s*(\d+)\s*sessions/i);
-        return {color: GOALS[tone] || 'var(--neo-accent)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: ''};
+        const goal = (card.querySelector('h3,h2,strong,.fg-name')?.textContent || 'Goal').trim();
+        return {color: GOALS[tone] || 'var(--neo-accent)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: goal, value: m ? m[1] + ' of ' + m[2] + ' sessions' : '', done: goal + ' block complete'};
       });
     }
     // A session in progress: one ring for sets logged, in the goal's colour.
     const m = (feature.querySelector('.fg-readout strong')?.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
     const beam = getComputedStyle(feature).getPropertyValue('--beam').trim() || 'var(--neo-accent)';
-    return [{color: beam, pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: ''}];
+    return [{color: beam, pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: 'Sets', value: m ? m[1] + ' of ' + m[2] + ' logged' : '', done: 'Session complete'}];
   }
   function mountRing(feature) {
     const art = feature.querySelector('.fg-feature-art');
@@ -51,7 +52,7 @@
     if (!tele) {
       tele = node('span', 'hud-telemetry', rail);
       node('i', 'hud-live', tele);
-      tele.append('LIVE ');
+      tele.append('Live ');
       node('b', '', tele);
     }
     heroClock = tele.querySelector('b');
@@ -115,12 +116,13 @@
     const control = e.target.closest?.('#app .fg-primary');
     if (!control) return;
     const text = control.textContent.trim().toLowerCase();
-    burstAt(control, /log|save|finish|complete/.test(text) ? 'SET LOGGED' : 'ENGAGED');
+    burstAt(control, /log|save|finish|complete/.test(text) ? 'Set logged' : 'Engaged');
   }, true);
 
   function init() {
     root.classList.add('hud-on');
     startField();
+    startExtras();
     startFrame();
     boot();
     const app = document.getElementById('app');
