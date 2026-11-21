@@ -9,7 +9,7 @@
   window.LibraryHUD = {replayBoot: () => boot(true)};
 
   const hud = window.AtlasHUDCore.engine({title: 'The Library', tagline: 'OS 5.0 // Archive online', bootKey: 'library:hud-boot', bootLines: ['Indexing the shelves', 'Restoring your notes', 'Mapping your understanding', 'All systems nominal'], tilt: 'main .library-opening'});
-  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot, scene} = hud;
 
   /* ── Reactor behind the opening illustration ─────────────────────────────── */
   function openingArcs() {
@@ -57,6 +57,7 @@
       if (filled) r.style.setProperty('--spine', SPINES[i % SPINES.length]);
       if (filled && arrive && i === shown - 1) r.classList.add('hud-spine-new');
     }
+    if (arrive) scene({title: 'Book finished', detail: done + (done === 1 ? ' book' : ' books') + ' on the shelf'});
     if (done > slots) { const t = svgNode('text', {x: 296, y: 12, 'text-anchor': 'end', class: 'hud-shelf-more'}, shelf); t.textContent = '+' + (done - slots); }
     shelfDone = done;
   }

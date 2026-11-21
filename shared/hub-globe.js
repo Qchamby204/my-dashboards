@@ -50,6 +50,7 @@
     const nodes = list.map((s, i) => { const k = i % 3, j = counts[k]++; return {...s, orbit: ORBITS[k], phase: j / totals[k] * TAU + k * .9, pulse: Math.random()}; });
     const stars = Array.from({length: 70}, () => ({x: Math.random(), y: Math.random(), r: Math.random() * 1.1 + .2, tw: Math.random() * TAU}));
 
+    let glow = null;
     let w = 0, h = 0, dpr = 1, raf = 0, last = 0, t = 0, yaw = 0, spin = 0, visible = true, hover = null, drag = null, placed = [];
     // The greeting card stays dark in both themes, so the globe keeps its bright ink.
     const isLight = () => false;
@@ -169,6 +170,7 @@
           ctx.fillText(p.n.name, p.px + (p.px > cx ? r + 7 : -r - 7), p.py + 4);
         }
       }
+      glow?.render();
       if (motion) raf = requestAnimationFrame(draw);
     }
     const kick = () => { if (!raf) raf = requestAnimationFrame(draw); };
@@ -209,6 +211,8 @@
     canvas.addEventListener('pointercancel', () => { drag = null; });
     canvas.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !drag) { hover = null; showTag(null); } });
 
+    // Real light bleed on the GPU when available; the plain canvas otherwise.
+    glow = window.AtlasHUDCore?.bloom?.(canvas, {strength: 1.25, threshold: .3}) || null;
     size(); kick();
     new ResizeObserver(() => { size(); last = 0; kick(); }).observe(wrap);
     if (window.IntersectionObserver) new IntersectionObserver(entries => { visible = entries[0].isIntersecting; last = 0; kick(); }).observe(wrap);

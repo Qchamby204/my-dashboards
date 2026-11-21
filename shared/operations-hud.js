@@ -24,7 +24,7 @@
         const sec = data.find(s => s.id === id);
         const s = sec ? stats(sec) : {done: 0, total: 0};
         const name = {daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', quarterly: 'Quarterly', annually: 'Annual', adhoc: 'As needed'}[id];
-        return {color, pct: s.total ? 100 * s.done / s.total : 0, letter, label: name, value: s.done + ' of ' + s.total + ' done', done: name + ' checklist complete'};
+        return {color, pct: s.total ? 100 * s.done / s.total : 0, letter, label: name, value: s.done + ' of ' + s.total + ' done', done: name + ' checklist complete', scene: true, sceneDetail: s.total + ' of ' + s.total + ' done'};
       });
     } catch { return [{color: 'var(--hud-tab)', pct: 100, letter: ''}]; }
   }

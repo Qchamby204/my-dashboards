@@ -73,6 +73,82 @@
       return root.dataset.atlasTheme === 'light' ? '0,101,119' : '95,244,255';
     }
 
+  /* ── GPU bloom: a WebGL post-pass for any 2D canvas. The canvas keeps drawing as
+     before; its bright parts are blurred on the GPU and added back as real light
+     bleed. Returns {render()} to call after each draw, or null (no WebGL), in which
+     case the plain canvas simply stays on show. */
+  function bloom(source, opts = {}) {
+    const strength = opts.strength ?? 1.1, threshold = opts.threshold ?? .32;
+    let out;
+    try { out = document.createElement('canvas'); } catch { return null; }
+    const gl = out.getContext('webgl', {premultipliedAlpha: true, alpha: true, antialias: false, preserveDrawingBuffer: false});
+    if (!gl) return null;
+    out.className = (source.className ? source.className + ' ' : '') + 'hud-bloom';
+    out.setAttribute('aria-hidden', 'true');
+    const VS = 'attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}';
+    const FS = {
+      bright: 'precision mediump float;varying vec2 v;uniform sampler2D t;uniform float th;void main(){vec4 c=texture2D(t,v);float l=max(max(c.r,c.g),c.b);gl_FragColor=c*smoothstep(th,th+.25,l);}',
+      blur: 'precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 d;void main(){vec4 s=texture2D(t,v)*.227;s+=(texture2D(t,v+d*1.385)+texture2D(t,v-d*1.385))*.316;s+=(texture2D(t,v+d*3.231)+texture2D(t,v-d*3.231))*.07;gl_FragColor=s;}',
+      mix: 'precision mediump float;varying vec2 v;uniform sampler2D t;uniform sampler2D b;uniform float k;void main(){vec4 c=texture2D(t,v);vec4 g=texture2D(b,v)*k;vec3 rgb=c.rgb+g.rgb*(1.-c.a*.35);float a=clamp(max(c.a,max(max(g.r,g.g),g.b)),0.,1.);gl_FragColor=vec4(rgb,a);}',
+    };
+    const prog = fs => {
+      const mk = (type, src) => { const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh); return sh; };
+      const p = gl.createProgram(); gl.attachShader(p, mk(gl.VERTEX_SHADER, VS)); gl.attachShader(p, mk(gl.FRAGMENT_SHADER, fs)); gl.bindAttribLocation(p, 0, 'p'); gl.linkProgram(p);
+      return gl.getProgramParameter(p, gl.LINK_STATUS) ? p : null;
+    };
+    const P = {bright: prog(FS.bright), blur: prog(FS.blur), mix: prog(FS.mix)};
+    if (!P.bright || !P.blur || !P.mix) return null;
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    const tex = () => { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v); return t; };
+    const src = tex();
+    let fbo = [], w = 0, h = 0;
+    function target(bw, bh) {
+      const t = tex(); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, bw, bh, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      return {t, f, w: bw, h: bh};
+    }
+    function sizeTo() {
+      if (out.width === source.width && out.height === source.height && fbo.length) return;
+      out.width = w = source.width; out.height = h = source.height;
+      const bw = Math.max(1, w >> 2), bh = Math.max(1, h >> 2);
+      fbo = [target(bw, bh), target(bw, bh)];
+    }
+    const draw = (p, into, vw, vh) => { gl.useProgram(p); gl.bindFramebuffer(gl.FRAMEBUFFER, into ? into.f : null); gl.viewport(0, 0, vw, vh); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); };
+    let lost = false;
+    out.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; out.remove(); source.classList.remove('hud-bloom-source'); });
+    source.after(out);
+    source.classList.add('hud-bloom-source');
+    function render() {
+      if (lost || !source.width || !source.height) return;
+      sizeTo();
+      // Keep the GPU canvas laid over the source exactly.
+      out.style.cssText = source.style.cssText;
+      if (getComputedStyle(source).position === 'static') Object.assign(out.style, {position: 'absolute', left: source.offsetLeft + 'px', top: source.offsetTop + 'px', width: source.offsetWidth + 'px', height: source.offsetHeight + 'px'});
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+      gl.useProgram(P.bright); gl.uniform1i(gl.getUniformLocation(P.bright, 't'), 0); gl.uniform1f(gl.getUniformLocation(P.bright, 'th'), threshold);
+      draw(P.bright, fbo[0], fbo[0].w, fbo[0].h);
+      for (let pass = 0; pass < 3; pass++) {
+        const r = 1 + pass * 1.5;
+        gl.useProgram(P.blur); gl.uniform1i(gl.getUniformLocation(P.blur, 't'), 0);
+        gl.bindTexture(gl.TEXTURE_2D, fbo[0].t); gl.uniform2f(gl.getUniformLocation(P.blur, 'd'), r / fbo[0].w, 0); draw(P.blur, fbo[1], fbo[1].w, fbo[1].h);
+        gl.bindTexture(gl.TEXTURE_2D, fbo[1].t); gl.uniform2f(gl.getUniformLocation(P.blur, 'd'), 0, r / fbo[1].h); draw(P.blur, fbo[0], fbo[0].w, fbo[0].h);
+      }
+      gl.useProgram(P.mix);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, src); gl.uniform1i(gl.getUniformLocation(P.mix, 't'), 0);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, fbo[0].t); gl.uniform1i(gl.getUniformLocation(P.mix, 'b'), 1);
+      gl.uniform1f(gl.getUniformLocation(P.mix, 'k'), strength);
+      gl.clearColor(0, 0, 0, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clear(gl.COLOR_BUFFER_BIT);
+      draw(P.mix, null, w, h);
+      gl.activeTexture(gl.TEXTURE0);
+    }
+    return {render, canvas: out};
+  }
+
     /* ── Ambient field: reactor rings, drifting motes and a scan pass ─────────── */
     let surgeField = () => {};
     function startField() {
@@ -103,8 +179,11 @@
       function draw(time) {
         raf = 0;
         if (document.hidden) return;
+        if (drawField(time)) glow?.render();
+      }
+      function drawField(time) {
         const motion = !still();
-        if (motion && time - last < 33) { raf = requestAnimationFrame(draw); return; }
+        if (motion && time - last < 33) { raf = requestAnimationFrame(draw); return false; }
         const dt = last ? Math.min((time - last) / 1000, .1) : 0; last = time;
         const t = motion ? time / 1000 : 0;
         const light = root.dataset.atlasTheme === 'light';
@@ -160,7 +239,9 @@
           ctx.fillStyle = band; ctx.fillRect(0, sy - 90, w, 92);
           raf = requestAnimationFrame(draw);
         }
+        return true;
       }
+      const glow = root.matches('.hud-calm') ? null : bloom(canvas, {strength: .9, threshold: .18});
       const kick = () => { if (!raf) raf = requestAnimationFrame(draw); };
       size(); kick();
       window.addEventListener('resize', () => { size(); last = 0; kick(); });
@@ -251,7 +332,7 @@
       if (arcs.some(a => a.label)) attachReadout(svg);
       if (!first && Date.now() - lastInput < 6000) {
         const hit = arcs.find((a, i) => a.done && a.pct >= 99.5 && !((before[i]?.pct || 0) >= 99.5));
-        if (hit) celebrate(svg, hit.done, hit.color);
+        if (hit) { if (hit.scene) scene({title: hit.done, detail: hit.sceneDetail || hit.value || '', color: hit.color}); else celebrate(svg, hit.done, hit.color); }
       }
     }
 
@@ -333,6 +414,84 @@
       surgeField();
       host.classList.add('hud-celebrate-host');
       setTimeout(() => { wave.remove(); svg?.classList.remove('hud-celebrating'); host.classList.remove('hud-celebrate-host'); }, still() ? 2200 : 1900);
+    }
+
+    /* ── Milestone scene: a full-screen beat for the big moments. Light rays,
+       shockwaves and sparks on a GPU-bloomed canvas, then the milestone and a detail
+       line. About 2.6 seconds; tap or press a key to continue. Silent. Under reduced
+       motion it is a still card. */
+    let sceneOpen = false;
+    function scene({title, detail = '', color} = {}) {
+      if (sceneOpen || !title) return;
+      sceneOpen = true;
+      const hue = color && !/^var\(/.test(color) ? color : (getComputedStyle(root).getPropertyValue('--hud-hue').trim() || '#5ff4ff');
+      const shell = node('div', 'hud-scene', document.body);
+      shell.style.setProperty('--scene', hue);
+      const canvas = document.createElement('canvas');
+      canvas.className = 'hud-scene-fx';
+      const copy = node('div', 'hud-scene-copy', shell);
+      node('p', 'hud-scene-kicker', copy).textContent = 'Milestone';
+      const h = node('h2', 'hud-scene-title', copy); h.textContent = title;
+      if (detail) node('p', 'hud-scene-detail', copy).textContent = detail;
+      node('p', 'hud-scene-skip', shell).textContent = 'Tap to continue';
+      let raf = 0, t0 = performance.now(), done = false, glow = null;
+      const finish = () => {
+        if (done) return; done = true; cancelAnimationFrame(raf);
+        shell.classList.add('out');
+        setTimeout(() => { shell.remove(); sceneOpen = false; }, 450);
+      };
+      shell.addEventListener('pointerdown', finish);
+      document.addEventListener('keydown', finish, {once: true});
+      setTimeout(finish, still() ? 1900 : 2700);
+      if (still()) return;
+      shell.prepend(canvas);
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const W = innerWidth, H = innerHeight;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+      glow = bloom(canvas, {strength: 1.7, threshold: .2});
+      const [r, g, b] = (/^#([0-9a-f]{6})$/i.exec(hue) ? [0, 2, 4].map(i => parseInt(hue.slice(1 + i, 3 + i), 16)) : [95, 244, 255]);
+      const ink = a => 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+      const cx = W / 2, cy = H * .42, R = Math.hypot(W, H) * .6;
+      const sparks = Array.from({length: 90}, () => ({a: Math.random() * Math.PI * 2, v: .25 + Math.random() * .75, s: .6 + Math.random() * 1.8}));
+      surgeField();
+      const frame = now => {
+        const k = (now - t0) / 1000;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        // Core flash.
+        const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 140 + k * 60);
+        core.addColorStop(0, 'rgba(255,255,255,' + Math.max(0, .95 - k * .5) + ')'); core.addColorStop(.25, ink(Math.max(0, .55 - k * .2))); core.addColorStop(1, ink(0));
+        ctx.fillStyle = core; ctx.beginPath(); ctx.arc(cx, cy, 140 + k * 60, 0, Math.PI * 2); ctx.fill();
+        // Rotating rays.
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(k * .35);
+        for (let i = 0; i < 18; i++) {
+          ctx.rotate(Math.PI * 2 / 18);
+          const len = R * Math.min(1, k * 1.6), wid = 10 + (i % 3) * 8;
+          const ray = ctx.createLinearGradient(0, 0, len, 0); ray.addColorStop(0, ink(.32)); ray.addColorStop(1, ink(0));
+          ctx.fillStyle = ray; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(len, -wid); ctx.lineTo(len, wid); ctx.fill();
+        }
+        ctx.restore();
+        // Three shockwaves.
+        for (let i = 0; i < 3; i++) {
+          const q = k - i * .18; if (q <= 0) continue;
+          const rad = q * R * .9, a = Math.max(0, .9 - q * .75);
+          ctx.strokeStyle = ink(a); ctx.lineWidth = 3 - i * .6;
+          ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.stroke();
+        }
+        // Sparks with short trails.
+        ctx.lineCap = 'round';
+        for (const p of sparks) {
+          const d = (1 - Math.pow(1 - Math.min(1, k * .9), 3)) * R * .55 * p.v, x = cx + Math.cos(p.a) * d, y = cy + Math.sin(p.a) * d;
+          const tail = 14 * p.s * (1 - Math.min(1, k * .6));
+          ctx.strokeStyle = k < .15 ? 'rgba(255,255,255,.9)' : ink(Math.max(0, 1 - k * .45)); ctx.lineWidth = p.s;
+          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - Math.cos(p.a) * tail, y - Math.sin(p.a) * tail); ctx.stroke();
+        }
+        glow?.render();
+        if (!done) raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
     }
 
     /* ── Click flash on a saving control; accent tints it to its card ─────────── */
@@ -513,8 +672,8 @@
       requestAnimationFrame(() => setTimeout(finish, 1450));
     }
 
-    return {root, reduce, automated, still, pad, started, node, svgNode, accentRGB, startField, startFrame, frameTick, buildReactor, paintArcs, readoutAt, clearReadout, celebrate, burstAt, startExtras, boot};
+    return {root, reduce, automated, still, pad, started, node, svgNode, accentRGB, bloom, startField, startFrame, frameTick, buildReactor, paintArcs, readoutAt, clearReadout, celebrate, scene, burstAt, startExtras, boot};
   }
 
-  window.AtlasHUDCore = {engine};
+  window.AtlasHUDCore = {engine, bloom: (canvas, opts) => engine({}).bloom(canvas, opts)};
 })();

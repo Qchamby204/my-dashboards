@@ -9,7 +9,7 @@
   window.HeraldHUD = {replayBoot: () => boot(true)};
 
   const hud = window.AtlasHUDCore.engine({title: 'The Herald', tagline: 'OS 5.0 // Press room', caps: false, bootKey: 'herald:hud-boot', bootLines: ['Opening the script vault', 'Lining up the calendar', 'Reading the channel', 'All systems nominal'], tilt: '#view .herald-opening'});
-  const {reduce, node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot, celebrate} = hud;
+  const {reduce, node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot, celebrate, scene} = hud;
 
   /* ── Pipeline rings: one arc per Assembly stage, its share of all scripts ── */
   const STAGE_HUES = ['#f0bc85', '#ffd65c', '#8cc8ff', '#6ff2c8', '#b591ff'];
@@ -35,7 +35,7 @@
     paintArcs(svg, arcs);
     // Something just moved into Published because of you: celebrate it.
     const published = Number(document.querySelector('#rail .stage.pub .node')?.textContent.trim()) || 0;
-    if (lastPublished != null && published > lastPublished && Date.now() - lastTouch < 6000) celebrate(svg, 'Published', '#b591ff');
+    if (lastPublished != null && published > lastPublished && Date.now() - lastTouch < 6000) scene({title: 'Published', detail: published + (published === 1 ? ' script live' : ' scripts live'), color: '#b591ff'});
     lastPublished = published;
   }
   let lastPublished = null, lastTouch = 0;

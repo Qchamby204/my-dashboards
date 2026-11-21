@@ -204,3 +204,26 @@ html.hud-holo-on .hud-reactor .hud-pad-beam {opacity:.09;}
 @media(prefers-reduced-transparency:reduce),(forced-colors:active) {
   html.hud-holo-on [class$="-title-art"] {filter:none!important;-webkit-mask:none;mask:none;animation:none;}
 }
+
+/* GPU bloom (hud-core.js bloom()): the WebGL copy shows; the 2D source keeps drawing unseen. */
+.hud-bloom-source {opacity:0!important;}
+.hud-bloom {pointer-events:none;}
+@media(forced-colors:active) {.hud-bloom {display:none!important;}}
+
+/* Milestone scene (hud-core.js scene()). */
+.hud-scene {position:fixed;inset:0;z-index:2147483200;display:grid;place-items:center;cursor:pointer;color:#fff;
+  background:radial-gradient(ellipse 70% 60% at 50% 42%,color-mix(in srgb,var(--scene) 22%,transparent),transparent 70%),rgba(2,6,10,.9);
+  -webkit-backdrop-filter:blur(8px) saturate(1.2);backdrop-filter:blur(8px) saturate(1.2);animation:hud-scene-in .28s ease-out;}
+.hud-scene.out {opacity:0;transition:opacity .45s ease;}
+.hud-scene>canvas {position:fixed;inset:0;pointer-events:none;}
+.hud-scene-copy {position:relative;z-index:2;text-align:center;padding:0 24px;margin-top:-4vh;}
+.hud-scene-kicker {margin:0 0 10px;font:600 .8rem/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.3em;color:var(--scene);text-shadow:0 0 12px var(--scene);animation:hud-scene-rise .5s .25s both;}
+.hud-scene-title {margin:0;font:600 clamp(1.9rem,6.4vw,3.6rem)/1.08 'Chakra Petch',Figtree,system-ui,sans-serif;letter-spacing:.01em;
+  text-shadow:0 0 28px var(--scene),0 0 2px #fff;animation:hud-scene-title .7s .35s cubic-bezier(.2,.8,.2,1) both;}
+.hud-scene-detail {margin:14px 0 0;font:500 clamp(.9rem,2.6vw,1.1rem)/1.4 'JetBrains Mono',ui-monospace,monospace;color:#dfeff2;animation:hud-scene-rise .5s .75s both;}
+.hud-scene-skip {position:fixed;left:0;right:0;bottom:24px;margin:0;text-align:center;font:500 .75rem/1 'JetBrains Mono',ui-monospace,monospace;color:var(--scene);opacity:.7;}
+@keyframes hud-scene-in {from{opacity:0;}}
+@keyframes hud-scene-rise {from{opacity:0;transform:translateY(10px);}}
+@keyframes hud-scene-title {0%{opacity:0;letter-spacing:.4em;filter:blur(8px);}60%{opacity:1;filter:blur(0);}100%{letter-spacing:.01em;}}
+@media(prefers-reduced-motion:reduce) {.hud-scene,.hud-scene *{animation:none!important;}}
+@media(forced-colors:active) {.hud-scene>canvas {display:none;}}
