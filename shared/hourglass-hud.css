@@ -139,3 +139,12 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] .atlas-page-dock .a
 }/* Weeks still ahead stay visible as a faint lattice. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-hourglass"] #app .cell:not(.lived):not(.now):not(.mile):not(.build):not(.free):not(.goal) {background:color-mix(in srgb,var(--hud-hue) 13%,transparent)!important;}
 html[data-atlas-app="the-hourglass"] #app .hourglass-opening-face>:is(h1,p) {text-shadow:0 1px 8px #1d1a2e,0 0 2px #1d1a2e;}
+/* Life wall: the weeks grid drawn as a 3D hologram (shared/hourglass-hud.js).
+   The real grid stays in place underneath for layout. */
+html[data-atlas-app="the-hourglass"] #app .hud-wall-host {position:relative;}
+html[data-atlas-app="the-hourglass"] #app .hud-wall-grid {opacity:0;}
+html[data-atlas-app="the-hourglass"] #app .hud-wall {position:absolute;pointer-events:none;}
+@media(forced-colors:active) {
+  html[data-atlas-app="the-hourglass"] #app .hud-wall-grid {opacity:1;}
+  html[data-atlas-app="the-hourglass"] #app .hud-wall {display:none;}
+}

@@ -136,3 +136,23 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] .atlas-page-dock .atlas-
 }/* The wider display face must still wrap long words at large text sizes. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="the-chef"] main :is(h2,h3) {overflow-wrap:anywhere;min-width:0;}/* Rings and glows never add scrollable overflow. */
 html[data-atlas-app="the-chef"] main #chef-opening {overflow:clip;}
+/* Ingredient fly-in and recipe scan (shared/chef-hud.js). */
+.hud-fly {position:fixed;z-index:2147482000;pointer-events:none;padding:6px 12px;white-space:nowrap;
+  font:600 .82rem/1 var(--hud-mono,ui-monospace,monospace);color:#fff7e8;
+  background:color-mix(in srgb,var(--neo-accent) 40%,#120d05e6);border:1px solid var(--neo-accent);
+  box-shadow:0 0 18px -2px var(--neo-accent),0 0 2px #fff inset;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+html[data-atlas-app="the-chef"] #chef-opening .chef-title-art.hud-catch {animation:hud-catch .7s ease-out;}
+@keyframes hud-catch {30%{filter:url(#hud-holo-filter) brightness(1.9) drop-shadow(0 0 10px var(--neo-accent));transform:scale(1.04);}}
+html[data-atlas-app="the-chef"] .hud-scan-host {position:relative;}
+.hud-recipe-scan {position:absolute;left:0;right:0;z-index:5;pointer-events:none;overflow:hidden;}
+.hud-recipe-scan::before {content:"";position:absolute;left:0;right:0;height:90px;top:-90px;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--neo-accent) 14%,transparent) 70%,color-mix(in srgb,var(--neo-accent) 70%,#fff) 98%,transparent);
+  animation:hud-recipe-scan .95s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes hud-recipe-scan {to{top:100%;}}
+html[data-atlas-app="the-chef"] #count {position:relative;}
+.hud-match {display:inline-block;margin-left:10px;padding:3px 9px;vertical-align:middle;
+  font:600 .74rem/1.2 var(--hud-mono,ui-monospace,monospace);color:var(--neo-accent);
+  border:1px solid color-mix(in srgb,var(--neo-accent) 60%,transparent);background:color-mix(in srgb,var(--neo-accent) 10%,transparent);
+  animation:hud-match 1.8s ease-out forwards;}
+@keyframes hud-match {0%{opacity:0;transform:translateX(-6px);}12%{opacity:1;transform:none;}80%{opacity:1;}100%{opacity:0;}}
