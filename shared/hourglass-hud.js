@@ -9,7 +9,7 @@
   window.HourglassHUD = {replayBoot: () => boot(true)};
 
   const hud = window.AtlasHUDCore.engine({title: 'The Hourglass', tagline: 'OS 5.0 // Chronometer', bootKey: 'hourglass:hud-boot', bootLines: ['Calibrating the chronometer', 'Counting your weeks', 'Marking what matters', 'All systems nominal'], tilt: '#app .hourglass-opening'});
-  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
+  const {node, svgNode, still, pad, started, automated, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, burstAt, boot} = hud;
 
   /* ── Life-clock rings: this year lived, and life against the planning horizon ── */
   function clockArcs() {
@@ -195,15 +195,96 @@
       if (hero) mountRing(hero);
       mountTelemetry();
       mountWall();
-      const view = hero?.dataset.opening || '';
-      const app = document.getElementById('app');
-      if (lastView && view !== lastView && app && !still()) {
-        app.classList.remove('hud-scan-in'); void app.offsetWidth; app.classList.add('hud-scan-in');
-        setTimeout(() => app.classList.remove('hud-scan-in'), 620);
-      }
+      const view = document.querySelector('#app .tabbar button.on')?.dataset.tab || hero?.dataset.opening || '';
+      if (lastView && view !== lastView) arriveView(view, lastView);
       lastView = view;
     } finally { mutating = false; }
   }
+
+  /* ── HUD-native Hourglass. Motion that makes the app itself the instrument:
+     - each tab's cards sweep in from the side of the tab you chose;
+     - panels build in the first time they scroll into view;
+     - figures decode like a readout, digits scrambling before they lock;
+     - progress bars fill from empty.
+     The decode only cycles the digits of text already on screen and always lands
+     on the exact original, so nothing is ever left changed. Motion is off under
+     reduced motion and left out for automated browsers, like the boot sequence. */
+  const TABS = ['weeks', 'reckon', 'climb', 'setup'];
+  const motionOK = () => !still() && !automated;
+  const afterRender = fn => requestAnimationFrame(() => requestAnimationFrame(fn));
+  const BLOCK = '.hourglass-opening,.panel,.hg-overview';
+  const blocks = () => [...document.querySelectorAll('#app :is(' + BLOCK + ')')].filter(b => !b.parentElement.closest(BLOCK) && !b.closest('[hidden],.atlas-page-source'));
+  function arriveView(view, from) {
+    if (!motionOK()) return;
+    const dir = TABS.indexOf(view) >= TABS.indexOf(from) ? 'hud-warp-right' : 'hud-warp-left';
+    for (const b of blocks()) {
+      b.classList.remove('hud-warp-left', 'hud-warp-right'); void b.offsetWidth; b.classList.add(dir);
+      setTimeout(() => b.classList.remove(dir), 650);
+    }
+    afterRender(() => stackIn(true));
+  }
+
+  const seen = new WeakSet();
+  let stackObserver = null;
+  function stackIn(fresh) {
+    if (!motionOK() || !window.IntersectionObserver) return;
+    stackObserver ||= new IntersectionObserver(entries => {
+      let n = 0;
+      for (const e of entries) {
+        if (!e.isIntersecting || seen.has(e.target)) continue;
+        seen.add(e.target); stackObserver.unobserve(e.target);
+        const t = e.target, d = Math.min(n++, 6) * 70;
+        // Blocks already on screen as a tab opens are carried by the sweep; only rise the rest.
+        if (!t.dataset.hudSwept) {
+          t.style.setProperty('--hud-d', d + 'ms');
+          t.classList.add('hud-rise');
+          setTimeout(() => t.classList.remove('hud-rise'), 900 + d);
+        }
+        delete t.dataset.hudSwept;
+        setTimeout(() => { decode(t); fill(t); }, d + 120);
+      }
+    }, {rootMargin: '0px 0px -8% 0px'});
+    for (const b of blocks()) {
+      if (seen.has(b) || b.matches('.hourglass-opening')) continue;
+      if (fresh) { const r = b.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) b.dataset.hudSwept = '1'; }
+      stackObserver.observe(b);
+    }
+  }
+
+  // Figures: short numbers, percentages, years and "N days away" style counts.
+  const FIGURE = /^(?:[\d][\d,.]*\s?(?:%|y)?|\d[\d,]*\s+(?:days?|weeks?|years?)(?:\s+(?:away|left))?)$/i;
+  const decoding = new WeakSet();
+  function decode(scope) {
+    for (const el of scope.querySelectorAll('strong,b,span,div,p')) {
+      if (el.children.length || decoding.has(el) || el.closest('.grid-wrap,.hud-telemetry,.hud-reactor,input,select,textarea')) continue;
+      const text = el.textContent.trim();
+      if (!text || text.length > 20 || !FIGURE.test(text)) continue;
+      scramble(el, el.textContent);
+    }
+  }
+  function scramble(el, final) {
+    decoding.add(el);
+    const digits = [...final].map((c, i) => /\d/.test(c) ? i : -1).filter(i => i >= 0);
+    const t0 = performance.now(), D = 760, gap = 300 / Math.max(digits.length, 1);
+    el.classList.add('hud-decoding');
+    const step = now => {
+      if (!el.isConnected) return;
+      const k = now - t0;
+      const chars = [...final];
+      digits.forEach((i, n) => { if (k < D - (digits.length - n) * gap * .4) chars[i] = String(Math.floor(Math.random() * 10)); });
+      el.textContent = chars.join('');
+      if (k < D) requestAnimationFrame(step);
+      else { el.textContent = final; el.classList.remove('hud-decoding'); }
+    };
+    requestAnimationFrame(step);
+  }
+  function fill(scope) {
+    for (const bar of scope.querySelectorAll('.bar,.hg-meter')) {
+      bar.classList.remove('hud-fill'); void bar.offsetWidth; bar.classList.add('hud-fill');
+      setTimeout(() => bar.classList.remove('hud-fill'), 1300);
+    }
+  }
+
   const schedule = () => { if (!pending) pending = requestAnimationFrame(decorate); };
   function watchApp() {
     const app = document.getElementById('app');
@@ -211,7 +292,7 @@
     new MutationObserver(records => {
       if (mutating) return;
       for (const r of records) {
-        if (r.target.closest?.('.hud-telemetry,.hud-reactor')) continue;
+        if (r.target.closest?.('.hud-telemetry,.hud-reactor,.hud-decoding')) continue;
         if (r.type === 'attributes' || r.addedNodes.length) { schedule(); break; }
       }
     }).observe(app, {childList: true, subtree: true, attributes: true, attributeFilter: ['data-opening']});
@@ -236,6 +317,7 @@
     boot();
     node('div', 'hud-scan', document.body);
     watchApp(); schedule();
+    afterRender(() => { stackIn(false); const top = document.querySelector('#app .hg-overview'); if (top && motionOK()) setTimeout(() => { decode(top); fill(top); }, 400); });
     setInterval(() => { if (!document.hidden) tick(); }, 1000);
     tick();
   }
