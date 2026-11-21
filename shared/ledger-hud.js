@@ -257,6 +257,9 @@
     watchBeams();
     watchViews();
     watchHabitCard();
+    // Continuous decorative motion (the badge emblems' slow turn) only where motion is wanted.
+    const syncMotion = () => root.classList.toggle('hud-live-motion', motionOK());
+    syncMotion(); window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', syncMotion);
     markBadges(); stackIn();
     setInterval(() => { if (!document.hidden) tick(); }, 1000);
     tick();

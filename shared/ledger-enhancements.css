@@ -1788,3 +1788,24 @@ html.atlas-neumo[data-atlas-app="life-ledger"] #app :is(input:is([type=text],[ty
 html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-history-plot {filter:drop-shadow(0 0 5px color-mix(in srgb,var(--hud-hue,#5ff4ff) 60%,transparent));}
 html.atlas-neumo[data-atlas-app="life-ledger"] .ledger-level-constellation svg {filter:drop-shadow(0 0 6px color-mix(in srgb,var(--hud-hue,#5ff4ff) 45%,transparent));}
 @media(forced-colors:active) {html[data-atlas-app="life-ledger"] :is(.hud-rise,.hud-materialize,.hud-warp-left,.hud-warp-right) {animation:none!important;}}
+
+/* Badge emblems turn slowly through 360 degrees, catching the light as they face
+   you. Staggered so the grid ripples instead of spinning in step. */
+@media(prefers-reduced-motion:no-preference) {
+  html.hud-live-motion[data-atlas-app="life-ledger"] .ledger-achievement-badge {animation:hud-emblem-turn 11s linear infinite;transform-origin:50% 50%;backface-visibility:visible;}
+  html.hud-live-motion[data-atlas-app="life-ledger"] .ledger-achievement-record:nth-child(5n+2) .ledger-achievement-badge {animation-delay:-2.2s;}
+  html.hud-live-motion[data-atlas-app="life-ledger"] .ledger-achievement-record:nth-child(5n+3) .ledger-achievement-badge {animation-delay:-4.4s;}
+  html.hud-live-motion[data-atlas-app="life-ledger"] .ledger-achievement-record:nth-child(5n+4) .ledger-achievement-badge {animation-delay:-6.6s;}
+  html.hud-live-motion[data-atlas-app="life-ledger"] .ledger-achievement-record:nth-child(5n) .ledger-achievement-badge {animation-delay:-8.8s;}
+  html.hud-live-motion[data-atlas-app="life-ledger"] .ledger-feature-art .ledger-achievement-badge {animation-duration:14s;}
+}
+@keyframes hud-emblem-turn {
+  0% {transform:perspective(420px) rotateY(0deg);filter:brightness(1.18) drop-shadow(0 0 8px color-mix(in srgb,var(--badge-rim,#d1b686) 70%,transparent));}
+  25% {filter:brightness(.9);}
+  50% {transform:perspective(420px) rotateY(180deg);filter:brightness(1.05);}
+  75% {filter:brightness(.9);}
+  100% {transform:perspective(420px) rotateY(360deg);filter:brightness(1.18) drop-shadow(0 0 8px color-mix(in srgb,var(--badge-rim,#d1b686) 70%,transparent));}
+}
+@media(forced-colors:active) {
+  html.hud-live-motion[data-atlas-app="life-ledger"] .ledger-achievement-badge {animation:none;}
+}
