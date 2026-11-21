@@ -15,7 +15,7 @@
   function railArcs(feature) {
     const m = (feature.querySelector('.cm-feature-rail')?.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
     const name = (feature.querySelector('.cm-feature-rail')?.firstChild?.textContent || 'Progress').trim();
-    return [{color: 'var(--neo-accent)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: name || 'Progress', value: m ? m[1] + ' of ' + m[2] + ' completed' : 'Not started', done: (name || 'Ladder') + ' complete'}];
+    return [{color: 'var(--neo-accent)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: name || 'Progress', value: m ? m[1] + ' of ' + m[2] + ' completed' : 'Not started', done: (name || 'Ladder') + ' complete', scene: true}];
   }
   function mountRing(feature) {
     const stage = feature.querySelector('.cm-stage');

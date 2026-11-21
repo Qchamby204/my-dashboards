@@ -25,7 +25,7 @@
     const m = (feature.querySelector('.fg-readout strong')?.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
     const beam = getComputedStyle(feature).getPropertyValue('--beam').trim() || 'var(--neo-accent)';
     const split=feature.classList.contains('fg-starting-point');
-    return [{color: beam, pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: split?'Exercises':'Sets', value: m ? m[1] + ' of ' + m[2] + (split?' marked':' logged') : '', done: split?'Exercises marked':'Session complete'}];
+    return [{color: beam, pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: split?'Exercises':'Sets', value: m ? m[1] + ' of ' + m[2] + (split?' marked':' logged') : '', done: split?'Exercises marked':'Session complete', scene: true}];
   }
   function mountRing(feature) {
     const art = feature.querySelector('.fg-feature-art');

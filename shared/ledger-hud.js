@@ -73,7 +73,7 @@
       const award = document.getElementById('ledger-achievement-readout');
       if (award && !award.closest('[hidden]')) {
         const frac = Math.max(0, Math.min(1, Number(award.dataset.fraction) || 0));
-        mountReactor(award, [{color: 'var(--hud-amber)', pct: frac * 100, letter: '', label: 'Next award', value: Math.round(frac * 100) + '% of the way', done: 'Award unlocked'}], '');
+        mountReactor(award, [{color: 'var(--hud-amber)', pct: frac * 100, letter: '', label: 'Next award', value: Math.round(frac * 100) + '% of the way', done: 'Award unlocked', scene: true}], '');
       }
       mountTelemetry();
       mountHolo();

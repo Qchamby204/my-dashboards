@@ -14,7 +14,7 @@
   /* ── Reactor around the headphones: edition progress, faster while on air ── */
   function editionArcs() {
     const m = (document.querySelector('#editionProgress .courier-progress-caption')?.textContent || '').match(/(\d+)\s+of\s+(\d+)/);
-    return [{color: 'var(--hud-hue)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: "Today's edition", value: m ? m[1] + ' of ' + m[2] + ' sections heard' : 'Not started', done: 'Edition finished'}];
+    return [{color: 'var(--hud-hue)', pct: m && Number(m[2]) ? 100 * Number(m[1]) / Number(m[2]) : 0, letter: '', label: "Today's edition", value: m ? m[1] + ' of ' + m[2] + ' sections heard' : 'Not started', done: 'Edition finished', scene: true}];
   }
   function mountRing(hero) {
     const face = hero.querySelector('.courier-opening-face');

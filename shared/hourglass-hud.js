@@ -88,7 +88,7 @@
     });
     const first = !wall;
     if (window.IntersectionObserver) new IntersectionObserver(e => { wallVisible = e[0].isIntersecting; kickWall(); }).observe(grid);
-    wall = {grid, sig, canvas, types, rows: Math.ceil(types.length / 52), born: first && !still() ? performance.now() : -1e9};
+    wall = {grid, sig, canvas, types, rows: Math.ceil(types.length / 52), born: first && !still() ? performance.now() : -1e9, glow: wall?.canvas === canvas ? wall.glow : window.AtlasHUDCore.bloom(canvas, {strength: 1.5, threshold: .3})};
     drawWall();
   }
   let wallRaf = 0, wallLast = 0;
@@ -156,7 +156,7 @@
     }
     ctx.globalAlpha = 1;
     // Glow: a blurred copy of what is drawn so far.
-    if (!still()) { ctx.filter = 'blur(' + Math.max(2, cellNear * .45) + 'px)'; ctx.globalAlpha = .28; ctx.drawImage(canvas, 0, 0, w, h); ctx.filter = 'none'; ctx.globalAlpha = 1; }
+    if (!still() && !wall.glow) { ctx.filter = 'blur(' + Math.max(2, cellNear * .45) + 'px)'; ctx.globalAlpha = .28; ctx.drawImage(canvas, 0, 0, w, h); ctx.filter = 'none'; ctx.globalAlpha = 1; }
     // This week: a beam rising off the wall with a pulsing ring.
     const here = draws.find(d => d[0] === 'now');
     if (here) {
@@ -177,6 +177,7 @@
     ctx.globalAlpha = 1;
     // A scan line rides up the wall while it fills.
     if (grow < 1 && nowIndex >= 0) { const v = Math.floor(nowIndex * grow / 52), [xl, y] = proj(0, v), [xr] = proj(52, v); ctx.fillStyle = 'rgba(255,230,190,.7)'; ctx.fillRect(xl, y - 1, xr - xl, 2); }
+    wall.glow?.render();
     if (!still() && wallVisible) wallRaf = requestAnimationFrame(drawWall);
   }
   let wallVisible = true;

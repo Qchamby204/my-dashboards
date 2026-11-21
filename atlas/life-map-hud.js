@@ -16,7 +16,7 @@
     const label = document.querySelector('#lm-day-view-home .lm-instrument')?.getAttribute('aria-label') || '';
     const m = label.match(/(\d+) of (\d+)/);
     const pct = m && Number(m[2]) ? Math.min(100, 100 * Number(m[1]) / Number(m[2])) : 0;
-    return [{color: 'var(--neo-accent)', pct, letter: '', label: 'Daily routines', value: m ? m[1] + ' of ' + m[2] + ' done' : 'None yet', done: 'Day complete'}];
+    return [{color: 'var(--neo-accent)', pct, letter: '', label: 'Daily routines', value: m ? m[1] + ' of ' + m[2] + ' done' : 'None yet', done: 'Day complete', scene: true, sceneDetail: m ? 'All ' + m[2] + ' routines done' : ''}];
   }
 
   /* ── Live clock on the "Right now" card ──────────────────────────────────── */
