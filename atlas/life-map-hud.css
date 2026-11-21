@@ -163,8 +163,9 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar::after {
 }
 @media(prefers-reduced-motion:no-preference) {
   html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app>.appbar::after {animation:hud-travel 6s ease-in-out infinite;}
-  html[data-atlas-app="life-map"] #app .lm-day-view.hud-scan-in {animation:hud-view-in .55s cubic-bezier(.2,.8,.2,1);}
-  html[data-atlas-app="life-map"] #app .lm-day-view.hud-scan-in :is(h1,h2) {animation:hud-glitch .5s steps(2) 1;}
+  html[data-atlas-app="life-map"] #app .lm-day-view.hud-warp-right {animation:lm-warp-r .6s cubic-bezier(.2,.8,.2,1);}
+  html[data-atlas-app="life-map"] #app .lm-day-view.hud-warp-left {animation:lm-warp-l .6s cubic-bezier(.2,.8,.2,1);}
+  html[data-atlas-app="life-map"] #app .lm-day-view:is(.hud-warp-right,.hud-warp-left) :is(h1,h2) {animation:hud-glitch .5s steps(2) 1;}
 }
 @keyframes hud-travel {to{background-position:140% 0;}}
 @keyframes hud-view-in {0%{clip-path:inset(0 0 100% 0);filter:brightness(1.8);}70%{clip-path:inset(0 0 0 0);filter:brightness(1.15);}100%{clip-path:inset(0 0 0 0);filter:none;}}
@@ -271,3 +272,50 @@ html[data-atlas-app="life-map"] .hud-reactor .hud-docked {fill:currentColor;filt
 html[data-atlas-app="life-map"] .hud-reactor.hud-docking {animation:hud-dock-flare .9s ease-out;}
 @keyframes hud-dock-flare {25%{filter:brightness(2.4) drop-shadow(0 0 10px currentColor);transform:scale(1.15);}}
 @media(forced-colors:active) {html[data-atlas-app="life-map"] #app .hud-orbit {display:none;}}
+
+
+/* HUD-native Life Map (atlas/life-map-hud.js). Entrance motion uses opacity,
+   clipping and light only, so nothing shifts layout. */
+@keyframes lm-warp-r {0%{clip-path:inset(0 0 0 100%);opacity:.2;filter:brightness(2.2) blur(2px);}55%{clip-path:inset(0 0 0 0);opacity:1;filter:brightness(1.25);}100%{clip-path:inset(0 0 0 0);filter:none;}}
+@keyframes lm-warp-l {0%{clip-path:inset(0 100% 0 0);opacity:.2;filter:brightness(2.2) blur(2px);}55%{clip-path:inset(0 0 0 0);opacity:1;filter:brightness(1.25);}100%{clip-path:inset(0 0 0 0);filter:none;}}
+@media(prefers-reduced-motion:no-preference) {
+  html[data-atlas-app="life-map"] #app .hud-rise {animation:lm-rise .7s cubic-bezier(.2,.8,.2,1) var(--hud-d,0ms) backwards;}
+  html[data-atlas-app="life-map"] #app .lm-month-day.hud-ripple {animation:lm-ripple .75s ease-out var(--hud-d,0ms) backwards;}
+  html[data-atlas-app="life-map"] .hud-ghost {animation:lm-ghost 1.4s ease-in-out forwards;}
+  html[data-atlas-app="life-map"] .hud-ghost .hud-ghost-scan {animation:lm-ghost-scan 1.4s ease-in-out forwards;}
+}
+@keyframes lm-rise {0%{opacity:0;clip-path:inset(0 0 100% 0);filter:brightness(2) blur(1px);}60%{opacity:1;clip-path:inset(0 0 0 0);filter:brightness(1.15);}100%{clip-path:inset(0 0 0 0);filter:none;}}
+@keyframes lm-ripple {
+  0%{opacity:.15;box-shadow:none;}
+  35%{opacity:1;filter:brightness(1.9);box-shadow:0 0 0 1px var(--neo-accent),0 0 18px -2px var(--neo-accent);}
+  100%{filter:none;}
+}
+
+/* The finished task's hologram. */
+html[data-atlas-app="life-map"] .hud-ghost {
+  position:fixed;z-index:60;margin:0;box-sizing:border-box;pointer-events:none;overflow:hidden;
+  display:flex;align-items:center;gap:14px;padding:16px;color:var(--neo-accent,#5ff4ff);
+  border:1px solid var(--neo-accent,#5ff4ff);border-radius:4px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--neo-accent,#5ff4ff) 22%,#03141b),color-mix(in srgb,var(--neo-accent,#5ff4ff) 8%,#03141b));
+  background-image:repeating-linear-gradient(0deg,transparent 0 3px,color-mix(in srgb,var(--neo-accent,#5ff4ff) 10%,transparent) 3px 4px),linear-gradient(180deg,color-mix(in srgb,var(--neo-accent,#5ff4ff) 22%,#03141b),color-mix(in srgb,var(--neo-accent,#5ff4ff) 8%,#03141b));
+  box-shadow:0 0 28px -4px var(--neo-accent,#5ff4ff),inset 0 0 22px -6px var(--neo-accent,#5ff4ff);
+  text-shadow:0 0 10px var(--neo-accent,#5ff4ff);
+}
+html[data-atlas-app="life-map"] .hud-ghost-tick {flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:2px solid currentColor;box-shadow:0 0 12px currentColor;position:relative;}
+html[data-atlas-app="life-map"] .hud-ghost-tick::after {content:"";position:absolute;left:11px;top:6px;width:8px;height:15px;border:solid currentColor;border-width:0 3px 3px 0;transform:rotate(45deg);}
+html[data-atlas-app="life-map"] .hud-ghost-words {display:flex;flex-direction:column;gap:6px;min-width:0;}
+html[data-atlas-app="life-map"] .hud-ghost-words b {font-size:1.1rem;font-weight:600;line-height:1.25;color:#e8feff;text-decoration:line-through;text-decoration-color:var(--neo-accent,#5ff4ff);text-decoration-thickness:2px;}
+html[data-atlas-app="life-map"] .hud-ghost-words small {font-family:var(--hud-mono,ui-monospace,monospace);font-size:.72rem;letter-spacing:.14em;}
+html[data-atlas-app="life-map"] .hud-ghost .hud-ghost-scan {position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--neo-accent,#5ff4ff);box-shadow:0 0 14px 3px var(--neo-accent,#5ff4ff);}
+@keyframes lm-ghost {
+  0%{clip-path:inset(0 0 0 0);opacity:0;filter:brightness(2.2);transform:none;}
+  8%{opacity:1;}
+  28%{clip-path:inset(0 0 0 0);filter:brightness(1);transform:none;}
+  100%{clip-path:inset(0 0 100% 0);opacity:.85;transform:translateY(-14px);filter:brightness(1.4) blur(.5px);}
+}
+@keyframes lm-ghost-scan {0%,28%{bottom:0;opacity:1;}100%{bottom:100%;opacity:.2;}}
+
+@media(forced-colors:active) {
+  html[data-atlas-app="life-map"] :is(.hud-rise,.hud-ripple,.hud-warp-left,.hud-warp-right) {animation:none!important;}
+  html[data-atlas-app="life-map"] .hud-ghost {display:none;}
+}

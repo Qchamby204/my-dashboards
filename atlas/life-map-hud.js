@@ -9,7 +9,7 @@
   window.LifeMapHUD = {replayBoot: () => boot(true)};
 
   const hud = window.AtlasHUDCore.engine({title: 'Life Map', tagline: 'OS 5.0 // Area grid online', bootKey: 'lifemap:hud-boot', bootLines: ['Mapping life areas', 'Loading projects and tasks', 'Syncing calendar', 'All systems nominal'], accentVars: ['--neo-accent'], tilt: '#lm-day-view-home .lm-now-card'});
-  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
+  const {node, svgNode, still, pad, started, automated, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
 
   /* ── Reactor rings around the hologram ───────────────────────────────────── */
   function routineArcs() {
@@ -49,6 +49,8 @@
       const face = document.querySelector('#lm-day-view-home .lm-instrument .lm-dial-face');
       if (face && !face.closest('[hidden]')) mountRing(face, routineArcs());
       mountTelemetry();
+      const view = document.querySelector('#app .lm-day-view:not([hidden])');
+      if (view) arriveView(view);
     } finally { mutating = false; }
   }
   function mountRing(face, arcs) {
@@ -138,17 +140,109 @@
     requestAnimationFrame(step);
   }
 
+
+  /* ── HUD-native Life Map. Motion that makes the app itself feel like the display:
+     - views warp in from the side of the tab you chose;
+     - panels and task rows rise in the first time they scroll into view;
+     - the calendar grid ripples outward from the selected day;
+     - a task you finish dissolves upward like a hologram once the app has saved it.
+     Entrance motion uses only opacity, clipping and light (nothing moves layout),
+     is off under reduced motion, and is left out for automated browsers, like the
+     boot sequence, so layout checks never measure a half-drawn view. */
+  const VIEWS = ['home', 'projects', 'calendar'];
+  const motionOK = () => !still() && !automated;
+  const afterRender = fn => requestAnimationFrame(() => requestAnimationFrame(fn));
+  let lastView = 0;
+  function arriveView(view) {
+    const i = VIEWS.indexOf(view.id.replace('lm-day-view-', ''));
+    if (i < 0 || i === lastView) return;
+    const from = lastView; lastView = i;
+    if (!motionOK()) return;
+    view.classList.remove('hud-warp-left', 'hud-warp-right'); void view.offsetWidth;
+    view.classList.add(i > from ? 'hud-warp-right' : 'hud-warp-left');
+    setTimeout(() => view.classList.remove('hud-warp-left', 'hud-warp-right'), 650);
+    afterRender(() => { stackIn(view); if (VIEWS[i] === 'calendar') ripple(); });
+  }
+
+  // Panels and rows materialise the first time they scroll in.
+  const seen = new WeakSet();
+  let stackObserver = null;
+  const STACK = '.panel, .lm-task-row, .lm-area-option';
+  function stackIn(scope) {
+    if (!motionOK() || !window.IntersectionObserver) return;
+    stackObserver ||= new IntersectionObserver(entries => {
+      let n = 0;
+      for (const e of entries) {
+        if (!e.isIntersecting || seen.has(e.target)) continue;
+        seen.add(e.target); stackObserver.unobserve(e.target);
+        const t = e.target, d = Math.min(n++, 10) * 55;
+        t.style.setProperty('--hud-d', d + 'ms');
+        t.classList.add('hud-rise');
+        setTimeout(() => t.classList.remove('hud-rise'), 900 + d);
+      }
+    }, {rootMargin: '0px 0px -6% 0px'});
+    for (const n of (scope || document).querySelectorAll(STACK)) if (!seen.has(n) && !n.closest('[hidden]')) stackObserver.observe(n);
+  }
+
+  // Calendar: day cells light up in a wave spreading out from the selected day.
+  function ripple() {
+    const grid = document.querySelector('#lm-day-view-calendar .lm-month-grid');
+    if (!grid || !motionOK()) return;
+    const cells = [...grid.children];
+    const origin = Math.max(0, cells.findIndex(c => c.getAttribute?.('aria-pressed') === 'true'));
+    const ox = origin % 7, oy = Math.floor(origin / 7);
+    cells.forEach((c, i) => {
+      if (!c.classList.contains('lm-month-day')) return;
+      const d = Math.hypot(i % 7 - ox, Math.floor(i / 7) - oy);
+      c.style.setProperty('--hud-d', Math.round(d * 60) + 'ms');
+      c.classList.remove('hud-ripple'); void c.offsetWidth; c.classList.add('hud-ripple');
+    });
+    setTimeout(() => cells.forEach(c => c.classList?.remove('hud-ripple')), 1300);
+  }
+
+  // A finished task leaves as a hologram: a copy of its row, pinned where it was,
+  // dissolves upward. It plays only once the app has re-rendered the task as done.
+  function ghostOut(title, rect) {
+    const host = document.getElementById('app') || document.body;
+    const ghost = node('div', 'hud-ghost', host);
+    ghost.setAttribute('aria-hidden', 'true');
+    Object.assign(ghost.style, {left: rect.left + 'px', top: rect.top + 'px', width: rect.width + 'px', height: rect.height + 'px'});
+    node('i', 'hud-ghost-tick', ghost);
+    const words = node('span', 'hud-ghost-words', ghost);
+    node('b', '', words).textContent = title;
+    node('small', '', words).textContent = 'Task complete';
+    node('i', 'hud-ghost-scan', ghost);
+    setTimeout(() => ghost.remove(), 1500);
+  }
+  function watchCompletion() {
+    document.addEventListener('click', e => {
+      const control = e.target.closest?.('#app .lm-task-row [data-lm="complete"]');
+      if (!control || control.getAttribute('aria-pressed') === 'true' || !motionOK()) return;
+      const row = control.closest('.lm-task-row'), rect = row.getBoundingClientRect(), id = control.dataset.id;
+      if (!rect.width) return;
+      const title = row.querySelector('.lm-task-title')?.textContent.trim() || '';
+      let tries = 0;
+      const check = () => afterRender(() => {
+        const now = [...document.querySelectorAll('#app [data-lm="complete"][data-id="' + CSS.escape(id) + '"]')].filter(b => b.offsetParent);
+        if (!row.isConnected && (!now.length || now.every(b => b.getAttribute('aria-pressed') === 'true'))) ghostOut(title, rect);
+        else if (++tries < 10) setTimeout(check, 120);
+      });
+      setTimeout(check, 60);
+    }, true);
+    // Month changes and area filters rebuild what is on screen; let it arrive again.
+    document.addEventListener('click', e => {
+      if (!motionOK()) return;
+      if (e.target.closest?.('#lm-day-view-calendar .lm-month-header button')) afterRender(() => setTimeout(ripple, 40));
+      else if (e.target.closest?.('.lm-area-option')) setTimeout(() => afterRender(() => stackIn(document.getElementById('lm-day-view-projects'))), 120);
+    }, true);
+  }
+
   const schedule = () => { if (!pending) pending = requestAnimationFrame(decorate); };
   function watchApp(app) {
     new MutationObserver(records => {
       if (mutating) return;
       for (const r of records) {
         if (r.type === 'attributes') {
-          const view = r.target;
-          if (view.classList?.contains('lm-day-view') && !view.hidden && !still()) {
-            view.classList.remove('hud-scan-in'); void view.offsetWidth; view.classList.add('hud-scan-in');
-            setTimeout(() => view.classList.remove('hud-scan-in'), 620);
-          }
           schedule();
           continue;
         }
@@ -190,6 +284,8 @@
     boot();
     const app = document.getElementById('app');
     if (app) { watchApp(app); schedule(); }
+    watchCompletion();
+    afterRender(() => stackIn(document.querySelector('.lm-day-view:not([hidden])')));
     setInterval(() => { if (!document.hidden) tick(); }, 1000);
     tick();
   }
