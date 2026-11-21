@@ -93,6 +93,61 @@
     burstAt(control, control.matches('[data-fav]') ? 'Favourited' : control.matches('[data-cooked]') ? 'Cooked' : 'Rated');
   }, true);
 
+  /* ── Ingredient fly-in and recipe scan. Picking an ingredient sends a glowing copy
+     of it into the hologram basket; when the matches change, a scan sweeps the recipe
+     cards and stamps the new count. Reads the page only. */
+  let touched = 0;
+  function flyToBasket(chip) {
+    if (still()) return;
+    const from = chip.getBoundingClientRect();
+    const art = document.querySelector('#chef-opening .chef-title-art')?.getBoundingClientRect();
+    const inView = art && art.bottom > 0 && art.top < innerHeight;
+    const tx = inView ? art.left + art.width / 2 : innerWidth / 2, ty = inView ? art.top + art.height * .55 : 0;
+    const pill = node('div', 'hud-fly', document.body);
+    pill.textContent = chip.textContent.trim();
+    pill.style.left = from.left + 'px'; pill.style.top = from.top + 'px';
+    const dx = tx - (from.left + from.width / 2), dy = ty - (from.top + from.height / 2);
+    pill.animate([
+      {transform: 'translate(0,0) scale(1)', opacity: 1},
+      {transform: 'translate(' + dx * .5 + 'px,' + (dy * .5 - 60) + 'px) scale(.9)', opacity: 1, offset: .55},
+      {transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.2)', opacity: 0},
+    ], {duration: 820, easing: 'cubic-bezier(.4,0,.2,1)'}).onfinish = () => {
+      pill.remove();
+      const basket = document.querySelector('#chef-opening .chef-title-art');
+      if (basket && inView) { basket.classList.remove('hud-catch'); void basket.getBBox?.(); basket.classList.add('hud-catch'); setTimeout(() => basket.classList.remove('hud-catch'), 700); }
+    };
+  }
+  function watchKitchen() {
+    document.addEventListener('pointerdown', () => { touched = Date.now(); }, {capture: true, passive: true});
+    document.addEventListener('click', e => {
+      const chip = e.target.closest?.('#ing-cats [data-pick]');
+      if (!chip || chip.getAttribute('aria-pressed') === 'true') return;
+      const label = chip.dataset.pick;
+      setTimeout(() => { const now = document.querySelector('#ing-cats [data-pick="' + CSS.escape(label) + '"]'); if (now?.getAttribute('aria-pressed') === 'true') flyToBasket(now); }, 60);
+    }, true);
+    const count = document.getElementById('count');
+    if (!count) return;
+    let last = (count.textContent.match(/\d+/) || [])[0];
+    new MutationObserver(() => {
+      const n = (count.textContent.match(/\d+/) || [])[0];
+      if (n === last) return;
+      last = n;
+      if (Date.now() - touched > 6000 || still()) return;
+      const cards = document.getElementById('cards');
+      if (cards && cards.getClientRects().length) {
+        const host = cards.parentElement;
+        host.classList.add('hud-scan-host');
+        const bar = node('i', 'hud-recipe-scan', host);
+        bar.style.top = cards.offsetTop + 'px'; bar.style.height = Math.min(cards.offsetHeight, innerHeight * 1.2) + 'px';
+        setTimeout(() => bar.remove(), 1000);
+      }
+      count.querySelector(':scope>.hud-match')?.remove();
+      const tag = node('span', 'hud-match', count);
+      tag.textContent = 'Scan complete · ' + n + (n === '1' ? ' match' : ' matches');
+      setTimeout(() => tag.remove(), 1800);
+    }).observe(count, {childList: true, characterData: true, subtree: true});
+  }
+
   function init() {
     root.classList.add('hud-on');
     startField();
@@ -102,6 +157,7 @@
     node('div', 'hud-scan', document.body);
     const app = document.querySelector('main');
     if (app) { watchApp(app); schedule(); }
+    watchKitchen();
     setInterval(() => { if (!document.hidden) tick(); }, 1000);
     tick();
   }

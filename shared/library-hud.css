@@ -125,3 +125,12 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="library"] .atlas-page-dock .atlas-p
 @media(forced-colors:active) {
   html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main :is(.library-opening,.panel,.stat,.focus-card,.btn,button.primary,.atlas-goal-options button,.icon-btn) {clip-path:none;}
 }
+/* Archive shelf under the hologram (shared/library-hud.js). */
+html.atlas-neumo.atlas-neumo[data-atlas-app="library"] main .library-opening-face>.hud-shelf {position:absolute;z-index:2;pointer-events:none;overflow:visible;}
+html[data-atlas-app="library"] .hud-shelf .hud-shelf-floor {stroke:var(--hud-hue);stroke-width:1.4;filter:drop-shadow(0 0 4px var(--hud-hue));}
+html[data-atlas-app="library"] .hud-shelf .hud-spine {fill:color-mix(in srgb,var(--spine) 35%,transparent);stroke:var(--spine);stroke-width:1;filter:drop-shadow(0 0 3px var(--spine));}
+html[data-atlas-app="library"] .hud-shelf .hud-spine-slot {fill:none;stroke:var(--hud-hue);stroke-width:.7;stroke-dasharray:2 2;opacity:.45;}
+html[data-atlas-app="library"] .hud-shelf .hud-shelf-more {fill:var(--hud-hue);font:600 9px var(--hud-mono,monospace);}
+html[data-atlas-app="library"] .hud-shelf .hud-spine-new {transform-box:fill-box;animation:hud-spine-in 1s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes hud-spine-in {0%{transform:translateX(260px);opacity:0;}60%{opacity:1;filter:drop-shadow(0 0 10px var(--spine)) brightness(2);}100%{transform:none;}}
+@media(forced-colors:active) {html[data-atlas-app="library"] .hud-shelf {display:none;}}

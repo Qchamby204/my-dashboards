@@ -1742,3 +1742,13 @@ html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app .led
 html.atlas-neumo.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-view-achievements :is(.ledger-feature-action,.ledger-milestone-choices>summary) {text-transform:none!important;letter-spacing:0!important;font-family:var(--neo-font,"Figtree",system-ui,sans-serif)!important;}
 /* Rings and glows never add scrollable overflow. */
 html[data-atlas-app="life-ledger"] #app :is(.ledger-opening,.ledger-next-milestone) {overflow:clip;}
+
+/* Habit beams (shared/ledger-hud.js): light from a habit to its value star. */
+.hud-beam {position:fixed;inset:0;width:100vw;height:100vh;z-index:2147482000;pointer-events:none;overflow:visible;}
+.hud-beam path {fill:none;stroke:var(--beam);stroke-linecap:round;stroke-dasharray:30 100;stroke-dashoffset:30;animation:hud-beam-run .62s cubic-bezier(.4,0,.2,1) forwards;}
+.hud-beam .hud-beam-glow {stroke-width:14;opacity:.4;filter:blur(5px);}
+.hud-beam .hud-beam-line {stroke-width:3.2;filter:drop-shadow(0 0 4px var(--beam)) drop-shadow(0 0 1px #fff);}
+@keyframes hud-beam-run {0%{stroke-dashoffset:30;opacity:1;}85%{opacity:1;}100%{stroke-dashoffset:-100;opacity:0;}}
+html[data-atlas-app="life-ledger"] .ledger-value-jump.hud-value-hit {animation:hud-value-hit 1.3s ease-out;}
+@keyframes hud-value-hit {0%{filter:none;}18%{filter:brightness(1.9) drop-shadow(0 0 14px var(--ledger-value));transform:scale(1.05);}100%{filter:none;transform:none;}}
+@media(prefers-reduced-motion:reduce) {html[data-atlas-app="life-ledger"] .ledger-value-jump.hud-value-hit {animation:none;outline:2px solid var(--ledger-value);outline-offset:2px;}}

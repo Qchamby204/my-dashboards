@@ -125,6 +125,48 @@
     if (control && control.getAttribute('aria-pressed') !== 'true') burstAt(control);
   }, true);
 
+  /* ── Habit beams: marking a habit done fires light from the card to its value's
+     star, which flares, then on into the projector core. Only fires when the value's
+     count actually rises; reads the page and changes nothing. */
+  const valueTile = name => [...document.querySelectorAll('#ledger-view-today .ledger-value-jump')].find(b => (b.querySelector('span')?.textContent || '').trim() === name);
+  const doneCount = tile => Number((tile?.textContent.match(/(\d+)\s*\/\s*\d+/) || [])[1] || 0);
+  function fireBeam(from, tile) {
+    const color = tile.style.getPropertyValue('--ledger-value').trim() || 'var(--hud-hue)';
+    tile.classList.remove('hud-value-hit'); void tile.offsetWidth; tile.classList.add('hud-value-hit');
+    setTimeout(() => tile.classList.remove('hud-value-hit'), 1400);
+    if (still()) return;
+    const to = tile.getBoundingClientRect();
+    const core = document.querySelector('#ledger-today-readout .ledger-projector')?.getBoundingClientRect();
+    const W = innerWidth, H = innerHeight;
+    const clampY = y => Math.max(8, Math.min(H - 8, y));
+    const a = [from.left + from.width / 2, clampY(from.top + from.height / 2)];
+    const b = [to.left + to.width / 2, clampY(to.top + to.height / 2)];
+    const svg = svgNode('svg', {class: 'hud-beam', viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true'});
+    svg.style.setProperty('--beam', color);
+    const bend = (x1, y1, x2, y2) => 'M' + x1 + ' ' + y1 + ' Q' + ((x1 + x2) / 2 + (x1 < x2 ? -60 : 60)) + ' ' + Math.min(y1, y2) + ' ' + x2 + ' ' + y2;
+    const legs = [bend(a[0], a[1], b[0], b[1])];
+    if (core && core.width) legs.push(bend(b[0], b[1], core.left + core.width / 2, clampY(core.top + core.height / 2)));
+    legs.forEach((d, i) => {
+      const glow = svgNode('path', {d, class: 'hud-beam-glow', pathLength: 100}, svg);
+      const line = svgNode('path', {d, class: 'hud-beam-line', pathLength: 100}, svg);
+      for (const n of [glow, line]) n.style.animationDelay = (i * .55) + 's';
+    });
+    document.body.append(svg);
+    setTimeout(() => svg.remove(), 1700);
+  }
+  function watchBeams() {
+    document.addEventListener('click', e => {
+      const btn = e.target.closest?.('#ledger-log .ledger-habit-card .btn.tap');
+      if (!btn || btn.getAttribute('aria-pressed') === 'true') return;
+      const card = btn.closest('.ledger-habit-card');
+      const name = (card.querySelector('.ledger-card-value, .eyebrow')?.textContent || '').trim();
+      const tile = valueTile(name);
+      if (!tile) return;
+      const before = doneCount(tile), from = btn.getBoundingClientRect();
+      setTimeout(() => { const now = valueTile(name); if (now && doneCount(now) > before) fireBeam(from, now); }, 120);
+    }, true);
+  }
+
   function init() {
     root.classList.add('hud-on');
     startField();
@@ -133,6 +175,7 @@
     boot();
     const app = document.getElementById('app');
     if (app) { watchApp(app); schedule(); }
+    watchBeams();
     setInterval(() => { if (!document.hidden) tick(); }, 1000);
     tick();
   }

@@ -28,6 +28,37 @@
     const size = Math.min(a.height * 1.15, a.width * .95, f.width * .9);
     Object.assign(svg.style, {width: size + 'px', height: size + 'px', left: (a.left - f.left + (a.width - size) / 2) + 'px', top: (a.top - f.top + (a.height - size) / 2) + 'px'});
     paintArcs(svg, openingArcs());
+    mountShelf(face, art);
+  }
+
+  /* ── Archive shelf: one glowing spine per finished book along the hologram's
+     floor, a few dim slots for what comes next, and a new spine slides in when you
+     finish one. Reads the "Books completed" stat only. */
+  const SPINES = ['#8cc8ff', '#ffd08b', '#b591ff', '#6ff2c8', '#ff8a7a', '#e8c78b', '#5ff4ff'];
+  let shelfDone = null, shelfTouched = 0;
+  addEventListener('pointerdown', () => { shelfTouched = Date.now(); }, {capture: true, passive: true});
+  function mountShelf(face, art) {
+    const m = (document.querySelector('main .stats .stat')?.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
+    const done = m ? Number(m[1]) : 0;
+    let shelf = face.querySelector(':scope>.hud-shelf');
+    if (!shelf) { shelf = svgNode('svg', {class: 'hud-shelf', viewBox: '0 0 300 40', 'aria-hidden': 'true', focusable: 'false'}); face.append(shelf); }
+    const a = art.getBoundingClientRect(), f = face.getBoundingClientRect();
+    const w = a.width * .86;
+    Object.assign(shelf.style, {width: w + 'px', height: w * 40 / 300 + 'px', left: (a.left - f.left + (a.width - w) / 2) + 'px', top: (a.bottom - f.top - w * 40 / 300 + 2) + 'px'});
+    if (shelf.dataset.done === String(done)) return;
+    const arrive = shelfDone != null && done > shelfDone && Date.now() - shelfTouched < 6000 && !still();
+    shelf.dataset.done = String(done);
+    shelf.textContent = '';
+    svgNode('path', {d: 'M4 37.5H296', class: 'hud-shelf-floor'}, shelf);
+    const slots = 26, shown = Math.min(done, slots);
+    for (let i = 0; i < Math.min(slots, shown + 3); i++) {
+      const h = 18 + ((i * 37) % 13), x = 10 + i * 10.9, filled = i < shown;
+      const r = svgNode('rect', {x: x.toFixed(1), y: (37 - h).toFixed(1), width: 8.2, height: h, rx: 1, class: filled ? 'hud-spine' : 'hud-spine-slot'}, shelf);
+      if (filled) r.style.setProperty('--spine', SPINES[i % SPINES.length]);
+      if (filled && arrive && i === shown - 1) r.classList.add('hud-spine-new');
+    }
+    if (done > slots) { const t = svgNode('text', {x: 296, y: 12, 'text-anchor': 'end', class: 'hud-shelf-more'}, shelf); t.textContent = '+' + (done - slots); }
+    shelfDone = done;
   }
 
   /* ── Live clock in the opening rail ──────────────────────────────────────── */

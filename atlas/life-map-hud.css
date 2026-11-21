@@ -260,3 +260,14 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-now-card::befor
   html.atlas-neumo.atlas-neumo[data-atlas-app="life-map"] #app .lm-day-dock {border-width:2px!important;}
 }/* Rings and glows never add scrollable overflow. */
 html[data-atlas-app="life-map"] #app .lm-now-card {overflow:clip;}
+/* Routine satellites orbiting the terrain (atlas/life-map-hud.js). */
+html[data-atlas-app="life-map"] #app .lm-route-plate {position:relative;}
+html[data-atlas-app="life-map"] #app .lm-route-plate>.hud-orbit {position:absolute;pointer-events:none;overflow:visible;color:var(--neo-accent);z-index:2;}
+html[data-atlas-app="life-map"] .hud-orbit .hud-orbit-path {fill:none;stroke:currentColor;stroke-width:1;stroke-dasharray:2 6;opacity:.4;}
+html[data-atlas-app="life-map"] .hud-orbit .hud-sat-halo {fill:currentColor;opacity:.28;}
+html[data-atlas-app="life-map"] .hud-orbit .hud-sat-body {fill:#effeff;stroke:currentColor;stroke-width:1.6;filter:drop-shadow(0 0 4px currentColor);}
+html[data-atlas-app="life-map"] .hud-orbit .hud-sat-trail {fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;opacity:.6;filter:drop-shadow(0 0 4px currentColor);}
+html[data-atlas-app="life-map"] .hud-reactor .hud-docked {fill:currentColor;filter:drop-shadow(0 0 3px currentColor);}
+html[data-atlas-app="life-map"] .hud-reactor.hud-docking {animation:hud-dock-flare .9s ease-out;}
+@keyframes hud-dock-flare {25%{filter:brightness(2.4) drop-shadow(0 0 10px currentColor);transform:scale(1.15);}}
+@media(forced-colors:active) {html[data-atlas-app="life-map"] #app .hud-orbit {display:none;}}

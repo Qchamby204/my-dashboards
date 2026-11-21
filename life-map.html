@@ -85,7 +85,7 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=7f7ac4d2c41a" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=541a6011e813"><link rel="stylesheet" href="atlas/life-map-hud.css?v=c8abb5427063"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=541a6011e813"><link rel="stylesheet" href="atlas/life-map-hud.css?v=852d0bf1f29e"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -3487,7 +3487,88 @@ function createLifeMapLocalStore(storage,validate){
     if (!svg) { svg = buildReactor(face, ''); face.append(svg); }
     face.classList.add('hud-reactor-host');
     paintArcs(svg, arcs);
+    mountSatellites(svg);
   }
+
+  /* ── Routine satellites: each daily routine is a satellite orbiting the terrain;
+     finished ones dock in a ring round the day dial, and finishing one sends its
+     satellite diving into the dial. Reads the dial's "done of total" label only. */
+  let satDone = null, satTouched = 0;
+  addEventListener('pointerdown', () => { satTouched = Date.now(); }, {capture: true, passive: true});
+  addEventListener('keydown', () => { satTouched = Date.now(); }, {capture: true, passive: true});
+  const ORBIT = 'M40 112a235 64 0 1 0 470 0a235 64 0 1 0-470 0';
+  function mountSatellites(svg) {
+    const plate = document.querySelector('#lm-day-view-home .lm-route-plate');
+    const relief = plate?.querySelector('.lm-relief');
+    const m = (document.querySelector('#lm-day-view-home .lm-instrument')?.getAttribute('aria-label') || '').match(/(\d+) of (\d+)/);
+    if (!plate || !relief) return;
+    const done = m ? Number(m[1]) : 0, total = m ? Math.min(Number(m[2]), 24) : 0;
+    let sky = plate.querySelector(':scope>.hud-orbit');
+    if (!sky) {
+      sky = svgNode('svg', {class: 'hud-orbit', viewBox: '0 0 550 208', 'aria-hidden': 'true', focusable: 'false'});
+      svgNode('path', {d: ORBIT, class: 'hud-orbit-path'}, sky);
+      svgNode('g', {class: 'hud-orbit-sats'}, sky);
+      plate.append(sky);
+    }
+    // Sit exactly over the terrain drawing.
+    const pr = plate.getBoundingClientRect(), rr = relief.getBoundingClientRect();
+    Object.assign(sky.style, {left: (rr.left - pr.left) + 'px', top: (rr.top - pr.top) + 'px', width: rr.width + 'px', height: rr.height + 'px'});
+    let dock = svg.querySelector(':scope>.hud-dock');
+    if (!dock) dock = svgNode('g', {class: 'hud-dock'}, svg);
+    const sig = done + '/' + total;
+    if (sky.dataset.sig === sig) return;
+    const rise = satDone != null && done > satDone && Date.now() - satTouched < 6000;
+    const leaving = rise ? sky.querySelector('.hud-orbit-sats .hud-sat:last-child') : null;
+    const from = leaving?.getBoundingClientRect();
+    sky.dataset.sig = sig;
+    const group = sky.querySelector('.hud-orbit-sats');
+    group.textContent = '';
+    const pending = Math.max(0, total - done), period = 26;
+    for (let i = 0; i < pending; i++) {
+      const g = svgNode('g', {class: 'hud-sat'}, group);
+      svgNode('circle', {r: 9, class: 'hud-sat-halo'}, g);
+      svgNode('circle', {r: 4, class: 'hud-sat-body'}, g);
+      if (still()) {
+        // Hold them evenly round the orbit.
+        const a = i / Math.max(pending, 1) * Math.PI * 2;
+        g.setAttribute('transform', 'translate(' + (275 + 235 * Math.cos(a)).toFixed(1) + ' ' + (112 + 64 * Math.sin(a)).toFixed(1) + ')');
+      } else {
+        svgNode('animateMotion', {dur: period + 's', repeatCount: 'indefinite', begin: (-i * period / Math.max(pending, 1)).toFixed(2) + 's', path: ORBIT}, g);
+      }
+    }
+    dock.textContent = '';
+    for (let i = 0; i < done; i++) {
+      const a = (i / Math.max(total, 1)) * Math.PI * 2 - Math.PI / 2;
+      svgNode('circle', {cx: (100 + 30 * Math.cos(a)).toFixed(2), cy: (100 + 30 * Math.sin(a)).toFixed(2), r: 3, class: 'hud-docked'}, dock);
+    }
+    if (rise && from && !still()) diveIn(sky, svg, from);
+    satDone = done;
+  }
+  function diveIn(sky, reactor, from) {
+    const box = sky.getBoundingClientRect(), dial = reactor.getBoundingClientRect();
+    const toUnits = (x, y) => [(x - box.left) / box.width * 550, (y - box.top) / box.height * 208];
+    const [x1, y1] = toUnits(from.left + from.width / 2, from.top + from.height / 2);
+    const [x2, y2] = toUnits(dial.left + dial.width / 2, dial.top + dial.height / 2);
+    const fly = svgNode('g', {class: 'hud-sat hud-sat-fly'}, sky);
+    svgNode('circle', {r: 11, class: 'hud-sat-halo'}, fly);
+    svgNode('circle', {r: 5, class: 'hud-sat-body'}, fly);
+    const trail = svgNode('path', {class: 'hud-sat-trail', d: 'M' + x1 + ' ' + y1}, sky);
+    const cx = (x1 + x2) / 2, cy = Math.min(y1, y2) - 70, t0 = performance.now(), D = 1000, pts = [];
+    const step = now => {
+      const k = Math.min(1, (now - t0) / D), e = k * k * (3 - 2 * k);
+      const x = (1 - e) * (1 - e) * x1 + 2 * (1 - e) * e * cx + e * e * x2, y = (1 - e) * (1 - e) * y1 + 2 * (1 - e) * e * cy + e * e * y2;
+      fly.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') scale(' + (1.2 - .7 * e).toFixed(2) + ')');
+      pts.push(x.toFixed(1) + ' ' + y.toFixed(1)); trail.setAttribute('d', 'M' + pts.slice(-14).join(' L'));
+      if (k < 1) requestAnimationFrame(step);
+      else {
+        fly.remove(); trail.remove();
+        reactor.classList.remove('hud-docking'); void reactor.getBBox?.(); reactor.classList.add('hud-docking');
+        setTimeout(() => reactor.classList.remove('hud-docking'), 900);
+      }
+    };
+    requestAnimationFrame(step);
+  }
+
   const schedule = () => { if (!pending) pending = requestAnimationFrame(decorate); };
   function watchApp(app) {
     new MutationObserver(records => {
