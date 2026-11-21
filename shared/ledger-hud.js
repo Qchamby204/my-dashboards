@@ -8,7 +8,7 @@
   window.LedgerHUD = {replayBoot: () => boot(true)};
 
   const hud = window.AtlasHUDCore.engine({title: 'Life Ledger', tagline: 'OS 5.0 // Value matrix online', bootKey: 'lifeledger:hud-boot', bootLines: ['Calibrating value matrix', 'Restoring check-in state', 'Projecting hologram', 'All systems nominal'], accentVars: ['--neo-accent'], tilt: '.ledger-opening'});
-  const {node, svgNode, still, pad, started, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
+  const {node, svgNode, still, pad, started, automated, startExtras, startField, startFrame, frameTick, buildReactor, paintArcs, boot} = hud;
 
   /* ── Reactor rings around the hologram ───────────────────────────────────── */
   function mountReactor(host, arcs, label) {
@@ -77,6 +77,7 @@
       }
       mountTelemetry();
       mountHolo();
+      markBadges();
     } finally { mutating = false; }
   }
   const schedule = () => { if (!pending) pending = requestAnimationFrame(decorate); };
@@ -167,6 +168,84 @@
     }, true);
   }
 
+  /* ── HUD-native Ledger (pilot). Motion that makes the app itself feel like the
+     display, not just its opening card:
+     - views warp in from the side of the tab you chose;
+     - the next habit card builds in like a hologram after you act on one;
+     - Progress panels, value rows and badges materialise as they scroll in;
+     - earned badges are lit, locked ones are wireframe.
+     Entrance motion uses only opacity, clipping and light (nothing moves layout),
+     is skipped under reduced motion, and is left out for automated browsers, like
+     the boot sequence, so layout checks never measure a half-drawn view. */
+  const VIEWS = ['today', 'progress', 'achievements'];
+  const motionOK = () => !still() && !automated;
+  // The Ledger rebuilds its views and cards on each render, so these follow taps,
+  // then look at whatever is on screen a couple of frames later.
+  const afterRender = fn => requestAnimationFrame(() => requestAnimationFrame(fn));
+  let lastIndex = 0;
+  function watchViews() {
+    document.addEventListener('click', e => {
+      const btn = e.target.closest?.('.ledger-nav button[id^="ledger-nav-"]');
+      if (!btn) return;
+      const i = VIEWS.indexOf(btn.id.replace('ledger-nav-', ''));
+      if (i < 0 || i === lastIndex) return;
+      const from = lastIndex; lastIndex = i;
+      if (!motionOK()) return;
+      afterRender(() => {
+        const v = document.getElementById('ledger-view-' + VIEWS[i]);
+        if (!v || v.hidden) return;
+        v.classList.add(i > from ? 'hud-warp-right' : 'hud-warp-left');
+        setTimeout(() => v.classList.remove('hud-warp-left', 'hud-warp-right'), 650);
+        stackIn(v);
+      });
+    }, true);
+  }
+  // The habit cards sit side by side; the current one is whichever is on screen.
+  const visibleCard = () => [...document.querySelectorAll('#ledger-log .ledger-habit-card')].find(c => { const r = c.getBoundingClientRect(); return r.width && r.left > -r.width / 2 && r.left < innerWidth - r.width / 2; });
+  const currentHabit = () => visibleCard()?.querySelector('[data-habit]')?.dataset.habit || '';
+  function watchHabitCard() {
+    document.addEventListener('click', e => {
+      if (!e.target.closest?.('#ledger-log button')) return;
+      const before = currentHabit();
+      // The Ledger moves to the next habit after a short beat; watch for it for a second.
+      let tries = 0;
+      const check = () => afterRender(() => {
+        const card = visibleCard();
+        if (card && motionOK() && currentHabit() !== before) {
+          card.classList.add('hud-materialize');
+          setTimeout(() => card.classList.remove('hud-materialize'), 900);
+        } else if (++tries < 8) setTimeout(check, 120);
+      });
+      setTimeout(check, 30);
+    }, true);
+  }
+  // Panels, value rows and badges materialise the first time they scroll in.
+  const seen = new WeakSet();
+  let stackObserver = null;
+  const STACK = '#ledger-view-progress .panel, #ledger-view-achievements .panel, .ledger-achievement-record';
+  function stackIn(scope) {
+    if (!motionOK() || !window.IntersectionObserver) return;
+    stackObserver ||= new IntersectionObserver(entries => {
+      let n = 0;
+      for (const e of entries) {
+        if (!e.isIntersecting || seen.has(e.target)) continue;
+        seen.add(e.target); stackObserver.unobserve(e.target);
+        e.target.style.setProperty('--hud-d', (n++ * 55) + 'ms');
+        e.target.classList.add('hud-rise');
+        setTimeout(() => e.target.classList.remove('hud-rise'), 900 + n * 55);
+      }
+    }, {rootMargin: '0px 0px -6% 0px'});
+    for (const n of (scope || document).querySelectorAll(STACK)) if (!seen.has(n)) stackObserver.observe(n);
+  }
+  function markBadges() {
+    for (const rec of document.querySelectorAll('.ledger-achievement-record')) {
+      const state = (rec.querySelector('.ledger-achievement-state')?.textContent || '').trim().toLowerCase();
+      const earned = !!state && !/^locked/.test(state);
+      rec.classList.toggle('hud-earned', earned);
+      rec.classList.toggle('hud-locked', !earned);
+    }
+  }
+
   function init() {
     root.classList.add('hud-on');
     startField();
@@ -176,6 +255,9 @@
     const app = document.getElementById('app');
     if (app) { watchApp(app); schedule(); }
     watchBeams();
+    watchViews();
+    watchHabitCard();
+    markBadges(); stackIn();
     setInterval(() => { if (!document.hidden) tick(); }, 1000);
     tick();
   }
