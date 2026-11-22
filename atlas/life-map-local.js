@@ -14,7 +14,7 @@
   function feedback(){status.textContent=local.error||(view.editor||view.qa.txt.trim()?'Draft on this device. Use Save or Add to log it.':local.saved?'Saved in this browser':'No saved projects yet');retry.hidden=!local.error||local.blocked;backup.hidden=restore.hidden=!local.error;shell.className='lm-local-status'+(local.error?' lm-save-error':'');}
   const draw=render;render=function(){draw();feedback();app.inert=local.blocked;};
   document.addEventListener('input',feedback);
-  save=function(){const ok=local.save(S);status.textContent=local.error||'Saved in this browser.';return ok;};
+  save=function(){const ok=local.save(S);if(ok)window.dispatchEvent?.(new Event('atlas:accountability-record'));status.textContent=local.error||'Saved in this browser.';return ok;};
   const originalExport=exportData;
   exportData=function(){if(!local.blocked)return originalExport();const url=URL.createObjectURL(new Blob([local.raw??'No readable browser copy was available.'],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download='life-map-recovery.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);};
   window.addEventListener('beforeunload',e=>{if(local.error||view.editor||view.qa.txt.trim()){e.preventDefault();e.returnValue='';}});

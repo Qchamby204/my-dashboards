@@ -92,7 +92,8 @@
       if(current!==raw)throw Error('Goal training changed in another tab. Download your work, then reload to use the latest saved copy.');
       const next=JSON.stringify(M.validate(data));localStorage.setItem(KEY,next);
       if(localStorage.getItem(KEY)!==next)throw Error('Could not verify this save.');
-      raw=next;failed=false;error='';state.goals=data;return true;
+      raw=next;failed=false;error='';state.goals=data;
+      window.dispatchEvent?.(new Event('atlas:accountability-record'));return true;
     }catch(e){failed=true;status='';error=e.message||'Could not save goal training. Keep this tab open and retry.';return false;}
   }
   function plan(id=active){return data.plans[id]||M.fresh();}

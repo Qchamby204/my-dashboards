@@ -86,8 +86,8 @@ a{color:inherit}
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=7f7ac4d2c41a" defer></script>
 <link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=dc54e5bfc2f0"><link rel="stylesheet" href="atlas/life-map-hud.css?v=0d91002f0251"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
-<link rel="stylesheet" href="shared/accountability.css?v=d2bca64b49ab">
-<script src="shared/accountability.js?v=72474bcbcd73" defer></script>
+<link rel="stylesheet" href="shared/accountability.css?v=b744d22d05db">
+<script src="shared/accountability.js?v=878ef146d4b6" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -2902,7 +2902,7 @@ function createLifeMapLocalStore(storage,validate){
   function feedback(){status.textContent=local.error||(view.editor||view.qa.txt.trim()?'Draft on this device. Use Save or Add to log it.':local.saved?'Saved in this browser':'No saved projects yet');retry.hidden=!local.error||local.blocked;backup.hidden=restore.hidden=!local.error;shell.className='lm-local-status'+(local.error?' lm-save-error':'');}
   const draw=render;render=function(){draw();feedback();app.inert=local.blocked;};
   document.addEventListener('input',feedback);
-  save=function(){const ok=local.save(S);status.textContent=local.error||'Saved in this browser.';return ok;};
+  save=function(){const ok=local.save(S);if(ok)window.dispatchEvent?.(new Event('atlas:accountability-record'));status.textContent=local.error||'Saved in this browser.';return ok;};
   const originalExport=exportData;
   exportData=function(){if(!local.blocked)return originalExport();const url=URL.createObjectURL(new Blob([local.raw??'No readable browser copy was available.'],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download='life-map-recovery.txt';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);};
   window.addEventListener('beforeunload',e=>{if(local.error||view.editor||view.qa.txt.trim()){e.preventDefault();e.returnValue='';}});

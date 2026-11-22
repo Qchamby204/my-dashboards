@@ -92,12 +92,60 @@ dialog#atlas-accountability[open] {display:block!important}
 #atlas-accountability :focus-visible,.acc-tabs button:focus-visible {outline:3px solid #68aeee!important;outline-offset:1px}
 @media(min-width:760px) {
  .acc-layout {grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
- .acc-month {grid-column:1;grid-row:1 / span 4}
- .acc-today,.acc-stats,.acc-detail,.acc-prefs {grid-column:2}
+ .acc-month {grid-column:1;grid-row:2 / span 3}
+ .acc-stats,.acc-detail,.acc-prefs {grid-column:2}
  #atlas-accountability .acc-day {min-height:51px!important}
 }
 @media(forced-colors:active) {
  .acc-day[data-state=saved]::before {border:3px double ButtonText}
  .acc-day[data-state=opened]::before {border:1px dashed ButtonText}
  #atlas-accountability button.acc-day[aria-pressed=true]{outline-color:Highlight}
+}
+
+/* The small meter is attached to the existing tab, inside its original hit area. */
+#atlas-accountability-tabs button.acc-tab {position:relative}
+#atlas-accountability-tabs .acc-week-mini {
+  position:absolute;display:block;bottom:3px;left:12%;right:12%;height:3px;
+  overflow:hidden;border-radius:2px;background:color-mix(in srgb,currentColor 22%,transparent);pointer-events:none;
+}
+.appbar #atlas-accountability-tabs .acc-week-mini {bottom:-1px;left:0;right:0}
+#atlas-accountability-tabs .acc-week-mini[hidden] {display:none}
+#atlas-accountability-tabs .acc-week-mini>span {
+  display:block;height:100%;width:100%;background:color-mix(in srgb,var(--acc-accent) 58%,currentColor);
+  transform:scaleX(var(--week-fill,0));transform-origin:left;
+}
+@media(prefers-reduced-motion:no-preference){
+  #atlas-accountability-tabs .acc-week-mini>span {transition:transform 220ms ease-out}
+}
+#atlas-accountability .acc-today {
+  display:grid;gap:1rem;grid-column:1/-1;
+  background:linear-gradient(112deg,color-mix(in srgb,var(--acc-accent) 10%,var(--acc-card)),var(--acc-card) 75%);
+}
+#atlas-accountability .acc-week {min-width:0}
+#atlas-accountability .acc-week-label {display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.25rem .6rem}
+#atlas-accountability .acc-week-label h2 {font-size:1.1rem;letter-spacing:-.02em}
+#atlas-accountability .acc-week-label>span {color:var(--acc-muted);font-size:.82rem;font-variant-numeric:tabular-nums}
+#atlas-accountability .acc-week-count {display:flex;align-items:baseline;flex-wrap:wrap;gap:.25rem .55rem;margin:.45rem 0 .55rem}
+#atlas-accountability .acc-week-count strong {
+  font-size:clamp(2.6rem,8vw,3.6rem);font-weight:700;letter-spacing:-.055em;line-height:1.05;color:var(--acc-ink);
+}
+#atlas-accountability .acc-week-count>span {font-size:1rem;color:var(--acc-fg)}
+#atlas-accountability .acc-week-rail {display:flex;gap:4px}
+#atlas-accountability .acc-week-rail>span {
+  flex:1;height:11px;border-radius:3px;background:color-mix(in srgb,var(--acc-fg) 13%,var(--acc-card));
+  border:1px solid color-mix(in srgb,var(--acc-fg) 26%,var(--acc-card));
+}
+#atlas-accountability .acc-week-rail>span:first-child {border-radius:8px 3px 3px 8px}
+#atlas-accountability .acc-week-rail>span:last-child {border-top-right-radius:8px;border-bottom-right-radius:8px}
+#atlas-accountability .acc-week-rail>span[data-filled="true"] {background:var(--acc-accent);border-color:var(--acc-ink)}
+#atlas-accountability .acc-week-note {margin-top:.55rem;font-size:.9rem;color:var(--acc-fg)}
+#atlas-accountability .acc-week-check {color:var(--acc-ink);margin-right:.35rem}
+#atlas-accountability .acc-today-body {border-top:1px solid var(--acc-line);padding-top:.85rem;min-width:0}
+@media(min-width:760px){
+  #atlas-accountability .acc-today {grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:1.75rem}
+  #atlas-accountability .acc-today-body {border-top:0;border-left:1px solid var(--acc-line);padding:.2rem 0 .2rem 1.5rem}
+}
+@media(forced-colors:active){
+  #atlas-accountability .acc-week-rail>span {background:Canvas;border:1px solid CanvasText}
+  #atlas-accountability .acc-week-rail>span[data-filled="true"],#atlas-accountability-tabs .acc-week-mini>span {background:Highlight;forced-color-adjust:none}
 }

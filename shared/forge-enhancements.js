@@ -38,7 +38,7 @@
     function write(key,value){
       if(blocked){paintStatus();return false;}
       if(window.storage?.set&&window.storage?.get){const job=(pending.get(key)||Promise.resolve()).then(async()=>{try{await window.storage.set(key,value);const r=await window.storage.get(key);if(r?.value!==value)throw Error();failed.delete(key);return true;}catch{failed.set(key,value);return false;}finally{if(pending.get(key)===job)pending.delete(key);paintStatus();}});pending.set(key,job);paintStatus();return job;}
-      try{localStorage.setItem(key,value);if(localStorage.getItem(key)!==value)throw Error();failed.delete(key);paintStatus();return true;}catch{failed.set(key,value);paintStatus();return false;}
+      try{localStorage.setItem(key,value);if(localStorage.getItem(key)!==value)throw Error();failed.delete(key);paintStatus();if(key===KEY)window.dispatchEvent?.(new Event('atlas:accountability-record'));return true;}catch{failed.set(key,value);paintStatus();return false;}
     }
     store.set=write;
     const persistRest=()=>write(RESTKEY,JSON.stringify(timer));

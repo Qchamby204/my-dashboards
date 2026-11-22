@@ -222,8 +222,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/courier-apple.png?v=7706c5e677d5">
 <link rel="stylesheet" href="shared/suite-chrome.css?v=f75e48fc5188">
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
-<link rel="stylesheet" href="shared/accountability.css?v=d2bca64b49ab">
-<script src="shared/accountability.js?v=72474bcbcd73" defer></script>
+<link rel="stylesheet" href="shared/accountability.css?v=b744d22d05db">
+<script src="shared/accountability.js?v=878ef146d4b6" defer></script>
 </head>
 <body>
 <header>
@@ -324,7 +324,7 @@ let manifest = null;           // fetched, never stored
 let ui = { day: null, current: null, queue: state.continueNext !== false }; // transient
 window.getCourierContext = () => ({ day: day(), manifest });
 
-function setState(patch) { state = { ...state, ...patch }; store.set('state', state); store.set('schema-version', SCHEMA_VERSION); render(); }
+function setState(patch) { state = { ...state, ...patch }; const saved = store.set('state', state); store.set('schema-version', SCHEMA_VERSION); render(); return saved; }
 
 function exportState() {
   const payload = { tool: TOOL, schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), state };
@@ -656,7 +656,8 @@ function onEnded() {
   const finishedOn=new Date().toLocaleDateString('sv-SE');
   const daily={...state.listeningDays?.[finishedOn]};
   daily[posKey(d.date,ui.current)]={edition:d.date,label:currentBlock().label||ui.current};
-  setState({listened,positions,listeningDays:{...state.listeningDays,[finishedOn]:daily}});
+  const saved = setState({listened,positions,listeningDays:{...state.listeningDays,[finishedOn]:daily}});
+  if(saved) window.dispatchEvent?.(new Event('atlas:accountability-record'));
   if(ui.queue&&nextAudio())next();
   else{playbackWanted=false;clearPlaybackRetry();updatePlayback();playbackMessage(nextAudio()?'Section finished. Choose Next when you are ready.':'End of this edition’s audio.');}
 }

@@ -124,6 +124,7 @@
       shadow.set(key,copy(value));
       try{const raw=JSON.stringify(value);localStorage.setItem('mc_'+key,raw);if(localStorage.getItem('mc_'+key)!==raw)throw Error('Write not retained');unsaved.delete(key);diskAvailable=true;}
       catch{unsaved.add(key);diskAvailable=false;}
+      if(key==='reps'&&!unsaved.has(key))window.dispatchEvent?.(new Event('atlas:accountability-record'));
       status();return !unsaved.has(key);
     };
     Store.get=function(key,fallback){
