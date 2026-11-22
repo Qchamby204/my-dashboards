@@ -49,8 +49,16 @@ try{
      const row={app,view:entry,theme,width,engine,...result};reports.push(row);
      if(app==='life-ledger'&&entry==='initial')assert(await p.locator('.ledger-habit-card:not([inert]) .ledger-card-identity .cinzel').evaluate(n=>{const t=document.createTreeWalker(n,NodeFilter.SHOW_TEXT).nextNode(),i=t?.textContent.indexOf('Workouts');if(i<0||i===undefined)return false;const r=document.createRange();r.setStart(t,i);r.setEnd(t,i+8);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'the activity title keeps whole words when text enlarges');
      if(app==='life-ledger'&&entry==='ledger-nav-achievements')assert(await p.locator('#ledger-next-milestone h2').evaluate(n=>{const b=n.getBoundingClientRect(),r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].every(t=>t.left>=b.left-1&&t.right<=b.right+1);}),'the collection opening title remains contained');
-     if(app==='workout-forge'&&i>1)assert(await p.locator('.fg-detail-head>button').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'Back to Forge stays on one line');
+     if(app==='workout-forge'&&i>1&&await p.locator('.fg-detail-head>button').count())assert(await p.locator('.fg-detail-head>button').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'Back to Forge stays on one line');
      await p.screenshot({path:path.join(out,`${app}-${i}-${theme}-${width}.png`)});
+    }
+    // Forge goal pages open from their cards; the menu holds the regular split.
+    if(app==='workout-forge'){
+     const goal=await p.locator('[data-goal-action="open"][data-goal]').first().getAttribute('data-goal').catch(()=>null);
+     if(goal){await p.evaluate(id=>{location.hash='goal-'+id;scrollTo({top:0,behavior:'instant'});},goal);await p.locator('.fg-detail-head>button').waitFor();await frames(p);
+      const result=await inspect(p);reports.push({app,view:'goal-'+goal,theme,width,engine,...result});
+      assert(await p.locator('.fg-detail-head>button').evaluate(n=>{const r=document.createRange();r.selectNodeContents(n);return [...r.getClientRects()].filter(r=>r.width&&r.height).length===1;}),'Back to Forge stays on one line');
+      await p.evaluate(()=>{location.hash='';});await frames(p);}
     }
     const first=p.locator('.atlas-page-native button,#atlas-page-navigation button').first();await p.keyboard.press('Tab');await first.focus();assert(await first.evaluate(n=>parseFloat(getComputedStyle(n).outlineWidth)>=2),'navigation retains a visible keyboard focus outline');
     assert.deepEqual(errors,[]);

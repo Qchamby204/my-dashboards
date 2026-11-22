@@ -90,10 +90,17 @@ try{
     if(file==='baby-brain'||file==='neural-map')continue; // Their toolbar opens action dialogs, not pages.
     await p.locator('#atlas-page-menu [data-page-key]').evaluateAll((nodes,key)=>nodes.find(n=>n.dataset.pageKey===key)?.click(),entry.key);
     await capture(p,file,entry.title,theme,width,textSize,errors);
-    if(file==='workout-forge'&&entry.key!=='home'){
-     await p.locator('[data-goal-action="set"]').first().click();await capture(p,file,entry.title+'-editor',theme,width,textSize,errors);
+   }
+   // Forge goals open from their cards on Forge home; the menu holds the regular split.
+   if(file==='workout-forge'){
+    await p.locator('#atlas-page-menu [data-page-key]').evaluateAll(nodes=>nodes.find(n=>n.dataset.pageKey==='home')?.click());
+    for(const goal of await p.locator('[data-goal-action="open"][data-goal]').evaluateAll(nodes=>nodes.map(n=>n.dataset.goal))){
+     await p.evaluate(id=>{location.hash='goal-'+id;},goal);await p.locator('[data-goal-action="set"]').first().waitFor();
+     await capture(p,file,'goal-'+goal,theme,width,textSize,errors);
+     await p.locator('[data-goal-action="set"]').first().click();await capture(p,file,'goal-'+goal+'-editor',theme,width,textSize,errors);
      await p.locator('[data-goal-action="close-editor"]').click();
     }
+    await p.evaluate(()=>{location.hash='';});
    }
    if(file==='life-ledger')for(const selector of ['#ledger-week-fold'])if(await p.locator(selector).count()){await p.locator(selector).evaluate(n=>n.open=true);await capture(p,file,'expanded-'+selector,theme,width,textSize,errors);}
    await p.close();

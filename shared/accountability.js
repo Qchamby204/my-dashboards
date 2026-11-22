@@ -244,7 +244,9 @@
     if (compact) group.setAttribute('role','navigation');
     group.setAttribute('aria-label',name + ' workspace');
     const home = button(name, () => { if (panel.open) leave(); },'acc-tab');
-    const tab = button('Accountability', enter,'acc-tab');
+    const tab = button('', enter,'acc-tab');
+    tab.append(e('span','Accountability','acc-tab-label'));
+    tab.setAttribute('aria-label','Accountability');
     (active ? tab : home).setAttribute('aria-current','page');
     tab.setAttribute('aria-controls', panel.id);
     if (!active) home.disabled = true;
@@ -254,6 +256,20 @@
   }
   const entry = navButton(false);
   entry.id = 'atlas-accountability-tabs';
+  // Enlarged text: the header link leaves the compact title slot and flows below the title.
+  const probe = e('span',null,'acc-rem-probe');
+  probe.setAttribute('aria-hidden','true');
+  document.body.append(probe);
+  // If even then the label cannot fit beside the header buttons, the dial alone stays (named by aria-label).
+  const fitLabel = () => {
+    entry.classList.remove('acc-icon-only');
+    const slot = entry.closest('.appbar-title')?.parentElement, tab = entry.lastElementChild;
+    if (!slot || !tab || !document.documentElement.classList.contains('acc-large-text')) return;
+    if (tab.getBoundingClientRect().right > slot.getBoundingClientRect().right + 1) entry.classList.add('acc-icon-only');
+  };
+  const sizeText = () => { document.documentElement.classList.toggle('acc-large-text', probe.getBoundingClientRect().width > 20); fitLabel(); };
+  if (window.ResizeObserver) { const watch = new ResizeObserver(sizeText); watch.observe(probe); requestAnimationFrame(() => { const bar = entry.closest('.appbar'); if (bar) watch.observe(bar); }); }
+  requestAnimationFrame(sizeText);
   let hostWeek, freshMark;
   const miniDial=e('span',null,'acc-nav-mark');
   miniDial.setAttribute('aria-hidden','true');
