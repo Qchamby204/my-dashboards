@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./suite-theme.css";
 import "./nature.css";
+import "./wonder.css";
 
 export const metadata: Metadata = {
   title: "Auggie · Together",

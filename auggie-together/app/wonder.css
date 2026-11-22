@@ -1,0 +1,99 @@
+/* The living lake: real time of day, real season, and lantern light at night. */
+.living-sky{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;border-radius:inherit}
+.living-sky>*,.living-sky b{position:absolute;display:block}
+.sky-tint{inset:0;transition:background 4s ease,opacity 4s ease}
+.phase-dawn .sky-tint{background:linear-gradient(180deg,#ff9f8f66 0%,#ffc79a40 38%,transparent 66%);mix-blend-mode:screen}
+.phase-day .sky-tint{background:linear-gradient(180deg,#a9cdf27a 0%,#d8ecff40 42%,#ffffff1c 75%);mix-blend-mode:screen}
+.phase-golden .sky-tint{background:radial-gradient(ellipse at 78% 45%,#ffb25a66,transparent 55%),linear-gradient(180deg,#ffcf8a30,transparent 60%);mix-blend-mode:soft-light}
+.phase-dusk .sky-tint{background:linear-gradient(180deg,#3a2d6a88 0%,#8a4f7a44 40%,#0b1a2233 100%);mix-blend-mode:multiply}
+.phase-night .sky-tint{background:linear-gradient(180deg,#07142aee 0%,#0a1c2ccc 45%,#06110ecc 100%);mix-blend-mode:multiply}
+.sky-sun{width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:radial-gradient(circle,#fff6dccc 0%,#ffd99a55 26%,#ffcf8a14 55%,transparent 70%);mix-blend-mode:screen}
+.phase-golden .sky-sun{background:radial-gradient(circle,#ffe3b0dd 0%,#ffb55c77 28%,#ff9d4a1a 58%,transparent 72%)}
+.sky-stars{inset:0}
+.sky-stars b{border-radius:50%;background:#fff7e6;box-shadow:0 0 4px #fff3d0aa;opacity:.85}
+.phase-dusk .sky-stars b{opacity:.35}
+.sky-moon{width:30px;height:30px;right:12%;top:12%;filter:drop-shadow(0 0 10px #fff2cf88)}
+.moon-dark{fill:#22314233}.moon-lit{fill:#f8efd6}
+.sky-snow{inset:-10% 0 0}
+.sky-snow b{top:-4%;border-radius:50%;background:#fffdf6;opacity:.85;box-shadow:0 0 3px #ffffffaa}
+.sky-frost{left:0;right:0;bottom:0;height:16%;background:linear-gradient(transparent,#f4f8ff26 55%,#f9fbff55);mix-blend-mode:screen}
+.sky-leaves{inset:-10% 0 0}
+.sky-leaves b{top:-6%;width:9px;height:6px;border-radius:9px 0;background:linear-gradient(135deg,#e3a24a,#b65a2a)}
+.dock-lantern{left:15%;bottom:17%;width:12px;height:16px}
+.dock-lantern::before{content:"";position:absolute;left:-70px;top:-70px;width:152px;height:152px;border-radius:50%;background:radial-gradient(circle,#ffbb5ccc 0%,#ff9a3a44 22%,#ff8a2a14 48%,transparent 66%);mix-blend-mode:screen}
+.dock-lantern>i{position:absolute;inset:0;border-radius:3px 3px 5px 5px;background:radial-gradient(circle at 50% 60%,#fff1c2,#ffb24e 55%,#a85a1c);box-shadow:0 0 10px #ffb24e}
+.dock-lantern>i::before{content:"";position:absolute;left:3px;right:3px;top:-5px;height:5px;border:1.5px solid #3a2a18;border-bottom:0;border-radius:6px 6px 0 0}
+
+.lantern-chip{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:6px 12px;border:1px solid #c98b45;border-radius:99px;background:#2a1706cc;color:#ffcf8d;font-size:12.5px}
+
+/* Lantern mode: dim amber light for 3 a.m. feeds. */
+.lantern-veil,.lantern-dim{position:fixed;inset:0;z-index:2147483000;pointer-events:none}
+.lantern-veil{background:#ff9b45;mix-blend-mode:multiply}
+.lantern-dim{background:#000;opacity:.22}
+:root[data-lantern] dialog{filter:sepia(1) saturate(1.9) hue-rotate(-14deg) brightness(.7)}
+:root[data-lantern] dialog::backdrop{background:#0d0703d9}
+:root[data-lantern] .journal-shortcuts button{min-height:68px;font-size:17px}
+:root[data-lantern] .journal-shortcuts svg{width:24px}
+:root[data-lantern] .care-action{min-height:88px}
+:root[data-lantern] .journal-scene .milk-dial-action{padding:11px 18px;font-size:16px}
+:root[data-lantern] .see-tracker,:root[data-lantern] .lake-shimmer,:root[data-lantern] .firefly,:root[data-lantern] .sky-snow,:root[data-lantern] .sky-leaves{display:none}
+
+/* While you were away */
+.away-card{padding:clamp(16px,3vw,26px);border:1px solid #c9ab72;border-radius:22px;background:linear-gradient(160deg,#fff8e8,var(--suite-surface,#fbf7ef) 55%);box-shadow:var(--suite-raised,0 7px 19px #0001);position:relative;overflow:hidden}
+.away-card::before{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#f4cf8e55,transparent 65%)}
+.away-card header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;position:relative}
+.away-card header p{margin:0;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--suite-accent,#8a6a3c);font-weight:600}
+.away-card h2{margin:4px 0 0;font:400 clamp(22px,3vw,30px)/1.15 Georgia,serif;letter-spacing:-.02em}
+.away-card header button{flex:none;padding:8px 15px;border:1px solid var(--line);border-radius:99px;background:var(--suite-surface,#fff);color:var(--text);font-weight:600}
+.away-chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px;padding:0;list-style:none}
+.away-chips li{padding:5px 11px;border-radius:99px;font-size:13px;font-weight:600;background:var(--suite-inset,#f1ece2)}
+.away-chips .feed{box-shadow:inset 3px 0 #b8894b}.away-chips .change{box-shadow:inset 3px 0 #4e8d7f}.away-chips .sleep{box-shadow:inset 3px 0 #a593c8}
+.away-trail{margin:10px 0 0;padding:0 0 0 14px;list-style:none;border-left:2px solid #e2cfa6;display:grid;gap:2px}
+.away-trail li{position:relative}
+.away-trail li::before{content:"";position:absolute;left:-20px;top:17px;width:10px;height:10px;border-radius:50%;background:#e8c38e;box-shadow:0 0 0 3px var(--suite-surface,#fff)}
+.away-trail button{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;padding:8px 4px;border:0;background:none;color:var(--text);text-align:left;border-radius:10px}
+.away-trail time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+.away-trail span{display:grid;min-width:0}.away-trail small{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.away-trail em{font-style:normal;font-size:12px;color:var(--suite-accent,#8a6a3c);font-weight:600}
+.away-more{margin:8px 0 0;font-size:12.5px;color:var(--muted)}
+:root[data-atlas-theme="dark"] .away-card{background:linear-gradient(160deg,#2a2a1e,var(--suite-surface) 55%);border-color:#6f6440}
+:root[data-atlas-theme="dark"] .away-trail{border-color:#55503a}
+
+/* Auggie's sky */
+.auggie-sky{margin:0 0 18px;padding:18px 18px 12px;border-radius:22px;color:#f3ecd8;background:radial-gradient(ellipse at 70% 0%,#1d3a46,transparent 60%),linear-gradient(180deg,#0c1a26,#10241f 70%,#16301f);border:1px solid #3d5246;box-shadow:0 10px 26px #08141433;overflow:hidden}
+.auggie-sky header{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.auggie-sky header p{margin:0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#e8c38e}
+.auggie-sky h2{margin:3px 0 0;font:400 clamp(24px,3vw,32px)/1.1 Georgia,serif;letter-spacing:-.02em;color:#f6efd9!important}
+.auggie-sky header>span{font-size:12.5px;color:#c9d3c4}
+.auggie-sky svg{display:block;width:100%;height:auto;margin-top:6px;overflow:visible}
+.sky-dust{fill:#fff7e2;opacity:.35}
+.sky-line{fill:none;stroke:#e8c38e;stroke-width:.6;opacity:.45}
+.sky-week{fill:#9fb0a2;font-size:7.5px;text-anchor:middle;letter-spacing:.04em}
+.sky-star{cursor:pointer}
+.sky-star circle:last-of-type{fill:#f8edd0}
+.sky-star.is-met circle:last-of-type{fill:#fff8e6}
+.sky-star.is-empty circle:last-of-type{fill:#9fb0a2}
+.sky-star.is-today circle:last-of-type{fill:#ffe1a6;stroke:#ffe1a6;stroke-width:.8;stroke-opacity:.6}
+.sky-key{margin:2px 0 0;font-size:12px;color:#b9c4b5}
+
+@media(prefers-reduced-motion:no-preference){
+ .sky-stars b{animation:twinkle 4.5s ease-in-out infinite}
+ .sky-snow b{animation:snowfall linear infinite}
+ .sky-leaves b{animation:leaf-fall linear infinite}
+ .dock-lantern::before{animation:flicker 3.4s ease-in-out infinite}
+ .sky-aurora{animation:aurora 14s ease-in-out infinite alternate;transform-origin:center}
+ .sky-star.is-today circle:last-of-type{animation:breathe 2.6s ease-in-out infinite}
+ .away-trail li{animation:trail-in .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*90ms + 150ms)}
+ .away-card{animation:away-in .6s cubic-bezier(.2,.8,.2,1) both}
+ .sky-star{transition:transform .2s}
+}
+@keyframes twinkle{0%,100%{opacity:.85}50%{opacity:.25}}
+@keyframes snowfall{from{transform:translate(0,0)}to{transform:translate(var(--drift,0),560px)}}
+@keyframes leaf-fall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(24px,60%) rotate(200deg)}100%{transform:translate(-10px,140%) rotate(420deg)}}
+@keyframes flicker{0%,100%{opacity:.95}30%{opacity:.78}55%{opacity:1}70%{opacity:.85}}
+@keyframes aurora{from{transform:translateX(-10px) scaleY(.9);opacity:.75}to{transform:translateX(14px) scaleY(1.15);opacity:1}}
+@keyframes trail-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+@keyframes away-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.sky-snow{display:none}}
+@media(forced-colors:active){.living-sky,.lantern-veil{display:none}}
+@media(prefers-reduced-transparency:reduce){.sky-snow,.sky-leaves,.sky-sun{display:none}}
