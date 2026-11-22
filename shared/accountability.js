@@ -119,7 +119,9 @@
       if (end <= today && rows.has(end)) saved++;
       cursor.setDate(cursor.getDate() + 1);
     }
-    return {start, end, goal, saved, earned: Math.min(saved, goal)};
+    const savedToday = rows.has(today);
+    const remainingDays = 7 - (dayDate(today).getDay() + 6) % 7 - Number(savedToday);
+    return {start, end, goal, saved, savedToday, remainingDays, earned: Math.min(saved, goal)};
   }
 
   function weekWidget(week) {
@@ -147,7 +149,10 @@
       rail.append(segment);
     }
     const left = week.goal - week.earned;
-    let caption = left === 1 ? 'One more day to reach your goal.' : left + ' days to go this week.';
+    let caption = left === 1 ? 'One more day to reach your goal.' : left + ' more days to reach your goal.';
+    if (left > week.remainingDays) {
+      caption = week.savedToday ? 'Today’s segment is filled.' : week.saved ? 'Save today to fill another segment.' : 'Save today to fill your first segment.';
+    }
     if (!left) {
       const extra = week.saved - week.goal;
       caption = extra ? 'Goal complete · '+extra+' extra '+(extra===1?'day':'days')+' logged.' : 'Weekly goal complete.';
