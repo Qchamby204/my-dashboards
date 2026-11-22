@@ -48,6 +48,8 @@ test('a section play continues automatically, skips text-only blocks, and stops 
   const h=harness();h.run("play('a')");h.audio.metadata(120);h.audio.finish();
   assert.equal(h.run('ui.current'),'b');assert.equal(h.audio.currentTime,0);assert.equal(h.audio.paused,false);
   assert.deepEqual(JSON.parse(h.run('JSON.stringify(state.listened)')),{'2026-09-07':['a']});
+  const listeningDay=h.run("new Date().toLocaleDateString('sv-SE')");
+  assert.equal(JSON.parse(h.storage.get('courier:state')).listeningDays[listeningDay]['2026-09-07/a'].label,'A');
   h.audio.metadata(180);h.audio.finish();assert.equal(h.run('ui.current'),'b');assert.equal(h.node('pNext').disabled,true);
   assert.match(h.node('pStatus').textContent,/End of this edition/);assert.equal(h.audio.requests,2);
 });
