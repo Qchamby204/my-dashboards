@@ -87,7 +87,7 @@ html[data-atlas-app="workout-forge"] #forge-goals .fg-log button{display:flex;wi
 html[data-atlas-app="workout-forge"] .fg-log :is(small,time){color:var(--neo-muted);font-size:.72rem}
 html[data-atlas-app="workout-forge"] .fg-log small{display:block}
 /* Only the selected goal and the shared app bar remain in the reading flow. */
-html[data-atlas-app="workout-forge"] #app.fg-goal-open> :not(.appbar):not(#forge-goals):not(.forge-live):not([data-act="liveresume"]):not(dialog){display:none!important}
+html[data-atlas-app="workout-forge"] #app.fg-goal-open> :not(.appbar):not(#atlas-accountability-tabs):not(#forge-goals):not(.forge-live):not([data-act="liveresume"]):not(dialog){display:none!important}
 html[data-atlas-app="workout-forge"] #app.fg-goal-open #forge-goals{padding-bottom:calc(36px + var(--forge-rest-height,0px));}
 @media(max-width:540px){html[data-atlas-app="workout-forge"] .fg-grid{grid-template-columns:minmax(0,1fr);gap:16px}}
 @media(max-width:380px){html[data-atlas-app="workout-forge"] .fg-weeks{grid-template-columns:repeat(4,minmax(0,1fr))}}

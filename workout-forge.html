@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=72cff1161459"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"0336bd972a03","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"d21499d8cb39"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","atlas-refinements.css":"0336bd972a03","atlas-refinements.js":"810719e1cc3f","forge-enhancements.js":"7bbaa791677c"}</script>
 <meta charset="utf-8"/>
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -81,7 +81,7 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#d7dbf0;
 <link rel="stylesheet" href="shared/atlas-neumorphism-compat.css?v=d71f81f2273f">
 <link rel="stylesheet" href="shared/atlas-neumorphism.css?v=ba37d1ba0e5a">
 <link rel="stylesheet" href="shared/atlas-appearance.css?v=66a040fb095b">
-<link rel="stylesheet" href="shared/forge-goals.css?v=ea6163b7a8cd">
+<link rel="stylesheet" href="shared/forge-goals.css?v=de24752ef1fe">
 <link rel="stylesheet" href="shared/forge-progression.css?v=b96f9c39085a">
 <link rel="stylesheet" href="shared/core-app-finish.css?v=3041ebc46681">
 <script src="shared/core-app-finish.js?v=20ba530a9cac" defer></script>
@@ -740,7 +740,7 @@ function dayCard(d,standalone){
   return h;
 }
 
-function history(){
+function workoutHistory(){
   var s=state.sessions.slice().reverse();
   var h='';
   if(s.length===0){ h+='<div style="font-size:12px;color:#6f7798">No sessions yet. Open a day above and log your first workout.</div>'; }
@@ -1289,7 +1289,7 @@ function forgeOverview(st){
 
   var recArr=recordsList();
   var logTeaser=st.total?(st.total+" session"+(st.total===1?"":"s")+(st.last?(" \u00b7 last "+daysAgo(st.last.date)):"")):"No sessions logged yet";
-  h+=section("log","Training Log","#9aa2c0",logTeaser,history());
+  h+=section("log","Training Log","#9aa2c0",logTeaser,workoutHistory());
   if(recArr.length){
     var top=recArr[0];
     h+=section("records","Records \u00b7 Personal Bests","#f0b73e",recArr.length+" lift"+(recArr.length===1?"":"s")+" \u00b7 best "+esc(top.name)+" "+Math.round(top.e)+" lbs",records());
