@@ -1,0 +1,1 @@
+ALTER TABLE `care_events` ADD `tummy_observation` text;

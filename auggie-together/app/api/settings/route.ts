@@ -1,0 +1,19 @@
+import {trackingKeys} from '@/lib/tracking';
+import { getDb } from '@/db';import { settings,events } from '@/db/schema';import { and,eq,isNull } from 'drizzle-orm';import { z } from 'zod';import { identity,checkOrigin,json,failure,ApiError,getPlan } from '@/lib/server';import {dayKey,type GoalSnapshot,type Plan} from '@/lib/care';
+const schema=z.object({tracking:z.record(z.enum(trackingKeys),z.boolean()).optional(),birthDate:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value=>Number.isFinite(Date.parse(value))&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value).optional(),feedingGoalMode:z.enum(['schedule','daily','weight']).optional(),pumpGoalMode:z.enum(['feeding','custom']).optional(),expectedTermDate:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value=>Number.isFinite(Date.parse(value))&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value).optional(),pumpGoal:z.number().min(1).max(4000).nullable().optional(),sleepGoalHours:z.number().min(0.1).max(24).nullable().optional(),tummyGoalMinutes:z.number().min(0.1).max(240).nullable().optional(),exerciseGoalMinutes:z.number().min(0.1).max(240).nullable().optional(),babyName:z.string().trim().min(1).max(40),interval:z.number().min(0.5).max(24).nullable(),feedTarget:z.number().min(1).max(2000).nullable(),wetTarget:z.number().int().min(1).max(30).nullable(),instructions:z.string().max(4000),handoff:z.string().max(2000),dailyGoal:z.number().min(1).max(4000).nullable().optional(),mlKgGoal:z.number().min(1).max(300).nullable().optional(),roomMilkMinutes:z.number().int().min(1).max(240).nullable().optional(),fridgeMilkHours:z.number().min(1).max(48).nullable().optional(),version:z.number().int()});
+export async function PATCH(req:Request){try{checkOrigin(req);await identity();const p=schema.safeParse(await req.json());if(!p.success)throw new ApiError('Check the dates and goal amounts. Leave optional targets blank to clear them.');const {version,...input}=p.data;const old=await getPlan();const {version:ignored,...existing}=old;const data={...existing,...input,tracking:{...existing.tracking,...input.tracking}};if(data.dailyGoal&&data.mlKgGoal)throw new ApiError('Choose a daily mL goal or a mL/kg/day goal, rather than both.');const fields=['dailyGoal','mlKgGoal','interval','feedTarget','feedingGoalMode','birthDate','pumpGoalMode','pumpGoal'] as const;
+if(fields.some(key=>data[key]!==old[key])){
+ const from=dayKey();
+ const snapshot=(plan:Plan,date:string)=>({
+  from:date,dailyGoal:plan.dailyGoal,mlKgGoal:plan.mlKgGoal,interval:plan.interval,feedTarget:plan.feedTarget,
+  feedingGoalMode:plan.feedingGoalMode??'schedule',birthDate:plan.birthDate,
+  pumpGoalMode:plan.pumpGoalMode??(plan.pumpGoal?'custom':'feeding'),pumpGoal:plan.pumpGoal??null,
+ });
+ const history:GoalSnapshot[]=old.goalHistory??[];
+ const prior=history.filter(row=>row.from!==from);
+ if(!history.length)prior.push(snapshot(old,'0001-01-01'));
+ data.goalHistory=[...prior,snapshot(data,from)];
+}
+const rows=await getDb().update(settings).set({data:JSON.stringify(data),version:version+1}).where(and(eq(settings.id,1),eq(settings.version,version))).returning();if(!rows.length)throw new ApiError('Settings changed on another phone. Reopen settings to see the update.',409);const unconfigured=await getDb().select().from(events).where(and(eq(events.kind,'pump'),eq(events.deleted,0),isNull(events.milkDeadline)));
+for(const e of unconfigured){const minutes=e.milkStorage==='fridge'&&data.fridgeMilkHours?data.fridgeMilkHours*60:null;if(minutes){await getDb().update(events).set({milkDeadline:new Date(Date.parse(e.startedAt)+minutes*60000).toISOString(),version:e.version+1,updatedAt:new Date().toISOString()}).where(and(eq(events.id,e.id),eq(events.version,e.version),isNull(events.milkDeadline)));}}
+return json({ok:true});}catch(e){return failure(e);}}

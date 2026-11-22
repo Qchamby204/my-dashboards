@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `one_active_movement_per_kind` ON `care_events` (`kind`) WHERE "care_events"."kind" IN ('tummy', 'exercise') AND "care_events"."ended_at" IS NULL AND "care_events"."deleted" = 0;

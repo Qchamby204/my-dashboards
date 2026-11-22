@@ -1,0 +1,1 @@
+ALTER TABLE `care_events` ADD `wet_size` text;

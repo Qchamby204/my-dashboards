@@ -1,0 +1,1 @@
+ALTER TABLE `care_events` ADD `soiled_size` text;

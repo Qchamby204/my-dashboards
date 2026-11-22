@@ -1,0 +1,7 @@
+import { getChatGPTUser } from '@/app/chatgpt-auth';import { getDb } from '@/db';import { settings } from '@/db/schema';import { eq } from 'drizzle-orm';import { DEFAULT_PLAN } from './care';
+export class ApiError extends Error{constructor(message:string,public status=400){super(message);}}
+export async function identity(){const u=await getChatGPTUser();if(!u)throw new ApiError('Please sign in again to continue.',401);const name=u.fullName?.split(' ')[0]||u.email.split('@')[0];return {id:u.userId,name};}
+export function checkOrigin(req:Request){const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)throw new ApiError('Request not allowed.',403);}
+export async function getPlan(){const db=getDb();let [s]=await db.select().from(settings).where(eq(settings.id,1));if(!s){await db.insert(settings).values({id:1,data:JSON.stringify(DEFAULT_PLAN)}).onConflictDoNothing();[s]=await db.select().from(settings).where(eq(settings.id,1));}return {...DEFAULT_PLAN,...JSON.parse(s.data),version:s.version};}
+export function json(data:unknown,status=200){return Response.json(data,{status,headers:{'Cache-Control':'no-store'}});}
+export function failure(e:unknown){if(e instanceof ApiError)return json({error:e.message},e.status);console.error('Care API error',e instanceof Error?e.message:'Unknown');return json({error:'Could not save or load. Your form is still here; please try again.'},500);}

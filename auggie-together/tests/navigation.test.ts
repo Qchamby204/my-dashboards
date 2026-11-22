@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {stepTrackerDay} from '../lib/navigation.ts';
+test('moving from a prior Sunday into this week never selects a future daily date',()=>{assert.equal(stepTrackerDay('2026-11-01','weekly',1,'2026-11-04'),'2026-11-04');});
+test('daily and weekly steps preserve past dates while clamping future navigation',()=>{assert.equal(stepTrackerDay('2026-11-04','daily',1,'2026-11-04'),'2026-11-04');assert.equal(stepTrackerDay('2026-11-04','weekly',-1,'2026-11-04'),'2026-10-28');assert.equal(stepTrackerDay('2026-10-31','daily',1,'2026-11-04'),'2026-11-01');});
+test('tracker steps cross year boundaries correctly',()=>{assert.equal(stepTrackerDay('2026-12-30','weekly',1,'2027-01-08'),'2027-01-06');assert.equal(stepTrackerDay('2027-01-01','daily',-1,'2027-01-08'),'2026-12-31');});
