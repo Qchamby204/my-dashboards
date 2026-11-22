@@ -13,7 +13,8 @@ import {stepTrackerDay} from '@/lib/navigation';
 import PlayJournal from './play-journal';
 import DayRhythm from './day-rhythm';
 import MilkDial from './milk-dial';
-import {measuredFeeding} from '@/lib/feeding-plan';
+import {feedingRange,measuredFeeding} from '@/lib/feeding-plan';
+import {NatureRings,DaySundial,LakeSky,TimerRing,useRiseIn,useGrowth,span} from './nature';
 import MilkBatches from './milk-batches';
 import AppearanceControl from './appearance';
 import CareSettings,{type SettingsSection} from './care-settings';
@@ -65,6 +66,14 @@ export default function CareApp(){
  useEffect(()=>{if(!toast)return;const id=setTimeout(()=>setToast(''),toastError?8000:savedEntry?10000:4000);return()=>clearTimeout(id);},[toast,toastError,savedEntry]);
  const plan=state?.plan||{...DEFAULT_PLAN,version:1};const items=state?.day===selectedDay?state.items:[];const bounds=dayBounds(selectedDay);const dayItems=items.filter(e=>e.startedAt>=bounds[0]&&e.startedAt<bounds[1]);const pumpedToday=pumpingSummary(items,...bounds);
  const bottlesToday=useMemo(()=>measuredFeeding(state?.items??[],today),[state?.items,today]);
+ const careToday=useMemo(()=>{const live=dayItems.filter(e=>!e.deleted&&visibleEvent(plan,e));return {live,...totals(live,bounds[0],bounds[1],now)};},[dayItems,plan,bounds[0],bounds[1],Math.floor(now/60000)]);// eslint-disable-line react-hooks/exhaustive-deps
+ const goal=useMemo(()=>feedingRange(plan,today,state?.weights??[]),[plan,today,state?.weights]);
+ const onToday=state?.day===today&&selectedDay===today;
+ const feedPulse=useGrowth(onToday?bottlesToday.volume:null,today);
+ const diaperPulse=useGrowth(onToday?careToday.wet+careToday.dirty:null,today);
+ const goalFlare=useGrowth(onToday&&goal.low!==null?(bottlesToday.volume>=goal.low?1:0):null,today);
+ const [sweep,setSweep]=useState({n:0,dir:'right'});
+ useRiseIn(page==='log'?'':'main .curated-card,main .field-note,main .care-summary-card,main .insight-card',page);
  const latestCare=dayItems.find(entry=>!isMovement(entry.kind)&&visibleEvent(plan,entry));
  const synced=connected&&now-lastSync<15000;const canSave=!!state&&!busy&&synced;const feedInterval=plan.interval??3;const lastFeed=trackingEnabled(plan,'nursing')?state?.lastFeed:state?.lastBottleFeed??(state?.lastFeed?.subtype!=='nursing'?state?.lastFeed:null);const nextFeed=lastFeed?new Date(Date.parse(lastFeed.startedAt)+feedInterval*3600000):null;
  const announce=(message:string,error=false,entry?:{entry:CareEvent;canUndo:boolean})=>{
@@ -160,7 +169,7 @@ export default function CareApp(){
  const changePage=(p:Page)=>{setPage(p);if(p==='tracker'&&page!=='tracker')setDay(dayKey());window.scrollTo({top:0,behavior:'instant'});};
  const selectTrackerDay=(d:string)=>{setDay(d);setTrackerRange(1);window.scrollTo({top:0,behavior:'instant'});};
  return <div className={"app-shell journal-shell view-"+page}><aside className="sidebar"><a className="brand" href="/" aria-label="Auggie Together home"><span className="brand-mark"><img src="/auggie-suite-64.png" alt="" width={44} height={44}/></span><span>auggie<span className="brand-sub">TOGETHER</span></span></a><div className="sidebar-label">A LITTLE CARE, SHARED</div><nav>{availableNavigation.map(n=><button key={n.id} className={page===n.id?'nav-item active':'nav-item'} onClick={()=>changePage(n.id)} aria-current={page===n.id?'page':undefined}><n.icon size={20}/>{n.label}<ChevronRight size={15}/></button>)}</nav><div className="sidebar-bottom"><div className="family-stamp"><span className="avatar">Q</span><span className="avatar second">J</span><div><strong>One little team</strong><span>Caregivers</span></div></div><p>For the little moments.<br/>And the middle-of-the-night ones.</p><button className="quiet-button" onClick={()=>setShowHelp(true)}><LockKeyhole size={15}/>Sharing & privacy</button></div></aside>
- <div className="main-wrap"><div className="site-header"><header className="topbar"><span className="mobile-brand"><img src="/auggie-suite-64.png" alt="" width={32} height={32}/>auggie<span>TOGETHER</span></span><span className="breadcrumb">Our little world <span>/</span> {page==='log'?'Daily care':page==='play'?'Tummy time & exercise':'Care tracker'}</span><div className="top-actions"><button className={'sync '+(!synced?'offline':'')} onClick={()=>refresh()} title="Refresh shared log">{synced?<CloudCheck size={16}/>:<CloudOff size={16}/>}<span>{synced?'Synced':state?'Reconnecting':loadFailed?'Not connected':'Connecting'}</span></button><AppearanceControl/><button className="icon-button" aria-label="Care settings" onClick={()=>openSettings('tracking')} disabled={!state}><Settings2 size={20}/></button><span className="profile" title={state?.user.name||'Your account'}>{state?.user.name?.slice(0,1)||'Q'}</span></div></header></div>
+ <div className="main-wrap">{sweep.n>0&&<i key={sweep.n} className={'page-sweep '+sweep.dir} aria-hidden="true"/>}<div className="site-header"><header className="topbar"><span className="mobile-brand"><img src="/auggie-suite-64.png" alt="" width={32} height={32}/>auggie<span>TOGETHER</span></span><span className="breadcrumb">Our little world <span>/</span> {page==='log'?'Daily care':page==='play'?'Tummy time & exercise':'Care tracker'}</span><div className="top-actions"><button className={'sync '+(!synced?'offline':'')} onClick={()=>refresh()} title="Refresh shared log">{synced?<CloudCheck size={16}/>:<CloudOff size={16}/>}<span>{synced?'Synced':state?'Reconnecting':loadFailed?'Not connected':'Connecting'}</span></button><AppearanceControl/><button className="icon-button" aria-label="Care settings" onClick={()=>openSettings('tracking')} disabled={!state}><Settings2 size={20}/></button><span className="profile" title={state?.user.name||'Your account'}>{state?.user.name?.slice(0,1)||'Q'}</span></div></header></div>
  <nav className="mobile-nav" aria-label="Main navigation" style={{"--tab-count":availableNavigation.length,"--tab-index":availableNavigation.findIndex(n=>n.id===page)} as React.CSSProperties}>
   {availableNavigation.map(n=><button key={n.id} type="button" aria-current={page===n.id?'page':undefined} onClick={()=>changePage(n.id)}>
    <n.icon size={21} aria-hidden="true"/><span>{n.id==='log'?'Log':n.label}</span>
@@ -182,11 +191,19 @@ export default function CareApp(){
  </section>
  {page==='log'?<>
  <div className="easy-log journal-log">
- <section className="journal-scene"><header><p>{prettyDay(today)}</p><h1>Auggie’s day</h1></header>
- {trackingEnabled(plan,'feed')&&<MilkDial key={today} volume={state?.day===today?bottlesToday.volume:null} count={bottlesToday.count} disabled={!canSave} onOpen={()=>open('feed',lastFeed?.subtype||'milk')}/>}
+ <section className="journal-scene"><LakeSky flare={goalFlare}/><header><p>{prettyDay(today)}</p><h1>Auggie’s day</h1>
+  <p className="scene-telemetry" aria-label={(synced?'Synced':'Not synced')+(latestCare?'. Latest entry by '+latestCare.actor+' at '+clock(latestCare.startedAt):'')}><span className={'telemetry-dot'+(synced?'':' is-off')} aria-hidden="true"/><span aria-hidden="true" suppressHydrationWarning>{clock(new Date(now).toISOString())}</span><span aria-hidden="true">{synced?'In sync':'Reconnecting'}</span>{latestCare&&<span aria-hidden="true">Last by {latestCare.actor}</span>}</p></header>
+ {trackingEnabled(plan,'feed')&&<MilkDial key={today} volume={state?.day===today?bottlesToday.volume:null} count={bottlesToday.count} disabled={!canSave} onOpen={()=>open('feed',lastFeed?.subtype||'milk')}
+  ringsLabel={goal.low!==null&&goal.high!==null?`Goal ${goal.low===goal.high?goal.low:goal.low+' to '+goal.high} millilitres`:undefined}
+  rings={scale=><NatureRings volume={onToday?bottlesToday.volume:null} low={goal.low} high={goal.high} scale={scale} wet={trackingEnabled(plan,'diaper')?careToday.wet:0} dirty={trackingEnabled(plan,'diaper')?careToday.dirty:0} sleep={trackingEnabled(plan,'sleep')?careToday.sleep:0} pulse={feedPulse}/>}/>}
+ {trackingEnabled(plan,'feed')&&onToday&&<ul className="nature-legend" aria-label="Today at a glance">
+  <li className="intake">{goal.high?`${Math.round(bottlesToday.volume/goal.high*100)}% of ${goal.low===goal.high?goal.high:goal.low+'–'+goal.high} mL`:`${bottlesToday.count} ${bottlesToday.count===1?'bottle':'bottles'}`}</li>
+  {trackingEnabled(plan,'diaper')&&<li className="pearls">{careToday.wet} wet · {careToday.dirty} dirty</li>}
+  {trackingEnabled(plan,'sleep')&&<li className="sleep">{span(careToday.sleep)} sleep</li>}
+ </ul>}
  {trackingEnabled(plan,'diaper')&&<section className="journal-diaper" aria-label="Log a diaper">
 
-  <div className="journal-shortcuts">
+  <div className="journal-shortcuts">{diaperPulse>0&&<i key={diaperPulse} className="pond-ripple" aria-hidden="true"/>}
    {[{id:'wet',label:'Wet',icon:Droplets},{id:'dirty',label:'Dirty',icon:Baby},{id:'both',label:'Both',icon:Check}].map(type=>
     <button key={type.id} onClick={()=>open('diaper',type.id)} disabled={!canSave}><type.icon size={24}/><strong>{type.label}</strong></button>
    )}
@@ -198,18 +215,23 @@ export default function CareApp(){
    <div><span>Last feed{lastFeed&&dayKey(lastFeed.startedAt)!==today?' · '+prettyDay(dayKey(lastFeed.startedAt),true):''}</span>
     <strong>{lastFeed?clock(lastFeed.startedAt):'None logged'}</strong>
     {lastFeed&&<small>{eventDetail(lastFeed)} · {lastFeed.actor}</small>}
+    {lastFeed&&<small className="glance-live">{elapsed(lastFeed.startedAt,now)}</small>}
    </div>
   </>}
   {trackingEnabled(plan,'diaper')&&<div><span>Last change{state?.lastChange&&dayKey(state.lastChange.startedAt)!==today?' · '+prettyDay(dayKey(state.lastChange.startedAt),true):''}</span>
    <strong>{state?.lastChange?clock(state.lastChange.startedAt):'None logged'}</strong>
    {state?.lastChange&&<small>{eventTitle(state.lastChange)} · {state.lastChange.actor}</small>}
+   {state?.lastChange&&<small className="glance-live">{elapsed(state.lastChange.startedAt,now)}</small>}
    {state?.lastWet&&state.lastChange&&state.lastWet.id!==state.lastChange.id&&<small>Last wet · {dayKey(state.lastWet.startedAt)!==today?prettyDay(dayKey(state.lastWet.startedAt),true)+' · ':''}{clock(state.lastWet.startedAt)}</small>}
   </div>}
-  {trackingEnabled(plan,'feed')&&<div><span>Next planned feed</span><strong>{nextFeed?clock(nextFeed):'—'}</strong>
+  {trackingEnabled(plan,'feed')&&<div className="glance-next">{nextFeed&&<TimerRing size={34} fraction={(nextFeed.getTime()-now)/(feedInterval*3600000)} tone={nextFeed.getTime()<=now?'reached':'calm'}/>}<span>Next planned feed</span><strong>{nextFeed?clock(nextFeed):'—'}</strong>
     {nextFeed&&<small>{dayKey(nextFeed)!==today?prettyDay(dayKey(nextFeed),true)+' · ':''}{nextFeed.getTime()<=now?'Plan time reached':'By your care plan'}</small>}
+    {nextFeed&&nextFeed.getTime()>now&&<small className="glance-live">in {span((nextFeed.getTime()-now)/60000)}</small>}
    </div>}
  </section>}
  <section className="journal-rhythm"><header><h2>Today’s rhythm</h2><span>{state?.day===today?dayItems.filter(e=>!e.deleted&&visibleEvent(plan,e)).length+' logged':'Loading…'}</span></header>
+ <div className="sundial-row"><DaySundial entries={state?.day===today?careToday.live:[]} now={now} isToday/>
+  <dl className="sundial-stats"><div className="feed"><dt>Feeds</dt><dd>{careToday.feeds}</dd></div><div className="change"><dt>Changes</dt><dd>{careToday.live.filter(e=>e.kind==='diaper').length}</dd></div>{trackingEnabled(plan,'sleep')&&<div className="sleep"><dt>Sleep</dt><dd>{span(careToday.sleep)}</dd></div>}<div className="since"><dt>Since last feed</dt><dd>{lastFeed?elapsed(lastFeed.startedAt,now).replace(' ago',''):'None yet'}</dd></div></dl></div>
  <DayRhythm renderEntry={entry=><EventRow entry={entry} onClick={e=>open(e.kind,e.subtype,e)}/>} key={today} ready={state?.day===today} entries={dayItems.filter(e=>!e.deleted&&visibleEvent(plan,e))}/>
  {latestCare&&<div className="last-saved"><span>Latest entry · tap to edit</span><EventRow entry={latestCare} onClick={e=>open(e.kind,e.subtype,e)}/></div>}
  {plan.handoff&&<section className="easy-handoff"><NotebookPen size={20}/><div><h2>For your other half</h2><p>{plan.handoff}</p></div></section>}

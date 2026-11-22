@@ -1,0 +1,167 @@
+/* Natural instrument layer. Lake and forest light in place of a sci-fi HUD:
+   rings read as growth rings and ripples, glow reads as dusk and fireflies. */
+.auggie-suite{
+ --n-gold:#e8c38e;--n-gold-deep:#b8894b;--n-water:#bfe0df;--n-amber:#d9a35f;--n-lavender:#c2b1dc;--n-sage:#8eaa95;--n-clay:#c7745c;
+}
+
+/* Scene atmosphere */
+.journal-scene{position:relative;isolation:isolate}
+.lake-sky{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;border-radius:inherit}
+.lake-sky>*{position:absolute;display:block}
+.lake-glow{inset:auto -10% -30% 20%;height:70%;background:radial-gradient(ellipse at 70% 30%,#f3c98a33,transparent 62%);opacity:.9}
+.lake-shimmer{left:0;right:0;bottom:0;height:42%;opacity:.32;mix-blend-mode:screen;
+ background:repeating-linear-gradient(178deg,transparent 0 9px,#fff3d522 10px,transparent 12px 23px),repeating-linear-gradient(90deg,transparent 0 30px,#ffffff10 34px,transparent 44px 80px);
+ -webkit-mask-image:linear-gradient(transparent,#000 45%,#000 80%,transparent);mask-image:linear-gradient(transparent,#000 45%,#000 80%,transparent)}
+.firefly{display:none;width:4px;height:4px;border-radius:50%;background:#ffe9a8;box-shadow:0 0 6px 2px #ffd77a99,0 0 14px 4px #ffcf6a33;opacity:0}
+.lake-mist{inset:-10%;background:radial-gradient(ellipse at 30% 60%,#eef1e6f2,#dfe6dbd9 45%,#c9d6cd99 70%,transparent 90%);opacity:0}
+:root[data-misted] .lake-mist{display:none}
+.lake-dawn{inset:0;background:radial-gradient(ellipse at 22% 62%,#ffe2a6aa,#f5c27a44 34%,transparent 66%);opacity:0}
+
+/* Telemetry line */
+.journal-scene header{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:16px}
+.journal-scene header>p:first-child{flex-basis:100%}
+.journal-scene header .scene-telemetry{text-transform:none;letter-spacing:.03em;flex-basis:auto}
+.scene-telemetry{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:6px 0 0 auto;font-size:11.5px;letter-spacing:.06em;color:#e5dcc2;font-variant-numeric:tabular-nums}
+.scene-telemetry>span+span:not(.telemetry-dot)::before{content:"";display:inline-block;width:3px;height:3px;margin:0 9px 2px 0;border-radius:50%;background:#cdbd93;vertical-align:middle}
+.scene-telemetry>.telemetry-dot+span::before{display:none!important}
+.telemetry-dot{width:7px;height:7px;border-radius:50%;background:#9fd2b0;box-shadow:0 0 0 3px #9fd2b026}
+.telemetry-dot.is-off{background:#e0a05c;box-shadow:0 0 0 3px #e0a05c2a}
+
+/* Growth rings around the milk glass */
+.milk-dial-well{position:relative;display:block;line-height:0}
+.nature-rings{position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);overflow:visible;pointer-events:none}
+.nature-rings circle,.nature-rings path{fill:none}
+.ring-track{stroke:#f4e6c41f;stroke-width:3.4}
+.ring-goal{stroke:#f4e6c45c;stroke-width:3.4;stroke-dasharray:1.2 2.6}
+.ring-intake{stroke:var(--n-gold);stroke-width:3.4;stroke-linecap:round;filter:drop-shadow(0 0 2.5px #f1c98a88);transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1)}
+.ring-intake.is-met{stroke:#f6d79b}
+.nature-rings .ring-tip{fill:#fff4d6;filter:drop-shadow(0 0 3px #ffe1a0)}
+.ring-sleep-track{stroke:#cbbbe514;stroke-width:1.6}
+.ring-sleep{stroke:var(--n-lavender);stroke-width:1.6;stroke-linecap:round;opacity:.9}
+.nature-rings .ring-pearl{stroke:#0e231e;stroke-width:.6}
+.nature-rings .ring-pearl.wet{fill:var(--n-water)}
+.nature-rings .ring-pearl.dirty{fill:var(--n-amber)}
+.ring-ripple circle{stroke:#fff0cc;stroke-width:1.4;opacity:0}
+.auggie-suite .journal-scene .milk-dial-card{padding-left:186px}
+
+.nature-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:-4px 0 14px;padding:0;list-style:none;font-size:12.5px;color:#f1e6cb}
+.nature-legend li{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.nature-legend li::before{content:"";width:8px;height:8px;border-radius:50%;flex:none}
+.nature-legend .intake::before{background:var(--n-gold);box-shadow:0 0 5px #f1c98aaa}
+.nature-legend .pearls::before{background:linear-gradient(90deg,var(--n-water) 50%,var(--n-amber) 50%)}
+.nature-legend .sleep::before{background:var(--n-lavender)}
+
+.journal-shortcuts{position:relative}
+.pond-ripple{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border:1.5px solid #fff0cc;border-radius:50%;pointer-events:none;opacity:0}
+
+/* Live counters */
+.glance-live{display:inline-flex;align-items:center;gap:6px;color:var(--suite-accent,#8a6a3c)!important;font-weight:600;font-variant-numeric:tabular-nums}
+.glance-live::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.75}
+.glance-next{position:relative}
+.glance-next>.timer-ring{position:absolute;right:0;top:-2px}
+
+/* Timer rings */
+.timer-ring{flex:none;overflow:visible}
+.timer-ring circle{fill:none;stroke-width:3.2}
+.timer-ring-track{stroke:var(--line,#d9d2c4)}
+.timer-ring-fill{stroke-linecap:round;transition:stroke-dasharray .8s linear,stroke .6s}
+.timer-ring.calm .timer-ring-fill{stroke:#6f9c83}
+.timer-ring.soon .timer-ring-fill{stroke:#d49a4c}
+.timer-ring.late .timer-ring-fill{stroke:var(--n-clay)}
+.timer-ring.reached .timer-ring-fill{stroke:#d49a4c}
+.compact-countdown{display:flex!important;align-items:center;gap:11px}
+
+/* Day sundial */
+.sundial-row{display:grid;grid-template-columns:minmax(150px,200px) minmax(0,1fr);align-items:center;gap:clamp(14px,3vw,34px);margin:18px 0 6px}
+.day-sundial{width:100%;height:auto;overflow:visible}
+.day-sundial circle,.day-sundial path,.day-sundial line{fill:none}
+.sundial-face{fill:var(--suite-inset,#f4efe6)!important;stroke:var(--line);stroke-width:1}
+.sundial-daylight{stroke:#e9c98a;stroke-width:4;opacity:.55;stroke-linecap:round}
+.sundial-night{stroke:#7f8fb2;stroke-width:4;opacity:.28}
+.day-sundial .tick{stroke:var(--muted);stroke-width:.7;opacity:.55}
+.day-sundial .tick.major{stroke-width:1.4;opacity:.9}
+.sundial-sleep{stroke:var(--n-lavender);stroke-width:7;stroke-linecap:round;opacity:.85}
+.day-sundial .sundial-feed{fill:#b8894b;stroke:var(--suite-surface,#fff);stroke-width:1.2}
+.day-sundial .sundial-change{fill:#4e8d7f;stroke:var(--suite-surface,#fff);stroke-width:1}
+.day-sundial .sundial-other{fill:#947b9a}
+.sundial-hand line{stroke:#c9974f;stroke-width:1.3;stroke-linecap:round}
+.day-sundial .sundial-hand circle{fill:#f3c57c;filter:drop-shadow(0 0 4px #f0b35acc)}
+.day-sundial .sundial-hand .sun-core{fill:#fff4dc;filter:none}
+.day-sundial .sundial-hub{fill:var(--suite-surface,#fff);stroke:var(--line);stroke-width:.8}
+.day-sundial text{text-anchor:middle;fill:var(--text);font-variant-numeric:tabular-nums}
+.sundial-time{font:400 17px/1 Georgia,serif;letter-spacing:-.02em}
+.sundial-sub{font-size:8.5px;fill:var(--muted)!important;letter-spacing:.08em}
+.sundial-hour{font-size:7px;fill:var(--muted)!important;letter-spacing:.04em}
+.sundial-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:0}
+.sundial-stats>div{display:grid;gap:2px;padding-left:12px;border-left:2px solid var(--line)}
+.sundial-stats .feed{border-color:#b8894b}.sundial-stats .change{border-color:#4e8d7f}.sundial-stats .sleep{border-color:var(--n-lavender)}.sundial-stats .since{border-color:#e0b46e}
+.sundial-stats dt{font-size:12px;color:var(--muted)}
+.sundial-stats dd{margin:0;font:400 clamp(21px,2.6vw,28px)/1.1 Georgia,serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+ .auggie-suite .journal-scene .milk-dial-card{padding-left:146px}
+ .scene-telemetry{margin-left:0;font-size:11px}
+ .sundial-row{grid-template-columns:142px minmax(0,1fr);gap:16px}
+ .sundial-stats{grid-template-columns:1fr 1fr;gap:12px 10px}
+ .sundial-stats>div{padding-left:9px}
+}
+
+/* Page sweep: a band of light through the trees */
+.page-sweep{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;
+ background:linear-gradient(100deg,transparent 30%,#fff3d21f 44%,#f6dca42e 50%,#fff3d21f 56%,transparent 70%) 0 0/250% 100% no-repeat}
+
+/* Rise in */
+.will-rise{opacity:0;transform:translateY(12px)}
+.will-rise.is-risen{opacity:1;transform:none;transition:opacity .55s ease calc(var(--rise-i,0)*70ms),transform .65s cubic-bezier(.2,.8,.2,1) calc(var(--rise-i,0)*70ms)}
+
+/* Play: a soft light glint on the pose cards */
+.observation-palette button{position:relative;overflow:hidden}
+.observation-palette button::after{content:"";position:absolute;inset:-20% auto -20% -60%;width:40%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,#fff8e466,transparent);pointer-events:none;opacity:0}
+
+/* Dark: dusk over the lake */
+:root[data-atlas-theme="dark"] .firefly{display:block}
+:root[data-atlas-theme="dark"] .lake-glow{background:radial-gradient(ellipse at 68% 26%,#f0a96a38,transparent 60%)}
+:root[data-atlas-theme="dark"] .lake-mist{background:radial-gradient(ellipse at 30% 60%,#21352ff5,#1a2c27e0 45%,#16262199 70%,transparent 90%)}
+:root[data-atlas-theme="dark"] .glance-live{color:#e9c58a!important}
+:root[data-atlas-theme="dark"] .sundial-face{fill:#12251f!important}
+.f0{left:8%;top:62%}.f1{left:22%;top:78%}.f2{left:41%;top:70%}.f3{left:57%;top:58%}.f4{left:69%;top:80%}.f5{left:83%;top:64%}.f6{left:91%;top:48%}.f7{left:33%;top:52%}.f8{left:76%;top:42%}
+
+@media(prefers-reduced-motion:no-preference){
+ .lake-mist{animation:mist-lift 2.4s ease-out both}
+ .lake-shimmer{animation:shimmer 9s linear infinite}
+ .firefly{animation:firefly 7s ease-in-out infinite}
+ .f1{animation-delay:-1.3s;animation-duration:8s}.f2{animation-delay:-2.6s}.f3{animation-delay:-4s;animation-duration:9s}.f4{animation-delay:-5.2s}.f5{animation-delay:-.6s;animation-duration:6.5s}.f6{animation-delay:-3.3s}.f7{animation-delay:-6s;animation-duration:8.5s}.f8{animation-delay:-2s}
+ :root[data-misted] .lake-mist{display:none}
+.lake-dawn{animation:dawn 2.6s ease-out both}
+ .ring-ripple circle{animation:ripple 1.5s ease-out both;transform-origin:90px 90px}
+ .ring-ripple circle+circle{animation-delay:.35s}
+ .pond-ripple{animation:pond 1.2s ease-out both}
+ .page-sweep{animation:sweep-right .75s ease-out both}
+ .page-sweep.left{animation-name:sweep-left}
+ .observation-palette button::after{animation:glint 6.5s ease-in-out infinite}
+ .observation-palette button:nth-child(2)::after{animation-delay:.4s}.observation-palette button:nth-child(3)::after{animation-delay:.8s}.observation-palette button:nth-child(4)::after{animation-delay:1.2s}
+ .glance-live::before,.telemetry-dot{animation:breathe 3.2s ease-in-out infinite}
+ .sundial-hand circle:first-of-type{animation:breathe 4s ease-in-out infinite}
+ @supports (animation-timeline:view()){
+  .journal-scene{animation:scene-drift linear both;animation-timeline:view();animation-range:cover}
+  @media(max-width:700px){.journal-scene{animation-name:scene-drift-m}}
+ }
+}
+@keyframes mist-lift{0%{opacity:.95;transform:translateY(0)}40%{opacity:.7}100%{opacity:0;transform:translateY(-14%) scale(1.06)}}
+@keyframes shimmer{from{background-position:0 0,0 0}to{background-position:0 46px,160px 0}}
+@keyframes firefly{0%,100%{opacity:0;transform:translate(0,0)}20%{opacity:.95}50%{opacity:.35;transform:translate(14px,-12px)}75%{opacity:.9;transform:translate(-6px,-20px)}}
+@keyframes dawn{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+@keyframes ripple{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1.3)}}
+@keyframes pond{0%{opacity:.8;transform:scale(.4)}100%{opacity:0;transform:scale(5)}}
+@keyframes sweep-right{0%{opacity:1;background-position:120% 0}100%{opacity:0;background-position:-30% 0}}
+@keyframes sweep-left{0%{opacity:1;background-position:-30% 0}100%{opacity:0;background-position:120% 0}}
+@keyframes glint{0%,70%{opacity:0;left:-60%}78%{opacity:1}92%,100%{opacity:0;left:130%}}
+@keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes scene-drift-m{from{background-position:center,60% 38%}to{background-position:center,60% 62%}}
+@keyframes scene-drift{from{background-position:center,center 40%}to{background-position:center,center 64%}}
+
+@media(forced-colors:active){
+ .lake-sky,.nature-rings,.page-sweep,.pond-ripple{display:none}
+ .nature-legend li::before,.glance-live::before{forced-color-adjust:none;background:CanvasText}
+}
+@media(prefers-reduced-transparency:reduce){.lake-shimmer,.lake-mist,.firefly,.page-sweep{display:none}}
+@media print{.will-rise{opacity:1!important;transform:none!important}}
