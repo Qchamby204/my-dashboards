@@ -1,6 +1,12 @@
 /* Page transitions (shared/hud-core.css opts in): the browser can cancel a transition before
    deferred scripts run, on the page being left or the page arriving. Settle its promises here,
    in the first script every page loads, so a cancellation is never reported as a page error. */
+// A browser-cancelled transition can still surface as an unhandled rejection from a promise
+// these handlers never saw; it is harmless (the page simply loads without the animation).
+globalThis.addEventListener?.('unhandledrejection', e => {
+  const r = e.reason;
+  if (r && (r.name === 'InvalidStateError' || r.name === 'AbortError') && /Transition was (aborted|skipped)|ViewTransition/i.test(String(r.message || ''))) e.preventDefault();
+});
 for (const type of ['pageswap', 'pagereveal']) globalThis.addEventListener?.(type, e => {
   const vt = e.viewTransition;
   if (vt) for (const done of [vt.ready, vt.finished, vt.updateCallbackDone]) done?.catch(() => {});
