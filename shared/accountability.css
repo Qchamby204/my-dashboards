@@ -15,11 +15,18 @@
 html .acc-tabs:is(#atlas-accountability-tabs, #atlas-accountability nav) button.acc-tab {background:transparent!important;color:inherit!important;box-shadow:none!important;border:0!important;padding:.45rem .9rem!important}
 html .acc-tabs:is(#atlas-accountability-tabs, #atlas-accountability nav) button.acc-tab[aria-current="page"] {background:var(--neo-ink,#252a31)!important;color:var(--neo-surface,#f5f0e7)!important}
 .acc-tab.acc-due::after {content:'•';color:#ab6232;margin-left:.35rem;font-size:1.1rem}
-.appbar > #atlas-accountability-tabs, body > header > #atlas-accountability-tabs {
-  grid-column:1 / -1; grid-row:auto; justify-self:center; flex-shrink:0; margin:.15rem auto;
+body > header > #atlas-accountability-tabs {margin:.15rem auto}
+/* The title and its calendar link share the existing 44px identity slot on small headers. */
+.appbar :is(.appbar-title,h1>span):has(#atlas-accountability-tabs) {display:inline-block;vertical-align:middle}
+html .appbar #atlas-accountability-tabs {
+  display:block;position:relative;width:max-content;max-width:100%;height:19px;margin:0;
+  border:0;padding:0;background:transparent;color:var(--neo-ink,currentColor);
 }
-@media(max-width:600px) {
-  .appbar > #atlas-accountability-tabs {grid-row:3}
+html .appbar #atlas-accountability-tabs button.acc-tab {
+  position:relative;display:block;box-sizing:border-box;width:max-content;height:44px;min-height:44px;
+  margin:0;top:-25px;padding:25px 0 0!important;text-align:left;white-space:nowrap;
+  font:600 .76rem/19px Figtree,system-ui,sans-serif!important;
+  color:var(--neo-ink,currentColor)!important;text-decoration:underline;text-underline-offset:2px;
 }
 .acc-showing {overflow:hidden!important}
 dialog#atlas-accountability {

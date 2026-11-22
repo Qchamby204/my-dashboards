@@ -129,20 +129,23 @@
   panel.append(wrap); document.body.append(panel);
   let selected = dayOf(), month = selected.slice(0,7), settingsOpen = false, opener, nextTick;
   function navButton(active) {
-    const group = e('nav',null,'acc-tabs');
+    const compact = !active && app !== 'library' && app !== 'courier';
+    const group = e(compact ? 'span' : 'nav',null,'acc-tabs');
+    if (compact) group.setAttribute('role','navigation');
     group.setAttribute('aria-label',name + ' workspace');
     const home = button(name, () => { if (panel.open) leave(); },'acc-tab');
     const tab = button('Accountability', enter,'acc-tab');
     (active ? tab : home).setAttribute('aria-current','page');
     tab.setAttribute('aria-controls', panel.id);
     if (!active) home.disabled = true;
-    group.append(home,tab);
+    if (!compact) group.append(home);
+    group.append(tab);
     return group;
   }
   const entry = navButton(false);
   entry.id = 'atlas-accountability-tabs';
   function mount() {
-    const anchor = document.querySelector(app === 'library' ? '.content>.topbar' : app === 'courier' ? 'body>header' : '.appbar');
+    const anchor = document.querySelector(app === 'library' ? '.content>.topbar' : app === 'courier' ? 'body>header' : '.appbar .appbar-title, .appbar>h1>span');
     if (!anchor) return;
     if (app === 'library') {
       if (anchor.nextElementSibling !== entry) anchor.after(entry);
