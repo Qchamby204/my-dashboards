@@ -3,6 +3,7 @@ import "./globals.css";
 import "./suite-theme.css";
 import "./nature.css";
 import "./wonder.css";
+import "./polish.css";
 
 export const metadata: Metadata = {
   title: "Auggie · Together",

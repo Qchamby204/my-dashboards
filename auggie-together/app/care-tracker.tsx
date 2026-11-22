@@ -7,6 +7,7 @@ import {Baby,ClipboardList,Droplets,Heart,Milk,Moon,NotebookPen,Pill,Scale,Setti
 import {clock,dayBounds,dayKey,durationText,prettyDay,totals,type CareEvent,type Plan} from '@/lib/care';
 import {DEFAULT_BIRTH_DATE,feedingRange,measuredFeeding,pumpingRange,rangeLabel} from '@/lib/feeding-plan';
 import {AuggieSky} from './wonder';
+import {TimerRing} from './nature';
 import {trackingEnabled,visibleEvent} from '@/lib/tracking';
 import {exercises} from '@/lib/movement';
 import {headLabels,headMovements} from '@/lib/tummy-observations';
@@ -80,7 +81,9 @@ function VolumeDayChart({items,day,kind,target,now}:{items:CareEvent[];day:strin
  return <div className="curated-chart"><svg viewBox="0 0 370 145" role="img" aria-label={`Cumulative ${kind==='feed'?'intake':'pumping'} ${total} mL. Goal ${rangeLabel(target.low,target.high)} mL.`}>
   {[0,max/2,max].map((value,index)=><g key={index}><line x1={32} x2={365} y1={y(value)} y2={y(value)} stroke="var(--line)" strokeDasharray="3 4"/><text x={27} y={y(value)+3} textAnchor="end" fill="var(--muted)" fontSize={9}>{Math.round(value)}</text></g>)}
   {target.low!==null&&target.high!==null&&<><rect x={34} y={y(target.high)} width={326} height={Math.max(2,y(target.low)-y(target.high))} fill="var(--chart-goal)" opacity={.14}/><text x={358} y={Math.max(12,y(target.high)-5)} textAnchor="end" fontSize={10} fill="var(--chart-goal)">Goal {rangeLabel(target.low,target.high)} mL</text></>}
-  <polyline points={steps.join(' ')} fill="none" stroke={kind==='feed'?'var(--chart-intake)':'var(--rose-text)'} strokeWidth={3}/>
+  <defs><linearGradient id={'tide-'+kind} x1="0" x2="0" y1="0" y2="1"><stop offset="0" style={{stopColor:kind==='feed'?'var(--chart-intake)':'var(--rose-text)',stopOpacity:.34}}/><stop offset="1" style={{stopColor:kind==='feed'?'var(--chart-intake)':'var(--rose-text)',stopOpacity:.03}}/></linearGradient></defs>
+  <polygon className="tide-fill" points={steps.join(' ')+' '+steps.at(-1)!.split(',')[0]+',125'} fill={`url(#tide-${kind})`}/>
+  <polyline className="tide-line" points={steps.join(' ')} fill="none" stroke={kind==='feed'?'var(--chart-intake)':'var(--rose-text)'} strokeWidth={3} strokeLinejoin="round"/>
   {points.map(point=><circle key={point.event.id} cx={x(point.event.startedAt)} cy={y(point.total)} r={point===selected?5:3} fill={kind==='feed'?'var(--chart-intake)':'var(--rose-text)'}><title>{clock(point.event.startedAt)} · {point.total} mL cumulative</title></circle>)}
  </svg><div className="trend-dates"><span>12 am</span><span>Cumulative mL</span><span>12 am</span></div>
  {selected&&<div className="reading-scrubber"><output><strong>{clock(selected.event.startedAt)}</strong> · {selected.event.amount} mL {kind==='feed'?'consumed':'pumped'} · {selected.total} mL total</output>
@@ -248,6 +251,7 @@ export default function CareTracker({focus,onFocus,items,weights,plan,day,now,re
   {shows('diaper')&&trackingEnabled(plan,'diaper')&&<section className="curated-card" aria-label="Diapers">
    <header><span className="care-action-icon blue"><Droplets size={24}/></span><div><h2>Diapers</h2><p>{period?periodLabel:`${title}’s changes`}</p></div></header>
    <div className="exercise-count">
+    {!period&&plan.wetTarget?<TimerRing size={54} tone="wet" fraction={(wet??0)/plan.wetTarget}/>:null}
     <strong>{period?periodValue(periodDiapers.average):diaper.length}</strong>
     <span>{period?'changes / logged day':'total changes'}</span>
    </div>
@@ -296,7 +300,7 @@ export default function CareTracker({focus,onFocus,items,weights,plan,day,now,re
   </section>}
   </div>
   {(['sleep','nursing','medicine','note'] as const).filter(key=>trackingEnabled(plan,key)&&(key!=='nursing'||trackingEnabled(plan,'feed'))).length>0&&<div className="curated-secondary optional-insights">
-   {shows('sleep')&&trackingEnabled(plan,'sleep')&&<section className="curated-card" aria-label="Sleep"><header><Moon size={21}/><h2>Sleep</h2></header><div className="exercise-count"><strong>{period?periodValue(periodSleep.average):durationText(totals(items,start,end,now).sleep)}</strong><span>{period?'hours / day average':`logged ${title.toLowerCase()}`}</span></div>{chart([{id:'sleep',label:'Hours slept',color:'var(--lavender-text)'}])}</section>}
+   {shows('sleep')&&trackingEnabled(plan,'sleep')&&<section className="curated-card" aria-label="Sleep"><header><Moon size={21}/><h2>Sleep</h2></header><div className="exercise-count">{!period&&<TimerRing size={54} tone="sleep" fraction={totals(items,start,end,now).sleep/((plan.sleepGoalHours??16)*60)}/>}<strong>{period?periodValue(periodSleep.average):durationText(totals(items,start,end,now).sleep)}</strong><span>{period?'hours / day average':`logged ${title.toLowerCase()}`}</span></div>{chart([{id:'sleep',label:'Hours slept',color:'var(--lavender-text)'}])}</section>}
    {shows('nursing')&&trackingEnabled(plan,'nursing')&&trackingEnabled(plan,'feed')&&<section className="curated-card" aria-label="Breastfeeding"><header><Heart size={21}/><h2>Breastfeeding</h2></header><p>{period?`${periodValue(nursingPerDay)} feeds/day · ${periodValue(periodNursing.average)} minutes/day average`:`${entries.filter(event=>event.kind==='feed'&&event.subtype==='nursing').length} feeds · ${entries.filter(event=>event.kind==='feed'&&event.subtype==='nursing').reduce((sum,event)=>sum+(event.duration??0),0)} minutes`}</p>{chart([{id:'nursing',label:'Minutes nursing',color:'var(--rose-text)'}])}</section>}
 
    {([{key:'medicine',id:'medicine',label:'Medicine',icon:Pill},{key:'note',id:'notes',label:'Care notes',icon:NotebookPen}] as const).filter(item=>shows(item.key)&&trackingEnabled(plan,item.key)&&(period?chartDays.some(row=>row.values[item.id]!==null):entries.some(event=>event.kind===item.key))).map(item=><section className="curated-card" key={item.id}><header><item.icon size={21}/><h2>{item.label}</h2></header><p>{period?`${periodValue(metricSummary(chartDays,item.id).average)} entries/day average`:`${entries.filter(event=>event.kind===item.key).length} entries ${title.toLowerCase()}`}</p></section>)}
