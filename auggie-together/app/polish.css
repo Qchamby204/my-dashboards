@@ -1,0 +1,75 @@
+/* Everyday screens brought up to the hero: entry sheets, log tiles, tracker cards. */
+
+/* Entry sheets */
+.auggie-suite .modal .modal-head{background:linear-gradient(90deg,#0b211ef2,#0f2a25b3 60%,#12302a66),url('/journal-lakeshore.webp') center 55%/cover;color:#fff3d6;border-bottom:1px solid #8a8768;padding-block:20px}
+.auggie-suite .modal .modal-head h2{font:400 24px/1.1 Georgia,serif;letter-spacing:-.02em;color:inherit}
+.auggie-suite .modal .modal-head .icon-button{background:#0e2622cc;border-color:#a49c78;color:#fff0cf}
+.auggie-suite .amount-display strong{font:400 clamp(34px,8vw,44px)/1 Georgia,serif;letter-spacing:-.03em}
+.auggie-suite .amount-display.unselected strong{font:500 19px/1.3 inherit;font-family:inherit;letter-spacing:0;color:var(--muted)}
+.auggie-suite .amount-range{accent-color:#b8894b}
+.auggie-suite .amount-control button[data-usual]{position:relative;border-color:#c9a467}
+.auggie-suite .amount-control button[data-usual]::after{content:"usual";position:absolute;top:-8px;left:50%;transform:translateX(-50%);padding:0 6px;border-radius:99px;background:#e8c38e;color:#3a2a12;font-size:9.5px;font-weight:700;letter-spacing:.06em;line-height:15px}
+.sheet-glass,.sheet-moon{display:block;width:84px;height:84px;margin:4px auto -4px;overflow:visible}
+.sheet-glass-rim{fill:#14302a;stroke:#d9c08e;stroke-width:1.5}
+.sheet-glass-face{fill:#2c4a40}
+.sheet-glass-milk{fill:#efdcb4;transition:y .45s cubic-bezier(.2,.8,.2,1)}
+.sheet-glass.pump .sheet-glass-milk{fill:#f1d3c3}
+.sheet-glass-surface{fill:none;stroke:#fff6e0;stroke-width:1;transition:d .45s cubic-bezier(.2,.8,.2,1)}
+.sheet-glass-glint{fill:none;stroke:#f3ecd2;stroke-width:1.4;stroke-linecap:round;opacity:.5}
+.moon-track{fill:none;stroke:var(--line);stroke-width:4}
+.moon-fill{fill:none;stroke:#a593c8;stroke-width:4;stroke-linecap:round;transition:stroke-dasharray .45s ease}
+.moon-face{fill:#d8ccec}
+.same-as-last{display:block;width:100%;margin:2px 0 10px;padding:11px 14px;border:1px dashed #c9a467;border-radius:14px;background:#fbf3e3;color:#6b4e22;font-weight:600}
+:root[data-atlas-theme="dark"] .same-as-last{background:#2a2a1e;color:#ecd3a3;border-color:#8a7445}
+.when-quick{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.when-quick button{padding:6px 10px;border:1px solid var(--line);border-radius:99px;background:var(--suite-inset,#f4efe6);color:var(--text);font-size:12.5px;font-weight:600}
+.compact-when{flex-wrap:wrap;row-gap:8px}
+.auggie-suite .soiled-amount .choice-row button{border-radius:999px}
+.auggie-suite .soiled-amount .choice-row button::before{content:"";display:block;margin:0 auto 5px;border-radius:50% 46% 52% 48%;background:#c9a77a;box-shadow:inset 0 -2px 0 #0002}
+.auggie-suite .soiled-amount .choice-row button:nth-child(1)::before{width:10px;height:8px}
+.auggie-suite .soiled-amount .choice-row button:nth-child(2)::before{width:15px;height:12px}
+.auggie-suite .soiled-amount .choice-row button:nth-child(3)::before{width:21px;height:16px}
+.auggie-suite .care-form .primary-button:not(:disabled){background:linear-gradient(180deg,#1d4a40,#143a32);color:#fff3d6;border:1px solid #8f9a74;box-shadow:0 6px 16px #0f2a2533,inset 0 1px #ffffff1a}
+
+/* One-tap diapers */
+.diaper-hint{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:9px 0 0;font-size:12px;color:#e4dbc1}
+.diaper-hint button{padding:3px 10px;border:1px solid #a49c78;border-radius:99px;background:#0e2622aa;color:#fff0cf;font-size:12px}
+.journal-shortcuts button{-webkit-touch-callout:none;user-select:none;touch-action:manipulation}
+
+/* Log tiles */
+.auggie-suite .journal-log>.easy-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.auggie-suite .journal-log>.easy-actions>.milk-care-card{grid-column:1/-1}
+.auggie-suite .journal-log>.easy-actions>:only-child{grid-column:1/-1}
+.auggie-suite .journal-log .easy-actions>.care-action,.auggie-suite .journal-log .easy-sleep>.care-action{position:relative;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;align-items:start;gap:12px 8px;min-height:0;padding:18px 16px 16px}
+.auggie-suite .journal-log .easy-actions .care-action-icon{position:relative;grid-column:1;grid-row:1;width:50px;height:50px;border-radius:50%}
+.auggie-suite .journal-log .easy-actions .care-action-end{grid-column:2;grid-row:1;width:38px;height:38px}
+.auggie-suite .journal-log .easy-actions .care-action-end svg{width:20px}
+.auggie-suite .journal-log .easy-actions .care-action-label{grid-column:1/-1;grid-row:2;gap:2px}
+.auggie-suite .journal-log .easy-actions .care-action-label strong{font:400 22px/1.15 Georgia,serif;letter-spacing:-.02em}
+.auggie-suite .journal-log .easy-actions .care-action-label>span{font-size:13px;line-height:1.45}
+.auggie-suite .journal-log .easy-sleep{display:flex;flex-direction:column}
+.auggie-suite .journal-log .easy-sleep .finished-sleep{margin-top:auto;padding:10px 16px 14px;font-size:12.5px;text-align:left}
+.care-action-icon>.timer-ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.timer-ring.pump .timer-ring-fill{stroke:#c9708a}
+.timer-ring.sleep .timer-ring-fill{stroke:#a593c8}
+.timer-ring.wet .timer-ring-fill{stroke:#5b9bb0}
+.care-action-icon>.timer-ring .timer-ring-track{stroke:transparent}
+@media(max-width:360px){.auggie-suite .journal-log>.easy-actions{grid-template-columns:1fr}}
+
+/* Tracker cards */
+.auggie-suite .curated-card{position:relative;background:linear-gradient(180deg,var(--suite-surface) 0%,var(--suite-surface) 70%,var(--suite-inset,#f4efe6) 100%);border:1px solid var(--line);overflow:hidden}
+.auggie-suite .curated-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,#d6b47a 30%,#8fb3a1 70%,transparent);opacity:.75}
+.auggie-suite .curated-volume strong,.auggie-suite .exercise-count>strong,.auggie-suite .curated-facts strong,.auggie-suite .diaper-stat strong{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-.03em}
+.auggie-suite .exercise-count{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.auggie-suite .exercise-count>.timer-ring{order:-1}
+.tide-line{filter:drop-shadow(0 2px 3px #1f4b3f33)}
+@media(prefers-reduced-motion:no-preference){
+ .tide-fill{animation:tide-rise .9s cubic-bezier(.2,.8,.2,1) both;transform-origin:50% 100%;transform-box:fill-box}
+ .sheet-glass-milk{animation:none}
+}
+@keyframes tide-rise{from{transform:scaleY(0);opacity:0}to{transform:none;opacity:1}}
+@media(forced-colors:active){.auggie-suite .modal .modal-head{background:Canvas;color:CanvasText}.curated-card::before{display:none}}
+.auggie-suite .journal-log>.easy-actions>.tile-wide{grid-column:1/-1}
+.auggie-suite .journal-log .easy-actions>.care-action.tile-wide,.auggie-suite .journal-log .easy-sleep.tile-wide>.care-action{display:flex;align-items:center;gap:16px;padding:18px}
+.care-action-icon>svg.timer-ring{width:64px!important;height:64px!important;max-width:none}
+.auggie-suite .journal-log .milk-care-card .care-summary-copy strong{font:400 22px/1.15 Georgia,serif;letter-spacing:-.02em}
