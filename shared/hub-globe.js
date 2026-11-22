@@ -1,7 +1,7 @@
 /* Atlas command globe. A rotating 3D hologram drawn on a plain 2D canvas (no
    libraries): a wireframe sphere around a pulsing core, with every HUD app as a
    node on its own tilted orbit, linked to the core by light. Hover or tap a node
-   to see its name; tap it (or click) to open that app. Drag to spin. It reads the
+   to see its name and live status (pulsing when something is due); tap it (or click) to open that app. Drag to spin. It reads the
    Atlas tiles for names, links and colours and changes nothing. The tiles stay
    the accessible way in; the canvas is aria-hidden. Holds still under reduced
    motion and pauses when hidden or off screen. */
@@ -161,6 +161,12 @@
         ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(p.px, p.py, r * 3.4, 0, TAU); ctx.fill();
         ctx.strokeStyle = rgba(p.n.color, a); ctx.lineWidth = 1.4;
         ctx.beginPath(); ctx.arc(p.px, p.py, r, 0, TAU); ctx.stroke();
+        // Something needs you here (from the tile's live status): a ring keeps radiating out.
+        if (p.n.alert) {
+          const k2 = motion ? (t * .7 + p.n.pulse) % 1 : .35;
+          ctx.strokeStyle = rgba(p.n.color, (1 - k2) * .85 * a); ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.arc(p.px, p.py, r * (1.4 + k2 * 2.6), 0, TAU); ctx.stroke();
+        }
         ctx.fillStyle = light ? rgba(p.n.color, a) : rgba('#ffffff', .9 * a);
         ctx.beginPath(); ctx.arc(p.px, p.py, r * .42, 0, TAU); ctx.fill();
         if (named.has(p.n)) {
@@ -183,7 +189,9 @@
     }
     function showTag(p) {
       if (!p) { tag.classList.remove('on'); return; }
-      tag.textContent = 'Open ' + p.n.name;
+      tag.replaceChildren(document.createTextNode('Open ' + p.n.name));
+      const status = window.AtlasHubLive?.status(p.n.href)?.text;
+      if (status) { const line = document.createElement('small'); line.textContent = status; tag.append(line); }
       tag.style.setProperty('--node', p.n.color);
       tag.style.left = p.px + 'px'; tag.style.top = p.py + 'px';
       tag.classList.toggle('below', p.py < 48);
@@ -205,6 +213,13 @@
       const p = nodeAt(e) || was.start;
       if (!p) { hover = null; showTag(null); return; }
       if (e.pointerType !== 'mouse' && hover !== p.n) { hover = p.n; showTag(p); kick(); return; } // first tap names it
+      // Launch out of the matching tile, as tapping the tile itself does.
+      const card = [...document.querySelectorAll('a.hub-card')].find(c => c.href === p.n.href);
+      if (card && 'onpageswap' in window) {
+        document.querySelectorAll('.hud-launching').forEach(n => { n.classList.remove('hud-launching'); n.style.viewTransitionName = ''; });
+        card.classList.add('hud-launching'); card.style.viewTransitionName = 'hud-launch';
+        root.style.setProperty('--hud-launch', p.n.color);
+      }
       location.href = p.n.href;
     };
     canvas.addEventListener('pointerup', end);
@@ -219,6 +234,10 @@
     document.addEventListener('visibilitychange', () => { last = 0; kick(); });
     reduce.addEventListener?.('change', kick);
     new MutationObserver(kick).observe(root, {attributes: true, attributeFilter: ['data-atlas-theme']});
+    // Live status from the tiles decides which satellites call for attention.
+    const syncAlerts = () => { for (const n of nodes) n.alert = !!window.AtlasHubLive?.status(n.href)?.alert; kick(); };
+    window.addEventListener('atlas:hub-live', syncAlerts);
+    syncAlerts();
   }
 
   window.AtlasGlobe = {mount};

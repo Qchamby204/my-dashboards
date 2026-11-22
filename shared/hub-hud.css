@@ -187,3 +187,121 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header>.hud-globe 
   .hb-lines {font-size:.86rem;}
 }
 @media(prefers-reduced-motion:reduce),(forced-colors:active) {.hud-briefing {display:none!important;}}
+
+/* ── Atlas, live (shared/hub-live.js) ───────────────────────────────────────── */
+/* Each tile's status line replaces the decorative "online" tag. */
+html.atlas-neumo.atlas-neumo.hub-live-on[data-atlas-app="atlas-hub"] .hub-card[data-hud="online"]::after {content:none;}
+html[data-atlas-app="atlas-hub"] .hub-card .hub-live {
+  display:flex;align-items:center;gap:7px;margin-top:9px;
+  font:500 .72rem/1.35 var(--hud-mono,ui-monospace,monospace);letter-spacing:.02em;
+  color:color-mix(in srgb,var(--tile,var(--hud-hue)) 85%,var(--neo-ink));
+}
+html[data-atlas-app="atlas-hub"] .hub-card .hub-live::before {
+  content:"";flex:none;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55;
+}
+html[data-atlas-app="atlas-hub"] .hub-card[data-alert] .hub-live {color:var(--neo-ink);}
+html[data-atlas-app="atlas-hub"] .hub-card[data-alert] .hub-live::before {opacity:1;background:var(--tile,var(--hud-hue));box-shadow:0 0 0 0 var(--tile,var(--hud-hue));}
+@media(prefers-reduced-motion:no-preference) {
+  html[data-atlas-app="atlas-hub"] .hub-card[data-alert] .hub-live::before {animation:hub-alert 1.8s ease-out infinite;}
+}
+@keyframes hub-alert {0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--tile,var(--hud-hue)) 70%,transparent);}100%{box-shadow:0 0 0 8px transparent;}}
+
+/* Standard tiles: apps without a HUD of their own read as deliberate, in cool steel. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-card:not([data-hud]) {
+  --tile:#8ea4bb;
+  border-color:color-mix(in srgb,var(--tile) 30%,transparent)!important;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--tile) 7%,transparent),transparent 60%),repeating-linear-gradient(135deg,transparent 0 9px,color-mix(in srgb,var(--tile) 4%,transparent) 9px 10px),color-mix(in srgb,var(--neo-surface) 92%,transparent)!important;
+  box-shadow:inset 2px 0 color-mix(in srgb,var(--tile) 55%,transparent)!important;
+}
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-card:not([data-hud]) .hub-icon {background:color-mix(in srgb,var(--tile) 12%,transparent)!important;color:var(--tile)!important;}
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-card:not([data-hud]):hover {border-color:var(--tile)!important;}
+
+/* Search. */
+html[data-atlas-app="atlas-hub"] .hub-areas .hub-search {
+  display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 12px 0 14px;cursor:pointer;
+  font:600 .8rem/1 var(--hud-display,inherit);color:var(--hud-hue,var(--neo-accent));
+  border:1px solid color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 45%,transparent);border-radius:0;
+  background:color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 8%,transparent);
+  --hud-cut:9px;clip-path:var(--hud-chamfer,none);
+}
+html[data-atlas-app="atlas-hub"] .hub-areas .hub-search kbd {font:600 .7rem/1 var(--hud-mono,monospace);padding:3px 6px;border:1px solid currentColor;opacity:.75;}
+html[data-atlas-app="atlas-hub"] .hub-areas .hub-search:focus-visible {outline:3px solid var(--hud-hue,var(--neo-accent));outline-offset:3px;}
+html[data-atlas-app="atlas-hub"] dialog.hub-command {
+  width:min(560px,calc(100vw - 24px));max-height:min(620px,calc(100dvh - 48px));margin:max(48px,8vh) auto auto;padding:0;
+  color:var(--neo-ink);background:color-mix(in srgb,var(--neo-surface) 96%,#000);
+  border:1px solid color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 55%,transparent);border-radius:0;
+  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 24px 80px -20px #000,0 0 40px -14px var(--hud-hue,transparent);
+  --hud-cut:14px;clip-path:var(--hud-chamfer,none);overflow:hidden;display:flex;flex-direction:column;
+}
+html[data-atlas-app="atlas-hub"] dialog.hub-command:not([open]) {display:none;}
+html[data-atlas-app="atlas-hub"] dialog.hub-command::backdrop {background:rgba(2,8,14,.62);backdrop-filter:blur(3px);}
+.hub-command-form {display:flex;gap:8px;padding:12px;border-bottom:1px solid color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 25%,transparent);}
+.hub-command-input {flex:1;min-width:0;min-height:48px;padding:0 14px;font:500 1.05rem/1 var(--hud-display,inherit);color:inherit;background:transparent;border:1px solid color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 35%,transparent);border-radius:0;}
+.hub-command-input:focus {outline:none;border-color:var(--hud-hue,var(--neo-accent));box-shadow:0 0 0 3px color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 25%,transparent);}
+.hub-command-close {min-height:48px;padding:0 14px;font:600 .8rem/1 inherit;color:var(--neo-muted);background:transparent;border:0;cursor:pointer;}
+.hub-command-results {list-style:none;margin:0;padding:6px;overflow:auto;}
+.hub-command-row {display:flex;align-items:stretch;gap:4px;}
+.hub-command-link {flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 10px;color:inherit;text-decoration:none;border:1px solid transparent;--tile:var(--hud-hue,var(--neo-accent));}
+.hub-command-link:is(:hover,:focus-visible) {outline:none;border-color:color-mix(in srgb,var(--tile) 60%,transparent);background:color-mix(in srgb,var(--tile) 10%,transparent);}
+.hub-command-icon {display:grid;place-items:center;flex:none;width:34px;height:34px;color:var(--tile);background:color-mix(in srgb,var(--tile) 14%,transparent);font-size:1.05rem;}
+.hub-command-words {display:flex;flex-direction:column;gap:3px;min-width:0;}
+.hub-command-words b {font:600 .98rem/1.2 var(--hud-display,inherit);}
+.hub-command-words small {font:500 .72rem/1.3 var(--hud-mono,monospace);color:var(--neo-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hub-command-pin {flex:none;width:48px;min-height:48px;font-size:1.15rem;color:var(--hud-hue,var(--neo-accent));background:transparent;border:0;cursor:pointer;}
+.hub-command-pin[aria-pressed="true"] {text-shadow:0 0 10px currentColor;}
+.hub-command-empty {padding:18px 12px;color:var(--neo-muted);}
+.hub-command-hint {margin:0;padding:10px 14px;font:500 .7rem/1.4 var(--hud-mono,monospace);color:var(--neo-muted);border-top:1px solid color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 18%,transparent);}
+
+/* This week: the six Accountability dashboards. */
+html[data-atlas-app="atlas-hub"] .hub-week {margin:0 0 28px;padding:16px 18px 10px;border:1px solid color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 30%,transparent);background:color-mix(in srgb,var(--neo-surface) 90%,transparent);--hud-cut:12px;clip-path:var(--hud-chamfer,none);}
+html[data-atlas-app="atlas-hub"] .hub-week[hidden] {display:none;}
+.hub-week-head,.hub-week-row {display:grid;grid-template-columns:minmax(96px,1fr) auto 44px;align-items:center;gap:12px;}
+.hub-week-head h2 {margin:0;}
+.hub-week-legend,.hub-week-days {display:grid;grid-template-columns:repeat(7,18px);gap:6px;justify-items:center;}
+.hub-week-legend i {font:600 .62rem/1 var(--hud-mono,monospace);font-style:normal;color:var(--neo-muted);}
+.hub-week-row {min-height:44px;color:inherit;text-decoration:none;border-top:1px solid color-mix(in srgb,var(--neo-line,#fff) 50%,transparent);}
+.hub-week-row:first-child {border-top:0;}
+.hub-week-row:focus-visible {outline:3px solid var(--acc);outline-offset:2px;}
+.hub-week-name {font:600 .88rem/1.2 var(--hud-display,inherit);}
+.hub-week-days i {width:14px;height:14px;border-radius:50%;box-sizing:border-box;}
+.hub-week-days i[data-state="saved"] {background:var(--acc);box-shadow:0 0 8px -1px var(--acc);}
+.hub-week-days i[data-state="planned"] {border:1.5px solid color-mix(in srgb,var(--acc) 55%,transparent);}
+.hub-week-days i[data-state="due"] {border:2px solid var(--acc);}
+.hub-week-days i[data-state="missed"] {position:relative;}
+.hub-week-days i[data-state="missed"]::before,.hub-week-days i[data-state="missed"]::after {content:"";position:absolute;left:1px;right:1px;top:6px;height:2px;border-radius:2px;background:#ec5b54;transform:rotate(45deg);}
+.hub-week-days i[data-state="missed"]::after {transform:rotate(-45deg);}
+.hub-week-days i[data-state="rest"] {width:4px;height:4px;margin:5px;background:color-mix(in srgb,var(--neo-muted) 45%,transparent);}
+.hub-week-days i[data-today] {outline:1px dashed color-mix(in srgb,var(--neo-ink) 45%,transparent);outline-offset:3px;}
+.hub-week-count {justify-self:end;font:600 .78rem/1 var(--hud-mono,monospace);color:var(--neo-muted);}
+.hub-week-row[data-met] .hub-week-count {color:var(--acc);text-shadow:0 0 8px var(--acc);}
+@media(prefers-reduced-motion:no-preference) {
+  .hub-week-days i[data-state="due"] {animation:hub-alert 2.2s ease-out infinite;--tile:var(--acc);}
+}
+
+/* Compact phone layout: two tiles per row; the name and its live line carry each tile. */
+@media(max-width:560px) {
+  html.hub-live-on[data-atlas-app="atlas-hub"] .hub-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  html.hub-live-on[data-atlas-app="atlas-hub"] .hub-card {flex-direction:column;gap:10px;min-height:0;padding:14px 14px 13px;--hud-cut:10px;}
+  html.hub-live-on[data-atlas-app="atlas-hub"] .hub-card p {display:none;}
+  html.hub-live-on[data-atlas-app="atlas-hub"] .hub-card .hub-icon {width:34px;height:34px;font-size:1.05rem;}
+  html.hub-live-on[data-atlas-app="atlas-hub"] .hub-card h3 {font-size:.95rem;line-height:1.25;}
+  html.hub-live-on[data-atlas-app="atlas-hub"] .hub-card .hub-live {margin-top:6px;font-size:.66rem;}
+  html.hub-live-on[data-atlas-app="atlas-hub"] .hub-card .hub-private {margin-top:3px;}
+  .hub-week-head,.hub-week-row {grid-template-columns:minmax(0,1fr) auto 36px;gap:8px;}
+  .hub-week-legend,.hub-week-days {grid-template-columns:repeat(7,16px);gap:4px;}
+}
+@media(forced-colors:active) {
+  .hub-week-days i {forced-color-adjust:none;}
+  html[data-atlas-app="atlas-hub"] dialog.hub-command {border:2px solid CanvasText;}
+}
+
+.hud-globe-tag small {display:block;margin-top:3px;font:500 10px/1.2 var(--hud-mono,monospace);letter-spacing:.02em;color:color-mix(in srgb,var(--node,#5ff4ff) 80%,#fff);text-align:center;}
+
+/* The command bar keeps the HUD's squared controls over the suite's pill defaults. */
+html.atlas-neumo[data-atlas-app="atlas-hub"] dialog.hub-command :is(input,button) {border-radius:0!important;box-shadow:none!important;}
+html.atlas-neumo[data-atlas-app="atlas-hub"] dialog.hub-command .hub-command-input {background:transparent!important;border:1px solid color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 35%,transparent)!important;color:var(--neo-ink)!important;}
+html.atlas-neumo[data-atlas-app="atlas-hub"] dialog.hub-command .hub-command-input:focus {border-color:var(--hud-hue,var(--neo-accent))!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--hud-hue,var(--neo-accent)) 25%,transparent)!important;}
+html.atlas-neumo[data-atlas-app="atlas-hub"] dialog.hub-command :is(.hub-command-close,.hub-command-pin) {background:transparent!important;border:0!important;}
+html.atlas-neumo[data-atlas-app="atlas-hub"] dialog.hub-command .hub-command-pin {color:var(--hud-hue,var(--neo-accent))!important;}
+html.atlas-neumo[data-atlas-app="atlas-hub"] dialog.hub-command .hub-command-close {color:var(--neo-muted)!important;}
+html.atlas-neumo[data-atlas-app="atlas-hub"] dialog.hub-command .hub-command-input::-webkit-search-cancel-button {filter:grayscale(1) brightness(1.6);}

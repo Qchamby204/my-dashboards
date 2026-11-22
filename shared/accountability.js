@@ -2,20 +2,13 @@
 (() => {
   'use strict';
   const app = document.documentElement.dataset.atlasApp;
-  const daily = [0, 1, 2, 3, 4, 5, 6];
-  const apps = {
-    'life-ledger': ['Life Ledger', 'saved days', 'Open today’s check-in', 'Save a habit check-in or reflection.', daily, '#6de4ef'],
-    'communication-trainer': ['Communicator', 'practice days', 'Open practice', 'Finish and save a speaking drill.', [2, 4, 6], '#bfa9fa'],
-    'workout-forge': ['Forge', 'training days', 'Open workout', 'Log a workout or finish a goal session.', [1, 3, 5], '#85e3c7'],
-    'life-map': ['Life Map', 'plan days', 'Open today’s plan', 'Complete a task on your board.', [1, 2, 3, 4, 5, 6], '#70dce8'],
-    courier: ['Courier', 'listening days', 'Open briefing', 'Finish listening to one briefing section.', daily, '#ffac9a'],
-    library: ['Library', 'reading days', 'Open books', 'Log new pages in a book.', [2, 4, 6], '#91c8ff']
-  };
-  if (!apps[app] || !window.AtlasStreak) return;
+  const core = window.AtlasAccountabilityCore;
+  const apps = core?.apps || {};
+  if (!core || !apps[app] || !window.AtlasStreak) return;
   const [name, unit, action, rule, initialWeek, accent] = apps[app];
   const prefix = 'atlas.accountability.' + app + '.';
   const dayOf = window.AtlasStreak.localDay;
-  const dayDate = day => new Date(day + 'T12:00:00');
+  const dayDate = core.dayDate;
   const fmt = (day, options) => dayDate(day).toLocaleDateString('en-CA', options);
   const read = (key, fallback) => {
     const raw = localStorage.getItem(key);
@@ -30,54 +23,8 @@
   const button = (title, fn, cls) => {
     const b = e('button', title, cls); b.type = 'button'; b.addEventListener('click', fn); return b;
   };
-  const dateKey = value => {
-    if (typeof value !== 'string') return '';
-    if (/^\d{4}-\d\d-\d\d$/.test(value)) return dayOf(dayDate(value)) === value ? value : '';
-    const timestamp = new Date(value);
-    return Number.isFinite(+timestamp) ? dayOf(timestamp) : '';
-  };
-
-  function records() {
-    const rows = new Map(), today = dayOf();
-    function add(date, text) {
-      const d = dateKey(date);
-      if (!d || d > today) return;
-      if (!rows.has(d)) rows.set(d, []);
-      rows.get(d).push(String(text));
-    }
-    if (app === 'life-ledger') {
-      for (const row of read('lifeledger:v2', [])) {
-        const habits = Object.entries(row.units || {}).filter(([, n]) => n > 0);
-        for (const [habit] of habits) add(row.date, habit);
-        if (row.note?.trim() || row.mood) add(row.date, 'Reflection saved');
-      }
-    } else if (app === 'communication-trainer') {
-      for (const rep of read('mc_reps', [])) add(rep.date, rep.drill || 'Practice drill');
-    } else if (app === 'workout-forge') {
-      const labels = {PUSH: 'Push', PULL: 'Pull', LEGS: 'Legs', ENGINE: 'Engine'};
-      for (const session of read('forge:sessions:v2', [])) add(session.date, (labels[session.type] || session.type || 'Training') + ' workout');
-      for (const [goal, plan] of Object.entries(read('forge:goals:v1', {}).plans || {})) {
-        for (const [session, day] of Object.entries(plan.completed || {})) add(day, goal + ' · session ' + session);
-      }
-    } else if (app === 'life-map') {
-      for (const task of read('lifemap_v1', {}).projects || []) {
-        if (task.status === 'Done') add(task.doneAt, task.task || 'Task completed');
-      }
-    } else if (app === 'library') {
-      const data = read('atlas.library.v1', {});
-      const books = new Map((data.catalog || []).map(b => [b.id, b.title]));
-      for (const [day, entries] of Object.entries(data.reading?.daily || {})) {
-        for (const [id, pages] of Object.entries(entries)) {
-          if (pages > 0) add(day, (books.get(id) || 'Reading') + ' · ' + pages + (pages === 1 ? ' page' : ' pages'));
-        }
-      }
-    } else {
-      for (const [day, entries] of Object.entries(read('courier:state', {}).listeningDays || {})) {
-        for (const section of Object.values(entries)) add(day, section.label + ' · ' + section.edition);
-      }
-    }
-    return rows;
-  }
+  const dateKey = core.dateKey;
+  const records = () => core.records(app, read);
 
   // Keep each visit in its own key so simultaneous days or tabs cannot overwrite history.
   function recordVisit() {
@@ -100,29 +47,10 @@
   }
   const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const weekOrder = [1,2,3,4,5,6,0];
-  function prefs() {
-    const settings = read(prefix + 'schedule', {});
-    const revisions = Array.isArray(settings.revisions) ? settings.revisions.filter(r =>
-      dateKey(r.start) && Array.isArray(r.week) && r.week.length && r.week.every(n => Number.isInteger(n) && n >= 0 && n < 7)) : [];
-    return {revisions, time: /^([01]\d|2[0-3]):[0-5]\d$/.test(settings.time) ? settings.time : ''};
-  }
-  const weekAt = (settings, day) => settings.revisions.findLast(r => r.start <= day)?.week || initialWeek;
-  const isPlanned = (settings, day) => weekAt(settings, day).includes(dayDate(day).getDay());
-  function weeklyProgress(rows, settings, today) {
-    const cursor = dayDate(today);
-    cursor.setDate(cursor.getDate() - (cursor.getDay() + 6) % 7);
-    const start = dayOf(cursor);
-    let goal = 0, saved = 0, end = start;
-    for (let i = 0; i < 7; i++) {
-      end = dayOf(cursor);
-      if (isPlanned(settings, end)) goal++;
-      if (end <= today && rows.has(end)) saved++;
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    const savedToday = rows.has(today);
-    const remainingDays = 7 - (dayDate(today).getDay() + 6) % 7 - Number(savedToday);
-    return {start, end, goal, saved, savedToday, remainingDays, earned: Math.min(saved, goal)};
-  }
+  const prefs = () => core.prefs(app, read);
+  const weekAt = (settings, day) => core.weekAt(app, settings, day);
+  const isPlanned = (settings, day) => core.isPlanned(app, settings, day);
+  const weeklyProgress = (rows, settings, today) => core.weeklyProgress(app, rows, settings, today);
 
   const svg = (tag, attrs) => {
     const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
