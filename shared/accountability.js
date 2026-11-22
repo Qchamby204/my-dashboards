@@ -108,6 +108,56 @@
   }
   const weekAt = (settings, day) => settings.revisions.findLast(r => r.start <= day)?.week || initialWeek;
   const isPlanned = (settings, day) => weekAt(settings, day).includes(dayDate(day).getDay());
+  function weeklyProgress(rows, settings, today) {
+    const cursor = dayDate(today);
+    cursor.setDate(cursor.getDate() - (cursor.getDay() + 6) % 7);
+    const start = dayOf(cursor);
+    let goal = 0, saved = 0, end = start;
+    for (let i = 0; i < 7; i++) {
+      end = dayOf(cursor);
+      if (isPlanned(settings, end)) goal++;
+      if (end <= today && rows.has(end)) saved++;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return {start, end, goal, saved, earned: Math.min(saved, goal)};
+  }
+
+  function weekWidget(week) {
+    const box = e('div',null,'acc-week');
+    const label = e('div',null,'acc-week-label');
+    const range = fmt(week.start,{month:'short',day:'numeric'}) + ' – ' + fmt(week.end,{month:'short',day:'numeric'});
+    label.append(e('h2','Weekly goal'),e('span',range));
+    const count = e('div',null,'acc-week-count');
+    count.append(e('strong',String(week.earned)),e('span','of '+week.goal+' '+unit));
+    box.append(label,count);
+    if (!week.goal) {
+      box.append(e('p','No days scheduled this week.'));
+      return box;
+    }
+    const rail = e('div',null,'acc-week-rail');
+    rail.setAttribute('role','progressbar');
+    rail.setAttribute('aria-label','Weekly goal');
+    rail.setAttribute('aria-valuemin','0');
+    rail.setAttribute('aria-valuemax',String(week.goal));
+    rail.setAttribute('aria-valuenow',String(week.earned));
+    rail.setAttribute('aria-valuetext',week.earned+' of '+week.goal+' '+unit);
+    for (let i = 0; i < week.goal; i++) {
+      const segment = e('span');
+      segment.dataset.filled = String(i < week.earned);
+      rail.append(segment);
+    }
+    const left = week.goal - week.earned;
+    let caption = left === 1 ? 'One more day to reach your goal.' : left + ' days to go this week.';
+    if (!left) {
+      const extra = week.saved - week.goal;
+      caption = extra ? 'Goal complete · '+extra+' extra '+(extra===1?'day':'days')+' logged.' : 'Weekly goal complete.';
+    }
+    const note = e('p',caption,'acc-week-note');
+    if (!left) note.prepend(e('span','✓','acc-week-check'));
+    box.append(rail,note);
+    return box;
+  }
+
   function streaks(rows, settings, today) {
     const hits = [...rows.keys()].sort();
     if (!hits.length) return {current:0, longest:0};
@@ -144,14 +194,23 @@
   }
   const entry = navButton(false);
   entry.id = 'atlas-accountability-tabs';
+  const miniTrack = e('span',null,'acc-week-mini');
+  miniTrack.setAttribute('aria-hidden','true');
+  miniTrack.hidden = true;
+  miniTrack.append(e('span'));
+  entry.lastElementChild.append(miniTrack);
+  entry.style.setProperty('--acc-accent',accent);
   function mount() {
     const anchor = document.querySelector(app === 'library' ? '.content>.topbar' : app === 'courier' ? 'body>header' : '.appbar .appbar-title, .appbar>h1>span');
     if (!anchor) return;
     if (app === 'library') {
-      if (anchor.nextElementSibling !== entry) anchor.after(entry);
-    } else if (entry.parentElement !== anchor) {
+      if (anchor.nextElementSibling === entry) return;
+      anchor.after(entry);
+    } else {
+      if (entry.parentElement === anchor) return;
       anchor.append(entry);
     }
+    refreshHost();
   }
   mount();
   const host = document.getElementById('app') || (app === 'library' ? document.querySelector('.content') : document.body);
@@ -260,7 +319,7 @@
         const latest=prefs(),revisions=latest.revisions.filter(r=>r.start!==today);
         if(days.slice().sort().join()!==weekAt({...latest,revisions},today).slice().sort().join()) revisions.push({start:today,week:days});
         localStorage.setItem(prefix+'schedule',JSON.stringify({revisions,time:input.value}));
-        settingsOpen=false;draw();wrap.querySelector('.acc-note').textContent='Schedule saved for '+name+'.';
+        settingsOpen=false;arm();draw();wrap.querySelector('.acc-note').textContent='Schedule saved for '+name+'.';
         wrap.querySelector('.acc-settings summary')?.focus({preventScroll:true});
       } catch {status.textContent='This browser could not save your schedule.';}
     };
@@ -274,7 +333,12 @@
   function draw(force=true) {
     if(!panel.open) return;
     // Keep a focused calendar cell or an open editor stable during background refresh.
-    if(!force && (settingsOpen || panel.contains(document.activeElement) && document.activeElement.matches('input,button,summary'))) return;
+    if(!force && (settingsOpen || panel.contains(document.activeElement) && document.activeElement.matches('input,button,summary'))) {
+      // Refresh the readout without replacing the focused day or the schedule form.
+      const week = wrap.querySelector('.acc-week');
+      try { week?.replaceWith(weekWidget(weeklyProgress(records(),prefs(),dayOf()))); } catch {}
+      return;
+    }
     const title=e('h1','Accountability');title.id='acc-title';title.tabIndex=-1;
     const identity=e('header',null,'acc-head');identity.append(e('p',name,'acc-eyebrow'),title);
     const content=e('div',null,'acc-layout');wrap.replaceChildren(navButton(true),identity,content);
@@ -283,10 +347,13 @@
       const counts=streaks(rows,settings,today),todayCard=e('section',null,'acc-card acc-today');
       const now=new Date(),time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
       const due=planned&&!done&&settings.time&&time>=settings.time;
-      todayCard.append(e('p',due?'Reminder · Today':fmt(today,{weekday:'long',month:'short',day:'numeric'}),'acc-eyebrow'),
+      const week = weeklyProgress(rows,settings,today);
+      const todayBody = e('div',null,'acc-today-body');
+      todayCard.append(weekWidget(week),todayBody);
+      todayBody.append(e('p',due?'Reminder · Today':fmt(today,{weekday:'long',month:'short',day:'numeric'}),'acc-eyebrow'),
         e('h2',done?'Today’s activity is saved':planned?'Today is still open':'Today is an off day'),
-        e('p',done?rows.get(today).join(' · '):planned?rule:'Your next scheduled session keeps your streak going.'));
-      if(!done&&planned)todayCard.append(button(action,openActivity,'acc-primary'));
+        e('p',done?rows.get(today).join(' · '):planned?rule:'A saved activity on an off day also counts toward your weekly goal.'));
+      if(!done&&(planned||week.earned<week.goal))todayBody.append(button(action,openActivity,'acc-primary'));
       const stats=e('section',null,'acc-card acc-stats');
       stats.append(e('p','Current streak','acc-eyebrow'),e('strong',String(counts.current)),e('span',unit),e('p','Personal best · '+counts.longest));
       const info=e('details');info.append(e('summary','How streaks work'),e('p',rule+' '+(weekAt(settings,today).length===7 && initialWeek.length===7 && settings.revisions.every(r=>r.week.length===7)?window.AtlasStreak.rule:'Scheduled days count once each. Off days preserve the streak.')));
@@ -301,30 +368,52 @@
       content.append(todayCard,stats,calendar(rows,opened,settings,today),detail,options);
     } catch {content.append(e('p','Saved activity could not be read on this device. Your original records are still in the dashboard.','acc-card'));}
   }
-  function refreshHostReminder() {
-    if(!entry.isConnected || document.hidden) return;
-    let due=false;
+  function refreshHost() {
+    if (!entry.isConnected || document.hidden) return;
+    const tab = entry.lastElementChild;
+    let due = false;
     try {
-      const settings=prefs(),today=dayOf(),now=new Date(),time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-      due=Boolean(settings.time && time>=settings.time && isPlanned(settings,today) && !records().has(today));
-    } catch {}
-    const tab=entry.lastElementChild;
-    if(tab.classList.contains('acc-due')!==due)tab.classList.toggle('acc-due',due);
+      const settings = prefs(), today = dayOf(), rows = records();
+      const week = weeklyProgress(rows,settings,today);
+      miniTrack.hidden = !week.goal;
+      miniTrack.style.setProperty('--week-fill',String(week.goal ? week.earned / week.goal : 0));
+      tab.title = 'Weekly goal · '+week.earned+' of '+week.goal+' '+unit;
+      const time = new Date().toTimeString().slice(0,5);
+      due = Boolean(settings.time && time >= settings.time && isPlanned(settings,today) && !rows.has(today));
+    } catch {
+      miniTrack.hidden = true;
+      tab.removeAttribute('title');
+    }
+    tab.classList.toggle('acc-due',due);
     tab.setAttribute('aria-label',due?'Accountability · Activity due':'Accountability');
   }
-  recordVisit();syncView();refreshHostReminder();
-  // No timer runs on the dashboard unless a reminder time was chosen.
   let clock;
   function arm() {
     clearTimeout(clock);
-    if(document.hidden)return;
-    refreshHostReminder();
-    try{if(prefs().time)clock=setTimeout(arm,60000-new Date().getSeconds()*1000);}catch{}
+    if (document.hidden) return;
+    refreshHost();
+    const now = new Date(), next = new Date(now);
+    next.setHours(24,0,0,0);
+    try {
+      const time = prefs().time;
+      if (time) {
+        const [hours,minutes] = time.split(':').map(Number);
+        const reminder = new Date(now);
+        reminder.setHours(hours,minutes,0,0);
+        if (reminder > now) next.setTime(reminder.getTime());
+      }
+    } catch {}
+    clock = setTimeout(() => { recordVisit(); arm(); draw(false); }, next - now + 30);
+  }
+  function refreshProgress() {
+    arm();
+    draw(false);
   }
   panel.addEventListener('close',arm);
-  window.addEventListener('storage',()=>{arm();draw(false);});
+  window.addEventListener('storage',refreshProgress);
+  window.addEventListener('atlas:accountability-record',refreshProgress);
+  window.addEventListener('atlas-reminder-activity',refreshProgress);
   document.addEventListener('visibilitychange',()=>{recordVisit();arm();draw(false);});
-  window.addEventListener('atlas:activity',event=>{if(event.detail?.kind==='meaningful')queueMicrotask(arm);});
   window.addEventListener('atlas-streak-preference',()=>draw());
-  arm();
+  recordVisit();syncView();arm();
 })();

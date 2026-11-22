@@ -30,6 +30,10 @@ try{
      const bounds=await tab.boundingBox();assert(bounds && bounds.y>=0 && bounds.y+bounds.height<900,file+' Accountability is visible on opening');
      await tab.click();await screen.waitFor({state:'visible'});
      assert.equal(await screen.locator('h1').innerText(),'Accountability');
+     const meter=screen.getByRole('progressbar',{name:'Weekly goal'});
+     assert(await meter.isVisible(),file+' shows its weekly goal');
+     assert.equal(await meter.getAttribute('aria-valuenow'),'0',file+' opens do not earn progress');
+     assert.equal(await meter.getAttribute('aria-valuemax'),String({'life-ledger':7,'life-map':6,'communication-trainer':3,'workout-forge':3,'courier':7,'the-library':3}[file]));
      assert((await screen.locator('[data-date]').count())>=28,file+' has a real calendar');
      const month=await screen.locator('.acc-month h2').innerText();
      await screen.getByRole('button',{name:'Previous month'}).click();assert.notEqual(await screen.locator('.acc-month h2').innerText(),month);
@@ -37,6 +41,19 @@ try{
      assert(await screen.evaluate(el=>el.scrollWidth<=el.clientWidth+1),file+' calendar fits');
      await p.screenshot({path:path.join(out,file+'-accountability-'+theme+'-'+width+'.png')});
      await p.goBack();await screen.waitFor({state:'hidden'});
+     if(file==='life-ledger' && theme==='light' && width===390){
+       const mini=tab.locator('.acc-week-mini');
+       await p.locator('#ledger-habit-picker').selectOption('Read');
+       await p.locator('.ledger-habit-card:not([inert]) [data-act="inc"]').first().click();
+       assert.equal(await mini.evaluate(el=>el.style.getPropertyValue('--week-fill')),'0','a draft leaves the meter empty');
+       await p.locator('#ledger-checkin-save [data-act="commit"]').click();
+       await p.waitForFunction(()=>document.querySelector('#atlas-accountability-tabs button').title.includes('1 of 7'));
+       await tab.click();await meter.waitFor();
+       assert.equal(await meter.getAttribute('aria-valuenow'),'1','a saved day fills one segment');
+       await p.screenshot({path:path.join(out,'weekly-goal-earned.png')});
+       await p.reload();await meter.waitFor();
+       assert.equal(await meter.getAttribute('aria-valuenow'),'1','credit survives reload');
+     }
    }
    if(file==='index'){assert.equal(await p.locator('a.hub-card').count(),expectedHubCards.length);assert.match(await p.locator('.hub-roster').textContent(),new RegExp('^'+expectedHubCards.length+' apps and tools'));const toolbar=await p.locator('.hub-toolbar').boundingBox(),brand=await p.locator('.hub-brand').boundingBox(),appearance=await p.locator('.atlas-appearance-trigger').boundingBox();assert(appearance.x>=brand.x+brand.width,'Appearance stays beside the brand');assert(Math.abs(appearance.y-brand.y)<2,'Header controls share a row');assert.equal(await p.locator('.hub-toolbar').evaluate(el=>getComputedStyle(el).boxShadow),'none','Toolbar must not inherit progress-track surfaces');assert(appearance.x+appearance.width<=toolbar.x+toolbar.width+1,'Appearance fits inside the toolbar');assert.equal(await p.locator('#hub-recents').isVisible(),false);assert.match(info.font,/Figtree/);}
    if(file==='life-map'){assert.equal(await p.locator('#atlas-daily-root .daily-grid > section').count(),3);}
