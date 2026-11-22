@@ -267,7 +267,7 @@
     if (!slot || !tab || !document.documentElement.classList.contains('acc-large-text')) return;
     if (tab.getBoundingClientRect().right > slot.getBoundingClientRect().right + 1) entry.classList.add('acc-icon-only');
   };
-  const sizeText = () => { document.documentElement.classList.toggle('acc-large-text', probe.getBoundingClientRect().width > 20); fitLabel(); };
+  const sizeText = () => { document.documentElement.classList.toggle('acc-large-text', probe.getBoundingClientRect().width > 17); fitLabel(); };
   if (window.ResizeObserver) { const watch = new ResizeObserver(sizeText); watch.observe(probe); requestAnimationFrame(() => { const bar = entry.closest('.appbar'); if (bar) watch.observe(bar); }); }
   requestAnimationFrame(sizeText);
   let hostWeek, freshMark;
