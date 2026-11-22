@@ -48,6 +48,7 @@ try{
        assert.equal(await mini.evaluate(el=>el.style.getPropertyValue('--week-fill')),'0','a draft leaves the meter empty');
        await p.locator('#ledger-checkin-save [data-act="commit"]').click();
        await p.waitForFunction(()=>document.querySelector('#atlas-accountability-tabs button').title.includes('1 of 7'));
+       await p.getByRole('dialog',{name:'Season Opens'}).getByRole('button',{name:'See all achievements'}).click();
        await tab.click();await meter.waitFor();
        assert.equal(await meter.getAttribute('aria-valuenow'),'1','a saved day fills one segment');
        await p.screenshot({path:path.join(out,'weekly-goal-earned.png')});
