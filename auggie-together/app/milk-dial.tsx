@@ -1,6 +1,7 @@
 'use client';
 import {memo,useEffect,useId,useRef,useState,type ReactNode} from 'react';
 import {Plus} from 'lucide-react';
+import {prefKeys,usePref} from './wonder';
 
 const graduations = Array.from({length:60},(_,i)=>{
   const a=i*Math.PI/30, outer=i%5===0?69:66.5;
@@ -41,22 +42,32 @@ function Glass({fraction,rock,tilt=0,pour=0}:{fraction:number;rock:number;tilt?:
 /* The surface follows how the phone is held, with a little slosh. */
 function useTilt(){
   const [tilt,setTilt]=useState(0);
+  const mode=usePref(prefKeys.tilt,'sway');
   useEffect(()=>{
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    let target=0,pos=0,vel=0,raf=0;
-    const step=()=>{vel=(vel+(target-pos)*.06)*.88;pos+=vel;setTilt(Math.round(pos*10)/10);
-      raf=Math.abs(vel)>.02||Math.abs(target-pos)>.05?requestAnimationFrame(step):0;};
-    const aim=(t:number)=>{target=Math.max(-13,Math.min(13,t));if(!raf)raf=requestAnimationFrame(step);};
-    const onOrient=(e:DeviceOrientationEvent)=>{if(e.gamma!==null)aim(e.gamma/3);};
+    let target=0,pos=0,vel=0,raf=0,live=false,last=0;
+    const since=performance.now();
+    // Without motion access the milk keeps a slow, gentle sway.
+    const step=(now:number)=>{
+      const sway=live?0:Math.sin((now-since)/1100)*1.1;
+      vel=(vel+(target+sway-pos)*.06)*.88;pos+=vel;
+      if(now-last>45){last=now;setTilt(Math.round(pos*10)/10);}
+      raf=requestAnimationFrame(step);
+    };
+    const aim=(t:number)=>{target=Math.max(-13,Math.min(13,t));};
+    const onOrient=(e:DeviceOrientationEvent)=>{if(e.gamma!==null){live=true;aim(e.gamma/3);}};
     const onPointer=(e:PointerEvent)=>{if(e.pointerType!=='mouse')return;aim((e.clientX/window.innerWidth-.5)*7);};
     type Gate={requestPermission?:()=>Promise<string>};
     const gate=(window.DeviceOrientationEvent as unknown as Gate|undefined)?.requestPermission;
-    const ask=()=>{gate?.().then(r=>{if(r==='granted')window.addEventListener('deviceorientation',onOrient);}).catch(()=>{});};
-    if(gate)document.addEventListener('touchend',ask,{once:true});
-    else window.addEventListener('deviceorientation',onOrient);
+    const listen=()=>window.addEventListener('deviceorientation',onOrient);
+    const ask=()=>{gate?.().then(r=>{if(r==='granted')listen();}).catch(()=>{});};
+    if(mode==='phone'){if(gate)document.addEventListener('touchend',ask,{once:true});else listen();}
     window.addEventListener('pointermove',onPointer);
-    return ()=>{cancelAnimationFrame(raf);window.removeEventListener('deviceorientation',onOrient);window.removeEventListener('pointermove',onPointer);document.removeEventListener('touchend',ask);};
-  },[]);
+    const onVis=()=>{cancelAnimationFrame(raf);if(document.visibilityState==='visible')raf=requestAnimationFrame(step);};
+    document.addEventListener('visibilitychange',onVis);
+    raf=requestAnimationFrame(step);
+    return ()=>{cancelAnimationFrame(raf);window.removeEventListener('deviceorientation',onOrient);window.removeEventListener('pointermove',onPointer);document.removeEventListener('touchend',ask);document.removeEventListener('visibilitychange',onVis);};
+  },[mode]);
   return tilt;
 }
 function LiveGlass(props:{fraction:number;rock:number;pour:number}){const tilt=useTilt();return <Glass {...props} tilt={tilt}/>;}

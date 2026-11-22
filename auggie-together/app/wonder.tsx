@@ -8,7 +8,7 @@ import {clock,dayKey,eventDetail,eventTitle,shiftDay,toInput,type CareEvent} fro
 /* ---------- small preferences shared between the dialog and the app ---------- */
 export type LanternMode='auto'|'on'|'off';
 const PREF_EVENT='auggie-preference';
-export const prefKeys={lantern:'auggie.lantern.v1',lanternSnooze:'auggie.lantern-snooze.v1',sound:'auggie.sound.v1',lastSeen:'auggie.last-seen.v1'};
+export const prefKeys={lantern:'auggie.lantern.v1',lanternSnooze:'auggie.lantern-snooze.v1',sound:'auggie.sound.v1',tilt:'auggie.tilt.v1',lastSeen:'auggie.last-seen.v1'};
 function readPref(key:string){try{return localStorage.getItem(key);}catch{return null;}}
 export function writePref(key:string,value:string|null){
   try{value===null?localStorage.removeItem(key):localStorage.setItem(key,value);}catch{/* keep for this page only */}
