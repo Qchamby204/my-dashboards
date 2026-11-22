@@ -29,8 +29,8 @@ for(const path of paths){let source=await readFile(new URL(path,root),'utf8');
   }
   const accountabilityPages=['life-ledger.html','communication-trainer.html','workout-forge.html','life-map.html','courier.html','the-library.html'];
   if(accountabilityPages.includes(path)){
-    source=source.replace(/<link rel="stylesheet" href="shared\/accountability\.css(?:\?v=[^"]*)?">\s*/g,'').replace(/<script src="shared\/accountability\.js(?:\?v=[^"]*)?" defer><\/script>\s*/g,'');
-    source=source.replace('</head>','<link rel="stylesheet" href="shared/accountability.css">\n<script src="shared/accountability.js" defer></script>\n</head>');
+    source=source.replace(/<link rel="stylesheet" href="shared\/accountability\.css(?:\?v=[^"]*)?">\s*/g,'').replace(/<script src="shared\/accountability(?:-core)?\.js(?:\?v=[^"]*)?" defer><\/script>\s*/g,'');
+    source=source.replace('</head>','<link rel="stylesheet" href="shared/accountability.css">\n<script src="shared/accountability-core.js" defer></script>\n<script src="shared/accountability.js" defer></script>\n</head>');
   }
   source=source.replace(/((?:\/)?shared\/[a-zA-Z0-9_-]+\.(?:css|js|mjs)|[a-zA-Z0-9_-]+\.webmanifest)(?:\?v=[a-zA-Z0-9_.-]+)?/g,(m,p)=>assets.has(p.replace(/^\//,''))?p+'?v='+assets.get(p.replace(/^\//,'')):m);
   source=source.replace(/<meta name="theme-color" content="#[a-fA-F0-9]+">/g,'<meta name="theme-color" content="#efeae3">');

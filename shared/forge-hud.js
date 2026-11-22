@@ -73,7 +73,7 @@
       mountTelemetry();
       const view = (document.querySelector('#app .fg-feature')?.className || '') + (document.querySelector('#app .fg-detail-title')?.textContent || '');
       const app = document.getElementById('app');
-      if (lastView && view !== lastView && app && !still()) {
+      if (lastView && view !== lastView && app && !still() && !document.documentElement.classList.contains('hud-native')) {
         app.classList.remove('hud-scan-in'); void app.offsetWidth; app.classList.add('hud-scan-in');
         setTimeout(() => app.classList.remove('hud-scan-in'), 620);
       }
@@ -121,6 +121,8 @@
     root.classList.add('hud-on');
     startField();
     startExtras();
+    // Pages sweep in, cards build in, figures decode, bars fill (shared/hud-core.js).
+    hud.native({scope: '#app', bars: '.fg-progress>span,.bartrack>div'});
     startFrame();
     boot();
     const app = document.getElementById('app');

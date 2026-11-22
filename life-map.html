@@ -85,9 +85,10 @@ a{color:inherit}
 <script src="shared/suite-chrome.js?v=46e9dea3ca6b" defer></script>
 <link rel="stylesheet" href="shared/dashboard-navigation.css?v=59b5d1f537be">
 <script src="shared/dashboard-navigation.js?v=7f7ac4d2c41a" defer></script>
-<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=dc54e5bfc2f0"><link rel="stylesheet" href="atlas/life-map-hud.css?v=0d91002f0251"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
+<link rel="stylesheet" href="atlas/life-map-dashboard.css?v=b1bd911b6fe1"><link rel="stylesheet" href="atlas/life-map-day.css?v=adfa579d8f3e"><link rel="stylesheet" href="shared/hud-core.css?v=18c2c76539f4"><link rel="stylesheet" href="atlas/life-map-hud.css?v=0d91002f0251"><script src="shared/reminder-entry.js?v=10ce26afbac2" defer></script>
 <link rel="stylesheet" href="shared/accountability.css?v=f1ba36cad400">
-<script src="shared/accountability.js?v=328341b0faf5" defer></script>
+<script src="shared/accountability-core.js?v=159d1843d0b8" defer></script>
+<script src="shared/accountability.js?v=cc60fd274242" defer></script>
 </head>
 <body>
 <div id="app"></div>
@@ -3544,6 +3545,9 @@ function createLifeMapLocalStore(storage,validate){
         document.querySelectorAll('.hud-launching').forEach(n => { n.classList.remove('hud-launching'); n.style.viewTransitionName = ''; });
         tile.classList.add('hud-launching');
         tile.style.viewTransitionName = 'hud-launch';
+        // The launch flares in the tile's own colour (transition pseudo-elements inherit from the root).
+        const hue = getComputedStyle(tile).getPropertyValue('--tile-raw').trim() || getComputedStyle(tile).getPropertyValue('--tile').trim();
+        if (hue) root.style.setProperty('--hud-launch', hue); else root.style.removeProperty('--hud-launch');
       });
       // Coming back through history restores the tile as it was.
       window.addEventListener('pageshow', () => document.querySelectorAll('.hud-launching').forEach(n => { n.classList.remove('hud-launching'); n.style.viewTransitionName = ''; }));
@@ -3584,7 +3588,112 @@ function createLifeMapLocalStore(storage,validate){
       requestAnimationFrame(() => setTimeout(finish, 1450));
     }
 
-    return {root, reduce, automated, still, pad, started, node, svgNode, accentRGB, bloom, startField, startFrame, frameTick, buildReactor, paintArcs, readoutAt, clearReadout, celebrate, scene, burstAt, startExtras, boot};
+    /* ── HUD-native motion, shared by the apps that opt in (Life Ledger, Life Map and
+       The Hourglass carry their own fitted versions):
+       - switching pages sweeps the cards in from the side of the page you chose;
+       - cards build in the first time they scroll into view;
+       - short figures decode like a readout, then lock on their exact original text;
+       - progress bars fill from empty as their card arrives.
+       cfg: blocks (selector for the app's cards), bars (selector for bar fills),
+            scope (where to look, default the page), view (function returning the current
+            page key; default the shared page navigation), order (page keys in nav order).
+       Opacity, clipping and light only, so layout never shifts. Off under reduced
+       motion and in automated browsers, like the boot sequence. */
+    function native(cfg = {}) {
+      if (root.classList.contains('hud-native')) return;
+      const ok = () => !still() && !automated;
+      if (!ok()) return;
+      root.classList.add('hud-native');
+      const BLOCK = (cfg.blocks ? cfg.blocks + ',' : '') + '.panel,.card,.block,[class*="-card"],.hud-hero';
+      const scopeEl = () => document.querySelector(cfg.scope || 'body') || document.body;
+      const navKeys = () => [...document.querySelectorAll('#atlas-page-navigation [data-page-key]')].map(b => b.dataset.pageKey);
+      const viewKey = cfg.view || (() => document.querySelector('#atlas-page-navigation [aria-current="page"]')?.dataset.pageKey || '');
+      const blocks = () => [...scopeEl().querySelectorAll(BLOCK)].filter(b => !b.parentElement?.closest(BLOCK) && !b.closest('[hidden],dialog:not([open]),.hud-boot,.hud-scene') && b.getClientRects().length);
+      const inView = b => { const r = b.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; };
+      const FIGURE = /^(?:[$€£]?\d[\d,.]*\s?(?:%|[kKmM]|y|h|m)?|\d[\d,]*\s+(?:days?|weeks?|years?|pages?|books?|reps?|sessions?|min|mins|minutes|hours?)(?:\s+(?:away|left|ago))?)$/;
+      const decoding = new WeakSet(), seen = new WeakSet();
+      function decode(scope) {
+        let n = 0;
+        for (const el of scope.querySelectorAll('strong,b,span,div,p,dd,td,small,em,output')) {
+          if (n > 24) break;
+          if (el.children.length || decoding.has(el) || el.closest('input,select,textarea,button,[contenteditable],.hud-telemetry,.hud-reactor,[aria-live],time')) continue;
+          const text = el.textContent.trim();
+          if (!text || text.length > 18 || !FIGURE.test(text) || !/\d/.test(text)) continue;
+          n++; scramble(el, el.textContent);
+        }
+      }
+      function scramble(el, final) {
+        decoding.add(el);
+        const digits = [...final].map((c, i) => /\d/.test(c) ? i : -1).filter(i => i >= 0);
+        const t0 = performance.now(), D = 720;
+        el.classList.add('hud-n-decoding');
+        const step = now => {
+          if (!el.isConnected) return;
+          const k = now - t0, chars = [...final];
+          digits.forEach((i, j) => { if (k < D - (digits.length - j) * 40) chars[i] = String(Math.floor(Math.random() * 10)); });
+          el.textContent = chars.join('');
+          if (k < D) requestAnimationFrame(step); else { el.textContent = final; el.classList.remove('hud-n-decoding'); }
+        };
+        requestAnimationFrame(step);
+      }
+      function fill(scope) {
+        if (!cfg.bars) return;
+        for (const bar of scope.querySelectorAll(cfg.bars)) {
+          bar.classList.remove('hud-n-fill'); void bar.offsetWidth; bar.classList.add('hud-n-fill');
+          setTimeout(() => bar.classList.remove('hud-n-fill'), 1300);
+        }
+      }
+      let observer = null;
+      function stackIn(fresh) {
+        if (!ok() || !window.IntersectionObserver) return;
+        observer ||= new IntersectionObserver(entries => {
+          let n = 0;
+          for (const e of entries) {
+            if (!e.isIntersecting || seen.has(e.target)) continue;
+            seen.add(e.target); observer.unobserve(e.target);
+            const t = e.target, d = Math.min(n++, 6) * 65;
+            if (!t.dataset.hudSwept) {
+              t.style.setProperty('--hud-d', d + 'ms');
+              t.classList.add('hud-n-rise');
+              setTimeout(() => t.classList.remove('hud-n-rise'), 900 + d);
+            }
+            delete t.dataset.hudSwept;
+            setTimeout(() => { decode(t); fill(t); }, d + 120);
+          }
+        }, {rootMargin: '0px 0px -6% 0px'});
+        for (const b of blocks()) {
+          if (seen.has(b)) continue;
+          if (fresh && inView(b)) b.dataset.hudSwept = '1';
+          observer.observe(b);
+        }
+      }
+      let last = null, pending = 0;
+      function check() {
+        pending = 0;
+        const key = viewKey();
+        if (last !== null && key !== last && ok()) {
+          const order = cfg.order || navKeys(), dir = order.indexOf(key) >= order.indexOf(last) ? 'hud-nw-right' : 'hud-nw-left';
+          for (const b of blocks()) {
+            if (!inView(b)) continue;
+            b.classList.remove('hud-nw-left', 'hud-nw-right'); void b.offsetWidth; b.classList.add(dir);
+            setTimeout(() => b.classList.remove(dir), 650);
+          }
+          stackIn(true);
+        } else stackIn(false);
+        last = key;
+      }
+      const schedule = () => { if (!pending) pending = requestAnimationFrame(() => requestAnimationFrame(check)); };
+      new MutationObserver(records => {
+        for (const r of records) {
+          const t = r.target.nodeType === 1 ? r.target : r.target.parentElement;
+          if (t?.closest?.('.hud-n-decoding,.hud-telemetry,.hud-reactor,.hud-scan,.hud-burst,.hud-lock,.hud-readout')) continue;
+          schedule(); return;
+        }
+      }).observe(document.body, {childList: true, subtree: true, attributes: true, attributeFilter: ['aria-current', 'hidden']});
+      schedule();
+    }
+
+    return {root, reduce, automated, still, pad, started, node, svgNode, accentRGB, bloom, startField, startFrame, frameTick, buildReactor, paintArcs, readoutAt, clearReadout, celebrate, scene, burstAt, startExtras, native, boot};
   }
 
   window.AtlasHUDCore = {engine, bloom: (canvas, opts) => engine({}).bloom(canvas, opts)};
@@ -3593,7 +3702,7 @@ function createLifeMapLocalStore(storage,validate){
 /* Life Map HUD. Decorative layer only: it reads the rendered board and never
    touches Life Map records. Everything it adds is aria-hidden and pointer-transparent,
    pauses when the page is hidden, and holds still under reduced motion.
-   Shares its engine with shared/hud-core.js?v=dc3ba3b556b5. */
+   Shares its engine with shared/hud-core.js?v=216f0fc60def. */
 (() => {
   'use strict';
   const root = document.documentElement;

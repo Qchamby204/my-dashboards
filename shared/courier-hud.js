@@ -102,6 +102,8 @@
     root.classList.add('hud-on');
     startField();
     startExtras();
+    // Pages sweep in, cards build in, figures decode, bars fill (shared/hud-core.js).
+    hud.native({scope: 'main', bars: '.courier-progress-track>span'});
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

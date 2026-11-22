@@ -69,7 +69,7 @@
       mountTelemetry();
       const view = hero?.dataset.opening || '';
       const main = document.getElementById('app');
-      if (lastView && view !== lastView && main && !still()) {
+      if (lastView && view !== lastView && main && !still() && !document.documentElement.classList.contains('hud-native')) {
         main.classList.remove('hud-scan-in'); void main.offsetWidth; main.classList.add('hud-scan-in');
         setTimeout(() => main.classList.remove('hud-scan-in'), 620);
       }
@@ -103,6 +103,8 @@
     root.classList.add('hud-on');
     startField();
     startExtras();
+    // Pages sweep in, cards build in, figures decode, bars fill (shared/hud-core.js).
+    hud.native({scope: '#app'});
     startFrame();
     boot();
     node('div', 'hud-scan', document.body);

@@ -106,13 +106,15 @@ test('local dates handle numeric and ISO timestamps; current Prospecting avoids 
   finally { if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous; }
 });
 
+// The hub server never reads records. In the browser, shared/hub-live.js reads saved records
+// read-only for tile status (November 21 user direction); it never writes them.
 test('Atlas is a reference directory with no operational data readers', async () => {
   const {default:worker}=await import('../../dist/server/index.js');
   const db={prepare(){throw Error('The reference hub must not read records');},batch(){throw Error('The reference hub must not query records');}};
   const response=await worker.fetch(new Request('https://atlas.test/',{headers:{'oai-authenticated-user-id':'test-owner'}}),{DB:db});
   assert.equal(response.status,200);const html=await response.text();
   assert.match(html,/Your dashboards/);assert.doesNotMatch(html,/app\.js|atlas-daily|readProspect|data-add-priority/);
-  const scripts=[...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(x=>x[1]);assert.deepEqual(scripts.map(src=>src.split('?')[0]),['/shared/atlas-streak.js','/shared/atlas-experience.js','/shared/atlas-theme.js','/shared/hud-core.js','/shared/hub-globe.js','/shared/hub-briefing.js','/shared/hub-hud.js','/shared/atlas-hub.js']);
+  const scripts=[...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(x=>x[1]);assert.deepEqual(scripts.map(src=>src.split('?')[0]),['/shared/atlas-streak.js','/shared/atlas-experience.js','/shared/atlas-theme.js','/shared/hud-core.js','/shared/hub-globe.js','/shared/hub-briefing.js','/shared/accountability-core.js','/shared/hub-hud.js','/shared/hub-live.js','/shared/atlas-hub.js']);
   const original='https://qchamby204.github.io/my-dashboards/the-herald.html';
   assert.match(html,/<a class="hub-card" href="https:\/\/qchamby204\.github\.io\/my-dashboards\/the-herald\.html">/);
   assert.doesNotMatch(html,/\/apps\/herald/);
