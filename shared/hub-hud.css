@@ -62,14 +62,10 @@ html[data-atlas-app="atlas-hub"] .hub-header>.hud-reactor {
 @media(max-width:700px) {
   html[data-atlas-app="atlas-hub"] .hub-header>.hud-reactor {width:210px;right:-96px;top:64%;opacity:.4;}
 }
-html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header .atlas-appearance-trigger {border:1px solid rgba(95,244,255,.35)!important;background:rgba(95,244,255,.06)!important;color:#e6fcff!important;}/* Area tabs and the JARVIS link. */
+html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-header .atlas-appearance-trigger {border:1px solid rgba(95,244,255,.35)!important;background:rgba(95,244,255,.06)!important;color:#e6fcff!important;}/* Area tabs. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-areas a {font-family:var(--hud-display);text-transform:none;letter-spacing:.02em;font-size:.78rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-areas a:hover {color:var(--hud-hue)!important;text-shadow:0 0 10px color-mix(in srgb,var(--hud-hue) 60%,transparent);}
-html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-areas a[href*="/jarvis/"] {
-  --hud-cut:9px;clip-path:var(--hud-chamfer);padding:0 14px;color:var(--hud-hue)!important;
-  border:1px solid var(--hud-edge-strong);background:color-mix(in srgb,var(--hud-hue) 8%,transparent);
-  box-shadow:inset 0 0 16px -6px var(--hud-hue);
-}/* Section headings carry an index mark. */
+/* Section headings carry an index mark. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] main h2 {font-family:var(--hud-display)!important;text-transform:none;letter-spacing:.02em;font-size:.95rem!important;}
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] main h2::before {content:"//" / "";margin-right:.5em;color:var(--hub-color,var(--hud-hue));font-family:var(--hud-mono);font-weight:500;opacity:.85;}/* Launch tiles: angled glass; HUD apps lit in their own colour with an ONLINE tag. */
 html.atlas-neumo.atlas-neumo[data-atlas-app="atlas-hub"] .hub-card {

@@ -1,6 +1,5 @@
 // Browser regression for the approved October suite update. Uses isolated records.
 import assert from 'node:assert/strict';
-import {checkJarvis} from './jarvis.browser.mjs';
 import {createRequire} from 'node:module';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {createServer} from 'node:http';
@@ -14,7 +13,6 @@ const origin='http://127.0.0.1:'+server.address().port,browser=await chromium.la
 const expectedHubCards=[...readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<a class="hub-card" href="([^"]+)"/g)].map(m=>m[1]);
 const files=['index','life-map','life-ledger','workout-forge','the-chef','baby-brain','the-hourglass','the-herald','prospecting-command-center','operations-cadence','the-aqueduct','the-library','courier','communication-trainer','neural-map','quinton-os','review'];
 try{
- await checkJarvis(browser,origin,out);
  for(const [theme,width]of [['light',390],['dark',390],['light',1440],['dark',320]]){
   const context=await browser.newContext({viewport:{width,height:900},timezoneId:'America/Winnipeg',colorScheme:theme,reducedMotion:'reduce'});
   await context.route('https://qchamby204.github.io/my-dashboards/**',async r=>{const file=new URL(r.request().url()).pathname.replace('/my-dashboards/','');try{const data=readFileSync(path.join(root,file));await r.fulfill({body:data,contentType:types[path.extname(file)]||'text/plain'});}catch{await r.abort();}});
