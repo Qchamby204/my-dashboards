@@ -1,5 +1,5 @@
 'use client';
-import {memo,useEffect,useId,useRef,useState} from 'react';
+import {memo,useEffect,useId,useRef,useState,type ReactNode} from 'react';
 import {Plus} from 'lucide-react';
 
 const graduations = Array.from({length:60},(_,i)=>{
@@ -33,19 +33,19 @@ function Glass({fraction,rock}:{fraction:number;rock:number}) {
   </svg>;
 }
 
-type Props={volume:number|null;count:number;disabled:boolean;onOpen:()=>void};
-export default function MilkDial({volume,count,disabled,onOpen}:Props) {
+type Props={volume:number|null;count:number;disabled:boolean;onOpen:()=>void;rings?:(scale:number)=>ReactNode;ringsLabel?:string};
+export default function MilkDial({volume,count,disabled,onOpen,rings,ringsLabel}:Props) {
   const scale=Math.max(500,Math.ceil((volume??0)/500)*500);
   return <button className="milk-dial-card" type="button" disabled={disabled} onClick={onOpen}
-    aria-label={'Log a feed. Bottle intake today: '+(volume===null?'unavailable':format(volume)+' millilitres across '+count+(count===1?' feed':' feeds'))}>
+    aria-label={'Log a feed. Bottle intake today: '+(volume===null?'unavailable':format(volume)+' millilitres across '+count+(count===1?' feed':' feeds'))+(ringsLabel?'. '+ringsLabel:'')}>
     <span className="milk-dial-copy"><span className="milk-dial-title">Bottle intake today</span>
-      <DialReading volume={volume} scale={scale}/>
+      <DialReading volume={volume} scale={scale} rings={rings?.(scale)}/>
       <span className="milk-dial-action"><Plus size={16}/>Log a feed</span>
     </span>
   </button>;
 }
 
-const DialReading=memo(function DialReading({volume,scale}:{volume:number|null;scale:number}){
+const DialReading=memo(function DialReading({volume,scale,rings}:{volume:number|null;scale:number;rings?:ReactNode}){
   const latest=useRef(volume);
   const [frame,setFrame]=useState({amount:volume,rock:0});
   useEffect(()=>{
@@ -74,6 +74,6 @@ const DialReading=memo(function DialReading({volume,scale}:{volume:number|null;s
   },[volume]);
   const amount=frame.amount;
   return <><span className="milk-dial-volume" aria-hidden="true"><b>{amount===null?'—':format(amount===volume?amount:Math.round(amount))}</b> mL</span>
-    <span className="milk-dial-instrument" aria-hidden="true"><Glass fraction={Math.min(1,(amount??0)/scale)} rock={frame.rock}/>
+    <span className="milk-dial-instrument" aria-hidden="true"><span className="milk-dial-well"><Glass fraction={Math.min(1,(amount??0)/scale)} rock={frame.rock}/>{rings}</span>
       <span>{amount===null?'Awaiting intake':`0–${format(scale)} mL`}</span></span></>;
 });
