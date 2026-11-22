@@ -143,7 +143,12 @@
   entry.id = 'atlas-accountability-tabs';
   function mount() {
     const anchor = document.querySelector(app === 'library' ? '.content>.topbar' : app === 'courier' ? 'body>header' : '.appbar');
-    if (anchor && anchor.nextElementSibling !== entry) anchor.after(entry);
+    if (!anchor) return;
+    if (app === 'library') {
+      if (anchor.nextElementSibling !== entry) anchor.after(entry);
+    } else if (entry.parentElement !== anchor) {
+      anchor.append(entry);
+    }
   }
   mount();
   const host = document.getElementById('app') || (app === 'library' ? document.querySelector('.content') : document.body);
