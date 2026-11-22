@@ -2,7 +2,7 @@
 import {useState,useEffect,useMemo,useLayoutEffect,useRef,useCallback, type FormEvent,type ReactNode} from 'react';
 import {flushSync} from 'react-dom';
 import {useCareDialog} from './use-care-dialog';
-import {Moon,Sun,Plus,BarChart3,Droplets,Milk,Baby,ClipboardList,Heart,Scale,NotebookPen,Pill,ChevronRight,ChevronLeft,Settings2,Check,RefreshCw,ArrowUpRight,Clock3,X,Download,CloudCheck,CloudOff,Square,Play,LockKeyhole,Leaf,Trash2,CalendarDays,ArrowLeft,Info} from 'lucide-react';
+import {Flame,Moon,Sun,Plus,BarChart3,Droplets,Milk,Baby,ClipboardList,Heart,Scale,NotebookPen,Pill,ChevronRight,ChevronLeft,Settings2,Check,RefreshCw,ArrowUpRight,Clock3,X,Download,CloudCheck,CloudOff,Square,Play,LockKeyhole,Leaf,Trash2,CalendarDays,ArrowLeft,Info} from 'lucide-react';
 import {createDraft,newEventId,entryPayload,entryReady,type Draft} from '@/lib/entry';
 import {EntryFields} from './entry-controls';
 import {MovementLog} from './movement-controls';
@@ -14,6 +14,7 @@ import PlayJournal from './play-journal';
 import DayRhythm from './day-rhythm';
 import MilkDial from './milk-dial';
 import {feedingRange,measuredFeeding} from '@/lib/feeding-plan';
+import {LivingSky,useLantern,playDrop,AwayCard,useAway} from './wonder';
 import {NatureRings,DaySundial,LakeSky,TimerRing,useRiseIn,useGrowth,span} from './nature';
 import MilkBatches from './milk-batches';
 import AppearanceControl from './appearance';
@@ -73,6 +74,9 @@ export default function CareApp(){
  const diaperPulse=useGrowth(onToday?careToday.wet+careToday.dirty:null,today);
  const goalFlare=useGrowth(onToday&&goal.low!==null?(bottlesToday.volume>=goal.low?1:0):null,today);
  const [sweep,setSweep]=useState({n:0,dir:'right'});
+ const lantern=useLantern(now);
+ const isVisible=useCallback((e:CareEvent)=>visibleEvent(plan,e),[plan]);
+ const {away,dismiss:dismissAway}=useAway({ready:onToday,today,items:state?.items??[],visible:isVisible});
  useRiseIn(page==='log'?'':'main .curated-card,main .field-note,main .care-summary-card,main .insight-card',page);
  const latestCare=dayItems.find(entry=>!isMovement(entry.kind)&&visibleEvent(plan,entry));
  const synced=connected&&now-lastSync<15000;const canSave=!!state&&!busy&&synced;const feedInterval=plan.interval??3;const lastFeed=trackingEnabled(plan,'nursing')?state?.lastFeed:state?.lastBottleFeed??(state?.lastFeed?.subtype!=='nursing'?state?.lastFeed:null);const nextFeed=lastFeed?new Date(Date.parse(lastFeed.startedAt)+feedInterval*3600000):null;
@@ -80,6 +84,7 @@ export default function CareApp(){
   setSavedEntry(entry??null);
   setToastError(error);
   setToast(message);
+  if(!error)playDrop();
  };
  const open=(kind:Kind,subtype='',entry?:CareEvent)=>{
   setFormError('');
@@ -166,9 +171,9 @@ export default function CareApp(){
  const openSettings=(section:SettingsSection='tracking')=>{setFormError('');setSettingsSection(section);setPlanDraft({...plan});};
  const availableNavigation=navigation.filter(item=>item.id!=='play'||trackingEnabled(plan,'tummy')||trackingEnabled(plan,'exercise'));
  useEffect(()=>{if(page==='play'&&!trackingEnabled(plan,'tummy')&&!trackingEnabled(plan,'exercise'))setPage('log');},[page,plan.tracking]);
- const changePage=(p:Page)=>{setPage(p);if(p==='tracker'&&page!=='tracker')setDay(dayKey());window.scrollTo({top:0,behavior:'instant'});};
+ const changePage=(p:Page)=>{if(p!==page){const order=availableNavigation.map(n=>n.id as string);setSweep(v=>({n:v.n+1,dir:order.indexOf(p)>order.indexOf(page)?'right':'left'}));}setPage(p);if(p==='tracker'&&page!=='tracker')setDay(dayKey());window.scrollTo({top:0,behavior:'instant'});};
  const selectTrackerDay=(d:string)=>{setDay(d);setTrackerRange(1);window.scrollTo({top:0,behavior:'instant'});};
- return <div className={"app-shell journal-shell view-"+page}><aside className="sidebar"><a className="brand" href="/" aria-label="Auggie Together home"><span className="brand-mark"><img src="/auggie-suite-64.png" alt="" width={44} height={44}/></span><span>auggie<span className="brand-sub">TOGETHER</span></span></a><div className="sidebar-label">A LITTLE CARE, SHARED</div><nav>{availableNavigation.map(n=><button key={n.id} className={page===n.id?'nav-item active':'nav-item'} onClick={()=>changePage(n.id)} aria-current={page===n.id?'page':undefined}><n.icon size={20}/>{n.label}<ChevronRight size={15}/></button>)}</nav><div className="sidebar-bottom"><div className="family-stamp"><span className="avatar">Q</span><span className="avatar second">J</span><div><strong>One little team</strong><span>Caregivers</span></div></div><p>For the little moments.<br/>And the middle-of-the-night ones.</p><button className="quiet-button" onClick={()=>setShowHelp(true)}><LockKeyhole size={15}/>Sharing & privacy</button></div></aside>
+ return <div className={"app-shell journal-shell view-"+page}>{lantern.active&&<><i className="lantern-veil" aria-hidden="true"/><i className="lantern-dim" aria-hidden="true"/></>}<aside className="sidebar"><a className="brand" href="/" aria-label="Auggie Together home"><span className="brand-mark"><img src="/auggie-suite-64.png" alt="" width={44} height={44}/></span><span>auggie<span className="brand-sub">TOGETHER</span></span></a><div className="sidebar-label">A LITTLE CARE, SHARED</div><nav>{availableNavigation.map(n=><button key={n.id} className={page===n.id?'nav-item active':'nav-item'} onClick={()=>changePage(n.id)} aria-current={page===n.id?'page':undefined}><n.icon size={20}/>{n.label}<ChevronRight size={15}/></button>)}</nav><div className="sidebar-bottom"><div className="family-stamp"><span className="avatar">Q</span><span className="avatar second">J</span><div><strong>One little team</strong><span>Caregivers</span></div></div><p>For the little moments.<br/>And the middle-of-the-night ones.</p><button className="quiet-button" onClick={()=>setShowHelp(true)}><LockKeyhole size={15}/>Sharing & privacy</button></div></aside>
  <div className="main-wrap">{sweep.n>0&&<i key={sweep.n} className={'page-sweep '+sweep.dir} aria-hidden="true"/>}<div className="site-header"><header className="topbar"><span className="mobile-brand"><img src="/auggie-suite-64.png" alt="" width={32} height={32}/>auggie<span>TOGETHER</span></span><span className="breadcrumb">Our little world <span>/</span> {page==='log'?'Daily care':page==='play'?'Tummy time & exercise':'Care tracker'}</span><div className="top-actions"><button className={'sync '+(!synced?'offline':'')} onClick={()=>refresh()} title="Refresh shared log">{synced?<CloudCheck size={16}/>:<CloudOff size={16}/>}<span>{synced?'Synced':state?'Reconnecting':loadFailed?'Not connected':'Connecting'}</span></button><AppearanceControl/><button className="icon-button" aria-label="Care settings" onClick={()=>openSettings('tracking')} disabled={!state}><Settings2 size={20}/></button><span className="profile" title={state?.user.name||'Your account'}>{state?.user.name?.slice(0,1)||'Q'}</span></div></header></div>
  <nav className="mobile-nav" aria-label="Main navigation" style={{"--tab-count":availableNavigation.length,"--tab-index":availableNavigation.findIndex(n=>n.id===page)} as React.CSSProperties}>
   {availableNavigation.map(n=><button key={n.id} type="button" aria-current={page===n.id?'page':undefined} onClick={()=>changePage(n.id)}>
@@ -191,8 +196,9 @@ export default function CareApp(){
  </section>
  {page==='log'?<>
  <div className="easy-log journal-log">
- <section className="journal-scene"><LakeSky flare={goalFlare}/><header><p>{prettyDay(today)}</p><h1>Auggie’s day</h1>
-  <p className="scene-telemetry" aria-label={(synced?'Synced':'Not synced')+(latestCare?'. Latest entry by '+latestCare.actor+' at '+clock(latestCare.startedAt):'')}><span className={'telemetry-dot'+(synced?'':' is-off')} aria-hidden="true"/><span aria-hidden="true" suppressHydrationWarning>{clock(new Date(now).toISOString())}</span><span aria-hidden="true">{synced?'In sync':'Reconnecting'}</span>{latestCare&&<span aria-hidden="true">Last by {latestCare.actor}</span>}</p></header>
+ <section className="journal-scene"><LakeSky flare={goalFlare}/><LivingSky now={now} lantern={lantern.active}/><header><p>{prettyDay(today)}</p><h1>Auggie’s day</h1>
+  <p className="scene-telemetry" aria-label={(synced?'Synced':'Not synced')+(latestCare?'. Latest entry by '+latestCare.actor+' at '+clock(latestCare.startedAt):'')}><span className={'telemetry-dot'+(synced?'':' is-off')} aria-hidden="true"/><span aria-hidden="true" suppressHydrationWarning>{clock(new Date(now).toISOString())}</span><span aria-hidden="true">{synced?'In sync':'Reconnecting'}</span>{latestCare&&<span aria-hidden="true">Last by {latestCare.actor}</span>}</p>
+  {lantern.active&&lantern.mode==='auto'&&<button type="button" className="lantern-chip" onClick={lantern.snoozeTonight}><Flame size={14}/>Lantern mode · turn off until morning</button>}</header>
  {trackingEnabled(plan,'feed')&&<MilkDial key={today} volume={state?.day===today?bottlesToday.volume:null} count={bottlesToday.count} disabled={!canSave} onOpen={()=>open('feed',lastFeed?.subtype||'milk')}
   ringsLabel={goal.low!==null&&goal.high!==null?`Goal ${goal.low===goal.high?goal.low:goal.low+' to '+goal.high} millilitres`:undefined}
   rings={scale=><NatureRings volume={onToday?bottlesToday.volume:null} low={goal.low} high={goal.high} scale={scale} wet={trackingEnabled(plan,'diaper')?careToday.wet:0} dirty={trackingEnabled(plan,'diaper')?careToday.dirty:0} sleep={trackingEnabled(plan,'sleep')?careToday.sleep:0} pulse={feedPulse}/>}/>}
@@ -210,6 +216,7 @@ export default function CareApp(){
   </div>
  </section>}
  </section>
+ {away&&<AwayCard away={away} now={now} onDismiss={dismissAway} onOpen={e=>open(e.kind,e.subtype,e)}/>}
  {(trackingEnabled(plan,'feed')||trackingEnabled(plan,'diaper'))&&<section className="feed-glance care-glance" aria-label="Care handoff">
   {trackingEnabled(plan,'feed')&&<>
    <div><span>Last feed{lastFeed&&dayKey(lastFeed.startedAt)!==today?' · '+prettyDay(dayKey(lastFeed.startedAt),true):''}</span>

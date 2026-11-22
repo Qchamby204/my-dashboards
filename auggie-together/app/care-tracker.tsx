@@ -5,7 +5,8 @@ import {useTrendHistory} from './use-trend-history';
 import {useMemo,useState,type ReactNode} from 'react';
 import {Baby,ClipboardList,Droplets,Heart,Milk,Moon,NotebookPen,Pill,Scale,Settings2,ChevronRight} from 'lucide-react';
 import {clock,dayBounds,dayKey,durationText,prettyDay,totals,type CareEvent,type Plan} from '@/lib/care';
-import {feedingRange,measuredFeeding,pumpingRange,rangeLabel} from '@/lib/feeding-plan';
+import {DEFAULT_BIRTH_DATE,feedingRange,measuredFeeding,pumpingRange,rangeLabel} from '@/lib/feeding-plan';
+import {AuggieSky} from './wonder';
 import {trackingEnabled,visibleEvent} from '@/lib/tracking';
 import {exercises} from '@/lib/movement';
 import {headLabels,headMovements} from '@/lib/tummy-observations';
@@ -212,24 +213,14 @@ export default function CareTracker({focus,onFocus,items,weights,plan,day,now,re
   return logKind==='all'||entry.kind===logKind;
  });
  const shows=(key:string)=>active==='all'||active===key;
+ const skyMilk=new Map<string,number|null>(recent.map(row=>[row.day,row.values.milk]));
+ skyMilk.set(day,measuredFeeding(items,day).volume||null);
  return <div className="curated-tracker">
+  {trackingEnabled(plan,'feed')&&<AuggieSky birthDate={plan.birthDate??DEFAULT_BIRTH_DATE} today={day} milkByDay={skyMilk} goalFor={d=>feedingRange(plan,d,weights).low} onDay={onDay}/>}
   <nav className="metric-index" aria-label="Tracker focus">
     {[...subjects,['log','Daily log'],['all','All metrics']].map(([key,title])=><button type="button" key={key} aria-pressed={active===key} onClick={()=>onFocus(key)}>{title}</button>)}
   </nav>
   <div className="curated-controls"><div><strong>{active==='log'?'Daily entries':period?`Last ${range} days · daily averages`:`${title} at a glance`}</strong><span>{active==='log'?prettyDay(day,true):period?(day===today&&recent.length?periodLabel+' · completed days':periodLabel):prettyDay(day)}</span></div><div hidden={active==='log'} className="insight-period" role="group" aria-label="Chart period">{[{value:1,label:'Day'},{value:7,label:'7 days'},{value:14,label:'14 days'},{value:30,label:'30 days'}].map(option=><button key={option.value} type="button" className={range===option.value?'selected':''} aria-pressed={range===option.value} onClick={()=>onRangeChange(option.value)}>{option.label}</button>)}</div></div>
-  <section className="panel full-log curated-daily-log" aria-label="Daily log">
-   <div className="panel-heading"><div><h2>Daily log <span className="count-badge">{visibleRows.length}</span></h2><p>{prettyDay(day)}</p></div>{combinedLog&&<select aria-label="Filter daily log" value={activeFilter} onChange={event=>setFilter(event.target.value)}><option value="all">All tracked</option>{categories.map(kind=><option key={kind} value={kind}>{({feed:'Feeds',pump:'Pumping',diaper:'Diapers',tummy:'Tummy time',exercise:'Exercises',sleep:'Sleep',weight:'Weight',bottle:'Milk timers',medicine:'Medicine',note:'Notes'})[kind]}</option>)}</select>}</div>
-   {visibleRows.length?visibleRows.map(entry=>entry.kind==='exercise'?
-    <details className="exercise-log" key={`exercises-${day}`}>
-     <summary className="event-row">
-      <span className="event-icon sage"><ClipboardList size={18}/></span>
-      <span className="event-copy"><strong>Exercises</strong><span>{exerciseLogSummary}</span></span>
-      <ChevronRight size={16}/>
-     </summary>
-     <div className="exercise-log-entries">{exerciseEntries.map(activity=><div key={activity.id}>{renderEntry(activity)}</div>)}</div>
-    </details>:<div key={entry.id}>{renderEntry(entry)}</div>
-   ):<div className="empty-state"><NotebookPen size={26}/><p>{combinedLog?'No entries for this day.':'No entries in this category for this day.'}</p></div>}
-  </section>
   {failed&&<p className="form-error" role="alert">Recent charts could not refresh. <button className="text-link" onClick={retry}>Retry</button></p>}
   {shows('feed')&&trackingEnabled(plan,'feed')&&<section className="curated-card feeding-priority" aria-label="Feeding">
    <header><span className="care-action-icon sage"><Milk size={27}/></span><div><h2>Feeding</h2><p>{period?periodLabel:`${title} · week ${dailyTarget.week} since birth`}</p></div><button className="curated-goal-edit" aria-label="Feeding goals" onClick={onSettings}><Settings2 size={16}/>Goals</button></header>
@@ -310,6 +301,19 @@ export default function CareTracker({focus,onFocus,items,weights,plan,day,now,re
 
    {([{key:'medicine',id:'medicine',label:'Medicine',icon:Pill},{key:'note',id:'notes',label:'Care notes',icon:NotebookPen}] as const).filter(item=>shows(item.key)&&trackingEnabled(plan,item.key)&&(period?chartDays.some(row=>row.values[item.id]!==null):entries.some(event=>event.kind===item.key))).map(item=><section className="curated-card" key={item.id}><header><item.icon size={21}/><h2>{item.label}</h2></header><p>{period?`${periodValue(metricSummary(chartDays,item.id).average)} entries/day average`:`${entries.filter(event=>event.kind===item.key).length} entries ${title.toLowerCase()}`}</p></section>)}
   </div>}
+  <section className="panel full-log curated-daily-log" aria-label="Daily log">
+   <div className="panel-heading"><div><h2>Daily log <span className="count-badge">{visibleRows.length}</span></h2><p>{prettyDay(day)}</p></div>{combinedLog&&<select aria-label="Filter daily log" value={activeFilter} onChange={event=>setFilter(event.target.value)}><option value="all">All tracked</option>{categories.map(kind=><option key={kind} value={kind}>{({feed:'Feeds',pump:'Pumping',diaper:'Diapers',tummy:'Tummy time',exercise:'Exercises',sleep:'Sleep',weight:'Weight',bottle:'Milk timers',medicine:'Medicine',note:'Notes'})[kind]}</option>)}</select>}</div>
+   {visibleRows.length?visibleRows.map(entry=>entry.kind==='exercise'?
+    <details className="exercise-log" key={`exercises-${day}`}>
+     <summary className="event-row">
+      <span className="event-icon sage"><ClipboardList size={18}/></span>
+      <span className="event-copy"><strong>Exercises</strong><span>{exerciseLogSummary}</span></span>
+      <ChevronRight size={16}/>
+     </summary>
+     <div className="exercise-log-entries">{exerciseEntries.map(activity=><div key={activity.id}>{renderEntry(activity)}</div>)}</div>
+    </details>:<div key={entry.id}>{renderEntry(entry)}</div>
+   ):<div className="empty-state"><NotebookPen size={26}/><p>{combinedLog?'No entries for this day.':'No entries in this category for this day.'}</p></div>}
+  </section>
   {active!=='log'&&recent.length>0&&<p className="curated-method">Exercise history and the daily tummy-time observation table include the selected date. Other daily trends use completed days through {prettyDay(completedEnd,true)}. Averages use logged days.</p>}
 
  </div>;
