@@ -7,7 +7,6 @@ const read=p=>readFileSync(new URL('../../'+p,import.meta.url),'utf8');
 const context=vm.createContext({window:{}});vm.runInContext(read('shared/library-catalog.js'),context);
 const seed=JSON.parse(JSON.stringify(context.window.ATLAS_LIBRARY_CATALOG));
 test('Every original subsection has exactly one learning step and reflection',()=>{
- assert.equal(seed.books.length,129);
  assert.equal(Object.keys(seed.learning).length,14);
  for(const t of seed.topics){const path=seed.learning[t.id];assert.ok(path.overview.length>30);
   assert.deepEqual(path.steps.map(s=>s.id).sort(),t.subtopics.map(s=>s.id).sort());

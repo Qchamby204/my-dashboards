@@ -60,10 +60,10 @@ test('old backups receive optional reading defaults; new backups round-trip cust
 test('malformed reading imports fail before replacement',()=>{
  for(const raw of [null,[],{pageCounts:[]},{pagesRead:[]},{goals:[]},{pageCounts:{'custom-a':0}},{pageCounts:{'custom-a':'200'}},{pageCounts:{'custom-a':-1}},{pageCounts:{'custom-a':1.5}},{pagesRead:{'custom-a':-1}},{goals:{'1:all':'2026-02-30'}},{goals:{'99:all':'2027-01-01'}}])assert.throws(()=>R.normalize(raw,books,scope));
 });
-test('all 129 original book IDs have sourced reference counts or explicit unknown reasons',()=>{
- assert.equal(seed.books.length,129);assert.equal(Object.keys(refs).length,129);
+test('all catalogue book IDs have sourced reference counts or explicit unknown reasons',()=>{
+ assert.equal(Object.keys(refs).length,seed.books.length);
  for(const b of seed.books){const ref=refs[b.id];assert.ok(ref,b.id);if(ref.pages!==null){assert.ok(R.validPages(ref.pages),b.id);assert.match(ref.source,/^https:\/\//);assert.ok(ref.editionTitle);}else assert.ok(ref.issue,b.id);}
- assert.equal(Object.values(refs).filter(x=>x.pages!==null).length,123);
+ assert.equal(Object.values(refs).filter(x=>x.pages===null).length,6);
 });
 test('14 distinct decorative emblems have reduced-motion support and versioned assets load before the app',()=>{
  assert.equal(new Set(seed.topics.map(t=>window.LibraryArt.svg(t.id))).size,14);

@@ -105,12 +105,12 @@ function boot(saved, theme = 'system') {
   return {window, nodes, writes, events, storage};
 }
 
-test('Library starts with 129 unique seed books without writing records or appearance', () => {
+test('Library starts with 135 unique seed books without writing records or appearance', () => {
   for (const theme of ['system', 'light', 'dark']) {
     const app = boot(undefined, theme);
-    assert.equal(app.window.LibraryInfo.seedBooks, 129);
+    assert.equal(app.window.LibraryInfo.seedBooks, 135);
     assert.equal(app.window.LibraryInfo.storageKey, 'atlas.library.v1');
-    assert.equal(new Set(app.window.ATLAS_LIBRARY_CATALOG.books.map(b => b.id)).size, 129);
+    assert.equal(new Set(app.window.ATLAS_LIBRARY_CATALOG.books.map(b => b.id)).size, app.window.LibraryInfo.seedBooks);
     assert.deepEqual(app.writes, []);
     assert.equal(app.nodes.get('meta[name=theme-color]').content, theme==='dark'?'#1c1a2b':'#efeae3');
   }
@@ -133,7 +133,7 @@ test('Library reopening preserves custom records, notes, syntheses, backups and 
   app.events.get('input')({target: {dataset: {bookNote: 'custom-kept', field: 'notes'}, value: 'Updated note'}});
   const after = JSON.parse(app.storage.get('atlas.library.v1'));
   assert.deepEqual(app.writes, ['atlas.library.v1']);
-  assert.equal(after.catalog.length, 130);
+  assert.equal(after.catalog.length, seed.length + 1);
   for (const field of ['catalog', 'customSubtopics', 'focus', 'createdAt', 'lastBackupAt'])
     assert.deepEqual(after[field], JSON.parse(saved)[field], field);
   assert.equal(after.progress['custom-kept'].notes, 'Updated note');
@@ -185,4 +185,34 @@ test('reordered sections preserve seed IDs, goals, notes and priority order duri
  assert.deepEqual(after.catalog,JSON.parse(saved).catalog);
  assert.deepEqual(after.reading,reading);
  assert.equal(after.focus.topic,'1');
+});
+
+test('An existing shelf picks up photographed books once and keeps personal copies and progress', () => {
+  const {books, additions} = boot().window.ATLAS_LIBRARY_CATALOG;
+  const ids = additions.map(b => b.id);
+  const original = books.filter(b => !ids.includes(b.id));
+  const custom = {id:'custom-chip', title:'Chip War: The Fight for the World’s Most Critical Technology',
+    author:'Chris Miller', topic:'11', subtopic:'11B'};
+  const other = {id:'custom-world', title:'The World', author:'Simon Sebag Montefiore', topic:'11', subtopic:'11A'};
+  const raw = JSON.stringify({schemaVersion:1, catalog:[...original, custom, other],
+    progress:{'custom-chip':{status:'reading', notes:'My copy'}}, reading:{pagesRead:{'custom-chip':43}}});
+  const app = boot(raw);
+  assert.deepEqual(app.writes, []);
+  function saveNote(session) {
+    session.events.get('input')({target:{dataset:{bookNote:original[0].id,field:'notes'},value:'Saved note'}});
+    return JSON.parse(session.storage.get('atlas.library.v1'));
+  }
+  const saved = saveNote(app);
+  assert.equal(saved.catalog.length, original.length + 7);
+  assert.ok(ids.filter(id=>id!=='b-12C-02').every(id=>saved.catalog.some(b=>b.id===id)));
+  assert.ok(!saved.catalog.some(b=>b.id==='b-12C-02'));
+  assert.deepEqual(saved.catalog.find(b=>b.id===custom.id), custom);
+  assert.equal(saved.progress[custom.id].notes, 'My copy');
+  assert.equal(saved.reading.pagesRead[custom.id], 43);
+  const reopened = saveNote(boot(JSON.stringify(saved)));
+  assert.deepEqual(reopened.catalog, saved.catalog);
+  saved.catalog=saved.catalog.filter(b=>b.id!==custom.id);
+  delete saved.progress[custom.id];
+  delete saved.reading.pagesRead[custom.id];
+  assert.deepEqual(saveNote(boot(JSON.stringify(saved))).catalog,saved.catalog);
 });
