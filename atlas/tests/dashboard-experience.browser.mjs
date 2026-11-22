@@ -25,6 +25,19 @@ try{
    const palettes={'the-herald':{light:'#f3f0e9',dark:'#0d1316'},'life-map':{light:'#e7eff2',dark:'#01060a'},'communication-trainer':{light:'#eef0f8',dark:'#0b101e'},'life-ledger':{light:'#e8f1f3',dark:'#01060a'},'workout-forge':{light:'#eff5f3',dark:'#01060a'},'index':{light:'#efeae3',dark:'#01060a'}};
    const canvas=(palettes[file]||{light:'#efeae3',dark:'#1c1a2b'})[theme];
    assert.deepEqual(errors,[],file+' runtime errors');assert.match(info.font,/Figtree/,file+' shared font');assert.equal(info.canvas,canvas,file+' canvas palette');assert.equal(info.overflow,false,file+' '+width+' overflow');
+   if(['life-map','life-ledger','workout-forge','communication-trainer','courier','the-library'].includes(file)){
+     const tab=p.locator('#atlas-accountability-tabs button').last(),screen=p.locator('#atlas-accountability');
+     const bounds=await tab.boundingBox();assert(bounds && bounds.y>=0 && bounds.y+bounds.height<900,file+' Accountability is visible on opening');
+     await tab.click();await screen.waitFor({state:'visible'});
+     assert.equal(await screen.locator('h1').innerText(),'Accountability');
+     assert((await screen.locator('[data-date]').count())>=28,file+' has a real calendar');
+     const month=await screen.locator('.acc-month h2').innerText();
+     await screen.getByRole('button',{name:'Previous month'}).click();assert.notEqual(await screen.locator('.acc-month h2').innerText(),month);
+     await screen.getByRole('button',{name:'Today',exact:true}).click();assert.equal(await screen.locator('.acc-month h2').innerText(),month);
+     assert(await screen.evaluate(el=>el.scrollWidth<=el.clientWidth+1),file+' calendar fits');
+     await p.screenshot({path:path.join(out,file+'-accountability-'+theme+'-'+width+'.png')});
+     await p.goBack();await screen.waitFor({state:'hidden'});
+   }
    if(file==='index'){assert.equal(await p.locator('a.hub-card').count(),expectedHubCards.length);assert.match(await p.locator('.hub-roster').textContent(),new RegExp('^'+expectedHubCards.length+' apps and tools'));const toolbar=await p.locator('.hub-toolbar').boundingBox(),brand=await p.locator('.hub-brand').boundingBox(),appearance=await p.locator('.atlas-appearance-trigger').boundingBox();assert(appearance.x>=brand.x+brand.width,'Appearance stays beside the brand');assert(Math.abs(appearance.y-brand.y)<2,'Header controls share a row');assert.equal(await p.locator('.hub-toolbar').evaluate(el=>getComputedStyle(el).boxShadow),'none','Toolbar must not inherit progress-track surfaces');assert(appearance.x+appearance.width<=toolbar.x+toolbar.width+1,'Appearance fits inside the toolbar');assert.equal(await p.locator('#hub-recents').isVisible(),false);assert.match(info.font,/Figtree/);}
    if(file==='life-map'){assert.equal(await p.locator('#atlas-daily-root .daily-grid > section').count(),3);}
    if(file==='workout-forge'){assert((await p.locator('.fg-starting-point').boundingBox()).y<350,'Forge workout split is visible first');await p.getByRole('button',{name:'Optional goal plans',exact:true}).click();await p.locator('[data-goal-action="open"][data-goal="bench"]').click();await p.locator('[data-goal-action="choose-focus"][data-goal="bench"]').click();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('forge:goals:v1')).goal),'bench');await p.reload();await p.waitForTimeout(250);assert.equal(await p.locator('[data-goal-action="choose-focus"]').count(),0);}
