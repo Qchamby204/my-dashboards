@@ -191,3 +191,23 @@ html .appbar #atlas-accountability-tabs .acc-nav-mark {align-self:flex-end;margi
   .acc-segment {stroke:GrayText}.acc-segment.acc-filled,.acc-ink-mark,.acc-rim {stroke:Highlight}
   #atlas-accountability-tabs .acc-week-mini>span {background:Highlight;forced-color-adjust:none}
 }
+
+/* Enlarged text (set from shared/accountability.js): the calendar link flows below the
+   title and grows with the text instead of sharing the compact 44px title slot. */
+.acc-rem-probe {position:absolute;left:-9999px;top:0;width:1rem;height:1px;visibility:hidden;pointer-events:none}
+html.acc-large-text .appbar :is(.appbar-title,h1>span):has(#atlas-accountability-tabs) {display:block}
+html.acc-large-text .appbar #atlas-accountability-tabs {height:auto;max-width:100%}
+html.acc-large-text :is(#app,.appbar) .appbar #atlas-accountability-tabs button.acc-tab,
+html.acc-large-text .appbar #atlas-accountability-tabs.acc-tabs button.acc-tab {
+  top:0;height:auto!important;min-height:44px!important;max-width:100%!important;
+  align-items:center!important;white-space:normal;font-size:.76rem!important;line-height:1.3!important;
+}
+html.acc-large-text .appbar #atlas-accountability-tabs .acc-nav-mark {align-self:center;margin-bottom:0}
+html.acc-large-text .appbar #atlas-accountability-tabs .acc-week-mini {bottom:2px}
+html.acc-large-text .appbar .appbar-title:has(#atlas-accountability-tabs) {min-width:0;max-width:100%}
+html.acc-large-text .appbar #atlas-accountability-tabs.acc-icon-only .acc-tab-label {display:none}
+html.acc-large-text .appbar #atlas-accountability-tabs.acc-icon-only .acc-nav-mark {width:1.6rem;height:1.6rem;margin:0}
+html.acc-large-text .appbar #atlas-accountability-tabs.acc-icon-only button.acc-tab {min-width:44px!important;justify-content:center!important}
+/* Enlarged text outside a header: the two workspace tabs wrap rather than overflow the page. */
+html.acc-large-text .acc-tabs:not(.appbar *) {flex-wrap:wrap;justify-content:center;width:auto;max-width:calc(100% - 1.5rem);border-radius:1.4rem}
+html.acc-large-text .acc-tabs:not(.appbar *) button.acc-tab {flex:1 1 auto;min-width:0;max-width:100%}

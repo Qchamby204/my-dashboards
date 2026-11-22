@@ -1,3 +1,10 @@
+/* Page transitions (shared/hud-core.css opts in): the browser can cancel a transition before
+   deferred scripts run, on the page being left or the page arriving. Settle its promises here,
+   in the first script every page loads, so a cancellation is never reported as a page error. */
+for (const type of ['pageswap', 'pagereveal']) globalThis.addEventListener?.(type, e => {
+  const vt = e.viewTransition;
+  if (vt) for (const done of [vt.ready, vt.finished, vt.updateCallbackDone]) done?.catch(() => {});
+});
 /* Saved local days only. One missed day in any rolling seven-day window. */
 (()=>{
   const KEY='atlas.streaks.hidden.v1',DAY=86400000;
