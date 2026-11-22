@@ -101,7 +101,7 @@ try{
   assert.match(await progression.textContent(),/Pause this exercise/);assert.equal(await progression.locator('[data-act="progression-use"]').count(),0);
   await capture(p,'forge-progression-pause',theme,w,size,progression);
   await p.evaluate(id=>{delete state.draft[id];state.live={key:'PUSH',exIdx:orderedItems(dayBy('PUSH')).findIndex(it=>effId(it)===id),startedAt:Date.now(),hidden:false};render();},lift.id);
-  await capture(p,'forge-progression-live',theme,w,size,p.locator('.overlay .forge-progression'));
+  await capture(p,'forge-progression-live',theme,w,size,p.locator('.forge-focus .ff-context'));assert.match(await p.locator('.forge-focus .ff-why').textContent(),/Why this target\?/,'the live target keeps its explanation');
   await open('the-chef');
   assert(await p.locator('#ing-cats').evaluate(n=>{const rows=[...n.children].map(x=>x.getBoundingClientRect());return rows.every((r,i)=>!i||r.top-rows[i-1].bottom>=11);}), 'ingredient groups have separate rows');
   await p.locator('#ing-cats').scrollIntoViewIfNeeded();await capture(p,'chef-ingredients',theme,w,size);

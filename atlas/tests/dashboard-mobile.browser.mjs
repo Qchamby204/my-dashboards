@@ -78,11 +78,11 @@ try{
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('herald:v1')).videos.some(v=>v.title==='Mobile QA script'&&v.script.includes('synthetic'))),true);
   await go('workout-forge.html');await page.waitForFunction(()=>!!document.querySelector('[data-act="day"]'));
   await page.locator('[data-act="day"]').first().click();await page.locator('[data-act="live"]').first().click();
-  await page.locator('.forge-live-panel [data-act="forgemin"]').fill('5');
-  await page.getByRole('button',{name:'Pause session',exact:true}).click();await page.reload();
+  await page.locator('.forge-focus [data-act="forgemin"]').fill('5');
+  await page.getByRole('button',{name:'Workout options',exact:true}).click();await page.getByRole('button',{name:'Pause session',exact:true}).click();await page.reload();
   await page.getByRole('button',{name:'Resume session',exact:true}).click();
-  assert.equal(await page.locator('.forge-live-panel [data-act="forgemin"]').inputValue(),'5');
-  await page.locator('[data-act="livefinish"]').click();await page.getByRole('button',{name:'Save and finish',exact:true}).click();
+  assert.equal(await page.locator('.forge-focus [data-act="forgemin"]').inputValue(),'5');
+  await page.getByRole('button',{name:'Workout options',exact:true}).click();await page.locator('.ff-menu [data-act="livefinish"]').click();await page.getByRole('button',{name:'Save and finish',exact:true}).click();
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('forge:sessions:v2')).length),1);await screenshot('forge-saved');
   // Real HTMLAudioElement playback with synthetic local PCM; no published episode changes.
   const wav=Buffer.alloc(44+16000*2*8);wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(16000,24);wav.writeUInt32LE(32000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40);

@@ -1,2 +1,2 @@
-import './atlas-streak.js?v=1fa167319d69';
+import './atlas-streak.js?v=ed5f5a5199ba';
 export const {compute,rule,KEY,localDay}=globalThis.AtlasStreak;

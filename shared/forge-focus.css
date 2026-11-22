@@ -1,0 +1,172 @@
+/* The Forge, focus mode (shared/forge-focus.js). One exercise, one set, one primary action. */
+html.forge-focus-on {overflow:hidden!important;}
+html.forge-focus-on #forge-rest {display:none!important;}
+html.forge-focus-on body {overscroll-behavior:none!important;}
+#app#app .forge-focus.overlay {position:fixed!important;inset:0!important;z-index:60!important;display:block!important;padding:0!important;overflow:hidden!important;background:radial-gradient(120% 60% at 50% 0%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%),#05070d!important;color:#eef1f8!important;font-family:var(--hud-display,Figtree,system-ui,sans-serif)!important;}
+#app#app .forge-focus .ff-shell {box-sizing:border-box!important;max-width:560px!important;height:100%!important;margin:0 auto!important;display:flex!important;flex-direction:column!important;padding:calc(env(safe-area-inset-top,0px) + 12px) max(16px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px) + 12px) max(16px,env(safe-area-inset-left))!important;}
+#app#app .forge-focus .mono {font-family:var(--hud-mono,ui-monospace,SFMono-Regular,Menlo,monospace)!important;font-variant-numeric:tabular-nums!important;}
+/* Top bar */
+#app#app .forge-focus .ff-top {display:flex!important;align-items:center!important;gap:12px!important;}
+#app#app .forge-focus .ff-clockwrap {flex:1!important;display:flex!important;align-items:baseline!important;gap:10px!important;min-width:0!important;}
+#app#app .forge-focus .ff-tag {font-size:.8rem!important;font-weight:600!important;letter-spacing:.04em!important;color:var(--acc)!important;white-space:nowrap!important;}
+#app#app .forge-focus .ff-clock {font-size:1.35rem!important;font-weight:700!important;color:#fff!important;}
+#app#app .forge-focus .ff-count {font-size:.8rem!important;color:#8b93ad!important;}
+#app#app .forge-focus .ff-iconbtn {flex:none!important;width:44px!important;height:44px!important;display:grid!important;place-items:center!important;font-size:1.4rem!important;line-height:1!important;color:#dfe4f2!important;background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:14px!important;cursor:pointer!important;}
+#app#app .forge-focus .ff-iconbtn:disabled {opacity:.3!important;cursor:default!important;}
+#app#app .forge-focus .ff-track {display:flex!important;gap:4px!important;margin:12px 0 4px!important;}
+#app#app .forge-focus .ff-track button {flex:1!important;min-width:0!important;height:24px!important;padding:0!important;background:none!important;border:0!important;cursor:pointer!important;position:relative!important;}
+#app#app .forge-focus .ff-track button i {display:block!important;position:absolute!important;left:0!important;right:0!important;top:10px!important;height:4px!important;border-radius:2px!important;background:rgba(255,255,255,.14)!important;transition:background .2s!important;}
+#app#app .forge-focus .ff-track button.is-done i {background:color-mix(in srgb,var(--acc) 70%,transparent)!important;}
+#app#app .forge-focus .ff-track button.is-now i {top:8px!important;height:8px!important;background:var(--acc)!important;box-shadow:0 0 10px var(--acc)!important;}
+/* Stage */
+#app#app .forge-focus .ff-stage {flex:1!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;display:flex!important;flex-direction:column!important;padding:14px 2px 8px!important;scrollbar-width:none!important;}
+#app#app .forge-focus .ff-stage::-webkit-scrollbar {display:none!important;}
+#app#app .forge-focus .ff-eyebrow {margin:0!important;font-size:.78rem!important;font-weight:600!important;color:var(--acc)!important;letter-spacing:.03em!important;}
+#app#app .forge-focus .ff-name {margin:6px 0 0!important;font-size:clamp(1.55rem,6.4vw,2.1rem)!important;line-height:1.12!important;font-weight:700!important;letter-spacing:-.01em!important;color:#fff!important;}
+#app#app .forge-focus .ff-rx {margin:8px 0 0!important;font-size:.86rem!important;color:#c3c9db!important;}
+#app#app .forge-focus .ff-cue {margin:8px 0 0!important;font-size:.88rem!important;line-height:1.45!important;color:#8b93ad!important;}
+#app#app .forge-focus .ff-context {display:flex!important;gap:10px!important;margin:16px 0 0!important;}
+#app#app .forge-focus .ff-context span {flex:1!important;min-width:0!important;padding:10px 12px!important;border-radius:14px!important;background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.08)!important;}
+#app#app .forge-focus .ff-context small {display:block!important;font-size:.7rem!important;color:#8b93ad!important;margin-bottom:3px!important;}
+#app#app .forge-focus .ff-context b {display:block!important;font-size:.9rem!important;font-weight:600!important;color:#fff!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+#app#app .forge-focus .ff-context .is-warn {border-color:rgba(236,91,84,.5)!important;}
+#app#app .forge-focus .ff-context .is-warn b {color:#ff8a83!important;white-space:normal!important;}
+/* Sets */
+#app#app .forge-focus .ff-sets {list-style:none!important;display:flex!important;gap:8px!important;margin:18px 0 0!important;padding:0!important;}
+#app#app .forge-focus .ff-sets li {flex:1!important;min-width:0!important;}
+#app#app .forge-focus .ff-sets button {width:100%!important;min-height:44px!important;padding:0 4px!important;border-radius:12px!important;cursor:pointer!important;font:600 .84rem/1 var(--hud-mono,ui-monospace,monospace)!important;color:#6f7792!important;background:transparent!important;border:1px dashed rgba(255,255,255,.16)!important;}
+#app#app .forge-focus .ff-sets button.is-logged {color:#06120f!important;background:color-mix(in srgb,var(--acc) 86%,#fff)!important;border:1px solid transparent!important;}
+#app#app .forge-focus .ff-sets button.is-now {color:#fff!important;border:2px solid var(--acc)!important;box-shadow:0 0 14px -4px var(--acc)!important;}
+#app#app .forge-focus .ff-sets button.is-logged.is-now {box-shadow:0 0 0 2px #05070d,0 0 0 4px var(--acc)!important;}
+#app#app .forge-focus .ff-sets button:disabled {cursor:default!important;}
+/* Steppers */
+#app#app .forge-focus .ff-editor {display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin:14px 0 0!important;}
+#app#app .forge-focus .ff-stepper {padding:12px!important;border-radius:18px!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.1)!important;}
+#app#app .forge-focus .ff-step-label {display:block!important;font-size:.78rem!important;font-weight:600!important;color:#c3c9db!important;margin-bottom:8px!important;}
+#app#app .forge-focus .ff-step-label small {font-weight:500!important;color:#7c84a0!important;}
+#app#app .forge-focus .ff-step-row {display:flex!important;align-items:center!important;gap:6px!important;}
+#app#app .forge-focus .ff-step-row>button {flex:none!important;width:44px!important;height:52px!important;font-size:1.5rem!important;line-height:1!important;color:#fff!important;cursor:pointer!important;background:rgba(255,255,255,.07)!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:14px!important;}
+#app#app .forge-focus .ff-step-row>button:active {background:color-mix(in srgb,var(--acc) 30%,transparent)!important;}
+#app#app .forge-focus .ff-step-value {flex:1!important;min-width:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;cursor:text!important;}
+#app#app .forge-focus .ff-step-value input {width:100%!important;min-width:0!important;height:36px!important;padding:0!important;text-align:center!important;font-size:1.75rem!important;font-weight:700!important;color:#fff!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;outline:none!important;}
+#app#app .forge-focus .ff-step-value input[aria-invalid="true"] {color:#ff8a83!important;}
+#app#app .forge-focus .ff-step-value span {font-size:.7rem!important;color:#8b93ad!important;margin-top:2px!important;}
+#app#app .forge-focus .ff-step-value:focus-within {box-shadow:0 2px 0 var(--acc)!important;}
+#app#app .forge-focus .ff-error {margin:10px 0 0!important;font-size:.85rem!important;color:#ff8a83!important;}
+/* Primary action */
+#app#app .forge-focus .ff-primary {width:100%!important;min-height:58px!important;margin-top:14px!important;border-radius:18px!important;cursor:pointer!important;font:700 1.05rem/1 var(--hud-display,Figtree,system-ui,sans-serif)!important;letter-spacing:.01em!important;color:#05070d!important;background:var(--acc)!important;border:0!important;box-shadow:0 10px 30px -12px var(--acc)!important;}
+#app#app .forge-focus .ff-primary:active {transform:scale(.985)!important;}
+#app#app .forge-focus .ff-primary.ff-ghost {color:#fff!important;background:rgba(255,255,255,.06)!important;border:1px solid color-mix(in srgb,var(--acc) 60%,transparent)!important;box-shadow:none!important;}
+#app#app .forge-focus .ff-finish {background:#2fd180!important;box-shadow:0 10px 30px -12px #2fd180!important;}
+#app#app .forge-focus .ff-link {align-self:center!important;min-height:44px!important;margin-top:4px!important;font-size:.85rem!important;color:#8b93ad!important;background:none!important;border:0!important;cursor:pointer!important;text-decoration:underline!important;text-underline-offset:3px!important;}
+#app#app .forge-focus :is(button,input,textarea,summary):focus-visible {outline:3px solid var(--acc)!important;outline-offset:2px!important;}
+/* How it felt */
+#app#app .forge-focus .ff-feel {margin-top:18px!important;}
+#app#app .forge-focus .ff-feel p {margin:0 0 8px!important;font-size:.9rem!important;font-weight:600!important;color:#c3c9db!important;}
+#app#app .forge-focus .ff-feel>div {display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important;}
+#app#app .forge-focus .ff-feel button {min-height:58px!important;padding:6px 4px!important;border-radius:14px!important;cursor:pointer!important;color:#dfe4f2!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.12)!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;}
+#app#app .forge-focus .ff-feel button b {font-size:.9rem!important;}
+#app#app .forge-focus .ff-feel button small {font-size:.64rem!important;color:#8b93ad!important;line-height:1.2!important;text-align:center!important;}
+#app#app .forge-focus .ff-feel button[aria-pressed="true"] {color:#05070d!important;background:var(--acc)!important;border-color:transparent!important;}
+#app#app .forge-focus .ff-feel button[aria-pressed="true"] small {color:#05070d!important;opacity:.75!important;}
+#app#app .forge-focus .ff-feel button[data-v="pain"][aria-pressed="true"] {background:#ec5b54!important;}
+/* Rest ring */
+#app#app .forge-focus .ff-rest {display:flex!important;align-items:center!important;gap:16px!important;margin-top:14px!important;padding:14px!important;border-radius:20px!important;background:color-mix(in srgb,var(--acc) 8%,#0b0f19)!important;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)!important;}
+#app#app .forge-focus .ff-rest[hidden] {display:none!important;}
+#app#app .forge-focus .ff-ring {position:relative!important;flex:none!important;width:112px!important;height:112px!important;}
+#app#app .forge-focus .ff-ring svg {width:100%!important;height:100%!important;transform:rotate(-90deg)!important;}
+#app#app .forge-focus .ff-ring circle {fill:none!important;stroke-width:8!important;}
+#app#app .forge-focus .ff-ring-bg {stroke:rgba(255,255,255,.08)!important;}
+#app#app .forge-focus .ff-ring-fg {stroke:var(--acc)!important;stroke-linecap:round!important;stroke-dasharray:326.73!important;stroke-dashoffset:0!important;transition:stroke-dashoffset .25s linear!important;filter:drop-shadow(0 0 6px var(--acc))!important;}
+#app#app .forge-focus .ff-ring-text {position:absolute!important;inset:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;}
+#app#app .forge-focus .ff-ring-text small {font-size:.7rem!important;color:#8b93ad!important;}
+#app#app .forge-focus .ff-ring-text b {font-size:1.6rem!important;font-weight:700!important;color:#fff!important;}
+#app#app .forge-focus .ff-rest-actions {flex:1!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;}
+#app#app .forge-focus .ff-rest-actions button {min-height:44px!important;border-radius:12px!important;font-weight:600!important;color:#dfe4f2!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;cursor:pointer!important;}
+#app#app .forge-focus .ff-rest-actions button:last-child {grid-column:1/-1!important;color:var(--acc)!important;border-color:color-mix(in srgb,var(--acc) 45%,transparent)!important;}
+/* Cardio and simple items reuse Forge's own controls */
+#app#app .forge-focus .ff-cardio {margin-top:16px!important;}
+#app#app .forge-focus .ff-simple {margin:18px 0 0!important;font-size:1rem!important;color:#c3c9db!important;}
+/* Note */
+#app#app .forge-focus .ff-note {margin-top:14px!important;}
+#app#app .forge-focus .ff-note summary {min-height:44px!important;display:flex!important;align-items:center!important;font-size:.85rem!important;color:#8b93ad!important;cursor:pointer!important;list-style:none!important;}
+#app#app .forge-focus .ff-note summary::before {content:"+"!important;display:inline-grid!important;place-items:center!important;width:20px!important;height:20px!important;margin-right:8px!important;border-radius:50%!important;border:1px solid currentColor!important;font-size:.8rem!important;}
+#app#app .forge-focus .ff-note[open] summary::before {content:"−"!important;}
+#app#app .forge-focus .ff-note summary::-webkit-details-marker {display:none!important;}
+#app#app .forge-focus .ff-note textarea {width:100%!important;box-sizing:border-box!important;min-height:64px!important;padding:10px 12px!important;font:inherit!important;font-size:.95rem!important;color:#fff!important;background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:14px!important;resize:vertical!important;}
+/* Footer */
+#app#app .forge-focus .ff-foot {display:flex!important;align-items:center!important;gap:10px!important;padding-top:10px!important;border-top:1px solid rgba(255,255,255,.08)!important;}
+#app#app .forge-focus .ff-upnext {flex:1!important;min-width:0!important;margin:0!important;font-size:.8rem!important;color:#8b93ad!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+#app#app .forge-focus .ff-upnext b {color:#dfe4f2!important;font-weight:600!important;}
+/* Paused */
+#app#app .forge-focus .ff-paused {margin-top:22px!important;padding:18px!important;border-radius:20px!important;background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.12)!important;}
+#app#app .forge-focus .ff-paused p {margin:0!important;color:#c3c9db!important;}
+#app#app .forge-focus .is-paused .ff-clock {color:#8b93ad!important;}
+/* Options */
+#app#app .forge-focus .ff-menu {position:absolute!important;inset:0!important;z-index:2!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;background:rgba(3,5,10,.6)!important;}
+#app#app .forge-focus .ff-menu[hidden] {display:none!important;}
+#app#app .forge-focus .ff-menu-card {box-sizing:border-box!important;width:min(560px,100%)!important;display:flex!important;flex-direction:column!important;gap:8px!important;padding:16px max(16px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px) + 16px) max(16px,env(safe-area-inset-left))!important;background:#0d1220!important;border-top:1px solid color-mix(in srgb,var(--acc) 45%,transparent)!important;border-radius:22px 22px 0 0!important;}
+#app#app .forge-focus .ff-menu-card button {min-height:52px!important;padding:0 16px!important;text-align:left!important;font-size:1rem!important;font-weight:600!important;color:#eef1f8!important;background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:14px!important;cursor:pointer!important;}
+#app#app .forge-focus .ff-menu-card .ff-danger {color:#ff8a83!important;}
+#app#app .forge-focus .ff-menu-card .ff-menu-close {text-align:center!important;color:#8b93ad!important;background:none!important;border:0!important;}
+#app#app .forge-focus .ff-menu-card .forge-draft-status {margin:2px 4px!important;font-size:.78rem!important;color:#7c84a0!important;}
+#app#app .forge-focus .ff-menu-card .forge-draft-status:empty {display:none!important;}
+/* Motion: a calm arrival for each new exercise; nothing moves layout after it lands. */
+@media(prefers-reduced-motion:no-preference) {
+  .forge-focus .ff-name,.forge-focus .ff-rx,.forge-focus .ff-context }
+animation:ff-in .32s cubic-bezier(.2,.8,.2,1) both;
+  .forge-focus .ff-rx {animation-delay:.04s!important;}
+#app#app .forge-focus .ff-context {animation-delay:.08s!important;}
+#app#app .forge-focus .ff-menu-card {animation:ff-sheet .22s cubic-bezier(.2,.8,.2,1)!important;}
+@keyframes ff-in {from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@keyframes ff-sheet {from{transform:translateY(24px);opacity:.6;}to{transform:none;opacity:1;}}
+/* Short phones: tighten the stage so the primary action stays on screen. */
+@media(max-height:700px) {
+  .forge-focus .ff-cue }
+display:none;
+  .forge-focus .ff-context {margin-top:10px!important;}
+#app#app .forge-focus .ff-sets {margin-top:12px!important;}
+#app#app .forge-focus .ff-ring {width:92px!important;height:92px!important;}
+@media(forced-colors:active) {
+#app#app .forge-focus .ff-sets button.is-now,#app#app .forge-focus .ff-track button.is-now i {outline:2px solid Highlight!important;}
+#app#app .forge-focus .ff-primary {border:2px solid ButtonText!important;}
+
+}
+
+
+/* Isolate the focus screen from the suite's shared button and field styling. */
+html.forge-focus-on :is(#atlas-page-navigation,.atlas-page-native,.hud-readout,.hud-lock) {display:none!important;}
+#app#app .forge-focus :is(button,input,textarea,summary) {background-image:none!important;clip-path:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;text-transform:none!important;filter:none!important;min-width:0!important;}
+#app#app .forge-focus button::before,#app#app .forge-focus button::after {content:none!important;display:none!important;}
+#app#app .forge-focus.overlay {backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background-color:#05070d!important;}
+/* Narrow phones: nothing inside may widen the column. */
+#app#app .forge-focus .ff-shell {width:100%!important;}
+#app#app .forge-focus .ff-shell>* {min-width:0!important;max-width:100%!important;}
+#app#app .forge-focus .ff-cardio :is(.forge-cardio-steps,.forge-cardio-modes) {display:flex!important;flex-wrap:wrap!important;gap:8px!important;}
+#app#app .forge-focus .ff-cardio :is(.forge-cardio-steps,.forge-cardio-modes) button {flex:1 1 auto!important;min-height:44px!important;border-radius:12px!important;color:#dfe4f2!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;box-shadow:none!important;}
+#app#app .forge-focus .ff-cardio .forge-cardio-modes button[aria-pressed="true"] {color:#05070d!important;background:var(--acc)!important;border-color:transparent!important;}
+#app#app .forge-focus .ff-cardio label {display:flex!important;flex-direction:column!important;gap:8px!important;font-size:.85rem!important;font-weight:600!important;color:#c3c9db!important;}
+#app#app .forge-focus .ff-cardio input {height:52px!important;padding:0 14px!important;font-size:1.3rem!important;color:#fff!important;background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:14px!important;}
+#app#app .forge-focus .ff-cardio p {font-size:.8rem!important;color:#8b93ad!important;}
+#app#app .forge-focus .ff-top {background:none!important;border:0!important;box-shadow:none!important;padding:0!important;}
+/* The one primary action stays in reach on short screens and with large text. */
+#app#app .forge-focus .ff-stage>.ff-primary {position:sticky!important;bottom:0!important;z-index:1!important;box-shadow:0 -14px 18px -6px #05070d,0 10px 30px -12px var(--acc)!important;}
+#app#app .forge-focus .ff-stage>.ff-primary.ff-ghost {background:#10141f!important;}
+/* The stage carries the session layer's panel class (for placing entry errors), not its card look. */
+#app#app .forge-focus .ff-stage.forge-live-panel {background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:14px 2px 8px!important;margin:0!important;max-width:none!important;}
+html.acc-large-text #app#app .forge-focus .ff-count {display:none!important;}
+#app#app .forge-focus .ff-clockwrap {overflow:hidden!important;flex-wrap:wrap!important;row-gap:0!important;}
+/* Steppers: one full-width row each, so 52.5 or 102.5 never clips. */
+#app#app .forge-focus .ff-editor {grid-template-columns:1fr!important;gap:8px!important;}
+#app#app .forge-focus .ff-stepper {display:grid!important;grid-template-columns:minmax(76px,auto) 1fr!important;align-items:center!important;gap:10px!important;padding:8px 8px 8px 14px!important;}
+#app#app .forge-focus .ff-step-label {margin:0!important;line-height:1.25!important;}
+#app#app .forge-focus .ff-step-label small {display:block!important;}
+#app#app .forge-focus .ff-step-row>button {width:56px!important;height:56px!important;}
+#app#app .forge-focus .ff-step-value input {font-size:2rem!important;height:40px!important;}
+@media(max-width:340px) {#app#app .forge-focus .ff-stepper {grid-template-columns:1fr!important;} #app#app .forge-focus .ff-step-row>button {width:48px!important;}}
+#app#app .forge-focus .ff-context b {white-space:normal!important;overflow:visible!important;line-height:1.3!important;}
+#app#app .forge-focus .ff-why {margin:8px 0 0!important;}
+#app#app .forge-focus .ff-why summary {display:inline-flex!important;align-items:center!important;gap:8px!important;min-height:44px!important;font-size:.8rem!important;color:#8b93ad!important;cursor:pointer!important;list-style:none!important;}
+#app#app .forge-focus .ff-why summary::-webkit-details-marker {display:none!important;}
+#app#app .forge-focus .ff-why summary::before {content:"i"!important;display:inline-grid!important;place-items:center!important;width:20px!important;height:20px!important;border-radius:50%!important;border:1px solid currentColor!important;font:600 .7rem/1 var(--hud-mono,monospace)!important;}
+#app#app .forge-focus .ff-why p {margin:0 0 4px!important;font-size:.85rem!important;line-height:1.45!important;color:#c3c9db!important;}

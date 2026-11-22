@@ -262,7 +262,9 @@
     document.addEventListener('visibilitychange',()=>{tickTimer();wakeRetryAt=0;keepAwake();});window.addEventListener('pageshow',()=>{wakeRetryAt=0;keepAwake();tickTimer();const clock=document.getElementById('liveClock');if(clock&&state.live)clock.textContent=liveElapsed();});window.addEventListener('beforeunload',e=>{if(failed.size||pending.size||busy||pendingLog){e.preventDefault();e.returnValue='';}});window.addEventListener('resize',measure);window.visualViewport?.addEventListener('resize',measure);
     if(window.ResizeObserver)new ResizeObserver(measure).observe(timerBox);
     if(!blocked){try{restoreRest(boot.raw[RESTKEY]?JSON.parse(boot.raw[RESTKEY]):null);}catch{restoreRest(null);}}
-    window.ForgeSession=Object.freeze({confirmAction,cancelLive,pauseLive,pauseRest,adjustRest,goExercise,elapsedMs,sessionItems,parseBackup,restoreRest,get blocked(){return blocked;},get failed(){return failed.size;},get busy(){return busy;}});
+    window.ForgeSession=Object.freeze({confirmAction,cancelLive,pauseLive,pauseRest,adjustRest,goExercise,elapsedMs,sessionItems,parseBackup,restoreRest,get blocked(){return blocked;},get failed(){return failed.size;},get busy(){return busy;},get pendingLog(){return !!pendingLog;},get rest(){return timer?{left:restRemaining(),total:timer.total,paused:timer.pausedRemaining!==undefined}:null;}});
+    // The live workout's focus screen (one exercise, one set at a time) builds on this session layer.
+    if(!blocked){const base=source||location.href,css=make('link');css.rel='stylesheet';css.href=new URL('forge-focus.css?v=5458bbe3ffe8',base).href;document.head.append(css);const focus=make('script');focus.src=new URL('forge-focus.js?v=209da3a62643',base).href;document.head.append(focus);}
     render();if(pendingLog&&!blocked)commitPending();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
