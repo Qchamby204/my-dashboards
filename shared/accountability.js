@@ -4,12 +4,12 @@
   const app = document.documentElement.dataset.atlasApp;
   const daily = [0, 1, 2, 3, 4, 5, 6];
   const apps = {
-    'life-ledger': ['Life Ledger', 'saved days', 'Open today’s check-in', 'Save a habit check-in or reflection.', daily, '#92ead1'],
-    'communication-trainer': ['Communicator', 'practice days', 'Open practice', 'Finish and save a speaking drill.', [2, 4, 6], '#c6acff'],
-    'workout-forge': ['Forge', 'training days', 'Open workout', 'Log a workout or finish a goal session.', [1, 3, 5], '#ffb391'],
-    'life-map': ['Life Map', 'plan days', 'Open today’s plan', 'Complete a task on your board.', [1, 2, 3, 4, 5, 6], '#edce94'],
-    courier: ['Courier', 'listening days', 'Open briefing', 'Finish listening to one briefing section.', daily, '#93d2ff'],
-    library: ['Library', 'reading days', 'Open books', 'Log new pages in a book.', [2, 4, 6], '#e3bdf7']
+    'life-ledger': ['Life Ledger', 'saved days', 'Open today’s check-in', 'Save a habit check-in or reflection.', daily, '#6de4ef'],
+    'communication-trainer': ['Communicator', 'practice days', 'Open practice', 'Finish and save a speaking drill.', [2, 4, 6], '#bfa9fa'],
+    'workout-forge': ['Forge', 'training days', 'Open workout', 'Log a workout or finish a goal session.', [1, 3, 5], '#85e3c7'],
+    'life-map': ['Life Map', 'plan days', 'Open today’s plan', 'Complete a task on your board.', [1, 2, 3, 4, 5, 6], '#70dce8'],
+    courier: ['Courier', 'listening days', 'Open briefing', 'Finish listening to one briefing section.', daily, '#ffac9a'],
+    library: ['Library', 'reading days', 'Open books', 'Log new pages in a book.', [2, 4, 6], '#91c8ff']
   };
   if (!apps[app] || !window.AtlasStreak) return;
   const [name, unit, action, rule, initialWeek, accent] = apps[app];
@@ -124,42 +124,97 @@
     return {start, end, goal, saved, savedToday, remainingDays, earned: Math.min(saved, goal)};
   }
 
-  function weekWidget(week) {
+  const svg = (tag, attrs) => {
+    const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+    return node;
+  };
+
+  function inkMark() {
+    const x = svg('svg', {viewBox:'0 0 36 36', class:'acc-ink-mark', 'aria-hidden':'true'});
+    for (const d of ['M6 6 Q16 16 30 29', 'M29 5 Q17 19 7 30']) {
+      x.append(svg('path', {d, pathLength:1}));
+    }
+    return x;
+  }
+
+  function ring(week) {
+    const dial = e('div',null,'acc-dial');
+    const face = svg('svg',{viewBox:'0 0 100 100',class:'acc-face','aria-hidden':'true'});
+    face.append(svg('circle',{cx:50,cy:50,r:46,class:'acc-rim'}));
+    if (week.goal) {
+      const segment = 100 / week.goal, gap = Math.min(3,segment / 5);
+      for (let i=0; i<week.goal; i++) {
+        const filled = i < week.earned;
+        face.append(svg('circle',{
+          cx:50,cy:50,r:37,pathLength:100,
+          transform:'rotate('+(-90 + 360*i/week.goal + gap*1.8)+' 50 50)',
+          'stroke-dasharray':(segment-gap)+' '+(100-segment+gap),
+          class:filled?'acc-segment acc-filled'+(i===week.earned-1?' acc-newest':''):'acc-segment'
+        }));
+      }
+    }
+    const number = e('strong',String(week.earned));
+    number.append(e('small','/'+week.goal));
+    const readout = e('div',null,'acc-readout');
+    readout.append(number,e('span','days'));
+    dial.append(face,readout);
+    dial.setAttribute('role',week.goal?'progressbar':'img');
+    dial.setAttribute('aria-label',week.goal?'Weekly goal':'No days scheduled this week');
+    if (week.goal) {
+      dial.setAttribute('aria-valuemin','0');
+      dial.setAttribute('aria-valuemax',week.goal);
+      dial.setAttribute('aria-valuenow',week.earned);
+      dial.setAttribute('aria-valuetext',week.earned+' of '+week.goal+' '+unit);
+    }
+    return dial;
+  }
+
+  function weekWidget(week,rows,opened,settings,today,counts) {
     const box = e('div',null,'acc-week');
-    const label = e('div',null,'acc-week-label');
-    const range = fmt(week.start,{month:'short',day:'numeric'}) + ' – ' + fmt(week.end,{month:'short',day:'numeric'});
-    label.append(e('h2','Weekly goal'),e('span',range));
-    const count = e('div',null,'acc-week-count');
-    count.append(e('strong',String(week.earned)),e('span','of '+week.goal+' '+unit));
-    box.append(label,count);
-    if (!week.goal) {
-      box.append(e('p','No days scheduled this week.'));
-      return box;
+    const summary = e('div',null,'acc-week-summary');
+    const text = e('div',null,'acc-week-copy');
+    const left = week.goal-week.earned;
+    const planned = isPlanned(settings,today);
+    const previous = dayDate(today);
+    do { previous.setDate(previous.getDate()-1); } while (!isPlanned(settings,dayOf(previous)));
+    const previousDay = dayOf(previous);
+    const returned = week.savedToday && !rows.has(previousDay) && [...rows.keys()].some(day=>day<previousDay);
+    const single = {'life-ledger':'check-in','communication-trainer':'practice day','workout-forge':'workout','life-map':'plan day',courier:'listening day',library:'reading day'}[app];
+    let heading = 'Mark today';
+    if (week.goal && !left) heading = 'Weekly goal reached';
+    else if (returned) heading = 'Back on track';
+    else if (week.savedToday) heading = 'Today is marked';
+    else if (!planned) heading = 'Rest day';
+    else if (left===1) heading = 'One '+single+' to go';
+    const goalLabel=week.goal===1?unit.replace(/days$/, 'day'):unit;
+    let caption = 'This week’s goal is '+week.goal+' '+goalLabel+'.';
+    if (!week.goal) caption = 'No days scheduled this week.';
+    else if (week.saved>=week.goal) {
+      const extra=week.saved-week.goal;
+      caption=extra?'Weekly goal complete · '+extra+' extra '+(extra===1?'day':'days')+' logged.':(week.goal===1?'Your '+goalLabel+' is marked.':'All '+week.goal+' '+unit+' marked.');
+    } else if (!planned && !week.savedToday) {
+      const next=dayDate(today);
+      do { next.setDate(next.getDate()+1); } while (!isPlanned(settings,dayOf(next)));
+      caption='Next scheduled day · '+fmt(dayOf(next),{weekday:'short',month:'short',day:'numeric'});
+    } else if (left>week.remainingDays && !week.savedToday) caption='Save today to add a mark to this week.';
+    text.append(e('p',fmt(today,{weekday:'long',month:'short',day:'numeric'}),'acc-eyebrow'),e('h2',heading),e('p',caption));
+    summary.append(ring(week),text);
+    const strip = e('div',null,'acc-week-strip');
+    strip.setAttribute('role','group');strip.setAttribute('aria-label','Activity this week');
+    const cursor=dayDate(week.start);
+    for(let i=0;i<7;i++,cursor.setDate(cursor.getDate()+1)){
+      const day=dayOf(cursor);
+      strip.append(dayButton(day,weekdays[cursor.getDay()],rows,opened,settings,today,true));
     }
-    const rail = e('div',null,'acc-week-rail');
-    rail.setAttribute('role','progressbar');
-    rail.setAttribute('aria-label','Weekly goal');
-    rail.setAttribute('aria-valuemin','0');
-    rail.setAttribute('aria-valuemax',String(week.goal));
-    rail.setAttribute('aria-valuenow',String(week.earned));
-    rail.setAttribute('aria-valuetext',week.earned+' of '+week.goal+' '+unit);
-    for (let i = 0; i < week.goal; i++) {
-      const segment = e('span');
-      segment.dataset.filled = String(i < week.earned);
-      rail.append(segment);
+    const weekLabel=e('div',null,'acc-strip-label');
+    weekLabel.append(e('span','This week'));
+    if(!window.AtlasStreak.hidden()){
+      const monthDays=[...rows.keys()].filter(day=>day.slice(0,7)===today.slice(0,7)).length;
+      if(counts.current>1)weekLabel.append(e('span',counts.current+' '+unit+' · current streak'));
+      else if(monthDays)weekLabel.append(e('span',monthDays+(monthDays===1?' day':' days')+' marked this month'));
     }
-    const left = week.goal - week.earned;
-    let caption = left === 1 ? 'One more day to reach your goal.' : left + ' more days to reach your goal.';
-    if (left > week.remainingDays) {
-      caption = week.savedToday ? 'Today’s segment is filled.' : week.saved ? 'Save today to fill another segment.' : 'Save today to fill your first segment.';
-    }
-    if (!left) {
-      const extra = week.saved - week.goal;
-      caption = extra ? 'Goal complete · '+extra+' extra '+(extra===1?'day':'days')+' logged.' : 'Weekly goal complete.';
-    }
-    const note = e('p',caption,'acc-week-note');
-    if (!left) note.prepend(e('span','✓','acc-week-check'));
-    box.append(rail,note);
+    box.append(summary,weekLabel,strip);
     return box;
   }
 
@@ -199,6 +254,10 @@
   }
   const entry = navButton(false);
   entry.id = 'atlas-accountability-tabs';
+  let hostWeek, freshMark;
+  const miniDial=e('span',null,'acc-nav-mark');
+  miniDial.setAttribute('aria-hidden','true');
+  entry.lastElementChild.prepend(miniDial);
   const miniTrack = e('span',null,'acc-week-mini');
   miniTrack.setAttribute('aria-hidden','true');
   miniTrack.hidden = true;
@@ -255,9 +314,25 @@
   }
   panel.addEventListener('cancel',event=>{event.preventDefault();leave();});
   window.addEventListener('popstate',syncView);
-  function choose(day) {
+  function choose(day, fromWeek=false) {
     selected = day; month = day.slice(0,7); draw();
-    wrap.querySelector('[aria-pressed="true"][data-date]')?.focus({preventScroll:true});
+    wrap.querySelector((fromWeek?'.acc-week-strip ':'.acc-grid ')+'[aria-pressed="true"]')?.focus({preventScroll:true});
+  }
+
+  function dayButton(day,label,rows,opened,settings,today,weekly) {
+    const planned=isPlanned(settings,day);
+    const state=rows.has(day)?'saved':opened.has(day)?'opened':!planned?'off':day>today?'upcoming':'empty';
+    const cell=button('',()=>choose(day,weekly),'acc-day');
+    cell.dataset.state=state;cell.dataset.date=day;
+    cell.append(e('span',label,'acc-day-label'));
+    if(state==='saved')cell.append(inkMark());
+    else if(!planned)cell.append(e('span','–','acc-day-off'));
+    else if(state==='opened'||day===today)cell.append(e('span',null,'acc-open-dot'));
+    const labels={saved:'Saved activity',opened:'Opened only',off:'Rest day',upcoming:'Upcoming',empty:'No activity recorded'};
+    cell.setAttribute('aria-label',fmt(day,{month:'long',day:'numeric'})+', '+labels[state]+(state==='opened'&&!planned?', rest day':''));
+    cell.setAttribute('aria-pressed',String(selected===day));
+    if(day===today)cell.setAttribute('aria-current','date');
+    return cell;
   }
   function stepMonth(offset) {
     const d = dayDate(month+'-01');d.setMonth(d.getMonth()+offset);
@@ -279,17 +354,10 @@
     const days = new Date(first.getFullYear(),first.getMonth()+1,0).getDate();
     for(let i=1;i<=days;i++) {
       const day = month+'-'+String(i).padStart(2,'0');
-      const state = rows.has(day) ? 'saved' : opened.has(day) ? 'opened' : !isPlanned(settings,day) ? 'off' : day>today ? 'upcoming' : 'empty';
-      const cell = button(String(i),()=>choose(day),'acc-day');
-      cell.dataset.state=state;cell.dataset.date=day;
-      const labels={saved:'Saved activity',opened:'Opened only',off:'Off day',upcoming:'Upcoming',empty:'No activity recorded'};
-      cell.setAttribute('aria-label',fmt(day,{month:'long',day:'numeric'})+', '+labels[state]);
-      cell.setAttribute('aria-pressed',String(selected===day));
-      if(day===today) cell.setAttribute('aria-current','date');
-      grid.append(cell);
+      grid.append(dayButton(day,String(i),rows,opened,settings,today,false));
     }
     const legend=e('div',null,'acc-legend');
-    for(const [symbol,title] of [['●','Saved'],['○','Opened only'],['–','Off day']]) legend.append(e('span',symbol+' '+title));
+    for(const [symbol,title] of [['✕','Saved'],['○','Opened only'],['–','Rest day']]) legend.append(e('span',symbol+' '+title));
     box.append(grid,legend);return box;
   }
   function openActivity() {
@@ -337,13 +405,12 @@
   }
   function draw(force=true) {
     if(!panel.open) return;
-    // Keep a focused calendar cell or an open editor stable during background refresh.
-    if(!force && (settingsOpen || panel.contains(document.activeElement) && document.activeElement.matches('input,button,summary'))) {
-      // Refresh the readout without replacing the focused day or the schedule form.
-      const week = wrap.querySelector('.acc-week');
-      try { week?.replaceWith(weekWidget(weeklyProgress(records(),prefs(),dayOf()))); } catch {}
-      return;
-    }
+    // Preserve an unfinished schedule edit. Its save explicitly redraws the view.
+    if (!force && settingsOpen) return;
+    const focused = !force && panel.contains(document.activeElement) ? document.activeElement : null;
+    const focusDay = focused?.dataset.date;
+    const focusGroup = focused?.closest('.acc-week-strip') ? '.acc-week-strip' : '.acc-grid';
+    const focusLabel = focused?.getAttribute('aria-label') || focused?.textContent;
     const title=e('h1','Accountability');title.id='acc-title';title.tabIndex=-1;
     const identity=e('header',null,'acc-head');identity.append(e('p',name,'acc-eyebrow'),title);
     const content=e('div',null,'acc-layout');wrap.replaceChildren(navButton(true),identity,content);
@@ -354,32 +421,67 @@
       const due=planned&&!done&&settings.time&&time>=settings.time;
       const week = weeklyProgress(rows,settings,today);
       const todayBody = e('div',null,'acc-today-body');
-      todayCard.append(weekWidget(week),todayBody);
-      todayBody.append(e('p',due?'Reminder · Today':fmt(today,{weekday:'long',month:'short',day:'numeric'}),'acc-eyebrow'),
-        e('h2',done?'Today’s activity is saved':planned?'Today is still open':'Today is an off day'),
-        e('p',done?rows.get(today).join(' · '):planned?rule:'A saved activity on an off day also counts toward your weekly goal.'));
-      if(!done&&(planned||week.earned<week.goal))todayBody.append(button(action,openActivity,'acc-primary'));
+      todayCard.append(weekWidget(week,rows,opened,settings,today,counts),todayBody);
+      const selectedEntries=rows.get(selected);
+      const status=selected!==today?fmt(selected,{weekday:'long',month:'short',day:'numeric'}):done?'Saved today':due?'Reminder · Today':planned?'Today’s activity':'Rest day';
+      const receipt=e('div',null,'acc-receipt');receipt.setAttribute('role','status');
+      const preview=selectedEntries?selectedEntries[0]+(selectedEntries.length>1?' · +'+(selectedEntries.length-1)+' more':'')
+        :selected===today&&planned?rule:!isPlanned(settings,selected)?'Scheduled rest day':selected>today?'Scheduled activity':'No saved activity.';
+      receipt.append(e('p',status,'acc-eyebrow'),e('p',preview,'acc-receipt-text'));
+      const controls=e('div',null,'acc-week-actions');
+      if(selected!==today)controls.append(button('Back to today',()=>choose(today,true),'acc-primary'));
+      else if(!done)controls.append(button(action,openActivity,'acc-primary'));
+      controls.append(button('View month',()=>{
+        const monthHeading=wrap.querySelector('.acc-month h2');
+        monthHeading.tabIndex=-1;monthHeading.focus({preventScroll:true});monthHeading.scrollIntoView({block:'start'});
+      },'acc-month-link'));
+      todayBody.append(receipt,controls);
       const stats=e('section',null,'acc-card acc-stats');
       stats.append(e('p','Current streak','acc-eyebrow'),e('strong',String(counts.current)),e('span',unit),e('p','Personal best · '+counts.longest));
       const info=e('details');info.append(e('summary','How streaks work'),e('p',rule+' '+(weekAt(settings,today).length===7 && initialWeek.length===7 && settings.revisions.every(r=>r.week.length===7)?window.AtlasStreak.rule:'Scheduled days count once each. Off days preserve the streak.')));
       stats.append(info);stats.hidden=window.AtlasStreak.hidden();
       const detail=e('section',null,'acc-card acc-detail');detail.setAttribute('aria-live','polite');
-      detail.append(e('p','Activity record','acc-eyebrow'),e('h2',fmt(selected,{weekday:'long',month:'short',day:'numeric'})));
+      detail.append(e('p','Activity record','acc-eyebrow'),e('h3',fmt(selected,{weekday:'long',month:'short',day:'numeric'})));
       const entries=rows.get(selected);
       if(entries){const list=e('ul');for(const record of entries)list.append(e('li',record));detail.append(list);}
       else detail.append(e('p',opened.has(selected)?'Dashboard opened. No saved activity for this day.':selected>today?'Upcoming day.': 'No saved activity for this day.'));
       if(app==='courier')detail.append(e('small','Listening dates are recorded from this release. Older editions retain their heard marks in the player.'));
       const options=e('div',null,'acc-prefs');options.append(...schedule(settings,today,done));
-      content.append(todayCard,stats,calendar(rows,opened,settings,today),detail,options);
+      const monthCard=calendar(rows,opened,settings,today);
+      monthCard.append(detail);
+      content.append(todayCard,monthCard,stats,options);
+      if(freshMark && freshMark.day===today && done && Date.now()-freshMark.at < 8000) {
+        for(const mark of todayCard.querySelectorAll('[aria-current=date]'))mark.classList.add('acc-fresh-mark');
+        todayCard.classList.add('acc-new-credit');
+        if(freshMark.goal)todayCard.classList.add('acc-goal-flare');
+        freshMark=null;
+      }
+      if(focusDay)wrap.querySelector(focusGroup+' [data-date="'+focusDay+'"]')?.focus({preventScroll:true});
+      else if(focused) {
+        const target=[...wrap.querySelectorAll('button,summary,h1,h2')].find(n=>n.tagName===focused.tagName && (n.getAttribute('aria-label')||n.textContent)===focusLabel);
+        target?.focus({preventScroll:true});
+      }
     } catch {content.append(e('p','Saved activity could not be read on this device. Your original records are still in the dashboard.','acc-card'));}
   }
-  function refreshHost() {
+  function refreshHost(localSave=false) {
     if (!entry.isConnected || document.hidden) return;
     const tab = entry.lastElementChild;
     let due = false;
     try {
       const settings = prefs(), today = dayOf(), rows = records();
       const week = weeklyProgress(rows,settings,today);
+      const newMark=localSave && hostWeek?.day===today && !hostWeek.savedToday && week.savedToday;
+      const justReached=Boolean(newMark && week.goal && hostWeek.goal===week.goal && hostWeek.earned<week.goal && week.earned===week.goal);
+      if(newMark)freshMark={day:today,at:Date.now(),goal:justReached};
+      if(!hostWeek || hostWeek.day!==today || hostWeek.goal!==week.goal || hostWeek.earned!==week.earned || hostWeek.savedToday!==week.savedToday){
+        const icon=ring(week).firstElementChild;
+        miniDial.replaceChildren(icon);
+        if(week.savedToday)miniDial.append(inkMark());
+        miniDial.classList.toggle('acc-fresh-mark',Boolean(newMark));
+        miniDial.classList.toggle('acc-goal-flare',justReached);
+        tab.dataset.marked=String(week.savedToday);
+      }
+      hostWeek={...week,day:today};
       miniTrack.hidden = !week.goal;
       miniTrack.style.setProperty('--week-fill',String(week.goal ? week.earned / week.goal : 0));
       tab.title = 'Weekly goal · '+week.earned+' of '+week.goal+' '+unit;
@@ -393,10 +495,10 @@
     tab.setAttribute('aria-label',due?'Accountability · Activity due':'Accountability');
   }
   let clock;
-  function arm() {
+  function arm(localSave=false) {
     clearTimeout(clock);
     if (document.hidden) return;
-    refreshHost();
+    refreshHost(localSave===true);
     const now = new Date(), next = new Date(now);
     next.setHours(24,0,0,0);
     try {
@@ -410,8 +512,8 @@
     } catch {}
     clock = setTimeout(() => { recordVisit(); arm(); draw(false); }, next - now + 30);
   }
-  function refreshProgress() {
-    arm();
+  function refreshProgress(event) {
+    arm(event.type==='atlas:accountability-record' || event.type==='atlas-reminder-activity');
     draw(false);
   }
   panel.addEventListener('close',arm);

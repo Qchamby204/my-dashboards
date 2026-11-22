@@ -34,7 +34,10 @@ try{
      assert(await meter.isVisible(),file+' shows its weekly goal');
      assert.equal(await meter.getAttribute('aria-valuenow'),'0',file+' opens do not earn progress');
      assert.equal(await meter.getAttribute('aria-valuemax'),String({'life-ledger':7,'life-map':6,'communication-trainer':3,'workout-forge':3,'courier':7,'the-library':3}[file]));
-     assert((await screen.locator('[data-date]').count())>=28,file+' has a real calendar');
+     const strip=screen.getByRole('group',{name:'Activity this week'});
+     assert.equal(await strip.getByRole('button').count(),7,file+' has all seven days');
+     assert.equal(await strip.locator('.acc-ink-mark').count(),0,file+' starts without earned marks');
+     assert((await screen.locator('.acc-grid [data-date]').count())>=28,file+' has a real calendar');
      const month=await screen.locator('.acc-month h2').innerText();
      await screen.getByRole('button',{name:'Previous month'}).click();assert.notEqual(await screen.locator('.acc-month h2').innerText(),month);
      await screen.getByRole('button',{name:'Today',exact:true}).click();assert.equal(await screen.locator('.acc-month h2').innerText(),month);
@@ -51,6 +54,12 @@ try{
        await p.getByRole('dialog',{name:'Season Opens'}).getByRole('button',{name:'See all achievements'}).click();
        await tab.click();await meter.waitFor();
        assert.equal(await meter.getAttribute('aria-valuenow'),'1','a saved day fills one segment');
+       for(const selector of ['.acc-week-strip','.acc-grid']){
+         const saved=screen.locator(selector+' [aria-current="date"]');
+         assert.equal(await saved.locator('.acc-ink-mark path').count(),2,'a saved day shows the two-stroke X');
+         await saved.click();
+         assert.match(await screen.locator('.acc-detail li').first().innerText(),/Read/);
+       }
        await p.screenshot({path:path.join(out,'weekly-goal-earned.png')});
        await p.reload();await meter.waitFor();
        assert.equal(await meter.getAttribute('aria-valuenow'),'1','credit survives reload');
