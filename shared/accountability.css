@@ -208,3 +208,6 @@ html.acc-large-text .appbar .appbar-title:has(#atlas-accountability-tabs) {min-w
 html.acc-large-text .appbar #atlas-accountability-tabs.acc-icon-only .acc-tab-label {display:none}
 html.acc-large-text .appbar #atlas-accountability-tabs.acc-icon-only .acc-nav-mark {width:1.6rem;height:1.6rem;margin:0}
 html.acc-large-text .appbar #atlas-accountability-tabs.acc-icon-only button.acc-tab {min-width:44px!important;justify-content:center!important}
+/* Enlarged text outside a header: the two workspace tabs wrap rather than overflow the page. */
+html.acc-large-text .acc-tabs:not(.appbar *) {flex-wrap:wrap;justify-content:center;width:auto;max-width:calc(100% - 1.5rem);border-radius:1.4rem}
+html.acc-large-text .acc-tabs:not(.appbar *) button.acc-tab {flex:1 1 auto;min-width:0;max-width:100%}
