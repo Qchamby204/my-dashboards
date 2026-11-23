@@ -1,6 +1,6 @@
-/* Reference-edition page counts researched 2026-09-28. These are not verified owned editions.
+/* Reference-edition page counts for the Library catalogue. These are not verified owned editions.
    Each count links to its bibliographic source; null means edition details are needed.
-   Kept separate from the original 129-book seed and all user records. */
+   Kept separate from the catalogue and all user records. */
 window.ATLAS_LIBRARY_PAGES = Object.freeze({
   "b-1A-01": {
     "pages": 128,
@@ -972,6 +972,54 @@ window.ATLAS_LIBRARY_PAGES = Object.freeze({
     "year": "2026",
     "isbn": "9780987857736",
     "source": "https://www.indigo.ca/en-ca/something-must-be-done/9780987857736.html"
+  },
+  "b-11B-02": {
+    "pages": 432,
+    "editionTitle": "The Attention Merchants",
+    "publisher": "Vintage",
+    "year": "2017",
+    "isbn": "9780804170048",
+    "source": "https://prhinternationalsales.com/book/?isbn=9780804170048"
+  },
+  "b-10B-04": {
+    "pages": 432,
+    "editionTitle": "Good Economics for Hard Times",
+    "publisher": "PublicAffairs",
+    "year": "2021",
+    "isbn": "9781541788947",
+    "source": "https://www.hachettebookgroup.com/titles/abhijit-v-banerjee/good-economics-for-hard-times/9781541788947/"
+  },
+  "b-11C-03": {
+    "pages": 200,
+    "editionTitle": "21 Things You May Not Know About the Indian Act",
+    "publisher": "Indigenous Relations Press",
+    "year": "2018",
+    "isbn": "9780995266520",
+    "source": "https://services.raincoast.com/scripts/b2b.wsc/featured?hh_isbn=9780995266520&ht_orig_from=raincoast"
+  },
+  "b-11A-03": {
+    "pages": 400,
+    "editionTitle": "The World: A Brief Introduction",
+    "publisher": "Penguin Books",
+    "year": "2021",
+    "isbn": "9780399562419",
+    "source": "https://www.penguinrandomhouseretail.com/book/?isbn=9780399562419"
+  },
+  "b-12C-02": {
+    "pages": 480,
+    "editionTitle": "Chip War",
+    "publisher": "Scribner",
+    "year": "2025",
+    "isbn": "9781982172015",
+    "source": "https://www.simonandschuster.ca/books/Chip-War/Chris-Miller/9781982172015"
+  },
+  "b-11B-03": {
+    "pages": 592,
+    "editionTitle": "The 9/11 Commission Report",
+    "publisher": "W. W. Norton & Company",
+    "year": "2004",
+    "isbn": "9780393326710",
+    "source": "https://wwnorton.co.uk/books/9780393326710-the-9-11-commission-report"
   },
   "b-reference-01": {
     "pages": 192,
