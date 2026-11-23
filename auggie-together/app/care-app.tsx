@@ -77,7 +77,7 @@ export default function CareApp(){
  const [sweep,setSweep]=useState({n:0,dir:'right'});
  const press=useLongPress((id:string)=>open('diaper',id),(id:string)=>{void quickDiaper(id);});
  const recentFeeds=useMemo(()=>{const list=(state?.items??[]).filter(e=>!e.deleted&&e.kind==='feed'&&e.subtype!=='nursing'&&e.amount!==null).sort((a,b)=>b.startedAt.localeCompare(a.startedAt));if(!list.length&&state?.lastBottleFeed)list.push(state.lastBottleFeed);return list.slice(0,5);},[state?.items,state?.lastBottleFeed]);
- const halfTiles=(['pump','weight','sleep'] as const).filter(k=>trackingEnabled(plan,k));
+ const halfTiles=(['weight','sleep'] as const).filter(k=>trackingEnabled(plan,k));
  const wideTile=halfTiles.length%2?halfTiles.at(-1):null;
  const pumpGoal=useMemo(()=>pumpingRange(plan,today,state?.weights??[]),[plan,today,state?.weights]);
  const lantern=useLantern(now);
@@ -223,6 +223,11 @@ export default function CareApp(){
   {trackingEnabled(plan,'diaper')&&<li className="pearls">{careToday.wet} wet · {careToday.dirty} dirty</li>}
   {trackingEnabled(plan,'sleep')&&<li className="sleep">{span(careToday.sleep)} sleep</li>}
  </ul>}
+ {trackingEnabled(plan,'pump')&&<button type="button" className="pump-log" onClick={()=>open('pump')} disabled={!canSave}>
+  <span className="pump-emblem" aria-hidden="true"><Heart size={21}/>{onToday&&pumpGoal.low?<TimerRing size={50} tone="pump" fraction={pumpedToday.volume/pumpGoal.low}/>:null}</span>
+  <span className="pump-copy"><strong>Log a pump</strong><small>{onToday?`${pumpedToday.volume} mL today · ${pumpedToday.count} ${pumpedToday.count===1?'session':'sessions'}`:loadFailed?'Reconnect to load today':'Loading today…'}</small></span>
+  <Plus className="pump-add" size={24} aria-hidden="true"/>
+ </button>}
  {trackingEnabled(plan,'diaper')&&<section className="journal-diaper" aria-label="Log a diaper">
 
   <div className="journal-shortcuts">{diaperPulse>0&&<i key={diaperPulse} className="pond-ripple" aria-hidden="true"/>}
@@ -262,7 +267,6 @@ export default function CareApp(){
  </section>
  <section className="easy-actions" aria-label="Quick care logging">
 
- {trackingEnabled(plan,'pump')&&<button className={"care-action pump-action"+(wideTile==='pump'?' tile-wide':'')} onClick={()=>open('pump')} disabled={!canSave}><span className="care-action-icon rose"><Heart size={28}/>{pumpGoal.low?<TimerRing size={66} tone="pump" fraction={pumpedToday.volume/pumpGoal.low}/>:null}</span><span className="care-action-label"><strong>Pumping</strong><span>{state?.day===selectedDay?`${pumpedToday.volume} mL today · ${pumpedToday.count} ${pumpedToday.count===1?'pump':'pumps'}`:loadFailed?'Reconnect to load today':'Loading today…'}</span></span><span className="care-action-end"><Plus size={25}/></span></button>}
  {trackingEnabled(plan,'milkTimers')&&<MilkBatches batches={state?.milkBatches||[]} now={now} busy={!canSave} loading={!state} onUpdate={updateMilk} onEdit={e=>open(e.kind,e.subtype,e)} onBottle={()=>open('bottle')}/>}
  {trackingEnabled(plan,'weight')&&<button className={"care-action weight-action"+(wideTile==='weight'?' tile-wide':'')} onClick={()=>open('weight')} disabled={!canSave}><span className="care-action-icon sand"><Scale size={28}/></span><span className="care-action-label"><strong>Weight</strong><span>{state?.weights[0]?.amount?`${state.weights[0].amount.toLocaleString()} g · ${prettyDay(dayKey(state.weights[0].startedAt),true)}`:'Add a measured weigh-in'}</span></span><span className="care-action-end"><Plus size={25}/></span></button>}
  {trackingEnabled(plan,'sleep')&&<section className={'easy-sleep '+(state?.activeSleep?'is-sleeping':'')+(wideTile==='sleep'?' tile-wide':'')}><button className="care-action" onClick={sleepToggle} disabled={!canSave}><span className="care-action-icon lavender"><Moon size={29}/>{state?.activeSleep&&<TimerRing size={66} tone="sleep" fraction={(now-Date.parse(state.activeSleep.startedAt))/(feedInterval*3600000)}/>}</span><span className="care-action-label"><strong>{state?.activeSleep?'End sleep':'Start sleep'}</strong><span>{state?.activeSleep?`${durationText((now-Date.parse(state.activeSleep.startedAt))/60000)} · started ${clock(state.activeSleep.startedAt)}`:'A timer you can both use'}</span></span><span className="care-action-end">{state?.activeSleep?<Square size={22}/>:<Play size={24}/>}</span></button><button className="finished-sleep" onClick={()=>open('sleep')} disabled={!canSave}>Log a sleep that already ended <ChevronRight size={16}/></button></section>}
