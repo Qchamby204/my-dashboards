@@ -3,12 +3,23 @@
  "days": [
   {
    "date": "2026-11-23",
-   "state": "updating",
-   "checkedAt": "2026-11-23T11:29:11+00:00",
-   "verifiedAt": null,
-   "generatedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-11-23T11:35:28+00:00",
+   "verifiedAt": "2026-11-23T11:35:28+00:00",
+   "generatedAt": "2026-11-23T11:34:01+00:00",
    "updatedAt": null,
-   "audio": {},
+   "audio": {
+    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/markets.mp3",
+    "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/lessons.mp3",
+    "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/companies.mp3",
+    "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/practice.mp3",
+    "manitoba": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/manitoba.mp3",
+    "politics": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/politics.mp3",
+    "climate": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/climate.mp3",
+    "tech": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/tech.mp3",
+    "health": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/health.mp3",
+    "sports": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@47a463d103d26cd48c567fb4e9a50e3e0bd1eab8/2026-11-23/sports.mp3"
+   },
    "expectedSections": [
     "markets",
     "lessons",
@@ -19,22 +30,9 @@
     "climate",
     "tech",
     "health",
-    "parenting",
     "sports"
    ],
-   "missingSections": [
-    "markets",
-    "lessons",
-    "companies",
-    "practice",
-    "manitoba",
-    "politics",
-    "climate",
-    "tech",
-    "health",
-    "parenting",
-    "sports"
-   ],
+   "missingSections": [],
    "voiceless": []
   },
   {
