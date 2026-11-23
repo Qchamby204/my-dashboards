@@ -2,7 +2,7 @@
 
 import {useEffect,useState} from 'react';
 import {useCareDialog} from './use-care-dialog';
-import {Flame,Monitor,Moon,Smartphone,Sun,Volume2,VolumeX,Waves,X} from 'lucide-react';
+import {Monitor,Moon,Smartphone,Sun,Volume2,VolumeX,Waves,X} from 'lucide-react';
 import {prefKeys,usePref,writePref,playDrop} from './wonder';
 
 type Appearance='light'|'dark'|'system';
@@ -20,7 +20,6 @@ export default function AppearanceControl(){
  const [open,setOpen]=useState(false);
  const dialog=useCareDialog(open);
  const [preference,setPreference]=useState<Appearance>('system');
- const lantern=usePref(prefKeys.lantern,'auto');
  const sound=usePref(prefKeys.sound,'off');
  const tilt=usePref(prefKeys.tilt,'sway');
  useEffect(()=>{
@@ -64,7 +63,6 @@ export default function AppearanceControl(){
   <dialog ref={dialog} className="appearance-dialog" aria-labelledby="appearance-title" onCancel={event=>{event.preventDefault();setOpen(false);}}>
    <div className="appearance-heading"><h2 id="appearance-title" data-dialog-heading tabIndex={-1}>Appearance</h2><button className="icon-button" aria-label="Close appearance" type="button" onClick={()=>setOpen(false)}><X size={20}/></button></div>
    <fieldset><legend>Colour theme</legend>{modes.map(mode=><label key={mode.id}><input type="radio" name="appearance" value={mode.id} checked={preference===mode.id} onChange={()=>choose(mode.id)}/><mode.icon size={22}/><span><strong>{mode.label}</strong><small>{mode.detail}</small></span></label>)}</fieldset>
-   <fieldset><legend>Lantern mode for night feeds</legend>{([['auto','Automatic','Dim amber light from 10 p.m. to 6 a.m.',Flame],['on','Always on','Keep the lantern lit',Flame],['off','Off','Use the colour theme above',Moon]] as const).map(([id,label,detail,Icon])=><label key={id}><input type="radio" name="lantern" value={id} checked={lantern===id} onChange={()=>{writePref(prefKeys.lantern,id);writePref(prefKeys.lanternSnooze,null);}}/><Icon size={22}/><span><strong>{label}</strong><small>{detail}</small></span></label>)}</fieldset>
    <fieldset><legend>Milk glass motion</legend>{([['sway','Gentle sway','Moves on its own, no permission needed',Waves],['phone','Tilt with my phone','iPhone asks for motion access on each visit',Smartphone]] as const).map(([id,label,detail,Icon])=><label key={id}><input type="radio" name="tilt" value={id} checked={tilt===id} onChange={()=>{writePref(prefKeys.tilt,id);if(id==='phone'){const gate=(window.DeviceOrientationEvent as unknown as {requestPermission?:()=>Promise<string>}|undefined)?.requestPermission;gate?.().catch(()=>{});}}}/><Icon size={22}/><span><strong>{label}</strong><small>{detail}</small></span></label>)}</fieldset>
    <fieldset><legend>Sound</legend>{([['off','Silent','No sound when you save',VolumeX],['on','Water drop','A soft drop when an entry saves',Volume2]] as const).map(([id,label,detail,Icon])=><label key={id}><input type="radio" name="sound" value={id} checked={sound===id} onChange={()=>{writePref(prefKeys.sound,id);if(id==='on')playDrop();}}/><Icon size={22}/><span><strong>{label}</strong><small>{detail}</small></span></label>)}</fieldset>
   </dialog>
