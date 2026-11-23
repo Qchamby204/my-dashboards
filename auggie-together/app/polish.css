@@ -73,3 +73,35 @@
 .auggie-suite .journal-log .easy-actions>.care-action.tile-wide,.auggie-suite .journal-log .easy-sleep.tile-wide>.care-action{display:flex;align-items:center;gap:16px;padding:18px}
 .care-action-icon>svg.timer-ring{width:64px!important;height:64px!important;max-width:none}
 .auggie-suite .journal-log .milk-care-card .care-summary-copy strong{font:400 22px/1.15 Georgia,serif;letter-spacing:-.02em}
+
+/* Primary pump entry in the lakeside header */
+.journal-scene .pump-log {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin: 10px 0 14px;
+  padding: 11px 14px;
+  border: 1px solid #c9a78f;
+  border-radius: 17px;
+  background: #273730;
+  color: #fff2df;
+  text-align: left;
+}
+.pump-log .pump-emblem {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: #f0b9ac;
+  background: #463f36;
+}
+.pump-emblem .timer-ring { position: absolute; inset: -4px; }
+.pump-log .pump-copy { display: grid; gap: 3px; min-width: 0; }
+.pump-copy strong { font: 400 22px/1.1 Georgia, serif; }
+.pump-copy small { color: #ecddc8; font-size: 13px; line-height: 1.35; }
+.pump-log .pump-add { margin-left: auto; flex-shrink: 0; }
+.pump-log:focus-visible { outline: 3px solid #fff2df; outline-offset: 3px; }
+.pump-log:active:enabled { background: #34473e; }
