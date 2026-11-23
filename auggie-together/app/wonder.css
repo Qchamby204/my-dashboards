@@ -1,4 +1,4 @@
-/* The living lake: real time of day, real season, and lantern light at night. */
+/* The living lake: real time of day and season. */
 .living-sky{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;border-radius:inherit}
 .living-sky>*,.living-sky b{position:absolute;display:block}
 .sky-tint{inset:0;transition:background 4s ease,opacity 4s ease}
@@ -19,24 +19,8 @@
 .sky-frost{left:0;right:0;bottom:0;height:16%;background:linear-gradient(transparent,#f4f8ff26 55%,#f9fbff55);mix-blend-mode:screen}
 .sky-leaves{inset:-10% 0 0}
 .sky-leaves b{top:-6%;width:9px;height:6px;border-radius:9px 0;background:linear-gradient(135deg,#e3a24a,#b65a2a)}
-.dock-lantern{left:15%;bottom:17%;width:12px;height:16px}
-.dock-lantern::before{content:"";position:absolute;left:-70px;top:-70px;width:152px;height:152px;border-radius:50%;background:radial-gradient(circle,#ffbb5ccc 0%,#ff9a3a44 22%,#ff8a2a14 48%,transparent 66%);mix-blend-mode:screen}
-.dock-lantern>i{position:absolute;inset:0;border-radius:3px 3px 5px 5px;background:radial-gradient(circle at 50% 60%,#fff1c2,#ffb24e 55%,#a85a1c);box-shadow:0 0 10px #ffb24e}
-.dock-lantern>i::before{content:"";position:absolute;left:3px;right:3px;top:-5px;height:5px;border:1.5px solid #3a2a18;border-bottom:0;border-radius:6px 6px 0 0}
 
-.lantern-chip{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:6px 12px;border:1px solid #c98b45;border-radius:99px;background:#2a1706cc;color:#ffcf8d;font-size:12.5px}
 
-/* Lantern mode: dim amber light for 3 a.m. feeds. */
-.lantern-veil,.lantern-dim{position:fixed;inset:0;z-index:2147483000;pointer-events:none}
-.lantern-veil{background:#ff9b45;mix-blend-mode:multiply}
-.lantern-dim{background:#000;opacity:.22}
-:root[data-lantern] dialog{filter:sepia(1) saturate(1.9) hue-rotate(-14deg) brightness(.7)}
-:root[data-lantern] dialog::backdrop{background:#0d0703d9}
-:root[data-lantern] .journal-shortcuts button{min-height:68px;font-size:17px}
-:root[data-lantern] .journal-shortcuts svg{width:24px}
-:root[data-lantern] .care-action{min-height:88px}
-:root[data-lantern] .journal-scene .milk-dial-action{padding:11px 18px;font-size:16px}
-:root[data-lantern] .see-tracker,:root[data-lantern] .lake-shimmer,:root[data-lantern] .firefly,:root[data-lantern] .sky-snow,:root[data-lantern] .sky-leaves{display:none}
 
 /* While you were away */
 .away-card{padding:clamp(16px,3vw,26px);border:1px solid #c9ab72;border-radius:22px;background:linear-gradient(160deg,#fff8e8,var(--suite-surface,#fbf7ef) 55%);box-shadow:var(--suite-raised,0 7px 19px #0001);position:relative;overflow:hidden}
@@ -80,7 +64,6 @@
  .sky-stars b{animation:twinkle 4.5s ease-in-out infinite}
  .sky-snow b{animation:snowfall linear infinite}
  .sky-leaves b{animation:leaf-fall linear infinite}
- .dock-lantern::before{animation:flicker 3.4s ease-in-out infinite}
  .sky-aurora{animation:aurora 14s ease-in-out infinite alternate;transform-origin:center}
  .sky-star.is-today circle:last-of-type{animation:breathe 2.6s ease-in-out infinite}
  .away-trail li{animation:trail-in .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*90ms + 150ms)}
@@ -90,10 +73,9 @@
 @keyframes twinkle{0%,100%{opacity:.85}50%{opacity:.25}}
 @keyframes snowfall{from{transform:translate(0,0)}to{transform:translate(var(--drift,0),560px)}}
 @keyframes leaf-fall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(24px,60%) rotate(200deg)}100%{transform:translate(-10px,140%) rotate(420deg)}}
-@keyframes flicker{0%,100%{opacity:.95}30%{opacity:.78}55%{opacity:1}70%{opacity:.85}}
 @keyframes aurora{from{transform:translateX(-10px) scaleY(.9);opacity:.75}to{transform:translateX(14px) scaleY(1.15);opacity:1}}
 @keyframes trail-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
 @keyframes away-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.sky-snow{display:none}}
-@media(forced-colors:active){.living-sky,.lantern-veil{display:none}}
+@media(forced-colors:active){.living-sky{display:none}}
 @media(prefers-reduced-transparency:reduce){.sky-snow,.sky-leaves,.sky-sun{display:none}}

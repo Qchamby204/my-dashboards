@@ -105,3 +105,11 @@
 .pump-log .pump-add { margin-left: auto; flex-shrink: 0; }
 .pump-log:focus-visible { outline: 3px solid #fff2df; outline-offset: 3px; }
 .pump-log:active:enabled { background: #34473e; }
+
+.swipe-entry { display:flex; align-items:stretch; overflow:hidden; }
+.swipe-content { flex:1; min-width:0; touch-action:pan-y pinch-zoom; }
+.swipe-delete {
+ display:grid; place-content:center; justify-items:center; gap:3px;
+ flex:0 0 72px; min-height:44px; color:white; background:#973d3d;
+ border:0; border-radius:10px; font-size:13px; font-weight:600;
+}

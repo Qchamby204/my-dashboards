@@ -1,14 +1,13 @@
 'use client';
-// The living layer: a lake that keeps real time and season, lantern mode for
-// night feeds, the "while you were away" handoff, Auggie's sky and the
+// The living layer: a lake that keeps real time and season
+// with the "while you were away" handoff, Auggie's sky and the
 // optional water drop. Display only; nothing here writes care data.
-import {useCallback,useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
 import {clock,dayKey,eventDetail,eventTitle,shiftDay,toInput,type CareEvent} from '@/lib/care';
 
 /* ---------- small preferences shared between the dialog and the app ---------- */
-export type LanternMode='auto'|'on'|'off';
 const PREF_EVENT='auggie-preference';
-export const prefKeys={lantern:'auggie.lantern.v1',lanternSnooze:'auggie.lantern-snooze.v1',sound:'auggie.sound.v1',tilt:'auggie.tilt.v1',lastSeen:'auggie.last-seen.v1'};
+export const prefKeys={sound:'auggie.sound.v1',tilt:'auggie.tilt.v1',lastSeen:'auggie.last-seen.v1'};
 function readPref(key:string){try{return localStorage.getItem(key);}catch{return null;}}
 export function writePref(key:string,value:string|null){
   try{value===null?localStorage.removeItem(key):localStorage.setItem(key,value);}catch{/* keep for this page only */}
@@ -64,7 +63,7 @@ function Moon({phase}:{phase:number}){
   return <svg className="sky-moon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" className="moon-dark"/><path d={d} className="moon-lit"/></svg>;
 }
 
-export function LivingSky({now,lantern}:{now:number;lantern:boolean}){
+export function LivingSky({now}:{now:number}){
   const [mounted,setMounted]=useState(false);
   useEffect(()=>setMounted(true),[]);
   const minute=Math.floor(now/60000);
@@ -82,37 +81,7 @@ export function LivingSky({now,lantern}:{now:number;lantern:boolean}){
     {sky.season==='winter'&&<div className="sky-snow">{flakes.map((f,i)=><b key={i} style={{left:f.x+'%',width:f.s,height:f.s,animationDuration:f.d+'s',animationDelay:f.delay+'s','--drift':f.drift+'px'} as React.CSSProperties}/>)}</div>}
     {sky.season==='winter'&&<i className="sky-frost"/>}
     {sky.season==='autumn'&&<div className="sky-leaves">{leaves.map((l,i)=><b key={i} style={{left:l.x+'%',animationDuration:l.d+'s',animationDelay:l.delay+'s',filter:`hue-rotate(${Math.round(l.hue*35-15)}deg)`}}/>)}</div>}
-    {lantern&&<i className="dock-lantern"><i/></i>}
   </div>;
-}
-
-/* ---------- lantern mode ---------- */
-const nightHour=(now:number)=>{const h=Number(toInput(new Date(now)).slice(11,13));return h>=22||h<6;};
-export function useLantern(now:number){
-  const mode=usePref(prefKeys.lantern,'auto') as LanternMode;
-  const snooze=Number(usePref(prefKeys.lanternSnooze,'0'))||0;
-  const minute=Math.floor(now/60000);
-  const active=mode==='on'||(mode==='auto'&&nightHour(minute*60000)&&minute*60000>snooze);
-  useEffect(()=>{
-    const root=document.documentElement;
-    if(active){
-      if(!root.dataset.lantern){root.dataset.lanternTheme=root.dataset.atlasTheme??'';}
-      root.dataset.lantern='1';root.dataset.atlasTheme='dark';
-      document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(m=>{m.content='#120b05';});
-    }else if(root.dataset.lantern){
-      delete root.dataset.lantern;
-      const pref=root.dataset.atlasAppearance;
-      root.dataset.atlasTheme=pref==='light'||pref==='dark'?pref:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
-      delete root.dataset.lanternTheme;
-      document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(m=>{m.content=root.dataset.atlasTheme==='dark'?'#1c1a2b':'#efeae3';});
-    }
-  },[active]);
-  const dim=useCallback(()=>{
-    // Off until 6 a.m., then auto again.
-    const d=new Date(),[h,m]=toInput(d).slice(11).split(':').map(Number);
-    writePref(prefKeys.lanternSnooze,String(d.getTime()+(((6-h+24)%24||24)*60-m)*60000));
-  },[]);
-  return {active,mode,snoozeTonight:dim};
 }
 
 /* ---------- the water drop ---------- */
