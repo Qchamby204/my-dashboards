@@ -866,6 +866,55 @@ body :not(.sheet,.chart-paper,.event-paper,.card,.map-card)>.decision-story{marg
  body .pj-rows.nar .pj-name,body .pj-rows.nar .pj-mid{font-size:15px}
  body .pj-rows.nar .pj-ax{font-size:13px}
 }
+
+/* =====================================================================
+   Brand: mastheads, gold accents, watermark
+   ===================================================================== */
+:root{--ds-gold:#c9a56f;--ds-gold-soft:#d9b98a;--ds-navy2:#1c2f44}
+body .mast{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:18px 32px;margin:28px 0 var(--ds-gap);padding:34px var(--ds-pad) 30px;min-height:176px;box-sizing:border-box;color:#fff;
+ background:radial-gradient(120% 140% at 0% 0%,#24405b 0%,transparent 55%),linear-gradient(135deg,var(--ds-navy) 0%,var(--ds-navy2) 100%);border-radius:var(--ds-r-card)}
+body .mast::after{content:"";position:absolute;left:var(--ds-pad);right:var(--ds-pad);bottom:0;height:2px;background:linear-gradient(90deg,var(--ds-gold) 0,var(--ds-gold) 56px,transparent 56px)}
+body .mast-text{position:relative;z-index:2;max-width:640px}
+body .mast-eyebrow{margin:0 0 10px;font:600 12.5px var(--ds-sans);letter-spacing:.06em;color:var(--ds-gold-soft)}
+body .mast h1{color:#fff;font:400 clamp(34px,3.4vw,48px)/1.04 var(--ds-serif);letter-spacing:-.02em;margin:0}
+body .mast-dek{margin:12px 0 0;font-size:15.5px;line-height:1.5;color:#c4d1dc;max-width:52ch}
+body .mast-actions{position:relative;z-index:2;display:flex;align-items:flex-end;gap:12px;justify-self:end}
+body .mast-actions label{color:#c4d1dc;font:500 12.5px var(--ds-sans);display:grid;gap:6px}
+body .mast-actions select:not(#_){background-color:#ffffff12;border-color:#ffffff38;color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+body .mast-actions select option{color:var(--ds-ink)}
+body .mast-actions .quiet,body .mast-actions .op-open{height:38px;padding:0 16px;border:1px solid #d9b98a80;border-radius:var(--ds-r-ctl);color:#f3e5cf;text-decoration:none;display:inline-flex;align-items:center;font-weight:600}
+body .mast-actions .quiet:hover{background:#d9b98a1f;text-decoration:none}
+body .mast-art{position:absolute;z-index:1;right:28px;top:50%;transform:translateY(-50%);width:min(44%,440px);height:auto;max-height:82%;opacity:.95;
+ -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 30%);mask-image:linear-gradient(90deg,transparent 0,#000 30%)}
+body .mast:has(.mast-actions) .mast-art{opacity:.8;right:200px;width:min(36%,380px)}
+body .mast-mark{position:absolute;z-index:0;right:-40px;bottom:-70px;width:300px;height:auto;opacity:.06}
+/* joined masthead: title card flows into the page's own navy panel */
+body .mast.mast-joined{margin-bottom:0;border-radius:var(--ds-r-card) var(--ds-r-card) 0 0;padding-bottom:26px;min-height:0}
+body .mast.mast-joined::after{display:none}
+body .mast-follow{border-radius:0 0 var(--ds-r-card) var(--ds-r-card)!important;border-top:1px solid #ffffff14!important;background:linear-gradient(135deg,var(--ds-navy2) 0%,var(--ds-navy) 100%)!important}
+body .mast-follow.folio-hero .kicker{color:var(--ds-gold-soft)}
+body .mast-joined .mast-art{display:none}
+/* gold title rule on cards */
+body .sheet-head h2::before,body .fx-ladder .sheet-head h2::before,body .pj-paper .plot-title h2::before,body .event-paper>.sheet-head h2::before{content:"";display:block;width:28px;height:2px;background:var(--ds-gold);margin:0 0 14px}
+/* rail */
+body .app-rail{background:linear-gradient(180deg,#14212f 0%,var(--ds-navy) 40%)}
+body .rail-brand svg{filter:drop-shadow(0 0 10px #d9b98a33)}
+body .app-rail nav button[aria-pressed=true] svg{color:var(--ds-gold-soft);stroke:var(--ds-gold-soft)}
+/* paper: faint warm light at the top */
+html body{background:radial-gradient(90% 420px at 60% -120px,#fbf8f1 0%,transparent 70%),var(--ds-paper);background-attachment:scroll}
+/* key accents */
+body .history-switch button[aria-pressed=true],body .asset-unit .unit-choice[aria-pressed=true]{box-shadow:var(--ds-shadow-ctl),inset 0 -2px 0 var(--ds-gold)}
+body .mast+.statement-band select:not(#_){background-color:#ffffff10}
+@media(max-width:760px){
+ body .mast{grid-template-columns:1fr;padding:24px 18px 22px;min-height:0;margin-top:16px}
+ body .mast h1{font-size:32px}
+ body .mast-dek{font-size:14.5px}
+ body .mast-actions{justify-self:start}
+ body .mast-art{width:70%;opacity:.25;right:-20px;top:auto;bottom:-10px;transform:none}
+ body .mast-mark{width:200px;right:-50px;bottom:-60px}
+}
+@media print{body .mast{background:var(--ds-navy)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}body .mast-art,body .mast-mark{display:none}}
+body .mast-actions>*{margin:0;padding:0}
 </style></head>
 <body><a class="skip" href="#main">Skip to workspace</a>
 <aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Return comparison</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
@@ -3085,5 +3134,64 @@ const fill=r=>{const min=+r.min||0,max=+r.max||100,v=+r.value;r.style.setPropert
 document.addEventListener('input',e=>{if(e.target.type==='range')fill(e.target)},true);
 const all=()=>document.querySelectorAll('input[type=range]').forEach(fill);
 setInterval(all,300);all();
+})();
+
+/* ===== Page mastheads: one branded title card per page ===== */
+(()=>{
+const NS='http://www.w3.org/2000/svg';
+const G='#d9b98a',B='#7fa9c4',W='#ffffff';
+// fine-line page illustrations (decorative)
+const art={
+ andex:`<path d="M10 150H410" stroke="${W}" stroke-opacity=".14"/><path d="M10 112H410M10 74H410M10 36H410" stroke="${W}" stroke-opacity=".06"/>
+  <polyline points="10,146 40,140 62,132 80,136 104,118 126,122 150,98 170,104 186,92 204,118 222,110 246,84 268,90 290,70 306,76 330,50 352,58 376,34 410,22" stroke="${G}" stroke-width="1.6" fill="none"/>
+  <polyline points="10,146 44,144 70,138 96,140 124,128 150,126 180,114 206,122 236,108 264,104 296,92 330,84 366,72 410,64" stroke="${B}" stroke-width="1.2" fill="none" stroke-opacity=".8"/>
+  <path d="M204 30V150" stroke="${G}" stroke-opacity=".45" stroke-dasharray="2 4"/><circle cx="204" cy="118" r="4" fill="${G}"/><circle cx="104" cy="118" r="3" fill="${B}"/><circle cx="330" cy="50" r="3" fill="${B}"/>`,
+ compareView:`<path d="M10 150H410" stroke="${W}" stroke-opacity=".14"/>
+  <path d="M20 138C120 128 200 104 280 80S380 40 404 26L404 70C380 80 330 96 280 104S120 132 20 138Z" fill="${G}" fill-opacity=".08"/>
+  <path d="M20 138C120 128 200 104 280 80S380 40 404 26" stroke="${G}" stroke-width="1.6" stroke-dasharray="6 4" fill="none"/>
+  <path d="M20 138C120 132 200 118 280 104S380 80 404 70" stroke="${B}" stroke-width="1.8" fill="none"/>
+  <circle cx="20" cy="138" r="4" fill="${W}"/><circle cx="404" cy="26" r="4" fill="${G}"/><circle cx="404" cy="70" r="4" fill="${B}"/>`,
+ components:`<g stroke-linecap="round"><path d="M40 44H400" stroke="${W}" stroke-opacity=".1" stroke-width="8"/><path d="M120 44H400" stroke="${G}" stroke-width="8"/>
+  <path d="M40 76H400" stroke="${W}" stroke-opacity=".1" stroke-width="8"/><path d="M60 76H400" stroke="${B}" stroke-width="8"/>
+  <path d="M40 108H400" stroke="${W}" stroke-opacity=".1" stroke-width="8"/><path d="M220 108H400" stroke="${B}" stroke-opacity=".6" stroke-width="8"/>
+  <path d="M40 140H400" stroke="${W}" stroke-opacity=".1" stroke-width="8"/><path d="M300 140H400" stroke="${G}" stroke-opacity=".6" stroke-width="8"/></g>
+  <path d="M300 24V156" stroke="${W}" stroke-opacity=".3" stroke-dasharray="2 4"/>`,
+ projection:`<path d="M30 120C150 110 270 80 404 20L404 150C270 140 150 128 30 120Z" fill="${B}" fill-opacity=".1"/>
+  <path d="M30 120C150 114 270 96 404 60L404 120C270 124 150 124 30 120Z" fill="${B}" fill-opacity=".16"/>
+  <path d="M30 120C150 110 270 80 404 20M30 120C150 128 270 140 404 150" stroke="${B}" stroke-opacity=".5" stroke-dasharray="2 4" fill="none"/>
+  <path d="M30 120C150 118 270 108 404 90" stroke="${G}" stroke-width="1.8" fill="none"/>
+  <circle cx="30" cy="120" r="4.5" fill="${W}"/><path d="M404 14V156" stroke="${W}" stroke-opacity=".12"/>`,
+ research:`<g stroke="${W}" stroke-opacity=".12"><path d="M30 30H400M30 62H400M30 94H400M30 126H400M30 158H400"/><path d="M150 18V170M240 18V170M330 18V170"/></g>
+  <g stroke-linecap="round" stroke-width="6"><path d="M164 46H222" stroke="${G}"/><path d="M164 78H208" stroke="${B}"/><path d="M164 110H230" stroke="${G}" stroke-opacity=".7"/><path d="M164 142H196" stroke="${B}" stroke-opacity=".7"/>
+  <path d="M254 46H296" stroke="${B}"/><path d="M254 78H316" stroke="${G}"/><path d="M254 110H280" stroke="${B}" stroke-opacity=".7"/><path d="M254 142H306" stroke="${G}" stroke-opacity=".7"/></g>
+  <g fill="${W}" fill-opacity=".35"><rect x="40" y="42" width="80" height="6" rx="3"/><rect x="40" y="74" width="64" height="6" rx="3"/><rect x="40" y="106" width="90" height="6" rx="3"/><rect x="40" y="138" width="56" height="6" rx="3"/></g>`
+};
+const pages={
+ lineup:{eyebrow:'Models',dek:'Eight Dimensional models, from all bonds to all equity, side by side.',join:'.folio-hero'},
+ overview:{eyebrow:'Statement',dek:'Where an illustrative statement is invested, from sleeve to holding.',join:'.statement-band'},
+ andex:{eyebrow:'Performance history',dek:'How each model grew through three decades of markets and events.'},
+ compareView:{eyebrow:'Performance history',dek:'Two models with the same starting balance, compared month by month.'},
+ components:{eyebrow:'Performance history',dek:'How the funds inside each model have performed on their own.'},
+ projection:{eyebrow:'Planning',dek:'What a balance could grow to, shown as a range of outcomes.'},
+ research:{eyebrow:'Reference',dek:'Holdings, return tables and the data behind every page.'}
+};
+const chevron='<g stroke="'+G+'" stroke-width="1.3" fill="none">'+[0,1,2,3,4,5,6].map(i=>`<path d="M3 ${6+i*4}L17 ${3+i*2}L32 ${6+i*4}"/>`).join('')+'</g>';
+for(const [id,cfg] of Object.entries(pages)){
+ const page=get(id);if(!page)continue;
+ const head=page.querySelector(':scope>.folio-heading,:scope>.intro');if(!head||head.classList.contains('mast'))continue;
+ head.classList.add('mast');
+ const h1=head.querySelector('h1');
+ const text=document.createElement('div');text.className='mast-text';
+ const eb=document.createElement('p');eb.className='mast-eyebrow';eb.textContent=cfg.eyebrow;
+ const dek=document.createElement('p');dek.className='mast-dek';dek.textContent=cfg.dek;
+ text.append(eb,h1,dek);
+ const actions=document.createElement('div');actions.className='mast-actions';
+ [...head.children].forEach(c=>{if(c!==text)actions.append(...(c.querySelector('h1')?[...c.childNodes].filter(n=>n!==h1&&!(n.nodeType===3&&!n.textContent.trim())):[c]))});
+ head.replaceChildren(text);if(actions.childNodes.length)head.append(actions);
+ // watermark: the Portfolio Studio chevron mark
+ const wm=document.createElementNS(NS,'svg');wm.setAttribute('class','mast-mark');wm.setAttribute('viewBox','0 0 35 39');wm.setAttribute('aria-hidden','true');wm.innerHTML=chevron;head.append(wm);
+ if(art[id]){const a=document.createElementNS(NS,'svg');a.setAttribute('class','mast-art');a.setAttribute('viewBox','0 0 420 170');a.setAttribute('aria-hidden','true');a.setAttribute('fill','none');a.innerHTML=art[id];head.append(a)}
+ if(cfg.join){const next=page.querySelector(':scope>'+cfg.join);if(next){head.classList.add('mast-joined');next.classList.add('mast-follow')}}
+}
 })();
 </script></body></html>
