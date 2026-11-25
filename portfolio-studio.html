@@ -676,8 +676,8 @@ body .event-paper input[type=range]::-webkit-slider-runnable-track,body .market-
 body .market-replay input[type=range]::-webkit-slider-thumb{border-color:#9fd3c9}
 
 /* ---------- Secondary buttons ---------- */
-body .loss-jump,body .researchback,body .export-holdings,body .replay-step,body .date-jump{height:34px;padding:0 14px;border:1px solid #d3cec3;border-radius:var(--ds-r-ctl);background:#fff;color:var(--ds-ink);font:600 13px var(--ds-sans);display:inline-flex;align-items:center;gap:6px;box-shadow:0 1px 0 #14222e08;transition:border-color .15s,background-color .15s}
-body .loss-jump:hover,body .researchback:hover,body .export-holdings:hover,body .date-jump:hover{border-color:#b9b2a5;background:var(--ds-sunk)}
+body .loss-jump,body .researchback,body .export-holdings,body .replay-step{height:34px;padding:0 14px;border:1px solid #d3cec3;border-radius:var(--ds-r-ctl);background:#fff;color:var(--ds-ink);font:600 13px var(--ds-sans);display:inline-flex;align-items:center;gap:6px;box-shadow:0 1px 0 #14222e08;transition:border-color .15s,background-color .15s}
+body .loss-jump:hover,body .researchback:hover,body .export-holdings:hover{border-color:#b9b2a5;background:var(--ds-sunk)}
 body .market-replay .replay-step{background:transparent;border-color:#ffffff40;color:#fff;height:30px;padding:0 10px}
 
 /* ---------- Statement band ---------- */
@@ -792,7 +792,7 @@ body .f-metric small{font-size:12.5px}
 body .pj-goal-note{font-size:12.5px}
 body .fx-andex-src{font-size:12.5px;padding:0 28px 14px;margin:0}
 /* ---------- Type scale enforcement: 12.5 meta, 13.5 secondary, 14.5 primary ---------- */
-body .history-switch button,body .switch button,body .lensnav button,body .asset-unit .unit-choice,body .heroaction,body .loss-jump,body .date-jump,body .researchback,body .export-holdings{font-size:13.5px}
+body .history-switch button,body .switch button,body .lensnav button,body .asset-unit .unit-choice,body .heroaction,body .loss-jump,body .researchback,body .export-holdings{font-size:13.5px}
 body .kicker,body .eyebrow,body .herotext .kicker,body .folio-hero .kicker{font-size:12.5px}
 body .sleeve-key span,body .weight-key span,body .plot-key span,body .pj-key,body .ld-key,body .key,body .recon-key,body .coverage-key{font-size:12.5px}
 body .sb-row em,body .gl-row em,body .sb-row-name small,body .gl-row small{font-size:12.5px}
@@ -808,6 +808,64 @@ body .sb-side>.kicker,body .sb-side strong{font-size:12.5px}
 
 body h1,body h2,body h3,body .f-metric strong,body .statement-band select,body .ld-rn,body .sb-head h3,body .research-links .tile strong{font-family:var(--ds-serif)}
 body .pj-check{white-space:nowrap}
+
+/* =====================================================================
+   Layout: one 28px content inset, one toolbar style, one rhythm
+   ===================================================================== */
+:root{--ds-pad:28px;--ds-gap:24px}
+/* cards that pad themselves */
+body .folio-hero{padding:28px var(--ds-pad) 24px}
+body .sheet.stress,body .event-paper{padding:0}
+/* containers that set the content inset */
+body :is(#stressBody,#eventStory,#componentSummary,#componentCurve,#fundTimelines,.ownership-body,.andex-top,.andexstage,.promptstrip,.eventnav,.history-controls,.history-date,.history-stats,.plot-head,.scrub,.chart-command,.individual,.pj-goal,#pjRange,#pjMethod,.subtools,.pair-selects,.insight,.sheet-head,.section-line,.basisnote,.fx-andex-src,.plot-title){padding-left:var(--ds-pad);padding-right:var(--ds-pad)}
+body .andexstage .plotfield,body .andex-top label{padding-left:0}
+body .key{margin-left:var(--ds-pad);margin-right:var(--ds-pad)}
+body .decision-story{margin-left:var(--ds-pad);margin-right:var(--ds-pad)}
+body details.sourcing>summary{padding-left:var(--ds-pad);padding-right:var(--ds-pad)}
+body details.sourcing>:not(summary){margin-left:var(--ds-pad);margin-right:var(--ds-pad)}
+body #pjMethod{padding-bottom:24px}
+body #pjRange{padding-bottom:20px}
+body .pj-notes{padding-left:18px;margin-top:6px}
+/* toolbars at the top of a card: same surface, same height, same divider */
+body :is(.history-controls,.chart-command,.andex-top,.pj-controls){background:var(--ds-sunk);border-bottom:1px solid var(--ds-line);padding-top:18px;padding-bottom:18px;margin:0;display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 18px;border-radius:var(--ds-r-card) var(--ds-r-card) 0 0}
+body .pj-controls{display:grid}
+body :is(.history-controls,.chart-command,.andex-top,.pj-controls) label{font:500 12.5px var(--ds-sans);color:var(--ds-muted)}
+body .andex-top .history-switch{align-self:flex-end}
+body .andex-top .chart-settings{margin-left:auto;align-self:center}
+/* titles inside cards */
+body .sheet-head,body .section-line{padding-top:24px;padding-bottom:12px}
+body :is(.chart-paper,.sheet,.event-paper) h3{font:400 19px/1.25 var(--ds-serif);letter-spacing:-.008em;color:var(--ds-ink)}
+body .plot-title,body .plot-head{padding-top:22px}
+body #componentSummary,body #componentCurve,body #eventStory,body #stressBody,body .individual{padding-top:22px;padding-bottom:22px}
+body .history-date{padding-top:12px;padding-bottom:12px;margin:0;border-bottom:1px solid var(--ds-line2);background:transparent;font-size:12.5px;color:var(--ds-muted)}
+body .history-stats{padding-top:20px;padding-bottom:8px;gap:28px}
+body .scrub{padding-top:12px;padding-bottom:16px}
+/* vertical rhythm between cards and page header */
+body .page>*+*{margin-top:0}
+body .page>:is(.sheet,.chart-paper,.event-paper,.card,.map-card,.statement-band,.folio-hero,.research-links){margin-bottom:var(--ds-gap)}
+body .trail-wrap{margin:-8px 0 16px;min-height:24px}
+body #stressBody,body #eventStory,body #componentSummary,body #componentCurve,body #fundTimelines{padding-left:var(--ds-pad)!important;padding-right:var(--ds-pad)!important}
+body details.sourcing :is(.sheet-head,.section-line,.history-lab){padding-left:0;padding-right:0}
+
+body .date-jump{height:auto;border-radius:var(--ds-r-sm);padding:4px 6px;margin:-4px -6px}
+body .date-jump:hover{background:var(--ds-sunk)}
+body .event-summary h3,body #eventStory .event-summary h3{font:400 clamp(26px,2.4vw,32px)/1.1 var(--ds-serif)}
+body .pj-paper .plot-title{padding-left:0;padding-right:0;padding-top:0}
+body .pj-paper .decision-story{margin-left:0;margin-right:0}
+body :not(.sheet,.chart-paper,.event-paper,.card,.map-card,.sourcing)>.basisnote{padding-left:0;padding-right:0}
+body :not(.sheet,.chart-paper,.event-paper,.card,.map-card)>.decision-story{margin-left:0;margin-right:0}
+@media(max-width:760px){:root{--ds-pad:16px;--ds-gap:16px}body .folio-hero{padding:18px 16px}}
+@media(max-width:760px){
+ body .history-controls>label{flex:1 1 100%}
+ body .history-controls>label.a,body .history-controls>label.b{flex:1 1 40%}
+ body .history-controls select{width:100%}
+ body .eventnav{flex-wrap:wrap}
+ body .eventnav label,body .eventnav select,body .event-paper select{max-width:100%;min-width:0}
+ body .eventnav label{flex:1 1 100%}
+ body .eventnav select{width:100%}
+ body .pj-rows.nar .pj-name,body .pj-rows.nar .pj-mid{font-size:15px}
+ body .pj-rows.nar .pj-ax{font-size:13px}
+}
 </style></head>
 <body><a class="skip" href="#main">Skip to workspace</a>
 <aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Return comparison</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
@@ -2836,7 +2894,7 @@ function renderRange(start){
  const rows=models.map((m,i)=>{const s=simulate(m,st.years,start);return{m,i,b:s.bands[st.years],a:s.a}});
  const nar=narrowQ.matches,W=nar?420:960,rowH=nar?54:40,H=rows.length*rowH+34,L=nar?14:190,R=W-(nar?14:120);
  const x=d3.scaleLinear([0,d3.max(rows,r=>r.b.p90)*1.03],[L,R]).nice();
- const svg=d3.select(root).append('svg').attr('viewBox',[0,0,W,H]).attr('class','pj-rows');
+ const svg=d3.select(root).append('svg').attr('viewBox',[0,0,W,H]).attr('class','pj-rows'+(nar?' nar':''));
  x.ticks(nar?3:6).forEach(t=>{svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',4).attr('y2',H-26).attr('class','pj-grid');svg.append('text').attr('x',x(t)).attr('y',H-8).attr('text-anchor','middle').attr('class','pj-ax').text(short(t))});
  svg.append('line').attr('x1',x(start)).attr('x2',x(start)).attr('y1',4).attr('y2',H-26).attr('class','pj-in');
  rows.forEach((r,k)=>{const yy=k*rowH+(nar?32:20),on=r.m.code===st.model,cmp=r.m.code===st.compare;
