@@ -1,22 +1,23 @@
 name: The Courier daily briefing
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/courier.yml
-      - scripts/courier/*.py
-      - scripts/courier/tests/**
-      - shared/courier-status.mjs
-      - shared/courier-experience.js
-      - shared/atlas-refinements.js
-      - courier/recovery-request.json
-      - courier/daily-trigger.json
-  schedule:
-    # Backstops only: the independent weekday timer updates daily-trigger.json.
-    # GitHub scheduled events can arrive hours late; adding crons is not independence.
-  - cron: "17 10 * * 1-5"
-  - cron: "43 11 * * 1-5"  # backstop: reuse generated content, always check publication
+  # Automatic delivery is paused. Restore these triggers when delivery resumes.
+  #  push:
+  #    branches: [main]
+  #    paths:
+  #      - .github/workflows/courier.yml
+  #      - scripts/courier/*.py
+  #      - scripts/courier/tests/**
+  #      - shared/courier-status.mjs
+  #      - shared/courier-experience.js
+  #      - shared/atlas-refinements.js
+  #      - courier/recovery-request.json
+  #      - courier/daily-trigger.json
+  #  schedule:
+  #    # Backstops only: the independent weekday timer updates daily-trigger.json.
+  #    # GitHub scheduled events can arrive hours late; adding crons is not independence.
+  #  - cron: "17 10 * * 1-5"
+  #  - cron: "43 11 * * 1-5"  # backstop: reuse generated content, always check publication
   workflow_dispatch:
     inputs:
       publish_only:
@@ -34,7 +35,6 @@ concurrency:
 
 jobs:
   build:
-    # Weekday delivery resumed by the owner; generation retains its bounded recovery gate.
     runs-on: ubuntu-latest
     timeout-minutes: 75
     steps:
