@@ -3,12 +3,23 @@
  "days": [
   {
    "date": "2026-11-25",
-   "state": "updating",
-   "checkedAt": "2026-11-25T11:41:32+00:00",
-   "verifiedAt": null,
-   "generatedAt": null,
+   "state": "complete",
+   "checkedAt": "2026-11-25T11:50:37+00:00",
+   "verifiedAt": "2026-11-25T11:50:37+00:00",
+   "generatedAt": "2026-11-25T11:47:01+00:00",
    "updatedAt": null,
-   "audio": {},
+   "audio": {
+    "markets": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/markets.mp3",
+    "lessons": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/lessons.mp3",
+    "companies": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/companies.mp3",
+    "practice": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/practice.mp3",
+    "manitoba": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/manitoba.mp3",
+    "politics": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/politics.mp3",
+    "climate": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/climate.mp3",
+    "health": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/health.mp3",
+    "parenting": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/parenting.mp3",
+    "sports": "https://cdn.jsdelivr.net/gh/Qchamby204/my-dashboards@cd7635b323d8ad7adf7fa7f807e03675e655ceb7/2026-11-25/sports.mp3"
+   },
    "expectedSections": [
     "markets",
     "lessons",
@@ -17,24 +28,11 @@
     "manitoba",
     "politics",
     "climate",
-    "tech",
     "health",
     "parenting",
     "sports"
    ],
-   "missingSections": [
-    "markets",
-    "lessons",
-    "companies",
-    "practice",
-    "manitoba",
-    "politics",
-    "climate",
-    "tech",
-    "health",
-    "parenting",
-    "sports"
-   ],
+   "missingSections": [],
    "voiceless": []
   },
   {
