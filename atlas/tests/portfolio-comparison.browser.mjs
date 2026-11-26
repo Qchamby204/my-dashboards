@@ -94,6 +94,9 @@ try{
   assert.equal(await find('#pp-current').inputValue(),'6');
   assert.equal(await find('#pp-days').innerText(),'30 days');
   assert(await find('#purchasing-power').isVisible());
+  await page.goto(url.href);
+  await page.reload();
+  await find('#balance').fill('10000');
   await page.goto(new URL('#outcome-range',url).href);
   const selected = find('#pjRange .pj-row.on');
   const other = find('#pjRange .pj-row:not(.on)').first();
@@ -109,8 +112,55 @@ try{
    assert.equal(await selected.locator('.pj-name').textContent(),nextName);
    await assertReadableRangeRow(selected);
   }
+  const cash=find('#pjRange .pj-cash-row'), cashValue=cash.locator('.pj-mid');
+  const waitForCash=value=>page.waitForFunction(expected=>document.querySelector('.pj-cash-row .pj-mid')?.textContent===expected,value);
+  const selectedModel=await find('#pjModel').inputValue();
+  await find('#pjYears').fill('10');
+  await page.waitForFunction(()=>document.querySelector('#pjYearsOut').textContent==='10');
+  await waitForCash('$12,677');
+  assert.equal(await cash.locator('.pj-bar').count(),0);
+  await cash.locator('.pj-cash-dot').click();
+  assert.equal(await find('#pjModel').inputValue(),selectedModel);
+  await find('#pjCashBasis').selectOption('zero');
+  assert.equal(await cashValue.textContent(),'$10,000');
+  await find('#pjReal').click();
+  assert.equal(await cashValue.textContent(),'$8,123');
+  await find('#pjNominal').click();
+  await find('#pjCashBasis').selectOption('custom');
+  await find('#pjCashRate').fill('5');
+  assert.equal(await cashValue.textContent(),'$16,289');
+  await find('#pjCashRate').fill('');
+  assert(await find('#pjCashError').isVisible());
+  assert.equal(await cash.count(),0);
+  assert.equal(await find('#pjRange .pj-row').count(),8);
+  await find('#pjCashBasis').selectOption('zero');
+  await find('#pjIndexed').uncheck();
+  await find('#pjAdd').fill('1200');
+  await waitForCash('$22,000');
+  await find('#pjTake').fill('600');
+  await waitForCash('$16,000');
+  await find('#pjHist').click();
+  assert.equal(await cashValue.textContent(),'$16,000');
+  await find('#pjCashBasis').selectOption('benchmark');
+  assert.equal(await cash.locator('.pj-bar').count(),2);
+  assert.match(await cash.locator('desc').textContent(),/T-bills.*8 in 10/);
+  const historical=await cashValue.textContent();
+  await find('#pjFee').fill('4');
+  await page.waitForFunction(()=>document.querySelector('#pjRangeSub').textContent.includes('4.00%'));
+  assert.equal(await cashValue.textContent(),historical);
+  await find('#pjCashBasis').selectOption('zero');
+  await find('#pjIndexed').check();
+  await find('#pjG2').click();
+  await page.getByLabel('Income per year').fill('200');
+  await page.getByLabel('Starting in year').fill('4');
+  const inflation=1.021;
+  const indexedCash=Array.from({length:10},(_,year)=>
+   (year<3?600:-800)*inflation**year).reduce((balance,flow)=>Math.max(0,balance+flow),10000);
+  await waitForCash('$'+Math.round(indexedCash).toLocaleString('en-CA'));
+  await page.getByLabel('Income per year').fill('100000');
+  await waitForCash('$0');
   assert.deepEqual(errors,[]);
   await context.close();
  }
- console.log('Portfolio comparisons, meeting restoration and fixed-scale replay passed on phone and desktop viewports.');
+ console.log('Portfolio comparisons, cash outcomes, meeting restoration and fixed-scale replay passed on phone and desktop viewports.');
 }finally{await browser.close();}

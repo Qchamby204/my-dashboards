@@ -535,6 +535,21 @@ html[data-theme=dark] .pj-dot-grid i.no,html[data-theme=dark] .pj-dot-key span.n
 .pj-paper .pj-goalpanel{display:none}
 /* ===== Range of outcomes, every model ===== */
 .pj-range{scroll-margin-top:5rem}
+.pj-range .sheet-head{flex-wrap:wrap;gap:1rem}
+.pj-cash-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:.7rem}
+.pj-cash-controls label{display:grid;gap:.35rem;color:var(--ds-muted);font-size:.875rem}
+.pj-cash-controls select,.pj-cash-controls input{min-height:44px;max-width:100%}
+#pjCashRate{width:7.5rem}#pjCashHelp{align-self:center}
+#pjCashError,.pj-cash-gap{margin:.5rem var(--ds-pad,28px);color:var(--ds-ink);font-size:.94rem}
+.pj-cash-gap{margin:1rem 0 0;font-variant-numeric:tabular-nums}
+.pj-cash-row{--bar:#80551c}
+html[data-theme=dark] .pj-cash-row{--bar:#dbb578}
+.pj-cash-row .pj-cash-dot{fill:var(--bar);stroke:var(--ds-surface);stroke-width:1.5px}
+.pj-rkey i.k-cash{width:10px;height:10px;margin:0 5px;border-radius:1px;transform:rotate(45deg)}
+#pjRange .pj-rkey i.k-cash{background:#80551c}
+html[data-theme=dark] #pjRange .pj-rkey i.k-cash{background:#dbb578}
+@media(max-width:640px){.pj-cash-controls{width:100%}.pj-cash-controls select{min-width:10rem}}
+
 .pj-rows{--bar:#7f95a5;--bar-out:.32;--bar-in:.72;--row-on:#eef3f6;--tick:#1f5a7d;--dot-fill:#fff;--dot-ring:#34434f;--sel:#1f5a7d;--cmp:#8b556b}
 .pj-rows .pj-row{cursor:pointer;outline:none}
 .pj-rows .pj-row-bg{fill:transparent}
@@ -3478,9 +3493,13 @@ const baseHero=renderHero;
 renderHero=function(){baseHero();try{renderLadder()}catch(err){console.warn(err)}};
 openView(view,false);
 })();
-</script><script id="fx-layer3-js">/* ===== Projected returns (FP Canada / Institute of Financial Planning 2026 Projection Assumption Guidelines) ===== */
+</script><script type="application/json" id="fxAndexExtra">{"start":"1991-11","end":"2026-10","cpi":[83.3,82.9,83.3,83.3,83.6,83.7,83.8,84.0,84.2,84.2,84.2,84.3,84.7,84.7,85.0,85.3,85.2,85.2,85.4,85.4,85.6,85.7,85.7,85.9,86.3,86.1,86.1,85.4,85.4,85.4,85.2,85.4,85.7,85.8,85.9,85.7,86.2,86.3,86.6,87.0,87.2,87.5,87.7,87.7,87.9,87.7,87.8,87.7,88.0,87.8,88.0,88.1,88.5,88.7,89.0,89.0,89.0,89.0,89.1,89.3,89.7,89.7,89.9,90.1,90.2,90.2,90.3,90.5,90.5,90.6,90.6,90.6,90.5,90.4,90.9,91.0,91.1,91.0,91.3,91.4,91.4,91.4,91.2,91.6,91.6,91.3,91.5,91.6,92.0,92.5,92.7,92.9,93.1,93.3,93.6,93.7,93.6,93.7,93.5,94.1,94.8,94.5,94.9,95.5,95.8,95.7,96.1,96.3,96.6,96.7,96.3,96.8,97.1,97.8,98.6,98.7,98.4,98.4,98.6,98.1,97.2,97.4,97.6,98.2,98.9,99.5,99.7,99.9,100.5,100.9,100.9,101.2,101.5,101.1,102.0,102.8,103.1,102.4,102.5,102.5,102.6,102.9,103.1,102.8,103.1,103.2,103.3,103.5,103.9,104.1,105.0,105.1,105.0,104.8,105.0,105.2,105.6,105.4,105.3,105.7,106.3,106.6,106.7,106.9,107.1,107.5,108.4,107.9,107.7,107.6,108.2,108.0,108.6,109.2,109.7,109.5,109.6,109.8,109.2,109.0,109.2,109.4,109.4,110.2,111.1,111.6,112.1,111.9,112.0,111.7,111.9,111.6,111.9,112.0,111.8,112.2,112.6,113.5,114.6,115.4,115.8,115.6,115.7,114.5,114.1,113.3,113.0,113.8,114.0,113.9,114.7,115.1,114.7,114.7,114.7,114.6,115.2,114.8,115.1,115.6,115.6,116.0,116.3,116.2,116.8,116.7,116.9,117.4,117.5,117.5,117.8,118.1,119.4,119.8,120.6,119.8,120.0,120.3,120.6,120.8,120.9,120.2,120.7,121.2,121.7,122.2,122.1,121.6,121.5,121.8,122.0,122.2,121.9,121.2,121.3,122.7,122.9,122.7,123.0,123.0,123.1,123.1,123.3,123.0,123.0,122.7,123.1,124.1,124.8,125.2,125.8,125.9,125.7,125.7,125.8,125.9,125.4,124.5,124.3,125.4,126.3,126.2,126.9,127.2,127.3,127.3,127.1,127.2,127.1,126.5,126.8,127.1,127.9,128.3,128.8,129.1,128.9,128.7,128.8,129.1,128.6,128.4,129.5,129.7,129.9,130.4,130.5,130.4,130.4,130.5,130.8,130.9,131.3,130.8,131.7,132.5,132.9,133.3,133.4,133.6,134.3,134.2,133.7,134.1,133.5,133.4,133.6,134.5,135.4,136.0,136.6,136.3,137.0,136.8,136.2,136.6,136.4,136.4,136.8,137.4,136.6,135.7,136.1,137.2,137.2,137.0,136.9,137.5,137.7,137.4,138.2,138.9,139.6,140.3,141.0,141.4,142.3,142.6,142.9,143.9,144.2,144.0,145.3,146.8,148.9,149.8,151.9,152.9,153.1,152.6,152.7,153.8,154.0,153.1,153.9,154.5,155.3,156.4,157.0,157.2,158.1,158.7,158.5,158.6,158.8,158.3,158.3,158.8,159.8,160.6,161.5,161.4,162.1,161.8,161.1,161.8,161.8,161.2,161.3,163.0,163.5,163.4,164.3,164.4,164.9,164.8,164.9,165.3,165.4,165.0,165.0,165.9,167.4,168.0,169.6,169.0,169.9,169.8,170.0,170.4],"tbill":[7.41,7.43,6.92,7.23,7.23,6.67,6.13,5.64,5.24,4.86,7.6,6.15,8.14,7.01,6.47,5.91,5.35,5.36,4.82,4.53,4.06,4.57,4.69,4.4,4.08,3.87,3.63,3.84,5.47,5.86,6.14,6.38,5.76,5.52,5.2,5.39,5.86,7.14,8.1,8.11,8.29,7.87,7.4,6.73,6.65,6.34,6.58,7.16,5.83,5.54,5.12,5.21,5.02,4.78,4.68,4.7,4.39,4.02,3.86,3.17,2.73,2.85,2.87,2.91,3.14,3.14,2.99,2.86,3.29,3.11,2.86,3.59,3.67,3.99,4.1,4.57,4.59,4.85,4.75,4.87,4.94,4.91,4.91,4.71,4.78,4.66,4.68,4.87,4.63,4.6,4.48,4.56,4.71,4.68,4.66,4.87,4.73,4.85,5.05,4.96,5.27,5.43,5.67,5.53,5.61,5.58,5.56,5.61,5.62,5.49,5.11,4.87,4.58,4.43,4.34,4.3,4.07,3.8,3.05,2.34,2.07,1.95,1.96,2.05,2.3,2.37,2.6,2.7,2.81,2.96,2.83,2.73,2.71,2.63,2.83,2.88,3.14,3.19,3.16,3.07,2.81,2.71,2.58,2.64,2.67,2.57,2.25,2.13,1.98,1.95,1.98,2.01,2.08,2.13,2.45,2.57,2.63,2.47,2.43,2.46,2.56,2.45,2.46,2.48,2.59,2.72,2.86,3.06,3.31,3.37,3.47,3.72,3.86,4.03,4.18,4.32,4.15,4.13,4.15,4.16,4.18,4.16,4.17,4.19,4.16,4.16,4.29,4.42,4.57,3.83,3.97,3.96,3.91,3.86,3.41,3.24,1.72,2.68,2.68,2.6,2.41,2.42,1.92,1.98,1.7,0.83,0.83,0.67,0.39,0.22,0.2,0.24,0.23,0.21,0.22,0.22,0.22,0.19,0.16,0.16,0.28,0.39,0.45,0.5,0.65,0.62,0.87,0.92,0.99,0.98,0.95,0.95,0.92,0.97,0.95,0.93,0.92,0.93,0.83,0.89,0.86,0.83,0.86,0.93,0.92,1.06,0.94,0.86,0.92,1.03,0.99,0.99,0.95,0.92,0.93,0.96,0.97,0.99,1.01,1.03,1.0,0.99,0.98,0.9,0.94,0.91,0.89,0.85,0.89,0.95,0.93,0.95,0.96,0.94,0.92,0.88,0.91,0.91,0.6,0.56,0.54,0.66,0.63,0.58,0.41,0.37,0.43,0.41,0.48,0.52,0.48,0.46,0.44,0.55,0.53,0.49,0.53,0.51,0.51,0.49,0.51,0.48,0.45,0.47,0.54,0.52,0.52,0.65,0.73,0.71,0.99,0.92,0.88,1.05,1.2,1.14,1.09,1.2,1.29,1.25,1.4,1.54,1.51,1.73,1.72,1.67,1.66,1.67,1.66,1.68,1.69,1.66,1.65,1.62,1.64,1.66,1.66,1.66,1.64,1.61,0.49,0.26,0.22,0.21,0.16,0.14,0.12,0.09,0.12,0.07,0.06,0.11,0.09,0.1,0.1,0.15,0.17,0.18,0.12,0.13,0.09,0.16,0.32,0.37,0.58,1.32,1.37,2.09,2.65,3.22,3.55,3.86,4.06,4.25,4.37,4.5,4.3,4.38,4.59,4.89,5.0,5.08,5.07,5.08,5.0,4.89,4.94,4.96,4.99,4.91,4.81,4.64,4.39,4.19,4.02,3.51,3.42,3.15,2.89,2.84,2.64,2.64,2.65,2.67,2.68,2.66,2.42,2.23,2.16,2.15,2.18,2.18,2.29,2.28,2.29,2.26,2.27,2.27,2.39,2.53],"source":{"cpi":"Statistics Canada, Table 18-10-0004-01, Consumer Price Index, all-items, Canada, not seasonally adjusted (vector v41690973)","tbill":"Statistics Canada, Table 10-10-0122-01, Treasury bills, 3-month, last Wednesday of month (vector v122531)"}}</script><script id="fx-layer3-js">
+const studioReferenceHistory=JSON.parse(get('fxAndexExtra').textContent);
+const referenceStartMonth=monthIndex(studioReferenceHistory.start);
+const treasuryBillReturn=month=>studioReferenceHistory.tbill[month-1-referenceStartMonth]/1200;
+/* ===== Projected returns (FP Canada / Institute of Financial Planning 2026 Projection Assumption Guidelines) ===== */
 (()=>{
-const PAG={year:2026,effective:'April 30, 2026',inflation:2.1,rates:[6.3,6.4,6.6,6.3,3.2],
+const PAG={year:2026,effective:'April 30, 2026',inflation:2.1,shortTerm:2.4,rates:[6.3,6.4,6.6,6.3,3.2],
  classes:['Canadian equities','U.S. equities','International developed-market equities','Canadian equities (lowest equity rate; REITs are not covered)','Fixed income']};
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
 const st={seed:20260430,paths:true,basis:'guideline',model:pins[0],compare:pins[1],noCompare:false,goal:'none',gAmt:null,gYear:null,iAmt:null,iStart:10,years:25,fee:1.0,add:0,take:0,indexed:true,real:false,hover:null};
@@ -3507,10 +3526,17 @@ page.innerHTML='<div class="folio-heading"><div><h1>Projected returns</h1></div>
 '<div class="history-switch pj-basis" role="group" aria-label="Return basis"><button id="pjGuide" type="button">Guideline returns</button><button id="pjHist" type="button">Historical returns</button></div>'+
 '<div class="history-switch" role="group" aria-label="Dollar basis"><button id="pjNominal" type="button">Future dollars</button><button id="pjReal" type="button">Today’s dollars</button></div>'+
 '</div><div class="pj-goal"><span class="kicker">Goal</span><div class="history-switch" role="group" aria-label="Goal"><button id="pjG0" type="button">No goal</button><button id="pjG1" type="button">Reach an amount</button><button id="pjG2" type="button">Fund an income</button></div><div id="pjGoalFields" class="pj-goal-fields"></div></div><div id="pjBody"></div></section>'+
-'<section class="sheet pj-range"><div class="sheet-head"><div><h2>Range of outcomes, every model</h2><p id="pjRangeSub" class="fx-sub"></p></div></div><div id="pjRange"></div></section>'+
+'<section class="sheet pj-range"><div class="sheet-head"><div><h2>Range of outcomes</h2><p id="pjRangeSub" class="fx-sub"></p></div><div class="pj-cash-controls"><label>Cash comparison<select id="pjCashBasis"><option value="benchmark">Short-term guideline</option><option value="zero">Cash earning 0%</option><option value="custom">Custom cash rate</option></select></label><label id="pjCashRateField" hidden>Net annual rate (%)<input type="number" id="pjCashRate" min="-99" max="100" step="any" required></label><span id="pjCashHelp"></span></div></div><p id="pjCashError" hidden role="status">Enter a cash rate from −99% to 100%.</p><div id="pjRange"></div></section>'+
 '<section class="sheet pj-faq"><div class="sheet-head"><div><h2>Questions clients ask</h2></div></div><div id="pjFaq"></div></section>'+
 '<section class="sheet pj-method"><div class="sheet-head"><div><h2>How this projection is built</h2></div></div><div id="pjMethod"></div></section>';
 document.querySelector('main footer').before(page);
+get('pjCashRate').value=PAG.shortTerm;
+get('pjCashHelp').append(infoCircle('Cash comparison','The 2026 FP Canada short-term guideline assumes 2.4% annually. Historical returns use 12-month blocks of three-month Government of Canada Treasury-bill yields from Statistics Canada (Table 10-10-0122-01), converted using the previous month’s yield divided by 12. Both use the same deposits, withdrawals and inflation as the models. Cash assumes no account fee. Use a custom rate after any fees. All figures are before personal tax.'));
+get('pjCashBasis').onchange=()=>{
+ get('pjCashRateField').hidden=get('pjCashBasis').value!=='custom';
+ renderRange(balance());
+};
+get('pjCashRate').oninput=()=>renderRange(balance());
 const sel=(id,extra)=>{const s=get(id);if(extra)s.add(new Option(extra,''));models.forEach(m=>s.add(new Option(m.name,m.code)))};
 sel('pjModel');sel('pjCompare','None');
 get('pjYears').value=st.years;get('pjFee').value=st.fee.toFixed(2);get('pjIndexed').checked=st.indexed;
@@ -3551,17 +3577,23 @@ function assume(m){
 /* ---------- Monte Carlo (seeded, monthly, lognormal around the guideline return) ---------- */
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const simCache=new Map();
-function simulate(m,years,start,N=2000){
- const ck=[st.seed,st.goal,st.gAmt,st.gYear,st.iAmt,st.iStart,st.basis,m.code,years,start,st.fee,st.add,st.take,st.indexed,st.real,get('snap').value].join('|');if(simCache.has(ck))return simCache.get(ck);if(simCache.size>60)simCache.clear();
- const res=simulateRaw(m,years,start,N);simCache.set(ck,res);return res;
+function monthlyPlanFlow(year){
+ const grow=st.indexed?(1+PAG.inflation/100)**(year-1):1;
+ const income=st.goal==='income'&&year>=st.iStart;
+ return ((income?0:st.add)-st.take)*grow/12-(income?st.iAmt*(1+PAG.inflation/100)**(year-1)/12:0);
 }
-function simulateRaw(m,years,start,N){
- const a=assume(m),mu=Math.log(1+a.net/100)/12,sg=a.vol/Math.sqrt(12),inf=PAG.inflation/100;
- const hist=st.basis==='historical',rs=m.returns,fm=st.fee/1200;
+function simulate(m,years,start,N=2000,assumptions=undefined,annualFee=st.fee){
+ const ck=[st.seed,st.goal,st.gAmt,st.gYear,st.iAmt,st.iStart,st.basis,m.code,years,start,N,annualFee,st.add,st.take,st.indexed,st.real,get('snap').value].join('|');if(simCache.has(ck))return simCache.get(ck);if(simCache.size>60)simCache.clear();
+ const res=simulateRaw(m,years,start,N,assumptions===undefined?assume(m):assumptions,annualFee);simCache.set(ck,res);return res;
+}
+function simulateRaw(m,years,start,N,a,annualFee){
+ const hist=st.basis==='historical',rs=m.returns,fm=annualFee/1200,inf=PAG.inflation/100;
+ const mu=hist?0:Math.log(1+a.net/100)/12,sg=hist?0:a.vol/Math.sqrt(12);
+ const flows=Array.from({length:years},(_,i)=>monthlyPlanFlow(i+1));
  const R=rng(st.seed),out=Array.from({length:years+1},()=>new Float64Array(N));let depleted=0;
  const gauss=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R())};
  for(let p=0;p<N;p++){let v=start;out[0][p]=v;let gone=false;
-  for(let y=1;y<=years;y++){const grow=st.indexed?Math.pow(1+inf,y-1):1,inc=st.goal==='income'&&y>=st.iStart,flow=((inc?0:st.add)-st.take)*grow/12-(inc?st.iAmt*Math.pow(1+inf,y-1)/12:0);
+  for(let y=1;y<=years;y++){const flow=flows[y-1];
    const s0=hist?Math.floor(R()*(rs.length-11)):0;
    for(let k=0;k<12;k++){v=hist?v*(1+rs[s0+k]-fm)+flow:v*Math.exp(mu+sg*gauss())+flow;if(v<=0){v=0;gone=true}}
    out[y][p]=st.real?v/Math.pow(1+inf,y):v}
@@ -3586,7 +3618,7 @@ function render(){
  if(Date.now()>Date.UTC(2027,3,30)){const n=cell('p','These are the '+PAG.year+' FP Canada guideline rates. FP Canada usually publishes new guidelines each April, so check for a newer edition before using this page with clients.','pj-stale');body.append(n)}
  get('pjModel').value=st.model;get('pjCompare').value=st.compare||'';get('pjYearsOut').textContent=st.years;
  get('pjGuide').setAttribute('aria-pressed',st.basis==='guideline');get('pjHist').setAttribute('aria-pressed',st.basis==='historical');get('pjNominal').setAttribute('aria-pressed',!st.real);get('pjReal').setAttribute('aria-pressed',st.real);
- if(start===null){appendText(body,'p','Enter a positive illustrative balance at the top of the page.','basisnote');return}
+ if(start===null){appendText(body,'p','Enter a positive illustrative balance at the top of the page.','basisnote');renderRange(null);return}
  const m=modelFor(st.model),sim=simulate(m,st.years,start),b=st.compare?modelFor(st.compare):null,simB=b?simulate(b,st.years,start):null;
  const other=st.basis==='historical'?'guideline':'historical',ghost=(()=>{const keep=st.basis;st.basis=other;const g=simulate(m,st.years,start);st.basis=keep;return g})();
  const basisName=st.basis==='historical'?'Historical returns':'FP Canada guideline returns';
@@ -3720,15 +3752,42 @@ function render(){
  body.append(story);
  renderRange(start);renderMethod(m);renderFaq(m,sim,start);
 }
+// Match the model history month for month, so a common seed selects the same annual blocks.
+const billBenchmark={code:'FXCASH',name:'Cash',returns:dates.map(d=>treasuryBillReturn(monthIndex(d)))};
+function cashOutcome(start){
+ const basis=get('pjCashBasis').value;
+ if(basis==='benchmark'&&st.basis==='historical'){
+  const sim=simulate(billBenchmark,st.years,start,2000,null,0);
+  return {cash:true,m:billBenchmark,b:sim.bands[st.years],range:true,label:'3-month Canadian T-bills',shortLabel:'T-bills'};
+ }
+ const rate=basis==='benchmark'?PAG.shortTerm:basis==='zero'?0:get('pjCashRate').valueAsNumber;
+ const monthGrowth=(1+rate/100)**(1/12);
+ let value=start;
+ for(let y=1;y<=st.years;y++){
+  const flow=monthlyPlanFlow(y);
+  for(let month=0;month<12;month++)value=Math.max(0,value*monthGrowth+flow);
+ }
+ if(st.real)value/=(1+PAG.inflation/100)**st.years;
+ const rateText=Number(rate.toFixed(3))+'%';
+ return {cash:true,m:billBenchmark,b:{p10:value,p25:value,p50:value,p75:value,p90:value},range:false,
+  label:rateText+' fixed annual rate',shortLabel:rateText};
+}
 function renderRange(start){
  const root=get('pjRange');root.replaceChildren();
- get('pjRangeSub').textContent='Where each model could be after '+st.years+' years, in '+(st.real?'today’s dollars':'future dollars')+', with '+st.fee.toFixed(2)+'% fees and '+(st.basis==='historical'?'historical':'guideline')+' returns. Select a model to project it above.';
- const rows=models.map((m,i)=>{const s=simulate(m,st.years,start);return{m,i,b:s.bands[st.years],a:s.a}});
- const m2=v=>'$'+(v/1e6).toFixed(2)+'M';
+ const historical=st.basis==='historical',cashInput=get('pjCashRate');
+ get('pjCashBasis').options[0].textContent=historical?'Historical Canadian T-bills':'Short-term guideline · '+PAG.shortTerm+'%';
+ const invalidCash=get('pjCashBasis').value==='custom'&&!cashInput.validity.valid;
+ cashInput.setAttribute('aria-invalid',String(invalidCash));get('pjCashError').hidden=!invalidCash;
+ get('pjRangeSub').textContent='After '+st.years+' years in '+(st.real?'today’s dollars':'future dollars')+', with '+(historical?'historical':'guideline')+' returns and '+st.fee.toFixed(2)+'% annual portfolio fees.';
+ if(start===null)return;
+ const rows=models.map(m=>{const s=simulate(m,st.years,start);return{m,b:s.bands[st.years],a:s.a,range:true}});
+ const cash=invalidCash?null:cashOutcome(start);
+ if(cash)rows.unshift(cash);
+ const m2=v=>v>=1e6?'$'+(v/1e6).toFixed(2)+'M':money0(v);
  const nar=narrowQ.matches,W=nar?380:960,rowH=nar?64:48,top=nar?8:30,H=top+rows.length*rowH+30;
  const L=nar?14:200,R=W-(nar?14:96);
- const x=d3.scaleLinear([0,d3.max(rows,r=>r.b.p90)*1.02],[L,R]).nice(nar?4:6);
- const svg=d3.select(root).append('svg').attr('viewBox',[0,0,W,H]).attr('class','pj-rows'+(nar?' nar':'')).attr('role','group').attr('aria-label','Range of outcomes for each model after '+st.years+' years');
+ const x=d3.scaleLinear([0,Math.max(start,d3.max(rows,r=>r.b.p90))*1.02],[L,R]).nice(nar?4:6);
+ const svg=d3.select(root).append('svg').attr('viewBox',[0,0,W,H]).attr('class','pj-rows'+(nar?' nar':'')).attr('role','group').attr('aria-label','Ending balances for cash and the model portfolios after '+st.years+' years');
  const gy0=top,gy1=top+rows.length*rowH;
  const tks=x.ticks(nar?4:6);tks.forEach((t,ti)=>{svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',gy0).attr('y2',gy1).attr('class','pj-grid');svg.append('text').attr('x',x(t)).attr('y',H-8).attr('text-anchor',nar&&ti===tks.length-1?'end':nar&&ti===0?'start':'middle').attr('class','pj-ax').text(t?short(t):'$0')});
  // starting balance, labelled
@@ -3736,20 +3795,29 @@ function renderRange(start){
  if(!nar)svg.append('text').attr('x',x(start)+6).attr('y',gy0-10).attr('class','pj-in-label').text('Starting '+short(start));
  if(!nar){svg.append('text').attr('x',R+16).attr('y',gy0-10).attr('class','pj-col-h').text('Typical')}
  rows.forEach((r,k)=>{const yc=top+k*rowH+rowH/2+(nar?6:0),on=r.m.code===st.model,cmp=r.m.code===st.compare;
-  const g=svg.append('g').attr('class','pj-row'+(on?' on':'')+(cmp?' cmp':''))
-   .on('click',()=>{changePin(0,r.m.code);render();window.scrollTo({top:0,behavior:reduce.matches?'auto':'smooth'})});
+  const g=svg.append('g').attr('class',r.cash?'pj-cash-row':'pj-row'+(on?' on':'')+(cmp?' cmp':''));
+  if(!r.cash)g.on('click',()=>{changePin(0,r.m.code);render();window.scrollTo({top:0,behavior:reduce.matches?'auto':'smooth'})});
   g.append('rect').attr('x',0).attr('y',yc-rowH/2+(nar?-6:2)).attr('width',W).attr('height',rowH-4).attr('rx',8).attr('class','pj-row-bg');
   if(on)g.append('rect').attr('x',0).attr('y',yc-rowH/2+(nar?-6:2)).attr('width',3).attr('height',rowH-4).attr('rx',1.5).attr('class','pj-row-tick');
-  if(nar){g.append('text').attr('id','pjr'+k+'n').attr('x',L).attr('y',yc-14).attr('class','pj-name').text(r.m.name);g.append('text').attr('id','pjr'+k+'v').attr('x',R).attr('y',yc-14).attr('text-anchor','end').attr('class','pj-mid').text(m2(r.b.p50))}
-  else{g.append('text').attr('id','pjr'+k+'n').attr('x',16).attr('y',yc-2).attr('class','pj-name').text(r.m.name);g.append('text').attr('id','pjr'+k+'s').attr('x',16).attr('y',yc+14).attr('class','pj-sub').text(r.a.net.toFixed(2)+'% a year after fees')}
-  svg.append('desc').text(r.m.name+': typical outcome '+m2(r.b.p50)+'; 8 in 10 futures between '+m2(r.b.p10)+' and '+m2(r.b.p90)+'.');
+  if(nar){g.append('text').attr('id','pjr'+k+'n').attr('x',L).attr('y',yc-14).attr('class','pj-name').text(r.cash?'Cash · '+r.shortLabel:r.m.name);g.append('text').attr('id','pjr'+k+'v').attr('x',R).attr('y',yc-14).attr('text-anchor','end').attr('class','pj-mid').text(m2(r.b.p50))}
+  else{g.append('text').attr('id','pjr'+k+'n').attr('x',16).attr('y',yc-2).attr('class','pj-name').text(r.m.name);g.append('text').attr('id','pjr'+k+'s').attr('x',16).attr('y',yc+14).attr('class','pj-sub').text(r.cash?r.label:r.a.net.toFixed(2)+'% a year after fees')}
+  g.append('desc').text(r.m.name+(r.cash?' ('+r.label+')':'')+': '+money0(r.b.p50)+(r.range?', with 8 in 10 outcomes between '+money0(r.b.p10)+' and '+money0(r.b.p90):' at the assumed rate')+'.');
   const bh=nar?10:12;
-  g.append('rect').attr('class','pj-bar pj-out').attr('x',x(r.b.p10)).attr('y',yc-bh/2).attr('width',x(r.b.p90)-x(r.b.p10)).attr('height',bh).attr('rx',bh/2).style('--i',k);
-  g.append('rect').attr('class','pj-bar pj-inr').attr('x',x(r.b.p25)).attr('y',yc-bh/2).attr('width',x(r.b.p75)-x(r.b.p25)).attr('height',bh).attr('rx',bh/2).style('--i',k);
-  g.append('circle').attr('class','pj-dot').attr('cx',x(r.b.p50)).attr('cy',yc).attr('r',bh/2+2);
+  if(r.range){
+   g.append('rect').attr('class','pj-bar pj-out').attr('x',x(r.b.p10)).attr('y',yc-bh/2).attr('width',x(r.b.p90)-x(r.b.p10)).attr('height',bh).attr('rx',bh/2).style('--i',k);
+   g.append('rect').attr('class','pj-bar pj-inr').attr('x',x(r.b.p25)).attr('y',yc-bh/2).attr('width',x(r.b.p75)-x(r.b.p25)).attr('height',bh).attr('rx',bh/2).style('--i',k);
+  }
+  if(r.cash)g.append('path').attr('class','pj-cash-dot').attr('d','M0,-7 L7,0 0,7 -7,0 Z').attr('transform','translate('+x(r.b.p50)+','+yc+')');
+  else g.append('circle').attr('class','pj-dot').attr('cx',x(r.b.p50)).attr('cy',yc).attr('r',bh/2+2);
   if(!nar)g.append('text').attr('id','pjr'+k+'v').attr('x',R+16).attr('y',yc+5).attr('class','pj-mid').text(m2(r.b.p50));
  });
  const key=cell('div',null,'pj-rkey');key.innerHTML='<span><i class="k-out"></i>8 in 10 futures</span><span><i class="k-inr"></i>Middle half</span><span><i class="k-dot"></i>Typical outcome</span><span><i class="k-start"></i>Starting balance</span>';root.append(key);
+ if(cash){
+  const label=cell('span');label.innerHTML='<i class="k-cash"></i>Cash';key.append(label);
+  const selected=rows.find(r=>r.m.code===st.model),gap=selected.b.p50-cash.b.p50;
+  const difference=Math.abs(gap)<.5?'matches cash':'is '+money0(Math.abs(gap))+(gap>0?' above cash':' below cash');
+  root.append(cell('p','The typical outcome for '+selected.m.name+' '+difference+'.','pj-cash-gap'));
+ }
 }
 function renderFaq(m,sim,start){
  const root=get('pjFaq');if(!root)return;const open=new Set([...root.querySelectorAll('details[open]')].map(d=>d.dataset.k));root.replaceChildren();
@@ -3792,13 +3860,13 @@ function renderMethod(m){
 }
 window.fxPJ={state:st,PAG,assume,render:()=>{st.still=true;try{goalFields();render()}finally{st.still=false}}};
 })();
-</script><script type="application/json" id="fxAndexExtra">{"start":"1991-11","end":"2026-10","cpi":[83.3,82.9,83.3,83.3,83.6,83.7,83.8,84.0,84.2,84.2,84.2,84.3,84.7,84.7,85.0,85.3,85.2,85.2,85.4,85.4,85.6,85.7,85.7,85.9,86.3,86.1,86.1,85.4,85.4,85.4,85.2,85.4,85.7,85.8,85.9,85.7,86.2,86.3,86.6,87.0,87.2,87.5,87.7,87.7,87.9,87.7,87.8,87.7,88.0,87.8,88.0,88.1,88.5,88.7,89.0,89.0,89.0,89.0,89.1,89.3,89.7,89.7,89.9,90.1,90.2,90.2,90.3,90.5,90.5,90.6,90.6,90.6,90.5,90.4,90.9,91.0,91.1,91.0,91.3,91.4,91.4,91.4,91.2,91.6,91.6,91.3,91.5,91.6,92.0,92.5,92.7,92.9,93.1,93.3,93.6,93.7,93.6,93.7,93.5,94.1,94.8,94.5,94.9,95.5,95.8,95.7,96.1,96.3,96.6,96.7,96.3,96.8,97.1,97.8,98.6,98.7,98.4,98.4,98.6,98.1,97.2,97.4,97.6,98.2,98.9,99.5,99.7,99.9,100.5,100.9,100.9,101.2,101.5,101.1,102.0,102.8,103.1,102.4,102.5,102.5,102.6,102.9,103.1,102.8,103.1,103.2,103.3,103.5,103.9,104.1,105.0,105.1,105.0,104.8,105.0,105.2,105.6,105.4,105.3,105.7,106.3,106.6,106.7,106.9,107.1,107.5,108.4,107.9,107.7,107.6,108.2,108.0,108.6,109.2,109.7,109.5,109.6,109.8,109.2,109.0,109.2,109.4,109.4,110.2,111.1,111.6,112.1,111.9,112.0,111.7,111.9,111.6,111.9,112.0,111.8,112.2,112.6,113.5,114.6,115.4,115.8,115.6,115.7,114.5,114.1,113.3,113.0,113.8,114.0,113.9,114.7,115.1,114.7,114.7,114.7,114.6,115.2,114.8,115.1,115.6,115.6,116.0,116.3,116.2,116.8,116.7,116.9,117.4,117.5,117.5,117.8,118.1,119.4,119.8,120.6,119.8,120.0,120.3,120.6,120.8,120.9,120.2,120.7,121.2,121.7,122.2,122.1,121.6,121.5,121.8,122.0,122.2,121.9,121.2,121.3,122.7,122.9,122.7,123.0,123.0,123.1,123.1,123.3,123.0,123.0,122.7,123.1,124.1,124.8,125.2,125.8,125.9,125.7,125.7,125.8,125.9,125.4,124.5,124.3,125.4,126.3,126.2,126.9,127.2,127.3,127.3,127.1,127.2,127.1,126.5,126.8,127.1,127.9,128.3,128.8,129.1,128.9,128.7,128.8,129.1,128.6,128.4,129.5,129.7,129.9,130.4,130.5,130.4,130.4,130.5,130.8,130.9,131.3,130.8,131.7,132.5,132.9,133.3,133.4,133.6,134.3,134.2,133.7,134.1,133.5,133.4,133.6,134.5,135.4,136.0,136.6,136.3,137.0,136.8,136.2,136.6,136.4,136.4,136.8,137.4,136.6,135.7,136.1,137.2,137.2,137.0,136.9,137.5,137.7,137.4,138.2,138.9,139.6,140.3,141.0,141.4,142.3,142.6,142.9,143.9,144.2,144.0,145.3,146.8,148.9,149.8,151.9,152.9,153.1,152.6,152.7,153.8,154.0,153.1,153.9,154.5,155.3,156.4,157.0,157.2,158.1,158.7,158.5,158.6,158.8,158.3,158.3,158.8,159.8,160.6,161.5,161.4,162.1,161.8,161.1,161.8,161.8,161.2,161.3,163.0,163.5,163.4,164.3,164.4,164.9,164.8,164.9,165.3,165.4,165.0,165.0,165.9,167.4,168.0,169.6,169.0,169.9,169.8,170.0,170.4],"tbill":[7.41,7.43,6.92,7.23,7.23,6.67,6.13,5.64,5.24,4.86,7.6,6.15,8.14,7.01,6.47,5.91,5.35,5.36,4.82,4.53,4.06,4.57,4.69,4.4,4.08,3.87,3.63,3.84,5.47,5.86,6.14,6.38,5.76,5.52,5.2,5.39,5.86,7.14,8.1,8.11,8.29,7.87,7.4,6.73,6.65,6.34,6.58,7.16,5.83,5.54,5.12,5.21,5.02,4.78,4.68,4.7,4.39,4.02,3.86,3.17,2.73,2.85,2.87,2.91,3.14,3.14,2.99,2.86,3.29,3.11,2.86,3.59,3.67,3.99,4.1,4.57,4.59,4.85,4.75,4.87,4.94,4.91,4.91,4.71,4.78,4.66,4.68,4.87,4.63,4.6,4.48,4.56,4.71,4.68,4.66,4.87,4.73,4.85,5.05,4.96,5.27,5.43,5.67,5.53,5.61,5.58,5.56,5.61,5.62,5.49,5.11,4.87,4.58,4.43,4.34,4.3,4.07,3.8,3.05,2.34,2.07,1.95,1.96,2.05,2.3,2.37,2.6,2.7,2.81,2.96,2.83,2.73,2.71,2.63,2.83,2.88,3.14,3.19,3.16,3.07,2.81,2.71,2.58,2.64,2.67,2.57,2.25,2.13,1.98,1.95,1.98,2.01,2.08,2.13,2.45,2.57,2.63,2.47,2.43,2.46,2.56,2.45,2.46,2.48,2.59,2.72,2.86,3.06,3.31,3.37,3.47,3.72,3.86,4.03,4.18,4.32,4.15,4.13,4.15,4.16,4.18,4.16,4.17,4.19,4.16,4.16,4.29,4.42,4.57,3.83,3.97,3.96,3.91,3.86,3.41,3.24,1.72,2.68,2.68,2.6,2.41,2.42,1.92,1.98,1.7,0.83,0.83,0.67,0.39,0.22,0.2,0.24,0.23,0.21,0.22,0.22,0.22,0.19,0.16,0.16,0.28,0.39,0.45,0.5,0.65,0.62,0.87,0.92,0.99,0.98,0.95,0.95,0.92,0.97,0.95,0.93,0.92,0.93,0.83,0.89,0.86,0.83,0.86,0.93,0.92,1.06,0.94,0.86,0.92,1.03,0.99,0.99,0.95,0.92,0.93,0.96,0.97,0.99,1.01,1.03,1.0,0.99,0.98,0.9,0.94,0.91,0.89,0.85,0.89,0.95,0.93,0.95,0.96,0.94,0.92,0.88,0.91,0.91,0.6,0.56,0.54,0.66,0.63,0.58,0.41,0.37,0.43,0.41,0.48,0.52,0.48,0.46,0.44,0.55,0.53,0.49,0.53,0.51,0.51,0.49,0.51,0.48,0.45,0.47,0.54,0.52,0.52,0.65,0.73,0.71,0.99,0.92,0.88,1.05,1.2,1.14,1.09,1.2,1.29,1.25,1.4,1.54,1.51,1.73,1.72,1.67,1.66,1.67,1.66,1.68,1.69,1.66,1.65,1.62,1.64,1.66,1.66,1.66,1.64,1.61,0.49,0.26,0.22,0.21,0.16,0.14,0.12,0.09,0.12,0.07,0.06,0.11,0.09,0.1,0.1,0.15,0.17,0.18,0.12,0.13,0.09,0.16,0.32,0.37,0.58,1.32,1.37,2.09,2.65,3.22,3.55,3.86,4.06,4.25,4.37,4.5,4.3,4.38,4.59,4.89,5.0,5.08,5.07,5.08,5.0,4.89,4.94,4.96,4.99,4.91,4.81,4.64,4.39,4.19,4.02,3.51,3.42,3.15,2.89,2.84,2.64,2.64,2.65,2.67,2.68,2.66,2.42,2.23,2.16,2.15,2.18,2.18,2.29,2.28,2.29,2.26,2.27,2.27,2.39,2.53],"source":{"cpi":"Statistics Canada, Table 18-10-0004-01, Consumer Price Index, all-items, Canada, not seasonally adjusted (vector v41690973)","tbill":"Statistics Canada, Table 10-10-0122-01, Treasury bills, 3-month, last Wednesday of month (vector v122531)"}}</script><script id="fx-layer4-js">/* ===== Andex cash and inflation, Andex readout, one model choice, accessibility, client one-pager ===== */
+</script><script id="fx-layer4-js">/* ===== Andex cash and inflation, Andex readout, one model choice, accessibility, client one-pager ===== */
 (()=>{
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
 
 /* ---------- 1. Cash and inflation lines on the Andex chart ---------- */
-const X=JSON.parse(get('fxAndexExtra').textContent),x0=monthIndex(X.start+'-01'),xEnd=x0+X.cpi.length-1;
-const cashR=t=>X.tbill[t-1-x0]/1200,infR=t=>X.cpi[t-x0]/X.cpi[t-1-x0]-1;
+const X=studioReferenceHistory,x0=referenceStartMonth,xEnd=x0+X.cpi.length-1;
+const cashR=treasuryBillReturn,infR=t=>X.cpi[t-x0]/X.cpi[t-1-x0]-1;
 folioColours.push('#a07a2c','#6f777d');nightColours.push('#ecd193','#c6ccd1');
 const CASH=folioColours.length-2,CPI=folioColours.length-1;
 // toggle in the Andex settings, next to Market events
