@@ -69,5 +69,18 @@ try{
    reports.push({theme,scenario,passed:true,frames:await p.evaluate(()=>window.ledgerLaunchFrames)});
   }catch(e){releaseDelay();reports.push({theme,scenario,error:e.message,requests,entry:await p.evaluate(()=>({failed:window.AtlasLedgerEntryFailed,ready:!!window.LedgerDays,state:document.readyState})),frames:await p.evaluate(()=>window.ledgerLaunchFrames)});await p.screenshot({path:path.join(out,`startup-${scenario}-${theme}-error.png`)});}finally{releaseDelay();await ctx.close();}
  }
+ // The check-in can finish loading before the independent calendar script.
+ const calendarContext=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
+ try{
+  const page=await calendarContext.newPage();
+  await page.route('**/shared/accountability.js*',route=>route.fulfill({contentType:'text/javascript',body:'/* delayed calendar */'}));
+  await page.goto(origin+'/life-ledger.html?view=accountability&calendar=year');
+  await ready(page);
+  assert.equal(await page.locator('#atlas-accountability').count(),0);
+  await page.addScriptTag({content:readFileSync(path.join(root,'shared/accountability.js'),'utf8')});
+  await page.locator('.ledger-year-sheet[open]').waitFor();
+  assert.equal(await page.locator('.ly-month-name').count(),12);
+  reports.push({scenario:'late-accountability-calendar',passed:true});
+ }finally{await calendarContext.close();}
  const failures=reports.filter(r=>r.error);console.log(JSON.stringify({engine,cases:reports.length,failures}));assert.equal(failures.length,0,'Ledger cold launch reveals one current section and recovers failed assets');
 }finally{writeFileSync(path.join(out,'ledger-startup-report.json'),JSON.stringify(reports,null,2));await browser.close();await new Promise(r=>server.close(r));}
