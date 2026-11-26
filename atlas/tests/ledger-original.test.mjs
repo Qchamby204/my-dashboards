@@ -330,8 +330,8 @@ test('screen notes alone save without awarding a successful day; normal outcomes
  assert.equal(h.run('state.achvQueue.length'),0);assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),0);
  const rows=Array.from({length:29},(_,i)=>({date:'2026-09-'+String(i+1).padStart(2,'0'),units:{'Screen Discipline':1}}));
  const earned=await screenBoot({records:{[S]:JSON.stringify(rows),[C]:JSON.stringify({start:'2026-09-01',end:'2026-12-31'})}});
- earned.node('ledger-quick-reset').click();earned.node('screen-reset-done').click();earned.act('toggle',{habit:'Screen Discipline'});await earned.api.saveDay();
- assert.equal(earned.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),30);assert(earned.run('state.achvQueue.some(a=>a.name==="Unplugged")'));
+ earned.node('ledger-quick-reset').click();earned.node('screen-reset-done').click();earned.act('toggle',{habit:'Screen Discipline'});await earned.settle();await earned.api.saveDay();
+ assert.equal(earned.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),30);assert(earned.api.drafts.rhythm.earned.includes('Unplugged'));
 });
 
 test('saving and undoing Screen Discipline preserve other units, notes, mood and season history',async()=>{
@@ -378,7 +378,7 @@ test('screen time has a fixed daily limit without habit gating and legacy gaming
 
 test('59 minutes confirms the outcome, exactly 60 does not, and editing totals preserves other units',async()=>{
  const h=await screenBoot();h.run('state.draft.Read=7;render()');
- for(const [value,credit]of [[59,1],[60,0],[61,0],[0,1]]){h.node('leisure-minutes').click();h.node('leisure-manual-minutes').value=String(value);h.document.querySelector('dialog.ledger-dialog form').emit('submit');assert.equal(h.run('state.draft["Screen Discipline"]'),credit);assert.equal(h.run('state.draft.Read'),7);await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),credit);}
+ for(const [value,credit]of [[59,1],[60,0],[61,0],[0,1]]){h.node('leisure-minutes').click();h.node('leisure-manual-minutes').value=String(value);h.document.querySelector('dialog.ledger-dialog form').emit('submit');assert.equal(h.run('state.draft["Screen Discipline"]'),credit);assert.equal(h.run('state.draft.Read'),7);await h.settle();assert.equal(JSON.parse(h.storage.get(S))[0].units.Read,undefined);assert.equal(h.run('compute(state.days,state.goals).habit["Screen Discipline"].total'),credit);}
 });
 
 test('legacy reading and gaming records round-trip without adding new penalties',async()=>{
@@ -400,7 +400,7 @@ test('unearned gaming is tracked, a session crossing midnight splits by local da
 
 test('manual tracking supports over-budget minutes and edits without changing any habit',async()=>{
  const h=await screenBoot();fillLeisure(h,8);await h.api.saveDay();const units=h.run('JSON.stringify(state.draft)');
- h.node('leisure-minutes').click();h.node('leisure-manual-minutes').value='55';h.document.querySelector('dialog.ledger-dialog form').emit('submit');
+ h.node('leisure-minutes').click();h.node('leisure-manual-minutes').value='55';h.document.querySelector('dialog.ledger-dialog form').emit('submit');await h.settle();
  assert.match(h.node('leisure-usage').textContent,/55:00 recorded · 5:00 to the limit/);assert.equal(h.run('state.draft.Read'),25);assert.equal(h.run('state.draft["Screen Discipline"]'),1);await h.api.saveDay();
  const reload=await screenBoot({records:Object.fromEntries(h.storage)});assert.equal(reload.run('state.draftLeisure.screenMinutes'),55);assert.match(reload.node('ledger-leisure').textContent,/55 min total/);
  reload.run('exportData()');const pack=JSON.parse(await reload.downloads.at(-1).blob.text());assert.equal(pack.days[0].leisure.screenMinutes,55);
@@ -497,7 +497,7 @@ test('annual calibration reaches habit and value 99 at their rhythms and Life 99
 
 test('typing a quantity updates check-in state in place and clears an explicit missed state',async()=>{
  const h=await boot();h.run("state.draftMissed=['Read'];render()");const input=h.node('app').querySelector('[data-act="num"][data-habit="Read"]'),card=input.closest('.ledger-habit-card');input.value='5';h.node('app').emit('input',{target:input});
- assert.equal(card.querySelector('.ledger-habit-status').textContent,'Recorded');assert.equal(h.run('state.draftMissed.includes("Read")'),false);assert.equal(card.querySelector('.ledger-missed').getAttribute('aria-label'),'Did not do: Read');assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]'),input);
+ assert.equal(card.querySelector('.ledger-habit-status').textContent,'Edited');assert.equal(h.run('state.draftMissed.includes("Read")'),false);assert.equal(card.querySelector('.ledger-missed').getAttribute('aria-label'),'Did not do: Read');assert.equal(h.node('app').querySelector('[data-act="num"][data-habit="Read"]'),input);
  input.value='';h.node('app').emit('input',{target:input});assert.equal(card.querySelector('.ledger-habit-status').textContent,'Not recorded');
 });
 
@@ -536,26 +536,27 @@ test('interrupted active-history clearing recovers the explicit reset without lo
 test('card XP matches actual check-in increments for count and amount habits',async()=>{
  const h=await boot({realModel:true});
  const hints=()=>h.node('app').querySelectorAll('.ledger-card-xp').map(n=>n.textContent);
- assert.equal(hints().length,14);assert(hints().some(t=>t.startsWith('+100 XP on Save day')));assert(hints().every(t=>t.includes(' on Save day')));
- assert(hints().some(t=>t.startsWith('+10 pages per tap · +40 XP on Save day')));
- assert(hints().some(t=>t.startsWith('+15 minutes per tap · +50 XP on Save day')));
- assert(hints().some(t=>t.startsWith('+0.5 hours per tap · +6.67 XP on Save day')));
+ assert.equal(hints().length,14);assert(hints().some(t=>t.startsWith('+100 XP when saved')));assert(hints().every(t=>t.includes(' when saved')));
+ assert(hints().some(t=>t.startsWith('+10 pages per tap · +40 XP when saved')));
+ assert(hints().some(t=>t.startsWith('+15 minutes per tap · +50 XP when saved')));
+ assert(hints().some(t=>t.startsWith('+0.5 hours per tap · +6.67 XP when saved')));
  h.act('inc',{habit:'Read'});await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),40);
- h.run('render()');assert.equal(hints().filter(t=>t.startsWith('+10 pages per tap · +40 XP on Save day')).length,1);
+ h.run('render()');assert.equal(hints().filter(t=>t.startsWith('+10 pages per tap · +40 XP when saved')).length,1);
 });
 
 
-test('amount Done confirms the typed quantity and advances without changing it or saving the day',async()=>{
+test('amount Done saves only the typed habit, preserves unrelated drafts and advances',async()=>{
  const h=await boot({realModel:true});
+ h.run('state.draftNote="Keep pending"');
  for(const [habit,amount]of [['Sleep','7'],['Read','13'],['Board Work','45']]){
   h.run('goCard(HABITS.indexOf('+JSON.stringify(habit)+'))');
   const card=h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')];
   const input=card.querySelector('[data-act="num"]');input.value=amount;
-  card.querySelector('.ledger-amount-done').click();
+  card.querySelector('.ledger-amount-done').click();await h.settle();
   assert.equal(h.run('state.draft['+JSON.stringify(habit)+']'),Number(amount));
   assert.equal(h.run('state.cardIndex'),h.run('HABITS.indexOf('+JSON.stringify(habit)+')')+1);
-  assert.equal(h.api.drafts.days['2026-09-07'].units[habit],Number(amount));
-  assert.equal(h.run('state.days.length'),0);assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);
+  assert.equal(JSON.parse(h.storage.get(S))[0].units[habit],Number(amount));
+  assert.equal(JSON.parse(h.storage.get(S))[0].note,undefined);assert.equal(h.api.drafts.days['2026-09-07'].note,'Keep pending');
  }
  assert.equal(h.node('app').querySelectorAll('.ledger-amount-done').length,3);
 });
@@ -577,7 +578,7 @@ test('card amount taps preserve the existing deck and unrelated drafts until Sav
  assert.equal(h.run('state.draft.Read'),30);assert.equal(input.value,'30');
  assert.equal(h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')],card);
  assert.equal(h.node('ledger-history'),history);assert.equal(h.node('ledger-dock'),dock);
- assert.equal(card.querySelector('.ledger-habit-status').textContent,'Recorded');
+ assert.equal(card.querySelector('.ledger-habit-status').textContent,'Edited');
  h.node('app').emit('click',{target:dec});assert.equal(input.value,'20');
  assert.equal(h.run('state.draftNote'),'Keep my note');assert.equal(h.run('state.days.length'),0);
  assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);
@@ -669,4 +670,23 @@ test('the August habit keeps its emoji and joins the Connection map and saved ac
  h.node('ledger-open-history').click();
  assert.equal(h.node('ledger-view-history').hidden,false);
  assert.equal(h.storage.get(S),JSON.stringify(rows));
+});
+
+test('a failed single-habit save does not advance, and retry and Undo preserve unrelated edits',async()=>{
+ const h=await boot({realModel:true});h.run('state.draftNote="In progress";state.draft.Sleep=6;goCard(HABITS.indexOf("Read"))');
+ const confirm=()=>h.node('app').querySelectorAll('.ledger-habit-card')[h.run('HABITS.indexOf("Read")')].querySelector('.ledger-amount-done').click();
+ h.localStorage.blockedKey=S;confirm();await h.settle();
+ assert.equal(h.run('state.days.length'),0);assert.equal(h.run('state.cardIndex'),h.run('HABITS.indexOf("Read")'));
+ h.localStorage.blockedKey=null;confirm();await h.settle();
+ assert.deepEqual(JSON.parse(h.storage.get(S))[0].units,{Read:25});assert.equal(JSON.parse(h.storage.get(S))[0].note,undefined);
+ await h.run('undoLast()');await h.settle();assert.equal(h.run('state.days.length'),0);assert.equal(h.run('state.draft.Sleep'),6);assert.equal(h.run('state.draftNote'),'In progress');
+});
+
+test('custom count and quantity habits use their own one-tap list controls',async()=>{
+ const h=await boot({realModel:true});
+ h.run('userModel.added.push({key:"Garden",label:"Garden",pillar:"HEALTH",kind:"count",unit:"days"},{key:"Practice",label:"Practice",pillar:"GROWTH",kind:"qty",unit:"minutes",step:5,def:20});rebuildModel();state.logMode="list";render()');
+ h.act('toggle',{habit:'Garden'});await h.settle();
+ const input=h.node('app').querySelector('[data-act="num"][data-habit="Practice"]');
+ input.closest('.row').querySelector('.ledger-amount-done').click();await h.settle();
+ assert.deepEqual(JSON.parse(h.storage.get(S))[0].units,{Garden:1,Practice:20});assert.equal(h.run('state.logMode'),'list');
 });
