@@ -964,7 +964,13 @@ html[data-theme=dark] .op-sheet .pj-gauge-n{fill:#14222e}html[data-theme=dark] .
 @media(prefers-reduced-motion:no-preference){.lt-figure g{transition:transform .62s cubic-bezier(.22,.8,.18,1),opacity .22s ease-out}}
 @media(max-width:680px){.lt-layout{grid-template-columns:1fr;gap:.65rem}.lt-view{padding:14px}.lt-ribbon{align-items:flex-start}.lt-figure>svg{max-width:24rem;margin:auto}.lt-figure figcaption{text-align:center}}
 </style>
-<link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-32.png?v=ef1201342d31">
+<style id="fx-field-style">
+.pf-field,#pfCompare,#pfHeadline{padding:clamp(14px,2vw,26px);margin:16px 0;border:1px solid color-mix(in srgb,currentColor 24%,transparent);border-radius:14px;overflow-wrap:anywhere}.pf-controls{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:10px 0}.pf-controls label,.pf-field>label{display:grid;gap:4px;font-size:.84rem}.pf-controls select,.pf-controls input,.pf-field select{max-width:100%;min-height:42px}.pf-controls label{max-width:100%}.pf-controls[hidden]{display:none}.pf-map{position:relative;aspect-ratio:1.7;border-radius:8px;overflow:hidden;margin:12px 0;background:#243242}.pf-map .pf-tile{position:absolute;text-align:left;color:white;border:1px solid #fff9;border-radius:0;background:var(--fund);padding:0;min-height:0;min-width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;container-type:size}.pf-tile b,.pf-tile small{max-width:100%;font-size:clamp(0px,19cqw,16px);overflow:hidden;text-shadow:0 1px 3px #000}.pf-tile small{font-size:clamp(0px,16cqw,13px)}@container (height<30px){.pf-tile small{display:none}}.pf-map .pf-tile[data-state=missing]{background:repeating-linear-gradient(120deg,#65737e 0 2px,#394951 2px 8px)}.pf-map .pf-tile[data-state=dim]{background:#58616b}.pf-map .pf-tile[data-state=matched]{background:#276953}.pf-map .pf-tile[aria-pressed=true],.pf-map .pf-tile:focus-visible{outline:3px solid white;outline-offset:-4px;z-index:1}.pf-detail{padding:12px 0}.pf-equation{border-top:1px solid currentColor;margin-top:14px;padding:.7rem 0}.pf-equation summary{cursor:pointer;font-weight:650;min-height:38px}.pf-equation p{margin:.6rem 0 .1rem}.pf-equation small,.pf-known small{display:block}.pf-track{height:14px;position:relative;background:#8882;margin:.2rem 0}.pf-track i,.pf-track b{position:absolute;inset:0 auto 0 0;box-sizing:border-box}.pf-track i{background:#8888}.pf-track[data-direction=increase] i{background:#428a70}.pf-track[data-direction=decrease] i{background:#b27752}.pf-track b{border:1.5px solid currentColor;background:none}.pf-label{margin-top:.8rem;font-weight:650}.pf-blind>:not(#pfHeadline){display:none!important}.pf-history{display:block;width:100%;max-height:280px;background:color-mix(in srgb,currentColor 5%,transparent);margin:8px 0}.pf-history path{fill:none;stroke-width:3}.pf-past{stroke:#528ea7}.pf-reveal{stroke:#bf8c50}.pf-cursor{stroke:currentColor;stroke-width:1!important;stroke-dasharray:3 4}#pfHeadline>small{display:block;margin:.6em 0}#pfHeadline>button{min-height:42px}
+
+.pf-field select,.pf-field label{width:100%;min-width:0;box-sizing:border-box}.pf-controls>select{width:auto;flex:1 1 13rem;min-width:0}.pf-tile .pf-slice{position:absolute;inset:auto 0 0;height:var(--inside,0);background:#b0eacc;border-top:0;pointer-events:none}.pf-tile .pf-fund-name{display:none}.pf-controls button[aria-pressed=true]{box-shadow:inset 0 -3px currentColor;font-weight:700}.pf-field .pf-tile[data-state=missing]{background:repeating-linear-gradient(120deg,#6d7f894d 0 1px,transparent 1px 9px),#41515b}.pf-field .pf-tile b,.pf-field .pf-tile small{z-index:1}
+@container (min-width:100px) and (min-height:50px){.pf-tile .pf-fund-name{display:block;max-width:94%;line-height:1.15;font-size:clamp(11px,8cqw,18px);font-weight:700;color:white;text-shadow:0 1px 3px #000}.pf-tile .pf-fund-name~b{font-size:10px;font-weight:500;opacity:.9}}
+@container (max-width:34px){.pf-tile b,.pf-tile small{display:none}}
+</style><link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-32.png?v=ef1201342d31">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-64.png?v=9d1339ad401f">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-apple.png?v=f8db1171b0b0">
 </head>
@@ -989,14 +995,14 @@ html[data-theme=dark] .op-sheet .pj-gauge-n{fill:#14222e}html[data-theme=dark] .
 <section class="statement-band"><div><label>Statement line<select id="portfolio"></select></label><p id="statementDate"></p></div><div class="stmt-sum"><span>Illustrative statement</span><strong id="statementAmount"></strong></div></section>
 <div class="trail-wrap"><div id="trail" class="trail" aria-label="Ownership path"></div><button id="openRecap" class="quiet">Meeting recap ↗</button></div><section class="sheet" id="ownershipPanel" tabindex="-1" aria-label="Ownership detail"></section>
 </section>
-<section id="compareView" class="page" hidden><div class="intro"><h1>Return comparison</h1></div>
+<section id="compareView" class="page" hidden><div class="intro"><h1>Return comparison</h1></div><section id="pfCompare"></section>
 <section class="sheet"><div class="history-controls"><label class="a">Model A<select id="returnA"></select></label><label class="b">Model B<select id="returnB"></select></label><label>History source<select id="experienceSource"><option value="actual">Published CAD Class I funds</option><option value="benchmark" selected>Long-run CAD benchmarks</option></select></label><label>Period<select id="experiencePeriod"><option value="12">1 year</option><option value="36">3 years</option><option value="60">5 years</option><option value="120">10 years</option><option value="all" selected>Full common history</option></select></label></div>
 <div class="history-date" id="experienceDate"></div><div id="historyStats" class="history-stats"></div>
 <p id="decisionStory" class="decision-story"></p><div id="chartsPanel"><div class="plot-head"><h3>Growth of the illustrative balance</h3><span>Canadian dollars</span></div><svg id="growthPlot" class="plot" viewBox="0 0 840 175" role="img" aria-label="Growth of the two selected portfolios over the same months"></svg>
 <div class="plot-head"><h3>Decline from the previous high</h3><span>Month-end drawdown</span></div><svg id="lossPlot" class="plot" viewBox="0 0 840 175" role="img" aria-label="Percentage decline from each portfolio’s previous high in the selected period"></svg>
 <div class="scrub"><label for="experienceMonth">Explore month</label><input type="range" id="experienceMonth" min="0" max="60" value="60"><output id="experienceRead" for="experienceMonth"></output></div></div>
 <p id="experienceFoot" class="note"></p></section></section>
-<section class="page" id="andex" hidden><div class="folio-heading"><div><h1>The Andex chart</h1></div></div>
+<section class="page" id="andex" hidden><div class="folio-heading"><div><h1>The Andex chart</h1></div></div><section id="pfHeadline"></section>
 <section class="chart-paper"><div class="andex-top"><label>Return history<select id="andexBasis"><option value="benchmark">Long-run benchmarks</option><option value="actual">Published portfolio funds</option><option value="linked">Benchmark before launch + fund after</option><option value="components">Published underlying funds</option></select></label><div class="history-switch" role="group" aria-label="Chart view"><button id="showGrowth" aria-pressed="true">Investment growth</button><button id="showDeclines" aria-pressed="false">Declines from a high</button></div><details class="chart-settings"><summary>Chart settings</summary><div class="chart-detail-grid"><label>Start portfolios<select id="andexStart"><option value="common">Together on the same date</option><option value="own">At each series’ first month</option></select></label><label>Chart scale<select id="andexScale"><option value="log">Equal percentage moves</option><option value="linear">Equal dollar moves</option></select></label><label>Time window<select id="andexWindow"><option value="full">Full history</option><option value="event">Around selected event</option></select></label><label class="checkctl"><input id="showEvents" type="checkbox" checked> Market events</label></div></details></div>
 <div class="plot-title"><div><span class="kicker" id="andexSpan"></span><h2 id="andexHeading"></h2></div><div class="plot-key" id="andexUnits"></div></div>
 <div class="andexstage"><div class="plotfield"><svg id="andexPlot" role="img" aria-label="Investment growth of all eight models with selectable market event markers"></svg><div class="monthcontrol"><label for="andexMonth">Explore month</label><input type="range" id="andexMonth" step="1"><output id="andexDate"></output></div></div><div class="seriesrail"><label class="history-actions"><input type="checkbox" id="focusModel">Selected line only</label><span class="kicker" id="seriesReadLabel">Value at selected month</span><div id="andexRead"></div></div></div>
@@ -1557,6 +1563,8 @@ function lookThroughData(model,example){
  return {date,funds,groups,pieces,total};
 }
 function openLookThroughLink(){
+ if(location.hash==='#compare-holding'){openView('compareView',false);get('pfCompare').scrollIntoView();return;}
+ if(location.hash==='#headline-replay'){headlineState.open=true;openView('andex',false);get('pfHeadline').scrollIntoView();return;}
  if(location.hash!=='#look-through')return;
  ownershipMode='lookthrough';Object.assign(statementState,{group:null,fund:null,item:null});
  openView('overview',false);renderOwnership();
@@ -1564,6 +1572,114 @@ function openLookThroughLink(){
 }
 window.addEventListener('DOMContentLoaded',openLookThroughLink);
 window.addEventListener('hashchange',openLookThroughLink);
+const fieldState={mode:'weight',name:'Royal Bank of Canada',pinned:'Royal Bank of Canada',fund:'DFA257'};
+const reportCache=new Map();
+const nameKey=s=>s.trim().replace(/\s+/g,' ').toLowerCase();
+function fundReport(code,date){
+ const id=date+'/'+code;
+ if(reportCache.has(id))return reportCache.get(id);
+ let rows=null,source='',partial=false;
+ if(date===holdingsDate&&holdings[code]){
+  rows=printedNames(code).map(r=>[r.name,r.millis/1000]);source=holdings[code][1];
+ }else if(date===profileDate&&code==='DFA257'){
+  rows=traceSource.companies;partial=true;source='Canadian Core Equity Fund · October top-ten profile';
+ }
+ const result=rows?{positions:new Map(rows.map(([n,w])=>[nameKey(n),{name:n,inside:w}])),source,partial}:null;
+ reportCache.set(id,result);return result;
+}
+function modelParts(model,date,name){
+ return allCodes.map(code=>{const w=weightFor(model,code),report=fundReport(code,date),pos=report?.positions.get(nameKey(name));
+  return {code,w,report,pos,part:w*(pos?.inside||0)/100};
+ }).filter(r=>r.w>0);
+}
+function optionList(title,choices,value,change){
+ const label=cell('label',title),el=cell('select');
+ choices.forEach(([k,v])=>el.append(new Option(v,k)));el.value=value;el.onchange=()=>change(el.value);label.append(el);return label;
+}
+function amountReceipt(name,rows,date){
+ const details=cell('details',null,'pf-equation');details.append(cell('summary','Open the number'));
+ const known=rows.filter(r=>r.pos),base=balance();
+ for(const r of known){details.append(cell('p',(base===null?'$100':money.format(base))+' × '+fmt(r.w)+' × '+r.pos.inside.toLocaleString('en-CA',{maximumFractionDigits:3})+'% = '+money.format((base??100)*r.part/100)),cell('small',r.code+' · '+shortName(r.code)+' · '+r.report.source+' · '+dateText(date)));}
+ const noReport=rows.filter(r=>!r.report),partial=rows.filter(r=>r.report?.partial&&!r.pos);
+ details.append(cell('p',known.length?(known.length>1?'Combined matched exposure · ':'Identified exposure · ')+fmt(known.reduce((s,r)=>s+r.part,0)):'No report listed '+name+' for these funds.'));
+ if(noReport.length)details.append(cell('small','No same-date report for '+noReport.map(r=>r.code).join(', ')+'.'));
+ if(partial.length)details.append(cell('small','Outside the published top ten for '+partial.map(r=>r.code).join(', ')+'. Exposure is unknown.'));
+ if(base===null)details.append(cell('small','Formula shown per $100. Enter a statement balance for dollar exposure.'));
+ return details;
+}
+function fixedField(model){
+ const host=cell('section',null,'pf-field'),date=reportDate(),heading=cell('h3','Explore the fund map');
+ const bar=cell('div',null,'pf-controls'),map=cell('div',null,'pf-map'),detail=cell('div',null,'pf-detail'),key=cell('p',null,'lt-source');
+ detail.setAttribute('aria-live','polite');host.append(heading,bar,key,map,detail);
+ const rows=modelParts(model,date,fieldState.name),codes=rows.map(r=>r.code);
+ if(!codes.includes(fieldState.fund))fieldState.fund=codes[0]||'';
+ const modes=[['weight','Fund weights'],['holding','Holding exposure'],['coverage','Report coverage']];
+ const modeButtons=new Map();
+ for(const [id,name] of modes){const b=button(name,()=>{fieldState.mode=id;paint();},'unit-choice');bar.append(b);modeButtons.set(id,b);}
+ const names=new Map();for(const r of rows)if(r.report)for(const [k,v] of r.report.positions)names.set(k,v.name);
+ const choose=cell('div',null,'pf-controls'),search=cell('input'),results=cell('select');
+ search.type='search';search.placeholder='Find a holding';search.setAttribute('aria-label','Search reported holdings');results.setAttribute('aria-label','Holding to inspect');
+ function options(){const q=nameKey(search.value);results.replaceChildren(new Option(fieldState.name,fieldState.name));for(const [k,v] of names){if(k!==nameKey(fieldState.name)&&k.includes(q))results.append(new Option(v,v));if(results.options.length>80)break;}}
+ options();search.oninput=options;results.onchange=()=>{fieldState.name=results.value;paint();};
+ choose.append(search,results,button('Pin and compare',()=>{fieldState.pinned=fieldState.name;if(!pins.includes(model.code))changePin(0,model.code);openView('compareView');get('pfCompare')?.scrollIntoView({block:'start'});},'quiet'));
+ bar.after(choose);
+ const tiles=new Map();
+ function partition(a,x,y,w,h){
+  if(!a.length)return;
+  if(a.length===1){const r=a[0],b=button('',()=>selectFund(r.code),'pf-tile');b.style.cssText='left:'+x+'%;top:'+y+'%;width:'+w+'%;height:'+h+'%;--fund:'+fundColour(r.code);b.dataset.code=r.code;
+    b.append(cell('i',null,'pf-slice'),cell('span',shortName(r.code),'pf-fund-name'),cell('b',r.code),cell('small',fmt(r.w)));map.append(b);tiles.set(r.code,b);return;}
+  const total=a.reduce((s,r)=>s+r.w,0);let cut=1,left=a[0].w;
+  while(cut<a.length-1&&Math.abs(left+a[cut].w-total/2)<Math.abs(left-total/2)){left+=a[cut++].w;}
+  const f=left/total;
+  if(w*1.6>=h){partition(a.slice(0,cut),x,y,w*f,h);partition(a.slice(cut),x+w*f,y,w*(1-f),h);}
+  else{partition(a.slice(0,cut),x,y,w,h*f);partition(a.slice(cut),x,y+h*f,w,h*(1-f));}
+ }
+ partition(rows.slice().sort((a,b)=>b.w-a.w),0,0,100,100);
+ const picker=optionList('Fund',rows.map(r=>[r.code,shortName(r.code)+' · '+r.code]),fieldState.fund,selectFund);map.after(picker);
+ function selectFund(code){fieldState.fund=code;paint();}
+ function paint(){
+  const mode=fieldState.mode,name=fieldState.name,parts=modelParts(model,date,name);
+  const total=parts.reduce((s,r)=>s+r.w,0),matched=parts.filter(r=>r.report).reduce((s,r)=>s+r.w,0);
+  for(const [id,b]of modeButtons)b.setAttribute('aria-pressed',String(mode===id));choose.hidden=mode!=='holding';
+  key.textContent=model.name+' · '+dateText(date)+' · '+(mode==='weight'?'Area shows fund weight.':mode==='coverage'?fmt(matched)+' in funds with a same-date report. Stripes mark missing reports.':'Bright tiles list '+name+'. The band shows its share of each fund. Stripes mark missing reports.')+(Math.abs(total-100)>.001?' Reported weights total '+fmt(total)+'.':'');
+  for(const r of parts){const b=tiles.get(r.code);b.style.setProperty('--inside',(mode==='holding'&&r.pos?r.pos.inside:0)+'%');b.dataset.state=mode==='weight'?'weight':!r.report?'missing':mode==='coverage'||r.pos?'matched':'dim';b.setAttribute('aria-pressed',String(r.code===fieldState.fund));b.setAttribute('aria-label',shortName(r.code)+' · '+fmt(r.w)+' · '+(r.report?'dated report':'no same-date report'));b.lastElementChild.textContent=mode==='weight'?fmt(r.w):mode==='coverage'?(r.report?'Report':'No report'):r.pos?fmt(r.part):'';}
+  picker.querySelector('select').value=fieldState.fund;detail.replaceChildren();const r=parts.find(r=>r.code===fieldState.fund);
+  if(!r){detail.append(cell('p','No fund weights for this snapshot.'));return;}
+  detail.append(cell('h4',shortName(r.code)+' · '+r.code),cell('p',fmt(r.w)+' of the portfolio'+(balance()===null?'':' · '+atWeight(r.w))));
+  if(mode==='holding')detail.append(cell('strong',r.pos?name+' through this fund · '+fmt(r.part)+(balance()===null?'':' · '+atWeight(r.part)):!r.report?'Unknown exposure · no same-date report':r.report.partial?'Outside the reported top ten':'No matching printed name in the report'),amountReceipt(name,parts,date));
+  if(mode==='coverage')detail.append(cell('p',r.report?r.report.source+' · '+dateText(date):'No underlying report matches '+dateText(date)+'.'));
+ }
+ paint();return host;
+}
+function renderFieldComparison(){
+ const root=get('pfCompare');if(!root)return;
+ const [a,b]=pins.map(modelFor),date=reportDate(),name=fieldState.pinned;
+ const A=modelParts(a,date,name),B=modelParts(b,date,name);
+ const selectModel=i=>optionList(i?'Compared model':'Original model',models.map(m=>[m.code,m.name]),pins[i],code=>changePin(i,code));
+ const controls=cell('div',null,'pf-controls');controls.append(selectModel(0),selectModel(1));
+ const names=new Map([[nameKey(name),name]]);for(const row of [...A,...B])if(row.report)for(const [k,v] of row.report.positions)names.set(k,v.name);
+ const input=cell('input'),pick=cell('select');input.type='search';input.placeholder='Find a holding';input.setAttribute('aria-label','Find a holding to pin');pick.setAttribute('aria-label','Pinned holding');
+ const options=()=>{pick.replaceChildren(new Option(name,name));for(const [k,v] of names){if(k!==nameKey(name)&&k.includes(nameKey(input.value)))pick.append(new Option(v,v));if(pick.length>80)break;}};
+ options();input.oninput=options;pick.onchange=()=>{fieldState.pinned=pick.value;renderFieldComparison();};controls.append(input,pick);
+ root.replaceChildren(cell('h2','Show me the difference'),controls,cell('p',dateText(date)+' · '+(balance()===null?'Per $100':money.format(balance()))+' in both models','lt-source'));
+ const rows=allCodes.map(code=>{const x=A.find(r=>r.code===code),y=B.find(r=>r.code===code);return {code,x:x?.w||0,y:y?.w||0,p:x?.part||0,q:y?.part||0,matched:!!(x?.pos||y?.pos),report:x?.report||y?.report};}).filter(r=>r.x||r.y);
+ const fundMax=Math.max(1,...rows.flatMap(r=>[r.x,r.y])),expMax=Math.max(.00001,...rows.flatMap(r=>[r.p,r.q]));
+ function bar(x,y,max){
+  const track=cell('div',null,'pf-track'),current=cell('i'),prior=cell('b');
+  current.style.width=y/max*100+'%';prior.style.width=x/max*100+'%';track.dataset.direction=y>x?'increase':y<x?'decrease':'equal';track.setAttribute('aria-hidden','true');track.append(current,prior);return track;
+ }
+ const change=(x,y)=>{const d=y-x;return (d<0?'−':d>0?'+':'')+Math.abs(d).toFixed(2)+' pp';};
+ const increases=rows.reduce((s,r)=>s+Math.max(0,r.y-r.x),0),decreases=rows.reduce((s,r)=>s+Math.max(0,r.x-r.y),0);
+ const diff=cell('details',null,'pf-equation');diff.open=true;diff.append(cell('summary','Fund allocation changes'),cell('p',fmt(Math.min(increases,decreases))+' moves between funds. Outline = original model. Fill = compared model.'));
+ if(Math.abs(increases-decreases)>.000001)diff.append(cell('small','Reported weights round independently. Increases total '+fmt(increases)+' and decreases total '+fmt(decreases)+'.'));
+ for(const r of rows.slice().sort((a,b)=>Math.abs(b.x-b.y)-Math.abs(a.x-a.y)))diff.append(cell('div',shortName(r.code)+' · '+r.code,'pf-label'),bar(r.x,r.y,fundMax),cell('small',fmt(r.x)+' → '+fmt(r.y)+' · '+change(r.x,r.y)));
+ const known=cell('section',null,'pf-known'),sum=(rs,f)=>rs.reduce((s,r)=>s+f(r),0),summary=rs=>{const reported=rs.some(r=>r.pos);return reported?fmt(sum(rs,r=>r.part))+(balance()===null?'':' · '+atWeight(sum(rs,r=>r.part))):'No reported match';};
+ known.append(cell('h3',name),cell('p',a.name+' · '+summary(A)),cell('p',b.name+' · '+summary(B)));
+ for(const r of rows.filter(r=>r.matched)){known.append(cell('div',shortName(r.code)+' · '+r.code,'pf-label'),bar(r.p,r.q,expMax),cell('small',fmt(r.p)+' → '+fmt(r.q)+' of portfolio'));}
+ known.append(cell('p','Fund weight without a same-date report · '+fmt(sum(A,r=>r.report?0:r.w))+' / '+fmt(sum(B,r=>r.report?0:r.w))+'. Matching uses the printed holding name.'),
+ amountReceipt(name,A,date),amountReceipt(name,B,date));const receipts=known.querySelectorAll('summary');receipts[0].textContent='Open the number · '+a.name;receipts[1].textContent='Open the number · '+b.name;
+ root.append(known,diff);
+}
 function lookThroughView(model){
  const host=cell('section',null,'lt-view');
  const ribbon=cell('div',null,'lt-ribbon'),title=cell('h3','Inside the portfolio'),source=cell('select');
@@ -1619,6 +1735,11 @@ function lookThroughView(model){
   receipt.replaceChildren();if(!row)return;
   const total=cell('strong',atWeight(row.amount)==='—'?fmt(row.amount):atWeight(row.amount)+' · '+fmt(row.amount));
   receipt.append(cell('h4',row.name),total);
+  if(mode==='holding'&&key!==ltMissing&&key!==ltRemainder){
+   const parts=data.funds.map(([code,w])=>{const report=fundReport(code,data.date),pos=report?.positions.get(nameKey(row.name));return {code,w,report,pos,part:w*(pos?.inside||0)/100};});
+   receipt.append(amountReceipt(row.name,parts,data.date));
+   if(!lookThroughState.example)receipt.append(button('Pin and compare',()=>{fieldState.pinned=row.name;if(!pins.includes(model.code))changePin(0,model.code);openView('compareView');get('pfCompare').scrollIntoView();},'quiet'));
+  }
   if(mode==='holding'&&key!==ltMissing&&key!==ltRemainder&&data.pieces.some(p=>p.group===ltMissing))receipt.append(cell('p','Amount identified in matched reports. Other funds may also hold this name.','lt-qualified'));
   const parts=data.pieces.filter(p=>keyFor(p,mode)===key).sort((a,b)=>b.amount-a.amount);
   for(const part of parts){
@@ -1659,7 +1780,7 @@ function lookThroughView(model){
   inspect(lookThroughState.selection);
  }
  source.addEventListener('change',()=>{lookThroughState.example=source.value==='example';lookThroughState.selection=null;initialize();});
- initialize();return host;
+ initialize();const field=fixedField(model);host.prepend(field);const hideExampleField=()=>{field.hidden=lookThroughState.example;};source.addEventListener('change',hideExampleField);hideExampleField();return host;
 }
 
 function renderOwnership(){
@@ -1848,6 +1969,7 @@ function plotHistory(id,paths,key,start,n,updateMonth){
  return i=>{rule.setAttribute('x1',x(i));rule.setAttribute('x2',x(i));dots.forEach((dot,j)=>{dot.setAttribute('cx',x(i));dot.setAttribute('cy',y(paths[j][key][i]))})};
 }
 function renderExperience(){
+ renderFieldComparison();
  const pair=pins.map(modelFor),actual=get('experienceSource').value==='actual',limit=get('experiencePeriod').value,initial=balance(),date=reportDate();
  const series=pair.map(m=>actual?release.actual[m.code]:{start:dates[0],end:dates.at(-1),r:m.returns});
  const end=Math.min(monthIndex(date),...series.map(s=>monthIndex(s.end))),earliest=Math.max(...series.map(s=>monthIndex(s.start)));
@@ -2328,7 +2450,37 @@ function renderRiskMap(){
 const marketEvents=[["1994-02-04", "The Fed starts tightening", "The US Federal Reserve tightened monetary conditions for the first time since 1989.", "Federal Reserve", "https://www.federalreserve.gov/fomc/19940204default.htm"], ["1997-07-02", "Asian financial crisis", "Thailand devalued the baht. Financial stress then spread across several East Asian economies.", "Federal Reserve History", "https://www.federalreservehistory.org/essays/asian-financial-crisis/"], ["2000-03-10", "The dot-com peak", "The Nasdaq Composite peaked after a surge in technology stocks.", "US Securities and Exchange Commission", "https://fraser.stlouisfed.org/files/docs/publications/sec/sec_ar/sec_ar_2002.pdf"], ["2001-09-17", "Markets after September 11", "The Federal Reserve cut its target rate to 3% and said it would continue supplying liquidity as financial markets reopened.", "Federal Reserve", "https://www.federalreserve.gov/boarddocs/press/general/2001/20010917/"], ["2008-09-15", "The housing crisis", "Lehman Brothers filed for bankruptcy as losses tied to US mortgages spread through the financial system.", "Federal Reserve", "https://www.federalreserve.gov/monetarypolicy/mpr_20090224_part2.htm"], ["2012-07-26", "The euro under pressure", "In London, ECB President Mario Draghi committed to preserving the euro within the bank’s mandate.", "European Central Bank", "https://www.ecb.europa.eu/press/key/date/2012/html/sp120726.en.html"], ["2015-01-21", "Canada responds to cheaper oil", "The Bank of Canada lowered its policy rate to 0.75% as the fall in oil prices weighed on the Canadian economy.", "Bank of Canada", "https://www.bankofcanada.ca/2015/01/fad-press-release-2015-01-21/"], ["2016-06-24", "The Brexit vote", "The Bank of England addressed financial markets after the United Kingdom voted to leave the European Union.", "Bank of England", "https://www.bankofengland.co.uk/news/2016/june/statement-from-the-governor-of-the-boe-following-the-eu-referendum-result"], ["2020-03-27", "The pandemic shock", "At an unscheduled decision during the pandemic, the Bank of Canada cut its policy rate to 0.25%.", "Bank of Canada", "https://www.bankofcanada.ca/2020/03/press-release-2020-03-27/"], ["2022-07-13", "Canada raises rates sharply", "The Bank of Canada raised its policy rate by one full percentage point.", "Bank of Canada", "https://www.bankofcanada.ca/2022/07/fad-press-release-2022-07-13/"], ["2023-03-10", "Silicon Valley Bank closes", "California regulators closed Silicon Valley Bank following rapid deposit withdrawals.", "Federal Reserve", "https://www.federalreserve.gov/publications/2023-April-SVB-Evolution-of-Silicon-Valley-Bank.htm"], ["2024-06-05", "Canada begins cutting rates", "The Bank of Canada lowered its policy rate to 4.75% as inflation pressures eased.", "Bank of Canada", "https://www.bankofcanada.ca/2024/06/fad-press-release-2024-06-05/"], ["2025-03-12", "Tariff uncertainty", "The Bank of Canada cut its policy rate to 2.75% as trade uncertainty clouded the outlook.", "Bank of Canada", "https://www.bankofcanada.ca/2025/03/opening-statement-2025-03-12/"], ["2026-01-28", "Canada holds at 2.25%", "The Bank of Canada held its policy rate steady and highlighted uncertainty about US trade policy and geopolitical risks.", "Bank of Canada", "https://www.bankofcanada.ca/2026/01/fad-press-release-2026-01-28/"]].map(([date,title,story,source,url],i)=>({date,title,story,source,url,i,t:monthIndex(date)}));
 let ownershipMode='map';
 const andexState={measure:'growth',model:'DFA692',cursor:null,event:marketEvents.findIndex(e=>e.date==='2008-09-15'),mode:null,eventFocus:false};
+const headlineState={open:false,revealed:false,event:marketEvents.findIndex(e=>e.date==='2008-09-15'),model:'',basis:'benchmark'};
+function renderHeadline(){
+ const host=get('pfHeadline');if(!host)return;
+ const s=headlineState,event=marketEvents[s.event],code=s.model||pins[0],basis=s.basis;
+ host.parentElement.classList.toggle('pf-blind',s.open);
+ host.replaceChildren(button(s.open?'Return to full history':'Pause at a headline',()=>{s.open=!s.open;s.revealed=false;stopMarketReplay();renderHeadline();if(s.open)host.querySelector('select')?.focus();},'quiet'));
+ if(!s.open)return;
+ const bar=cell('div',null,'pf-controls');host.append(cell('h2','Pause at a headline'),bar);
+ const set=(k,v)=>{s[k]=v;s.revealed=false;renderHeadline();};
+ bar.append(optionList('Historical headline',marketEvents.filter(e=>e.date<=reportDate()).map(e=>[String(e.i),e.date+' · '+e.title]),String(s.event),v=>set('event',Number(v))),optionList('Model',models.map(m=>[m.code,m.name]),code,v=>set('model',v)),optionList('History',[['benchmark','CAD index benchmark'],['actual','Published Class I portfolio']],basis,v=>set('basis',v)));
+ if(event.date>reportDate()){host.append(cell('p','Choose a headline on or before the selected report date.'));return;}
+ const src=cell('a',event.source);src.href=event.url;src.target='_blank';src.rel='noopener';
+ const byline=cell('p',dateText(event.date)+' · ');byline.append(src);host.append(byline,cell('h3',event.title));
+ const seed=balance();if(seed===null){host.append(cell('p','Enter a statement balance to replay the history.'));return;}
+ const row=chartRows(basis,'own',seed).find(r=>r.code===code),endOfMonth=new Date(Date.UTC(Number(event.date.slice(0,4)),Number(event.date.slice(5,7)),0)).getUTCDate();
+ const cut=event.t-(Number(event.date.slice(-2))===endOfMonth?0:1),last=row.first+row.values.length-1;
+ if(cut<=row.first||cut>last){host.append(cell('p','This series has no month-end observation at the headline. Choose another headline or the benchmark history.'));return;}
+ const end=s.revealed?Math.min(cut+12,last):cut,opening=Math.max(row.first,cut-36),peak=Math.max(...row.values.slice(0,cut-row.first+1)),at=t=>row.values[t-row.first];
+ const text=cell('p',monthName(cut)+' · '+money.format(at(cut))+' · '+((at(cut)/peak-1)*100).toFixed(2)+'% from the prior month-end high.');host.append(text);
+ const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('class','pf-history');svg.setAttribute('viewBox','0 0 620 165');svg.setAttribute('role','img');svg.setAttribute('aria-label',modelFor(code).name+' · '+basis+' history from '+monthName(opening)+' to '+monthName(end));
+ const vals=row.values.slice(opening-row.first,end-row.first+1),hi=Math.max(...vals),lo=Math.min(...vals),x=t=>10+(t-opening)*600/(cut+12-opening),y=v=>147-(v-lo)*132/(hi-lo||1);
+ function path(d,cls){const p=document.createElementNS(svgNS,'path');p.setAttribute('d',d);p.setAttribute('class',cls);svg.append(p);}
+ function line(a,b,cls){path(Array.from({length:b-a+1},(_,i)=>(i?'L':'M')+x(a+i)+' '+y(at(a+i))).join(' '),cls);}
+ line(opening,cut,'pf-past');path('M'+x(cut)+' 7V153','pf-cursor');if(end>cut)line(cut,end,'pf-reveal');
+ host.append(svg,cell('small',monthName(opening)+' · cursor at '+monthName(cut)+' · '+(basis==='actual'?'Published Class I portfolio':'CAD index benchmark')+' history. Values use the last available month-end on or before the headline.'));
+ if(end>cut)host.append(cell('p',monthName(end)+' · '+money.format(at(end))+' · '+((at(end)/at(cut)-1)*100).toFixed(2)+'% over '+(end-cut)+' months.'));
+ if(last>cut)host.append(button(s.revealed?'Hide what followed':'Reveal next '+Math.min(12,last-cut)+' months',()=>{s.revealed=!s.revealed;renderHeadline();get('pfHeadline').querySelector('button:last-child')?.focus({preventScroll:true});},'quiet'));
+ else host.append(cell('p','No later month is available for this snapshot.'));
+}
 function renderAndex(){
+ renderHeadline();
  stopMarketReplay();const seed=balance(),basis=get('andexBasis').value,alignment=get('andexStart').value,scale=get('andexScale').value,show=get('showEvents').checked;
  const state=andexState,allRows=chartRows(basis,alignment,seed||1),fullEnd=Math.max(...allRows.map(r=>r.first+r.values.length-1)),fullStart=Math.min(...allRows.map(r=>r.first));
  const declines=state.measure==='decline',radius=Number(get('eventRadius').value);

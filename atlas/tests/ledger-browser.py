@@ -55,9 +55,9 @@ with sync_playwright() as pw:
         assert not page.locator('[data-habit="LinkedIn Strategy"]').count()
         assert page.locator('#ledger-rhythm .ledger-rhythm-row').count() == 3
         assert page.locator('.ledger-card-xp').count() == 14
-        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+100 XP on Save day')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+100 XP when saved')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp strong')).to_have_text('+100 XP')
-        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_have_text('on Save day')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_have_text('when saved')
         assert page.locator('.ledger-habit-card').count() == 14
         expect(page.locator('#deckCounter')).to_have_text('1 / 14')
         assert page.locator('#ledger-view-today #ledger-rhythm, #ledger-view-today #ledger-leisure-preview, #ledger-view-today .ledger-day-options').count() == 0
@@ -104,7 +104,7 @@ with sync_playwright() as pw:
         for minutes, outcome in [(59, 1), (60, 0)]:
             page.locator('#leisure-minutes').click()
             page.locator('#leisure-manual-minutes').fill(str(minutes))
-            page.get_by_role('button', name='Confirm total', exact=True).click()
+            page.get_by_role('button', name='Save total', exact=True).click()
             page.wait_for_function('!document.getElementById("leisure-manual-minutes")')
             assert page.evaluate('state.draft["Screen Discipline"]') == outcome
             assert page.evaluate('state.draft.Read') == 25
@@ -131,7 +131,7 @@ with sync_playwright() as pw:
         expect(page.locator('#ledger-lifetime-levels')).to_contain_text('Life Level 0')
         go_card('Read')
         page.get_by_role('textbox', name='Amount for Read', exact=True).fill('1000')
-        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-habit-status')).to_have_text('Recorded')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-habit-status')).to_have_text('Edited')
         page.get_by_role('textbox', name='Amount for Read', exact=True).press('Tab')
         page.locator('#ledger-nav-today').click()
         page.locator('[data-act="commit"]').first.click()
@@ -174,7 +174,7 @@ with sync_playwright() as pw:
         assert page.locator('.ledger-habit-card[aria-hidden="true"]').count() == 13
         page.get_by_role('button', name='Previous habit', exact=True).click()
         go_card('Read')
-        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+10 pages per tap · +40 XP on Save day')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+10 pages per tap · +40 XP when saved')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp strong')).to_have_text('+40 XP')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_be_visible()
         page.get_by_role('button', name='Did not do: Read', exact=True).click()
@@ -220,7 +220,7 @@ with sync_playwright() as pw:
         go_card('Sleep')
         sleep = page.get_by_role('textbox', name='Amount for Sleep', exact=True)
         sleep.fill('25')
-        page.get_by_role('button', name='Confirm amount and next habit: Sleep', exact=True).click()
+        page.locator('.ledger-habit-card:not([inert]) .ledger-amount-done').click()
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-entry-error')).to_have_text('Use at most 24 hours in one day.')
         expect(sleep).to_be_focused()
         sleep.fill('7')
@@ -229,11 +229,11 @@ with sync_playwright() as pw:
             go_card(habit)
             input_field = page.get_by_role('textbox', name='Amount for ' + habit, exact=True)
             input_field.fill(value)
-            done = page.get_by_role('button', name='Confirm amount and next habit: ' + habit, exact=True)
+            done = page.locator('.ledger-habit-card:not([inert]) .ledger-amount-done')
             box = done.bounding_box()
             assert box['width'] >= 44 and box['height'] >= 44
             done.press('Enter')
-            assert page.locator('.ledger-habit-card:not([inert])').get_attribute('aria-label').split(' · ')[0] != habit
+            page.wait_for_function('h => HABITS[state.cardIndex] !== h && !document.getElementById("app").inert', arg=habit)
             go_card(habit)
             expect(page.get_by_role('textbox', name='Amount for ' + habit, exact=True)).to_have_value(value)
             no_overflow()
