@@ -1173,7 +1173,7 @@
       }
       else log.append(saveRow);
       const reflection=log.querySelector('[data-act="note"]');
-      if(reflection)reflection.after(dayPhotoControl());else log.append(dayPhotoControl());
+      if(reflection)reflection.after(dayPhotoControl());else saveRow.append(dayPhotoControl());
       const running=button('Screen-time timer running · Open',openLeisure);running.id='ledger-running-timer';running.hidden=!drafts.leisureTimer;running.classList.add('ledger-running-timer');dock.append(running);
       const nav=make('nav',null,'ledger-nav');nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Life Ledger sections');nav.style.setProperty('--atlas-page-count',String(dashboardTabs.length));
       const icons={today:'<path d="M4 5h16v15H4zM8 3v4m8-4v4M8 13l3 3 5-6"/>',achievements:'<path d="M8 3h8v7a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 14v6m-4 1h8"/>',progress:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>'};
