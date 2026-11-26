@@ -110,7 +110,7 @@ with sync_playwright() as pw:
             assert page.evaluate('state.draft.Read') == 25
         page.locator('#ledger-leisure-close').click()
         page.locator('#ledger-nav-today').click()
-        page.locator('[data-act="commit"]').first.click()
+        expect(page.locator('#ledger-checkin-save [data-act="commit"]')).to_have_text('Day saved')
         page.wait_for_function('JSON.parse(localStorage.getItem("lifeledger:v2")).some(d=>d.leisure?.screenMinutes===60)')
         dismiss_rewards()
         saved = json.loads(page.evaluate('localStorage.getItem("lifeledger:v2")'))
@@ -178,6 +178,8 @@ with sync_playwright() as pw:
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp strong')).to_have_text('+40 XP')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_be_visible()
         page.get_by_role('button', name='Did not do: Read', exact=True).click()
+        page.wait_for_function('state.days.find(d=>d.date===state.logDate)?.missed.includes("Read") && !document.getElementById("app").inert')
+        go_card('Read')
         expect(page.get_by_role('button', name='Leave unknown: Read', exact=True)).to_be_visible()
         page.get_by_role('button', name='Leave unknown: Read', exact=True).click()
         # This profile is isolated; visual checks may change its appearance only.
