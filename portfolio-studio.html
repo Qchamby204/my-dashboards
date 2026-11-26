@@ -957,7 +957,17 @@ html[data-theme=dark] .op-sheet :is(.f-metric span,.f-metric small,.op-sub,.op-b
 html[data-theme=dark] .op-sheet .pj-goalpanel{background:#f8f7f3;border-color:#eeebe5}
 html[data-theme=dark] .op-sheet .op-stats dd{color:#14222e}html[data-theme=dark] .op-sheet .op-stats dd.down{color:#a2492f}
 html[data-theme=dark] .op-sheet .pj-gauge-n{fill:#14222e}html[data-theme=dark] .op-sheet .pj-goalcmp{color:#6f3f53!important}
-</style></head>
+</style><style id="studio-look-through">
+.lt-view{padding:clamp(14px,2.5vw,30px);margin:1rem 0;border:1px solid var(--line);border-radius:16px;background:var(--paper,transparent);color:var(--ink,inherit)}
+.lt-ribbon,.lt-toggles,.lt-line{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}.lt-ribbon{justify-content:space-between}.lt-ribbon h3{font:normal clamp(24px,3vw,34px)/1.18 var(--serif,Georgia);margin:0}.lt-ribbon select{max-width:100%;min-height:42px}.lt-source{margin:.55rem 0 1rem;color:var(--muted);font-size:.87rem}.lt-toggles{margin:.6rem 0 1.25rem}.lt-toggles button{min-height:42px}
+.lt-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,3vw,42px);align-items:start}.lt-figure{margin:0;min-width:0}.lt-figure>svg{width:100%;max-width:32rem;display:block;cursor:pointer;aspect-ratio:1}.lt-figure figcaption{margin:.65rem 0;color:var(--muted);font-size:.78rem}.lt-list{display:grid;align-content:start;gap:1px}.lt-view button.lt-row{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:.6rem;text-align:left;background:transparent;color:inherit;font:inherit;font-size:.88rem;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:8px 4px;min-height:44px;width:100%}.lt-row small{display:block;font-size:.7rem;color:var(--muted)}.lt-row i{width:20px;height:9px;border-radius:3px}.lt-view .lt-row[aria-pressed=true]{box-shadow:inset 0 -2px currentColor;font-weight:600}.lt-row strong,.lt-line span:last-child{font-variant-numeric:tabular-nums}.lt-view .lt-toggles button[aria-pressed=true]{box-shadow:inset 0 -3px currentColor;font-weight:650}.lt-qualified{font-size:.84rem;color:var(--muted)}.lt-hatch-key{display:block;font-weight:600}.lt-view[data-mode=fund] .lt-hatch{display:none}.lt-receipt:empty{display:none}.lt-receipt{margin:.9rem 0 0;border-top:2px solid var(--line);padding-top:.8rem}.lt-receipt h4{margin:.2rem 0;font:normal 1.2rem var(--serif,Georgia)}.lt-receipt>strong{display:block;margin-bottom:.65rem}.lt-line{display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:1px solid var(--line);padding:.4rem 0;font-size:.81rem}.lt-line span:last-child{text-align:right}
+@media(prefers-reduced-motion:no-preference){.lt-figure g{transition:transform .62s cubic-bezier(.22,.8,.18,1),opacity .22s ease-out}}
+@media(max-width:680px){.lt-layout{grid-template-columns:1fr;gap:.65rem}.lt-view{padding:14px}.lt-ribbon{align-items:flex-start}.lt-figure>svg{max-width:24rem;margin:auto}.lt-figure figcaption{text-align:center}}
+</style>
+<link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-32.png?v=ef1201342d31">
+<link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-64.png?v=9d1339ad401f">
+<link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-apple.png?v=f8db1171b0b0">
+</head>
 <body><a class="skip" href="#main">Skip to workspace</a>
 <aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Return comparison</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
 <main id="main" class="frame" tabindex="-1">
@@ -1376,6 +1386,7 @@ get('downloadTemplate').onclick=()=>{
 };
 get('saveCopy').onclick=()=>{
  const copy=originalDocument.cloneNode(true);copy.querySelector('#updates').textContent=JSON.stringify(updateState).replaceAll('<','\\u003c');
+ for(const script of document.querySelectorAll('body>script[id^="fx"]'))if(!copy.querySelector('#'+script.id))copy.querySelector('body').append(script.cloneNode(true));
  downloadFile('Dimensional-Portfolio-Workbench.html','<!doctype html>'+copy.outerHTML,'text/html');
 };
 
@@ -1503,6 +1514,154 @@ function ownRow(name,sub,weight,colour,action){
  const track=cell('span',null,'own-track'),fill=cell('i');fill.style.width=weight+'%';fill.style.background=colour;track.setAttribute('aria-hidden','true');track.append(fill);
  const arrow=cell('span','›');arrow.setAttribute('aria-hidden','true');r.append(label,track,cell('span',fmt(weight),'weight'),cell('strong',atWeight(weight)),arrow);return r;
 }
+// The same capital is packed into a 10 × 10 grid in two orders. Amounts are
+// computed from the observations first. Only the drawing absorbs source rounding.
+const lookThroughState={example:false,mode:'fund',selection:null};
+const lookThroughPalette=['#417a78','#47749e','#a36c48','#756aac','#427e5a','#ae5e72','#62718f','#926f38','#397e98','#857549','#735d86','#427778','#99635a','#58689e','#616950','#945799','#756c5d','#39709c','#915f7d','#688476'];
+const lookThroughCodes=[...new Set([...allCodes,'DFA381','DFA608','DFA1235'])];
+const fundColour=c=>lookThroughPalette[lookThroughCodes.indexOf(c)%lookThroughPalette.length];
+const ltRemainder='@other',ltMissing='@missing';
+function lookThroughData(model,example){
+ const date=example?holdingsDate:reportDate();
+ const funds=(example?[['DFA381',50],['DFA608',30],['DFA1235',20]]:allCodes.map(c=>[c,weightFor(model,c)])).filter(([,w])=>w>0);
+ const holdingsByName=new Map(),hasDetail=new Set();
+ for(const [code,weight] of funds){
+  let names;
+  if(date===holdingsDate&&holdings[code])names=printedNames(code).map(r=>[r.name,r.millis/1000]);
+  else if(date===profileDate&&code==='DFA257')names=traceSource.companies;
+  else continue;
+  hasDetail.add(code);
+  for(const [name,inside] of names){
+   const key=name.trim().replace(/\s+/g,' ').toLowerCase();
+   if(!holdingsByName.has(key))holdingsByName.set(key,{key,name,total:0,funds:new Map()});
+   const row=holdingsByName.get(key),part=inside*weight/100;
+   row.total+=part;row.funds.set(code,(row.funds.get(code)||0)+part);
+  }
+ }
+ // Preserve every company in the Oct profile. Full monthly files show their
+ // ten largest combined printed names and account for all remaining weight.
+ const top=[...holdingsByName.values()].sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name)).slice(0,10);
+ const groups=new Map(top.map(row=>[row.key,row.name]));
+ groups.set(ltRemainder,'Other positions in profiled funds');groups.set(ltMissing,'No same-date holdings detail');
+ const pieces=[];
+ for(const [fund,weight] of funds){
+  let used=0;
+  for(const row of top){
+   const amount=row.funds.get(fund)||0;if(amount<=0)continue;
+   pieces.push({fund,group:row.key,amount});used+=amount;
+  }
+  const rest=weight-used;
+  if(rest>.00000001)pieces.push({fund,group:hasDetail.has(fund)?ltRemainder:ltMissing,amount:rest});
+ }
+ const total=funds.reduce((sum,[,w])=>sum+w,0);
+ return {date,funds,groups,pieces,total};
+}
+function openLookThroughLink(){
+ if(location.hash!=='#look-through')return;
+ ownershipMode='lookthrough';Object.assign(statementState,{group:null,fund:null,item:null});
+ openView('overview',false);renderOwnership();
+ get('ownershipPanel').scrollIntoView({block:'start'});
+}
+window.addEventListener('DOMContentLoaded',openLookThroughLink);
+window.addEventListener('hashchange',openLookThroughLink);
+function lookThroughView(model){
+ const host=cell('section',null,'lt-view');
+ const ribbon=cell('div',null,'lt-ribbon'),title=cell('h3','Inside the portfolio'),source=cell('select');
+ source.setAttribute('aria-label','Look-through allocation source');
+ source.append(new Option('Selected model','model'),new Option('Three-fund example','example'));source.value=lookThroughState.example?'example':'model';
+ ribbon.append(title,source);host.append(ribbon);
+ const note=cell('p',null,'lt-source');
+ const toggles=cell('div',null,'lt-toggles'),modeButtons=new Map();
+ toggles.setAttribute('role','group');toggles.setAttribute('aria-label','Group capital by');
+ for(const [id,label] of [['fund','By fund'],['holding','By holding']]){
+  const b=button(label,()=>{if(lookThroughState.mode===id)return;lookThroughState.mode=id;lookThroughState.selection=null;renderMode();},'unit-choice');
+  modeButtons.set(id,b);toggles.append(b);
+ }
+ const layout=cell('div',null,'lt-layout'),figure=cell('figure',null,'lt-figure'),ns='http://www.w3.org/2000/svg';
+ const drawing=document.createElementNS(ns,'svg');drawing.setAttribute('viewBox','0 0 100 100');drawing.setAttribute('aria-hidden','true');
+ const caption=cell('figcaption'),list=cell('div',null,'lt-list'),receipt=cell('section',null,'lt-receipt');
+ receipt.setAttribute('aria-live','polite');figure.append(drawing,caption,receipt);layout.append(figure,list);host.append(note,toggles,layout);
+ let data,fragments=[],fundRows,holdingRows;
+ const keyFor=(p,mode)=>mode==='fund'?p.fund:p.group;
+ function initialize(){
+  data=lookThroughData(model,lookThroughState.example);
+  const matched=data.pieces.filter(p=>p.group!==ltMissing).reduce((n,p)=>n+p.amount,0);
+  note.replaceChildren(document.createTextNode(lookThroughState.example?'Illustrative 50 / 30 / 20 mix · holdings '+dateText(data.date):model.name+' · '+dateText(data.date)+' · '+fmt(matched)+' in funds with same-date detail'));
+  note.append(infoCircle('Holdings coverage',lookThroughState.example?'Hypothetical allocations of 50% US Core Equity, 30% US Vector Equity and 20% Global Sustainability Core Equity. The fund holdings are from the September reports, which exclude cash and cash equivalents. Matching uses the printed name. Different share classes and aliases can remain separate.': 'The selected allocation date must match the underlying report. The October Canadian Core profile lists ten companies. September monthly holdings exclude cash and cash equivalents. Grouping uses the reported name and does not verify issuer identity. Other positions include holdings outside the displayed names and any residual from source rounding.'));
+  caption.textContent=(Math.abs(data.total-100)>.00001?'1 square ≈ 1%':'1 square = 1%')+(balance()===null?'':' · '+atWeight(1))+'  |  Colour follows the fund';
+  if(data.total&&Math.abs(data.total-100)>.00001)caption.append(infoCircle('Rounded allocation total','Published fund weights add to '+fmt(data.total)+'. The grid scales to that total. The breakdown retains the reported percentages.'));
+  const totals=new Map();for(const p of data.pieces)totals.set(p.group,(totals.get(p.group)||0)+p.amount);
+  fundRows=data.funds.map(([key,amount])=>({key,name:shortName(key),amount}));
+  holdingRows=[...data.groups].filter(([key])=>totals.has(key)).map(([key,name])=>({key,name,amount:totals.get(key)}));
+  if(!data.total){drawing.replaceChildren();fragments=[];renderMode();return;}
+  let cursor=0;for(const p of data.pieces){p.fundStart=cursor;cursor+=100*p.amount/data.total;}
+  cursor=0;for(const row of holdingRows)for(const p of data.pieces.filter(p=>p.group===row.key)){p.holdingStart=cursor;cursor+=100*p.amount/data.total;}
+  drawing.replaceChildren();fragments=[];
+  const pattern=document.createElementNS(ns,'pattern');pattern.id='lt-missing-hatch';pattern.setAttribute('width','2');pattern.setAttribute('height','2');pattern.setAttribute('patternUnits','userSpaceOnUse');
+  const stripe=document.createElementNS(ns,'path');stripe.setAttribute('d','M-1 1L1 -1M0 2L2 0M1 3L3 1');stripe.setAttribute('stroke','white');stripe.setAttribute('stroke-opacity','.6');stripe.setAttribute('stroke-width','.48');pattern.append(stripe);drawing.append(pattern);
+  for(const piece of data.pieces){
+   const length=100*piece.amount/data.total;
+   for(let offset=0;length-offset>1e-7;){
+    const f=piece.fundStart+offset,h=piece.holdingStart+offset;
+    const span=Math.min(length-offset,Math.floor(f+1e-7)+1-f,Math.floor(h+1e-7)+1-h);
+    const tile=document.createElementNS(ns,'rect');tile.setAttribute('width',String(9.2*span));tile.setAttribute('height','9.2');tile.setAttribute('fill',fundColour(piece.fund));
+    const segment=document.createElementNS(ns,'g');segment.append(tile);
+    if(piece.group===ltMissing){const hatch=tile.cloneNode();hatch.setAttribute('class','lt-hatch');hatch.setAttribute('fill','url(#lt-missing-hatch)');segment.append(hatch);}
+    drawing.append(segment);fragments.push({tile:segment,piece,f,h});offset+=span;
+   }
+  }
+  renderMode();
+ }
+ function inspect(key){
+  const mode=lookThroughState.mode,rows=mode==='fund'?fundRows:holdingRows,row=rows.find(r=>r.key===key);
+  for(const b of list.children)b.setAttribute('aria-pressed',String(b.dataset.key===key));
+  for(const f of fragments)f.tile.style.opacity=!key||keyFor(f.piece,mode)===key?'1':'.22';
+  receipt.replaceChildren();if(!row)return;
+  const total=cell('strong',atWeight(row.amount)==='—'?fmt(row.amount):atWeight(row.amount)+' · '+fmt(row.amount));
+  receipt.append(cell('h4',row.name),total);
+  if(mode==='holding'&&key!==ltMissing&&key!==ltRemainder&&data.pieces.some(p=>p.group===ltMissing))receipt.append(cell('p','Amount identified in matched reports. Other funds may also hold this name.','lt-qualified'));
+  const parts=data.pieces.filter(p=>keyFor(p,mode)===key).sort((a,b)=>b.amount-a.amount);
+  for(const part of parts){
+   const line=cell('div',null,'lt-line'),label=mode==='holding'?shortName(part.fund)+' · '+part.fund:data.groups.get(part.group);
+   line.append(cell('span',label),cell('span',fmt(part.amount)+(balance()===null?'':' · '+atWeight(part.amount))));receipt.append(line);
+  }
+ }
+ function pick(key){lookThroughState.selection=key;inspect(key);}
+ drawing.addEventListener('click',e=>{
+  const rect=drawing.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width*10,y=(e.clientY-rect.top)/rect.height*10;
+  const position=Math.floor(y)*10+Math.floor(x)+Math.min(.99999,Math.max(0,((x%1)*10-.4)/9.2));
+  const mode=lookThroughState.mode,start=mode==='fund'?'fundStart':'holdingStart';
+  const p=data.pieces.find(p=>position>=p[start]-1e-9&&position<p[start]+100*p.amount/data.total);
+  if(p)pick(keyFor(p,mode));
+ });
+ function renderMode(){
+  const mode=lookThroughState.mode,rows=mode==='fund'?fundRows:holdingRows;
+  host.dataset.mode=mode;
+  caption.querySelector('.lt-hatch-key')?.remove();
+  if(mode==='holding'&&data.pieces.some(p=>p.group===ltMissing))caption.prepend(cell('span','Hatching = no same-date detail','lt-hatch-key'));
+  for(const [id,b]of modeButtons)b.setAttribute('aria-pressed',String(mode===id));
+  for(const f of fragments){
+   const pos=mode==='fund'?f.f:f.h,index=Math.floor(pos+1e-7),frac=Math.max(0,pos-index);
+   f.tile.style.transform='translate('+((index%10)*10+.4+frac*9.2)+'px,'+(Math.floor(index/10)*10+.4)+'px)';
+  }
+  list.replaceChildren();list.setAttribute('aria-label',mode==='fund'?'Fund weights':'Weights by holding');
+  if(!rows.length)list.append(cell('p','This date has no reported allocation.'));
+  for(const row of rows){
+   const b=button('',()=>pick(row.key),'lt-row');b.dataset.key=row.key;
+   const swatch=cell('i');swatch.setAttribute('aria-hidden','true');
+   const parts=data.pieces.filter(p=>keyFor(p,mode)===row.key);
+   let cursor=0;const stops=parts.map(p=>{const start=cursor;cursor+=100*p.amount/row.amount;return fundColour(p.fund)+' '+start+'% '+cursor+'%';});
+   swatch.style.background=stops.length===1?fundColour(parts[0].fund):'linear-gradient(90deg,'+stops.join(',')+')';
+   const label=cell('span',row.name);if(mode==='fund')label.append(cell('small',row.key));
+   b.append(swatch,label,cell('strong',fmt(row.amount)));list.append(b);
+  }
+  if(!rows.some(r=>r.key===lookThroughState.selection))lookThroughState.selection=null;
+  inspect(lookThroughState.selection);
+ }
+ source.addEventListener('change',()=>{lookThroughState.example=source.value==='example';lookThroughState.selection=null;initialize();});
+ initialize();return host;
+}
+
 function renderOwnership(){
  const m=modelFor(get('portfolio').value),s=statementState;
  if(s.group!==null&&groupWeight(m,release.groups[s.group][1])<=0)Object.assign(s,{group:null,fund:null,item:null});
@@ -1518,14 +1677,14 @@ function renderOwnership(){
  if(s.group===null){
   appendText(body,'h2','Where the statement balance goes','headline');
   const units=cell('div',null,'asset-unit');units.setAttribute('role','group');units.setAttribute('aria-label','Allocation units');
-  for(const [label,unit] of [['Allocation map','map'],['Statement balance','balance'],['Every $100','hundred']]){
+  for(const [label,unit] of [['Look through','lookthrough'],['Allocation map','map'],['Statement balance','balance'],['Every $100','hundred']]){
    const b=button(label,()=>{ownershipMode=unit;renderOwnership();get('unit-'+unit).focus({preventScroll:true})},'unit-choice');b.id='unit-'+unit;b.setAttribute('aria-pressed',ownershipMode===unit);units.append(b);
   }body.append(units);
   const entries=release.groups.map(([,codes],i)=>{
    const count=codes.filter(c=>weightFor(m,c)>0).length;
    return {name:familyLabels[i],sub:count+' underlying fund'+(count===1?'':'s'),weight:groupWeight(m,codes),colour:sleeveColours[i],go:()=>nextOwnership(i)};
   }).filter(e=>e.weight>0);
-  body.append(ownershipMode==='map'?portfolioMosaic(entries):ownershipMode==='hundred'?mixOfHundred(m):ownershipMap(entries));
+  body.append(ownershipMode==='lookthrough'?lookThroughView(m):ownershipMode==='map'?portfolioMosaic(entries):ownershipMode==='hundred'?mixOfHundred(m):ownershipMap(entries));
   const covered=reportDate()===profileDate?weightFor(m,'DFA257'):0;
   const coverage=cell('div',null,'statement-coverage'),caption=cell('span',covered?'Same-date detail for '+fmt(covered)+' of this model':'Same-date detailed profiles unavailable');
   caption.append(infoCircle('Same-date profile coverage','This is the share of the model for which company, country, sector and factor detail can be matched to the allocation date. The available profile is Canadian Core Equity, October 31, 2026. Dated standalone holdings are available separately in Research & data.'));coverage.append(caption);
