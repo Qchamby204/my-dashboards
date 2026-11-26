@@ -1144,14 +1144,73 @@ html[data-theme=dark] .pp-day.is-full{color:#10212e}
 @media(max-width:370px){.pp-controls{grid-template-columns:1fr}.pp-day{font-size:.68rem}.pp-calendar{gap:2px}}
 </style>
 
-<link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-32.png?v=ef1201342d31">
+<style id="studio-tab-review">
+#studioNavToggle{display:none}
+#projection .mast-actions{flex-wrap:wrap}
+#pfHeadline:has(>button:only-child){padding:0;border:0;background:transparent;margin:.5rem 0}
+#pfHeadline>button:only-child{min-height:44px;padding:0 .5rem;color:var(--ds-accent,var(--ds-ink));text-decoration:underline;text-underline-offset:.2em}
+.hc-search-status{flex-basis:100%;color:var(--ds-muted)}
+.sb-centre:focus-visible circle,.ld-svg [role=button]:focus-visible,.pj-row:focus-visible .pj-row-bg{stroke:var(--ds-ink);stroke-width:2px}
+.pj-amounts{margin:1rem 0 .25rem;border-top:1px solid var(--ds-line)}
+.pj-amounts summary{width:fit-content;padding:.8rem 0;cursor:pointer;font-weight:600;color:var(--ds-ink)}
+.pj-amounts-scroll{overflow-x:auto;max-width:100%;border-radius:6px}
+.pj-amounts table{width:100%;min-width:30rem;font-size:.9rem;font-variant-numeric:tabular-nums;border-collapse:collapse}
+.pj-amounts caption{text-align:left;padding:.35rem .5rem;color:var(--ds-muted)}
+.pj-amounts th,.pj-amounts td{padding:.65rem .5rem;text-align:right;border-bottom:1px solid var(--ds-line)}
+.pj-amounts th:first-child{text-align:left;position:sticky;left:0;background:var(--ds-surface);min-width:8rem}
+.pj-amounts tbody th{font-weight:550}
+@media(max-width:760px){
+ #studioNavToggle{display:flex;width:calc(100% - 28px);min-height:44px;align-items:center;gap:12px;margin:0 14px 5px;padding:5px 12px;border:1px solid #354557;border-radius:9px;background:#1b2936;color:#f0f4f6;text-align:left}
+ #studioNavToggle span:first-child{color:#c3cfd9;font-size:12.5px}
+ #studioNavToggle strong{font-size:15px;font-weight:600;flex:1}
+ #studioNavToggle span:last-child{font-size:20px;color:#d9b98a}
+ #studioNavToggle[aria-expanded=true] span:last-child{transform:rotate(180deg)}
+ #studioNavToggle[aria-expanded=false]+nav{display:none}
+ #studioNavToggle[aria-expanded=true]+nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:2px 14px 10px;overflow:visible}
+ #studioNav button{white-space:normal;min-height:44px;text-align:left}
+ body .context>label{min-width:0}
+ body .mast-art{display:none}
+}
+@media(min-width:375px) and (max-width:760px){
+ body .context{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px 5px}
+ body .context>label{grid-column:span 3}
+ body .context>.ds-theme,body .context>#meetingMode,body .context>#prepareSequence{grid-column:span 2;justify-self:start}
+ body .context>#prepareSequence{justify-self:end}
+ body .context .meeting-toggle{padding:3px 6px;min-height:44px;line-height:1.15}
+ body .context .ds-theme button{height:38px}
+ body .context>#balanceStatus{grid-column:1/-1}
+}
+#pfCompare input,#pfCompare select{scroll-margin-top:calc(var(--studio-context-height,0px) + 135px)}
+@media(max-width:640px){
+ body .sb-row{grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:3px;padding:10px 4px}
+ body .sb-row .sb-row-name{grid-column:1;grid-row:1/span 2;padding-right:4px}
+ body .sb-row strong{grid-column:2;grid-row:1}
+ body .sb-row em{grid-column:2;grid-row:2}
+ body .sb-row .sb-row-bar{grid-column:1/-1;grid-row:3;margin-top:4px;height:4px}
+ .pj-amounts table,.pj-amounts tbody,.pj-amounts thead{display:block;min-width:0}
+ .pj-amounts tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .pj-amounts table caption{display:block;text-align:left}
+ .pj-amounts thead th:first-child{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}
+ .pj-amounts tbody th:first-child{grid-column:1/-1;position:static;background:transparent}
+ .pj-amounts th,.pj-amounts td{border:0;padding:.25rem .18rem;text-align:right;overflow-wrap:anywhere;font-size:.8rem}
+ .pj-amounts tbody tr{padding:.5rem 0;border-top:1px solid var(--ds-line)}
+ .pj-amounts tbody th{font-size:.9rem}
+}
+.pj-method-scroll{max-width:100%;overflow-x:auto}
+@media(max-width:420px){
+ #allocationBars .subtools label,.andex-top>label{width:100%;min-width:0;max-width:100%}
+ #barGroup,#andexBasis{width:100%;max-width:100%;box-sizing:border-box}
+ #historyStats{grid-template-columns:minmax(0,1fr);gap:14px}
+}
+@media print{#studioNavToggle{display:none!important}}
+</style><link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-32.png?v=ef1201342d31">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-64.png?v=9d1339ad401f">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-apple.png?v=f8db1171b0b0">
 </head>
 <body><a class="skip" href="#main">Skip to workspace</a>
-<aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Compare two models</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="purchasing-power"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 9h18l-2 11H5L3 9zm4 0 5-7 5 7M9 12v5m6-5v5"/></svg>Purchasing power</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
+<aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><button type="button" id="studioNavToggle" aria-controls="studioNav" aria-expanded="false"><span>Workspace</span><strong id="studioCurrentTab">Model portfolios</strong><span aria-hidden="true">⌄</span></button><nav id="studioNav" aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model portfolios</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Compare two models</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="purchasing-power"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 9h18l-2 11H5L3 9zm4 0 5-7 5 7M9 12v5m6-5v5"/></svg>Purchasing power</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
 <main id="main" class="frame" tabindex="-1">
-<div class="context"><label>Allocation date<select id="snap"><option value="latest">October 31, 2026</option><option value="archive">June 30, 2024 · workbook</option></select></label><label>Illustrative balance <span class="currency">CAD</span><input id="balance" type="text" value="1,000,000" inputmode="decimal" autocomplete="off"></label><div id="balanceStatus" role="status"></div><button id="meetingMode" class="meeting-toggle" aria-pressed="false">Meeting view</button><button id="prepareSequence" class="meeting-toggle">Meeting sequence</button><div id="sequenceBar" hidden><strong id="sequencePosition" aria-live="polite"></strong><button id="sequenceBack" type="button">Previous</button><button id="sequenceNext" type="button" class="primary">Next</button></div></div>
+<div class="context"><label>Allocation date<select id="snap"><option value="latest">October 31, 2026</option><option value="archive">June 30, 2024 · workbook</option></select></label><label><span>Illustrative balance (CAD)</span><input id="balance" type="text" value="1,000,000" inputmode="decimal" autocomplete="off"></label><div id="balanceStatus" role="status"></div><button id="meetingMode" class="meeting-toggle" aria-pressed="false">Meeting view</button><button id="prepareSequence" class="meeting-toggle">Meeting sequence</button><div id="sequenceBar" hidden><strong id="sequencePosition" aria-live="polite"></strong><button id="sequenceBack" type="button">Previous</button><button id="sequenceNext" type="button" class="primary">Next</button></div></div>
 <dialog id="sequenceSetup" class="recap" aria-labelledby="sequenceTitle"><h2 id="sequenceTitle">Meeting sequence</h2><h3>Current selection</h3><p id="sequenceCurrent"></p><div id="sequenceSteps"></div><div class="sequence-controls"><button id="startSequence" class="primary">Start this meeting</button><button id="saveSequence">Save on this device</button></div><h3>Saved meeting</h3><p id="savedSequence"></p><button id="resumeSequence" hidden>Open saved meeting</button><p id="sequenceStatus" role="status"></p><button id="sequenceClose">Close</button></dialog>
 <section id="lineup" class="page">
 <div class="folio-heading"><div><h1>The model portfolios</h1></div><div class="basisline"><label>Performance history<select id="bookBasis"><option value="benchmark">Long-run benchmarks</option><option value="actual">Published fund returns</option><option value="archive">Original workbook figures</option></select></label></div></div>
@@ -1248,6 +1307,7 @@ html[data-theme=dark] .pp-day.is-full{color:#10212e}
 <div class="controls"><label>First fund<select id="leftFund"></select></label><label>Second fund<select id="rightFund"></select></label><label>Find a holding<input id="overlapSearch" type="search"></label></div>
 <p id="overlapStory" class="callout" aria-live="polite"></p>
 <div class="key"><span><i class="dot" style="background:#087960"></i>First fund</span><span><i class="dot" style="background:#98542d"></i>Second fund</span></div><div id="overlapChart" class="chart-list paired" aria-label="Largest shared positions"></div><div class="scroll" tabindex="0" aria-label="Shared holdings"><table><thead><tr><th scope="col">Shared holding name</th><th scope="col" class="num">First fund</th><th scope="col" class="num">Second fund</th></tr></thead><tbody id="overlapRows"></tbody></table></div>
+<div id="overlapPager" class="hold-pager" hidden><p id="overlapPage" class="muted" aria-live="polite"></p><div><button id="overlapPrev" class="unit-choice">Previous</button> <button id="overlapNext" class="unit-choice">Next</button></div></div>
 </section>
 
 <footer>Dimensional Canada · Private advisor preview · Client display clearance pending<span data-studio-help="source"></span></footer>
@@ -1341,17 +1401,23 @@ function namesAndWeights(code){
  }
  return result;
 }
+let overlapPage=0;
 function renderOverlap(){
  const left=get('leftFund').value,right=get('rightFund').value;
+ const pager=get('overlapPager');pager.hidden=true;
  if(left===right){get('overlapStory').textContent='Choose two different funds to compare.';tableRows('overlapRows',[]);get('overlapChart').replaceChildren();return}
  const a=namesAndWeights(left),b=namesAndWeights(right);
  const shared=[...a].filter(([k])=>b.has(k)).map(([k,[n,w]])=>[n,w,b.get(k)[1]]).sort((x,y)=>Math.min(y[1],y[2])-Math.min(x[1],x[2]));
  const common=shared.reduce((s,r)=>s+Math.min(r[1],r[2]),0);
- const q=get('overlapSearch').value.trim().toLowerCase();
- const matches=shared.filter(r=>r[0].toLowerCase().includes(q));
- get('overlapStory').textContent=shared.length.toLocaleString()+' shared names · '+fmt(common)+' overlap by weight'+(q||matches.length>150?' · Showing '+Math.min(matches.length,150)+' of '+matches.length.toLocaleString():'');
+ const query=holdingSearchKey(get('overlapSearch').value),matches=query?shared.filter(r=>holdingSearchKey(r[0]).includes(query)):shared;
+ const size=40;overlapPage=Math.max(0,Math.min(overlapPage,Math.ceil(matches.length/size)-1));
+ const start=overlapPage*size,shown=matches.slice(start,start+size);
+ get('overlapStory').textContent=shared.length.toLocaleString('en-CA')+' shared names · '+fmt(common)+' overlap by weight';
  bars('overlapChart',matches.slice(0,8));
- tableRows('overlapRows',matches.slice(0,150).map(([n,x,y])=>[n,fmt(x),fmt(y)]));
+ tableRows('overlapRows',shown.length?shown.map(([n,x,y])=>[n,fmt(x),fmt(y)]):[[query?'No shared holding matches your search.':'No shared holdings in these reports.','—','—']]);
+ pager.hidden=matches.length<=size;
+ get('overlapPage').textContent=(start+1).toLocaleString('en-CA')+'–'+(start+shown.length).toLocaleString('en-CA')+' of '+matches.length.toLocaleString('en-CA')+' shared names';
+ get('overlapPrev').disabled=overlapPage===0;get('overlapNext').disabled=start+shown.length>=matches.length;
 }
 function svgEl(tag,attrs,text){
  const node=document.createElementNS('http://www.w3.org/2000/svg',tag);
@@ -1628,13 +1694,24 @@ const atWeight=w=>balance()===null?'—':money.format(balance()*w/100);
 const shortName=code=>fundNames[code].replace(/ Fund \(I\)$/,'').replace(/ Fund I\(H\)$/,' · hedged').replace(/ \(I\)$/,'');
 function appendText(parent,tag,value,cls){const node=cell(tag,value,cls);parent.append(node);return node}
 function button(label,fn,cls){return linkButton(label,fn,cls)}
+const tabRoutes={lineup:'models',overview:'statement',andex:'andex',compareView:'compare',components:'components','purchasing-power':'purchasing-power',projection:'projection',research:'research',holdingView:'fund-holdings',overlapView:'shared-holdings'};
+let followingRoute=false;
+const tabMenu=get('studioNavToggle');
+function closeTabMenu(){tabMenu.setAttribute('aria-expanded','false')}
+tabMenu.onclick=()=>tabMenu.setAttribute('aria-expanded',String(tabMenu.getAttribute('aria-expanded')!=='true'));
+get('studioNav').parentElement.addEventListener('keydown',e=>{if(e.key==='Escape'&&tabMenu.getAttribute('aria-expanded')==='true'){closeTabMenu();tabMenu.focus()}});
 function openView(id,focus=true){
+ if(focus&&!followingRoute&&!document.body.classList.contains('meeting')&&tabRoutes[id]&&id!==view){
+  history.pushState(null,'','#'+tabRoutes[id]);
+ }
  if(id!=='andex')stopMarketReplay();view=id;
  for(const page of document.querySelectorAll('.page'))page.hidden=page.id!==id;
  for(const control of document.querySelectorAll('nav [data-page]')){
   const active=control.dataset.page===id||(['holdingView','overlapView'].includes(id)&&control.dataset.page==='research');
   control.setAttribute('aria-pressed',String(active));
+  if(active)get('studioCurrentTab').textContent=control.textContent.trim();
  }
+ closeTabMenu();
  if(id==='purchasing-power')window.studioPower?.render();
  if(id==='lineup'){renderHero();renderStress()}
  if(id==='andex')renderAndex();if(id==='components')renderComponents();
@@ -1652,7 +1729,7 @@ function changePin(index,code){
  if(pins[index]===code)return;
  if(pins[1-index]===code)pins[1-index]=pins[index];
  pins[index]=code;
- syncPins();renderModelTable();renderDifferences();if(view==='compareView')renderExperience();
+ syncPins();renderModelTable();renderDifferences();if(view==='lineup')renderHero();if(view==='compareView')renderExperience();
 }
 function syncPins(){
  ['pinA','returnA','pinB','returnB'].forEach((id,i)=>get(id).value=pins[Math.floor(i/2)]);
@@ -1783,8 +1860,17 @@ function lookThroughData(model,example){
  return {date,funds,groups,pieces,total};
 }
 function openLookThroughLink(){
+ followingRoute=true;
+ try{openStudioRoute()}finally{followingRoute=false}
+}
+function openStudioRoute(){
  if(location.hash==='#outcome-range'){openView('projection',false);get('pjRange').closest('.pj-range').scrollIntoView();return;}
- if(location.hash==='#purchasing-power'){openView('purchasing-power',false);return;}
+ const slug=location.hash.slice(1),tab=Object.keys(tabRoutes).find(id=>tabRoutes[id]===slug);
+ if(tab||!slug){
+  const id=tab||'lineup';
+  if(id==='holdingView')renderHoldings();if(id==='overlapView')renderOverlap();
+  openView(id,false);window.scrollTo(0,0);return;
+ }
  if(location.hash==='#compare-holding'){openComparison('holdings');return;}
  if(location.hash==='#headline-replay'){headlineState.open=true;openView('andex',false);get('pfHeadline').scrollIntoView();return;}
  if(location.hash!=='#look-through')return;
@@ -1925,8 +2011,15 @@ function renderFieldComparison(){
  for(const rs of parts)for(const r of rs)if(r.report)for(const [k,v]of r.report.positions)names.set(k,v.name);
  const controls=cell('div',null,'pf-controls'),input=cell('input'),pick=cell('select');
  input.type='search';input.placeholder='Find a holding';input.setAttribute('aria-label','Find a holding to pin');pick.setAttribute('aria-label','Pinned holding');
- function options(){pick.replaceChildren(new Option(name,name));for(const [k,v]of names){if(k!==nameKey(name)&&k.includes(nameKey(input.value)))pick.append(new Option(v,v));if(pick.length>80)break;}}
- options();input.oninput=options;pick.onchange=()=>{fieldState.pinned=pick.value;renderFieldComparison();get('pfCompare').querySelector('select')?.focus({preventScroll:true});};controls.append(input,pick);
+ const status=cell('small',null,'hc-search-status');status.setAttribute('role','status');
+ function options(){
+  const query=holdingSearchKey(input.value),matches=[...names.values()].filter(v=>holdingSearchKey(v).includes(query));
+  pick.replaceChildren(new Option(name,name));
+  for(const v of matches.filter(v=>v!==name).slice(0,80))pick.add(new Option(v,v));
+  pick.disabled=!!query&&!matches.length;status.hidden=!query;
+  status.textContent=!matches.length?'No matching holding. Try another name.':matches.length>80?'Showing the first 80 matches. Refine your search.':matches.length+' matching holding'+(matches.length===1?'':'s')+'.';
+ }
+ options();input.oninput=options;pick.onchange=()=>{fieldState.pinned=pick.value;renderFieldComparison();get('pfCompare').querySelector('select')?.focus({preventScroll:true});};controls.append(input,pick,status);
  const known=cell('section',null,'pf-known'),metrics=cell('div',null,'hc-metrics');
  known.append(cell('h2',name),cell('p','Identified in same-date holding reports'),metrics);
  const totals=parts.map(rs=>rs.some(r=>r.pos)?rs.reduce((s,r)=>s+r.part,0):null);
@@ -2441,8 +2534,8 @@ function renderHero(){
  const rows=chartRows(basis,'common',seed),first=rows[0].first+1,last=rows[0].first+rows[0].values.length-1;
  get('heroRange').textContent=monthAt(first).getUTCFullYear()+'–'+monthAt(last).getUTCFullYear();
  get('heroPlot').setAttribute('aria-label','Growth of eight '+(basis==='actual'?'published funds':'CAD benchmarks')+' · '+interval(first,last));
- drawWealth(get('heroPlot'),rows,{dark:true,small:true,selected:'DFA692'});
- renderScaleGuide(get('heroFoot'),rows,'DFA692',basis);
+ drawWealth(get('heroPlot'),rows,{dark:true,small:true,selected:pins[0]});
+ renderScaleGuide(get('heroFoot'),rows,pins[0],basis);
 }
 const archiveRows=['1 year','3 years, annualized','5 years, annualized','10 years, annualized','20 years, annualized','Best 12 months','Worst 12 months','Best 3 years, annualized','Worst 3 years, annualized','20-year annualized volatility'];
 function appendPerformance(){
@@ -2673,7 +2766,7 @@ function coverageRibbon(b){
  const fig=cell('figure',null,'coverage-ribbon'),bar=cell('div',null,'coverage-span'),inside=cell('i'),cover=b.weight/b.total;
  inside.style.width=100*cover+'%';bar.setAttribute('aria-hidden','true');bar.append(inside);
  fig.append(cell('figcaption','Share with return history'),bar);
- const legend=cell('div',null,'coverage-key');legend.append(cell('span',dollarPrecise(b.weight)+' of each $100 has a fund history'));if(b.missing.length)legend.append(cell('span',dollarPrecise(b.total-b.weight)+' still needs a return series'));fig.append(legend);return fig;
+ const legend=cell('div',null,'coverage-key');legend.append(cell('span',dollarPrecise(100*cover)+' of each $100 has a fund history'));if(b.missing.length)legend.append(cell('span',dollarPrecise(100*(1-cover))+' still needs a return series'));fig.append(legend);return fig;
 }
 function renderScaleGuide(parent,rows,code,basis){
  const row=rows.find(r=>r.code===code);if(!row)return;
@@ -2770,7 +2863,11 @@ function renderHeadline(){
  const host=get('pfHeadline');if(!host)return;
  const s=headlineState,event=marketEvents[s.event],code=s.model||pins[0],basis=s.basis;
  host.parentElement.classList.toggle('pf-blind',s.open);
- host.replaceChildren(button(s.open?'Return to full history':'Pause at a headline',()=>{s.open=!s.open;s.revealed=false;stopMarketReplay();renderHeadline();if(s.open)host.querySelector('select')?.focus();},'quiet'));
+ const toggle=button(s.open?'Return to full history':'Pause at a headline',()=>{
+  s.open=!s.open;s.revealed=false;stopMarketReplay();renderHeadline();
+  (s.open?host.querySelector('select'):host.querySelector('button'))?.focus({preventScroll:true});
+ },'quiet');
+ toggle.setAttribute('aria-expanded',String(s.open));host.replaceChildren(toggle);
  if(!s.open)return;
  const bar=cell('div',null,'pf-controls');host.append(cell('h2','Pause at a headline'),bar);
  const set=(k,v)=>{s[k]=v;s.revealed=false;s.focus='anchor';renderHeadline();host.querySelectorAll('select')[['event','model','basis'].indexOf(k)]?.focus({preventScroll:true});};
@@ -2852,7 +2949,8 @@ function renderComponents(){
  const index=cell('div',null,'index-jump');index.append(cell('span','Benchmark: '+m.benchmark+', monthly in CAD from Jan 1994'),button('View on the Andex chart',()=>{get('andexBasis').value='benchmark';get('andexStart').value='common';get('andexWindow').value='full';andexState.model=m.code;andexState.measure='growth';get('focusModel').checked=true;openView('andex')},'quiet'));root.append(index);
  factLine('componentMethodNote','Hypothetical: fixed snapshot weights, rebalanced monthly','Component simulation','The selected snapshot’s weights are held constant and reset each month. Monthly CAD returns are reinvested. Included weights are scaled to 100%. Applying later weights to earlier markets introduces hindsight. Actual historical holdings, trades and investor-specific fees can differ.');
  if(!permitted){
-  appendText(curve,'p','Missing '+fmt(b.total-b.weight)+' · '+b.missing.map(f=>f.c).join(', '),'coverage-alert');
+  appendText(curve,'h3','Whole portfolio history unavailable');
+  appendText(curve,'p',fmt(100*(1-b.weight/b.total))+' of the model has no return series. '+b.missing.map(f=>f.c).join(', ')+'.','coverage-alert');
   curve.append(button('Show the available funds only →',()=>{get('componentMethod').value='covered';renderComponents()},'action'));
  }else if(b.rs.length&&seed!==null){
   const name=partial?'Available funds only (hypothetical)':'Whole portfolio (hypothetical)';
@@ -2861,7 +2959,7 @@ function renderComponents(){
   metric(facts,'End value',money.format(vals.at(-1)),money.format(seed)+' at the start');metric(facts,'Annualized return',percent(r.annual),'Rebalanced monthly');metric(facts,'Worst 12 months',percent(r.worst?.value),r.worst?interval(r.worst.from,r.worst.to):'Fewer than 12 months');curve.append(facts);
   const svg=svgEl('svg',{role:'img','aria-label':name+' growth over the shared component history'});curve.append(svg);drawWealth(svg,[{code:m.code,idx:3,first:b.start-1,values:vals}],{small:true,selected:m.code});showReconciliation(curve,m,b,partial,seed);
  }else appendText(curve,'p','A positive balance and overlapping monthly returns are required.','coverage-alert');
- const list=get('fundTimelines');list.replaceChildren();const valid=b.known;if(!valid.length)return;const first=Math.min(...valid.map(f=>f.s.start)),end=Math.max(...valid.map(f=>f.s.end)),span=end-first+1;
+ const list=get('fundTimelines');list.replaceChildren();const valid=b.known;if(!valid.length){get('individualFund').replaceChildren();list.append(cell('p','No component return history is available for this allocation.','basisnote'));return}const first=Math.min(...valid.map(f=>f.s.start)),end=Math.max(...valid.map(f=>f.s.end)),span=end-first+1;
  for(const f of [...b.entries].sort((a,b)=>(a.s?.start??Infinity)-(b.s?.start??Infinity))){
   const btn=button('',()=>{activeComponent=f.c;renderComponents();get('comp-'+f.c).focus({preventScroll:true})},'cover-row');btn.id='comp-'+f.c;btn.setAttribute('aria-pressed',activeComponent===f.c);
   const label=cell('span',shortName(f.c));label.append(cell('small',f.c+' · '+fmt(f.w)+' of portfolio'));const track=cell('div',null,'cover-track');
@@ -3010,7 +3108,9 @@ get('overlapBack').onclick=()=>openView('research');
 get('holdingFund').onchange=()=>{get('holdingSearch').value='';renderHoldings()};get('holdingSearch').oninput=()=>holdingsTable(true);
 get('namesMode').onclick=()=>{holdingsView.groups=true;holdingsTable(true)};get('positionsMode').onclick=()=>{holdingsView.groups=false;holdingsTable(true)};
 get('holdPrevious').onclick=()=>{holdingsView.page--;holdingsTable()};get('holdNext').onclick=()=>{holdingsView.page++;holdingsTable()};
-get('leftFund').onchange=renderOverlap;get('rightFund').onchange=renderOverlap;get('overlapSearch').oninput=renderOverlap;
+const restartOverlap=()=>{overlapPage=0;renderOverlap()};
+get('leftFund').onchange=restartOverlap;get('rightFund').onchange=restartOverlap;get('overlapSearch').oninput=restartOverlap;
+get('overlapPrev').onclick=()=>{overlapPage--;renderOverlap()};get('overlapNext').onclick=()=>{overlapPage++;renderOverlap()};
 get('profileLens').onchange=renderProfile;get('perfType').onchange=renderPerf;
 get('atlasMetric').onchange=renderAtlas;
 get('refreshFile').onchange=async e=>{try{
@@ -3019,7 +3119,7 @@ get('refreshFile').onchange=async e=>{try{
  refreshDateMenu();paint();get('fileStatus').textContent='Imported '+file.name+'. Save an updated dashboard to keep this release.';
  }catch(err){get('fileStatus').textContent=err.message}finally{e.target.value=''}};
 window.matchMedia('(max-width:760px)').addEventListener('change',()=>{if(view==='compareView')renderExperience();else if(view==='andex'&&headlineState.open)renderHeadline();});
-fill('componentModel',models.map(m=>[m.code,m.name]),'DFA917');
+fill('componentModel',models.map(m=>[m.code,m.name]),pins[0]);
 fill('stressModel',models.map(m=>[m.code,m.name]),'DFA692');
 get('bookBasis').onchange=()=>{renderModelTable();renderMobileBars();renderHero();renderStress()};
 get('stressModel').onchange=renderStress;
@@ -3029,7 +3129,7 @@ get('heroReplay').onclick=()=>{
  andexState.event=event.i;andexState.model='DFA692';andexState.measure='growth';get('focusModel').checked=true;openView('andex');
  const play=get('marketReplay')?.querySelector('button');if(play){play.scrollIntoView({block:'center'});play.focus({preventScroll:true});play.click()}
 };
-get('goAndex').onclick=()=>{get('andexBasis').value=get('bookBasis').value==='actual'?'actual':'benchmark';get('andexStart').value='common';get('andexWindow').value='full';andexState.model='DFA692';andexState.measure='growth';get('focusModel').checked=false;openView('andex')};
+get('goAndex').onclick=()=>{get('andexBasis').value=get('bookBasis').value==='actual'?'actual':'benchmark';get('andexStart').value='common';get('andexWindow').value='full';andexState.model=pins[0];andexState.measure='growth';get('focusModel').checked=false;openView('andex')};
 for(const id of ['andexBasis','andexStart','andexScale','andexWindow','showEvents'])get(id).onchange=renderAndex;
 for(const id of ['componentModel','componentMethod'])get(id).onchange=renderComponents;
 let chartWidth=0;
@@ -3259,12 +3359,12 @@ function tree(m){
   const sleeve={name:familyLabels[i],short:sleeveShort[i],key:'s'+i,sleeve:i,children:[]};
   for(const code of funds){
    const fw=weightFor(m,code),fund={name:shortName(code),short:trimName(shortName(code)).replace(/^Global /,''),key:'s'+i+'/'+code,sleeve:i,code,children:[]};
-   if(holdings[code]){
+   if(holdings[code]&&holdingsDate<=reportDate()){
     const top=holdings[code][2].slice(0,5);let used=0;
     for(const [n,h] of top){const v=fw*h/100;used+=v;fund.children.push({name:trimName(n),key:fund.key+'/'+n,sleeve:i,code,inFund:h,value:v})}
     const count=holdings[code][2].length-top.length;
     fund.children.push({name:'All other '+count.toLocaleString('en-CA')+' positions',short:'Other positions',key:fund.key+'/other',sleeve:i,code,other:true,value:Math.max(0,fw-used)});
-   }else fund.children.push({name:'Holdings file outstanding',short:'Holdings pending',key:fund.key+'/pending',sleeve:i,code,pending:true,value:fw});
+   }else fund.children.push({name:holdings[code]?'No holdings on file for this date':'Holdings file outstanding',short:'Holdings pending',key:fund.key+'/pending',sleeve:i,code,pending:true,value:fw});
    sleeve.children.push(fund);
   }
   root.children.push(sleeve);
@@ -3306,8 +3406,11 @@ function sunburst(m){
  const label=g.append('g').attr('pointer-events','none').attr('text-anchor','middle').selectAll('text').data(nodes).join('text').attr('class',d=>'sb-label d'+d.depth).attr('dy','0.35em')
   .attr('fill-opacity',d=>+labelOk(d.current)).attr('transform',d=>labelXf(d.current)).text(d=>clip(d.data.short||d.data.name,d.depth===1?17:15));
  // centre
- const centre=svg.append('g').attr('class','sb-centre');
- centre.append('circle').attr('r',ring-4).attr('fill',document.documentElement.dataset.theme==='dark'?'#111c28':'#fffefa').attr('filter','url(#sbGlow)').attr('cursor','pointer').on('click',()=>focus.parent&&zoom(focus.parent));
+ const centre=svg.append('g').attr('class','sb-centre').attr('role','button').attr('aria-label','Back one level').attr('aria-disabled','true').attr('tabindex',-1);
+ centre.on('click',()=>focus.parent&&zoom(focus.parent)).on('keydown',e=>{
+  if(focus.parent&&(e.key==='Enter'||e.key===' ')){e.preventDefault();zoom(focus.parent);if(!focus.parent)side.querySelector('button')?.focus({preventScroll:true})}
+ });
+ centre.append('circle').attr('r',ring-4).attr('fill',document.documentElement.dataset.theme==='dark'?'#111c28':'#fffefa').attr('filter','url(#sbGlow)').attr('cursor','inherit');
  const cKick=centre.append('text').attr('y',-30).attr('class','sb-c-kick'),cName=centre.append('text').attr('y',-10).attr('class','sb-c-name'),cAmt=centre.append('text').attr('y',18).attr('class','sb-c-amt'),cPct=centre.append('text').attr('y',38).attr('class','sb-c-pct');
  const back=centre.append('text').attr('y',ring-18).attr('class','sb-c-back');
  let shown=null,amt=0;
@@ -3334,10 +3437,10 @@ function sunburst(m){
    row.onpointerenter=()=>{const n=path.filter(x=>x===k);n.dispatch('pointerenter')};row.onpointerleave=()=>path.dispatch('pointerleave');list.append(row)});
   side.append(list);
   const foot=cell('p',null,'sb-foot');
-  if(p.depth===2){foot.textContent=holdings[p.data.code]?'Top 5 positions from the standalone fund holdings, '+dateText(holdingsDate)+', applied to the '+dateText(reportDate())+' model weight.':'A separate holdings file for this share class has not been loaded.';side.append(foot);
+  if(p.depth===2){foot.textContent=holdings[p.data.code]&&holdingsDate>reportDate()?'The holdings report is dated '+dateText(holdingsDate)+', after this allocation. Only the fund weight is shown.':holdings[p.data.code]?'Top 5 positions from the standalone fund holdings, '+dateText(holdingsDate)+', applied to the '+dateText(reportDate())+' model weight.':'A separate holdings file for this share class has not been loaded.';side.append(foot);
    side.append(button('Fund detail and return history ›',()=>nextOwnership(p.data.sleeve,p.data.code),'quiet sb-go'))}
   else if(p.depth===1){foot.textContent='Select a fund to see its largest positions.';side.append(foot);side.append(button('Open this sleeve in the classic view ›',()=>nextOwnership(p.data.sleeve),'quiet sb-go'))}
-  else{foot.textContent='Select any ring to zoom in. Inner ring: sleeves. Middle: funds. Outer: each fund’s largest positions.';side.append(foot)}
+  else{foot.textContent=holdingsDate>reportDate()?'Company positions are unavailable for this earlier allocation.': 'Outer ring estimates use '+dateText(holdingsDate)+' fund holdings and '+dateText(reportDate())+' model weights.';side.append(foot)}
  }
  let focus=root;
  function zoom(p,instant){
@@ -3349,6 +3452,7 @@ function sunburst(m){
    .attr('fill-opacity',d=>visible(d.target)?1:0).attr('pointer-events',d=>visible(d.target)?'auto':'none').attr('tabindex',d=>visible(d.target)?0:-1)
    .attrTween('d',d=>()=>arc(d.current));
   label.filter(function(d){return +this.getAttribute('fill-opacity')||labelOk(d.target)}).transition(t).attr('fill-opacity',d=>+labelOk(d.target)).attrTween('transform',d=>()=>labelXf(d.current));
+  centre.attr('aria-disabled',String(!p.parent)).attr('tabindex',p.parent?0:-1).attr('cursor',p.parent?'pointer':'default');
   back.text(p.parent?'‹ Back':'');show(p,true);panel(p);
  }
  const start=root.descendants().find(d=>d.data.key===sbFocus)||root;
@@ -3443,49 +3547,61 @@ function renderLadder(){
  const hero=document.querySelector('#lineup .folio-hero');if(!hero)return;
  let sec=get('fxLadder');if(!sec){sec=cell('section',null,'sheet fx-ladder');sec.id='fxLadder';hero.after(sec)}
  sec.replaceChildren();
- const head=cell('div',null,'sheet-head'),ht=cell('div');ht.append(cell('h2','The trade-off, step by step'),cell('p','More equity has meant more growth and deeper falls.','fx-sub'),cell('p','Allocation as of '+dateText(reportDate())+'. CAD benchmarks, Jan 1994 – Sep 2026.','fx-meta'));head.append(ht);sec.append(head);
- const rows=models.map((m,i)=>{const st=riskStats(m.returns);return{m,i,name:modelHead[i],w:release.groups.map(([,c])=>groupWeight(m,c)),ret:st[4],worst:st[6]}});
+ const basis=get('bookBasis').value,archive=basis==='archive';
+ const series=archive?[]:models.map(m=>asOfSeries(sourceFor(m,basis)));
+ const start=archive?null:Math.max(...series.map(v=>v.start)),end=archive?null:Math.min(...series.map(v=>v.end));
+ const months=archive?240:[240,120,60,36,12].find(k=>k<=end-start+1);
+ const scope=archive?'Original workbook benchmarks · September 2024':(basis==='actual'?'Published Class I funds':'CAD benchmarks, including backtested history')+' · '+interval(start,end);
+ const head=cell('div',null,'sheet-head'),ht=cell('div');
+ ht.append(cell('h2','Growth and the worst year'),cell('p',scope+' · Allocation as of '+dateText(reportDate()),'fx-meta'));head.append(ht);sec.append(head);
+ if(!months){sec.append(cell('p','These eight models have fewer than 12 shared months in this history.','basisnote'));return;}
+ const years=months/12,rows=models.map((m,i)=>{
+  const stats=archive?null:returnStats({start,end,rs:series[i].rs.slice(start-series[i].start,end-series[i].start+1)});
+  return {m,i,name:modelHead[i],w:release.groups.map(([,c])=>groupWeight(m,c)),
+   ret:archive?release.archiveStats[m.code][4]:stats.trailing(months),worst:archive?release.archiveStats[m.code][6]:stats.worst.value};
+ });
  if(window.matchMedia('(max-width:640px)').matches){
   const list=cell('div',null,'ld-list'),peak=Math.min(...rows.map(r=>r.worst));
   rows.forEach(r=>{const eq=r.w.slice(0,4).reduce((a,b)=>a+b,0),tot=r.w.reduce((a,b)=>a+b,0);const row=button('',()=>openStatement(r.m.code),'ld-item'+(pins.includes(r.m.code)?' pinned':''));row.style.setProperty('--i',r.i);
    const top=cell('div',null,'ld-top');top.append(cell('b',r.m.name),cell('span',Math.round(eq)+'% equity'));
    const bar=cell('div',null,'ld-stack');[4,3,2,1,0].forEach(k=>{if(r.w[k]<=0)return;const s=cell('i');s.style.width=(100*r.w[k]/tot)+'%';s.style.background=sleeveColours[k];bar.append(s)});
-   const nums=cell('div',null,'ld-nums');nums.append(cell('span','20 yrs '),cell('strong',(r.ret*100).toFixed(2)+'%','up'),cell('span',' · worst 12 mo '),cell('strong','\u2212'+Math.abs(r.worst*100).toFixed(2)+'%','down'));
-   const wb=cell('div',null,'ld-worst');const wi=cell('i');wi.style.width=(100*r.worst/peak)+'%';wb.append(wi);
+   const nums=cell('div',null,'ld-nums');nums.append(cell('span',years+' yr'+(years===1?'':'s')+' '),cell('strong',(r.ret*100).toFixed(2)+'%','up'),cell('span',' · worst 12 mo '),cell('strong',percent(r.worst),'down'));
+   const wb=cell('div',null,'ld-worst');const wi=cell('i');wi.style.width=(peak<0?100*Math.min(0,r.worst)/peak:0)+'%';wb.append(wi);
    row.append(top,bar,nums,wb);list.append(row)});
   sec.append(list);
   const key=cell('div',null,'ld-key');[4,3,2,1,0].forEach(k=>{const s=cell('span',sleeveShort[k]);s.style.setProperty('--c',sleeveColours[k]);key.append(s)});sec.append(key);
   return;
  }
  const W=1000,H=452,L=150,Rr=W-12,band=(Rr-L)/rows.length,x=i=>L+band*(i+.5);
- const svg=d3.select(sec).append('div').attr('class','fx-scroll').append('svg').attr('viewBox',[0,0,W,H]).attr('class','ld-svg').attr('role','img').attr('aria-label','Allocation, 20-year annualized return and worst 12 months for the eight models');
+ const svg=d3.select(sec).append('div').attr('class','fx-scroll').append('svg').attr('viewBox',[0,0,W,H]).attr('class','ld-svg').attr('role','group').attr('aria-label','Allocation, '+years+'-year return and worst 12 months for the eight models');
  const t1=46,b1=196,t2=252,b2=318,t3=356,b3=420,sep=[34,226,340];
  sep.forEach(y=>svg.append('line').attr('x1',0).attr('x2',W).attr('y1',y).attr('y2',y).attr('class','ld-sep'));
  // column headers
  rows.forEach(r=>svg.append('text').attr('x',x(r.i)).attr('y',22).attr('text-anchor','middle').attr('class','ld-name'+(pins.includes(r.m.code)?' pinned':'')).text(r.name));
- [['Allocation',t1+12,'by sleeve'],['20 years',t2+8,'annualized'],['Worst 12 months',t3+8,'rolling, since 1994']].forEach(([a,y,b])=>{svg.append('text').attr('x',0).attr('y',y).attr('class','ld-k').text(a);svg.append('text').attr('x',0).attr('y',y+17).attr('class','ld-ax').text(b)});
+ [['Allocation',t1+12,'by sleeve'],[years+(years===1?' year':' years'),t2+8,'annualized'],['Worst 12 months',t3+8,'rolling return']].forEach(([a,y,b])=>{svg.append('text').attr('x',0).attr('y',y).attr('class','ld-k').text(a);svg.append('text').attr('x',0).attr('y',y+17).attr('class','ld-ax').text(b)});
  // allocation columns
  const y1=d3.scaleLinear([0,100],[b1,t1]),order=[4,3,2,1,0],bw=Math.min(46,band*.42);
  rows.forEach(r=>{const tot=r.w.reduce((a,b)=>a+b,0);let acc=0;const g=svg.append('g').attr('class','ld-col').style('--i',r.i);
   order.forEach(k=>{const v=100*r.w[k]/tot;if(v<=0)return;g.append('rect').attr('x',x(r.i)-bw/2).attr('width',bw).attr('y',y1(acc+v)).attr('height',Math.max(0,y1(acc)-y1(acc+v)-(acc+v<99.9?1:0))).attr('fill',sleeveColours[k]);acc+=v});
   const eq=r.w.slice(0,4).reduce((a,b)=>a+b,0)/tot*100;svg.append('text').attr('x',x(r.i)).attr('y',b1+18).attr('text-anchor','middle').attr('class','ld-eq').text(Math.round(eq)+'% equity')});
  // return line
- const y2=d3.scaleLinear([0,d3.max(rows,r=>r.ret)*1.08],[b2,t2+18]);
+ const y2=d3.scaleLinear([Math.min(0,d3.min(rows,r=>r.ret)),Math.max(0,d3.max(rows,r=>r.ret))||.01],[b2,t2+18]);
  svg.append('path').datum(rows).attr('fill','none').attr('stroke','#1f5a7d').attr('stroke-width',2).attr('d',d3.line().x(r=>x(r.i)).y(r=>y2(r.ret)).curve(d3.curveMonotoneX));
  rows.forEach(r=>{svg.append('circle').attr('cx',x(r.i)).attr('cy',y2(r.ret)).attr('r',4).attr('fill','#fff').attr('stroke','#1f5a7d').attr('stroke-width',2);svg.append('text').attr('x',x(r.i)).attr('y',y2(r.ret)-10).attr('text-anchor','middle').attr('class','ld-val up').text((r.ret*100).toFixed(2)+'%')});
  // worst 12 months
- const y3=d3.scaleLinear([0,d3.min(rows,r=>r.worst)],[t3,b3-18]),ww=Math.min(14,band*.14);
- rows.forEach(r=>{svg.append('rect').attr('class','ld-bar').attr('x',x(r.i)-ww/2).attr('width',ww).attr('y',t3).attr('height',y3(r.worst)-t3).attr('rx',2).attr('fill','#a2492f').attr('fill-opacity',.8).style('--i',r.i);
-  svg.append('text').attr('x',x(r.i)).attr('y',y3(r.worst)+15).attr('text-anchor','middle').attr('class','ld-val down').text('−'+Math.abs(r.worst*100).toFixed(2)+'%')});
+ const y3=d3.scaleLinear([0,d3.max(rows,r=>Math.abs(r.worst))||.01],[t3,b3-18]),ww=Math.min(14,band*.14);
+ rows.forEach(r=>{svg.append('rect').attr('class','ld-bar').attr('x',x(r.i)-ww/2).attr('width',ww).attr('y',t3).attr('height',y3(Math.abs(r.worst))-t3).attr('rx',2).attr('fill','#a2492f').attr('fill-opacity',.8).style('--i',r.i);
+  svg.append('text').attr('x',x(r.i)).attr('y',y3(Math.abs(r.worst))+15).attr('text-anchor','middle').attr('class','ld-val down').text(percent(r.worst))});
  const key=cell('div',null,'ld-key');[0,1,2,3,4].forEach(k=>{const s=cell('span',familyLabels[k]);s.style.setProperty('--c',sleeveColours[k]);key.append(s)});sec.append(key);
  // hover columns
  const read=cell('p',null,'ld-read');sec.append(read);
  const hi=svg.append('rect').attr('class','ld-hi').attr('y',2).attr('height',H-4).attr('width',band).attr('rx',8).attr('opacity',0);
- const say=r=>{const eq=r.w.slice(0,4).reduce((a,b)=>a+b,0)/r.w.reduce((a,b)=>a+b,0)*100,b=balance();const kv=(k,v,c)=>{const s=cell('span',null,'ld-kv');s.append(cell('small',k),cell('strong',v,c||''));return s};read.replaceChildren(cell('b',r.m.name,'ld-rn'),kv('Equity',pct(eq)),kv('20-year return',(r.ret*100).toFixed(2)+'% a year'),kv('Worst 12 months','\u2212'+Math.abs(r.worst*100).toFixed(2)+'%','down'),...(b===null?[]:[kv(money.format(b)+' would have fallen to',money.format(b*(1+r.worst)))]),cell('em','Select a model to open its statement','ld-hint'))};
+ const say=r=>{const eq=r.w.slice(0,4).reduce((a,b)=>a+b,0)/r.w.reduce((a,b)=>a+b,0)*100,b=balance();const kv=(k,v,c)=>{const s=cell('span',null,'ld-kv');s.append(cell('small',k),cell('strong',v,c||''));return s};read.replaceChildren(cell('b',r.m.name,'ld-rn'),kv('Equity',pct(eq)),kv(years+'-year return',(r.ret*100).toFixed(2)+'% a year'),kv('Worst 12 months',percent(r.worst),'down'),...(b===null?[]:[kv('From '+money.format(b)+' to',money.format(b*(1+r.worst)))]),cell('em','Select a model to open its statement','ld-hint'))};
  const def=rows.find(r=>r.m.code===pins[0])||rows[3];say(def);
  rows.forEach(r=>svg.append('rect').attr('x',L+band*r.i).attr('y',0).attr('width',band).attr('height',H).attr('fill','transparent').attr('cursor','pointer')
-  .on('pointerenter',()=>{hi.attr('x',L+band*r.i).transition().duration(150).attr('opacity',1);say(r)}).on('pointerleave',()=>{hi.transition().duration(200).attr('opacity',0);say(def)})
-  .on('click',()=>openStatement(r.m.code)));
+  .attr('role','button').attr('tabindex',0).attr('aria-label',r.m.name+', '+years+'-year annualized return '+percent(r.ret)+', worst 12 months '+percent(r.worst)+'. Open statement.')
+  .on('pointerenter focus',()=>{hi.attr('x',L+band*r.i).attr('opacity',1);say(r)}).on('pointerleave blur',()=>{hi.attr('opacity',0);say(def)})
+  .on('click',()=>openStatement(r.m.code)).on('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openStatement(r.m.code)}}));
  hi.lower();
 }
 window.matchMedia('(max-width:640px)').addEventListener('change',()=>{if(view==='lineup')renderLadder()});
@@ -3526,7 +3642,7 @@ page.innerHTML='<div class="folio-heading"><div><h1>Projected returns</h1></div>
 '<div class="history-switch pj-basis" role="group" aria-label="Return basis"><button id="pjGuide" type="button">Guideline returns</button><button id="pjHist" type="button">Historical returns</button></div>'+
 '<div class="history-switch" role="group" aria-label="Dollar basis"><button id="pjNominal" type="button">Future dollars</button><button id="pjReal" type="button">Today’s dollars</button></div>'+
 '</div><div class="pj-goal"><span class="kicker">Goal</span><div class="history-switch" role="group" aria-label="Goal"><button id="pjG0" type="button">No goal</button><button id="pjG1" type="button">Reach an amount</button><button id="pjG2" type="button">Fund an income</button></div><div id="pjGoalFields" class="pj-goal-fields"></div></div><div id="pjBody"></div></section>'+
-'<section class="sheet pj-range"><div class="sheet-head"><div><h2>Range of outcomes</h2><p id="pjRangeSub" class="fx-sub"></p></div><div class="pj-cash-controls"><label>Cash comparison<select id="pjCashBasis"><option value="benchmark">Short-term guideline</option><option value="zero">Cash earning 0%</option><option value="custom">Custom cash rate</option></select></label><label id="pjCashRateField" hidden>Net annual rate (%)<input type="number" id="pjCashRate" min="-99" max="100" step="any" required></label><span id="pjCashHelp"></span></div></div><p id="pjCashError" hidden role="status">Enter a cash rate from −99% to 100%.</p><div id="pjRange"></div></section>'+
+'<section id="outcome-range" class="sheet pj-range"><div class="sheet-head"><div><h2>Range of outcomes</h2><p id="pjRangeSub" class="fx-sub"></p></div><div class="pj-cash-controls"><label>Cash comparison<select id="pjCashBasis"><option value="benchmark">Short-term guideline</option><option value="zero">Cash earning 0%</option><option value="custom">Custom cash rate</option></select></label><label id="pjCashRateField" hidden>Net annual rate (%)<input type="number" id="pjCashRate" min="-99" max="100" step="any" required></label><span id="pjCashHelp"></span></div></div><p id="pjCashError" hidden role="status">Enter a cash rate from −99% to 100%.</p><div id="pjRange"></div></section>'+
 '<section class="sheet pj-faq"><div class="sheet-head"><div><h2>Questions clients ask</h2></div></div><div id="pjFaq"></div></section>'+
 '<section class="sheet pj-method"><div class="sheet-head"><div><h2>How this projection is built</h2></div></div><div id="pjMethod"></div></section>';
 document.querySelector('main footer').before(page);
@@ -3773,7 +3889,7 @@ function cashOutcome(start){
   label:rateText+' fixed annual rate',shortLabel:rateText};
 }
 function renderRange(start){
- const root=get('pjRange');root.replaceChildren();
+ const root=get('pjRange'),amountsOpen=root.querySelector('details')?.open||false;root.replaceChildren();
  const historical=st.basis==='historical',cashInput=get('pjCashRate');
  get('pjCashBasis').options[0].textContent=historical?'Historical Canadian T-bills':'Short-term guideline · '+PAG.shortTerm+'%';
  const invalidCash=get('pjCashBasis').value==='custom'&&!cashInput.validity.valid;
@@ -3796,7 +3912,11 @@ function renderRange(start){
  if(!nar){svg.append('text').attr('x',R+16).attr('y',gy0-10).attr('class','pj-col-h').text('Typical')}
  rows.forEach((r,k)=>{const yc=top+k*rowH+rowH/2+(nar?6:0),on=r.m.code===st.model,cmp=r.m.code===st.compare;
   const g=svg.append('g').attr('class',r.cash?'pj-cash-row':'pj-row'+(on?' on':'')+(cmp?' cmp':''));
-  if(!r.cash)g.on('click',()=>{changePin(0,r.m.code);render();window.scrollTo({top:0,behavior:reduce.matches?'auto':'smooth'})});
+  if(!r.cash){
+   const choose=()=>{changePin(0,r.m.code);render();get('pjModel').focus({preventScroll:true});window.scrollTo({top:0,behavior:reduce.matches?'auto':'smooth'})};
+   g.attr('role','button').attr('tabindex',0).attr('aria-pressed',String(on)).attr('aria-label',r.m.name+', typical outcome '+money0(r.b.p50)+'. Select model.')
+    .on('click',choose).on('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose()}});
+  }
   g.append('rect').attr('x',0).attr('y',yc-rowH/2+(nar?-6:2)).attr('width',W).attr('height',rowH-4).attr('rx',8).attr('class','pj-row-bg');
   if(on)g.append('rect').attr('x',0).attr('y',yc-rowH/2+(nar?-6:2)).attr('width',3).attr('height',rowH-4).attr('rx',1.5).attr('class','pj-row-tick');
   if(nar){g.append('text').attr('id','pjr'+k+'n').attr('x',L).attr('y',yc-14).attr('class','pj-name').text(r.cash?'Cash · '+r.shortLabel:r.m.name);g.append('text').attr('id','pjr'+k+'v').attr('x',R).attr('y',yc-14).attr('text-anchor','end').attr('class','pj-mid').text(m2(r.b.p50))}
@@ -3818,6 +3938,15 @@ function renderRange(start){
   const difference=Math.abs(gap)<.5?'matches cash':'is '+money0(Math.abs(gap))+(gap>0?' above cash':' below cash');
   root.append(cell('p','The typical outcome for '+selected.m.name+' '+difference+'.','pj-cash-gap'));
  }
+ const amounts=cell('details',null,'pj-amounts');amounts.open=amountsOpen;
+ amounts.append(cell('summary','See exact outcome amounts'));
+ const scroll=cell('div',null,'pj-amounts-scroll');scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Ending balances by percentile');
+ const table=cell('table');table.append(cell('caption',(st.real?'Today’s dollars':'Future dollars')+' after '+st.years+' years'));
+ const head=table.createTHead().insertRow();
+ for(const title of ['Portfolio','10th percentile','Median','90th percentile']){const th=cell('th',title);th.scope='col';head.append(th)}
+ const body=table.createTBody();
+ for(const r of rows){const tr=body.insertRow(),th=cell('th',r.cash?'Cash · '+r.shortLabel:r.m.name);th.scope='row';tr.append(th);for(const key of ['p10','p50','p90'])tr.append(cell('td',money0(r.b[key])))}
+ scroll.append(table);amounts.append(scroll);root.append(amounts);
 }
 function renderFaq(m,sim,start){
  const root=get('pjFaq');if(!root)return;const open=new Set([...root.querySelectorAll('details[open]')].map(d=>d.dataset.k));root.replaceChildren();
@@ -3833,11 +3962,12 @@ function renderFaq(m,sim,start){
  qa.forEach(([k,q,t])=>{const d=document.createElement('details');d.className='pj-q';d.dataset.k=k;if(open.has(k))d.open=true;const sm=document.createElement('summary');sm.textContent=q;d.append(sm,cell('p',t));root.append(d)});
 }
 function renderMethod(m){
+ const addTable=table=>{const wrapper=cell('div',null,'pj-method-scroll');wrapper.tabIndex=0;wrapper.setAttribute('role','region');wrapper.setAttribute('aria-label','Return assumptions table');wrapper.append(table);root.append(wrapper)};
  const root=get('pjMethod');root.replaceChildren();const a=assume(m);
  if(st.basis==='historical'){
   const table=cell('table',null,'pj-table'),head=table.createTHead().insertRow();['Model','Monthly returns used','Annualized before fees','After '+st.fee.toFixed(2)+'% fees','Guideline rate before fees'].forEach(t=>head.append(cell('th',t)));
   const tb=table.createTBody();for(const mm of models){const x=assume(mm),r=tb.insertRow();if(mm.code===m.code)r.className='total';r.append(cell('td',mm.name),cell('td',x.months+' · '+monthName(monthIndex(dates[0]))+' to '+monthName(monthIndex(dates.at(-1))),'num'),cell('td',x.hist.toFixed(2)+'%','num'),cell('td',x.net.toFixed(2)+'%','num'),cell('td',x.guide.toFixed(2)+'%','num'))}
-  root.append(table);
+  addTable(table);
   const notes=['Historical returns: each model’s monthly Dimensional CAD benchmark series, '+monthName(monthIndex(dates[0]))+' to '+monthName(monthIndex(dates.at(-1)))+'. Indices include backtested history and exclude fund and advisor fees.',
    'Each simulated year is a randomly chosen real 12-month stretch from that history, with the monthly fee taken off. This keeps actual crash and recovery months together. 2,000 paths, fixed random seed.',
    'The period includes an unusually long decline in interest rates, which lifted bond and equity returns. FP Canada’s forward-looking guideline rates are lower for every model, shown in the last column. The faint dotted line on the chart shows the guideline result.',
@@ -3848,7 +3978,7 @@ function renderMethod(m){
  const table=cell('table',null,'pj-table');const head=table.createTHead().insertRow();['Sleeve','Weight in '+m.name,'Guideline class','Return before fees'].forEach(t=>head.append(cell('th',t)));
  const tb=table.createTBody();familyLabels.forEach((n,i)=>{if(a.w[i]<=0)return;const r=tb.insertRow();r.append(cell('td',n),cell('td',fmt(a.w[i]),'num'),cell('td',PAG.classes[i]+(i===2?' (emerging-market share not in this file)':'')),cell('td',PAG.rates[i].toFixed(1)+'%','num'))});
  const tot=tb.insertRow();tot.className='total';tot.append(cell('td','Blended'),cell('td',fmt(a.tot),'num'),cell('td','Less annual fees of '+st.fee.toFixed(2)+'%'),cell('td',a.gross.toFixed(2)+'% → '+a.net.toFixed(2)+'%','num'));
- root.append(table);
+ addTable(table);
  const notes=[
   'Return assumptions: FP Canada and Institute of Financial Planning '+PAG.year+' Projection Assumption Guidelines, effective '+PAG.effective+'. Nominal, before fees. Inflation 2.1%. The guidelines are intended for projections of 10 years or more.',
   'The guidelines require fees to be deducted. The fee field above applies to the whole portfolio; set it to the client’s actual all-in cost.',
@@ -4184,7 +4314,8 @@ const recap=get('openRecap');if(recap){const b=button('Client one-pager',onePage
     });
     const extra = selected.days - 30;
     get('pp-calendar-note').textContent = Math.abs(extra)<0.05 ? 'All 30 days covered.' :
-      extra>0 ? 'All 30 days covered, plus '+number.format(extra)+' more.' : number.format(-extra)+' days of spending would be uncovered.';
+      extra>0 ? money.format(Math.max(0,selected.monthAmount-futureMonth))+' left after that month’s expenses, enough for '+number.format(extra)+' more days.' :
+      money.format(Math.max(0,futureMonth-selected.monthAmount))+' more would be needed that month to cover the remaining '+number.format(-extra)+' days.';
     budgetInputs.forEach(el => {el.nextElementSibling.textContent=money.format(el.valueAsNumber*prices);});
     get('pp-total-today').textContent = money.format(spending); get('pp-total-later').textContent = money.format(futureMonth);
     get('pp-starting').textContent = money.format(start)+' buys '+number.format(start/spending)+' months today. Compare the same balance in '+horizon+' years.';
@@ -4286,6 +4417,7 @@ for(const [id,cfg] of Object.entries(pages)){
  text.append(eb,h1,dek);
  const actions=document.createElement('div');actions.className='mast-actions';
  [...head.children].forEach(c=>{if(c!==text)actions.append(...(c.querySelector('h1')?[...c.childNodes].filter(n=>n!==h1&&!(n.nodeType===3&&!n.textContent.trim())):[c]))});
+ if(id==='projection'){const jump=cell('a','Compare outcome ranges','quiet');jump.href='#outcome-range';actions.prepend(jump)}
  head.replaceChildren(text);if(actions.childNodes.length)head.append(actions);
  // watermark: the Portfolio Studio chevron mark
  const wm=document.createElementNS(NS,'svg');wm.setAttribute('class','mast-mark');wm.setAttribute('viewBox','0 0 35 39');wm.setAttribute('aria-hidden','true');wm.innerHTML=chevron;head.append(wm);
