@@ -1503,7 +1503,17 @@
     function installYearCalendar(){
       const panel=document.getElementById('atlas-accountability');
       const wrap=panel?.querySelector('.acc-wrap');
-      if(!wrap)return;
+      if(!wrap){
+        // The calendar and the enhanced check-in load independently on Pages.
+        if(typeof MutationObserver==='function'){
+          const lateMount=new MutationObserver(()=>{
+            if(!document.querySelector('#atlas-accountability .acc-wrap'))return;
+            lateMount.disconnect();installYearCalendar();
+          });
+          lateMount.observe(document.body,{childList:true});
+        }
+        return;
+      }
       const sheet=make('dialog',null,'ledger-year-sheet');
       sheet.setAttribute('aria-labelledby','ledger-calendar-title');
       document.body.append(sheet);
