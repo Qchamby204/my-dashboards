@@ -24,6 +24,79 @@ async function assertReadableRangeRow(row) {
  assert(ratios.length >= 2 && ratios.every(value => value >= 4.5), 'Range row text contrast: ' + ratios);
 }
 
+async function reviewWorkspace(context,width){
+ const page=await context.newPage(), errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ const find=selector=>page.locator(selector);
+ await page.goto(new URL('#models',url).href);
+ async function openTab(id){
+  if(width===390)await find('#studioNavToggle').click();
+  await find('#studioNav [data-page="'+id+'"]').click();
+  assert(await find('#'+id).isVisible());
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ }
+ const ladder=find('#fxLadder');
+ await find('#bookBasis').selectOption('actual');
+ assert.match(await ladder.innerText(),/Published Class I funds/);
+ const readout=width===390?ladder.locator('.ld-item').first():ladder.locator('.ld-svg [role=button]').first();
+ const read=()=>width===390?readout.textContent():readout.getAttribute('aria-label');
+ const actual=await read();
+ await find('#bookBasis').selectOption('archive');
+ assert.match(await ladder.innerText(),/September 2024/);
+ assert.notEqual(await read(),actual);
+ await find('#bookBasis').selectOption('benchmark');
+ await find('#snap').selectOption('archive');
+ assert.match(await ladder.innerText(),/Jun 2024/);
+ await openTab('overview');
+ await find('.sb-side .sb-row').first().click();
+ await find('.sb-side .sb-row').first().click();
+ assert.match(await find('.sb-foot').innerText(),/after this allocation/);
+ assert.match(await find('.sb-list').innerText(),/No holdings on file for this date/);
+ await find('.sb-centre').press('Enter');
+ assert.doesNotMatch(await find('.sb-list').innerText(),/No holdings on file for this date/);
+ await find('#snap').selectOption('latest');
+ await openTab('andex');
+ await find('#showDeclines').click();assert.match(await find('#andexHeading').innerText(),/previous high/);
+ await find('#pfHeadline>button[aria-expanded]').click();assert.equal(await find('#pfHeadline>button[aria-expanded]').getAttribute('aria-expanded'),'true');
+ await find('#pfHeadline>button[aria-expanded]').click();assert(await find('#pfHeadline>button[aria-expanded]').evaluate(el=>document.activeElement===el));
+ await openTab('compareView');await find('#compare-holdings').click();
+ const search=page.getByRole('searchbox',{name:'Find a holding to pin'});
+ await search.fill('zxzxzz');assert.match(await find('.hc-search-status').innerText(),/No matching holding/);
+ assert(await page.getByLabel('Pinned holding').isDisabled());
+ await search.fill('Royal Bank');assert(await page.getByLabel('Pinned holding').isEnabled());
+ await openTab('components');
+ assert.equal(await find('#componentModel').inputValue(),'DFA692');
+ if(await find('#componentCurve .coverage-alert').isVisible()){
+  await find('#componentCurve .action').click();assert.equal(await find('#componentMethod').inputValue(),'covered');
+ }
+ await find('#componentModel').selectOption('DFA917');assert.match(await find('#componentCurve').innerText(),/Whole portfolio/);
+ await openTab('purchasing-power');
+ assert.match(await find('#pp-calendar-note').innerText(),/\$2,577 more.*10.2 days/);
+ await find('#pp-current').fill('2.1');assert.match(await find('#pp-calendar-note').innerText(),/All 30 days covered/);
+ await openTab('projection');await find('.mast-actions a[href="#outcome-range"]').click();
+ const box=find('.pj-amounts'), rows=box.locator('tbody tr');
+ await box.locator('summary').click();assert.equal(await rows.count(),9);
+ assert.deepEqual(await rows.first().locator('td').allTextContents(),Array(3).fill('$1,809,251'));
+ await find('#pjHist').click();assert(await box.evaluate(el=>el.open));
+ const cashRange=(await rows.first().locator('td').allTextContents()).map(t=>Number(t.replace(/[^0-9]/g,'')));
+ assert(cashRange[0]<cashRange[1]&&cashRange[1]<cashRange[2]);
+ await find('#pjRange .pj-row').first().press('Enter');assert.equal(await find('#pjModel').inputValue(),'DFA917');
+ await openTab('research');
+ await page.reload();assert(await find('#research').isVisible());
+ await find('#toOverlap').click();const code=await find('#leftFund').inputValue();
+ await find('#rightFund').selectOption(code);assert.match(await find('#overlapStory').innerText(),/two different/);
+ await find('#leftFund').selectOption('DFA382');await find('#rightFund').selectOption('DFA495');
+ const first=await find('#overlapRows tr').first().textContent();
+ for(let i=0;i<3;i++)await find('#overlapNext').click();
+ assert.match(await find('#overlapPage').innerText(),/121–/);
+ assert.notEqual(await find('#overlapRows tr').first().textContent(),first);
+ await find('#overlapSearch').fill('zxzxzz');assert.match(await find('#overlapRows').innerText(),/No shared holding matches/);
+ await find('#overlapSearch').fill('');assert(await find('#overlapPrev').isDisabled());
+ await page.goBack();assert(await find('#research').isVisible());
+ await page.goForward();assert(await find('#overlapView').isVisible());
+ assert.deepEqual(errors,[]);await page.close();
+}
+
 try{
  for(const width of [390,1440]){
   const context=await browser.newContext({viewport:{width,height:850},reducedMotion:'reduce'});
@@ -160,7 +233,8 @@ try{
   await page.getByLabel('Income per year').fill('100000');
   await waitForCash('$0');
   assert.deepEqual(errors,[]);
+  await reviewWorkspace(context,width);
   await context.close();
  }
- console.log('Portfolio comparisons, cash outcomes, meeting restoration and fixed-scale replay passed on phone and desktop viewports.');
+ console.log('All eight Portfolio Studio tabs, cash outcomes, saved meetings and historical replay passed on phone and desktop.');
 }finally{await browser.close();}
