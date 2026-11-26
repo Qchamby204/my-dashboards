@@ -55,9 +55,9 @@ with sync_playwright() as pw:
         assert not page.locator('[data-habit="LinkedIn Strategy"]').count()
         assert page.locator('#ledger-rhythm .ledger-rhythm-row').count() == 3
         assert page.locator('.ledger-card-xp').count() == 14
-        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+100 XP on Save day')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+100 XP when saved')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp strong')).to_have_text('+100 XP')
-        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_have_text('on Save day')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_have_text('when saved')
         assert page.locator('.ledger-habit-card').count() == 14
         expect(page.locator('#deckCounter')).to_have_text('1 / 14')
         assert page.locator('#ledger-view-today #ledger-rhythm, #ledger-view-today #ledger-leisure-preview, #ledger-view-today .ledger-day-options').count() == 0
@@ -174,7 +174,7 @@ with sync_playwright() as pw:
         assert page.locator('.ledger-habit-card[aria-hidden="true"]').count() == 13
         page.get_by_role('button', name='Previous habit', exact=True).click()
         go_card('Read')
-        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+10 pages per tap · +40 XP on Save day')
+        expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp')).to_contain_text('+10 pages per tap · +40 XP when saved')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-card-xp strong')).to_have_text('+40 XP')
         expect(page.locator('.ledger-habit-card:not([inert]) .ledger-xp-save-note')).to_be_visible()
         page.get_by_role('button', name='Did not do: Read', exact=True).click()
