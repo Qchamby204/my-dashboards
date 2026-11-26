@@ -970,14 +970,38 @@ html[data-theme=dark] .op-sheet .pj-gauge-n{fill:#14222e}html[data-theme=dark] .
 .pf-field select,.pf-field label{width:100%;min-width:0;box-sizing:border-box}.pf-controls>select{width:auto;flex:1 1 13rem;min-width:0}.pf-tile .pf-slice{position:absolute;inset:auto 0 0;height:var(--inside,0);background:#b0eacc;border-top:0;pointer-events:none}.pf-tile .pf-fund-name{display:none}.pf-controls button[aria-pressed=true]{box-shadow:inset 0 -3px currentColor;font-weight:700}.pf-field .pf-tile[data-state=missing]{background:repeating-linear-gradient(120deg,#6d7f894d 0 1px,transparent 1px 9px),#41515b}.pf-field .pf-tile b,.pf-field .pf-tile small{z-index:1}
 @container (min-width:100px) and (min-height:50px){.pf-tile .pf-fund-name{display:block;max-width:94%;line-height:1.15;font-size:clamp(11px,8cqw,18px);font-weight:700;color:white;text-shadow:0 1px 3px #000}.pf-tile .pf-fund-name~b{font-size:10px;font-weight:500;opacity:.9}}
 @container (max-width:34px){.pf-tile b,.pf-tile small{display:none}}
+</style><style id="comparison-and-replay">
+#pairToolbar{position:sticky;top:var(--studio-context-height,0px);z-index:12;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-block:0 14px;scroll-margin-top:var(--studio-context-height,0px)}
+#pairToolbar .pair-selects{padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;flex:1 1 355px}
+#pairToolbar label{display:grid;gap:3px;min-width:0;font-size:.78rem}#pairToolbar select{width:100%;max-width:100%;min-width:0}
+.pair-lenses,.coach-markers{display:flex;gap:4px;flex-wrap:wrap}
+.pair-lenses button,.unit-choice,.sequence-controls button{min-height:42px}
+.pair-lenses button{border-radius:7px;padding:5px 12px}.pair-lenses button[aria-pressed=true],#pfHeadline .unit-choice[aria-pressed=true]{background:var(--ink);color:var(--surface)}
+.hc-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hc-metrics>div{display:grid;align-content:start;gap:4px;padding:10px;border-inline-start:3px solid var(--a)}.hc-metrics>[data-model="1"]{border-color:var(--b)}
+.hc-metrics strong{font:clamp(1.28rem,3vw,2.25rem)/1.15 var(--serif);overflow-wrap:anywhere}
+.hc-metrics span,.hc-metrics small,.hc-coverage small,.hc-axis figcaption,.hc-delta small{color:var(--muted)}
+.hc-axis{margin:16px 0 0}.hc-axis figcaption{font-size:.85rem}.hc-track{height:38px;margin:14px 22px 4px;position:relative;border-top:2px solid var(--line)}
+.hc-tick,.hc-point{position:absolute;transform:translateX(-50%)}.hc-tick{width:max-content;white-space:nowrap;top:6px;font-size:.74rem;font-variant-numeric:tabular-nums}.hc-tick:before{content:"";position:absolute;top:-9px;left:50%;height:6px;border-left:1px solid var(--muted)}
+.hc-point{width:12px;height:12px;border-radius:50%;top:-10px;background:var(--a);outline:2px solid var(--surface)}.hc-point[data-model="1"]{background:var(--b);top:-4px}
+.hc-answer{font-weight:650}.hc-coverage{border-block-start:1px solid var(--line);padding-block:8px;display:grid;gap:4px}.hc-coverage p{margin:0}
+.hc-deltas{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(14px,2.4vw,28px)}.hc-deltas h3,.hc-deltas p{margin:0 0 8px}
+.hc-delta{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 12px;border-block-start:1px solid var(--line);padding:10px 0}.hc-delta span{text-align:right;font-variant-numeric:tabular-nums}.hc-delta-axis{height:7px;align-self:center;width:clamp(60px,14vw,150px);background:linear-gradient(90deg,transparent 49.5%,var(--line) 49.5% 50.5%,transparent 50.5%);position:relative}.hc-delta-axis i{position:absolute;height:100%;left:50%;background:var(--a);border-radius:3px}.hc-delta-axis i[data-direction=down]{left:auto;right:50%;background:var(--b)}
+.hc-more{display:none}.coach-chart{display:block;width:100%;height:auto;max-height:335px}.coach-chart text{font:12px var(--sans);fill:var(--muted)}.coach-grid{stroke:var(--line)}.coach-dot{fill:var(--surface);stroke:var(--a);stroke-width:2}.coach-dot.selected,.coach-hit:focus .coach-dot{fill:var(--a);stroke:var(--ink)}.coach-hit{cursor:pointer}.coach-readout{font-weight:650;font-variant-numeric:tabular-nums}.coach-prompt{margin-block-start:12px}.meeting .coach-prompt{display:none}
+#sequenceSetup{width:min(590px,95vw);max-height:90dvh;overflow:auto}#sequenceSetup h2{margin:0}#sequenceSetup h3{margin:16px 0 4px}#sequenceSetup p{margin:.35em 0 .75em}.sequence-controls,#sequenceBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}#sequenceSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}#sequenceSteps label{display:grid;font-size:.85rem}#sequenceSteps select{width:100%;min-width:0}
+#sequenceBar{padding:5px 8px;border:1px solid var(--line);border-radius:8px}#sequenceBar strong{margin-right:auto;font-size:.85rem}#sequenceBar button{min-height:36px}
+#pfHeadline,#pfCompare .pf-equation,#chartsPanel .plot-head{scroll-margin-top:calc(var(--studio-context-height,0px) + 115px)}
+body.meeting:has(#sequenceBar:not([hidden])) .context{position:sticky;top:0;z-index:22;background:var(--surface)}body.meeting:has(#sequenceBar:not([hidden])) .context>label,body.meeting:has(#sequenceBar:not([hidden])) #prepareSequence{display:none}
+@media(max-width:760px){.hc-extra{display:none}.hc-expanded .hc-extra{display:grid}.hc-more{display:inline-block}#pairToolbar{padding:8px;gap:5px}#pairToolbar .pair-selects{flex-basis:100%}.pair-lenses{width:100%}.pair-lenses button{flex:1;min-height:38px}#sequenceSteps{grid-template-columns:1fr}#sequenceSteps label{grid-template-columns:55px minmax(0,1fr);align-items:center}.context #prepareSequence,.context #meetingMode{grid-column:auto;margin:0;justify-self:start}#sequenceBar{grid-column:1/-1;width:100%}body.meeting:has(#sequenceBar:not([hidden])) .context{display:grid;grid-template-columns:auto 1fr;align-items:center;padding-block:5px}body.meeting:has(#sequenceBar:not([hidden])) .context>:not(#meetingMode):not(#sequenceBar){display:none}body.meeting:has(#sequenceBar:not([hidden])) #sequenceBar{grid-column:auto;display:grid;grid-template-columns:1fr auto auto;min-width:0}.context:has(#sequenceBar:not([hidden])) #meetingMode{font-size:11px;padding:4px 6px}#sequenceBar{gap:4px}#sequenceBar button{padding:4px 8px}.hc-tick{font-size:.68rem}.coach-chart text{font-size:14px}}
 </style><link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-32.png?v=ef1201342d31">
 <link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-64.png?v=9d1339ad401f">
 <link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-apple.png?v=f8db1171b0b0">
 </head>
 <body><a class="skip" href="#main">Skip to workspace</a>
-<aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Return comparison</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
+<aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Compare two models</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
 <main id="main" class="frame" tabindex="-1">
-<div class="context"><label>Allocation date<select id="snap"><option value="latest">October 31, 2026</option><option value="archive">June 30, 2024 · workbook</option></select></label><label>Illustrative balance <span class="currency">CAD</span><input id="balance" type="text" value="1,000,000" inputmode="decimal" autocomplete="off"></label><div id="balanceStatus" role="status"></div><button id="meetingMode" class="meeting-toggle" aria-pressed="false">Meeting view</button></div>
+<div class="context"><label>Allocation date<select id="snap"><option value="latest">October 31, 2026</option><option value="archive">June 30, 2024 · workbook</option></select></label><label>Illustrative balance <span class="currency">CAD</span><input id="balance" type="text" value="1,000,000" inputmode="decimal" autocomplete="off"></label><div id="balanceStatus" role="status"></div><button id="meetingMode" class="meeting-toggle" aria-pressed="false">Meeting view</button><button id="prepareSequence" class="meeting-toggle">Meeting sequence</button><div id="sequenceBar" hidden><strong id="sequencePosition" aria-live="polite"></strong><button id="sequenceBack" type="button">Previous</button><button id="sequenceNext" type="button" class="primary">Next</button></div></div>
+<dialog id="sequenceSetup" class="recap" aria-labelledby="sequenceTitle"><h2 id="sequenceTitle">Meeting sequence</h2><h3>Current selection</h3><p id="sequenceCurrent"></p><div id="sequenceSteps"></div><div class="sequence-controls"><button id="startSequence" class="primary">Start this meeting</button><button id="saveSequence">Save on this device</button></div><h3>Saved meeting</h3><p id="savedSequence"></p><button id="resumeSequence" hidden>Open saved meeting</button><p id="sequenceStatus" role="status"></p><button id="sequenceClose">Close</button></dialog>
 <section id="lineup" class="page">
 <div class="folio-heading"><div><h1>The model portfolios</h1></div><div class="basisline"><label>Performance history<select id="bookBasis"><option value="benchmark">Long-run benchmarks</option><option value="actual">Published fund returns</option><option value="archive">Original workbook figures</option></select></label></div></div>
 <section class="folio-hero"><div class="herotext"><span class="kicker">Same starting balance, every model</span><h2 id="heroRange"></h2><p id="heroCaption"></p><button class="heroaction" id="heroReplay">Replay the housing crisis</button> <button class="heroaction secondary-hero" id="goAndex">Explore the Andex chart</button></div><div class="herofigure"><svg id="heroPlot" role="img" aria-label="Historical growth of the eight model benchmarks"></svg><div id="heroFoot"></div></div></section>
@@ -995,8 +1019,10 @@ html[data-theme=dark] .op-sheet .pj-gauge-n{fill:#14222e}html[data-theme=dark] .
 <section class="statement-band"><div><label>Statement line<select id="portfolio"></select></label><p id="statementDate"></p></div><div class="stmt-sum"><span>Illustrative statement</span><strong id="statementAmount"></strong></div></section>
 <div class="trail-wrap"><div id="trail" class="trail" aria-label="Ownership path"></div><button id="openRecap" class="quiet">Meeting recap ↗</button></div><section class="sheet" id="ownershipPanel" tabindex="-1" aria-label="Ownership detail"></section>
 </section>
-<section id="compareView" class="page" hidden><div class="intro"><h1>Return comparison</h1></div><section id="pfCompare"></section>
-<section class="sheet"><div class="history-controls"><label class="a">Model A<select id="returnA"></select></label><label class="b">Model B<select id="returnB"></select></label><label>History source<select id="experienceSource"><option value="actual">Published CAD Class I funds</option><option value="benchmark" selected>Long-run CAD benchmarks</option></select></label><label>Period<select id="experiencePeriod"><option value="12">1 year</option><option value="36">3 years</option><option value="60">5 years</option><option value="120">10 years</option><option value="all" selected>Full common history</option></select></label></div>
+<section id="compareView" class="page" hidden><div class="intro"><h1>Compare two models</h1></div>
+<div id="pairToolbar"><div class="pair-selects"><label class="a">Model A<select id="returnA"></select></label><label class="b">Model B<select id="returnB"></select></label></div>
+<div role="group" aria-label="Comparison view" class="pair-lenses"><button id="compare-holdings" type="button">Holdings</button><button id="compare-allocation" type="button">Allocation</button><button id="compare-returns" type="button">Returns</button></div></div>
+<section id="pfCompare"></section><section class="sheet" id="comparisonReturns"><div class="history-controls"><label>History source<select id="experienceSource"><option value="actual">Published CAD Class I funds</option><option value="benchmark" selected>Long-run CAD benchmarks</option></select></label><label>Period<select id="experiencePeriod"><option value="12">1 year</option><option value="36">3 years</option><option value="60">5 years</option><option value="120">10 years</option><option value="all" selected>Full common history</option></select></label></div>
 <div class="history-date" id="experienceDate"></div><div id="historyStats" class="history-stats"></div>
 <p id="decisionStory" class="decision-story"></p><div id="chartsPanel"><div class="plot-head"><h3>Growth of the illustrative balance</h3><span>Canadian dollars</span></div><svg id="growthPlot" class="plot" viewBox="0 0 840 175" role="img" aria-label="Growth of the two selected portfolios over the same months"></svg>
 <div class="plot-head"><h3>Decline from the previous high</h3><span>Month-end drawdown</span></div><svg id="lossPlot" class="plot" viewBox="0 0 840 175" role="img" aria-label="Percentage decline from each portfolio’s previous high in the selected period"></svg>
@@ -1563,7 +1589,7 @@ function lookThroughData(model,example){
  return {date,funds,groups,pieces,total};
 }
 function openLookThroughLink(){
- if(location.hash==='#compare-holding'){openView('compareView',false);get('pfCompare').scrollIntoView();return;}
+ if(location.hash==='#compare-holding'){openComparison('holdings');return;}
  if(location.hash==='#headline-replay'){headlineState.open=true;openView('andex',false);get('pfHeadline').scrollIntoView();return;}
  if(location.hash!=='#look-through')return;
  ownershipMode='lookthrough';Object.assign(statementState,{group:null,fund:null,item:null});
@@ -1621,7 +1647,7 @@ function fixedField(model){
  search.type='search';search.placeholder='Find a holding';search.setAttribute('aria-label','Search reported holdings');results.setAttribute('aria-label','Holding to inspect');
  function options(){const q=nameKey(search.value);results.replaceChildren(new Option(fieldState.name,fieldState.name));for(const [k,v] of names){if(k!==nameKey(fieldState.name)&&k.includes(q))results.append(new Option(v,v));if(results.options.length>80)break;}}
  options();search.oninput=options;results.onchange=()=>{fieldState.name=results.value;paint();};
- choose.append(search,results,button('Pin and compare',()=>{fieldState.pinned=fieldState.name;if(!pins.includes(model.code))changePin(0,model.code);openView('compareView');get('pfCompare')?.scrollIntoView({block:'start'});},'quiet'));
+ choose.append(search,results,button('Pin and compare',()=>{fieldState.pinned=fieldState.name;if(!pins.includes(model.code))changePin(0,model.code);openComparison('holdings');},'quiet'));
  bar.after(choose);
  const tiles=new Map();
  function partition(a,x,y,w,h){
@@ -1651,34 +1677,78 @@ function fixedField(model){
  }
  paint();return host;
 }
-function renderFieldComparison(){
- const root=get('pfCompare');if(!root)return;
- const [a,b]=pins.map(modelFor),date=reportDate(),name=fieldState.pinned;
- const A=modelParts(a,date,name),B=modelParts(b,date,name);
- const selectModel=i=>optionList(i?'Compared model':'Original model',models.map(m=>[m.code,m.name]),pins[i],code=>changePin(i,code));
- const controls=cell('div',null,'pf-controls');controls.append(selectModel(0),selectModel(1));
- const names=new Map([[nameKey(name),name]]);for(const row of [...A,...B])if(row.report)for(const [k,v] of row.report.positions)names.set(k,v.name);
- const input=cell('input'),pick=cell('select');input.type='search';input.placeholder='Find a holding';input.setAttribute('aria-label','Find a holding to pin');pick.setAttribute('aria-label','Pinned holding');
- const options=()=>{pick.replaceChildren(new Option(name,name));for(const [k,v] of names){if(k!==nameKey(name)&&k.includes(nameKey(input.value)))pick.append(new Option(v,v));if(pick.length>80)break;}};
- options();input.oninput=options;pick.onchange=()=>{fieldState.pinned=pick.value;renderFieldComparison();};controls.append(input,pick);
- root.replaceChildren(cell('h2','Show me the difference'),controls,cell('p',dateText(date)+' · '+(balance()===null?'Per $100':money.format(balance()))+' in both models','lt-source'));
- const rows=allCodes.map(code=>{const x=A.find(r=>r.code===code),y=B.find(r=>r.code===code);return {code,x:x?.w||0,y:y?.w||0,p:x?.part||0,q:y?.part||0,matched:!!(x?.pos||y?.pos),report:x?.report||y?.report};}).filter(r=>r.x||r.y);
- const fundMax=Math.max(1,...rows.flatMap(r=>[r.x,r.y])),expMax=Math.max(.00001,...rows.flatMap(r=>[r.p,r.q]));
- function bar(x,y,max){
-  const track=cell('div',null,'pf-track'),current=cell('i'),prior=cell('b');
-  current.style.width=y/max*100+'%';prior.style.width=x/max*100+'%';track.dataset.direction=y>x?'increase':y<x?'decrease':'equal';track.setAttribute('aria-hidden','true');track.append(current,prior);return track;
+const comparison={lens:'returns',expanded:false};
+const comparisonLabels={holdings:'Holdings',allocation:'Allocation',returns:'Returns'};
+function setComparison(lens){
+ comparison.lens=lens;
+ for(const key of Object.keys(comparisonLabels)){
+  const b=get('compare-'+key);b.setAttribute('aria-pressed',String(key===lens));
  }
- const change=(x,y)=>{const d=y-x;return (d<0?'−':d>0?'+':'')+Math.abs(d).toFixed(2)+' pp';};
+ get('pfCompare').hidden=lens==='returns';
+ get('comparisonReturns').hidden=lens!=='returns';
+}
+function openComparison(lens){
+ comparison.lens=lens;openView('compareView');get('pairToolbar').scrollIntoView({block:'start'});
+}
+function holdingScale(totals,labels){
+ const block=cell('figure',null,'hc-axis'),max=Math.max(...totals.filter(n=>n!==null),0);
+ const scale=[.0125,.025,.05,.125,.25,.5,1.25,2.5,5,10,25,50,100].find(v=>v>=max*1.04)||Math.max(100,max);
+ block.append(cell('figcaption','Identified share of the portfolio'));
+ const track=cell('div',null,'hc-track');
+ for(let i=0;i<=5;i++){const tick=cell('span',Number((scale*i/5).toPrecision(3))+'%','hc-tick');tick.style.left=i*20+'%';track.append(tick);}
+ for(const [i,n] of totals.entries()){if(n===null)continue;const dot=cell('i',null,'hc-point');dot.dataset.model=i;dot.style.left=100*n/scale+'%';dot.title=labels[i]+' · '+fmt(n);track.append(dot);}
+ track.setAttribute('aria-hidden','true');block.append(track);return block;
+}
+function allocationChanges(rows){
+ const panel=cell('section',null,'hc-deltas'),ranked=rows.slice().sort((a,b)=>Math.abs(b.y-b.x)-Math.abs(a.y-a.x));
  const increases=rows.reduce((s,r)=>s+Math.max(0,r.y-r.x),0),decreases=rows.reduce((s,r)=>s+Math.max(0,r.x-r.y),0);
- const diff=cell('details',null,'pf-equation');diff.open=true;diff.append(cell('summary','Fund allocation changes'),cell('p',fmt(Math.min(increases,decreases))+' moves between funds. Outline = original model. Fill = compared model.'));
- if(Math.abs(increases-decreases)>.000001)diff.append(cell('small','Reported weights round independently. Increases total '+fmt(increases)+' and decreases total '+fmt(decreases)+'.'));
- for(const r of rows.slice().sort((a,b)=>Math.abs(b.x-b.y)-Math.abs(a.x-a.y)))diff.append(cell('div',shortName(r.code)+' · '+r.code,'pf-label'),bar(r.x,r.y,fundMax),cell('small',fmt(r.x)+' → '+fmt(r.y)+' · '+change(r.x,r.y)));
- const known=cell('section',null,'pf-known'),sum=(rs,f)=>rs.reduce((s,r)=>s+f(r),0),summary=rs=>{const reported=rs.some(r=>r.pos);return reported?fmt(sum(rs,r=>r.part))+(balance()===null?'':' · '+atWeight(sum(rs,r=>r.part))):'No reported match';};
- known.append(cell('h3',name),cell('p',a.name+' · '+summary(A)),cell('p',b.name+' · '+summary(B)));
- for(const r of rows.filter(r=>r.matched)){known.append(cell('div',shortName(r.code)+' · '+r.code,'pf-label'),bar(r.p,r.q,expMax),cell('small',fmt(r.p)+' → '+fmt(r.q)+' of portfolio'));}
- known.append(cell('p','Fund weight without a same-date report · '+fmt(sum(A,r=>r.report?0:r.w))+' / '+fmt(sum(B,r=>r.report?0:r.w))+'. Matching uses the printed holding name.'),
- amountReceipt(name,A,date),amountReceipt(name,B,date));const receipts=known.querySelectorAll('summary');receipts[0].textContent='Open the number · '+a.name;receipts[1].textContent='Open the number · '+b.name;
- root.append(known,diff);
+ panel.append(cell('h3','Largest fund changes'),cell('p',fmt(Math.min(increases,decreases))+' moves between funds.'));
+ const max=Math.max(1,...ranked.map(r=>Math.abs(r.y-r.x)));
+ ranked.forEach((r,i)=>{
+  const d=r.y-r.x,row=cell('div',null,'hc-delta');if(i>=3)row.classList.add('hc-extra');
+  row.append(cell('strong',shortName(r.code)),cell('span',(d>0?'+':d<0?'−':'')+Math.abs(d).toFixed(2)+' pp'),cell('small',r.code+' · '+fmt(r.x)+' → '+fmt(r.y)));
+  const axis=cell('div',null,'hc-delta-axis'),line=cell('i');line.style.width=50*Math.abs(d)/max+'%';line.dataset.direction=d<0?'down':'up';axis.setAttribute('aria-hidden','true');axis.append(line);row.append(axis);panel.append(row);
+ });
+ if(rows.length>3){
+  const toggle=button('',()=>{comparison.expanded=!comparison.expanded;paint();},'quiet hc-more');
+  function paint(){panel.classList.toggle('hc-expanded',comparison.expanded);toggle.textContent=comparison.expanded?'Show top three':'See all '+rows.length+' funds';toggle.setAttribute('aria-expanded',String(comparison.expanded));}
+  panel.append(toggle);paint();
+ }
+ if(Math.abs(increases-decreases)>.000001)panel.append(cell('small','Published weights are rounded. Increases total '+fmt(increases)+' and decreases total '+fmt(decreases)+'.'));
+ return panel;
+}
+function renderFieldComparison(){
+ const root=get('pfCompare');setComparison(comparison.lens);if(comparison.lens==='returns')return;
+ const pair=pins.map(modelFor),date=reportDate(),name=fieldState.pinned,parts=pair.map(m=>modelParts(m,date,name));
+ root.replaceChildren(cell('p',dateText(date)+' · '+(balance()===null?'Per $100':money.format(balance()))+' in both models','lt-source'));
+ if(comparison.lens==='allocation'){
+  const rows=allCodes.map(code=>({code,x:weightFor(pair[0],code),y:weightFor(pair[1],code)})).filter(r=>r.x||r.y);
+  root.append(allocationChanges(rows));return;
+ }
+ const names=new Map([[nameKey(name),name]]);
+ for(const rs of parts)for(const r of rs)if(r.report)for(const [k,v]of r.report.positions)names.set(k,v.name);
+ const controls=cell('div',null,'pf-controls'),input=cell('input'),pick=cell('select');
+ input.type='search';input.placeholder='Find a holding';input.setAttribute('aria-label','Find a holding to pin');pick.setAttribute('aria-label','Pinned holding');
+ function options(){pick.replaceChildren(new Option(name,name));for(const [k,v]of names){if(k!==nameKey(name)&&k.includes(nameKey(input.value)))pick.append(new Option(v,v));if(pick.length>80)break;}}
+ options();input.oninput=options;pick.onchange=()=>{fieldState.pinned=pick.value;renderFieldComparison();get('pfCompare').querySelector('select')?.focus({preventScroll:true});};controls.append(input,pick);
+ const known=cell('section',null,'pf-known'),metrics=cell('div',null,'hc-metrics');
+ known.append(cell('h2',name),cell('p','Identified in same-date holding reports'),metrics);
+ const totals=parts.map(rs=>rs.some(r=>r.pos)?rs.reduce((s,r)=>s+r.part,0):null);
+ for(const [i,m]of pair.entries()){const text=cell('div'),n=totals[i],value=n===null?'No reported match':balance()===null?fmt(n):atWeight(n);text.dataset.model=i;text.append(cell('small',m.name),cell('strong',value));if(n!==null&&balance()!==null)text.append(cell('span',fmt(n)+' identified'));metrics.append(text);}
+ if(totals.some(n=>n!==null))known.append(holdingScale(totals,pair.map(m=>m.name)));
+ if(totals.every(n=>n!==null)){
+  const d=totals[1]-totals[0],larger=pair[d>0?1:0].name,dollars=Math.abs(d)*(balance()??0)/100,roundBy=dollars>=1000?100:dollars>=100?10:1;
+  const amount=balance()===null?'':' (about '+money.format(Math.round(dollars/roundBy)*roundBy)+')';
+  known.append(cell('p',Math.abs(d)<1e-8?'The two models have equal identified exposure.':larger+' has '+Math.abs(d).toFixed(2)+' percentage points more identified exposure'+amount+'.','hc-answer'));
+ }
+ const coverage=cell('div',null,'hc-coverage');
+ if(parts.some(rs=>rs.some(r=>r.report?.partial)))coverage.append(cell('p','Coverage includes a top-ten fund profile. Other funds or unlisted holdings may add exposure.'));
+ for(const [i,rs]of parts.entries()){
+  const missing=rs.filter(r=>!r.report).reduce((s,r)=>s+r.w,0);coverage.append(cell('small',pair[i].name+' · '+fmt(missing)+' of allocation without a same-date report'));
+ }
+ known.append(coverage);
+ for(const [i,rs]of parts.entries()){const receipt=amountReceipt(name,rs,date);receipt.querySelector('summary').textContent='Open the number · '+pair[i].name;known.append(receipt);}
+ root.append(controls,known);
 }
 function lookThroughView(model){
  const host=cell('section',null,'lt-view');
@@ -1738,7 +1808,7 @@ function lookThroughView(model){
   if(mode==='holding'&&key!==ltMissing&&key!==ltRemainder){
    const parts=data.funds.map(([code,w])=>{const report=fundReport(code,data.date),pos=report?.positions.get(nameKey(row.name));return {code,w,report,pos,part:w*(pos?.inside||0)/100};});
    receipt.append(amountReceipt(row.name,parts,data.date));
-   if(!lookThroughState.example)receipt.append(button('Pin and compare',()=>{fieldState.pinned=row.name;if(!pins.includes(model.code))changePin(0,model.code);openView('compareView');get('pfCompare').scrollIntoView();},'quiet'));
+   if(!lookThroughState.example)receipt.append(button('Pin and compare',()=>{fieldState.pinned=row.name;if(!pins.includes(model.code))changePin(0,model.code);openComparison('holdings');},'quiet'));
   }
   if(mode==='holding'&&key!==ltMissing&&key!==ltRemainder&&data.pieces.some(p=>p.group===ltMissing))receipt.append(cell('p','Amount identified in matched reports. Other funds may also hold this name.','lt-qualified'));
   const parts=data.pieces.filter(p=>keyFor(p,mode)===key).sort((a,b)=>b.amount-a.amount);
@@ -2035,7 +2105,7 @@ get('printRecap').onclick=()=>window.print();
 let previousMeetingPage=null;get('meetingMode').onclick=()=>{
  const showing=document.body.classList.toggle('meeting');get('meetingMode').setAttribute('aria-pressed',showing);get('meetingMode').textContent=showing?'Exit meeting view':'Meeting view';
  if(showing){previousMeetingPage=view;if(view==='lineup')openStatement(pins[0]);else if(['research','holdingView','overlapView','components'].includes(view))openView('overview')}
- else if(previousMeetingPage){const last=previousMeetingPage;previousMeetingPage=null;openView(last)}
+ else if(previousMeetingPage){runningSequence=null;rememberStep();get('sequenceBar').hidden=true;const last=previousMeetingPage;previousMeetingPage=null;openView(last)}
 };
 
 const folioColours=['#556780','#6c8066','#a27444','#236e91','#6371af','#9b634e','#884b6d','#344e65','#78703f','#567f8b','#91685d','#6e6990','#ab7c57','#627665'];
@@ -2450,7 +2520,56 @@ function renderRiskMap(){
 const marketEvents=[["1994-02-04", "The Fed starts tightening", "The US Federal Reserve tightened monetary conditions for the first time since 1989.", "Federal Reserve", "https://www.federalreserve.gov/fomc/19940204default.htm"], ["1997-07-02", "Asian financial crisis", "Thailand devalued the baht. Financial stress then spread across several East Asian economies.", "Federal Reserve History", "https://www.federalreservehistory.org/essays/asian-financial-crisis/"], ["2000-03-10", "The dot-com peak", "The Nasdaq Composite peaked after a surge in technology stocks.", "US Securities and Exchange Commission", "https://fraser.stlouisfed.org/files/docs/publications/sec/sec_ar/sec_ar_2002.pdf"], ["2001-09-17", "Markets after September 11", "The Federal Reserve cut its target rate to 3% and said it would continue supplying liquidity as financial markets reopened.", "Federal Reserve", "https://www.federalreserve.gov/boarddocs/press/general/2001/20010917/"], ["2008-09-15", "The housing crisis", "Lehman Brothers filed for bankruptcy as losses tied to US mortgages spread through the financial system.", "Federal Reserve", "https://www.federalreserve.gov/monetarypolicy/mpr_20090224_part2.htm"], ["2012-07-26", "The euro under pressure", "In London, ECB President Mario Draghi committed to preserving the euro within the bank’s mandate.", "European Central Bank", "https://www.ecb.europa.eu/press/key/date/2012/html/sp120726.en.html"], ["2015-01-21", "Canada responds to cheaper oil", "The Bank of Canada lowered its policy rate to 0.75% as the fall in oil prices weighed on the Canadian economy.", "Bank of Canada", "https://www.bankofcanada.ca/2015/01/fad-press-release-2015-01-21/"], ["2016-06-24", "The Brexit vote", "The Bank of England addressed financial markets after the United Kingdom voted to leave the European Union.", "Bank of England", "https://www.bankofengland.co.uk/news/2016/june/statement-from-the-governor-of-the-boe-following-the-eu-referendum-result"], ["2020-03-27", "The pandemic shock", "At an unscheduled decision during the pandemic, the Bank of Canada cut its policy rate to 0.25%.", "Bank of Canada", "https://www.bankofcanada.ca/2020/03/press-release-2020-03-27/"], ["2022-07-13", "Canada raises rates sharply", "The Bank of Canada raised its policy rate by one full percentage point.", "Bank of Canada", "https://www.bankofcanada.ca/2022/07/fad-press-release-2022-07-13/"], ["2023-03-10", "Silicon Valley Bank closes", "California regulators closed Silicon Valley Bank following rapid deposit withdrawals.", "Federal Reserve", "https://www.federalreserve.gov/publications/2023-April-SVB-Evolution-of-Silicon-Valley-Bank.htm"], ["2024-06-05", "Canada begins cutting rates", "The Bank of Canada lowered its policy rate to 4.75% as inflation pressures eased.", "Bank of Canada", "https://www.bankofcanada.ca/2024/06/fad-press-release-2024-06-05/"], ["2025-03-12", "Tariff uncertainty", "The Bank of Canada cut its policy rate to 2.75% as trade uncertainty clouded the outlook.", "Bank of Canada", "https://www.bankofcanada.ca/2025/03/opening-statement-2025-03-12/"], ["2026-01-28", "Canada holds at 2.25%", "The Bank of Canada held its policy rate steady and highlighted uncertainty about US trade policy and geopolitical risks.", "Bank of Canada", "https://www.bankofcanada.ca/2026/01/fad-press-release-2026-01-28/"]].map(([date,title,story,source,url],i)=>({date,title,story,source,url,i,t:monthIndex(date)}));
 let ownershipMode='map';
 const andexState={measure:'growth',model:'DFA692',cursor:null,event:marketEvents.findIndex(e=>e.date==='2008-09-15'),mode:null,eventFocus:false};
-const headlineState={open:false,revealed:false,event:marketEvents.findIndex(e=>e.date==='2008-09-15'),model:'',basis:'benchmark'};
+const headlineState={units:'hundred',focus:'anchor',open:false,revealed:false,event:marketEvents.findIndex(e=>e.date==='2008-09-15'),model:'',basis:'benchmark'};
+function coachingChart(host,s,row,cut,last){
+ const at=t=>row.values[t-row.first],anchor=at(cut),opening=Math.max(row.first,cut-36),horizon=Math.min(last,cut+12),end=s.revealed?horizon:cut;
+ if(!(anchor>0)){host.append(cell('p','The baseline must be positive to compare this period.'));return;}
+ const indexed=s.units==='hundred',value=t=>indexed?100*at(t)/anchor:at(t);
+ const display=v=>indexed?'$'+v.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}):money.format(v);
+ const choices=cell('div',null,'pf-controls');choices.setAttribute('aria-label','Replay display');
+ for(const [key,title]of [['hundred','$100 at the headline'],['cad','Illustrative CAD balance']]){
+  const b=button(title,()=>{s.units=key;renderHeadline();get('replay-'+key)?.focus({preventScroll:true});},'unit-choice');b.id='replay-'+key;if(key==='cad'&&balance()===null){b.disabled=true;b.title='Enter an illustrative CAD balance';}b.setAttribute('aria-pressed',String(s.units===key));choices.append(b);
+ }
+ host.append(choices);
+ const peak=Math.max(...row.values.slice(0,cut-row.first+1));
+ host.append(cell('p','Last known month-end · '+monthName(cut)+' · '+display(value(cut))+' · '+((at(cut)/peak-1)*100).toFixed(2)+'% from its high.'));
+ // Derive the initial axes exclusively from observations available at the headline.
+ const indexedValues=Array.from({length:cut-opening+1},(_,i)=>100*at(opening+i)/anchor);
+ const lower=Math.max(0,Math.floor(Math.min(60,...indexedValues)/20)*20),upper=Math.ceil(Math.max(140,...indexedValues)/20)*20;
+ const narrow=host.clientWidth<480,chartWidth=narrow?360:550,left=narrow?51:62,right=chartWidth-20;
+ const x=t=>left+(t-opening)*(right-left)/(cut+12-opening),index=t=>100*at(t)/anchor;
+ const y=t=>16+(upper-Math.max(lower,Math.min(upper,index(t))))*140/(upper-lower);
+ const svg=svgEl('svg',{class:'pf-history coach-chart',viewBox:'0 0 '+chartWidth+' 190',role:'group','aria-label':row.name+' · '+(indexed?'$100 at the headline':'CAD balance')+' · '+monthName(opening)+' to '+monthName(end)});
+ function add(tag,attrs,txt){const n=svgEl(tag,attrs,txt);svg.append(n);return n;}
+ for(let i=0;i<=4;i++){const v=upper-i*(upper-lower)/4,yy=16+i*35;add('line',{x1:left,x2:right,y1:yy,y2:yy,class:'coach-grid'});add('text',{x:left-6,y:yy+4,'text-anchor':'end'},indexed?'$'+Number(v.toFixed(1)):shortMoney(anchor*v/100));}
+ function line(a,b,cls){add('path',{d:Array.from({length:b-a+1},(_,i)=>(i?'L':'M')+x(a+i)+' '+y(a+i)).join(' '),class:cls});}
+ line(opening,cut,'pf-past');add('path',{d:'M'+x(cut)+' 10V159',class:'pf-cursor'});
+ if(end>cut)line(cut,end,'pf-reveal');
+ add('text',{x:left,y:179},monthName(opening));add('text',{x:x(cut),y:179,'text-anchor':'middle'},monthName(cut));if(end>cut&&x(end)-x(cut)>(narrow?48:60))add('text',{x:x(end),y:179,'text-anchor':'end'},narrow?String(monthAt(end).getUTCFullYear()):monthName(end));
+ host.append(svg);
+ const focus=s.focus==='low'?'low':s.focus==='end'?'end':'anchor';
+ let low=cut;for(let t=cut+1;t<=end;t++)if(at(t)<at(low))low=t;
+ const active=s.revealed?(focus==='low'?low:focus==='end'?end:cut):cut;
+ const nav=cell('div',null,'pf-controls coach-markers'),readout=cell('p',null,'coach-readout');readout.setAttribute('aria-live','polite');host.append(nav,readout);
+ function update(key,t){s.focus=key;for(const b of nav.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.point===key));
+  for(const n of svg.querySelectorAll('.coach-dot'))n.classList.toggle('selected',Number(n.dataset.time)===t);
+  readout.textContent=monthName(t)+' · '+display(value(t))+' · '+(at(t)/anchor>=1?'+':'')+((at(t)/anchor-1)*100).toFixed(2)+'% since the baseline.';
+ }
+ const placed=new Set();
+ for(const [key,title,t]of [['anchor','Baseline',cut],...(s.revealed?[['low','Period low',low],['end','Endpoint',end]]:[])]){
+  const b=button(title,()=>update(key,t),'unit-choice');b.dataset.point=key;nav.append(b);
+  if(placed.has(t))continue;placed.add(t);const group=add('g',{role:'button',tabindex:0,'aria-label':title+' · '+monthName(t)+' · '+display(value(t)),class:'coach-hit'});group.append(svgEl('circle',{cx:x(t),cy:y(t),r:16,fill:'transparent'}));
+  const dot=svgEl('circle',{cx:x(t),cy:y(t),r:4,class:'coach-dot'});dot.dataset.time=t;group.append(dot);
+  group.onclick=()=>update(key,t);group.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();update(key,t);}};
+ }
+ update(s.revealed?focus:'anchor',active);
+ if(s.revealed&&row.values.slice(cut-row.first,end-row.first+1).some(v=>100*v/anchor<lower||100*v/anchor>upper))host.append(cell('small','Values beyond the fixed chart scale are shown at its edge. The selected month shows the exact value.'));
+ if(horizon>cut){
+  const toggle=button(s.revealed?'Hide what followed':'Reveal next '+(horizon-cut)+' months',()=>{s.revealed=!s.revealed;s.focus=s.revealed?'end':'anchor';renderHeadline();get('coachingReveal').focus({preventScroll:true});},'quiet');toggle.id='coachingReveal';host.append(toggle);
+ }else host.append(cell('p','No later month is available for this snapshot.'));
+ const prompt=cell('details',null,'coach-prompt');prompt.append(cell('summary','Advisor prompt'),cell('p',s.revealed?'Which number would you have remembered more clearly, the low or the endpoint?':'What would you have expected to happen over the next year?'));host.append(prompt);
+}
+
 function renderHeadline(){
  const host=get('pfHeadline');if(!host)return;
  const s=headlineState,event=marketEvents[s.event],code=s.model||pins[0],basis=s.basis;
@@ -2458,26 +2577,17 @@ function renderHeadline(){
  host.replaceChildren(button(s.open?'Return to full history':'Pause at a headline',()=>{s.open=!s.open;s.revealed=false;stopMarketReplay();renderHeadline();if(s.open)host.querySelector('select')?.focus();},'quiet'));
  if(!s.open)return;
  const bar=cell('div',null,'pf-controls');host.append(cell('h2','Pause at a headline'),bar);
- const set=(k,v)=>{s[k]=v;s.revealed=false;renderHeadline();};
+ const set=(k,v)=>{s[k]=v;s.revealed=false;s.focus='anchor';renderHeadline();host.querySelectorAll('select')[['event','model','basis'].indexOf(k)]?.focus({preventScroll:true});};
  bar.append(optionList('Historical headline',marketEvents.filter(e=>e.date<=reportDate()).map(e=>[String(e.i),e.date+' · '+e.title]),String(s.event),v=>set('event',Number(v))),optionList('Model',models.map(m=>[m.code,m.name]),code,v=>set('model',v)),optionList('History',[['benchmark','CAD index benchmark'],['actual','Published Class I portfolio']],basis,v=>set('basis',v)));
  if(event.date>reportDate()){host.append(cell('p','Choose a headline on or before the selected report date.'));return;}
  const src=cell('a',event.source);src.href=event.url;src.target='_blank';src.rel='noopener';
  const byline=cell('p',dateText(event.date)+' · ');byline.append(src);host.append(byline,cell('h3',event.title));
- const seed=balance();if(seed===null){host.append(cell('p','Enter a statement balance to replay the history.'));return;}
+ const seed=balance()??100;if(balance()===null)s.units='hundred';
  const row=chartRows(basis,'own',seed).find(r=>r.code===code),endOfMonth=new Date(Date.UTC(Number(event.date.slice(0,4)),Number(event.date.slice(5,7)),0)).getUTCDate();
  const cut=event.t-(Number(event.date.slice(-2))===endOfMonth?0:1),last=row.first+row.values.length-1;
  if(cut<=row.first||cut>last){host.append(cell('p','This series has no month-end observation at the headline. Choose another headline or the benchmark history.'));return;}
- const end=s.revealed?Math.min(cut+12,last):cut,opening=Math.max(row.first,cut-36),peak=Math.max(...row.values.slice(0,cut-row.first+1)),at=t=>row.values[t-row.first];
- const text=cell('p',monthName(cut)+' · '+money.format(at(cut))+' · '+((at(cut)/peak-1)*100).toFixed(2)+'% from the prior month-end high.');host.append(text);
- const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('class','pf-history');svg.setAttribute('viewBox','0 0 620 165');svg.setAttribute('role','img');svg.setAttribute('aria-label',modelFor(code).name+' · '+basis+' history from '+monthName(opening)+' to '+monthName(end));
- const vals=row.values.slice(opening-row.first,end-row.first+1),hi=Math.max(...vals),lo=Math.min(...vals),x=t=>10+(t-opening)*600/(cut+12-opening),y=v=>147-(v-lo)*132/(hi-lo||1);
- function path(d,cls){const p=document.createElementNS(svgNS,'path');p.setAttribute('d',d);p.setAttribute('class',cls);svg.append(p);}
- function line(a,b,cls){path(Array.from({length:b-a+1},(_,i)=>(i?'L':'M')+x(a+i)+' '+y(at(a+i))).join(' '),cls);}
- line(opening,cut,'pf-past');path('M'+x(cut)+' 7V153','pf-cursor');if(end>cut)line(cut,end,'pf-reveal');
- host.append(svg,cell('small',monthName(opening)+' · cursor at '+monthName(cut)+' · '+(basis==='actual'?'Published Class I portfolio':'CAD index benchmark')+' history. Values use the last available month-end on or before the headline.'));
- if(end>cut)host.append(cell('p',monthName(end)+' · '+money.format(at(end))+' · '+((at(end)/at(cut)-1)*100).toFixed(2)+'% over '+(end-cut)+' months.'));
- if(last>cut)host.append(button(s.revealed?'Hide what followed':'Reveal next '+Math.min(12,last-cut)+' months',()=>{s.revealed=!s.revealed;renderHeadline();get('pfHeadline').querySelector('button:last-child')?.focus({preventScroll:true});},'quiet'));
- else host.append(cell('p','No later month is available for this snapshot.'));
+ coachingChart(host,s,row,cut,last);
+ host.append(cell('small',(basis==='actual'?'Published CAD Class I portfolio':'CAD index benchmark')+' · Month-end observations. The baseline is the last available month-end on or before the headline.','lt-source'));
 }
 function renderAndex(){
  renderHeadline();
@@ -2597,6 +2707,85 @@ function paint(){
  if(view==='research')renderAtlas();sourceCoverage();
  get('balanceStatus').textContent=balance()===null?'Enter a positive CAD balance for dollar illustrations.':'';
 }
+const sequenceKey='portfolio-studio:meeting:v1';
+const stepNames={holdings:'Holding exposure',allocation:'Allocation changes',returns:'Return comparison',risk:'Drawdowns',calculation:'Holding calculation',replay:'Headline replay'};
+const defaultSteps=['holdings','risk','calculation'];
+let runningSequence=null,sequenceIndex=0;
+function storedSequence(){
+ try{return JSON.parse(localStorage.getItem(sequenceKey));}catch{return null;}
+}
+function dateOption(date){
+ return [...get('snap').options].find(o=>(o.value==='latest'?allocationDate():o.value==='archive'?'2024-06-30':o.value)===date)?.value;
+}
+function validSequence(s){
+ return s?.version===1&&Array.isArray(s.steps)&&s.steps.length>0&&s.steps.length<=3&&s.steps.every(v=>Object.hasOwn(stepNames,v))&&
+  Array.isArray(s.models)&&s.models.length===2&&s.models[0]!==s.models[1]&&s.models.every(modelFor)&&Number.isFinite(s.balance)&&s.balance>0&&typeof s.holding==='string'&&!!s.holding&&
+  !!dateOption(s.date)&&['actual','benchmark'].includes(s.source)&&['all','12','36','60','120'].includes(s.period)&&
+  modelFor(s.replay?.model)&&['actual','benchmark'].includes(s.replay.basis)&&['hundred','cad'].includes(s.replay.units)&&marketEvents.some(e=>e.date===s.replay.event);
+}
+// Keep the active step in this tab. The saved meeting itself remains available across visits.
+function savedStep(s){
+ try{
+  const cursor=JSON.parse(sessionStorage.getItem(sequenceKey+':step'));
+  return cursor?.meeting===JSON.stringify(s)&&Number.isInteger(cursor.index)&&cursor.index>=0&&cursor.index<s.steps.length?cursor.index:0;
+ }catch{return 0;}
+}
+function rememberStep(){
+ try{
+  if(!runningSequence)sessionStorage.removeItem(sequenceKey+':step');
+  else if(JSON.stringify(runningSequence)===JSON.stringify(storedSequence()))sessionStorage.setItem(sequenceKey+':step',JSON.stringify({meeting:JSON.stringify(runningSequence),index:sequenceIndex}));
+ }catch{/* Meeting navigation also works when browser storage is unavailable. */}
+}
+function describeSequence(s){
+ return s.models.map(k=>modelFor(k).name).join(' / ')+' · '+money.format(s.balance)+' · '+dateText(s.date)+' · '+s.holding;
+}
+function sequenceSetup(){
+ const dialog=get('sequenceSetup'),previous=storedSequence(),saved=validSequence(previous);
+ get('savedSequence').textContent=saved?describeSequence(previous)+' · '+previous.steps.map(k=>stepNames[k]).join(' → '):previous?'The saved sequence is unavailable for this data release.':'No meeting sequence saved on this device.';
+ get('resumeSequence').hidden=!saved;const index=saved?savedStep(previous):0;get('resumeSequence').textContent=index?'Resume saved meeting · step '+(index+1):'Open saved meeting';get('sequenceStatus').textContent='';
+ const current=pins.map(modelFor).map(m=>m.name).join(' / ')+' · '+(balance()===null?'Enter a positive balance':money.format(balance()))+' · '+dateText(reportDate())+' · '+fieldState.pinned;
+ get('sequenceCurrent').textContent=current;
+ const list=get('sequenceSteps');list.replaceChildren();
+ for(let i=0;i<3;i++)list.append(optionList('Step '+(i+1),[['','Skip'],...Object.entries(stepNames)],(saved?previous.steps:defaultSteps)[i]||'',()=>{}));
+ dialog.showModal();
+}
+function currentSequence(){
+ return {version:1,models:pins.slice(),date:reportDate(),balance:balance(),holding:fieldState.pinned,steps:[...get('sequenceSteps').querySelectorAll('select')].map(el=>el.value).filter(Boolean),source:get('experienceSource').value,period:get('experiencePeriod').value,
+  replay:{event:marketEvents[headlineState.event].date,model:headlineState.model||pins[0],basis:headlineState.basis,units:headlineState.units}};
+}
+function showSequenceStep(){
+ const s=runningSequence,key=s.steps[sequenceIndex];rememberStep();
+ get('sequencePosition').textContent='Step '+(sequenceIndex+1)+' of '+s.steps.length+' · '+stepNames[key];
+ get('sequenceBack').disabled=!sequenceIndex;get('sequenceNext').textContent=sequenceIndex===s.steps.length-1?'Finish':'Next';
+ if(key==='replay'){headlineState.open=true;headlineState.revealed=false;headlineState.focus='anchor';openView('andex');get('pfHeadline').scrollIntoView();return;}
+ openComparison(key==='risk'?'returns':key==='calculation'?'holdings':key);
+ if(key==='calculation'){const receipt=get('pfCompare').querySelector('.pf-equation');if(receipt){receipt.open=true;receipt.scrollIntoView();}}
+ if(key==='risk'&&!get('chartsPanel').hidden)get('lossPlot').previousElementSibling.scrollIntoView();
+}
+function startSequence(s,index=0){
+ if(!validSequence(s)){get('sequenceStatus').textContent='Choose at least one step, a valid date and a positive balance.';return;}
+ get('sequenceSetup').close();if(!document.body.classList.contains('meeting'))get('meetingMode').click();
+ get('snap').value=dateOption(s.date);get('balance').value=String(s.balance);pins.splice(0,2,...s.models);syncPins();
+ get('experienceSource').value=s.source;get('experiencePeriod').value=s.period;fieldState.pinned=s.holding;
+ Object.assign(headlineState,{model:s.replay.model,basis:s.replay.basis,event:marketEvents.findIndex(e=>e.date===s.replay.event),units:s.replay.units,revealed:false,focus:'anchor'});
+ runningSequence=s;sequenceIndex=index;get('sequenceBar').hidden=false;paint();showSequenceStep();
+}
+get('prepareSequence').onclick=sequenceSetup;
+get('sequenceClose').onclick=()=>get('sequenceSetup').close();
+get('saveSequence').onclick=()=>{
+ const s=currentSequence();if(!validSequence(s)){get('sequenceStatus').textContent='Choose at least one step and enter a positive balance.';return;}
+ try{localStorage.setItem(sequenceKey,JSON.stringify(s));get('savedSequence').textContent=describeSequence(s)+' · '+s.steps.map(k=>stepNames[k]).join(' → ');get('resumeSequence').hidden=false;get('resumeSequence').textContent='Open saved meeting';rememberStep();get('sequenceStatus').textContent='Saved on this device.';}
+ catch{get('sequenceStatus').textContent='Storage is unavailable. You can still start this meeting now.';}
+};
+get('startSequence').onclick=()=>startSequence(currentSequence());
+get('resumeSequence').onclick=()=>{const saved=storedSequence();startSequence(saved,saved?savedStep(saved):0);};
+get('sequenceBack').onclick=()=>{if(runningSequence&&sequenceIndex>0){sequenceIndex--;showSequenceStep();}};
+get('sequenceNext').onclick=()=>{if(!runningSequence)return;if(sequenceIndex===runningSequence.steps.length-1){get('meetingMode').click();return;}sequenceIndex++;showSequenceStep();};
+for(const key of Object.keys(comparisonLabels))get('compare-'+key).onclick=()=>{comparison.lens=key;renderExperience();};
+const studioContext=document.querySelector('.context');
+function updateToolbarOffset(){document.documentElement.style.setProperty('--studio-context-height',getComputedStyle(studioContext).position==='sticky'?studioContext.getBoundingClientRect().height+'px':'0px');}
+new ResizeObserver(updateToolbarOffset).observe(studioContext);
+
 for(const b of document.querySelectorAll('nav [data-page]'))b.addEventListener('click',()=>openView(b.dataset.page));
 for(const id of ['pinA','returnA','pinB','returnB']){
  const k=id.endsWith('A')?0:1;fill(id,models.map(m=>[m.code,m.name]),pins[k]);get(id).onchange=e=>changePin(k,e.target.value);
@@ -2611,7 +2800,7 @@ get('portfolio').onchange=e=>openStatement(e.target.value);
 get('workbookMode').onclick=()=>{layout='workbook';renderLayout()};get('barMode').onclick=()=>{layout='bars';renderLayout()};
 get('barGroup').onchange=renderMobileBars;
 get('toggleFunds').onclick=()=>{if(closedGroups.size)closedGroups.clear();else release.groups.forEach(([g])=>closedGroups.add(g));renderModelTable()};
-get('experienceLink').onclick=()=>{get('experienceSource').value=get('bookBasis').value==='actual'?'actual':'benchmark';get('experiencePeriod').value='all';openView('compareView')};
+get('experienceLink').onclick=()=>{get('experienceSource').value=get('bookBasis').value==='actual'?'actual':'benchmark';get('experiencePeriod').value='all';openComparison('returns')};
 get('experiencePeriod').onchange=renderExperience;get('experienceSource').onchange=renderExperience;
 get('snap').onchange=paint;get('balance').oninput=paint;
 get('toHold').onclick=()=>{returnTo='research';renderHoldings();openView('holdingView')};
@@ -2629,7 +2818,7 @@ get('refreshFile').onchange=async e=>{try{
  if(table[0]?.[0]==='Periodic Returns')importReturns(table);else importWeights(table);
  refreshDateMenu();paint();get('fileStatus').textContent='Imported '+file.name+'. Save an updated dashboard to keep this release.';
  }catch(err){get('fileStatus').textContent=err.message}finally{e.target.value=''}};
-window.matchMedia('(max-width:760px)').addEventListener('change',()=>{if(view==='compareView')renderExperience()});
+window.matchMedia('(max-width:760px)').addEventListener('change',()=>{if(view==='compareView')renderExperience();else if(view==='andex'&&headlineState.open)renderHeadline();});
 fill('componentModel',models.map(m=>[m.code,m.name]),'DFA917');
 fill('stressModel',models.map(m=>[m.code,m.name]),'DFA692');
 get('bookBasis').onchange=()=>{renderModelTable();renderMobileBars();renderHero();renderStress()};
@@ -3523,7 +3712,7 @@ const pages={
  lineup:{eyebrow:'Models',dek:'Eight Dimensional models, from all bonds to all equity, side by side.',join:'.folio-hero'},
  overview:{eyebrow:'Statement',dek:'Where an illustrative statement is invested, from sleeve to holding.',join:'.statement-band'},
  andex:{eyebrow:'Performance history',dek:'How each model grew through three decades of markets and events.'},
- compareView:{eyebrow:'Performance history',dek:'Two models with the same starting balance, compared month by month.'},
+ compareView:{eyebrow:'Model comparison',dek:'Holdings, allocation and returns for your selected pair.'},
  components:{eyebrow:'Performance history',dek:'How the funds inside each model have performed on their own.'},
  projection:{eyebrow:'Planning',dek:'What a balance could grow to, shown as a range of outcomes.'},
  research:{eyebrow:'Reference',dek:'Holdings, return tables and the data behind every page.'}
