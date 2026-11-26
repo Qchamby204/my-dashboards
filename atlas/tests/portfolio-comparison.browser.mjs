@@ -6,6 +6,24 @@ const browser=await chromium.launch();
 const url=new URL('../../portfolio-studio.html',import.meta.url);
 url.hash='compare-holding';
 
+async function assertReadableRangeRow(row) {
+ const ratios = await row.evaluate(group => {
+  function luminance(node) {
+   const rgb = getComputedStyle(node).fill.match(/[\d.]+/g).slice(0,3).map(value => {
+    const channel = Number(value) / 255;
+    return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
+   });
+   return .2126 * rgb[0] + .7152 * rgb[1] + .0722 * rgb[2];
+  }
+  const background = luminance(group.querySelector('.pj-row-bg'));
+  return [...group.querySelectorAll('text')].map(text => {
+   const ink = luminance(text);
+   return (Math.max(background,ink) + .05) / (Math.min(background,ink) + .05);
+  });
+ });
+ assert(ratios.length >= 2 && ratios.every(value => value >= 4.5), 'Range row text contrast: ' + ratios);
+}
+
 try{
  for(const width of [390,1440]){
   const context=await browser.newContext({viewport:{width,height:850},reducedMotion:'reduce'});
@@ -76,6 +94,21 @@ try{
   assert.equal(await find('#pp-current').inputValue(),'6');
   assert.equal(await find('#pp-days').innerText(),'30 days');
   assert(await find('#purchasing-power').isVisible());
+  await page.goto(new URL('#outcome-range',url).href);
+  const selected = find('#pjRange .pj-row.on');
+  const other = find('#pjRange .pj-row:not(.on)').first();
+  for (const theme of ['dark','light']) {
+   await page.emulateMedia({colorScheme:theme});
+   await page.waitForFunction(value=>document.documentElement.dataset.theme===value,theme);
+   await selected.waitFor();
+   await assertReadableRangeRow(selected);
+   await other.hover();
+   await assertReadableRangeRow(other);
+   const nextName = await other.locator('.pj-name').textContent();
+   await other.click();
+   assert.equal(await selected.locator('.pj-name').textContent(),nextName);
+   await assertReadableRangeRow(selected);
+  }
   assert.deepEqual(errors,[]);
   await context.close();
  }
