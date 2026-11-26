@@ -472,6 +472,27 @@ License: Apache-2.0
 .pj-goallabel{font:600 11.5px 'Studio Sans',sans-serif;fill:#8a5f1f;paint-order:stroke;stroke:#fffefa;stroke-width:3px}
 .pj-stale{margin:0 0 10px;padding:9px 12px;border-radius:6px;background:#fff4dc;border:1px solid #e9cf91;color:#6b4d12;font-size:12.5px}
 @media(max-width:640px){.pj-goalpanel{flex-direction:column;align-items:flex-start;gap:8px}.pj-goal{padding:10px}}
+/* ===== Monte Carlo layer ===== */
+.pj-paper .plot-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap}
+.pj-mc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pj-mc-btn{height:34px;padding:0 14px;border:1px solid #d3cec3;border-radius:8px;background:#fff;color:#14222e;font:600 13.5px 'Studio Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.pj-mc-btn:hover{border-color:#b9b2a5;background:#f8f7f3}
+.pj-run::before{content:"";width:12px;height:12px;border:1.7px solid currentColor;border-right-color:transparent;border-radius:50%;transition:transform .5s}
+.pj-run:hover::before{transform:rotate(180deg)}
+.pj-hist-axis{stroke:#cfd6d3}
+.pj-hist-mid{stroke:#1d5a76;stroke-width:2}
+.pj-hist-k{font:600 12px 'Studio Sans',sans-serif;fill:#34434f}
+.pj-key .k-paths{height:10px;background:linear-gradient(90deg,#c0674a,#8b8fa0,#2b6f96);opacity:.75}
+@media(prefers-reduced-motion:no-preference){
+ .pj-paths:not(.still) path{stroke-dasharray:1;stroke-dashoffset:1;animation:pj-draw 1.4s cubic-bezier(.3,.6,.2,1) forwards;animation-delay:calc(var(--i,0)*22ms)}
+ @keyframes pj-draw{to{stroke-dashoffset:0}}
+ .pj-hist:not(.still) rect{transform-box:fill-box;transform-origin:left;animation:fx-grow-x .7s cubic-bezier(.2,.75,.2,1) both;animation-delay:calc(.6s + var(--i,0)*18ms)}
+}
+html[data-theme=dark] .pj-mc-btn{background:#0e1823;border-color:#2b3d51;color:#e6ecf1}
+html[data-theme=dark] .pj-mc-btn:hover{background:#152739}
+html[data-theme=dark] .pj-hist-axis{stroke:#2b3d51}
+html[data-theme=dark] .pj-hist-mid{stroke:#80b3d6}
+html[data-theme=dark] .pj-hist-k{fill:#c6d1db}
 /* ===== Andex extras ===== */
 .series-btn.fx-ref{cursor:default;opacity:.92}
 #hist-focus-FXCASH i{background:repeating-linear-gradient(90deg,#a07a2c 0 6px,transparent 6px 9px)!important}
@@ -915,7 +936,7 @@ body .mast+.statement-band select:not(#_){background-color:#ffffff10}
 }
 @media print{body .mast{background:var(--ds-navy)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}body .mast-art,body .mast-mark{display:none}}
 body .mast-actions>*{margin:0;padding:0}
-</style><style id="fx-dark">html[data-theme=dark] .mark i{background:#33404b}html[data-theme=dark] .status-dot{background:#34414c}html[data-theme=dark] nav button{color:#c1c5c8}html[data-theme=dark] .skip{background:#10161c}html[data-theme=dark] .context #balanceStatus{color:#e7beab}html[data-theme=dark] select,html[data-theme=dark] input:not([type=range]){border:1px solid #495e73;background:#11171e}html[data-theme=dark] .switch{background:#161e27}html[data-theme=dark] .quiet,html[data-theme=dark] .inline{text-decoration-color:#44576b}html[data-theme=dark] .matrix th,html[data-theme=dark] .matrix td{border-top:1px solid #2e3b48}html[data-theme=dark] .matrix thead th{background:#161e26}html[data-theme=dark] .matrix thead th:first-child{background:#161e26}html[data-theme=dark] .matrix .nameBtn{text-decoration-color:#46596e}html[data-theme=dark] .pinbutton{color:#c6cbcf;border:1px solid #3f5063}html[data-theme=dark] .total th,html[data-theme=dark] .total td{background:#161f28!important}html[data-theme=dark] .diff-row{border-bottom:1px solid #2d3946}html[data-theme=dark] .dumb{background:#1a242e}html[data-theme=dark] .dumb b,html[data-theme=dark] .dumb em{border:1px solid #222b35}html[data-theme=dark] .mixbar{background:#19222c}html[data-theme=dark] .own-row:hover,html[data-theme=dark] .modelbar:hover,html[data-theme=dark] .lensrow:hover{background:#151d26}html[data-theme=dark] .own-track,html[data-theme=dark] .lens-track{background:#19232d}html[data-theme=dark] .lensnav button{background:#161f27}html[data-theme=dark] .lens-note{background:#172029}html[data-theme=dark] .lensrow[aria-pressed=true]{background:#19222c}html[data-theme=dark] .history-date{background:#171f28;color:#c7ccd1}html[data-theme=dark] .profile{background:#172029}html[data-theme=dark] .track{background:#172029}html[data-theme=dark] .context .meeting-toggle{border:1px solid #475b6f}html[data-theme=dark] .decision-story{background:#161f28;color:#d1dde6}html[data-theme=dark] .context{border-bottom:1px solid #364454}html[data-theme=dark] .context label{color:#c4cdd7}html[data-theme=dark] .context input,html[data-theme=dark] .context select,html[data-theme=dark] .context .meeting-toggle,html[data-theme=dark] .chart-command select,html[data-theme=dark] .basisline select{border-color:#394858;background:#10161c}html[data-theme=dark] .context .meeting-toggle{border-color:#3a4b5b}html[data-theme=dark] .kicker,html[data-theme=dark] .eyebrow{color:#b8bec3}html[data-theme=dark] .sheet,html[data-theme=dark] .chart-paper,html[data-theme=dark] .event-paper,html[data-theme=dark] .card,html[data-theme=dark] .map-card{background:#10161c;border:1px solid #313e4c}html[data-theme=dark] .switch{background:#161e26}html[data-theme=dark] .matrix thead th,html[data-theme=dark] .matrix thead th:first-child{background:#161e26}html[data-theme=dark] .matrix th:first-child{background:#10161c}html[data-theme=dark] .matrix .nameBtn{color:#cad9e8}html[data-theme=dark] .matrix .pinbutton{border-color:#3a4a5a}html[data-theme=dark] .matrix .return-row th,html[data-theme=dark] .matrix .return-row td{background:#11171e}html[data-theme=dark] .matrix .return-row:nth-child(2n) th,html[data-theme=dark] .matrix .return-row:nth-child(2n) td{background:#10161c}html[data-theme=dark] .matrix .worst-row th,html[data-theme=dark] .matrix .worst-row td{background:#18212a!important;color:#dcbabe}html[data-theme=dark] .matrix .date-row td{color:#c9bdc0}html[data-theme=dark] .matrix .total th,html[data-theme=dark] .matrix .total td{background:#161f28!important}html[data-theme=dark] .f-metric span{color:#bfc5cb}html[data-theme=dark] .f-metric small{color:#babfc4}html[data-theme=dark] .basisnote{color:#bcc2c8}html[data-theme=dark] .chart-command{background:#131a21}html[data-theme=dark] .plot-key{color:#bbc1c6}html[data-theme=dark] .series-btn{border-bottom:1px solid #2b3744}html[data-theme=dark] .series-btn[aria-pressed=true]{background:#151d26}html[data-theme=dark] .eventnav .stepper button{border:1px solid #3b4b5c}html[data-theme=dark] .ev-result{background:#141c24}html[data-theme=dark] .statement-band{border-left:4px solid #4b5f75}html[data-theme=dark] .dial-fig{background:radial-gradient(ellipse at center,#10161c 0,#141c24 85%)}html[data-theme=dark] .lensnav button{background:#161e27;color:#c2d0dc}html[data-theme=dark] .lensrow[aria-pressed=true]{background:#151d25}html[data-theme=dark] .mosaic-cell{border:1px solid #222b35}html[data-theme=dark] .factorlist .fact,html[data-theme=dark] .recap .fact{background:#141b23}html[data-theme=dark] .trail button{color:#bfd1e2}html[data-theme=dark] .decision-story,html[data-theme=dark] .history-date{background:#151d25;color:#c2d2e0}html[data-theme=dark] .coverage-alert{background:#161e27}html[data-theme=dark] .cover-row[aria-pressed=true]{background:#161e27}html[data-theme=dark] .cover-track{background:#18202a}html[data-theme=dark] .individual{background:#121920}@media(max-width:760px){html[data-theme=dark] .dial-fig{background:#141b23}}html[data-theme=dark] .quick-return{color:#b8d0e2}html[data-theme=dark] .return-row td button{color:#dab8be}html[data-theme=dark] .return-row td button:hover{color:#d9e8f4}html[data-theme=dark] .promptstrip{background:#151d26}html[data-theme=dark] .promptstrip button{color:#c2d7e6}html[data-theme=dark] .promptstrip span{color:#bdc4c9}html[data-theme=dark] .promptstrip strong{color:#ccdbe8}html[data-theme=dark] .country-map{background:#131a21;border:1px solid #303e4b}html[data-theme=dark] .country-map figcaption{color:#bcc3c9}html[data-theme=dark] .loss-option{color:#c1cbd5}html[data-theme=dark] .loss-option[aria-pressed=true]{background:#171f28;color:#dfc8cb}html[data-theme=dark] .loss-track{background:#18212b}html[data-theme=dark] .history-switch{background:#18212a;border:1px solid #313f4d}html[data-theme=dark] .history-switch button{color:#cdd9e2}html[data-theme=dark] .draw-result{background:#151c25;border:1px solid #334150}html[data-theme=dark] .draw-columns h4{color:#ccd5dd}html[data-theme=dark] .draw-amount{color:#dfbeb1}html[data-theme=dark] .draw-columns small,html[data-theme=dark] .draw-journey small{color:#c0c4c7}html[data-theme=dark] .draw-journey>div{border-top:2px solid #425467}html[data-theme=dark] .draw-journey b{color:#d9e4eb}html[data-theme=dark] .event-readout small{color:#bfc5c9}html[data-theme=dark] .hero-guide i{background:#35484e}html[data-theme=dark] .mix-hundred,html[data-theme=dark] .dollar-trace,html[data-theme=dark] .coverage-ribbon{background:#151c25;border:1px solid #2f3c49}html[data-theme=dark] .mix-hundred figcaption,html[data-theme=dark] .dollar-trace figcaption,html[data-theme=dark] .coverage-ribbon figcaption{color:#d7e3e9}html[data-theme=dark] .mix-ruler i+i{border-left:1px solid #222b35}html[data-theme=dark] .mix-direct button{color:#d6e0e8}html[data-theme=dark] .trace-rail{background:#1b2530}html[data-theme=dark] .coverage-span,html[data-theme=dark] .coverage-key span:nth-child(2):before{background:repeating-linear-gradient(135deg,#433a2d,#433a2d 3px,#29231c 3px,#29231c 6px)}html[data-theme=dark] .loss-jump{border:1px solid #384757;background:#141c24}html[data-theme=dark] .map-heading h3{color:#d6e2e9}html[data-theme=dark] .map-heading p{color:#c0c6c9}html[data-theme=dark] .risk-chart>small{color:#c0c5c9}html[data-theme=dark] .risk-key{border-bottom:1px solid #2d3946;color:#cedae2}html[data-theme=dark] .risk-key[aria-pressed=true]{background:#172029}html[data-theme=dark] .risk-takeaway{background:#151c25}html[data-theme=dark] .draw-journey>.date-jump{border-top:2px solid #425467;color:#d5e0e9}html[data-theme=dark] .draw-journey>.date-jump:hover,html[data-theme=dark] .draw-journey>.date-jump:focus-visible{background:#19222c}html[data-theme=dark] .draw-result .event-follow{color:#c5d2da}html[data-theme=dark] .event-compare{border-top:1px solid #313f4d}html[data-theme=dark] .event-compare summary{color:#cddee9}html[data-theme=dark] .compare-loss-row{color:#d4dfe6;border-bottom:1px solid #2e3b48}html[data-theme=dark] .compare-loss-row[aria-pressed=true]{background:#19222c}html[data-theme=dark] .compare-loss-row small{color:#bcc0c3}html[data-theme=dark] .compare-loss-rail{background:#1a242e}html[data-theme=dark] .info-trigger{color:#bbcad5!important}html[data-theme=dark] .andex-top{border-bottom:1px solid #2d3a47}html[data-theme=dark] .andex-top>label,html[data-theme=dark] .chart-detail-grid>label{color:#c5cbd0}html[data-theme=dark] .chart-settings>summary{color:#c8d7e1}html[data-theme=dark] .unit-choice{border:1px solid #364454;color:#c6d3da;background:#10161c}html[data-theme=dark] .coverage-ledger{border-bottom:1px solid #303d4b}html[data-theme=dark] .status-note{color:#c1ced4}html[data-theme=dark] .statement-coverage{border-top:1px solid #2f3c4a;color:#c7d4d9}html[data-theme=dark] .v8-head h3,html[data-theme=dark] .conc-copy h3{color:#d6e2ea}html[data-theme=dark] .v8-head p{color:#bfc5c8}html[data-theme=dark] .year-grid th{color:#cad8e0}html[data-theme=dark] .year-grid th:first-child{background:#10161c}html[data-theme=dark] .year-key{color:#bfc5c9}html[data-theme=dark] .year-key>i{background:linear-gradient(90deg,#83482f,#342a23,#161e26,#333d45,#2a4861)}html[data-theme=dark] .year-detail{background:#151c25}html[data-theme=dark] .replay-controls>button{background:#161e27;color:#d4e7ec}html[data-theme=dark] .weight-mosaic figcaption{color:#c9d7dc}html[data-theme=dark] .weight-field{background:#10161c}html[data-theme=dark] .weight-tile{border:2px solid #222b35}html[data-theme=dark] .weight-key-btn{color:#ccdce2}html[data-theme=dark] .concentration{border:1px solid #313e4c;background:#141b23}html[data-theme=dark] .conc-copy>strong{color:#cbdae8}html[data-theme=dark] .conc-copy>p{color:#ced8e0}html[data-theme=dark] .tile-funds i{background:#1c2631}html[data-theme=dark] .app-rail nav button[aria-pressed=true]::after{background:#433a2d}html[data-theme=dark] .sb-arc{stroke:#232d37}html[data-theme=dark] .sb-label.d3{fill:#dae5ee}html[data-theme=dark] .sb-c-kick{fill:#d9c6ac}html[data-theme=dark] .sb-c-name{fill:#e3ecf3}html[data-theme=dark] .sb-c-amt{fill:#dfe7f1}html[data-theme=dark] .sb-c-pct{fill:#bdc2c5}html[data-theme=dark] .sb-c-back{fill:#acd1e5}html[data-theme=dark] .sb-crumbs{color:#b2b8bb}html[data-theme=dark] .sb-crumb{color:#acd1e5}html[data-theme=dark] .sb-crumbs strong{color:#d3dfeb}html[data-theme=dark] .sb-head b{color:#dfe7f1}html[data-theme=dark] .sb-head span{color:#bbc2c6}html[data-theme=dark] .sb-list{border-top:1px solid #2d3946}html[data-theme=dark] .sb-row,html[data-theme=dark] .gl-row{border-bottom:1px solid #2d3946;color:#d3dfeb}html[data-theme=dark] .sb-row:hover,html[data-theme=dark] .gl-row:hover{background:#151c25}html[data-theme=dark] .sb-row-name small,html[data-theme=dark] .gl-row small{color:#bbc1c5}html[data-theme=dark] .sb-row-bar{background:#19222c}html[data-theme=dark] .sb-row em,html[data-theme=dark] .gl-row em{color:#bbc2c6}html[data-theme=dark] .sb-foot,html[data-theme=dark] .gl-note{color:#bbc2c6}html[data-theme=dark] .fx-ladder .fx-sub{color:#bbc2c6}html[data-theme=dark] .ld-k{fill:#e3ecf3}html[data-theme=dark] .ld-sep{stroke:#2b3743}html[data-theme=dark] .ld-ax{fill:#bdc2c5}html[data-theme=dark] .ld-eq{fill:#bdc2c5}html[data-theme=dark] .ld-base{stroke:#313e4c}html[data-theme=dark] .ld-val.up{fill:#b6d7ea}html[data-theme=dark] .ld-val.down{fill:#e3ad9e}html[data-theme=dark] .ld-name{fill:#d0d9e0}html[data-theme=dark] .ld-name.pinned{fill:#e3ecf3}html[data-theme=dark] .ld-hi{fill:#e3ecf30a}html[data-theme=dark] .ld-read{color:#c8d4dc}html[data-theme=dark] .ld-read b{color:#dfe7f1}html[data-theme=dark] .ld-item{border:1px solid #2d3946;background:#10161c}html[data-theme=dark] .ld-item.pinned{border-color:#465a6e;background:#131a21}html[data-theme=dark] .ld-top{color:#dfe7f1}html[data-theme=dark] .ld-top span{color:#bbc1c5}html[data-theme=dark] .ld-nums{color:#c5cbd0}html[data-theme=dark] .ld-nums .up{color:#b0dae8}html[data-theme=dark] .ld-nums .down{color:#dfb7a9}html[data-theme=dark] .ld-worst{background:#19222c}html[data-theme=dark] .ld-key{color:#c5cbd0}html[data-theme=dark] .pj-controls{border-bottom:1px solid #2d3a47}html[data-theme=dark] .pj-controls>label{color:#c5cbd0}html[data-theme=dark] .pj-years output{color:#dfe7f1}html[data-theme=dark] .pj-unit{border:1px solid #384757;background:#10161c}html[data-theme=dark] .pj-unit i{color:#b7bdc0}html[data-theme=dark] .pj-grid{stroke:#2d3946}html[data-theme=dark] .pj-ax{fill:#bac0c4}html[data-theme=dark] .pj-key{color:#c5cbd0}html[data-theme=dark] .pj-name{fill:#d3dfeb}html[data-theme=dark] .pj-sub{fill:#b7bdc0}html[data-theme=dark] .pj-mid{fill:#dfe7f1}html[data-theme=dark] .pj-table th{color:#bac0c4;border-bottom:1px solid #32404e}html[data-theme=dark] .pj-table td{border-bottom:1px solid #2c3844}html[data-theme=dark] .pj-table tr.total td{background:#141c23}html[data-theme=dark] .pj-notes{color:#c5cbd0}html[data-theme=dark] .pj-goal{border-bottom:1px solid #2d3a47;background:#121920}html[data-theme=dark] .pj-goal-fields label{color:#c5cbd0}html[data-theme=dark] .pj-goal-note{color:#bbc1c5}html[data-theme=dark] .pj-goalpanel{border:1px solid #313e4c;background:linear-gradient(100deg,#141b23,#11171e)}html[data-theme=dark] .pj-gauge-n{fill:#dfe7f1}html[data-theme=dark] .pj-gauge-s{fill:#bdc2c5}html[data-theme=dark] .pj-goaltext h3{color:#dfe7f1}html[data-theme=dark] .pj-goaltext p{color:#c8d4dc}html[data-theme=dark] .pj-goalcmp{color:#d9bcc8!important}html[data-theme=dark] .pj-goallabel{fill:#e8d2b0;stroke:#232d37}html[data-theme=dark] .pj-stale{background:#252219;border:1px solid #3e4f61;color:#eee0c5}html[data-theme=dark] .fx-andex-src{color:#bbc1c5}html[data-theme=dark] body ::selection{background:#212b30}html[data-theme=dark] body .context{background:#161e26f2}html[data-theme=dark] body select,html[data-theme=dark] body input:not([type=range]):not([type=checkbox]):not([type=radio]){border:1px solid #384858;background-color:#10161c}html[data-theme=dark] body select:hover,html[data-theme=dark] body input:not([type=range]):hover{border-color:#44576b}html[data-theme=dark] body .pj-unit{border-color:#384858}html[data-theme=dark] body .history-switch,html[data-theme=dark] body .switch,html[data-theme=dark] body .lensnav,html[data-theme=dark] body .asset-unit{background:#1a232d}html[data-theme=dark] body .history-switch button:hover,html[data-theme=dark] body .switch button:hover,html[data-theme=dark] body .lensnav button:hover,html[data-theme=dark] body .asset-unit .unit-choice:hover{background:#10161c80}html[data-theme=dark] body .history-switch button[aria-pressed=true],html[data-theme=dark] body .switch button[aria-pressed=true],html[data-theme=dark] body .lensnav button[aria-pressed=true],html[data-theme=dark] body .asset-unit .unit-choice[aria-pressed=true]{background:#10161c}html[data-theme=dark] body .context .meeting-toggle{border:1px solid #384858;background:#10161c}html[data-theme=dark] body .matrix tr.return-band td,html[data-theme=dark] body .matrix tr.return-band th{background:#151d25!important}html[data-theme=dark] body .matrix tr.worst-row td,html[data-theme=dark] body .matrix tr.worst-row th{background:#141b23}html[data-theme=dark] body input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(var(--ds-accent),var(--ds-accent)) 0/var(--fill,100%) 100% no-repeat,#222e3c}html[data-theme=dark] body input[type=range]::-moz-range-track{background:#222e3c}html[data-theme=dark] body input[type=range]::-webkit-slider-thumb{background:#10161c}html[data-theme=dark] body input[type=range]::-moz-range-thumb{background:#10161c}html[data-theme=dark] body .event-paper input[type=range]::-webkit-slider-runnable-track,html[data-theme=dark] body .market-replay input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(#314843,#314843) 0/var(--fill,100%) 100% no-repeat,#ffffff30}html[data-theme=dark] body .market-replay input[type=range]::-webkit-slider-thumb{border-color:#405164}html[data-theme=dark] body .loss-jump,html[data-theme=dark] body .researchback,html[data-theme=dark] body .export-holdings,html[data-theme=dark] body .replay-step{border:1px solid #384858;background:#10161c}html[data-theme=dark] body .loss-jump:hover,html[data-theme=dark] body .researchback:hover,html[data-theme=dark] body .export-holdings:hover{border-color:#44576b}html[data-theme=dark] body .statement-band select:hover{border-color:#222b3580}html[data-theme=dark] body .research-links .tile{background:#10161c}html[data-theme=dark] body .research-links .tile:hover{border-color:#44576b}html[data-theme=dark] body #growthPlot text,html[data-theme=dark] body #lossPlot text{fill:#bdc2c5}html[data-theme=dark] body{background:radial-gradient(90% 420px at 60% -120px,#131a22 0%,transparent 70%),var(--ds-paper)}/* ===== Dark theme tokens ===== */
+</style><style id="fx-dark">html[data-theme=dark] .mark i{background:#33404b}html[data-theme=dark] .status-dot{background:#34414c}html[data-theme=dark] nav button{color:#c1c5c8}html[data-theme=dark] .skip{background:#10161c}html[data-theme=dark] .context #balanceStatus{color:#e7beab}html[data-theme=dark] select,html[data-theme=dark] input:not([type=range]){border:1px solid #495e73;background:#11171e}html[data-theme=dark] .switch{background:#161e27}html[data-theme=dark] .quiet,html[data-theme=dark] .inline{text-decoration-color:#44576b}html[data-theme=dark] .matrix th,html[data-theme=dark] .matrix td{border-top:1px solid #2e3b48}html[data-theme=dark] .matrix thead th{background:#161e26}html[data-theme=dark] .matrix thead th:first-child{background:#161e26}html[data-theme=dark] .matrix .nameBtn{text-decoration-color:#46596e}html[data-theme=dark] .pinbutton{color:#c6cbcf;border:1px solid #3f5063}html[data-theme=dark] .total th,html[data-theme=dark] .total td{background:#161f28!important}html[data-theme=dark] .diff-row{border-bottom:1px solid #2d3946}html[data-theme=dark] .dumb{background:#1a242e}html[data-theme=dark] .dumb b,html[data-theme=dark] .dumb em{border:1px solid #222b35}html[data-theme=dark] .mixbar{background:#19222c}html[data-theme=dark] .own-row:hover,html[data-theme=dark] .modelbar:hover,html[data-theme=dark] .lensrow:hover{background:#151d26}html[data-theme=dark] .own-track,html[data-theme=dark] .lens-track{background:#19232d}html[data-theme=dark] .lensnav button{background:#161f27}html[data-theme=dark] .lens-note{background:#172029}html[data-theme=dark] .lensrow[aria-pressed=true]{background:#19222c}html[data-theme=dark] .history-date{background:#171f28;color:#c7ccd1}html[data-theme=dark] .profile{background:#172029}html[data-theme=dark] .track{background:#172029}html[data-theme=dark] .context .meeting-toggle{border:1px solid #475b6f}html[data-theme=dark] .decision-story{background:#161f28;color:#d1dde6}html[data-theme=dark] .context{border-bottom:1px solid #364454}html[data-theme=dark] .context label{color:#c4cdd7}html[data-theme=dark] .context input,html[data-theme=dark] .context select,html[data-theme=dark] .context .meeting-toggle,html[data-theme=dark] .chart-command select,html[data-theme=dark] .basisline select{border-color:#394858;background:#10161c}html[data-theme=dark] .context .meeting-toggle{border-color:#3a4b5b}html[data-theme=dark] .kicker,html[data-theme=dark] .eyebrow{color:#b8bec3}html[data-theme=dark] .sheet,html[data-theme=dark] .chart-paper,html[data-theme=dark] .event-paper,html[data-theme=dark] .card,html[data-theme=dark] .map-card{background:#10161c;border:1px solid #313e4c}html[data-theme=dark] .switch{background:#161e26}html[data-theme=dark] .matrix thead th,html[data-theme=dark] .matrix thead th:first-child{background:#161e26}html[data-theme=dark] .matrix th:first-child{background:#10161c}html[data-theme=dark] .matrix .nameBtn{color:#cad9e8}html[data-theme=dark] .matrix .pinbutton{border-color:#3a4a5a}html[data-theme=dark] .matrix .return-row th,html[data-theme=dark] .matrix .return-row td{background:#11171e}html[data-theme=dark] .matrix .return-row:nth-child(2n) th,html[data-theme=dark] .matrix .return-row:nth-child(2n) td{background:#10161c}html[data-theme=dark] .matrix .worst-row th,html[data-theme=dark] .matrix .worst-row td{background:#18212a!important;color:#dcbabe}html[data-theme=dark] .matrix .date-row td{color:#c9bdc0}html[data-theme=dark] .matrix .total th,html[data-theme=dark] .matrix .total td{background:#161f28!important}html[data-theme=dark] .f-metric span{color:#bfc5cb}html[data-theme=dark] .f-metric small{color:#babfc4}html[data-theme=dark] .basisnote{color:#bcc2c8}html[data-theme=dark] .chart-command{background:#131a21}html[data-theme=dark] .plot-key{color:#bbc1c6}html[data-theme=dark] .series-btn{border-bottom:1px solid #2b3744}html[data-theme=dark] .series-btn[aria-pressed=true]{background:#151d26}html[data-theme=dark] .eventnav .stepper button{border:1px solid #3b4b5c}html[data-theme=dark] .ev-result{background:#141c24}html[data-theme=dark] .statement-band{border-left:4px solid #4b5f75}html[data-theme=dark] .dial-fig{background:radial-gradient(ellipse at center,#10161c 0,#141c24 85%)}html[data-theme=dark] .lensnav button{background:#161e27;color:#c2d0dc}html[data-theme=dark] .lensrow[aria-pressed=true]{background:#151d25}html[data-theme=dark] .mosaic-cell{border:1px solid #222b35}html[data-theme=dark] .factorlist .fact,html[data-theme=dark] .recap .fact{background:#141b23}html[data-theme=dark] .trail button{color:#bfd1e2}html[data-theme=dark] .decision-story,html[data-theme=dark] .history-date{background:#151d25;color:#c2d2e0}html[data-theme=dark] .coverage-alert{background:#161e27}html[data-theme=dark] .cover-row[aria-pressed=true]{background:#161e27}html[data-theme=dark] .cover-track{background:#18202a}html[data-theme=dark] .individual{background:#121920}@media(max-width:760px){html[data-theme=dark] .dial-fig{background:#141b23}}html[data-theme=dark] .quick-return{color:#b8d0e2}html[data-theme=dark] .return-row td button{color:#dab8be}html[data-theme=dark] .return-row td button:hover{color:#d9e8f4}html[data-theme=dark] .promptstrip{background:#151d26}html[data-theme=dark] .promptstrip button{color:#c2d7e6}html[data-theme=dark] .promptstrip span{color:#bdc4c9}html[data-theme=dark] .promptstrip strong{color:#ccdbe8}html[data-theme=dark] .country-map{background:#131a21;border:1px solid #303e4b}html[data-theme=dark] .country-map figcaption{color:#bcc3c9}html[data-theme=dark] .loss-option{color:#c1cbd5}html[data-theme=dark] .loss-option[aria-pressed=true]{background:#171f28;color:#dfc8cb}html[data-theme=dark] .loss-track{background:#18212b}html[data-theme=dark] .history-switch{background:#18212a;border:1px solid #313f4d}html[data-theme=dark] .history-switch button{color:#cdd9e2}html[data-theme=dark] .draw-result{background:#151c25;border:1px solid #334150}html[data-theme=dark] .draw-columns h4{color:#ccd5dd}html[data-theme=dark] .draw-amount{color:#dfbeb1}html[data-theme=dark] .draw-columns small,html[data-theme=dark] .draw-journey small{color:#c0c4c7}html[data-theme=dark] .draw-journey>div{border-top:2px solid #425467}html[data-theme=dark] .draw-journey b{color:#d9e4eb}html[data-theme=dark] .event-readout small{color:#bfc5c9}html[data-theme=dark] .hero-guide i{background:#35484e}html[data-theme=dark] .mix-hundred,html[data-theme=dark] .dollar-trace,html[data-theme=dark] .coverage-ribbon{background:#151c25;border:1px solid #2f3c49}html[data-theme=dark] .mix-hundred figcaption,html[data-theme=dark] .dollar-trace figcaption,html[data-theme=dark] .coverage-ribbon figcaption{color:#d7e3e9}html[data-theme=dark] .mix-ruler i+i{border-left:1px solid #222b35}html[data-theme=dark] .mix-direct button{color:#d6e0e8}html[data-theme=dark] .trace-rail{background:#1b2530}html[data-theme=dark] .coverage-span,html[data-theme=dark] .coverage-key span:nth-child(2):before{background:repeating-linear-gradient(135deg,#433a2d,#433a2d 3px,#29231c 3px,#29231c 6px)}html[data-theme=dark] .loss-jump{border:1px solid #384757;background:#141c24}html[data-theme=dark] .map-heading h3{color:#d6e2e9}html[data-theme=dark] .map-heading p{color:#c0c6c9}html[data-theme=dark] .risk-chart>small{color:#c0c5c9}html[data-theme=dark] .risk-key{border-bottom:1px solid #2d3946;color:#cedae2}html[data-theme=dark] .risk-key[aria-pressed=true]{background:#172029}html[data-theme=dark] .risk-takeaway{background:#151c25}html[data-theme=dark] .draw-journey>.date-jump{border-top:2px solid #425467;color:#d5e0e9}html[data-theme=dark] .draw-journey>.date-jump:hover,html[data-theme=dark] .draw-journey>.date-jump:focus-visible{background:#19222c}html[data-theme=dark] .draw-result .event-follow{color:#c5d2da}html[data-theme=dark] .event-compare{border-top:1px solid #313f4d}html[data-theme=dark] .event-compare summary{color:#cddee9}html[data-theme=dark] .compare-loss-row{color:#d4dfe6;border-bottom:1px solid #2e3b48}html[data-theme=dark] .compare-loss-row[aria-pressed=true]{background:#19222c}html[data-theme=dark] .compare-loss-row small{color:#bcc0c3}html[data-theme=dark] .compare-loss-rail{background:#1a242e}html[data-theme=dark] .info-trigger{color:#bbcad5!important}html[data-theme=dark] .andex-top{border-bottom:1px solid #2d3a47}html[data-theme=dark] .andex-top>label,html[data-theme=dark] .chart-detail-grid>label{color:#c5cbd0}html[data-theme=dark] .chart-settings>summary{color:#c8d7e1}html[data-theme=dark] .unit-choice{border:1px solid #364454;color:#c6d3da;background:#10161c}html[data-theme=dark] .coverage-ledger{border-bottom:1px solid #303d4b}html[data-theme=dark] .status-note{color:#c1ced4}html[data-theme=dark] .statement-coverage{border-top:1px solid #2f3c4a;color:#c7d4d9}html[data-theme=dark] .v8-head h3,html[data-theme=dark] .conc-copy h3{color:#d6e2ea}html[data-theme=dark] .v8-head p{color:#bfc5c8}html[data-theme=dark] .year-grid th{color:#cad8e0}html[data-theme=dark] .year-grid th:first-child{background:#10161c}html[data-theme=dark] .year-key{color:#bfc5c9}html[data-theme=dark] .year-key>i{background:linear-gradient(90deg,#83482f,#342a23,#161e26,#333d45,#2a4861)}html[data-theme=dark] .year-detail{background:#151c25}html[data-theme=dark] .replay-controls>button{background:#161e27;color:#d4e7ec}html[data-theme=dark] .weight-mosaic figcaption{color:#c9d7dc}html[data-theme=dark] .weight-field{background:#10161c}html[data-theme=dark] .weight-tile{border:2px solid #222b35}html[data-theme=dark] .weight-key-btn{color:#ccdce2}html[data-theme=dark] .concentration{border:1px solid #313e4c;background:#141b23}html[data-theme=dark] .conc-copy>strong{color:#cbdae8}html[data-theme=dark] .conc-copy>p{color:#ced8e0}html[data-theme=dark] .tile-funds i{background:#1c2631}html[data-theme=dark] .app-rail nav button[aria-pressed=true]::after{background:#433a2d}html[data-theme=dark] .sb-arc{stroke:#232d37}html[data-theme=dark] .sb-label.d3{fill:#dae5ee}html[data-theme=dark] .sb-c-kick{fill:#d9c6ac}html[data-theme=dark] .sb-c-name{fill:#e3ecf3}html[data-theme=dark] .sb-c-amt{fill:#dfe7f1}html[data-theme=dark] .sb-c-pct{fill:#bdc2c5}html[data-theme=dark] .sb-c-back{fill:#acd1e5}html[data-theme=dark] .sb-crumbs{color:#b2b8bb}html[data-theme=dark] .sb-crumb{color:#acd1e5}html[data-theme=dark] .sb-crumbs strong{color:#d3dfeb}html[data-theme=dark] .sb-head b{color:#dfe7f1}html[data-theme=dark] .sb-head span{color:#bbc2c6}html[data-theme=dark] .sb-list{border-top:1px solid #2d3946}html[data-theme=dark] .sb-row,html[data-theme=dark] .gl-row{border-bottom:1px solid #2d3946;color:#d3dfeb}html[data-theme=dark] .sb-row:hover,html[data-theme=dark] .gl-row:hover{background:#151c25}html[data-theme=dark] .sb-row-name small,html[data-theme=dark] .gl-row small{color:#bbc1c5}html[data-theme=dark] .sb-row-bar{background:#19222c}html[data-theme=dark] .sb-row em,html[data-theme=dark] .gl-row em{color:#bbc2c6}html[data-theme=dark] .sb-foot,html[data-theme=dark] .gl-note{color:#bbc2c6}html[data-theme=dark] .fx-ladder .fx-sub{color:#bbc2c6}html[data-theme=dark] .ld-k{fill:#e3ecf3}html[data-theme=dark] .ld-sep{stroke:#2b3743}html[data-theme=dark] .ld-ax{fill:#bdc2c5}html[data-theme=dark] .ld-eq{fill:#bdc2c5}html[data-theme=dark] .ld-base{stroke:#313e4c}html[data-theme=dark] .ld-val.up{fill:#b6d7ea}html[data-theme=dark] .ld-val.down{fill:#e3ad9e}html[data-theme=dark] .ld-name{fill:#d0d9e0}html[data-theme=dark] .ld-name.pinned{fill:#e3ecf3}html[data-theme=dark] .ld-hi{fill:#e3ecf30a}html[data-theme=dark] .ld-read{color:#c8d4dc}html[data-theme=dark] .ld-read b{color:#dfe7f1}html[data-theme=dark] .ld-item{border:1px solid #2d3946;background:#10161c}html[data-theme=dark] .ld-item.pinned{border-color:#465a6e;background:#131a21}html[data-theme=dark] .ld-top{color:#dfe7f1}html[data-theme=dark] .ld-top span{color:#bbc1c5}html[data-theme=dark] .ld-nums{color:#c5cbd0}html[data-theme=dark] .ld-nums .up{color:#b0dae8}html[data-theme=dark] .ld-nums .down{color:#dfb7a9}html[data-theme=dark] .ld-worst{background:#19222c}html[data-theme=dark] .ld-key{color:#c5cbd0}html[data-theme=dark] .pj-controls{border-bottom:1px solid #2d3a47}html[data-theme=dark] .pj-controls>label{color:#c5cbd0}html[data-theme=dark] .pj-years output{color:#dfe7f1}html[data-theme=dark] .pj-unit{border:1px solid #384757;background:#10161c}html[data-theme=dark] .pj-unit i{color:#b7bdc0}html[data-theme=dark] .pj-grid{stroke:#2d3946}html[data-theme=dark] .pj-ax{fill:#bac0c4}html[data-theme=dark] .pj-key{color:#c5cbd0}html[data-theme=dark] .pj-name{fill:#d3dfeb}html[data-theme=dark] .pj-sub{fill:#b7bdc0}html[data-theme=dark] .pj-mid{fill:#dfe7f1}html[data-theme=dark] .pj-table th{color:#bac0c4;border-bottom:1px solid #32404e}html[data-theme=dark] .pj-table td{border-bottom:1px solid #2c3844}html[data-theme=dark] .pj-table tr.total td{background:#141c23}html[data-theme=dark] .pj-notes{color:#c5cbd0}html[data-theme=dark] .pj-goal{border-bottom:1px solid #2d3a47;background:#121920}html[data-theme=dark] .pj-goal-fields label{color:#c5cbd0}html[data-theme=dark] .pj-goal-note{color:#bbc1c5}html[data-theme=dark] .pj-goalpanel{border:1px solid #313e4c;background:linear-gradient(100deg,#141b23,#11171e)}html[data-theme=dark] .pj-gauge-n{fill:#dfe7f1}html[data-theme=dark] .pj-gauge-s{fill:#bdc2c5}html[data-theme=dark] .pj-goaltext h3{color:#dfe7f1}html[data-theme=dark] .pj-goaltext p{color:#c8d4dc}html[data-theme=dark] .pj-goalcmp{color:#d9bcc8!important}html[data-theme=dark] .pj-goallabel{fill:#e8d2b0;stroke:#232d37}html[data-theme=dark] .pj-stale{background:#252219;border:1px solid #3e4f61;color:#eee0c5}html[data-theme=dark] .pj-mc-btn{border:1px solid #384858;background:#10161c;color:#e3ecf3}html[data-theme=dark] .pj-mc-btn:hover{border-color:#44576b;background:#131b22}html[data-theme=dark] .pj-hist-axis{stroke:#354453}html[data-theme=dark] .pj-hist-k{fill:#d0d9e0}html[data-theme=dark][data-theme=dark] .pj-hist-mid{stroke:#46596d}html[data-theme=dark] .fx-andex-src{color:#bbc1c5}html[data-theme=dark] body ::selection{background:#212b30}html[data-theme=dark] body .context{background:#161e26f2}html[data-theme=dark] body select,html[data-theme=dark] body input:not([type=range]):not([type=checkbox]):not([type=radio]){border:1px solid #384858;background-color:#10161c}html[data-theme=dark] body select:hover,html[data-theme=dark] body input:not([type=range]):hover{border-color:#44576b}html[data-theme=dark] body .pj-unit{border-color:#384858}html[data-theme=dark] body .history-switch,html[data-theme=dark] body .switch,html[data-theme=dark] body .lensnav,html[data-theme=dark] body .asset-unit{background:#1a232d}html[data-theme=dark] body .history-switch button:hover,html[data-theme=dark] body .switch button:hover,html[data-theme=dark] body .lensnav button:hover,html[data-theme=dark] body .asset-unit .unit-choice:hover{background:#10161c80}html[data-theme=dark] body .history-switch button[aria-pressed=true],html[data-theme=dark] body .switch button[aria-pressed=true],html[data-theme=dark] body .lensnav button[aria-pressed=true],html[data-theme=dark] body .asset-unit .unit-choice[aria-pressed=true]{background:#10161c}html[data-theme=dark] body .context .meeting-toggle{border:1px solid #384858;background:#10161c}html[data-theme=dark] body .matrix tr.return-band td,html[data-theme=dark] body .matrix tr.return-band th{background:#151d25!important}html[data-theme=dark] body .matrix tr.worst-row td,html[data-theme=dark] body .matrix tr.worst-row th{background:#141b23}html[data-theme=dark] body input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(var(--ds-accent),var(--ds-accent)) 0/var(--fill,100%) 100% no-repeat,#222e3c}html[data-theme=dark] body input[type=range]::-moz-range-track{background:#222e3c}html[data-theme=dark] body input[type=range]::-webkit-slider-thumb{background:#10161c}html[data-theme=dark] body input[type=range]::-moz-range-thumb{background:#10161c}html[data-theme=dark] body .event-paper input[type=range]::-webkit-slider-runnable-track,html[data-theme=dark] body .market-replay input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(#314843,#314843) 0/var(--fill,100%) 100% no-repeat,#ffffff30}html[data-theme=dark] body .market-replay input[type=range]::-webkit-slider-thumb{border-color:#405164}html[data-theme=dark] body .loss-jump,html[data-theme=dark] body .researchback,html[data-theme=dark] body .export-holdings,html[data-theme=dark] body .replay-step{border:1px solid #384858;background:#10161c}html[data-theme=dark] body .loss-jump:hover,html[data-theme=dark] body .researchback:hover,html[data-theme=dark] body .export-holdings:hover{border-color:#44576b}html[data-theme=dark] body .statement-band select:hover{border-color:#222b3580}html[data-theme=dark] body .research-links .tile{background:#10161c}html[data-theme=dark] body .research-links .tile:hover{border-color:#44576b}html[data-theme=dark] body #growthPlot text,html[data-theme=dark] body #lossPlot text{fill:#bdc2c5}html[data-theme=dark] body{background:radial-gradient(90% 420px at 60% -120px,#131a22 0%,transparent 70%),var(--ds-paper)}/* ===== Dark theme tokens ===== */
 html[data-theme=dark]{color-scheme:dark;
  --ds-ink:#e6ecf1;--ds-ink2:#c6d1db;--ds-muted:#95a6b4;--ds-faint:#6f8295;
  --ds-paper:#0b141e;--ds-surface:#111c28;--ds-sunk:#0e1823;--ds-line:#223244;--ds-line2:#1a2837;
@@ -957,92 +978,11 @@ html[data-theme=dark] .op-sheet :is(.f-metric span,.f-metric small,.op-sub,.op-b
 html[data-theme=dark] .op-sheet .pj-goalpanel{background:#f8f7f3;border-color:#eeebe5}
 html[data-theme=dark] .op-sheet .op-stats dd{color:#14222e}html[data-theme=dark] .op-sheet .op-stats dd.down{color:#a2492f}
 html[data-theme=dark] .op-sheet .pj-gauge-n{fill:#14222e}html[data-theme=dark] .op-sheet .pj-goalcmp{color:#6f3f53!important}
-</style><style id="studio-look-through">
-.lt-view{padding:clamp(14px,2.5vw,30px);margin:1rem 0;border:1px solid var(--line);border-radius:16px;background:var(--paper,transparent);color:var(--ink,inherit)}
-.lt-ribbon,.lt-toggles,.lt-line{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}.lt-ribbon{justify-content:space-between}.lt-ribbon h3{font:normal clamp(24px,3vw,34px)/1.18 var(--serif,Georgia);margin:0}.lt-ribbon select{max-width:100%;min-height:42px}.lt-source{margin:.55rem 0 1rem;color:var(--muted);font-size:.87rem}.lt-toggles{margin:.6rem 0 1.25rem}.lt-toggles button{min-height:42px}
-.lt-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,3vw,42px);align-items:start}.lt-figure{margin:0;min-width:0}.lt-figure>svg{width:100%;max-width:32rem;display:block;cursor:pointer;aspect-ratio:1}.lt-figure figcaption{margin:.65rem 0;color:var(--muted);font-size:.78rem}.lt-list{display:grid;align-content:start;gap:1px}.lt-view button.lt-row{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:.6rem;text-align:left;background:transparent;color:inherit;font:inherit;font-size:.88rem;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:8px 4px;min-height:44px;width:100%}.lt-row small{display:block;font-size:.7rem;color:var(--muted)}.lt-row i{width:20px;height:9px;border-radius:3px}.lt-view .lt-row[aria-pressed=true]{box-shadow:inset 0 -2px currentColor;font-weight:600}.lt-row strong,.lt-line span:last-child{font-variant-numeric:tabular-nums}.lt-view .lt-toggles button[aria-pressed=true]{box-shadow:inset 0 -3px currentColor;font-weight:650}.lt-qualified{font-size:.84rem;color:var(--muted)}.lt-hatch-key{display:block;font-weight:600}.lt-view[data-mode=fund] .lt-hatch{display:none}.lt-receipt:empty{display:none}.lt-receipt{margin:.9rem 0 0;border-top:2px solid var(--line);padding-top:.8rem}.lt-receipt h4{margin:.2rem 0;font:normal 1.2rem var(--serif,Georgia)}.lt-receipt>strong{display:block;margin-bottom:.65rem}.lt-line{display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:1px solid var(--line);padding:.4rem 0;font-size:.81rem}.lt-line span:last-child{text-align:right}
-@media(prefers-reduced-motion:no-preference){.lt-figure g{transition:transform .62s cubic-bezier(.22,.8,.18,1),opacity .22s ease-out}}
-@media(max-width:680px){.lt-layout{grid-template-columns:1fr;gap:.65rem}.lt-view{padding:14px}.lt-ribbon{align-items:flex-start}.lt-figure>svg{max-width:24rem;margin:auto}.lt-figure figcaption{text-align:center}}
-</style>
-<style id="fx-field-style">
-.pf-field,#pfCompare,#pfHeadline{padding:clamp(14px,2vw,26px);margin:16px 0;border:1px solid color-mix(in srgb,currentColor 24%,transparent);border-radius:14px;overflow-wrap:anywhere}.pf-controls{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:10px 0}.pf-controls label,.pf-field>label{display:grid;gap:4px;font-size:.84rem}.pf-controls select,.pf-controls input,.pf-field select{max-width:100%;min-height:42px}.pf-controls label{max-width:100%}.pf-controls[hidden]{display:none}.pf-map{position:relative;aspect-ratio:1.7;border-radius:8px;overflow:hidden;margin:12px 0;background:#243242}.pf-map .pf-tile{position:absolute;text-align:left;color:white;border:1px solid #fff9;border-radius:0;background:var(--fund);padding:0;min-height:0;min-width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;container-type:size}.pf-tile b,.pf-tile small{max-width:100%;font-size:clamp(0px,19cqw,16px);overflow:hidden;text-shadow:0 1px 3px #000}.pf-tile small{font-size:clamp(0px,16cqw,13px)}@container (height<30px){.pf-tile small{display:none}}.pf-map .pf-tile[data-state=missing]{background:repeating-linear-gradient(120deg,#65737e 0 2px,#394951 2px 8px)}.pf-map .pf-tile[data-state=dim]{background:#58616b}.pf-map .pf-tile[data-state=matched]{background:#276953}.pf-map .pf-tile[aria-pressed=true],.pf-map .pf-tile:focus-visible{outline:3px solid white;outline-offset:-4px;z-index:1}.pf-detail{padding:12px 0}.pf-equation{border-top:1px solid currentColor;margin-top:14px;padding:.7rem 0}.pf-equation summary{cursor:pointer;font-weight:650;min-height:38px}.pf-equation p{margin:.6rem 0 .1rem}.pf-equation small,.pf-known small{display:block}.pf-track{height:14px;position:relative;background:#8882;margin:.2rem 0}.pf-track i,.pf-track b{position:absolute;inset:0 auto 0 0;box-sizing:border-box}.pf-track i{background:#8888}.pf-track[data-direction=increase] i{background:#428a70}.pf-track[data-direction=decrease] i{background:#b27752}.pf-track b{border:1.5px solid currentColor;background:none}.pf-label{margin-top:.8rem;font-weight:650}.pf-blind>:not(#pfHeadline){display:none!important}.pf-history{display:block;width:100%;max-height:280px;background:color-mix(in srgb,currentColor 5%,transparent);margin:8px 0}.pf-history path{fill:none;stroke-width:3}.pf-past{stroke:#528ea7}.pf-reveal{stroke:#bf8c50}.pf-cursor{stroke:currentColor;stroke-width:1!important;stroke-dasharray:3 4}#pfHeadline>small{display:block;margin:.6em 0}#pfHeadline>button{min-height:42px}
-
-.pf-field select,.pf-field label{width:100%;min-width:0;box-sizing:border-box}.pf-controls>select{width:auto;flex:1 1 13rem;min-width:0}.pf-tile .pf-slice{position:absolute;inset:auto 0 0;height:var(--inside,0);background:#b0eacc;border-top:0;pointer-events:none}.pf-tile .pf-fund-name{display:none}.pf-controls button[aria-pressed=true]{box-shadow:inset 0 -3px currentColor;font-weight:700}.pf-field .pf-tile[data-state=missing]{background:repeating-linear-gradient(120deg,#6d7f894d 0 1px,transparent 1px 9px),#41515b}.pf-field .pf-tile b,.pf-field .pf-tile small{z-index:1}
-@container (min-width:100px) and (min-height:50px){.pf-tile .pf-fund-name{display:block;max-width:94%;line-height:1.15;font-size:clamp(11px,8cqw,18px);font-weight:700;color:white;text-shadow:0 1px 3px #000}.pf-tile .pf-fund-name~b{font-size:10px;font-weight:500;opacity:.9}}
-@container (max-width:34px){.pf-tile b,.pf-tile small{display:none}}
-</style><style id="comparison-and-replay">
-#pairToolbar{position:sticky;top:var(--studio-context-height,0px);z-index:12;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-block:0 14px;scroll-margin-top:var(--studio-context-height,0px)}
-#pairToolbar .pair-selects{padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;flex:1 1 355px}
-#pairToolbar label{display:grid;gap:3px;min-width:0;font-size:.78rem}#pairToolbar select{width:100%;max-width:100%;min-width:0}
-.pair-lenses,.coach-markers{display:flex;gap:4px;flex-wrap:wrap}
-.pair-lenses button,.unit-choice,.sequence-controls button{min-height:42px}
-.pair-lenses button{border-radius:7px;padding:5px 12px}.pair-lenses button[aria-pressed=true],#pfHeadline .unit-choice[aria-pressed=true]{background:var(--ink);color:var(--surface)}
-.hc-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.hc-metrics>div{display:grid;align-content:start;gap:4px;padding:10px;border-inline-start:3px solid var(--a)}.hc-metrics>[data-model="1"]{border-color:var(--b)}
-.hc-metrics strong{font:clamp(1.28rem,3vw,2.25rem)/1.15 var(--serif);overflow-wrap:anywhere}
-.hc-metrics span,.hc-metrics small,.hc-coverage small,.hc-axis figcaption,.hc-delta small{color:var(--muted)}
-.hc-axis{margin:16px 0 0}.hc-axis figcaption{font-size:.85rem}.hc-track{height:38px;margin:14px 22px 4px;position:relative;border-top:2px solid var(--line)}
-.hc-tick,.hc-point{position:absolute;transform:translateX(-50%)}.hc-tick{width:max-content;white-space:nowrap;top:6px;font-size:.74rem;font-variant-numeric:tabular-nums}.hc-tick:before{content:"";position:absolute;top:-9px;left:50%;height:6px;border-left:1px solid var(--muted)}
-.hc-point{width:12px;height:12px;border-radius:50%;top:-10px;background:var(--a);outline:2px solid var(--surface)}.hc-point[data-model="1"]{background:var(--b);top:-4px}
-.hc-answer{font-weight:650}.hc-coverage{border-block-start:1px solid var(--line);padding-block:8px;display:grid;gap:4px}.hc-coverage p{margin:0}
-.hc-deltas{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(14px,2.4vw,28px)}.hc-deltas h3,.hc-deltas p{margin:0 0 8px}
-.hc-delta{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 12px;border-block-start:1px solid var(--line);padding:10px 0}.hc-delta span{text-align:right;font-variant-numeric:tabular-nums}.hc-delta-axis{height:7px;align-self:center;width:clamp(60px,14vw,150px);background:linear-gradient(90deg,transparent 49.5%,var(--line) 49.5% 50.5%,transparent 50.5%);position:relative}.hc-delta-axis i{position:absolute;height:100%;left:50%;background:var(--a);border-radius:3px}.hc-delta-axis i[data-direction=down]{left:auto;right:50%;background:var(--b)}
-.hc-more{display:none}.coach-chart{display:block;width:100%;height:auto;max-height:335px}.coach-chart text{font:12px var(--sans);fill:var(--muted)}.coach-grid{stroke:var(--line)}.coach-dot{fill:var(--surface);stroke:var(--a);stroke-width:2}.coach-dot.selected,.coach-hit:focus .coach-dot{fill:var(--a);stroke:var(--ink)}.coach-hit{cursor:pointer}.coach-readout{font-weight:650;font-variant-numeric:tabular-nums}.coach-prompt{margin-block-start:12px}.meeting .coach-prompt{display:none}
-#sequenceSetup{width:min(590px,95vw);max-height:90dvh;overflow:auto}#sequenceSetup h2{margin:0}#sequenceSetup h3{margin:16px 0 4px}#sequenceSetup p{margin:.35em 0 .75em}.sequence-controls,#sequenceBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}#sequenceSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}#sequenceSteps label{display:grid;font-size:.85rem}#sequenceSteps select{width:100%;min-width:0}
-#sequenceBar{padding:5px 8px;border:1px solid var(--line);border-radius:8px}#sequenceBar strong{margin-right:auto;font-size:.85rem}#sequenceBar button{min-height:36px}
-#pfHeadline,#pfCompare .pf-equation,#chartsPanel .plot-head{scroll-margin-top:calc(var(--studio-context-height,0px) + 115px)}
-body.meeting:has(#sequenceBar:not([hidden])) .context{position:sticky;top:0;z-index:22;background:var(--surface)}body.meeting:has(#sequenceBar:not([hidden])) .context>label,body.meeting:has(#sequenceBar:not([hidden])) #prepareSequence{display:none}
-@media(max-width:760px){.hc-extra{display:none}.hc-expanded .hc-extra{display:grid}.hc-more{display:inline-block}#pairToolbar{padding:8px;gap:5px}#pairToolbar .pair-selects{flex-basis:100%}.pair-lenses{width:100%}.pair-lenses button{flex:1;min-height:38px}#sequenceSteps{grid-template-columns:1fr}#sequenceSteps label{grid-template-columns:55px minmax(0,1fr);align-items:center}.context #prepareSequence,.context #meetingMode{grid-column:auto;margin:0;justify-self:start}#sequenceBar{grid-column:1/-1;width:100%}body.meeting:has(#sequenceBar:not([hidden])) .context{display:grid;grid-template-columns:auto 1fr;align-items:center;padding-block:5px}body.meeting:has(#sequenceBar:not([hidden])) .context>:not(#meetingMode):not(#sequenceBar){display:none}body.meeting:has(#sequenceBar:not([hidden])) #sequenceBar{grid-column:auto;display:grid;grid-template-columns:1fr auto auto;min-width:0}.context:has(#sequenceBar:not([hidden])) #meetingMode{font-size:11px;padding:4px 6px}#sequenceBar{gap:4px}#sequenceBar button{padding:4px 8px}.hc-tick{font-size:.68rem}.coach-chart text{font-size:14px}}
-</style><style id="pp-style">
-#purchasing-power{--pp-current:#905721;--pp-a:#226582;--pp-b:#865772;--pp-selected:var(--pp-current)}
-html[data-theme=dark] #purchasing-power{--pp-current:#e2b57e;--pp-a:#8dc5df;--pp-b:#dca1c4}
-#purchasing-power h2{margin:0;font:500 clamp(1.42rem,2vw,1.85rem)/1.18 var(--serif);color:var(--ink)}
-#purchasing-power p{margin:0}
-#purchasing-power label{display:grid;gap:.35rem;align-content:start;color:var(--muted);font:600 .875rem/1.35 var(--sans)}
-#purchasing-power input:not([type=range]),#purchasing-power select{width:100%;max-width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:8px;padding:.5rem .65rem;color:var(--ink);background:var(--surface);font:500 1rem var(--sans)}
-#purchasing-power select{padding-right:2rem}
-#purchasing-power input[aria-invalid=true]{outline:2px solid var(--pp-current)}
-#purchasing-power{scroll-margin-top:5rem}
-.pp-controls,.pp-story,.pp-comparison,.pp-history{margin:0 0 1.2rem}
-.pp-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.2fr);align-items:end;gap:1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem clamp(1rem,2.2vw,1.75rem)}
-.pp-years>span,.pp-story-head{display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.pp-years output{white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums}
-.pp-years input{width:100%;min-height:44px;margin:0;accent-color:var(--pp-current)}
-#purchasing-power .sheet{padding:clamp(1rem,2.2vw,1.75rem)}
-.pp-story-head{align-items:start}.pp-story-head>label{width:min(12.25rem,45%);flex:none}.pp-story-head>div{min-width:0}
-#purchasing-power .pp-story-head p,#purchasing-power .pp-foot,.pp-basket>p,.pp-method p{margin-top:.45rem;color:var(--muted);font-size:.938rem;line-height:1.5}
-.pp-month-result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1rem,5vw,4.2rem);align-items:center;padding:1.5rem 0}
-.pp-verdict>p:first-child{font-weight:650;color:var(--pp-selected)}.pp-verdict>strong{display:block;color:var(--ink);font:500 clamp(2.8rem,4.6vw,4.4rem)/1.1 var(--serif);letter-spacing:-.04em;margin:.25rem 0 .65rem;overflow-wrap:anywhere}
-.pp-verdict p:last-child{max-width:36em;line-height:1.5}
-.pp-calendar{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}.pp-day{display:grid;place-items:center;min-height:31px;border-radius:4px;background:linear-gradient(90deg,var(--pp-selected) var(--share),transparent var(--share)),var(--tint);color:var(--ink);font:600 .76rem var(--sans);font-variant-numeric:tabular-nums;border:1px solid var(--line)}
-.pp-day.is-full{color:white;border-color:transparent}.pp-day.is-partial{background:var(--tint);border-bottom:4px solid var(--pp-selected)}
-html[data-theme=dark] .pp-day.is-full{color:#10212e}
-.pp-calendar-box>p{font-size:.85rem;color:var(--muted);margin-top:.5rem!important}
-#purchasing-power summary{min-height:44px;cursor:pointer;font-weight:600;padding:.75rem 0;color:var(--ink)}
-.pp-basket,.pp-method{border-top:1px solid var(--line)}.pp-budget-head,.pp-budget-row,.pp-budget-total{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(5rem,.7fr) minmax(0,.7fr);gap:.75rem;align-items:center}
-.pp-budget-head,.pp-budget-total{margin-top:.75rem;padding:.5rem 0}.pp-budget-head,.pp-budget-row output{color:var(--muted)}
-.pp-budget-head span:not(:first-child),.pp-budget-total strong:not(:first-child),.pp-budget-row input,.pp-budget-row output{text-align:right}
-.pp-budget-row{padding:.3rem 0}.pp-budget-total{border-top:1px solid var(--line)}.pp-budget-row output,.pp-budget-total{font-variant-numeric:tabular-nums}
-.pp-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:1.3rem 0 .8rem;gap:1.25rem}
-.pp-card{min-width:0;border-top:3px solid var(--pp-tone);padding-top:.85rem}.pp-card>label,.pp-card>div:first-child{min-height:4.3rem}.pp-card>div:first-child{display:grid;align-content:start;gap:.35rem}.pp-card>div:first-child span{font-size:.875rem;color:var(--muted);font-weight:600}.pp-card>div:first-child b{min-height:44px;display:flex;align-items:center;font-weight:600}
-.pp-card dl{margin:.25rem 0}.pp-card dl>div{display:flex;align-items:baseline;justify-content:space-between;gap:.55rem;padding:.55rem 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.pp-card dt{color:var(--muted);font-size:.87rem}.pp-card dd{margin:0;font-weight:650;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.pp-card dl>div:nth-child(3) dd{color:var(--pp-tone)}.pp-card dl>div:last-child{border:0}.pp-card .pp-baseline-risk{font-size:.85rem}
-#pp-chart{display:block;width:100%;height:215px;margin:1.15rem 0 .5rem;overflow:visible}#pp-chart text{font:12px var(--sans);fill:var(--muted)}.pp-key{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;font-size:.9rem;margin-bottom:1rem}.pp-key span{display:flex;align-items:center;gap:.4rem}.pp-key i{width:1.7rem;border-top:3px var(--pp-line) var(--pp-tone)}
-.pp-method p:last-child{margin-bottom:.5rem}.pp-method a{color:var(--a);text-decoration:underline}.pp-error{padding:.75rem 0 1rem;color:var(--pp-current);font-weight:650}
-@media(max-width:1100px){.pp-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.pp-cards{gap:.8rem}.pp-card dl>div{display:grid;gap:.18rem}}
-@media(max-width:700px){.pp-month-result{grid-template-columns:1fr;gap:1rem}.pp-cards{grid-template-columns:1fr;gap:1rem}.pp-card dl>div{display:flex}.pp-card>label,.pp-card>div:first-child{min-height:0}.pp-story-head{flex-wrap:wrap}.pp-story-head>label{width:100%}.pp-controls{gap:.75rem}.pp-budget-head,.pp-budget-row,.pp-budget-total{gap:.5rem}.pp-verdict>strong{font-size:3rem}}
-@media(max-width:370px){.pp-controls{grid-template-columns:1fr}.pp-day{font-size:.68rem}.pp-calendar{gap:2px}}
-</style>
-
-<link rel="icon" type="image/png" sizes="32x32" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-32.png?v=ef1201342d31">
-<link rel="icon" type="image/png" sizes="64x64" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-64.png?v=9d1339ad401f">
-<link rel="apple-touch-icon" sizes="180x180" href="https://qchamby204.github.io/my-dashboards/shared/icons/chambers-wealth-hq-apple.png?v=f8db1171b0b0">
-</head>
+</style></head>
 <body><a class="skip" href="#main">Skip to workspace</a>
-<aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Compare two models</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="purchasing-power"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 9h18l-2 11H5L3 9zm4 0 5-7 5 7M9 12v5m6-5v5"/></svg>Purchasing power</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
+<aside class="app-rail"><div class="rail-brand"><svg aria-hidden="true" viewBox="0 0 35 39" fill="none" stroke="#e1c5a0" stroke-width="1.3"><path d="M3 6L17 3L32 6"/><path d="M3 10L17 5L32 10"/><path d="M3 14L17 7L32 14"/><path d="M3 18L17 9L32 18"/><path d="M3 22L17 11L32 22"/><path d="M3 26L17 13L32 26"/><path d="M3 30L17 15L32 30"/></svg><div><strong>Portfolio Studio</strong><span>Dimensional Canada</span></div></div><nav aria-label="Workspace"><button data-page="lineup"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 21V12h4v9m3 0V7h4v14m3 0V3h4v18"/></svg>Model comparison</button><button data-page="overview"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h16v16H4z M7 9h10 M7 13h7 M7 17h4"/></svg>Statement explorer</button><button data-page="andex"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 3v17h18 M5 16l4-5 3 3 7-9"/></svg>Andex chart</button><button data-page="compareView"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M2 8l5 1 4 9 4-6 6-7 M16 5h5v5"/></svg>Return comparison</button><button data-page="components"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-5 9 5-9 5z M3 12l9 5 9-5 M3 17l9 5 9-5"/></svg>Component history</button><button data-page="research"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h6l2 2 2-2h6v15h-6l-2 2-2-2H4z M12 6v15"/></svg>Research & data</button></nav><div class="rail-end"><strong>Quinton Chambers</strong>Private advisor preview</div></aside>
 <main id="main" class="frame" tabindex="-1">
-<div class="context"><label>Allocation date<select id="snap"><option value="latest">October 31, 2026</option><option value="archive">June 30, 2024 · workbook</option></select></label><label>Illustrative balance <span class="currency">CAD</span><input id="balance" type="text" value="1,000,000" inputmode="decimal" autocomplete="off"></label><div id="balanceStatus" role="status"></div><button id="meetingMode" class="meeting-toggle" aria-pressed="false">Meeting view</button><button id="prepareSequence" class="meeting-toggle">Meeting sequence</button><div id="sequenceBar" hidden><strong id="sequencePosition" aria-live="polite"></strong><button id="sequenceBack" type="button">Previous</button><button id="sequenceNext" type="button" class="primary">Next</button></div></div>
-<dialog id="sequenceSetup" class="recap" aria-labelledby="sequenceTitle"><h2 id="sequenceTitle">Meeting sequence</h2><h3>Current selection</h3><p id="sequenceCurrent"></p><div id="sequenceSteps"></div><div class="sequence-controls"><button id="startSequence" class="primary">Start this meeting</button><button id="saveSequence">Save on this device</button></div><h3>Saved meeting</h3><p id="savedSequence"></p><button id="resumeSequence" hidden>Open saved meeting</button><p id="sequenceStatus" role="status"></p><button id="sequenceClose">Close</button></dialog>
+<div class="context"><label>Allocation date<select id="snap"><option value="latest">October 31, 2026</option><option value="archive">June 30, 2024 · workbook</option></select></label><label>Illustrative balance <span class="currency">CAD</span><input id="balance" type="text" value="1,000,000" inputmode="decimal" autocomplete="off"></label><div id="balanceStatus" role="status"></div><button id="meetingMode" class="meeting-toggle" aria-pressed="false">Meeting view</button></div>
 <section id="lineup" class="page">
 <div class="folio-heading"><div><h1>The model portfolios</h1></div><div class="basisline"><label>Performance history<select id="bookBasis"><option value="benchmark">Long-run benchmarks</option><option value="actual">Published fund returns</option><option value="archive">Original workbook figures</option></select></label></div></div>
 <section class="folio-hero"><div class="herotext"><span class="kicker">Same starting balance, every model</span><h2 id="heroRange"></h2><p id="heroCaption"></p><button class="heroaction" id="heroReplay">Replay the housing crisis</button> <button class="heroaction secondary-hero" id="goAndex">Explore the Andex chart</button></div><div class="herofigure"><svg id="heroPlot" role="img" aria-label="Historical growth of the eight model benchmarks"></svg><div id="heroFoot"></div></div></section>
@@ -1060,16 +1000,14 @@ html[data-theme=dark] .pp-day.is-full{color:#10212e}
 <section class="statement-band"><div><label>Statement line<select id="portfolio"></select></label><p id="statementDate"></p></div><div class="stmt-sum"><span>Illustrative statement</span><strong id="statementAmount"></strong></div></section>
 <div class="trail-wrap"><div id="trail" class="trail" aria-label="Ownership path"></div><button id="openRecap" class="quiet">Meeting recap ↗</button></div><section class="sheet" id="ownershipPanel" tabindex="-1" aria-label="Ownership detail"></section>
 </section>
-<section id="compareView" class="page" hidden><div class="intro"><h1>Compare two models</h1></div>
-<div id="pairToolbar"><div class="pair-selects"><label class="a">Model A<select id="returnA"></select></label><label class="b">Model B<select id="returnB"></select></label></div>
-<div role="group" aria-label="Comparison view" class="pair-lenses"><button id="compare-holdings" type="button">Holdings</button><button id="compare-allocation" type="button">Allocation</button><button id="compare-returns" type="button">Returns</button></div></div>
-<section id="pfCompare"></section><section class="sheet" id="comparisonReturns"><div class="history-controls"><label>History source<select id="experienceSource"><option value="actual">Published CAD Class I funds</option><option value="benchmark" selected>Long-run CAD benchmarks</option></select></label><label>Period<select id="experiencePeriod"><option value="12">1 year</option><option value="36">3 years</option><option value="60">5 years</option><option value="120">10 years</option><option value="all" selected>Full common history</option></select></label></div>
+<section id="compareView" class="page" hidden><div class="intro"><h1>Return comparison</h1></div>
+<section class="sheet"><div class="history-controls"><label class="a">Model A<select id="returnA"></select></label><label class="b">Model B<select id="returnB"></select></label><label>History source<select id="experienceSource"><option value="actual">Published CAD Class I funds</option><option value="benchmark" selected>Long-run CAD benchmarks</option></select></label><label>Period<select id="experiencePeriod"><option value="12">1 year</option><option value="36">3 years</option><option value="60">5 years</option><option value="120">10 years</option><option value="all" selected>Full common history</option></select></label></div>
 <div class="history-date" id="experienceDate"></div><div id="historyStats" class="history-stats"></div>
 <p id="decisionStory" class="decision-story"></p><div id="chartsPanel"><div class="plot-head"><h3>Growth of the illustrative balance</h3><span>Canadian dollars</span></div><svg id="growthPlot" class="plot" viewBox="0 0 840 175" role="img" aria-label="Growth of the two selected portfolios over the same months"></svg>
 <div class="plot-head"><h3>Decline from the previous high</h3><span>Month-end drawdown</span></div><svg id="lossPlot" class="plot" viewBox="0 0 840 175" role="img" aria-label="Percentage decline from each portfolio’s previous high in the selected period"></svg>
 <div class="scrub"><label for="experienceMonth">Explore month</label><input type="range" id="experienceMonth" min="0" max="60" value="60"><output id="experienceRead" for="experienceMonth"></output></div></div>
 <p id="experienceFoot" class="note"></p></section></section>
-<section class="page" id="andex" hidden><div class="folio-heading"><div><h1>The Andex chart</h1></div></div><section id="pfHeadline"></section>
+<section class="page" id="andex" hidden><div class="folio-heading"><div><h1>The Andex chart</h1></div></div>
 <section class="chart-paper"><div class="andex-top"><label>Return history<select id="andexBasis"><option value="benchmark">Long-run benchmarks</option><option value="actual">Published portfolio funds</option><option value="linked">Benchmark before launch + fund after</option><option value="components">Published underlying funds</option></select></label><div class="history-switch" role="group" aria-label="Chart view"><button id="showGrowth" aria-pressed="true">Investment growth</button><button id="showDeclines" aria-pressed="false">Declines from a high</button></div><details class="chart-settings"><summary>Chart settings</summary><div class="chart-detail-grid"><label>Start portfolios<select id="andexStart"><option value="common">Together on the same date</option><option value="own">At each series’ first month</option></select></label><label>Chart scale<select id="andexScale"><option value="log">Equal percentage moves</option><option value="linear">Equal dollar moves</option></select></label><label>Time window<select id="andexWindow"><option value="full">Full history</option><option value="event">Around selected event</option></select></label><label class="checkctl"><input id="showEvents" type="checkbox" checked> Market events</label></div></details></div>
 <div class="plot-title"><div><span class="kicker" id="andexSpan"></span><h2 id="andexHeading"></h2></div><div class="plot-key" id="andexUnits"></div></div>
 <div class="andexstage"><div class="plotfield"><svg id="andexPlot" role="img" aria-label="Investment growth of all eight models with selectable market event markers"></svg><div class="monthcontrol"><label for="andexMonth">Explore month</label><input type="range" id="andexMonth" step="1"><output id="andexDate"></output></div></div><div class="seriesrail"><label class="history-actions"><input type="checkbox" id="focusModel">Selected line only</label><span class="kicker" id="seriesReadLabel">Value at selected month</span><div id="andexRead"></div></div></div>
@@ -1078,48 +1016,6 @@ html[data-theme=dark] .pp-day.is-full{color:#10212e}
 <section class="page" id="components" hidden><div class="folio-heading"><div><h1>Component history</h1></div></div>
 <section class="chart-paper"><div class="chart-command"><label>Model portfolio<select id="componentModel"></select></label><label>Calculation<select id="componentMethod"><option value="full">Whole portfolio</option><option value="covered">Available funds only</option></select></label></div><div id="componentSummary"></div><div id="componentCurve"></div><p class="basisnote" id="componentMethodNote"></p></section>
 <section class="sheet component-inventory"><div class="sheet-head"><div><h2>Available fund history</h2></div></div><div id="fundTimelines"></div><section class="individual" id="individualFund"></section></section></section>
-<section id="purchasing-power" class="page" hidden>
-  <div class="folio-heading"><div><h1>Purchasing power</h1></div></div>
-  <div class="pp-controls">
-    <label>Current return after fees (%)<input id="pp-current" type="number" step="any" min="-99" max="100" value="0" required></label>
-    <label>Annual inflation (%)<input id="pp-inflation" type="number" step="any" min="-20" max="50" required></label>
-    <label>Spending per month (CAD)<input id="pp-month" type="number" step="0.01" min="0.01" max="100000000" value="5000" required></label>
-    <label class="pp-years"><span>Horizon <output id="pp-horizon" for="pp-years">20 years</output></span><input id="pp-years" type="range" min="10" max="40" value="20"></label>
-  </div>
-  <p id="pp-error" class="pp-error" role="status" hidden></p>
-  <section class="sheet pp-story">
-    <div class="pp-story-head"><div><h2>A month in the life</h2><p id="pp-cost"></p></div>
-      <label>Show this path<select id="pp-path"><option value="current">Current approach</option><option value="a">Model A</option><option value="b">Model B</option></select></label>
-    </div>
-    <div id="pp-month-result" class="pp-month-result">
-      <div class="pp-verdict"><p id="pp-scenario-label"></p><strong id="pp-days"></strong><p id="pp-narrative"></p></div>
-      <div class="pp-calendar-box"><div class="pp-calendar" id="pp-calendar" aria-hidden="true"></div><p id="pp-calendar-note"></p></div>
-    </div>
-    <details class="pp-basket"><summary>Edit a typical month</summary>
-      <p>Start with these example amounts or enter the household’s own spending. All categories use the same inflation rate.</p>
-      <div class="pp-budget-head" aria-hidden="true"><span>Expense</span><span>Today</span><span id="pp-budget-year">In 20 years</span></div>
-      <div id="pp-categories"></div>
-      <div class="pp-budget-total"><strong>Total</strong><strong id="pp-total-today"></strong><strong id="pp-total-later"></strong></div>
-    </details>
-  </section>
-  <section class="sheet pp-comparison">
-    <div class="pp-story-head"><div><h2>The whole balance</h2><p id="pp-starting"></p></div><label>Model fees per year (%)<input id="pp-fee" type="number" min="0" max="5" step="any" required></label></div>
-    <div id="pp-cards" class="pp-cards"></div>
-    <p class="pp-foot">Illustrative constant returns, before personal tax. Months measure buying power at that point in time.</p>
-  </section>
-  <section class="sheet pp-history">
-    <div class="pp-story-head"><div><h2>What one month buys over time</h2><p>Days of spending bought by the amount set aside for 30 days today.</p></div></div>
-    <svg id="pp-chart" role="img" aria-label="Days of spending for the current approach and two model portfolios"></svg>
-    <div id="pp-key" class="pp-key"></div>
-    <details class="pp-method"><summary>Assumptions and calculation</summary><div>
-      <p>The same starting balance grows at a constant annual rate with no deposits or withdrawals. The current return is your own after-fee assumption. Each model uses Studio’s allocation-weighted 2026 planning assumptions, less the model fee shown above. Calculations use the unrounded blended rate. Actual returns vary.</p>
-      <p>Today’s dollars equal the future balance divided by cumulative inflation. Months of spending equal the future balance divided by the future cost of one month. The calendar applies the same calculation to one month’s budget and uses 30 equal spending days. This is a snapshot of buying power, not a withdrawal plan.</p>
-      <p id="pp-risk-note"></p>
-      <p><a href="https://www.fpcanada.ca/projection-assumption-guidelines" target="_blank" rel="noopener">FP Canada and Institute of Financial Planning assumptions</a> · <a href="https://www.bankofcanada.ca/rates/related/inflation-calculator/" target="_blank" rel="noopener">Bank of Canada inflation methodology</a></p>
-    </div></details>
-  </section>
-</section>
-
 <section id="research" class="page" hidden><div class="intro"><h1>Research &amp; data</h1></div>
 <div class="research-links"><button id="toHold" class="tile"><strong>Inside the funds</strong><span>Each fund’s holdings, as of Sep 30, 2026</span></button><button id="toOverlap" class="tile"><strong>Shared holdings</strong><span>Companies held by more than one fund</span></button></div>
 <details class="sheet sourcing"><summary>Return and risk tables for all eight models</summary><div class="sheet-head"><p id="perfNote"></p><label>Performance source<select id="perfType"><option value="actual">Actual Class I funds</option><option value="benchmark">CAD index benchmarks</option><option value="archive">Original workbook benchmarks</option></select></label></div><div class="matrix-scroll" tabindex="0"><table class="matrix" id="allPerf"></table></div></details>
@@ -1501,7 +1397,6 @@ get('downloadTemplate').onclick=()=>{
 };
 get('saveCopy').onclick=()=>{
  const copy=originalDocument.cloneNode(true);copy.querySelector('#updates').textContent=JSON.stringify(updateState).replaceAll('<','\\u003c');
- for(const script of document.querySelectorAll('body>script[id^="fx"]'))if(!copy.querySelector('#'+script.id))copy.querySelector('body').append(script.cloneNode(true));
  downloadFile('Dimensional-Portfolio-Workbench.html','<!doctype html>'+copy.outerHTML,'text/html');
 };
 
@@ -1525,7 +1420,6 @@ function openView(id,focus=true){
   const active=control.dataset.page===id||(['holdingView','overlapView'].includes(id)&&control.dataset.page==='research');
   control.setAttribute('aria-pressed',String(active));
  }
- if(id==='purchasing-power')window.studioPower?.render();
  if(id==='lineup'){renderHero();renderStress()}
  if(id==='andex')renderAndex();if(id==='components')renderComponents();
  if(id==='overview')renderOwnership();
@@ -1630,314 +1524,6 @@ function ownRow(name,sub,weight,colour,action){
  const track=cell('span',null,'own-track'),fill=cell('i');fill.style.width=weight+'%';fill.style.background=colour;track.setAttribute('aria-hidden','true');track.append(fill);
  const arrow=cell('span','›');arrow.setAttribute('aria-hidden','true');r.append(label,track,cell('span',fmt(weight),'weight'),cell('strong',atWeight(weight)),arrow);return r;
 }
-// The same capital is packed into a 10 × 10 grid in two orders. Amounts are
-// computed from the observations first. Only the drawing absorbs source rounding.
-const lookThroughState={example:false,mode:'fund',selection:null};
-const lookThroughPalette=['#417a78','#47749e','#a36c48','#756aac','#427e5a','#ae5e72','#62718f','#926f38','#397e98','#857549','#735d86','#427778','#99635a','#58689e','#616950','#945799','#756c5d','#39709c','#915f7d','#688476'];
-const lookThroughCodes=[...new Set([...allCodes,'DFA381','DFA608','DFA1235'])];
-const fundColour=c=>lookThroughPalette[lookThroughCodes.indexOf(c)%lookThroughPalette.length];
-const ltRemainder='@other',ltMissing='@missing';
-function lookThroughData(model,example){
- const date=example?holdingsDate:reportDate();
- const funds=(example?[['DFA381',50],['DFA608',30],['DFA1235',20]]:allCodes.map(c=>[c,weightFor(model,c)])).filter(([,w])=>w>0);
- const holdingsByName=new Map(),hasDetail=new Set();
- for(const [code,weight] of funds){
-  let names;
-  if(date===holdingsDate&&holdings[code])names=printedNames(code).map(r=>[r.name,r.millis/1000]);
-  else if(date===profileDate&&code==='DFA257')names=traceSource.companies;
-  else continue;
-  hasDetail.add(code);
-  for(const [name,inside] of names){
-   const key=name.trim().replace(/\s+/g,' ').toLowerCase();
-   if(!holdingsByName.has(key))holdingsByName.set(key,{key,name,total:0,funds:new Map()});
-   const row=holdingsByName.get(key),part=inside*weight/100;
-   row.total+=part;row.funds.set(code,(row.funds.get(code)||0)+part);
-  }
- }
- // Preserve every company in the Oct profile. Full monthly files show their
- // ten largest combined printed names and account for all remaining weight.
- const top=[...holdingsByName.values()].sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name)).slice(0,10);
- const groups=new Map(top.map(row=>[row.key,row.name]));
- groups.set(ltRemainder,'Other positions in profiled funds');groups.set(ltMissing,'No same-date holdings detail');
- const pieces=[];
- for(const [fund,weight] of funds){
-  let used=0;
-  for(const row of top){
-   const amount=row.funds.get(fund)||0;if(amount<=0)continue;
-   pieces.push({fund,group:row.key,amount});used+=amount;
-  }
-  const rest=weight-used;
-  if(rest>.00000001)pieces.push({fund,group:hasDetail.has(fund)?ltRemainder:ltMissing,amount:rest});
- }
- const total=funds.reduce((sum,[,w])=>sum+w,0);
- return {date,funds,groups,pieces,total};
-}
-function openLookThroughLink(){
- if(location.hash==='#purchasing-power'){openView('purchasing-power',false);return;}
- if(location.hash==='#compare-holding'){openComparison('holdings');return;}
- if(location.hash==='#headline-replay'){headlineState.open=true;openView('andex',false);get('pfHeadline').scrollIntoView();return;}
- if(location.hash!=='#look-through')return;
- ownershipMode='lookthrough';Object.assign(statementState,{group:null,fund:null,item:null});
- openView('overview',false);renderOwnership();
- get('ownershipPanel').scrollIntoView({block:'start'});
-}
-window.addEventListener('DOMContentLoaded',openLookThroughLink);
-window.addEventListener('hashchange',openLookThroughLink);
-const fieldState={mode:'weight',name:'Royal Bank of Canada',pinned:'Royal Bank of Canada',fund:'DFA257'};
-const reportCache=new Map();
-const nameKey=s=>s.trim().replace(/\s+/g,' ').toLowerCase();
-function fundReport(code,date){
- const id=date+'/'+code;
- if(reportCache.has(id))return reportCache.get(id);
- let rows=null,source='',partial=false;
- if(date===holdingsDate&&holdings[code]){
-  rows=printedNames(code).map(r=>[r.name,r.millis/1000]);source=holdings[code][1];
- }else if(date===profileDate&&code==='DFA257'){
-  rows=traceSource.companies;partial=true;source='Canadian Core Equity Fund · October top-ten profile';
- }
- const result=rows?{positions:new Map(rows.map(([n,w])=>[nameKey(n),{name:n,inside:w}])),source,partial}:null;
- reportCache.set(id,result);return result;
-}
-function modelParts(model,date,name){
- return allCodes.map(code=>{const w=weightFor(model,code),report=fundReport(code,date),pos=report?.positions.get(nameKey(name));
-  return {code,w,report,pos,part:w*(pos?.inside||0)/100};
- }).filter(r=>r.w>0);
-}
-function optionList(title,choices,value,change){
- const label=cell('label',title),el=cell('select');
- choices.forEach(([k,v])=>el.append(new Option(v,k)));el.value=value;el.onchange=()=>change(el.value);label.append(el);return label;
-}
-function amountReceipt(name,rows,date){
- const details=cell('details',null,'pf-equation');details.append(cell('summary','Open the number'));
- const known=rows.filter(r=>r.pos),base=balance();
- for(const r of known){details.append(cell('p',(base===null?'$100':money.format(base))+' × '+fmt(r.w)+' × '+r.pos.inside.toLocaleString('en-CA',{maximumFractionDigits:3})+'% = '+money.format((base??100)*r.part/100)),cell('small',r.code+' · '+shortName(r.code)+' · '+r.report.source+' · '+dateText(date)));}
- const noReport=rows.filter(r=>!r.report),partial=rows.filter(r=>r.report?.partial&&!r.pos);
- details.append(cell('p',known.length?(known.length>1?'Combined matched exposure · ':'Identified exposure · ')+fmt(known.reduce((s,r)=>s+r.part,0)):'No report listed '+name+' for these funds.'));
- if(noReport.length)details.append(cell('small','No same-date report for '+noReport.map(r=>r.code).join(', ')+'.'));
- if(partial.length)details.append(cell('small','Outside the published top ten for '+partial.map(r=>r.code).join(', ')+'. Exposure is unknown.'));
- if(base===null)details.append(cell('small','Formula shown per $100. Enter a statement balance for dollar exposure.'));
- return details;
-}
-function fixedField(model){
- const host=cell('section',null,'pf-field'),date=reportDate(),heading=cell('h3','Explore the fund map');
- const bar=cell('div',null,'pf-controls'),map=cell('div',null,'pf-map'),detail=cell('div',null,'pf-detail'),key=cell('p',null,'lt-source');
- detail.setAttribute('aria-live','polite');host.append(heading,bar,key,map,detail);
- const rows=modelParts(model,date,fieldState.name),codes=rows.map(r=>r.code);
- if(!codes.includes(fieldState.fund))fieldState.fund=codes[0]||'';
- const modes=[['weight','Fund weights'],['holding','Holding exposure'],['coverage','Report coverage']];
- const modeButtons=new Map();
- for(const [id,name] of modes){const b=button(name,()=>{fieldState.mode=id;paint();},'unit-choice');bar.append(b);modeButtons.set(id,b);}
- const names=new Map();for(const r of rows)if(r.report)for(const [k,v] of r.report.positions)names.set(k,v.name);
- const choose=cell('div',null,'pf-controls'),search=cell('input'),results=cell('select');
- search.type='search';search.placeholder='Find a holding';search.setAttribute('aria-label','Search reported holdings');results.setAttribute('aria-label','Holding to inspect');
- function options(){const q=nameKey(search.value);results.replaceChildren(new Option(fieldState.name,fieldState.name));for(const [k,v] of names){if(k!==nameKey(fieldState.name)&&k.includes(q))results.append(new Option(v,v));if(results.options.length>80)break;}}
- options();search.oninput=options;results.onchange=()=>{fieldState.name=results.value;paint();};
- choose.append(search,results,button('Pin and compare',()=>{fieldState.pinned=fieldState.name;if(!pins.includes(model.code))changePin(0,model.code);openComparison('holdings');},'quiet'));
- bar.after(choose);
- const tiles=new Map();
- function partition(a,x,y,w,h){
-  if(!a.length)return;
-  if(a.length===1){const r=a[0],b=button('',()=>selectFund(r.code),'pf-tile');b.style.cssText='left:'+x+'%;top:'+y+'%;width:'+w+'%;height:'+h+'%;--fund:'+fundColour(r.code);b.dataset.code=r.code;
-    b.append(cell('i',null,'pf-slice'),cell('span',shortName(r.code),'pf-fund-name'),cell('b',r.code),cell('small',fmt(r.w)));map.append(b);tiles.set(r.code,b);return;}
-  const total=a.reduce((s,r)=>s+r.w,0);let cut=1,left=a[0].w;
-  while(cut<a.length-1&&Math.abs(left+a[cut].w-total/2)<Math.abs(left-total/2)){left+=a[cut++].w;}
-  const f=left/total;
-  if(w*1.6>=h){partition(a.slice(0,cut),x,y,w*f,h);partition(a.slice(cut),x+w*f,y,w*(1-f),h);}
-  else{partition(a.slice(0,cut),x,y,w,h*f);partition(a.slice(cut),x,y+h*f,w,h*(1-f));}
- }
- partition(rows.slice().sort((a,b)=>b.w-a.w),0,0,100,100);
- const picker=optionList('Fund',rows.map(r=>[r.code,shortName(r.code)+' · '+r.code]),fieldState.fund,selectFund);map.after(picker);
- function selectFund(code){fieldState.fund=code;paint();}
- function paint(){
-  const mode=fieldState.mode,name=fieldState.name,parts=modelParts(model,date,name);
-  const total=parts.reduce((s,r)=>s+r.w,0),matched=parts.filter(r=>r.report).reduce((s,r)=>s+r.w,0);
-  for(const [id,b]of modeButtons)b.setAttribute('aria-pressed',String(mode===id));choose.hidden=mode!=='holding';
-  key.textContent=model.name+' · '+dateText(date)+' · '+(mode==='weight'?'Area shows fund weight.':mode==='coverage'?fmt(matched)+' in funds with a same-date report. Stripes mark missing reports.':'Bright tiles list '+name+'. The band shows its share of each fund. Stripes mark missing reports.')+(Math.abs(total-100)>.001?' Reported weights total '+fmt(total)+'.':'');
-  for(const r of parts){const b=tiles.get(r.code);b.style.setProperty('--inside',(mode==='holding'&&r.pos?r.pos.inside:0)+'%');b.dataset.state=mode==='weight'?'weight':!r.report?'missing':mode==='coverage'||r.pos?'matched':'dim';b.setAttribute('aria-pressed',String(r.code===fieldState.fund));b.setAttribute('aria-label',shortName(r.code)+' · '+fmt(r.w)+' · '+(r.report?'dated report':'no same-date report'));b.lastElementChild.textContent=mode==='weight'?fmt(r.w):mode==='coverage'?(r.report?'Report':'No report'):r.pos?fmt(r.part):'';}
-  picker.querySelector('select').value=fieldState.fund;detail.replaceChildren();const r=parts.find(r=>r.code===fieldState.fund);
-  if(!r){detail.append(cell('p','No fund weights for this snapshot.'));return;}
-  detail.append(cell('h4',shortName(r.code)+' · '+r.code),cell('p',fmt(r.w)+' of the portfolio'+(balance()===null?'':' · '+atWeight(r.w))));
-  if(mode==='holding')detail.append(cell('strong',r.pos?name+' through this fund · '+fmt(r.part)+(balance()===null?'':' · '+atWeight(r.part)):!r.report?'Unknown exposure · no same-date report':r.report.partial?'Outside the reported top ten':'No matching printed name in the report'),amountReceipt(name,parts,date));
-  if(mode==='coverage')detail.append(cell('p',r.report?r.report.source+' · '+dateText(date):'No underlying report matches '+dateText(date)+'.'));
- }
- paint();return host;
-}
-const comparison={lens:'returns',expanded:false};
-const comparisonLabels={holdings:'Holdings',allocation:'Allocation',returns:'Returns'};
-function setComparison(lens){
- comparison.lens=lens;
- for(const key of Object.keys(comparisonLabels)){
-  const b=get('compare-'+key);b.setAttribute('aria-pressed',String(key===lens));
- }
- get('pfCompare').hidden=lens==='returns';
- get('comparisonReturns').hidden=lens!=='returns';
-}
-function openComparison(lens){
- comparison.lens=lens;openView('compareView');get('pairToolbar').scrollIntoView({block:'start'});
-}
-function holdingScale(totals,labels){
- const block=cell('figure',null,'hc-axis'),max=Math.max(...totals.filter(n=>n!==null),0);
- const scale=[.0125,.025,.05,.125,.25,.5,1.25,2.5,5,10,25,50,100].find(v=>v>=max*1.04)||Math.max(100,max);
- block.append(cell('figcaption','Identified share of the portfolio'));
- const track=cell('div',null,'hc-track');
- for(let i=0;i<=5;i++){const tick=cell('span',Number((scale*i/5).toPrecision(3))+'%','hc-tick');tick.style.left=i*20+'%';track.append(tick);}
- for(const [i,n] of totals.entries()){if(n===null)continue;const dot=cell('i',null,'hc-point');dot.dataset.model=i;dot.style.left=100*n/scale+'%';dot.title=labels[i]+' · '+fmt(n);track.append(dot);}
- track.setAttribute('aria-hidden','true');block.append(track);return block;
-}
-function allocationChanges(rows){
- const panel=cell('section',null,'hc-deltas'),ranked=rows.slice().sort((a,b)=>Math.abs(b.y-b.x)-Math.abs(a.y-a.x));
- const increases=rows.reduce((s,r)=>s+Math.max(0,r.y-r.x),0),decreases=rows.reduce((s,r)=>s+Math.max(0,r.x-r.y),0);
- panel.append(cell('h3','Largest fund changes'),cell('p',fmt(Math.min(increases,decreases))+' moves between funds.'));
- const max=Math.max(1,...ranked.map(r=>Math.abs(r.y-r.x)));
- ranked.forEach((r,i)=>{
-  const d=r.y-r.x,row=cell('div',null,'hc-delta');if(i>=3)row.classList.add('hc-extra');
-  row.append(cell('strong',shortName(r.code)),cell('span',(d>0?'+':d<0?'−':'')+Math.abs(d).toFixed(2)+' pp'),cell('small',r.code+' · '+fmt(r.x)+' → '+fmt(r.y)));
-  const axis=cell('div',null,'hc-delta-axis'),line=cell('i');line.style.width=50*Math.abs(d)/max+'%';line.dataset.direction=d<0?'down':'up';axis.setAttribute('aria-hidden','true');axis.append(line);row.append(axis);panel.append(row);
- });
- if(rows.length>3){
-  const toggle=button('',()=>{comparison.expanded=!comparison.expanded;paint();},'quiet hc-more');
-  function paint(){panel.classList.toggle('hc-expanded',comparison.expanded);toggle.textContent=comparison.expanded?'Show top three':'See all '+rows.length+' funds';toggle.setAttribute('aria-expanded',String(comparison.expanded));}
-  panel.append(toggle);paint();
- }
- if(Math.abs(increases-decreases)>.000001)panel.append(cell('small','Published weights are rounded. Increases total '+fmt(increases)+' and decreases total '+fmt(decreases)+'.'));
- return panel;
-}
-function renderFieldComparison(){
- const root=get('pfCompare');setComparison(comparison.lens);if(comparison.lens==='returns')return;
- const pair=pins.map(modelFor),date=reportDate(),name=fieldState.pinned,parts=pair.map(m=>modelParts(m,date,name));
- root.replaceChildren(cell('p',dateText(date)+' · '+(balance()===null?'Per $100':money.format(balance()))+' in both models','lt-source'));
- if(comparison.lens==='allocation'){
-  const rows=allCodes.map(code=>({code,x:weightFor(pair[0],code),y:weightFor(pair[1],code)})).filter(r=>r.x||r.y);
-  root.append(allocationChanges(rows));return;
- }
- const names=new Map([[nameKey(name),name]]);
- for(const rs of parts)for(const r of rs)if(r.report)for(const [k,v]of r.report.positions)names.set(k,v.name);
- const controls=cell('div',null,'pf-controls'),input=cell('input'),pick=cell('select');
- input.type='search';input.placeholder='Find a holding';input.setAttribute('aria-label','Find a holding to pin');pick.setAttribute('aria-label','Pinned holding');
- function options(){pick.replaceChildren(new Option(name,name));for(const [k,v]of names){if(k!==nameKey(name)&&k.includes(nameKey(input.value)))pick.append(new Option(v,v));if(pick.length>80)break;}}
- options();input.oninput=options;pick.onchange=()=>{fieldState.pinned=pick.value;renderFieldComparison();get('pfCompare').querySelector('select')?.focus({preventScroll:true});};controls.append(input,pick);
- const known=cell('section',null,'pf-known'),metrics=cell('div',null,'hc-metrics');
- known.append(cell('h2',name),cell('p','Identified in same-date holding reports'),metrics);
- const totals=parts.map(rs=>rs.some(r=>r.pos)?rs.reduce((s,r)=>s+r.part,0):null);
- for(const [i,m]of pair.entries()){const text=cell('div'),n=totals[i],value=n===null?'No reported match':balance()===null?fmt(n):atWeight(n);text.dataset.model=i;text.append(cell('small',m.name),cell('strong',value));if(n!==null&&balance()!==null)text.append(cell('span',fmt(n)+' identified'));metrics.append(text);}
- if(totals.some(n=>n!==null))known.append(holdingScale(totals,pair.map(m=>m.name)));
- if(totals.every(n=>n!==null)){
-  const d=totals[1]-totals[0],larger=pair[d>0?1:0].name,dollars=Math.abs(d)*(balance()??0)/100,roundBy=dollars>=1000?100:dollars>=100?10:1;
-  const amount=balance()===null?'':' (about '+money.format(Math.round(dollars/roundBy)*roundBy)+')';
-  known.append(cell('p',Math.abs(d)<1e-8?'The two models have equal identified exposure.':larger+' has '+Math.abs(d).toFixed(2)+' percentage points more identified exposure'+amount+'.','hc-answer'));
- }
- const coverage=cell('div',null,'hc-coverage');
- if(parts.some(rs=>rs.some(r=>r.report?.partial)))coverage.append(cell('p','Coverage includes a top-ten fund profile. Other funds or unlisted holdings may add exposure.'));
- for(const [i,rs]of parts.entries()){
-  const missing=rs.filter(r=>!r.report).reduce((s,r)=>s+r.w,0);coverage.append(cell('small',pair[i].name+' · '+fmt(missing)+' of allocation without a same-date report'));
- }
- known.append(coverage);
- for(const [i,rs]of parts.entries()){const receipt=amountReceipt(name,rs,date);receipt.querySelector('summary').textContent='Open the number · '+pair[i].name;known.append(receipt);}
- root.append(controls,known);
-}
-function lookThroughView(model){
- const host=cell('section',null,'lt-view');
- const ribbon=cell('div',null,'lt-ribbon'),title=cell('h3','Inside the portfolio'),source=cell('select');
- source.setAttribute('aria-label','Look-through allocation source');
- source.append(new Option('Selected model','model'),new Option('Three-fund example','example'));source.value=lookThroughState.example?'example':'model';
- ribbon.append(title,source);host.append(ribbon);
- const note=cell('p',null,'lt-source');
- const toggles=cell('div',null,'lt-toggles'),modeButtons=new Map();
- toggles.setAttribute('role','group');toggles.setAttribute('aria-label','Group capital by');
- for(const [id,label] of [['fund','By fund'],['holding','By holding']]){
-  const b=button(label,()=>{if(lookThroughState.mode===id)return;lookThroughState.mode=id;lookThroughState.selection=null;renderMode();},'unit-choice');
-  modeButtons.set(id,b);toggles.append(b);
- }
- const layout=cell('div',null,'lt-layout'),figure=cell('figure',null,'lt-figure'),ns='http://www.w3.org/2000/svg';
- const drawing=document.createElementNS(ns,'svg');drawing.setAttribute('viewBox','0 0 100 100');drawing.setAttribute('aria-hidden','true');
- const caption=cell('figcaption'),list=cell('div',null,'lt-list'),receipt=cell('section',null,'lt-receipt');
- receipt.setAttribute('aria-live','polite');figure.append(drawing,caption,receipt);layout.append(figure,list);host.append(note,toggles,layout);
- let data,fragments=[],fundRows,holdingRows;
- const keyFor=(p,mode)=>mode==='fund'?p.fund:p.group;
- function initialize(){
-  data=lookThroughData(model,lookThroughState.example);
-  const matched=data.pieces.filter(p=>p.group!==ltMissing).reduce((n,p)=>n+p.amount,0);
-  note.replaceChildren(document.createTextNode(lookThroughState.example?'Illustrative 50 / 30 / 20 mix · holdings '+dateText(data.date):model.name+' · '+dateText(data.date)+' · '+fmt(matched)+' in funds with same-date detail'));
-  note.append(infoCircle('Holdings coverage',lookThroughState.example?'Hypothetical allocations of 50% US Core Equity, 30% US Vector Equity and 20% Global Sustainability Core Equity. The fund holdings are from the September reports, which exclude cash and cash equivalents. Matching uses the printed name. Different share classes and aliases can remain separate.': 'The selected allocation date must match the underlying report. The October Canadian Core profile lists ten companies. September monthly holdings exclude cash and cash equivalents. Grouping uses the reported name and does not verify issuer identity. Other positions include holdings outside the displayed names and any residual from source rounding.'));
-  caption.textContent=(Math.abs(data.total-100)>.00001?'1 square ≈ 1%':'1 square = 1%')+(balance()===null?'':' · '+atWeight(1))+'  |  Colour follows the fund';
-  if(data.total&&Math.abs(data.total-100)>.00001)caption.append(infoCircle('Rounded allocation total','Published fund weights add to '+fmt(data.total)+'. The grid scales to that total. The breakdown retains the reported percentages.'));
-  const totals=new Map();for(const p of data.pieces)totals.set(p.group,(totals.get(p.group)||0)+p.amount);
-  fundRows=data.funds.map(([key,amount])=>({key,name:shortName(key),amount}));
-  holdingRows=[...data.groups].filter(([key])=>totals.has(key)).map(([key,name])=>({key,name,amount:totals.get(key)}));
-  if(!data.total){drawing.replaceChildren();fragments=[];renderMode();return;}
-  let cursor=0;for(const p of data.pieces){p.fundStart=cursor;cursor+=100*p.amount/data.total;}
-  cursor=0;for(const row of holdingRows)for(const p of data.pieces.filter(p=>p.group===row.key)){p.holdingStart=cursor;cursor+=100*p.amount/data.total;}
-  drawing.replaceChildren();fragments=[];
-  const pattern=document.createElementNS(ns,'pattern');pattern.id='lt-missing-hatch';pattern.setAttribute('width','2');pattern.setAttribute('height','2');pattern.setAttribute('patternUnits','userSpaceOnUse');
-  const stripe=document.createElementNS(ns,'path');stripe.setAttribute('d','M-1 1L1 -1M0 2L2 0M1 3L3 1');stripe.setAttribute('stroke','white');stripe.setAttribute('stroke-opacity','.6');stripe.setAttribute('stroke-width','.48');pattern.append(stripe);drawing.append(pattern);
-  for(const piece of data.pieces){
-   const length=100*piece.amount/data.total;
-   for(let offset=0;length-offset>1e-7;){
-    const f=piece.fundStart+offset,h=piece.holdingStart+offset;
-    const span=Math.min(length-offset,Math.floor(f+1e-7)+1-f,Math.floor(h+1e-7)+1-h);
-    const tile=document.createElementNS(ns,'rect');tile.setAttribute('width',String(9.2*span));tile.setAttribute('height','9.2');tile.setAttribute('fill',fundColour(piece.fund));
-    const segment=document.createElementNS(ns,'g');segment.append(tile);
-    if(piece.group===ltMissing){const hatch=tile.cloneNode();hatch.setAttribute('class','lt-hatch');hatch.setAttribute('fill','url(#lt-missing-hatch)');segment.append(hatch);}
-    drawing.append(segment);fragments.push({tile:segment,piece,f,h});offset+=span;
-   }
-  }
-  renderMode();
- }
- function inspect(key){
-  const mode=lookThroughState.mode,rows=mode==='fund'?fundRows:holdingRows,row=rows.find(r=>r.key===key);
-  for(const b of list.children)b.setAttribute('aria-pressed',String(b.dataset.key===key));
-  for(const f of fragments)f.tile.style.opacity=!key||keyFor(f.piece,mode)===key?'1':'.22';
-  receipt.replaceChildren();if(!row)return;
-  const total=cell('strong',atWeight(row.amount)==='—'?fmt(row.amount):atWeight(row.amount)+' · '+fmt(row.amount));
-  receipt.append(cell('h4',row.name),total);
-  if(mode==='holding'&&key!==ltMissing&&key!==ltRemainder){
-   const parts=data.funds.map(([code,w])=>{const report=fundReport(code,data.date),pos=report?.positions.get(nameKey(row.name));return {code,w,report,pos,part:w*(pos?.inside||0)/100};});
-   receipt.append(amountReceipt(row.name,parts,data.date));
-   if(!lookThroughState.example)receipt.append(button('Pin and compare',()=>{fieldState.pinned=row.name;if(!pins.includes(model.code))changePin(0,model.code);openComparison('holdings');},'quiet'));
-  }
-  if(mode==='holding'&&key!==ltMissing&&key!==ltRemainder&&data.pieces.some(p=>p.group===ltMissing))receipt.append(cell('p','Amount identified in matched reports. Other funds may also hold this name.','lt-qualified'));
-  const parts=data.pieces.filter(p=>keyFor(p,mode)===key).sort((a,b)=>b.amount-a.amount);
-  for(const part of parts){
-   const line=cell('div',null,'lt-line'),label=mode==='holding'?shortName(part.fund)+' · '+part.fund:data.groups.get(part.group);
-   line.append(cell('span',label),cell('span',fmt(part.amount)+(balance()===null?'':' · '+atWeight(part.amount))));receipt.append(line);
-  }
- }
- function pick(key){lookThroughState.selection=key;inspect(key);}
- drawing.addEventListener('click',e=>{
-  const rect=drawing.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width*10,y=(e.clientY-rect.top)/rect.height*10;
-  const position=Math.floor(y)*10+Math.floor(x)+Math.min(.99999,Math.max(0,((x%1)*10-.4)/9.2));
-  const mode=lookThroughState.mode,start=mode==='fund'?'fundStart':'holdingStart';
-  const p=data.pieces.find(p=>position>=p[start]-1e-9&&position<p[start]+100*p.amount/data.total);
-  if(p)pick(keyFor(p,mode));
- });
- function renderMode(){
-  const mode=lookThroughState.mode,rows=mode==='fund'?fundRows:holdingRows;
-  host.dataset.mode=mode;
-  caption.querySelector('.lt-hatch-key')?.remove();
-  if(mode==='holding'&&data.pieces.some(p=>p.group===ltMissing))caption.prepend(cell('span','Hatching = no same-date detail','lt-hatch-key'));
-  for(const [id,b]of modeButtons)b.setAttribute('aria-pressed',String(mode===id));
-  for(const f of fragments){
-   const pos=mode==='fund'?f.f:f.h,index=Math.floor(pos+1e-7),frac=Math.max(0,pos-index);
-   f.tile.style.transform='translate('+((index%10)*10+.4+frac*9.2)+'px,'+(Math.floor(index/10)*10+.4)+'px)';
-  }
-  list.replaceChildren();list.setAttribute('aria-label',mode==='fund'?'Fund weights':'Weights by holding');
-  if(!rows.length)list.append(cell('p','This date has no reported allocation.'));
-  for(const row of rows){
-   const b=button('',()=>pick(row.key),'lt-row');b.dataset.key=row.key;
-   const swatch=cell('i');swatch.setAttribute('aria-hidden','true');
-   const parts=data.pieces.filter(p=>keyFor(p,mode)===row.key);
-   let cursor=0;const stops=parts.map(p=>{const start=cursor;cursor+=100*p.amount/row.amount;return fundColour(p.fund)+' '+start+'% '+cursor+'%';});
-   swatch.style.background=stops.length===1?fundColour(parts[0].fund):'linear-gradient(90deg,'+stops.join(',')+')';
-   const label=cell('span',row.name);if(mode==='fund')label.append(cell('small',row.key));
-   b.append(swatch,label,cell('strong',fmt(row.amount)));list.append(b);
-  }
-  if(!rows.some(r=>r.key===lookThroughState.selection))lookThroughState.selection=null;
-  inspect(lookThroughState.selection);
- }
- source.addEventListener('change',()=>{lookThroughState.example=source.value==='example';lookThroughState.selection=null;initialize();});
- initialize();const field=fixedField(model);host.prepend(field);const hideExampleField=()=>{field.hidden=lookThroughState.example;};source.addEventListener('change',hideExampleField);hideExampleField();return host;
-}
-
 function renderOwnership(){
  const m=modelFor(get('portfolio').value),s=statementState;
  if(s.group!==null&&groupWeight(m,release.groups[s.group][1])<=0)Object.assign(s,{group:null,fund:null,item:null});
@@ -1953,14 +1539,14 @@ function renderOwnership(){
  if(s.group===null){
   appendText(body,'h2','Where the statement balance goes','headline');
   const units=cell('div',null,'asset-unit');units.setAttribute('role','group');units.setAttribute('aria-label','Allocation units');
-  for(const [label,unit] of [['Look through','lookthrough'],['Allocation map','map'],['Statement balance','balance'],['Every $100','hundred']]){
+  for(const [label,unit] of [['Allocation map','map'],['Statement balance','balance'],['Every $100','hundred']]){
    const b=button(label,()=>{ownershipMode=unit;renderOwnership();get('unit-'+unit).focus({preventScroll:true})},'unit-choice');b.id='unit-'+unit;b.setAttribute('aria-pressed',ownershipMode===unit);units.append(b);
   }body.append(units);
   const entries=release.groups.map(([,codes],i)=>{
    const count=codes.filter(c=>weightFor(m,c)>0).length;
    return {name:familyLabels[i],sub:count+' underlying fund'+(count===1?'':'s'),weight:groupWeight(m,codes),colour:sleeveColours[i],go:()=>nextOwnership(i)};
   }).filter(e=>e.weight>0);
-  body.append(ownershipMode==='lookthrough'?lookThroughView(m):ownershipMode==='map'?portfolioMosaic(entries):ownershipMode==='hundred'?mixOfHundred(m):ownershipMap(entries));
+  body.append(ownershipMode==='map'?portfolioMosaic(entries):ownershipMode==='hundred'?mixOfHundred(m):ownershipMap(entries));
   const covered=reportDate()===profileDate?weightFor(m,'DFA257'):0;
   const coverage=cell('div',null,'statement-coverage'),caption=cell('span',covered?'Same-date detail for '+fmt(covered)+' of this model':'Same-date detailed profiles unavailable');
   caption.append(infoCircle('Same-date profile coverage','This is the share of the model for which company, country, sector and factor detail can be matched to the allocation date. The available profile is Canadian Core Equity, October 31, 2026. Dated standalone holdings are available separately in Research & data.'));coverage.append(caption);
@@ -2124,7 +1710,6 @@ function plotHistory(id,paths,key,start,n,updateMonth){
  return i=>{rule.setAttribute('x1',x(i));rule.setAttribute('x2',x(i));dots.forEach((dot,j)=>{dot.setAttribute('cx',x(i));dot.setAttribute('cy',y(paths[j][key][i]))})};
 }
 function renderExperience(){
- renderFieldComparison();
  const pair=pins.map(modelFor),actual=get('experienceSource').value==='actual',limit=get('experiencePeriod').value,initial=balance(),date=reportDate();
  const series=pair.map(m=>actual?release.actual[m.code]:{start:dates[0],end:dates.at(-1),r:m.returns});
  const end=Math.min(monthIndex(date),...series.map(s=>monthIndex(s.end))),earliest=Math.max(...series.map(s=>monthIndex(s.start)));
@@ -2190,7 +1775,7 @@ get('printRecap').onclick=()=>window.print();
 let previousMeetingPage=null;get('meetingMode').onclick=()=>{
  const showing=document.body.classList.toggle('meeting');get('meetingMode').setAttribute('aria-pressed',showing);get('meetingMode').textContent=showing?'Exit meeting view':'Meeting view';
  if(showing){previousMeetingPage=view;if(view==='lineup')openStatement(pins[0]);else if(['research','holdingView','overlapView','components'].includes(view))openView('overview')}
- else if(previousMeetingPage){runningSequence=null;rememberStep();get('sequenceBar').hidden=true;const last=previousMeetingPage;previousMeetingPage=null;openView(last)}
+ else if(previousMeetingPage){const last=previousMeetingPage;previousMeetingPage=null;openView(last)}
 };
 
 const folioColours=['#556780','#6c8066','#a27444','#236e91','#6371af','#9b634e','#884b6d','#344e65','#78703f','#567f8b','#91685d','#6e6990','#ab7c57','#627665'];
@@ -2605,77 +2190,7 @@ function renderRiskMap(){
 const marketEvents=[["1994-02-04", "The Fed starts tightening", "The US Federal Reserve tightened monetary conditions for the first time since 1989.", "Federal Reserve", "https://www.federalreserve.gov/fomc/19940204default.htm"], ["1997-07-02", "Asian financial crisis", "Thailand devalued the baht. Financial stress then spread across several East Asian economies.", "Federal Reserve History", "https://www.federalreservehistory.org/essays/asian-financial-crisis/"], ["2000-03-10", "The dot-com peak", "The Nasdaq Composite peaked after a surge in technology stocks.", "US Securities and Exchange Commission", "https://fraser.stlouisfed.org/files/docs/publications/sec/sec_ar/sec_ar_2002.pdf"], ["2001-09-17", "Markets after September 11", "The Federal Reserve cut its target rate to 3% and said it would continue supplying liquidity as financial markets reopened.", "Federal Reserve", "https://www.federalreserve.gov/boarddocs/press/general/2001/20010917/"], ["2008-09-15", "The housing crisis", "Lehman Brothers filed for bankruptcy as losses tied to US mortgages spread through the financial system.", "Federal Reserve", "https://www.federalreserve.gov/monetarypolicy/mpr_20090224_part2.htm"], ["2012-07-26", "The euro under pressure", "In London, ECB President Mario Draghi committed to preserving the euro within the bank’s mandate.", "European Central Bank", "https://www.ecb.europa.eu/press/key/date/2012/html/sp120726.en.html"], ["2015-01-21", "Canada responds to cheaper oil", "The Bank of Canada lowered its policy rate to 0.75% as the fall in oil prices weighed on the Canadian economy.", "Bank of Canada", "https://www.bankofcanada.ca/2015/01/fad-press-release-2015-01-21/"], ["2016-06-24", "The Brexit vote", "The Bank of England addressed financial markets after the United Kingdom voted to leave the European Union.", "Bank of England", "https://www.bankofengland.co.uk/news/2016/june/statement-from-the-governor-of-the-boe-following-the-eu-referendum-result"], ["2020-03-27", "The pandemic shock", "At an unscheduled decision during the pandemic, the Bank of Canada cut its policy rate to 0.25%.", "Bank of Canada", "https://www.bankofcanada.ca/2020/03/press-release-2020-03-27/"], ["2022-07-13", "Canada raises rates sharply", "The Bank of Canada raised its policy rate by one full percentage point.", "Bank of Canada", "https://www.bankofcanada.ca/2022/07/fad-press-release-2022-07-13/"], ["2023-03-10", "Silicon Valley Bank closes", "California regulators closed Silicon Valley Bank following rapid deposit withdrawals.", "Federal Reserve", "https://www.federalreserve.gov/publications/2023-April-SVB-Evolution-of-Silicon-Valley-Bank.htm"], ["2024-06-05", "Canada begins cutting rates", "The Bank of Canada lowered its policy rate to 4.75% as inflation pressures eased.", "Bank of Canada", "https://www.bankofcanada.ca/2024/06/fad-press-release-2024-06-05/"], ["2025-03-12", "Tariff uncertainty", "The Bank of Canada cut its policy rate to 2.75% as trade uncertainty clouded the outlook.", "Bank of Canada", "https://www.bankofcanada.ca/2025/03/opening-statement-2025-03-12/"], ["2026-01-28", "Canada holds at 2.25%", "The Bank of Canada held its policy rate steady and highlighted uncertainty about US trade policy and geopolitical risks.", "Bank of Canada", "https://www.bankofcanada.ca/2026/01/fad-press-release-2026-01-28/"]].map(([date,title,story,source,url],i)=>({date,title,story,source,url,i,t:monthIndex(date)}));
 let ownershipMode='map';
 const andexState={measure:'growth',model:'DFA692',cursor:null,event:marketEvents.findIndex(e=>e.date==='2008-09-15'),mode:null,eventFocus:false};
-const headlineState={units:'hundred',focus:'anchor',open:false,revealed:false,event:marketEvents.findIndex(e=>e.date==='2008-09-15'),model:'',basis:'benchmark'};
-function coachingChart(host,s,row,cut,last){
- const at=t=>row.values[t-row.first],anchor=at(cut),opening=Math.max(row.first,cut-36),horizon=Math.min(last,cut+12),end=s.revealed?horizon:cut;
- if(!(anchor>0)){host.append(cell('p','The baseline must be positive to compare this period.'));return;}
- const indexed=s.units==='hundred',value=t=>indexed?100*at(t)/anchor:at(t);
- const display=v=>indexed?'$'+v.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}):money.format(v);
- const choices=cell('div',null,'pf-controls');choices.setAttribute('aria-label','Replay display');
- for(const [key,title]of [['hundred','$100 at the headline'],['cad','Illustrative CAD balance']]){
-  const b=button(title,()=>{s.units=key;renderHeadline();get('replay-'+key)?.focus({preventScroll:true});},'unit-choice');b.id='replay-'+key;if(key==='cad'&&balance()===null){b.disabled=true;b.title='Enter an illustrative CAD balance';}b.setAttribute('aria-pressed',String(s.units===key));choices.append(b);
- }
- host.append(choices);
- const peak=Math.max(...row.values.slice(0,cut-row.first+1));
- host.append(cell('p','Last known month-end · '+monthName(cut)+' · '+display(value(cut))+' · '+((at(cut)/peak-1)*100).toFixed(2)+'% from its high.'));
- // Derive the initial axes exclusively from observations available at the headline.
- const indexedValues=Array.from({length:cut-opening+1},(_,i)=>100*at(opening+i)/anchor);
- const lower=Math.max(0,Math.floor(Math.min(60,...indexedValues)/20)*20),upper=Math.ceil(Math.max(140,...indexedValues)/20)*20;
- const narrow=host.clientWidth<480,chartWidth=narrow?360:550,left=narrow?51:62,right=chartWidth-20;
- const x=t=>left+(t-opening)*(right-left)/(cut+12-opening),index=t=>100*at(t)/anchor;
- const y=t=>16+(upper-Math.max(lower,Math.min(upper,index(t))))*140/(upper-lower);
- const svg=svgEl('svg',{class:'pf-history coach-chart',viewBox:'0 0 '+chartWidth+' 190',role:'group','aria-label':row.name+' · '+(indexed?'$100 at the headline':'CAD balance')+' · '+monthName(opening)+' to '+monthName(end)});
- function add(tag,attrs,txt){const n=svgEl(tag,attrs,txt);svg.append(n);return n;}
- for(let i=0;i<=4;i++){const v=upper-i*(upper-lower)/4,yy=16+i*35;add('line',{x1:left,x2:right,y1:yy,y2:yy,class:'coach-grid'});add('text',{x:left-6,y:yy+4,'text-anchor':'end'},indexed?'$'+Number(v.toFixed(1)):shortMoney(anchor*v/100));}
- function line(a,b,cls){add('path',{d:Array.from({length:b-a+1},(_,i)=>(i?'L':'M')+x(a+i)+' '+y(a+i)).join(' '),class:cls});}
- line(opening,cut,'pf-past');add('path',{d:'M'+x(cut)+' 10V159',class:'pf-cursor'});
- if(end>cut)line(cut,end,'pf-reveal');
- add('text',{x:left,y:179},monthName(opening));add('text',{x:x(cut),y:179,'text-anchor':'middle'},monthName(cut));if(end>cut&&x(end)-x(cut)>(narrow?48:60))add('text',{x:x(end),y:179,'text-anchor':'end'},narrow?String(monthAt(end).getUTCFullYear()):monthName(end));
- host.append(svg);
- const focus=s.focus==='low'?'low':s.focus==='end'?'end':'anchor';
- let low=cut;for(let t=cut+1;t<=end;t++)if(at(t)<at(low))low=t;
- const active=s.revealed?(focus==='low'?low:focus==='end'?end:cut):cut;
- const nav=cell('div',null,'pf-controls coach-markers'),readout=cell('p',null,'coach-readout');readout.setAttribute('aria-live','polite');host.append(nav,readout);
- function update(key,t){s.focus=key;for(const b of nav.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.point===key));
-  for(const n of svg.querySelectorAll('.coach-dot'))n.classList.toggle('selected',Number(n.dataset.time)===t);
-  readout.textContent=monthName(t)+' · '+display(value(t))+' · '+(at(t)/anchor>=1?'+':'')+((at(t)/anchor-1)*100).toFixed(2)+'% since the baseline.';
- }
- const placed=new Set();
- for(const [key,title,t]of [['anchor','Baseline',cut],...(s.revealed?[['low','Period low',low],['end','Endpoint',end]]:[])]){
-  const b=button(title,()=>update(key,t),'unit-choice');b.dataset.point=key;nav.append(b);
-  if(placed.has(t))continue;placed.add(t);const group=add('g',{role:'button',tabindex:0,'aria-label':title+' · '+monthName(t)+' · '+display(value(t)),class:'coach-hit'});group.append(svgEl('circle',{cx:x(t),cy:y(t),r:16,fill:'transparent'}));
-  const dot=svgEl('circle',{cx:x(t),cy:y(t),r:4,class:'coach-dot'});dot.dataset.time=t;group.append(dot);
-  group.onclick=()=>update(key,t);group.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();update(key,t);}};
- }
- update(s.revealed?focus:'anchor',active);
- if(s.revealed&&row.values.slice(cut-row.first,end-row.first+1).some(v=>100*v/anchor<lower||100*v/anchor>upper))host.append(cell('small','Values beyond the fixed chart scale are shown at its edge. The selected month shows the exact value.'));
- if(horizon>cut){
-  const toggle=button(s.revealed?'Hide what followed':'Reveal next '+(horizon-cut)+' months',()=>{s.revealed=!s.revealed;s.focus=s.revealed?'end':'anchor';renderHeadline();get('coachingReveal').focus({preventScroll:true});},'quiet');toggle.id='coachingReveal';host.append(toggle);
- }else host.append(cell('p','No later month is available for this snapshot.'));
- const prompt=cell('details',null,'coach-prompt');prompt.append(cell('summary','Advisor prompt'),cell('p',s.revealed?'Which number would you have remembered more clearly, the low or the endpoint?':'What would you have expected to happen over the next year?'));host.append(prompt);
-}
-
-function renderHeadline(){
- const host=get('pfHeadline');if(!host)return;
- const s=headlineState,event=marketEvents[s.event],code=s.model||pins[0],basis=s.basis;
- host.parentElement.classList.toggle('pf-blind',s.open);
- host.replaceChildren(button(s.open?'Return to full history':'Pause at a headline',()=>{s.open=!s.open;s.revealed=false;stopMarketReplay();renderHeadline();if(s.open)host.querySelector('select')?.focus();},'quiet'));
- if(!s.open)return;
- const bar=cell('div',null,'pf-controls');host.append(cell('h2','Pause at a headline'),bar);
- const set=(k,v)=>{s[k]=v;s.revealed=false;s.focus='anchor';renderHeadline();host.querySelectorAll('select')[['event','model','basis'].indexOf(k)]?.focus({preventScroll:true});};
- bar.append(optionList('Historical headline',marketEvents.filter(e=>e.date<=reportDate()).map(e=>[String(e.i),e.date+' · '+e.title]),String(s.event),v=>set('event',Number(v))),optionList('Model',models.map(m=>[m.code,m.name]),code,v=>set('model',v)),optionList('History',[['benchmark','CAD index benchmark'],['actual','Published Class I portfolio']],basis,v=>set('basis',v)));
- if(event.date>reportDate()){host.append(cell('p','Choose a headline on or before the selected report date.'));return;}
- const src=cell('a',event.source);src.href=event.url;src.target='_blank';src.rel='noopener';
- const byline=cell('p',dateText(event.date)+' · ');byline.append(src);host.append(byline,cell('h3',event.title));
- const seed=balance()??100;if(balance()===null)s.units='hundred';
- const row=chartRows(basis,'own',seed).find(r=>r.code===code),endOfMonth=new Date(Date.UTC(Number(event.date.slice(0,4)),Number(event.date.slice(5,7)),0)).getUTCDate();
- const cut=event.t-(Number(event.date.slice(-2))===endOfMonth?0:1),last=row.first+row.values.length-1;
- if(cut<=row.first||cut>last){host.append(cell('p','This series has no month-end observation at the headline. Choose another headline or the benchmark history.'));return;}
- coachingChart(host,s,row,cut,last);
- host.append(cell('small',(basis==='actual'?'Published CAD Class I portfolio':'CAD index benchmark')+' · Month-end observations. The baseline is the last available month-end on or before the headline.','lt-source'));
-}
 function renderAndex(){
- renderHeadline();
  stopMarketReplay();const seed=balance(),basis=get('andexBasis').value,alignment=get('andexStart').value,scale=get('andexScale').value,show=get('showEvents').checked;
  const state=andexState,allRows=chartRows(basis,alignment,seed||1),fullEnd=Math.max(...allRows.map(r=>r.first+r.values.length-1)),fullStart=Math.min(...allRows.map(r=>r.first));
  const declines=state.measure==='decline',radius=Number(get('eventRadius').value);
@@ -2792,89 +2307,6 @@ function paint(){
  if(view==='research')renderAtlas();sourceCoverage();
  get('balanceStatus').textContent=balance()===null?'Enter a positive CAD balance for dollar illustrations.':'';
 }
-const sequenceKey='portfolio-studio:meeting:v1';
-const stepNames={holdings:'Holding exposure',allocation:'Allocation changes',returns:'Return comparison',risk:'Drawdowns',calculation:'Holding calculation',replay:'Headline replay',power:'Purchasing power'};
-const defaultSteps=['holdings','risk','calculation'];
-let runningSequence=null,sequenceIndex=0;
-function storedSequence(){
- try{return JSON.parse(localStorage.getItem(sequenceKey));}catch{return null;}
-}
-function dateOption(date){
- return [...get('snap').options].find(o=>(o.value==='latest'?allocationDate():o.value==='archive'?'2024-06-30':o.value)===date)?.value;
-}
-function validSequence(s){
- return s?.version===1&&Array.isArray(s.steps)&&s.steps.length>0&&s.steps.length<=3&&s.steps.every(v=>Object.hasOwn(stepNames,v))&&
-  (!s.steps.includes('power')||window.studioPower?.valid(s.power))&&
-  Array.isArray(s.models)&&s.models.length===2&&s.models[0]!==s.models[1]&&s.models.every(modelFor)&&Number.isFinite(s.balance)&&s.balance>0&&typeof s.holding==='string'&&!!s.holding&&
-  !!dateOption(s.date)&&['actual','benchmark'].includes(s.source)&&['all','12','36','60','120'].includes(s.period)&&
-  modelFor(s.replay?.model)&&['actual','benchmark'].includes(s.replay.basis)&&['hundred','cad'].includes(s.replay.units)&&marketEvents.some(e=>e.date===s.replay.event);
-}
-// Keep the active step in this tab. The saved meeting itself remains available across visits.
-function savedStep(s){
- try{
-  const cursor=JSON.parse(sessionStorage.getItem(sequenceKey+':step'));
-  return cursor?.meeting===JSON.stringify(s)&&Number.isInteger(cursor.index)&&cursor.index>=0&&cursor.index<s.steps.length?cursor.index:0;
- }catch{return 0;}
-}
-function rememberStep(){
- try{
-  if(!runningSequence)sessionStorage.removeItem(sequenceKey+':step');
-  else if(JSON.stringify(runningSequence)===JSON.stringify(storedSequence()))sessionStorage.setItem(sequenceKey+':step',JSON.stringify({meeting:JSON.stringify(runningSequence),index:sequenceIndex}));
- }catch{/* Meeting navigation also works when browser storage is unavailable. */}
-}
-function describeSequence(s){
- return s.models.map(k=>modelFor(k).name).join(' / ')+' · '+money.format(s.balance)+' · '+dateText(s.date)+' · '+s.holding;
-}
-function sequenceSetup(){
- const dialog=get('sequenceSetup'),previous=storedSequence(),saved=validSequence(previous);
- get('savedSequence').textContent=saved?describeSequence(previous)+' · '+previous.steps.map(k=>stepNames[k]).join(' → '):previous?'The saved sequence is unavailable for this data release.':'No meeting sequence saved on this device.';
- get('resumeSequence').hidden=!saved;const index=saved?savedStep(previous):0;get('resumeSequence').textContent=index?'Resume saved meeting · step '+(index+1):'Open saved meeting';get('sequenceStatus').textContent='';
- const current=pins.map(modelFor).map(m=>m.name).join(' / ')+' · '+(balance()===null?'Enter a positive balance':money.format(balance()))+' · '+dateText(reportDate())+' · '+fieldState.pinned;
- get('sequenceCurrent').textContent=current;
- const list=get('sequenceSteps');list.replaceChildren();
- for(let i=0;i<3;i++)list.append(optionList('Step '+(i+1),[['','Skip'],...Object.entries(stepNames)],(saved?previous.steps:defaultSteps)[i]||'',()=>{}));
- dialog.showModal();
-}
-function currentSequence(){
- const steps=[...get('sequenceSteps').querySelectorAll('select')].map(el=>el.value).filter(Boolean);
- return {version:1,models:pins.slice(),date:reportDate(),balance:balance(),holding:fieldState.pinned,steps,...(steps.includes('power')?{power:window.studioPower.snapshot()}:{}),source:get('experienceSource').value,period:get('experiencePeriod').value,
-  replay:{event:marketEvents[headlineState.event].date,model:headlineState.model||pins[0],basis:headlineState.basis,units:headlineState.units}};
-}
-function showSequenceStep(){
- const s=runningSequence,key=s.steps[sequenceIndex];rememberStep();
- get('sequencePosition').textContent='Step '+(sequenceIndex+1)+' of '+s.steps.length+' · '+stepNames[key];
- get('sequenceBack').disabled=!sequenceIndex;get('sequenceNext').textContent=sequenceIndex===s.steps.length-1?'Finish':'Next';
- if(key==='power'){openView('purchasing-power');return;}
- if(key==='replay'){headlineState.open=true;headlineState.revealed=false;headlineState.focus='anchor';openView('andex');get('pfHeadline').scrollIntoView();return;}
- openComparison(key==='risk'?'returns':key==='calculation'?'holdings':key);
- if(key==='calculation'){const receipt=get('pfCompare').querySelector('.pf-equation');if(receipt){receipt.open=true;receipt.scrollIntoView();}}
- if(key==='risk'&&!get('chartsPanel').hidden)get('lossPlot').previousElementSibling.scrollIntoView();
-}
-function startSequence(s,index=0){
- if(!validSequence(s)){get('sequenceStatus').textContent='Check the meeting steps, balance and assumptions for each selected view.';return;}
- get('sequenceSetup').close();if(!document.body.classList.contains('meeting'))get('meetingMode').click();
- get('snap').value=dateOption(s.date);get('balance').value=String(s.balance);pins.splice(0,2,...s.models);syncPins();
- get('experienceSource').value=s.source;get('experiencePeriod').value=s.period;fieldState.pinned=s.holding;
- Object.assign(headlineState,{model:s.replay.model,basis:s.replay.basis,event:marketEvents.findIndex(e=>e.date===s.replay.event),units:s.replay.units,revealed:false,focus:'anchor'});
- if(s.steps.includes('power'))window.studioPower.restore(s.power);
- runningSequence=s;sequenceIndex=index;get('sequenceBar').hidden=false;paint();showSequenceStep();
-}
-get('prepareSequence').onclick=sequenceSetup;
-get('sequenceClose').onclick=()=>get('sequenceSetup').close();
-get('saveSequence').onclick=()=>{
- const s=currentSequence();if(!validSequence(s)){get('sequenceStatus').textContent='Check the meeting steps, balance and assumptions for each selected view.';return;}
- try{localStorage.setItem(sequenceKey,JSON.stringify(s));get('savedSequence').textContent=describeSequence(s)+' · '+s.steps.map(k=>stepNames[k]).join(' → ');get('resumeSequence').hidden=false;get('resumeSequence').textContent='Open saved meeting';rememberStep();get('sequenceStatus').textContent='Saved on this device.';}
- catch{get('sequenceStatus').textContent='Storage is unavailable. You can still start this meeting now.';}
-};
-get('startSequence').onclick=()=>startSequence(currentSequence());
-get('resumeSequence').onclick=()=>{const saved=storedSequence();startSequence(saved,saved?savedStep(saved):0);};
-get('sequenceBack').onclick=()=>{if(runningSequence&&sequenceIndex>0){sequenceIndex--;showSequenceStep();}};
-get('sequenceNext').onclick=()=>{if(!runningSequence)return;if(sequenceIndex===runningSequence.steps.length-1){get('meetingMode').click();return;}sequenceIndex++;showSequenceStep();};
-for(const key of Object.keys(comparisonLabels))get('compare-'+key).onclick=()=>{comparison.lens=key;renderExperience();};
-const studioContext=document.querySelector('.context');
-function updateToolbarOffset(){document.documentElement.style.setProperty('--studio-context-height',getComputedStyle(studioContext).position==='sticky'?studioContext.getBoundingClientRect().height+'px':'0px');}
-new ResizeObserver(updateToolbarOffset).observe(studioContext);
-
 for(const b of document.querySelectorAll('nav [data-page]'))b.addEventListener('click',()=>openView(b.dataset.page));
 for(const id of ['pinA','returnA','pinB','returnB']){
  const k=id.endsWith('A')?0:1;fill(id,models.map(m=>[m.code,m.name]),pins[k]);get(id).onchange=e=>changePin(k,e.target.value);
@@ -2889,7 +2321,7 @@ get('portfolio').onchange=e=>openStatement(e.target.value);
 get('workbookMode').onclick=()=>{layout='workbook';renderLayout()};get('barMode').onclick=()=>{layout='bars';renderLayout()};
 get('barGroup').onchange=renderMobileBars;
 get('toggleFunds').onclick=()=>{if(closedGroups.size)closedGroups.clear();else release.groups.forEach(([g])=>closedGroups.add(g));renderModelTable()};
-get('experienceLink').onclick=()=>{get('experienceSource').value=get('bookBasis').value==='actual'?'actual':'benchmark';get('experiencePeriod').value='all';openComparison('returns')};
+get('experienceLink').onclick=()=>{get('experienceSource').value=get('bookBasis').value==='actual'?'actual':'benchmark';get('experiencePeriod').value='all';openView('compareView')};
 get('experiencePeriod').onchange=renderExperience;get('experienceSource').onchange=renderExperience;
 get('snap').onchange=paint;get('balance').oninput=paint;
 get('toHold').onclick=()=>{returnTo='research';renderHoldings();openView('holdingView')};
@@ -2907,7 +2339,7 @@ get('refreshFile').onchange=async e=>{try{
  if(table[0]?.[0]==='Periodic Returns')importReturns(table);else importWeights(table);
  refreshDateMenu();paint();get('fileStatus').textContent='Imported '+file.name+'. Save an updated dashboard to keep this release.';
  }catch(err){get('fileStatus').textContent=err.message}finally{e.target.value=''}};
-window.matchMedia('(max-width:760px)').addEventListener('change',()=>{if(view==='compareView')renderExperience();else if(view==='andex'&&headlineState.open)renderHeadline();});
+window.matchMedia('(max-width:760px)').addEventListener('change',()=>{if(view==='compareView')renderExperience()});
 fill('componentModel',models.map(m=>[m.code,m.name]),'DFA917');
 fill('stressModel',models.map(m=>[m.code,m.name]),'DFA692');
 get('bookBasis').onchange=()=>{renderModelTable();renderMobileBars();renderHero();renderStress()};
@@ -3387,7 +2819,7 @@ openView(view,false);
 const PAG={year:2026,effective:'April 30, 2026',inflation:2.1,rates:[6.3,6.4,6.6,6.3,3.2],
  classes:['Canadian equities','U.S. equities','International developed-market equities','Canadian equities (lowest equity rate; REITs are not covered)','Fixed income']};
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
-const st={basis:'guideline',model:pins[0],compare:pins[1],noCompare:false,goal:'none',gAmt:null,gYear:null,iAmt:null,iStart:10,years:25,fee:1.0,add:0,take:0,indexed:true,real:false,hover:null};
+const st={seed:20260430,paths:true,basis:'guideline',model:pins[0],compare:pins[1],noCompare:false,goal:'none',gAmt:null,gYear:null,iAmt:null,iStart:10,years:25,fee:1.0,add:0,take:0,indexed:true,real:false,hover:null};
 const money0=v=>money.format(Math.round(v));
 const short=v=>{const a=Math.abs(v);return(v<0?'−':'')+'$'+(a>=1e6?String(+(a/1e6).toFixed(a>=1e7?1:2))+'M':a>=1e3?Math.round(a/1e3)+'K':Math.round(a))};
 const parseAmt=s=>{const v=Number(String(s).replace(/[$,\s]/g,''));return Number.isFinite(v)&&v>=0?v:0};
@@ -3455,13 +2887,13 @@ function assume(m){
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const simCache=new Map();
 function simulate(m,years,start,N=2000){
- const ck=[st.goal,st.gAmt,st.gYear,st.iAmt,st.iStart,st.basis,m.code,years,start,st.fee,st.add,st.take,st.indexed,st.real,get('snap').value].join('|');if(simCache.has(ck))return simCache.get(ck);if(simCache.size>60)simCache.clear();
+ const ck=[st.seed,st.goal,st.gAmt,st.gYear,st.iAmt,st.iStart,st.basis,m.code,years,start,st.fee,st.add,st.take,st.indexed,st.real,get('snap').value].join('|');if(simCache.has(ck))return simCache.get(ck);if(simCache.size>60)simCache.clear();
  const res=simulateRaw(m,years,start,N);simCache.set(ck,res);return res;
 }
 function simulateRaw(m,years,start,N){
  const a=assume(m),mu=Math.log(1+a.net/100)/12,sg=a.vol/Math.sqrt(12),inf=PAG.inflation/100;
  const hist=st.basis==='historical',rs=m.returns,fm=st.fee/1200;
- const R=rng(20260430),out=Array.from({length:years+1},()=>new Float64Array(N));let depleted=0;
+ const R=rng(st.seed),out=Array.from({length:years+1},()=>new Float64Array(N));let depleted=0;
  const gauss=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R())};
  for(let p=0;p<N;p++){let v=start;out[0][p]=v;let gone=false;
   for(let y=1;y<=years;y++){const grow=st.indexed?Math.pow(1+inf,y-1):1,inc=st.goal==='income'&&y>=st.iStart,flow=((inc?0:st.add)-st.take)*grow/12-(inc?st.iAmt*Math.pow(1+inf,y-1)/12:0);
@@ -3476,7 +2908,8 @@ function simulateRaw(m,years,start,N){
  const gy=Math.max(1,Math.min(years,st.gYear||years)),hit=st.goal==='target'?out[gy].reduce((n,v)=>n+(v>=st.gAmt),0)/N:null;
  const target=st.real?invested/Math.pow(1+inf,years):invested;
  const idx=final.findIndex(v=>v>=target),above=idx<0?0:1-idx/N;
- return{a,bands,depleted:depleted/N,above,invested,target,hit,gy};
+ const step=Math.max(1,Math.floor(N/70)),samples=[];for(let p=0;p<N&&samples.length<70;p+=step){const v=new Float64Array(years+1);for(let yy=0;yy<=years;yy++)v[yy]=out[yy][p];samples.push(v)}
+ return{a,bands,depleted:depleted/N,above,invested,target,hit,gy,final,samples,N};
 }
 
 const dates0=()=>typeof dates!=='undefined'?monthIndex(dates[0]):monthIndex('1994-01-31');
@@ -3495,7 +2928,11 @@ function render(){
  page.querySelector('.pj-paper').dataset.print='Settings: '+m.name+(st.compare?' vs '+modelFor(st.compare).name:'')+' · '+st.years+' years · '+st.fee.toFixed(2)+'% fees · '+(st.add?'adding '+money0(st.add)+'/yr · ':'')+(st.take?'withdrawing '+money0(st.take)+'/yr · ':'')+(st.indexed?'flows grow with inflation · ':'')+(st.basis==='historical'?'historical returns':'FP Canada guideline returns')+' · '+(st.real?'today’s dollars':'future dollars');
  const last=sim.bands[st.years],unit=st.real?'today’s dollars':'future dollars';
  // headline
- const title=cell('div',null,'plot-title');const tl=cell('div');tl.append(cell('h2','Where '+money0(start)+' could be by '+(new Date().getFullYear()+st.years)),cell('p',m.name+', '+(st.basis==='historical'?'historical returns':'FP Canada guideline returns')+', in '+unit+'.','fx-meta'));title.append(tl);body.append(title);
+ const title=cell('div',null,'plot-title');const tl=cell('div');tl.append(cell('h2','Where '+money0(start)+' could be by '+(new Date().getFullYear()+st.years)),cell('p','Monte Carlo simulation of '+sim.N.toLocaleString('en-CA')+' market paths. '+m.name+', '+(st.basis==='historical'?'historical returns':'FP Canada guideline returns')+', in '+unit+'.'+(st.seed!==20260430?' Re-run with a new random seed.':''),'fx-meta'));title.append(tl);
+ const tools=cell('div',null,'pj-mc');
+ tools.append(button(st.paths?'Hide paths':'Show paths',()=>{st.paths=!st.paths;render()},'pj-mc-btn'),button('Run again',()=>{st.seed=(st.seed*48271)%2147483647||1;render()},'pj-mc-btn pj-run'));
+ if(st.seed!==20260430)tools.append(button('Standard run',()=>{st.seed=20260430;render()},'quiet'));
+ title.append(tools);body.append(title);
  const metrics=cell('div',null,'f-metrics pj-metrics');if(still)metrics.classList.add('fx-still');
  metric(metrics,'Middle outcome',money0(last.p50),'Half the simulated paths finish above this');
  metric(metrics,'Weaker markets',money0(last.p10),'1 in 10 paths finish below this');
@@ -3522,7 +2959,7 @@ function render(){
   panel.append(gs.node(),txt);body.append(panel);
  }
  // fan chart
- const W=nar?380:960,H=nar?300:380,L=nar?52:74,R=W-(nar?14:30),T=18,B=H-36,years=st.years;
+ const W=nar?380:960,H=nar?300:380,L=nar?52:74,HW=nar?44:118,R=W-(nar?14:30)-HW-(nar?8:22),T=18,B=H-36,years=st.years;
  const all=sim.bands.flatMap(x=>[x.p10,x.p90]).concat(simB?simB.bands.map(x=>x.p50):[],ghost.bands.map(x=>x.p50),st.goal==='target'?[st.gAmt]:[]);
  const y=d3.scaleLinear([0,d3.max(all)*1.04],[B,T]).nice(),x=d3.scaleLinear([0,years],[L,R]);
  const svg=d3.select(body).append('div').attr('class','pj-fanwrap').append('svg').attr('viewBox',[0,0,W,H]).attr('class','pj-fan'+(nar?' nar':'')).attr('role','img').attr('aria-label','Projected range for '+m.name+' over '+years+' years');
@@ -3532,6 +2969,22 @@ function render(){
  const band=(lo,hi)=>d3.area().x((d,i)=>x(i)).y0(d=>y(d[lo])).y1(d=>y(d[hi])).curve(d3.curveMonotoneX)(sim.bands);
  svg.append('path').attr('d',band('p10','p90')).attr('fill','url(#'+gid+')');
  svg.append('path').attr('d',band('p25','p75')).attr('fill','#2b698a').attr('fill-opacity',.2);
+ // Monte Carlo: individual simulated paths, coloured by where they finish
+ const rankCol=d3.scaleLinear([0,.5,1],['#c0674a','#8b8fa0','#2b6f96']).clamp(true);
+ const finalSorted=sim.final,N=sim.N,rankOf=v=>d3.bisectLeft(finalSorted,v)/N;
+ const okCol=v=>st.goal==='target'?(v>=st.gAmt?'#2b6f96':'#c0674a'):st.goal==='income'?(v>0?'#2b6f96':'#c0674a'):rankCol(rankOf(v));
+ if(st.paths){
+  const cid='pjc'+Date.now();svg.append('clipPath').attr('id',cid).append('rect').attr('x',L).attr('y',T-2).attr('width',R-L).attr('height',B-T+2);
+  const pg=svg.append('g').attr('clip-path','url(#'+cid+')').attr('class','pj-paths'+(still?' still':''));
+  sim.samples.forEach((v,k)=>pg.append('path').attr('d',d3.line().x((d,i)=>x(i)).y(d=>y(d))(v)).attr('pathLength',1).attr('fill','none').attr('stroke',okCol(v[years])).attr('stroke-width',1).attr('stroke-opacity',.34).style('--i',k%35));
+ }
+ // ending-value distribution, on the chart's own scale
+ {const hx=R+(nar?8:22),top=y.domain()[1],bins=d3.bin().domain([0,top]).thresholds(y.ticks(nar?14:26))(Array.from(finalSorted,v=>Math.min(v,top*.9999)));
+  const peak=d3.max(bins,b=>b.length)||1,hg=svg.append('g').attr('class','pj-hist'+(still?' still':''));
+  hg.append('line').attr('x1',hx).attr('x2',hx).attr('y1',T).attr('y2',B).attr('class','pj-hist-axis');
+  bins.forEach((b,k)=>{if(!b.length)return;const mid=(b.x0+b.x1)/2;hg.append('rect').attr('x',hx).attr('y',y(b.x1)+.5).attr('height',Math.max(1,y(b.x0)-y(b.x1)-1)).attr('width',HW*b.length/peak).attr('rx',1.5).attr('fill',okCol(mid)).attr('fill-opacity',.75).style('--i',k)});
+  hg.append('line').attr('x1',hx).attr('x2',hx+HW).attr('y1',y(sim.bands[years].p50)).attr('y2',y(sim.bands[years].p50)).attr('class','pj-hist-mid');
+  if(!nar){hg.append('text').attr('x',hx).attr('y',T-4).attr('class','pj-hist-k').text('Ending values');hg.append('text').attr('x',hx).attr('y',B+16).attr('class','pj-ax').text(N.toLocaleString('en-CA')+' runs')}}
  svg.append('path').attr('d',d3.line().x((d,i)=>x(i)).y(d=>y(d.p10)).curve(d3.curveMonotoneX)(sim.bands)).attr('fill','none').attr('stroke','#2b698a').attr('stroke-opacity',.35).attr('stroke-dasharray','3 4');
  svg.append('path').attr('d',d3.line().x((d,i)=>x(i)).y(d=>y(d.p90)).curve(d3.curveMonotoneX)(sim.bands)).attr('fill','none').attr('stroke','#2b698a').attr('stroke-opacity',.35).attr('stroke-dasharray','3 4');
  svg.append('path').attr('d',d3.line().x((d,i)=>x(i)).y(d=>y(d.p50)).curve(d3.curveMonotoneX)(ghost.bands)).attr('fill','none').attr('stroke','#7d8c86').attr('stroke-width',1.6).attr('stroke-dasharray','1.5 4').attr('stroke-linecap','round');
@@ -3560,7 +3013,7 @@ function render(){
    const box=svg.node().getBoundingClientRect(),host=body.getBoundingClientRect(),xx=box.left-host.left+x(i)*box.width/W;
    tip.classList.add('on');tip.style.top=(box.top-host.top+12)+'px';tip.style.left=(xx+16+tip.offsetWidth>host.width?xx-16-tip.offsetWidth:xx+16)+'px'})
   .on('pointerleave',()=>{rule.attr('opacity',0);dot.attr('opacity',0);tip.classList.remove('on')});
- const key=cell('div',null,'pj-key');key.innerHTML='<span><i class="k-mid"></i>'+m.name+' middle outcome</span><span><i class="k-in"></i>Middle half of outcomes</span><span><i class="k-out"></i>8 in 10 outcomes</span>'+(simB?'<span><i class="k-b"></i>'+b.name+' middle outcome</span>':'')+'<span><i class="k-ghost"></i>Middle outcome with '+(other==='historical'?'historical':'guideline')+' returns · '+money0(ghost.bands[st.years].p50)+'</span>'+(sim.target>0?'<span><i class="k-line"></i>Money put in'+(st.real?' (today’s dollars)':'')+'</span>':'');body.append(key);
+ const key=cell('div',null,'pj-key');key.innerHTML=(st.paths?'<span><i class="k-paths"></i>'+sim.samples.length+' of '+sim.N.toLocaleString('en-CA')+' simulated paths, coloured by where they finish</span>':'')+'<span><i class="k-mid"></i>'+m.name+' middle outcome</span><span><i class="k-in"></i>Middle half of outcomes</span><span><i class="k-out"></i>8 in 10 outcomes</span>'+(simB?'<span><i class="k-b"></i>'+b.name+' middle outcome</span>':'')+'<span><i class="k-ghost"></i>Middle outcome with '+(other==='historical'?'historical':'guideline')+' returns · '+money0(ghost.bands[st.years].p50)+'</span>'+(sim.target>0?'<span><i class="k-line"></i>Money put in'+(st.real?' (today’s dollars)':'')+'</span>':'');body.append(key);
  const a=sim.a;const story=cell('p',null,'decision-story pj-story');
  story.textContent=st.basis==='historical'
   ?m.name+' earned '+a.hist.toFixed(2)+'% a year from '+monthName(dates0())+' to '+monthName(monthIndex(dates.at(-1)))+', or '+a.net.toFixed(2)+'% after '+st.fee.toFixed(2)+'% fees. Each simulated year replays a real 12-month stretch of that history, so crashes like 2008 stay in the range. The guideline rate for this mix is '+a.guide.toFixed(2)+'% before fees.'
@@ -3608,12 +3061,12 @@ function renderMethod(m){
   'Return assumptions: FP Canada and Institute of Financial Planning '+PAG.year+' Projection Assumption Guidelines, effective '+PAG.effective+'. Nominal, before fees. Inflation 2.1%. The guidelines are intended for projections of 10 years or more.',
   'The guidelines require fees to be deducted. The fee field above applies to the whole portfolio; set it to the client’s actual all-in cost.',
   'International and emerging equities use the developed-market rate (6.6%). The sleeve holds some emerging markets (its largest position is Taiwan Semiconductor) at 7.5%, so this is slightly conservative. Real estate is not covered by the guidelines and uses the lowest equity rate (6.3%).',
-  'The guidelines publish no volatility figures. The range uses each model’s annualized volatility over the last 20 years of its CAD benchmark, which includes backtested history. 2,000 simulated paths with monthly returns, a fixed random seed so results repeat, and the middle path compounding at the guideline return after fees.',
+  'The guidelines publish no volatility figures. The range uses each model’s annualized volatility over the last 20 years of its CAD benchmark, which includes backtested history. This is a Monte Carlo simulation: 2,000 paths with random monthly returns, and the middle path compounding at the guideline return after fees. The standard run uses a fixed random seed so results repeat between meetings; Run again draws a fresh set of paths.',
   'Deposits and withdrawals are spread monthly'+(st.indexed?' and rise 2.1% a year with inflation':'')+'. Today’s dollars divide each value by 2.1% inflation a year. Taxes are not modelled.',
   'Hypothetical illustration only. Projections are not guarantees, and actual returns, fees and volatility will differ.'
  ];const ul=cell('ul',null,'pj-notes');notes.forEach(n=>ul.append(cell('li',n)));root.append(ul);
 }
-window.fxPJ={state:st,PAG,assume,render:()=>{st.still=true;try{goalFields();render()}finally{st.still=false}}};
+window.fxPJ={state:st,PAG,render:()=>{st.still=true;try{goalFields();render()}finally{st.still=false}}};
 })();
 </script><script type="application/json" id="fxAndexExtra">{"start":"1991-11","end":"2026-10","cpi":[83.3,82.9,83.3,83.3,83.6,83.7,83.8,84.0,84.2,84.2,84.2,84.3,84.7,84.7,85.0,85.3,85.2,85.2,85.4,85.4,85.6,85.7,85.7,85.9,86.3,86.1,86.1,85.4,85.4,85.4,85.2,85.4,85.7,85.8,85.9,85.7,86.2,86.3,86.6,87.0,87.2,87.5,87.7,87.7,87.9,87.7,87.8,87.7,88.0,87.8,88.0,88.1,88.5,88.7,89.0,89.0,89.0,89.0,89.1,89.3,89.7,89.7,89.9,90.1,90.2,90.2,90.3,90.5,90.5,90.6,90.6,90.6,90.5,90.4,90.9,91.0,91.1,91.0,91.3,91.4,91.4,91.4,91.2,91.6,91.6,91.3,91.5,91.6,92.0,92.5,92.7,92.9,93.1,93.3,93.6,93.7,93.6,93.7,93.5,94.1,94.8,94.5,94.9,95.5,95.8,95.7,96.1,96.3,96.6,96.7,96.3,96.8,97.1,97.8,98.6,98.7,98.4,98.4,98.6,98.1,97.2,97.4,97.6,98.2,98.9,99.5,99.7,99.9,100.5,100.9,100.9,101.2,101.5,101.1,102.0,102.8,103.1,102.4,102.5,102.5,102.6,102.9,103.1,102.8,103.1,103.2,103.3,103.5,103.9,104.1,105.0,105.1,105.0,104.8,105.0,105.2,105.6,105.4,105.3,105.7,106.3,106.6,106.7,106.9,107.1,107.5,108.4,107.9,107.7,107.6,108.2,108.0,108.6,109.2,109.7,109.5,109.6,109.8,109.2,109.0,109.2,109.4,109.4,110.2,111.1,111.6,112.1,111.9,112.0,111.7,111.9,111.6,111.9,112.0,111.8,112.2,112.6,113.5,114.6,115.4,115.8,115.6,115.7,114.5,114.1,113.3,113.0,113.8,114.0,113.9,114.7,115.1,114.7,114.7,114.7,114.6,115.2,114.8,115.1,115.6,115.6,116.0,116.3,116.2,116.8,116.7,116.9,117.4,117.5,117.5,117.8,118.1,119.4,119.8,120.6,119.8,120.0,120.3,120.6,120.8,120.9,120.2,120.7,121.2,121.7,122.2,122.1,121.6,121.5,121.8,122.0,122.2,121.9,121.2,121.3,122.7,122.9,122.7,123.0,123.0,123.1,123.1,123.3,123.0,123.0,122.7,123.1,124.1,124.8,125.2,125.8,125.9,125.7,125.7,125.8,125.9,125.4,124.5,124.3,125.4,126.3,126.2,126.9,127.2,127.3,127.3,127.1,127.2,127.1,126.5,126.8,127.1,127.9,128.3,128.8,129.1,128.9,128.7,128.8,129.1,128.6,128.4,129.5,129.7,129.9,130.4,130.5,130.4,130.4,130.5,130.8,130.9,131.3,130.8,131.7,132.5,132.9,133.3,133.4,133.6,134.3,134.2,133.7,134.1,133.5,133.4,133.6,134.5,135.4,136.0,136.6,136.3,137.0,136.8,136.2,136.6,136.4,136.4,136.8,137.4,136.6,135.7,136.1,137.2,137.2,137.0,136.9,137.5,137.7,137.4,138.2,138.9,139.6,140.3,141.0,141.4,142.3,142.6,142.9,143.9,144.2,144.0,145.3,146.8,148.9,149.8,151.9,152.9,153.1,152.6,152.7,153.8,154.0,153.1,153.9,154.5,155.3,156.4,157.0,157.2,158.1,158.7,158.5,158.6,158.8,158.3,158.3,158.8,159.8,160.6,161.5,161.4,162.1,161.8,161.1,161.8,161.8,161.2,161.3,163.0,163.5,163.4,164.3,164.4,164.9,164.8,164.9,165.3,165.4,165.0,165.0,165.9,167.4,168.0,169.6,169.0,169.9,169.8,170.0,170.4],"tbill":[7.41,7.43,6.92,7.23,7.23,6.67,6.13,5.64,5.24,4.86,7.6,6.15,8.14,7.01,6.47,5.91,5.35,5.36,4.82,4.53,4.06,4.57,4.69,4.4,4.08,3.87,3.63,3.84,5.47,5.86,6.14,6.38,5.76,5.52,5.2,5.39,5.86,7.14,8.1,8.11,8.29,7.87,7.4,6.73,6.65,6.34,6.58,7.16,5.83,5.54,5.12,5.21,5.02,4.78,4.68,4.7,4.39,4.02,3.86,3.17,2.73,2.85,2.87,2.91,3.14,3.14,2.99,2.86,3.29,3.11,2.86,3.59,3.67,3.99,4.1,4.57,4.59,4.85,4.75,4.87,4.94,4.91,4.91,4.71,4.78,4.66,4.68,4.87,4.63,4.6,4.48,4.56,4.71,4.68,4.66,4.87,4.73,4.85,5.05,4.96,5.27,5.43,5.67,5.53,5.61,5.58,5.56,5.61,5.62,5.49,5.11,4.87,4.58,4.43,4.34,4.3,4.07,3.8,3.05,2.34,2.07,1.95,1.96,2.05,2.3,2.37,2.6,2.7,2.81,2.96,2.83,2.73,2.71,2.63,2.83,2.88,3.14,3.19,3.16,3.07,2.81,2.71,2.58,2.64,2.67,2.57,2.25,2.13,1.98,1.95,1.98,2.01,2.08,2.13,2.45,2.57,2.63,2.47,2.43,2.46,2.56,2.45,2.46,2.48,2.59,2.72,2.86,3.06,3.31,3.37,3.47,3.72,3.86,4.03,4.18,4.32,4.15,4.13,4.15,4.16,4.18,4.16,4.17,4.19,4.16,4.16,4.29,4.42,4.57,3.83,3.97,3.96,3.91,3.86,3.41,3.24,1.72,2.68,2.68,2.6,2.41,2.42,1.92,1.98,1.7,0.83,0.83,0.67,0.39,0.22,0.2,0.24,0.23,0.21,0.22,0.22,0.22,0.19,0.16,0.16,0.28,0.39,0.45,0.5,0.65,0.62,0.87,0.92,0.99,0.98,0.95,0.95,0.92,0.97,0.95,0.93,0.92,0.93,0.83,0.89,0.86,0.83,0.86,0.93,0.92,1.06,0.94,0.86,0.92,1.03,0.99,0.99,0.95,0.92,0.93,0.96,0.97,0.99,1.01,1.03,1.0,0.99,0.98,0.9,0.94,0.91,0.89,0.85,0.89,0.95,0.93,0.95,0.96,0.94,0.92,0.88,0.91,0.91,0.6,0.56,0.54,0.66,0.63,0.58,0.41,0.37,0.43,0.41,0.48,0.52,0.48,0.46,0.44,0.55,0.53,0.49,0.53,0.51,0.51,0.49,0.51,0.48,0.45,0.47,0.54,0.52,0.52,0.65,0.73,0.71,0.99,0.92,0.88,1.05,1.2,1.14,1.09,1.2,1.29,1.25,1.4,1.54,1.51,1.73,1.72,1.67,1.66,1.67,1.66,1.68,1.69,1.66,1.65,1.62,1.64,1.66,1.66,1.66,1.64,1.61,0.49,0.26,0.22,0.21,0.16,0.14,0.12,0.09,0.12,0.07,0.06,0.11,0.09,0.1,0.1,0.15,0.17,0.18,0.12,0.13,0.09,0.16,0.32,0.37,0.58,1.32,1.37,2.09,2.65,3.22,3.55,3.86,4.06,4.25,4.37,4.5,4.3,4.38,4.59,4.89,5.0,5.08,5.07,5.08,5.0,4.89,4.94,4.96,4.99,4.91,4.81,4.64,4.39,4.19,4.02,3.51,3.42,3.15,2.89,2.84,2.64,2.64,2.65,2.67,2.68,2.66,2.42,2.23,2.16,2.15,2.18,2.18,2.29,2.28,2.29,2.26,2.27,2.27,2.39,2.53],"source":{"cpi":"Statistics Canada, Table 18-10-0004-01, Consumer Price Index, all-items, Canada, not seasonally adjusted (vector v41690973)","tbill":"Statistics Canada, Table 10-10-0122-01, Treasury bills, 3-month, last Wednesday of month (vector v122531)"}}</script><script id="fx-layer4-js">/* ===== Andex cash and inflation, Andex readout, one model choice, accessibility, client one-pager ===== */
 (()=>{
@@ -3759,228 +3212,7 @@ function addButton(host,cls){if(!host)return;const b=button('Client one-pager',o
 addButton(document.querySelector('#projection .folio-heading'));
 const recap=get('openRecap');if(recap){const b=button('Client one-pager',onePager,'quiet');b.classList.add('op-open');recap.after(b)}
 })();
-</script><script id="fx-purchasing-js">
-(() => {
-  const page = get('purchasing-power');
-  const projection = window.fxPJ;
-  page.querySelector('.pp-story h2').append(infoCircle('Your current approach',
-    'Enter the return you expect after fees and before personal tax. Use 0% for idle cash, the actual rate for savings, or your existing investment mix’s assumed return. Changing the monthly total scales the example expenses proportionally.'));
-  const categories = ['Housing & utilities', 'Groceries & household', 'Transportation', 'Health & insurance', 'Leisure & other'];
-  const initialBudget = [2400, 900, 600, 450, 650];
-  const current = get('pp-current'), inflation = get('pp-inflation'), budget = get('pp-month');
-  const fee = get('pp-fee'), years = get('pp-years'), path = get('pp-path');
-  const number = new Intl.NumberFormat('en-CA', {maximumFractionDigits: 1});
-  const whole = new Intl.NumberFormat('en-CA', {notation: 'compact', maximumFractionDigits: 1});
-  const keys = ['current', 'a', 'b'];
-  const strokes = ['solid', 'dashed', 'dotted'];
-  const resultFields = ['Net annual return', 'Future balance', 'In today’s dollars', 'Months of spending', 'Vs. current approach', 'Worst historical 12 months'];
-  const ns = 'http://www.w3.org/2000/svg';
-  inflation.value = projection.PAG.inflation;
-  fee.value = projection.state.fee;
-
-  const budgetInputs = categories.map((name, i) => {
-    const row = cell('div', null, 'pp-budget-row');
-    const label = cell('label', name), input = document.createElement('input');
-    input.id = 'pp-expense-' + i;
-    label.htmlFor = input.id;
-    Object.assign(input, {type:'number', min:'0', max:budget.max, step:'0.01', required:true, value:String(initialBudget[i])});
-    row.append(label, input, cell('output'));
-    get('pp-categories').append(row);
-    return input;
-  });
-  const dayCells = Array.from({length:30}, (_, i) => {
-    const day = cell('span', String(i + 1), 'pp-day');
-    get('pp-calendar').append(day);
-    return day;
-  });
-  const cards = keys.map((key, index) => {
-    const card = cell('article', null, 'pp-card');
-    card.style.setProperty('--pp-tone', 'var(--pp-' + key + ')');
-    let select = null;
-    if (index === 0) {
-      const heading = cell('div');
-      heading.append(cell('span', 'Baseline'), cell('b', 'Current approach'));
-      card.append(heading);
-    } else {
-      const label = cell('label', 'Model ' + key.toUpperCase());
-      select = document.createElement('select');
-      select.id = 'pp-model-' + key;
-      models.forEach(m => select.add(new Option(m.name, m.code)));
-      select.onchange = () => {changePin(index - 1, select.value); render();};
-      label.append(select);
-      card.append(label);
-    }
-    const dl = cell('dl');
-    const values = resultFields.map(text => {
-      const row = cell('div'), dd = cell('dd');
-      row.append(cell('dt', text), dd); dl.append(row); return dd;
-    });
-    if (!index) values.at(-1).className = 'pp-baseline-risk';
-    card.append(dl); get('pp-cards').append(card);
-    return {select, values};
-  });
-  const keyNames = keys.map((key, i) => {
-    const item = cell('span'), line = cell('i'), name = cell('b');
-    item.style.setProperty('--pp-tone', 'var(--pp-' + key + ')');
-    item.style.setProperty('--pp-line', strokes[i]);
-    item.append(line, name); get('pp-key').append(item);
-    return name;
-  });
-  const baselineHistory = new Map();
-  function worstYear(model) {
-    if (!baselineHistory.has(model.code)) baselineHistory.set(model.code, riskStats(model.returns)[6]);
-    return baselineHistory.get(model.code);
-  }
-  function factor(rate, year) {return (1 + rate / 100) ** year;}
-  function resizeBudget(total) {
-    let amounts = budgetInputs.map(el => Math.round(el.valueAsNumber * 100));
-    let sum = amounts.reduce((a,b) => a+b, 0);
-    if (!Number.isFinite(sum) || sum <= 0 || amounts.some(v => v < 0)) {
-      amounts = initialBudget; sum = amounts.reduce((a,b) => a+b, 0);
-    }
-    const cents = Math.round(total * 100);
-    const shares = amounts.map(amount => cents * amount / sum);
-    const rounded = shares.map(Math.floor);
-    const byRemainder = shares.map((v,i) => i).sort((a,b) => (shares[b]-rounded[b]) - (shares[a]-rounded[a]));
-    const leftover = cents - rounded.reduce((a,b) => a+b, 0);
-    for (const index of byRemainder.slice(0, leftover)) rounded[index]++;
-    budgetInputs.forEach((el,i) => {el.value = String(rounded[i] / 100);});
-  }
-  budget.addEventListener('input', () => {if (budget.validity.valid) resizeBudget(budget.valueAsNumber);});
-  for (const input of budgetInputs) input.addEventListener('input', () => {
-    const cents = budgetInputs.reduce((sum, el) => sum + Math.round(el.valueAsNumber * 100), 0);
-    budget.value = Number.isFinite(cents) ? String(cents / 100) : '';
-  });
-  fee.addEventListener('input', () => {
-    if (fee.validity.valid) {projection.state.fee = fee.valueAsNumber; get('pjFee').value = fee.value;}
-  });
-  get('pjFee').addEventListener('input', () => {fee.value = projection.state.fee;});
-  page.addEventListener('input', e => {if (!e.target.matches('select')) render();});
-  path.addEventListener('change', render);
-  get('balance').addEventListener('input', () => {if (view === page.id) render();});
-  get('snap').addEventListener('change', () => {if (view === page.id) render();});
-
-  function svgElement(tag, attrs, text) {
-    const node = document.createElementNS(ns, tag);
-    for (const [key,value] of Object.entries(attrs)) node.setAttribute(key, value);
-    if (text !== undefined) node.textContent = text;
-    return node;
-  }
-  function drawTrend(paths, horizon, inf) {
-    const svg = get('pp-chart'), width = Math.max(220, svg.clientWidth);
-    const top = 16, bottom = 180, left = 45, right = width - 12;
-    const daysAt = (p,t) => 30 * factor(p.rate,t) / factor(inf,t);
-    const max = Math.max(30, ...paths.map(p => daysAt(p,horizon)));
-    const power = 10 ** Math.floor(Math.log10(max / 4));
-    const step = [1,2,2.5,5,10].find(v => v * power >= max / 4) * power;
-    const ceiling = Math.ceil(max / step) * step;
-    const x = t => left + (right-left)*t/horizon, y = d => bottom-(bottom-top)*d/ceiling;
-    const elements = [svgElement('title', {}, 'Purchasing power of one month of spending')];
-    for (let tick = 0; tick <= ceiling + step/10; tick += step) {
-      elements.push(svgElement('line',{x1:left,x2:right,y1:y(tick),y2:y(tick),stroke:'var(--line)'}),
-        svgElement('text',{x:left-6,y:y(tick)+4,'text-anchor':'end'},whole.format(tick)));
-    }
-    for (const t of [0,Math.round(horizon/2),horizon]) {
-      elements.push(svgElement('text',{x:x(t),y:204,'text-anchor':t===0?'start':t===horizon?'end':'middle'},t?'Year '+t:'Today'));
-    }
-    paths.forEach((p,i) => {
-      const points = Array.from({length:horizon+1},(_,t) => x(t)+','+y(daysAt(p,t))).join(' ');
-      elements.push(svgElement('polyline',{points,fill:'none',stroke:'var(--pp-'+keys[i]+')','stroke-width':2.7,
-        'stroke-dasharray':['none','8 5','2 5'][i],'stroke-linecap':'round'}));
-    });
-    svg.setAttribute('viewBox','0 0 '+width+' 215'); svg.replaceChildren(...elements);
-    svg.setAttribute('aria-label','Days of spending from today to year '+horizon+'. All start at 30. '+paths.map(p=>p.name+' ends at '+number.format(daysAt(p,horizon))+' days.').join(' '));
-  }
-  function showError(message) {
-    const invalid = Boolean(message);
-    get('pp-error').textContent = message; get('pp-error').hidden = !invalid;
-    ['pp-month-result','pp-cards','pp-chart','pp-key'].forEach(id => get(id).toggleAttribute('hidden',invalid));
-    if (invalid) {
-      get('pp-cost').textContent = ''; get('pp-starting').textContent = '';
-      [...page.querySelectorAll('.pp-budget-row output, .pp-budget-total strong:not(:first-child)')].forEach(el => {el.textContent='—';});
-    }
-  }
-  function render() {
-    const horizon = years.valueAsNumber, inf = inflation.valueAsNumber, spending = budget.valueAsNumber, start = balance();
-    const yearText = 'In '+horizon+' years';
-    get('pp-horizon').textContent = horizon+' years'; years.setAttribute('aria-valuetext',horizon+' years');
-    get('pp-budget-year').textContent = yearText;
-    const fields = [current,inflation,fee,...budgetInputs,budget];
-    fields.forEach(el => el.setAttribute('aria-invalid',String(!el.validity.valid)));
-    const bad = fields.find(el => !el.validity.valid);
-    if (bad || start === null) {
-      showError(bad ? 'Check '+bad.labels[0].textContent.trim()+'. Enter a number from '+bad.min+' to '+bad.max+'.' : 'Enter a positive illustrative balance at the top of the page.'); return;
-    }
-    const prices = factor(inf,horizon), futureMonth = spending * prices;
-    const paths = [{name:'Current approach',rate:current.valueAsNumber}, ...pins.map(code => {
-      const m = modelFor(code);
-      return {name:m.name,rate:projection.assume(m).guide - fee.valueAsNumber, risk:worstYear(m)};
-    })];
-    const outcomes = paths.map(p => {
-      const growth = factor(p.rate,horizon), future = start*growth, real = future/prices;
-      return {future,real,months:real/spending,days:30*growth/prices,monthAmount:spending*growth};
-    });
-    if (outcomes.some(p => !Number.isFinite(p.months) || !Number.isFinite(p.future))) {showError('Enter a smaller illustrative balance.'); return;}
-    showError('');
-    const active = keys.indexOf(path.value), scenario = paths[active], selected = outcomes[active];
-    page.style.setProperty('--pp-selected','var(--pp-'+keys[active]+')');
-    get('pp-cost').textContent = 'A '+money.format(spending)+' month today would cost '+money.format(futureMonth)+' in '+horizon+' years.';
-    get('pp-scenario-label').textContent = scenario.name+' · year '+horizon;
-    get('pp-days').textContent = number.format(selected.days)+' days';
-    const monthText = money.format(spending);
-    get('pp-narrative').textContent = scenario.rate === 0
-      ? 'The '+monthText+' you set aside today would still be '+monthText+'. It would buy '+number.format(selected.days)+' days of the same 30-day month.'
-      : 'At '+fmt(scenario.rate)+' a year, the '+monthText+' you set aside today would be worth '+money.format(selected.monthAmount)+' in future dollars.';
-    dayCells.forEach((day,i) => {
-      const part = Math.min(1,Math.max(0,selected.days-i));
-      day.classList.toggle('is-full',part >= 1-1e-9);
-      day.classList.toggle('is-partial',part > 1e-9 && part < 1-1e-9);
-      day.style.setProperty('--share',(100*part)+'%');
-    });
-    const extra = selected.days - 30;
-    get('pp-calendar-note').textContent = Math.abs(extra)<0.05 ? 'All 30 days covered.' :
-      extra>0 ? 'All 30 days covered, plus '+number.format(extra)+' more.' : number.format(-extra)+' days of spending would be uncovered.';
-    budgetInputs.forEach(el => {el.nextElementSibling.textContent=money.format(el.valueAsNumber*prices);});
-    get('pp-total-today').textContent = money.format(spending); get('pp-total-later').textContent = money.format(futureMonth);
-    get('pp-starting').textContent = money.format(start)+' buys '+number.format(start/spending)+' months today. Compare the same balance in '+horizon+' years.';
-    cards.forEach(({select,values},i) => {
-      if (select) {select.value=pins[i-1]; path.options[i].textContent=paths[i].name;}
-      keyNames[i].textContent = paths[i].name;
-      const o=outcomes[i], gap=o.months-outcomes[0].months;
-      const delta=Math.abs(gap)<0.05?'Same buying power':number.format(Math.abs(gap))+' '+(gap>0?'more':'fewer')+' months';
-      const text=[fmt(paths[i].rate),money.format(o.future),money.format(o.real),number.format(o.months),i?delta:'Baseline',
-        i && paths[i].risk != null ? fmt(100*paths[i].risk) : 'No history entered'];
-      values.forEach((dd,k)=>{dd.textContent=text[k];});
-    });
-    get('pp-risk-note').textContent='Worst historical 12 months uses each model’s monthly CAD benchmark from '+monthName(monthIndex(dates[0]))+' to '+monthName(monthIndex(dates.at(-1)))+', including backtested periods, before fees. It illustrates investment risk. Future losses could be larger.';
-    drawTrend(paths,horizon,inf);
-  }
-  // Meeting sequences explicitly saved on this device can reopen the same household illustration.
-  const snapshot = () => ({years:years.valueAsNumber,current:current.valueAsNumber,inflation:inflation.valueAsNumber,
-    fee:fee.valueAsNumber,expenses:budgetInputs.map(el=>el.valueAsNumber),path:path.value});
-  const inRange = (n,min,max) => Number.isFinite(n) && n>=min && n<=max;
-  function valid(s) {
-    return !!s && Number.isInteger(s.years) && inRange(s.years,10,40) && inRange(s.current,-99,100) && inRange(s.inflation,-20,50) &&
-      inRange(s.fee,0,5) && keys.includes(s.path) && Array.isArray(s.expenses) && s.expenses.length===categories.length &&
-      s.expenses.every(n=>inRange(n,0,1e8) && Math.abs(Math.round(n*100)-n*100)<0.00001) &&
-      inRange(s.expenses.reduce((a,b)=>a+Math.round(b*100),0),1,1e10);
-  }
-  function restore(s) {
-    years.value=s.years; current.value=s.current; inflation.value=s.inflation; fee.value=s.fee; path.value=s.path;
-    projection.state.fee=s.fee; get('pjFee').value=s.fee;
-    budgetInputs.forEach((el,i)=>{el.value=s.expenses[i];});
-    budget.value=s.expenses.reduce((a,b)=>a+Math.round(b*100),0)/100;
-  }
-  window.studioPower={snapshot:()=>budget.validity.valid?snapshot():null,valid,restore,render};
-  let lastWidth=0;
-  new ResizeObserver(entries=>{
-    const width=entries[0].contentRect.width;
-    if (width && width!==lastWidth && view===page.id) {lastWidth=width;render();}
-  }).observe(page);
-})();
-</script>
-
-<script id="fx-ds-js">/* Design system helpers: keep range-slider fill in step with its value */
+</script><script id="fx-ds-js">/* Design system helpers: keep range-slider fill in step with its value */
 (()=>{
 const fill=r=>{const min=+r.min||0,max=+r.max||100,v=+r.value;r.style.setProperty('--fill',(max>min?(v-min)/(max-min)*100:0)+'%')};
 document.addEventListener('input',e=>{if(e.target.type==='range')fill(e.target)},true);
@@ -4013,7 +3245,6 @@ const art={
   <path d="M30 120C150 110 270 80 404 20M30 120C150 128 270 140 404 150" stroke="${B}" stroke-opacity=".5" stroke-dasharray="2 4" fill="none"/>
   <path d="M30 120C150 118 270 108 404 90" stroke="${G}" stroke-width="1.8" fill="none"/>
   <circle cx="30" cy="120" r="4.5" fill="${W}"/><path d="M404 14V156" stroke="${W}" stroke-opacity=".12"/>`,
- 'purchasing-power':`<g stroke="${B}" stroke-width="1.6"><rect x="108" y="28" width="194" height="120" rx="8"/><path d="M108 56H302M136 21V38M274 21V38"/></g><g fill="${G}">${Array.from({length:24},(_,i)=>`<rect x="${125+i%8*21}" y="${71+Math.floor(i/8)*24}" width="13" height="13" rx="2" opacity="${i<17?.92:.2}"/>`).join('')}</g>`,
  research:`<g stroke="${W}" stroke-opacity=".12"><path d="M30 30H400M30 62H400M30 94H400M30 126H400M30 158H400"/><path d="M150 18V170M240 18V170M330 18V170"/></g>
   <g stroke-linecap="round" stroke-width="6"><path d="M164 46H222" stroke="${G}"/><path d="M164 78H208" stroke="${B}"/><path d="M164 110H230" stroke="${G}" stroke-opacity=".7"/><path d="M164 142H196" stroke="${B}" stroke-opacity=".7"/>
   <path d="M254 46H296" stroke="${B}"/><path d="M254 78H316" stroke="${G}"/><path d="M254 110H280" stroke="${B}" stroke-opacity=".7"/><path d="M254 142H306" stroke="${G}" stroke-opacity=".7"/></g>
@@ -4023,10 +3254,9 @@ const pages={
  lineup:{eyebrow:'Models',dek:'Eight Dimensional models, from all bonds to all equity, side by side.',join:'.folio-hero'},
  overview:{eyebrow:'Statement',dek:'Where an illustrative statement is invested, from sleeve to holding.',join:'.statement-band'},
  andex:{eyebrow:'Performance history',dek:'How each model grew through three decades of markets and events.'},
- compareView:{eyebrow:'Model comparison',dek:'Holdings, allocation and returns for your selected pair.'},
+ compareView:{eyebrow:'Performance history',dek:'Two models with the same starting balance, compared month by month.'},
  components:{eyebrow:'Performance history',dek:'How the funds inside each model have performed on their own.'},
- 'purchasing-power':{eyebrow:'Planning',dek:'If you keep doing what you’re doing, what will your money buy?'},
- projection:{eyebrow:'Planning',dek:'What a balance could grow to, shown as a range of outcomes.'},
+ projection:{eyebrow:'Planning',dek:'A Monte Carlo simulation of 2,000 possible futures for a balance.'},
  research:{eyebrow:'Reference',dek:'Holdings, return tables and the data behind every page.'}
 };
 const chevron='<g stroke="'+G+'" stroke-width="1.3" fill="none">'+[0,1,2,3,4,5,6].map(i=>`<path d="M3 ${6+i*4}L17 ${3+i*2}L32 ${6+i*4}"/>`).join('')+'</g>';
