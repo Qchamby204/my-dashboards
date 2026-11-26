@@ -301,6 +301,11 @@
     async function saveDay(force=false){
       if(photoBusy){toast('Your photo is still being prepared. Save again in a moment.');return;}
       if(blocked||busy)return;if(drafts.resetPending&&!await finishProgressReset())return;const date=state.logDate;if(!validDate(date)||date>todayISO()){toast('Choose today or an earlier date.');return;}
+      for(const input of app.querySelectorAll('[data-act="num"]')){
+        if(!input.value.trim())continue;
+        const error=quantityEditors.get(input)?.read().error;
+        if(error){if(state.logMode==='cards')goCard(HABITS.indexOf(input.dataset.habit));amountError(input,error);return;}
+      }
       if(Object.values(state.draft).some(v=>!finite(v))){toast('Use a valid, non-negative number for each entry.');return;}
       if((state.draft.Sleep||0)>24||(state.draft['Board Work']||0)>1440){toast('Use at most 24 sleep hours or 1,440 board-work minutes in one day.');return;}
       checkpointLeisureTimer(false);
@@ -344,7 +349,7 @@
         if(!await write(KEY,JSON.stringify(days))){failed.delete(KEY);toast('Couldn’t save '+label(h)+'. Tap again to retry.');return;}
         state.days=JSON.parse(written.get(KEY));lastUndo={date,habit:h,before:before?clone(before):null,after:JSON.stringify(dayEntryFor(date))};
         if(screen&&entry.leisure){for(const k of ['screenMinutes','screenConfirmed','discernReceipt']){if(k in entry.leisure)state.draftLeisure[k]=entry.leisure[k];else delete state.draftLeisure[k];}}
-        state.draft[h]=amount;state.draftMissed=(state.draftMissed||[]).filter(k=>k!==h);
+        quantityModes.delete(date+'|'+h);state.draft[h]=amount;state.draftMissed=(state.draftMissed||[]).filter(k=>k!==h);
         if(missed)state.draftMissed.push(h);
         const after=compute(state.days,state.goals);
         drafts.rhythm={...preferences(),earned:[...new Set([...(preferences().earned||[]),...ACHV.filter(a=>a.test(after)).map(a=>a.name)])]};
@@ -363,26 +368,78 @@
         if(typeof window.dispatchEvent==='function'&&typeof Event==='function')window.dispatchEvent(new Event('atlas:accountability-record'));
       }finally{busy=false;status();}
     }
-    function amountChoice(input,h){
-      const raw=input.value.trim();
-      return raw==='0'&&!input.dataset.edited&&!dayEntryFor(state.logDate)?.units?.[h]?Number(HCFG[h].def||HCFG[h].step||1):Number(raw);
-    }
+    const quantityEditors=new WeakMap();
+    const quantityModes=new Map();
+    const quantityNumber=new Intl.NumberFormat(undefined,{maximumFractionDigits:20});
     function amountButton(row,h){
       const input=row.querySelector('[data-act="num"]');if(!input)return;
+      const cfg=HCFG[h],date=state.logDate,base=dayEntryFor(date)?.units?.[h]||0;
+      const limit=h==='Sleep'?24:h==='Board Work'?1440:Infinity;
+      const draft=state.draft[h]||0,key=date+'|'+h,prior=quantityModes.get(key);
+      let adding=!!base&&prior?.base===base&&prior.adding&&draft>=base;
+      function displayAmount(){
+        const total=state.draft[h]||0;
+        if(adding)return total>base?Number((total-base).toPrecision(15)):Math.min(cfg.step||1,limit-base);
+        return base||total?total:cfg.def||cfg.step||1;
+      }
+      input.value=String(displayAmount());
+      let hint=row.querySelector('.ledger-card-xp');
+      if(!hint){hint=make('div',null,'ledger-card-xp ledger-list-xp');row.append(hint);}
       const done=button('',()=>{
-        const n=amountChoice(input,h);
-        if(!input.value.trim()||!finite(n)||!/^([0-9]+([.][0-9]*)?|[.][0-9]+)$/.test(input.value.trim()))return amountError(input,'Enter a non-negative amount.');
-        if(h==='Sleep'&&n>24||h==='Board Work'&&n>1440)return amountError(input,h==='Sleep'?'Use at most 24 hours in one day.':'Use at most 1,440 minutes in one day.');
-        saveHabit(h,n);
+        const q=read();if(q.error){amountError(input,q.error);return;}
+        if(q.total===base&&base>0&&!adding){if(base>=limit){input.focus();input.select?.();}else switchMode();return;}
+        saveHabit(h,q.total);
       });
-      function caption(){const n=amountChoice(input,h),saved=dayEntryFor(state.logDate)?.units?.[h]||0;
-        done.textContent=n===saved&&n>0?'Saved · '+fmt(n)+' '+HCFG[h].unit:n===0?'Clear entry':'Log '+(Number.isFinite(n)?fmt(n)+' ':'')+HCFG[h].unit;
-        done.setAttribute('aria-label',done.textContent+' · '+label(h));}
-      done.classList.add('btn','tap','ledger-amount-done');caption();
-      input.addEventListener('input',()=>{input.dataset.edited='yes';caption();});
-      input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();done.click();}});
+      const mode=base?button('',()=>{if(!adding&&read().total===base){input.focus();input.select?.();}else switchMode();}):null;
+      const line=make('span',null,'ledger-quantity-context');
+      function read(){
+        const raw=input.value.trim(),n=Number(raw),total=adding?Number((base+n).toPrecision(15)):n;
+        if(!finite(n)||!finite(total)||!/^([0-9]+([.][0-9]*)?|[.][0-9]+)$/.test(raw))return {error:'Enter a non-negative amount.'};
+        if(h==='Sleep'&&total>24||h==='Board Work'&&total>1440)return {error:h==='Sleep'?'Use at most 24 hours in one day.':'Use at most 1,440 minutes in one day.'};
+        return {n,total};
+      }
+      function switchMode(){
+        adding=!adding;quantityModes.set(key,{base,adding});
+        if(adding&&state.draft[h]<base){state.draft[h]=base;remember();refreshCheckinState(h);}
+        input.value=String(displayAmount());input.setAttribute('aria-invalid','false');
+        document.getElementById(input.getAttribute('aria-describedby'))?.remove();input.removeAttribute('aria-describedby');
+        paint();input.focus();input.select?.();
+      }
+      function paint(){
+        const q=read(),unchanged=!q.error&&q.total===base,unit=cfg.unit;
+        const caption=q.error?'Check amount':adding?'Add '+quantityNumber.format(q.n)+' '+unit:unchanged&&base?(base>=limit?'Edit total':'Add '+unit):q.total===0?'Clear entry':(base?'Save ':'Log ')+quantityNumber.format(q.total)+' '+unit;
+        done.textContent=caption;done.setAttribute('aria-label',caption+' · '+label(h));
+        if(mode){mode.hidden=base>=limit;mode.textContent=adding||unchanged?'Edit today’s total':'Add '+unit;
+        }
+        line.textContent=q.error?'':adding?quantityNumber.format(base)+' + '+quantityNumber.format(q.n)+' = '+quantityNumber.format(q.total)+' '+unit+' today':base?quantityNumber.format(base)+' '+unit+' saved today':'';
+        let delta=q.error?null:q.total-base;
+        const prefs=preferences(),week=R.weekStart(date);
+        if(delta&&prefs.catchups?.[week]?.[h]){
+          const d=dayEntryFor(date)||{date,units:{}},updated={...d,units:{...d.units,[h]:q.total},missed:(d.missed||[]).filter(k=>k!==h)};
+          const before=R.weekly(state.days,h,cfg,prefs,week,todayISO()).amount;
+          delta=R.weekly([...state.days.filter(r=>r.date!==date),updated],h,cfg,prefs,week,todayISO()).amount-before;
+        }
+        const xp=delta===null?null:Number((delta*100/R.xpUnit(cfg)).toFixed(2));
+        hint.replaceChildren();if(xp!==null){hint.append(make('strong',(xp>0?'+':'')+xp+' XP'),make('span',' when saved','ledger-xp-save-note'));}
+        hint.hidden=xp===null||unchanged&&base>0;
+      }
+      function edit(){
+        const q=read();paint();input.setAttribute('aria-invalid',String(!!q.error));
+        if(q.error){
+          state.draft[h]=base;remember();refreshCheckinState(h);
+          return false;
+        }
+        state.draft[h]=q.total;if(q.total>0)state.draftMissed=(state.draftMissed||[]).filter(k=>k!==h);
+        remember();refreshCheckinState(h);return true;
+      }
+      done.classList.add('btn','tap','ledger-amount-done');
       if(row.classList.contains('ledger-habit-card'))row.querySelector('.ledger-card-heading').before(done);else row.append(done);
-      return done;
+      const actions=make('div',null,'ledger-quantity-tools');actions.append(line);
+      if(mode){mode.classList.add('ledger-quantity-mode');actions.append(mode);}
+      hint.before(actions);
+      quantityEditors.set(input,{edit,read});
+      input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();done.click();}});
+      paint();return done;
     }
     commit=saveDay;
     undoLast=async function(){if(!lastUndo||blocked||busy)return;const undo=lastUndo,current=dayEntryFor(undo.date);if(JSON.stringify(current)!==undo.after){toast('That day has changed. Open it to edit the latest entry.');return;}remember();const next=state.days.filter(d=>d.date!==undo.date);if(undo.before)next.push(undo.before);next.sort((a,b)=>(a.date||'').localeCompare(b.date||''));busy=true;status();const ok=await write(KEY,JSON.stringify(next));busy=false;if(!ok){failed.delete(KEY);status();toast('Undo could not be saved. Try Undo again.');return;}state.days=JSON.parse(written.get(KEY));lastUndo=null;clearCelebrations();saveFeedback=undo.habit?label(undo.habit)+' check-in undone.':'Last day save undone.';if(state.logDate===undo.date){
@@ -1439,13 +1496,11 @@
       const h=el.dataset.habit,c=HCFG[h],card=el.closest('.ledger-habit-card,.row');
       const input=card?.querySelector('[data-act="num"]');
       if(!input||!c||c.kind==='count')return false;
-      const previous=state.draft[h]||0;
-      const value=act==='inc'?Math.round((previous+c.step)*10)/10:Math.max(0,Math.round((previous-c.step)*10)/10);
-      state.draft[h]=value;input.value=String(value);input.dataset.edited='yes';const done=card.querySelector('.ledger-amount-done');if(done){done.textContent=value?'Log '+fmt(value)+' '+c.unit:'Clear entry';done.setAttribute('aria-label',done.textContent+' · '+label(h));}input.setAttribute('aria-invalid','false');
+      const previous=Number(input.value)||0;
+      input.value=String(Math.max(0,Number((previous+(act==='inc'?c.step:-c.step)).toFixed(6))));
       const error=input.getAttribute('aria-describedby');
       if(error?.startsWith('ledger-amount-error-')){document.getElementById(error)?.remove();input.removeAttribute('aria-describedby');}
-      if(value>0)state.draftMissed=(state.draftMissed||[]).filter(key=>key!==h);
-      remember();refreshCheckinState(h);status();
+      quantityEditors.get(input)?.edit();status();
       return true;
     }
 
@@ -1594,8 +1649,8 @@
       if(act==='restoreHabits'){e.stopImmediatePropagation();confirmAction('Restore the default habits?','Original habit names, locations and visibility return. Your custom habits and saved entries stay.','Restore habits',()=>{for(const h of Object.keys(DEFAULT_HCFG))for(const field of ['renames','moves','hidden','crit'])delete userModel[field][h];saveModel();rebuildModel();render();});}
     },true);
     app.addEventListener('click',e=>{const act=e.target.closest('[data-act]')?.dataset.act;if(['toggle','inc','dec','mood','logmode'].includes(act)){state.draftMissed=(state.draftMissed||[]).filter(h=>!(state.draft[h]>0));remember();status();}});
-    app.addEventListener('input',e=>{if(blocked||busy)return;const errorId=e.target.getAttribute?.('aria-describedby');if(errorId?.startsWith('ledger-amount-error-')){document.getElementById(errorId)?.remove();e.target.removeAttribute('aria-describedby');}const act=e.target.dataset.act;if(act==='note'){state.draftNote=e.target.value;remember();}else if(act==='num'){const text=e.target.value.trim(),n=text===''?0:Number(text),ok=finite(n)&&/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text);e.target.setAttribute('aria-invalid',String(!ok));if(ok){state.draft[e.target.dataset.habit]=n;if(n>0)state.draftMissed=(state.draftMissed||[]).filter(h=>h!==e.target.dataset.habit);remember();refreshCheckinState(e.target.dataset.habit);document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}}});
-    app.addEventListener('change',e=>{const el=e.target,act=el.dataset.act;if(act==='logdate'){e.stopImmediatePropagation();const date=el.value;if(!selectDate(date))el.value=state.logDate;}else if(act==='num'){e.stopImmediatePropagation();const text=el.value.trim(),n=text===''?0:Number(text);if(!finite(n)||!/^(?:\d+(?:\.\d*)?|\.\d+)?$/.test(text)){el.setAttribute('aria-invalid','true');toast('Use a valid, non-negative number.');return;}else{state.draft[el.dataset.habit]=n;remember();}el.setAttribute('aria-invalid','false');document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}},true);
+    app.addEventListener('input',e=>{if(blocked||busy)return;const errorId=e.target.getAttribute?.('aria-describedby');if(errorId?.startsWith('ledger-amount-error-')){document.getElementById(errorId)?.remove();e.target.removeAttribute('aria-describedby');}const act=e.target.dataset.act;if(act==='note'){state.draftNote=e.target.value;remember();}else if(act==='num'&&quantityEditors.get(e.target)?.edit()){document.getElementById('ledger-leisure')?.replaceWith(leisurePanel());paintLeisureClock();}});
+    app.addEventListener('change',e=>{const el=e.target,act=el.dataset.act;if(act==='logdate'){e.stopImmediatePropagation();const date=el.value;if(!selectDate(date))el.value=state.logDate;}else if(act==='num'){e.stopImmediatePropagation();if(!blocked&&!busy)quantityEditors.get(el)?.edit();}},true);
     window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('dialog[open]'))e.stopImmediatePropagation();},true);
     window.addEventListener('beforeunload',e=>{remember();if(failed.size||conflicts.size||pending.size||busy){e.preventDefault();e.returnValue='';}});
     function checkDay(){if(busy||blocked)return;const today=todayISO();if(today!==seenToday){const follow=state.logDate===seenToday;remember();seenToday=today;if(follow){state.logDate=today;loadDraftFor(today);}render();}}

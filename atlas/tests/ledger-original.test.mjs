@@ -535,13 +535,19 @@ test('interrupted active-history clearing recovers the explicit reset without lo
 
 test('card XP matches actual check-in increments for count and amount habits',async()=>{
  const h=await boot({realModel:true});
- const hints=()=>h.node('app').querySelectorAll('.ledger-card-xp').map(n=>n.textContent);
- assert.equal(hints().length,14);assert(hints().some(t=>t.startsWith('+100 XP when saved')));assert(hints().every(t=>t.includes(' when saved')));
- assert(hints().some(t=>t.startsWith('+10 pages per tap · +40 XP when saved')));
- assert(hints().some(t=>t.startsWith('+15 minutes per tap · +50 XP when saved')));
- assert(hints().some(t=>t.startsWith('+0.5 hours per tap · +6.67 XP when saved')));
- h.act('inc',{habit:'Read'});await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),40);
- h.run('render()');assert.equal(hints().filter(t=>t.startsWith('+10 pages per tap · +40 XP when saved')).length,1);
+ const cardFor=habit=>h.node('app').querySelectorAll('.ledger-habit-card')[h.run('HABITS.indexOf('+JSON.stringify(habit)+')')];
+ for(const [habit,amount]of [['Read',25],['Board Work',30],['Sleep',7.5]]){
+  const card=cardFor(habit);
+  assert.equal(card.querySelector('[data-act="num"]').value,String(amount));
+  assert.match(card.querySelector('.ledger-amount-done').textContent,new RegExp('Log '+amount));
+  assert.equal(card.querySelector('.ledger-card-xp').textContent,'+100 XP when saved');
+  assert.equal(h.run('state.draft['+JSON.stringify(habit)+']'),0);
+ }
+ const read=cardFor('Read');
+ h.node('app').emit('click',{target:read.querySelector('[data-act="inc"]')});
+ assert.equal(read.querySelector('.ledger-card-xp').textContent,'+140 XP when saved');
+ await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),140);
+ assert.equal(h.run('state.days[0].units.Sleep||0'),0);
 });
 
 
@@ -575,14 +581,14 @@ test('card amount taps preserve the existing deck and unrelated drafts until Sav
  const input=card.querySelector('[data-act="num"]'),inc=card.querySelector('[data-act="inc"]'),dec=card.querySelector('[data-act="dec"]');
  const history=h.node('ledger-history'),dock=h.node('ledger-dock');
  for(let i=0;i<3;i++)h.node('app').emit('click',{target:inc});
- assert.equal(h.run('state.draft.Read'),30);assert.equal(input.value,'30');
+ assert.equal(h.run('state.draft.Read'),55);assert.equal(input.value,'55');
  assert.equal(h.node('app').querySelectorAll('.ledger-habit-card')[h.run('state.cardIndex')],card);
  assert.equal(h.node('ledger-history'),history);assert.equal(h.node('ledger-dock'),dock);
  assert.equal(card.querySelector('.ledger-habit-status').textContent,'Edited');
- h.node('app').emit('click',{target:dec});assert.equal(input.value,'20');
+ h.node('app').emit('click',{target:dec});assert.equal(input.value,'45');
  assert.equal(h.run('state.draftNote'),'Keep my note');assert.equal(h.run('state.days.length'),0);
  assert.equal(h.run('compute(state.days,state.goals).life.xp'),0);
- await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),80);
+ await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),180);
  assert.equal(h.run('state.days[0].note'),'Keep my note');
 });
 
@@ -689,4 +695,23 @@ test('custom count and quantity habits use their own one-tap list controls',asyn
  const input=h.node('app').querySelector('[data-act="num"][data-habit="Practice"]');
  input.closest('.row').querySelector('.ledger-amount-done').click();await h.settle();
  assert.deepEqual(JSON.parse(h.storage.get(S))[0].units,{Garden:1,Practice:20});assert.equal(h.run('state.logMode'),'list');
+});
+
+
+test('second reading session adds to the saved day and corrections change only the difference',async()=>{
+ const h=await boot({realModel:true});
+ const card=()=>h.node('app').querySelectorAll('.ledger-habit-card')[h.run('HABITS.indexOf("Read")')];
+ const enter=n=>{const input=card().querySelector('[data-act="num"]');input.value=String(n);h.node('app').emit('input',{target:input});};
+ const done=()=>card().querySelector('.ledger-amount-done').click();
+ done();await h.settle();
+ assert.equal(h.run('state.days[0].units.Read'),25);
+ done();enter(12);
+ assert.match(card().querySelector('.ledger-quantity-context').textContent,/25 \+ 12 = 37 pages/);
+ assert.equal(card().querySelector('.ledger-card-xp').textContent,'+48 XP when saved');
+ done();await h.settle();assert.equal(h.run('state.days[0].units.Read'),37);
+ card().querySelector('.ledger-quantity-mode').click();enter(30);
+ assert.equal(card().querySelector('.ledger-card-xp').textContent,'-28 XP when saved');
+ done();await h.settle();assert.equal(h.run('state.days[0].units.Read'),30);
+ await h.run('undoLast()');assert.equal(h.run('state.days[0].units.Read'),37);
+ await h.api.saveDay();assert.equal(h.run('compute(state.days,state.goals).habit.Read.xp'),148);
 });

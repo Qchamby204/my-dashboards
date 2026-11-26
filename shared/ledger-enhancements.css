@@ -1839,3 +1839,5 @@ html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .led
 .ledger-return-list{display:grid}.ledger-return-list button{text-align:left}.ledger-return-list small{display:block;font-weight:400}.ledger-spine-detail strong{flex-basis:100%}
 
 html.atlas-neumo.atlas-neumo[data-atlas-app="life-ledger"] #app #ledger-log .ledger-list-records>.row>button[data-act="toggle"]{width:auto!important;min-width:76px!important;min-height:44px!important;padding:0 .6rem!important;display:flex!important;align-items:center;justify-content:center;gap:.2rem;border-radius:12px!important;font-size:.75rem!important}
+
+.ledger-quantity-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.45rem;width:100%}.ledger-quantity-tools:has(.ledger-quantity-context:empty):not(:has(button)){display:none}.ledger-quantity-context,.ledger-list-xp{font-size:.82rem}.ledger-quantity-mode{min-height:44px}.ledger-quantity-tools .ledger-quantity-context{font-variant-numeric:tabular-nums}
