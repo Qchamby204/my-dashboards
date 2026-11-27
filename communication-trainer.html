@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=ed5f5a5199ba"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","communication-enhancements.js":"2a7e5e65d044"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","communication-enhancements.js":"344614a4bcc3"}</script>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -134,6 +134,7 @@ canvas{max-width:100%}
 .heatkey{display:inline-flex;align-items:center;gap:4px}
 .heatkey .cell{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid rgba(255,255,255,.04)}
 .records .rt{font-family:var(--mono);color:var(--gold);white-space:nowrap;font-size:.82rem}
+html:has(#weekly-topics){overflow-anchor:none}
 #toasts{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
 .toast{background:linear-gradient(135deg,#1d1830,#241b3a);border:1px solid var(--accent);border-radius:12px;padding:13px 20px;min-width:240px;max-width:90vw;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:pop .35s ease both}
 .toast.fade{animation:fade .5s ease forwards}
@@ -153,7 +154,7 @@ canvas{max-width:100%}
 <script src="shared/communicator-curriculum.js?v=8193a8745de9" defer></script>
 <script src="shared/communicator-integration.js?v=cdc28a15af0e" defer></script>
 <link rel="stylesheet" href="shared/communicator-ladder.css?v=8b3b6c92962b">
-<script src="shared/communicator-ladder.js?v=f3d060b548aa" defer></script>
+<script src="shared/communicator-ladder.js?v=d173ae8b73cd" defer></script>
 <link rel="stylesheet" href="shared/core-app-finish.css?v=3041ebc46681">
 <script src="shared/core-app-finish.js?v=20ba530a9cac" defer></script>
 <link rel="stylesheet" href="shared/communicator-studio.css?v=5f8cd5406eaf">
@@ -809,7 +810,31 @@ function rememberPage(){
  pagePlaces.set(lastPage,{y:window.scrollY,fields,open,drill:renderedDrill});
 }
 
-function nav(p){ curPage=p;render();const y=pagePlaces.get(p)?.y||0;if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(curPage===p)window.scrollTo({top:y,behavior:'instant'});}); }
+let navigationRestore=null;
+function nav(p){
+  // A second tab switch can happen before the previous tab's restored layout
+  // has painted. Keep its intended position, including across rapid toggles.
+  const leaving=curPage, pending=navigationRestore;
+  const y=pagePlaces.get(p)?.y||0;
+  navigationRestore=null;
+  curPage=p;
+  render();
+  if(pending?.page===leaving && pagePlaces.has(leaving))pagePlaces.get(leaving).y=pending.y;
+  const restore={page:p,y:p===leaving&&pending?pending.y:y};
+  navigationRestore=restore;
+  function align(){
+    if(navigationRestore===restore)window.scrollTo({top:restore.y,behavior:'instant'});
+  }
+  align();
+  if(typeof requestAnimationFrame==='function'){
+    requestAnimationFrame(()=>{align();requestAnimationFrame(()=>{
+      if(navigationRestore===restore){align();navigationRestore=null;}
+    });});
+  }else navigationRestore=null;
+}
+for(const action of ['pointerdown','wheel','keydown','touchstart']){
+  window.addEventListener(action,()=>{navigationRestore=null;},{passive:true});
+}
 function render(){
   rememberPage();let place=pagePlaces.get(curPage);if(curPage==='train'&&place?.drill!==curDrill)place=null;
   const w=weeksLeft();

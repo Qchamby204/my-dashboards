@@ -31,6 +31,16 @@ try{
  await p.evaluate(()=>toggleCat('sports'));await settle();assert.equal(await p.locator('#cityInput').inputValue(),'An unfinished city');assert(Math.abs(await p.evaluate(()=>scrollY)-topicY)<5,'routine category update keeps position');
  await p.locator('#pasteBox').fill(JSON.stringify({sports:['A fresh topic about local hockey']}));await p.evaluate(()=>applyTopicPaste());assert.equal(await p.locator('#pasteBox').inputValue(),'','successful import clears submitted draft');await p.evaluate(()=>nav('progress'));await p.evaluate(()=>nav('topics'));assert.equal(await p.locator('#pasteBox').inputValue(),'','submitted draft does not return');
  await p.screenshot({path:path.join(out,'communicator-place.png')});
+ await p.evaluate(()=>nav('train'));
+ await p.locator('#communication-topic-open').click();
+ const reply='{“world”:[“Who should fund overseas reconstruction?”]}';
+ await p.locator('#communication-topic-text').evaluate((input,text)=>{
+   const data=new DataTransfer();data.setData('text/plain',text);
+   input.dispatchEvent(new ClipboardEvent('paste',{clipboardData:data,bubbles:true,cancelable:true}));
+ },reply);
+ assert.equal(await p.locator('#pasteBox').inputValue(),reply,'a pack pasted in Practice reaches the weekly importer');
+ await p.getByRole('button',{name:'Add these topics',exact:true}).click();
+ assert.match(await p.locator('#communication-import-status').innerText(),/Added 1 new topic/);
  await p.goto(origin+'/the-library.html#books');await p.waitForSelector('#library-search');
  await p.locator('#library-search').fill('thinking');await p.evaluate(()=>window.scrollTo({top:400,behavior:'instant'}));await settle();const booksY=await p.evaluate(()=>scrollY);
  await p.locator('#atlas-page-navigation').getByRole('button',{name:'My understanding',exact:true}).click();await settle();await p.locator('#atlas-page-navigation').getByRole('button',{name:'All books',exact:true}).click();await settle();assert.equal(await p.locator('#library-search').inputValue(),'thinking');const returnedBooksY=await p.evaluate(()=>scrollY);await p.screenshot({path:path.join(out,'library-place.png')});assert(Math.abs(returnedBooksY-booksY)<5,'Books restores scroll: '+booksY+' → '+returnedBooksY);
