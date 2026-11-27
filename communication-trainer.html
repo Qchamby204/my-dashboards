@@ -3,7 +3,7 @@
 <head>
 <script src="shared/atlas-streak.js?v=ed5f5a5199ba"></script>
 <script src="shared/atlas-experience.js?v=37917ca81d10" defer></script>
-<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","communication-enhancements.js":"7a4a26726316"}</script>
+<script type="application/json" id="atlas-runtime-assets">{"atlas-mobile.js":"b0d4c48fc0ca","communication-enhancements.js":"2a7e5e65d044"}</script>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -298,6 +298,78 @@ const CURRICULUM = [
 
 /* ============ TOPIC BANK (seeded June 2026, refresh anytime by asking Claude) ============ */
 const SEED_DATE = 'June 10, 2026';
+const FEATURED_WEEK = {label:'Nov 27, 2026', topics:{
+  "municipal": [
+    "Would slower traffic or better crossings protect Winnipeg pedestrians more?",
+    "How quickly should Winnipeg install shields on every transit bus?",
+    "Should Winnipeg expand warming spaces or put more into permanent housing?",
+    "Should the riverfront near The Forks become a national urban park?",
+    "Is collecting unpaid Winnipeg parking tickets across provinces worth the cost?"
+  ],
+  "provincial": [
+    "Should Manitoba notify patients as soon as treatment deadlines slip?",
+    "Who should review child welfare deaths under First Nations jurisdiction?",
+    "Does Manitoba Hydro need three Brandon turbines or just one?",
+    "Does First Nations ownership strengthen the case for Manitoba’s solar factory?",
+    "Do Manitoba’s classroom smartwatch restrictions go too far?"
+  ],
+  "federal": [
+    "Should courts uphold Quebec’s ban on teachers wearing religious symbols?",
+    "Would Ottawa’s proposed grocery top-up help beyond one shopping trip?",
+    "Why reserve more F-35s while Canada weighs the Swedish alternative?",
+    "Would longer insured mortgages help buyers or push prices higher?",
+    "Should Ottawa fast-track new power plants in Whitehorse?"
+  ],
+  "world": [
+    "Should Canada stockpile oil against disruptions in the Strait of Hormuz?",
+    "Should Europe borrow jointly to fund Ukraine next year?",
+    "Can Trump’s proposed tariffs bring factories back without raising prices?",
+    "After COP31, should climate policy prioritize electrification or cutting oil production?",
+    "Can outside monitors make Gaza’s ceasefire hold?"
+  ],
+  "sports": [
+    "Are the Jets relying too heavily on Kyle Connor?",
+    "Was firing Mike O’Shea the right call for Winnipeg?",
+    "Could another PWHL tour stop help Winnipeg land a team?",
+    "Are the Bears better than Detroit, or just ahead?",
+    "Should investors ever own a stake in the World Cup?"
+  ],
+  "popculture": [
+    "Would Faouzia’s Unethical have broken through without social media?",
+    "Would you pick Disney’s Hexed or the Hunger Games prequel?",
+    "Should U2 use halftime for familiar hits or new music?",
+    "Does switching between Lucia and Jason make GTA VI more compelling?",
+    "Should Canada’s Glenn Gould Prize give homegrown artists priority?"
+  ],
+  "biztech": [
+    "Should the Bank of Canada raise rates over oil-driven inflation?",
+    "Does Nvidia’s credit warning undermine the wider AI investment case?",
+    "Would you trust AI to pick your Black Friday deals?",
+    "What do Bell and Staples owe customers after data breaches?",
+    "Should Canadian dealers keep sourcing fewer vehicles from America?"
+  ],
+  "dimensional": [
+    "Should broad index investors trim their exposure to Nvidia?",
+    "Does Canada’s resource rally justify holding more Canadian stocks?",
+    "When do volatile markets actually call for rebalancing?",
+    "Should Canadians hedge US stocks when the loonie weakens?",
+    "Should bond investors shorten duration before another possible rate hike?"
+  ],
+  "wealthplan": [
+    "Should retirees draw extra RRIF income before December ends?",
+    "When does donating shares beat writing a year-end cheque?",
+    "Should incorporated owners take a December bonus or dividends?",
+    "Who would benefit from Ottawa’s proposed refundable caregiver credit?",
+    "When is keeping an investment worth forgoing a tax loss?"
+  ],
+  "objections": [
+    "With AI stocks wobbling, why wouldn’t I just buy GICs?",
+    "Oil keeps rising. Why don’t we own more energy stocks?",
+    "Why keep bonds if another rate hike could hurt them?",
+    "The loonie looks weak. Should I postpone buying US investments?",
+    "If groceries keep climbing, can I still retire on schedule?"
+  ]
+}};
 const DEFAULT_TOPICS = {
  municipal: {name:'Municipal issues', items:[
   'Housing affordability and zoning reform in your city',
@@ -322,6 +394,7 @@ const DEFAULT_TOPICS = {
   'China as Canada’s biggest security threat, overblown or underrated?',
   'Immigration levels vs. housing and healthcare capacity',
  ]},
+ world: {name:'World affairs', items:[]},
  sports: {name:'Sports', items:[
   'World Cup 2026 kicking off across Canada, US, and Mexico, biggest ever',
   'Canada’s World Cup chances on home soil',
@@ -405,6 +478,7 @@ const CATEGORY_SOURCES = {
  municipal: [['CBC Canada','https://www.cbc.ca/news/canada'],['Global News','https://globalnews.ca/canada/'],['CTV News','https://www.ctvnews.ca/canada/']],
  provincial:[['CBC Politics','https://www.cbc.ca/news/politics'],['Global News Politics','https://globalnews.ca/politics/'],['Policy Options','https://policyoptions.irpp.org/']],
  federal:   [['CBC Politics','https://www.cbc.ca/news/politics'],['Globe & Mail Politics','https://www.theglobeandmail.com/politics/'],['Policy Options','https://policyoptions.irpp.org/'],['National Post','https://nationalpost.com/category/news/politics/']],
+ world:     [['Reuters World','https://www.reuters.com/world/'],['AP World','https://apnews.com/world-news']],
  sports:    [['TSN','https://www.tsn.ca/'],['Sportsnet','https://www.sportsnet.ca/'],['The Athletic','https://www.nytimes.com/athletic/']],
  popculture:[['Variety','https://variety.com/'],['Vulture','https://www.vulture.com/'],['Billboard','https://www.billboard.com/']],
  biztech:   [['BNN Bloomberg','https://www.bnnbloomberg.ca/'],['Financial Post','https://financialpost.com/'],['The Verge','https://www.theverge.com/']],
@@ -725,7 +799,7 @@ function drawRadar(canvasId, datasets){ // datasets: [{scores, color, fill}]
 
 /* ============ NAV / PAGES ============ */
 const PAGES=[['dash','Today','\u25c8'],['learn','Learn','\u25a4'],['train','Practice','\u26a1'],['topics','Topics','\u2726'],['progress','Progress','\u25b2']];
-let curPage='dash';
+let curPage=typeof location!=='undefined' && location.hash==='#weekly-topics'?'topics':'dash';
 let lastPage=null;
 const pagePlaces=new Map();let renderedDrill=null;
 const draftFields=['gradeBox','gradeBoxP','cityInput','pasteBox','newTopic','newCat'];
@@ -1177,7 +1251,7 @@ function finishDrill(){
 }
 
 /* ============ TOPICS ============ */
-const REFRESH_KEYS = ['municipal','provincial','federal','sports','popculture','biztech'];
+const REFRESH_KEYS = Object.keys(DEFAULT_TOPICS).filter(key=>key!=='evergreen');
 function pageTopics(){
   const stale = isStale();
   return `
@@ -1189,10 +1263,10 @@ function pageTopics(){
       <input type="text" id="cityInput" placeholder="Your city (sharpens local topics)" value="${esc(S.city)}" style="flex:1;min-width:180px">
       <button class="btn ghost" onclick="saveCity()">Save city</button>
     </div>
-    <h3 style="margin-top:16px">Step 1 · Copy this prompt, paste it to Claude</h3>
+    <h3 style="margin-top:16px">Step 1 · Copy the weekly prompt</h3>
     <textarea id="refreshPrompt" rows="7" readonly style="font-family:var(--mono);font-size:.76rem;line-height:1.5">${esc(refreshPromptText())}</textarea>
-    <div class="flex" style="margin-top:8px"><button class="btn" onclick="copyRefreshPrompt()">Copy prompt</button><span class="muted">Send it in a new Claude chat, then copy the JSON Claude replies with.</span></div>
-    <h3 style="margin-top:18px">Step 2 · Paste Claude's reply, click add</h3>
+    <div class="flex" style="margin-top:8px"><button class="btn" onclick="copyRefreshPrompt()">Copy prompt</button><span class="muted">Send it to your assistant, then copy the topic pack.</span></div>
+    <h3 style="margin-top:18px">Step 2 · Import the topic pack</h3>
     <textarea id="pasteBox" rows="6" placeholder='Paste the JSON here, for example {"federal":["..."],"sports":["..."]}' style="font-family:var(--mono);font-size:.8rem"></textarea>
     <div class="flex" style="margin-top:8px">
       <button class="btn" onclick="applyTopicPaste()">Add these topics</button>
@@ -1243,13 +1317,20 @@ function saveCity(){ S.city=($('cityInput').value||'').trim(); save(); render();
 function refreshPromptText(){
   const date=new Date().toDateString();
   const city=(S.city||'').trim();
-  const cityLine = city
-    ? `My city is ${city}. Weight the municipal topics toward there.`
-    : `For municipal topics, use generic "your city" phrasing.`;
-  return `Generate fresh communication-drill topics for the week of ${date}.
-Return ONLY a JSON object, no prose and no code fences, with these exact keys: ${REFRESH_KEYS.join(', ')}.
-Each key maps to an array of 5 topic strings reflecting what is actually being discussed right now in Canada and globally.
-Rules: each topic under 12 words, phrased as a discussion prompt (not a headline), and debate-worthy (it should have two real sides). ${cityLine}`;
+  return `Build a weekly conversation pack for a Canadian wealth advisor in ${city||'Winnipeg, Manitoba'}. Week of ${date}. Think of conversations with neighbours, board members, business owners, professionals and retirees.
+Search reliable local, Canadian and international reporting from the past seven days. Identify the biggest developments before picking topics. Prioritize consequences for people, breadth of public discussion and decisions coming up. Check whether a proposal has actually passed. Use an official source for financial rules and figures.
+Return a single JSON code block so I can tap Copy. Inside it use one object, these exact keys: ${REFRESH_KEYS.join(', ')}. Each value is a list of five distinct questions, each under 12 words. Use straight double quotes for JSON, with no citations, notes or links inside it.
+municipal: Local housing, transit, public safety, city finances and community needs. Name the local decision or place.
+provincial: Lead with the home province. Consider health care, education, energy, Indigenous issues, jobs and affordability.
+federal: Lead with consequential Canadian decisions on the economy, taxes, housing, trade, immigration or defence.
+world: Cover major international developments across regions, including conflict, diplomacy, US politics, trade and climate. Ask what is at stake.
+sports: Mix hometown teams, the CFL, NHL, NFL, women's sports and major global moments according to the week.
+popculture: Find shared conversation starters across film, TV, music, gaming and internet culture. Include Canadian voices.
+biztech: Cover rates, inflation, employment, business and technology. Ask who pays, who benefits, or what changes.
+dimensional: Connect this week's markets to evidence-based investing, diversification, risk, fees or investor behaviour.
+wealthplan: Find timely Canadian decisions involving retirement income, tax, incorporated owners, estate planning or giving.
+objections: Write realistic first-person client questions triggered by this week's news.
+Name a concrete event, person, place or decision. Frame a choice, trade-off or interpretation that two informed people could reasonably disagree about. Make it natural to ask aloud. Avoid trivia, invented controversy, repeated angles and generic filler. A planning deadline can be timely without a new law.`;
 }
 function copyText(text, okTitle, okSub){
   const done=()=>toast(okTitle||'Copied', okSub||'');
@@ -1265,34 +1346,46 @@ function fallbackCopy(text, done){
     document.execCommand('copy'); ta.remove(); done();
   }catch(e){ toast('Copy unavailable','Select the text and copy it manually.'); }
 }
-function copyRefreshPrompt(){ copyText(refreshPromptText(),'Prompt copied','Paste it into a Claude chat.'); }
+function copyRefreshPrompt(){ copyText(refreshPromptText(),'Prompt copied','Paste it into your assistant, then copy the topic pack.'); }
 function learnPrompt(topic){
   return `Brief me so I can discuss this topic well in conversation: "${topic}".
 Cover, concisely: (1) the 3 to 5 most important current facts and numbers, (2) the strongest honest case on each side, (3) one concrete example, analogy, or short story I could use, (4) one sharp open question I could ask someone to start a good exchange, and (5) the 3 sources you drew from, each with a link, so I can see where the information came from. Search anything time-sensitive so it stays current.`;
 }
-function parseTopicPaste(raw){
-  if(!raw) return null;
-  let s=raw.trim().replace(/```(json)?/gi,'').trim();
-  const a=s.indexOf('{'), b=s.lastIndexOf('}');
-  if(a!==-1 && b!==-1 && b>a){
-    try{
-      const obj=JSON.parse(s.slice(a,b+1));
-      const out={};
-      Object.entries(obj).forEach(([k,v])=>{
-        if(REFRESH_KEYS.includes(k) && Array.isArray(v)){
-          const items=v.map(x=>String(x).trim()).filter(Boolean);
-          if(items.length) out[k]=items;
-        }
-      });
-      return Object.keys(out).length? out : null;
-    }catch(e){ /* fall through */ }
+function readTopicReply(raw){
+  if(!raw.trim()) throw Error('Paste the complete topic pack first.');
+  if(raw.length>250000) throw Error('The topic pack is too large. Import fewer categories at once.');
+  const fenced=raw.match(/^`{3}(?:json)?[ \t]*\r?\n([\s\S]*?)^\s*`{3}/im);
+  const block=(fenced?fenced[1]:raw).trim();
+  const first=block.indexOf('{'),last=block.lastIndexOf('}');
+  if(first<0||last<=first) throw Error('Copy the whole reply, including the opening { and closing }.');
+  const content=block.slice(first,last+1);
+  let parsed;
+  try{parsed=JSON.parse(content);}
+  catch{
+    // Some phone editors change the delimiters to curly quotes. Keep curly
+    // punctuation within the topic itself whenever the original JSON is valid.
+    const repaired=content.replace(/([{[:,]\s*)“/g,'$1"').replace(/”(?=\s*[:,\]}])/g,'"');
+    try{parsed=JSON.parse(repaired);}
+    catch{throw Error('The JSON is incomplete or damaged. Use Copy on the whole reply and paste it again.');}
   }
-  return null;
+  const out={};
+  for(const [key,items] of Object.entries(parsed)){
+    if(!REFRESH_KEYS.includes(key)) throw Error('Unrecognized topic category: '+key+'. Use the keys from Copy prompt.');
+    if(!Array.isArray(items)||!items.length||items.length>1000||items.some(t=>typeof t!=='string'||!t.trim()||t.length>1000||/[\r\n]/.test(t))){
+      throw Error('Use a list of non-empty, single-line topic strings for '+key+'.');
+    }
+    out[key]=[...new Set(items.map(t=>t.trim()))];
+  }
+  if(!Object.keys(out).length) throw Error('Include at least one topic category.');
+  return out;
+}
+function parseTopicPaste(raw){
+  try{return readTopicReply(raw||'');}catch{return null;}
 }
 function applyTopicPaste(){
   const raw=$('pasteBox') ? $('pasteBox').value : '';
   const parsed=parseTopicPaste(raw);
-  if(!parsed){ toast('Could not read that','Expecting a JSON object of categories. Try copying Claude\u2019s reply again.'); return; }
+  if(!parsed){ toast('Could not read that','Expecting a JSON object of categories. Copy the whole topic pack and try again.'); return; }
   let total=0;
   Object.entries(parsed).forEach(([k,items])=>{
     const seen=new Set(); const clean=[];
