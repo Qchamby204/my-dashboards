@@ -334,6 +334,18 @@
       return copy(value);
     }
     let topicProblem='',topicEditor=null,topicDialog=null,lastTopicError='';
+    let importMessage='';
+    function showImportMessage(message){
+      importMessage=message;
+      const status=$('communication-import-status');
+      if(status)status.textContent=message;
+    }
+    function openWeeklyReply(raw){
+      topicDialog.close();
+      const details=$('communication-weekly-import'),box=$('pasteBox');
+      details.open=true;box.value=raw;showImportMessage('Review the reply, then choose Add these topics.');box.focus();
+    }
+    function isBulkReply(raw){return /^\s*(?:\{|[`]{3})/.test(raw)||Boolean(parseTopicPaste(raw));}
     S.topicBank=null;
     try{const raw=localStorage.getItem('mc_topicBank');if(raw!==null)S.topicBank=validateTopicBank(JSON.parse(raw));}catch{topicProblem='Saved topic edits could not be read. Export your progress before replacing them.';}
     const oldDump=Store.dump;
@@ -370,6 +382,16 @@
         document.body.appendChild(topicDialog);
         $('communication-topic-form').onsubmit=event=>{event.preventDefault();saveTopics();};
         $('communication-topic-text').oninput=topicCount;
+        $('communication-topic-text').onpaste=event=>{
+          const raw=event.clipboardData?.getData('text/plain')||'';
+          if(!isBulkReply(raw))return;
+          event.preventDefault();
+          const current=$('communication-topic-text').value;
+          if((current.trim()&&current!==topicEditor.text)||$('pasteBox').value.trim()){
+            topicError('Finish your existing edits first, then use Import weekly topics.');return;
+          }
+          openWeeklyReply(raw);
+        };
         $('communication-topic-category').onchange=event=>selectTopicCategory(event.target.value);
         $('communication-topic-cancel').onclick=()=>topicDialog.close();
         topicDialog.addEventListener('close',()=>{topicEditor=null;});
@@ -379,20 +401,25 @@
       if(curDrill){stopRec();stopTimer();rememberPractice();}
       topicDialog.showModal();$('communication-topic-text').focus();return true;
     }
-    function commitTopics(next,stamp){
+    function commitTopics(next,stamp,message='Topics saved on this device.'){
       try{if(topicStamp()!==stamp)throw Error('Topics changed in another tab. Copy your edits, then reopen the editor to use the latest list.');validateTopicBank(next);}
       catch(error){return topicError(error.message);}
       const before=copy(S.topicBank);
       if(!writeProgress('topicBank',next))return topicError('Topics were not saved. Your edits are still here. Free some browser storage, then try Save topics again.');
       S.topicBank=copy(next);topicProblem='';lastSaveError='';
-      undoToast('Topics saved on this device.',()=>{
+      undoToast(message,()=>{
         try{if(localStorage.getItem('mc_topicBank')!==JSON.stringify(next)){toast('Newer topic edits were kept','Undo cannot replace a later update.');return;}}catch{return;}
-        if(!writeProgress('topicBank',before)){toast('Undo was not saved','Your current topics were kept.');return;}S.topicBank=before;render();
+        if(!writeProgress('topicBank',before)){toast('Undo was not saved','Your current topics were kept.');return;}S.topicBank=before;importMessage='';render();
       });return true;
     }
     function saveTopics(){
       if(!topicEditor)return false;
-      let items;try{items=cleanTopicLines($('communication-topic-text').value);}catch(error){return topicError(error.message);}
+      const raw=$('communication-topic-text').value;
+      if(isBulkReply(raw)){
+        if($('pasteBox').value.trim())return topicError('Finish the reply already in Import weekly topics first.');
+        openWeeklyReply(raw);return false;
+      }
+      let items;try{items=cleanTopicLines(raw);}catch(error){return topicError(error.message);}
       const {cat,stamp}=topicEditor;
       const next={schemaVersion:1,updatedAt:new Date().toISOString(),categories:{...(S.topicBank?.categories||{}),[cat]:uniqueTopics([...items,...categoryItems(cat).filter(isRetired)])}};
       if(!commitTopics(next,stamp))return false;
@@ -401,7 +428,7 @@
     toggleCat=function(cat){
       if(!Object.hasOwn(DEFAULT_TOPICS,cat))return;
       const next=S.catsEnabled.includes(cat)?S.catsEnabled.filter(k=>k!==cat):[...S.catsEnabled,cat];
-      if(!writeProgress('catsEnabled',next)){toast('Category change not saved','Try again when storage is available.');return;}S.catsEnabled=next;lastSaveError='';render();
+      if(!writeProgress('catsEnabled',next)){toast('Category change not saved','Try again when storage is available.');return;}S.catsEnabled=next;lastSaveError='';importMessage='';render();
     };
     retireTopic=function(text){
       const key=normT(text);if(!key||S.retired.includes(key))return false;
@@ -409,15 +436,29 @@
       S.retired=next;undoToast('Topic retired.',()=>{if(JSON.stringify(S.retired)!==JSON.stringify(next))return;if(writeProgress('retiredTopics',before)){S.retired=before;render();}});return true;
     };
     restoreTopic=function(key){const next=S.retired.filter(k=>k!==key);if(writeProgress('retiredTopics',next)){S.retired=next;render();}};
-    applyTopicPaste=function(){
-      const parsed=parseTopicPaste($('pasteBox').value);if(!parsed){toast('Could not read those topics','Paste a topic refresh with category lists.');return false;}
+    function importWeeklyTopics(featured=false){
       try{
-        if(unsaved.size)throw Error('Retry saving your pending changes first.');syncTopics();const stamp=topicStamp(),categories={...(S.topicBank?.categories||{})};
-        for(const [cat,items]of Object.entries(parsed))categories[cat]=uniqueTopics([...cleanTopicLines(items.join('\n')),...categoryItems(cat)]);
-        if(!commitTopics({schemaVersion:1,updatedAt:new Date().toISOString(),categories},stamp)){toast('Topics were not saved',lastTopicError);return false;}
-        $('pasteBox').value='';render();return true;
-      }catch(error){toast('Topics were not saved',error.message);return false;}
-    };
+        const parsed=featured?FEATURED_WEEK.topics:readTopicReply($('pasteBox').value);
+        if(unsaved.size)throw Error('Retry saving your pending changes first.');
+        syncTopics();
+        const stamp=topicStamp(),categories={...(S.topicBank?.categories||{})};
+        let added=0;
+        for(const [cat,items] of Object.entries(parsed)){
+          const existing=categoryItems(cat);
+          const merged=uniqueTopics([...items,...existing]);
+          if(merged.length===existing.length)continue;
+          added+=merged.length-existing.length;categories[cat]=merged;
+        }
+        const keys=Object.keys(parsed);
+        const message=added?'Added '+added+' new topic'+(added===1?'':'s')+'.':'These topics are already in your bank.';
+        if(added && !commitTopics({schemaVersion:1,updatedAt:new Date().toISOString(),categories},stamp,message))throw Error(lastTopicError);
+        const off=keys.filter(cat=>!S.catsEnabled.includes(cat)).map(topicName);
+        showImportMessage(message+(off.length?' Off for practice: '+off.join(', ')+'.':''));
+        if(!featured)$('pasteBox').value='';
+        render();return true;
+      }catch(error){showImportMessage(error.message);return false;}
+    }
+    applyTopicPaste=()=>importWeeklyTopics();
     const oldStaleLine=staleLine;
     staleLine=()=>S.topicBank?.updatedAt?'Topics updated '+S.topicBank.updatedAt.slice(0,10)+'.':oldStaleLine();
     daysSinceRefresh=()=>Math.max(0,Math.floor((new Date()-new Date(S.topicBank?.updatedAt||S.bankUpdated||'2026-06-10T00:00:00'))/86400000));
@@ -426,11 +467,20 @@
         const items=effectiveItems(cat),enabled=cat==='custom'||S.catsEnabled.includes(cat);
         return '<section class="card communication-topic-category"><div class="communication-topic-heading"><h3>'+esc(topicName(cat))+'</h3><div class="flex">'+(cat==='custom'?'<span class="muted">Always on</span>':'<button type="button" class="btn ghost" aria-pressed="'+enabled+'" aria-label="Use '+esc(topicName(cat))+' topics" onclick="toggleCat(\''+cat+'\')">'+(enabled?'On':'Off')+'</button>')+'<button type="button" class="btn ghost" aria-label="Edit '+esc(topicName(cat))+' topics" onclick="CommunicationImprovements.editTopics(\''+cat+'\')">Edit</button></div></div><details class="communication-topic-list"><summary>'+items.length+' active topic'+(items.length===1?'':'s')+'</summary>'+(items.length?items.map(t=>'<div class="topicitem"><span>'+esc(t)+(S.prepNotes[t]?' <span class="tag">prepped</span>':'')+'</span><div class="flex"><button type="button" class="btn ghost" data-learn="'+esc(t)+'">Copy learning prompt</button><button type="button" class="btn ghost" data-topic-retire="'+esc(t)+'">Retire</button></div></div>').join(''):'<p class="muted">Add topics with Edit to use this category.</p>')+'</details></section>';
       }).join('');
-      return '<section class="card"><div class="communication-topic-heading"><h2>Your topics</h2>'+info('About your topic bank','Practice draws from categories marked On, plus Custom. Edit any category using plain text. Topics you complete or retire stay out of rotation until restored. Changing a topic’s wording leaves its earlier practice and preparation notes under the original wording.')+'</div><p class="muted">'+esc(staleLine())+'</p>'+(topicProblem?'<p role="alert">'+esc(topicProblem)+'</p>':'')+'<button id="communication-topic-open" type="button" class="btn" onclick="CommunicationImprovements.editTopics()">Edit topics</button></section>'+rows+
-      '<details class="card communication-topic-refresh"><summary>Optional: refresh with an assistant</summary>'+info('About assisted refresh','Copy the prompt to your chosen assistant and paste its reply below. Adding the reply merges those topics into your existing categories. Nothing is sent automatically.')+'<label for="cityInput">City for local topics</label><div class="flex"><input id="cityInput" value="'+esc(S.city)+'"><button type="button" class="btn ghost" onclick="saveCity()">Save city</button></div><label for="refreshPrompt">Refresh prompt</label><textarea id="refreshPrompt" rows="5" readonly>'+esc(refreshPromptText())+'</textarea><button type="button" class="btn ghost" onclick="copyRefreshPrompt()">Copy prompt</button><label for="pasteBox">Paste the reply</label><textarea id="pasteBox" rows="5"></textarea><button type="button" class="btn" onclick="applyTopicPaste()">Add these topics</button><details><summary>Browse topic sources</summary>'+Object.entries(CATEGORY_SOURCES).map(([cat,sources])=>'<h3>'+esc(topicName(cat))+'</h3>'+sources.map(([name,url])=>'<a class="pill" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(name)+' ↗</a>').join('')).join('')+'</details></details>'+
+      const weekly='<section class="card" id="weekly-topics"><h2>Weekly topics</h2>'+
+        '<button type="button" class="btn" data-weekly-pack>Add '+esc(FEATURED_WEEK.label)+' topics</button>'+
+        '<details class="communication-topic-refresh" id="communication-weekly-import"><summary>Import weekly topics</summary>'+
+        '<label for="pasteBox">Paste the full topic pack</label><textarea id="pasteBox" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>'+
+        '<button type="button" class="btn" onclick="applyTopicPaste()">Add these topics</button>'+
+        '<label for="cityInput">City and province</label><div class="flex"><input id="cityInput" placeholder="Winnipeg, Manitoba" value="'+esc(S.city)+'"><button type="button" class="btn ghost" onclick="saveCity()">Save city</button></div>'+
+        '<button type="button" class="btn ghost" onclick="copyRefreshPrompt()">Copy prompt</button><details><summary>Read weekly prompt</summary><label for="refreshPrompt">Weekly prompt</label><textarea id="refreshPrompt" rows="5" readonly>'+esc(refreshPromptText())+'</textarea></details>'+
+        '<details><summary>Browse topic sources</summary>'+Object.entries(CATEGORY_SOURCES).map(([cat,sources])=>'<h3>'+esc(topicName(cat))+'</h3>'+sources.map(([name,url])=>'<a class="pill" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(name)+' ↗</a>').join('')).join('')+'</details></details>'+
+        '<p id="communication-import-status" class="muted" role="status" aria-live="polite">'+esc(importMessage)+'</p></section>';
+      return weekly+'<section class="card"><div class="communication-topic-heading"><h2>Your topics</h2>'+info('About your topic bank','Practice draws from categories marked On, plus Custom. Edit any category using plain text. Topics you complete or retire stay out of rotation until restored. Changing a topic’s wording leaves its earlier practice and preparation notes under the original wording.')+'</div><p class="muted">'+esc(staleLine())+'</p>'+(topicProblem?'<p role="alert">'+esc(topicProblem)+'</p>':'')+'<button id="communication-topic-open" type="button" class="btn" onclick="CommunicationImprovements.editTopics()">Edit one category</button></section>'+rows+
       (S.retired.length?'<details class="card communication-topic-list"><summary>Retired topics · '+S.retired.length+'</summary>'+info('About retired topics','Completed or dismissed topics stay out of future practice. Restore one for another attempt.')+S.retired.map(t=>'<div class="topicitem"><span>'+esc(t)+'</span><button type="button" class="btn ghost" data-topic-restore="'+esc(t)+'">Restore</button></div>').join('')+'</details>':'');
     };
     document.addEventListener('click',event=>{
+      if(event.target.closest?.('[data-weekly-pack]')){importWeeklyTopics(true);return;}
       const retire=event.target.closest?.('[data-topic-retire]'),restore=event.target.closest?.('[data-topic-restore]');
       if(retire){retireTopic(retire.dataset.topicRetire,'Retired:');render();}
       if(restore)restoreTopic(restore.dataset.topicRestore);
@@ -448,7 +498,7 @@
       if(action==='library-start')startLibraryPractice();
       if(action==='library-dismiss'){clearLibraryRequest();render();}
     });
-    readLibraryRequest();window.addEventListener('hashchange',()=>{readLibraryRequest();render();});
+    readLibraryRequest();window.addEventListener('hashchange',()=>{readLibraryRequest();if(location.hash==='#weekly-topics')nav('topics');else render();});
     let savedDraftRaw;try{savedDraftRaw=localStorage.getItem('mc_'+DRAFT);}catch{diskAvailable=false;}
     if(savedDraftRaw!=null)try{restorePractice(JSON.parse(savedDraftRaw));}catch(error){draftProblem=error.message||'Could not read the unfinished practice.';}
     document.addEventListener('click',e=>{const b=e.target.closest('[data-communication-goal]');if(!b||S.profile?.goal||!['clarity','confidence','listen'].includes(b.dataset.communicationGoal))return;const next={goal:b.dataset.communicationGoal};S.profile=next;const saved=Store.set('profile',next);render();if(saved)toast('Your practice aim is saved.');});

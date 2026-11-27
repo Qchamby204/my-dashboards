@@ -53,6 +53,48 @@ function boot({speech=true,records={}}={}){
     hidden(value){document.hidden=value;fire(events,'visibilitychange');},pagehide(){fire(windowEvents,'pagehide');},
     undo(){node('undoToast').children.find(child=>child.tagName==='BUTTON').click();}};
 }
+
+test('weekly prompt, featured pack and topic feeds agree on all ten keys',()=>{
+  const h=boot();
+  const pack=JSON.parse(h.run('JSON.stringify(FEATURED_WEEK.topics)'));
+  const keys=Object.keys(pack);
+  assert.equal(keys.length,10);
+  assert.equal(h.run('REFRESH_KEYS.join(",")'),keys.join(','));
+  const prompt=h.run('refreshPromptText()');
+  assert.match(prompt,/Winnipeg, Manitoba/);
+  for(const [key,questions] of Object.entries(pack)){
+    assert.ok(prompt.includes(key+':'));
+    assert.equal(questions.length,5);
+    assert.ok(questions.every(q=>q.split(/\s+/).length<12));
+  }
+  assert.equal(new Set(Object.values(pack).flat()).size,50);
+  h.node('pasteBox').value=JSON.stringify(pack);
+  assert.equal(h.run('applyTopicPaste()'),true);
+  const saved=h.storage.get('mc_topicBank');
+  const again=boot({records:Object.fromEntries(h.storage)});
+  again.node('pasteBox').value=JSON.stringify(pack);
+  assert.equal(again.run('applyTopicPaste()'),true);
+  assert.equal(again.storage.get('mc_topicBank'),saved);
+});
+
+test('weekly pastes accept older replies and phone quotes and retain invalid drafts',()=>{
+  const h=boot();
+  const oldKeys=['municipal','provincial','federal','sports','popculture','biztech'];
+  const oldPack=Object.fromEntries(oldKeys.map(key=>[key,['A “quoted” question?']]));
+  h.node('pasteBox').value=JSON.stringify(oldPack);
+  assert.equal(h.run('applyTopicPaste()'),true);
+  assert.deepEqual(JSON.parse(h.storage.get('mc_topicBank')).categories.federal[0],'A “quoted” question?');
+  h.node('pasteBox').value=['Here is the pack','```json','{“world”:[“What happens next?”]}','```'].join('\n');
+  assert.equal(h.run('applyTopicPaste()'),true);
+  const saved=h.storage.get('mc_topicBank');
+  assert.equal(JSON.parse(saved).categories.world[0],'What happens next?');
+  for(const raw of ['{"sports":', '{"sports":["Keep me"],"unknown":["Unexpected feed"]}', '{"sports":[{}]}']){
+    h.node('pasteBox').value=raw;
+    assert.equal(h.run('applyTopicPaste()'),false);
+    assert.equal(h.node('pasteBox').value,raw);
+    assert.equal(h.storage.get('mc_topicBank'),saved);
+  }
+});
 function result(text,isFinal=true){const entry=[{transcript:text}];entry.isFinal=isFinal;return {resultIndex:0,results:[entry]};}
 
 test('integrated page redraw never inserts the retired season banner above the saved scroll position',()=>{
