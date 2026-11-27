@@ -340,8 +340,10 @@
       const status=$('communication-import-status');
       if(status)status.textContent=message;
     }
+    const pendingWeeklyReply=()=>$('pasteBox')?.value??pagePlaces.get('topics')?.fields.pasteBox??'';
     function openWeeklyReply(raw){
       topicDialog.close();
+      if(curPage!=='topics')nav('topics');
       const details=$('communication-weekly-import'),box=$('pasteBox');
       details.open=true;box.value=raw;showImportMessage('Review the reply, then choose Add these topics.');box.focus();
     }
@@ -387,7 +389,7 @@
           if(!isBulkReply(raw))return;
           event.preventDefault();
           const current=$('communication-topic-text').value;
-          if((current.trim()&&current!==topicEditor.text)||$('pasteBox').value.trim()){
+          if((current.trim()&&current!==topicEditor.text)||pendingWeeklyReply().trim()){
             topicError('Finish your existing edits first, then use Import weekly topics.');return;
           }
           openWeeklyReply(raw);
@@ -416,7 +418,7 @@
       if(!topicEditor)return false;
       const raw=$('communication-topic-text').value;
       if(isBulkReply(raw)){
-        if($('pasteBox').value.trim())return topicError('Finish the reply already in Import weekly topics first.');
+        if(pendingWeeklyReply().trim())return topicError('Finish the reply already in Import weekly topics first.');
         openWeeklyReply(raw);return false;
       }
       let items;try{items=cleanTopicLines(raw);}catch(error){return topicError(error.message);}
@@ -469,13 +471,13 @@
       }).join('');
       const weekly='<section class="card" id="weekly-topics"><h2>Weekly topics</h2>'+
         '<button type="button" class="btn" data-weekly-pack>Add '+esc(FEATURED_WEEK.label)+' topics</button>'+
-        '<details class="communication-topic-refresh" id="communication-weekly-import"><summary>Import weekly topics</summary>'+
+        '<p id="communication-import-status" class="muted" role="status" aria-live="polite">'+esc(importMessage)+'</p></section>'+
+        '<details class="card communication-topic-refresh" id="communication-weekly-import"><summary>Import weekly topics</summary>'+
         '<label for="pasteBox">Paste the full topic pack</label><textarea id="pasteBox" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>'+
         '<button type="button" class="btn" onclick="applyTopicPaste()">Add these topics</button>'+
         '<label for="cityInput">City and province</label><div class="flex"><input id="cityInput" placeholder="Winnipeg, Manitoba" value="'+esc(S.city)+'"><button type="button" class="btn ghost" onclick="saveCity()">Save city</button></div>'+
         '<button type="button" class="btn ghost" onclick="copyRefreshPrompt()">Copy prompt</button><details><summary>Read weekly prompt</summary><label for="refreshPrompt">Weekly prompt</label><textarea id="refreshPrompt" rows="5" readonly>'+esc(refreshPromptText())+'</textarea></details>'+
-        '<details><summary>Browse topic sources</summary>'+Object.entries(CATEGORY_SOURCES).map(([cat,sources])=>'<h3>'+esc(topicName(cat))+'</h3>'+sources.map(([name,url])=>'<a class="pill" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(name)+' ↗</a>').join('')).join('')+'</details></details>'+
-        '<p id="communication-import-status" class="muted" role="status" aria-live="polite">'+esc(importMessage)+'</p></section>';
+        '<details><summary>Browse topic sources</summary>'+Object.entries(CATEGORY_SOURCES).map(([cat,sources])=>'<h3>'+esc(topicName(cat))+'</h3>'+sources.map(([name,url])=>'<a class="pill" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(name)+' ↗</a>').join('')).join('')+'</details></details>';
       return weekly+'<section class="card"><div class="communication-topic-heading"><h2>Your topics</h2>'+info('About your topic bank','Practice draws from categories marked On, plus Custom. Edit any category using plain text. Topics you complete or retire stay out of rotation until restored. Changing a topic’s wording leaves its earlier practice and preparation notes under the original wording.')+'</div><p class="muted">'+esc(staleLine())+'</p>'+(topicProblem?'<p role="alert">'+esc(topicProblem)+'</p>':'')+'<button id="communication-topic-open" type="button" class="btn" onclick="CommunicationImprovements.editTopics()">Edit one category</button></section>'+rows+
       (S.retired.length?'<details class="card communication-topic-list"><summary>Retired topics · '+S.retired.length+'</summary>'+info('About retired topics','Completed or dismissed topics stay out of future practice. Restore one for another attempt.')+S.retired.map(t=>'<div class="topicitem"><span>'+esc(t)+'</span><button type="button" class="btn ghost" data-topic-restore="'+esc(t)+'">Restore</button></div>').join('')+'</details>':'');
     };
