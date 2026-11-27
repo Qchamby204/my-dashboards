@@ -137,8 +137,8 @@ try{
     await p.waitForFunction(()=>!!window.CommunicatorLadder);
     assert.equal(await p.locator('[data-ladder-start]:visible').count(),1,'Today has one next practice');
     assert.equal(await p.locator('.communication-career').count(),0,'rank belongs in Progress');
-    assert.equal(await p.getByRole('button',{name:'Edit topics',exact:true}).count(),0,'Today keeps topic management in its existing section');
-    await p.locator('#atlas-page-navigation').getByRole('button',{name:'Topics',exact:true}).click();assert(await p.getByRole('button',{name:'Edit topics',exact:true}).isVisible(),'topic management remains reachable');await p.locator('#atlas-page-navigation').getByRole('button',{name:'Today',exact:true}).click();
+    assert.equal(await p.getByRole('button',{name:'Edit one category',exact:true}).count(),0,'Today keeps topic management in its existing section');
+    await p.locator('#atlas-page-navigation').getByRole('button',{name:'Topics',exact:true}).click();assert(await p.getByRole('button',{name:'Edit one category',exact:true}).isVisible(),'topic management remains reachable');await p.locator('#atlas-page-navigation').getByRole('button',{name:'Today',exact:true}).click();
     assert.equal(await p.locator('.communicator-session').count(),0,'investing learning belongs in Learn');
     const other=p.locator('.communication-alternatives>summary').first();await other.focus();await p.keyboard.press('Enter');assert(await p.getByRole('button',{name:'Surprise me',exact:true}).isVisible());await p.keyboard.press('Enter');
     await p.locator('[data-ladder-start="clear-point"]').first().click();const input=p.locator('#txBox');const transcript='A clear plan helps us choose what matters. For example, preparing one decision before a meeting makes the conversation easier. The next step is to write that decision down.';await input.fill(transcript);await keyboard(p,input,app);
