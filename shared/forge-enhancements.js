@@ -264,7 +264,7 @@
     if(!blocked){try{restoreRest(boot.raw[RESTKEY]?JSON.parse(boot.raw[RESTKEY]):null);}catch{restoreRest(null);}}
     window.ForgeSession=Object.freeze({confirmAction,cancelLive,pauseLive,pauseRest,adjustRest,goExercise,elapsedMs,sessionItems,parseBackup,restoreRest,get blocked(){return blocked;},get failed(){return failed.size;},get busy(){return busy;},get pendingLog(){return !!pendingLog;},get rest(){return timer?{left:restRemaining(),total:timer.total,paused:timer.pausedRemaining!==undefined}:null;}});
     // The live workout's focus screen (one exercise, one set at a time) builds on this session layer.
-    if(!blocked){const base=source||location.href,css=make('link');css.rel='stylesheet';css.href=new URL('forge-focus.css?v=b5d63bf3d068',base).href;document.head.append(css);const focus=make('script');focus.src=new URL('forge-focus.js?v=c377fd906780',base).href;document.head.append(focus);}
+    if(!blocked){const base=source||location.href,css=make('link');css.rel='stylesheet';css.href=new URL('forge-focus.css?v=09889e260348',base).href;document.head.append(css);const focus=make('script');focus.src=new URL('forge-focus.js?v=c377fd906780',base).href;document.head.append(focus);}
     render();if(pendingLog&&!blocked)commitPending();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
