@@ -34,11 +34,18 @@ try{
   await p.locator('[data-goal-action="home"]').click();
   for(const key of ['PUSH','LEGS','PULL','ENGINE']){
    await p.locator('.forge-day-card[data-key="'+key+'"]').click();await p.locator('[data-act="live"][data-key="'+key+'"]').click();const live=p.locator('.forge-focus');await live.waitFor({state:'visible'});
-   // Focus mode: one exercise on an opaque stage, its progress track, then one primary action.
+   // The next exercise follows the prescription and precedes the working controls.
    const record=live.locator('.ff-stage');assert(await record.isVisible());assert(await p.locator('#atlas-page-navigation').isHidden(),'page navigation clears the active workout');assert.equal(await live.locator('.ff-track .is-now').count(),1);
    assert.equal(await live.evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(5, 7, 13)','the workout stage is opaque and dark');
    assert(await record.evaluate(n=>{const b=n.getBoundingClientRect();return b.left>=-1&&b.right<=innerWidth+1&&n.scrollWidth<=n.clientWidth+1;}),'regular exercise record fits');
-   assert(await live.evaluate(n=>{const name=n.querySelector('.ff-name'),action=n.querySelector('.ff-primary'),foot=n.querySelector('.ff-foot');return [name,action,foot].every((v,i,a)=>!!v&&(!i||!!(a[i-1].compareDocumentPosition(v)&Node.DOCUMENT_POSITION_FOLLOWING)));}),'the exercise leads, then its one primary action, then navigation');
+   const exerciseNav=live.getByRole('navigation',{name:'Exercise navigation'});
+   assert(await exerciseNav.evaluate(nav=>nav.previousElementSibling?.matches('.ff-rx')&&
+     !!(nav.compareDocumentPosition(nav.parentNode.querySelector('.ff-primary'))&Node.DOCUMENT_POSITION_FOLLOWING)),
+     'Up next sits between the prescription and the current action');
+   const advertised=await exerciseNav.locator('.ff-upnext b').textContent();
+   await exerciseNav.getByRole('button',{name:'Skip for now'}).click();
+   assert.equal(await live.locator('.ff-name').textContent(),advertised,'Up next names the exercise reached by skipping');
+   await exerciseNav.getByRole('button',{name:'Previous exercise'}).click();
    assert(await live.locator('.ff-primary').evaluate(n=>{const r=n.getBoundingClientRect();return r.height>=44&&r.bottom<=innerHeight;}),'the primary action is reachable without scrolling');
    await p.screenshot({path:path.join(out,`regular-${key}-${theme}-${width}-${size}.png`)});
    await live.getByRole('button',{name:'Workout options',exact:true}).click();await live.getByRole('button',{name:'Cancel workout',exact:true}).click();await p.getByRole('dialog',{name:'Cancel this workout?',exact:true}).getByRole('button',{name:'Discard workout',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('.forge-focus'));

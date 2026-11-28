@@ -94,7 +94,10 @@
     h += '<h2 class="ff-name">' + esc(effName(it)) + '</h2>';
     const rx = it.track === 'load' ? [it.sets + ' × ' + esc(it.reps), it.rest ? 'rest ' + esc(it.rest) : '', it.rpe ? esc(it.rpe) : ''] : [it.s ? esc(it.s) : (it.sets ? it.sets + ' × ' + esc(it.reps || '') : '')];
     h += '<p class="ff-rx mono">' + rx.filter(Boolean).join(' · ') + '</p>';
-    if (it.c) h += '<p class="ff-cue">' + esc(it.c) + '</p>';
+    h += '<nav class="ff-exercise-nav" aria-label="Exercise navigation">';
+    h += '<p class="ff-upnext">' + (last ? 'Last exercise' : 'Up next <b>' + esc(effName(items[i + 1])) + '</b>') + '</p>';
+    h += '<button type="button" class="ff-iconbtn" data-ff="prev" aria-label="Previous exercise"' + (i === 0 || paused ? ' disabled' : '') + '>‹</button>';
+    h += '<button type="button" class="ff-iconbtn" data-ff="skip" aria-label="Skip for now"' + (last || paused ? ' disabled' : '') + '>›</button></nav>';
 
     if (paused) {
       h += '<div class="ff-paused"><p>Session paused. The clock is stopped.</p><button type="button" class="ff-primary" data-ff="pause">Resume session</button></div>';
@@ -104,7 +107,6 @@
       h += '<div class="ff-cardio">' + cardioRows(it, d.accent) + '</div>';
       h += nextButton(s, dr.done);
     } else {
-      h += '<p class="ff-simple">' + (it.s ? esc(it.s) : 'Work through it at your own pace.') + '</p>';
       h += nextButton(s, dr.done);
     }
     if (!paused) {
@@ -112,11 +114,6 @@
       h += '<details class="ff-note"' + (open ? ' open' : '') + ' data-ff-note="' + esc(eid) + '"><summary>' + (dr.note ? 'Note added' : 'Add a note') + '</summary><textarea data-act="note" data-id="' + esc(eid) + '" rows="2" placeholder="How did it go?" aria-label="Note for ' + esc(effName(it)) + '">' + esc(dr.note || '') + '</textarea></details>';
     }
     h += '</main>';
-
-    // Footer: back, what's next, skip.
-    h += '<footer class="ff-foot"><button type="button" class="ff-iconbtn" data-ff="prev" aria-label="Previous exercise"' + (i === 0 || paused ? ' disabled' : '') + '>‹</button>';
-    h += '<p class="ff-upnext">' + (last ? 'Last exercise' : 'Up next · <b>' + esc(effName(items[i + 1])) + '</b>') + '</p>';
-    h += '<button type="button" class="ff-iconbtn" data-ff="skip" aria-label="Skip for now"' + (last || paused ? ' disabled' : '') + '>›</button></footer>';
 
     // Options.
     h += '<div class="ff-menu" id="ff-menu"' + (ui.menu ? '' : ' hidden') + '><div class="ff-menu-card" role="group" aria-label="Workout options">';
