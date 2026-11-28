@@ -70,20 +70,20 @@ html.forge-focus-on body {overscroll-behavior:none!important;}
 #app#app .forge-focus .ff-feel button[aria-pressed="true"] {color:#05070d!important;background:var(--acc)!important;border-color:transparent!important;}
 #app#app .forge-focus .ff-feel button[aria-pressed="true"] small {color:#05070d!important;opacity:.75!important;}
 #app#app .forge-focus .ff-feel button[data-v="pain"][aria-pressed="true"] {background:#ec5b54!important;}
-/* Rest ring */
-#app#app .forge-focus .ff-rest {display:flex!important;align-items:center!important;gap:16px!important;margin-top:14px!important;padding:14px!important;border-radius:20px!important;background:color-mix(in srgb,var(--acc) 8%,#0b0f19)!important;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)!important;}
+/* Keep the countdown and its three controls on one phone-width row. */
+#app#app .forge-focus .ff-rest {display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:4px 10px!important;margin-top:8px!important;padding:4px 6px 4px 10px!important;border-radius:14px!important;background:color-mix(in srgb,var(--acc) 8%,#0b0f19)!important;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)!important;}
 #app#app .forge-focus .ff-rest[hidden] {display:none!important;}
-#app#app .forge-focus .ff-ring {position:relative!important;flex:none!important;width:112px!important;height:112px!important;}
-#app#app .forge-focus .ff-ring svg {width:100%!important;height:100%!important;transform:rotate(-90deg)!important;}
-#app#app .forge-focus .ff-ring circle {fill:none!important;stroke-width:8!important;}
-#app#app .forge-focus .ff-ring-bg {stroke:rgba(255,255,255,.08)!important;}
-#app#app .forge-focus .ff-ring-fg {stroke:var(--acc)!important;stroke-linecap:round!important;stroke-dasharray:326.73!important;stroke-dashoffset:0!important;transition:stroke-dashoffset .25s linear!important;filter:drop-shadow(0 0 6px var(--acc))!important;}
-#app#app .forge-focus .ff-ring-text {position:absolute!important;inset:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;}
-#app#app .forge-focus .ff-ring-text small {font-size:.7rem!important;color:#8b93ad!important;}
-#app#app .forge-focus .ff-ring-text b {font-size:1.6rem!important;font-weight:700!important;color:#fff!important;}
-#app#app .forge-focus .ff-rest-actions {flex:1!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;}
-#app#app .forge-focus .ff-rest-actions button {min-height:44px!important;border-radius:12px!important;font-weight:600!important;color:#dfe4f2!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;cursor:pointer!important;}
-#app#app .forge-focus .ff-rest-actions button:last-child {grid-column:1/-1!important;color:var(--acc)!important;border-color:color-mix(in srgb,var(--acc) 45%,transparent)!important;}
+#app#app .forge-focus .ff-countdown {display:flex!important;align-items:center!important;gap:8px!important;}
+#app#app .forge-focus .ff-ring {flex:none!important;width:22px!important;height:22px!important;transform:rotate(-90deg)!important;}
+#app#app .forge-focus .ff-ring circle {fill:none!important;stroke-width:10!important;}
+#app#app .forge-focus .ff-ring-bg {stroke:rgba(255,255,255,.16)!important;}
+#app#app .forge-focus .ff-ring-fg {stroke:var(--acc)!important;stroke-linecap:round!important;stroke-dasharray:326.73!important;}
+#app#app .forge-focus .ff-ring-text {display:grid!important;line-height:1.15!important;}
+#app#app .forge-focus .ff-ring-text small {font-size:.75rem!important;color:#a8b1c7!important;}
+#app#app .forge-focus .ff-ring-text b {font-size:1.35rem!important;font-weight:700!important;color:#fff!important;}
+#app#app .forge-focus .ff-rest-actions {display:flex!important;flex-wrap:wrap!important;gap:4px!important;}
+#app#app .forge-focus .ff-rest-actions button {width:auto!important;min-width:44px!important;min-height:44px!important;padding:0 .5rem!important;border-radius:10px!important;line-height:1.2!important;font-weight:600!important;color:#dfe4f2!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;cursor:pointer!important;}
+#app#app .forge-focus .ff-rest-actions button:last-child {color:var(--acc)!important;border-color:color-mix(in srgb,var(--acc) 45%,transparent)!important;}
 /* Cardio and simple items reuse Forge's own controls */
 #app#app .forge-focus .ff-cardio {margin-top:16px!important;}
 #app#app .forge-focus .ff-simple {margin:18px 0 0!important;font-size:1rem!important;color:#c3c9db!important;}
@@ -126,7 +126,6 @@ animation:ff-in .32s cubic-bezier(.2,.8,.2,1) both;
 display:none;
   .forge-focus .ff-context {margin-top:10px!important;}
 #app#app .forge-focus .ff-sets {margin-top:12px!important;}
-#app#app .forge-focus .ff-ring {width:92px!important;height:92px!important;}
 @media(forced-colors:active) {
 #app#app .forge-focus .ff-sets button.is-now,#app#app .forge-focus .ff-track button.is-now i {outline:2px solid Highlight!important;}
 #app#app .forge-focus .ff-primary {border:2px solid ButtonText!important;}
@@ -170,3 +169,38 @@ html.acc-large-text #app#app .forge-focus .ff-count {display:none!important;}
 #app#app .forge-focus .ff-why summary::-webkit-details-marker {display:none!important;}
 #app#app .forge-focus .ff-why summary::before {content:"i"!important;display:inline-grid!important;place-items:center!important;width:20px!important;height:20px!important;border-radius:50%!important;border:1px solid currentColor!important;font:600 .7rem/1 var(--hud-mono,monospace)!important;}
 #app#app .forge-focus .ff-why p {margin:0 0 4px!important;font-size:.85rem!important;line-height:1.45!important;color:#c3c9db!important;}
+
+
+/* Strength logging: keep the current set together above the reference line. */
+#app#app .forge-focus .ff-stage.ff-load {padding-top:6px!important;}
+#app#app .forge-focus .ff-load > * {flex-shrink:0!important;}
+#app#app .forge-focus .ff-load :is(.ff-cue,.ff-rx) {margin-top:4px!important;}
+#app#app .forge-focus .ff-load :is(.ff-context,.ff-sets,.ff-editor,.ff-primary) {margin-top:8px!important;}
+#app#app .forge-focus .ff-load .ff-context span {display:flex!important;align-items:baseline!important;flex-wrap:wrap!important;gap:2px 8px!important;padding:5px 10px!important;}
+#app#app .forge-focus .ff-load .ff-context small {margin:0!important;}
+#app#app .forge-focus .ff-load .ff-stepper {padding:4px 6px 4px 10px!important;}
+#app#app .forge-focus .ff-load .ff-step-row>button {width:48px!important;height:48px!important;}
+#app#app .forge-focus .ff-load .ff-step-value input {height:1.9rem!important;font-size:1.5rem!important;}
+#app#app .forge-focus .ff-load .ff-primary {min-height:48px!important;}
+#app#app .forge-focus .ff-reference {display:flex!important;align-items:baseline!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:0 8px!important;margin-top:6px!important;}
+#app#app .forge-focus .ff-history {margin:0!important;padding:4px 0!important;font-size:.85rem!important;line-height:1.4!important;color:#a8b1c7!important;overflow-wrap:anywhere!important;}
+#app#app .forge-focus .ff-history b {color:#dfe4f2!important;}
+#app#app .forge-focus .ff-reference .ff-why {margin:0!important;}
+#app#app .forge-focus .ff-reference .ff-why[open] {flex-basis:100%!important;}
+#app#app .forge-focus .ff-load .ff-note {margin-top:0!important;}
+
+@media (max-width:340px) {
+  #app#app .forge-focus .ff-load .ff-stepper {display:flex!important;flex-wrap:wrap!important;gap:2px 6px!important;}
+  #app#app .forge-focus .ff-load .ff-step-label {flex:1 1 4.5rem!important;}
+  #app#app .forge-focus .ff-load .ff-step-row {flex:4 1 10rem!important;min-width:0!important;}
+}
+@media (max-height:620px) {
+  #app#app .forge-focus:has(.ff-load) .ff-track {margin:2px 0 0!important;}
+  #app#app .forge-focus .ff-load .ff-step-value {flex-direction:row!important;justify-content:center!important;flex-wrap:wrap!important;}
+  #app#app .forge-focus .ff-load .ff-step-value input {flex:1 1 3.5rem!important;max-width:5rem!important;}
+}
+@media (max-height:620px) and (orientation:portrait) {
+  /* On the shortest phones the form cue follows the set and its history. */
+  #app#app .forge-focus .ff-load>.ff-cue {order:1!important;}
+  #app#app .forge-focus .ff-load>.ff-note {order:2!important;}
+}
