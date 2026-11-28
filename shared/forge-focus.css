@@ -24,7 +24,6 @@ html.forge-focus-on body {overscroll-behavior:none!important;}
 #app#app .forge-focus .ff-eyebrow {margin:0!important;font-size:.78rem!important;font-weight:600!important;color:var(--acc)!important;letter-spacing:.03em!important;}
 #app#app .forge-focus .ff-name {margin:6px 0 0!important;font-size:clamp(1.55rem,6.4vw,2.1rem)!important;line-height:1.12!important;font-weight:700!important;letter-spacing:-.01em!important;color:#fff!important;}
 #app#app .forge-focus .ff-rx {margin:8px 0 0!important;font-size:.86rem!important;color:#c3c9db!important;}
-#app#app .forge-focus .ff-cue {margin:8px 0 0!important;font-size:.88rem!important;line-height:1.45!important;color:#8b93ad!important;}
 #app#app .forge-focus .ff-context {display:flex!important;gap:10px!important;margin:16px 0 0!important;}
 #app#app .forge-focus .ff-context span {flex:1!important;min-width:0!important;padding:10px 12px!important;border-radius:14px!important;background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.08)!important;}
 #app#app .forge-focus .ff-context small {display:block!important;font-size:.7rem!important;color:#8b93ad!important;margin-bottom:3px!important;}
@@ -86,7 +85,6 @@ html.forge-focus-on body {overscroll-behavior:none!important;}
 #app#app .forge-focus .ff-rest-actions button:last-child {color:var(--acc)!important;border-color:color-mix(in srgb,var(--acc) 45%,transparent)!important;}
 /* Cardio and simple items reuse Forge's own controls */
 #app#app .forge-focus .ff-cardio {margin-top:16px!important;}
-#app#app .forge-focus .ff-simple {margin:18px 0 0!important;font-size:1rem!important;color:#c3c9db!important;}
 /* Note */
 #app#app .forge-focus .ff-note {margin-top:14px!important;}
 #app#app .forge-focus .ff-note summary {min-height:44px!important;display:flex!important;align-items:center!important;font-size:.85rem!important;color:#8b93ad!important;cursor:pointer!important;list-style:none!important;}
@@ -94,10 +92,10 @@ html.forge-focus-on body {overscroll-behavior:none!important;}
 #app#app .forge-focus .ff-note[open] summary::before {content:"−"!important;}
 #app#app .forge-focus .ff-note summary::-webkit-details-marker {display:none!important;}
 #app#app .forge-focus .ff-note textarea {width:100%!important;box-sizing:border-box!important;min-height:64px!important;padding:10px 12px!important;font:inherit!important;font-size:.95rem!important;color:#fff!important;background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:14px!important;resize:vertical!important;}
-/* Footer */
-#app#app .forge-focus .ff-foot {display:flex!important;align-items:center!important;gap:10px!important;padding-top:10px!important;border-top:1px solid rgba(255,255,255,.08)!important;}
-#app#app .forge-focus .ff-upnext {flex:1!important;min-width:0!important;margin:0!important;font-size:.8rem!important;color:#8b93ad!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
-#app#app .forge-focus .ff-upnext b {color:#dfe4f2!important;font-weight:600!important;}
+/* Next exercise and navigation */
+#app#app .forge-focus .ff-exercise-nav {display:flex!important;align-items:center!important;gap:6px!important;margin:6px 0 0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;}
+#app#app .forge-focus .ff-upnext {flex:1!important;min-width:0!important;margin:0!important;font-size:.8rem!important;line-height:1.3!important;color:#a8b1c7!important;overflow-wrap:anywhere!important;}
+#app#app .forge-focus .ff-upnext b {display:block!important;color:#dfe4f2!important;font-size:.9rem!important;font-weight:600!important;}
 /* Paused */
 #app#app .forge-focus .ff-paused {margin-top:22px!important;padding:18px!important;border-radius:20px!important;background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.12)!important;}
 #app#app .forge-focus .ff-paused p {margin:0!important;color:#c3c9db!important;}
@@ -122,10 +120,9 @@ animation:ff-in .32s cubic-bezier(.2,.8,.2,1) both;
 @keyframes ff-sheet {from{transform:translateY(24px);opacity:.6;}to{transform:none;opacity:1;}}
 /* Short phones: tighten the stage so the primary action stays on screen. */
 @media(max-height:700px) {
-  .forge-focus .ff-cue }
-display:none;
-  .forge-focus .ff-context {margin-top:10px!important;}
+  #app#app .forge-focus .ff-context {margin-top:10px!important;}
 #app#app .forge-focus .ff-sets {margin-top:12px!important;}
+}
 @media(forced-colors:active) {
 #app#app .forge-focus .ff-sets button.is-now,#app#app .forge-focus .ff-track button.is-now i {outline:2px solid Highlight!important;}
 #app#app .forge-focus .ff-primary {border:2px solid ButtonText!important;}
@@ -174,7 +171,7 @@ html.acc-large-text #app#app .forge-focus .ff-count {display:none!important;}
 /* Strength logging: keep the current set together above the reference line. */
 #app#app .forge-focus .ff-stage.ff-load {padding-top:6px!important;}
 #app#app .forge-focus .ff-load > * {flex-shrink:0!important;}
-#app#app .forge-focus .ff-load :is(.ff-cue,.ff-rx) {margin-top:4px!important;}
+#app#app .forge-focus .ff-load .ff-rx {margin-top:4px!important;}
 #app#app .forge-focus .ff-load :is(.ff-context,.ff-sets,.ff-editor,.ff-primary) {margin-top:8px!important;}
 #app#app .forge-focus .ff-load .ff-context span {display:flex!important;align-items:baseline!important;flex-wrap:wrap!important;gap:2px 8px!important;padding:5px 10px!important;}
 #app#app .forge-focus .ff-load .ff-context small {margin:0!important;}
@@ -198,9 +195,4 @@ html.acc-large-text #app#app .forge-focus .ff-count {display:none!important;}
   #app#app .forge-focus:has(.ff-load) .ff-track {margin:2px 0 0!important;}
   #app#app .forge-focus .ff-load .ff-step-value {flex-direction:row!important;justify-content:center!important;flex-wrap:wrap!important;}
   #app#app .forge-focus .ff-load .ff-step-value input {flex:1 1 3.5rem!important;max-width:5rem!important;}
-}
-@media (max-height:620px) and (orientation:portrait) {
-  /* On the shortest phones the form cue follows the set and its history. */
-  #app#app .forge-focus .ff-load>.ff-cue {order:1!important;}
-  #app#app .forge-focus .ff-load>.ff-note {order:2!important;}
 }
