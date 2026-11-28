@@ -58,33 +58,58 @@
     function elapsedMs(live=state.live){return live?Math.max(0,(live.pausedAt||Date.now())-live.startedAt-(live.pausedMs||0)):0;}
     liveElapsed=function(){return clk(Math.floor(elapsedMs()/1000));};
     function pauseLive(){const live=state.live;if(!live||blocked)return;if(live.pausedAt){live.pausedMs=(live.pausedMs||0)+Math.max(0,Date.now()-live.pausedAt);delete live.pausedAt;if(timer?.pauseSource==='session')pauseRest();}else{live.pausedAt=Date.now();if(timer&&timer.pausedRemaining===undefined)pauseRest('session');}saveLive();render();}
-    let wakePending=false,wakeRetryTimer=null,wakeRetryAt=0,wakeError=false;
+    let wakePending=null,wakeRetryTimer=null,wakeRetryAt=0,wakeError=false;
     function awakeNeeded(){return !blocked&&(!!state.live&&!state.live.pausedAt||!!timer&&timer.pausedRemaining===undefined&&restRemaining()>0);}
     function paintWake(){
       const needed=awakeNeeded(),held=__wakeLock&&!__wakeLock.released;
       const text=!needed?'Screen can sleep':held?'Screen stays awake':!navigator.wakeLock?'Screen awake unavailable in this browser':wakeError?'Screen may sleep · tap to retry':'Keeping screen awake…';
-      for(const node of document.querySelectorAll('.forge-wake-status')){if(node.textContent!==text)node.textContent=text;node.disabled=!needed||!!held||!navigator.wakeLock;}
+      for(const node of document.querySelectorAll('.forge-wake-status')){
+        if(node.textContent!==text)node.textContent=text;
+        node.disabled=!needed||!!held||!navigator.wakeLock||!!wakePending;
+        if(node.classList.contains('ff-wake-notice'))node.hidden=!needed||!!held||(!wakeError&&!!navigator.wakeLock);
+      }
     }
     function scheduleWake(){
       if(wakeRetryTimer||!awakeNeeded()||document.hidden)return;
       wakeRetryTimer=setTimeout(()=>{wakeRetryTimer=null;keepAwake();},Math.max(1000,wakeRetryAt-Date.now()));
     }
     // Derive ownership from both clocks. Hiding the workout panel doesn't pause it.
-    keepAwake=function(){
-      const wanted=awakeNeeded()&&!document.hidden;
-      if(!wanted){if(wakeRetryTimer){clearTimeout(wakeRetryTimer);wakeRetryTimer=null;}wakeRetryAt=0;wakeError=false;const lock=__wakeLock;__wakeLock=null;try{lock?.release()?.catch?.(()=>{});}catch{}paintWake();return;}
+    keepAwake=async function(){
+      if(!awakeNeeded()||document.hidden){
+        wakePending=null;
+        clearTimeout(wakeRetryTimer);wakeRetryTimer=null;wakeRetryAt=0;wakeError=false;
+        const lock=__wakeLock;__wakeLock=null;
+        try{await lock?.release();}catch{}
+        paintWake();return;
+      }
       if(__wakeLock?.released)__wakeLock=null;
       if(__wakeLock||wakePending||!navigator.wakeLock){paintWake();return;}
       if(Date.now()<wakeRetryAt){scheduleWake();paintWake();return;}
-      wakePending=true;wakeError=false;paintWake();
-      Promise.resolve().then(()=>navigator.wakeLock.request('screen')).then(lock=>{
-        if(!awakeNeeded()||document.hidden){lock.release()?.catch?.(()=>{});return;}
-        __wakeLock=lock;wakeRetryAt=0;
-        lock.addEventListener('release',()=>{if(__wakeLock!==lock)return;__wakeLock=null;wakeRetryAt=Date.now()+1000;paintWake();scheduleWake();});
-      }).catch(()=>{wakeError=true;wakeRetryAt=Date.now()+30000;scheduleWake();}).finally(()=>{wakePending=false;paintWake();});
+      clearTimeout(wakeRetryTimer);wakeRetryTimer=null;
+      // A return to the foreground can start a fresh request while the old one settles.
+      const request={};
+      wakePending=request;
+      try{
+        const lock=await navigator.wakeLock.request('screen');
+        if(wakePending!==request||!awakeNeeded()||document.hidden){await lock.release();return;}
+        __wakeLock=lock;wakeError=false;wakeRetryAt=0;
+        lock.addEventListener('release',()=>{
+          if(__wakeLock!==lock)return;
+          __wakeLock=null;wakeRetryAt=Date.now()+1000;paintWake();scheduleWake();
+        });
+      }catch{
+        if(wakePending===request){wakeError=true;wakeRetryAt=Date.now()+30000;scheduleWake();}
+      }finally{
+        if(wakePending===request){wakePending=null;paintWake();}
+      }
     };
-    function wakeStatus(){const node=button('',()=>{wakeRetryAt=0;keepAwake();});node.classList.add('forge-wake-status');node.setAttribute('aria-live','polite');return node;}
+    function retryWake(){wakeRetryAt=0;keepAwake();}
+    function wakeStatus(){const node=button('',retryWake);node.classList.add('forge-wake-status');node.setAttribute('aria-live','polite');return node;}
     timerBox.append(wakeStatus());
+    app.addEventListener('click',event=>{
+      if(event.isTrusted&&wakeError&&awakeNeeded()&&!document.hidden)retryWake();
+    },true);
+    window.addEventListener('focus',()=>{if(awakeNeeded()&&!document.hidden)retryWake();});
     function goExercise(index){const d=state.live&&dayBy(state.live.key);if(!d||state.live.pausedAt)return;state.live.exIdx=Math.max(0,Math.min(orderedItems(d).length-1,index));saveLive();render();document.getElementById('forge-exercise')?.focus({preventScroll:true});}
     function current(){const d=state.live&&dayBy(state.live.key);return d?orderedItems(d)[state.live.exIdx]:null;}
     function localDay(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -262,9 +287,9 @@
     document.addEventListener('visibilitychange',()=>{tickTimer();wakeRetryAt=0;keepAwake();});window.addEventListener('pageshow',()=>{wakeRetryAt=0;keepAwake();tickTimer();const clock=document.getElementById('liveClock');if(clock&&state.live)clock.textContent=liveElapsed();});window.addEventListener('beforeunload',e=>{if(failed.size||pending.size||busy||pendingLog){e.preventDefault();e.returnValue='';}});window.addEventListener('resize',measure);window.visualViewport?.addEventListener('resize',measure);
     if(window.ResizeObserver)new ResizeObserver(measure).observe(timerBox);
     if(!blocked){try{restoreRest(boot.raw[RESTKEY]?JSON.parse(boot.raw[RESTKEY]):null);}catch{restoreRest(null);}}
-    window.ForgeSession=Object.freeze({confirmAction,cancelLive,pauseLive,pauseRest,adjustRest,goExercise,elapsedMs,sessionItems,parseBackup,restoreRest,get blocked(){return blocked;},get failed(){return failed.size;},get busy(){return busy;},get pendingLog(){return !!pendingLog;},get rest(){return timer?{left:restRemaining(),total:timer.total,paused:timer.pausedRemaining!==undefined}:null;}});
+    window.ForgeSession=Object.freeze({confirmAction,cancelLive,pauseLive,retryWake,pauseRest,adjustRest,goExercise,elapsedMs,sessionItems,parseBackup,restoreRest,get blocked(){return blocked;},get failed(){return failed.size;},get busy(){return busy;},get pendingLog(){return !!pendingLog;},get rest(){return timer?{left:restRemaining(),total:timer.total,paused:timer.pausedRemaining!==undefined}:null;}});
     // The live workout's focus screen (one exercise, one set at a time) builds on this session layer.
-    if(!blocked){const base=source||location.href,css=make('link');css.rel='stylesheet';css.href=new URL('forge-focus.css?v=f8d41eb218d7',base).href;document.head.append(css);const focus=make('script');focus.src=new URL('forge-focus.js?v=efe51ae758a7',base).href;document.head.append(focus);}
+    if(!blocked){const base=source||location.href,css=make('link');css.rel='stylesheet';css.href=new URL('forge-focus.css?v=b0d764601bbe',base).href;document.head.append(css);const focus=make('script');focus.src=new URL('forge-focus.js?v=14a1cfed238e',base).href;document.head.append(focus);}
     render();if(pendingLog&&!blocked)commitPending();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();

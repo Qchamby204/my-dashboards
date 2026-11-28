@@ -356,6 +356,42 @@ test('denied wake lock is visible, retries are bounded, and manual retry can rec
  for(let i=0;i<10;i++)h.run('tickTimer()');await h.settle();assert.equal(wake.calls,1);
  wake.deny=false;h.document.querySelector('.forge-wake-status').click();await h.settle();assert.equal(wake.calls,2);assert.match(h.document.querySelector('.forge-wake-status').textContent,/stays awake/);
 });
+test('focus workout retries screen awake on interaction and keeps it through rest',async()=>{
+ const wake=wakeMock();wake.deny=true;
+ const h=await boot({wakeLock:wake});
+ h.run(readFileSync(new URL('../../shared/forge-focus.js',import.meta.url),'utf8'));
+ h.act('live',{key:'PUSH'});await h.settle();
+ const notice=()=>h.document.querySelector('.forge-focus .ff-wake-notice');
+ const menuStatus=()=>h.document.querySelector('.ff-menu .forge-wake-status');
+ assert.equal(notice().hidden,false);
+ assert.match(notice().textContent,/tap to retry/);
+ wake.deny=false;
+ h.node('app').emit('click',{isTrusted:true,target:h.document.querySelector('[data-ff="menu"]')});await h.settle();
+ assert.equal(wake.calls,2);
+ assert.equal(notice().hidden,true);
+ assert.equal(menuStatus().textContent,'Screen stays awake');
+ h.run('startTimer(30)');h.run('stopTimer()');await h.settle();
+ assert.equal(wake.locks[0].released,false);
+ h.api.pauseLive();await h.settle();
+ assert.equal(wake.locks[0].released,true);
+ assert.equal(menuStatus().textContent,'Screen can sleep');
+ h.api.pauseLive();await h.settle();
+ assert.equal(wake.calls,3);
+});
+test('a pending request from a hidden page cannot block or replace its foreground lock',async()=>{
+ const resolvers=[],wake={request:()=>new Promise(resolve=>resolvers.push(resolve))};
+ const h=await boot({wakeLock:wake});
+ h.act('live',{key:'PUSH'});
+ assert.equal(resolvers.length,1,'the request starts in the workout action itself');
+ h.document.hidden=true;h.document.emit('visibilitychange');
+ h.document.hidden=false;h.document.emit('visibilitychange');h.window.emit('focus');
+ assert.equal(resolvers.length,2,'returning immediately can request a new lock');
+ const sentinel=()=>({released:false,release(){this.released=true;},addEventListener(){}});
+ const current=sentinel(),stale=sentinel();
+ resolvers[1](current);await h.settle();resolvers[0](stale);await h.settle();
+ assert.equal(stale.released,true);assert.equal(current.released,false);
+ assert.equal(h.run('__wakeLock'),current);
+});
 test('unsupported screen-awake API does not interrupt workout timing or saving',async()=>{
  const h=await boot();h.run('startTimer(60)');await h.settle();assert.match(h.document.querySelector('.forge-wake-status').textContent,/unavailable/);assert.equal(h.run('timer.total'),60);
 });

@@ -196,3 +196,10 @@ html.acc-large-text #app#app .forge-focus .ff-count {display:none!important;}
   #app#app .forge-focus .ff-load .ff-step-value {flex-direction:row!important;justify-content:center!important;flex-wrap:wrap!important;}
   #app#app .forge-focus .ff-load .ff-step-value input {flex:1 1 3.5rem!important;max-width:5rem!important;}
 }
+
+/* Successful wake-lock status lives in options; only a problem needs workout space. */
+#app#app .forge-focus .ff-menu-card {max-height:100%!important;overflow-y:auto!important;overscroll-behavior:contain!important;}
+#app#app .forge-focus .ff-menu-card .forge-wake-status {flex:none!important;}
+#app#app .forge-focus .ff-wake-notice {align-self:flex-start!important;flex:none!important;min-height:44px!important;margin:0!important;padding:0 4px!important;border:0!important;background:none!important;color:#f5cf91!important;text-align:left!important;}
+#app#app .forge-focus .ff-wake-notice[hidden] {display:none!important;}
+#app#app .forge-focus .ff-menu-card .forge-wake-status:disabled {color:#b1bacd!important;background:none!important;cursor:default!important;}
