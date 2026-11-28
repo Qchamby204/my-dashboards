@@ -83,6 +83,7 @@
     h += '<header class="ff-top"><div class="ff-clockwrap"><span class="ff-tag">' + esc(d.tag) + (paused ? ' · paused' : '') + '</span><span class="ff-clock mono" id="liveClock">' + liveElapsed() + '</span></div>';
     h += '<span class="ff-count mono">' + doneN + '/' + n + '</span>';
     h += '<button type="button" class="ff-iconbtn" data-ff="menu" aria-expanded="' + ui.menu + '" aria-controls="ff-menu" aria-label="Workout options">⋯</button></header>';
+    h += '<button type="button" class="forge-wake-status ff-wake-notice" data-ff="wake" aria-live="polite" hidden></button>';
     h += '<nav class="ff-track" aria-label="Exercises in this session">' + items.map((x, k) => {
       const ok = state.draft[effId(x)]?.done;
       return '<button type="button" data-ff="go" data-i="' + k + '" class="' + (ok ? 'is-done ' : '') + (k === i ? 'is-now' : '') + '" aria-label="' + (k + 1) + '. ' + esc(effName(x)) + (ok ? ', done' : '') + '"' + (k === i ? ' aria-current="step"' : '') + (paused ? ' disabled' : '') + '><i></i></button>';
@@ -118,6 +119,7 @@
     // Options.
     h += '<div class="ff-menu" id="ff-menu"' + (ui.menu ? '' : ' hidden') + '><div class="ff-menu-card" role="group" aria-label="Workout options">';
     h += '<button type="button" data-ff="pause">' + (paused ? 'Resume session' : 'Pause session') + '</button>';
+    h += '<button type="button" class="forge-wake-status" data-ff="wake" aria-live="polite"></button>';
     h += '<button type="button" data-ff="hide">Hide · keep the clock running</button>';
     const sameSection = !last && daySectionOf(d, it.id) === daySectionOf(d, items[i + 1].id);
     if (sameSection && !paused) h += '<button type="button" data-ff="later">Can’t do this now · swap with next</button>';
@@ -244,6 +246,7 @@
     const a = el.dataset.ff, s = session();
     if (!s) return;
     if (a === 'menu') { ui.menu = !ui.menu; render(); if (ui.menu) app.querySelector('.ff-menu button')?.focus(); else app.querySelector('[data-ff="menu"]')?.focus(); return; }
+    if (a === 'wake') { S().retryWake(); return; }
     if (blocked() && !['menu'].includes(a)) return;
     if (a !== 'menu' && a !== 'cancel') ui.menu = false;
     switch (a) {
