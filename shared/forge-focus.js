@@ -89,7 +89,7 @@
     }).join('') + '</nav>';
 
     // Stage: the one exercise in front of you.
-    h += '<main class="ff-stage forge-live-panel">';
+    h += '<main class="ff-stage forge-live-panel' + (it.track === 'load' && !paused ? ' ff-load' : '') + '">';
     h += '<p class="ff-eyebrow">' + esc(section) + ' · ' + (i + 1) + ' of ' + n + '</p>';
     h += '<h2 class="ff-name">' + esc(effName(it)) + '</h2>';
     const rx = it.track === 'load' ? [it.sets + ' × ' + esc(it.reps), it.rest ? 'rest ' + esc(it.rest) : '', it.rpe ? esc(it.rpe) : ''] : [it.s ? esc(it.s) : (it.sets ? it.sets + ' × ' + esc(it.reps || '') : '')];
@@ -135,14 +135,9 @@
     const st = setState(it), v = editorValues(it, st), prev = (typeof lastSets === 'function' && lastSets(st.eid)) || [];
     let target = null;
     try { target = progressionFor(it, st.eid); } catch { target = null; }
-    let h = '<div class="ff-context">';
-    const same = prev.length > 1 && prev.every(x => String(x.w) === String(prev[0].w) && String(x.r) === String(prev[0].r));
-    const lastText = !prev.length ? 'First time' : same ? (prev[0].w ? esc(prev[0].w) + ' lb × ' : '') + esc(prev[0].r) + ' · ' + prev.length + ' sets' : prev.map(x => (x.w ? esc(x.w) + '×' : '') + esc(x.r)).join(' · ');
-    h += '<span><small>Last time</small><b class="mono">' + lastText + '</b></span>';
-    if (target && target.load != null) h += '<span><small>' + (target.kind === 'increase' ? 'Target · step up' : target.kind === 'reduce' ? 'Target · lighter' : 'Target') + '</small><b class="mono">' + fmt(target.load) + ' lb</b></span>';
-    else if (target && target.kind === 'pause') h += '<span class="is-warn"><small>Pain flagged</small><b>Review before loading</b></span>';
-    h += '</div>';
-    if (target && target.reason) h += '<details class="ff-why"><summary>Why this target?</summary><p>' + esc(target.reason) + '</p></details>';
+    let h = restBlock();
+    if (target && target.load != null) h += '<div class="ff-context"><span><small>' + (target.kind === 'increase' ? 'Target · step up' : target.kind === 'reduce' ? 'Target · lighter' : 'Target') + '</small><b class="mono">' + fmt(target.load) + ' lb</b></span></div>';
+    else if (target && target.kind === 'pause') h += '<div class="ff-context"><span class="is-warn"><small>Pain flagged</small><b>Review before loading</b></span></div>';
 
     // Set chips: logged sets (tap to edit), the current one, and the rest.
     h += '<ol class="ff-sets" aria-label="Sets">' + st.sets.map((s, k) => {
@@ -164,8 +159,14 @@
       const dr = state.draft[st.eid] || {};
       h += '<div class="ff-feel" role="group" aria-label="How did ' + esc(effName(it)) + ' feel?"><p>How did that feel?</p><div>' + FEEL.map(([k, a, b]) => '<button type="button" data-ff="feel" data-v="' + k + '" aria-pressed="' + (dr.feedback === k) + '"><b>' + a + '</b><small>' + b + '</small></button>').join('') + '</div></div>';
     }
-    h += restBlock(it);
     if (st.all && !ui.edit[st.eid]?.chosen) h += nextButton(session(), true);
+
+    // Previous sessions are reference material once the current set is logged.
+    const same = prev.length > 1 && prev.every(x => String(x.w) === String(prev[0].w) && String(x.r) === String(prev[0].r));
+    const lastText = same ? (prev[0].w ? esc(prev[0].w) + ' lb × ' : '') + esc(prev[0].r) + ' · ' + prev.length + ' sets' : prev.map(x => (x.w ? esc(x.w) + '×' : '') + esc(x.r)).join(' · ');
+    h += '<div class="ff-reference"><p class="ff-history">' + (prev.length ? 'Last session <b class="mono">' + lastText + '</b>' : 'First time logging this exercise') + '</p>';
+    if (target && target.reason) h += '<details class="ff-why"><summary>Why this target?</summary><p>' + esc(target.reason) + '</p></details>';
+    h += '</div>';
     return h;
   }
   function stepper(field, label, value, unit, step, eid, hint) {
@@ -174,9 +175,11 @@
       '<label class="ff-step-value"><input class="mono" data-ff-field="' + field + '" inputmode="' + (field === 'w' ? 'decimal' : 'numeric') + '" value="' + esc(value) + '" placeholder="' + (field === 'w' ? '—' : '0') + '" aria-label="' + label + '" autocomplete="off"/><span>' + unit + '</span></label>' +
       '<button type="button" data-ff="step" data-f="' + field + '" data-d="' + step + '" aria-label="' + label + ' up ' + step + '">+</button></div></div>';
   }
-  function restBlock(it) {
-    return '<section class="ff-rest" id="ff-rest" hidden aria-label="Rest"><div class="ff-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="ff-ring-bg"/><circle cx="60" cy="60" r="52" class="ff-ring-fg" id="ff-ring-fg"/></svg><div class="ff-ring-text"><small id="ff-rest-label">Rest</small><b class="mono" id="ff-rest-time">0:00</b></div></div>' +
-      '<div class="ff-rest-actions"><button type="button" data-ff="rest" data-d="-30">−30</button><button type="button" data-ff="rest" data-d="30">+30</button><button type="button" data-ff="rest-skip">Skip rest</button></div></section>';
+  function restBlock() {
+    return '<section class="ff-rest" id="ff-rest" hidden aria-label="Rest timer">' +
+      '<div class="ff-countdown"><svg class="ff-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="ff-ring-bg"/><circle cx="60" cy="60" r="52" class="ff-ring-fg" id="ff-ring-fg"/></svg>' +
+      '<div class="ff-ring-text"><small id="ff-rest-label">Rest</small><b class="mono" id="ff-rest-time" role="timer">0:00</b></div></div>' +
+      '<div class="ff-rest-actions"><button type="button" data-ff="rest" data-d="-30" aria-label="Subtract 30 seconds">−30</button><button type="button" data-ff="rest" data-d="30" aria-label="Add 30 seconds">+30</button><button type="button" data-ff="rest-skip">Skip rest</button></div></section>';
   }
   function nextButton(s, done) {
     if (!s) return '';
